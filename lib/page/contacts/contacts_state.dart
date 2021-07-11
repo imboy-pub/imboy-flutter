@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:imboy/component/chat/contact_item.dart';
+import 'package:imboy/component/widget/chat/contact_item.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/contact_model.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/login/body.dart';
+import 'package:imboy/component/view/login/body.dart';
 
 import 'login_logic.dart';
 import 'login_state.dart';

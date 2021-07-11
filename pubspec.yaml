@@ -54,6 +54,15 @@ dependencies:
   sentry: ^4.0.6
   moor: ^4.3.2
   photo_view: ^0.11.1
+  extended_text: ^7.0.0
+  lpinyin: ^2.0.3
+  video_player: ^2.1.6
+  flutter_sound: ^8.1.9
+  webview_flutter: ^2.0.9
+  flutter_image_compress: ^1.0.0
+  extended_text_field: ^8.0.0
+  azlistview: ^1.1.1
+  #flutter_socket_plugin: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -102,5 +111,6 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
   assets:
+    - assets/images/def_avatar.png
     - assets/images/bsc.webp
     - assets/images/logo.png

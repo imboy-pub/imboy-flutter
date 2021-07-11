@@ -2,9 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/store/model/message_model.dart';
 
 class ContentMsg extends StatefulWidget {
-  final Map msg;
+  final dynamic msg;
 
   ContentMsg(this.msg);
 
@@ -19,9 +20,12 @@ class _ContentMsgState extends State<ContentMsg> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.msg == null) return new Text('未知消息', style: _style);
-    Map msg = widget.msg['message'];
-    String msgType = msg['type'];
+    if (widget.msg == null) {
+      return new Text('未知消息', style: _style);
+    }
+    // debugPrint("content_msg widget.msg " + widget.msg.toString());
+    MsgPayloadModel msg = widget.msg;
+    String msgType = msg.msgType.toString();
     String msgStr = msg.toString();
 
     bool isI = Platform.isIOS;
@@ -29,8 +33,8 @@ class _ContentMsgState extends State<ContentMsg> {
     bool iosImg = isI && msgStr.contains('imageList:');
     var iosS = msgStr.contains('downloadFlag:') && msgStr.contains('second:');
     bool iosSound = isI && iosS;
-    if (msgType == "Text" || iosText) {
-      str = msg['text'];
+    if (msgType == "Text" || msgType == "10" || iosText) {
+      str = msg.content;
     } else if (msgType == "Image" || iosImg) {
       str = '[图片]';
     } else if (msgType == 'Sound' || iosSound) {
@@ -38,13 +42,13 @@ class _ContentMsgState extends State<ContentMsg> {
     } else if (msg.toString().contains('snapshotPath') &&
         msg.toString().contains('videoPath')) {
       str = '[视频]';
-    } else if (msg['tipsType'] == 'Join') {
+    } else if (msgType == 'Join') {
       str = '[系统消息] 新人入群';
-    } else if (msg['tipsType'] == 'Quit') {
+    } else if (msgType == 'Quit') {
       str = '[系统消息] 有人退出群聊';
-    } else if (msg['groupInfoList'][0]['type'] == 'ModifyIntroduction') {
+    } else if (msgType == 'ModifyIntroduction') {
       str = '[系统消息] 群公告';
-    } else if (msg['groupInfoList'][0]['type'] == 'ModifyName') {
+    } else if (msgType == 'ModifyName') {
       str = '[系统消息] 群名修改';
     } else {
       str = '[未知消息]';

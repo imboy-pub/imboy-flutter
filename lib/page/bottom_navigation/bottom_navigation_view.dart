@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:imboy/helper/constant.dart';
 import 'package:imboy/page/contacts/contacts_view.dart';
 import 'package:imboy/page/cooperation/cooperation_view.dart';
-import 'package:imboy/page/dialog/dialog_view.dart';
 import 'package:imboy/page/home/home_view.dart';
+import 'package:imboy/page/mine/mine_view.dart';
 import 'package:imboy/page/workbench/workbench_view.dart';
 
 import 'bottom_navigation_logic.dart';
@@ -23,11 +23,11 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
   final BottomNavigationState state = Get.find<BottomNavigationLogic>().state;
 
   List bodyPageList = [
-    DialogPage(),
+    HomePage(),
     CooperationPage(),
     WorkbenchPage(),
     ContactsPage(),
-    HomePage(),
+    MinePage(),
   ];
 
   @override

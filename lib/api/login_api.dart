@@ -2,9 +2,7 @@ import 'package:encrypt/encrypt.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/helper/constant.dart';
 import 'package:imboy/helper/dio.dart';
 import 'package:imboy/store/model/login_model.dart';
 
@@ -60,8 +58,6 @@ class LoginApi {
       }
       debugPrint(">>>>>>>>>>>>>>>>>>> on logoin success {$resp2.toString()}");
 
-      final box = GetStorage();
-      box.write(Keys.tokenKey, resp2['payload']['token']);
       return LoginModel.fromJson(resp2['payload']);
     } on PlatformException {
       Get.snackbar('', '你已登录或者其他错误');

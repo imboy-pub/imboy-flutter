@@ -4,28 +4,28 @@ const double _kBaselineOffsetFromBottom = 20.0;
 const double _kMenuHorizontalPadding = 16.0;
 const double _kMenuItemHeight = 48.0;
 
-class MyPopupMenuItem<T> extends PopupMenuEntry<T> {
+class IMBoyPopupMenuItem<T> extends PopupMenuEntry<T> {
   final T value;
   final bool enabled;
   @override
   final double height;
   final Widget child;
 
-  const MyPopupMenuItem(
+  const IMBoyPopupMenuItem(
       {this.value,
-      this.enabled = true,
-      this.height = _kMenuItemHeight,
-      @required this.child});
+        this.enabled = true,
+        this.height = _kMenuItemHeight,
+        @required this.child});
 
   @override
   bool represents(T value) => value == this.value;
 
   @override
-  PopupMenuItemState<T, PopupMenuItem<T>> createState() =>
-      PopupMenuItemState<T, PopupMenuItem<T>>();
+  PopupMenuItemState<T, IMBoyPopupMenuItem<T>> createState() =>
+      PopupMenuItemState<T, IMBoyPopupMenuItem<T>>();
 }
 
-class PopupMenuItemState<T, W extends PopupMenuItem<T>> extends State<W> {
+class PopupMenuItemState<T, W extends IMBoyPopupMenuItem<T>> extends State<W> {
   @protected
   Widget buildChild() => widget.child;
 
@@ -65,7 +65,7 @@ class PopupMenuItemState<T, W extends PopupMenuItem<T>> extends State<W> {
         width: 165.0,
         alignment: Alignment.centerLeft,
         padding:
-            const EdgeInsets.symmetric(horizontal: _kMenuHorizontalPadding),
+        const EdgeInsets.symmetric(horizontal: _kMenuHorizontalPadding),
         child: item,
       ),
     );

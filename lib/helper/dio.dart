@@ -39,6 +39,8 @@ class DioUtil {
 
     final box = GetStorage();
     this.headers[Keys.tokenKey] = box.read(Keys.tokenKey);
+    debugPrint(
+        ">>>> headers {$Keys.tokenKey} : {$this.headers[Keys.tokenKey]}");
     _dio = new Dio();
   }
 
@@ -96,7 +98,7 @@ class DioUtil {
     if (response.statusCode == HttpStatus.ok ||
         response.statusCode == HttpStatus.created) {
       try {
-        Map resp = response.data is Map
+        Map<String, dynamic> resp = response.data is Map
             ? response.data
             : json.decode(response.data.toString());
         int code = resp['code'] ?? 99999;

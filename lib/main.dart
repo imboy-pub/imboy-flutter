@@ -17,8 +17,8 @@ class IMBoyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     GetStorage box = GetStorage();
-    print("box.hasData(Keys.tokenKey) ");
-    print(box.hasData(Keys.tokenKey));
+    // print("box.hasData(Keys.tokenKey) ");
+    // print(box.hasData(Keys.tokenKey));
     return GetMaterialApp(
       // 底部导航组件
       home: box.hasData(Keys.tokenKey) ? BottomNavigationPage() : LoginPage(),

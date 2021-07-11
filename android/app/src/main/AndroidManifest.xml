@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="pub.imoby.imboy">
+    <uses-permission android:name="android.permission.INTERNET"/>
    <application
         android:label="IMBoy"
         android:icon="@mipmap/ic_launcher"

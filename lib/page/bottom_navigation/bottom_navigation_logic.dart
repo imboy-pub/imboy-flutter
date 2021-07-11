@@ -8,7 +8,7 @@ class BottomNavigationLogic extends GetxController {
   //改变底部导航栏索引
   void changeBottomBarIndex(int index) {
     state.bottombarIndex.value = index;
-    print(state.bottombarIndex.value);
+    // print(state.bottombarIndex.value);
   }
 
   @override

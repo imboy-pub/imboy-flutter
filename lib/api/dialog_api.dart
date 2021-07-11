@@ -18,8 +18,7 @@ Future<dynamic> getConversationsListData({Callback callback}) async {
     // "server_ts": 1596629487267
     // }
     var resp1 = await DioUtil().get(API.conversationList);
-    debugPrint(
-        ">>>>>>>>>>>>>>>>>>> on conversationList $API.conversationList  $resp1");
+    // debugPrint(">>>> on conversationList resp1  $resp1['payload']");
 
     if (resp1 == null) {
       return [];
@@ -27,9 +26,11 @@ Future<dynamic> getConversationsListData({Callback callback}) async {
     if (resp1.isEmpty) {
       return [];
     }
+    if (resp1['payload'].isEmpty) {
+      return [];
+    }
     List<MessageModel> msgs = [];
-    resp1['payload'].forEach((key, msg) {
-      debugPrint(">>>>>>>>>>>>>>>>>>> on foreach msg $msg");
+    resp1['payload'].forEach((msg) {
       msgs.insert(0, new MessageModel.fromMap(msg));
     });
     return msgs;

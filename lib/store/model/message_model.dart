@@ -35,10 +35,8 @@ class MessageModel {
     data['type'] = this.type;
     data['from'] = this.fromId;
     data['to'] = this.toId;
+    data['server_ts'] = this.serverTs != null ? this.serverTs : 0;
     data['payload'] = this.payload.toMap();
-    if (this.serverTs != null) {
-      data['server_ts'] = this.serverTs;
-    }
     debugPrint(">>>>>>>>>>>>>>>>>>> on MessageModel toMap {data}");
     return data;
   }

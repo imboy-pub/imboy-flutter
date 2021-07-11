@@ -1,0 +1,26 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'group_select_logic.dart';
+import 'group_select_state.dart';
+
+class GroupSelectPage extends StatefulWidget {
+  @override
+  _GroupSelectPageState createState() => _GroupSelectPageState();
+}
+
+class _GroupSelectPageState extends State<GroupSelectPage> {
+  final logic = Get.find<GroupSelectLogic>();
+  final GroupSelectState state = Get.find<GroupSelectLogic>().state;
+
+  @override
+    Widget build(BuildContext context) {
+      return Container();
+    }
+
+  @override
+  void dispose() {
+    Get.delete<GroupSelectLogic>();
+    super.dispose();
+  }
+}

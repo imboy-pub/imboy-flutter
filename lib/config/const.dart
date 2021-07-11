@@ -30,6 +30,9 @@ const btTextColor = Color.fromRGBO(112, 113, 135, 1.0);
 
 const defIcon = 'assets/images/def_avatar.png';
 
+const String defGroupAvatar =
+    'http://www.flutterj.com/content/uploadfile/zidingyi/g.png';
+
 const contactAssets = 'assets/images/contact/';
 
 const defAvatar = 'http://flutterj.com/f.jpeg';

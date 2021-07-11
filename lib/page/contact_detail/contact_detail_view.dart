@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/chat/contact_card.dart';
 import 'package:imboy/component/ui/button_row.dart';
 import 'package:imboy/component/ui/common.dart';
+import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/friend_item_dialog.dart';
 import 'package:imboy/component/ui/label_row.dart';
+import 'package:imboy/component/widget/chat/contact_card.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/friend_circle/friend_circle_view.dart';
 import 'package:imboy/page/set_remark/set_remark_view.dart';
@@ -35,7 +38,7 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
   final ContactDetailState state = Get.find<ContactDetailLogic>().state;
 
   List<Widget> body(bool itself) {
-    debugPrint("_ContactDetailPageState >>>>>>> {$widget.id}");
+    debugPrint("_ContactDetailPageState >>>>>>> ${widget.id}");
     return [
       new ContactCard(
         id: widget.id,
@@ -63,14 +66,14 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
         margin: EdgeInsets.only(top: 10.0),
         text: '发消息',
         isBorder: true,
-        onPressed: () => Get.off(
-            ChatPage(id: widget.id, title: widget.nickname, type: 'C2C')),
+        onPressed: () => Get.to(
+            new ChatPage(id: widget.id, title: widget.nickname, type: 'C2C')),
       ),
       new Visibility(
         visible: !itself,
         child: new ButtonRow(
-          text: '语音通话',
-          onPressed: () => Get.snackbar('Hi', '敬请期待'),
+          text: '音视频通话',
+          onPressed: () => Get.snackbar('', '敬请期待'),
         ),
       ),
     ];
@@ -78,7 +81,33 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    // final global = Provider.of<GlobalModel>(context, listen: false);
+    // bool isSelf = global.account == widget.account;
+    bool isSelf = true;
+    var rWidget = [
+      new SizedBox(
+        width: 60,
+        child: new FlatButton(
+          padding: EdgeInsets.all(0),
+          onPressed: () =>
+              friendItemDialog(context, userId: widget.id, suCc: (v) {
+            if (v) Navigator.of(context).maybePop();
+          }),
+          child: new Image.asset(contactAssets + 'ic_contacts_details.png'),
+        ),
+      )
+    ];
+
+    return new Scaffold(
+      backgroundColor: chatBg,
+      appBar: new ComMomBar(
+          title: '',
+          backgroundColor: Colors.white,
+          rightDMActions: isSelf ? [] : rWidget),
+      body: new SingleChildScrollView(
+        child: new Column(children: body(isSelf)),
+      ),
+    );
   }
 
   @override

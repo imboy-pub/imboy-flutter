@@ -1,4 +1,8 @@
+import 'package:event_bus/event_bus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:imboy/helper/websocket_heartbeat.dart';
+import 'package:logger/logger.dart';
 
 typedef Callback(data);
 
@@ -25,4 +29,19 @@ class API {
 
 DefaultCacheManager cacheManager = new DefaultCacheManager();
 
+typedef VoidCallbackConfirm = void Function(bool isOk);
+
 enum ClickType { select, open }
+
+//定义一个top-level（全局）变量，页面引入该文件后可以直接使用bus
+var bus = new EventBus();
+
+const Color mainBGColor = Color.fromRGBO(240, 240, 245, 1.0);
+
+EventBus eventBus = EventBus();
+
+var logger = Logger();
+
+WebsocketHeartbeat wshb = new WebsocketHeartbeat(ws_url, subprotocol: ['text']);
+
+class cb {}

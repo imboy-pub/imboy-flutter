@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/api/dialog_api.dart';
-import 'package:imboy/component/chat/conversation_view.dart';
 import 'package:imboy/component/view/indicator_page_view.dart';
 import 'package:imboy/component/view/pop_view.dart';
+import 'package:imboy/component/widget/chat/conversation_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/constant.dart';
 import 'package:imboy/helper/func.dart';
@@ -35,7 +35,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    debugPrint("<<<<<<<");
     initPlatformState();
     getChatData();
   }
@@ -59,7 +58,6 @@ class _HomePageState extends State<HomePage> {
   Future getChatData() async {
     final str = await getConversationsListData();
     List<MessageModel> listChat = str;
-    debugPrint("listChat >>>>: {$listChat.length}");
     if (listEmpty(listChat)) {
       return;
     }
@@ -90,8 +88,9 @@ class _HomePageState extends State<HomePage> {
               onTap: () {
                 Get.to(ChatPage(
                   id: model.fromId,
-                  title: model.from.nickname,
                   type: model.type,
+                  // title: model.from?.nickname ?? '',
+                  title: model.fromId,
                 ));
               },
               onTapDown: (TapDownDetails details) {
@@ -111,8 +110,9 @@ class _HomePageState extends State<HomePage> {
               },
               child: new ConversationView(
                 imageUrl: model.fromId,
-                title: model.from?.nickname ?? '',
-                content: model?.payload?.content,
+                // title: model.from?.nickname ?? '',
+                title: model.fromId,
+                payload: model?.payload,
                 time: timeView(model?.serverTs ?? 0),
                 isBorder: model?.fromId != _chatData[0].fromId,
               ),
@@ -140,7 +140,7 @@ class _HomePageState extends State<HomePage> {
     String timeStr = '$hour:$minute';
 
     return new SizedBox(
-      width: 35.0,
+      width: 40.0,
       child: new Text(
         timeStr,
         maxLines: 1,
@@ -157,10 +157,10 @@ class _HomePageState extends State<HomePage> {
     showMenu<String>(
         context: context,
         position: position,
-        items: <MyPopupMenuItem<String>>[
-          new MyPopupMenuItem(child: Text('标为已读'), value: '标为已读'),
-          new MyPopupMenuItem(child: Text('置顶聊天'), value: '置顶聊天'),
-          new MyPopupMenuItem(child: Text('删除该聊天'), value: '删除该聊天'),
+        items: <IMBoyPopupMenuItem<String>>[
+          new IMBoyPopupMenuItem(child: Text('标为已读'), value: '标为已读'),
+          new IMBoyPopupMenuItem(child: Text('置顶聊天'), value: '置顶聊天'),
+          new IMBoyPopupMenuItem(child: Text('删除该聊天'), value: '删除该聊天'),
           // ignore: missing_return
         ]).then<String>((String selected) {
       switch (selected) {

@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:imboy/helper/constant.dart';
 import 'package:imboy/helper/extension/get_extension.dart';
 import 'package:imboy/page/home/home_view.dart';
 import 'package:imboy/store/model/login_model.dart';
@@ -44,13 +47,18 @@ class LoginLogic extends GetxController {
     Get.loading();
     try {
       LoginModel bean = await repository.login(_username, _password);
-      Get.dismiss();
+
+      final box = GetStorage();
+      debugPrint(">>>> bean.token {$bean.token}");
+      box.write(Keys.tokenKey, bean.token);
+      // Get.dismiss();
+      // TODO 2021-07-04 08:00:24
       LocalLoginRepository.saveLogin(bean);
       // Get.back();
       Get.to(HomePage());
     } catch (e) {
       Get.dismiss();
-      Get.snackbar('Error', e.message ?? "登录失败");
+      Get.snackbar('Error', e.toString() ?? '登录失败');
     }
   }
 }
