@@ -10,13 +10,13 @@ class FriendCirclePage extends StatefulWidget {
 }
 
 class _FriendCirclePageState extends State<FriendCirclePage> {
-  final logic = Get.find<FriendCircleLogic>();
+  final logic = Get.put(FriendCircleLogic());
   final FriendCircleState state = Get.find<FriendCircleLogic>().state;
 
   @override
-    Widget build(BuildContext context) {
-      return Container();
-    }
+  Widget build(BuildContext context) {
+    return Container();
+  }
 
   @override
   void dispose() {

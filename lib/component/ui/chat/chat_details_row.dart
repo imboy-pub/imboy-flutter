@@ -63,8 +63,11 @@ class ChatDetailsRowState extends State<ChatDetailsRow> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             new InkWell(
-              child: new Image.asset('assets/images/chat/ic_voice.webp',
-                  width: 25, color: mainTextColor),
+              child: new Image(
+                image: AssetImage('assets/images/chat/ic_voice.webp'),
+                width: 25,
+                color: mainTextColor,
+              ),
               onTap: () {
                 if (widget.voiceOnTap != null) {
                   widget.voiceOnTap();
@@ -88,8 +91,11 @@ class ChatDetailsRowState extends State<ChatDetailsRow> {
               ),
             ),
             new InkWell(
-              child: new Image.asset('assets/images/chat/ic_Emotion.webp',
-                  width: 30, fit: BoxFit.cover),
+              child: new Image(
+                image: AssetImage('assets/images/chat/ic_Emotion.webp'),
+                width: 30,
+                fit: BoxFit.cover,
+              ),
               onTap: () {
                 widget.onEmojio();
               },

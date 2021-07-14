@@ -1,4 +1,3 @@
-import 'package:event_bus/event_bus.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,9 +12,7 @@ import 'package:imboy/component/view/main_input.dart';
 import 'package:imboy/component/widget/item/chat_more_icon.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/constant.dart';
-import 'package:imboy/helper/datetime.dart';
 import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/win_media.dart';
 import 'package:imboy/page/chat_info/chat_info_view.dart';
@@ -45,8 +42,7 @@ class ChatPageState extends State<ChatPage> {
   final logic = Get.put(ChatLogic());
   final ChatState state = Get.find<ChatLogic>().state;
 
-  List<MessageModel> chatData = [];
-  EventBus _msgStreamSubs;
+  // EventBus _msgStreamSubs;
   bool _isVoice = false;
   bool _isMore = false;
   double keyboardHeight = 270.0;
@@ -61,40 +57,28 @@ class ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    getChatMsgData();
+    logic.getChatMsgData();
 
     _sC.addListener(() => FocusScope.of(context).requestFocus(new FocusNode()));
     initPlatformState();
     // Notice.addListener(ChatActions.msg(), (v) => getChatMsgData());
-    bus.on<MessageModel>().listen((event) {
-      getChatMsgData();
-    });
-    if (widget.type == 'GROUP') {
-      bus.on<MessageModel>().listen((event) {
-        setState(() => newGroupName = event.type);
-      });
-    }
+    // bus.on<MessageModel>().listen((event) {
+    //   getChatMsgData();
+    // });
+    // if (widget.type == 'GROUP') {
+    //   bus.on<MessageModel>().listen((event) {
+    //     setState(() => newGroupName = event.type);
+    //   });
+    // }
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) _emojiState = false;
     });
-  }
-
-  Future getChatMsgData() async {
-    List<MessageModel> listChat = await getConversationsListData();
-    if (!listNoEmpty(listChat)) return;
-
-    chatData.clear();
-    // chatData..addAll(listChat.reversed);
-    chatData..addAll(listChat);
-    if (mounted) setState(() {});
   }
 
   void insertText(String text) {
     var value = _textController.value;
     var start = value.selection.baseOffset;
     var end = value.selection.extentOffset;
-    debugPrint(
-        ">>>>>>>>>>>>>>>>>>> on insertText ${text} ${value}, ${value.selection.isValid}");
     if (value.selection.isValid) {
       String newText = '';
       if (value.selection.isCollapsed) {
@@ -123,9 +107,9 @@ class ChatPageState extends State<ChatPage> {
   }
 
   void canCelListener() {
-    if (_msgStreamSubs != null) {
-      _msgStreamSubs.destroy();
-    }
+    // if (_msgStreamSubs != null) {
+    //   _msgStreamSubs.destroy();
+    // }
   }
 
   Future<void> initPlatformState() async {
@@ -133,43 +117,19 @@ class ChatPageState extends State<ChatPage> {
       return;
     }
 
-    if (_msgStreamSubs == null) {
-      // Register listeners for all events:
-      _msgStreamSubs = (new EventBus()).on().listen((e) {
-        String dtype = e['type'] ?? 'error';
-        debugPrint(">>>>>>>>>>>>>>>>>>> on _msgStreamSubs ${e}");
-        // {"type":"C2C","from":"18aw3p","to":"kybqdp","payload":{"msg_type":10,"content":"b1","send_ts":1596502941380},"server_ts":1596502941499}
-        switch (dtype.toUpperCase()) {
-          case 'C2C':
-            chatData.insert(0, MessageModel.fromMap(e));
-            break;
-        }
-      }) as EventBus;
-    }
-  }
-
-  _handleSubmittedData(String text) async {
-    // String fromid = await SharedUtil.instance.getString(Keys.uid);
-    String fromid = '';
-    debugPrint(
-        ">>>>>>>>>>>>>>>>>>> on _handleSubmittedData ${text}, ${fromid}");
-    _textController.clear();
-
-    var uid = widget.id;
-    Map<String, dynamic> payload = {
-      "msg_type": 10,
-      "content": text,
-      "send_ts": DateTimeHelper.currentTimeMillis(),
-    };
-    Map<String, dynamic> msg = {
-      'type': widget.type,
-      'from': fromid,
-      'to': uid,
-      'payload': payload
-    };
-
-    chatData.insert(0, await logic.insert(msg));
-    await logic.sendTextMsg(msg);
+    // if (_msgStreamSubs == null) {
+    //   // Register listeners for all events:
+    //   _msgStreamSubs = (new EventBus()).on().listen((e) {
+    //     String dtype = e['type'] ?? 'error';
+    //     debugPrint(">>>>>>>>>>>>>>>>>>> on _msgStreamSubs ${e}");
+    //     // {"type":"C2C","from":"18aw3p","to":"kybqdp","payload":{"msg_type":10,"content":"b1","send_ts":1596502941380},"server_ts":1596502941499}
+    //     switch (dtype.toUpperCase()) {
+    //       case 'C2C':
+    //         chatData.insert(0, MessageModel.fromMap(e));
+    //         break;
+    //     }
+    //   }) as EventBus;
+    // }
   }
 
   onTapHandle(ButtonType type) {
@@ -225,8 +185,8 @@ class ChatPageState extends State<ChatPage> {
       keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     }
     var body = [
-      chatData != null
-          ? new ChatDetailsBody(sC: _sC, msgs: chatData)
+      state.chatData != null
+          ? new ChatDetailsBody(sC: _sC, msgs: state.chatData)
           : new Spacer(),
       new ChatDetailsRow(
         voiceOnTap: () => onTapHandle(ButtonType.voice),
@@ -246,7 +206,11 @@ class ChatPageState extends State<ChatPage> {
         edit: edit,
         more: new ChatMoreIcon(
           value: _textController.text,
-          onTap: () => _handleSubmittedData(_textController.text),
+          onTap: () => logic.handleSubmittedData(
+            widget.type,
+            widget.id,
+            _textController.text,
+          ),
           moreTap: () => onTapHandle(ButtonType.more),
         ),
         id: widget.id,
@@ -276,7 +240,7 @@ class ChatPageState extends State<ChatPage> {
 
     var rWidget = [
       new InkWell(
-          child: new Image.asset('assets/images/right_more.png'),
+          child: new Image(image: AssetImage('assets/images/right_more.png')),
           onTap: () => Get.to(widget.type == 'GROUP'
               ? GroupDetailPage(
                   widget?.id ?? widget.title,
@@ -311,7 +275,10 @@ class ChatPageState extends State<ChatPage> {
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) {
             return GestureDetector(
-              child: Image.asset(EmojiUitl.instance.emojiMap["[${index + 1}]"]),
+              child: Image(
+                image:
+                    AssetImage(EmojiUitl.instance.emojiMap["[${index + 1}]"]),
+              ),
               behavior: HitTestBehavior.translucent,
               onTap: () {
                 insertText("[${index + 1}]");

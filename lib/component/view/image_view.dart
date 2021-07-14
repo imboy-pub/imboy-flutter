@@ -40,8 +40,8 @@ class ImageView extends StatelessWidget {
         fit: fit,
       );
     } else if (isAssetsImg(img)) {
-      image = new Image.asset(
-        img,
+      image = new Image(
+        image: AssetImage(img),
         width: width,
         height: height,
         fit: width != null && height != null ? BoxFit.fill : fit,
@@ -52,8 +52,8 @@ class ImageView extends StatelessWidget {
             color: Colors.black26.withOpacity(0.1),
             border:
                 Border.all(color: Colors.black.withOpacity(0.2), width: 0.3)),
-        child: new Image.asset(
-          defIcon,
+        child: new Image(
+          image: AssetImage(defIcon),
           width: width - 1,
           height: height - 1,
           fit: width != null && height != null ? BoxFit.fill : fit,

@@ -152,10 +152,10 @@ class _SoundMsgState extends State<SoundMsg> with TickerProviderStateMixin {
 //             children: [
 //               new Text("0\"", textAlign: TextAlign.start, maxLines: 1),
 //               new Space(width: mainSpace / 2),
-//               new Image.asset(
-//                   animation != null
+//               new Image(
+//                   image: AssetImage(animation != null
 //                       ? soundImg[animation.value % 3]
-//                       : soundImg[3],
+//                       : soundImg[3]),
 //                   height: 20.0,
 //                   color: Colors.black,
 //                   fit: BoxFit.cover),

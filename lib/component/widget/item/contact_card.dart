@@ -81,8 +81,11 @@ class ContactCard extends StatelessWidget {
                     ),
                   ),
                   new Space(width: mainSpace / 3),
-                  new Image.asset('assets/images/Contact_Female.webp',
-                      width: 20.0, fit: BoxFit.fill),
+                  new Image(
+                    image: AssetImage('assets/images/Contact_Female.webp'),
+                    width: 20.0,
+                    fit: BoxFit.fill,
+                  ),
                 ],
               ),
               new Padding(

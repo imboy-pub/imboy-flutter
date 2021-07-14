@@ -1,5 +1,5 @@
 ///
-class LoginModel {
+class UserModel {
   int role;
   String uid;
   String account;
@@ -9,7 +9,7 @@ class LoginModel {
   String token;
   String refreshtoken;
 
-  LoginModel({
+  UserModel({
     this.role,
     this.uid,
     this.account,
@@ -19,15 +19,18 @@ class LoginModel {
     this.token,
     this.refreshtoken,
   });
-  LoginModel.fromJson(Map<String, dynamic> json) {
-    uid = json["uid"];
-    nickname = json["nickname"]?.toString();
-    avatar = json["avatar"]?.toString();
-    account = json["account"]?.toString();
-    role = json["role"]?.toInt();
-    gender = json["gender"]?.toString();
-    token = json["token"]?.toString();
-    refreshtoken = json["refreshtoken"]?.toString();
+
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return new UserModel(
+      uid: json["uid"],
+      nickname: json["nickname"]?.toString(),
+      avatar: json["avatar"]?.toString(),
+      account: json["account"]?.toString(),
+      role: json["role"]?.toInt(),
+      gender: json["gender"]?.toString(),
+      token: json["token"]?.toString(),
+      refreshtoken: json["refreshtoken"]?.toString(),
+    );
   }
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = Map<String, dynamic>();

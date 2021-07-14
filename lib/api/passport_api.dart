@@ -13,7 +13,7 @@ Future<void> init(BuildContext context) async {
 
 Future<void> login(BuildContext context, String account, String pwd) async {
   debugPrint(">>>>>>>>>>>>>>>>>>> on context {context}");
-  // final gloabl = Provider.of<GlobalModel>(context, listen: false);
+  // UserModel currentUser = UserRepository.currentUser();
   // try {
   //   Map resp1 = await DioUtil().get(API.init);
   //   String pub_key = resp1['payload']['login_rsa_pub_key'];
@@ -31,11 +31,11 @@ Future<void> login(BuildContext context, String account, String pwd) async {
   //   if (resp2['code'] == 0) {
   //     debugPrint(">>>>>>>>>>>>>>>>>>> on logoin success ${resp2.toString()}");
   //
-  //     gloabl.uid = resp2['payload']['uid']; // 进过hashids 计算的字符串
-  //     gloabl.nickname = resp2['payload']['nickname'];
-  //     gloabl.avatar = resp2['payload']['avator'];
-  //     gloabl.account = resp2['payload']['account'];
-  //     gloabl.gender = resp2['payload']['gender'];
+  //     currentUser.uid = resp2['payload']['uid']; // 进过hashids 计算的字符串
+  //     currentUser.nickname = resp2['payload']['nickname'];
+  //     currentUser.avatar = resp2['payload']['avator'];
+  //     currentUser.account = resp2['payload']['account'];
+  //     currentUser.gender = resp2['payload']['gender'];
   //
   //     String token = resp2['payload']['token'];
   //     String refreshtoken = resp2['payload']['refreshtoken'];
@@ -51,7 +51,7 @@ Future<void> login(BuildContext context, String account, String pwd) async {
   //         .saveInt(Keys.gender, resp2['payload']['gender']);
   //     await SharedUtil.instance.saveString(Keys.token, token);
   //     await SharedUtil.instance.saveString(Keys.refreshtoken, refreshtoken);
-  //     gloabl.refresh();
+  //     currentUser.refresh();
   //     await routePushAndRemove(new RootPage());
   //   } else {
   //     print('error::' + resp2.toString());
@@ -89,7 +89,7 @@ Future<void> refreshtoken() async {
 
 Future<void> logout(BuildContext context) async {
   debugPrint(">>>>>>>>>>>>>>>>>>> on context {context}");
-  // final gloabl = Provider.of<GlobalModel>(context, listen: false);
+  // UserModel currentUser = UserRepository.currentUser();
   //
   // try {
   //   var result = await im.imLogout();
@@ -98,11 +98,11 @@ Future<void> logout(BuildContext context) async {
   //   } else {
   //     print('error::' + result.toString());
   //   }
-  //   gloabl.refresh();
+  //   currentUser.refresh();
   //   WebsocketDS.wshb.close(0, 'user logout');
   //   await routePushAndRemove(new BeginLoginPage());
   // } on PlatformException {
-  //   gloabl.refresh();
+  //   currentUser.refresh();
   //   await routePushAndRemove(new BeginLoginPage());
   // }
 }

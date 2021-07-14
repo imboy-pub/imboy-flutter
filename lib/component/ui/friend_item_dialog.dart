@@ -38,9 +38,13 @@ friendItemDialog(BuildContext context, {String userId, OnSuCc suCc}) {
               )
             : null,
       ),
-      child: new FlatButton(
-        color: Colors.white,
-        padding: EdgeInsets.symmetric(vertical: 15.0),
+      child: new TextButton(
+        // padding: EdgeInsets.symmetric(vertical: 15.0),
+        style: TextButton.styleFrom(
+          padding: EdgeInsets.symmetric(vertical: 15.0),
+          backgroundColor: Colors.white,
+        ),
+        autofocus: true,
         onPressed: () => action(item),
         child: new Text(item),
       ),
@@ -85,7 +89,11 @@ friendItemDialog(BuildContext context, {String userId, OnSuCc suCc}) {
                       new HorizontalLine(color: appBarColor, height: 10.0),
                       new TextButton(
                         // padding: EdgeInsets.symmetric(vertical: 15.0),
-                        // color: Colors.white,
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 15.0),
+                          backgroundColor: Colors.white,
+                        ),
+                        autofocus: true,
                         onPressed: () => Navigator.of(context).pop(),
                         child: new Container(
                           width: winWidth(context),

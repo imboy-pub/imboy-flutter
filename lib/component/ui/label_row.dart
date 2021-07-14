@@ -35,8 +35,11 @@ class LabelRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Container(
       child: new TextButton(
-        // color: Colors.white,
-        // padding: EdgeInsets.all(0),
+        style: TextButton.styleFrom(
+          minimumSize: Size.zero,
+          padding: EdgeInsets.zero,
+          backgroundColor: Colors.white,
+        ),
         onPressed: onPressed ?? () {},
         child: new Container(
           padding: padding,

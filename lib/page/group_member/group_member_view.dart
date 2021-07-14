@@ -72,8 +72,8 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
       return new InkWell(
         child: new SizedBox(
           width: (winWidth(context) - 60) / 5,
-          child: Image.asset(
-            'assets/images/group/${item['user']}.png',
+          child: Image(
+            image: AssetImage('assets/images/group/${item['user']}.png'),
             height: 48.0,
             width: 48.0,
           ),
@@ -101,8 +101,8 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
                 ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(5)),
                   child: !strNoEmpty(uFace)
-                      ? new Image.asset(
-                          defIcon,
+                      ? new Image(
+                          image: AssetImage(defIcon),
                           height: 48.0,
                           width: 48.0,
                           fit: BoxFit.cover,

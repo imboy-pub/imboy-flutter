@@ -62,8 +62,10 @@ class LaunchSearch extends StatelessWidget {
       children: <Widget>[
         new Padding(
           padding: EdgeInsets.only(right: 10.0),
-          child: new Image.asset('assets/images/search_black.webp',
-              color: mainTextColor),
+          child: new Image(
+            image: AssetImage('assets/images/search_black.webp'),
+            color: mainTextColor,
+          ),
         ),
         new Expanded(
           child: new TextField(
@@ -83,7 +85,9 @@ class LaunchSearch extends StatelessWidget {
         ),
         strNoEmpty(searchC.text)
             ? new InkWell(
-                child: new Image.asset('assets/images/ic_delete.webp'),
+                child: new Image(
+                  image: AssetImage('assets/images/ic_delete.webp'),
+                ),
                 onTap: () {
                   searchC.text = '';
                   delOnTap();

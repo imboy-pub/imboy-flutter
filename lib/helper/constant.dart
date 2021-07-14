@@ -123,24 +123,3 @@ class Constants {
   static const String MENU_UNSUBSCRIBE = 'MENU_UNSUBSCRIBE';
   static const String MENU_UNSUBSCRIBE_VALUE = '取消关注';
 }
-
-class Keys {
-  // 客服端Key
-  static final String currentLanguageCode = "current_language_code";
-  static final String currentLanguage = "current_language";
-  static final String appName = "app_name";
-  static final String area = "area";
-  static final String contacts = "contacts";
-  static final String brokenNetwork = "brokenNetwork";
-
-  static final String uid = "uid";
-  static final String account = "account";
-  static final String password = "password";
-  static final String nickname = 'nickname';
-  static final String avatar = 'avatar';
-  static final String gender = 'gender';
-
-  // 与服务端约定的Key
-  static const tokenKey = 'authorization';
-  static const refreshtokenKey = 'imboy-refreshtoken';
-}

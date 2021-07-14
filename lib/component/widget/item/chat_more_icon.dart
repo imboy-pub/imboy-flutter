@@ -31,8 +31,8 @@ class ChatMoreIcon extends StatelessWidget {
             child: new Container(
               width: 23,
               margin: EdgeInsets.symmetric(horizontal: 5.0),
-              child: new Image.asset(
-                'assets/images/chat/ic_chat_more.webp',
+              child: new Image(
+                image: AssetImage('assets/images/chat/ic_chat_more.webp'),
                 color: mainTextColor,
                 fit: BoxFit.cover,
               ),

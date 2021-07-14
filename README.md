@@ -15,6 +15,15 @@ For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
+# 功能
+
+* App 底部菜单导航功能
+* 用户登录（隐藏密码、显示密码，登录密码传输基于RSA算法加密传输）
+* 用户退出
+* 用户注册 TODO
+* 我的
+    * 个人主页
+* 
 
 # 规范
 
@@ -23,13 +32,18 @@ samples, guidance on mobile development, and a full API reference.
 Lib
 │
 ├──page 落地页
-│   └──user 页面模块文件夹
-│       └──login 页面落地页文件夹
-│            └──user_login.dart => class UserLoginPage 后缀为page为落地页 唯一入口
-│            └──user_login_button.dart => class UserLoginButton 非公共部分页面子组件
+│   └──login 页面落地页文件夹
+│        ├──login_binding.dart => class LoginBinding 
+│        ├──login_logic.dart => class LoginLogic 
+│        ├──login_state.dart => class LoginState 
+│        └──login_view.dart => class LoginPage 后缀为page为落地页 唯一入口
 ├──component 通用组件
-│        └──Modal
-│            └──alert.dart => class ModalAlertComponent
+│        ├──ui  
+│             └──common.dart => class UserObject
+│        ├──view 
+│             └──user_object.dart => class UserObject
+│        └──widget
+│             └──user_object.dart => class UserObject
 ├──store 数据集中管理
 │    ├──index.dart 实例化Provider export model类
 │    ├──proto pb协议转换代码

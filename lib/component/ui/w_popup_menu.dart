@@ -5,7 +5,6 @@ import 'package:imboy/helper/func.dart';
 /// 1.长按  2.单击
 enum PressType { longPress, singleClick }
 
-
 class WPopupMenu extends StatefulWidget {
   WPopupMenu({
     Key key,
@@ -35,14 +34,14 @@ class WPopupMenu extends StatefulWidget {
         assert(decoration == null || decoration.debugAssertIsValid()),
         assert(constraints == null || constraints.debugAssertIsValid()),
         assert(
-        color == null || decoration == null,
-        'Cannot provide both a color and a decoration\n'
+            color == null || decoration == null,
+            'Cannot provide both a color and a decoration\n'
             'The color argument is just a shorthand for "decoration: new BoxDecoration(color: color)".'),
         decoration =
             decoration ?? (color != null ? BoxDecoration(color: color) : null),
         constraints = (width != null || height != null)
             ? constraints?.tighten(width: width, height: height) ??
-            BoxConstraints.tightFor(width: width, height: height)
+                BoxConstraints.tightFor(width: width, height: height)
             : constraints,
         super(key: key);
 
@@ -107,7 +106,6 @@ class _WPopupMenuState extends State<WPopupMenu> {
   }
 }
 
-
 class PopupMenuRoute extends PopupRoute {
   final BuildContext btnContext;
   double _height;
@@ -133,11 +131,15 @@ class PopupMenuRoute extends PopupRoute {
       this.onValueChanged) {
     _height = btnContext.size.height -
         (padding == null
-            ? margin == null ? 0 : margin.vertical
+            ? margin == null
+                ? 0
+                : margin.vertical
             : padding.vertical);
     _width = btnContext.size.width -
         (padding == null
-            ? margin == null ? 0 : margin.horizontal
+            ? margin == null
+                ? 0
+                : margin.horizontal
             : padding.horizontal);
   }
 
@@ -192,17 +194,17 @@ class MenuPopWidget extends StatefulWidget {
   final EdgeInsets margin;
 
   MenuPopWidget(
-      this.btnContext,
-      this._height,
-      this._width,
-      this.actions,
-      this._pageMaxChildCount,
-      this.backgroundColor,
-      this.menuWidth,
-      this.menuHeight,
-      this.padding,
-      this.margin,
-      );
+    this.btnContext,
+    this._height,
+    this._width,
+    this.actions,
+    this._pageMaxChildCount,
+    this.backgroundColor,
+    this.menuWidth,
+    this.menuHeight,
+    this.padding,
+    this.margin,
+  );
 
   @override
   _MenuPopWidgetState createState() => _MenuPopWidgetState();
@@ -265,11 +267,10 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
         child: new CustomPaint(
           size: Size(width, _triangleHeight),
           painter: new TrianglePainter(
-            color: itemBgColor,
-            position: position,
-            isInverted: true,
-            size: button.size
-          ),
+              color: itemBgColor,
+              position: position,
+              isInverted: true,
+              size: button.size),
         ),
       ),
       new Visibility(
@@ -292,9 +293,9 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
   Widget contentBuild() {
     // 这里计算出来 当前页的 child 一共有多少个
     int _curPageChildCount =
-    (_curPage + 1) * widget._pageMaxChildCount > widget.actions.length
-        ? widget.actions.length % widget._pageMaxChildCount
-        : widget._pageMaxChildCount;
+        (_curPage + 1) * widget._pageMaxChildCount > widget.actions.length
+            ? widget.actions.length % widget._pageMaxChildCount
+            : widget._pageMaxChildCount;
 
     double _curArrowWidth = 0;
     int _curArrowCount = 0; // 一共几个箭头
@@ -305,7 +306,7 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
       height: widget.menuHeight + _triangleHeight,
       width: _curPageWidth,
       child:
-      new Material(color: Colors.transparent, child: body(_curPageWidth)),
+          new Material(color: Colors.transparent, child: body(_curPageWidth)),
     );
   }
 
@@ -314,7 +315,7 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
       new Padding(
         padding: EdgeInsets.symmetric(horizontal: 10.0),
         child: strNoEmpty(item['icon'])
-            ? new Image.asset(item['icon'])
+            ? new Image(image: AssetImage(item['icon']))
             : new Icon(Icons.phone, color: Colors.white),
       ),
       new Expanded(
@@ -325,8 +326,8 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
               border: item['title'] == widget.actions[0]['title']
                   ? null
                   : Border(
-                  top: BorderSide(
-                      color: Colors.white.withOpacity(0.3), width: 0.2))),
+                      top: BorderSide(
+                          color: Colors.white.withOpacity(0.3), width: 0.2))),
           child: new Text(
             item['title'],
             style: TextStyle(color: Colors.white),
@@ -335,6 +336,12 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
       )
     ];
     return new TextButton(
+      style: TextButton.styleFrom(
+        minimumSize: Size.zero,
+        padding: EdgeInsets.zero,
+        // backgroundColor: Colors.white,
+      ),
+      autofocus: true,
       onPressed: () {
         isShow = false;
         setState(() {});
@@ -441,7 +448,6 @@ class PopupMenuRouteLayout extends SingleChildLayoutDelegate {
   }
 }
 
-
 class TrianglePainter extends CustomPainter {
   Paint _paint;
   final Color color;
@@ -452,10 +458,10 @@ class TrianglePainter extends CustomPainter {
 
   TrianglePainter(
       {@required this.color,
-        @required this.position,
-        @required this.size,
-        this.radius = 20,
-        this.isInverted = false}) {
+      @required this.position,
+      @required this.size,
+      this.radius = 20,
+      this.isInverted = false}) {
     _paint = Paint()
       ..style = PaintingStyle.fill
       ..color = color

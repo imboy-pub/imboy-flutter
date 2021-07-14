@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common.dart';
@@ -67,8 +68,12 @@ class _ChatMamBerState extends State<ChatMamBer> {
         child: new Container(
           decoration:
               BoxDecoration(border: Border.all(color: lineColor, width: 0.2)),
-          child: new Image.asset('assets/images/chat/ic_details_add.png',
-              width: 55.0, height: 55.0, fit: BoxFit.cover),
+          child: new Image(
+            image: AssetImage('assets/images/chat/ic_details_add.png'),
+            width: 55.0,
+            height: 55.0,
+            fit: BoxFit.cover,
+          ),
         ),
         onTap: () => Get.to(GroupLaunchPage()),
       ),

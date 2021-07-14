@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/api/dialog_api.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/view/indicator_page_view.dart';
 import 'package:imboy/component/view/pop_view.dart';
 import 'package:imboy/component/widget/chat/conversation_view.dart';
@@ -56,8 +56,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future getChatData() async {
-    final str = await getConversationsListData();
-    List<MessageModel> listChat = str;
+    List<MessageModel> listChat = await getConversationsListData();
     if (listEmpty(listChat)) {
       return;
     }
@@ -76,49 +75,51 @@ class _HomePageState extends State<HomePage> {
     //   return new HomeNullView();
     // }
 
-    return new Container(
-      color: Color(AppColors.BackgroundColor),
-      child: new ScrollConfiguration(
-        behavior: MyBehavior(),
-        child: new ListView.builder(
-          itemBuilder: (BuildContext context, int index) {
-            MessageModel model = _chatData[index];
+    return Scaffold(
+      appBar: new ComMomBar(
+        title: '消息',
+      ),
+      body: Container(
+        color: Color(AppColors.BackgroundColor),
+        child: new ScrollConfiguration(
+          behavior: MyBehavior(),
+          child: new ListView.builder(
+            itemBuilder: (BuildContext context, int index) {
+              MessageModel model = _chatData[index];
 
-            return InkWell(
-              onTap: () {
-                Get.to(ChatPage(
-                  id: model.fromId,
-                  type: model.type,
-                  // title: model.from?.nickname ?? '',
-                  title: model.fromId,
-                ));
-              },
-              onTapDown: (TapDownDetails details) {
-                tapPos = details.globalPosition;
-              },
-              onLongPress: () {
-                if (Platform.isAndroid) {
+              return InkWell(
+                onTap: () {
+                  Get.to(
+                    () => ChatPage(
+                      id: model.fromId,
+                      type: model.type,
+                      title: model.from?.nickname ?? '',
+                    ),
+                  );
+                },
+                onTapDown: (TapDownDetails details) {
+                  tapPos = details.globalPosition;
+                },
+                onLongPress: () {
                   _showMenu(
                     context,
                     tapPos,
                     model.type,
                     model.fromId,
                   );
-                } else {
-                  debugPrint("IOS聊天长按选项功能开发中");
-                }
-              },
-              child: new ConversationView(
-                imageUrl: model.fromId,
-                // title: model.from?.nickname ?? '',
-                title: model.fromId,
-                payload: model?.payload,
-                time: timeView(model?.serverTs ?? 0),
-                isBorder: model?.fromId != _chatData[0].fromId,
-              ),
-            );
-          },
-          itemCount: _chatData?.length ?? 1,
+                },
+                child: new ConversationView(
+                  imageUrl: model.fromId,
+                  // title: model.from?.nickname ?? '',
+                  title: model.fromId,
+                  payload: model?.payload,
+                  time: timeView(model?.serverTs ?? 0),
+                  isBorder: model?.fromId != _chatData[0].fromId,
+                ),
+              );
+            },
+            itemCount: _chatData?.length ?? 1,
+          ),
         ),
       ),
     );

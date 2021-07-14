@@ -33,7 +33,7 @@ class LoadingView extends StatelessWidget {
             ),
             onTap: () {
               if (isStr) {
-                Get.to(new UserPage());
+                Get.to(() => UserPage());
               }
             },
           ),

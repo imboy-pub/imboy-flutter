@@ -4,14 +4,14 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:imboy/api/passport_api.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/helper/constant.dart';
 import 'package:imboy/helper/datetime.dart';
 import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/jwt.dart';
 import 'package:imboy/page/login/login_view.dart';
+import 'package:imboy/store/repository/user_repository.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -75,36 +75,41 @@ class WebsocketHeartbeat {
       return;
     }
     try {
-      final box = GetStorage();
-      String token = box.read(Keys.tokenKey);
+      String token = UserRepository.accessToken();
       if (!strNoEmpty(token)) {
         return;
       }
       if (token_expired(token)) {
         await refreshtoken();
-        debugPrint('>>>>>>>>>>>>>>>>>>> on token old ${token}');
-        token = box.read(Keys.tokenKey);
-        debugPrint('>>>>>>>>>>>>>>>>>>> on token new ${token}');
+        debugPrint('>>>>>>>>>>>>>>>>>>> on token old $token');
+        token = UserRepository.accessToken();
+        debugPrint('>>>>>>>>>>>>>>>>>>> on token new $token');
       }
       String url =
           this.url + '?' + Keys.tokenKey + '=' + token.replaceAll('+', '%2B');
       //创建websocket连接
       Duration pingInterval = Duration(milliseconds: this.pingTimeout);
       var headers = {
-        'vsn': '1.0',
+        'vsn': appVsn,
+        'device-type': currentDeviceType(),
         'client-system': Platform.operatingSystem,
         'client-system-vsn': Platform.operatingSystemVersion,
         // js websocket 不能设置header；为兼容，token不放到header里面
         // '${Keys.tokenKey}': token.replaceAll('+', '%2B'),
       };
       if (this.subprotocol.isEmpty) {
-        this.channel = new IOWebSocketChannel.connect(url,
-            pingInterval: pingInterval, headers: headers);
+        this.channel = new IOWebSocketChannel.connect(
+          url,
+          pingInterval: pingInterval,
+          headers: headers,
+        );
       } else {
-        this.channel = new IOWebSocketChannel.connect(url,
-            pingInterval: pingInterval,
-            headers: headers,
-            protocols: this.subprotocol);
+        this.channel = new IOWebSocketChannel.connect(
+          url,
+          pingInterval: pingInterval,
+          headers: headers,
+          protocols: this.subprotocol,
+        );
       }
       this.initEventHandle();
       if (callback != null) {
@@ -125,10 +130,11 @@ class WebsocketHeartbeat {
   }
 
   void initEventHandle() {
-    this
-        .channel
-        .stream
-        .listen(this.onData, onError: this.onerror, onDone: this.onclose);
+    this.channel.stream.listen(
+          this.onData,
+          onError: this.onError,
+          onDone: this.onClose,
+        );
   }
 
   bool connected() {
@@ -167,10 +173,11 @@ class WebsocketHeartbeat {
     if (this._isOn == false ||
         this.channel == null ||
         this.channel.sink == null) {
-      this.createWebSocket((msg) {
-        logger.d(">>>>>>>>>>>>>>>>>> on send msg callback ${msg}");
-        this.send(msg);
-      });
+      return false;
+      // this.createWebSocket((msg) {
+      //   logger.d(">>>>>>>>>>>>>>>>>> on send msg callback ${msg}");
+      //   this.send(msg);
+      // });
     }
     debugPrint(
         "websocket_heartbeat send channel ${this.channel} sink ${this.channel.sink}");
@@ -182,13 +189,13 @@ class WebsocketHeartbeat {
     return true;
   }
 
-  void onclose() {
+  void onClose() {
     debugPrint(">>>>>>>>>>>>>>>>>>> onclose Socket is closed");
     _isOn = false;
     this.reconnect();
   }
 
-  void onerror(err) {
+  void onError(err) {
     debugPrint(
         ">>>>>>>>>>>>>>>>>>> onerror ${err.runtimeType.toString()} msg>>>>>> ${err.toString()} >>>>>> ${err.hashCode} || >>");
     WebSocketChannelException ex = err;
@@ -215,7 +222,7 @@ class WebsocketHeartbeat {
           break;
       }
     }
-    eventBus.fire(data);
+    // eventBus.fire(data);
   }
 
   // 手动关闭websocket

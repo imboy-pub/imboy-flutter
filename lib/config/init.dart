@@ -1,4 +1,3 @@
-import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:imboy/helper/websocket_heartbeat.dart';
@@ -6,11 +5,14 @@ import 'package:logger/logger.dart';
 
 typedef Callback(data);
 
-//const api_prefix = 'http://demo2.imboy.leeyi.net:9800';
-//const ws_url = 'ws://demo2.imboy.leeyi.net:9800/websocket/';
+const api_prefix = 'http://dev.api.imboy.pub:9800';
+const ws_url = 'ws://dev.api.imboy.pub:9800/websocket/';
 
-const api_prefix = 'http://local.api.imoby.pub:9800';
-const ws_url = 'ws://local.api.imoby.pub:9800/websocket/';
+// const api_prefix = 'http://local.api.imoby.pub:9800';
+// const ws_url = 'ws://local.api.imoby.pub:9800/websocket/';
+
+// const api_prefix = 'http://172.20.10.10:9800';
+// const ws_url = 'ws://172.20.10.10:9800/websocket/';
 
 class API {
   static const init = api_prefix + '/init';
@@ -33,12 +35,7 @@ typedef VoidCallbackConfirm = void Function(bool isOk);
 
 enum ClickType { select, open }
 
-//定义一个top-level（全局）变量，页面引入该文件后可以直接使用bus
-var bus = new EventBus();
-
 const Color mainBGColor = Color.fromRGBO(240, 240, 245, 1.0);
-
-EventBus eventBus = EventBus();
 
 var logger = Logger();
 

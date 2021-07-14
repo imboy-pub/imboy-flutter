@@ -6,10 +6,10 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:imboy/api/passport_api.dart';
-import 'package:imboy/helper/constant.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/page/login/login_view.dart';
+import 'package:imboy/store/repository/user_repository.dart';
 
 class Method {
   static final String get = "GET";
@@ -37,10 +37,7 @@ class DioUtil {
     this.headers['device-type'] = Platform.operatingSystem;
     this.headers['device-type-vsn'] = Platform.operatingSystemVersion;
 
-    final box = GetStorage();
-    this.headers[Keys.tokenKey] = box.read(Keys.tokenKey);
-    debugPrint(
-        ">>>> headers {$Keys.tokenKey} : {$this.headers[Keys.tokenKey]}");
+    this.headers[Keys.tokenKey] = UserRepository.accessToken();
     _dio = new Dio();
   }
 
@@ -79,8 +76,7 @@ class DioUtil {
         }
       });
     }
-    // String token = await SharedUtil.instance.getString(Keys.token);
-    // this.headers[Keys.tokenKey] = token;
+    this.headers[Keys.tokenKey] = UserRepository.accessToken();
 
     if (headers != null && headers.length > 0) {
       this.headers.addAll(headers);

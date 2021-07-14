@@ -28,22 +28,25 @@ class MoreItemCard extends StatelessWidget {
                 Radius.circular(10.0),
               ),
             ),
-            child: new FlatButton(
+            child: new TextButton(
+              style: TextButton.styleFrom(
+                minimumSize: Size.zero,
+                padding: EdgeInsets.zero,
+                backgroundColor: Colors.white,
+              ),
               onPressed: () {
                 if (onPressed != null) {
                   onPressed();
                 }
               },
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(10.0),
-                ),
-              ),
-              padding: EdgeInsets.all(0),
-              color: Colors.white,
+              // shape: RoundedRectangleBorder(
+              //   borderRadius: BorderRadius.all(
+              //     Radius.circular(10.0),
+              //   ),
+              // ),
               child: new Container(
                 width: 50.0,
-                child: new Image.asset(icon, fit: BoxFit.cover),
+                child: new Image(image: AssetImage(icon), fit: BoxFit.cover),
               ),
             ),
           ),

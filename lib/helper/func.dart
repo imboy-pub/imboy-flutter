@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
@@ -170,4 +171,20 @@ String generateMD5(String data) {
   var digest = md5.convert(content);
   // 这里其实就是 digest.toString()
   return hex.encode(digest.bytes);
+}
+
+String currentDeviceType() {
+  if (Platform.isIOS) {
+    return 'iOS';
+  } else if (Platform.isAndroid) {
+    return 'Android';
+  } else if (Platform.isMacOS) {
+    return 'MacOS';
+  } else if (Platform.isLinux) {
+    return 'Linux';
+  } else if (Platform.isWindows) {
+    return 'Windows';
+  } else {
+    return 'web';
+  }
 }

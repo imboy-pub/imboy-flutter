@@ -11,7 +11,7 @@ enum ClickType { select, open }
 class ContactView extends StatelessWidget {
   final ScrollController sC;
   final List<ContactItem> functionButtons;
-  final List<Contact> contacts;
+  final List<ContactModel> contacts;
   final ClickType type;
   final Callback callback;
 
@@ -35,19 +35,19 @@ class ContactView extends StatelessWidget {
 
           int _contactIndex = index - functionButtons.length;
           bool _isGroupTitle = true;
-          Contact _contact = contacts[_contactIndex];
+          ContactModel _contact = contacts[_contactIndex];
           if (_contactIndex >= 1 &&
               _contact.nameIndex == contacts[_contactIndex - 1].nameIndex) {
             _isGroupTitle = false;
           }
           bool _isBorder = _contactIndex < contacts.length - 1 &&
               _contact.nameIndex == contacts[_contactIndex + 1].nameIndex;
-          if (_contact.name != contacts[contacts.length - 1].name) {
+          if (_contact.nickname != contacts[contacts.length - 1].nickname) {
             return new ContactItem(
               avatar: _contact.avatar,
               account: _contact.account,
-              title: _contact.name,
-              identifier: _contact.identifier,
+              title: _contact.nickname,
+              identifier: _contact.id,
               groupTitle: _isGroupTitle ? _contact.nameIndex : null,
               isLine: _isBorder,
               type: type,
@@ -65,8 +65,8 @@ class ContactView extends StatelessWidget {
               new ContactItem(
                 avatar: _contact.avatar,
                 account: _contact.account,
-                title: _contact.name,
-                identifier: _contact.identifier,
+                title: _contact.nickname,
+                identifier: _contact.id,
                 groupTitle: _isGroupTitle ? _contact.nameIndex : null,
                 isLine: false,
                 type: type,

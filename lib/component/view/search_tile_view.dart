@@ -84,6 +84,10 @@ class SearchTileView extends StatelessWidget {
         width: winWidth(context),
         height: 65.0,
         child: new TextButton(
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.symmetric(vertical: 15.0),
+            backgroundColor: Colors.white,
+          ),
           onPressed: () {},
           child: row,
         ),

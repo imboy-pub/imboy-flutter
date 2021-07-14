@@ -223,8 +223,8 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
                   child: Container(
                     width: _arrowWidth,
                     height: widget.menuHeight,
-                    child: Image.asset(
-                      'images/left_white.png',
+                    child: Image(
+                      image: AssetImage('images/left_white.png'),
                       fit: BoxFit.none,
                     ),
                   ),
@@ -266,11 +266,12 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
                   child: Container(
                     width: _arrowWidth,
                     height: widget.menuHeight,
-                    child: Image.asset(
-                      (_curPage + 1) * widget._pageMaxChildCount >=
-                              widget.actions.length
-                          ? 'images/right_gray.png'
-                          : 'images/right_white.png',
+                    child: Image(
+                      image: AssetImage(
+                          (_curPage + 1) * widget._pageMaxChildCount >=
+                                  widget.actions.length
+                              ? 'images/right_gray.png'
+                              : 'images/right_white.png'),
                       fit: BoxFit.none,
                     ),
                   ),

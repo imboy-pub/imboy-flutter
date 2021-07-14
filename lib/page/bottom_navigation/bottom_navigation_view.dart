@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/helper/constant.dart';
 import 'package:imboy/page/contacts/contacts_view.dart';
-import 'package:imboy/page/cooperation/cooperation_view.dart';
 import 'package:imboy/page/home/home_view.dart';
 import 'package:imboy/page/mine/mine_view.dart';
-import 'package:imboy/page/workbench/workbench_view.dart';
 
 import 'bottom_navigation_logic.dart';
 import 'bottom_navigation_state.dart';
@@ -22,10 +19,10 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
   // final logic = Get.find<BottomNavigationLogic>();
   final BottomNavigationState state = Get.find<BottomNavigationLogic>().state;
 
-  List bodyPageList = [
+  List pageList = [
     HomePage(),
-    CooperationPage(),
-    WorkbenchPage(),
+    // CooperationPage(),
+    // WorkbenchPage(),
     ContactsPage(),
     MinePage(),
   ];
@@ -34,7 +31,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       //主题
-      body: Obx(() => bodyPageList[state.bottombarIndex.value]),
+      body: Obx(() => pageList[state.bottombarIndex.value]),
       //底部导航条
       bottomNavigationBar: Obx(
         () => BottomNavigationBar(
@@ -46,24 +43,26 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
           },
           iconSize: 30.0,
           // 底部导航栏按钮选中时的颜色
-          fixedColor: Color(AppColors.TabIconActive),
+          fixedColor: Colors.green,
           type: BottomNavigationBarType.fixed,
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.chat),
+              icon: Icon(
+                Icons.chat,
+              ),
               label: "消息",
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.cloud),
-              label: "云协作",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.account_tree),
-              label: "工作台",
-            ),
+            // BottomNavigationBarItem(
+            //   icon: Icon(Icons.cloud),
+            //   label: "云协作",
+            // ),
+            // BottomNavigationBarItem(
+            //   icon: Icon(Icons.account_tree),
+            //   label: "工作台",
+            // ),
             BottomNavigationBarItem(
               icon: Icon(Icons.perm_contact_cal),
-              label: "通讯录",
+              label: "联系人",
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),

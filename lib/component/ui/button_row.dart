@@ -31,8 +31,12 @@ class ButtonRow extends StatelessWidget {
             : null,
       ),
       child: new TextButton(
-        // padding: EdgeInsets.all(0),
-        // color: Colors.white,
+        style: TextButton.styleFrom(
+          minimumSize: Size.zero,
+          padding: EdgeInsets.zero,
+          backgroundColor: Colors.white,
+        ),
+        autofocus: true,
         onPressed: onPressed ?? () {},
         child: new Container(
           padding: EdgeInsets.symmetric(vertical: 15.0),

@@ -3,13 +3,18 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/login/login_view.dart';
-
-import 'helper/constant.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   await GetStorage.init();
+
+  // Get.putAsync<SharedPreferences>(() async {
+  //   final sp = await SharedPreferences.getInstance();
+  //   return sp;
+  // });
   runApp(IMBoyApp());
 }
 

@@ -26,7 +26,7 @@ class ListTileView extends StatelessWidget {
     this.label,
     this.padding = const EdgeInsets.symmetric(vertical: 15.0),
     this.isLabel = true,
-    this.icon = 'assets/images/favorite.webp',
+    this.icon = '',
     this.titleStyle =
         const TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
     this.margin,
@@ -53,8 +53,8 @@ class ListTileView extends StatelessWidget {
       new Spacer(),
       new Container(
         width: 7.0,
-        child: new Image.asset(
-          'assets/images/ic_right_arrow_grey.webp',
+        child: new Image(
+          image: AssetImage('assets/images/ic_right_arrow_grey.webp'),
           color: mainTextColor.withOpacity(0.5),
           fit: BoxFit.cover,
         ),
@@ -62,31 +62,49 @@ class ListTileView extends StatelessWidget {
       new Space(),
     ];
 
-    var row = new Row(
-      children: <Widget>[
-        new Container(
-          width: width - 5,
-          margin: EdgeInsets.symmetric(horizontal: horizontal),
-          child: new ImageView(img: icon, width: width, fit: fit),
-        ),
-        new Container(
-          width: winWidth(context) - 60,
-          padding: padding,
-          decoration: BoxDecoration(border: border),
-          child: new Row(children: view),
-        ),
-      ],
-    );
+    var row = icon == ''
+        ? new Row(
+            children: <Widget>[
+              new Container(
+                width: winWidth(context),
+                // padding: new EdgeInsets.all(12.0),
+                padding: padding,
+                decoration: BoxDecoration(border: border),
+                child: new Row(children: view),
+              ),
+            ],
+          )
+        : new Row(
+            children: <Widget>[
+              new Container(
+                width: width - 5,
+                margin: EdgeInsets.symmetric(horizontal: horizontal),
+                child: new ImageView(img: icon, width: width, fit: fit),
+              ),
+              new Container(
+                width: winWidth(context) - 60,
+                padding: padding,
+                decoration: BoxDecoration(border: border),
+                child: new Row(children: view),
+              ),
+            ],
+          );
 
     return new Container(
       margin: margin,
+      // child: new FlatButton(
+      //   color: Colors.white,
+      //   padding: EdgeInsets.all(0),
+      //   onPressed: onPressed ?? () {},
+      //   child: row,
+      // ),
       child: new TextButton(
-        //设置按钮是否自动获取焦点
-        autofocus: true,
-        //定义一下文本样式
-        style: ButtonStyle(
-          textStyle: MaterialStateProperty.all(TextStyle(color: Colors.white)),
+        style: TextButton.styleFrom(
+          minimumSize: Size.zero,
+          padding: EdgeInsets.zero,
+          backgroundColor: Colors.white,
         ),
+        autofocus: true,
         onPressed: onPressed ?? () {},
         child: row,
       ),

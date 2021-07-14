@@ -23,7 +23,7 @@ class ChatInfoPage extends StatefulWidget {
 }
 
 class _ChatInfoPageState extends State<ChatInfoPage> {
-  final logic = Get.find<ChatInfoLogic>();
+  final logic = Get.put(ChatInfoLogic());
   final ChatInfoState state = Get.find<ChatInfoLogic>().state;
 
   var model;

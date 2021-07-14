@@ -53,12 +53,12 @@ class ContactCard extends StatelessWidget {
                 img: avatar, width: 55, height: 55, fit: BoxFit.cover),
             onTap: () {
               if (isNetWorkImg(avatar)) {
-                Get.to(PhotoView(
-                  imageProvider: NetworkImage(avatar),
-                  onTapUp: (c, f, s) => Navigator.of(context).pop(),
-                  maxScale: 3.0,
-                  minScale: 1.0,
-                ));
+                Get.to(() => PhotoView(
+                      imageProvider: NetworkImage(avatar),
+                      onTapUp: (c, f, s) => Navigator.of(context).pop(),
+                      maxScale: 3.0,
+                      minScale: 1.0,
+                    ));
               } else {
                 Get.snackbar('', '无头像');
               }
@@ -79,8 +79,11 @@ class ContactCard extends StatelessWidget {
                     ),
                   ),
                   new Space(width: mainSpace / 3),
-                  new Image.asset('assets/images/Contact_Female.webp',
-                      width: 20.0, fit: BoxFit.fill),
+                  new Image(
+                    image: AssetImage('assets/images/Contact_Female.webp'),
+                    width: 20.0,
+                    fit: BoxFit.fill,
+                  ),
                 ],
               ),
               new Padding(

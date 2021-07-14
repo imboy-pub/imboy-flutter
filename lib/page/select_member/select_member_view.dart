@@ -113,8 +113,8 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
                 new ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(5)),
                   child: !strNoEmpty(uFace)
-                      ? new Image.asset(
-                          defIcon,
+                      ? new Image(
+                          image: AssetImage(defIcon),
                           height: 48.0,
                           width: 48.0,
                           fit: BoxFit.cover,

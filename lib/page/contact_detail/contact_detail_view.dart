@@ -34,7 +34,7 @@ class ContactDetailPage extends StatefulWidget {
 }
 
 class _ContactDetailPageState extends State<ContactDetailPage> {
-  final logic = Get.find<ContactDetailLogic>();
+  final logic = Get.put(ContactDetailLogic());
   final ContactDetailState state = Get.find<ContactDetailLogic>().state;
 
   List<Widget> body(bool itself) {
@@ -93,7 +93,9 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
               friendItemDialog(context, userId: widget.id, suCc: (v) {
             if (v) Navigator.of(context).maybePop();
           }),
-          child: new Image.asset(contactAssets + 'ic_contacts_details.png'),
+          child: new Image(
+            image: AssetImage(contactAssets + 'ic_contacts_details.png'),
+          ),
         ),
       )
     ];

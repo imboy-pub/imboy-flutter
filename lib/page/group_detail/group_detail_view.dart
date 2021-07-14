@@ -106,8 +106,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
       return new InkWell(
         child: new SizedBox(
           width: (winWidth(context) - 60) / 5,
-          child: Image.asset(
-            'assets/images/group/${item['user']}.png',
+          child: Image(
+            image: AssetImage('assets/images/group/${item['user']}.png'),
             height: 48.0,
             width: 48.0,
           ),
@@ -134,8 +134,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(5)),
                   child: !strNoEmpty(uFace)
-                      ? new Image.asset(
-                          defIcon,
+                      ? new Image(
+                          image: AssetImage(defIcon),
                           height: 48.0,
                           width: 48.0,
                           fit: BoxFit.cover,
@@ -216,8 +216,10 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             ),
             functionBtn(
               '群二维码',
-              right: new Image.asset('assets/images/group/group_code.png',
-                  width: 20),
+              right: new Image(
+                image: AssetImage('assets/images/group/group_code.png'),
+                width: 20,
+              ),
             ),
             functionBtn(
               '群公告',
@@ -342,7 +344,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         });
         break;
       case '群二维码':
-        Get.to(new QrCodePage(true));
+        Get.to(new QrCodePage());
         break;
       case '群公告':
         Get.to(
@@ -497,8 +499,8 @@ class GroupItem extends StatelessWidget {
                 new Space(width: 10.0),
                 isSwitch
                     ? Container()
-                    : Image.asset(
-                        'assets/images/group/ic_right.png',
+                    : Image(
+                        image: AssetImage('assets/images/group/ic_right.png'),
                         width: 15,
                       ),
               ],

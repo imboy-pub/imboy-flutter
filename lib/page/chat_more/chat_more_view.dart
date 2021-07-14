@@ -19,7 +19,7 @@ class ChatMorePage extends StatefulWidget {
 }
 
 class _ChatMorePageState extends State<ChatMorePage> {
-  final logic = Get.find<ChatMoreLogic>();
+  final logic = Get.put(ChatMoreLogic());
   final ChatMoreState state = Get.find<ChatMoreLogic>().state;
 
   List data = [
