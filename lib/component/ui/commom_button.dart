@@ -2,20 +2,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ComMomButton extends StatelessWidget {
-  final double width;
-  final double height;
-  final List<BoxShadow> boxShadow;
-  final double radius;
-  final String text;
-  final VoidCallback onTap;
-  final EdgeInsetsGeometry padding;
-  final EdgeInsetsGeometry margin;
-  final TextStyle style;
-  final Color color;
-  final bool isBorder;
-  final int borderColor;
-  final Gradient gradient;
-  final bool enable;
+  final double? width;
+  final double? height;
+  final List<BoxShadow>? boxShadow;
+  final double? radius;
+  final String? text;
+  final VoidCallback? onTap;
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
+  final TextStyle? style;
+  final Color? color;
+  final bool? isBorder;
+  final int? borderColor;
+  final Gradient? gradient;
+  final bool? enable;
 
   ComMomButton({
     this.width,
@@ -41,7 +41,7 @@ class ComMomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color _color = Color.fromRGBO(225, 225, 225, enable ? 1 : 0.3);
+    Color _color = Color.fromRGBO(225, 225, 225, enable! ? 1 : 0.3);
 
     return new Container(
       margin: margin,
@@ -55,21 +55,21 @@ class ComMomButton extends StatelessWidget {
               ? BoxDecoration(
                   gradient: gradient,
                   boxShadow: boxShadow,
-                  border: isBorder
-                      ? Border.all(width: 0.5, color: Color(borderColor))
+                  border: isBorder!
+                      ? Border.all(width: 0.5, color: Color(borderColor!))
                       : null,
                   borderRadius: BorderRadius.all(
-                    Radius.circular(radius),
+                    Radius.circular(radius!),
                   ),
                 )
               : BoxDecoration(
                   color: color,
                   boxShadow: boxShadow,
-                  border: isBorder
-                      ? Border.all(width: 0.5, color: Color(borderColor))
+                  border: isBorder!
+                      ? Border.all(width: 0.5, color: Color(borderColor!))
                       : null,
                   borderRadius: BorderRadius.all(
-                    Radius.circular(radius),
+                    Radius.circular(radius!),
                   ),
                 ),
           child: new Text(
@@ -79,7 +79,7 @@ class ComMomButton extends StatelessWidget {
                 : TextStyle(fontSize: 15.0, color: _color),
           ),
         ),
-        onTap: enable ? onTap : () {},
+        onTap: enable! ? onTap : () {},
       ),
     );
   }

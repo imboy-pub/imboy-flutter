@@ -27,8 +27,8 @@ import 'group_detail_logic.dart';
 import 'group_detail_state.dart';
 
 class GroupDetailPage extends StatefulWidget {
-  final String peer;
-  final Callback callBack;
+  final String? peer;
+  final Callback? callBack;
 
   GroupDetailPage(this.peer, {this.callBack});
 
@@ -44,9 +44,9 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
   bool _showName = false;
   bool _contact = false;
   bool _dnd = false;
-  String groupName;
-  String groupNotification;
-  String time;
+  String? groupName;
+  String? groupNotification;
+  String? time;
   String cardName = '默认';
   bool isGroupOwner = false;
 
@@ -54,7 +54,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
     {'user': '+'},
 //    {'user': '-'}
   ];
-  List dataGroup;
+  List? dataGroup;
 
   @override
   void initState() {
@@ -73,23 +73,23 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
 
   // 获取群组信息
   _getGroupInfo() {
-    GroupModel.getGroupInfoListModel([widget.peer], callback: (result) async {
+    GroupModel.getGroupInfoListModel([widget.peer!], callback: (result) async {
       dataGroup = json.decode(result.toString().replaceAll("'", '"'));
       // final user = await SharedUtil.instance.getString(Keys.account);
-      isGroupOwner = dataGroup[0]['groupOwner'] == '';
-      groupName = dataGroup[0]['groupName'].toString();
-      String notice = strNoEmpty(dataGroup[0]['groupNotification'].toString())
-          ? dataGroup[0]['groupNotification'].toString()
+      isGroupOwner = dataGroup![0]['groupOwner'] == '';
+      groupName = dataGroup![0]['groupName'].toString();
+      String notice = strNoEmpty(dataGroup![0]['groupNotification'].toString())
+          ? dataGroup![0]['groupNotification'].toString()
           : '暂无公告';
       groupNotification = notice;
-      time = dataGroup[0]['groupIntroduction'].toString();
+      time = dataGroup![0]['groupIntroduction'].toString();
       setState(() {});
     });
   }
 
   // 获取群成员列表
   _getGroupMembers() async {
-    await GroupModel.getGroupMembersListModelLIST(widget.peer,
+    await GroupModel.getGroupMembersListModelLIST(widget.peer!,
         callback: (result) {
       memberList.insertAll(
           0, json.decode(result.toString().replaceAll("'", '"')));
@@ -98,10 +98,10 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
   }
 
   Widget memberItem(item) {
-    List<dynamic> userInfo;
-    String uId;
+    List<dynamic>? userInfo;
+    String? uId;
     String uFace = '';
-    String nickname;
+    String? nickname;
     if (item['user'] == "+" || item['user'] == '-') {
       return new InkWell(
         child: new SizedBox(
@@ -118,15 +118,15 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
     return new FutureBuilder(
       future: GroupModel.getUsersProfile(item['user'], (cb) {
         userInfo = json.decode(cb.toString());
-        uId = userInfo[0]['identifier'];
-        uFace = userInfo[0]['faceUrl'];
-        nickname = userInfo[0]['nickname'];
+        uId = userInfo![0]['identifier'];
+        uFace = userInfo![0]['faceUrl'];
+        nickname = userInfo![0]['nickname'];
       }),
       builder: (context, snap) {
         return new SizedBox(
           width: (winWidth(context) - 60) / 5,
           child: FlatButton(
-            onPressed: () => Get.to(GroupMemberDetailPage(uId)),
+            onPressed: () => Get.to(GroupMemberDetailPage(uId!)),
             padding: EdgeInsets.all(0),
             highlightColor: Colors.transparent,
             child: Column(
@@ -154,7 +154,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   height: 20.0,
                   width: 50,
                   child: Text(
-                    '${!strNoEmpty(nickname) ? uId : nickname.length > 4 ? '${nickname.substring(0, 3)}...' : nickname}',
+                    '${strEmpty(nickname) ? uId : nickname!.length > 4 ? '${nickname!.substring(0, 3)}...' : nickname}',
                     style: TextStyle(fontSize: 12.0),
                   ),
                 ),
@@ -174,13 +174,15 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-    if (!listNoEmpty(dataGroup)) {
+    if (!listNoEmpty(dataGroup!)) {
       return new Container(color: Colors.white);
     }
 
     return Scaffold(
       backgroundColor: Color(0xffEDEDED),
-      appBar: new ComMomBar(title: '聊天信息 (${dataGroup[0]['memberNum']})'),
+      appBar: new PageAppBar(
+        title: '聊天信息 (${dataGroup![0]['memberNum']})',
+      ),
       body: new ScrollConfiguration(
         behavior: MyBehavior(),
         child: new ListView(
@@ -204,7 +206,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   '查看全部群成员',
                   style: TextStyle(fontSize: 14.0, color: Colors.black54),
                 ),
-                onPressed: () => Get.to(new GroupMemberPage(widget.peer)),
+                onPressed: () => Get.to(new GroupMemberPage(widget.peer!)),
               ),
             ),
             SizedBox(height: 10.0),
@@ -285,10 +287,10 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
 
                 confirmAlert(context, (isOK) {
                   if (isOK) {
-                    GroupModel.quitGroupModel(widget.peer, callback: (str) {
+                    GroupModel.quitGroupModel(widget.peer!, callback: (str) {
                       if (str.toString().contains('失败')) {
                         print('失败了，开始执行解散');
-                        GroupModel.deleteGroupModel(widget.peer,
+                        GroupModel.deleteGroupModel(widget.peer!,
                             callback: (data) {
                           if (str.toString().contains('成功')) {
                             Navigator.of(context).pop();
@@ -335,10 +337,11 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         Get.to(
           new GroupRemarkPage(
             groupInfoType: GroupInfoType.name,
-            text: groupName,
+            text: groupName!,
             groupId: widget.peer,
           ),
-        ).then((data) {
+        )!
+            .then((data) {
           groupName = data ?? groupName;
           // Notice.send(ChatActions.groupName(), groupName);
         });
@@ -349,13 +352,14 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
       case '群公告':
         Get.to(
           new GroupBillBoardPage(
-            dataGroup[0]['groupOwner'],
-            groupNotification,
-            groupId: widget.peer,
-            time: time,
+            dataGroup![0]['groupOwner'],
+            groupNotification!,
+            groupId: widget.peer!,
+            time: time!,
             callback: (timeData) => time = timeData,
           ),
-        ).then((data) {
+        )!
+            .then((data) {
           groupNotification = data ?? groupNotification;
         });
         break;
@@ -381,7 +385,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             text: cardName,
             groupId: widget.peer,
           ),
-        ).then((data) {
+        )!
+            .then((data) {
           cardName = data ?? cardName;
         });
         break;
@@ -407,8 +412,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
 
   functionBtn(
     title, {
-    final String detail,
-    final Widget right,
+    final String? detail,
+    final Widget? right,
   }) {
     return GroupItem(
       detail: detail,
@@ -426,10 +431,10 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
 }
 
 class GroupItem extends StatelessWidget {
-  final String detail;
-  final String title;
-  final VoidCallback onPressed;
-  final Widget right;
+  final String? detail;
+  final String? title;
+  final VoidCallback? onPressed;
+  final Widget? right;
 
   GroupItem({
     this.detail,
@@ -443,11 +448,11 @@ class GroupItem extends StatelessWidget {
     if (detail == null && detail == '') {
       return new Container();
     }
-    double widthT() {
+    double? widthT() {
       if (detail != null) {
-        return detail.length > 35 ? SizeConfig.blockSizeHorizontal * 60 : null;
+        return detail!.length > 35 ? SizeConfig.blockSizeHorizontal! * 60 : 0.0;
       } else {
-        return null;
+        return 0.0;
       }
     }
 
@@ -465,7 +470,7 @@ class GroupItem extends StatelessWidget {
     return FlatButton(
       padding: EdgeInsets.only(left: 15, right: 15.0),
       color: Colors.white,
-      onPressed: () => onPressed(),
+      onPressed: () => onPressed!(),
       child: new Container(
         padding: EdgeInsets.only(
           top: isSwitch ? 10 : 15.0,
@@ -482,7 +487,7 @@ class GroupItem extends StatelessWidget {
             new Row(
               children: <Widget>[
                 new Expanded(
-                  child: Text(title),
+                  child: Text(title!),
                 ),
                 new Visibility(
                   visible: title != '群公告',
@@ -495,7 +500,7 @@ class GroupItem extends StatelessWidget {
                     ),
                   ),
                 ),
-                right != null ? right : new Container(),
+                right != null ? right! : new Container(),
                 new Space(width: 10.0),
                 isSwitch
                     ? Container()

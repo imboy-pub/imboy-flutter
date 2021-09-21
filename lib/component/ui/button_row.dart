@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:imboy/config/const.dart';
 
 class ButtonRow extends StatelessWidget {
-  final EdgeInsetsGeometry margin;
-  final String text;
+  final EdgeInsetsGeometry? margin;
+  final String? text;
   final TextStyle style;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final bool isBorder;
   final double lineWidth;
 
@@ -41,7 +41,7 @@ class ButtonRow extends StatelessWidget {
         child: new Container(
           padding: EdgeInsets.symmetric(vertical: 15.0),
           alignment: Alignment.center,
-          child: new Text(text, style: style),
+          child: new Text(text!, style: style),
         ),
       ),
     );

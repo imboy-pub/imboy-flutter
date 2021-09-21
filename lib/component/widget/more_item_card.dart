@@ -4,16 +4,17 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/win_media.dart';
 
 class MoreItemCard extends StatelessWidget {
-  final String name, icon;
-  final VoidCallback onPressed;
-  final double keyboardHeight;
+  final String? name, icon;
+  final VoidCallback? onPressed;
+  final double? keyboardHeight;
 
   MoreItemCard({this.name, this.icon, this.onPressed, this.keyboardHeight});
 
   @override
   Widget build(BuildContext context) {
-    double _margin =
-        keyboardHeight != null && keyboardHeight != 0.0 ? keyboardHeight : 0.0;
+    double _margin = keyboardHeight! != null && keyboardHeight! != 0.0
+        ? keyboardHeight!
+        : 0.0;
     double _top = _margin != 0.0 ? _margin / 10 : 20.0;
 
     return new Container(
@@ -36,7 +37,7 @@ class MoreItemCard extends StatelessWidget {
               ),
               onPressed: () {
                 if (onPressed != null) {
-                  onPressed();
+                  onPressed!();
                 }
               },
               // shape: RoundedRectangleBorder(
@@ -46,7 +47,7 @@ class MoreItemCard extends StatelessWidget {
               // ),
               child: new Container(
                 width: 50.0,
-                child: new Image(image: AssetImage(icon), fit: BoxFit.cover),
+                child: new Image(image: AssetImage(icon!), fit: BoxFit.cover),
               ),
             ),
           ),

@@ -54,8 +54,12 @@ bool isAliPayName(String value) {
   return identity.hasMatch(value);
 }
 
+bool strEmpty(String? val) {
+  return !strNoEmpty(val);
+}
+
 /// 字符串不为空
-bool strNoEmpty(String value) {
+bool strNoEmpty(String? value) {
   if (value == null) return false;
 
   return value.trim().isNotEmpty;
@@ -110,11 +114,11 @@ bool isAssetsImg(String img) {
 }
 
 double getMemoryImageCashe() {
-  return PaintingBinding.instance.imageCache.maximumSize / 1000;
+  return PaintingBinding.instance!.imageCache!.maximumSize / 1000;
 }
 
 void clearMemoryImageCache() {
-  PaintingBinding.instance.imageCache.clear();
+  PaintingBinding.instance!.imageCache!.clear();
 }
 
 String stringAsFixed(value, num) {

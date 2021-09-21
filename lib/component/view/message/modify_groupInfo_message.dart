@@ -13,8 +13,8 @@ class ModifyGroupInfoMessage extends StatefulWidget {
 }
 
 class ModifyGroupInfoMessageState extends State<ModifyGroupInfoMessage> {
-  String name;
-  List membersData;
+  String? name;
+  List? membersData;
 
   @override
   void initState() {
@@ -31,10 +31,10 @@ class ModifyGroupInfoMessageState extends State<ModifyGroupInfoMessage> {
     });
     // var userPhone = await getStoreValue('userPhone');
     var userPhone = '';
-    if (listNoEmpty(membersData)) if (user == userPhone)
+    if (listNoEmpty(membersData!)) if (user == userPhone)
       name = '你';
-    else if (strNoEmpty(membersData[0]['nameCard']))
-      name = membersData[0]['nameCard'];
+    else if (strNoEmpty(membersData![0]['nameCard']))
+      name = membersData![0]['nameCard'];
     else
       name = user;
     setState(() {});

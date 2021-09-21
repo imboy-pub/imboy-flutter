@@ -13,9 +13,9 @@ import 'group_remark_logic.dart';
 import 'group_remark_state.dart';
 
 class GroupRemarkPage extends StatefulWidget {
-  final GroupInfoType groupInfoType;
+  final GroupInfoType? groupInfoType;
   final String text;
-  final String groupId;
+  final String? groupId;
 
   GroupRemarkPage({
     this.groupInfoType = GroupInfoType.remark,
@@ -77,7 +77,7 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
   Widget build(BuildContext context) {
     return new MainInputBody(
       child: new Scaffold(
-        appBar: new ComMomBar(backgroundColor: Colors.white),
+        appBar: new PageAppBar(backgroundColor: Colors.white),
         body: new Container(
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: new Column(

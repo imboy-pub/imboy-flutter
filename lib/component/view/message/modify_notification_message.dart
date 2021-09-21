@@ -14,8 +14,8 @@ class ModifyNotificationMessage extends StatefulWidget {
 }
 
 class ModifyNotificationMessageState extends State<ModifyNotificationMessage> {
-  String name;
-  List membersData;
+  String? name;
+  List? membersData;
 
   @override
   void initState() {
@@ -32,10 +32,10 @@ class ModifyNotificationMessageState extends State<ModifyNotificationMessage> {
     });
     // var userPhone = await getStoreValue('userPhone');
     var userPhone = '';
-    if (listNoEmpty(membersData)) if (user == userPhone)
+    if (listNoEmpty(membersData!)) if (user == userPhone)
       name = '你';
-    else if (strNoEmpty(membersData[0]['nameCard']))
-      name = membersData[0]['nameCard'];
+    else if (strNoEmpty(membersData![0]['nameCard']))
+      name = membersData![0]['nameCard'];
     else
       name = user;
     setState(() {});

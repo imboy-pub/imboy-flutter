@@ -20,7 +20,7 @@ class MinePage extends StatelessWidget {
     return new ListTileView(
       border: item['border'],
       title: item['label'],
-      titleStyle: TextStyle(fontSize: 15.0),
+      titleStyle: TextStyle(fontSize: 15.0, color: mainTextColor),
       isLabel: false,
       padding: EdgeInsets.symmetric(vertical: 16.0),
       icon: item['icon'],
@@ -87,26 +87,26 @@ class MinePage extends StatelessWidget {
     ];
 
     UserModel currentUser = UserRepository.currentUser();
-    currentUser?.avatar = strNoEmpty(currentUser?.avatar)
-        ? currentUser?.avatar
+    currentUser.avatar = strNoEmpty(currentUser.avatar)
+        ? currentUser.avatar
         : 'assets/images/logo.png';
     var row = [
       new SizedBox(
-        width: 60.0,
-        height: 60.0,
+        width: 88.0,
+        height: 88.0,
         child: new ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(5.0)),
-          child: strNoEmpty(currentUser?.avatar)
+          child: strNoEmpty(currentUser.avatar)
               ? dynamicAvatar(currentUser.avatar)
               : new Image(
-                  image: AssetImage(currentUser.avatar),
+                  image: AssetImage(currentUser.avatar!),
                   fit: BoxFit.cover,
                 ),
         ),
       ),
       new Container(
-        margin: EdgeInsets.only(left: 15.0),
-        height: 60.0,
+        margin: EdgeInsets.only(left: 10.0),
+        height: 50.0,
         child: new Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -119,7 +119,7 @@ class MinePage extends StatelessWidget {
                   fontWeight: FontWeight.w500),
             ),
             new Text(
-              '账号：' + currentUser.account ?? '',
+              '账号：' + currentUser.account!,
               style: TextStyle(color: mainTextColor),
             ),
           ],

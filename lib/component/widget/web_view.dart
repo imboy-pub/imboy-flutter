@@ -49,8 +49,9 @@ class WebViewPageState extends State<WebViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: new ComMomBar(
-          title: '${widget.title}', leadingImg: 'assets/images/bar_close.png'),
+      appBar: new PageAppBar(
+        title: '${widget.title}',
+      ),
       body: body(),
     );
   }

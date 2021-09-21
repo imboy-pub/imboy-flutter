@@ -7,10 +7,10 @@ enum PressType { longPress, singleClick }
 
 class WPopupMenu extends StatefulWidget {
   WPopupMenu({
-    Key key,
-    @required this.onValueChanged,
-    @required this.actions,
-    @required this.child,
+    Key? key,
+    required this.onValueChanged,
+    required this.actions,
+    required this.child,
     this.pressType = PressType.singleClick,
     this.pageMaxChildCount = 5,
     this.backgroundColor = Colors.black,
@@ -18,14 +18,16 @@ class WPopupMenu extends StatefulWidget {
     this.menuHeight = 250,
     this.alignment,
     this.padding,
-    Color color,
-    Decoration decoration,
+    Color? color,
+    // required Decoration decoration,
     this.foregroundDecoration,
-    double width,
-    double height,
-    BoxConstraints constraints,
+    double? width,
+    double? height,
+    // BoxConstraints? constraints,
     this.margin,
     this.transform,
+    this.constraints,
+    this.decoration,
   })  : assert(onValueChanged != null),
         assert(actions != null && actions.length > 0),
         assert(child != null),
@@ -37,21 +39,21 @@ class WPopupMenu extends StatefulWidget {
             color == null || decoration == null,
             'Cannot provide both a color and a decoration\n'
             'The color argument is just a shorthand for "decoration: new BoxDecoration(color: color)".'),
-        decoration =
-            decoration ?? (color != null ? BoxDecoration(color: color) : null),
-        constraints = (width != null || height != null)
-            ? constraints?.tighten(width: width, height: height) ??
-                BoxConstraints.tightFor(width: width, height: height)
-            : constraints,
+        // decoration =
+        //     decoration ?? (color != null ? BoxDecoration(color: color) : null),
+        // constraints = (width != null || height != null)
+        //     ? constraints?.tighten(width: width, height: height) ??
+        //         BoxConstraints.tightFor(width: width, height: height)
+        //     : constraints,
         super(key: key);
 
-  final BoxConstraints constraints;
-  final Decoration decoration;
-  final AlignmentGeometry alignment;
-  final EdgeInsets padding;
-  final Decoration foregroundDecoration;
-  final EdgeInsets margin;
-  final Matrix4 transform;
+  final BoxConstraints? constraints;
+  final Decoration? decoration;
+  final AlignmentGeometry? alignment;
+  final EdgeInsets? padding;
+  final Decoration? foregroundDecoration;
+  final EdgeInsets? margin;
+  final Matrix4? transform;
   final ValueChanged<String> onValueChanged;
   final List actions;
   final Widget child;
@@ -97,8 +99,8 @@ class _WPopupMenuState extends State<WPopupMenu> {
           widget.backgroundColor,
           widget.menuWidth,
           widget.menuHeight,
-          widget.padding,
-          widget.margin,
+          widget.padding!,
+          widget.margin!,
           widget.onValueChanged,
         )).then((index) {
       widget.onValueChanged(index);
@@ -108,8 +110,8 @@ class _WPopupMenuState extends State<WPopupMenu> {
 
 class PopupMenuRoute extends PopupRoute {
   final BuildContext btnContext;
-  double _height;
-  double _width;
+  double? _height;
+  double? _width;
   final List actions;
   final int _pageMaxChildCount;
   final Color backgroundColor;
@@ -129,13 +131,13 @@ class PopupMenuRoute extends PopupRoute {
       this.padding,
       this.margin,
       this.onValueChanged) {
-    _height = btnContext.size.height -
+    _height = btnContext.size!.height -
         (padding == null
             ? margin == null
                 ? 0
                 : margin.vertical
             : padding.vertical);
-    _width = btnContext.size.width -
+    _width = btnContext.size!.width -
         (padding == null
             ? margin == null
                 ? 0
@@ -153,21 +155,21 @@ class PopupMenuRoute extends PopupRoute {
   }
 
   @override
-  Color get barrierColor => null;
+  Color? get barrierColor => null;
 
   @override
   bool get barrierDismissible => true;
 
   @override
-  String get barrierLabel => null;
+  String? get barrierLabel => null;
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
     return new MenuPopWidget(
         this.btnContext,
-        _height,
-        _width,
+        _height!,
+        _width!,
         actions,
         _pageMaxChildCount,
         backgroundColor,
@@ -218,21 +220,22 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
 
   Color itemColor = itemBgColor;
 
-  RenderBox button;
-  RenderBox overlay;
-  RelativeRect position;
+  RenderBox? button;
+  RenderBox? overlay;
+  RelativeRect? position;
 
   @override
   void initState() {
     super.initState();
-    button = widget.btnContext.findRenderObject();
-    overlay = Overlay.of(widget.btnContext).context.findRenderObject();
+    button = widget.btnContext.findRenderObject() as RenderBox?;
+    overlay =
+        Overlay.of(widget.btnContext)!.context.findRenderObject() as RenderBox?;
     position = new RelativeRect.fromRect(
       new Rect.fromPoints(
-        button.localToGlobal(Offset(-10, 100), ancestor: overlay),
-        button.localToGlobal(Offset(-10, 0), ancestor: overlay),
+        button!.localToGlobal(Offset(-10, 100), ancestor: overlay),
+        button!.localToGlobal(Offset(-10, 0), ancestor: overlay),
       ),
-      Offset.zero & overlay.size,
+      Offset.zero & overlay!.size,
     );
   }
 
@@ -248,7 +251,7 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
         return new CustomSingleChildLayout(
           // 这里计算偏移量
           delegate: new PopupMenuRouteLayout(
-              position,
+              position!,
               widget.menuHeight + _triangleHeight,
               Directionality.of(widget.btnContext),
               widget._width,
@@ -268,9 +271,9 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
           size: Size(width, _triangleHeight),
           painter: new TrianglePainter(
               color: itemBgColor,
-              position: position,
+              position: position!,
               isInverted: true,
-              size: button.size),
+              size: button!.size),
         ),
       ),
       new Visibility(
@@ -389,7 +392,8 @@ class PopupMenuRouteLayout extends SingleChildLayoutDelegate {
     // The menu can be at most the size of the overlay minus 8.0 pixels in each
     // direction.
     return BoxConstraints.loose(constraints.biggest -
-        const Offset(_kMenuScreenPadding * 2.0, _kMenuScreenPadding * 2.0));
+            const Offset(_kMenuScreenPadding * 2.0, _kMenuScreenPadding * 2.0)
+        as Size);
   }
 
   @override
@@ -449,19 +453,20 @@ class PopupMenuRouteLayout extends SingleChildLayoutDelegate {
 }
 
 class TrianglePainter extends CustomPainter {
-  Paint _paint;
+  Paint? _paint;
   final Color color;
   final RelativeRect position;
   final Size size;
   final double radius;
   final bool isInverted;
 
-  TrianglePainter(
-      {@required this.color,
-      @required this.position,
-      @required this.size,
-      this.radius = 20,
-      this.isInverted = false}) {
+  TrianglePainter({
+    required this.color,
+    required this.position,
+    required this.size,
+    this.radius = 20,
+    this.isInverted = false,
+  }) {
     _paint = Paint()
       ..style = PaintingStyle.fill
       ..color = color
@@ -503,7 +508,7 @@ class TrianglePainter extends CustomPainter {
 
     canvas.drawPath(
       path,
-      _paint,
+      _paint!,
     );
   }
 

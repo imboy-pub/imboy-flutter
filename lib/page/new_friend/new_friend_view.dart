@@ -10,13 +10,13 @@ class NewFriendPage extends StatefulWidget {
 }
 
 class _NewFriendPageState extends State<NewFriendPage> {
-  final logic = Get.find<NewFriendLogic>();
+  final logic = Get.put(NewFriendLogic());
   final NewFriendState state = Get.find<NewFriendLogic>().state;
 
   @override
-    Widget build(BuildContext context) {
-      return Container();
-    }
+  Widget build(BuildContext context) {
+    return Container();
+  }
 
   @override
   void dispose() {

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 /// 封装之后的拍一拍
 class ShakeView extends StatefulWidget {
-  final Widget child;
+  final Widget? child;
 
   ShakeView({
     this.child,
@@ -15,8 +15,8 @@ class ShakeView extends StatefulWidget {
 
 class _ShakeViewState extends State<ShakeView>
     with SingleTickerProviderStateMixin {
-  Animation<double> animation;
-  AnimationController controller;
+  Animation<double>? animation;
+  AnimationController? controller;
 
   initState() {
     super.initState();
@@ -29,29 +29,31 @@ class _ShakeViewState extends State<ShakeView>
       TweenSequenceItem<double>(tween: Tween(begin: 10, end: 0), weight: 1),
       TweenSequenceItem<double>(tween: Tween(begin: 0, end: -10), weight: 1),
       TweenSequenceItem<double>(tween: Tween(begin: -10, end: 0), weight: 1),
-    ]).animate(controller);
-    controller.forward();
+    ]).animate(controller!);
+    controller!.forward();
   }
 
   Widget build(BuildContext context) {
-    return AnimateWidget(animation: animation, child: widget.child);
+    return AnimateWidget(animation: animation!, child: widget.child);
   }
 
   dispose() {
-    controller.dispose();
+    controller!.dispose();
     super.dispose();
   }
 }
 
 class AnimateWidget extends AnimatedWidget {
-  final Widget child;
+  final Widget? child;
 
-  AnimateWidget({Animation<double> animation, this.child})
-      : super(listenable: animation);
+  AnimateWidget({
+    required Animation<double> animation,
+    this.child,
+  }) : super(listenable: animation);
 
   @override
   Widget build(BuildContext context) {
-    final Animation<double> animation = listenable;
+    final Animation<double> animation = listenable as Animation<double>;
     var result = Transform(
       transform: Matrix4.rotationZ(animation.value * pi / 180),
       alignment: Alignment.bottomCenter,

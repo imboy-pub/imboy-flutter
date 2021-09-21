@@ -13,7 +13,7 @@ class HomeNullView extends StatelessWidget {
     return new Center(
       child: new InkWell(
         child: new Text(
-          str ?? '',
+          str,
           style: TextStyle(color: mainTextColor),
         ),
         onTap: () => Get.to(new UserPage()),

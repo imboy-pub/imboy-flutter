@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/widget/login/text_field_container.dart';
 
 class RoundedInputField extends StatelessWidget {
-  final String hintText;
-  final IconData icon;
-  final ValueChanged<String> onChanged;
+  final String? hintText;
+  final IconData? icon;
+  final ValueChanged<String>? onChanged;
   const RoundedInputField({
-    Key key,
+    Key? key,
     this.hintText,
     this.icon,
     this.onChanged,

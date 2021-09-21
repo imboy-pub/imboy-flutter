@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:imboy/store/model/person_model.dart';
 
 class MessageModel {
-  int id;
-  String type;
-  String fromId; // 等价于数据库的 from
-  String toId; // 等价于数据库的 to
-  MsgPayloadModel payload;
-  int serverTs; // 服务器组装消息的时间戳
+  int? id;
+  String? type;
+  String? fromId; // 等价于数据库的 from
+  String? toId; // 等价于数据库的 to
+  MsgPayloadModel? payload;
+  int? serverTs; // 服务器组装消息的时间戳
 
   MessageModel(this.id,
-      {@required this.type,
-      @required this.fromId,
-      @required this.toId,
-      @required this.payload,
+      {required this.type,
+      required this.fromId,
+      required this.toId,
+      required this.payload,
       this.serverTs});
 
 //  Future<MessageModel> findByUid(String uid) async {
@@ -36,7 +36,7 @@ class MessageModel {
     data['from'] = this.fromId;
     data['to'] = this.toId;
     data['server_ts'] = this.serverTs != null ? this.serverTs : 0;
-    data['payload'] = this.payload.toMap();
+    data['payload'] = this.payload!.toMap();
     debugPrint(">>>>>>>>>>>>>>>>>>> on MessageModel toMap {data}");
     return data;
   }
@@ -48,14 +48,14 @@ class MessageModel {
 
   PersonModel get from {
     PersonModel p = new PersonModel();
-    PersonModel.find(this.fromId)
+    PersonModel.find(this.fromId!)
         .then((value) => debugPrint(">>>>>>>>>>>>>>>>>>> on get from $value"));
     return p;
   }
 
   PersonModel get to {
     PersonModel p = new PersonModel();
-    PersonModel.find(this.toId).then((value) => p = value);
+    PersonModel.find(this.toId!).then((value) => p = value!);
     return p;
   }
 }
@@ -83,9 +83,9 @@ class MessageModel {
  * @param payload.sendTs 发送时间，毫秒时间戳
  */
 class MsgPayloadModel {
-  int msgType; // 参考 @param payload.msgType 说明
-  dynamic content; // 消息的正文，根据 msg_type 不同格式不一样
-  int sendTs; // 消息发送的毫秒数
+  int? msgType; // 参考 @param payload.msgType 说明
+  dynamic? content; // 消息的正文，根据 msg_type 不同格式不一样
+  int? sendTs; // 消息发送的毫秒数
 
   MsgPayloadModel.fromMap(Map<String, dynamic> json) {
     msgType = json['msg_type'];
@@ -109,8 +109,8 @@ class MsgPayloadModel {
 *
 * */
 class MessageText {
-  String text;
-  String type;
+  String? text;
+  String? type;
 
   MessageText({this.text, this.type});
 

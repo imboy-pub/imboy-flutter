@@ -1,13 +1,13 @@
 ///
 class UserModel {
-  int role;
-  String uid;
-  String account;
-  String nickname;
-  String avatar;
-  String gender;
-  String token;
-  String refreshtoken;
+  int? role;
+  String? uid;
+  String? account;
+  String? nickname;
+  String? avatar;
+  String? gender;
+  String? token;
+  String? refreshtoken;
 
   UserModel({
     this.role,

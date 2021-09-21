@@ -3,7 +3,7 @@ import 'package:imboy/config/init.dart';
 
 class GroupModel {
   static Future<dynamic> inviteGroupMember(List list, String groupId,
-      {Callback callback}) async {
+      {Callback? callback}) async {
     try {
       // var result = await im.group.inviteGroupMember(list, groupId);
       // callback(result);
@@ -13,18 +13,18 @@ class GroupModel {
   }
 
   static Future<dynamic> quitGroupModel(String groupId,
-      {Callback callback}) async {
+      {Callback? callback}) async {
     try {
       // var result = await im.group.quitGroup(groupId);
       // callback(result);
     } on PlatformException {
       print('退出群聊  失败');
-      callback('退出群聊  失败');
+      callback!('退出群聊  失败');
     }
   }
 
   static Future<dynamic> deleteGroupMemberModel(String groupId, List deleteList,
-      {Callback callback}) async {
+      {Callback? callback}) async {
     try {
       // var result = await im.group.deleteGroupMember(groupId, deleteList);
       // callback(result);
@@ -34,7 +34,7 @@ class GroupModel {
   }
 
   static Future<dynamic> getGroupMembersListModel(String groupId,
-      {Callback callback}) async {
+      {Callback? callback}) async {
     try {
       // var result = await im.group.getGroupMembersList(groupId);
       // callback(result);
@@ -44,7 +44,7 @@ class GroupModel {
   }
 
   static Future<dynamic> getGroupMembersListModelLIST(String groupId,
-      {Callback callback}) async {
+      {Callback? callback}) async {
     try {
       // var result = await im.group.getGroupMembersList(groupId);
       // print('获取群成员 getGroupMembersListModel >>>> $result');
@@ -62,7 +62,7 @@ class GroupModel {
     }
   }
 
-  static Future<dynamic> getGroupListModel(Callback callback) async {
+  static Future<dynamic> getGroupListModel(Callback? callback) async {
     try {
       // var result = await im.group.getGroupList();
       // callback(result);
@@ -72,7 +72,7 @@ class GroupModel {
   }
 
   static Future<dynamic> getGroupInfoListModel(List<String> groupID,
-      {Callback callback}) async {
+      {Callback? callback}) async {
     try {
       // var result = await im.group.getGroupInfoList(groupID);
       // callback(result);
@@ -83,7 +83,7 @@ class GroupModel {
   }
 
   static Future<dynamic> deleteGroupModel(String groupId,
-      {Callback callback}) async {
+      {Callback? callback}) async {
     try {
       // var result = await im.group.deleteGroup(groupId);
       // callback(result);
@@ -94,7 +94,7 @@ class GroupModel {
 
   static Future<dynamic> modifyGroupNameModel(
       String groupId, String setGroupName,
-      {Callback callback}) async {
+      {Callback? callback}) async {
     try {
       // var result = await im.group.modifyGroupName(groupId, setGroupName);
       // callback(result);
@@ -105,7 +105,7 @@ class GroupModel {
 
   static Future<dynamic> modifyGroupIntroductionModel(
       String groupId, String setIntroduction,
-      {Callback callback}) async {
+      {Callback? callback}) async {
     try {
       // var result =
       //     await im.group.modifyGroupIntroduction(groupId, setIntroduction);
@@ -117,7 +117,7 @@ class GroupModel {
 
   static Future<dynamic> modifyGroupNotificationModel(
       String groupId, String notification, String time,
-      {Callback callback}) async {
+      {Callback? callback}) async {
     try {
       // var result =
       //     await im.group.modifyGroupNotification(groupId, notification, time);
@@ -129,7 +129,7 @@ class GroupModel {
 
   static Future<dynamic> setReceiveMessageOptionModel(
       String groupId, String identifier, int type,
-      {Callback callback}) async {
+      {Callback? callback}) async {
     try {
       // var result =
       //     await im.group.setReceiveMessageOption(groupId, identifier, type);
@@ -139,5 +139,7 @@ class GroupModel {
     }
   }
 
-  static getUsersProfile(item, Null Function(cb) param1) {}
+  static getUsersProfile(item, Null Function(Cb) param1) {}
 }
+
+class Cb {}

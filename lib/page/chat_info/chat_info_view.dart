@@ -113,7 +113,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
   Widget build(BuildContext context) {
     return new Scaffold(
       backgroundColor: chatBg,
-      appBar: new ComMomBar(title: '聊天信息'),
+      appBar: new PageAppBar(title: '聊天信息'),
       body: new SingleChildScrollView(
         child: new Column(children: body()),
       ),

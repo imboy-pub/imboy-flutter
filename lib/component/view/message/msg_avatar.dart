@@ -16,15 +16,15 @@ class MsgAvatar extends StatefulWidget {
 
   MsgAvatar({
     // @required this.global,
-    @required this.model,
+    required this.model,
   });
 
   _MsgAvatarState createState() => _MsgAvatarState();
 }
 
 class _MsgAvatarState extends State<MsgAvatar> with TickerProviderStateMixin {
-  Animation<double> animation;
-  AnimationController controller;
+  Animation<double>? animation;
+  AnimationController? controller;
 
   @override
   initState() {
@@ -41,15 +41,15 @@ class _MsgAvatarState extends State<MsgAvatar> with TickerProviderStateMixin {
       TweenSequenceItem<double>(tween: Tween(begin: 10, end: 0), weight: 1),
       TweenSequenceItem<double>(tween: Tween(begin: 0, end: -10), weight: 1),
       TweenSequenceItem<double>(tween: Tween(begin: -10, end: 0), weight: 1),
-    ]).animate(controller);
-    if (!isInit) controller.forward();
+    ]).animate(controller!);
+    if (!isInit) controller!.forward();
   }
 
   Widget build(BuildContext context) {
-    PersonModel to = widget.model.to;
+    PersonModel? to = widget.model.to;
     return new InkWell(
       child: AnimateWidget(
-        animation: animation,
+        animation: animation!,
         child: new Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -70,32 +70,32 @@ class _MsgAvatarState extends State<MsgAvatar> with TickerProviderStateMixin {
       onTap: () {
         Get.to(() => ContactDetailPage(
               area: to.area,
-              nickname: to.nickname,
-              avatar: to.avatar,
-              account: to.account,
-              id: to.uid,
+              nickname: to.nickname!,
+              avatar: to.avatar!,
+              account: to.account!,
+              id: to.uid!,
             ));
       },
     );
   }
 
   dispose() {
-    controller.dispose();
+    controller!.dispose();
     super.dispose();
   }
 }
 
 class AnimateWidget extends AnimatedWidget {
-  final Widget child;
+  final Widget? child;
 
   AnimateWidget({
-    Animation<double> animation,
+    required Animation<double> animation,
     this.child,
   }) : super(listenable: animation);
 
   @override
   Widget build(BuildContext context) {
-    final Animation<double> animation = listenable;
+    final Animation<double> animation = listenable as Animation<double>;
     var result = Transform(
       transform: Matrix4.rotationZ(animation.value * pi / 180),
       alignment: Alignment.bottomCenter,

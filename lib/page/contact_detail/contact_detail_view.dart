@@ -10,6 +10,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/friend_circle/friend_circle_view.dart';
 import 'package:imboy/page/set_remark/set_remark_view.dart';
+import 'package:imboy/store/repository/user_repository.dart';
 
 import 'contact_detail_logic.dart';
 import 'contact_detail_state.dart';
@@ -19,13 +20,13 @@ class ContactDetailPage extends StatefulWidget {
   final String nickname;
   final String avatar;
   final String account;
-  final String area;
+  final String? area;
 
   ContactDetailPage({
-    @required this.id,
-    @required this.nickname,
-    @required this.avatar,
-    @required this.account,
+    required this.id,
+    required this.nickname,
+    required this.avatar,
+    required this.account,
     this.area,
   });
 
@@ -58,8 +59,7 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
       new Space(),
       new LabelRow(
         label: '朋友圈',
-        isLine: true,
-        lineWidth: 0.3,
+        isLine: false,
         onPressed: () => Get.to(FriendCirclePage()),
       ),
       new ButtonRow(
@@ -82,8 +82,8 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
   @override
   Widget build(BuildContext context) {
     // final global = Provider.of<GlobalModel>(context, listen: false);
-    // bool isSelf = global.account == widget.account;
-    bool isSelf = true;
+    var currentUser = UserRepository.currentUser();
+    bool isSelf = currentUser.uid == widget.id;
     var rWidget = [
       new SizedBox(
         width: 60,
@@ -102,10 +102,11 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
 
     return new Scaffold(
       backgroundColor: chatBg,
-      appBar: new ComMomBar(
-          title: '',
-          backgroundColor: Colors.white,
-          rightDMActions: isSelf ? [] : rWidget),
+      appBar: new PageAppBar(
+        title: '',
+        backgroundColor: Colors.white,
+        rightDMActions: isSelf ? [] : rWidget,
+      ),
       body: new SingleChildScrollView(
         child: new Column(children: body(isSelf)),
       ),

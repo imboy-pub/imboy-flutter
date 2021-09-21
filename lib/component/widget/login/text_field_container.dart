@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 import 'package:imboy/helper/constant.dart';
 
 class TextFieldContainer extends StatelessWidget {
-  final Widget child;
+  final Widget? child;
   TextFieldContainer({
-    Key key,
+    Key? key,
     this.child,
   }) : super(key: key);
 

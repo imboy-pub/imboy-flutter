@@ -7,10 +7,10 @@ import 'chat_more_logic.dart';
 import 'chat_more_state.dart';
 
 class ChatMorePage extends StatefulWidget {
-  final int index;
-  final String id;
-  final String type;
-  final double keyboardHeight;
+  final int? index;
+  final String? id;
+  final String? type;
+  final double? keyboardHeight;
 
   ChatMorePage({this.index = 0, this.id, this.type, this.keyboardHeight});
 
@@ -42,26 +42,26 @@ class _ChatMorePageState extends State<ChatMorePage> {
 
   action(String name) async {
     if (name == '相册') {
-      AssetPicker.pickAssets(
-        context,
-        maxAssets: 9,
-        pageSize: 320,
-        pathThumbSize: 80,
-        gridCount: 4,
-        selectedAssets: assets,
-        themeColor: Colors.green,
-        routeCurve: Curves.easeIn,
-        routeDuration: const Duration(milliseconds: 500),
-      ).then((List<AssetEntity> result) {
-        result.forEach((AssetEntity element) async {
-          // sendImageMsg(widget.id, widget.type, file: await element.file,
-          //     callback: (v) {
-          //   if (v == null) return;
-          //   Notice.send(ChatActions.msg(), v ?? '');
-          // });
-          element.file;
-        });
-      });
+      // AssetPicker.pickAssets(
+      //   context,
+      //   maxAssets: 9,
+      //   pageSize: 320,
+      //   pathThumbSize: 80,
+      //   gridCount: 4,
+      //   selectedAssets: assets,
+      //   themeColor: Colors.green,
+      //   routeCurve: Curves.easeIn,
+      //   routeDuration: const Duration(milliseconds: 500),
+      // ).then((List<AssetEntity!> result) {
+      //   result!.forEach((AssetEntity element) async {
+      //     sendImageMsg(widget.id, widget.type, file: await element.file,
+      //         callback: (v) {
+      //       if (v == null) return;
+      //       Notice.send(ChatActions.msg(), v ?? '');
+      //     });
+      //     element.file;
+      //   });
+      // });
     } else if (name == '拍摄') {
       // try {
       //   List<CameraDescription> cameras;

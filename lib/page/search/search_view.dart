@@ -86,7 +86,7 @@ class _SearchPageState extends State<SearchPage> {
     );
     return new Scaffold(
       backgroundColor: appBarColor,
-      appBar: new ComMomBar(titleW: searchView),
+      appBar: new PageAppBar(titleWiew: searchView),
       body: new SizedBox(width: winWidth(context), child: body()),
     );
   }

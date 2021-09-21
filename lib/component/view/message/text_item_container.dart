@@ -6,11 +6,15 @@ import 'package:imboy/component/ui/magic_pop.dart';
 import 'package:imboy/helper/win_media.dart';
 
 class TextItemContainer extends StatefulWidget {
-  final String text;
-  final String action;
+  final String? text;
+  final String? action;
   final bool itself;
 
-  TextItemContainer({this.text, this.action, this.itself = true});
+  TextItemContainer({
+    this.text,
+    this.action,
+    this.itself = true,
+  });
 
   @override
   _TextItemContainerState createState() => _TextItemContainerState();
@@ -34,7 +38,7 @@ class _TextItemContainerState extends State<TextItemContainer> {
       pressType: PressType.longPress,
       actions: ['复制', '转发', '收藏', '撤回', '删除'],
       child: new Container(
-        width: widget.text.length > 24 ? (winWidth(context) - 66) - 100 : null,
+        width: widget.text!.length > 24 ? (winWidth(context) - 66) - 100 : null,
         padding: EdgeInsets.all(5.0),
         decoration: BoxDecoration(
           color: widget.itself ? Color(0xff98E165) : Colors.white,

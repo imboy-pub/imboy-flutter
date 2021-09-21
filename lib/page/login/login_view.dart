@@ -23,7 +23,7 @@ class LoginPage extends GetWidget {
             FocusScopeNode currentFocus = FocusScope.of(context);
             if (!currentFocus.hasPrimaryFocus &&
                 currentFocus.focusedChild != null) {
-              FocusManager.instance.primaryFocus.unfocus();
+              FocusManager.instance.primaryFocus!.unfocus();
             }
           },
           child: Body(),
@@ -44,7 +44,7 @@ class Body extends GetView<LoginLogic> {
             width: Get.width,
             padding: EdgeInsets.fromLTRB(15.0, 115.0, 0.0, 0.0),
             child: Text('欢迎使用',
-                style: Theme.of(context).textTheme.headline2.copyWith(
+                style: Theme.of(context).textTheme.headline2!.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).primaryColor,
                     )),
@@ -55,7 +55,7 @@ class Body extends GetView<LoginLogic> {
               Container(
                 padding: EdgeInsets.fromLTRB(15.0, 15.0, 0.0, 0.0),
                 child: Text('IMBoy',
-                    style: Theme.of(context).textTheme.headline2.copyWith(
+                    style: Theme.of(context).textTheme.headline2!.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).primaryColor,
                         )),

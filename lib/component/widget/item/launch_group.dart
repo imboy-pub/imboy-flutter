@@ -40,12 +40,12 @@ class LaunchGroupItem extends StatelessWidget {
 }
 
 class LaunchSearch extends StatelessWidget {
-  final FocusNode searchF;
-  final TextEditingController searchC;
-  final ValueChanged<String> onChanged;
-  final GestureTapCallback onTap;
-  final ValueChanged<String> onSubmitted;
-  final GestureTapCallback delOnTap;
+  final FocusNode? searchF;
+  final TextEditingController? searchC;
+  final ValueChanged<String>? onChanged;
+  final GestureTapCallback? onTap;
+  final ValueChanged<String>? onSubmitted;
+  final GestureTapCallback? delOnTap;
 
   LaunchSearch({
     this.searchF,
@@ -83,14 +83,14 @@ class LaunchSearch extends StatelessWidget {
             onSubmitted: onSubmitted,
           ),
         ),
-        strNoEmpty(searchC.text)
+        strNoEmpty(searchC!.text)
             ? new InkWell(
                 child: new Image(
                   image: AssetImage('assets/images/ic_delete.webp'),
                 ),
                 onTap: () {
-                  searchC.text = '';
-                  delOnTap();
+                  searchC!.text = '';
+                  delOnTap!();
                 },
               )
             : new Container()

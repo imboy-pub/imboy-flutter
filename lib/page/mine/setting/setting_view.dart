@@ -81,7 +81,7 @@ class _SettingPageState extends State<SettingPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new ComMomBar(
+      appBar: new PageAppBar(
         title: '设置',
       ),
       // color: appBarColor,

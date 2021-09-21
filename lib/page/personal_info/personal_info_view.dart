@@ -39,9 +39,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   _openGallery({type = ImageSource.gallery}) async {
     final global = UserRepository.currentUser();
     File imageFile = (await ImagePicker().pickImage(source: type)) as File;
-    List<int> imageBytes = await compressFile(imageFile);
+    List<int>? imageBytes = await compressFile(imageFile);
     if (imageFile != null) {
-      String base64Img = 'data:image/jpeg;base64,${base64Encode(imageBytes)}';
+      String base64Img = 'data:image/jpeg;base64,${base64Encode(imageBytes!)}';
       logic.uploadImgApi(base64Img, (v) {
         if (v == null) {
           Get.snackbar("Tips", "上传头像失败,请换张图像再试");
@@ -49,7 +49,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
         }
         logic.setUsersProfileMethod(
           avatarStr: v,
-          nicknameStr: global.nickname,
+          nicknameStr: global.nickname!,
           callback: (data) {
             if (data.toString().contains('ucc')) {
               Get.snackbar("", "设置头像成功");
@@ -107,7 +107,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
         label: '昵称',
         isLine: true,
         isRight: true,
-        rValue: global.nickname,
+        rValue: global.nickname!,
         onPressed: () => Get.to(() => ChangeNamePage()),
       ),
       new Column(
@@ -140,7 +140,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
     return new Scaffold(
       backgroundColor: appBarColor,
-      appBar: new ComMomBar(title: '个人信息'),
+      appBar: new PageAppBar(title: '个人信息'),
       body: new SingleChildScrollView(child: body(model)),
     );
   }

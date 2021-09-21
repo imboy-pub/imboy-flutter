@@ -18,7 +18,7 @@ class PersonRepo {
   static String allowType = 'allow_type';
   static String location = 'location';
 
-  Database _db;
+  Database? _db;
 
   PersonRepo() {
     _database();
@@ -31,19 +31,20 @@ class PersonRepo {
   // 插入一条数据
   Future<PersonModel> insert(PersonModel person) async {
     if (this._db == null) {
-      await this._database();
+      this._database();
     }
     person.uid =
-        (await _db.insert(PersonRepo.tablename, person.toMap())) as String;
+        (await _db!.insert(PersonRepo.tablename, person.toMap())) as String;
     return person;
   }
 
   // 查找所有信息
-  Future<List<PersonModel>> all() async {
+  Future<List<PersonModel>?> all() async {
     if (this._db == null) {
       await this._database();
     }
-    List<Map> maps = await _db.query(PersonRepo.tablename, columns: [
+    List<Map<String, dynamic>> maps =
+        await _db!.query(PersonRepo.tablename, columns: [
       PersonRepo.uid,
       PersonRepo.account,
       PersonRepo.nickname,
@@ -70,11 +71,11 @@ class PersonRepo {
   }
 
   // 根据ID查找用户信息
-  Future<PersonModel> find(String uid) async {
+  Future<PersonModel?> find(String? uid) async {
     if (this._db == null) {
       await this._database();
     }
-    List<Map> maps = await _db.query(PersonRepo.tablename,
+    List<Map<String, dynamic>> maps = await _db!.query(PersonRepo.tablename,
         columns: [
           PersonRepo.uid,
           PersonRepo.account,
@@ -102,7 +103,7 @@ class PersonRepo {
     if (this._db == null) {
       await this._database();
     }
-    return await _db.delete(PersonRepo.tablename,
+    return await _db!.delete(PersonRepo.tablename,
         where: '${PersonRepo.uid} = ?', whereArgs: [uid]);
   }
 
@@ -111,7 +112,7 @@ class PersonRepo {
     if (this._db == null) {
       await this._database();
     }
-    return await _db.update(PersonRepo.tablename, person.toMap(),
+    return await _db!.update(PersonRepo.tablename, person.toMap(),
         where: '${PersonRepo.uid} = ?', whereArgs: [person.uid]);
   }
 

@@ -8,11 +8,11 @@ import 'group_bill_board_logic.dart';
 import 'group_bill_board_state.dart';
 
 class GroupBillBoardPage extends StatefulWidget {
-  final String groupOwner;
-  final String groupNotice;
-  final String groupId;
-  final String time;
-  final Callback callback;
+  final String? groupOwner;
+  final String? groupNotice;
+  final String? groupId;
+  final String? time;
+  final Callback? callback;
 
   GroupBillBoardPage(this.groupOwner, this.groupNotice,
       {this.groupId, this.time, this.callback});
@@ -28,7 +28,7 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
   bool inputState = false;
   FocusNode _focusNode = FocusNode();
   TextEditingController _textController = new TextEditingController();
-  String _publishTime;
+  String? _publishTime;
 
   TextStyle styleLabel =
       TextStyle(fontSize: 12.0, color: Colors.black.withOpacity(0.8));
@@ -36,7 +36,7 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
   @override
   void initState() {
     super.initState();
-    _textController.text = widget.groupNotice;
+    _textController.text = widget.groupNotice!;
   }
 
   onChange() {
@@ -49,7 +49,7 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
       debugPrint('发布时间>>>>> $_publishTime');
       // GroupModel.modifyGroupNotificationModel(
       //     widget.groupId, _textController.text, _publishTime);
-      widget.callback(_publishTime);
+      widget.callback!(_publishTime);
       Navigator.pop(context, _textController.text);
       inputState = false;
     } else {
@@ -70,7 +70,10 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
     );
 
     return Scaffold(
-      appBar: new ComMomBar(title: '群公告', rightDMActions: <Widget>[rWidget]),
+      appBar: new PageAppBar(
+        title: '群公告',
+        rightDMActions: <Widget>[rWidget],
+      ),
       body: TextField(
         decoration: InputDecoration(
           filled: true,

@@ -8,13 +8,13 @@ import 'package:imboy/helper/func.dart';
 
 class ImageView extends StatelessWidget {
   final String img;
-  final double width;
-  final double height;
-  final BoxFit fit;
+  final double? width;
+  final double? height;
+  final BoxFit? fit;
   final bool isRadius;
 
   ImageView({
-    @required this.img,
+    required this.img,
     this.height,
     this.width,
     this.fit,
@@ -54,8 +54,8 @@ class ImageView extends StatelessWidget {
                 Border.all(color: Colors.black.withOpacity(0.2), width: 0.3)),
         child: new Image(
           image: AssetImage(defIcon),
-          width: width - 1,
-          height: height - 1,
+          width: width! - 1,
+          height: height! - 1,
           fit: width != null && height != null ? BoxFit.fill : fit,
         ),
       );

@@ -14,7 +14,7 @@ class ContentMsg extends StatefulWidget {
 }
 
 class _ContentMsgState extends State<ContentMsg> {
-  String str;
+  late String str;
 
   TextStyle _style = TextStyle(color: mainTextColor, fontSize: 14.0);
 

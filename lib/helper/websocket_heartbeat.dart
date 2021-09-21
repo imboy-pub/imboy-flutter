@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:imboy/api/passport_api.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/datetime.dart';
 import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/jwt.dart';
@@ -20,7 +19,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 /// https://github.com/zimv/websocket-heartbeat-js/blob/master/lib/index.js
 ///
 class WebsocketHeartbeat {
-  String url;
+  late String url;
   Iterable<String> subprotocol = ['text'];
   String pingMsg = 'ping';
 
@@ -44,27 +43,29 @@ class WebsocketHeartbeat {
   ///
   bool _isOn = false;
 
-  WebsocketHeartbeat(url,
-      {Iterable<String> subprotocol,
-      String pingMsg,
-      int pingTimeout,
-      int reconnectTimeout,
-      int repeatLimit}) {
+  WebsocketHeartbeat(
+    url, {
+    Iterable<String>? subprotocol,
+    String? pingMsg,
+    int? pingTimeout,
+    int? reconnectTimeout,
+    int? repeatLimit,
+  }) {
     this.url = url;
-    if (subprotocol.isNotEmpty) {
+    if (subprotocol!.isNotEmpty) {
       this.subprotocol = subprotocol;
     }
     if (strNoEmpty(pingMsg)) {
-      this.pingMsg = pingMsg;
+      this.pingMsg = pingMsg!;
     }
     if (isPositiveInt(pingTimeout)) {
-      this.pingTimeout = pingTimeout;
+      this.pingTimeout = pingTimeout!;
     }
     if (isPositiveInt(reconnectTimeout)) {
-      this.reconnectTimeout = reconnectTimeout;
+      this.reconnectTimeout = reconnectTimeout!;
     }
     if (isPositiveInt(repeatLimit)) {
-      this.repeatLimit = repeatLimit;
+      this.repeatLimit = repeatLimit!;
     }
     this.repeat = 0;
     this.createWebSocket();
@@ -75,18 +76,18 @@ class WebsocketHeartbeat {
       return;
     }
     try {
-      String token = UserRepository.accessToken();
+      String? token = UserRepository.accessToken();
       if (!strNoEmpty(token)) {
         return;
       }
-      if (token_expired(token)) {
+      if (token_expired(token!)) {
         await refreshtoken();
         debugPrint('>>>>>>>>>>>>>>>>>>> on token old $token');
         token = UserRepository.accessToken();
         debugPrint('>>>>>>>>>>>>>>>>>>> on token new $token');
       }
       String url =
-          this.url + '?' + Keys.tokenKey + '=' + token.replaceAll('+', '%2B');
+          this.url + '?' + Keys.tokenKey + '=' + token!.replaceAll('+', '%2B');
       //创建websocket连接
       Duration pingInterval = Duration(milliseconds: this.pingTimeout);
       var headers = {

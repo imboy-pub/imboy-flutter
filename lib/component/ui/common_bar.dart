@@ -2,98 +2,86 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/config/const.dart';
 
-class ComMomBar extends StatelessWidget implements PreferredSizeWidget {
-  const ComMomBar(
-      {this.title = '',
-      this.showShadow = false,
-      this.rightDMActions,
-      this.backgroundColor = appBarColor,
-      this.mainColor = Colors.black,
-      this.titleW,
-      this.bottom,
-      this.leadingImg = '',
-      this.leadingW});
+class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const NavAppBar({
+    this.title = '',
+    this.titleWiew,
+    this.rightDMActions,
+    this.backgroundColor = ComMomBGColor,
+    this.mainColor = Colors.black,
+  });
 
-  final String title;
-  final bool showShadow;
-  final List<Widget> rightDMActions;
-  final Color backgroundColor;
-  final Color mainColor;
-  final Widget titleW;
-  final Widget leadingW;
-  final PreferredSizeWidget bottom;
-  final String leadingImg;
+  final String? title;
+  final Widget? titleWiew;
+  final List<Widget>? rightDMActions;
+  final Color? backgroundColor;
+  final Color? mainColor;
 
   @override
   Size get preferredSize => new Size(100, 50);
 
-  Widget leading(BuildContext context) {
-    final bool isShow = Navigator.canPop(context);
-    if (isShow) {
-      return new InkWell(
-        child: new Container(
-          width: 15,
-          height: 28,
-          child: leadingImg != ''
-              ? new Image(image: AssetImage(leadingImg))
-              : new Icon(CupertinoIcons.back, color: mainColor),
-        ),
-        onTap: () {
-          if (Navigator.canPop(context)) {
-            FocusScope.of(context).requestFocus(new FocusNode());
-            Navigator.pop(context);
-          }
-        },
-      );
-    } else {
-      return null;
-    }
+  @override
+  Widget build(BuildContext context) {
+    return new AppBar(
+      title: titleWiew == null
+          ? new Text(
+              title!,
+              style: new TextStyle(
+                color: mainColor,
+                fontSize: 16.0,
+                fontWeight: FontWeight.w600,
+              ),
+            )
+          : titleWiew,
+      automaticallyImplyLeading: false,
+      backgroundColor: backgroundColor,
+      foregroundColor: mainColor,
+      elevation: 0.0,
+      centerTitle: true,
+      actions: rightDMActions ?? [new Center()],
+    );
   }
+}
+
+class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const PageAppBar({
+    this.title = '',
+    this.titleWiew,
+    this.rightDMActions,
+    this.backgroundColor = ComMomBGColor,
+    this.mainColor = Colors.black,
+  });
+
+  final String? title;
+  final Widget? titleWiew;
+  final List<Widget>? rightDMActions;
+  final Color? backgroundColor;
+  final Color? mainColor;
+
+  @override
+  Size get preferredSize => new Size(100, 50);
 
   @override
   Widget build(BuildContext context) {
-    return showShadow
-        ? new Container(
-            decoration: BoxDecoration(
-                border: Border(
-                    bottom: new BorderSide(
-                        color: Colors.grey, width: showShadow ? 0.5 : 0.0))),
-            child: new AppBar(
-              title: titleW == null
-                  ? new Text(
-                      title,
-                      style: new TextStyle(
-                          color: mainColor,
-                          fontSize: 17.0,
-                          fontWeight: FontWeight.w600),
-                    )
-                  : titleW,
-              backgroundColor: mainColor,
-              elevation: 0.0,
-              brightness: Brightness.light,
-              leading: leadingW ?? leading(context),
-              centerTitle: true,
-              actions: rightDMActions ?? [new Center()],
-              bottom: bottom != null ? bottom : null,
-            ),
-          )
-        : new AppBar(
-            title: titleW == null
-                ? new Text(
-                    title,
-                    style: new TextStyle(
-                        color: mainColor,
-                        fontSize: 17.0,
-                        fontWeight: FontWeight.w600),
-                  )
-                : titleW,
-            backgroundColor: backgroundColor,
-            elevation: 0.0,
-            brightness: Brightness.light,
-            leading: leadingW ?? leading(context),
-            centerTitle: true,
-            bottom: bottom != null ? bottom : null,
-            actions: rightDMActions ?? [new Center()],
-          );
+    return new AppBar(
+      title: titleWiew == null
+          ? new Text(
+              title!,
+              style: new TextStyle(
+                color: mainColor,
+                fontSize: 16.0,
+                fontWeight: FontWeight.w600,
+              ),
+            )
+          : titleWiew,
+      // 如果有 leading 这个不会管用 ；
+      // 如果没有leading ，当有侧边栏的时候， false：不会显示默认的图片，true 会显示 默认图片，并响应打开侧边栏的事件
+      automaticallyImplyLeading: true,
+      backgroundColor: backgroundColor,
+      foregroundColor: mainColor,
+      elevation: 0.0,
+      centerTitle: true,
+      actions: rightDMActions ?? [new Center()],
+    );
   }
 }

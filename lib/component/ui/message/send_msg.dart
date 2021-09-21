@@ -16,9 +16,9 @@ class SendMessageView extends StatefulWidget {
 class _SendMessageViewState extends State<SendMessageView> {
   @override
   Widget build(BuildContext context) {
-    MsgPayloadModel payload = widget.model.payload;
+    MsgPayloadModel? payload = widget.model.payload;
 
-    int msgType = payload.msgType;
+    int? msgType = payload!.msgType;
     String msgStr = payload.toString();
 
     bool isI = Platform.isIOS;

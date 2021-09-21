@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:imboy/api/dialog_api.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/view/indicator_page_view.dart';
-import 'package:imboy/component/view/pop_view.dart';
 import 'package:imboy/component/widget/chat/conversation_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/constant.dart';
@@ -30,7 +29,7 @@ class _HomePageState extends State<HomePage> {
 
   var tapPos;
 
-  StreamSubscription<dynamic> _messageStreamSubscription;
+  late StreamSubscription<dynamic> _messageStreamSubscription;
 
   @override
   void initState() {
@@ -76,7 +75,7 @@ class _HomePageState extends State<HomePage> {
     // }
 
     return Scaffold(
-      appBar: new ComMomBar(
+      appBar: new NavAppBar(
         title: '消息',
       ),
       body: Container(
@@ -91,9 +90,9 @@ class _HomePageState extends State<HomePage> {
                 onTap: () {
                   Get.to(
                     () => ChatPage(
-                      id: model.fromId,
-                      type: model.type,
-                      title: model.from?.nickname ?? '',
+                      id: model.fromId!,
+                      type: model.type!,
+                      title: model.from.nickname ?? '',
                     ),
                   );
                 },
@@ -101,24 +100,24 @@ class _HomePageState extends State<HomePage> {
                   tapPos = details.globalPosition;
                 },
                 onLongPress: () {
-                  _showMenu(
-                    context,
-                    tapPos,
-                    model.type,
-                    model.fromId,
-                  );
+                  // _showMenu(
+                  //   context,
+                  //   tapPos,
+                  //   model.type!,
+                  //   model.fromId!,
+                  // );
                 },
                 child: new ConversationView(
-                  imageUrl: model.fromId,
+                  imageUrl: model.fromId!,
                   // title: model.from?.nickname ?? '',
-                  title: model.fromId,
-                  payload: model?.payload,
-                  time: timeView(model?.serverTs ?? 0),
-                  isBorder: model?.fromId != _chatData[0].fromId,
+                  title: model.fromId!,
+                  payload: model.payload,
+                  time: timeView(model.serverTs ?? 0),
+                  isBorder: model.fromId != _chatData[0].fromId,
                 ),
               );
             },
-            itemCount: _chatData?.length ?? 1,
+            itemCount: _chatData.length,
           ),
         ),
       ),
@@ -151,41 +150,46 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _showMenu(BuildContext context, Offset tapPos, String type, String id) {
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject();
-    final RelativeRect position = RelativeRect.fromLTRB(tapPos.dx, tapPos.dy,
-        overlay.size.width - tapPos.dx, overlay.size.height - tapPos.dy);
-    showMenu<String>(
-        context: context,
-        position: position,
-        items: <IMBoyPopupMenuItem<String>>[
-          new IMBoyPopupMenuItem(child: Text('标为已读'), value: '标为已读'),
-          new IMBoyPopupMenuItem(child: Text('置顶聊天'), value: '置顶聊天'),
-          new IMBoyPopupMenuItem(child: Text('删除该聊天'), value: '删除该聊天'),
-          // ignore: missing_return
-        ]).then<String>((String selected) {
-      switch (selected) {
-        case '删除该聊天':
-          deleteConversationAndLocalMsgModel(type, id, callback: (str) {
-            debugPrint('deleteConversationAndLocalMsgModel' + str.toString());
-          });
-          delConversationModel(id, type, callback: (str) {
-            debugPrint('deleteConversationModel' + str.toString());
-          });
-          getChatData();
-          break;
-        case '标为已读':
-          getUnreadMessageNumModel(type, id, callback: (str) {
-            int num = int.parse(str.toString());
-            if (num != 0) {
-              setReadMessageModel(type, id);
-              setState(() {});
-            }
-          });
-          break;
-      }
-    });
-  }
+  // _showMenu(BuildContext context, Offset tapPos, String type, String id) {
+  //   final RenderObject? overlay =
+  //       Overlay.of(context)?.context?.findRenderObject();
+  //   final RelativeRect position = RelativeRect.fromLTRB(
+  //     tapPos.dx,
+  //     tapPos.dy,
+  //     overlay?.size?.width - tapPos.dx,
+  //     overlay?.size?.height - tapPos.dy,
+  //   );
+  //   showMenu<String>(
+  //       context: context,
+  //       position: position,
+  //       items: <IMBoyPopupMenuItem<String>>[
+  //         new IMBoyPopupMenuItem(child: Text('标为已读'), value: '标为已读'),
+  //         new IMBoyPopupMenuItem(child: Text('置顶聊天'), value: '置顶聊天'),
+  //         new IMBoyPopupMenuItem(child: Text('删除该聊天'), value: '删除该聊天'),
+  //         // ignore: missing_return
+  //       ]).then<String>((String selected) {
+  //     switch (selected) {
+  //       case '删除该聊天':
+  //         deleteConversationAndLocalMsgModel(type, id, callback: (str) {
+  //           debugPrint('deleteConversationAndLocalMsgModel' + str.toString());
+  //         });
+  //         delConversationModel(id, type, callback: (str) {
+  //           debugPrint('deleteConversationModel' + str.toString());
+  //         });
+  //         getChatData();
+  //         break;
+  //       case '标为已读':
+  //         getUnreadMessageNumModel(type, id, callback: (str) {
+  //           int num = int.parse(str.toString());
+  //           if (num != 0) {
+  //             setReadMessageModel(type, id);
+  //             setState(() {});
+  //           }
+  //         });
+  //         break;
+  //     }
+  //   });
+  // }
 
   @override
   void dispose() {

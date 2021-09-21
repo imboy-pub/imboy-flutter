@@ -9,7 +9,7 @@ import 'package:imboy/helper/win_media.dart';
 typedef VoiceFile = void Function(String path);
 
 class ChatVoice extends StatefulWidget {
-  final VoiceFile voiceFile;
+  final VoiceFile? voiceFile;
 
   ChatVoice({this.voiceFile});
 
@@ -20,20 +20,20 @@ class ChatVoice extends StatefulWidget {
 class _ChatVoiceWidgetState extends State<ChatVoice> {
   double startY = 0.0;
   double offset = 0.0;
-  int index;
+  int? index;
 
   bool isUp = false;
   String textShow = "按住说话";
   String toastShow = "手指上滑,取消发送";
   String voiceIco = "images/voice_volume_1.png";
 
-  StreamSubscription _recorderSubscription;
-  StreamSubscription _dbPeakSubscription;
+  StreamSubscription? _recorderSubscription;
+  StreamSubscription? _dbPeakSubscription;
 
   ///默认隐藏状态
   bool voiceState = true;
-  OverlayEntry overlayEntry;
-  FlutterSound flutterSound;
+  OverlayEntry? overlayEntry;
+  late FlutterSound flutterSound;
 
   @override
   void initState() {
@@ -105,7 +105,7 @@ class _ChatVoiceWidgetState extends State<ChatVoice> {
 
     stop();
     if (overlayEntry != null) {
-      overlayEntry.remove();
+      overlayEntry!.remove();
       overlayEntry = null;
     }
 

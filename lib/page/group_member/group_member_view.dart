@@ -27,7 +27,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
   final logic = Get.find<GroupMemberLogic>();
   final GroupMemberState state = Get.find<GroupMemberLogic>().state;
 
-  Future _futureBuilderFuture;
+  late Future _futureBuilderFuture;
   List memberList = [
     {'user': '+'},
 //    {'user': '-'}
@@ -63,10 +63,10 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
   }
 
   Widget memberItem(item) {
-    List userInfo;
-    String uId;
-    String uFace;
-    String nickname;
+    List? userInfo;
+    String? uId;
+    String? uFace;
+    String? nickname;
 
     if (item['user'] == "+" || item['user'] == '-') {
       return new InkWell(
@@ -78,22 +78,22 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
             width: 48.0,
           ),
         ),
-        onTap: () => handle(null),
+        onTap: () => handle(""),
       );
     }
 
     return new FutureBuilder(
       future: GroupModel.getUsersProfile(item['user'], (cb) {
         userInfo = json.decode(cb.toString());
-        uId = userInfo[0]['identifier'];
-        uFace = userInfo[0]['faceUrl'];
-        nickname = userInfo[0]['nickname'];
+        uId = userInfo![0]['identifier'];
+        uFace = userInfo![0]['faceUrl'];
+        nickname = userInfo![0]['nickname'];
       }),
       builder: (context, snap) {
         return new SizedBox(
           width: (winWidth(context) - 60) / 5,
           child: FlatButton(
-            onPressed: () => handle(uId),
+            onPressed: () => handle(uId!),
             padding: EdgeInsets.all(0),
             highlightColor: Colors.transparent,
             child: Column(
@@ -108,7 +108,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
                           fit: BoxFit.cover,
                         )
                       : CachedNetworkImage(
-                          imageUrl: uFace,
+                          imageUrl: uFace!,
                           height: 48.0,
                           width: 48.0,
                           cacheManager: cacheManager,
@@ -121,11 +121,11 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
                   height: 20.0,
                   width: 50,
                   child: Text(
-                    nickname == null || nickname == ''
+                    strEmpty(nickname)
                         ? '默认昵称'
-                        : nickname.length > 5
-                            ? '${nickname.substring(0, 3)}...'
-                            : nickname,
+                        : nickname!.length > 5
+                            ? '${nickname!.substring(0, 3)}...'
+                            : nickname!,
                     style: TextStyle(fontSize: 12.0),
                   ),
                 ),
@@ -152,7 +152,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
       future: _futureBuilderFuture,
       builder: (context, snap) {
         return new Text(
-          '聊天成员(${memberList?.length != null ? memberList.length - 1 : 0})',
+          '聊天成员(${memberList.length != null ? memberList.length - 1 : 0})',
           style: new TextStyle(
               color: Colors.black, fontSize: 17.0, fontWeight: FontWeight.w600),
         );
@@ -167,7 +167,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
     }
 
     return new Scaffold(
-      appBar: new ComMomBar(titleW: titleWidget()),
+      appBar: new PageAppBar(titleWiew: titleWidget()),
       body: new ListView(
         padding: EdgeInsets.all(10),
         children: <Widget>[

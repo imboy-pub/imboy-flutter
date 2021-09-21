@@ -6,22 +6,22 @@ import 'package:imboy/helper/func.dart';
 void confirmAlert<T>(
   BuildContext context,
   VoidCallbackConfirm callBack, {
-  int type,
-  String tips,
-  String okBtn,
-  String cancelBtn,
-  TextStyle okBtnStyle,
-  TextStyle style,
+  int? type,
+  String? tips,
+  String? okBtn,
+  String? cancelBtn,
+  TextStyle? okBtnStyle,
+  TextStyle? style,
   bool isWarm = false,
-  String warmStr,
+  String? warmStr,
 }) {
   showDialog<T>(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext context) {
-      if (!strNoEmpty(okBtn)) okBtn = '确定';
-      if (!strNoEmpty(cancelBtn)) cancelBtn = '取消';
-      if (!strNoEmpty(warmStr)) warmStr = '温馨提示：';
+      if (!strNoEmpty(okBtn!)) okBtn = '确定';
+      if (!strNoEmpty(cancelBtn!)) cancelBtn = '取消';
+      if (!strNoEmpty(warmStr!)) warmStr = '温馨提示：';
       return CupertinoAlertDialog(
         title: isWarm
             ? new Padding(
@@ -77,5 +77,5 @@ void confirmAlert<T>(
         ],
       );
     },
-  ).then<void>((T value) {});
+  ).then<void>((T? value) {});
 }

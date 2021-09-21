@@ -1,7 +1,6 @@
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/api/dialog_api.dart';
 import 'package:imboy/component/ui/chat/chat_details_body.dart';
 import 'package:imboy/component/ui/chat/chat_details_row.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -13,23 +12,21 @@ import 'package:imboy/component/widget/item/chat_more_icon.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/helper/constant.dart';
-import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/win_media.dart';
 import 'package:imboy/page/chat_info/chat_info_view.dart';
 import 'package:imboy/page/chat_more/chat_more_view.dart';
 import 'package:imboy/page/group_detail/group_detail_view.dart';
-import 'package:imboy/store/model/message_model.dart';
 
 import 'chat_logic.dart';
 import 'chat_state.dart';
 
 class ChatPage extends StatefulWidget {
-  final String id; // 用户ID
-  final String type; // [C2C | GROUP]
-  final String title;
+  final String? id; // 用户ID
+  final String? type; // [C2C | GROUP]
+  final String? title;
 
   ChatPage({
-    @required this.id,
+    required this.id,
     this.type = 'C2C',
     this.title,
   });
@@ -47,7 +44,7 @@ class ChatPageState extends State<ChatPage> {
   bool _isMore = false;
   double keyboardHeight = 270.0;
   bool _emojiState = false;
-  String newGroupName;
+  String? newGroupName;
 
   TextEditingController _textController = TextEditingController();
   FocusNode _focusNode = new FocusNode();
@@ -57,10 +54,12 @@ class ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    logic.getChatMsgData();
-
     _sC.addListener(() => FocusScope.of(context).requestFocus(new FocusNode()));
+
     initPlatformState();
+    logic.getChatMsgData();
+    if (mounted) setState(() {});
+
     // Notice.addListener(ChatActions.msg(), (v) => getChatMsgData());
     // bus.on<MessageModel>().listen((event) {
     //   getChatMsgData();
@@ -153,13 +152,16 @@ class ChatPageState extends State<ChatPage> {
 
   Widget edit(context, size) {
     // 计算当前的文本需要占用的行数
-    TextSpan _text =
-        TextSpan(text: _textController.text, style: AppStyles.ChatBoxTextStyle);
+    TextSpan _text = TextSpan(
+      text: _textController.text,
+      style: AppStyles.ChatBoxTextStyle,
+    );
 
     TextPainter _tp = TextPainter(
-        text: _text,
-        textDirection: TextDirection.ltr,
-        textAlign: TextAlign.left);
+      text: _text,
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.left,
+    );
     _tp.layout(maxWidth: size.maxWidth);
 
     return ExtendedTextField(
@@ -169,7 +171,9 @@ class ChatPageState extends State<ChatPage> {
       }),
       onChanged: (v) => setState(() {}),
       decoration: InputDecoration(
-          border: InputBorder.none, contentPadding: const EdgeInsets.all(5.0)),
+        border: InputBorder.none,
+        contentPadding: const EdgeInsets.all(5.0),
+      ),
       controller: _textController,
       focusNode: _focusNode,
       maxLines: 99,
@@ -207,8 +211,8 @@ class ChatPageState extends State<ChatPage> {
         more: new ChatMoreIcon(
           value: _textController.text,
           onTap: () => logic.handleSubmittedData(
-            widget.type,
-            widget.id,
+            widget.type!,
+            widget.id!,
             _textController.text,
           ),
           moreTap: () => onTapHandle(ButtonType.more),
@@ -229,8 +233,8 @@ class ChatPageState extends State<ChatPage> {
           pages: List.generate(2, (index) {
             return new ChatMorePage(
               index: index,
-              id: widget.id,
-              type: widget.type,
+              id: widget.id!,
+              type: widget.type!,
               keyboardHeight: keyboardHeight,
             );
           }),
@@ -240,18 +244,21 @@ class ChatPageState extends State<ChatPage> {
 
     var rWidget = [
       new InkWell(
-          child: new Image(image: AssetImage('assets/images/right_more.png')),
-          onTap: () => Get.to(widget.type == 'GROUP'
-              ? GroupDetailPage(
-                  widget?.id ?? widget.title,
-                  callBack: (v) {},
-                )
-              : ChatInfoPage(widget.id)))
+        child: new Image(image: AssetImage('assets/images/right_more.png')),
+        onTap: () => Get.to(widget.type == 'GROUP'
+            ? GroupDetailPage(
+                widget.id ?? widget.title,
+                callBack: (v) {},
+              )
+            : ChatInfoPage(widget.id!)),
+      )
     ];
 
     return Scaffold(
-      appBar: new ComMomBar(
-          title: newGroupName ?? widget.title, rightDMActions: rWidget),
+      appBar: new PageAppBar(
+        title: newGroupName ?? widget.title,
+        rightDMActions: rWidget,
+      ),
       body: new MainInputBody(
         onTap: () => setState(
           () {
@@ -277,7 +284,7 @@ class ChatPageState extends State<ChatPage> {
             return GestureDetector(
               child: Image(
                 image:
-                    AssetImage(EmojiUitl.instance.emojiMap["[${index + 1}]"]),
+                    AssetImage(EmojiUitl.instance.emojiMap["[${index + 1}]"]!),
               ),
               behavior: HitTestBehavior.translucent,
               onTap: () {

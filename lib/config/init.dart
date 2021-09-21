@@ -5,22 +5,23 @@ import 'package:logger/logger.dart';
 
 typedef Callback(data);
 
-const api_prefix = 'http://dev.api.imboy.pub:9800';
+const API_BASE_URL = 'http://dev.api.imboy.pub:9800';
 const ws_url = 'ws://dev.api.imboy.pub:9800/websocket/';
 
-// const api_prefix = 'http://local.api.imoby.pub:9800';
+const RECORD_LOG = true;
+// const API_BASE_URL = 'http://local.api.imoby.pub:9800';
 // const ws_url = 'ws://local.api.imoby.pub:9800/websocket/';
 
-// const api_prefix = 'http://172.20.10.10:9800';
+// const API_BASE_URL = 'http://172.20.10.10:9800';
 // const ws_url = 'ws://172.20.10.10:9800/websocket/';
 
 class API {
-  static const init = api_prefix + '/init';
-  static const refreshtoken = api_prefix + '/refreshtoken';
-  static const login = api_prefix + '/passport/login';
-  static const regiser = api_prefix + '/passport/regiser';
-  static const friendList = api_prefix + '/friend/list';
-  static const conversationList = api_prefix + '/conversation/mine';
+  static const init = '/init';
+  static const refreshtoken = '/refreshtoken';
+  static const login = '/passport/login';
+  static const register = '/passport/register';
+  static const friendList = '/friend/list';
+  static const conversationList = '/conversation/mine';
 
   static const avatarUrl = 'http://www.lorempixel.com/200/200/';
   static const cat = 'https://api.thecatapi.com/v1/images/search';
@@ -40,5 +41,3 @@ const Color mainBGColor = Color.fromRGBO(240, 240, 245, 1.0);
 var logger = Logger();
 
 WebsocketHeartbeat wshb = new WebsocketHeartbeat(ws_url, subprotocol: ['text']);
-
-class cb {}

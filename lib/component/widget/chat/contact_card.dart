@@ -12,16 +12,16 @@ class ContactCard extends StatelessWidget {
   final String nickname;
   final String avatar;
   final String account;
-  final String area;
+  final String? area;
 
   final bool isBorder;
   final double lineWidth;
 
   ContactCard({
-    @required this.id,
-    this.nickname,
-    @required this.avatar, // 头像
-    @required this.account,
+    required this.id,
+    required this.nickname,
+    required this.avatar, // 头像
+    required this.account,
     this.area, //
     this.isBorder = false,
     this.lineWidth = mainLineWidth,
@@ -71,7 +71,7 @@ class ContactCard extends StatelessWidget {
               new Row(
                 children: <Widget>[
                   new Text(
-                    nickname ?? '未知',
+                    nickname,
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 18.0,
@@ -90,7 +90,7 @@ class ContactCard extends StatelessWidget {
                 padding: EdgeInsets.only(top: 3.0),
                 child: new Text(accountTitle, style: labelStyle),
               ),
-              new Text("地区：" + area ?? '', style: labelStyle),
+              new Text("地区：" + area!, style: labelStyle),
             ],
           )
         ],

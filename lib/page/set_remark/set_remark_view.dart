@@ -10,13 +10,13 @@ class SetRemarkPage extends StatefulWidget {
 }
 
 class _SetRemarkPageState extends State<SetRemarkPage> {
-  final logic = Get.find<SetRemarkLogic>();
+  final logic = Get.put(SetRemarkLogic());
   final SetRemarkState state = Get.find<SetRemarkLogic>().state;
 
   @override
-    Widget build(BuildContext context) {
-      return Container();
-    }
+  Widget build(BuildContext context) {
+    return Container();
+  }
 
   @override
   void dispose() {

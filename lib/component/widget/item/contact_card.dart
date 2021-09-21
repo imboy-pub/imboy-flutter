@@ -8,20 +8,20 @@ import 'package:imboy/helper/win_media.dart';
 import 'package:photo_view/photo_view.dart';
 
 class ContactCard extends StatelessWidget {
-  final String id;
-  final String nickname;
-  final String avatar;
-  final String account;
-  final String area;
+  final String? id;
+  final String? nickname;
+  final String? avatar;
+  final String? account;
+  final String? area;
 
-  final bool isBorder;
-  final double lineWidth;
+  final bool? isBorder;
+  final double? lineWidth;
 
   ContactCard({
-    @required this.id,
+    required this.id,
     this.nickname,
-    @required this.avatar, // 头像
-    @required this.account,
+    required this.avatar, // 头像
+    required this.account,
     this.area, //
     this.isBorder = false,
     this.lineWidth = mainLineWidth,
@@ -37,9 +37,9 @@ class ContactCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        border: isBorder
+        border: isBorder!
             ? Border(
-                bottom: BorderSide(color: lineColor, width: lineWidth),
+                bottom: BorderSide(color: lineColor, width: lineWidth!),
               )
             : null,
       ),
@@ -50,12 +50,12 @@ class ContactCard extends StatelessWidget {
         children: <Widget>[
           new GestureDetector(
             child: new ImageView(
-                img: avatar, width: 55, height: 55, fit: BoxFit.cover),
+                img: avatar!, width: 55, height: 55, fit: BoxFit.cover),
             onTap: () {
-              if (isNetWorkImg(avatar)) {
+              if (isNetWorkImg(avatar!)) {
                 Get.to(
                   new PhotoView(
-                    imageProvider: NetworkImage(avatar),
+                    imageProvider: NetworkImage(avatar!),
                     onTapUp: (c, f, s) => Navigator.of(context).pop(),
                     maxScale: 3.0,
                     minScale: 1.0,
@@ -92,7 +92,7 @@ class ContactCard extends StatelessWidget {
                 padding: EdgeInsets.only(top: 3.0),
                 child: new Text(accountTitle, style: labelStyle),
               ),
-              new Text("地区：" + area ?? '', style: labelStyle),
+              new Text("地区：" + area!, style: labelStyle),
             ],
           )
         ],

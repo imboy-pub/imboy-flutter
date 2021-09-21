@@ -2,7 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:imboy/config/init.dart';
 
 class InfoModel {
-  static getSelfProfile({Callback callback}) async {
+  static getSelfProfile({Callback? callback}) async {
     try {
       // var result = await im.getSelfProfile();
       // callback(result);
@@ -12,7 +12,7 @@ class InfoModel {
     }
   }
 
-  static setAddMyWay(String type, {Callback callback}) async {
+  static setAddMyWay(String type, {Callback? callback}) async {
     try {
       // var result = await im.setAddMyWay(type);
       // callback(result);
@@ -21,7 +21,7 @@ class InfoModel {
     }
   }
 
-  static checkFriends(List<String> users, {Callback callback}) async {
+  static checkFriends(List<String> users, {Callback? callback}) async {
     try {
       // var result = await im.checkFriends(users);
       // callback(result);
@@ -30,7 +30,7 @@ class InfoModel {
     }
   }
 
-  static getSelfGroupNameCardModel(String groupId, {Callback callback}) async {
+  static getSelfGroupNameCardModel(String groupId, {Callback? callback}) async {
     try {
       // var result = await im.getSelfGroupNameCard(groupId);
       // callback(result);
@@ -40,7 +40,7 @@ class InfoModel {
   }
 
   static setGroupNameCardModel(String groupId, String identifier, String name,
-      {Callback callback}) async {
+      {Callback? callback}) async {
     try {
       // var result = await im.setGroupNameCard(groupId, identifier, name);
       // callback(result);
@@ -50,7 +50,7 @@ class InfoModel {
   }
 
   static getGroupMembersInfoModel(String groupId, List<String> userIDs,
-      {Callback callback}) async {
+      {Callback? callback}) async {
     try {
       // var result = await im.getGroupMembersInfo(groupId, userIDs);
       // callback(result);

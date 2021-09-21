@@ -48,7 +48,9 @@ class ImgMsg extends StatelessWidget {
           ),
           onTap: () => Get.to(
             PhotoView(
-              imageProvider: isFile ? FileImage(File(url)) : NetworkImage(url),
+              imageProvider: isFile
+                  ? FileImage(File(url)) as ImageProvider
+                  : NetworkImage(url) as ImageProvider,
               onTapUp: (c, f, s) => Navigator.of(context).pop(),
               maxScale: 3.0,
               minScale: 1.0,

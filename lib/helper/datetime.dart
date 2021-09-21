@@ -1,7 +1,7 @@
 class DateTimeHelper {
   static String full = "yyyy-MM-dd HH:mm:ss";
 
-  static String formatDateV(DateTime dateTime, {bool isUtc, String format}) {
+  static String formatDateV(DateTime dateTime, {bool? isUtc, String? format}) {
     if (dateTime == null) return "";
     format = format ?? full;
     if (format.contains("yy")) {

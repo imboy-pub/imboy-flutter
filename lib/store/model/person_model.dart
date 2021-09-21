@@ -1,20 +1,20 @@
 import 'package:imboy/store/repository/person_repo.dart';
 
 class PersonModel {
-  String uid;
-  String account;
-  String nickname;
-  String avatar;
-  String area;
+  String? uid;
+  String? account;
+  String? nickname;
+  String? avatar;
+  String? area;
 
-  int birthday;
-  int role;
-  int gender;
-  int levelId;
-  int language;
-  String sign;
+  int? birthday;
+  int? role;
+  int? gender;
+  int? levelId;
+  int? language;
+  String? sign;
   dynamic allowType;
-  String location;
+  String? location;
 
   PersonModel({
     this.uid,
@@ -66,7 +66,7 @@ class PersonModel {
     return data;
   }
 
-  static Future<PersonModel> find(String uid) async {
+  static Future<PersonModel?> find(String uid) async {
     return (new PersonRepo()).find(uid);
   }
 }

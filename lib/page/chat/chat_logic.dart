@@ -35,7 +35,7 @@ class ChatLogic extends GetxController {
     state.chatData.clear();
     // chatData..addAll(listChat.reversed);
     state.chatData..addAll(listChat);
-    // if (mounted) setState(() {});
+    update();
   }
 
   Future<MessageModel> insert(Map<String, dynamic> map) async {
@@ -54,7 +54,7 @@ class ChatLogic extends GetxController {
   Future<void> handleSubmittedData(
       String msgType, String touid, String text) async {
     // String fromid = await SharedUtil.instance.getString(Keys.uid);
-    String fromid = UserRepository.currentUser().uid;
+    String? fromid = UserRepository.currentUser().uid;
 
     // _textController.clear();
 

@@ -10,13 +10,13 @@ class GroupListPage extends StatefulWidget {
 }
 
 class _GroupListPageState extends State<GroupListPage> {
-  final logic = Get.find<GroupListLogic>();
+  final logic = Get.put(GroupListLogic());
   final GroupListState state = Get.find<GroupListLogic>().state;
 
   @override
-    Widget build(BuildContext context) {
-      return Container();
-    }
+  Widget build(BuildContext context) {
+    return Container();
+  }
 
   @override
   void dispose() {

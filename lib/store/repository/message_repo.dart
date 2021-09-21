@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:imboy/helper/database.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:sqflite/sqflite.dart';
@@ -15,7 +14,7 @@ class MessageRepo {
   static String payload = 'payload';
   static String serverTs = 'server_ts';
 
-  Database _db;
+  Database? _db;
 
   MessageRepo() {
     _database();
@@ -23,7 +22,7 @@ class MessageRepo {
 
   _database() async {
     this._db = await DatabaseHelper.instance.database;
-    debugPrint(">>>>>>>>>>>>>>>>>>> on MessageRepo _database ${this._db}");
+    // debugPrint(">>>>>>>>>>>>>>>>>>> on MessageRepo _database ${this._db}");
   }
 
   // 插入一条数据
@@ -36,19 +35,20 @@ class MessageRepo {
       'type': msg.type,
       'from_id': msg.fromId,
       'to_id': msg.toId,
-      'payload': json.encode(msg.payload.toMap()),
+      'payload': json.encode(msg.payload!.toMap()),
       'server_ts': msg.serverTs ?? 0,
     };
-    msg.id = await this._db.insert(MessageRepo.tablename, insert);
+    msg.id = await this._db!.insert(MessageRepo.tablename, insert);
     return msg;
   }
 
   // 查找所有信息
-  Future<List<MessageModel>> all() async {
+  Future<List<MessageModel>?> all() async {
     if (this._db == null) {
       await this._database();
     }
-    List<Map> maps = await _db.query(MessageRepo.tablename, columns: [
+    List<Map<String, dynamic>> maps =
+        await _db!.query(MessageRepo.tablename, columns: [
       MessageRepo.id,
       MessageRepo.type,
       MessageRepo.from,
@@ -69,11 +69,11 @@ class MessageRepo {
   }
 
   //
-  Future<MessageModel> find(int id) async {
+  Future<MessageModel?> find(int id) async {
     if (this._db == null) {
       await this._database();
     }
-    List<Map> maps = await _db.query(MessageRepo.tablename,
+    List<Map<String, dynamic>> maps = await _db!.query(MessageRepo.tablename,
         columns: [
           MessageRepo.id,
           MessageRepo.type,
@@ -95,7 +95,7 @@ class MessageRepo {
     if (this._db == null) {
       await this._database();
     }
-    return await _db.delete(MessageRepo.tablename,
+    return await _db!.delete(MessageRepo.tablename,
         where: '${MessageRepo.id} = ?', whereArgs: [id]);
   }
 
@@ -104,12 +104,12 @@ class MessageRepo {
     if (this._db == null) {
       await this._database();
     }
-    return await _db.update(MessageRepo.tablename, message.toMap(),
+    return await _db!.update(MessageRepo.tablename, message.toMap(),
         where: '${MessageRepo.id} = ?', whereArgs: [message.id]);
   }
 
 // 记得及时关闭数据库，防止内存泄漏
 // close() async {
-//   await _db.close();
+//   await _db!.close();
 // }
 }

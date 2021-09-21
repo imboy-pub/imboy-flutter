@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:imboy/config/const.dart';
 
 class SearchMainView extends StatelessWidget {
-  final GestureTapCallback onTap;
-  final String text;
-  final bool isBorder;
+  final GestureTapCallback? onTap;
+  final String? text;
+  final bool? isBorder;
 
   SearchMainView({
     this.onTap,
@@ -21,7 +21,7 @@ class SearchMainView extends StatelessWidget {
           child: new Icon(Icons.search, color: mainTextColor),
         ),
         new Text(
-          text,
+          text!,
           style: TextStyle(color: mainTextColor),
         )
       ],
@@ -31,7 +31,7 @@ class SearchMainView extends StatelessWidget {
       child: new Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          border: isBorder
+          border: isBorder!
               ? Border(
                   bottom: BorderSide(color: lineColor, width: 0.2),
                 )

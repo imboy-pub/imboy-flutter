@@ -4,9 +4,9 @@ import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/win_media.dart';
 
 class SearchTileView extends StatelessWidget {
-  final String text;
-  final int type;
-  final VoidCallback onPressed;
+  final String? text;
+  final int? type;
+  final VoidCallback? onPressed;
 
   SearchTileView(this.text, {this.type = 0, this.onPressed});
 
@@ -26,7 +26,7 @@ class SearchTileView extends StatelessWidget {
           ),
           new Text('搜索：'),
           new Text(
-            text,
+            text!,
             style: TextStyle(color: Colors.green),
           ),
         ],
@@ -48,7 +48,7 @@ class SearchTileView extends StatelessWidget {
               children: <Widget>[
                 new Text('搜一搜：'),
                 new Text(
-                  text,
+                  text!,
                   style: TextStyle(color: Colors.green),
                 ),
               ],

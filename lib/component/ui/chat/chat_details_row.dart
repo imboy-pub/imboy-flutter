@@ -5,13 +5,13 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/constant.dart';
 
 class ChatDetailsRow extends StatefulWidget {
-  final String id; // 用户ID
-  final String type; // [C2C | GROUP]
-  final GestureTapCallback voiceOnTap;
-  final bool isVoice;
-  final LayoutWidgetBuilder edit;
-  final VoidCallback onEmojio;
-  final Widget more;
+  final String? id; // 用户ID
+  final String? type; // [C2C | GROUP]
+  final GestureTapCallback? voiceOnTap;
+  final bool? isVoice;
+  final LayoutWidgetBuilder? edit;
+  final VoidCallback? onEmojio;
+  final Widget? more;
 
   ChatDetailsRow({
     this.voiceOnTap,
@@ -27,7 +27,7 @@ class ChatDetailsRow extends StatefulWidget {
 }
 
 class ChatDetailsRowState extends State<ChatDetailsRow> {
-  String path;
+  String? path;
 
   @override
   void initState() {
@@ -70,7 +70,7 @@ class ChatDetailsRowState extends State<ChatDetailsRow> {
               ),
               onTap: () {
                 if (widget.voiceOnTap != null) {
-                  widget.voiceOnTap();
+                  widget.voiceOnTap!();
                 }
               },
             ),
@@ -81,13 +81,13 @@ class ChatDetailsRowState extends State<ChatDetailsRow> {
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(5.0)),
-                child: widget.isVoice
+                child: widget.isVoice!
                     ? new ChatVoice(
                         voiceFile: (path) {
                           setState(() => this.path = path);
                         },
                       )
-                    : new LayoutBuilder(builder: widget.edit),
+                    : new LayoutBuilder(builder: widget.edit!),
               ),
             ),
             new InkWell(
@@ -97,10 +97,10 @@ class ChatDetailsRowState extends State<ChatDetailsRow> {
                 fit: BoxFit.cover,
               ),
               onTap: () {
-                widget.onEmojio();
+                widget.onEmojio!();
               },
             ),
-            widget.more,
+            widget.more!,
           ],
         ),
       ),

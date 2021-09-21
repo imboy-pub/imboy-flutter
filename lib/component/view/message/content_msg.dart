@@ -15,7 +15,7 @@ class ContentMsg extends StatefulWidget {
 }
 
 class _ContentMsgState extends State<ContentMsg> {
-  String str;
+  String? str;
 
   TextStyle _style = TextStyle(color: mainTextColor, fontSize: 14.0);
 
@@ -53,7 +53,7 @@ class _ContentMsgState extends State<ContentMsg> {
     }
 
     return new ExtendedText(
-      str,
+      str!,
       specialTextSpanBuilder: TextSpanBuilder(showAtBackground: true),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,

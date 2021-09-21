@@ -6,7 +6,7 @@ class IndicatorPageView extends StatefulWidget {
   final PageController pageC;
   final List<Widget> pages;
 
-  IndicatorPageView({this.pageC, this.pages});
+  IndicatorPageView({required this.pageC, required this.pages});
 
   IndicatorPageViewState createState() => IndicatorPageViewState();
 }

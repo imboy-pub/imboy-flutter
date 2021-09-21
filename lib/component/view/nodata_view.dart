@@ -17,7 +17,7 @@ class NoDataView extends StatelessWidget {
         child: ElevatedButton(
           onPressed: () {},
           child: Text(
-            str ?? '',
+            str,
           ),
         ),
       ),

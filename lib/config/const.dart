@@ -49,38 +49,6 @@ const CONST_HELP_URL =
 const defContentImg =
     'https://www.runoob.com/wp-content/uploads/2015/06/image_1c58e950q14da167k1nqpu2hn5e9.png';
 
-const INDEX_BAR_WORDS = [
-  "↑",
-  "☆",
-  "A",
-  "B",
-  "C",
-  "D",
-  "E",
-  "F",
-  "G",
-  "H",
-  "I",
-  "J",
-  "K",
-  "L",
-  "M",
-  "N",
-  "O",
-  "P",
-  "Q",
-  "R",
-  "S",
-  "T",
-  "U",
-  "V",
-  "W",
-  "X",
-  "Y",
-  "Z",
-  "#",
-];
-
 class Keys {
   // 客服端Key
   static final String currentLanguageCode = "current_language_code";

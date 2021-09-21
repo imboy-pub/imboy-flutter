@@ -6,18 +6,20 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/win_media.dart';
 
 class ListTileView extends StatelessWidget {
-  final BoxBorder border;
-  final VoidCallback onPressed;
-  final String title;
-  final String label;
+  final BoxBorder? border;
+  final VoidCallback? onPressed;
+  final String? title;
+  final String? label;
   final String icon;
   final double width;
   final double horizontal;
   final TextStyle titleStyle;
   final bool isLabel;
   final EdgeInsetsGeometry padding;
-  final EdgeInsetsGeometry margin;
-  final BoxFit fit;
+  final EdgeInsetsGeometry? margin;
+  final BoxFit? fit;
+  final double cWidth;
+  final bool needRightArrow;
 
   ListTileView({
     this.border,
@@ -26,13 +28,15 @@ class ListTileView extends StatelessWidget {
     this.label,
     this.padding = const EdgeInsets.symmetric(vertical: 15.0),
     this.isLabel = true,
+    this.needRightArrow = true,
     this.icon = '',
     this.titleStyle =
-        const TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+        const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
     this.margin,
     this.fit,
     this.width = 45.0,
     this.horizontal = 10.0,
+    this.cWidth = 0.0,
   });
 
   @override
@@ -40,7 +44,7 @@ class ListTileView extends StatelessWidget {
     var text = new Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        new Text(title ?? '', style: titleStyle ?? null),
+        new Text(title ?? '', style: titleStyle),
         new Text(
           label ?? '',
           style: TextStyle(color: mainTextColor, fontSize: 12),
@@ -49,16 +53,18 @@ class ListTileView extends StatelessWidget {
     );
 
     var view = [
-      isLabel ? text : new Text(title, style: titleStyle),
+      isLabel ? text : new Text(title!, style: titleStyle),
       new Spacer(),
-      new Container(
-        width: 7.0,
-        child: new Image(
-          image: AssetImage('assets/images/ic_right_arrow_grey.webp'),
-          color: mainTextColor.withOpacity(0.5),
-          fit: BoxFit.cover,
-        ),
-      ),
+      needRightArrow
+          ? new Container(
+              width: 7.0,
+              child: new Image(
+                image: AssetImage('assets/images/ic_right_arrow_grey.webp'),
+                color: mainTextColor.withOpacity(0.5),
+                fit: BoxFit.cover,
+              ),
+            )
+          : new Space(),
       new Space(),
     ];
 
@@ -77,12 +83,12 @@ class ListTileView extends StatelessWidget {
         : new Row(
             children: <Widget>[
               new Container(
-                width: width - 5,
+                width: width,
                 margin: EdgeInsets.symmetric(horizontal: horizontal),
                 child: new ImageView(img: icon, width: width, fit: fit),
               ),
               new Container(
-                width: winWidth(context) - 60,
+                width: cWidth > 0 ? cWidth : winWidth(context) - 60,
                 padding: padding,
                 decoration: BoxDecoration(border: border),
                 child: new Row(children: view),

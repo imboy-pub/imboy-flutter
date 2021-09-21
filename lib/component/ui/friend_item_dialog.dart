@@ -8,7 +8,7 @@ import 'confirm_alert.dart';
 
 typedef OnSuCc = void Function(bool v);
 
-friendItemDialog(BuildContext context, {String userId, OnSuCc suCc}) {
+friendItemDialog(BuildContext context, {String? userId, OnSuCc? suCc}) {
   action(v) {
     Navigator.of(context).pop();
     if (v == '删除') {

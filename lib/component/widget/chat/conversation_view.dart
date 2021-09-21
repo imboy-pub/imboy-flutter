@@ -6,10 +6,10 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/win_media.dart';
 
 class ConversationView extends StatefulWidget {
-  final String imageUrl;
-  final String title;
+  final String? imageUrl;
+  final String? title;
   final dynamic payload;
-  final Widget time;
+  final Widget? time;
   final bool isBorder;
 
   ConversationView({
@@ -39,14 +39,14 @@ class _ConversationViewState extends State<ConversationView> {
                 style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.normal),
               ),
               new SizedBox(height: 2.0),
-              new ContentMsg(widget?.payload),
+              new ContentMsg(widget.payload),
             ],
           ),
         ),
         new Space(width: mainSpace),
         new Column(
           children: [
-            widget.time,
+            widget.time!,
             new Icon(Icons.flag, color: Colors.transparent),
           ],
         )
@@ -60,7 +60,7 @@ class _ConversationViewState extends State<ConversationView> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           new ImageView(
-            img: widget.imageUrl,
+            img: widget.imageUrl!,
             height: 50.0,
             width: 50.0,
             fit: BoxFit.cover,

@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 class AppException implements Exception {
-  final String _message;
+  final String? _message;
   String get message => _message ?? this.runtimeType.toString();
-  final int _code;
+  final int? _code;
   int get code => _code ?? -1;
   AppException([this._message, this._code]);
 
@@ -27,16 +27,14 @@ class AppException implements Exception {
           } else {
             return UnknowException(error.error.message);
           }
-          break;
         case DioErrorType.connectTimeout:
         case DioErrorType.receiveTimeout:
         case DioErrorType.sendTimeout:
           return NetworkException(error.error.message);
         case DioErrorType.response:
-          return HttpException(error.error.message, error.response.statusCode);
+          return HttpException(error.error.message, error.response!.statusCode);
         case DioErrorType.cancel:
           return CancelException(error.error.message);
-          break;
         default:
           return FetchDataException(error.error.message);
       }
@@ -47,32 +45,32 @@ class AppException implements Exception {
 }
 
 class HttpException extends AppException {
-  HttpException([String message, int code]) : super(message, code);
+  HttpException([String? message, int? code]) : super(message, code);
 }
 
 class FetchDataException extends AppException {
-  FetchDataException([String message])
+  FetchDataException([String? message])
       : super(
           message,
         );
 }
 
 class UnknowException extends AppException {
-  UnknowException([String message])
+  UnknowException([String? message])
       : super(
           message,
         );
 }
 
 class CancelException extends AppException {
-  CancelException([String message])
+  CancelException([String? message])
       : super(
           message,
         );
 }
 
 class NetworkException extends AppException {
-  NetworkException([String message])
+  NetworkException([String? message])
       : super(
           message,
         );

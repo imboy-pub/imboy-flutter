@@ -3,13 +3,13 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/win_media.dart';
 
 class EditView extends StatelessWidget {
-  final String label;
-  final String hint;
-  final TextEditingController controller;
-  final Color bottomLineColor;
-  final FocusNode focusNode;
-  final GestureTapCallback onTap;
-  final ValueChanged<String> onChanged;
+  final String? label;
+  final String? hint;
+  final TextEditingController? controller;
+  final Color? bottomLineColor;
+  final FocusNode? focusNode;
+  final GestureTapCallback? onTap;
+  final ValueChanged<String>? onChanged;
 
   EditView(
       {this.label,

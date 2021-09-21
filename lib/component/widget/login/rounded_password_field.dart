@@ -6,8 +6,8 @@ import 'package:imboy/page/login/login_logic.dart';
 class RoundedPasswordField extends StatelessWidget {
   final ValueChanged<String> onChanged;
   const RoundedPasswordField({
-    Key key,
-    this.onChanged,
+    Key? key,
+    required this.onChanged,
   }) : super(key: key);
 
   @override

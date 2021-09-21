@@ -6,9 +6,9 @@ import 'package:imboy/store/model/message_model.dart';
 
 class ChatDetailsBody extends StatelessWidget {
   final ScrollController sC;
-  final List<MessageModel> msgs;
+  List<MessageModel> msgs = [];
 
-  ChatDetailsBody({this.sC, this.msgs});
+  ChatDetailsBody({required this.sC, required this.msgs});
 
   @override
   Widget build(BuildContext context) {

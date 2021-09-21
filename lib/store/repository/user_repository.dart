@@ -5,7 +5,7 @@ import 'package:imboy/page/login/login_view.dart';
 import 'package:imboy/store/model/user_model.dart';
 
 class UserRepository {
-  static loginAfter(Map payload) async {
+  static Future<bool> loginAfter(Map payload) async {
     await GetStorage().write(Keys.tokenKey, payload['token']);
     if (payload['avatar'].toString().isEmpty) {
       payload['avatar'] = 'assets/images/logo.png';
@@ -14,14 +14,14 @@ class UserRepository {
     return true;
   }
 
-  static String accessToken() {
+  static String? accessToken() {
     return GetStorage().read(Keys.tokenKey);
   }
 
   static UserModel currentUser() {
     var data = GetStorage().read(Keys.currentUser);
     if (data == null) {
-      Get.to(() => LoginPage());
+      Get.off(() => LoginPage());
     }
     // debugPrint(">>>>>>>>>>>>>>>>>>> currentUser {$data}");
     return UserModel.fromJson(data);
