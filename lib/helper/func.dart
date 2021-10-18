@@ -1,9 +1,25 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+
+// This alphabet uses `A-Za-z0-9_-` symbols. The genetic algorithm helped
+// optimize the gzip compression for this alphabet.
+const _alphabet =
+    'ModuleSymbhasOwnPr-0123456789ABCDEFGHNRVfgctiUvz_KqYTJkLxpZXIjQW';
+
+/// Generates a random String id
+/// Adopted from: https://github.com/ai/nanoid/blob/main/non-secure/index.js
+String randomId({int size = 21}) {
+  var id = '';
+  for (var i = 0; i < size; i++) {
+    id += _alphabet[(math.Random().nextDouble() * 64).floor() | 0];
+  }
+  return id;
+}
 
 /// 手机号正则表达式->true匹配
 bool isMobilePhoneNumber(String value) {

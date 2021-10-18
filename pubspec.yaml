@@ -31,7 +31,7 @@ dependencies:
   # getx 状态管理框架
   get: ^4.3.4
   get_storage: ^2.0.3
-#  getsocket: ^1.0.1
+  getsocket: ^1.0.1
   #演示列表需要用到的库
   dio: ^4.0.0    #网络请求框架
   json_annotation: ^4.0.1 #json序列化和反序列化用的
@@ -52,7 +52,7 @@ dependencies:
   logger: ^1.0.0
   sentry: ^6.0.1
   moor: ^4.3.2
-  photo_view: ^0.13.0
+  photo_view: ^0.12.0
   extended_text: ^7.0.0
   lpinyin: ^2.0.3
   azlistview: ^2.0.0-nullsafety.0
@@ -62,6 +62,11 @@ dependencies:
   extended_text_field: ^8.0.0
   image_picker: ^0.8.4+2
   flutter_image_compress: ^1.1.0
+  logging: ^1.0.2
+  flutter_chat_ui: ^1.4.4
+  mime: ^1.0.1
+  file_picker: ^4.1.4
+  open_file: ^3.2.1
   #flutter_socket_plugin: ^3.0.0
 
 dev_dependencies:

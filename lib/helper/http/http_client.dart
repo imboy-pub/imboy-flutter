@@ -23,12 +23,12 @@ class HttpClient {
       sendTimeout: dioConfig?.sendTimeout,
       receiveTimeout: dioConfig?.receiveTimeout,
     )..headers = dioConfig?.headers;
-    debugPrint(">>>>>>>>>>>>>>>>>>> dio options: {$options.toString()}");
     options.headers['Accept'] = Headers.jsonContentType;
     options.headers['device-type'] = Platform.operatingSystem;
     options.headers['device-type-vsn'] = Platform.operatingSystemVersion;
 
-    options.headers[Keys.tokenKey] = UserRepository.accessToken();
+    String? tk = UserRepository.accessToken();
+    options.headers[Keys.tokenKey] = tk ?? '';
 
     _dio = Dio(options);
 
@@ -77,8 +77,14 @@ class HttpClient {
         cancelToken: cancelToken,
         onReceiveProgress: onReceiveProgress,
       );
+      debugPrint(">>>>>> on response.toString(): " + response.toString());
+
+      String? tk = UserRepository.accessToken();
+      debugPrint(">>>>>>>>>>>> on tk: $tk; key: " + Keys.tokenKey);
       return handleResponse(response, httpTransformer: httpTransformer);
     } on Exception catch (e) {
+      debugPrint(">>>>>> on uri: $uri ; options: " + options.toString());
+      debugPrint(">>>>>> on Exception: " + e.toString());
       return handleException(e);
     }
   }

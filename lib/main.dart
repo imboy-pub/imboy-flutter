@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:imboy/component/view/controller.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/http/http_client.dart';
@@ -23,6 +24,8 @@ void main() async {
   // HttpConfig(baseUrl: "https://gank.io/", proxy: "192.168.2.249:8888");
   HttpClient client = HttpClient(dioConfig: dioConfig);
   Get.put<HttpClient>(client);
+
+  Get.lazyPut(() => Controller());
 
   // Get.putAsync<SharedPreferences>(() async {
   //   final sp = await SharedPreferences.getInstance();

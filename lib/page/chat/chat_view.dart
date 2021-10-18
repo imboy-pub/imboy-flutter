@@ -1,21 +1,20 @@
-import 'package:extended_text_field/extended_text_field.dart';
+import 'dart:convert';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/ui/chat/chat_details_body.dart';
-import 'package:imboy/component/ui/chat/chat_details_row.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/edit/emoji_text.dart';
-import 'package:imboy/component/ui/edit/text_span.dart';
-import 'package:imboy/component/view/indicator_page_view.dart';
-import 'package:imboy/component/view/main_input.dart';
-import 'package:imboy/component/widget/item/chat_more_icon.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/config/enum.dart';
-import 'package:imboy/helper/constant.dart';
-import 'package:imboy/helper/win_media.dart';
 import 'package:imboy/page/chat_info/chat_info_view.dart';
-import 'package:imboy/page/chat_more/chat_more_view.dart';
 import 'package:imboy/page/group_detail/group_detail_view.dart';
+// import 'package:intl/date_symbol_data_local.dart';
+import 'package:mime/mime.dart';
+import 'package:open_file/open_file.dart';
+import 'package:uuid/uuid.dart';
 
 import 'chat_logic.dart';
 import 'chat_state.dart';
@@ -39,209 +38,158 @@ class ChatPageState extends State<ChatPage> {
   final logic = Get.put(ChatLogic());
   final ChatState state = Get.find<ChatLogic>().state;
 
-  // EventBus _msgStreamSubs;
-  bool _isVoice = false;
-  bool _isMore = false;
-  double keyboardHeight = 270.0;
-  bool _emojiState = false;
-  String? newGroupName;
+  String newGroupName = "";
 
-  TextEditingController _textController = TextEditingController();
-  FocusNode _focusNode = new FocusNode();
-  ScrollController _sC = ScrollController();
-  PageController pageC = new PageController();
+  List<types.Message> _messages = [];
+  final _user = const types.User(id: '06c33e8b-e835-4736-80f4-63f44b66666c');
 
   @override
   void initState() {
     super.initState();
-    _sC.addListener(() => FocusScope.of(context).requestFocus(new FocusNode()));
-
-    initPlatformState();
-    logic.getChatMsgData();
-    if (mounted) setState(() {});
-
-    // Notice.addListener(ChatActions.msg(), (v) => getChatMsgData());
-    // bus.on<MessageModel>().listen((event) {
-    //   getChatMsgData();
-    // });
-    // if (widget.type == 'GROUP') {
-    //   bus.on<MessageModel>().listen((event) {
-    //     setState(() => newGroupName = event.type);
-    //   });
-    // }
-    _focusNode.addListener(() {
-      if (_focusNode.hasFocus) _emojiState = false;
-    });
+    _loadMessages();
   }
 
-  void insertText(String text) {
-    var value = _textController.value;
-    var start = value.selection.baseOffset;
-    var end = value.selection.extentOffset;
-    if (value.selection.isValid) {
-      String newText = '';
-      if (value.selection.isCollapsed) {
-        if (end > 0) {
-          newText += value.text.substring(0, end);
-        }
-        newText += text;
-        if (value.text.length > end) {
-          newText += value.text.substring(end, value.text.length);
-        }
-      } else {
-        newText = value.text.replaceRange(start, end, text);
-        end = start;
-      }
-
-      _textController.value = value.copyWith(
-          text: newText,
-          selection: value.selection.copyWith(
-              baseOffset: end + text.length, extentOffset: end + text.length));
-    } else {
-      _textController.value = TextEditingValue(
-          text: text,
-          selection:
-              TextSelection.fromPosition(TextPosition(offset: text.length)));
-    }
-  }
-
-  void canCelListener() {
-    // if (_msgStreamSubs != null) {
-    //   _msgStreamSubs.destroy();
-    // }
-  }
-
-  Future<void> initPlatformState() async {
-    if (!mounted) {
-      return;
-    }
-
-    // if (_msgStreamSubs == null) {
-    //   // Register listeners for all events:
-    //   _msgStreamSubs = (new EventBus()).on().listen((e) {
-    //     String dtype = e['type'] ?? 'error';
-    //     debugPrint(">>>>>>>>>>>>>>>>>>> on _msgStreamSubs ${e}");
-    //     // {"type":"C2C","from":"18aw3p","to":"kybqdp","payload":{"msg_type":10,"content":"b1","send_ts":1596502941380},"server_ts":1596502941499}
-    //     switch (dtype.toUpperCase()) {
-    //       case 'C2C':
-    //         chatData.insert(0, MessageModel.fromMap(e));
-    //         break;
-    //     }
-    //   }) as EventBus;
-    // }
-  }
-
-  onTapHandle(ButtonType type) {
+  void _addMessage(types.Message message) {
     setState(() {
-      if (type == ButtonType.voice) {
-        _focusNode.unfocus();
-        _isMore = false;
-        _isVoice = !_isVoice;
-      } else {
-        _isVoice = false;
-        if (_focusNode.hasFocus) {
-          _focusNode.unfocus();
-          _isMore = true;
-        } else {
-          _isMore = !_isMore;
-        }
-      }
-      _emojiState = false;
+      _messages.insert(0, message);
     });
   }
 
-  Widget edit(context, size) {
-    // 计算当前的文本需要占用的行数
-    TextSpan _text = TextSpan(
-      text: _textController.text,
-      style: AppStyles.ChatBoxTextStyle,
+  void _handleAtachmentPressed() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: SizedBox(
+            height: 144,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _handleImageSelection();
+                  },
+                  child: const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Photo'),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _handleFileSelection();
+                  },
+                  child: const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('File'),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Cancel'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _handleFileSelection() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
     );
 
-    TextPainter _tp = TextPainter(
-      text: _text,
-      textDirection: TextDirection.ltr,
-      textAlign: TextAlign.left,
-    );
-    _tp.layout(maxWidth: size.maxWidth);
+    if (result != null && result.files.single.path != null) {
+      final message = types.FileMessage(
+        author: _user,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        id: const Uuid().v4(),
+        mimeType: lookupMimeType(result.files.single.path!),
+        name: result.files.single.name,
+        size: result.files.single.size,
+        uri: result.files.single.path!,
+      );
 
-    return ExtendedTextField(
-      specialTextSpanBuilder: TextSpanBuilder(showAtBackground: true),
-      onTap: () => setState(() {
-        if (_focusNode.hasFocus) _emojiState = false;
-      }),
-      onChanged: (v) => setState(() {}),
-      decoration: InputDecoration(
-        border: InputBorder.none,
-        contentPadding: const EdgeInsets.all(5.0),
-      ),
-      controller: _textController,
-      focusNode: _focusNode,
-      maxLines: 99,
-      cursorColor: const Color(AppColors.ChatBoxCursorColor),
-      style: AppStyles.ChatBoxTextStyle,
+      _addMessage(message);
+    }
+  }
+
+  void _handleImageSelection() async {
+    final result = await ImagePicker().pickImage(
+      imageQuality: 70,
+      maxWidth: 1440,
+      source: ImageSource.gallery,
     );
+
+    if (result != null) {
+      final bytes = await result.readAsBytes();
+      final image = await decodeImageFromList(bytes);
+
+      final message = types.ImageMessage(
+        author: _user,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        height: image.height.toDouble(),
+        id: const Uuid().v4(),
+        name: result.name,
+        size: bytes.length,
+        uri: result.path,
+        width: image.width.toDouble(),
+      );
+
+      _addMessage(message);
+    }
+  }
+
+  void _handleMessageTap(types.Message message) async {
+    if (message is types.FileMessage) {
+      await OpenFile.open(message.uri);
+    }
+  }
+
+  void _handlePreviewDataFetched(
+    types.TextMessage message,
+    types.PreviewData previewData,
+  ) {
+    final index = _messages.indexWhere((element) => element.id == message.id);
+    final updatedMessage = _messages[index].copyWith(previewData: previewData);
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      setState(() {
+        _messages[index] = updatedMessage;
+      });
+    });
+  }
+
+  void _handleSendPressed(types.PartialText message) {
+    final textMessage = types.TextMessage(
+      author: _user,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      id: const Uuid().v4(),
+      text: message.text,
+    );
+
+    _addMessage(textMessage);
+  }
+
+  void _loadMessages() async {
+    final response = await rootBundle.loadString('assets/data/messages.json');
+    final messages = (jsonDecode(response) as List)
+        .map((e) => types.Message.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    setState(() {
+      _messages = messages;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (keyboardHeight == 270.0 &&
-        MediaQuery.of(context).viewInsets.bottom != 0) {
-      keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    }
-    var body = [
-      state.chatData != null
-          ? new ChatDetailsBody(sC: _sC, msgs: state.chatData)
-          : new Spacer(),
-      new ChatDetailsRow(
-        voiceOnTap: () => onTapHandle(ButtonType.voice),
-        onEmojio: () {
-          if (_isMore) {
-            _emojiState = true;
-          } else {
-            _emojiState = !_emojiState;
-          }
-          if (_emojiState) {
-            FocusScope.of(context).requestFocus(new FocusNode());
-            _isMore = false;
-          }
-          setState(() {});
-        },
-        isVoice: _isVoice,
-        edit: edit,
-        more: new ChatMoreIcon(
-          value: _textController.text,
-          onTap: () => logic.handleSubmittedData(
-            widget.type!,
-            widget.id!,
-            _textController.text,
-          ),
-          moreTap: () => onTapHandle(ButtonType.more),
-        ),
-        id: widget.id,
-        type: widget.type,
-      ),
-      new Visibility(
-        visible: _emojiState,
-        child: emojiWidget(),
-      ),
-      new Container(
-        height: _isMore && !_focusNode.hasFocus ? keyboardHeight : 0.0,
-        width: winWidth(context),
-        color: Color(AppColors.ChatBoxBg),
-        child: new IndicatorPageView(
-          pageC: pageC,
-          pages: List.generate(2, (index) {
-            return new ChatMorePage(
-              index: index,
-              id: widget.id!,
-              type: widget.type!,
-              keyboardHeight: keyboardHeight,
-            );
-          }),
-        ),
-      ),
-    ];
-
     var rWidget = [
       new InkWell(
         child: new Image(image: AssetImage('assets/images/right_more.png')),
@@ -255,48 +203,22 @@ class ChatPageState extends State<ChatPage> {
     ];
 
     return Scaffold(
+      backgroundColor: chatBg,
       appBar: new PageAppBar(
-        title: newGroupName ?? widget.title,
+        title: newGroupName == "" ? widget.title : newGroupName,
         rightDMActions: rWidget,
       ),
-      body: new MainInputBody(
-        onTap: () => setState(
-          () {
-            _isMore = false;
-            _emojiState = false;
-          },
-        ),
-        decoration: BoxDecoration(color: chatBg),
-        child: new Column(children: body),
-      ),
-    );
-  }
-
-  Widget emojiWidget() {
-    return new GestureDetector(
-      child: new SizedBox(
-        height: _emojiState ? keyboardHeight : 0,
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 7, crossAxisSpacing: 10.0, mainAxisSpacing: 10.0),
-          scrollDirection: Axis.horizontal,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              child: Image(
-                image:
-                    AssetImage(EmojiUitl.instance.emojiMap["[${index + 1}]"]!),
-              ),
-              behavior: HitTestBehavior.translucent,
-              onTap: () {
-                insertText("[${index + 1}]");
-              },
-            );
-          },
-          itemCount: EmojiUitl.instance.emojiMap.length,
-          padding: EdgeInsets.all(5.0),
+      body: SafeArea(
+        bottom: false,
+        child: Chat(
+          messages: _messages,
+          onAttachmentPressed: _handleAtachmentPressed,
+          onMessageTap: _handleMessageTap,
+          onPreviewDataFetched: _handlePreviewDataFetched,
+          onSendPressed: _handleSendPressed,
+          user: _user,
         ),
       ),
-      onTap: () {},
     );
   }
 
@@ -304,7 +226,6 @@ class ChatPageState extends State<ChatPage> {
   void dispose() {
     Get.delete<ChatLogic>();
 
-    canCelListener();
     // Notice.removeListenerByEvent(ChatActions.msg());
     // Notice.removeListenerByEvent(ChatActions.groupName());
 

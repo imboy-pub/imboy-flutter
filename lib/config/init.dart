@@ -6,7 +6,7 @@ import 'package:logger/logger.dart';
 typedef Callback(data);
 
 const API_BASE_URL = 'http://dev.api.imboy.pub:9800';
-const ws_url = 'ws://dev.api.imboy.pub:9800/websocket/';
+const String ws_url = 'ws://dev.api.imboy.pub:9800/websocket/';
 
 const RECORD_LOG = true;
 // const API_BASE_URL = 'http://local.api.imoby.pub:9800';

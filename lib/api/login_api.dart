@@ -16,6 +16,12 @@ class LoginApi {
       // Map<String, dynamic> resp1 =
       //     (await (Dio()).get(API.init)) as Map<String, dynamic>;
       HttpResponse resp1 = await _dio.get("/init");
+      if (!resp1.ok) {
+        String msg = '网络故障或服务故障';
+        msg += resp1.error!.code.toString() + "; msg: " + resp1.error!.message;
+        Get.snackbar('提示', msg);
+        return false;
+      }
       debugPrint(">>>>>>>>>>>>>>>>>>> on {resp1.payload}");
       debugPrint(">>>>>>>>>>>>>>>>>>> on {resp1}");
       String pubKey = resp1.payload['login_rsa_pub_key'];

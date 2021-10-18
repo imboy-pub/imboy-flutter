@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/init.dart';
@@ -17,7 +18,10 @@ class ContactsLogic extends GetxController {
     // return contacts;
     // final contactsData = await SharedUtil.instance.getString(Keys.contacts);
     var _dio = Get.find<HttpClient>();
-    HttpResponse resp = await _dio.get(API.friendList);
+    HttpResponse resp = await _dio.get(API.friendList,
+        options: Options(
+          contentType: "application/x-www-form-urlencoded",
+        ));
 
     if (!resp.ok) {
       return contacts;
