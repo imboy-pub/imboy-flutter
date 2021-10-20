@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/http/http_client.dart';
 import 'package:imboy/helper/http/http_response.dart';
+import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact_detail/contact_detail_view.dart';
 
 import 'contacts_model.dart';
@@ -28,10 +29,8 @@ class ContactsLogic extends GetxController {
     }
     List<dynamic> dataMap = resp.payload['friend'];
     int dLength = dataMap.length;
-    debugPrint(">>>>> on dLength: {$dLength}");
     for (int i = 0; i < dLength; i++) {
       ContactModel model = ContactModel.fromJson(dataMap[i]);
-
       contacts.insert(0, model);
     }
     return contacts;
@@ -91,6 +90,11 @@ class ContactsLogic extends GetxController {
         //   "onItemClick : ${model.nickname}",
         //   'onItemClick : ${model}',
         // );
+      },
+      onLongPress: () {
+        Get.to(
+          ChatPage(id: model.id!, title: model.nickname, type: 'C2C'),
+        );
       },
     );
   }

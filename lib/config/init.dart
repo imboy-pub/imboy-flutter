@@ -1,6 +1,11 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/websocket_heartbeat.dart';
+import 'package:imboy/store/repository/user_repository.dart';
 import 'package:logger/logger.dart';
 
 typedef Callback(data);
@@ -41,3 +46,31 @@ const Color mainBGColor = Color.fromRGBO(240, 240, 245, 1.0);
 var logger = Logger();
 
 WebsocketHeartbeat wshb = new WebsocketHeartbeat(ws_url, subprotocol: ['text']);
+
+class ImboyInterceptor extends Interceptor {
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    print('REQUEST[${options.method}] => PATH: ${options.path}');
+    options.headers['Accept'] = Headers.jsonContentType;
+    options.headers['device-type'] = Platform.operatingSystem;
+    options.headers['device-type-vsn'] = Platform.operatingSystemVersion;
+
+    String? tk = UserRepository.accessToken();
+    debugPrint(">>>>>>> on ImboyInterceptor tk" + (tk == null ? "" : tk));
+    if (tk != null) {
+      options.headers[Keys.tokenKey] = tk;
+    }
+
+    return super.onRequest(options, handler);
+  }
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    return super.onResponse(response, handler);
+  }
+
+  @override
+  void onError(DioError err, ErrorInterceptorHandler handler) {
+    return super.onError(err, handler);
+  }
+}

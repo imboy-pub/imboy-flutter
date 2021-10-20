@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/helper/constant.dart';
+import 'package:imboy/config/const.dart';
 
 class TextFieldContainer extends StatelessWidget {
   final Widget? child;

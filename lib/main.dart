@@ -19,7 +19,7 @@ void main() async {
   HttpConfig dioConfig = HttpConfig(
     baseUrl: API_BASE_URL,
     // proxy: '192.168.100.19:8888',
-    interceptors: [],
+    interceptors: [ImboyInterceptor()],
   );
   // HttpConfig(baseUrl: "https://gank.io/", proxy: "192.168.2.249:8888");
   HttpClient client = HttpClient(dioConfig: dioConfig);
@@ -49,10 +49,18 @@ class IMBoyApp extends StatelessWidget {
       navigatorObservers: [GetObserver()],
       // initialRoute: RouteConfig.main,
       // getPages: RouteConfig.getPages,
-      enableLog: true,
       defaultTransition: Transition.fade,
       opaqueRoute: Get.isOpaqueRouteDefault,
       popGesture: Get.isPopGestureEnable,
+      enableLog: true,
+      // logWriterCallback: localLogWriter,
     );
   }
+}
+
+// 以后再弄日志 TODO leeyi 2021年10月21日06:24:00
+void localLogWriter(String text, {bool isError = false}) {
+  // 在这里把信息传递给你最喜欢的日志包。
+  // 请注意，即使enableLog: false，日志信息也会在这个回调中被推送。
+  // 如果你想的话，可以通过GetConfig.isLogEnable来检查这个标志。
 }

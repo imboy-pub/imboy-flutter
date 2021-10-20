@@ -67,7 +67,8 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
         text: '发消息',
         isBorder: true,
         onPressed: () => Get.to(
-            new ChatPage(id: widget.id, title: widget.nickname, type: 'C2C')),
+          ChatPage(id: widget.id, title: widget.nickname, type: 'C2C'),
+        ),
       ),
       new Visibility(
         visible: !itself,

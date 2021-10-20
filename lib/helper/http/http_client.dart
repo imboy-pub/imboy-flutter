@@ -1,11 +1,7 @@
-import 'dart:io';
-
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/store/repository/user_repository.dart';
 
 import 'http_config.dart';
 import 'http_parse.dart';
@@ -23,12 +19,6 @@ class HttpClient {
       sendTimeout: dioConfig?.sendTimeout,
       receiveTimeout: dioConfig?.receiveTimeout,
     )..headers = dioConfig?.headers;
-    options.headers['Accept'] = Headers.jsonContentType;
-    options.headers['device-type'] = Platform.operatingSystem;
-    options.headers['device-type-vsn'] = Platform.operatingSystemVersion;
-
-    String? tk = UserRepository.accessToken();
-    options.headers[Keys.tokenKey] = tk ?? '';
 
     _dio = Dio(options);
 
@@ -79,11 +69,8 @@ class HttpClient {
       );
       debugPrint(">>>>>> on response.toString(): " + response.toString());
 
-      String? tk = UserRepository.accessToken();
-      debugPrint(">>>>>>>>>>>> on tk: $tk; key: " + Keys.tokenKey);
       return handleResponse(response, httpTransformer: httpTransformer);
     } on Exception catch (e) {
-      debugPrint(">>>>>> on uri: $uri ; options: " + options.toString());
       debugPrint(">>>>>> on Exception: " + e.toString());
       return handleException(e);
     }

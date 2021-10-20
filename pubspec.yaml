@@ -116,6 +116,7 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
   assets:
+    - assets/data/messages.json
     - assets/images/def_avatar.png
     - assets/images/bsc.webp
     - assets/images/logo.png

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:imboy/helper/constant.dart';
+import 'package:imboy/config/const.dart';
 
 class AlreadHaveAnAccountCheck extends StatelessWidget {
   final bool? login;
