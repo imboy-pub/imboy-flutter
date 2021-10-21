@@ -6,8 +6,8 @@ import 'package:get/get.dart';
 import 'package:imboy/component/view/image_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/contact_detail/contact_detail_view.dart';
+import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/message_model.dart';
-import 'package:imboy/store/model/person_model.dart';
 
 ///封装之后的拍一拍效果[ShakeView]
 class MsgAvatar extends StatefulWidget {
@@ -46,7 +46,7 @@ class _MsgAvatarState extends State<MsgAvatar> with TickerProviderStateMixin {
   }
 
   Widget build(BuildContext context) {
-    PersonModel? to = widget.model.to;
+    ContactModel? to = widget.model.to as ContactModel?;
     return new InkWell(
       child: AnimateWidget(
         animation: animation!,
@@ -57,7 +57,7 @@ class _MsgAvatarState extends State<MsgAvatar> with TickerProviderStateMixin {
           ),
           margin: EdgeInsets.only(right: 10.0),
           child: new ImageView(
-            img: to.avatar ?? defIcon,
+            img: to!.avatar ?? defIcon,
             height: 50,
             width: 50,
             fit: BoxFit.cover,

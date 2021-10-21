@@ -5,7 +5,8 @@ import 'package:imboy/component/widget/login/or_divider.dart';
 import 'package:imboy/component/widget/login/rounded_button.dart';
 import 'package:imboy/component/widget/login/rounded_input_field.dart';
 import 'package:imboy/component/widget/login/rounded_password_field.dart';
-import 'package:imboy/config/const.dart';
+import 'package:imboy/config/init.dart';
+import 'package:imboy/config/routes.dart';
 
 import 'login_logic.dart';
 import 'login_state.dart';
@@ -16,6 +17,7 @@ class LoginPage extends GetWidget {
 
   @override
   Widget build(BuildContext context) {
+    init();
     return GetBuilder<LoginLogic>(
       builder: (logic) => Scaffold(
         body: GestureDetector(
@@ -42,7 +44,7 @@ class Body extends GetView<LoginLogic> {
         children: [
           Container(
             width: Get.width,
-            padding: EdgeInsets.fromLTRB(36.0, 40.0, 0.0, 0.0),
+            padding: EdgeInsets.fromLTRB(32.0, 32.0, 0.0, 0.0),
             child: Text('欢迎使用',
                 style: Theme.of(context).textTheme.headline2!.copyWith(
                       fontWeight: FontWeight.bold,
@@ -53,7 +55,7 @@ class Body extends GetView<LoginLogic> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                padding: EdgeInsets.fromLTRB(36.0, 10.0, 0.0, 0.0),
+                padding: EdgeInsets.fromLTRB(32.0, 10.0, 0.0, 0.0),
                 child: Text('IMBoy',
                     style: Theme.of(context).textTheme.headline2!.copyWith(
                           fontWeight: FontWeight.bold,
@@ -72,7 +74,7 @@ class Body extends GetView<LoginLogic> {
             ],
           ),
           SizedBox(
-            height: 30,
+            height: 20,
           ),
           RoundedInputField(
             hintText: '账号/邮箱/手机号',
@@ -95,7 +97,7 @@ class Body extends GetView<LoginLogic> {
           ),
           AlreadHaveAnAccountCheck(
             login: true,
-            onTap: () => Get.toNamed(Routes.SIGN_UP),
+            onTap: () => Get.toNamed(AppRoutes.SIGN_UP),
           ),
           SizedBox(
             height: 24,
@@ -106,7 +108,7 @@ class Body extends GetView<LoginLogic> {
           ),
           RoundedButton(
             text: 'SKIP SIGN',
-            onPressed: () => Get.offNamed(Routes.Home),
+            onPressed: () => Get.offNamed(AppRoutes.SIGN_IN),
           ),
         ],
       ),

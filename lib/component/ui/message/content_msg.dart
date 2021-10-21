@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/store/model/message_model.dart';
 
 class ContentMsg extends StatefulWidget {
   final dynamic msg;
@@ -16,7 +15,7 @@ class ContentMsg extends StatefulWidget {
 class _ContentMsgState extends State<ContentMsg> {
   late String str;
 
-  TextStyle _style = TextStyle(color: mainTextColor, fontSize: 14.0);
+  TextStyle _style = TextStyle(color: AppColors.MainTextColor, fontSize: 14.0);
 
   @override
   Widget build(BuildContext context) {
@@ -24,23 +23,23 @@ class _ContentMsgState extends State<ContentMsg> {
       return new Text('未知消息', style: _style);
     }
     // debugPrint("content_msg widget.msg " + widget.msg.toString());
-    MsgPayloadModel msg = widget.msg;
-    String msgType = msg.msgType.toString();
-    String msgStr = msg.toString();
+    String msgType = widget.msg["msg_type"];
+    String msgStr = widget.msg[widget.msg["msg_type"]] ?? '';
 
     bool isI = Platform.isIOS;
     bool iosText = isI && msgStr.contains('text:');
     bool iosImg = isI && msgStr.contains('imageList:');
     var iosS = msgStr.contains('downloadFlag:') && msgStr.contains('second:');
     bool iosSound = isI && iosS;
-    if (msgType == "Text" || msgType == "10" || iosText) {
-      str = msg.content;
+    // enum MessageType { custom, file, image, text, unsupported }
+    if (msgType == "text") {
+      str = msgStr;
     } else if (msgType == "Image" || iosImg) {
       str = '[图片]';
     } else if (msgType == 'Sound' || iosSound) {
       str = '[语音消息]';
-    } else if (msg.toString().contains('snapshotPath') &&
-        msg.toString().contains('videoPath')) {
+    } else if (msgStr.contains('snapshotPath') &&
+        widget.msg['videoPath'] != null) {
       str = '[视频]';
     } else if (msgType == 'Join') {
       str = '[系统消息] 新人入群';

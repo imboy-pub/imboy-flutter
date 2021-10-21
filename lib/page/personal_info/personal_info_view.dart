@@ -14,7 +14,7 @@ import 'package:imboy/helper/size_config.dart';
 import 'package:imboy/page/qr_code/qr_code_view.dart';
 import 'package:imboy/page/user/change_name/change_name_view.dart';
 import 'package:imboy/store/model/user_model.dart';
-import 'package:imboy/store/repository/user_repository.dart';
+import 'package:imboy/store/repository/user_repo_sp.dart';
 
 import 'personal_info_logic.dart';
 import 'personal_info_state.dart';
@@ -25,6 +25,7 @@ class PersonalInfoPage extends StatefulWidget {
 }
 
 class _PersonalInfoPageState extends State<PersonalInfoPage> {
+  final UserRepoSP current = Get.put(UserRepoSP.user);
   final logic = Get.put(PersonalInfoLogic());
   final PersonalInfoState state = Get.find<PersonalInfoLogic>().state;
 
@@ -37,7 +38,6 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   }
 
   _openGallery({type = ImageSource.gallery}) async {
-    final global = UserRepository.currentUser();
     File imageFile = (await ImagePicker().pickImage(source: type)) as File;
     List<int>? imageBytes = await compressFile(imageFile);
     if (imageFile != null) {
@@ -49,11 +49,11 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
         }
         logic.setUsersProfileMethod(
           avatarStr: v,
-          nicknameStr: global.nickname!,
+          nicknameStr: current.currentUser.nickname!,
           callback: (data) {
             if (data.toString().contains('ucc')) {
               Get.snackbar("", "设置头像成功");
-              global.avatar = v;
+              current.currentUser.avatar = v;
               // global.refresh();
             } else {
               Get.snackbar("", "设置头像失败");
@@ -96,8 +96,8 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           height: 55.0,
           child: new ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(5.0)),
-            child: strNoEmpty(global.avatar)
-                ? dynamicAvatar(global.avatar)
+            child: strNoEmpty(current.currentUser.avatar)
+                ? dynamicAvatar(current.currentUser.avatar)
                 : new Image.asset(defIcon, fit: BoxFit.cover),
           ),
         ),
@@ -107,11 +107,13 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
         label: '昵称',
         isLine: true,
         isRight: true,
-        rValue: global.nickname!,
+        rValue: current.currentUser.nickname!,
         onPressed: () => Get.to(() => ChangeNamePage()),
       ),
       new Column(
-        children: data.map((item) => buildContent(item, global)).toList(),
+        children: data
+            .map((item) => buildContent(item, current.currentUser))
+            .toList(),
       ),
     ];
 
@@ -127,7 +129,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       margin: EdgeInsets.only(bottom: item['label'] == '更多' ? 10.0 : 0.0),
       rightW: item['label'] == '二维码名片'
           ? new Image.asset('assets/images/mine/ic_small_code.png',
-              color: mainTextColor.withOpacity(0.7))
+              color: AppColors.MainTextColor.withOpacity(0.7))
           : new Container(),
       onPressed: () => action(item['label']),
     );
@@ -136,12 +138,10 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   @override
   Widget build(BuildContext context) {
     debugPrint(">>>>>>>>>>>>>>>>>>> on context ${context}");
-    final model = UserRepository.currentUser();
-
     return new Scaffold(
-      backgroundColor: appBarColor,
+      backgroundColor: AppColors.AppBarColor,
       appBar: new PageAppBar(title: '个人信息'),
-      body: new SingleChildScrollView(child: body(model)),
+      body: new SingleChildScrollView(child: body(current.currentUser)),
     );
   }
 

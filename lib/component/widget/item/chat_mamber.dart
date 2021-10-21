@@ -46,7 +46,7 @@ class _ChatMamBerState extends State<ChatMamBer> {
                   new Space(height: mainSpace / 2),
                   new Text(
                     strNoEmpty(name) ? name : '无名氏',
-                    style: TextStyle(color: mainTextColor),
+                    style: TextStyle(color: AppColors.MainTextColor),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
@@ -67,7 +67,7 @@ class _ChatMamBerState extends State<ChatMamBer> {
       new InkWell(
         child: new Container(
           decoration:
-              BoxDecoration(border: Border.all(color: lineColor, width: 0.2)),
+              BoxDecoration(border: Border.all(color: AppColors.LineColor, width: 0.2,)),
           child: new Image(
             image: AssetImage('assets/images/chat/ic_details_add.png'),
             width: 55.0,

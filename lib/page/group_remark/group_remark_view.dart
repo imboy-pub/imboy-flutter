@@ -138,7 +138,7 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                         padding: EdgeInsets.symmetric(horizontal: 2),
                         child: new Text(
                           '填入',
-                          style: TextStyle(color: mainTextColor, fontSize: 14),
+                          style: TextStyle(color: AppColors.MainTextColor, fontSize: 14),
                         ),
                       ),
                       onTap: () {

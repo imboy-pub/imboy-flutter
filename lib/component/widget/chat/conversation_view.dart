@@ -1,3 +1,4 @@
+import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/message/content_msg.dart';
@@ -11,6 +12,7 @@ class ConversationView extends StatefulWidget {
   final dynamic payload;
   final Widget? time;
   final bool isBorder;
+  final int? remindCounter;
 
   ConversationView({
     this.imageUrl,
@@ -18,6 +20,7 @@ class ConversationView extends StatefulWidget {
     this.payload,
     this.time,
     this.isBorder = true,
+    this.remindCounter = 0,
   });
 
   @override
@@ -53,25 +56,47 @@ class _ConversationViewState extends State<ConversationView> {
       ],
     );
 
-    return new Container(
+    return Container(
       padding: EdgeInsets.only(left: 18.0),
       color: Colors.white,
-      child: new Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          new ImageView(
-            img: widget.imageUrl!,
-            height: 50.0,
-            width: 50.0,
-            fit: BoxFit.cover,
+          Badge(
+            position: BadgePosition.topEnd(top: -4, end: -4),
+            showBadge:
+                (widget.remindCounter != null && widget.remindCounter! > 0
+                    ? true
+                    : false),
+            shape: BadgeShape.square,
+            borderRadius: BorderRadius.circular(10),
+            padding: EdgeInsets.fromLTRB(5, 3, 5, 3),
+            animationDuration: Duration(milliseconds: 500),
+            animationType: BadgeAnimationType.scale,
+            badgeContent: Text(
+              // _counter.toString(),
+              widget.remindCounter != null
+                  ? widget.remindCounter!.toString()
+                  : "0",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 8,
+              ),
+            ),
+            child: ImageView(
+              img: widget.imageUrl!,
+              height: 50.0,
+              width: 50.0,
+              fit: BoxFit.cover,
+            ),
           ),
-          new Container(
+          Container(
             padding: EdgeInsets.only(right: 18.0, top: 12.0, bottom: 12.0),
             width: winWidth(context) - 68,
             decoration: BoxDecoration(
               border: widget.isBorder
                   ? Border(
-                      top: BorderSide(color: lineColor, width: 0.2),
+                      top: BorderSide(color: AppColors.LineColor, width: 0.2),
                     )
                   : null,
             ),

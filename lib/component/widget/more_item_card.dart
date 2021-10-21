@@ -54,7 +54,7 @@ class MoreItemCard extends StatelessWidget {
           new Space(width: mainSpace / 2),
           new Text(
             name ?? '',
-            style: TextStyle(color: mainTextColor, fontSize: 11),
+            style: TextStyle(color: AppColors.MainTextColor, fontSize: 11),
           ),
         ],
       ),

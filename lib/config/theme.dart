@@ -10,7 +10,7 @@ class ImboyChatTheme extends ChatTheme {
   /// which extends [ChatTheme]
   const ImboyChatTheme({
     Widget? attachmentButtonIcon,
-    Color backgroundColor = neutral7,
+    Color backgroundColor = AppColors.ChatBg,
     TextStyle dateDividerTextStyle = const TextStyle(
       color: neutral2,
       fontFamily: 'Avenir',
@@ -21,36 +21,31 @@ class ImboyChatTheme extends ChatTheme {
     Widget? deliveredIcon,
     Widget? documentIcon,
     TextStyle emptyChatPlaceholderTextStyle = const TextStyle(
-      color: mainTextColor,
+      color: AppColors.MainTextColor,
       fontFamily: 'Avenir',
       fontSize: 16,
       fontWeight: FontWeight.w500,
-      height: 1.5,
+      height: 2.0,
     ),
     Color errorColor = error,
     Widget? errorIcon,
-    Color inputBackgroundColor = chatBg,
+    Color inputBackgroundColor = AppColors.ChatInputBackgroundColor,
     BorderRadius inputBorderRadius = const BorderRadius.vertical(
-      top: Radius.circular(1),
+      top: Radius.circular(2),
     ),
     EdgeInsetsGeometry inputPadding = EdgeInsets.zero,
-    Color inputTextColor = mainTextColor,
+    Color inputTextColor = AppColors.MainTextColor,
     Color? inputTextCursorColor,
     InputDecoration inputTextDecoration = const InputDecoration(
       border: InputBorder.none,
-      contentPadding: EdgeInsets.zero,
+      contentPadding: EdgeInsets.fromLTRB(4, 4, 4, 4),
       isCollapsed: true,
+      filled: true,
+      fillColor: AppColors.ChatInputFillGgColor,
     ),
-    TextStyle inputTextStyle = const TextStyle(
-      fontFamily: 'Avenir',
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      height: 1.5,
-    ),
-    double messageBorderRadius = 20,
-    double messageInsetsHorizontal = 20,
-    double messageInsetsVertical = 16,
-    Color primaryColor = primary,
+    double messageBorderRadius = 24,
+    double messageInsetsHorizontal = 16,
+    double messageInsetsVertical = 8,
     TextStyle receivedMessageBodyTextStyle = const TextStyle(
       color: neutral0,
       fontFamily: 'Avenir',
@@ -80,17 +75,26 @@ class ImboyChatTheme extends ChatTheme {
       fontWeight: FontWeight.w800,
       height: 1.375,
     ),
-    Color secondaryColor = secondary,
     Widget? seenIcon,
     Widget? sendButtonIcon,
     Widget? sendingIcon,
+    Color secondaryColor = AppColors.ChatReceivedMessageBodyBgColor,
+    TextStyle inputTextStyle = const TextStyle(
+        fontFamily: 'Avenir',
+        fontSize: 16,
+        height: 2.0,
+        color: AppColors.ChatInputFillGgColor
+    ),
+
+    Color primaryColor = AppColors.ChatSendMessgeBgColor,
     TextStyle sentMessageBodyTextStyle = const TextStyle(
-      color: neutral7,
+      color: AppColors.ChatSentMessageBodyTextColor,
       fontFamily: 'Avenir',
       fontSize: 16,
       fontWeight: FontWeight.w500,
       height: 1.5,
     ),
+
     TextStyle sentMessageCaptionTextStyle = const TextStyle(
       color: neutral7WithOpacity,
       fontFamily: 'Avenir',
@@ -169,4 +173,42 @@ class ImboyChatTheme extends ChatTheme {
           userAvatarTextStyle: userAvatarTextStyle,
           userNameTextStyle: userNameTextStyle,
         );
+}
+
+class AppColors2 {
+  /// 主背景 白色
+  static const Color primaryBackground = Color.fromARGB(255, 255, 255, 255);
+
+  /// 主文本 灰色
+  static const Color primaryText = Color.fromARGB(255, 45, 45, 47);
+
+  /// 主控件-背景 蓝色
+  static const Color primaryElement = Color.fromARGB(255, 41, 103, 255);
+
+  /// 主控件-文本 白色
+  static const Color primaryElementText = Color.fromARGB(255, 255, 255, 255);
+
+  // *****************************************
+
+  /// 第二种控件-背景色 淡灰色
+  static const Color secondaryElement = Color.fromARGB(255, 246, 246, 246);
+
+  /// 第二种控件-文本 浅蓝色
+  static const Color secondaryElementText = Color.fromARGB(255, 41, 103, 255);
+
+  // *****************************************
+
+  /// 第三种控件-背景色 石墨色
+  static const Color thirdElement = Color.fromARGB(255, 45, 45, 47);
+
+  /// 第三种控件-文本 浅灰色2
+  static const Color thirdElementText = Color.fromARGB(255, 141, 141, 142);
+
+  // *****************************************
+
+  /// tabBar 默认颜色 灰色
+  static const Color tabBarElement = Color.fromARGB(255, 208, 208, 208);
+
+  /// tabCellSeparator 单元格底部分隔条 颜色
+  static const Color tabCellSeparator = Color.fromARGB(255, 230, 230, 231);
 }

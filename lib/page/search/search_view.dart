@@ -29,7 +29,7 @@ class _SearchPageState extends State<SearchPage> {
         margin: EdgeInsets.symmetric(vertical: 15.0),
         child: new Text(
           item,
-          style: TextStyle(color: tipColor),
+          style: TextStyle(color: AppColors.TipColor),
         ),
       ),
       onTap: () => Get.snackbar("tips", "$item功能小编正在开发"),
@@ -44,7 +44,7 @@ class _SearchPageState extends State<SearchPage> {
           padding: EdgeInsets.symmetric(vertical: 10.0),
           child: new Text(
             '搜索指定内容',
-            style: TextStyle(color: mainTextColor),
+            style: TextStyle(color: AppColors.MainTextColor),
           ),
         ),
         new Wrap(
@@ -85,7 +85,7 @@ class _SearchPageState extends State<SearchPage> {
       ],
     );
     return new Scaffold(
-      backgroundColor: appBarColor,
+      backgroundColor: AppColors.AppBarColor,
       appBar: new PageAppBar(titleWiew: searchView),
       body: new SizedBox(width: winWidth(context), child: body()),
     );

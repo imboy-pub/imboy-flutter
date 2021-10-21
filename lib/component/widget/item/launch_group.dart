@@ -15,7 +15,7 @@ class LaunchGroupItem extends StatelessWidget {
     return new Container(
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: lineColor, width: 0.3),
+          bottom: BorderSide(color: AppColors.LineColor, width: 0.3),
         ),
       ),
       alignment: Alignment.centerLeft,
@@ -64,7 +64,7 @@ class LaunchSearch extends StatelessWidget {
           padding: EdgeInsets.only(right: 10.0),
           child: new Image(
             image: AssetImage('assets/images/search_black.webp'),
-            color: mainTextColor,
+            color: AppColors.MainTextColor,
           ),
         ),
         new Expanded(
@@ -74,7 +74,7 @@ class LaunchSearch extends StatelessWidget {
             style: TextStyle(textBaseline: TextBaseline.alphabetic),
             decoration: InputDecoration(
               hintText: '搜索',
-              hintStyle: TextStyle(color: lineColor.withOpacity(0.7)),
+              hintStyle: TextStyle(color: AppColors.LineColor.withOpacity(0.7)),
               border: InputBorder.none,
             ),
             onChanged: onChanged,

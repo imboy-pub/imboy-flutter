@@ -26,8 +26,6 @@ class BadServiceException extends HttpException {
   BadServiceException({String? message, int? code}) : super(message, code);
 }
 
-
-
 class UnknownException extends HttpException {
   UnknownException([String? message]) : super(message);
 }

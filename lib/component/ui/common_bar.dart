@@ -7,7 +7,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.title = '',
     this.titleWiew,
     this.rightDMActions,
-    this.backgroundColor = ComMomBGColor,
+    this.backgroundColor = AppColors.AppBarColor,
     this.mainColor = Colors.black,
   });
 
@@ -48,7 +48,7 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.title = '',
     this.titleWiew,
     this.rightDMActions,
-    this.backgroundColor = ComMomBGColor,
+    this.backgroundColor = AppColors.AppBarColor,
     this.mainColor = Colors.black,
   });
 

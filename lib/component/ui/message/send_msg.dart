@@ -16,10 +16,10 @@ class SendMessageView extends StatefulWidget {
 class _SendMessageViewState extends State<SendMessageView> {
   @override
   Widget build(BuildContext context) {
-    MsgPayloadModel? payload = widget.model.payload;
+    Map<String, dynamic> payload = widget.model.payload!;
 
-    int? msgType = payload!.msgType;
-    String msgStr = payload.toString();
+    String msgType = payload["msg_type"];
+    String msgStr = payload[msgType] ?? '';
 
     bool isI = Platform.isIOS;
     bool iosText = isI && msgStr.contains('text:');
@@ -27,8 +27,8 @@ class _SendMessageViewState extends State<SendMessageView> {
     var iosS = msgStr.contains('downloadFlag:') && msgStr.contains('second:');
     bool iosSound = isI && iosS;
 //    debugPrint(">>>>>>>>> payload ${payload}");
-    if (msgType == 10) {
-      return new TextMsg(payload.content, widget.model);
+    if (msgType == "text") {
+      return new TextMsg(msgStr, widget.model);
 //    } else if (msgType == 20 || iosImg) {
 //      return new ImgMsg(payload, widget.model);
 //    } else if (msgType == 30 || iosSound) {

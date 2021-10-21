@@ -21,12 +21,12 @@ class LoadingView extends StatelessWidget {
               children: <Widget>[
                 new Text(
                   '加载中',
-                  style: TextStyle(color: mainTextColor),
+                  style: TextStyle(color: AppColors.MainTextColor),
                 ),
                 isStr
                     ? new Text(
                         '第一次进点我',
-                        style: TextStyle(color: mainTextColor, fontSize: 9),
+                        style: TextStyle(color: AppColors.MainTextColor, fontSize: 9),
                       )
                     : new Container(),
               ],
@@ -45,7 +45,7 @@ class LoadingView extends StatelessWidget {
               strokeWidth: 1.0,
               backgroundColor: Colors.transparent,
               // value: 0.2,
-              valueColor: new AlwaysStoppedAnimation<Color>(mainTextColor),
+              valueColor: new AlwaysStoppedAnimation<Color>(AppColors.MainTextColor),
             ),
           )
         ],

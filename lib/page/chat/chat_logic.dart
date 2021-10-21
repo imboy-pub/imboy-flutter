@@ -1,77 +1,131 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
-import 'package:imboy/api/dialog_api.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/datetime.dart';
-import 'package:imboy/helper/func.dart';
+import 'package:imboy/helper/websocket.dart';
+import 'package:imboy/service/message.dart';
+import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
-import 'package:imboy/store/repository/message_repo.dart';
-import 'package:imboy/store/repository/user_repository.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_sp.dart';
 
 import 'chat_state.dart';
 
 class ChatLogic extends GetxController {
   final state = ChatState();
+  final _counter = Get.put(MessageService());
 
-  @override
-  void onReady() {
-    // TODO: implement onReady
-    super.onReady();
+  final UserRepoSP current = Get.put(UserRepoSP.user);
+
+  late var user;
+
+  ChatLogic() {
+    user = types.User(
+      id: current.currentUid,
+      firstName: current.currentUser.nickname!,
+      imageUrl: current.currentUser.avatar!,
+    );
+  }
+
+  Future<List<types.Message>?> getMessages(String id) async {
+    // final response = await rootBundle.loadString('assets/data/messages.json');
+    ConversationModel? obj = await ConversationRepo().find(id);
+    debugPrint(">>>>> on getMessages id: $id; obj: ${obj!.toMap()}");
+    List<MessageModel> items = await MessageRepo().findByConversation(obj!.id);
+
+    List<types.Message> messages = [];
+    items.forEach((obj) async {
+      // ContactModel? from = await obj.from;
+      debugPrint(">>>>> on getMessages obj ${obj.toMap()}");
+      if (obj.type == "C2C" && obj.payload!['msg_type'] == "text") {
+        messages.insert(
+            0,
+            types.TextMessage(
+              author: types.User(
+                id: obj.fromId!,
+                // firstName: from == null ? '' : from!.nickname ?? '',
+                // imageUrl: from == null ? '' : from!.avatar ?? '',
+              ),
+              createdAt: obj.serverTs,
+              id: obj.id!,
+              text: obj.payload!['text'] ?? "",
+            ));
+      }
+    });
+    debugPrint(">>>>> on getMessages ${messages.length};");
+    return messages;
+  }
+
+  Future<ConversationModel> addMessage(
+    String fromId,
+    String toId,
+    String? avatar,
+    String title,
+    String type,
+    types.Message message,
+    bool send,
+  ) async {
+    String subtitle = '';
+    String msgtype = '';
+    int createdAt = DateTimeHelper.currentTimeMillis();
+    Map<String, dynamic> payload = {};
+    if (type == 'C2C' && message is types.TextMessage) {
+      msgtype = "text";
+      subtitle = message.text;
+      payload = {
+        "msg_type": msgtype,
+        "text": message.text,
+      };
+    }
+    Map<String, dynamic> msg = {
+      'id': message.id,
+      'type': type,
+      'from': fromId,
+      'to': toId,
+      'payload': payload,
+      'created_at': createdAt,
+    };
+
+    // status 10 未发送  11 已发送  20 未读  21 已读
+    int status = 11;
+    if (send) {
+      bool isSend = (WebSocket()).sendMessage(json.encode(msg));
+      status = isSend ? 11 : 10;
+    }
+    ConversationModel cobj = ConversationModel(
+      cuid: fromId,
+      typeId: toId,
+      avatar: avatar!,
+      title: title,
+      subtitle: subtitle,
+      type: type,
+      msgtype: msgtype,
+      lasttime: createdAt,
+      unreadNum: 0,
+      isShow: true,
+      id: 0,
+    );
+    cobj = await (ConversationRepo()).save(cobj);
+    await (MessageRepo()).insert(MessageModel(
+      message.id,
+      type: type,
+      fromId: fromId,
+      toId: toId,
+      payload: payload,
+      createdAt: createdAt,
+      serverTs: 0,
+      conversationId: cobj.id,
+      status: status,
+    ));
+    return cobj;
   }
 
   @override
   void onClose() {
     // TODO: implement onClose
     super.onClose();
-  }
-
-  Future getChatMsgData() async {
-    List<MessageModel> listChat = await getConversationsListData();
-    if (!listNoEmpty(listChat)) return;
-
-    state.chatData.clear();
-    // chatData..addAll(listChat.reversed);
-    state.chatData..addAll(listChat);
-    update();
-  }
-
-  Future<MessageModel> insert(Map<String, dynamic> map) async {
-    return await (new MessageRepo()).insert(map);
-  }
-
-  Future<void> sendTextMsg(Map msg) async {
-    try {
-      debugPrint(">>>>> wshb send ${json.encode(msg)}");
-      await wshb.send(json.encode(msg));
-    } on PlatformException {
-      debugPrint("发送消息失败");
-    }
-  }
-
-  Future<void> handleSubmittedData(
-      String msgType, String touid, String text) async {
-    // String fromid = await SharedUtil.instance.getString(Keys.uid);
-    String? fromid = UserRepository.currentUser().uid;
-
-    // _textController.clear();
-
-    Map<String, dynamic> payload = {
-      "msg_type": 10,
-      "content": text,
-      "send_ts": DateTimeHelper.currentTimeMillis(),
-    };
-    Map<String, dynamic> msg = {
-      'type': msgType,
-      'from': fromid,
-      'to': touid,
-      'payload': payload
-    };
-
-    await sendTextMsg(msg);
-    state.chatData.insert(0, await insert(msg));
-    update();
   }
 }

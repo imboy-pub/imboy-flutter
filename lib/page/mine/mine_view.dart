@@ -1,18 +1,18 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/view/image_view.dart';
 import 'package:imboy/component/view/list_tile_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/win_media.dart';
 import 'package:imboy/page/personal_info/personal_info_view.dart';
-import 'package:imboy/store/model/user_model.dart';
-import 'package:imboy/store/repository/user_repository.dart';
+import 'package:imboy/store/repository/user_repo_sp.dart';
 
 import 'mine_logic.dart';
 import 'mine_state.dart';
 
 class MinePage extends StatelessWidget {
+  final UserRepoSP current = Get.put(UserRepoSP.user);
   final MineLogic logic = Get.put(MineLogic());
   final MineState state = Get.find<MineLogic>().state;
 
@@ -20,7 +20,7 @@ class MinePage extends StatelessWidget {
     return new ListTileView(
       border: item['border'],
       title: item['label'],
-      titleStyle: TextStyle(fontSize: 15.0, color: mainTextColor),
+      titleStyle: TextStyle(fontSize: 15.0, color: AppColors.MainTextColor),
       isLabel: false,
       padding: EdgeInsets.symmetric(vertical: 16.0),
       icon: item['icon'],
@@ -32,12 +32,13 @@ class MinePage extends StatelessWidget {
     );
   }
 
-  Widget dynamicAvatar(avatar, {size}) {
-    return new ImageView(
-      img: avatar,
-      width: size ?? null,
-      height: size ?? null,
-      fit: BoxFit.fill,
+  DecorationImage dynamicAvatar(avatar) {
+    String defAvatar = 'assets/images/def_avatar.png';
+    return DecorationImage(
+      image: strEmpty(avatar) || avatar == defAvatar
+          ? AssetImage(defAvatar) as ImageProvider
+          : CachedNetworkImageProvider(avatar),
+      fit: BoxFit.cover,
     );
   }
 
@@ -47,31 +48,36 @@ class MinePage extends StatelessWidget {
         'label': '钱包',
         'icon': 'assets/images/mine/ic_wallet.webp',
         'vertical': 10.0,
-        'border': Border(bottom: BorderSide(color: lineColor, width: 0.2)),
+        'border':
+            Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
       },
       {
         'label': '朋友圈',
         'icon': 'assets/images/mine/ic_social_circle.png',
         'vertical': 0.0,
-        'border': Border(bottom: BorderSide(color: lineColor, width: 0.2)),
+        'border':
+            Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
       },
       {
         'label': '收藏',
         'icon': 'assets/images/mine/ic_collections.png',
         'vertical': 0.0,
-        'border': Border(bottom: BorderSide(color: lineColor, width: 0.2)),
+        'border':
+            Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
       },
       {
         'label': '相册',
         'icon': 'assets/images/mine/ic_album.png',
         'vertical': 0.0,
-        'border': Border(bottom: BorderSide(color: lineColor, width: 0.2)),
+        'border':
+            Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
       },
       {
         'label': '卡片',
         'icon': 'assets/images/mine/ic_card_package.png',
         'vertical': 0.0,
-        'border': Border(bottom: BorderSide(color: lineColor, width: 0.2)),
+        'border':
+            Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
       },
       {
         'label': '表情',
@@ -82,26 +88,28 @@ class MinePage extends StatelessWidget {
         'label': '设置',
         'icon': 'assets/images/mine/ic_setting.png',
         'vertical': 10.0,
-        'border': Border(bottom: BorderSide(color: lineColor, width: 0.2)),
+        'border':
+            Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
       },
     ];
 
-    UserModel currentUser = UserRepository.currentUser();
-    currentUser.avatar = strNoEmpty(currentUser.avatar)
-        ? currentUser.avatar
-        : 'assets/images/logo.png';
     var row = [
       new SizedBox(
         width: 88.0,
         height: 88.0,
         child: new ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(5.0)),
-          child: strNoEmpty(currentUser.avatar)
-              ? dynamicAvatar(currentUser.avatar)
-              : new Image(
-                  image: AssetImage(currentUser.avatar!),
-                  fit: BoxFit.cover,
-                ),
+          borderRadius: BorderRadius.all(Radius.circular(4.0)),
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(4.0),
+              // color: defHeaderBgColor,
+              image: dynamicAvatar(current.currentUser.avatar),
+            ),
+            child: null,
+          ),
         ),
       ),
       new Container(
@@ -112,15 +120,15 @@ class MinePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             new Text(
-              currentUser.nickname ?? '--',
+              current.currentUser.nickname!,
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 20.0,
                   fontWeight: FontWeight.w500),
             ),
             new Text(
-              '账号：' + currentUser.account!,
-              style: TextStyle(color: mainTextColor),
+              '账号：' + current.currentUser.account!,
+              style: TextStyle(color: AppColors.MainTextColor),
             ),
           ],
         ),
@@ -131,7 +139,7 @@ class MinePage extends StatelessWidget {
         margin: EdgeInsets.only(right: 12.0),
         child: new Image(
           image: AssetImage('assets/images/mine/ic_small_code.png'),
-          color: mainTextColor.withOpacity(0.5),
+          color: AppColors.MainTextColor.withOpacity(0.5),
           fit: BoxFit.cover,
         ),
       ),
@@ -163,8 +171,10 @@ class MinePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint(
+        ">>>> on dynamicAvatar: " + current.currentUser.toJson().toString());
     return new Container(
-      color: appBarColor,
+      color: AppColors.AppBarColor,
       child: new SingleChildScrollView(child: body(context)),
     );
   }

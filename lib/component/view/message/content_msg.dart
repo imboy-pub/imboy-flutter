@@ -17,7 +17,7 @@ class ContentMsg extends StatefulWidget {
 class _ContentMsgState extends State<ContentMsg> {
   String? str;
 
-  TextStyle _style = TextStyle(color: mainTextColor, fontSize: 14.0);
+  TextStyle _style = TextStyle(color: AppColors.MainTextColor, fontSize: 14.0);
 
   @override
   Widget build(BuildContext context) {

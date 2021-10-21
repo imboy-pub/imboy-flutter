@@ -1,0 +1,60 @@
+import 'package:imboy/helper/func.dart';
+
+class ConversationModel {
+  late int id;
+  final String cuid;
+  final String typeId;
+  final String avatar;
+  final String title;
+  final String subtitle;
+  final int? lasttime;
+  final int? unreadNum;
+  // 等价与 msg type: C2C C2G 等等，根据type显示item
+  final String type;
+  final String msgtype;
+  final bool? isShow;
+
+  ConversationModel({
+    required this.id,
+    required this.cuid,
+    required this.typeId,
+    required this.avatar,
+    required this.title,
+    required this.subtitle,
+    required this.type,
+    required this.msgtype,
+    this.lasttime,
+    this.unreadNum,
+    this.isShow,
+  });
+
+  factory ConversationModel.fromMap(Map<String, dynamic> json) {
+    return new ConversationModel(
+      id: json['id'] ?? 0,
+      cuid: json['cuid'] ?? '',
+      typeId: json['type_id'],
+      avatar: strEmpty(json['avatar']) ? '' : json['avatar'],
+      title: json['title'].toString(),
+      subtitle: json['subtitle'] ?? '',
+      lasttime: json['lasttime'] ?? 0,
+      unreadNum: json['unread_num'] == null ? 0 : json['unread_num'],
+      type: json['type'].toString(),
+      msgtype: json['msgtype'].toString(),
+      isShow: json['is_show'] ?? true,
+    );
+  }
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'cuid': cuid,
+        'type_id': typeId,
+        'avatar': avatar,
+        'title': title,
+        'subtitle': subtitle,
+        'lasttime': lasttime,
+        'unread_num': unreadNum,
+        'type': type,
+        'msgtype': msgtype,
+        'is_show': isShow,
+      };
+}

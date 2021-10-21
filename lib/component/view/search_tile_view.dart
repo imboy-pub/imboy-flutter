@@ -55,7 +55,7 @@ class SearchTileView extends StatelessWidget {
             ),
             new Text(
               '小程序、公众号、文章、朋友圈、和表情等',
-              style: TextStyle(color: mainTextColor),
+              style: TextStyle(color: AppColors.MainTextColor),
             )
           ],
         )
@@ -65,7 +65,7 @@ class SearchTileView extends StatelessWidget {
     if (type == 0) {
       return new Container(
         decoration: BoxDecoration(
-            color: strNoEmpty(text) ? Colors.white : appBarColor,
+            color: strNoEmpty(text) ? Colors.white : AppColors.AppBarColor,
             border: Border(
                 top: BorderSide(
                     color: Colors.grey.withOpacity(0.2), width: 0.5))),

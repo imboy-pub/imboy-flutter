@@ -18,11 +18,11 @@ class SearchMainView extends StatelessWidget {
       children: <Widget>[
         new Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.0),
-          child: new Icon(Icons.search, color: mainTextColor),
+          child: new Icon(Icons.search, color: AppColors.MainTextColor),
         ),
         new Text(
           text!,
-          style: TextStyle(color: mainTextColor),
+          style: TextStyle(color: AppColors.MainTextColor),
         )
       ],
     );
@@ -33,7 +33,7 @@ class SearchMainView extends StatelessWidget {
           color: Colors.white,
           border: isBorder!
               ? Border(
-                  bottom: BorderSide(color: lineColor, width: 0.2),
+                  bottom: BorderSide(color: AppColors.LineColor, width: 0.2),
                 )
               : null,
         ),

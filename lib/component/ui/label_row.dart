@@ -47,7 +47,7 @@ class LabelRow extends StatelessWidget {
           decoration: BoxDecoration(
             border: isLine!
                 ? Border(
-                    bottom: BorderSide(color: lineColor, width: lineWidth!))
+                    bottom: BorderSide(color: AppColors.LineColor, width: lineWidth!))
                 : null,
           ),
           child: new Row(
@@ -63,20 +63,20 @@ class LabelRow extends StatelessWidget {
               value != null
                   ? new Text(value!,
                       style: TextStyle(
-                        color: mainTextColor.withOpacity(0.7),
+                        color: AppColors.MainTextColor.withOpacity(0.7),
                       ))
                   : new Container(),
               new Spacer(),
               rValue != null
                   ? new Text(rValue!,
                       style: TextStyle(
-                          color: mainTextColor.withOpacity(0.7),
+                          color: AppColors.MainTextColor.withOpacity(0.7),
                           fontWeight: FontWeight.w400))
                   : new Container(),
               rightW != null ? rightW! : new Container(),
               isRight!
                   ? new Icon(CupertinoIcons.right_chevron,
-                      color: mainTextColor.withOpacity(0.5))
+                      color: AppColors.MainTextColor.withOpacity(0.5))
                   : new Container(width: 10.0)
             ],
           ),

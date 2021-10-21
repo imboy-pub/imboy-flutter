@@ -47,7 +47,7 @@ class ListTileView extends StatelessWidget {
         new Text(title ?? '', style: titleStyle),
         new Text(
           label ?? '',
-          style: TextStyle(color: mainTextColor, fontSize: 12),
+          style: TextStyle(color: AppColors.MainTextColor, fontSize: 12),
         ),
       ],
     );
@@ -60,7 +60,7 @@ class ListTileView extends StatelessWidget {
               width: 7.0,
               child: new Image(
                 image: AssetImage('assets/images/ic_right_arrow_grey.webp'),
-                color: mainTextColor.withOpacity(0.5),
+                color: AppColors.MainTextColor.withOpacity(0.5),
                 fit: BoxFit.cover,
               ),
             )

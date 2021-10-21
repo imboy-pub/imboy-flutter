@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/http/http_client.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -10,28 +11,6 @@ import 'package:imboy/store/model/message_model.dart';
 /// @param peer 参与会话的对方, C2C 会话为对方帐号 identifier, 群组会话为群组 ID
 /// @return 会话实例
 ///
-Future<dynamic> getConversationsListData({Callback? callback}) async {
-  try {
-    // {
-    // "to": "18aw3p", "from": "kybqdp", "type": "C2C",
-    // "payload": {"content": "d5", "msg_type": 10, "send_ts": 1596629487139},
-    // "server_ts": 1596629487267
-    // }
-    var resp1 = await (HttpClient()).get(API.conversationList);
-    // debugPrint(">>>> on conversationList resp1  $resp1['payload']");
-
-    if (resp1.payload.isEmpty) {
-      return [];
-    }
-    List<MessageModel> msgs = [];
-    resp1.payload.forEach((msg) {
-      msgs.insert(0, new MessageModel.fromMap(msg));
-    });
-    return msgs;
-  } on PlatformException {
-    debugPrint('获取会话列表失败');
-  }
-}
 
 Future<dynamic> deleteConversationAndLocalMsgModel(String type, String id,
     {Callback? callback}) async {

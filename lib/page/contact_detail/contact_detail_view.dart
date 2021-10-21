@@ -10,7 +10,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/friend_circle/friend_circle_view.dart';
 import 'package:imboy/page/set_remark/set_remark_view.dart';
-import 'package:imboy/store/repository/user_repository.dart';
+import 'package:imboy/store/repository/user_repo_sp.dart';
 
 import 'contact_detail_logic.dart';
 import 'contact_detail_state.dart';
@@ -67,7 +67,12 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
         text: '发消息',
         isBorder: true,
         onPressed: () => Get.to(
-          ChatPage(id: widget.id, title: widget.nickname, type: 'C2C'),
+          ChatPage(
+            id: widget.id,
+            title: widget.nickname,
+            avatar: widget.avatar,
+            type: 'C2C',
+          ),
         ),
       ),
       new Visibility(
@@ -83,7 +88,7 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
   @override
   Widget build(BuildContext context) {
     // final global = Provider.of<GlobalModel>(context, listen: false);
-    var currentUser = UserRepository.currentUser();
+    var currentUser = UserRepoSP.user.currentUser;
     bool isSelf = currentUser.uid == widget.id;
     var rWidget = [
       new SizedBox(
@@ -102,7 +107,7 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
     ];
 
     return new Scaffold(
-      backgroundColor: chatBg,
+      backgroundColor: AppColors.ChatBg,
       appBar: new PageAppBar(
         title: '',
         backgroundColor: Colors.white,

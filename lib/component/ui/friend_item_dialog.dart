@@ -34,7 +34,7 @@ friendItemDialog(BuildContext context, {String? userId, OnSuCc? suCc}) {
       decoration: BoxDecoration(
         border: item != '删除'
             ? Border(
-                bottom: BorderSide(color: lineColor, width: 0.2),
+                bottom: BorderSide(color: AppColors.LineColor, width: 0.2),
               )
             : null,
       ),
@@ -86,7 +86,7 @@ friendItemDialog(BuildContext context, {String? userId, OnSuCc? suCc}) {
                   child: new Column(
                     children: <Widget>[
                       new Column(children: data.map(item).toList()),
-                      new HorizontalLine(color: appBarColor, height: 10.0),
+                      new HorizontalLine(color: AppColors.AppBarColor, height: 10.0),
                       new TextButton(
                         // padding: EdgeInsets.symmetric(vertical: 15.0),
                         style: TextButton.styleFrom(

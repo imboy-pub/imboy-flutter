@@ -1,103 +1,129 @@
-import 'dart:convert';
+import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/config/theme.dart';
+import 'package:imboy/helper/datetime.dart';
 import 'package:imboy/page/chat_info/chat_info_view.dart';
 import 'package:imboy/page/group_detail/group_detail_view.dart';
+import 'package:imboy/service/message.dart';
+import 'package:imboy/store/model/conversation_model.dart';
 // import 'package:intl/date_symbol_data_local.dart';
 import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
 import 'package:uuid/uuid.dart';
 
 import 'chat_logic.dart';
-import 'chat_state.dart';
 
 class ChatPage extends StatefulWidget {
   final String? id; // 用户ID
   final String? type; // [C2C | GROUP]
   final String? title;
+  final String? avatar;
 
   ChatPage({
     required this.id,
-    this.type = 'C2C',
     this.title,
+    this.avatar,
+    this.type = 'C2C',
   });
-
   @override
   ChatPageState createState() => ChatPageState();
 }
 
 class ChatPageState extends State<ChatPage> {
   final logic = Get.put(ChatLogic());
-  final ChatState state = Get.find<ChatLogic>().state;
+
+  final _counter = Get.put(MessageService());
+
+  StreamSubscription<dynamic>? _msgStreamSubs;
 
   String newGroupName = "";
-
-  List<types.Message> _messages = [];
-  final _user = const types.User(id: '06c33e8b-e835-4736-80f4-63f44b66666c');
 
   @override
   void initState() {
     super.initState();
-    _loadMessages();
+    initData();
+    if (_msgStreamSubs == null) {
+      // Register listeners for all events:
+      _msgStreamSubs = eventBus.on<types.Message>().listen((e) async {
+        debugPrint(
+            ">>>>> on ws chat_view initState: " + e.runtimeType.toString());
+
+        if (e is types.Message) {
+          setState(() {
+            _counter.messages.value.insert(0, e);
+          });
+        }
+      });
+    }
   }
 
-  void _addMessage(types.Message message) {
+  void initData() async {
+    if (!mounted) {
+      return;
+    }
+    List<types.Message>? messages = await logic.getMessages(widget.id!);
+    debugPrint(">>>>> on _loadMessages msg: ${messages.toString()}");
+    if (messages != null && messages.length > 0) {
+      setState(() {
+        _counter.messages.value = messages;
+      });
+    }
+    // 消除消息提醒
+    _counter.conversationMsgRemindCounters[widget.id!] = 0;
+  }
+
+  Future<void> _addMessage(types.Message message) async {
+    // 先显示在聊天UI里面
+    // 异步发送WS消息
+    // 异步存储sqlite消息(未发送成功）
+    //   发送成功后，更新conversation、更新消息状态
+    //   发送失败后，放入异步队列，重新发送
+
+    String cuid = logic.current.currentUid;
+    ConversationModel cobj = await logic.addMessage(
+      cuid,
+      widget.id!,
+      widget.avatar ?? '',
+      widget.title!,
+      widget.type!,
+      message,
+      true,
+    );
     setState(() {
-      _messages.insert(0, message);
+      _counter.messages.value.insert(0, message);
+      _counter.conversations[widget.id!] = cobj;
     });
+    // _counter.update();
   }
 
   void _handleAtachmentPressed() {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return SafeArea(
-          child: SizedBox(
-            height: 144,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _handleImageSelection();
-                  },
-                  child: const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text('Photo'),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _handleFileSelection();
-                  },
-                  child: const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text('File'),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text('Cancel'),
-                  ),
-                ),
-              ],
+    Get.bottomSheet(
+      Container(
+        child: Wrap(
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.photo),
+              title: Text('Photo'),
+              onTap: () => {_handleImageSelection()},
             ),
-          ),
-        );
-      },
+            ListTile(
+              leading: Icon(Icons.drive_file_move),
+              title: Text('File'),
+              onTap: () => {_handleFileSelection()},
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: AppColors.BgColor,
     );
   }
 
@@ -108,8 +134,8 @@ class ChatPageState extends State<ChatPage> {
 
     if (result != null && result.files.single.path != null) {
       final message = types.FileMessage(
-        author: _user,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
+        author: logic.user,
+        createdAt: DateTimeHelper.currentTimeMillis(),
         id: const Uuid().v4(),
         mimeType: lookupMimeType(result.files.single.path!),
         name: result.files.single.name,
@@ -133,8 +159,8 @@ class ChatPageState extends State<ChatPage> {
       final image = await decodeImageFromList(bytes);
 
       final message = types.ImageMessage(
-        author: _user,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
+        author: logic.user,
+        createdAt: DateTimeHelper.currentTimeMillis(),
         height: image.height.toDouble(),
         id: const Uuid().v4(),
         name: result.name,
@@ -157,36 +183,26 @@ class ChatPageState extends State<ChatPage> {
     types.TextMessage message,
     types.PreviewData previewData,
   ) {
-    final index = _messages.indexWhere((element) => element.id == message.id);
-    final updatedMessage = _messages[index].copyWith(previewData: previewData);
+    final index = _counter.messages.value
+        .indexWhere((element) => element.id == message.id);
+    final updatedMessage =
+        _counter.messages.value[index].copyWith(previewData: previewData);
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       setState(() {
-        _messages[index] = updatedMessage;
+        _counter.messages.value[index] = updatedMessage;
       });
     });
   }
 
   void _handleSendPressed(types.PartialText message) {
     final textMessage = types.TextMessage(
-      author: _user,
+      author: logic.user,
       createdAt: DateTime.now().millisecondsSinceEpoch,
       id: const Uuid().v4(),
       text: message.text,
     );
-
     _addMessage(textMessage);
-  }
-
-  void _loadMessages() async {
-    final response = await rootBundle.loadString('assets/data/messages.json');
-    final messages = (jsonDecode(response) as List)
-        .map((e) => types.Message.fromJson(e as Map<String, dynamic>))
-        .toList();
-
-    setState(() {
-      _messages = messages;
-    });
   }
 
   @override
@@ -204,7 +220,7 @@ class ChatPageState extends State<ChatPage> {
     ];
 
     return Scaffold(
-      backgroundColor: chatBg,
+      backgroundColor: AppColors.ChatBg,
       appBar: new PageAppBar(
         title: newGroupName == "" ? widget.title : newGroupName,
         rightDMActions: rWidget,
@@ -212,12 +228,12 @@ class ChatPageState extends State<ChatPage> {
       body: SafeArea(
         bottom: false,
         child: Chat(
-          messages: _messages,
+          messages: _counter.messages,
           onAttachmentPressed: _handleAtachmentPressed,
           onMessageTap: _handleMessageTap,
           onPreviewDataFetched: _handlePreviewDataFetched,
           onSendPressed: _handleSendPressed,
-          user: _user,
+          user: logic.user,
           theme: const ImboyChatTheme(),
         ),
       ),
@@ -228,9 +244,10 @@ class ChatPageState extends State<ChatPage> {
   void dispose() {
     Get.delete<ChatLogic>();
 
-    // Notice.removeListenerByEvent(ChatActions.msg());
-    // Notice.removeListenerByEvent(ChatActions.groupName());
-
+    if (_msgStreamSubs != null) {
+      _msgStreamSubs!.cancel();
+      _msgStreamSubs = null;
+    }
     super.dispose();
   }
 }

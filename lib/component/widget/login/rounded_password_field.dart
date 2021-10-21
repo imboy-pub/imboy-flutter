@@ -16,6 +16,7 @@ class RoundedPasswordField extends StatelessWidget {
 
     return TextFieldContainer(
       child: TextField(
+        // controller: new TextEditingController(text: 'admin888'),
         onChanged: onChanged,
         obscureText: !logic.passwordVisible,
         decoration: InputDecoration(

@@ -218,7 +218,7 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
   final double _triangleHeight = 10;
   bool isShow = true;
 
-  Color itemColor = itemBgColor;
+  Color itemColor = AppColors.ItemBgColor;
 
   RenderBox? button;
   RenderBox? overlay;
@@ -270,7 +270,7 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
         child: new CustomPaint(
           size: Size(width, _triangleHeight),
           painter: new TrianglePainter(
-              color: itemBgColor,
+              color: AppColors.ItemBgColor,
               position: position!,
               isInverted: true,
               size: button!.size),
@@ -282,7 +282,7 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
           child: Stack(children: <Widget>[
             new ClipRRect(
               borderRadius: BorderRadius.all(Radius.circular(5)),
-              child: Container(color: itemBgColor, height: widget.menuHeight),
+              child: Container(color: AppColors.ItemBgColor, height: widget.menuHeight),
             ),
             new Column(
               children: widget.actions.map(itemBuild).toList(),

@@ -1,39 +1,32 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:get/get.dart' as Getx;
+import 'package:imboy/component/view/controller.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/helper/websocket_heartbeat.dart';
-import 'package:imboy/store/repository/user_repository.dart';
+import 'package:imboy/helper/func.dart';
+import 'package:imboy/helper/http/http_client.dart';
+import 'package:imboy/helper/http/http_config.dart';
+import 'package:imboy/helper/websocket.dart';
+import 'package:imboy/service/message.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/store/repository/user_repo_sp.dart';
 import 'package:logger/logger.dart';
 
 typedef Callback(data);
 
 const API_BASE_URL = 'http://dev.api.imboy.pub:9800';
-const String ws_url = 'ws://dev.api.imboy.pub:9800/websocket/';
+const String ws_url = 'ws://dev.api.imboy.pub:9800/ws/';
 
 const RECORD_LOG = true;
 // const API_BASE_URL = 'http://local.api.imoby.pub:9800';
-// const ws_url = 'ws://local.api.imoby.pub:9800/websocket/';
+// const ws_url = 'ws://local.api.imoby.pub:9800/ws/';
 
 // const API_BASE_URL = 'http://172.20.10.10:9800';
-// const ws_url = 'ws://172.20.10.10:9800/websocket/';
-
-class API {
-  static const init = '/init';
-  static const refreshtoken = '/refreshtoken';
-  static const login = '/passport/login';
-  static const register = '/passport/register';
-  static const friendList = '/friend/list';
-  static const conversationList = '/conversation/mine';
-
-  static const avatarUrl = 'http://www.lorempixel.com/200/200/';
-  static const cat = 'https://api.thecatapi.com/v1/images/search';
-  static const upImg = "http://111.230.251.115/oldchen/fUser/oneDaySuggestion";
-  static const update = 'http://www.flutterj.com/api/update.json';
-  static const uploadImg = 'http://www.flutterj.com/upload/avatar';
-}
+// const ws_url = 'ws://172.20.10.10:9800/ws/';
 
 DefaultCacheManager cacheManager = new DefaultCacheManager();
 
@@ -41,11 +34,10 @@ typedef VoidCallbackConfirm = void Function(bool isOk);
 
 enum ClickType { select, open }
 
-const Color mainBGColor = Color.fromRGBO(240, 240, 245, 1.0);
-
 var logger = Logger();
 
-WebsocketHeartbeat wshb = new WebsocketHeartbeat(ws_url, subprotocol: ['text']);
+/// The global [EventBus] object.
+EventBus eventBus = EventBus();
 
 class ImboyInterceptor extends Interceptor {
   @override
@@ -55,9 +47,9 @@ class ImboyInterceptor extends Interceptor {
     options.headers['device-type'] = Platform.operatingSystem;
     options.headers['device-type-vsn'] = Platform.operatingSystemVersion;
 
-    String? tk = UserRepository.accessToken();
-    debugPrint(">>>>>>> on ImboyInterceptor tk" + (tk == null ? "" : tk));
-    if (tk != null) {
+    String tk = UserRepoSP.user.accessToken;
+    // debugPrint(">>>>>>> on ImboyInterceptor tk" + (tk == null ? "" : tk));
+    if (strNoEmpty(tk)) {
       options.headers[Keys.tokenKey] = tk;
     }
 
@@ -73,4 +65,28 @@ class ImboyInterceptor extends Interceptor {
   void onError(DioError err, ErrorInterceptorHandler handler) {
     return super.onError(err, handler);
   }
+}
+
+Future<void> init() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  Getx.Get.lazyPut(() => ThemeController());
+
+  // permanent: true  需要这个实例在整个应用生命周期中保留在那里
+
+  // Get.put<AuthController>(AuthController(), permanent: true);
+  HttpConfig dioConfig = HttpConfig(
+    baseUrl: API_BASE_URL,
+    // proxy: '192.168.100.19:8888',
+    interceptors: [ImboyInterceptor()],
+  );
+
+  Getx.Get.put(HttpClient(dioConfig: dioConfig), permanent: true);
+
+  // 放在 UserRepoSP 前面
+  await Getx.Get.putAsync<StorageService>(() => StorageService().init(), permanent: true);
+  // 放在 wshb 前面
+  Getx.Get.put(UserRepoSP(), permanent: true);
+  // 初始化 WebSocket 链接
+  Getx.Get.put(WebSocket(), permanent: true);
+  Getx.Get.put(MessageService(), permanent: true);
 }

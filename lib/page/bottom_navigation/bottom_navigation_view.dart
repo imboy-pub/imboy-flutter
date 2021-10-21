@@ -1,30 +1,31 @@
+import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/page/contacts/contacts_view.dart';
-import 'package:imboy/page/home/home_view.dart';
+import 'package:imboy/page/contact/contact_view.dart';
+import 'package:imboy/page/conversation/conversation_view.dart';
 import 'package:imboy/page/mine/mine_view.dart';
+import 'package:imboy/service/message.dart';
 
 import 'bottom_navigation_logic.dart';
 import 'bottom_navigation_state.dart';
 
-class BottomNavigationPage extends StatefulWidget {
-  @override
-  _BottomNavigationPageState createState() => _BottomNavigationPageState();
-}
-
-class _BottomNavigationPageState extends State<BottomNavigationPage> {
+class BottomNavigationPage extends StatelessWidget {
   //全局状态控制器
   final logic = Get.put(BottomNavigationLogic());
 
   // final logic = Get.find<BottomNavigationLogic>();
   final BottomNavigationState state = Get.find<BottomNavigationLogic>().state;
 
+  final _counter = Get.put(MessageService());
+
+  // StreamSubscription<dynamic>? _msgStreamSubs;
+
   List pageList = [
-    HomePage(),
+    ConversationPage(),
     // CooperationPage(),
     // WorkbenchPage(),
-    ContactsPage(),
+    ContactPage(),
     MinePage(),
   ];
 
@@ -48,8 +49,24 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
           type: BottomNavigationBarType.fixed,
           items: [
             BottomNavigationBarItem(
-              icon: Icon(
-                Icons.chat,
+              icon: Badge(
+                showBadge: (_counter.chatMsgRemindCounter > 0 ? true : false),
+                shape: BadgeShape.square,
+                borderRadius: BorderRadius.circular(10),
+                position: BadgePosition.topStart(top: -4, start: 20),
+                padding: EdgeInsets.fromLTRB(5, 3, 5, 3),
+                child: Icon(Icons.chat),
+                badgeContent: Container(
+                  color: Colors.red,
+                  alignment: Alignment.center,
+                  child: Text(
+                    _counter.chatMsgRemindCounter.toString(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 8,
+                    ),
+                  ),
+                ),
               ),
               label: "消息",
             ),
@@ -73,11 +90,5 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    Get.delete<BottomNavigationLogic>();
-    super.dispose();
   }
 }

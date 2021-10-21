@@ -1,7 +1,21 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/store/repository/user_repository.dart';
+import 'package:imboy/store/repository/user_repo_sp.dart';
+
+class ThemeController extends GetxController {
+  //0:正常模式 1：黑夜模式
+  var _darkMode = 0;
+
+  get darkMode => _darkMode;
+
+  void changeMode(value) {
+    _darkMode = value;
+    Get.changeTheme(Get.isDarkMode ? ThemeData.light() : ThemeData.dark());
+    update();
+  }
+}
 
 class Controller extends GetNotifier {
   Controller() : super('');
@@ -11,10 +25,9 @@ class Controller extends GetNotifier {
 
   @override
   void onInit() {
-    String? tk = UserRepository.accessToken();
+    String? tk = UserRepoSP.user.currentUid;
 
-    String url =
-        ws_url + '?' + Keys.tokenKey + '=' + tk!.replaceAll('+', '%2B');
+    String url = ws_url + '?' + Keys.tokenKey + '=' + tk.replaceAll('+', '%2B');
 
     socket = GetSocket(url);
     print('onInit called');
@@ -48,9 +61,7 @@ class Controller extends GetNotifier {
     socket.connect();
   }
 
-  void sendMessage() {
-    if (text.isNotEmpty) {
-      socket.emit('message', text);
-    }
+  void sendMessage(msg) {
+    socket.emit('message', msg);
   }
 }

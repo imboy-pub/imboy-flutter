@@ -62,4 +62,16 @@ Lib
 
 ```
 
+##
+
+使用命令行创建 database.g.dart文 件
+```
+# 只创建一次使用
+flutter packages pub run build_runner build
+
+# 一直在动态创建
+flutter packages pub run build_runner watch
+
+```
+
 参考 https://juejin.cn/post/6844903920322478093

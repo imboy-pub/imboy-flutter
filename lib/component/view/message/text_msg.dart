@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/view/message/msg_avatar.dart';
 import 'package:imboy/component/view/message/text_item_container.dart';
 import 'package:imboy/store/model/message_model.dart';
-import 'package:imboy/store/repository/user_repository.dart';
+import 'package:imboy/store/repository/user_repo_sp.dart';
 
 class TextMsg extends StatelessWidget {
   final String content;
@@ -13,7 +13,7 @@ class TextMsg extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // final global = Provider.of<CurrentUserModel>(context, listen: false);
-    var currentUser = UserRepository.currentUser();
+    var currentUser = UserRepoSP.user.currentUser;
     var body = [
       new MsgAvatar(model: model),
       new TextItemContainer(

@@ -1,7 +1,5 @@
-import 'package:imboy/store/model/message_model.dart';
-
 class ChatState {
-  List<MessageModel> chatData = [];
+  // List<types.Message> messages = [];
 
   ChatState() {
     ///Initialize variables

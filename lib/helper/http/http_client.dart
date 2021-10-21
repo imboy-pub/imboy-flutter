@@ -1,7 +1,10 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart' as Getx;
 import 'package:imboy/config/init.dart';
+import 'package:imboy/helper/http/http_exceptions.dart';
 
 import 'http_config.dart';
 import 'http_parse.dart';
@@ -9,6 +12,7 @@ import 'http_response.dart';
 import 'http_transformer.dart';
 
 class HttpClient {
+  static HttpClient get client => Getx.Get.find();
   late Dio _dio;
 
   HttpClient({BaseOptions? options, HttpConfig? dioConfig}) {
@@ -60,6 +64,12 @@ class HttpClient {
       ProgressCallback? onReceiveProgress,
       HttpTransformer? httpTransformer}) async {
     try {
+      debugPrint(">>>>> on http_client baseurl: ${_dio.options.baseUrl};");
+      var connectivityResult = await (Connectivity().checkConnectivity());
+      if (connectivityResult == ConnectivityResult.none) {
+        Getx.Get.snackbar("Tips", "网络连接异常get");
+        return handleException(NetworkException());
+      }
       var response = await _dio.get(
         uri,
         queryParameters: queryParameters,
@@ -67,7 +77,7 @@ class HttpClient {
         cancelToken: cancelToken,
         onReceiveProgress: onReceiveProgress,
       );
-      debugPrint(">>>>>> on response.toString(): " + response.toString());
+      // debugPrint(">>>>>> on response.toString(): " + response.toString());
 
       return handleResponse(response, httpTransformer: httpTransformer);
     } on Exception catch (e) {
@@ -86,6 +96,11 @@ class HttpClient {
     ProgressCallback? onReceiveProgress,
     HttpTransformer? httpTransformer,
   }) async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Getx.Get.snackbar("Tips", "网络连接异常get");
+      return handleException(NetworkException());
+    }
     try {
       var response = await _dio.post(
         uri,

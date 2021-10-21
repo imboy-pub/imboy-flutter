@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
-import 'package:imboy/store/repository/user_repository.dart';
+import 'package:imboy/page/login/login_view.dart';
+import 'package:imboy/store/repository/user_repo_sp.dart';
 
 import 'setting_state.dart';
 
@@ -13,17 +14,18 @@ class SettingLogic extends GetxController {
   }
 
   @override
-  void action(name) {
+  Future<void> action(name) async {
     Get.snackbar('action', name.toString());
-
+    print(">>>>> on action " +
+        name.toString() +
+        "; res: " +
+        (name.toString() == 'logout').toString());
     if (name.toString() == 'logout') {
-      logout();
+      bool result = await UserRepoSP.user.logout();
+      if (result) {
+        Get.off(() => LoginPage());
+      }
     }
-  }
-
-  @override
-  void logout() {
-    UserRepository.logout();
   }
 
   @override

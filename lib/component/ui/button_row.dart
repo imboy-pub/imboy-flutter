@@ -13,7 +13,7 @@ class ButtonRow extends StatelessWidget {
     this.margin,
     this.text,
     this.style = const TextStyle(
-        color: btTextColor, fontWeight: FontWeight.w600, fontSize: 16),
+        color: AppColors.ButtonTextColor, fontWeight: FontWeight.w600, fontSize: 16),
     this.onPressed,
     this.isBorder = false,
     this.lineWidth = mainLineWidth,
@@ -26,7 +26,7 @@ class ButtonRow extends StatelessWidget {
       decoration: BoxDecoration(
         border: isBorder
             ? Border(
-                bottom: BorderSide(color: lineColor, width: lineWidth),
+                bottom: BorderSide(color: AppColors.LineColor, width: lineWidth),
               )
             : null,
       ),

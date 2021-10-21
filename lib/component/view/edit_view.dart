@@ -50,7 +50,7 @@ class EditView extends StatelessWidget {
       decoration: BoxDecoration(
           border: Border(
               bottom: BorderSide(
-                  color: bottomLineColor ?? lineColor,
+                  color: bottomLineColor ?? AppColors.LineColor,
                   width: bottomLineColor == null ? 0.3 : 0.7))),
       child: row,
     );

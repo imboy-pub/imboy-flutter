@@ -14,7 +14,7 @@ class MagicPop extends StatefulWidget {
     this.menuWidth = 250,
     this.menuHeight = 42,
   })  : assert(onValueChanged != null),
-        assert(actions != null && actions.length > 0),
+        assert(actions.length > 0),
         assert(child != null);
 
   final ValueChanged<int> onValueChanged;

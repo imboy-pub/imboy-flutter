@@ -2,34 +2,6 @@ import 'package:flutter/material.dart';
 
 const appVsn = "1.0.0";
 
-const appBarColor = Color.fromRGBO(237, 237, 237, 1);
-
-const Color ComMomBGColor = Color.fromRGBO(240, 240, 245, 1.0);
-
-const bgColor = Color.fromRGBO(255, 255, 255, 1);
-
-const chatBg = Color(0xffefefef);
-
-const defStyle = TextStyle(color: Colors.white);
-
-const mainSpace = 10.0;
-
-const mainLineWidth = 0.3;
-
-const lineColor = Colors.grey;
-
-const tipColor = Color.fromRGBO(89, 96, 115, 1.0);
-
-const mainTextColor = Color.fromRGBO(115, 115, 115, 1.0);
-
-const labelTextColor = Color.fromRGBO(144, 144, 144, 1.0);
-
-const itemBgColor = Color.fromRGBO(75, 75, 75, 1.0);
-
-const itemOnColor = Color.fromRGBO(68, 68, 68, 1.0);
-
-const btTextColor = Color.fromRGBO(112, 113, 135, 1.0);
-
 const defIcon = 'assets/images/def_avatar.png';
 
 const String defGroupAvatar =
@@ -53,13 +25,10 @@ class Keys {
   // 客服端Key
   static final String currentLanguageCode = "current_language_code";
   static final String currentLanguage = "current_language";
-  static final String currentUser = "current_user";
-  static final String appName = "app_name";
-  static final String area = "area";
-  static final String contacts = "contacts";
-  static final String brokenNetwork = "brokenNetwork";
 
-  static final String uid = "uid";
+  static final String currentUid = "current_uid";
+  static final String currentUser = "current_user";
+
   static final String account = "account";
   static final String password = "password";
   static final String nickname = 'nickname';
@@ -72,98 +41,41 @@ class Keys {
 }
 
 class AppColors {
-  static const PrimaryColor = 0xffebebeb;
-  static const BackgroundColor = 0xffededed;
-  static const AppBarColor = 0xffededed;
-  static const ActionIconColor = 0xff000000;
-  static const ActionMenuBgColor = 0xff4c4c4c;
-  static const CardBgColor = 0xffffffff;
-  static const TabIconNormal = 0xff999999;
-  static const TabIconActive = 0xff46c11b;
-  static const AppBarPopupMenuColor = 0xffffffff;
+  static const AppBarColor = Color.fromRGBO(237, 237, 237, 1);
+
+  static const BgColor = Color.fromRGBO(255, 255, 255, 1);
+
+  static const LineColor = Colors.grey;
+
+  static const TipColor = Color.fromRGBO(89, 96, 115, 1.0);
+
+  static const MainTextColor = Color.fromRGBO(115, 115, 115, 1.0);
+
+  static const LabelTextColor = Color.fromRGBO(144, 144, 144, 1.0);
+
+  static const ItemBgColor = Color.fromRGBO(75, 75, 75, 1.0);
+
+  static const ItemOnColor = Color.fromRGBO(68, 68, 68, 1.0);
+
+  static const ButtonTextColor = Color.fromRGBO(112, 113, 135, 1.0);
+
   static const TitleColor = 0xff181818;
-  static const ConversationItemBg = 0xffffffff;
-  static const DesTextColor = 0xff999999;
-  static const NotifyDotBg = 0xfff85351;
-  static const NotifyDotText = 0xffffffff;
-  static const ConversationMuteIcon = 0xffd8d8d8;
-  static const DeviceInfoItemBg = AppBarColor;
-  static const DeviceInfoItemText = 0xff606062;
-  static const DeviceInfoItemIcon = 0xff606062;
-  static const ContactGroupTitleBg = 0xffebebeb;
-  static const ContactGroupTitleText = 0xff888888;
-  static const IndexLetterBoxBg = Colors.black45;
-  static const HeaderCardBg = Colors.white;
-  static const HeaderCardTitleText = 0xff353535;
-  static const HeaderCardDesText = 0xff7f7f7f;
-  static const ButtonDesText = 0xff8c8c8c;
   static const ButtonArrowColor = 0xffadadad;
-  static const NewTagBg = 0xfffa5251;
-  static const ChatBoxBg = 0xfff7f7f7;
-  static const ChatBoxCursorColor = 0xff07c160;
+
+
+  static const ChatBg = Color.fromRGBO(243, 243, 243, 1.0);
+  static const ChatSendMessgeBgColor = Color.fromRGBO(169, 234, 122, 1.0);
+  static const ChatSentMessageBodyTextColor = Color.fromRGBO(19, 29, 13, 1.0);
+
+  static const ChatReceivedMessageBodyTextColor = Color.fromRGBO(25, 25, 25, 1.0);
+  static const ChatReceivedMessageBodyBgColor = Color.fromRGBO(255, 255, 255, 1.0);
+  static const ChatInputBackgroundColor = Color.fromRGBO(240, 240, 240, 1.0);
+  static const ChatInputFillGgColor = Color.fromRGBO(255, 255, 255, 1.0);
+
 }
 
-class AppStyles {
-  static const TitleStyle = TextStyle(
-    fontSize: Constants.TitleTextSize,
-    color: const Color(AppColors.TitleColor),
-  );
-
-  static const DesStyle = TextStyle(
-    fontSize: Constants.DesTextSize,
-    color: Color(AppColors.DesTextColor),
-  );
-
-  static const UnreadMsgCountDotStyle = TextStyle(
-    fontSize: 12.0,
-    color: Color(AppColors.NotifyDotText),
-  );
-
-  static const DeviceInfoItemTextStyle = TextStyle(
-    fontSize: Constants.DesTextSize,
-    color: Color(AppColors.DeviceInfoItemText),
-  );
-
-  static const GroupTitleItemTextStyle = TextStyle(
-    fontSize: 14.0,
-    color: Color(AppColors.ContactGroupTitleText),
-  );
-
-  static const IndexLetterBoxTextStyle =
-      TextStyle(fontSize: 32.0, color: Colors.white);
-
-  static const HeaderCardTitleTextStyle = TextStyle(
-      fontSize: 20.0,
-      color: Color(AppColors.HeaderCardTitleText),
-      fontWeight: FontWeight.bold);
-
-  static const HeaderCardDesTextStyle = TextStyle(
-      fontSize: 14.0,
-      color: Color(AppColors.HeaderCardDesText),
-      fontWeight: FontWeight.normal);
-
-  static const ButtonDesTextStyle = TextStyle(
-      fontSize: 12.0,
-      color: Color(AppColors.ButtonDesText),
-      fontWeight: FontWeight.bold);
-
-  static const NewTagTextStyle = TextStyle(
-      fontSize: Constants.DesTextSize,
-      color: Colors.white,
-      fontWeight: FontWeight.bold);
-
-  static const ChatBoxTextStyle = TextStyle(
-      textBaseline: TextBaseline.alphabetic,
-      fontSize: Constants.ContentTextSize,
-      color: const Color(AppColors.TitleColor));
-}
-
-class Routes {
-  static const Home = "/homepage";
-  static const Conversation = "/conversation";
-  static const Login = "/login";
-  static const SIGN_UP = "/sigup";
-}
+const mainSpace = 10.0;
+const mainLineWidth = 0.3;
 
 class Constants {
   static const IconFontFamily = "appIconFont";
@@ -194,3 +106,75 @@ class Constants {
   static const String MENU_UNSUBSCRIBE = 'MENU_UNSUBSCRIBE';
   static const String MENU_UNSUBSCRIBE_VALUE = '取消关注';
 }
+
+class API {
+  static const init = '/init';
+  static const refreshtoken = '/refreshtoken';
+  static const login = '/passport/login';
+  static const register = '/passport/register';
+  static const friendList = '/friend/list';
+  static const conversationList = '/conversation/mine';
+
+  static const avatarUrl = 'http://www.lorempixel.com/200/200/';
+  static const cat = 'https://api.thecatapi.com/v1/images/search';
+  static const upImg = "http://111.230.251.115/oldchen/fUser/oneDaySuggestion";
+  static const update = 'http://www.flutterj.com/api/update.json';
+  static const uploadImg = 'http://www.flutterj.com/upload/avatar';
+}
+
+// class AppStyles {
+//   static const DefStyle = TextStyle(color: Colors.white);
+//
+//   static const TitleStyle = TextStyle(
+//     fontSize: Constants.TitleTextSize,
+//     color: const Color(AppColors.TitleColor),
+//   );
+//
+//   static const DesStyle = TextStyle(
+//     fontSize: Constants.DesTextSize,
+//     color: Color(AppColors.DesTextColor),
+//   );
+//
+//   static const UnreadMsgCountDotStyle = TextStyle(
+//     fontSize: 12.0,
+//     color: Color(AppColors.NotifyDotText),
+//   );
+//
+//   static const DeviceInfoItemTextStyle = TextStyle(
+//     fontSize: Constants.DesTextSize,
+//     color: Color(AppColors.DeviceInfoItemText),
+//   );
+//
+//   static const GroupTitleItemTextStyle = TextStyle(
+//     fontSize: 14.0,
+//     color: Color(AppColors.ContactGroupTitleText),
+//   );
+//
+//   static const IndexLetterBoxTextStyle =
+//       TextStyle(fontSize: 32.0, color: Colors.white);
+//
+//   static const HeaderCardTitleTextStyle = TextStyle(
+//       fontSize: 20.0,
+//       color: Color(AppColors.HeaderCardTitleText),
+//       fontWeight: FontWeight.bold);
+//
+//   static const HeaderCardDesTextStyle = TextStyle(
+//       fontSize: 14.0,
+//       color: Color(AppColors.HeaderCardDesText),
+//       fontWeight: FontWeight.normal);
+//
+//   static const ButtonDesTextStyle = TextStyle(
+//       fontSize: 12.0,
+//       color: Color(AppColors.ButtonDesText),
+//       fontWeight: FontWeight.bold);
+//
+//   static const NewTagTextStyle = TextStyle(
+//       fontSize: Constants.DesTextSize,
+//       color: Colors.white,
+//       fontWeight: FontWeight.bold);
+//
+//   static const ChatBoxTextStyle = TextStyle(
+//       textBaseline: TextBaseline.alphabetic,
+//       fontSize: Constants.ContentTextSize,
+//       color: const Color(AppColors.TitleColor));
+// }

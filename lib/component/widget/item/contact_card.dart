@@ -29,7 +29,7 @@ class ContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle labelStyle = TextStyle(fontSize: 14, color: mainTextColor);
+    TextStyle labelStyle = TextStyle(fontSize: 14, color: AppColors.MainTextColor);
     String accountTitle = "账号：";
     if (this.account != null) {
       accountTitle += this.account.toString();
@@ -39,7 +39,7 @@ class ContactCard extends StatelessWidget {
         color: Colors.white,
         border: isBorder!
             ? Border(
-                bottom: BorderSide(color: lineColor, width: lineWidth!),
+                bottom: BorderSide(color: AppColors.LineColor, width: lineWidth!),
               )
             : null,
       ),

@@ -112,7 +112,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      backgroundColor: chatBg,
+      backgroundColor: AppColors.ChatBg,
       appBar: new PageAppBar(title: '聊天信息'),
       body: new SingleChildScrollView(
         child: new Column(children: body()),

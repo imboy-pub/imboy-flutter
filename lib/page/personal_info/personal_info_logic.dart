@@ -1,13 +1,15 @@
 import 'package:get/get.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/http/http_client.dart';
-import 'package:imboy/store/repository/user_repository.dart';
+import 'package:imboy/store/repository/user_repo_sp.dart';
 
 import 'personal_info_state.dart';
 
 class PersonalInfoLogic extends GetxController {
   final state = PersonalInfoState();
+  final HttpClient _dio = Get.put(HttpClient.client);
 
   @override
   void onReady() {
@@ -33,12 +35,12 @@ class PersonalInfoLogic extends GetxController {
     String avatarStr = '',
     Callback? callback,
   }) async {
-    final global = UserRepository.currentUser();
+    final user = UserRepoSP.user.currentUser;
     // var result = await im.setUsersProfile(0, nicknameStr, avatarStr);
     var result = "";
     if (result.toString().contains('succ')) {
-      if (strNoEmpty(nicknameStr)) global.nickname = nicknameStr;
-      if (strNoEmpty(avatarStr)) global.avatar = avatarStr;
+      if (strNoEmpty(nicknameStr)) user.nickname = nicknameStr;
+      if (strNoEmpty(avatarStr)) user.avatar = avatarStr;
     }
     callback!(result);
     return result;
@@ -53,7 +55,7 @@ class PersonalInfoLogic extends GetxController {
 
   /// 上传头像 [uploadImg]
   uploadImgApi(base64Img, Callback? callback) async {
-    Map<String, dynamic> result = (HttpClient()).post(
+    Map<String, dynamic> result = _dio.post(
       API.uploadImg,
       data: {"image_base_64": base64Img},
       // errorCallback: (String msg, int code) {

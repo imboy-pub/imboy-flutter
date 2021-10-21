@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/helper/func.dart';
-import 'package:imboy/store/model/info_model.dart';
 
 class ModifyGroupInfoMessage extends StatefulWidget {
   final dynamic data;
@@ -24,11 +23,11 @@ class ModifyGroupInfoMessageState extends State<ModifyGroupInfoMessage> {
   }
 
   getCardName(String user) async {
-    await InfoModel.getGroupMembersInfoModel(widget.data['groupId'], [user],
-        callback: (str) {
-      String strToData = str.toString().replaceAll("'", '"');
-      membersData = json.decode(strToData);
-    });
+    // await InfoModel.getGroupMembersInfoModel(widget.data['groupId'], [user],
+    //     callback: (str) {
+    //   String strToData = str.toString().replaceAll("'", '"');
+    //   membersData = json.decode(strToData);
+    // });
     // var userPhone = await getStoreValue('userPhone');
     var userPhone = '';
     if (listNoEmpty(membersData!)) if (user == userPhone)

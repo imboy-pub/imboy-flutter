@@ -74,7 +74,7 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
       height: _suspensionHeight.toDouble(),
       width: double.infinity,
       alignment: Alignment.centerLeft,
-      color: appBarColor,
+      color: AppColors.AppBarColor,
       child: Text(
         '$susTag',
         textScaleFactor: 1.2,
@@ -135,7 +135,7 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
                     height: _itemHeight.toDouble(),
                     decoration: BoxDecoration(
                       border:
-                          Border(top: BorderSide(color: lineColor, width: 0.2)),
+                          Border(top: BorderSide(color: AppColors.LineColor, width: 0.2)),
                     ),
                     child: new Text(
                       model.name!,

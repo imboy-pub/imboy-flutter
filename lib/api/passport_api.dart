@@ -33,7 +33,7 @@ Future<void> login(BuildContext context, String account, String pwd) async {
   //
   //     currentUser.uid = resp2['payload']['uid']; // 进过hashids 计算的字符串
   //     currentUser.nickname = resp2['payload']['nickname'];
-  //     currentUser.avatar = resp2['payload']['avator'];
+  //     currentUser.avatar = resp2['payload']['avatar'];
   //     currentUser.account = resp2['payload']['account'];
   //     currentUser.gender = resp2['payload']['gender'];
   //
@@ -85,24 +85,4 @@ Future<void> refreshtoken() async {
     // 非具体类型
     print('Something really unknown: $e');
   }
-}
-
-Future<void> logout(BuildContext context) async {
-  debugPrint(">>>>>>>>>>>>>>>>>>> on context {context}");
-  // UserModel currentUser = UserRepository.currentUser();
-  //
-  // try {
-  //   var result = await im.imLogout();
-  //   if (result.toString().contains('ucc')) {
-  //     showToast(context, '登出成功');
-  //   } else {
-  //     print('error::' + result.toString());
-  //   }
-  //   currentUser.refresh();
-  //   WebsocketDS.wshb.close(0, 'user logout');
-  //   await routePushAndRemove(new BeginLoginPage());
-  // } on PlatformException {
-  //   currentUser.refresh();
-  //   await routePushAndRemove(new BeginLoginPage());
-  // }
 }
