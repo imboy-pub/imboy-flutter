@@ -30,27 +30,27 @@ class ConversationView extends StatefulWidget {
 class _ConversationViewState extends State<ConversationView> {
   @override
   Widget build(BuildContext context) {
-    var row = new Row(
+    var row = Row(
       children: <Widget>[
-        new Space(width: mainSpace),
-        new Expanded(
-          child: new Column(
+        Space(width: mainSpace),
+        Expanded(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              new Text(
+              Text(
                 widget.title ?? '',
                 style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.normal),
               ),
-              new SizedBox(height: 2.0),
-              new ContentMsg(widget.payload),
+              SizedBox(height: 2.0),
+              ContentMsg(widget.payload),
             ],
           ),
         ),
-        new Space(width: mainSpace),
-        new Column(
+        Space(width: mainSpace),
+        Column(
           children: [
             widget.time!,
-            new Icon(Icons.flag, color: Colors.transparent),
+            Icon(Icons.flag, color: Colors.transparent),
           ],
         )
       ],

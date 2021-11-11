@@ -5,7 +5,6 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:imboy/helper/datetime.dart';
 import 'package:imboy/helper/websocket.dart';
-import 'package:imboy/service/message.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
@@ -16,14 +15,13 @@ import 'chat_state.dart';
 
 class ChatLogic extends GetxController {
   final state = ChatState();
-  final _counter = Get.put(MessageService());
 
   final UserRepoSP current = Get.put(UserRepoSP.user);
 
-  late var user;
+  late var cuser;
 
   ChatLogic() {
-    user = types.User(
+    cuser = types.User(
       id: current.currentUid,
       firstName: current.currentUser.nickname!,
       imageUrl: current.currentUser.avatar!,
@@ -34,7 +32,7 @@ class ChatLogic extends GetxController {
     // final response = await rootBundle.loadString('assets/data/messages.json');
     ConversationModel? obj = await ConversationRepo().find(id);
     debugPrint(">>>>> on getMessages id: $id; obj: ${obj!.toMap()}");
-    List<MessageModel> items = await MessageRepo().findByConversation(obj!.id);
+    List<MessageModel> items = await MessageRepo().findByConversation(obj.id);
 
     List<types.Message> messages = [];
     items.forEach((obj) async {
@@ -52,6 +50,8 @@ class ChatLogic extends GetxController {
               createdAt: obj.serverTs,
               id: obj.id!,
               text: obj.payload!['text'] ?? "",
+              status: obj.eStatus,
+              // status: types.Status.sent,
             ));
       }
     });
@@ -89,11 +89,12 @@ class ChatLogic extends GetxController {
       'created_at': createdAt,
     };
 
-    // status 10 未发送  11 已发送  20 未读  21 已读
-    int status = 11;
+    // 10 发送中 sending;  11 已发送 send; 20 未读 delivered;  21 已读 seen; 41 错误（发送失败） error;
+    int status = 10;
     if (send) {
       bool isSend = (WebSocket()).sendMessage(json.encode(msg));
-      status = isSend ? 11 : 10;
+      status = isSend ? 11 : 41;
+      // message.status = types.Status.sent;
     }
     ConversationModel cobj = ConversationModel(
       cuid: fromId,
@@ -120,6 +121,7 @@ class ChatLogic extends GetxController {
       conversationId: cobj.id,
       status: status,
     ));
+
     return cobj;
   }
 

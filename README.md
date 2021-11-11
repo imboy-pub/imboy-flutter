@@ -16,14 +16,27 @@ For help getting started with Flutter, view our
 samples, guidance on mobile development, and a full API reference.
 
 # 功能
-
-* App 底部菜单导航功能
 * 用户登录（隐藏密码、显示密码，登录密码传输基于RSA算法加密传输）
 * 用户退出
-* 用户注册 TODO
+* 文本聊天
+* 未读消息提醒
 * 我的
     * 个人主页
-* 
+* APP启动引导动画 TODO
+* 删除会话、置顶、取消置顶会话 TODO
+* 搜索联系人 TODO
+* 添加分组、编辑分组、删除分组 TODO
+* 发送小图片 TODO
+* 发送文件 TODO
+* 邀请注册 TODO
+* 修改密码 TODO
+* 添加好友 TODO
+* 扫描二维码添加好友 TODO
+* 修改个人资料基本信息 TODO
+* 多语言 TODO
+* 创建群 TODO
+* 群聊天 TODO
+* 群其他功能 TODO
 
 # 规范
 

@@ -13,7 +13,6 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/func.dart';
-import 'package:imboy/helper/size_config.dart';
 import 'package:imboy/helper/win_media.dart';
 import 'package:imboy/page/group_bill_board/group_bill_board_view.dart';
 import 'package:imboy/page/group_member/group_member_view.dart';
@@ -173,7 +172,6 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    SizeConfig().init(context);
     if (!listNoEmpty(dataGroup!)) {
       return new Container(color: Colors.white);
     }
@@ -190,7 +188,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             new Container(
               color: Colors.white,
               padding: EdgeInsets.only(top: 10.0, bottom: 10),
-              width: winWidth(context),
+              width: Get.width,
               child: Wrap(
                 runSpacing: 20.0,
                 spacing: 10,
@@ -450,7 +448,7 @@ class GroupItem extends StatelessWidget {
     }
     double? widthT() {
       if (detail != null) {
-        return detail!.length > 35 ? SizeConfig.blockSizeHorizontal! * 60 : 0.0;
+        return detail!.length > 35 ? Get.height / 100 * 60 : 0.0;
       } else {
         return 0.0;
       }

@@ -29,7 +29,7 @@ class _ChatMamBerState extends State<ChatMamBer> {
 
     wrap.add(
       new Wrap(
-        spacing: (winWidth(context) - 315) / 5,
+        spacing: (Get.width - 315) / 5,
         runSpacing: 10.0,
         children: [0].map((item) {
           return new InkWell(
@@ -81,10 +81,10 @@ class _ChatMamBerState extends State<ChatMamBer> {
 
     return Container(
       color: Colors.white,
-      width: winWidth(context),
+      width: Get.width,
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
       child: new Wrap(
-        spacing: (winWidth(context) - 315) / 5,
+        spacing: (Get.width - 315) / 5,
         runSpacing: 10.0,
         children: wrap,
       ),

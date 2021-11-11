@@ -47,13 +47,14 @@ class ConversationRepo {
   }
 
   // 更新信息
-  Future<int> update(ConversationModel obj) async {
+  Future<int> update(Map<String, dynamic> data) async {
     String cuid = current.currentUid;
+    data.remove(ConversationRepo.id);
     return await _db.update(
       ConversationRepo.tablename,
-      obj.toMap(),
+      data,
       where: '${ConversationRepo.cuid} = ? AND ${ConversationRepo.typeId} = ?',
-      whereArgs: [cuid, obj.typeId],
+      whereArgs: [cuid, data['type_id']],
     );
   }
 
@@ -70,7 +71,7 @@ class ConversationRepo {
     );
 
     if (count! > 0) {
-      update(obj);
+      update(obj.toMap());
     } else {
       obj.id = (await maxId()) + 1;
       insert(obj);

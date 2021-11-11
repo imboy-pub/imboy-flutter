@@ -80,12 +80,11 @@ class ImboyChatTheme extends ChatTheme {
     Widget? sendingIcon,
     Color secondaryColor = AppColors.ChatReceivedMessageBodyBgColor,
     TextStyle inputTextStyle = const TextStyle(
-        fontFamily: 'Avenir',
-        fontSize: 16,
-        height: 2.0,
-        color: AppColors.ChatInputFillGgColor
+      fontFamily: 'Avenir',
+      fontSize: 16,
+      height: 2.0,
+      color: AppColors.ChatInputFillGgColor,
     ),
-
     Color primaryColor = AppColors.ChatSendMessgeBgColor,
     TextStyle sentMessageBodyTextStyle = const TextStyle(
       color: AppColors.ChatSentMessageBodyTextColor,
@@ -94,7 +93,6 @@ class ImboyChatTheme extends ChatTheme {
       fontWeight: FontWeight.w500,
       height: 1.5,
     ),
-
     TextStyle sentMessageCaptionTextStyle = const TextStyle(
       color: neutral7WithOpacity,
       fontFamily: 'Avenir',
@@ -132,9 +130,19 @@ class ImboyChatTheme extends ChatTheme {
       fontWeight: FontWeight.w800,
       height: 1.333,
     ),
+    //
+    EdgeInsetsGeometry dateDividerMargin = const EdgeInsets.only(
+      bottom: 32,
+      top: 16,
+    ),
+    TextStyle receivedEmojiMessageTextStyle = const TextStyle(fontSize: 20),
+    TextStyle sentEmojiMessageTextStyle = const TextStyle(fontSize: 20),
+    EdgeInsetsGeometry statusIconPadding =
+        const EdgeInsets.symmetric(horizontal: 4),
   }) : super(
           attachmentButtonIcon: attachmentButtonIcon,
           backgroundColor: backgroundColor,
+          dateDividerMargin: dateDividerMargin,
           dateDividerTextStyle: dateDividerTextStyle,
           deliveredIcon: deliveredIcon,
           documentIcon: documentIcon,
@@ -152,6 +160,7 @@ class ImboyChatTheme extends ChatTheme {
           messageInsetsHorizontal: messageInsetsHorizontal,
           messageInsetsVertical: messageInsetsVertical,
           primaryColor: primaryColor,
+          receivedEmojiMessageTextStyle: receivedEmojiMessageTextStyle,
           receivedMessageBodyTextStyle: receivedMessageBodyTextStyle,
           receivedMessageCaptionTextStyle: receivedMessageCaptionTextStyle,
           receivedMessageDocumentIconColor: receivedMessageDocumentIconColor,
@@ -162,12 +171,14 @@ class ImboyChatTheme extends ChatTheme {
           seenIcon: seenIcon,
           sendButtonIcon: sendButtonIcon,
           sendingIcon: sendingIcon,
+          sentEmojiMessageTextStyle: sentEmojiMessageTextStyle,
           sentMessageBodyTextStyle: sentMessageBodyTextStyle,
           sentMessageCaptionTextStyle: sentMessageCaptionTextStyle,
           sentMessageDocumentIconColor: sentMessageDocumentIconColor,
           sentMessageLinkDescriptionTextStyle:
               sentMessageLinkDescriptionTextStyle,
           sentMessageLinkTitleTextStyle: sentMessageLinkTitleTextStyle,
+          statusIconPadding: statusIconPadding,
           userAvatarImageBackgroundColor: userAvatarImageBackgroundColor,
           userAvatarNameColors: userAvatarNameColors,
           userAvatarTextStyle: userAvatarTextStyle,

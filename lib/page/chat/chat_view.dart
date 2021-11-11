@@ -45,6 +45,9 @@ class ChatPageState extends State<ChatPage> {
 
   StreamSubscription<dynamic>? _msgStreamSubs;
 
+  // 当前会话新增消息
+  List<types.Message> messages = [];
+
   String newGroupName = "";
 
   @override
@@ -57,10 +60,11 @@ class ChatPageState extends State<ChatPage> {
         debugPrint(
             ">>>>> on ws chat_view initState: " + e.runtimeType.toString());
 
-        if (e is types.Message) {
+        if (e is types.Message && e.author.id == widget.id!) {
           setState(() {
-            _counter.messages.value.insert(0, e);
+            messages.insert(0, e);
           });
+          _counter.decreaseConversationRemind(widget.id!, 1);
         }
       });
     }
@@ -70,15 +74,17 @@ class ChatPageState extends State<ChatPage> {
     if (!mounted) {
       return;
     }
-    List<types.Message>? messages = await logic.getMessages(widget.id!);
-    debugPrint(">>>>> on _loadMessages msg: ${messages.toString()}");
-    if (messages != null && messages.length > 0) {
+
+    // 初始化 当前会话新增消息
+    List<types.Message>? items = await logic.getMessages(widget.id!);
+    debugPrint(">>>>> on _loadMessages msg: ${items.toString()}");
+    if (items != null && items.length > 0) {
       setState(() {
-        _counter.messages.value = messages;
+        messages = items;
       });
     }
     // 消除消息提醒
-    _counter.conversationMsgRemindCounters[widget.id!] = 0;
+    _counter.setConversationRemind(widget.id!, 0);
   }
 
   Future<void> _addMessage(types.Message message) async {
@@ -99,7 +105,7 @@ class ChatPageState extends State<ChatPage> {
       true,
     );
     setState(() {
-      _counter.messages.value.insert(0, message);
+      messages.insert(0, message);
       _counter.conversations[widget.id!] = cobj;
     });
     // _counter.update();
@@ -134,7 +140,7 @@ class ChatPageState extends State<ChatPage> {
 
     if (result != null && result.files.single.path != null) {
       final message = types.FileMessage(
-        author: logic.user,
+        author: logic.cuser,
         createdAt: DateTimeHelper.currentTimeMillis(),
         id: const Uuid().v4(),
         mimeType: lookupMimeType(result.files.single.path!),
@@ -159,7 +165,7 @@ class ChatPageState extends State<ChatPage> {
       final image = await decodeImageFromList(bytes);
 
       final message = types.ImageMessage(
-        author: logic.user,
+        author: logic.cuser,
         createdAt: DateTimeHelper.currentTimeMillis(),
         height: image.height.toDouble(),
         id: const Uuid().v4(),
@@ -183,24 +189,23 @@ class ChatPageState extends State<ChatPage> {
     types.TextMessage message,
     types.PreviewData previewData,
   ) {
-    final index = _counter.messages.value
-        .indexWhere((element) => element.id == message.id);
-    final updatedMessage =
-        _counter.messages.value[index].copyWith(previewData: previewData);
+    final index = messages.indexWhere((element) => element.id == message.id);
+    final updatedMessage = messages[index].copyWith(previewData: previewData);
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       setState(() {
-        _counter.messages.value[index] = updatedMessage;
+        messages[index] = updatedMessage;
       });
     });
   }
 
   void _handleSendPressed(types.PartialText message) {
     final textMessage = types.TextMessage(
-      author: logic.user,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
+      author: logic.cuser,
+      createdAt: DateTimeHelper.currentTimeMillis(),
       id: const Uuid().v4(),
       text: message.text,
+      status: types.Status.sending,
     );
     _addMessage(textMessage);
   }
@@ -228,12 +233,14 @@ class ChatPageState extends State<ChatPage> {
       body: SafeArea(
         bottom: false,
         child: Chat(
-          messages: _counter.messages,
+          messages: messages,
+          // bubbleBuilder: _bubbleBuilder,
+          // textMessageBuilder: Obx(() => textMessageBuilder),
           onAttachmentPressed: _handleAtachmentPressed,
           onMessageTap: _handleMessageTap,
           onPreviewDataFetched: _handlePreviewDataFetched,
           onSendPressed: _handleSendPressed,
-          user: logic.user,
+          user: logic.cuser,
           theme: const ImboyChatTheme(),
         ),
       ),

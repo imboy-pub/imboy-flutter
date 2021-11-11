@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:imboy/page/pages.dart';
 
 class AppRoutes {
@@ -14,8 +14,8 @@ class AppRoutes {
   static const Conversation = "/conversation";
 }
 
-
 class RouteObservers<R extends Route<dynamic>> extends RouteObserver<R> {
+  /// 页面push
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
@@ -23,16 +23,14 @@ class RouteObservers<R extends Route<dynamic>> extends RouteObserver<R> {
     if (name.isNotEmpty) {
       AppPages.history.add(name);
     }
-    print('didPush');
-    print(AppPages.history);
+    debugPrint('>>>>> on didPush ${AppPages.history}');
   }
 
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
     AppPages.history.remove(route.settings.name);
-    print('didPop');
-    print(AppPages.history);
+    debugPrint('>>>>> on didPop ${AppPages.history}');
   }
 
   @override
@@ -51,8 +49,7 @@ class RouteObservers<R extends Route<dynamic>> extends RouteObserver<R> {
         }
       }
     }
-    print('didReplace');
-    print(AppPages.history);
+    debugPrint('>>>>> on didReplace ${AppPages.history}');
   }
 
   @override
@@ -60,17 +57,21 @@ class RouteObservers<R extends Route<dynamic>> extends RouteObserver<R> {
     super.didRemove(route, previousRoute);
     AppPages.history.remove(route.settings.name);
     print('didRemove');
-    print(AppPages.history);
+    debugPrint('>>>>> on didRemove ${AppPages.history}');
   }
 
   @override
   void didStartUserGesture(
-      Route<dynamic> route, Route<dynamic>? previousRoute) {
+    Route<dynamic> route,
+    Route<dynamic>? previousRoute,
+  ) {
+    debugPrint('>>>>> on didStartUserGesture ${AppPages.history}');
     super.didStartUserGesture(route, previousRoute);
   }
 
   @override
   void didStopUserGesture() {
+    debugPrint('>>>>> on didStopUserGesture ${AppPages.history}');
     super.didStopUserGesture();
   }
 }

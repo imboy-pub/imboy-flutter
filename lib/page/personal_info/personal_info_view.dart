@@ -10,7 +10,6 @@ import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/func.dart';
-import 'package:imboy/helper/size_config.dart';
 import 'package:imboy/page/qr_code/qr_code_view.dart';
 import 'package:imboy/page/user/change_name/change_name_view.dart';
 import 'package:imboy/store/model/user_model.dart';
@@ -39,9 +38,10 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
   _openGallery({type = ImageSource.gallery}) async {
     File imageFile = (await ImagePicker().pickImage(source: type)) as File;
-    List<int>? imageBytes = await compressFile(imageFile);
-    if (imageFile != null) {
-      String base64Img = 'data:image/jpeg;base64,${base64Encode(imageBytes!)}';
+    // List<int>? imageBytes = await compressFile(imageFile);
+    List<int>? imageBytes = null;
+    if (imageFile != null && imageBytes != null) {
+      String base64Img = 'data:image/jpeg;base64,${base64Encode(imageBytes)}';
       logic.uploadImgApi(base64Img, (v) {
         if (v == null) {
           Get.snackbar("Tips", "上传头像失败,请换张图像再试");

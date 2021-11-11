@@ -1,15 +1,13 @@
-import 'dart:io';
-
-import 'package:dio/dio.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get/get.dart' as Getx;
+import 'package:imboy/component/observder/lifecycle.dart';
 import 'package:imboy/component/view/controller.dart';
-import 'package:imboy/config/const.dart';
-import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/http/http_client.dart';
 import 'package:imboy/helper/http/http_config.dart';
+import 'package:imboy/helper/http/http_interceptor.dart';
+import 'package:imboy/helper/sqflite.dart';
 import 'package:imboy/helper/websocket.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/storage.dart';
@@ -39,39 +37,28 @@ var logger = Logger();
 /// The global [EventBus] object.
 EventBus eventBus = EventBus();
 
-class ImboyInterceptor extends Interceptor {
-  @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    print('REQUEST[${options.method}] => PATH: ${options.path}');
-    options.headers['Accept'] = Headers.jsonContentType;
-    options.headers['device-type'] = Platform.operatingSystem;
-    options.headers['device-type-vsn'] = Platform.operatingSystemVersion;
-
-    String tk = UserRepoSP.user.accessToken;
-    // debugPrint(">>>>>>> on ImboyInterceptor tk" + (tk == null ? "" : tk));
-    if (strNoEmpty(tk)) {
-      options.headers[Keys.tokenKey] = tk;
-    }
-
-    return super.onRequest(options, handler);
-  }
-
-  @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
-    return super.onResponse(response, handler);
-  }
-
-  @override
-  void onError(DioError err, ErrorInterceptorHandler handler) {
-    return super.onError(err, handler);
-  }
-}
-
 Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  WidgetsBinding.instance?.addObserver(
+    LifecycleEventHandler(resumeCallBack: () async {
+      // app 恢复
+      debugPrint(">>>>> on LifecycleEventHandler resumeCallBack");
+      // Getx.Get.snackbar("tips", "LifecycleEventHandler resumeCallBack");
+      WebSocket();
+    }, suspendingCallBack: () async {
+      // app 挂起
+      debugPrint(">>>>> on LifecycleEventHandler suspendingCallBack");
+    }),
+  );
+
   Getx.Get.lazyPut(() => ThemeController());
 
   // permanent: true  需要这个实例在整个应用生命周期中保留在那里
+  // 放在 UserRepoSP 前面
+  await Getx.Get.putAsync<StorageService>(() => StorageService().init(),
+      permanent: true);
+  Getx.Get.put(UserRepoSP(), permanent: true);
 
   // Get.put<AuthController>(AuthController(), permanent: true);
   HttpConfig dioConfig = HttpConfig(
@@ -82,11 +69,8 @@ Future<void> init() async {
 
   Getx.Get.put(HttpClient(dioConfig: dioConfig), permanent: true);
 
-  // 放在 UserRepoSP 前面
-  await Getx.Get.putAsync<StorageService>(() => StorageService().init(), permanent: true);
-  // 放在 wshb 前面
-  Getx.Get.put(UserRepoSP(), permanent: true);
+  Getx.Get.put(Sqlite.instance);
   // 初始化 WebSocket 链接
-  Getx.Get.put(WebSocket(), permanent: true);
-  Getx.Get.put(MessageService(), permanent: true);
+  Getx.Get.put(WebSocket());
+  Getx.Get.put(MessageService());
 }

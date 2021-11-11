@@ -52,6 +52,35 @@ class MessageRepo {
     return msg;
   }
 
+  // 更新信息
+  Future<int> update(MessageModel obj) async {
+    return await _db.update(
+      MessageRepo.tablename,
+      obj.toMap(),
+      where: '${MessageRepo.id} = ?',
+      whereArgs: [obj.id],
+    );
+  }
+
+  // 存在就更新，不存在就插入
+  Future<MessageModel> save(MessageModel obj) async {
+    String where = '${MessageRepo.id} = ?';
+    debugPrint(">>>>> on MessageRepo/save obj: " + obj.toMap().toString());
+    int? count = await _db.count(
+      MessageRepo.tablename,
+      where: where,
+      whereArgs: [obj.id],
+    );
+
+    if (count! > 0) {
+      update(obj);
+    } else {
+      insert(obj);
+    }
+    debugPrint(">>>>> on MessageRepo/save count:$count; id: ${obj.id}");
+    return obj;
+  }
+
   Future<List<MessageModel>> findByConversation(int conversationId) async {
     String cuid = UserRepoSP.user.currentUid;
     List<Map<String, dynamic>> maps = await _db.query(MessageRepo.tablename,
@@ -133,12 +162,6 @@ class MessageRepo {
   Future<int> delete(String id) async {
     return await _db.delete(MessageRepo.tablename,
         where: '${MessageRepo.id} = ?', whereArgs: [id]);
-  }
-
-  // 更新信息
-  Future<int> update(MessageModel message) async {
-    return await _db.update(MessageRepo.tablename, message.toMap(),
-        where: '${MessageRepo.id} = ?', whereArgs: [message.id]);
   }
 
 // 记得及时关闭数据库，防止内存泄漏

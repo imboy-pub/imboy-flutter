@@ -15,27 +15,38 @@ class MessageService extends GetxController {
   // 系统消息提醒计时器 暂时无用
   var sysMsgRemindCounter = 0.obs;
 
-  RxMap<String, int> conversationMsgRemindCounters = RxMap<String, int>({});
+  RxMap<String, int> conversationRemind = RxMap<String, int>({});
 
+  // 会话列表
   RxMap<String, ConversationModel> conversations =
       RxMap<String, ConversationModel>();
 
-  RxList<types.Message> messages = RxList<types.Message>();
-
-  @override
-  incrConversationMsgRemindCounter(String key, int val) {
-    if (conversationMsgRemindCounters.containsKey(key)) {
-      conversationMsgRemindCounters[key] =
-          conversationMsgRemindCounters[key]! + val;
-    } else {
-      conversationMsgRemindCounters[key] = val;
-    }
+  // 设置会话提醒
+  setConversationRemind(String key, int val) {
+    conversationRemind[key] = val;
+    // 有并发的话，可能会有脏数据，待测试 TODO leeyi 2021-11-13 09:38:58
+    (ConversationRepo()).update({"type_id": key, "unread_num": val});
   }
 
-  // 聊天消息提醒计时器
+  //
+  increaseConversationRemind(String key, int val) {
+    if (conversationRemind.containsKey(key)) {
+      val = conversationRemind[key]! + val;
+    }
+    setConversationRemind(key, val);
+  }
+
+  decreaseConversationRemind(String key, int val) {
+    if (conversationRemind.containsKey(key)) {
+      val = conversationRemind[key]! - val;
+    }
+    setConversationRemind(key, val);
+  }
+
+  // 聊天消息提醒技术器
   int get chatMsgRemindCounter {
     int c = 0;
-    conversationMsgRemindCounters.forEach((key, value) {
+    conversationRemind.forEach((key, value) {
       c += value;
     });
     return c;
@@ -46,12 +57,12 @@ class MessageService extends GetxController {
   @override
   void onInit() {
     // TODO: implement onInit
-    debugPrint(">>>>> on messageservice onInit: ${conversations.toString()}");
+    debugPrint(">>>>> on Messageservice onInit: ${conversations.toString()}");
 
     if (_msgStreamSubs == null) {
       // Register listeners for all events:
       _msgStreamSubs = eventBus.on<Map>().listen((e) async {
-        debugPrint(">>>>> on ws chat_view initState: " + e.toString());
+        debugPrint(">>>>> on MessageService onInit: " + e.toString());
         var message = await reciveMessage(e);
         if (message != null) {
           eventBus.fire(message);
@@ -74,6 +85,11 @@ class MessageService extends GetxController {
       _msgStreamSubs!.cancel();
       _msgStreamSubs = null;
     }
+    // 该方法貌似没有生效 TODO leey 2021-11-13 09:36:28
+    debugPrint(">>>>> on ConversationRemind MessageService onClose");
+    conversationRemind.forEach((typeId, unreadNum) {
+      (ConversationRepo()).update({"type_id": typeId, "unread_num": unreadNum});
+    });
     super.onClose();
   }
 
@@ -112,6 +128,7 @@ class MessageService extends GetxController {
         ),
         createdAt: data['server_ts'],
         id: data['id'] ?? "",
+        remoteId: data['to'],
         text: text,
       );
       subtitle = text;
@@ -145,10 +162,8 @@ class MessageService extends GetxController {
       conversationId: cobj.id,
       status: status,
     );
-    debugPrint(">>>>> on getMessages msg: ${msg.toMap()};");
-
-    await (MessageRepo()).insert(msg);
-    incrConversationMsgRemindCounter(data['from'], 1);
+    await (MessageRepo()).save(msg);
+    increaseConversationRemind(data['from'], 1);
     conversations[data['from']] = cobj;
     // conversations
     update([conversations]);

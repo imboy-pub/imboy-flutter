@@ -1,9 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+
+// enum MsgType { custom, file, image, text, unsupported }
 
 class MessageModel {
   String? id;
@@ -15,11 +18,15 @@ class MessageModel {
   int? serverTs; // 服务器组装消息的时间戳
   //
   int? conversationId;
-  int? status; // 10 未发送  11 已发送  20 未读  21 已读
+  // enum Status { delivered, error, seen, sending, sent }
+  // types.Status status;
+  // 10 发送中 sending;  11 已发送 send; 20 未读 delivered;  21 已读 seen; 41 错误（发送失败） error;
+  int? status;
 
   MessageModel(
     this.id, {
     required this.type,
+    required this.status,
     required this.fromId,
     required this.toId,
     required this.payload,
@@ -27,7 +34,6 @@ class MessageModel {
     this.serverTs,
     //
     required this.conversationId,
-    required this.status,
   });
 
   MessageModel.fromMap(Map<String, dynamic> data) {
@@ -40,29 +46,47 @@ class MessageModel {
     }
     id = data[MessageRepo.id];
     type = data[MessageRepo.type];
+    status = data[MessageRepo.status];
     fromId = data[MessageRepo.from] ?? '';
     toId = data[MessageRepo.to];
     createdAt = data[MessageRepo.createdAt];
     serverTs = data[MessageRepo.serverTs] ?? 0;
     //
     conversationId = data[MessageRepo.conversationId];
-    status = data[MessageRepo.status];
   }
 
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
     data['type'] = this.type;
+    data['status'] = this.status;
     data['from'] = this.fromId;
     data['to'] = this.toId;
     data['payload'] = json.encode(this.payload);
     data['created_at'] = this.createdAt;
     data['server_ts'] = this.serverTs != null ? this.serverTs : 0;
-    data['status'] = this.status;
     data['conversation_id'] = this.conversationId;
 
     debugPrint(">>>>> on MessageModel toMap $data");
     return data;
+  }
+
+  /// 10 发送中 sending;  11 已发送 send;
+  /// 20 未读 delivered;  21 已读 seen;
+  /// 41 错误（发送失败） error;
+  types.Status get eStatus {
+    if (this.status == 10) {
+      return types.Status.sending;
+    } else if (this.status == 11) {
+      return types.Status.sent;
+    } else if (this.status == 20) {
+      return types.Status.delivered;
+    } else if (this.status == 21) {
+      return types.Status.seen;
+    } else if (this.status == 41) {
+      return types.Status.error;
+    }
+    return types.Status.error;
   }
 
   Future<ContactModel?> get to async {

@@ -17,7 +17,24 @@ class LoginLogic extends GetxController {
   final state = LoginState();
   late String _username;
   String _password = "";
-  bool passwordVisible = false; //设置初始状态
+  bool passwordVisible = false; //设置初始状态;
+
+  final _counter = 0.obs;
+  //创建一个worker   用来接收方法返回的
+  late Worker worker;
+
+  @override
+  void onInit() {
+    worker = debounce(
+      _counter,
+      (_) {
+
+      },
+      time: Duration(seconds: 2),
+      // condition: () => coinCount < 10,
+    );
+    super.onInit();
+  }
 
   void visibilityOnOff() {
     if (passwordVisible) {

@@ -35,10 +35,21 @@ class _ConversationPageState extends State<ConversationPage> {
       return;
     }
 
-    debugPrint(">>>>> on _loadMessages msg: ${items.toString()}");
-    if (items != null && items.length > 0) {
-      _counter.conversations.value = items;
+    debugPrint(">>>>> on ConversationRemind _ConversationPageState/initData");
+    if (items == null || items.length == 0) {
+      return;
     }
+    setState(() {
+      items.forEach((key, obj) {
+        debugPrint(">>>>> on ${obj.typeId} = ${obj.unreadNum}");
+        int unreadNum = obj.unreadNum!;
+        _counter.setConversationRemind(
+          obj.typeId,
+          unreadNum > 0 ? unreadNum : 0,
+        );
+      });
+      _counter.conversations.value = items;
+    });
   }
 
   @override
@@ -81,8 +92,7 @@ class _ConversationPageState extends State<ConversationPage> {
               time:
                   timeView(_counter.conversations[model.typeId]!.lasttime ?? 0),
               // isBorder: model.typeId != _counter.conversations.values[0].typeId,
-              remindCounter:
-                  _counter.conversationMsgRemindCounters[model.typeId],
+              remindCounter: _counter.conversationRemind[model.typeId],
             ),
           ),
         );
