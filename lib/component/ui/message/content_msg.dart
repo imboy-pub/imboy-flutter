@@ -15,7 +15,10 @@ class ContentMsg extends StatefulWidget {
 class _ContentMsgState extends State<ContentMsg> {
   late String str;
 
-  TextStyle _style = TextStyle(color: AppColors.MainTextColor, fontSize: 14.0);
+  TextStyle _style = TextStyle(
+    color: AppColors.MainTextColor,
+    fontSize: 14.0,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +55,23 @@ class _ContentMsgState extends State<ContentMsg> {
     } else {
       str = '[未知消息]';
     }
-
-    return new Text(
+    // return Padding(
+    //   padding: const EdgeInsets.all(8),
+    //   child: Badge(
+    //     // position: BadgePosition.topEnd(top: 10, end: -20),
+    //     // padding: EdgeInsets.all(2),
+    //     animationDuration: Duration(milliseconds: 300),
+    //     animationType: BadgeAnimationType.slide,
+    //     badgeContent: Text(
+    //       str,
+    //       maxLines: 1,
+    //       overflow: TextOverflow.ellipsis,
+    //       style: _style,
+    //     ),
+    //     child: IconButton(icon: Icon(Icons), onPressed: () {}),
+    //   ),
+    // );
+    return Text(
       str,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,

@@ -89,6 +89,21 @@ class MessageModel {
     return types.Status.error;
   }
 
+  int toStatus(types.Status status) {
+    if (status == types.Status.sending) {
+      return 10;
+    } else if (status == types.Status.sent) {
+      return 11;
+    } else if (status == types.Status.delivered) {
+      return 20;
+    } else if (status == types.Status.seen) {
+      return 21;
+    } else if (status == types.Status.error) {
+      return 41;
+    }
+    return 41;
+  }
+
   Future<ContactModel?> get to async {
     return await ContactRepo().find(this.toId!);
   }

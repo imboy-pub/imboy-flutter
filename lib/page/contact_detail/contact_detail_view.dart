@@ -68,7 +68,8 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
         isBorder: true,
         onPressed: () => Get.to(
           ChatPage(
-            id: widget.id,
+            id: 0,
+            toId: widget.id,
             title: widget.nickname,
             avatar: widget.avatar,
             type: 'C2C',

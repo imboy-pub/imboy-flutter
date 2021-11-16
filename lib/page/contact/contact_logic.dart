@@ -106,7 +106,8 @@ class ContactLogic extends GetxController {
       onLongPress: () {
         Get.to(
           ChatPage(
-            id: model.uid!,
+            id: 0,
+            toId: model.uid!,
             title: model.nickname,
             avatar: model.avatar,
             type: 'C2C',

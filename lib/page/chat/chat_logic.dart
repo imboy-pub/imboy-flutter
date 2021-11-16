@@ -47,16 +47,61 @@ class ChatLogic extends GetxController {
                 // firstName: from == null ? '' : from!.nickname ?? '',
                 // imageUrl: from == null ? '' : from!.avatar ?? '',
               ),
-              createdAt: obj.serverTs,
+              createdAt: obj.createdAt,
+              updatedAt: obj.serverTs == null ? 0 : obj.serverTs,
               id: obj.id!,
               text: obj.payload!['text'] ?? "",
               status: obj.eStatus,
+              remoteId: obj.toId,
               // status: types.Status.sent,
             ));
       }
     });
     debugPrint(">>>>> on getMessages ${messages.length};");
     return messages;
+  }
+
+  bool sendWsMsg(MessageModel obj) {
+    debugPrint(">>>>> on sendWsMsg ${obj.toMap().toString()}");
+    if (obj.status == 10) {
+      Map<String, dynamic> msg = {
+        'id': obj.id,
+        'type': obj.type,
+        'from': obj.fromId,
+        'to': obj.toId,
+        'payload': obj.payload,
+        'created_at': obj.createdAt,
+      };
+
+      return (WebSocket()).sendMessage(json.encode(msg));
+    }
+    return true;
+  }
+
+  MessageModel getMsgFromTmsg(
+      String type, int conversationId, types.Message message) {
+    Map<String, dynamic> payload = {};
+    if (type == 'C2C' && message is types.TextMessage) {
+      payload = {
+        "msg_type": "text",
+        "text": message.text,
+      };
+    }
+    debugPrint(">>>>> on getMsgFromTmsg ${message.toJson().toString()}");
+    int status = 10;
+    MessageModel obj = MessageModel(
+      message.id,
+      type: type,
+      fromId: message.author.id,
+      toId: message.remoteId!,
+      payload: payload,
+      createdAt: message.createdAt,
+      serverTs: message.updatedAt,
+      conversationId: conversationId,
+      status: status,
+    );
+    obj.status = obj.toStatus(message.status!);
+    return obj;
   }
 
   Future<ConversationModel> addMessage(
@@ -66,36 +111,12 @@ class ChatLogic extends GetxController {
     String title,
     String type,
     types.Message message,
-    bool send,
   ) async {
     String subtitle = '';
     String msgtype = '';
     int createdAt = DateTimeHelper.currentTimeMillis();
-    Map<String, dynamic> payload = {};
-    if (type == 'C2C' && message is types.TextMessage) {
-      msgtype = "text";
-      subtitle = message.text;
-      payload = {
-        "msg_type": msgtype,
-        "text": message.text,
-      };
-    }
-    Map<String, dynamic> msg = {
-      'id': message.id,
-      'type': type,
-      'from': fromId,
-      'to': toId,
-      'payload': payload,
-      'created_at': createdAt,
-    };
 
-    // 10 发送中 sending;  11 已发送 send; 20 未读 delivered;  21 已读 seen; 41 错误（发送失败） error;
-    int status = 10;
-    if (send) {
-      bool isSend = (WebSocket()).sendMessage(json.encode(msg));
-      status = isSend ? 11 : 41;
-      // message.status = types.Status.sent;
-    }
+    // message.status = types.Status.sent;
     ConversationModel cobj = ConversationModel(
       cuid: fromId,
       typeId: toId,
@@ -109,19 +130,14 @@ class ChatLogic extends GetxController {
       isShow: true,
       id: 0,
     );
+    // 保存会话
     cobj = await (ConversationRepo()).save(cobj);
-    await (MessageRepo()).insert(MessageModel(
-      message.id,
-      type: type,
-      fromId: fromId,
-      toId: toId,
-      payload: payload,
-      createdAt: createdAt,
-      serverTs: 0,
-      conversationId: cobj.id,
-      status: status,
-    ));
-
+    MessageModel obj = getMsgFromTmsg(type, cobj.id, message);
+    await (MessageRepo()).insert(obj);
+    cobj.msgtype = obj.payload!["msg_type"];
+    cobj.subtitle = obj.payload!["text"];
+    await (ConversationRepo()).save(cobj);
+    sendWsMsg(obj);
     return cobj;
   }
 

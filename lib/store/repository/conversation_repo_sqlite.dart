@@ -14,6 +14,7 @@ class ConversationRepo {
   static String title = 'title';
   static String subtitle = 'subtitle';
   static String lasttime = 'lasttime';
+  static String lastMsgStatus = 'last_msg_status';
   static String unreadNum = 'unread_num';
   // 等价与 msg type: C2C C2G 等等，根据type显示item
   static String type = 'type';
@@ -37,6 +38,7 @@ class ConversationRepo {
       'subtitle': obj.subtitle,
       // 单位毫秒，13位时间戳  1561021145560
       'lasttime': obj.lasttime ?? DateTime.now().millisecond,
+      'last_msg_status': obj.lastMsgStatus ?? 11,
       'unread_num': obj.unreadNum ?? 0,
       'type': obj.type,
       'msgtype': obj.msgtype,
@@ -107,6 +109,7 @@ class ConversationRepo {
         ConversationRepo.title,
         ConversationRepo.subtitle,
         ConversationRepo.lasttime,
+        ConversationRepo.lastMsgStatus,
         ConversationRepo.unreadNum,
         ConversationRepo.type,
         ConversationRepo.msgtype,
@@ -140,6 +143,7 @@ class ConversationRepo {
         ConversationRepo.title,
         ConversationRepo.subtitle,
         ConversationRepo.lasttime,
+        ConversationRepo.lastMsgStatus,
         ConversationRepo.unreadNum,
         ConversationRepo.type,
         ConversationRepo.msgtype,
@@ -175,6 +179,7 @@ class ConversationRepo {
           ConversationRepo.subtitle,
           ConversationRepo.avatar,
           ConversationRepo.lasttime,
+          ConversationRepo.lastMsgStatus,
           ConversationRepo.msgtype,
         ],
         where:

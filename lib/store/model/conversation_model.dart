@@ -6,12 +6,14 @@ class ConversationModel {
   final String typeId;
   final String avatar;
   final String title;
-  final String subtitle;
+  String subtitle;
   final int? lasttime;
+  // lastMsgStatus 10 发送中 sending;  11 已发送 send;
+  final int? lastMsgStatus;
   final int? unreadNum;
   // 等价与 msg type: C2C C2G 等等，根据type显示item
   final String type;
-  final String msgtype;
+  String msgtype;
   final bool? isShow;
 
   ConversationModel({
@@ -24,6 +26,7 @@ class ConversationModel {
     required this.type,
     required this.msgtype,
     this.lasttime,
+    this.lastMsgStatus,
     this.unreadNum,
     this.isShow,
   });
@@ -37,6 +40,7 @@ class ConversationModel {
       title: json['title'].toString(),
       subtitle: json['subtitle'] ?? '',
       lasttime: json['lasttime'] ?? 0,
+      lastMsgStatus: json['last_msg_status'] ?? 11,
       unreadNum: json['unread_num'] == null ? 0 : json['unread_num'],
       type: json['type'].toString(),
       msgtype: json['msgtype'].toString(),
@@ -52,6 +56,7 @@ class ConversationModel {
         'title': title,
         'subtitle': subtitle,
         'lasttime': lasttime,
+        'last_msg_status': lastMsgStatus,
         'unread_num': unreadNum,
         'type': type,
         'msgtype': msgtype,

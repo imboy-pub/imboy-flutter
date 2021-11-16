@@ -53,12 +53,12 @@ class MessageRepo {
   }
 
   // 更新信息
-  Future<int> update(MessageModel obj) async {
+  Future<int> update(Map<String, dynamic> data) async {
     return await _db.update(
       MessageRepo.tablename,
-      obj.toMap(),
+      data,
       where: '${MessageRepo.id} = ?',
-      whereArgs: [obj.id],
+      whereArgs: [data['id']],
     );
   }
 
@@ -73,7 +73,7 @@ class MessageRepo {
     );
 
     if (count! > 0) {
-      update(obj);
+      update(obj.toMap());
     } else {
       insert(obj);
     }

@@ -63,7 +63,8 @@ class _ConversationPageState extends State<ConversationPage> {
           onTap: () {
             Get.to(
               () => ChatPage(
-                id: model.typeId,
+                id: model.id,
+                toId: model.typeId,
                 title: model.title,
                 avatar: model.avatar,
                 type: model.type,

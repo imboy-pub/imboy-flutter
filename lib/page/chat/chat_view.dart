@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -23,13 +24,15 @@ import 'package:uuid/uuid.dart';
 import 'chat_logic.dart';
 
 class ChatPage extends StatefulWidget {
-  final String? id; // 用户ID
+  final int? id; // 会话ID
+  final String toId; // 用户ID
   final String? type; // [C2C | GROUP]
   final String? title;
   final String? avatar;
 
   ChatPage({
     required this.id,
+    required this.toId,
     this.title,
     this.avatar,
     this.type = 'C2C',
@@ -50,6 +53,9 @@ class ChatPageState extends State<ChatPage> {
 
   String newGroupName = "";
 
+  var _connectivityResult;
+  RxString _connectStateDescription = "".obs;
+
   @override
   void initState() {
     super.initState();
@@ -57,14 +63,47 @@ class ChatPageState extends State<ChatPage> {
     if (_msgStreamSubs == null) {
       // Register listeners for all events:
       _msgStreamSubs = eventBus.on<types.Message>().listen((e) async {
-        debugPrint(
-            ">>>>> on ws chat_view initState: " + e.runtimeType.toString());
+        debugPrint(">>>>> on MessageService chat_view initState: " +
+            e.runtimeType.toString());
 
-        if (e is types.Message && e.author.id == widget.id!) {
+        if (e is types.Message && e.author.id == widget.toId) {
           setState(() {
             messages.insert(0, e);
           });
-          _counter.decreaseConversationRemind(widget.id!, 1);
+          _counter.decreaseConversationRemind(widget.toId, 1);
+        }
+      });
+      _msgStreamSubs = eventBus.on<List<types.Message>>().listen((e) async {
+        types.Message msg = e.first;
+        int index = -1;
+        for (var i = 0; i < messages.length; i++) {
+          if (messages[i].id == msg.id) {
+            index = i;
+            break;
+          }
+        }
+        debugPrint(">>>>> on MessageService chat_view initState:$index; " +
+            msg.toJson().toString());
+        if (index > -1) {
+          messages.setRange(index, index + 1, e);
+          setState(() {
+            messages;
+          });
+        }
+      });
+    }
+    if (_connectivityResult == null) {
+      _connectivityResult = Connectivity()
+          .onConnectivityChanged
+          .listen((ConnectivityResult result) {
+        if (result == ConnectivityResult.mobile) {
+          _connectStateDescription.value = "手机网络";
+          // setState(() {
+          // });
+        } else if (result == ConnectivityResult.wifi) {
+          _connectStateDescription.value = "Wifi网络";
+        } else {
+          _connectStateDescription.value = "无网络";
         }
       });
     }
@@ -76,7 +115,7 @@ class ChatPageState extends State<ChatPage> {
     }
 
     // 初始化 当前会话新增消息
-    List<types.Message>? items = await logic.getMessages(widget.id!);
+    List<types.Message>? items = await logic.getMessages(widget.toId);
     debugPrint(">>>>> on _loadMessages msg: ${items.toString()}");
     if (items != null && items.length > 0) {
       setState(() {
@@ -84,7 +123,7 @@ class ChatPageState extends State<ChatPage> {
       });
     }
     // 消除消息提醒
-    _counter.setConversationRemind(widget.id!, 0);
+    _counter.setConversationRemind(widget.toId, 0);
   }
 
   Future<void> _addMessage(types.Message message) async {
@@ -97,16 +136,15 @@ class ChatPageState extends State<ChatPage> {
     String cuid = logic.current.currentUid;
     ConversationModel cobj = await logic.addMessage(
       cuid,
-      widget.id!,
+      widget.toId,
       widget.avatar ?? '',
       widget.title!,
       widget.type!,
       message,
-      true,
     );
     setState(() {
       messages.insert(0, message);
-      _counter.conversations[widget.id!] = cobj;
+      _counter.conversations[widget.toId] = cobj;
     });
     // _counter.update();
   }
@@ -147,6 +185,8 @@ class ChatPageState extends State<ChatPage> {
         name: result.files.single.name,
         size: result.files.single.size,
         uri: result.files.single.path!,
+        remoteId: widget.toId,
+        status: types.Status.sending,
       );
 
       _addMessage(message);
@@ -173,6 +213,8 @@ class ChatPageState extends State<ChatPage> {
         size: bytes.length,
         uri: result.path,
         width: image.width.toDouble(),
+        remoteId: widget.toId,
+        status: types.Status.sending,
       );
 
       _addMessage(message);
@@ -205,6 +247,7 @@ class ChatPageState extends State<ChatPage> {
       createdAt: DateTimeHelper.currentTimeMillis(),
       id: const Uuid().v4(),
       text: message.text,
+      remoteId: widget.toId,
       status: types.Status.sending,
     );
     _addMessage(textMessage);
@@ -217,10 +260,10 @@ class ChatPageState extends State<ChatPage> {
         child: new Image(image: AssetImage('assets/images/right_more.png')),
         onTap: () => Get.to(widget.type == 'GROUP'
             ? GroupDetailPage(
-                widget.id ?? widget.title,
+                widget.toId,
                 callBack: (v) {},
               )
-            : ChatInfoPage(widget.id!)),
+            : ChatInfoPage(widget.toId)),
       )
     ];
 
@@ -230,8 +273,9 @@ class ChatPageState extends State<ChatPage> {
         title: newGroupName == "" ? widget.title : newGroupName,
         rightDMActions: rWidget,
       ),
-      body: SafeArea(
-        bottom: false,
+      body: GestureDetector(
+        //手指滑动
+        onPanUpdate: _onPanUpdate,
         child: Chat(
           messages: messages,
           // bubbleBuilder: _bubbleBuilder,
@@ -255,6 +299,26 @@ class ChatPageState extends State<ChatPage> {
       _msgStreamSubs!.cancel();
       _msgStreamSubs = null;
     }
+    //在页面销毁的时候一定要取消网络状态的监听
+    if (_connectivityResult != null) {
+      _connectivityResult.cancle();
+    }
     super.dispose();
+  }
+
+  // 手指滑动 事件
+  void _onPanUpdate(DragUpdateDetails e) async {
+    if (_connectivityResult == ConnectivityResult.none) {
+      Get.snackbar("Tips", "网络连接异常ws");
+      return;
+    }
+    // 1秒内只能出发一次 TODO leeyi 2021-11-19 00:28:28
+    // 检查为发送消息
+    messages.forEach((obj) async {
+      logic.sendWsMsg(logic.getMsgFromTmsg(widget.type!, widget.id!, obj));
+      setState(() {
+        messages;
+      });
+    });
   }
 }

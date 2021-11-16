@@ -10,7 +10,6 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/jwt.dart';
-import 'package:imboy/page/login/login_view.dart';
 import 'package:imboy/store/repository/user_repo_sp.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -77,22 +76,7 @@ class WebSocket {
         return;
       }
       Map data = event is Map ? event : json.decode(event);
-      int code = data['code'] ?? 99999;
-      String dtype = data['type'] ?? 'error';
-
-      if (dtype == 'error') {
-        switch (code) {
-          // case 705: // token无效、刷新token 这里不处理，不发送消息
-          case 706: // 需要重新登录
-            {
-              Get.off(new LoginPage());
-            }
-            break;
-        }
-      } else if (dtype == 'SYSTEM') {
-      } else {
-        eventBus.fire(data);
-      }
+      eventBus.fire(data);
     }, onError: (e) {
       debugPrint(
           ">>>>> on ws ${DateTime.now()} onError ${e.runtimeType} | ${e.toString()}");

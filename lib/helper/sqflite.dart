@@ -79,6 +79,7 @@ class Sqlite {
         `${ConversationRepo.msgtype}` varchar(40) NOT NULL,
         `${ConversationRepo.isShow}` bool NOT NULL,
         `${ConversationRepo.lasttime}` int DEFAULT 0,
+        `${ConversationRepo.lastMsgStatus}` int DEFAULT 0,
         PRIMARY KEY(${ConversationRepo.id})
         );
       ''';
