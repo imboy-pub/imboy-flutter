@@ -1,7 +1,7 @@
 import 'package:imboy/helper/func.dart';
 
 class ConversationModel {
-  late int id;
+  int id;
   final String cuid;
   final String typeId;
   final String avatar;

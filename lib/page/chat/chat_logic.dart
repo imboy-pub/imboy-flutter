@@ -62,7 +62,7 @@ class ChatLogic extends GetxController {
   }
 
   bool sendWsMsg(MessageModel obj) {
-    debugPrint(">>>>> on sendWsMsg ${obj.toMap().toString()}");
+    debugPrint(">>>>> on chat sendWsMsg ${obj.toMap().toString()}");
     if (obj.status == 10) {
       Map<String, dynamic> msg = {
         'id': obj.id,
@@ -79,7 +79,10 @@ class ChatLogic extends GetxController {
   }
 
   MessageModel getMsgFromTmsg(
-      String type, int conversationId, types.Message message) {
+    String type,
+    int conversationId,
+    types.Message message,
+  ) {
     Map<String, dynamic> payload = {};
     if (type == 'C2C' && message is types.TextMessage) {
       payload = {
@@ -137,6 +140,7 @@ class ChatLogic extends GetxController {
     cobj.msgtype = obj.payload!["msg_type"];
     cobj.subtitle = obj.payload!["text"];
     await (ConversationRepo()).save(cobj);
+    debugPrint(">>>>> on chat addMessage ${message.toString()}");
     sendWsMsg(obj);
     return cobj;
   }

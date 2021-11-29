@@ -19,6 +19,7 @@ import 'package:imboy/store/model/conversation_model.dart';
 // import 'package:intl/date_symbol_data_local.dart';
 import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
+import 'package:popup_menu/popup_menu.dart';
 import 'package:uuid/uuid.dart';
 
 import 'chat_logic.dart';
@@ -29,6 +30,8 @@ class ChatPage extends StatefulWidget {
   final String? type; // [C2C | GROUP]
   final String? title;
   final String? avatar;
+
+  late BuildContext context;
 
   ChatPage({
     required this.id,
@@ -56,9 +59,28 @@ class ChatPageState extends State<ChatPage> {
   var _connectivityResult;
   RxString _connectStateDescription = "".obs;
 
+  int lastPopTimeMsgStatus = 0;
+  GlobalKey btnKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
+    if (_connectivityResult == null) {
+      debugPrint(">>>>> on chat_view/initData _connectivityResult ");
+      _connectivityResult = Connectivity()
+          .onConnectivityChanged
+          .listen((ConnectivityResult result) {
+        if (result == ConnectivityResult.mobile) {
+          _connectStateDescription.value = "手机网络";
+          // setState(() {
+          // });
+        } else if (result == ConnectivityResult.wifi) {
+          _connectStateDescription.value = "Wifi网络";
+        } else {
+          _connectStateDescription.value = "无网络";
+        }
+      });
+    }
     initData();
     if (_msgStreamSubs == null) {
       // Register listeners for all events:
@@ -92,28 +114,13 @@ class ChatPageState extends State<ChatPage> {
         }
       });
     }
-    if (_connectivityResult == null) {
-      _connectivityResult = Connectivity()
-          .onConnectivityChanged
-          .listen((ConnectivityResult result) {
-        if (result == ConnectivityResult.mobile) {
-          _connectStateDescription.value = "手机网络";
-          // setState(() {
-          // });
-        } else if (result == ConnectivityResult.wifi) {
-          _connectStateDescription.value = "Wifi网络";
-        } else {
-          _connectStateDescription.value = "无网络";
-        }
-      });
-    }
   }
 
   void initData() async {
     if (!mounted) {
       return;
     }
-
+    lastPopTimeMsgStatus = DateTimeHelper.currentTimeMillis();
     // 初始化 当前会话新增消息
     List<types.Message>? items = await logic.getMessages(widget.toId);
     debugPrint(">>>>> on _loadMessages msg: ${items.toString()}");
@@ -221,10 +228,111 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
+  void _onMessageLongPress(types.Message message) async {
+    if (message is types.TextMessage) {
+      Get.snackbar("_onMessageLongPress", message.text);
+    }
+  }
+
   void _handleMessageTap(types.Message message) async {
     if (message is types.FileMessage) {
       await OpenFile.open(message.uri);
     }
+    PopupMenu menu = PopupMenu(
+      // backgroundColor: Colors.teal,
+      // lineColor: Colors.tealAccent,
+      // maxColumn: 2,
+      items: [
+        MenuItem(
+          title: 'Copy',
+          textAlign: TextAlign.center,
+          textStyle: TextStyle(
+            color: Color(0xffc5c5c5),
+            fontSize: 10.0,
+          ),
+          image: Icon(
+            Icons.copy,
+            color: Colors.white,
+          ),
+        ),
+        MenuItem(
+          title: 'Home',
+          textAlign: TextAlign.center,
+          textStyle: TextStyle(
+            fontSize: 10.0,
+            color: Colors.tealAccent,
+          ),
+          image: Icon(
+            Icons.home,
+            color: Colors.white,
+          ),
+        ),
+        MenuItem(
+          title: 'Mail',
+          textAlign: TextAlign.center,
+          textStyle: TextStyle(
+            color: Color(0xffc5c5c5),
+            fontSize: 10.0,
+          ),
+          image: Icon(
+            Icons.mail,
+            color: Colors.white,
+          ),
+          userInfo: message,
+        ),
+        MenuItem(
+          title: 'Power',
+          textAlign: TextAlign.center,
+          textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+          image: Icon(
+            Icons.power,
+            color: Colors.white,
+          ),
+          userInfo: message,
+        ),
+        MenuItem(
+          title: 'Setting',
+          textAlign: TextAlign.center,
+          textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+          image: Icon(
+            Icons.settings,
+            color: Colors.white,
+          ),
+          userInfo: message,
+        ),
+        MenuItem(
+          title: 'PopupMenu',
+          textAlign: TextAlign.center,
+          textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+          image: Icon(
+            Icons.menu,
+            color: Colors.white,
+          ),
+          userInfo: message,
+        )
+      ],
+      context: widget.context,
+      onClickMenu: onClickMenu,
+      // stateChanged: stateChanged,
+      // onDismiss: onDismiss,
+    );
+    // debugPrint(">>>>> on chat _handleMessageTap");
+    // menu.show(widgetKey: btnKey);
+
+    RenderBox renderBox = widget.context.findRenderObject() as RenderBox;
+    var offset = renderBox.localToGlobal(Offset.zero);
+
+    debugPrint(
+        ">>>>> on chat _handleMessageTap x:${offset.dx},y:${offset.dy},w:${renderBox.size.width},h:${renderBox.size.height},");
+
+    menu.show(
+      rect: Rect.fromLTWH(
+        offset.dx,
+        offset.dy,
+        renderBox.size.width / 2,
+        renderBox.size.height / 2,
+      ),
+    );
   }
 
   void _handlePreviewDataFetched(
@@ -250,11 +358,13 @@ class ChatPageState extends State<ChatPage> {
       remoteId: widget.toId,
       status: types.Status.sending,
     );
+    debugPrint(">>>>> on chat _handleSendPressed ${textMessage.toString()}");
     _addMessage(textMessage);
   }
 
   @override
   Widget build(BuildContext context) {
+    widget.context = context;
     var rWidget = [
       new InkWell(
         child: new Image(image: AssetImage('assets/images/right_more.png')),
@@ -277,13 +387,17 @@ class ChatPageState extends State<ChatPage> {
         //手指滑动
         onPanUpdate: _onPanUpdate,
         child: Chat(
+          key: btnKey,
           messages: messages,
           // bubbleBuilder: _bubbleBuilder,
           // textMessageBuilder: Obx(() => textMessageBuilder),
           onAttachmentPressed: _handleAtachmentPressed,
           onMessageTap: _handleMessageTap,
+          onMessageLongPress: _onMessageLongPress,
           onPreviewDataFetched: _handlePreviewDataFetched,
           onSendPressed: _handleSendPressed,
+          onMessageStatusTap: _onMessageStatusTap,
+          onMessageStatusLongPress: _onMessageStatusTap,
           user: logic.cuser,
           theme: const ImboyChatTheme(),
         ),
@@ -299,26 +413,49 @@ class ChatPageState extends State<ChatPage> {
       _msgStreamSubs!.cancel();
       _msgStreamSubs = null;
     }
+    debugPrint(">>>>> on chat_view/dispose _connectivityResult ");
+
     //在页面销毁的时候一定要取消网络状态的监听
-    if (_connectivityResult != null) {
+    if (_connectivityResult != null &&
+        _connectivityResult != ConnectivityResult.none) {
+      debugPrint(">>> on chat_view dispose _connectivityResult: " +
+          _connectivityResult.toString());
       _connectivityResult.cancle();
     }
     super.dispose();
   }
 
   // 手指滑动 事件
-  void _onPanUpdate(DragUpdateDetails e) async {
+  void _onPanUpdate(DragUpdateDetails e) async {}
+
+  void _onMessageStatusTap(types.Message msg) {
+    Get.snackbar("Tips",
+        "_onMessageStatusTap:${msg.id}, status:${msg.status}, ${msg.status != types.Status.sending}");
     if (_connectivityResult == ConnectivityResult.none) {
       Get.snackbar("Tips", "网络连接异常ws");
       return;
     }
-    // 1秒内只能出发一次 TODO leeyi 2021-11-19 00:28:28
-    // 检查为发送消息
-    messages.forEach((obj) async {
-      logic.sendWsMsg(logic.getMsgFromTmsg(widget.type!, widget.id!, obj));
-      setState(() {
-        messages;
-      });
+    if (msg.status != types.Status.sending) {
+      return;
+    }
+    int diff = DateTimeHelper.currentTimeMillis();
+    if (diff > 1500) {
+      // 检查为发送消息
+      logic.sendWsMsg(logic.getMsgFromTmsg(
+        widget.type!,
+        widget.id!,
+        msg,
+      ));
+    }
+    lastPopTimeMsgStatus = DateTimeHelper.currentTimeMillis();
+    setState(() {
+      messages;
     });
+  }
+
+  onClickMenu(MenuItemProvider item) {
+    MenuItem it = item as MenuItem;
+    types.Message msg = it.userInfo as types.Message;
+    Get.snackbar("title", msg.id);
   }
 }

@@ -6,7 +6,7 @@ import 'package:imboy/component/view/image_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/win_media.dart';
 
-class ConversationView extends StatefulWidget {
+class ConversationView extends StatelessWidget {
   final String? imageUrl;
   final String? title;
   final dynamic payload;
@@ -24,11 +24,6 @@ class ConversationView extends StatefulWidget {
   });
 
   @override
-  _ConversationViewState createState() => _ConversationViewState();
-}
-
-class _ConversationViewState extends State<ConversationView> {
-  @override
   Widget build(BuildContext context) {
     var row = Row(
       children: <Widget>[
@@ -38,18 +33,18 @@ class _ConversationViewState extends State<ConversationView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                widget.title ?? '',
+                this.title ?? '',
                 style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.normal),
               ),
               SizedBox(height: 2.0),
-              ContentMsg(widget.payload),
+              ContentMsg(this.payload),
             ],
           ),
         ),
         Space(width: mainSpace),
         Column(
           children: [
-            widget.time!,
+            this.time!,
             Icon(Icons.flag, color: Colors.transparent),
           ],
         )
@@ -64,10 +59,9 @@ class _ConversationViewState extends State<ConversationView> {
         children: [
           Badge(
             position: BadgePosition.topEnd(top: -4, end: -4),
-            showBadge:
-                (widget.remindCounter != null && widget.remindCounter! > 0
-                    ? true
-                    : false),
+            showBadge: (this.remindCounter != null && this.remindCounter! > 0
+                ? true
+                : false),
             shape: BadgeShape.square,
             borderRadius: BorderRadius.circular(10),
             padding: EdgeInsets.fromLTRB(5, 3, 5, 3),
@@ -75,16 +69,14 @@ class _ConversationViewState extends State<ConversationView> {
             animationType: BadgeAnimationType.scale,
             badgeContent: Text(
               // _counter.toString(),
-              widget.remindCounter != null
-                  ? widget.remindCounter!.toString()
-                  : "0",
+              this.remindCounter != null ? this.remindCounter!.toString() : "0",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 8,
               ),
             ),
             child: ImageView(
-              img: widget.imageUrl!,
+              img: this.imageUrl!,
               height: 50.0,
               width: 50.0,
               fit: BoxFit.cover,
@@ -94,7 +86,7 @@ class _ConversationViewState extends State<ConversationView> {
             padding: EdgeInsets.only(right: 18.0, top: 12.0, bottom: 12.0),
             width: winWidth(context) - 68,
             decoration: BoxDecoration(
-              border: widget.isBorder
+              border: this.isBorder
                   ? Border(
                       top: BorderSide(color: AppColors.LineColor, width: 0.2),
                     )

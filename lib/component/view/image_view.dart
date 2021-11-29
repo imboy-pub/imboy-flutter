@@ -49,9 +49,9 @@ class ImageView extends StatelessWidget {
     } else {
       image = new Container(
         decoration: BoxDecoration(
-            color: Colors.black26.withOpacity(0.1),
-            border:
-                Border.all(color: Colors.black.withOpacity(0.2), width: 0.3)),
+          color: Colors.black26.withOpacity(0.1),
+          border: Border.all(color: Colors.black.withOpacity(0.2), width: 0.3),
+        ),
         child: new Image(
           image: AssetImage(defIcon),
           width: width! - 1,
