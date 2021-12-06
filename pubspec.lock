@@ -427,7 +427,7 @@ packages:
       name: file_picker
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.2.6"
+    version: "4.2.7"
   fixnum:
     dependency: transitive
     description:
@@ -841,7 +841,7 @@ packages:
       name: path_provider_macos
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.3"
+    version: "2.0.4"
   path_provider_platform_interface:
     dependency: transitive
     description:
@@ -890,7 +890,7 @@ packages:
       name: platform
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.0.2"
+    version: "3.1.0"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -915,11 +915,9 @@ packages:
   popup_menu:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "3ab77d3dc2d88e87f79ccb87feba29f354a66e64"
-      url: "git://github.com/chinabrant/popup_menu.git"
-    source: git
+      path: "plugin/popup_menu"
+      relative: true
+    source: path
     version: "1.0.5"
   process:
     dependency: transitive
@@ -1289,14 +1287,14 @@ packages:
       name: webview_flutter_platform_interface
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.5.2"
+    version: "1.8.0"
   webview_flutter_wkwebview:
     dependency: transitive
     description:
       name: webview_flutter_wkwebview
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.4.0"
+    version: "2.5.0"
   wechat_assets_picker:
     dependency: "direct main"
     description:

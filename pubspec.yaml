@@ -82,8 +82,7 @@ dependencies:
   bubble: ^1.2.1
   # getsocket: ^1.0.1
   popup_menu:
-    git:
-      url: git://github.com/chinabrant/popup_menu.git
+    path: plugin/popup_menu
 
 dev_dependencies:
   build_runner: ^2.1.4

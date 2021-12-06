@@ -1,0 +1,3 @@
+[submodule "plugin/popup_menu"]
+	path = plugin/popup_menu
+	url = https://github.com/imboy-pub/popup_menu.git

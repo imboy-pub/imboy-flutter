@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -31,8 +30,6 @@ class ChatPage extends StatefulWidget {
   final String? title;
   final String? avatar;
 
-  late BuildContext context;
-
   ChatPage({
     required this.id,
     required this.toId,
@@ -56,31 +53,33 @@ class ChatPageState extends State<ChatPage> {
 
   String newGroupName = "";
 
-  var _connectivityResult;
+  // var _connectivityResult;
   RxString _connectStateDescription = "".obs;
 
   int lastPopTimeMsgStatus = 0;
-  GlobalKey btnKey = GlobalKey();
+  final GlobalKey gkey = GlobalKey();
 
   @override
   void initState() {
+    //监听Widget是否绘制完毕
+    // WidgetsBinding.instance.addPostFrameCallback(gkey);
     super.initState();
-    if (_connectivityResult == null) {
-      debugPrint(">>>>> on chat_view/initData _connectivityResult ");
-      _connectivityResult = Connectivity()
-          .onConnectivityChanged
-          .listen((ConnectivityResult result) {
-        if (result == ConnectivityResult.mobile) {
-          _connectStateDescription.value = "手机网络";
-          // setState(() {
-          // });
-        } else if (result == ConnectivityResult.wifi) {
-          _connectStateDescription.value = "Wifi网络";
-        } else {
-          _connectStateDescription.value = "无网络";
-        }
-      });
-    }
+    // if (_connectivityResult == null) {
+    //   debugPrint(">>>>> on chat_view/initData _connectivityResult ");
+    //   _connectivityResult = Connectivity()
+    //       .onConnectivityChanged
+    //       .listen((ConnectivityResult result) {
+    //     if (result == ConnectivityResult.mobile) {
+    //       _connectStateDescription.value = "手机网络";
+    //       // setState(() {
+    //       // });
+    //     } else if (result == ConnectivityResult.wifi) {
+    //       _connectStateDescription.value = "Wifi网络";
+    //     } else {
+    //       _connectStateDescription.value = "无网络";
+    //     }
+    //   });
+    // }
     initData();
     if (_msgStreamSubs == null) {
       // Register listeners for all events:
@@ -311,27 +310,15 @@ class ChatPageState extends State<ChatPage> {
           userInfo: message,
         )
       ],
-      context: widget.context,
+      context: gkey.currentContext!,
       onClickMenu: onClickMenu,
       // stateChanged: stateChanged,
       // onDismiss: onDismiss,
     );
-    // debugPrint(">>>>> on chat _handleMessageTap");
-    // menu.show(widgetKey: btnKey);
-
-    RenderBox renderBox = widget.context.findRenderObject() as RenderBox;
-    var offset = renderBox.localToGlobal(Offset.zero);
-
-    debugPrint(
-        ">>>>> on chat _handleMessageTap x:${offset.dx},y:${offset.dy},w:${renderBox.size.width},h:${renderBox.size.height},");
 
     menu.show(
-      rect: Rect.fromLTWH(
-        offset.dx,
-        offset.dy,
-        renderBox.size.width / 2,
-        renderBox.size.height / 2,
-      ),
+      widgetKey: gkey,
+      valueKey: ValueKey(message.id),
     );
   }
 
@@ -364,7 +351,6 @@ class ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    widget.context = context;
     var rWidget = [
       new InkWell(
         child: new Image(image: AssetImage('assets/images/right_more.png')),
@@ -387,7 +373,7 @@ class ChatPageState extends State<ChatPage> {
         //手指滑动
         onPanUpdate: _onPanUpdate,
         child: Chat(
-          key: btnKey,
+          key: gkey,
           messages: messages,
           // bubbleBuilder: _bubbleBuilder,
           // textMessageBuilder: Obx(() => textMessageBuilder),
@@ -416,12 +402,12 @@ class ChatPageState extends State<ChatPage> {
     debugPrint(">>>>> on chat_view/dispose _connectivityResult ");
 
     //在页面销毁的时候一定要取消网络状态的监听
-    if (_connectivityResult != null &&
-        _connectivityResult != ConnectivityResult.none) {
-      debugPrint(">>> on chat_view dispose _connectivityResult: " +
-          _connectivityResult.toString());
-      _connectivityResult.cancle();
-    }
+    // if (_connectivityResult != null &&
+    //     _connectivityResult != ConnectivityResult.none) {
+    //   debugPrint(">>> on chat_view dispose _connectivityResult: " +
+    //       _connectivityResult.toString());
+    //   _connectivityResult.cancle();
+    // }
     super.dispose();
   }
 
@@ -431,10 +417,10 @@ class ChatPageState extends State<ChatPage> {
   void _onMessageStatusTap(types.Message msg) {
     Get.snackbar("Tips",
         "_onMessageStatusTap:${msg.id}, status:${msg.status}, ${msg.status != types.Status.sending}");
-    if (_connectivityResult == ConnectivityResult.none) {
-      Get.snackbar("Tips", "网络连接异常ws");
-      return;
-    }
+    // if (_connectivityResult == ConnectivityResult.none) {
+    //   Get.snackbar("Tips", "网络连接异常ws");
+    //   return;
+    // }
     if (msg.status != types.Status.sending) {
       return;
     }
