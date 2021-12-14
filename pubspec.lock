@@ -478,9 +478,9 @@ packages:
   flutter_chat_ui:
     dependency: "direct main"
     description:
-      name: flutter_chat_ui
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "plugin/flutter_chat_ui"
+      relative: true
+    source: path
     version: "1.5.2"
   flutter_link_previewer:
     dependency: transitive

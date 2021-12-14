@@ -57,12 +57,10 @@ class ChatPageState extends State<ChatPage> {
   RxString _connectStateDescription = "".obs;
 
   int lastPopTimeMsgStatus = 0;
-  final GlobalKey gkey = GlobalKey();
 
   @override
   void initState() {
     //监听Widget是否绘制完毕
-    // WidgetsBinding.instance.addPostFrameCallback(gkey);
     super.initState();
     // if (_connectivityResult == null) {
     //   debugPrint(">>>>> on chat_view/initData _connectivityResult ");
@@ -227,13 +225,13 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _onMessageLongPress(types.Message message) async {
+  void _onMessageLongPress(BuildContext c1, types.Message message) async {
     if (message is types.TextMessage) {
       Get.snackbar("_onMessageLongPress", message.text);
     }
   }
 
-  void _handleMessageTap(types.Message message) async {
+  void _handleMessageTap(BuildContext c1, types.Message message) async {
     if (message is types.FileMessage) {
       await OpenFile.open(message.uri);
     }
@@ -243,7 +241,7 @@ class ChatPageState extends State<ChatPage> {
       // maxColumn: 2,
       items: [
         MenuItem(
-          title: 'Copy',
+          title: '复制',
           textAlign: TextAlign.center,
           textStyle: TextStyle(
             color: Color(0xffc5c5c5),
@@ -255,70 +253,91 @@ class ChatPageState extends State<ChatPage> {
           ),
         ),
         MenuItem(
-          title: 'Home',
+          title: '转发',
           textAlign: TextAlign.center,
           textStyle: TextStyle(
             fontSize: 10.0,
             color: Colors.tealAccent,
           ),
           image: Icon(
-            Icons.home,
+            Icons.forward,
             color: Colors.white,
           ),
         ),
         MenuItem(
-          title: 'Mail',
+          title: '收藏',
           textAlign: TextAlign.center,
           textStyle: TextStyle(
             color: Color(0xffc5c5c5),
             fontSize: 10.0,
           ),
           image: Icon(
-            Icons.mail,
+            Icons.collections_bookmark,
             color: Colors.white,
           ),
           userInfo: message,
         ),
         MenuItem(
-          title: 'Power',
+          title: '多选',
           textAlign: TextAlign.center,
           textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
           image: Icon(
-            Icons.power,
+            Icons.add_road,
             color: Colors.white,
           ),
           userInfo: message,
         ),
         MenuItem(
-          title: 'Setting',
+          title: '引用',
           textAlign: TextAlign.center,
           textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
           image: Icon(
-            Icons.settings,
+            Icons.format_quote,
             color: Colors.white,
           ),
           userInfo: message,
         ),
         MenuItem(
-          title: 'PopupMenu',
+          title: '撤回',
           textAlign: TextAlign.center,
           textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
           image: Icon(
-            Icons.menu,
+            Icons.play_disabled,
             color: Colors.white,
           ),
           userInfo: message,
-        )
+        ),
+        MenuItem(
+          title: '删除',
+          textAlign: TextAlign.center,
+          textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+          image: Icon(
+            Icons.remove,
+            color: Colors.white,
+          ),
+          userInfo: message,
+        ),
       ],
-      context: gkey.currentContext!,
+      context: c1,
       onClickMenu: onClickMenu,
       // stateChanged: stateChanged,
       // onDismiss: onDismiss,
     );
-
+    RenderBox renderBox = c1.findRenderObject() as RenderBox;
+    var offset = renderBox.localToGlobal(Offset.zero);
+    double l = offset.dx / 2 - renderBox.size.width / 2 + 75.0;
+    double r = renderBox.size.width / 2 - 75.0;
+    double dx = message.author.id == logic.current.currentUid ? r : l;
+    debugPrint(">>>>> on chat _handleMessageTap left ${dx}, l: ${l}, r: ${r}");
+    debugPrint(
+        ">>>>> on chat _handleMessageTap dx:${offset.dx},dy:${offset.dy},w:${renderBox.size.width},h:${renderBox.size.height}");
     menu.show(
-      widgetKey: gkey,
-      valueKey: ValueKey(message.id),
+      rect: Rect.fromLTWH(
+        dx,
+        offset.dy,
+        renderBox.size.width,
+        renderBox.size.height,
+      ),
     );
   }
 
@@ -373,7 +392,6 @@ class ChatPageState extends State<ChatPage> {
         //手指滑动
         onPanUpdate: _onPanUpdate,
         child: Chat(
-          key: gkey,
           messages: messages,
           // bubbleBuilder: _bubbleBuilder,
           // textMessageBuilder: Obx(() => textMessageBuilder),
@@ -439,9 +457,18 @@ class ChatPageState extends State<ChatPage> {
     });
   }
 
-  onClickMenu(MenuItemProvider item) {
+  onClickMenu(MenuItemProvider item) async {
     MenuItem it = item as MenuItem;
     types.Message msg = it.userInfo as types.Message;
-    Get.snackbar("title", msg.id);
+    Get.snackbar("title", msg.id + " ; " + it.menuTitle);
+    if (it.menuTitle == "删除") {
+      bool res = await logic.removeMessage(msg.id);
+      if (res) {
+        final index = messages.indexWhere((element) => element.id == msg.id);
+        setState(() {
+          messages.removeAt(index);
+        });
+      }
+    }
   }
 }

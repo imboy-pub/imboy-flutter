@@ -173,7 +173,7 @@ class WebSocket {
     }
     // 连接成功，返回WebSocket实例
     _socketStatus = SocketStatus.SocketStatusConnected;
-    Get.snackbar("Tips", "ws连接成功");
+    // Get.snackbar("Tips", "ws连接成功");
     debugPrint('>>>>> on ws ${DateTime.now()} 连接成功');
     // 连接成功，重置重连计数器
     _reconnectTimes = 0;
@@ -291,7 +291,7 @@ class WebSocket {
           debugPrint('>>>>> on ws ${DateTime.now()} sendMsg  发送失败 $message');
           break;
         default:
-          Get.snackbar("Tips", "发送失败 ws" + _socketStatus.toString());
+          // Get.snackbar("Tips", "发送失败 ws" + _socketStatus.toString());
           debugPrint(
               '>>>>> on ws ${DateTime.now()} sendMsg 发送失败 ${_socketStatus.toString()} $message');
           break;

@@ -4,12 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:imboy/helper/datetime.dart';
+import 'package:imboy/helper/sqflite.dart';
 import 'package:imboy/helper/websocket.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:sqflite/sqflite.dart';
 
 import 'chat_state.dart';
 
@@ -143,6 +145,19 @@ class ChatLogic extends GetxController {
     debugPrint(">>>>> on chat addMessage ${message.toString()}");
     sendWsMsg(obj);
     return cobj;
+  }
+
+  Future<bool> removeMessage(String id) async {
+    Database db = await Sqlite.instance.database;
+    return await db.transaction((txn) async {
+      await txn.execute(
+        "DELETE FROM ${MessageRepo.tablename} WHERE ${MessageRepo.id}=?",
+        [id],
+      );
+
+      debugPrint('on >>>>> removeMessage :' + id + ';');
+      return true;
+    });
   }
 
   @override
