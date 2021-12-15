@@ -71,7 +71,7 @@ class WebSocket {
     }, onMessage: (event) {
       // change(data);
       debugPrint(
-          ">>>>> on ws ${DateTime.now()} onMessage ${event.runtimeType} | ${event.toString()}");
+          ">>>>> on ws onMessage ${DateTime.now()} ${event.runtimeType} | ${event.toString()}");
       if (event == "pong" || event == "pong2") {
         return;
       }
@@ -273,27 +273,27 @@ class WebSocket {
     bool result = false;
     if (_webSocketChannel == null) {
       debugPrint(
-          '>>>>> on ws ${DateTime.now()} sendMsg $message; _webSocketChannel is null');
+          '>>>>> on ws sendMsg ${DateTime.now()}  $message; _webSocketChannel is null');
       closeSocket();
     } else {
       switch (_socketStatus) {
         case SocketStatus.SocketStatusConnected:
-          debugPrint('>>>>> on ws ${DateTime.now()} sendMsg $message');
+          debugPrint('>>>>> on ws sendMsg ${DateTime.now()} $message');
           _webSocketChannel!.sink.add(message);
           result = true;
           break;
         case SocketStatus.SocketStatusClosed:
           Get.snackbar("Tips", "连接已关闭 ws ${DateTime.now()}");
-          debugPrint('>>>>> on ws ${DateTime.now()} sendMsg 连接已关闭 $message');
+          debugPrint('>>>>> on ws sendMsg ${DateTime.now()}  连接已关闭 $message');
           break;
         case SocketStatus.SocketStatusFailed:
           Get.snackbar("Tips", "发送失败 SocketStatusFailed");
-          debugPrint('>>>>> on ws ${DateTime.now()} sendMsg  发送失败 $message');
+          debugPrint('>>>>> on ws sendMsg ${DateTime.now()}  发送失败 $message');
           break;
         default:
           // Get.snackbar("Tips", "发送失败 ws" + _socketStatus.toString());
           debugPrint(
-              '>>>>> on ws ${DateTime.now()} sendMsg 发送失败 ${_socketStatus.toString()} $message');
+              '>>>>> on ws sendMsg ${DateTime.now()} 发送失败 ${_socketStatus.toString()} $message');
           break;
       }
     }

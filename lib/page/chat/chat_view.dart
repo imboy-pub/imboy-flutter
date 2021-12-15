@@ -15,7 +15,6 @@ import 'package:imboy/page/chat_info/chat_info_view.dart';
 import 'package:imboy/page/group_detail/group_detail_view.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/store/model/conversation_model.dart';
-// import 'package:intl/date_symbol_data_local.dart';
 import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
 import 'package:popup_menu/popup_menu.dart';
@@ -58,6 +57,8 @@ class ChatPageState extends State<ChatPage> {
 
   int lastPopTimeMsgStatus = 0;
 
+  int _page = 1;
+
   @override
   void initState() {
     //监听Widget是否绘制完毕
@@ -79,6 +80,7 @@ class ChatPageState extends State<ChatPage> {
     //   });
     // }
     initData();
+    _handleEndReached();
     if (_msgStreamSubs == null) {
       // Register listeners for all events:
       _msgStreamSubs = eventBus.on<types.Message>().listen((e) async {
@@ -118,16 +120,28 @@ class ChatPageState extends State<ChatPage> {
       return;
     }
     lastPopTimeMsgStatus = DateTimeHelper.currentTimeMillis();
+
+    // 消除消息提醒
+    // _counter.setConversationRemind(widget.toId, 0);
+  }
+
+  Future<void> _handleEndReached() async {
     // 初始化 当前会话新增消息
-    List<types.Message>? items = await logic.getMessages(widget.toId);
+    List<types.Message>? items = await logic.getMessages(
+      widget.toId,
+      _page,
+      10,
+    );
     debugPrint(">>>>> on _loadMessages msg: ${items.toString()}");
     if (items != null && items.length > 0) {
       setState(() {
-        messages = items;
+        messages = [
+          ...messages,
+          ...items,
+        ];
+        _page = _page + 1;
       });
     }
-    // 消除消息提醒
-    _counter.setConversationRemind(widget.toId, 0);
   }
 
   Future<void> _addMessage(types.Message message) async {
@@ -393,6 +407,8 @@ class ChatPageState extends State<ChatPage> {
         onPanUpdate: _onPanUpdate,
         child: Chat(
           messages: messages,
+          onEndReachedThreshold: 0.8,
+          onEndReached: _handleEndReached,
           // bubbleBuilder: _bubbleBuilder,
           // textMessageBuilder: Obx(() => textMessageBuilder),
           onAttachmentPressed: _handleAtachmentPressed,

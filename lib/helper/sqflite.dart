@@ -32,7 +32,7 @@ class Sqlite {
 
   _initDatabase() async {
     String path = join(await getDatabasesPath(), _dbName);
-    debugPrint(">>>>>>>>>>>>>>>>>>> on open db path {$path}");
+    debugPrint(">>>>> on open db path {$path}");
     // Delete the database
     // await deleteDatabase(path);
 
@@ -63,7 +63,7 @@ class Sqlite {
         PRIMARY KEY("cuid","uid")
         );
       ''';
-    debugPrint(">>>>>>>>>>>>>>>>>>> on _onCreate \n${contatsSql}\n");
+    debugPrint(">>>>> on _onCreate \n${contatsSql}\n");
     await db.execute(contatsSql);
 
     String conversationSql = '''
@@ -83,11 +83,12 @@ class Sqlite {
         PRIMARY KEY(${ConversationRepo.id})
         );
       ''';
-    debugPrint(">>>>>>>>>>>>>>>>>>> on _onCreate \n${conversationSql}\n");
+    debugPrint(">>>>> on _onCreate \n${conversationSql}\n");
     await db.execute(conversationSql);
 
     String messageSql = '''
       CREATE TABLE IF NOT EXISTS ${MessageRepo.tablename} (
+        autoid INTERGER AUTO_INCREMENT,
         ${MessageRepo.id} varchar(40) NOT NULL,
         ${MessageRepo.type} VARCHAR (20),
         ${MessageRepo.from} VARCHAR (80),
@@ -97,11 +98,13 @@ class Sqlite {
         ${MessageRepo.serverTs} INTERGER,
         ${MessageRepo.conversationId} int DEFAULT 0,
         ${MessageRepo.status} INTERGER,
-        PRIMARY KEY(${MessageRepo.id})
+        PRIMARY KEY(autoid)
         );
       ''';
-    debugPrint(">>>>>>>>>>>>>>>>>>> on _onCreate messageSql \n${messageSql}\n");
+    debugPrint(">>>>> on _onCreate messageSql \n${messageSql}\n");
     await db.execute(messageSql);
+    await db.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS uk_msgid ON ${MessageRepo.tablename} (${MessageRepo.id});");
   }
 
   Future<int> insert(String table, Map<String, dynamic> data) async {
@@ -128,16 +131,18 @@ class Sqlite {
     return res;
   }
 
-  Future<List<Map<String, dynamic>>> query(String table,
-      {bool? distinct,
-      List<String>? columns,
-      String? where,
-      List<Object?>? whereArgs,
-      String? groupBy,
-      String? having,
-      String? orderBy,
-      int? limit,
-      int? offset}) async {
+  Future<List<Map<String, dynamic>>> query(
+    String table, {
+    bool? distinct,
+    List<String>? columns,
+    String? where,
+    List<Object?>? whereArgs,
+    String? groupBy,
+    String? having,
+    String? orderBy,
+    int? limit,
+    int? offset,
+  }) async {
     Database db = await instance.database;
     var res = await db.query(
       table,

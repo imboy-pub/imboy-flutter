@@ -30,16 +30,23 @@ class ChatLogic extends GetxController {
     );
   }
 
-  Future<List<types.Message>?> getMessages(String id) async {
+  Future<List<types.Message>?> getMessages(
+    String id,
+    int page,
+    int size,
+  ) async {
     // final response = await rootBundle.loadString('assets/data/messages.json');
     ConversationModel? obj = await ConversationRepo().find(id);
     debugPrint(">>>>> on getMessages id: $id; obj: ${obj!.toMap()}");
-    List<MessageModel> items = await MessageRepo().findByConversation(obj.id);
+    List<MessageModel> items = await MessageRepo().findByConversation(
+      obj.id,
+      page,
+      size,
+    );
 
     List<types.Message> messages = [];
     items.forEach((obj) async {
-      // ContactModel? from = await obj.from;
-      debugPrint(">>>>> on getMessages obj ${obj.toMap()}");
+      // debugPrint(">>>>> on getMessages obj ${obj.toMap()}");
       if (obj.type == "C2C" && obj.payload!['msg_type'] == "text") {
         messages.insert(
             0,

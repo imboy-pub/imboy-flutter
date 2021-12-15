@@ -72,7 +72,7 @@ class MessageService extends GetxService {
               eventBus.fire(message);
             }
             break;
-          case 'S_RECEIVED':
+          case 'S_RECEIVED': // 服务端消息确认
             MessageRepo repo = MessageRepo();
             String id = data['id'];
             int res = await repo.update({'id': id, 'status': 11});

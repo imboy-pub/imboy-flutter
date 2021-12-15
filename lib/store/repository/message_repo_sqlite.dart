@@ -33,6 +33,7 @@ class MessageRepo {
     );
     if (count == 0) {
       Map<String, dynamic> insert = {
+        'autoid': null,
         '${MessageRepo.id}': msg.id,
         '${MessageRepo.type}': msg.type,
         '${MessageRepo.from}': msg.fromId,
@@ -81,57 +82,42 @@ class MessageRepo {
     return obj;
   }
 
-  Future<List<MessageModel>> findByConversation(int conversationId) async {
-    String cuid = UserRepoSP.user.currentUid;
-    List<Map<String, dynamic>> maps = await _db.query(MessageRepo.tablename,
-        columns: [
-          MessageRepo.id,
-          MessageRepo.type,
-          MessageRepo.from,
-          MessageRepo.to,
-          MessageRepo.payload,
-          MessageRepo.createdAt,
-          MessageRepo.serverTs,
-          MessageRepo.status,
-          MessageRepo.conversationId,
-        ],
-        where: "${MessageRepo.conversationId} = ?",
-        whereArgs: [conversationId]);
-
+  Future<List<MessageModel>> findByConversation(
+    int conversationId,
+    int page,
+    int size,
+  ) async {
+    List<Map<String, dynamic>> maps = await _db.query(
+      MessageRepo.tablename,
+      columns: [
+        MessageRepo.id,
+        MessageRepo.type,
+        MessageRepo.from,
+        MessageRepo.to,
+        MessageRepo.payload,
+        MessageRepo.createdAt,
+        MessageRepo.serverTs,
+        MessageRepo.status,
+        MessageRepo.conversationId,
+      ],
+      where: "${MessageRepo.conversationId} = ?",
+      whereArgs: [conversationId],
+      orderBy: "autoid DESC",
+      offset: ((page - 1) > 0 ? (page - 1) : 0) * size,
+      limit: size,
+    );
+    // 'SELECT id, type, from_id, to_id, payload, created_at, server_ts, status, conversation_id FROM message
+    // WHERE conversation_id = ? ORDER BY server_ts DESC LIMIT 0 OFFSET 5'
+    debugPrint(
+        ">>>>> on findByConversation/3 page:${page} = ${(((page - 1) > 0 ? (page - 1) : 0))}, size:${size}; ${maps.toString()}");
     if (maps == null || maps.length == 0) {
       return [];
     }
 
     List<MessageModel> messages = [];
     for (int i = 0; i < maps.length; i++) {
-      messages.add(MessageModel.fromMap(maps[i]));
-    }
-    return messages;
-  }
-
-  // 查找所有信息
-  Future<List<MessageModel>?> all() async {
-    String cuid = UserRepoSP.user.currentUid;
-    List<Map<String, dynamic>> maps =
-        await _db.query(MessageRepo.tablename, columns: [
-      MessageRepo.id,
-      MessageRepo.type,
-      MessageRepo.from,
-      MessageRepo.to,
-      MessageRepo.payload,
-      MessageRepo.createdAt,
-      MessageRepo.serverTs,
-      MessageRepo.conversationId,
-      MessageRepo.status,
-    ]);
-
-    if (maps == null || maps.length == 0) {
-      return null;
-    }
-
-    List<MessageModel> messages = [];
-    for (int i = 0; i < maps.length; i++) {
-      messages.add(MessageModel.fromMap(maps[i]));
+      int j = maps.length - i - 1;
+      messages.add(MessageModel.fromMap(maps[j]));
     }
     return messages;
   }
