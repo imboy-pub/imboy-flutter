@@ -8,6 +8,21 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
 // enum MsgType { custom, file, image, text, unsupported }
 
+/// All possible statuses message can have.
+// enum Status { delivered, error, seen, sending, sent }
+class MessageStatus {
+  // 发送中
+  static final int sending = 10;
+  //  已发送
+  static final int send = 11;
+  // 未读 已投递
+  static final int delivered = 20;
+  // 已读
+  static final int seen = 21;
+  // 错误（发送失败）
+  static final int error = 41;
+}
+
 class MessageModel {
   String? id;
   String? type;
@@ -75,15 +90,15 @@ class MessageModel {
   /// 20 未读 delivered;  21 已读 seen;
   /// 41 错误（发送失败） error;
   types.Status get eStatus {
-    if (this.status == 10) {
+    if (this.status == MessageStatus.sending) {
       return types.Status.sending;
-    } else if (this.status == 11) {
+    } else if (this.status == MessageStatus.send) {
       return types.Status.sent;
-    } else if (this.status == 20) {
+    } else if (this.status == MessageStatus.delivered) {
       return types.Status.delivered;
-    } else if (this.status == 21) {
+    } else if (this.status == MessageStatus.seen) {
       return types.Status.seen;
-    } else if (this.status == 41) {
+    } else if (this.status == MessageStatus.error) {
       return types.Status.error;
     }
     return types.Status.error;
@@ -91,17 +106,17 @@ class MessageModel {
 
   int toStatus(types.Status status) {
     if (status == types.Status.sending) {
-      return 10;
+      return MessageStatus.sending;
     } else if (status == types.Status.sent) {
-      return 11;
+      return MessageStatus.send;
     } else if (status == types.Status.delivered) {
-      return 20;
+      return MessageStatus.delivered;
     } else if (status == types.Status.seen) {
-      return 21;
+      return MessageStatus.seen;
     } else if (status == types.Status.error) {
-      return 41;
+      return MessageStatus.error;
     }
-    return 41;
+    return MessageStatus.error;
   }
 
   Future<ContactModel?> get to async {

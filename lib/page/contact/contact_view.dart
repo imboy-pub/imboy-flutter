@@ -92,6 +92,7 @@ class ContactPage extends StatelessWidget {
       ],
     );
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: appBar,
       body: Obx(
         () => Stack(

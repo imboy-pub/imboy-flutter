@@ -83,16 +83,25 @@ Lib
 
 ```
 
-##
-
-使用命令行创建 database.g.dart文 件
-```
-# 只创建一次使用
-flutter packages pub run build_runner build
-
-# 一直在动态创建
-flutter packages pub run build_runner watch
+## plugin
 
 ```
+cd plugin/
+
+git submodule add https://gitee.com/imboy-pub/flutter_chat_ui.git flutter_chat_ui
+
+git submodule add https://gitee.com/imboy-pub/popup_menu.git popup_menu
+
+```
+
+然后在 pubspec.yaml 文件添加
+```
+
+  flutter_chat_ui:
+    path: plugin/flutter_chat_ui
+  popup_menu:
+    path: plugin/popup_menu
+```
+
 
 参考 https://juejin.cn/post/6844903920322478093

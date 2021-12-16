@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart';
@@ -23,7 +25,7 @@ import 'package:uuid/uuid.dart';
 import 'chat_logic.dart';
 
 class ChatPage extends StatefulWidget {
-  final int? id; // 会话ID
+  final int id; // 会话ID
   final String toId; // 用户ID
   final String? type; // [C2C | GROUP]
   final String? title;
@@ -52,10 +54,8 @@ class ChatPageState extends State<ChatPage> {
 
   String newGroupName = "";
 
-  // var _connectivityResult;
+  var _connectivityResult;
   RxString _connectStateDescription = "".obs;
-
-  int lastPopTimeMsgStatus = 0;
 
   int _page = 1;
 
@@ -63,46 +63,45 @@ class ChatPageState extends State<ChatPage> {
   void initState() {
     //监听Widget是否绘制完毕
     super.initState();
-    // if (_connectivityResult == null) {
-    //   debugPrint(">>>>> on chat_view/initData _connectivityResult ");
-    //   _connectivityResult = Connectivity()
-    //       .onConnectivityChanged
-    //       .listen((ConnectivityResult result) {
-    //     if (result == ConnectivityResult.mobile) {
-    //       _connectStateDescription.value = "手机网络";
-    //       // setState(() {
-    //       // });
-    //     } else if (result == ConnectivityResult.wifi) {
-    //       _connectStateDescription.value = "Wifi网络";
-    //     } else {
-    //       _connectStateDescription.value = "无网络";
-    //     }
-    //   });
-    // }
-    initData();
+    if (!mounted) {
+      return;
+    }
     _handleEndReached();
+
+    if (_connectivityResult == null) {
+      debugPrint(">>>>> on chat_view/initData _connectivityResult ");
+      _connectivityResult = Connectivity()
+          .onConnectivityChanged
+          .listen((ConnectivityResult result) {
+        if (result == ConnectivityResult.mobile) {
+          _connectStateDescription.value = "手机网络";
+          // setState(() {
+          // });
+        } else if (result == ConnectivityResult.wifi) {
+          _connectStateDescription.value = "Wifi网络";
+        } else {
+          _connectStateDescription.value = "无网络";
+        }
+      });
+    }
+
     if (_msgStreamSubs == null) {
       // Register listeners for all events:
+      String toId = widget.toId;
       _msgStreamSubs = eventBus.on<types.Message>().listen((e) async {
         debugPrint(">>>>> on MessageService chat_view initState: " +
             e.runtimeType.toString());
 
-        if (e is types.Message && e.author.id == widget.toId) {
+        if (e is types.Message && e.author.id == toId) {
           setState(() {
             messages.insert(0, e);
           });
-          _counter.decreaseConversationRemind(widget.toId, 1);
+          _counter.decreaseConversationRemind(toId, 1);
         }
       });
       _msgStreamSubs = eventBus.on<List<types.Message>>().listen((e) async {
         types.Message msg = e.first;
-        int index = -1;
-        for (var i = 0; i < messages.length; i++) {
-          if (messages[i].id == msg.id) {
-            index = i;
-            break;
-          }
-        }
+        final index = messages.indexWhere((element) => element.id == msg.id);
         debugPrint(">>>>> on MessageService chat_view initState:$index; " +
             msg.toJson().toString());
         if (index > -1) {
@@ -115,16 +114,6 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
-  void initData() async {
-    if (!mounted) {
-      return;
-    }
-    lastPopTimeMsgStatus = DateTimeHelper.currentTimeMillis();
-
-    // 消除消息提醒
-    // _counter.setConversationRemind(widget.toId, 0);
-  }
-
   Future<void> _handleEndReached() async {
     // 初始化 当前会话新增消息
     List<types.Message>? items = await logic.getMessages(
@@ -132,8 +121,20 @@ class ChatPageState extends State<ChatPage> {
       _page,
       10,
     );
+
     debugPrint(">>>>> on _loadMessages msg: ${items.toString()}");
     if (items != null && items.length > 0) {
+      // 消除消息提醒
+      items.forEach((msg) async {
+        if (msg.status == types.Status.delivered) {
+          bool res = await logic.markAsRead(widget.id, msg);
+          if (res) {
+            _counter.decreaseConversationRemind(widget.toId, 1);
+          }
+        }
+        debugPrint(">>>>> on chat initData msg :${msg.toString()}");
+      });
+
       setState(() {
         messages = [
           ...messages,
@@ -265,42 +266,44 @@ class ChatPageState extends State<ChatPage> {
             Icons.copy,
             color: Colors.white,
           ),
+          userInfo: message,
         ),
         MenuItem(
           title: '转发',
           textAlign: TextAlign.center,
           textStyle: TextStyle(
             fontSize: 10.0,
-            color: Colors.tealAccent,
+            color: Colors.white,
           ),
           image: Icon(
             Icons.forward,
             color: Colors.white,
           ),
-        ),
-        MenuItem(
-          title: '收藏',
-          textAlign: TextAlign.center,
-          textStyle: TextStyle(
-            color: Color(0xffc5c5c5),
-            fontSize: 10.0,
-          ),
-          image: Icon(
-            Icons.collections_bookmark,
-            color: Colors.white,
-          ),
           userInfo: message,
         ),
-        MenuItem(
-          title: '多选',
-          textAlign: TextAlign.center,
-          textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-          image: Icon(
-            Icons.add_road,
-            color: Colors.white,
-          ),
-          userInfo: message,
-        ),
+        // MenuItem(
+        //   title: '收藏',
+        //   textAlign: TextAlign.center,
+        //   textStyle: TextStyle(
+        //     color: Color(0xffc5c5c5),
+        //     fontSize: 10.0,
+        //   ),
+        //   image: Icon(
+        //     Icons.collections_bookmark,
+        //     color: Colors.white,
+        //   ),
+        //   userInfo: message,
+        // ),
+        // MenuItem(
+        //   title: '多选',
+        //   textAlign: TextAlign.center,
+        //   textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+        //   image: Icon(
+        //     Icons.add_road,
+        //     color: Colors.white,
+        //   ),
+        //   userInfo: message,
+        // ),
         MenuItem(
           title: '引用',
           textAlign: TextAlign.center,
@@ -382,6 +385,44 @@ class ChatPageState extends State<ChatPage> {
     _addMessage(textMessage);
   }
 
+  // 手指滑动 事件
+  void _onPanUpdate(DragUpdateDetails e) async {}
+
+  void _onMessageStatusTap(types.Message msg) {
+    if (msg.status != types.Status.sending) {
+      return;
+    }
+    int diff = DateTimeHelper.currentTimeMillis();
+    if (diff > 1500) {
+      // 检查为发送消息
+      logic.sendWsMsg(logic.getMsgFromTmsg(
+        widget.type!,
+        widget.id,
+        msg,
+      ));
+    }
+    setState(() {
+      messages;
+    });
+  }
+
+  onClickMenu(MenuItemProvider item) async {
+    MenuItem it = item as MenuItem;
+    types.Message msg = it.userInfo as types.Message;
+    Get.snackbar("title", msg.id + " ; " + it.menuTitle);
+    if (it.menuTitle == "删除") {
+      bool res = await logic.removeMessage(msg.id);
+      if (res) {
+        final index = messages.indexWhere((element) => element.id == msg.id);
+        setState(() {
+          messages.removeAt(index);
+        });
+      }
+    } else if (it.menuTitle == "复制" && msg is types.TextMessage) {
+      Clipboard.setData(ClipboardData(text: msg.text));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var rWidget = [
@@ -418,6 +459,7 @@ class ChatPageState extends State<ChatPage> {
           onSendPressed: _handleSendPressed,
           onMessageStatusTap: _onMessageStatusTap,
           onMessageStatusLongPress: _onMessageStatusTap,
+          hideBackgroundOnEmojiMessages: false,
           user: logic.cuser,
           theme: const ImboyChatTheme(),
         ),
@@ -443,48 +485,5 @@ class ChatPageState extends State<ChatPage> {
     //   _connectivityResult.cancle();
     // }
     super.dispose();
-  }
-
-  // 手指滑动 事件
-  void _onPanUpdate(DragUpdateDetails e) async {}
-
-  void _onMessageStatusTap(types.Message msg) {
-    Get.snackbar("Tips",
-        "_onMessageStatusTap:${msg.id}, status:${msg.status}, ${msg.status != types.Status.sending}");
-    // if (_connectivityResult == ConnectivityResult.none) {
-    //   Get.snackbar("Tips", "网络连接异常ws");
-    //   return;
-    // }
-    if (msg.status != types.Status.sending) {
-      return;
-    }
-    int diff = DateTimeHelper.currentTimeMillis();
-    if (diff > 1500) {
-      // 检查为发送消息
-      logic.sendWsMsg(logic.getMsgFromTmsg(
-        widget.type!,
-        widget.id!,
-        msg,
-      ));
-    }
-    lastPopTimeMsgStatus = DateTimeHelper.currentTimeMillis();
-    setState(() {
-      messages;
-    });
-  }
-
-  onClickMenu(MenuItemProvider item) async {
-    MenuItem it = item as MenuItem;
-    types.Message msg = it.userInfo as types.Message;
-    Get.snackbar("title", msg.id + " ; " + it.menuTitle);
-    if (it.menuTitle == "删除") {
-      bool res = await logic.removeMessage(msg.id);
-      if (res) {
-        final index = messages.indexWhere((element) => element.id == msg.id);
-        setState(() {
-          messages.removeAt(index);
-        });
-      }
-    }
   }
 }

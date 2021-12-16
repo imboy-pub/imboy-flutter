@@ -74,10 +74,10 @@ class Sqlite {
         `${ConversationRepo.avatar}` varchar(255) NOT NULL DEFAULT '',
         `${ConversationRepo.title}` varchar(40) NOT NULL DEFAULT '',
         `${ConversationRepo.subtitle}` varchar(255) DEFAULT '',
-        `${ConversationRepo.unreadNum}` int DEFAULT 0,
+        `${ConversationRepo.unreadNum}` int NOT NULL DEFAULT 0,
         `${ConversationRepo.type}` varchar(40) NOT NULL,
         `${ConversationRepo.msgtype}` varchar(40) NOT NULL,
-        `${ConversationRepo.isShow}` bool NOT NULL,
+        `${ConversationRepo.isShow}` int NOT NULL DEFAULT 0,
         `${ConversationRepo.lasttime}` int DEFAULT 0,
         `${ConversationRepo.lastMsgStatus}` int DEFAULT 0,
         PRIMARY KEY(${ConversationRepo.id})

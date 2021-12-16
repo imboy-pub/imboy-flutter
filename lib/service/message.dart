@@ -29,7 +29,7 @@ class MessageService extends GetxService {
     (ConversationRepo()).update({"type_id": key, "unread_num": val});
   }
 
-  //
+  // 步曾会话提醒
   increaseConversationRemind(String key, int val) {
     if (conversationRemind.containsKey(key)) {
       val = conversationRemind[key]! + val;
@@ -44,7 +44,7 @@ class MessageService extends GetxService {
     setConversationRemind(key, val);
   }
 
-  // 聊天消息提醒技术器
+  // 聊天消息提醒计数器
   int get chatMsgRemindCounter {
     int c = 0;
     conversationRemind.forEach((key, value) {
@@ -174,11 +174,11 @@ class MessageService extends GetxService {
       type: data['type'],
       msgtype: msgtype,
       lasttime: data['created_at'],
-      unreadNum: 0,
-      isShow: true,
+      unreadNum: 1,
+      isShow: 1,
       id: 0,
     );
-    cobj = await (ConversationRepo()).save(cobj);
+    cobj = await (ConversationRepo()).save(cobj, 1);
 
     // status 10 未发送  11 已发送  20 未读  21 已读
     int status = 20;
@@ -196,8 +196,9 @@ class MessageService extends GetxService {
     );
     await (MessageRepo()).save(msg);
 
+    eventBus.fire(cobj);
+
     increaseConversationRemind(data['from'], 1);
-    conversations[data['from']] = cobj;
     // conversations
     return toTypeMessage(msg);
   }

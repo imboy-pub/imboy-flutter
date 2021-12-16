@@ -39,7 +39,7 @@ class ConversationRepo {
       // 单位毫秒，13位时间戳  1561021145560
       'lasttime': obj.lasttime ?? DateTime.now().millisecond,
       'last_msg_status': obj.lastMsgStatus ?? 11,
-      'unread_num': obj.unreadNum ?? 0,
+      'unread_num': obj.unreadNum,
       'type': obj.type,
       'msgtype': obj.msgtype,
       'is_show': obj.isShow,
@@ -61,22 +61,26 @@ class ConversationRepo {
   }
 
   // 存在就更新，不存在就插入
-  Future<ConversationModel> save(ConversationModel obj) async {
+  Future<ConversationModel> save(ConversationModel obj, int unreadNum) async {
     String cuid = current.currentUid;
     String where =
         '${ConversationRepo.cuid} = ? AND ${ConversationRepo.typeId} = ?';
-    debugPrint(">>>>> on ConversationRepo/save obj: " + obj.toMap().toString());
-    int? count = await _db.count(
-      ConversationRepo.tablename,
-      where: where,
-      whereArgs: [cuid, obj.typeId],
-    );
-
-    if (count! > 0) {
-      update(obj.toMap());
-    } else {
+    // debugPrint(">>>>> on ConversationRepo/save obj: " + obj.toMap().toString());
+    // int? count = await _db.count(
+    //   ConversationRepo.tablename,
+    //   where: where,
+    //   whereArgs: [cuid, obj.typeId],
+    // );
+    ConversationModel? oldObj = await this.find(obj.typeId);
+    int unreadNumOld = oldObj == null ? 0 : oldObj.unreadNum;
+    if (unreadNum > -1) {
+      obj.unreadNum = unreadNum + unreadNumOld;
+    }
+    if (oldObj == null) {
       obj.id = (await maxId()) + 1;
       insert(obj);
+    } else {
+      update(obj.toMap());
     }
     int? id = await _db.pluck(
       ConversationRepo.id,
@@ -84,8 +88,9 @@ class ConversationRepo {
       where: where,
       whereArgs: [cuid, obj.typeId],
     );
-    debugPrint(">>>>> on ConversationRepo/save count:$count; id: ${obj.id}");
     obj.id = id!;
+    debugPrint(
+        ">>>>> on ConversationRepo/save; obj: ${obj.toMap()}, oldObj: ${oldObj!.toMap()}, ");
     return obj;
   }
 
@@ -148,10 +153,10 @@ class ConversationRepo {
         ConversationRepo.type,
         ConversationRepo.msgtype,
       ],
-      // where: 'cuid=? AND ${ConversationRepo.isShow} = ?',
-      // whereArgs: [cuid, true],
-      where: 'cuid=?',
-      whereArgs: [cuid],
+      where: 'cuid=? AND ${ConversationRepo.isShow} = ?',
+      whereArgs: [cuid, 1],
+      // where: 'cuid=?',
+      // whereArgs: [cuid],
       orderBy: "${ConversationRepo.lasttime} DESC",
     );
     debugPrint(">>>>> on ConversationRepo/findByCuid maps " + maps.toString());
@@ -181,6 +186,7 @@ class ConversationRepo {
           ConversationRepo.lasttime,
           ConversationRepo.lastMsgStatus,
           ConversationRepo.msgtype,
+          ConversationRepo.unreadNum,
         ],
         where:
             '${ConversationRepo.cuid} = ? AND ${ConversationRepo.typeId} = ?',

@@ -100,7 +100,6 @@ class ChatLogic extends GetxController {
       };
     }
     debugPrint(">>>>> on getMsgFromTmsg ${message.toJson().toString()}");
-    int status = 10;
     MessageModel obj = MessageModel(
       message.id,
       type: type,
@@ -110,7 +109,7 @@ class ChatLogic extends GetxController {
       createdAt: message.createdAt,
       serverTs: message.updatedAt,
       conversationId: conversationId,
-      status: status,
+      status: MessageStatus.sending,
     );
     obj.status = obj.toStatus(message.status!);
     return obj;
@@ -139,16 +138,16 @@ class ChatLogic extends GetxController {
       msgtype: msgtype,
       lasttime: createdAt,
       unreadNum: 0,
-      isShow: true,
+      isShow: 1,
       id: 0,
     );
     // 保存会话
-    cobj = await (ConversationRepo()).save(cobj);
+    cobj = await (ConversationRepo()).save(cobj, -1);
     MessageModel obj = getMsgFromTmsg(type, cobj.id, message);
     await (MessageRepo()).insert(obj);
     cobj.msgtype = obj.payload!["msg_type"];
     cobj.subtitle = obj.payload!["text"];
-    await (ConversationRepo()).save(cobj);
+    await (ConversationRepo()).save(cobj, -1);
     debugPrint(">>>>> on chat addMessage ${message.toString()}");
     sendWsMsg(obj);
     return cobj;
@@ -171,5 +170,24 @@ class ChatLogic extends GetxController {
   void onClose() {
     // TODO: implement onClose
     super.onClose();
+  }
+
+  Future<bool> markAsRead(int conversationId, types.Message msg) async {
+    Database db = await Sqlite.instance.database;
+    return await db.transaction((txn) async {
+      db.update(
+        ConversationRepo.tablename,
+        {ConversationRepo.unreadNum: "${ConversationRepo.unreadNum} - 1"},
+        where: "id=?",
+        whereArgs: [conversationId],
+      );
+      db.update(
+        MessageRepo.tablename,
+        {MessageRepo.status: MessageStatus.seen},
+        where: "id=?",
+        whereArgs: [msg.id],
+      );
+      return true;
+    });
   }
 }

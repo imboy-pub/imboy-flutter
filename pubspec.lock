@@ -474,21 +474,21 @@ packages:
       name: flutter_chat_types
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.2.0"
+    version: "3.2.1"
   flutter_chat_ui:
     dependency: "direct main"
     description:
       path: "plugin/flutter_chat_ui"
       relative: true
     source: path
-    version: "1.5.2"
+    version: "1.5.3"
   flutter_link_previewer:
     dependency: transitive
     description:
       name: flutter_link_previewer
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.6.0"
+    version: "2.6.1"
   flutter_linkify:
     dependency: transitive
     description:

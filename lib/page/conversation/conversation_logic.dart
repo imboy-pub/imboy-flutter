@@ -22,7 +22,6 @@ class ConversationLogic extends GetxController {
   getConversationsList() async {
     Map<String, ConversationModel> items =
         await (ConversationRepo()).findByCuid(current.currentUid);
-    print(">>>>> on getConversationsList cuid: " + current.currentUid);
     print(">>>>> on items.length: " + items.length.toString());
     return items;
   }
@@ -32,8 +31,6 @@ class ConversationLogic extends GetxController {
     // TODO: implement onClose
     super.onClose();
   }
-
-  reciveMessage(e) {}
 
   Future<bool> removeConversation(int conversationId) async {
     Database db = await Sqlite.instance.database;
@@ -50,5 +47,31 @@ class ConversationLogic extends GetxController {
           'on >>>>> removeConversation :' + conversationId.toString() + ';');
       return true;
     });
+  }
+
+  /**
+   * 不显示（在会话列表）
+   */
+  hideConversation(int conversationId) async {
+    Database db = await Sqlite.instance.database;
+    db.update(
+      ConversationRepo.tablename,
+      {ConversationRepo.isShow: 0},
+      where: "id=?",
+      whereArgs: [conversationId],
+    );
+  }
+
+  /**
+   * 标记为未读 / 已读
+   */
+  markAs(int conversationId, int num) async {
+    Database db = await Sqlite.instance.database;
+    db.update(
+      ConversationRepo.tablename,
+      {ConversationRepo.unreadNum: num},
+      where: "id=?",
+      whereArgs: [conversationId],
+    );
   }
 }

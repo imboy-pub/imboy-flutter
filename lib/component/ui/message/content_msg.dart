@@ -31,6 +31,19 @@ class ContentMsg extends StatelessWidget {
     return ExtendedText(
       str,
       style: _style,
+      maxLines: 1,
+      overflowWidget: TextOverflowWidget(
+        position: TextOverflowPosition.end,
+        align: TextOverflowAlign.left,
+        child: Container(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const Text('...'),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

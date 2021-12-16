@@ -10,11 +10,11 @@ class ConversationModel {
   final int? lasttime;
   // lastMsgStatus 10 发送中 sending;  11 已发送 send;
   final int? lastMsgStatus;
-  final int? unreadNum;
+  int unreadNum;
   // 等价与 msg type: C2C C2G 等等，根据type显示item
   final String type;
   String msgtype;
-  final bool? isShow;
+  final int? isShow;
 
   ConversationModel({
     required this.id,
@@ -27,7 +27,7 @@ class ConversationModel {
     required this.msgtype,
     this.lasttime,
     this.lastMsgStatus,
-    this.unreadNum,
+    required this.unreadNum,
     this.isShow,
   });
 
@@ -44,7 +44,7 @@ class ConversationModel {
       unreadNum: json['unread_num'] == null ? 0 : json['unread_num'],
       type: json['type'].toString(),
       msgtype: json['msgtype'].toString(),
-      isShow: json['is_show'] ?? true,
+      isShow: json['is_show'] ?? 1,
     );
   }
 
