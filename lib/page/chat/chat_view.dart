@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:extended_text/extended_text.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -240,13 +241,31 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _onMessageLongPress(BuildContext c1, types.Message message) async {
+  void _onMessageDoubleTap(BuildContext c1, types.Message message) async {
     if (message is types.TextMessage) {
-      Get.snackbar("_onMessageLongPress", message.text);
+      Get.bottomSheet(
+        Container(
+          width: Get.width,
+          height: Get.height,
+          padding: EdgeInsets.fromLTRB(12, 10, 4, 10),
+          color: Colors.white,
+          child: Center(
+            child: ExtendedText(
+              message.text,
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 32,
+              ),
+            ),
+          ),
+        ),
+        isScrollControlled: true,
+      );
     }
   }
 
-  void _handleMessageTap(BuildContext c1, types.Message message) async {
+  void _onMessageLongPress(BuildContext c1, types.Message message) async {
     if (message is types.FileMessage) {
       await OpenFile.open(message.uri);
     }
@@ -409,7 +428,6 @@ class ChatPageState extends State<ChatPage> {
   onClickMenu(MenuItemProvider item) async {
     MenuItem it = item as MenuItem;
     types.Message msg = it.userInfo as types.Message;
-    Get.snackbar("title", msg.id + " ; " + it.menuTitle);
     if (it.menuTitle == "删除") {
       bool res = await logic.removeMessage(msg.id);
       if (res) {
@@ -453,7 +471,8 @@ class ChatPageState extends State<ChatPage> {
           // bubbleBuilder: _bubbleBuilder,
           // textMessageBuilder: Obx(() => textMessageBuilder),
           onAttachmentPressed: _handleAtachmentPressed,
-          onMessageTap: _handleMessageTap,
+          // onMessageTap: _handleMessageTap,
+          onMessageDoubleTap: _onMessageDoubleTap,
           onMessageLongPress: _onMessageLongPress,
           onPreviewDataFetched: _handlePreviewDataFetched,
           onSendPressed: _handleSendPressed,

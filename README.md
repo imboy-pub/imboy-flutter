@@ -18,18 +18,20 @@ samples, guidance on mobile development, and a full API reference.
 # 功能
 * 用户登录（隐藏密码、显示密码，登录密码传输基于RSA算法加密传输）
 * 用户退出
-* 文本聊天 数据聊天分页 TODO
+* 文本聊天 数据聊天分页 OK
+* 聊天消息长按右键菜单 OK
 * 文本聊天 右键菜单之删除消息功能 OK
-* 文本聊天 右键菜单之复制消息功能 TODO
+* 文本聊天 右键菜单之复制消息功能 OK
 * 文本聊天 右键菜单之转发消息功能 TODO
 * 文本聊天 右键菜单之收藏消息功能 TODO
 * 文本聊天 右键菜单之引用消息功能 TODO
 * 文本聊天 右键菜单之撤回消息功能 TODO
 * 文本聊天 右键菜单之多选消息功能 TODO
+* 文本消息双击全屏显示(下滑关闭之） OK
 * 未读消息提醒 OK
 * 我的
     * 个人主页
-* APP启动引导动画 TODO
+* APP启动引导动画 TODO  https://github.com/jonbhanson/flutter_native_splash#readme
 * 删除会话 OK
 * 置顶、取消置顶会话 TODO
 * 搜索联系人 TODO

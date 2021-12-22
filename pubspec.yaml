@@ -30,6 +30,7 @@ dependencies:
   cupertino_icons: ^1.0.3
   # getx 状态管理框架
   get: ^4.3.4
+  get_storage: ^2.0.3
   #演示列表需要用到的库
   dio: ^4.0.0    #网络请求框架
   json_annotation: ^4.0.1 #json序列化和反序列化用的
@@ -57,7 +58,6 @@ dependencies:
   lpinyin: ^2.0.3
   azlistview: ^2.0.0-nullsafety.0
   video_player: ^2.2.5
-  flutter_sound: ^8.3.12
   webview_flutter: ^2.1.1
   image_picker: ^0.8.4+2
   #extended_image: ^5.1.3
