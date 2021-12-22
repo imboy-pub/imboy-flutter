@@ -81,7 +81,7 @@ class ImboyChatTheme extends ChatTheme {
     Color secondaryColor = AppColors.ChatReceivedMessageBodyBgColor,
     TextStyle inputTextStyle = const TextStyle(
       fontFamily: 'Avenir',
-      fontSize: 16,
+      fontSize: 14,
       height: 2.0,
       color: AppColors.ChatInputFillGgColor,
     ),
@@ -132,8 +132,8 @@ class ImboyChatTheme extends ChatTheme {
     ),
     //
     EdgeInsetsGeometry dateDividerMargin = const EdgeInsets.only(
-      bottom: 32,
-      top: 16,
+      bottom: 8,
+      top: 12,
     ),
     TextStyle receivedEmojiMessageTextStyle = const TextStyle(fontSize: 20),
     TextStyle sentEmojiMessageTextStyle = const TextStyle(fontSize: 20),
