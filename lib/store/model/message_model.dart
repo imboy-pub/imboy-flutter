@@ -25,7 +25,7 @@ class MessageStatus {
 
 class MessageModel {
   String? id;
-  String? type;
+  String? type; // C2C or GROUP
   String? fromId; // 等价于数据库的 from
   String? toId; // 等价于数据库的 to
   Map<String, dynamic>? payload;
@@ -51,7 +51,7 @@ class MessageModel {
     required this.conversationId,
   });
 
-  MessageModel.fromMap(Map<String, dynamic> data) {
+  MessageModel.fromJson(Map<String, dynamic> data) {
     if (data['payload'] == null || data['payload'] == "") {
       payload = Map<String, dynamic>();
     } else if (data['payload'] is String) {
@@ -70,7 +70,7 @@ class MessageModel {
     conversationId = data[MessageRepo.conversationId];
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
     data['type'] = this.type;
@@ -89,7 +89,7 @@ class MessageModel {
   /// 10 发送中 sending;  11 已发送 send;
   /// 20 未读 delivered;  21 已读 seen;
   /// 41 错误（发送失败） error;
-  types.Status get eStatus {
+  types.Status get typesStatus {
     if (this.status == MessageStatus.sending) {
       return types.Status.sending;
     } else if (this.status == MessageStatus.send) {
@@ -102,6 +102,26 @@ class MessageModel {
       return types.Status.error;
     }
     return types.Status.error;
+  }
+
+  types.MessageType get msgType {
+    if (this.payload == null) {
+      types.MessageType.unsupported;
+    }
+    if (this.payload!['msg_type'] == 'text') {
+      return types.MessageType.text;
+    } else if (this.payload!['msg_type'] == 'image') {
+      return types.MessageType.image;
+    } else if (this.payload!['msg_type'] == 'file') {
+      return types.MessageType.file;
+    } else if (this.payload!['msg_type'] == 'custom') {
+      return types.MessageType.custom;
+    } else if (this.payload!['msg_type'] == 'location') {
+      return types.MessageType.custom;
+    } else if (this.payload!['msg_type'] == 'revoked') {
+      return types.MessageType.custom;
+    }
+    return types.MessageType.unsupported;
   }
 
   int toStatus(types.Status status) {
@@ -125,5 +145,39 @@ class MessageModel {
 
   Future<ContactModel?> get from async {
     return await ContactRepo().find(this.fromId!);
+  }
+
+  types.Message toTypeMessage() {
+    types.Message? message;
+
+    // enum MessageType { custom, file, image, text, unsupported }
+    if (this.payload!['msg_type'] == 'text') {
+      message = types.TextMessage(
+        author: types.User(
+          id: this.fromId!,
+          // firstName: "",
+          // imageUrl: "",
+        ),
+        createdAt: this.createdAt,
+        id: this.id!,
+        remoteId: this.toId,
+        text: this.payload!['text'],
+        status: this.typesStatus,
+      );
+    } else if (this.payload!['msg_type'] == 'custom') {
+      message = types.CustomMessage(
+        author: types.User(
+          id: this.fromId!,
+          // firstName: "",
+          // imageUrl: "",
+        ),
+        id: this.id!,
+        createdAt: this.createdAt,
+        remoteId: this.toId,
+        status: this.typesStatus,
+        metadata: this.payload,
+      );
+    }
+    return message!;
   }
 }

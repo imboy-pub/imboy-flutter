@@ -10,7 +10,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/jwt.dart';
-import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -24,7 +24,9 @@ enum SocketStatus {
   SocketStatusClosed, // 连接关闭
 }
 
-class WebSocketService extends GetxService {
+class WSService extends GetxService {
+  static WSService get to => Get.find();
+
   Iterable<String> subprotocol = ['text'];
   String pingMsg = 'ping';
 
@@ -40,30 +42,13 @@ class WebSocketService extends GetxService {
   late Function onOpen; // 连接开启回调
   late Function onMessage; // 接收消息回调重连定时器
   late Function onError; // 连接错误回调
-  late Function onClose; // 手动关闭回调
 
-  // 工厂模式 : 单例公开访问点
-  factory WebSocket() => _getInstance();
-
-  static WebSocket get instance => _getInstance();
-
-  // 静态私有成员，没有初始化
-  static WebSocket? _instance;
-
-  // 静态、同步、私有访问点
-  static WebSocket _getInstance() {
-    debugPrint(
-        ">>>>> on ws ${DateTime.now()} _getInstance ${_instance == null}");
-    if (_instance == null) {
-      _instance = new WebSocket._internal();
-    } else if (_instance!._socketStatus != SocketStatus.SocketStatusConnected) {
-      _instance = new WebSocket._internal();
+  @override
+  void onInit() {
+    super.onInit();
+    if (_socketStatus == SocketStatus.SocketStatusConnected) {
+      return;
     }
-    return _instance!;
-  }
-
-  // 私有构造函数
-  WebSocket._internal() {
     initWebSocket(onOpen: () {
       debugPrint(">>>>> on ws ${DateTime.now()} onOpen");
       initHeartBeat();
@@ -80,24 +65,14 @@ class WebSocketService extends GetxService {
     }, onError: (e) {
       debugPrint(
           ">>>>> on ws ${DateTime.now()} onError ${e.runtimeType} | ${e.toString()}");
-      if (kDebugMode) {
-        Get.snackbar("Tips", "ws2 onErr: " + e.message);
-      }
       // change(value, status: RxStatus.error(e.message));
-    }, onClose: (closeCode, closeReason) {
-      debugPrint(
-          ">>>>> on ws ${DateTime.now()} onClose ${closeCode} : ${closeReason}");
-      if (kDebugMode) {
-        Get.snackbar(
-            "Tips",
-            "ws2 h close code: " +
-                closeCode.toString() +
-                "; reason:" +
-                closeReason);
-      }
-      //如果手动关闭连接，不再重连
-      // change(value, status: RxStatus.error(closeReason));
     });
+  }
+
+  @override
+  void onClose() {
+    closeSocket();
+    super.onClose();
   }
 
   /// 初始化WebSocket
@@ -106,12 +81,10 @@ class WebSocketService extends GetxService {
     required Function onOpen,
     required Function onMessage,
     required Function onError,
-    required Function onClose,
   }) {
     this.onOpen = onOpen;
     this.onMessage = onMessage;
     this.onError = onError;
-    this.onClose = onClose;
     debugPrint('>>>>> on ws ${DateTime.now()} initWebSocket');
     openSocket();
   }
@@ -124,21 +97,17 @@ class WebSocketService extends GetxService {
       debugPrint('>>>>> on ws ${DateTime.now()} openSocket 网络连接异常ws');
       return;
     }
-    closeSocket();
     if (_socketStatus == SocketStatus.SocketStatusConnected) {
-      debugPrint(
-          '>>>>> on ws ${DateTime.now()} openSocket SocketStatusConnected');
       return;
     } else {
-      destroyHeartBeat();
+      closeSocket();
     }
-    debugPrint(
-        '>>>>> on ws ${DateTime.now()} openSocket isLogin ${UserRepoSP.user.isLogin}');
-    if (!UserRepoSP.user.isLogin) {
+
+    if (!UserRepoLocal.user.isLogin) {
       debugPrint('>>>>> on ws ${DateTime.now()} openSocket is not login');
       return;
     }
-    String token = UserRepoSP.user.accessToken;
+    String token = UserRepoLocal.user.accessToken;
     if (strEmpty(token)) {
       // Get.off(LoginPage());
       debugPrint('>>>>> on ws ${DateTime.now()} openSocket token empty');
@@ -147,7 +116,7 @@ class WebSocketService extends GetxService {
     if (token_expired(token)) {
       // await refreshtoken();
       // debugPrint('>>>>> on ws token old $token');
-      token = UserRepoSP.user.accessToken;
+      token = UserRepoLocal.user.accessToken;
       debugPrint('>>>>> on ws ${DateTime.now()} token new $token');
     }
     var headers = {

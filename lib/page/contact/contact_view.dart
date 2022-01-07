@@ -92,7 +92,6 @@ class ContactPage extends StatelessWidget {
       ],
     );
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       appBar: appBar,
       body: Obx(
         () => Stack(
@@ -108,7 +107,7 @@ class ContactPage extends StatelessWidget {
                   defHeaderBgColor: Color(0xFFE5E5E5),
                 );
               },
-              // physics: BouncingScrollPhysics(),
+              physics: BouncingScrollPhysics(),
               susItemBuilder: (BuildContext context, int index) {
                 ContactModel model = contactList.value[index];
                 if ('↑' == model.getSuspensionTag()) {
@@ -116,19 +115,25 @@ class ContactPage extends StatelessWidget {
                 }
                 return logic.getSusItem(context, model.getSuspensionTag());
               },
-              indexBarData: ['↑', '☆', ...kIndexBarData],
+              indexBarData: ['↑', ...kIndexBarData],
               indexBarOptions: IndexBarOptions(
                 needRebuild: true,
                 ignoreDragCancel: true,
-                downTextStyle: TextStyle(fontSize: 12, color: Colors.white),
-                downItemDecoration:
-                    BoxDecoration(shape: BoxShape.circle, color: Colors.green),
-                indexHintWidth: 120 / 2,
-                indexHintHeight: 100 / 2,
+                downTextStyle: TextStyle(
+                  fontSize: 12,
+                  color: Colors.white,
+                ),
+                downItemDecoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green,
+                ),
+                indexHintWidth: 128 / 2,
+                indexHintHeight: 128 / 2,
                 indexHintDecoration: BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage(
-                        Assets.getImgPath('ic_index_bar_bubble_gray')),
+                      Assets.getImgPath('ic_index_bar_bubble_gray'),
+                    ),
                     fit: BoxFit.contain,
                   ),
                 ),

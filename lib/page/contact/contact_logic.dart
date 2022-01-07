@@ -6,28 +6,41 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/http/http_client.dart';
 import 'package:imboy/helper/http/http_response.dart';
 import 'package:imboy/page/chat/chat_view.dart';
+import 'package:imboy/page/contact/contact_provider.dart';
 import 'package:imboy/page/contact_detail/contact_detail_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
-import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'contact_state.dart';
 
 class ContactLogic extends GetxController {
   final state = ContactState();
+  // 获取实例
+  final provider = Get.put(ContactProvider());
 
-  final UserRepoSP current = Get.put(UserRepoSP.user);
+  final UserRepoLocal current = Get.put(UserRepoLocal.user);
   final HttpClient _dio = Get.put(HttpClient.client);
 
   listFriend() async {
-    List<ContactModel> contact =
-        await (ContactRepo()).findByCuid(current.currentUid);
-
-    // Stream<ConversationEntity?> contact = db.conversationDao.findByCuid(cuid);
-
+    List<ContactModel> contact = [];
+    contact = await (ContactRepo()).findByCuid(current.currentUid);
     if (contact.isNotEmpty) {
       return contact;
     }
+    // // 获取数据
+    // final Response resp = await provider.listFriend();
+    //
+    // // 判断，如果有错误
+    // if (resp.hasError) {
+    //   debugPrint(">>> on Connect listFriend ${resp.statusText}");
+    //   // 改变数据，传入错误状态，在ui中会处理这些错误
+    //   // change(null, status: RxStatus.error(res.statusText));
+    // } else {
+    //   debugPrint(">>> on Connect listFriend ${resp.body.toString()}");
+    //   // 否则，存储数据，改变状态为成功
+    //   // change(res.body, status: RxStatus.success());
+    // }
 
     HttpResponse resp = await _dio.get(API.friendList,
         options: Options(
@@ -41,7 +54,7 @@ class ContactLogic extends GetxController {
     int dLength = dataMap.length;
     var repo = ContactRepo();
     for (int i = 0; i < dLength; i++) {
-      ContactModel model = ContactModel.fromMap(dataMap[i]);
+      ContactModel model = ContactModel.fromJson(dataMap[i]);
       contact.insert(0, model);
       repo.insert(model);
     }
@@ -117,10 +130,7 @@ class ContactLogic extends GetxController {
     );
   }
 
-  Widget getSusItem(BuildContext context, String tag, {double susHeight = 40}) {
-    if (tag == '★') {
-      tag = '★ 热门城市';
-    }
+  Widget getSusItem(BuildContext context, String tag, {double susHeight = 24}) {
     return Container(
       height: susHeight,
       width: MediaQuery.of(context).size.width,

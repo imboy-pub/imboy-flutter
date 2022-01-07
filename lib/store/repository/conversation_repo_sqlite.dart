@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/helper/sqflite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
-import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 class ConversationRepo {
   static String tablename = 'conversation';
@@ -24,7 +24,7 @@ class ConversationRepo {
 
   Sqlite _db = Sqlite.instance;
 
-  final UserRepoSP current = Get.put(UserRepoSP.user);
+  final UserRepoLocal current = Get.put(UserRepoLocal.user);
 
   // 插入一条数据
   Future<int> insert(ConversationModel obj) async {

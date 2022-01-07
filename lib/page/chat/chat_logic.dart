@@ -5,12 +5,12 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:imboy/helper/datetime.dart';
 import 'package:imboy/helper/sqflite.dart';
-import 'package:imboy/helper/websocket.dart';
+import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
-import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'chat_state.dart';
@@ -18,7 +18,7 @@ import 'chat_state.dart';
 class ChatLogic extends GetxController {
   final state = ChatState();
 
-  final UserRepoSP current = Get.put(UserRepoSP.user);
+  final UserRepoLocal current = Get.put(UserRepoLocal.user);
 
   late var cuser;
 
@@ -47,32 +47,15 @@ class ChatLogic extends GetxController {
     List<types.Message> messages = [];
     items.forEach((obj) async {
       // debugPrint(">>>>> on getMessages obj ${obj.toMap()}");
-      if (obj.type == "C2C" && obj.payload!['msg_type'] == "text") {
-        messages.insert(
-            0,
-            types.TextMessage(
-              author: types.User(
-                id: obj.fromId!,
-                // firstName: from == null ? '' : from!.nickname ?? '',
-                // imageUrl: from == null ? '' : from!.avatar ?? '',
-              ),
-              createdAt: obj.createdAt,
-              updatedAt: obj.serverTs == null ? 0 : obj.serverTs,
-              id: obj.id!,
-              text: obj.payload!['text'] ?? "",
-              status: obj.eStatus,
-              remoteId: obj.toId,
-              // status: types.Status.sent,
-            ));
-      }
+      messages.insert(0, obj.toTypeMessage());
     });
     debugPrint(">>>>> on getMessages ${messages.length};");
     return messages;
   }
 
   bool sendWsMsg(MessageModel obj) {
-    debugPrint(">>>>> on chat sendWsMsg ${obj.toMap().toString()}");
-    if (obj.status == 10) {
+    debugPrint(">>>>> on chat sendWsMsg ${obj.toJson().toString()}");
+    if (obj.status == MessageStatus.sending) {
       Map<String, dynamic> msg = {
         'id': obj.id,
         'type': obj.type,
@@ -82,7 +65,7 @@ class ChatLogic extends GetxController {
         'created_at': obj.createdAt,
       };
 
-      return (WebSocket()).sendMessage(json.encode(msg));
+      return WSService.to.sendMessage(json.encode(msg));
     }
     return true;
   }
@@ -164,6 +147,18 @@ class ChatLogic extends GetxController {
       debugPrint('on >>>>> removeMessage :' + id + ';');
       return true;
     });
+  }
+
+  /// 撤回消息
+  Future<bool> revokeMessage(types.Message obj) async {
+    Map<String, dynamic> msg = {
+      'id': obj.id,
+      'type': 'C2C_REVOKE',
+      'from': obj.author.id,
+      'to': obj.remoteId,
+    };
+
+    return WSService.to.sendMessage(json.encode(msg));
   }
 
   @override

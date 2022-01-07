@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 class ThemeController extends GetxController {
   //0:正常模式 1：黑夜模式
@@ -25,7 +25,7 @@ class Controller extends GetNotifier {
 
   @override
   void onInit() {
-    String? tk = UserRepoSP.user.currentUid;
+    String? tk = UserRepoLocal.user.currentUid;
 
     String url = ws_url + '?' + Keys.tokenKey + '=' + tk.replaceAll('+', '%2B');
 

@@ -1,5 +1,6 @@
-import 'package:get/get.dart';
 import 'dart:convert' as JSON;
+
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /**
@@ -8,6 +9,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 class StorageService extends GetxService {
   static StorageService get to => Get.find();
   late final SharedPreferences _prefs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    init();
+  }
 
   Future<StorageService> init() async {
     _prefs = await SharedPreferences.getInstance();

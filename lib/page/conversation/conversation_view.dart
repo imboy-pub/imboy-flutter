@@ -23,9 +23,8 @@ class _ConversationPageState extends State<ConversationPage> {
   final logic = Get.put(ConversationLogic());
 
   bool alive = true;
-  var tapPos;
 
-  final _counter = Get.put(MessageService());
+  final _msgService = Get.put(MessageService());
 
   StreamSubscription<dynamic>? _convStreamSubs;
 
@@ -40,9 +39,9 @@ class _ConversationPageState extends State<ConversationPage> {
         debugPrint(
             ">>>>> on _convStreamSubs listen: ${e.runtimeType}, e:${e.toString()}");
         //
-        _counter.conversations[e.typeId] = e;
+        _msgService.conversations[e.typeId] = e;
         setState(() {
-          _counter.conversations;
+          _msgService.conversations;
         });
         // conversations[data['from']] = cobj;
       });
@@ -57,28 +56,28 @@ class _ConversationPageState extends State<ConversationPage> {
     }
     Map<String, ConversationModel> items = await logic.getConversationsList();
     if (items.isNotEmpty) {
-      _counter.conversations.value = items;
+      _msgService.conversations.value = items;
     }
 
-    _counter.conversations.forEach((key, obj) {
+    _msgService.conversations.forEach((key, obj) {
       debugPrint(
           ">>>>> on _ConversationPageState/initData ${obj.typeId} = ${obj.unreadNum}");
       int unreadNum = obj.unreadNum;
-      _counter.setConversationRemind(
+      _msgService.setConversationRemind(
         obj.typeId,
         unreadNum > 0 ? unreadNum : 0,
       );
     });
     setState(() {
-      _counter.conversations;
-      _counter.conversationRemind;
+      _msgService.conversations;
+      _msgService.conversationRemind;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     debugPrint(">>>>> on _ConversationPageState build");
-    List<ConversationModel> items = _counter.conversations.values.toList();
+    List<ConversationModel> items = _msgService.conversations.values.toList();
 
     Widget body = ListView.builder(
       itemBuilder: (BuildContext context, int index) {
@@ -96,9 +95,7 @@ class _ConversationPageState extends State<ConversationPage> {
               ),
             );
           },
-          onTapDown: (TapDownDetails details) {
-            tapPos = details.globalPosition;
-          },
+          onTapDown: (TapDownDetails details) {},
           onLongPress: () {},
           child: Slidable(
             key: ValueKey(model.id),
@@ -122,7 +119,7 @@ class _ConversationPageState extends State<ConversationPage> {
                     }
                     logic.markAs(model.id, num);
                     setState(() {
-                      _counter.conversationRemind[model.typeId] = num;
+                      _msgService.conversationRemind[model.typeId] = num;
                     });
                     model.unreadNum = num;
                   },
@@ -135,10 +132,10 @@ class _ConversationPageState extends State<ConversationPage> {
                   backgroundColor: Colors.amber,
                   onPressed: (_) async {
                     await logic.hideConversation(conversationId);
-                    _counter.conversations.remove(model.typeId);
+                    _msgService.conversations.remove(model.typeId);
                     setState(() {
-                      _counter.conversations.value;
-                      _counter.conversationRemind[model.typeId] = 0;
+                      _msgService.conversations.value;
+                      _msgService.conversationRemind[model.typeId] = 0;
                     });
                   },
                   label: "不显示",
@@ -151,9 +148,9 @@ class _ConversationPageState extends State<ConversationPage> {
                   // foregroundColor: Colors.white,
                   onPressed: (_) async {
                     await logic.removeConversation(conversationId);
-                    _counter.conversations.remove(model.typeId);
+                    _msgService.conversations.remove(model.typeId);
                     setState(() {
-                      _counter.conversations.value;
+                      _msgService.conversations.value;
                     });
                     debugPrint(
                         ">>>>> on SlidableAction/onPressed index: ${index}; conversationId: ${conversationId}");
@@ -174,16 +171,16 @@ class _ConversationPageState extends State<ConversationPage> {
                 time: _timeView(
                   model.lasttime ?? 0,
                 ),
-                // isBorder: model.typeId != _counter.conversations.values[0].typeId,
-                remindCounter: _counter.conversationRemind[model.typeId],
+                // isBorder: model.typeId != _msgService.conversations.values[0].typeId,
+                remindCounter: _msgService.conversationRemind[model.typeId],
               ),
             ),
           ),
         );
       },
-      itemCount: _counter.conversations.values.length,
+      itemCount: _msgService.conversations.values.length,
     );
-    if (_counter.conversations.isEmpty) {
+    if (_msgService.conversations.isEmpty) {
       body = ConversationNullView();
     }
 

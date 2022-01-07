@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:uuid/uuid.dart';
+import 'package:xid/xid.dart';
 
 ///
 class TimerHelper {
-  final _uuid = const Uuid();
+  final _xid = Xid();
   late final _timers = <String, Timer>{};
 
   ///
@@ -13,7 +13,7 @@ class TimerHelper {
     void Function() callback, {
     bool immediate = false,
   }) {
-    final id = _uuid.v1();
+    final id = _xid.toString();
     final timer = Timer(duration, callback);
     if (immediate) callback();
     _timers[id] = timer;
@@ -26,7 +26,7 @@ class TimerHelper {
     void Function(Timer) callback, {
     bool immediate = false,
   }) {
-    final id = _uuid.v1();
+    final id = _xid.toString();
     final timer = Timer.periodic(duration, callback);
     if (immediate) callback.call(timer);
     _timers[id] = timer;

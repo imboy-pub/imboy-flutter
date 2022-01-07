@@ -4,14 +4,14 @@ import 'package:imboy/helper/sqflite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
-import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'conversation_state.dart';
 
 class ConversationLogic extends GetxController {
   final state = ConversationState();
-  final UserRepoSP current = Get.put(UserRepoSP.user);
+  final UserRepoLocal current = Get.put(UserRepoLocal.user);
 
   @override
   void onReady() {
@@ -32,6 +32,9 @@ class ConversationLogic extends GetxController {
     super.onClose();
   }
 
+  /**
+   * 移除会话
+   */
   Future<bool> removeConversation(int conversationId) async {
     Database db = await Sqlite.instance.database;
     return await db.transaction((txn) async {
@@ -74,4 +77,9 @@ class ConversationLogic extends GetxController {
       whereArgs: [conversationId],
     );
   }
+
+  /**
+   * 是否当前会话的最后一条消息
+   */
+  // Future<bool> isLastMsg(String msgId) async {}
 }

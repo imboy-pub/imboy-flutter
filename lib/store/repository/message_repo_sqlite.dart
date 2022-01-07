@@ -4,12 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:imboy/helper/sqflite.dart';
 import 'package:imboy/store/model/message_model.dart';
-import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 class MessageRepo {
   static String tablename = 'message';
 
   static String id = 'id';
+  // C2C GROUP
   static String type = 'type';
   static String from = 'from_id';
   static String to = 'to_id';
@@ -22,7 +23,7 @@ class MessageRepo {
 
   Sqlite _db = Sqlite.instance;
 
-  final UserRepoSP current = Get.put(UserRepoSP.user);
+  final UserRepoLocal current = Get.put(UserRepoLocal.user);
 
   // 插入一条数据
   Future<MessageModel> insert(MessageModel msg) async {
@@ -66,7 +67,7 @@ class MessageRepo {
   // 存在就更新，不存在就插入
   Future<MessageModel> save(MessageModel obj) async {
     String where = '${MessageRepo.id} = ?';
-    debugPrint(">>>>> on MessageRepo/save obj: " + obj.toMap().toString());
+    debugPrint(">>>>> on MessageRepo/save obj: " + obj.toJson().toString());
     int? count = await _db.count(
       MessageRepo.tablename,
       where: where,
@@ -74,7 +75,7 @@ class MessageRepo {
     );
 
     if (count! > 0) {
-      update(obj.toMap());
+      update(obj.toJson());
     } else {
       insert(obj);
     }
@@ -117,7 +118,7 @@ class MessageRepo {
     List<MessageModel> messages = [];
     for (int i = 0; i < maps.length; i++) {
       int j = maps.length - i - 1;
-      messages.add(MessageModel.fromMap(maps[j]));
+      messages.add(MessageModel.fromJson(maps[j]));
     }
     return messages;
   }
@@ -139,7 +140,7 @@ class MessageRepo {
         where: '${MessageRepo.id} = ?',
         whereArgs: [id]);
     if (maps.length > 0) {
-      return MessageModel.fromMap(maps.first);
+      return MessageModel.fromJson(maps.first);
     }
     return null;
   }

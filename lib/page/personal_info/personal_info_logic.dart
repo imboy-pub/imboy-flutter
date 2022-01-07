@@ -3,7 +3,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/http/http_client.dart';
-import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'personal_info_state.dart';
 
@@ -35,7 +35,7 @@ class PersonalInfoLogic extends GetxController {
     String avatarStr = '',
     Callback? callback,
   }) async {
-    final user = UserRepoSP.user.currentUser;
+    final user = UserRepoLocal.user.currentUser;
     // var result = await im.setUsersProfile(0, nicknameStr, avatarStr);
     var result = "";
     if (result.toString().contains('succ')) {

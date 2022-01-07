@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/helper/sqflite.dart';
 import 'package:imboy/store/model/contact_model.dart';
-import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 class ContactRepo {
   static String tablename = 'contact';
@@ -21,7 +21,7 @@ class ContactRepo {
 
   // 插入一条数据
   Future<ContactModel> insert(ContactModel obj) async {
-    String cuid = UserRepoSP.user.currentUid;
+    String cuid = UserRepoLocal.user.currentUid;
     Map<String, dynamic> insert = {
       'cuid': cuid,
       'uid': obj.uid,
@@ -65,14 +65,14 @@ class ContactRepo {
 
     List<ContactModel> items = [];
     for (int i = 0; i < maps.length; i++) {
-      items.add(ContactModel.fromMap(maps[i]));
+      items.add(ContactModel.fromJson(maps[i]));
     }
     return items;
   }
 
   //
   Future<ContactModel?> find(String uid) async {
-    String cuid = UserRepoSP.user.currentUid;
+    String cuid = UserRepoLocal.user.currentUid;
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tablename,
       columns: [
@@ -89,14 +89,14 @@ class ContactRepo {
       whereArgs: [cuid, uid],
     );
     if (maps.length > 0) {
-      return ContactModel.fromMap(maps.first);
+      return ContactModel.fromJson(maps.first);
     }
     return null;
   }
 
   // 根据ID删除信息
   Future<int> delete(String id) async {
-    String cuid = UserRepoSP.user.currentUid;
+    String cuid = UserRepoLocal.user.currentUid;
     return await _db.delete(
       ContactRepo.tablename,
       where: '${ContactRepo.cuid} = ? and ${ContactRepo.uid} = ?',
@@ -106,10 +106,10 @@ class ContactRepo {
 
   // 更新信息
   Future<int> update(ContactModel obj) async {
-    String cuid = UserRepoSP.user.currentUid;
+    String cuid = UserRepoLocal.user.currentUid;
     return await _db.update(
       ContactRepo.tablename,
-      obj.toMap(),
+      obj.toJson(),
       where: '${ContactRepo.cuid} = ? and ${ContactRepo.uid} = ?',
       whereArgs: [cuid, obj.uid],
     );

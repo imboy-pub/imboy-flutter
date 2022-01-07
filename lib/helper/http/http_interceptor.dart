@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/func.dart';
-import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 class ImboyInterceptor extends Interceptor {
   @override
@@ -13,7 +13,7 @@ class ImboyInterceptor extends Interceptor {
     options.headers['device-type'] = Platform.operatingSystem;
     options.headers['device-type-vsn'] = Platform.operatingSystemVersion;
 
-    String tk = UserRepoSP.user.accessToken;
+    String tk = UserRepoLocal.user.accessToken;
     // debugPrint(">>>>>>> on ImboyInterceptor tk" + (tk == null ? "" : tk));
     if (strNoEmpty(tk)) {
       options.headers[Keys.tokenKey] = tk;

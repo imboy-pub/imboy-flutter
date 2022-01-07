@@ -10,6 +10,7 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/widget/message/custom_message.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/theme.dart';
@@ -21,7 +22,7 @@ import 'package:imboy/store/model/conversation_model.dart';
 import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
 import 'package:popup_menu/popup_menu.dart';
-import 'package:uuid/uuid.dart';
+import 'package:xid/xid.dart';
 
 import 'chat_logic.dart';
 
@@ -46,7 +47,7 @@ class ChatPage extends StatefulWidget {
 class ChatPageState extends State<ChatPage> {
   final logic = Get.put(ChatLogic());
 
-  final _counter = Get.put(MessageService());
+  final _msgService = Get.put(MessageService());
 
   StreamSubscription<dynamic>? _msgStreamSubs;
 
@@ -89,6 +90,7 @@ class ChatPageState extends State<ChatPage> {
     if (_msgStreamSubs == null) {
       // Register listeners for all events:
       String toId = widget.toId;
+      // 接收到新的消息订阅
       _msgStreamSubs = eventBus.on<types.Message>().listen((e) async {
         debugPrint(">>>>> on MessageService chat_view initState: " +
             e.runtimeType.toString());
@@ -97,13 +99,15 @@ class ChatPageState extends State<ChatPage> {
           setState(() {
             messages.insert(0, e);
           });
-          _counter.decreaseConversationRemind(toId, 1);
+          _msgService.decreaseConversationRemind(toId, 1);
         }
       });
+
+      // 消息状态更新订阅
       _msgStreamSubs = eventBus.on<List<types.Message>>().listen((e) async {
         types.Message msg = e.first;
         final index = messages.indexWhere((element) => element.id == msg.id);
-        debugPrint(">>>>> on MessageService chat_view initState:$index; " +
+        debugPrint(">>> on MessageService chat_view initState:$index; " +
             msg.toJson().toString());
         if (index > -1) {
           messages.setRange(index, index + 1, e);
@@ -130,7 +134,7 @@ class ChatPageState extends State<ChatPage> {
         if (msg.status == types.Status.delivered) {
           bool res = await logic.markAsRead(widget.id, msg);
           if (res) {
-            _counter.decreaseConversationRemind(widget.toId, 1);
+            _msgService.decreaseConversationRemind(widget.toId, 1);
           }
         }
         debugPrint(">>>>> on chat initData msg :${msg.toString()}");
@@ -164,9 +168,9 @@ class ChatPageState extends State<ChatPage> {
     );
     setState(() {
       messages.insert(0, message);
-      _counter.conversations[widget.toId] = cobj;
+      _msgService.conversations[widget.toId] = cobj;
     });
-    // _counter.update();
+    // _msgService.update();
   }
 
   void _handleAtachmentPressed() {
@@ -200,7 +204,7 @@ class ChatPageState extends State<ChatPage> {
       final message = types.FileMessage(
         author: logic.cuser,
         createdAt: DateTimeHelper.currentTimeMillis(),
-        id: const Uuid().v4(),
+        id: Xid().toString(),
         mimeType: lookupMimeType(result.files.single.path!),
         name: result.files.single.name,
         size: result.files.single.size,
@@ -228,7 +232,7 @@ class ChatPageState extends State<ChatPage> {
         author: logic.cuser,
         createdAt: DateTimeHelper.currentTimeMillis(),
         height: image.height.toDouble(),
-        id: const Uuid().v4(),
+        id: Xid().toString(),
         name: result.name,
         size: bytes.length,
         uri: result.path,
@@ -244,23 +248,37 @@ class ChatPageState extends State<ChatPage> {
   void _onMessageDoubleTap(BuildContext c1, types.Message message) async {
     if (message is types.TextMessage) {
       Get.bottomSheet(
-        Container(
-          width: Get.width,
-          height: Get.height,
-          padding: EdgeInsets.fromLTRB(12, 10, 4, 10),
-          color: Colors.white,
-          child: Center(
-            child: ExtendedText(
-              message.text,
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 32,
+        GestureDetector(
+          onTap: () {
+            Get.back();
+          },
+          child: Container(
+            width: Get.width,
+            height: Get.height,
+            // Creates insets from offsets from the left, top, right, and bottom.
+            padding: EdgeInsets.fromLTRB(16, 24, 6, 10),
+            alignment: Alignment.center,
+            color: Colors.white,
+            child: Center(
+              child: Scrollbar(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: ExtendedText(
+                    message.text,
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
         ),
+        // 是否支持全屏弹出，默认false
         isScrollControlled: true,
+        enableDrag: false,
       );
     }
   }
@@ -269,70 +287,81 @@ class ChatPageState extends State<ChatPage> {
     if (message is types.FileMessage) {
       await OpenFile.open(message.uri);
     }
-    PopupMenu menu = PopupMenu(
-      // backgroundColor: Colors.teal,
-      // lineColor: Colors.tealAccent,
-      // maxColumn: 2,
-      items: [
-        MenuItem(
-          title: '复制',
-          textAlign: TextAlign.center,
-          textStyle: TextStyle(
-            color: Color(0xffc5c5c5),
-            fontSize: 10.0,
-          ),
-          image: Icon(
-            Icons.copy,
-            color: Colors.white,
-          ),
-          userInfo: message,
+    var items = [
+      MenuItem(
+        title: '复制',
+        textAlign: TextAlign.center,
+        textStyle: TextStyle(
+          color: Color(0xffc5c5c5),
+          fontSize: 10.0,
         ),
-        MenuItem(
-          title: '转发',
-          textAlign: TextAlign.center,
-          textStyle: TextStyle(
-            fontSize: 10.0,
-            color: Colors.white,
-          ),
-          image: Icon(
-            Icons.forward,
-            color: Colors.white,
-          ),
-          userInfo: message,
+        image: Icon(
+          Icons.copy,
+          color: Colors.white,
         ),
-        // MenuItem(
-        //   title: '收藏',
-        //   textAlign: TextAlign.center,
-        //   textStyle: TextStyle(
-        //     color: Color(0xffc5c5c5),
-        //     fontSize: 10.0,
-        //   ),
-        //   image: Icon(
-        //     Icons.collections_bookmark,
-        //     color: Colors.white,
-        //   ),
-        //   userInfo: message,
-        // ),
-        // MenuItem(
-        //   title: '多选',
-        //   textAlign: TextAlign.center,
-        //   textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-        //   image: Icon(
-        //     Icons.add_road,
-        //     color: Colors.white,
-        //   ),
-        //   userInfo: message,
-        // ),
-        MenuItem(
-          title: '引用',
-          textAlign: TextAlign.center,
-          textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-          image: Icon(
-            Icons.format_quote,
-            color: Colors.white,
-          ),
-          userInfo: message,
+        userInfo: message,
+      ),
+      MenuItem(
+        title: '转发',
+        textAlign: TextAlign.center,
+        textStyle: TextStyle(
+          fontSize: 10.0,
+          color: Colors.white,
         ),
+        image: Icon(
+          Icons.forward,
+          color: Colors.white,
+        ),
+        userInfo: message,
+      ),
+      // MenuItem(
+      //   title: '收藏',
+      //   textAlign: TextAlign.center,
+      //   textStyle: TextStyle(
+      //     color: Color(0xffc5c5c5),
+      //     fontSize: 10.0,
+      //   ),
+      //   image: Icon(
+      //     Icons.collections_bookmark,
+      //     color: Colors.white,
+      //   ),
+      //   userInfo: message,
+      // ),
+      // MenuItem(
+      //   title: '多选',
+      //   textAlign: TextAlign.center,
+      //   textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+      //   image: Icon(
+      //     Icons.add_road,
+      //     color: Colors.white,
+      //   ),
+      //   userInfo: message,
+      // ),
+      MenuItem(
+        title: '引用',
+        textAlign: TextAlign.center,
+        textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+        image: Icon(
+          Icons.format_quote,
+          color: Colors.white,
+        ),
+        userInfo: message,
+      ),
+
+      MenuItem(
+        title: '删除',
+        textAlign: TextAlign.center,
+        textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+        image: Icon(
+          Icons.remove,
+          color: Colors.white,
+        ),
+        userInfo: message,
+      ),
+    ];
+    //
+    if (message.author.id == logic.current.currentUid) {
+      items.add(
         MenuItem(
           title: '撤回',
           textAlign: TextAlign.center,
@@ -343,17 +372,13 @@ class ChatPageState extends State<ChatPage> {
           ),
           userInfo: message,
         ),
-        MenuItem(
-          title: '删除',
-          textAlign: TextAlign.center,
-          textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-          image: Icon(
-            Icons.remove,
-            color: Colors.white,
-          ),
-          userInfo: message,
-        ),
-      ],
+      );
+    }
+    PopupMenu menu = PopupMenu(
+      // backgroundColor: Colors.teal,
+      // lineColor: Colors.tealAccent,
+      // maxColumn: 2,
+      items: items,
       context: c1,
       onClickMenu: onClickMenu,
       // stateChanged: stateChanged,
@@ -395,7 +420,7 @@ class ChatPageState extends State<ChatPage> {
     final textMessage = types.TextMessage(
       author: logic.cuser,
       createdAt: DateTimeHelper.currentTimeMillis(),
-      id: const Uuid().v4(),
+      id: Xid().toString(),
       text: message.text,
       remoteId: widget.toId,
       status: types.Status.sending,
@@ -438,7 +463,16 @@ class ChatPageState extends State<ChatPage> {
       }
     } else if (it.menuTitle == "复制" && msg is types.TextMessage) {
       Clipboard.setData(ClipboardData(text: msg.text));
+    } else if (it.menuTitle == "撤回") {
+      await logic.revokeMessage(msg);
     }
+  }
+
+  Widget _customMessageBuilder(types.CustomMessage msg,
+      {required int messageWidth}) {
+    debugPrint(
+        ">>> on CustomMessage/_customMessageBuilder ${msg.toJson().toString()}");
+    return CustomMessage(message: msg, messageWidth: messageWidth);
   }
 
   @override
@@ -466,6 +500,9 @@ class ChatPageState extends State<ChatPage> {
         onPanUpdate: _onPanUpdate,
         child: Chat(
           messages: messages,
+          // showUserAvatars: true,
+          // showUserNames: true,
+          customMessageBuilder: _customMessageBuilder,
           onEndReachedThreshold: 0.8,
           onEndReached: _handleEndReached,
           // bubbleBuilder: _bubbleBuilder,

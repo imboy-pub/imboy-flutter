@@ -13,7 +13,7 @@ import 'package:imboy/helper/func.dart';
 import 'package:imboy/page/qr_code/qr_code_view.dart';
 import 'package:imboy/page/user/change_name/change_name_view.dart';
 import 'package:imboy/store/model/user_model.dart';
-import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'personal_info_logic.dart';
 import 'personal_info_state.dart';
@@ -24,7 +24,7 @@ class PersonalInfoPage extends StatefulWidget {
 }
 
 class _PersonalInfoPageState extends State<PersonalInfoPage> {
-  final UserRepoSP current = Get.put(UserRepoSP.user);
+  final UserRepoLocal current = Get.put(UserRepoLocal.user);
   final logic = Get.put(PersonalInfoLogic());
   final PersonalInfoState state = Get.find<PersonalInfoLogic>().state;
 

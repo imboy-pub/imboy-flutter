@@ -6,13 +6,13 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/win_media.dart';
 import 'package:imboy/page/personal_info/personal_info_view.dart';
-import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'mine_logic.dart';
 import 'mine_state.dart';
 
 class MinePage extends StatelessWidget {
-  final UserRepoSP current = Get.put(UserRepoSP.user);
+  final UserRepoLocal current = Get.put(UserRepoLocal.user);
   final MineLogic logic = Get.put(MineLogic());
   final MineState state = Get.find<MineLogic>().state;
 

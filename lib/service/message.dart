@@ -1,16 +1,18 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/login/login_view.dart';
+import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 class MessageService extends GetxService {
   // 系统消息提醒计时器 暂时无用
@@ -29,14 +31,15 @@ class MessageService extends GetxService {
     (ConversationRepo()).update({"type_id": key, "unread_num": val});
   }
 
-  // 步曾会话提醒
-  increaseConversationRemind(String key, int val) {
+  // 步增会话提醒
+  _increaseConversationRemind(String key, int val) {
     if (conversationRemind.containsKey(key)) {
       val = conversationRemind[key]! + val;
     }
     setConversationRemind(key, val);
   }
 
+  // 步减会话提醒
   decreaseConversationRemind(String key, int val) {
     if (conversationRemind.containsKey(key)) {
       val = conversationRemind[key]! - val;
@@ -57,37 +60,43 @@ class MessageService extends GetxService {
 
   @override
   void onInit() {
+    super.onInit();
     // TODO: implement onInit
     if (_msgStreamSubs == null) {
       // Register listeners for all events:
       _msgStreamSubs = eventBus.on<Map>().listen((data) async {
-        debugPrint(">>>>> on MessageService onInit: " + data.toString());
+        debugPrint(">>> on MessageService onInit: " + data.toString());
         int code = data['code'] ?? 99999;
         String dtype = data['type'] ?? 'error';
         dtype = dtype.toUpperCase();
         switch (dtype) {
           case 'C2C':
-            var message = await reciveC2CMessage(data);
-            if (message != null) {
-              eventBus.fire(message);
-            }
+            await reciveC2CMessage(data);
             break;
-          case 'S_RECEIVED': // 服务端消息确认
-            MessageRepo repo = MessageRepo();
-            String id = data['id'];
-            int res = await repo.update({'id': id, 'status': 11});
-            MessageModel? msg = await repo.find(id);
-            debugPrint(">>>>> on MessageService S_RECEIVED:$res; msg:" +
-                msg!.toMap().toString());
-            if (res > 0 && msg != null) {
-              eventBus.fire([toTypeMessage(msg)]);
-            }
+          case 'C2C_SERVER_ACK': // C2C 服务端消息确认
+            await reciveC2CServerAckMessage(data);
             break;
-          case 'ERROR':
+          case 'C2C_REVOKE': // 对端撤回消息
+            await reciveC2CRevokeMessage(data);
+            break;
+          case 'C2C_REVOKE_ACK': // 对端撤回消息ACK
+            await reciveC2CRevokeAckMessage(dtype, data);
+            break;
+          case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
+            break;
+          case 'SYSTEM':
             switch (code) {
               // case 705: // token无效、刷新token 这里不处理，不发送消息
               case 706: // 需要重新登录
                 {
+                  Get.off(new LoginPage());
+                }
+                break;
+              case 786: // 在其他地方上线
+                {
+                  // TODO
+                  WSService.to.closeSocket();
+                  UserRepoLocal.user.logout();
                   Get.off(new LoginPage());
                 }
                 break;
@@ -96,8 +105,6 @@ class MessageService extends GetxService {
         }
       });
     }
-
-    super.onInit();
   }
 
   /// Called before [onDelete] method. [onClose] might be used to
@@ -120,30 +127,11 @@ class MessageService extends GetxService {
     super.onClose();
   }
 
-  types.Message toTypeMessage(MessageModel msg) {
-    types.Message? message;
-
-    if (msg.payload!['msg_type'] == 'text') {
-      message = types.TextMessage(
-        author: types.User(
-          id: msg.fromId!,
-          // firstName: "",
-          // imageUrl: "",
-        ),
-        createdAt: msg.createdAt,
-        id: msg.id!,
-        remoteId: msg.toId,
-        text: msg.payload!['text'],
-        status: msg.eStatus,
-      );
-    }
-    return message!;
-  }
-
-  Future<types.Message> reciveC2CMessage(data) async {
+  /// 收到C2C消息
+  Future<void> reciveC2CMessage(data) async {
     var msgtype = data['payload']['msg_type'] ?? '';
     var text = data['payload']['text'] ?? '';
-    debugPrint(">>>>> on reciveMessage " + data.toString());
+    debugPrint(">>> on reciveMessage " + data.toString());
     /**{
         "id": "8f22f09c-1a28-4dce-9ca8-659fd650535d",
         "type": "C2C",
@@ -180,11 +168,8 @@ class MessageService extends GetxService {
     );
     cobj = await (ConversationRepo()).save(cobj, 1);
 
-    // status 10 未发送  11 已发送  20 未读  21 已读
-    int status = 20;
     MessageModel msg = MessageModel(
       data['id'],
-      // cuid: data['to'],
       type: data['type'],
       fromId: data['from'],
       toId: data['to'],
@@ -192,14 +177,95 @@ class MessageService extends GetxService {
       createdAt: data['created_at'],
       serverTs: data['server_ts'],
       conversationId: cobj.id,
-      status: status,
+      status: MessageStatus.delivered,
     );
     await (MessageRepo()).save(msg);
 
     eventBus.fire(cobj);
 
-    increaseConversationRemind(data['from'], 1);
-    // conversations
-    return toTypeMessage(msg);
+    // 步增会话消息
+    _increaseConversationRemind(data['from'], 1);
+
+    eventBus.fire(msg.toTypeMessage());
+    // 确实消息
+    WSService.to.sendMessage(json.encode({
+      'id': data['id'],
+      'type': 'C2C_CLIENT_ACK',
+      'remark': 'recived',
+    }));
+  }
+
+  /// 收到C2C服务端确认消息
+  Future<void> reciveC2CServerAckMessage(data) async {
+    MessageRepo repo = MessageRepo();
+    String id = data['id'];
+    int res = await repo.update({
+      'id': id,
+      'status': MessageStatus.send,
+    });
+    MessageModel? msg = await repo.find(id);
+    debugPrint(">>>>> on MessageService S_RECEIVED:$res; msg:" +
+        msg!.toJson().toString());
+    if (res > 0 && msg != null) {
+      eventBus.fire([msg.toTypeMessage()]);
+    }
+  }
+
+  /// 收到C2C撤回消息
+  Future<void> reciveC2CRevokeMessage(data) async {
+    MessageRepo repo = MessageRepo();
+    String id = data['id'];
+    int res = await repo.update({
+      'id': id,
+      'status': MessageStatus.send,
+      'payload': json.encode({
+        "msg_type": "custom",
+        "custom_type": "revoked",
+      }),
+    });
+    MessageModel? msg = await repo.find(id);
+    debugPrint(">>> on MessageService REVOKE_C2C:$res; msg:" +
+        msg!.toJson().toString());
+    if (res > 0 && msg != null) {
+      // 通知服务器已撤销
+      Map<String, dynamic> msg2 = {
+        'id': id,
+        'type': 'C2C_REVOKE_ACK',
+        'from': data["to"],
+        'to': data["from"],
+      };
+      WSService.to.sendMessage(json.encode(msg2));
+
+      eventBus.fire([msg.toTypeMessage()]);
+    }
+  }
+
+  /// 收到C2C撤回ACK消息
+  Future<void> reciveC2CRevokeAckMessage(dtype, data) async {
+    MessageRepo repo = MessageRepo();
+    String id = data['id'];
+    MessageModel? msg = await repo.find(id);
+    msg!.payload = {
+      "msg_type": "custom",
+      "custom_type": "revoked",
+      'text': msg.payload!['text'],
+    };
+    int res = await repo.update({
+      'id': id,
+      'type': dtype,
+      'status': MessageStatus.send,
+      'payload': json.encode(msg.payload),
+    });
+    debugPrint(">>> on MessageService REVOKE_C2C ack:$res; msg:" +
+        msg.toJson().toString());
+    if (res > 0 && msg != null) {
+      eventBus.fire([msg.toTypeMessage()]);
+      // 确认消息
+      WSService.to.sendMessage(json.encode({
+        'id': id,
+        'type': 'C2C_CLIENT_ACK',
+        'remark': 'revoked',
+      }));
+    }
   }
 }

@@ -38,7 +38,7 @@ class ContactModel extends ISuspensionBean {
   IconData? iconData;
   String? firstletter;
 
-  factory ContactModel.fromMap(Map<String, dynamic> json) {
+  factory ContactModel.fromJson(Map<String, dynamic> json) {
     return new ContactModel(
       uid: json["id"] ?? (json["uid"] ?? ""),
       account: json["account"].toString(),
@@ -53,7 +53,7 @@ class ContactModel extends ISuspensionBean {
     );
   }
 
-  Map<String, dynamic> toMap() => {
+  Map<String, dynamic> toJson() => {
         'id': uid,
         'account': account,
         'nickname': nickname,

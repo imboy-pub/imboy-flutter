@@ -8,23 +8,24 @@ import 'package:imboy/helper/http/http_client.dart';
 import 'package:imboy/helper/http/http_config.dart';
 import 'package:imboy/helper/http/http_interceptor.dart';
 import 'package:imboy/helper/sqflite.dart';
-import 'package:imboy/helper/websocket.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/storage.dart';
-import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:imboy/service/websocket.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:logger/logger.dart';
 
 typedef Callback(data);
 
-const API_BASE_URL = 'http://dev.api.imboy.pub:9800';
-const String ws_url = 'ws://dev.api.imboy.pub:9800/ws/';
+// const API_BASE_URL = 'http://dev.api.imboy.pub:9800';
+// const String ws_url = 'ws://dev.api.imboy.pub:9800/ws/';
 
 const RECORD_LOG = true;
 // const API_BASE_URL = 'http://local.api.imoby.pub:9800';
 // const ws_url = 'ws://local.api.imoby.pub:9800/ws/';
 
-// const API_BASE_URL = 'http://172.20.10.10:9800';
-// const ws_url = 'ws://172.20.10.10:9800/ws/';
+// 阿里云 Dev
+const API_BASE_URL = 'http://81.68.209.56:9800';
+const ws_url = 'ws://81.68.209.56:9800/ws/';
 
 DefaultCacheManager cacheManager = new DefaultCacheManager();
 
@@ -44,20 +45,18 @@ Future<void> init() async {
     LifecycleEventHandler(resumeCallBack: () async {
       // app 恢复
       debugPrint(">>>>> on LifecycleEventHandler resumeCallBack");
-      // Getx.Get.snackbar("tips", "LifecycleEventHandler resumeCallBack");
-      WebSocket();
+      // WebSocket();
+      WSService.to.openSocket();
     }, suspendingCallBack: () async {
       // app 挂起
       debugPrint(">>>>> on LifecycleEventHandler suspendingCallBack");
     }),
   );
 
-  Getx.Get.lazyPut(() => ThemeController());
-
-  // permanent: true  需要这个实例在整个应用生命周期中保留在那里
-  // 放在 UserRepoSP 前面
+  // 放在 UserRepoLocal 前面
   await Getx.Get.putAsync<StorageService>(() => StorageService().init());
-  Getx.Get.put(UserRepoSP());
+  Getx.Get.put(UserRepoLocal(), permanent: true);
+  Getx.Get.lazyPut(() => ThemeController());
 
   // Get.put<AuthController>(AuthController());
   HttpConfig dioConfig = HttpConfig(
@@ -70,6 +69,7 @@ Future<void> init() async {
 
   Getx.Get.put(Sqlite.instance);
   // 初始化 WebSocket 链接
-  Getx.Get.put(WebSocket());
+  // Getx.Get.put(WebSocket());
+  Getx.Get.put(WSService());
   Getx.Get.put(MessageService());
 }

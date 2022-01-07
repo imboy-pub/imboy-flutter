@@ -8,7 +8,7 @@ import 'package:imboy/helper/log.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/login/login_view.dart';
 import 'package:imboy/page/pages.dart';
-import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 void main() async {
@@ -31,7 +31,8 @@ class IMBoyApp extends StatelessWidget {
         child: GetMaterialApp(
           title: 'IMBoy',
           // 底部导航组件
-          home: UserRepoSP.user.isLogin ? BottomNavigationPage() : LoginPage(),
+          home:
+              UserRepoLocal.user.isLogin ? BottomNavigationPage() : LoginPage(),
           debugShowCheckedModeBanner: false,
           getPages: AppPages.routes,
           // initialRoute: AppPages.INITIAL,

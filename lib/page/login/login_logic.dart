@@ -9,7 +9,7 @@ import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/http/http_client.dart';
 import 'package:imboy/helper/http/http_response.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
-import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'login_state.dart';
 
@@ -27,9 +27,7 @@ class LoginLogic extends GetxController {
   void onInit() {
     worker = debounce(
       _counter,
-      (_) {
-
-      },
+      (_) {},
       time: Duration(seconds: 2),
       // condition: () => coinCount < 10,
     );
@@ -112,7 +110,7 @@ class LoginLogic extends GetxController {
         return false;
       } else {
         debugPrint(">>>>> on user logoin success {$resp2.toString()}");
-        return await (UserRepoSP()).loginAfter(resp2.payload);
+        return await (UserRepoLocal()).loginAfter(resp2.payload);
       }
     } on PlatformException {
       Get.snackbar('', '你已登录或者其他错误');

@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:imboy/page/login/login_view.dart';
-import 'package:imboy/store/repository/user_repo_sp.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'setting_state.dart';
 
@@ -21,7 +21,7 @@ class SettingLogic extends GetxController {
         "; res: " +
         (name.toString() == 'logout').toString());
     if (name.toString() == 'logout') {
-      bool result = await UserRepoSP.user.logout();
+      bool result = await UserRepoLocal.user.logout();
       if (result) {
         Get.off(() => LoginPage());
       }
