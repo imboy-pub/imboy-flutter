@@ -56,18 +56,17 @@ Future<void> init() async {
 
   // permanent: true  需要这个实例在整个应用生命周期中保留在那里
   // 放在 UserRepoSP 前面
-  await Getx.Get.putAsync<StorageService>(() => StorageService().init(),
-      permanent: true);
-  Getx.Get.put(UserRepoSP(), permanent: true);
+  await Getx.Get.putAsync<StorageService>(() => StorageService().init());
+  Getx.Get.put(UserRepoSP());
 
-  // Get.put<AuthController>(AuthController(), permanent: true);
+  // Get.put<AuthController>(AuthController());
   HttpConfig dioConfig = HttpConfig(
     baseUrl: API_BASE_URL,
     // proxy: '192.168.100.19:8888',
     interceptors: [ImboyInterceptor()],
   );
 
-  Getx.Get.put(HttpClient(dioConfig: dioConfig), permanent: true);
+  Getx.Get.put(HttpClient(dioConfig: dioConfig));
 
   Getx.Get.put(Sqlite.instance);
   // 初始化 WebSocket 链接

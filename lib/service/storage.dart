@@ -2,6 +2,9 @@ import 'package:get/get.dart';
 import 'dart:convert' as JSON;
 import 'package:shared_preferences/shared_preferences.dart';
 
+/**
+ * from https://github.com/ducafecat/flutter_ducafecat_news_getx/blob/master/lib/common/services/storage.dart
+ */
 class StorageService extends GetxService {
   static StorageService get to => Get.find();
   late final SharedPreferences _prefs;
@@ -26,7 +29,6 @@ class StorageService extends GetxService {
   Future<bool> setList(String key, List<String> value) async {
     return await _prefs.setStringList(key, value);
   }
-
 
   String getString(String key) {
     return _prefs.getString(key) ?? '';
