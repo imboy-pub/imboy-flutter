@@ -14,7 +14,7 @@ class RouteAuthMiddleware extends GetMiddleware {
 
   @override
   RouteSettings? redirect(String? route) {
-    if (UserRepoLocal.user.isLogin ||
+    if (UserRepoLocal.to.isLogin ||
         route == AppRoutes.SIGN_IN ||
         route == AppRoutes.SIGN_UP ||
         route == AppRoutes.INITIAL) {

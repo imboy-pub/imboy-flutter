@@ -1,10 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
 import 'package:imboy/helper/sqflite.dart';
 import 'package:imboy/store/model/message_model.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 
 class MessageRepo {
   static String tablename = 'message';
@@ -22,8 +20,6 @@ class MessageRepo {
   static String status = 'status';
 
   Sqlite _db = Sqlite.instance;
-
-  final UserRepoLocal current = Get.put(UserRepoLocal.user);
 
   // 插入一条数据
   Future<MessageModel> insert(MessageModel msg) async {

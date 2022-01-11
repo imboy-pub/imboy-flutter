@@ -14,12 +14,12 @@ class ContentMsg extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // debugPrint("content_msg widget.msg " + widget.msg.toString());
+    debugPrint("content_msg widget.msg " + msg.toString());
     String msgType = msg["msg_type"];
     String subtitle = msg["text"] ?? '';
 
     String str = '[未知消息]';
-    if (msgType == "text") {
+    if (msgType == 'text') {
       str = subtitle;
     } else if (msgType == "Image") {
       str = '[图片]';
@@ -27,6 +27,8 @@ class ContentMsg extends StatelessWidget {
       str = '[语音消息]';
     } else if (subtitle.contains('snapshotPath')) {
       str = '[视频]';
+    } else if (msgType == 'custom') {
+      str = subtitle;
     }
     return ExtendedText(
       str,

@@ -24,8 +24,6 @@ class _ConversationPageState extends State<ConversationPage> {
 
   bool alive = true;
 
-  final _msgService = Get.put(MessageService());
-
   StreamSubscription<dynamic>? _convStreamSubs;
 
   @override
@@ -36,14 +34,12 @@ class _ConversationPageState extends State<ConversationPage> {
     if (_convStreamSubs == null) {
       // Register listeners for all events:
       _convStreamSubs = eventBus.on<ConversationModel>().listen((e) async {
-        debugPrint(
-            ">>>>> on _convStreamSubs listen: ${e.runtimeType}, e:${e.toString()}");
-        //
-        _msgService.conversations[e.typeId] = e;
-        setState(() {
-          _msgService.conversations;
-        });
-        // conversations[data['from']] = cobj;
+        MessageService.to.conversations[e.typeId] = e;
+        if (mounted) {
+          setState(() {
+            MessageService.to.conversations;
+          });
+        }
       });
     }
     debugPrint(">>>>> on _convStreamSubs ${_convStreamSubs.toString()}");
@@ -56,33 +52,35 @@ class _ConversationPageState extends State<ConversationPage> {
     }
     Map<String, ConversationModel> items = await logic.getConversationsList();
     if (items.isNotEmpty) {
-      _msgService.conversations.value = items;
+      MessageService.to.conversations.value = items;
     }
 
-    _msgService.conversations.forEach((key, obj) {
+    MessageService.to.conversations.forEach((key, obj) {
       debugPrint(
-          ">>>>> on _ConversationPageState/initData ${obj.typeId} = ${obj.unreadNum}");
+          ">>> on _ConversationPageState/initData ${obj.typeId} = ${obj.unreadNum}");
       int unreadNum = obj.unreadNum;
-      _msgService.setConversationRemind(
+      MessageService.to.setConversationRemind(
         obj.typeId,
         unreadNum > 0 ? unreadNum : 0,
       );
     });
     setState(() {
-      _msgService.conversations;
-      _msgService.conversationRemind;
+      MessageService.to.conversations;
+      MessageService.to.conversationRemind;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(">>>>> on _ConversationPageState build");
-    List<ConversationModel> items = _msgService.conversations.values.toList();
+    List<ConversationModel> items =
+        MessageService.to.conversations.values.toList();
 
     Widget body = ListView.builder(
       itemBuilder: (BuildContext context, int index) {
         ConversationModel model = items[index];
         int conversationId = model.id;
+        debugPrint(
+            ">>> on _ConversationPageState build ${model.toJson().toString()}");
         return InkWell(
           onTap: () {
             Get.to(
@@ -119,7 +117,7 @@ class _ConversationPageState extends State<ConversationPage> {
                     }
                     logic.markAs(model.id, num);
                     setState(() {
-                      _msgService.conversationRemind[model.typeId] = num;
+                      MessageService.to.conversationRemind[model.typeId] = num;
                     });
                     model.unreadNum = num;
                   },
@@ -132,10 +130,11 @@ class _ConversationPageState extends State<ConversationPage> {
                   backgroundColor: Colors.amber,
                   onPressed: (_) async {
                     await logic.hideConversation(conversationId);
-                    _msgService.conversations.remove(model.typeId);
+                    MessageService.to.conversations.remove(model.typeId);
                     setState(() {
-                      _msgService.conversations.value;
-                      _msgService.conversationRemind[model.typeId] = 0;
+                      MessageService.to.conversations.value;
+                      MessageService.to.conversationRemind[model.typeId] = 0;
+                      MessageService.to.chatMsgRemindCounter;
                     });
                   },
                   label: "不显示",
@@ -148,12 +147,12 @@ class _ConversationPageState extends State<ConversationPage> {
                   // foregroundColor: Colors.white,
                   onPressed: (_) async {
                     await logic.removeConversation(conversationId);
-                    _msgService.conversations.remove(model.typeId);
+                    MessageService.to.conversations.remove(model.typeId);
                     setState(() {
-                      _msgService.conversations.value;
+                      MessageService.to.conversations.value;
+                      MessageService.to.conversationRemind[model.typeId] = 0;
+                      MessageService.to.chatMsgRemindCounter;
                     });
-                    debugPrint(
-                        ">>>>> on SlidableAction/onPressed index: ${index}; conversationId: ${conversationId}");
                   },
                   label: "删除",
                   spacing: 1,
@@ -165,22 +164,23 @@ class _ConversationPageState extends State<ConversationPage> {
                 imageUrl: model.avatar,
                 title: model.title,
                 payload: {
-                  "msg_type": model.msgtype,
-                  "text": model.subtitle,
+                  'msg_type': model.msgtype,
+                  'text': model.subtitle,
                 },
                 time: _timeView(
                   model.lasttime ?? 0,
                 ),
                 // isBorder: model.typeId != _msgService.conversations.values[0].typeId,
-                remindCounter: _msgService.conversationRemind[model.typeId],
+                remindCounter:
+                    MessageService.to.conversationRemind[model.typeId],
               ),
             ),
           ),
         );
       },
-      itemCount: _msgService.conversations.values.length,
+      itemCount: MessageService.to.conversations.values.length,
     );
-    if (_msgService.conversations.isEmpty) {
+    if (MessageService.to.conversations.isEmpty) {
       body = ConversationNullView();
     }
 

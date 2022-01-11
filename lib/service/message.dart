@@ -15,28 +15,38 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class MessageService extends GetxService {
-  // 系统消息提醒计时器 暂时无用
-  var sysMsgRemindCounter = 0.obs;
+  static MessageService get to => Get.find();
 
-  RxMap<String, int> conversationRemind = RxMap<String, int>({});
+  final RxMap<String, int> conversationRemind = RxMap<String, int>({});
 
   // 会话列表
-  RxMap<String, ConversationModel> conversations =
+  final RxMap<String, ConversationModel> conversations =
       RxMap<String, ConversationModel>();
 
   // 设置会话提醒
   setConversationRemind(String key, int val) {
+    val = val > 0 ? val : 0;
     conversationRemind[key] = val;
-    // 有并发的话，可能会有脏数据，待测试 TODO leeyi 2021-11-13 09:38:58
-    (ConversationRepo()).update({"type_id": key, "unread_num": val});
+    (ConversationRepo()).update({
+      ConversationRepo.cuid: UserRepoLocal.to.currentUid,
+      ConversationRepo.typeId: key,
+      ConversationRepo.unreadNum: val,
+      ConversationRepo.isShow: 1,
+    });
   }
 
   // 步增会话提醒
   _increaseConversationRemind(String key, int val) {
-    if (conversationRemind.containsKey(key)) {
-      val = conversationRemind[key]! + val;
+    if (!conversationRemind.containsKey(key) ||
+        conversationRemind[key] == null ||
+        conversationRemind[key]! < 0) {
+      conversationRemind[key] = 0;
     }
-    setConversationRemind(key, val);
+
+    conversationRemind[key] = conversationRemind[key]!.toInt() + val;
+    debugPrint(
+        ">>> on _increaseConversationRemind key ${key}, val: ${val}, ${conversationRemind[key]!}");
+    setConversationRemind(key, conversationRemind[key]!);
   }
 
   // 步减会话提醒
@@ -96,9 +106,12 @@ class MessageService extends GetxService {
                 {
                   // TODO
                   WSService.to.closeSocket();
-                  UserRepoLocal.user.logout();
+                  UserRepoLocal.to.logout();
                   Get.off(new LoginPage());
                 }
+                break;
+              case 1019: // 好友上线提现
+                // TODO
                 break;
             }
             break;
@@ -119,11 +132,6 @@ class MessageService extends GetxService {
       _msgStreamSubs!.cancel();
       _msgStreamSubs = null;
     }
-    // 该方法貌似没有生效 TODO leey 2021-11-13 09:36:28
-    debugPrint(">>>>> on ConversationRemind MessageService onClose");
-    conversationRemind.forEach((typeId, unreadNum) {
-      (ConversationRepo()).update({"type_id": typeId, "unread_num": unreadNum});
-    });
     super.onClose();
   }
 
@@ -132,19 +140,7 @@ class MessageService extends GetxService {
     var msgtype = data['payload']['msg_type'] ?? '';
     var text = data['payload']['text'] ?? '';
     debugPrint(">>> on reciveMessage " + data.toString());
-    /**{
-        "id": "8f22f09c-1a28-4dce-9ca8-659fd650535d",
-        "type": "C2C",
-        "from": "kybqdp",
-        "to": "18aw3p",
-        "payload": {
-        "msg_type": "text",
-        "text": "asdf"
-        },
-        "created_at": 1635945957968,
-        "server_ts": 1635945957968
-        }
-     */
+
     String subtitle = '';
 
     ContactModel? ct = await ContactRepo().find(data['from']);
@@ -161,12 +157,13 @@ class MessageService extends GetxService {
       subtitle: subtitle,
       type: data['type'],
       msgtype: msgtype,
+      lastMsgId: data['id'],
       lasttime: data['created_at'],
       unreadNum: 1,
       isShow: 1,
       id: 0,
     );
-    cobj = await (ConversationRepo()).save(cobj, 1);
+    cobj = await (ConversationRepo()).save(data['to'], cobj);
 
     MessageModel msg = MessageModel(
       data['id'],
@@ -224,8 +221,6 @@ class MessageService extends GetxService {
       }),
     });
     MessageModel? msg = await repo.find(id);
-    debugPrint(">>> on MessageService REVOKE_C2C:$res; msg:" +
-        msg!.toJson().toString());
     if (res > 0 && msg != null) {
       // 通知服务器已撤销
       Map<String, dynamic> msg2 = {
@@ -237,6 +232,30 @@ class MessageService extends GetxService {
       WSService.to.sendMessage(json.encode(msg2));
 
       eventBus.fire([msg.toTypeMessage()]);
+      changeConversation(msg);
+    }
+  }
+
+  /**
+   * 撤回消息修正相应会话记录
+   */
+  Future<void> changeConversation(MessageModel msg) async {
+    ConversationRepo repo2 = ConversationRepo();
+    ConversationModel? cobj = await repo2.findById(msg.conversationId!);
+    debugPrint(">>> on changeConversation : ${cobj!.toJson().toString()}");
+
+    if (cobj != null && cobj.lastMsgId == msg.id) {
+      Map<String, dynamic> data2 = cobj.toJson();
+      bool isCUid = UserRepoLocal.to.currentUid == msg.fromId ? true : false;
+      String subtitle = isCUid ? '你撤回了一条消息' : '"${cobj.title}"撤回了一条消息';
+      int res2 = await repo2.updateById(cobj.id, {
+        'subtitle': subtitle,
+      });
+      debugPrint(">>> on changeConversation res2 ${res2}: ${data2.toString()}");
+      if (res2 > 0) {
+        cobj.subtitle = subtitle;
+        eventBus.fire(cobj);
+      }
     }
   }
 
@@ -266,6 +285,7 @@ class MessageService extends GetxService {
         'type': 'C2C_CLIENT_ACK',
         'remark': 'revoked',
       }));
+      changeConversation(msg);
     }
   }
 }

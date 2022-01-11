@@ -35,7 +35,7 @@ class PersonalInfoLogic extends GetxController {
     String avatarStr = '',
     Callback? callback,
   }) async {
-    final user = UserRepoLocal.user.currentUser;
+    final user = UserRepoLocal.to.currentUser;
     // var result = await im.setUsersProfile(0, nicknameStr, avatarStr);
     var result = "";
     if (result.toString().contains('succ')) {

@@ -18,7 +18,7 @@ import 'package:imboy/helper/datetime.dart';
 import 'package:imboy/page/chat_info/chat_info_view.dart';
 import 'package:imboy/page/group_detail/group_detail_view.dart';
 import 'package:imboy/service/message.dart';
-import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
 import 'package:popup_menu/popup_menu.dart';
@@ -46,8 +46,6 @@ class ChatPage extends StatefulWidget {
 
 class ChatPageState extends State<ChatPage> {
   final logic = Get.put(ChatLogic());
-
-  final _msgService = Get.put(MessageService());
 
   StreamSubscription<dynamic>? _msgStreamSubs;
 
@@ -96,10 +94,13 @@ class ChatPageState extends State<ChatPage> {
             e.runtimeType.toString());
 
         if (e is types.Message && e.author.id == toId) {
-          setState(() {
-            messages.insert(0, e);
-          });
-          _msgService.decreaseConversationRemind(toId, 1);
+          MessageService.to.decreaseConversationRemind(toId, 1);
+          messages.insert(0, e);
+          if (mounted) {
+            setState(() {
+              messages;
+            });
+          }
         }
       });
 
@@ -111,9 +112,11 @@ class ChatPageState extends State<ChatPage> {
             msg.toJson().toString());
         if (index > -1) {
           messages.setRange(index, index + 1, e);
-          setState(() {
-            messages;
-          });
+          if (mounted) {
+            setState(() {
+              messages;
+            });
+          }
         }
       });
     }
@@ -134,7 +137,7 @@ class ChatPageState extends State<ChatPage> {
         if (msg.status == types.Status.delivered) {
           bool res = await logic.markAsRead(widget.id, msg);
           if (res) {
-            _msgService.decreaseConversationRemind(widget.toId, 1);
+            MessageService.to.decreaseConversationRemind(widget.toId, 1);
           }
         }
         debugPrint(">>>>> on chat initData msg :${msg.toString()}");
@@ -157,8 +160,8 @@ class ChatPageState extends State<ChatPage> {
     //   发送成功后，更新conversation、更新消息状态
     //   发送失败后，放入异步队列，重新发送
 
-    String cuid = logic.current.currentUid;
-    ConversationModel cobj = await logic.addMessage(
+    String cuid = UserRepoLocal.to.currentUid;
+    bool res = await logic.addMessage(
       cuid,
       widget.toId,
       widget.avatar ?? '',
@@ -167,8 +170,9 @@ class ChatPageState extends State<ChatPage> {
       message,
     );
     setState(() {
-      messages.insert(0, message);
-      _msgService.conversations[widget.toId] = cobj;
+      if (res) {
+        messages.insert(0, message);
+      }
     });
     // _msgService.update();
   }
@@ -360,7 +364,12 @@ class ChatPageState extends State<ChatPage> {
       ),
     ];
     //
-    if (message.author.id == logic.current.currentUid) {
+    bool isRevoked = (message is types.CustomMessage) &&
+            message.metadata!['custom_type'] == 'revoked'
+        ? true
+        : false;
+    if (message.author.id == UserRepoLocal.to.currentUid &&
+        isRevoked == false) {
       items.add(
         MenuItem(
           title: '撤回',
@@ -388,7 +397,7 @@ class ChatPageState extends State<ChatPage> {
     var offset = renderBox.localToGlobal(Offset.zero);
     double l = offset.dx / 2 - renderBox.size.width / 2 + 75.0;
     double r = renderBox.size.width / 2 - 75.0;
-    double dx = message.author.id == logic.current.currentUid ? r : l;
+    double dx = message.author.id == UserRepoLocal.to.currentUid ? r : l;
     debugPrint(">>>>> on chat _handleMessageTap left ${dx}, l: ${l}, r: ${r}");
     debugPrint(
         ">>>>> on chat _handleMessageTap dx:${offset.dx},dy:${offset.dy},w:${renderBox.size.width},h:${renderBox.size.height}");
@@ -468,13 +477,6 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
-  Widget _customMessageBuilder(types.CustomMessage msg,
-      {required int messageWidth}) {
-    debugPrint(
-        ">>> on CustomMessage/_customMessageBuilder ${msg.toJson().toString()}");
-    return CustomMessage(message: msg, messageWidth: messageWidth);
-  }
-
   @override
   Widget build(BuildContext context) {
     var rWidget = [
@@ -502,7 +504,9 @@ class ChatPageState extends State<ChatPage> {
           messages: messages,
           // showUserAvatars: true,
           // showUserNames: true,
-          customMessageBuilder: _customMessageBuilder,
+          customMessageBuilder: (types.CustomMessage msg,
+                  {required int messageWidth}) =>
+              CustomMessage(message: msg, messageWidth: messageWidth),
           onEndReachedThreshold: 0.8,
           onEndReached: _handleEndReached,
           // bubbleBuilder: _bubbleBuilder,

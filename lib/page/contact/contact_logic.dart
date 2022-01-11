@@ -19,12 +19,11 @@ class ContactLogic extends GetxController {
   // 获取实例
   final provider = Get.put(ContactProvider());
 
-  final UserRepoLocal current = Get.put(UserRepoLocal.user);
   final HttpClient _dio = Get.put(HttpClient.client);
 
   listFriend() async {
     List<ContactModel> contact = [];
-    contact = await (ContactRepo()).findByCuid(current.currentUid);
+    contact = await (ContactRepo()).findByCuid(UserRepoLocal.to.currentUid);
     if (contact.isNotEmpty) {
       return contact;
     }

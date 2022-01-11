@@ -16,12 +16,8 @@ class SettingLogic extends GetxController {
   @override
   Future<void> action(name) async {
     Get.snackbar('action', name.toString());
-    print(">>>>> on action " +
-        name.toString() +
-        "; res: " +
-        (name.toString() == 'logout').toString());
     if (name.toString() == 'logout') {
-      bool result = await UserRepoLocal.user.logout();
+      bool result = await UserRepoLocal.to.logout();
       if (result) {
         Get.off(() => LoginPage());
       }

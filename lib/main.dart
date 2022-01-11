@@ -31,8 +31,7 @@ class IMBoyApp extends StatelessWidget {
         child: GetMaterialApp(
           title: 'IMBoy',
           // 底部导航组件
-          home:
-              UserRepoLocal.user.isLogin ? BottomNavigationPage() : LoginPage(),
+          home: UserRepoLocal.to.isLogin ? BottomNavigationPage() : LoginPage(),
           debugShowCheckedModeBanner: false,
           getPages: AppPages.routes,
           // initialRoute: AppPages.INITIAL,

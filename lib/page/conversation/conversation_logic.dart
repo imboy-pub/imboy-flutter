@@ -11,7 +11,6 @@ import 'conversation_state.dart';
 
 class ConversationLogic extends GetxController {
   final state = ConversationState();
-  final UserRepoLocal current = Get.put(UserRepoLocal.user);
 
   @override
   void onReady() {
@@ -21,7 +20,7 @@ class ConversationLogic extends GetxController {
 
   getConversationsList() async {
     Map<String, ConversationModel> items =
-        await (ConversationRepo()).findByCuid(current.currentUid);
+        await (ConversationRepo()).findByCuid(UserRepoLocal.to.currentUid);
     print(">>>>> on items.length: " + items.length.toString());
     return items;
   }

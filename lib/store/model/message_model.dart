@@ -164,7 +164,19 @@ class MessageModel {
         text: this.payload!['text'],
         status: this.typesStatus,
       );
-    } else if (this.payload!['msg_type'] == 'custom') {
+    } else if (this.payload!['custom_type'] == 'revoked') {
+      message = types.CustomMessage(
+        author: types.User(
+          id: this.fromId!,
+          // firstName: "",
+          // imageUrl: "",
+        ),
+        id: this.id!,
+        createdAt: this.createdAt,
+        remoteId: this.toId,
+        metadata: this.payload,
+      );
+    } else if (this.payload!['custom_type'] == 'location') {
       message = types.CustomMessage(
         author: types.User(
           id: this.fromId!,

@@ -25,7 +25,7 @@ class Controller extends GetNotifier {
 
   @override
   void onInit() {
-    String? tk = UserRepoLocal.user.currentUid;
+    String? tk = UserRepoLocal.to.currentUid;
 
     String url = ws_url + '?' + Keys.tokenKey + '=' + tk.replaceAll('+', '%2B');
 

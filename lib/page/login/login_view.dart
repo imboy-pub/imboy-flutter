@@ -45,11 +45,14 @@ class Body extends GetView<LoginLogic> {
           Container(
             width: Get.width,
             padding: EdgeInsets.fromLTRB(32.0, 32.0, 0.0, 0.0),
-            child: Text('欢迎使用',
-                style: Theme.of(context).textTheme.headline2!.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    )),
+            child: Text(
+              '欢迎使用',
+              style: TextStyle(
+                color: Theme.of(context).primaryColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 32,
+              ),
+            ),
           ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,

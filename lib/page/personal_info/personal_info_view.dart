@@ -24,7 +24,6 @@ class PersonalInfoPage extends StatefulWidget {
 }
 
 class _PersonalInfoPageState extends State<PersonalInfoPage> {
-  final UserRepoLocal current = Get.put(UserRepoLocal.user);
   final logic = Get.put(PersonalInfoLogic());
   final PersonalInfoState state = Get.find<PersonalInfoLogic>().state;
 
@@ -49,11 +48,11 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
         }
         logic.setUsersProfileMethod(
           avatarStr: v,
-          nicknameStr: current.currentUser.nickname!,
+          nicknameStr: UserRepoLocal.to.currentUser.nickname!,
           callback: (data) {
             if (data.toString().contains('ucc')) {
               Get.snackbar("", "设置头像成功");
-              current.currentUser.avatar = v;
+              UserRepoLocal.to.currentUser.avatar = v;
               // global.refresh();
             } else {
               Get.snackbar("", "设置头像失败");
@@ -96,8 +95,8 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           height: 55.0,
           child: new ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(5.0)),
-            child: strNoEmpty(current.currentUser.avatar)
-                ? dynamicAvatar(current.currentUser.avatar)
+            child: strNoEmpty(UserRepoLocal.to.currentUser.avatar)
+                ? dynamicAvatar(UserRepoLocal.to.currentUser.avatar)
                 : new Image.asset(defIcon, fit: BoxFit.cover),
           ),
         ),
@@ -107,12 +106,12 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
         label: '昵称',
         isLine: true,
         isRight: true,
-        rValue: current.currentUser.nickname!,
+        rValue: UserRepoLocal.to.currentUser.nickname!,
         onPressed: () => Get.to(() => ChangeNamePage()),
       ),
       new Column(
         children: data
-            .map((item) => buildContent(item, current.currentUser))
+            .map((item) => buildContent(item, UserRepoLocal.to.currentUser))
             .toList(),
       ),
     ];
@@ -141,7 +140,8 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     return new Scaffold(
       backgroundColor: AppColors.AppBarColor,
       appBar: new PageAppBar(title: '个人信息'),
-      body: new SingleChildScrollView(child: body(current.currentUser)),
+      body:
+          new SingleChildScrollView(child: body(UserRepoLocal.to.currentUser)),
     );
   }
 

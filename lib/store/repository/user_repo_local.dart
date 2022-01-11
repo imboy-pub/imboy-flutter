@@ -8,7 +8,7 @@ import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/user_model.dart';
 
 class UserRepoLocal extends GetxController {
-  static UserRepoLocal get user => Get.find();
+  static UserRepoLocal get to => Get.find();
 
   bool get isLogin => accessToken.isNotEmpty;
   bool get hasToken => accessToken.isNotEmpty;
@@ -39,9 +39,7 @@ class UserRepoLocal extends GetxController {
 
   Future<bool> logout() async {
     WSService.to.sendMessage("logout");
-    debugPrint(">>>>> on user logout currentUid: " + user.currentUid);
     sleep(Duration(seconds: 1));
-    debugPrint(">>>>> on user logout currentUid: " + user.currentUid);
     await StorageService.to.remove(Keys.tokenKey);
     await StorageService.to.remove(Keys.currentUid);
     await StorageService.to.remove(Keys.currentUser);

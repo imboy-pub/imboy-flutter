@@ -89,7 +89,7 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
   @override
   Widget build(BuildContext context) {
     // final global = Provider.of<GlobalModel>(context, listen: false);
-    var currentUser = UserRepoLocal.user.currentUser;
+    var currentUser = UserRepoLocal.to.currentUser;
     bool isSelf = currentUser.uid == widget.id;
     var rWidget = [
       new SizedBox(

@@ -44,12 +44,12 @@ Future<void> init() async {
   WidgetsBinding.instance?.addObserver(
     LifecycleEventHandler(resumeCallBack: () async {
       // app 恢复
-      debugPrint(">>>>> on LifecycleEventHandler resumeCallBack");
-      // WebSocket();
+      debugPrint(">>> on LifecycleEventHandler resumeCallBack");
+      WSService.to.sentHeart();
       WSService.to.openSocket();
     }, suspendingCallBack: () async {
       // app 挂起
-      debugPrint(">>>>> on LifecycleEventHandler suspendingCallBack");
+      debugPrint(">>> on LifecycleEventHandler suspendingCallBack");
     }),
   );
 

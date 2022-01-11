@@ -12,7 +12,6 @@ class CustomMessage extends StatelessWidget {
     Key? key,
     required this.message,
     required this.messageWidth,
-    this.showStatus = false,
   }) : super(key: key);
 
   /// [types.TextMessage]
@@ -21,16 +20,10 @@ class CustomMessage extends StatelessWidget {
   /// Maximum message width
   final int messageWidth;
 
-  /// Show message's status
-  bool showStatus;
-
   Widget revokedMsg(BuildContext context) {
     final _user = InheritedUser.of(context).user;
-
-    String nickname =
-        _user.id == message.author.id ? '你' : '"${_user.firstName}"';
-
-    this.showStatus = false;
+    bool isAuthor = _user.id == message.author.id ? true : false;
+    String nickname = isAuthor ? '你' : '"${_user.firstName}"';
 
     return GestureDetector(
       onTap: () {
@@ -40,18 +33,22 @@ class CustomMessage extends StatelessWidget {
         width: Get.width,
         // height: Get.height,
         // Creates insets from offsets from the left, top, right, and bottom.
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(12),
         alignment: Alignment.center,
         color: AppColors.ChatBg,
-        child: ExtendedText(
-          '${nickname}撤回了一条消息',
-          style: TextStyle(
-            color: AppColors.MainTextColor,
-            backgroundColor: AppColors.ChatBg,
-            fontSize: 14.0,
+        child: Padding(
+          padding:
+              isAuthor ? EdgeInsets.only(right: 50) : EdgeInsets.only(left: 50),
+          child: ExtendedText(
+            '${nickname}撤回了一条消息',
+            style: TextStyle(
+              color: AppColors.MainTextColor,
+              backgroundColor: AppColors.ChatBg,
+              fontSize: 14.0,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
           ),
-          textAlign: TextAlign.center,
-          maxLines: 1,
         ),
       ),
     );

@@ -8,6 +8,7 @@ class ConversationModel {
   final String title;
   String subtitle;
   final int? lasttime;
+  String lastMsgId;
   // lastMsgStatus 10 发送中 sending;  11 已发送 send;
   final int? lastMsgStatus;
   int unreadNum;
@@ -26,12 +27,13 @@ class ConversationModel {
     required this.type,
     required this.msgtype,
     this.lasttime,
+    this.lastMsgId = '',
     this.lastMsgStatus,
     required this.unreadNum,
     this.isShow,
   });
 
-  factory ConversationModel.fromMap(Map<String, dynamic> json) {
+  factory ConversationModel.fromJson(Map<String, dynamic> json) {
     return new ConversationModel(
       id: json['id'] ?? 0,
       cuid: json['cuid'] ?? '',
@@ -40,6 +42,7 @@ class ConversationModel {
       title: json['title'].toString(),
       subtitle: json['subtitle'] ?? '',
       lasttime: json['lasttime'] ?? 0,
+      lastMsgId: json['last_msg_id'] ?? '',
       lastMsgStatus: json['last_msg_status'] ?? 11,
       unreadNum: json['unread_num'] == null ? 0 : json['unread_num'],
       type: json['type'].toString(),
@@ -48,7 +51,7 @@ class ConversationModel {
     );
   }
 
-  Map<String, dynamic> toMap() => {
+  Map<String, dynamic> toJson() => {
         'id': id,
         'cuid': cuid,
         'type_id': typeId,
@@ -56,6 +59,7 @@ class ConversationModel {
         'title': title,
         'subtitle': subtitle,
         'lasttime': lasttime,
+        'last_msg_id': lastMsgId,
         'last_msg_status': lastMsgStatus,
         'unread_num': unreadNum,
         'type': type,

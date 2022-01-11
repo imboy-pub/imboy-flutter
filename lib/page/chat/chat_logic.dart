@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/datetime.dart';
 import 'package:imboy/helper/sqflite.dart';
 import 'package:imboy/service/websocket.dart';
@@ -18,15 +19,13 @@ import 'chat_state.dart';
 class ChatLogic extends GetxController {
   final state = ChatState();
 
-  final UserRepoLocal current = Get.put(UserRepoLocal.user);
-
   late var cuser;
 
   ChatLogic() {
     cuser = types.User(
-      id: current.currentUid,
-      firstName: current.currentUser.nickname!,
-      imageUrl: current.currentUser.avatar!,
+      id: UserRepoLocal.to.currentUid,
+      firstName: UserRepoLocal.to.currentUser.nickname!,
+      imageUrl: UserRepoLocal.to.currentUser.avatar!,
     );
   }
 
@@ -37,7 +36,7 @@ class ChatLogic extends GetxController {
   ) async {
     // final response = await rootBundle.loadString('assets/data/messages.json');
     ConversationModel? obj = await ConversationRepo().find(id);
-    debugPrint(">>>>> on getMessages id: $id; obj: ${obj!.toMap()}");
+    debugPrint(">>>>> on getMessages id: $id; obj: ${obj!.toJson()}");
     List<MessageModel> items = await MessageRepo().findByConversation(
       obj.id,
       page,
@@ -98,7 +97,7 @@ class ChatLogic extends GetxController {
     return obj;
   }
 
-  Future<ConversationModel> addMessage(
+  Future<bool> addMessage(
     String fromId,
     String toId,
     String? avatar,
@@ -119,21 +118,28 @@ class ChatLogic extends GetxController {
       subtitle: subtitle,
       type: type,
       msgtype: msgtype,
+      lastMsgId: message.id,
       lasttime: createdAt,
       unreadNum: 0,
       isShow: 1,
       id: 0,
     );
     // 保存会话
-    cobj = await (ConversationRepo()).save(cobj, -1);
+    cobj = await (ConversationRepo()).save(UserRepoLocal.to.currentUid, cobj);
     MessageModel obj = getMsgFromTmsg(type, cobj.id, message);
     await (MessageRepo()).insert(obj);
-    cobj.msgtype = obj.payload!["msg_type"];
-    cobj.subtitle = obj.payload!["text"];
-    await (ConversationRepo()).save(cobj, -1);
+    cobj.msgtype = obj.payload!['msg_type'];
+    cobj.subtitle = obj.payload!['text'];
+    await (ConversationRepo()).updateById(cobj.id, {
+      ConversationRepo.msgtype: cobj.msgtype,
+      ConversationRepo.subtitle: cobj.subtitle,
+    });
     debugPrint(">>>>> on chat addMessage ${message.toString()}");
-    sendWsMsg(obj);
-    return cobj;
+    bool res = sendWsMsg(obj);
+    if (res) {
+      eventBus.fire(cobj);
+    }
+    return res;
   }
 
   Future<bool> removeMessage(String id) async {

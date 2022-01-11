@@ -17,8 +17,6 @@ class BottomNavigationPage extends StatelessWidget {
   // final logic = Get.find<BottomNavigationLogic>();
   final BottomNavigationState state = Get.find<BottomNavigationLogic>().state;
 
-  final _counter = Get.put(MessageService());
-
   // StreamSubscription<dynamic>? _msgStreamSubs;
 
   List pageList = [
@@ -50,7 +48,8 @@ class BottomNavigationPage extends StatelessWidget {
           items: [
             BottomNavigationBarItem(
               icon: Badge(
-                showBadge: (_counter.chatMsgRemindCounter > 0 ? true : false),
+                showBadge:
+                    (MessageService.to.chatMsgRemindCounter > 0 ? true : false),
                 shape: BadgeShape.square,
                 borderRadius: BorderRadius.circular(10),
                 position: BadgePosition.topStart(top: -4, start: 20),
@@ -60,7 +59,7 @@ class BottomNavigationPage extends StatelessWidget {
                   color: Colors.red,
                   alignment: Alignment.center,
                   child: Text(
-                    _counter.chatMsgRemindCounter.toString(),
+                    MessageService.to.chatMsgRemindCounter.toString(),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 8,

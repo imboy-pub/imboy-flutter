@@ -21,9 +21,8 @@ class ContactRepo {
 
   // 插入一条数据
   Future<ContactModel> insert(ContactModel obj) async {
-    String cuid = UserRepoLocal.user.currentUid;
     Map<String, dynamic> insert = {
-      'cuid': cuid,
+      'cuid': UserRepoLocal.to.currentUid,
       'uid': obj.uid,
       'nickname': obj.nickname,
       'avatar': obj.avatar,
@@ -72,7 +71,6 @@ class ContactRepo {
 
   //
   Future<ContactModel?> find(String uid) async {
-    String cuid = UserRepoLocal.user.currentUid;
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tablename,
       columns: [
@@ -86,7 +84,7 @@ class ContactRepo {
         ContactRepo.sign,
       ],
       where: '${ContactRepo.cuid} = ? and ${ContactRepo.uid} = ?',
-      whereArgs: [cuid, uid],
+      whereArgs: [UserRepoLocal.to.currentUid, uid],
     );
     if (maps.length > 0) {
       return ContactModel.fromJson(maps.first);
@@ -96,22 +94,20 @@ class ContactRepo {
 
   // 根据ID删除信息
   Future<int> delete(String id) async {
-    String cuid = UserRepoLocal.user.currentUid;
     return await _db.delete(
       ContactRepo.tablename,
       where: '${ContactRepo.cuid} = ? and ${ContactRepo.uid} = ?',
-      whereArgs: [cuid, id],
+      whereArgs: [UserRepoLocal.to.currentUid, id],
     );
   }
 
   // 更新信息
   Future<int> update(ContactModel obj) async {
-    String cuid = UserRepoLocal.user.currentUid;
     return await _db.update(
       ContactRepo.tablename,
       obj.toJson(),
       where: '${ContactRepo.cuid} = ? and ${ContactRepo.uid} = ?',
-      whereArgs: [cuid, obj.uid],
+      whereArgs: [UserRepoLocal.to.currentUid, obj.uid],
     );
   }
 

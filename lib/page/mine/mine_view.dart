@@ -12,7 +12,6 @@ import 'mine_logic.dart';
 import 'mine_state.dart';
 
 class MinePage extends StatelessWidget {
-  final UserRepoLocal current = Get.put(UserRepoLocal.user);
   final MineLogic logic = Get.put(MineLogic());
   final MineState state = Get.find<MineLogic>().state;
 
@@ -106,7 +105,7 @@ class MinePage extends StatelessWidget {
               shape: BoxShape.rectangle,
               borderRadius: BorderRadius.circular(4.0),
               // color: defHeaderBgColor,
-              image: dynamicAvatar(current.currentUser.avatar),
+              image: dynamicAvatar(UserRepoLocal.to.currentUser.avatar),
             ),
             child: null,
           ),
@@ -120,14 +119,14 @@ class MinePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             new Text(
-              current.currentUser.nickname!,
+              UserRepoLocal.to.currentUser.nickname!,
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 20.0,
                   fontWeight: FontWeight.w500),
             ),
             new Text(
-              '账号：' + current.currentUser.account!,
+              '账号：' + UserRepoLocal.to.currentUser.account!,
               style: TextStyle(color: AppColors.MainTextColor),
             ),
           ],
@@ -171,8 +170,6 @@ class MinePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(
-        ">>>> on dynamicAvatar: " + current.currentUser.toJson().toString());
     return new Container(
       color: AppColors.AppBarColor,
       child: new SingleChildScrollView(child: body(context)),
