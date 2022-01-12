@@ -9,10 +9,15 @@ import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/login/login_view.dart';
 import 'package:imboy/page/pages.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+
+import 'helper/locales.dart';
+import 'helper/locales.g.dart';
 
 void main() async {
   await init();
+  await Jiffy.locale('zh_cn');
   runApp(IMBoyApp());
 }
 
@@ -42,9 +47,11 @@ class IMBoyApp extends StatelessWidget {
           //   GlobalWidgetsLocalizations.delegate,
           //   GlobalCupertinoLocalizations.delegate,
           // ],
-          // supportedLocales: ConfigStore.to.languages,
-          // locale: ConfigStore.to.locale,
-          // fallbackLocale: Locale('en', 'US'),
+          translationsKeys: AppTranslation.translations,
+
+          translations: IMBoyTranslations(), // 你的翻译
+          locale: Locale('zh', 'CN'), // 将会按照此处指定的语言翻译
+          fallbackLocale: Locale('en', 'US'), // 添加一个回调语言选项，以备上面指定的语言翻译不存在
           defaultTransition: Transition.fade,
           opaqueRoute: Get.isOpaqueRouteDefault,
           popGesture: Get.isPopGestureEnable,

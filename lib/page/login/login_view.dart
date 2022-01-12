@@ -46,7 +46,7 @@ class Body extends GetView<LoginLogic> {
             width: Get.width,
             padding: EdgeInsets.fromLTRB(32.0, 32.0, 0.0, 0.0),
             child: Text(
-              '欢迎使用',
+              'tip_greeting'.tr,
               style: TextStyle(
                 color: Theme.of(context).primaryColor,
                 fontWeight: FontWeight.bold,
@@ -80,7 +80,7 @@ class Body extends GetView<LoginLogic> {
             height: 20,
           ),
           RoundedInputField(
-            hintText: '账号/邮箱/手机号',
+            hintText: 'tip_account'.tr,
             icon: Icons.person,
             onChanged: controller.onUsernameChanged,
           ),
@@ -91,7 +91,7 @@ class Body extends GetView<LoginLogic> {
             height: 8,
           ),
           RoundedButton(
-            text: '登录',
+            text: 'button_login'.tr,
             color: Theme.of(context).primaryColor,
             onPressed: controller.submit,
           ),
@@ -110,7 +110,7 @@ class Body extends GetView<LoginLogic> {
             height: 24,
           ),
           RoundedButton(
-            text: 'SKIP SIGN',
+            text: 'button_sign_in'.tr,
             onPressed: () => Get.offNamed(AppRoutes.SIGN_IN),
           ),
         ],

@@ -70,7 +70,7 @@ class ChatPageState extends State<ChatPage> {
     _handleEndReached();
 
     if (_connectivityResult == null) {
-      debugPrint(">>>>> on chat_view/initData _connectivityResult ");
+      debugPrint(">>> on chat_view/initData _connectivityResult ");
       _connectivityResult = Connectivity()
           .onConnectivityChanged
           .listen((ConnectivityResult result) {
@@ -82,6 +82,27 @@ class ChatPageState extends State<ChatPage> {
           _connectStateDescription.value = "Wifi网络";
         } else {
           _connectStateDescription.value = "无网络";
+          Get.snackbar(
+            '',
+            '',
+            backgroundColor: Colors.transparent,
+            snackPosition: SnackPosition.TOP,
+            titleText: Container(),
+            messageText: Center(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.black87),
+                child: Text(
+                  _connectStateDescription.value,
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            margin: const EdgeInsets.all(30),
+          );
         }
       });
     }
@@ -91,7 +112,7 @@ class ChatPageState extends State<ChatPage> {
       String toId = widget.toId;
       // 接收到新的消息订阅
       _msgStreamSubs = eventBus.on<types.Message>().listen((e) async {
-        debugPrint(">>>>> on MessageService chat_view initState: " +
+        debugPrint(">>> on MessageService chat_view initState: " +
             e.runtimeType.toString());
 
         if (e is types.Message && e.author.id == toId) {

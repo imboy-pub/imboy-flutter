@@ -20,7 +20,7 @@ class RoundedPasswordField extends StatelessWidget {
         onChanged: onChanged,
         obscureText: !logic.passwordVisible,
         decoration: InputDecoration(
-          hintText: '密码',
+          hintText: 'tip_password'.tr,
           icon: Icon(
             Icons.lock,
             color: Theme.of(context).primaryColor,

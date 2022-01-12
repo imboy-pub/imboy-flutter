@@ -12,7 +12,6 @@ import 'package:imboy/service/message.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:jiffy/jiffy.dart';
 import 'package:logger/logger.dart';
 
 typedef Callback(data);
@@ -73,6 +72,4 @@ Future<void> init() async {
   // Getx.Get.put(WebSocket());
   Getx.Get.put(WSService());
   Getx.Get.put(MessageService());
-
-  await Jiffy.locale("zh_cn");
 }

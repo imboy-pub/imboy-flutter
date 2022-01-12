@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
 
 class AlreadHaveAnAccountCheck extends StatelessWidget {
@@ -16,13 +17,13 @@ class AlreadHaveAnAccountCheck extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          login! ? "Don't have a Accont？" : "Already have a Accont ? ",
+          (login! ? 'tip_login_false'.tr : 'tip_login_true'.tr) + ' ',
           style: TextStyle(color: Color(AppColors.ButtonArrowColor)),
         ),
         GestureDetector(
           onTap: onTap,
           child: Text(
-            login! ? 'Sign up' : "Sign in",
+            login! ? 'button_sign_in'.tr : 'button_login'.tr,
             style: TextStyle(
                 color: Color(AppColors.ButtonArrowColor),
                 fontWeight: FontWeight.bold),

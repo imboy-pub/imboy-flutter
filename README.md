@@ -112,3 +112,17 @@ git submodule add https://gitee.com/imboy-pub/popup_menu.git popup_menu
 
 
 参考 https://juejin.cn/post/6844903920322478093
+
+## 多语言
+https://github.com/jonataslaw/get_cli/tree/master/translations
+```
+flutter pub global activate get_cli
+export PATH="$PATH":"$HOME/.pub-cache/bin"
+
+mkdir -p assets assets/locales
+// cd assets/locales/
+// wget https://raw.githubusercontent.com/jonataslaw/get_cli/master/translations/zh_CN.json
+// https://github.com/jonataslaw/get_cli/blob/master/translations/en.json
+// 生产json文件之后执行下面命令
+get generate locales assets/locales on helper
+```
