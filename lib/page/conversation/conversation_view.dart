@@ -11,6 +11,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:jiffy/jiffy.dart';
 
 import 'conversation_logic.dart';
 
@@ -167,8 +168,15 @@ class _ConversationPageState extends State<ConversationPage> {
                   'msg_type': model.msgtype,
                   'text': model.subtitle,
                 },
-                time: _timeView(
-                  model.lasttime ?? 0,
+                time: Text(
+                  Jiffy.unixFromMillisecondsSinceEpoch(model.lasttime ?? 0)
+                      .fromNow(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppColors.MainTextColor,
+                    fontSize: 14.0,
+                  ),
                 ),
                 // isBorder: model.typeId != _msgService.conversations.values[0].typeId,
                 remindCounter:
@@ -190,35 +198,6 @@ class _ConversationPageState extends State<ConversationPage> {
       ),
       body: SlidableAutoCloseBehavior(
         child: body,
-      ),
-    );
-  }
-
-  Widget _timeView(int time) {
-    DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(time);
-
-    String hourParse = "0${dateTime.hour}";
-    String minuteParse = "0${dateTime.minute}";
-
-    String hour = dateTime.hour.toString().length == 1
-        ? hourParse
-        : dateTime.hour.toString();
-    String minute = dateTime.minute.toString().length == 1
-        ? minuteParse
-        : dateTime.minute.toString();
-
-    String timeStr = '$hour:$minute';
-
-    return Padding(
-      padding: EdgeInsets.only(top: 0),
-      child: new Text(
-        timeStr,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          color: AppColors.MainTextColor,
-          fontSize: 14.0,
-        ),
       ),
     );
   }

@@ -639,6 +639,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.3"
+  jiffy:
+    dependency: "direct main"
+    description:
+      name: jiffy
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "5.0.0"
   jose:
     dependency: "direct main"
     description:
@@ -968,6 +975,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.2.3"
+  search_page:
+    dependency: "direct main"
+    description:
+      name: search_page
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.0.0+1"
   shared_preferences:
     dependency: "direct main"
     description:

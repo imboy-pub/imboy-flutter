@@ -85,7 +85,12 @@ dependencies:
     path: plugin/popup_menu
   xid: ^1.0.7
   fps_monitor: ^2.0.0
+  # @ 小部件
   flutter_mentions: ^2.0.1
+  # 搜索页面
+  search_page: ^2.0.0+1
+  # 时间处理
+  jiffy: ^5.0.0
 
 dev_dependencies:
   build_runner: ^2.1.4

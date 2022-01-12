@@ -30,15 +30,14 @@ class ChatLogic extends GetxController {
   }
 
   Future<List<types.Message>?> getMessages(
-    String id,
+    String typeId,
     int page,
     int size,
   ) async {
     // final response = await rootBundle.loadString('assets/data/messages.json');
-    ConversationModel? obj = await ConversationRepo().find(id);
-    debugPrint(">>>>> on getMessages id: $id; obj: ${obj!.toJson()}");
+    ConversationModel? obj = await ConversationRepo().find(typeId);
     List<MessageModel> items = await MessageRepo().findByConversation(
-      obj.id,
+      obj!.id,
       page,
       size,
     );
@@ -48,7 +47,6 @@ class ChatLogic extends GetxController {
       // debugPrint(">>>>> on getMessages obj ${obj.toMap()}");
       messages.insert(0, obj.toTypeMessage());
     });
-    debugPrint(">>>>> on getMessages ${messages.length};");
     return messages;
   }
 

@@ -19,6 +19,7 @@ import 'package:imboy/page/chat_info/chat_info_view.dart';
 import 'package:imboy/page/group_detail/group_detail_view.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
 import 'package:popup_menu/popup_menu.dart';
@@ -508,6 +509,11 @@ class ChatPageState extends State<ChatPage> {
                   {required int messageWidth}) =>
               CustomMessage(message: msg, messageWidth: messageWidth),
           onEndReachedThreshold: 0.8,
+          // 300000 = 5分钟 默认 900000 = 15 分钟
+          dateHeaderThreshold: 300000,
+          customDateHeaderText: (DateTime dt) {
+            return Jiffy(dt, 'yMMMMEEEEd').startOf(Units.MINUTE).fromNow();
+          },
           onEndReached: _handleEndReached,
           // bubbleBuilder: _bubbleBuilder,
           // textMessageBuilder: Obx(() => textMessageBuilder),
