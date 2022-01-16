@@ -125,18 +125,19 @@ class ChatLogic extends GetxController {
     // 保存会话
     cobj = await (ConversationRepo()).save(UserRepoLocal.to.currentUid, cobj);
     MessageModel obj = getMsgFromTmsg(type, cobj.id, message);
-    await (MessageRepo()).insert(obj);
-    cobj.msgtype = obj.payload!['msg_type'];
-    cobj.subtitle = obj.payload!['text'];
-    await (ConversationRepo()).updateById(cobj.id, {
-      ConversationRepo.msgtype: cobj.msgtype,
-      ConversationRepo.subtitle: cobj.subtitle,
-    });
-    debugPrint(">>>>> on chat addMessage ${message.toString()}");
     bool res = sendWsMsg(obj);
+
+    debugPrint(">>>>> on chat addMessage ${message.toString()}");
     if (res) {
+      await (MessageRepo()).insert(obj);
+      cobj.msgtype = obj.payload!['msg_type'];
+      cobj.subtitle = obj.payload!['text'];
+      await (ConversationRepo()).updateById(cobj.id, {
+        ConversationRepo.msgtype: cobj.msgtype,
+        ConversationRepo.subtitle: cobj.subtitle,
+      });
       eventBus.fire(cobj);
-    }
+    } else {}
     return res;
   }
 

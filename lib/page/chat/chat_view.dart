@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +9,7 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/widget/chat/chat_input.dart';
 import 'package:imboy/component/widget/message/custom_message.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
@@ -68,44 +68,6 @@ class ChatPageState extends State<ChatPage> {
       return;
     }
     _handleEndReached();
-
-    if (_connectivityResult == null) {
-      debugPrint(">>> on chat_view/initData _connectivityResult ");
-      _connectivityResult = Connectivity()
-          .onConnectivityChanged
-          .listen((ConnectivityResult result) {
-        if (result == ConnectivityResult.mobile) {
-          _connectStateDescription.value = "手机网络";
-          // setState(() {
-          // });
-        } else if (result == ConnectivityResult.wifi) {
-          _connectStateDescription.value = "Wifi网络";
-        } else {
-          _connectStateDescription.value = "无网络";
-          Get.snackbar(
-            '',
-            '',
-            backgroundColor: Colors.transparent,
-            snackPosition: SnackPosition.TOP,
-            titleText: Container(),
-            messageText: Center(
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.black87),
-                child: Text(
-                  _connectStateDescription.value,
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            margin: const EdgeInsets.all(30),
-          );
-        }
-      });
-    }
 
     if (_msgStreamSubs == null) {
       // Register listeners for all events:
@@ -175,7 +137,7 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
-  Future<void> _addMessage(types.Message message) async {
+  Future<bool> _addMessage(types.Message message) async {
     // 先显示在聊天UI里面
     // 异步发送WS消息
     // 异步存储sqlite消息(未发送成功）
@@ -191,11 +153,13 @@ class ChatPageState extends State<ChatPage> {
       widget.type!,
       message,
     );
+
     setState(() {
       if (res) {
         messages.insert(0, message);
       }
     });
+    return res;
     // _msgService.update();
   }
 
@@ -447,7 +411,7 @@ class ChatPageState extends State<ChatPage> {
     });
   }
 
-  void _handleSendPressed(types.PartialText message) {
+  Future<bool> _handleSendPressed(types.PartialText message) async {
     final textMessage = types.TextMessage(
       author: logic.cuser,
       createdAt: DateTimeHelper.currentTimeMillis(),
@@ -457,7 +421,7 @@ class ChatPageState extends State<ChatPage> {
       status: types.Status.sending,
     );
     debugPrint(">>>>> on chat _handleSendPressed ${textMessage.toString()}");
-    _addMessage(textMessage);
+    return await _addMessage(textMessage);
   }
 
   // 手指滑动 事件
@@ -527,8 +491,9 @@ class ChatPageState extends State<ChatPage> {
           // showUserAvatars: true,
           // showUserNames: true,
           customMessageBuilder: (types.CustomMessage msg,
-                  {required int messageWidth}) =>
-              CustomMessage(message: msg, messageWidth: messageWidth),
+              {required int messageWidth}) {
+            return CustomMessage(message: msg, messageWidth: messageWidth);
+          },
           onEndReachedThreshold: 0.8,
           // 300000 = 5分钟 默认 900000 = 15 分钟
           dateHeaderThreshold: 300000,
@@ -536,8 +501,6 @@ class ChatPageState extends State<ChatPage> {
             return Jiffy(dt, 'yMMMMEEEEd').startOf(Units.MINUTE).fromNow();
           },
           onEndReached: _handleEndReached,
-          // bubbleBuilder: _bubbleBuilder,
-          // textMessageBuilder: Obx(() => textMessageBuilder),
           onAttachmentPressed: _handleAtachmentPressed,
           // onMessageTap: _handleMessageTap,
           onMessageDoubleTap: _onMessageDoubleTap,
@@ -549,6 +512,10 @@ class ChatPageState extends State<ChatPage> {
           hideBackgroundOnEmojiMessages: false,
           user: logic.cuser,
           theme: const ImboyChatTheme(),
+          customBottomWidget: ChatInput(
+            onSendPressed: _handleSendPressed,
+            sendButtonVisibilityMode: SendButtonVisibilityMode.editing,
+          ),
         ),
       ),
     );

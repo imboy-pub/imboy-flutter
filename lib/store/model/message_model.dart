@@ -23,6 +23,11 @@ class MessageStatus {
   static final int error = 41;
 }
 
+class ReeditMessage {
+  String text;
+  ReeditMessage({required this.text});
+}
+
 class MessageModel {
   String? id;
   String? type; // C2C or GROUP

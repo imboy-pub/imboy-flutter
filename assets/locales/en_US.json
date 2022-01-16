@@ -1,5 +1,6 @@
 {
   "button": {
+    "send": "Send",
     "login": "Login",
     "sign_in": "Sign-in",
     "logout": "Logout",
@@ -8,11 +9,15 @@
     "sign_in_apple": "Sign-in with Apple"
   },
   "tip": {
+    "chat_hint":"",
     "account":"Acount/E-Mail/Mobile number",
     "password": "Password",
     "login_true":"Already have a Accont ?",
     "login_false":"Don't have a Accont ？",
     "greeting": "Welcome to use"
+  },
+  "chat": {
+    "hold_down_talk": "Hold down the talk"
   },
   "ask": {
     "existing_page": "The page [%s] already exists, do you want to overwrite it?",

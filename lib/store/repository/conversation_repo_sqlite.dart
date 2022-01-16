@@ -37,7 +37,7 @@ class ConversationRepo {
       'lasttime': obj.lasttime ?? DateTime.now().millisecond,
       'last_msg_id': obj.lastMsgId,
       'last_msg_status': obj.lastMsgStatus ?? 11,
-      'unread_num': obj.unreadNum ?? 0,
+      'unread_num': obj.unreadNum > 0 ? obj.unreadNum : 0,
       'type': obj.type,
       'msgtype': obj.msgtype,
       'is_show': obj.isShow,

@@ -15,30 +15,30 @@ For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
-# 功能
-* 用户登录（隐藏密码、显示密码，登录密码传输基于RSA算法加密传输）
-* 用户退出
+# 功能 (单个功能实现了，)
+* 用户登录（隐藏密码、显示密码，登录密码传输基于RSA算法加密传输） OK
+* 用户退出 OK
 * 文本聊天 数据聊天分页 OK
 * 聊天消息长按右键菜单 OK
 * 文本聊天 右键菜单之删除消息功能 OK
 * 文本聊天 右键菜单之复制消息功能 OK
-* 文本聊天 右键菜单之撤回消息功能 TODO
-    发送消息到服务器，服务判断对端是否在线
-        在线，投递消息给TO, 收到TO的回复后投递给FROM
-        离线，回复消息给From，修正之前的消息（已经投递/未投递），做一个"离线的撤销消息"以便二次投递
-  删除消息、或者撤回消息之后，需要更新对应的会话信息 TODO
-
+* 文本聊天 右键菜单之撤回文本消息功能 OK
+    * 发送消息到服务器，服务判断对端是否在线
+        * 在线，投递消息给TO, 收到TO的回复后投递给FROM
+        * 离线，回复消息给From，修正之前的消息（已经投递/未投递），做一个"离线的撤销消息"以便二次投递
+    * 删除消息、或者撤回消息之后，需要更新对应的会话信息 OK
+* 文本聊天 右键菜单之撤回文本消息"重新编辑"功能 OK
+* 文本消息双击全屏显示(单击关闭之） OK
+* 发送表情消息 OK
 * 文本聊天 右键菜单之转发消息功能 TODO
 * 文本聊天 右键菜单之收藏消息功能 TODO
 * 文本聊天 右键菜单之引用消息功能 TODO
 * 文本聊天 右键菜单之多选消息功能 TODO
-* 文本消息双击全屏显示(下滑关闭之） OK
 * 未读消息提醒 OK
 * 我的
     * 个人主页
 * APP启动引导动画 TODO  https://github.com/jonbhanson/flutter_native_splash#readme
 * 删除会话 OK
-* 置顶、取消置顶会话 TODO
 * 搜索联系人 TODO
 * 添加分组、编辑分组、删除分组 TODO
 * 发送小图片 TODO
@@ -48,7 +48,7 @@ samples, guidance on mobile development, and a full API reference.
 * 添加好友 TODO
 * 扫描二维码添加好友 TODO
 * 修改个人资料基本信息 TODO
-* 多语言 TODO
+* 多语言支持 OK
 * 创建群 TODO
 * 群聊天 TODO
 * 群其他功能 TODO

@@ -11,17 +11,20 @@ class AppTranslation {
 
 class LocaleKeys {
   LocaleKeys._();
+  static const button_send = 'button_send';
   static const button_login = 'button_login';
   static const button_sign_in = 'button_sign_in';
   static const button_logout = 'button_logout';
   static const button_sign_in_fb = 'button_sign_in_fb';
   static const button_sign_in_google = 'button_sign_in_google';
   static const button_sign_in_apple = 'button_sign_in_apple';
+  static const tip_chat_hint = 'tip_chat_hint';
   static const tip_account = 'tip_account';
   static const tip_password = 'tip_password';
   static const tip_login_true = 'tip_login_true';
   static const tip_login_false = 'tip_login_false';
   static const tip_greeting = 'tip_greeting';
+  static const chat_hold_down_talk = 'chat_hold_down_talk';
   static const ask_existing_page = 'ask_existing_page';
   static const ask_name_to_project = 'ask_name_to_project';
   static const ask_company_domain = 'ask_company_domain';
@@ -102,17 +105,20 @@ class LocaleKeys {
 
 class Locales {
   static const zh_CN = {
+    'button_send': '发送',
     'button_login': '登录',
     'button_sign_in': '注册',
     'button_logout': '注销',
     'button_sign_in_fb': '用 Facebook 登录',
     'button_sign_in_google': '用 Google 登录',
     'button_sign_in_apple': '用 Apple 登录',
+    'tip_chat_hint': '',
     'tip_account': '账号/邮箱/手机号',
     'tip_password': '密码',
     'tip_login_true': '已经有账号了？',
     'tip_login_false': '还没有账号？',
     'tip_greeting': '欢迎使用',
+    'chat_hold_down_talk': '按住 说话',
     'ask_existing_page': '页面 [%s] 已存在，你想覆盖吗？',
     'ask_name_to_project': '项目名称是？',
     'ask_company_domain': '你公司的域名是？',
@@ -185,17 +191,20 @@ class Locales {
     'sucess_route_created': '%s route 创建成功.',
   };
   static const en_US = {
+    'button_send': 'Send',
     'button_login': 'Login',
     'button_sign_in': 'Sign-in',
     'button_logout': 'Logout',
     'button_sign_in_fb': 'Sign-in with Facebook',
     'button_sign_in_google': 'Sign-in with Google',
     'button_sign_in_apple': 'Sign-in with Apple',
+    'tip_chat_hint': '',
     'tip_account': 'Acount/E-Mail/Mobile number',
     'tip_password': 'Password',
     'tip_login_true': 'Already have a Accont ?',
     'tip_login_false': 'Don\'t have a Accont ？',
     'tip_greeting': 'Welcome to use',
+    'chat_hold_down_talk': 'Hold down the talk',
     'ask_existing_page':
         'The page [%s] already exists, do you want to overwrite it?',
     'ask_name_to_project': 'what is the name of the project?',

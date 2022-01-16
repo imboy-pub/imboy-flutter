@@ -1,5 +1,6 @@
 {
   "button": {
+    "send": "发送",
     "login": "登录",
     "sign_in": "注册",
     "logout": "注销",
@@ -8,11 +9,15 @@
     "sign_in_apple": "用 Apple 登录"
   },
   "tip": {
+    "chat_hint":"",
     "account": "账号/邮箱/手机号",
     "password": "密码",
     "login_true":"已经有账号了？",
     "login_false":"还没有账号？",
     "greeting": "欢迎使用"
+  },
+  "chat": {
+    "hold_down_talk": "按住 说话"
   },
   "ask": {
     "existing_page": "页面 [%s] 已存在，你想覆盖吗？",

@@ -91,6 +91,7 @@ dependencies:
   search_page: ^2.0.0+1
   # 时间处理
   jiffy: ^5.0.0
+  emoji_picker_flutter: ^1.0.8
 
 dev_dependencies:
   build_runner: ^2.1.4

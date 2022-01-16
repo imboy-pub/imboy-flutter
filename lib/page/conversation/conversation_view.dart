@@ -62,26 +62,26 @@ class _ConversationPageState extends State<ConversationPage> {
         } else {
           _connectStateDescription.value = "无网络";
         }
-        Get.snackbar(
-          '',
-          '',
-          backgroundColor: Colors.transparent,
-          snackPosition: SnackPosition.TOP,
-          titleText: Container(),
-          messageText: Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.black87),
-              child: Text(
-                _connectStateDescription.value,
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-          margin: const EdgeInsets.all(30),
-        );
+        // Get.snackbar(
+        //   '',
+        //   '',
+        //   backgroundColor: Colors.transparent,
+        //   snackPosition: SnackPosition.TOP,
+        //   titleText: Container(),
+        //   messageText: Center(
+        //     child: Container(
+        //       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+        //       decoration: BoxDecoration(
+        //           borderRadius: BorderRadius.circular(20),
+        //           color: Colors.black87),
+        //       child: Text(
+        //         _connectStateDescription.value,
+        //         style: TextStyle(color: Colors.white),
+        //       ),
+        //     ),
+        //   ),
+        //   margin: const EdgeInsets.all(30),
+        // );
       });
     }
     initData();

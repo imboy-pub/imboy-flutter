@@ -344,6 +344,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.4"
+  emoji_picker_flutter:
+    dependency: "direct main"
+    description:
+      name: emoji_picker_flutter
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.8"
   encrypt:
     dependency: "direct main"
     description:

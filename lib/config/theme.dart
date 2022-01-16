@@ -43,7 +43,7 @@ class ImboyChatTheme extends ChatTheme {
       filled: true,
       fillColor: AppColors.ChatInputFillGgColor,
     ),
-    double messageBorderRadius = 24,
+    double messageBorderRadius = 20,
     double messageInsetsHorizontal = 16,
     double messageInsetsVertical = 8,
     TextStyle receivedMessageBodyTextStyle = const TextStyle(
