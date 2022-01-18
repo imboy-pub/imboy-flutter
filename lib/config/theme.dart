@@ -23,22 +23,22 @@ class ImboyChatTheme extends ChatTheme {
     TextStyle emptyChatPlaceholderTextStyle = const TextStyle(
       color: AppColors.MainTextColor,
       fontFamily: 'Avenir',
-      fontSize: 16,
+      fontSize: 18,
       fontWeight: FontWeight.w500,
       height: 2.0,
     ),
     Color errorColor = error,
     Widget? errorIcon,
     Color inputBackgroundColor = AppColors.ChatInputBackgroundColor,
-    BorderRadius inputBorderRadius = const BorderRadius.vertical(
-      top: Radius.circular(2),
-    ),
     EdgeInsetsGeometry inputPadding = EdgeInsets.zero,
     Color inputTextColor = AppColors.MainTextColor,
     Color? inputTextCursorColor,
     InputDecoration inputTextDecoration = const InputDecoration(
-      border: InputBorder.none,
-      contentPadding: EdgeInsets.fromLTRB(4, 4, 4, 4),
+      border: OutlineInputBorder(
+        borderSide: BorderSide.none,
+        borderRadius: const BorderRadius.all(Radius.circular(16.0)),
+      ),
+      contentPadding: EdgeInsets.fromLTRB(8, 7, 8, 8),
       isCollapsed: true,
       filled: true,
       fillColor: AppColors.ChatInputFillGgColor,
@@ -49,14 +49,14 @@ class ImboyChatTheme extends ChatTheme {
     TextStyle receivedMessageBodyTextStyle = const TextStyle(
       color: neutral0,
       fontFamily: 'Avenir',
-      fontSize: 16,
+      fontSize: 14,
       fontWeight: FontWeight.w500,
-      height: 1.5,
+      height: 1.375,
     ),
     TextStyle receivedMessageCaptionTextStyle = const TextStyle(
       color: neutral2,
       fontFamily: 'Avenir',
-      fontSize: 12,
+      fontSize: 14,
       fontWeight: FontWeight.w500,
       height: 1.333,
     ),
@@ -71,7 +71,7 @@ class ImboyChatTheme extends ChatTheme {
     TextStyle receivedMessageLinkTitleTextStyle = const TextStyle(
       color: neutral0,
       fontFamily: 'Avenir',
-      fontSize: 16,
+      fontSize: 14,
       fontWeight: FontWeight.w800,
       height: 1.375,
     ),
@@ -81,8 +81,8 @@ class ImboyChatTheme extends ChatTheme {
     Color secondaryColor = AppColors.ChatReceivedMessageBodyBgColor,
     TextStyle inputTextStyle = const TextStyle(
       fontFamily: 'Avenir',
-      fontSize: 14,
-      height: 2.0,
+      fontSize: 16,
+      height: 1.375,
       color: AppColors.ChatInputFillGgColor,
     ),
     Color primaryColor = AppColors.ChatSendMessgeBgColor,
@@ -91,14 +91,14 @@ class ImboyChatTheme extends ChatTheme {
       fontFamily: 'Avenir',
       fontSize: 16,
       fontWeight: FontWeight.w500,
-      height: 1.5,
+      height: 1.375,
     ),
     TextStyle sentMessageCaptionTextStyle = const TextStyle(
       color: neutral7WithOpacity,
       fontFamily: 'Avenir',
       fontSize: 12,
       fontWeight: FontWeight.w500,
-      height: 1.333,
+      height: 1.375,
     ),
     Color sentMessageDocumentIconColor = neutral7,
     TextStyle sentMessageLinkDescriptionTextStyle = const TextStyle(
@@ -150,7 +150,6 @@ class ImboyChatTheme extends ChatTheme {
           errorColor: errorColor,
           errorIcon: errorIcon,
           inputBackgroundColor: inputBackgroundColor,
-          inputBorderRadius: inputBorderRadius,
           inputPadding: inputPadding,
           inputTextColor: inputTextColor,
           inputTextCursorColor: inputTextCursorColor,
@@ -183,6 +182,10 @@ class ImboyChatTheme extends ChatTheme {
           userAvatarNameColors: userAvatarNameColors,
           userAvatarTextStyle: userAvatarTextStyle,
           userNameTextStyle: userNameTextStyle,
+          inputBorderRadius: const BorderRadius.vertical(
+            top: Radius.circular(8),
+          ),
+          inputMargin: const EdgeInsets.fromLTRB(16, 8, 18, 8),
         );
 }
 

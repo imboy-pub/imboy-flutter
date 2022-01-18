@@ -427,7 +427,7 @@ class ChatPageState extends State<ChatPage> {
   // 手指滑动 事件
   void _onPanUpdate(DragUpdateDetails e) async {}
 
-  void _onMessageStatusTap(types.Message msg) {
+  void _onMessageStatusTap(BuildContext ctx, types.Message msg) {
     if (msg.status != types.Status.sending) {
       return;
     }
@@ -503,7 +503,7 @@ class ChatPageState extends State<ChatPage> {
           onEndReached: _handleEndReached,
           onAttachmentPressed: _handleAtachmentPressed,
           // onMessageTap: _handleMessageTap,
-          onMessageDoubleTap: _onMessageDoubleTap,
+          // onMessageDoubleTap: _onMessageDoubleTap,
           onMessageLongPress: _onMessageLongPress,
           onPreviewDataFetched: _handlePreviewDataFetched,
           onSendPressed: _handleSendPressed,

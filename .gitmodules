@@ -1,6 +1,3 @@
 [submodule "plugin/popup_menu"]
 	path = plugin/popup_menu
 	url = https://gitee.com/leeyi/popup_menu.git
-[submodule "plugin/flutter_chat_ui"]
-	path = plugin/flutter_chat_ui
-	url = https://gitee.com/imboy-pub/flutter_chat_ui.git
