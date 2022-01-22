@@ -1,7 +1,7 @@
 import 'dart:convert' as JSON;
 
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:ntp/ntp.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -65,17 +65,28 @@ class StorageService extends GetxService {
 
   Future<int> ntpOffset() async {
     String key = "ntp_offset";
-    int? offset = await _prefs.getInt(key);
-    if (offset == null) {
-      offset = await NTP.getNtpOffset(
+    String? val = await _prefs.getString(key);
+    // debugPrint(">>> on currentTimeMillis val1 ${val}");
+    // val = null;
+    if (val == null) {
+      int offset = await NTP.getNtpOffset(
         localTime: DateTime.now(),
         lookUpAddress: 'time5.cloud.tencent.com',
       );
       // debugPrint(">>> on currentTimeMillis offset2 ${offset}");
-      _prefs.setInt(key, offset);
+      String dt = Jiffy().format('y-MM-dd HH:mm:ss');
+      val = '${dt}${offset}';
+      // debugPrint(">>> on currentTimeMillis val2 ${val}");
+      _prefs.setString(key, val);
       return offset;
     } else {
-      return offset;
+      // 2022-01-23 00:30:35 字符串的长度刚好19位
+      int diff = Jiffy().diff(val.substring(0, 19), Units.SECOND) as int;
+      if (diff > 3600) {
+        await _prefs.remove(key);
+        return ntpOffset();
+      }
+      return int.parse(val.substring(19));
     }
   }
 }

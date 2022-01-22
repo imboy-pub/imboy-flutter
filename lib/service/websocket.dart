@@ -89,7 +89,6 @@ class WSService extends GetxService {
   void openSocket() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
-      Get.snackbar("Tips", "网络连接异常ws");
       debugPrint('>>> on ws ${DateTime.now()} openSocket 网络连接异常ws');
       return;
     }

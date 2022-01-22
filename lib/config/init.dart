@@ -41,17 +41,6 @@ EventBus eventBus = EventBus();
 
 Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
-  WidgetsBinding.instance?.addObserver(
-    LifecycleEventHandler(resumeCallBack: () async {
-      // app 恢复
-      debugPrint(">>> on LifecycleEventHandler resumeCallBack");
-      WSService.to.sentHeart();
-      WSService.to.openSocket();
-    }, suspendingCallBack: () async {
-      // app 挂起
-      debugPrint(">>> on LifecycleEventHandler suspendingCallBack");
-    }),
-  );
 
   // 放在 UserRepoLocal 前面
   await Getx.Get.putAsync<StorageService>(() => StorageService().init());
@@ -74,4 +63,17 @@ Future<void> init() async {
   Getx.Get.put(MessageService());
 
   ntpOffset = await StorageService.to.ntpOffset();
+  WidgetsBinding.instance?.addObserver(
+    LifecycleEventHandler(resumeCallBack: () async {
+      // app 恢复
+      debugPrint(">>> on LifecycleEventHandler resumeCallBack");
+      ntpOffset = await StorageService.to.ntpOffset();
+      WSService.to.sentHeart();
+      WSService.to.openSocket();
+    }, suspendingCallBack: () async {
+      // app 挂起
+      debugPrint(">>> on LifecycleEventHandler suspendingCallBack");
+    }),
+  );
+  // debugPrint(">>> on currentTimeMillis init ${ntpOffset}");
 }
