@@ -24,8 +24,7 @@ class CustomMessage extends StatelessWidget {
   final int messageWidth;
 
   Widget revokedMsg(bool currentUserIsAuthor, BuildContext ctx) {
-    final _user = InheritedUser.of(ctx).user;
-    String nickname = currentUserIsAuthor ? '你' : '"${_user.firstName}"';
+    String nickname = currentUserIsAuthor ? '你' : '"${message.author.firstName}"';
     bool canEdit = currentUserIsAuthor &&
         (DateTimeHelper.currentTimeMillis() - this.message.createdAt!) < 300000;
     // canEdit = true;

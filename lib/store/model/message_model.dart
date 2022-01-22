@@ -173,7 +173,7 @@ class MessageModel {
       message = types.CustomMessage(
         author: types.User(
           id: this.fromId!,
-          // firstName: "",
+          firstName: this.payload!['from_name'] ?? '',
           // imageUrl: "",
         ),
         id: this.id!,

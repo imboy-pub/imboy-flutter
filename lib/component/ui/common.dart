@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 class HorizontalLine extends StatelessWidget {
@@ -55,4 +57,8 @@ class Space extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Container(width: width, height: height);
   }
+}
+
+double topBarHeight(BuildContext context) {
+  return kToolbarHeight + MediaQueryData.fromWindow(window).padding.top;
 }

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/view/list_tile_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/func.dart';
@@ -92,17 +93,17 @@ class MinePage extends StatelessWidget {
     ];
 
     var row = [
-      new SizedBox(
+      SizedBox(
         width: 88.0,
         height: 88.0,
-        child: new ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(4.0)),
+        child: ClipRRect(
+          borderRadius: BorderRadius.all(Radius.circular(10.0)),
           child: Container(
             width: 44,
             height: 44,
             decoration: BoxDecoration(
               shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(4.0),
+              borderRadius: BorderRadius.circular(10.0),
               // color: defHeaderBgColor,
               image: dynamicAvatar(UserRepoLocal.to.currentUser.avatar),
             ),
@@ -110,7 +111,7 @@ class MinePage extends StatelessWidget {
           ),
         ),
       ),
-      new Container(
+      Container(
         margin: EdgeInsets.only(left: 10.0),
         height: 50.0,
         child: new Column(
@@ -131,8 +132,8 @@ class MinePage extends StatelessWidget {
           ],
         ),
       ),
-      new Spacer(),
-      new Container(
+      Spacer(),
+      Container(
         width: 13.0,
         margin: EdgeInsets.only(right: 12.0),
         child: new Image(
@@ -141,22 +142,22 @@ class MinePage extends StatelessWidget {
           fit: BoxFit.cover,
         ),
       ),
-      new Image(
+      Image(
         image: AssetImage('assets/images/ic_right_arrow_grey.webp'),
         width: 7.0,
         fit: BoxFit.cover,
       )
     ];
 
-    return new Column(
+    return Column(
       children: <Widget>[
         new InkWell(
-          child: new Container(
+          child: Container(
             color: Colors.white,
-            height: (Get.height * 2.5) - 10,
-            padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 40.0),
-            child: new Row(
-                crossAxisAlignment: CrossAxisAlignment.center, children: row),
+            height: (topBarHeight(context) * 2.5) - 10,
+            padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 40.0,),
+            child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center, children: row,),
           ),
           onTap: () => Get.to(() => PersonalInfoPage()),
         ),

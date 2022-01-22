@@ -200,6 +200,8 @@ class MessageService extends GetxService {
 
   /// 收到C2C撤回消息
   Future<void> reciveC2CRevokeMessage(data) async {
+    ContactModel c = await ContactRepo().find(data['from']) as ContactModel;
+    // debugPrint(">> on reciveC2CRevokeMessage ${c.toJson().toString()}");
     MessageRepo repo = MessageRepo();
     String id = data['id'];
     int res = await repo.update({
@@ -208,6 +210,7 @@ class MessageService extends GetxService {
       'payload': json.encode({
         "msg_type": "custom",
         "custom_type": "revoked",
+        "from_name": c.nickname
       }),
     });
     MessageModel? msg = await repo.find(id);
@@ -241,7 +244,6 @@ class MessageService extends GetxService {
       int res2 = await repo2.updateById(cobj.id, {
         'subtitle': subtitle,
       });
-      debugPrint(">>> on changeConversation res2 ${res2}: ${data2.toString()}");
       if (res2 > 0) {
         cobj.subtitle = subtitle;
         eventBus.fire(cobj);
@@ -265,8 +267,8 @@ class MessageService extends GetxService {
       'status': MessageStatus.send,
       'payload': json.encode(msg.payload),
     });
-    debugPrint(">>> on MessageService REVOKE_C2C ack:$res; msg:" +
-        msg.toJson().toString());
+    // debugPrint(">>> on MessageService REVOKE_C2C ack:$res; msg:" +
+    //     msg.toJson().toString());
     if (res > 0 && msg != null) {
       eventBus.fire([msg.toTypeMessage()]);
       // 确认消息
