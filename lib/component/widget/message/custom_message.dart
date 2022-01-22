@@ -24,9 +24,11 @@ class CustomMessage extends StatelessWidget {
   final int messageWidth;
 
   Widget revokedMsg(bool currentUserIsAuthor, BuildContext ctx) {
-    String nickname = currentUserIsAuthor ? '你' : '"${message.author.firstName}"';
-    bool canEdit = currentUserIsAuthor &&
-        (DateTimeHelper.currentTimeMillis() - this.message.createdAt!) < 300000;
+    String nickname =
+        currentUserIsAuthor ? '你' : '"${message.author.firstName}"';
+    int now = DateTimeHelper.currentTimeMillis();
+    bool canEdit =
+        currentUserIsAuthor && (now - this.message.createdAt!) < 300000;
     // canEdit = true;
     Widget btn = canEdit
         ? GestureDetector(

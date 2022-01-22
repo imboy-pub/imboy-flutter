@@ -173,6 +173,7 @@ class MessageModel {
       message = types.CustomMessage(
         author: types.User(
           id: this.fromId!,
+          // payload!['from_name'] 目前只在收到撤回消息的时候才存在from_name
           firstName: this.payload!['from_name'] ?? '',
           // imageUrl: "",
         ),

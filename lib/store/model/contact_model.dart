@@ -74,5 +74,4 @@ class ContactModel extends ISuspensionBean {
 
   @override
   String toString() => json.encode(this);
-
 }

@@ -1,6 +1,8 @@
 import 'dart:convert' as JSON;
 
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:ntp/ntp.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /**
@@ -59,5 +61,21 @@ class StorageService extends GetxService {
 
   Future<bool> remove(String key) async {
     return await _prefs.remove(key);
+  }
+
+  Future<int> ntpOffset() async {
+    String key = "ntp_offset";
+    int? offset = await _prefs.getInt(key);
+    if (offset == null) {
+      offset = await NTP.getNtpOffset(
+        localTime: DateTime.now(),
+        lookUpAddress: 'time5.cloud.tencent.com',
+      );
+      // debugPrint(">>> on currentTimeMillis offset2 ${offset}");
+      _prefs.setInt(key, offset);
+      return offset;
+    } else {
+      return offset;
+    }
   }
 }

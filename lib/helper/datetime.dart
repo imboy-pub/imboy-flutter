@@ -1,4 +1,8 @@
+import 'package:flutter/widgets.dart';
+import 'package:imboy/config/init.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:ntp/ntp.dart';
 
 class DateTimeHelper {
   static String customDateHeader(DateTime dt) {
@@ -30,6 +34,13 @@ class DateTimeHelper {
 
   /// 当前时间的毫秒时间戳
   static int currentTimeMillis() {
-    return DateTime.now().millisecondsSinceEpoch;
+    DateTime _myTime;
+    DateTime _ntpTime;
+    int offset;
+    _myTime = DateTime.now();
+    // debugPrint(">>> on currentTimeMillis _myTime ${_myTime.toString()}");
+    _ntpTime = _myTime.add(Duration(milliseconds: ntpOffset));
+    // debugPrint(">>> on currentTimeMillis _ntpTime ${_ntpTime.toString()}");
+    return _ntpTime.millisecondsSinceEpoch;
   }
 }

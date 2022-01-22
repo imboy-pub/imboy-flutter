@@ -34,13 +34,13 @@ typedef VoidCallbackConfirm = void Function(bool isOk);
 enum ClickType { select, open }
 
 var logger = Logger();
+int ntpOffset = 0;
 
 /// The global [EventBus] object.
 EventBus eventBus = EventBus();
 
 Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   WidgetsBinding.instance?.addObserver(
     LifecycleEventHandler(resumeCallBack: () async {
       // app 恢复
@@ -72,4 +72,6 @@ Future<void> init() async {
   // Getx.Get.put(WebSocket());
   Getx.Get.put(WSService());
   Getx.Get.put(MessageService());
+
+  ntpOffset = await StorageService.to.ntpOffset();
 }

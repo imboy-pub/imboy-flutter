@@ -155,9 +155,15 @@ class MinePage extends StatelessWidget {
           child: Container(
             color: Colors.white,
             height: (topBarHeight(context) * 2.5) - 10,
-            padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 40.0,),
+            padding: EdgeInsets.only(
+              left: 20.0,
+              right: 20.0,
+              top: 40.0,
+            ),
             child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center, children: row,),
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: row,
+            ),
           ),
           onTap: () => Get.to(() => PersonalInfoPage()),
         ),

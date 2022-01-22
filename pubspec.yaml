@@ -86,6 +86,8 @@ dependencies:
   search_page: ^2.0.0+1
   # 时间处理
   jiffy: ^5.0.0
+  # 用于校正本地系统与时钟源服务器之前的时间
+  ntp: ^2.0.0
   emoji_picker_flutter: ^1.0.8
   # keyboard_actions: ^3.4.6
   # getsocket: ^1.0.1

@@ -426,7 +426,7 @@ class ChatPageState extends State<ChatPage> {
     if (msg.status != types.Status.sending) {
       return;
     }
-    int diff = DateTimeHelper.currentTimeMillis();
+    int diff = DateTimeHelper.currentTimeMillis() as int;
     if (diff > 1500) {
       // 检查为发送消息
       logic.sendWsMsg(logic.getMsgFromTmsg(

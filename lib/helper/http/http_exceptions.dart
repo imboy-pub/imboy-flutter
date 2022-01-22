@@ -21,6 +21,7 @@ class HttpException implements Exception {
 class BadRequestException extends HttpException {
   BadRequestException({String? message, int? code}) : super(message, code);
 }
+
 /// 服务端响应错误
 class BadServiceException extends HttpException {
   BadServiceException({String? message, int? code}) : super(message, code);

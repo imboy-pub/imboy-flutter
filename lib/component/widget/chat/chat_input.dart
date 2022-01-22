@@ -254,7 +254,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       return Offstage(
         offstage: !emojiShowing,
         child: SizedBox(
-          height: 250,
+          height: 400,
           child: EmojiPicker(
             onEmojiSelected: (Category category, Emoji emoji) {
               _setText(emoji.emoji);

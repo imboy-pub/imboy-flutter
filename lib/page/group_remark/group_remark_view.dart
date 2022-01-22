@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/ui/commom_button.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/view/main_input.dart';
@@ -149,11 +148,11 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                 ),
               ),
               new Spacer(),
-              new ComMomButton(
-                text: '完成',
-                onTap: () => handle(),
-                width: Get.width / 2,
-              ),
+              // new TextButton(
+              //   text: '完成',
+              //   onTap: () => handle(),
+              //   width: Get.width / 2,
+              // ),
               new Space(height: Get.width > 1 ? 15 : 50),
             ],
           ),
