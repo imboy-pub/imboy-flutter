@@ -13,7 +13,6 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/func.dart';
-import 'package:imboy/helper/win_media.dart';
 import 'package:imboy/page/group_bill_board/group_bill_board_view.dart';
 import 'package:imboy/page/group_member/group_member_view.dart';
 import 'package:imboy/page/group_member_detail/group_member_detail_view.dart';
@@ -104,7 +103,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
     if (item['user'] == "+" || item['user'] == '-') {
       return new InkWell(
         child: new SizedBox(
-          width: (winWidth(context) - 60) / 5,
+          width: (Get.width - 60) / 5,
           child: Image(
             image: AssetImage('assets/images/group/${item['user']}.png'),
             height: 48.0,
@@ -123,7 +122,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
       }),
       builder: (context, snap) {
         return new SizedBox(
-          width: (winWidth(context) - 60) / 5,
+          width: (Get.width - 60) / 5,
           child: FlatButton(
             onPressed: () => Get.to(GroupMemberDetailPage(uId!)),
             padding: EdgeInsets.all(0),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/func.dart';
-import 'package:imboy/helper/win_media.dart';
 
 class SearchTileView extends StatelessWidget {
   final String? text;
@@ -69,7 +69,7 @@ class SearchTileView extends StatelessWidget {
             border: Border(
                 top: BorderSide(
                     color: Colors.grey.withOpacity(0.2), width: 0.5))),
-        width: winWidth(context),
+        width: Get.width,
         height: 65.0,
         child: strNoEmpty(text) ? bt : new Container(),
       );
@@ -81,7 +81,7 @@ class SearchTileView extends StatelessWidget {
             top: BorderSide(color: Colors.grey.withOpacity(0.2), width: 0.5),
           ),
         ),
-        width: winWidth(context),
+        width: Get.width,
         height: 65.0,
         child: new TextButton(
           style: TextButton.styleFrom(

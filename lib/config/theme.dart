@@ -36,7 +36,7 @@ class ImboyChatTheme extends ChatTheme {
     InputDecoration inputTextDecoration = const InputDecoration(
       border: OutlineInputBorder(
         borderSide: BorderSide.none,
-        borderRadius: const BorderRadius.all(Radius.circular(16.0)),
+        borderRadius: const BorderRadius.all(Radius.circular(2.0)),
       ),
       contentPadding: EdgeInsets.fromLTRB(8, 7, 8, 8),
       isCollapsed: true,

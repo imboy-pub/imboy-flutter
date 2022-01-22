@@ -87,11 +87,11 @@ dependencies:
   # 时间处理
   jiffy: ^5.0.0
   emoji_picker_flutter: ^1.0.8
-  keyboard_actions: ^3.4.6
+  # keyboard_actions: ^3.4.6
   # getsocket: ^1.0.1
-  flutter_chat_ui: ^1.5.4
-  #  flutter_chat_ui:
-  #    path: plugin/flutter_chat_ui
+  # flutter_chat_ui: ^1.5.4
+  flutter_chat_ui:
+    path: plugin/flutter_chat_ui
   popup_menu:
     path: plugin/popup_menu
 
@@ -150,6 +150,11 @@ flutter:
     - assets/images/logo.png
     - assets/images/ic_index_bar_bubble_gray.png
 
+    - assets/images/chat/emoji.png
+    - assets/images/chat/extra.png
+    - assets/images/chat/keyboard.png
+    - assets/images/chat/voice.png
+
     - assets/images/bar_close.png
     - assets/images/tabbar_contacts_c.webp
     - assets/images/tabbar_contacts_s.webp
@@ -173,40 +178,6 @@ flutter:
     - assets/images/ic_right_arrow_grey.webp
     - assets/images/ic_add_friend.webp
     - assets/images/ic_no_data.webp
-
-    - assets/images/chat/ic_Emotion.webp
-    - assets/images/chat/ic_Keyboard.webp
-    - assets/images/chat/ic_details_add.png
-    - assets/images/chat/ic_voice.webp
-    - assets/images/chat/ic_chat_more.webp
-    - assets/images/chat/ic_chat_voice.webp
-    - assets/images/chat/ic_details_camera.webp
-    - assets/images/chat/ic_details_card.webp
-    - assets/images/chat/ic_details_favorite.webp
-    - assets/images/chat/ic_details_file.webp
-    - assets/images/chat/ic_details_localtion.webp
-    - assets/images/chat/ic_details_media.webp
-    - assets/images/chat/ic_details_photo.webp
-    - assets/images/chat/ic_details_red.webp
-    - assets/images/chat/ic_details_transfer.webp
-    - assets/images/chat/ic_details_video.webp
-    - assets/images/chat/voice_volume_1.webp
-    - assets/images/chat/voice_volume_2.webp
-    - assets/images/chat/voice_volume_3.webp
-    - assets/images/chat/voice_volume_4.webp
-    - assets/images/chat/voice_volume_5.webp
-    - assets/images/chat/voice_volume_6.webp
-    - assets/images/chat/voice_volume_7.webp
-    - assets/images/chat/sound_left_0.webp
-    - assets/images/chat/sound_left_1.webp
-    - assets/images/chat/sound_left_2.webp
-    - assets/images/chat/sound_left_3.webp
-    - assets/images/chat/sound_right_0.png
-    - assets/images/chat/sound_right_1.webp
-    - assets/images/chat/sound_right_2.webp
-    - assets/images/chat/sound_right_3.png
-    - assets/images/chat/icon_sight_close.png
-    - assets/images/chat/flip_camera_icon_nor.webp
 
     - assets/images/mine/ic_small_code.png
     - assets/images/mine/ic_wallet.webp
@@ -240,5 +211,4 @@ flutter:
     - assets/images/discover/ff_Icon_search.webp
     - assets/images/discover/game_center_h5.webp
     - assets/images/discover/mini_program.webp
-    - assets/images/emoji/
     - assets/images/group/

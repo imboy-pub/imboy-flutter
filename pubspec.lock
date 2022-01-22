@@ -471,9 +471,9 @@ packages:
   flutter_chat_ui:
     dependency: "direct main"
     description:
-      name: flutter_chat_ui
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "plugin/flutter_chat_ui"
+      relative: true
+    source: path
     version: "1.5.4"
   flutter_link_previewer:
     dependency: transitive
@@ -674,13 +674,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.4.0"
-  keyboard_actions:
-    dependency: "direct main"
-    description:
-      name: keyboard_actions
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.4.6"
   linkify:
     dependency: transitive
     description:

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/func.dart';
-import 'package:imboy/helper/win_media.dart';
 import 'package:imboy/page/group_select/group_select_view.dart';
 
 class LaunchGroupItem extends StatelessWidget {
@@ -30,7 +29,7 @@ class LaunchGroupItem extends StatelessWidget {
           }
         },
         child: new Container(
-          width: winWidth(context),
+          width: Get.width,
           padding: EdgeInsets.only(left: 20.0),
           child: new Text(item),
         ),

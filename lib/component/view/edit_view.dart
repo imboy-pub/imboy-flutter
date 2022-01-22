@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/helper/win_media.dart';
 
 class EditView extends StatelessWidget {
   final String? label;
@@ -25,7 +25,7 @@ class EditView extends StatelessWidget {
     var row = new Row(
       children: <Widget>[
         new Container(
-          width: winWidth(context) * 0.25,
+          width: Get.width * 0.25,
           alignment: Alignment.centerLeft,
           child: new Text(label ?? '',
               style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w400)),

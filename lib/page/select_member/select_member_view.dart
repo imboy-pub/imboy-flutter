@@ -134,8 +134,9 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
                     padding: EdgeInsets.only(right: 30),
                     height: _itemHeight.toDouble(),
                     decoration: BoxDecoration(
-                      border:
-                          Border(top: BorderSide(color: AppColors.LineColor, width: 0.2)),
+                      border: Border(
+                          top: BorderSide(
+                              color: AppColors.LineColor, width: 0.2)),
                     ),
                     child: new Text(
                       model.name!,

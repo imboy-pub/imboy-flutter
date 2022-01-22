@@ -14,9 +14,9 @@ class _QrCodePageState extends State<QrCodePage> {
   final QrCodeState state = Get.find<QrCodeLogic>().state;
 
   @override
-    Widget build(BuildContext context) {
-      return Container();
-    }
+  Widget build(BuildContext context) {
+    return Container();
+  }
 
   @override
   void dispose() {

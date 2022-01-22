@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/helper/win_media.dart';
 
 class MoreItemCard extends StatelessWidget {
   final String? name, icon;
@@ -19,7 +19,7 @@ class MoreItemCard extends StatelessWidget {
 
     return new Container(
       padding: EdgeInsets.only(top: _top, bottom: 5.0),
-      width: (winWidth(context) - 70) / 4,
+      width: (Get.width - 70) / 4,
       child: new Column(
         children: <Widget>[
           new Container(

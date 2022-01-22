@@ -47,7 +47,8 @@ class LabelRow extends StatelessWidget {
           decoration: BoxDecoration(
             border: isLine!
                 ? Border(
-                    bottom: BorderSide(color: AppColors.LineColor, width: lineWidth!))
+                    bottom: BorderSide(
+                        color: AppColors.LineColor, width: lineWidth!))
                 : null,
           ),
           child: new Row(

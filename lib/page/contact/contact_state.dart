@@ -5,6 +5,5 @@ import 'package:imboy/store/model/contact_model.dart';
 class ContactState {
   ContactState() {
     List<ContactModel> _contacts = [];
-    StreamSubscription<dynamic> _messageStreamSubscription;
   }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/helper/win_media.dart';
 
 import 'confirm_alert.dart';
 
@@ -30,7 +29,7 @@ friendItemDialog(BuildContext context, {String? userId, OnSuCc? suCc}) {
 
   Widget item(item) {
     return new Container(
-      width: winWidth(context),
+      width: Get.width,
       decoration: BoxDecoration(
         border: item != '删除'
             ? Border(
@@ -86,7 +85,8 @@ friendItemDialog(BuildContext context, {String? userId, OnSuCc? suCc}) {
                   child: new Column(
                     children: <Widget>[
                       new Column(children: data.map(item).toList()),
-                      new HorizontalLine(color: AppColors.AppBarColor, height: 10.0),
+                      new HorizontalLine(
+                          color: AppColors.AppBarColor, height: 10.0),
                       new TextButton(
                         // padding: EdgeInsets.symmetric(vertical: 15.0),
                         style: TextButton.styleFrom(
@@ -96,7 +96,7 @@ friendItemDialog(BuildContext context, {String? userId, OnSuCc? suCc}) {
                         autofocus: true,
                         onPressed: () => Navigator.of(context).pop(),
                         child: new Container(
-                          width: winWidth(context),
+                          width: Get.width,
                           alignment: Alignment.center,
                           child: new Text('取消'),
                         ),

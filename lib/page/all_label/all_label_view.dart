@@ -14,9 +14,9 @@ class _AllLabelPageState extends State<AllLabelPage> {
   final AllLabelState state = Get.find<AllLabelLogic>().state;
 
   @override
-    Widget build(BuildContext context) {
-      return Container();
-    }
+  Widget build(BuildContext context) {
+    return Container();
+  }
 
   @override
   void dispose() {

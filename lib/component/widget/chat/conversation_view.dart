@@ -1,10 +1,10 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/message/content_msg.dart';
 import 'package:imboy/component/view/image_view.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/helper/win_media.dart';
 
 class ConversationView extends StatelessWidget {
   final String? imageUrl;
@@ -84,7 +84,7 @@ class ConversationView extends StatelessWidget {
           ),
           Container(
             padding: EdgeInsets.only(right: 18.0, top: 12.0, bottom: 12.0),
-            width: winWidth(context) - 68,
+            width: Get.width - 68,
             decoration: BoxDecoration(
               border: this.isBorder
                   ? Border(

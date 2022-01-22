@@ -14,9 +14,9 @@ class _ChangeNamePageState extends State<ChangeNamePage> {
   final ChangeNameState state = Get.find<ChangeNameLogic>().state;
 
   @override
-    Widget build(BuildContext context) {
-      return Container();
-    }
+  Widget build(BuildContext context) {
+    return Container();
+  }
 
   @override
   void dispose() {

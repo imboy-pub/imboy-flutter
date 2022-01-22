@@ -62,16 +62,16 @@ class AppColors {
   static const TitleColor = 0xff181818;
   static const ButtonArrowColor = 0xffadadad;
 
-
   static const ChatBg = Color.fromRGBO(243, 243, 243, 1.0);
   static const ChatSendMessgeBgColor = Color.fromRGBO(169, 234, 122, 1.0);
   static const ChatSentMessageBodyTextColor = Color.fromRGBO(19, 29, 13, 1.0);
 
-  static const ChatReceivedMessageBodyTextColor = Color.fromRGBO(25, 25, 25, 1.0);
-  static const ChatReceivedMessageBodyBgColor = Color.fromRGBO(255, 255, 255, 1.0);
+  static const ChatReceivedMessageBodyTextColor =
+      Color.fromRGBO(25, 25, 25, 1.0);
+  static const ChatReceivedMessageBodyBgColor =
+      Color.fromRGBO(255, 255, 255, 1.0);
   static const ChatInputBackgroundColor = Color.fromRGBO(240, 240, 240, 1.0);
   static const ChatInputFillGgColor = Color.fromRGBO(255, 255, 255, 1.0);
-
 }
 
 const mainSpace = 10.0;

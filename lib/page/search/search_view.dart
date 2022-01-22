@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/func.dart';
-import 'package:imboy/helper/win_media.dart';
 
 import 'search_logic.dart';
 import 'search_state.dart';
@@ -24,7 +23,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget wordView(item) {
     return new InkWell(
       child: new Container(
-        width: winWidth(context) / 3,
+        width: Get.width / 3,
         alignment: Alignment.center,
         margin: EdgeInsets.symmetric(vertical: 15.0),
         child: new Text(
@@ -87,7 +86,7 @@ class _SearchPageState extends State<SearchPage> {
     return new Scaffold(
       backgroundColor: AppColors.AppBarColor,
       appBar: new PageAppBar(titleWiew: searchView),
-      body: new SizedBox(width: winWidth(context), child: body()),
+      body: new SizedBox(width: Get.width, child: body()),
     );
   }
 

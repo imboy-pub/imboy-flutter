@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/view/image_view.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/helper/win_media.dart';
 
 class ListTileView extends StatelessWidget {
   final BoxBorder? border;
@@ -72,7 +72,7 @@ class ListTileView extends StatelessWidget {
         ? new Row(
             children: <Widget>[
               new Container(
-                width: winWidth(context),
+                width: Get.width,
                 // padding: new EdgeInsets.all(12.0),
                 padding: padding,
                 decoration: BoxDecoration(border: border),
@@ -88,7 +88,7 @@ class ListTileView extends StatelessWidget {
                 child: new ImageView(img: icon, width: width, fit: fit),
               ),
               new Container(
-                width: cWidth > 0 ? cWidth : winWidth(context) - 60,
+                width: cWidth > 0 ? cWidth : Get.width - 60,
                 padding: padding,
                 decoration: BoxDecoration(border: border),
                 child: new Row(children: view),

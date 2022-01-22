@@ -7,7 +7,6 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/func.dart';
-import 'package:imboy/helper/win_media.dart';
 import 'package:imboy/page/select_member/select_member_view.dart';
 import 'package:imboy/store/model/group_model.dart';
 
@@ -71,7 +70,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
     if (item['user'] == "+" || item['user'] == '-') {
       return new InkWell(
         child: new SizedBox(
-          width: (winWidth(context) - 60) / 5,
+          width: (Get.width - 60) / 5,
           child: Image(
             image: AssetImage('assets/images/group/${item['user']}.png'),
             height: 48.0,
@@ -91,7 +90,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
       }),
       builder: (context, snap) {
         return new SizedBox(
-          width: (winWidth(context) - 60) / 5,
+          width: (Get.width - 60) / 5,
           child: FlatButton(
             onPressed: () => handle(uId!),
             padding: EdgeInsets.all(0),

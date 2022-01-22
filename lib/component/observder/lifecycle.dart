@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
-class LifecycleEventHandler extends WidgetsBindingObserver{
+class LifecycleEventHandler extends WidgetsBindingObserver {
   // static const String TAG = '==lifecycle_event_handler==';
   final AsyncCallback resumeCallBack;
   final AsyncCallback suspendingCallBack;

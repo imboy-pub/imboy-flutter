@@ -17,8 +17,6 @@ class BottomNavigationPage extends StatelessWidget {
   // final logic = Get.find<BottomNavigationLogic>();
   final BottomNavigationState state = Get.find<BottomNavigationLogic>().state;
 
-  // StreamSubscription<dynamic>? _msgStreamSubs;
-
   List pageList = [
     ConversationPage(),
     // CooperationPage(),

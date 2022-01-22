@@ -14,9 +14,9 @@ class _ChatBackgroundPageState extends State<ChatBackgroundPage> {
   final ChatBackgroundState state = Get.find<ChatBackgroundLogic>().state;
 
   @override
-    Widget build(BuildContext context) {
-      return Container();
-    }
+  Widget build(BuildContext context) {
+    return Container();
+  }
 
   @override
   void dispose() {

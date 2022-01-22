@@ -53,6 +53,10 @@ samples, guidance on mobile development, and a full API reference.
 * 群聊天 TODO
 * 群其他功能 TODO
 
+# 已知待修复待完善的功能
+* 聊天界面表情符弹框没法想键盘一样"点击页面其他空白处收缩回去"
+
+
 # 规范
 
 ## 目录规范与命名

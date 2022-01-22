@@ -282,7 +282,8 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
           child: Stack(children: <Widget>[
             new ClipRRect(
               borderRadius: BorderRadius.all(Radius.circular(5)),
-              child: Container(color: AppColors.ItemBgColor, height: widget.menuHeight),
+              child: Container(
+                  color: AppColors.ItemBgColor, height: widget.menuHeight),
             ),
             new Column(
               children: widget.actions.map(itemBuild).toList(),

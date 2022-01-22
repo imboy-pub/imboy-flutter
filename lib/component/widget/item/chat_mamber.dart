@@ -5,7 +5,6 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/view/image_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/func.dart';
-import 'package:imboy/helper/win_media.dart';
 import 'package:imboy/page/contact_detail/contact_detail_view.dart';
 import 'package:imboy/page/group_launch/group_launch_view.dart';
 
@@ -66,8 +65,11 @@ class _ChatMamBerState extends State<ChatMamBer> {
     wrap.add(
       new InkWell(
         child: new Container(
-          decoration:
-              BoxDecoration(border: Border.all(color: AppColors.LineColor, width: 0.2,)),
+          decoration: BoxDecoration(
+              border: Border.all(
+            color: AppColors.LineColor,
+            width: 0.2,
+          )),
           child: new Image(
             image: AssetImage('assets/images/chat/ic_details_add.png'),
             width: 55.0,

@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:imboy/component/view/list_tile_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/func.dart';
-import 'package:imboy/helper/win_media.dart';
 import 'package:imboy/page/personal_info/personal_info_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -154,7 +153,7 @@ class MinePage extends StatelessWidget {
         new InkWell(
           child: new Container(
             color: Colors.white,
-            height: (topBarHeight(context) * 2.5) - 10,
+            height: (Get.height * 2.5) - 10,
             padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 40.0),
             child: new Row(
                 crossAxisAlignment: CrossAxisAlignment.center, children: row),

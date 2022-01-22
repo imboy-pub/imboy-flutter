@@ -1,18 +1,18 @@
 import 'dart:async';
 
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:emoji_picker_flutter/src/emoji_view_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_chat_ui/src/widgets/inherited_chat_theme.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/widget/chat/chat_keyboard.dart';
-import 'package:imboy/config/const.dart';
+import 'package:imboy/component/ui/image_button.dart';
+import 'package:imboy/component/view/emoji_picker_view.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/message_model.dart';
-import 'package:keyboard_actions/keyboard_actions.dart';
 
 /**
  * 部分代码来自该项目，感谢作者 CaiJingLong https://github.com/CaiJingLong/flutter_like_wechat_input
@@ -22,6 +22,19 @@ enum InputType {
   voice,
   emoji,
   extra,
+}
+
+Widget _buildVoiceButton(BuildContext context) {
+  return Container(
+    width: double.infinity,
+    child: FlatButton(
+      color: Colors.white70,
+      onPressed: () {
+        Get.snackbar('Tips', '语音输入功能暂无实现');
+      },
+      child: Text('chat_hold_down_talk'.tr),
+    ),
+  );
 }
 
 typedef void OnSend(String text);
@@ -84,10 +97,6 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   bool emojiShowing = false;
 
-  StreamSubscription<dynamic>? _msgStreamSubs;
-
-  late TabController _tabController;
-
   /**
    * https://stackoverflow.com/questions/60057840/flutter-how-to-insert-text-in-middle-of-text-field-text
    */
@@ -126,28 +135,16 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       ),
     );
     // 接收到新的消息订阅
-    _msgStreamSubs = eventBus.on<ReeditMessage>().listen((msg) async {
+    eventBus.on<ReeditMessage>().listen((msg) async {
       debugPrint(">>> on reedit ${msg.toString()}");
       if (_textController.text.toString() != msg.text) {
         _setText(msg.text);
       }
     });
-
-    _tabController = TabController(
-      initialIndex: 0,
-      length: 6,
-      vsync: this,
-    );
-    // _pageController = PageController(initialPage: initCategory);
   }
 
   @override
   void dispose() {
-    if (_msgStreamSubs != null) {
-      _msgStreamSubs!.cancel();
-      _msgStreamSubs = null;
-    }
-
     _inputFocusNode.dispose();
     _textController.dispose();
     super.dispose();
@@ -202,36 +199,10 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     });
   }
 
-  /**
-   * 表情符号按钮事件
-   */
-  Future<void> _emojiBtnOnPressed(InputType type) async {
-    if (type == inputType) {
-      return;
-    }
-    this.inputType = type;
-    if (type != InputType.text) {
-      hideSoftKey();
-    } else {
-      showSoftKey();
-    }
-    if (type == InputType.emoji || type == InputType.extra) {
-      // _currentOtherHeight = _softKeyHeight;
-      changeBottomHeight(1);
-    } else {
-      changeBottomHeight(0);
-      // _currentOtherHeight = 0;
-    }
-    setState(() {
-      this.emojiShowing = type == InputType.emoji;
-      this.inputType;
-    });
-  }
-
   Future<void> updateState(InputType type) async {
-    // if (type == InputType.text || type == InputType.voice) {
-    //   _initType = type;
-    // }
+    if (type == InputType.text || type == InputType.voice) {
+      _initType = type;
+    }
     if (type == inputType) {
       return;
     }
@@ -252,7 +223,10 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       // _currentOtherHeight = 0;
     }
 
-    setState(() {});
+    setState(() {
+      this.emojiShowing = type == InputType.emoji;
+      this.inputType;
+    });
   }
 
   void showSoftKey() {
@@ -306,7 +280,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               progressIndicatorColor: Colors.blue,
               backspaceColor: Colors.black54,
               showRecentsTab: true,
-              recentsLimit: 21,
+              recentsLimit: 19,
               noRecentsText: 'No Recents',
               noRecentsStyle: const TextStyle(
                 fontSize: 20,
@@ -316,8 +290,8 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               categoryIcons: const CategoryIcons(),
               buttonMode: ButtonMode.MATERIAL,
             ),
-            // customWidget: (Config config, EmojiViewState state) =>
-            //     EmojiPickerView(config, state, _handleSendPressed),
+            customWidget: (Config config, EmojiViewState state) =>
+                EmojiPickerView(config, state, _handleSendPressed),
           ),
         ),
       );
@@ -326,404 +300,137 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     }
   }
 
-  Widget _inputBuilder(BuildContext ctx) {
-    final _query = MediaQuery.of(ctx);
-    return Focus(
-      autofocus: true,
-      child: Padding(
-        padding: InheritedChatTheme.of(context).theme.inputMargin,
-        child: Material(
-          borderRadius: InheritedChatTheme.of(context).theme.inputBorderRadius,
-          color: InheritedChatTheme.of(context).theme.inputBackgroundColor,
-          child: Container(
-            decoration:
-                InheritedChatTheme.of(context).theme.inputContainerDecoration,
-            padding: InheritedChatTheme.of(context).theme.inputPadding.add(
-                  EdgeInsets.fromLTRB(
-                    _query.padding.left,
-                    0,
-                    _query.padding.right,
-                    _query.viewInsets.bottom + _query.padding.bottom,
-                  ),
+  Widget _buildInputButton(BuildContext ctx) {
+    final voiceButton = widget.voiceWidget ?? _buildVoiceButton(ctx);
+    final inputButton = TextField(
+      controller: _textController,
+      cursorColor: InheritedChatTheme.of(ctx).theme.inputTextCursorColor,
+      decoration: InheritedChatTheme.of(ctx).theme.inputTextDecoration.copyWith(
+            hintStyle: InheritedChatTheme.of(ctx).theme.inputTextStyle.copyWith(
+                  color: InheritedChatTheme.of(ctx)
+                      .theme
+                      .inputTextColor
+                      .withOpacity(0.5),
                 ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    cursorColor: InheritedChatTheme.of(context)
-                        .theme
-                        .inputTextCursorColor,
-                    decoration: InheritedChatTheme.of(context)
-                        .theme
-                        .inputTextDecoration
-                        .copyWith(
-                          hintStyle: InheritedChatTheme.of(context)
-                              .theme
-                              .inputTextStyle
-                              .copyWith(
-                                color: InheritedChatTheme.of(context)
-                                    .theme
-                                    .inputTextColor
-                                    .withOpacity(0.5),
-                              ),
-                          hintText: 'tip_chat_hint'.tr,
-                        ),
-                    focusNode: _inputFocusNode,
-                    keyboardType: TextInputType.multiline,
-                    textInputAction: TextInputAction.next,
-                    maxLines: 5,
-                    minLines: 1,
-                    onChanged: widget.onTextChanged,
-                    onTap: widget.onTextFieldTap,
-                    style: InheritedChatTheme.of(context)
-                        .theme
-                        .inputTextStyle
-                        .copyWith(
-                          color: InheritedChatTheme.of(context)
-                              .theme
-                              .inputTextColor,
-                        ),
-                    textCapitalization: TextCapitalization.sentences,
-                  ),
-                ),
-                Visibility(
-                  visible: _sendButtonVisible,
-                  child: FloatingActionButton(
-                    mini: true,
-                    onPressed: _handleSendPressed,
-                    backgroundColor: Colors.lightGreen,
-                    child: Text(
-                      'button_send'.tr,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            hintText: 'tip_chat_hint'.tr,
           ),
+      focusNode: _inputFocusNode,
+      keyboardType: TextInputType.multiline,
+      maxLines: 5,
+      minLines: 1,
+      onChanged: widget.onTextChanged,
+      onTap: () {
+        updateState(InputType.text);
+        widget.onTextFieldTap;
+      },
+      style: InheritedChatTheme.of(ctx).theme.inputTextStyle.copyWith(
+            color: InheritedChatTheme.of(ctx).theme.inputTextColor,
+          ),
+      // 长按是否展示【剪切/复制/粘贴菜单LengthLimitingTextInputFormatter】
+      enableInteractiveSelection: true,
+      textCapitalization: TextCapitalization.sentences,
+      textInputAction: TextInputAction.send,
+      // 点击键盘的动作按钮时的回调，参数为当前输入框中的值
+      onSubmitted: (_) => _handleSendPressed(),
+    );
+
+    return Stack(
+      children: <Widget>[
+        Offstage(
+          child: inputButton,
+          offstage: inputType == InputType.voice,
         ),
+        Offstage(
+          child: voiceButton,
+          offstage: inputType != InputType.voice,
+        ),
+      ],
+    );
+  }
+
+  Widget buildLeftButton() {
+    return ImageButton(
+      onPressed: () {
+        if (inputType == InputType.voice) {
+          _voiceBtnOnPressed(InputType.text);
+        } else {
+          _voiceBtnOnPressed(InputType.voice);
+        }
+      },
+      image: AssetImage(
+        inputType != InputType.voice
+            ? 'assets/images/chat/voice.png'
+            : 'assets/images/chat/keyboard.png',
       ),
+    );
+  }
+
+  Widget buildEmojiButton() {
+    return ImageButton(
+      image: AssetImage(inputType != InputType.emoji
+          ? 'assets/images/chat/emoji.png'
+          : 'assets/images/chat/keyboard.png'),
+      onPressed: () {
+        if (inputType != InputType.emoji) {
+          updateState(InputType.emoji);
+        } else {
+          updateState(InputType.text);
+        }
+      },
+    );
+  }
+
+  Widget buildExtra() {
+    return ImageButton(
+      image: AssetImage('assets/images/chat/extra.png'),
+      onPressed: () => updateState(InputType.extra),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isAndroid = Theme.of(context).platform == TargetPlatform.android;
-    final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
+    final _query = MediaQuery.of(context);
 
     return GestureDetector(
-      onTap: () => _inputFocusNode.requestFocus(),
-      child: Shortcuts(
-        shortcuts: {
-          LogicalKeySet(LogicalKeyboardKey.enter): const SendMessageIntent(),
-          LogicalKeySet(LogicalKeyboardKey.enter, LogicalKeyboardKey.alt):
-              const NewLineIntent(),
-          LogicalKeySet(LogicalKeyboardKey.enter, LogicalKeyboardKey.shift):
-              const NewLineIntent(),
-        },
-        child: Actions(
-          actions: {
-            SendMessageIntent: CallbackAction<SendMessageIntent>(
-              onInvoke: (SendMessageIntent intent) => _handleSendPressed(),
-            ),
-            NewLineIntent: CallbackAction<NewLineIntent>(
-              onInvoke: (NewLineIntent intent) {
-                final _newValue = '${_textController.text}\r\n';
-                _textController.value = TextEditingValue(
-                  text: _newValue,
-                  selection: TextSelection.fromPosition(
-                    TextPosition(offset: _newValue.length),
-                  ),
-                );
-              },
-            ),
-          },
-          child: Column(
-            children: <Widget>[
-              Row(
-                children: [
-                  Flexible(
-                    child: SizedBox(
-                      height: 60.0,
-                      child: KeyboardActions(
-                        // 按下设备屏幕上键盘以外的任何地方时，可以关闭键盘
-                        tapOutsideBehavior:
-                            TapOutsideBehavior.translucentDismiss,
-                        config: KeyboardActionsConfig(
-                          actions: [
-                            KeyboardActionsItem(
-                              toolbarAlignment: MainAxisAlignment.spaceAround,
-                              focusNode: _inputFocusNode,
-                              displayArrows: false,
-                              toolbarButtons: [
-                                (_) {
-                                  // voice
-                                  return IconButton(
-                                    onPressed: () {
-                                      if (inputType == InputType.voice) {
-                                        _voiceBtnOnPressed(InputType.text);
-                                      } else {
-                                        _voiceBtnOnPressed(InputType.voice);
-                                      }
-                                    },
-                                    icon: Icon(
-                                      Icons.keyboard_voice_outlined,
-                                      color: AppColors.ButtonTextColor,
-                                      size: 32.0,
-                                    ),
-                                    iconSize: 12,
-                                    padding: const EdgeInsets.only(
-                                      left: 0.0,
-                                      top: 0.0,
-                                      right: 0.0,
-                                      bottom: 0.0,
-                                    ),
-                                    alignment: Alignment.center,
-                                  );
-                                },
-                                (_) {
-                                  // emoji
-                                  return IconButton(
-                                    onPressed: () {
-                                      if (inputType != InputType.emoji) {
-                                        _emojiBtnOnPressed(InputType.emoji);
-                                      } else {
-                                        _emojiBtnOnPressed(InputType.text);
-                                      }
-                                    },
-                                    icon: Icon(
-                                      Icons.emoji_emotions_outlined,
-                                      color: AppColors.ButtonTextColor,
-                                      size: 32.0,
-                                    ),
-                                    tooltip: "",
-                                    iconSize: 1,
-                                    padding: const EdgeInsets.all(0.0),
-                                  );
-                                },
-                                (_) {
-                                  // image
-                                  return IconButton(
-                                    onPressed: () {},
-                                    icon: Icon(
-                                      Icons.image,
-                                      color: AppColors.ButtonTextColor,
-                                      size: 32.0,
-                                    ),
-                                    iconSize: 12,
-                                    padding: const EdgeInsets.only(
-                                      left: 0.0,
-                                      top: 0.0,
-                                      right: 0.0,
-                                      bottom: 0.0,
-                                    ),
-                                    alignment: Alignment.center,
-                                  );
-                                },
-                                (_) {
-                                  // camera
-                                  return IconButton(
-                                    onPressed: () {},
-                                    icon: Icon(
-                                      Icons.camera_alt,
-                                      color: AppColors.ButtonTextColor,
-                                      size: 32.0,
-                                    ),
-                                    iconSize: 12,
-                                    padding: const EdgeInsets.only(
-                                      left: 0.0,
-                                      top: 0.0,
-                                      right: 0.0,
-                                      bottom: 0.0,
-                                    ),
-                                    alignment: Alignment.center,
-                                  );
-                                },
-                                (_) {
-                                  // File
-                                  return IconButton(
-                                    onPressed: () {
-                                      ChatKeyboard();
-                                    },
-                                    icon: Icon(
-                                      Icons.attach_file,
-                                      color: AppColors.ButtonTextColor,
-                                      size: 32.0,
-                                    ),
-                                    iconSize: 12,
-                                    padding: const EdgeInsets.only(
-                                      left: 0.0,
-                                      top: 0.0,
-                                      right: 0.0,
-                                      bottom: 0.0,
-                                    ),
-                                    alignment: Alignment.center,
-                                  );
-                                },
-                                (_) {
-                                  //extra
-                                  return IconButton(
-                                    // send
-                                    onPressed: () =>
-                                        updateState(InputType.extra),
-                                    icon: const Icon(
-                                      Icons.add_circle_outline_outlined,
-                                      color: AppColors.ButtonTextColor,
-                                      size: 32.0,
-                                    ),
-                                    tooltip: "",
-                                    iconSize: 4,
-                                    padding: const EdgeInsets.all(0.0),
-                                  );
-                                }
-                              ],
-                            ),
-                          ],
-                        ),
-                        child: ListView(
-                          children: [
-                            _inputBuilder(context),
-                          ],
-                        ),
+      onTap: () {
+        debugPrint(">>> on chat_input build");
+        _inputFocusNode.requestFocus();
+      },
+      child: Focus(
+        autofocus: true,
+        child: Padding(
+          padding: InheritedChatTheme.of(context).theme.inputPadding,
+          child: Material(
+            borderRadius:
+                InheritedChatTheme.of(context).theme.inputBorderRadius,
+            color: InheritedChatTheme.of(context).theme.inputBackgroundColor,
+            child: Container(
+              padding: EdgeInsets.fromLTRB(
+                _query.padding.left,
+                4,
+                _query.padding.right,
+                4 + _query.viewInsets.bottom + _query.padding.bottom,
+              ),
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    children: [
+                      // voice
+                      buildLeftButton(),
+                      // input
+                      Expanded(
+                        child: _buildInputButton(context),
                       ),
-                    ),
+                      // emoji
+                      buildEmojiButton(),
+                      //extra
+                      buildExtra(),
+                    ],
                   ),
+                  _buildBottomContainer(child: _buildBottomItems()),
                 ],
               ),
-
-              // Row(
-              //   children: [
-              //     Flexible(
-              //       child: TabBar(
-              //         labelColor: Colors.blue,
-              //         indicatorColor: Colors.blue,
-              //         unselectedLabelColor: Colors.grey,
-              //         labelPadding: EdgeInsets.zero,
-              //         onTap: (index) {
-              //           // _pageController!.jumpToPage(index);
-              //         },
-              //         controller: _tabController,
-              //         tabs: <Widget>[
-              //           // voice
-              //           IconButton(
-              //             onPressed: () {
-              //               if (inputType == InputType.voice) {
-              //                 _voiceBtnOnPressed(InputType.text);
-              //               } else {
-              //                 _voiceBtnOnPressed(InputType.voice);
-              //               }
-              //             },
-              //             icon: Icon(
-              //               Icons.keyboard_voice_outlined,
-              //               color: AppColors.ButtonTextColor,
-              //               size: 32.0,
-              //             ),
-              //             iconSize: 12,
-              //             padding: const EdgeInsets.only(
-              //               left: 0.0,
-              //               top: 0.0,
-              //               right: 0.0,
-              //               bottom: 0.0,
-              //             ),
-              //             alignment: Alignment.center,
-              //           ),
-              //
-              //           // emoji
-              //           IconButton(
-              //             onPressed: () {
-              //               if (inputType != InputType.emoji) {
-              //                 _emojiBtnOnPressed(InputType.emoji);
-              //               } else {
-              //                 _emojiBtnOnPressed(InputType.text);
-              //               }
-              //             },
-              //             icon: Icon(
-              //               Icons.emoji_emotions_outlined,
-              //               color: AppColors.ButtonTextColor,
-              //               size: 32.0,
-              //             ),
-              //             tooltip: "",
-              //             iconSize: 1,
-              //             padding: const EdgeInsets.all(0.0),
-              //           ),
-              //           // image
-              //           IconButton(
-              //             onPressed: () {},
-              //             icon: Icon(
-              //               Icons.image,
-              //               color: AppColors.ButtonTextColor,
-              //               size: 32.0,
-              //             ),
-              //             iconSize: 12,
-              //             padding: const EdgeInsets.only(
-              //               left: 0.0,
-              //               top: 0.0,
-              //               right: 0.0,
-              //               bottom: 0.0,
-              //             ),
-              //             alignment: Alignment.center,
-              //           ),
-              //           // camera
-              //           IconButton(
-              //             onPressed: () {},
-              //             icon: Icon(
-              //               Icons.camera_alt,
-              //               color: AppColors.ButtonTextColor,
-              //               size: 32.0,
-              //             ),
-              //             iconSize: 12,
-              //             padding: const EdgeInsets.only(
-              //               left: 0.0,
-              //               top: 0.0,
-              //               right: 0.0,
-              //               bottom: 0.0,
-              //             ),
-              //             alignment: Alignment.center,
-              //           ),
-              //           // File
-              //           IconButton(
-              //             onPressed: () {
-              //               ChatKeyboard();
-              //             },
-              //             icon: Icon(
-              //               Icons.attach_file,
-              //               color: AppColors.ButtonTextColor,
-              //               size: 32.0,
-              //             ),
-              //             iconSize: 12,
-              //             padding: const EdgeInsets.only(
-              //               left: 0.0,
-              //               top: 0.0,
-              //               right: 0.0,
-              //               bottom: 0.0,
-              //             ),
-              //             alignment: Alignment.center,
-              //           ),
-              //           //extra
-              //           IconButton(
-              //             // send
-              //             // onPressed: _handleSendPressed,
-              //             onPressed: () => updateState(InputType.extra),
-              //             icon: const Icon(
-              //               Icons.add_circle_outline_outlined,
-              //               color: AppColors.ButtonTextColor,
-              //               size: 32.0,
-              //             ),
-              //             tooltip: "",
-              //             iconSize: 4,
-              //             padding: const EdgeInsets.all(0.0),
-              //           ),
-              //         ],
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              // _buildBottomContainer(child: _buildBottomItems()),
-            ],
+            ),
           ),
         ),
       ),

@@ -7,7 +7,6 @@ import 'package:imboy/component/view/main_input.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/helper/func.dart';
-import 'package:imboy/helper/win_media.dart';
 
 import 'group_remark_logic.dart';
 import 'group_remark_state.dart';
@@ -138,7 +137,8 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                         padding: EdgeInsets.symmetric(horizontal: 2),
                         child: new Text(
                           '填入',
-                          style: TextStyle(color: AppColors.MainTextColor, fontSize: 14),
+                          style: TextStyle(
+                              color: AppColors.MainTextColor, fontSize: 14),
                         ),
                       ),
                       onTap: () {
@@ -152,9 +152,9 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
               new ComMomButton(
                 text: '完成',
                 onTap: () => handle(),
-                width: winWidth(context) / 2,
+                width: Get.width / 2,
               ),
-              new Space(height: winKeyHeight(context) > 1 ? 15 : 50),
+              new Space(height: Get.width > 1 ? 15 : 50),
             ],
           ),
         ),

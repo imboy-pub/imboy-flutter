@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -9,10 +7,10 @@ import 'package:imboy/component/view/null_view.dart';
 import 'package:imboy/component/widget/chat/conversation_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/helper/datetime.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/store/model/conversation_model.dart';
-import 'package:jiffy/jiffy.dart';
 
 import 'conversation_logic.dart';
 
@@ -26,8 +24,6 @@ class _ConversationPageState extends State<ConversationPage> {
 
   bool alive = true;
 
-  StreamSubscription<dynamic>? _convStreamSubs;
-
   var _connectivityResult;
   RxString _connectStateDescription = "".obs;
 
@@ -35,18 +31,14 @@ class _ConversationPageState extends State<ConversationPage> {
   void initState() {
     super.initState();
 
-    debugPrint(">>>>> on _convStreamSubs ${_convStreamSubs.toString()}");
-    if (_convStreamSubs == null) {
-      // Register listeners for all events:
-      _convStreamSubs = eventBus.on<ConversationModel>().listen((e) async {
-        MessageService.to.conversations[e.typeId] = e;
-        if (mounted) {
-          setState(() {
-            MessageService.to.conversations;
-          });
-        }
-      });
-    }
+    eventBus.on<ConversationModel>().listen((e) async {
+      MessageService.to.conversations[e.typeId] = e;
+      if (mounted) {
+        setState(() {
+          MessageService.to.conversations;
+        });
+      }
+    });
 
     if (_connectivityResult == null) {
       debugPrint(">>> on chat_view/initData _connectivityResult ");
@@ -209,8 +201,9 @@ class _ConversationPageState extends State<ConversationPage> {
                   'text': model.subtitle,
                 },
                 time: Text(
-                  Jiffy.unixFromMillisecondsSinceEpoch(model.lasttime ?? 0)
-                      .fromNow(),
+                  DateTimeHelper.lastConversationFmt(
+                    model.lasttime ?? 0,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -246,10 +239,6 @@ class _ConversationPageState extends State<ConversationPage> {
   void dispose() {
     Get.delete<ConversationLogic>();
 
-    if (_convStreamSubs != null) {
-      _convStreamSubs!.cancel();
-      _convStreamSubs = null;
-    }
     super.dispose();
   }
 }

@@ -1,44 +1,35 @@
+import 'package:jiffy/jiffy.dart';
+
 class DateTimeHelper {
-  static String full = "yyyy-MM-dd HH:mm:ss";
-
-  static String formatDateV(DateTime dateTime, {bool? isUtc, String? format}) {
-    if (dateTime == null) return "";
-    format = format ?? full;
-    if (format.contains("yy")) {
-      String year = dateTime.year.toString();
-      if (format.contains("yyyy")) {
-        format = format.replaceAll("yyyy", year);
-      } else {
-        format = format.replaceAll(
-            "yy", year.substring(year.length - 2, year.length));
-      }
+  static String customDateHeader(DateTime dt) {
+    int diff = Jiffy().diff(dt, Units.DAY) as int;
+    if (diff > 6) {
+      // 2022-01-22 11:58
+      return Jiffy(dt).format('y-MM-dd HH:mm');
+    } else if (diff > 2) {
+      // 星期二 09:18
+      return Jiffy(dt).format('EEEE HH:mm');
+    } else {
+      return Jiffy(dt).startOf(Units.MINUTE).fromNow();
     }
-
-    format = _comFormat(dateTime.month, format, 'M', 'MM');
-    format = _comFormat(dateTime.day, format, 'd', 'dd');
-    format = _comFormat(dateTime.hour, format, 'H', 'HH');
-    format = _comFormat(dateTime.minute, format, 'm', 'mm');
-    format = _comFormat(dateTime.second, format, 's', 'ss');
-    format = _comFormat(dateTime.millisecond, format, 'S', 'SSS');
-
-    return format;
   }
 
-  static String _comFormat(
-      int value, String format, String single, String full) {
-    if (format.contains(single)) {
-      if (format.contains(full)) {
-        format =
-            format.replaceAll(full, value < 10 ? '0$value' : value.toString());
-      } else {
-        format = format.replaceAll(single, value.toString());
-      }
+  static String lastConversationFmt(int lasttime) {
+    DateTime dt = Jiffy.unixFromMillisecondsSinceEpoch(lasttime).dateTime;
+    int diff = Jiffy().diff(dt, Units.DAY) as int;
+    if (diff > 6) {
+      // 2022-01-22
+      return Jiffy(dt).format('y-MM-dd');
+    } else if (diff > 2) {
+      // 星期二 09:18
+      return Jiffy(dt).format('EEEE HH:mm');
+    } else {
+      return Jiffy(dt).startOf(Units.MINUTE).fromNow();
     }
-    return format;
   }
 
   /// 当前时间的毫秒时间戳
   static int currentTimeMillis() {
-    return new DateTime.now().millisecondsSinceEpoch;
+    return DateTime.now().millisecondsSinceEpoch;
   }
 }

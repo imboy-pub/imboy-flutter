@@ -4,7 +4,6 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/view/image_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/func.dart';
-import 'package:imboy/helper/win_media.dart';
 import 'package:photo_view/photo_view.dart';
 
 class ContactCard extends StatelessWidget {
@@ -29,7 +28,8 @@ class ContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle labelStyle = TextStyle(fontSize: 14, color: AppColors.MainTextColor);
+    TextStyle labelStyle =
+        TextStyle(fontSize: 14, color: AppColors.MainTextColor);
     String accountTitle = "账号：";
     if (this.account != null) {
       accountTitle += this.account.toString();
@@ -39,11 +39,12 @@ class ContactCard extends StatelessWidget {
         color: Colors.white,
         border: isBorder!
             ? Border(
-                bottom: BorderSide(color: AppColors.LineColor, width: lineWidth!),
+                bottom:
+                    BorderSide(color: AppColors.LineColor, width: lineWidth!),
               )
             : null,
       ),
-      width: winWidth(context),
+      width: Get.width,
       padding: EdgeInsets.only(right: 15.0, left: 15.0, bottom: 20.0),
       child: new Row(
         crossAxisAlignment: CrossAxisAlignment.start,

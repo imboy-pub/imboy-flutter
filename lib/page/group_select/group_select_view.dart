@@ -14,9 +14,9 @@ class _GroupSelectPageState extends State<GroupSelectPage> {
   final GroupSelectState state = Get.find<GroupSelectLogic>().state;
 
   @override
-    Widget build(BuildContext context) {
-      return Container();
-    }
+  Widget build(BuildContext context) {
+    return Container();
+  }
 
   @override
   void dispose() {

@@ -19,7 +19,6 @@ import 'package:imboy/page/chat_info/chat_info_view.dart';
 import 'package:imboy/page/group_detail/group_detail_view.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:jiffy/jiffy.dart';
 import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
 import 'package:popup_menu/popup_menu.dart';
@@ -48,8 +47,6 @@ class ChatPage extends StatefulWidget {
 class ChatPageState extends State<ChatPage> {
   final logic = Get.put(ChatLogic());
 
-  StreamSubscription<dynamic>? _msgStreamSubs;
-
   // 当前会话新增消息
   List<types.Message> messages = [];
 
@@ -69,41 +66,39 @@ class ChatPageState extends State<ChatPage> {
     }
     _handleEndReached();
 
-    if (_msgStreamSubs == null) {
-      // Register listeners for all events:
-      String toId = widget.toId;
-      // 接收到新的消息订阅
-      _msgStreamSubs = eventBus.on<types.Message>().listen((e) async {
-        debugPrint(">>> on MessageService chat_view initState: " +
-            e.runtimeType.toString());
+    // Register listeners for all events:
+    String toId = widget.toId;
+    // 接收到新的消息订阅
+    eventBus.on<types.Message>().listen((e) async {
+      debugPrint(">>> on MessageService chat_view initState: " +
+          e.runtimeType.toString());
 
-        if (e is types.Message && e.author.id == toId) {
-          MessageService.to.decreaseConversationRemind(toId, 1);
-          messages.insert(0, e);
-          if (mounted) {
-            setState(() {
-              messages;
-            });
-          }
+      if (e is types.Message && e.author.id == toId) {
+        MessageService.to.decreaseConversationRemind(toId, 1);
+        messages.insert(0, e);
+        if (mounted) {
+          setState(() {
+            messages;
+          });
         }
-      });
+      }
+    });
 
-      // 消息状态更新订阅
-      _msgStreamSubs = eventBus.on<List<types.Message>>().listen((e) async {
-        types.Message msg = e.first;
-        final index = messages.indexWhere((element) => element.id == msg.id);
-        debugPrint(">>> on MessageService chat_view initState:$index; " +
-            msg.toJson().toString());
-        if (index > -1) {
-          messages.setRange(index, index + 1, e);
-          if (mounted) {
-            setState(() {
-              messages;
-            });
-          }
+    // 消息状态更新订阅
+    eventBus.on<List<types.Message>>().listen((e) async {
+      types.Message msg = e.first;
+      final index = messages.indexWhere((element) => element.id == msg.id);
+      debugPrint(">>> on MessageService chat_view initState:$index; " +
+          msg.toJson().toString());
+      if (index > -1) {
+        messages.setRange(index, index + 1, e);
+        if (mounted) {
+          setState(() {
+            messages;
+          });
         }
-      });
-    }
+      }
+    });
   }
 
   Future<void> _handleEndReached() async {
@@ -497,13 +492,12 @@ class ChatPageState extends State<ChatPage> {
           onEndReachedThreshold: 0.8,
           // 300000 = 5分钟 默认 900000 = 15 分钟
           dateHeaderThreshold: 300000,
-          customDateHeaderText: (DateTime dt) {
-            return Jiffy(dt, 'yMMMMEEEEd').startOf(Units.MINUTE).fromNow();
-          },
+          customDateHeaderText: (DateTime dt) =>
+              DateTimeHelper.customDateHeader(dt),
           onEndReached: _handleEndReached,
           onAttachmentPressed: _handleAtachmentPressed,
           // onMessageTap: _handleMessageTap,
-          // onMessageDoubleTap: _onMessageDoubleTap,
+          onMessageDoubleTap: _onMessageDoubleTap,
           onMessageLongPress: _onMessageLongPress,
           onPreviewDataFetched: _handlePreviewDataFetched,
           onSendPressed: _handleSendPressed,
@@ -524,12 +518,6 @@ class ChatPageState extends State<ChatPage> {
   @override
   void dispose() {
     Get.delete<ChatLogic>();
-
-    if (_msgStreamSubs != null) {
-      _msgStreamSubs!.cancel();
-      _msgStreamSubs = null;
-    }
-    debugPrint(">>>>> on chat_view/dispose _connectivityResult ");
 
     //在页面销毁的时候一定要取消网络状态的监听
     // if (_connectivityResult != null &&

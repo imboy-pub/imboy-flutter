@@ -37,7 +37,8 @@ class _SettingPageState extends State<SettingPage> {
       {
         'label': '其少年模式',
         'vertical': 0.0,
-        'border': Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
+        'border':
+            Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
       },
       {
         'label': '新消息通知',
@@ -48,7 +49,8 @@ class _SettingPageState extends State<SettingPage> {
       {
         'label': '通用',
         'vertical': 0.0,
-        'border': Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
+        'border':
+            Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
       },
       {
         'label': '帮助与反馈',
@@ -58,7 +60,8 @@ class _SettingPageState extends State<SettingPage> {
       {
         'label': '关于',
         'vertical': 0.0,
-        'border': Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
+        'border':
+            Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
       },
       {'label': '切换账号', 'vertical': 10.0, 'border': null},
       {

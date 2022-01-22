@@ -66,58 +66,52 @@ class MessageService extends GetxService {
     return c;
   }
 
-  StreamSubscription<dynamic>? _msgStreamSubs;
-
   @override
   void onInit() {
     super.onInit();
-    // TODO: implement onInit
-    if (_msgStreamSubs == null) {
-      // Register listeners for all events:
-      _msgStreamSubs = eventBus.on<Map>().listen((data) async {
-        debugPrint(">>> on MessageService onInit: " + data.toString());
-        int code = data['code'] ?? 99999;
-        String dtype = data['type'] ?? 'error';
-        dtype = dtype.toUpperCase();
-        switch (dtype) {
-          case 'C2C':
-            await reciveC2CMessage(data);
-            break;
-          case 'C2C_SERVER_ACK': // C2C 服务端消息确认
-            await reciveC2CServerAckMessage(data);
-            break;
-          case 'C2C_REVOKE': // 对端撤回消息
-            await reciveC2CRevokeMessage(data);
-            break;
-          case 'C2C_REVOKE_ACK': // 对端撤回消息ACK
-            await reciveC2CRevokeAckMessage(dtype, data);
-            break;
-          case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
-            break;
-          case 'SYSTEM':
-            switch (code) {
-              // case 705: // token无效、刷新token 这里不处理，不发送消息
-              case 706: // 需要重新登录
-                {
-                  Get.off(new LoginPage());
-                }
-                break;
-              case 786: // 在其他地方上线
-                {
-                  // TODO
-                  WSService.to.closeSocket();
-                  UserRepoLocal.to.logout();
-                  Get.off(new LoginPage());
-                }
-                break;
-              case 1019: // 好友上线提现
+    eventBus.on<Map>().listen((data) async {
+      debugPrint(">>> on MessageService onInit: " + data.toString());
+      int code = data['code'] ?? 99999;
+      String dtype = data['type'] ?? 'error';
+      dtype = dtype.toUpperCase();
+      switch (dtype) {
+        case 'C2C':
+          await reciveC2CMessage(data);
+          break;
+        case 'C2C_SERVER_ACK': // C2C 服务端消息确认
+          await reciveC2CServerAckMessage(data);
+          break;
+        case 'C2C_REVOKE': // 对端撤回消息
+          await reciveC2CRevokeMessage(data);
+          break;
+        case 'C2C_REVOKE_ACK': // 对端撤回消息ACK
+          await reciveC2CRevokeAckMessage(dtype, data);
+          break;
+        case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
+          break;
+        case 'SYSTEM':
+          switch (code) {
+            // case 705: // token无效、刷新token 这里不处理，不发送消息
+            case 706: // 需要重新登录
+              {
+                Get.off(new LoginPage());
+              }
+              break;
+            case 786: // 在其他地方上线
+              {
                 // TODO
-                break;
-            }
-            break;
-        }
-      });
-    }
+                WSService.to.closeSocket();
+                UserRepoLocal.to.logout();
+                Get.off(new LoginPage());
+              }
+              break;
+            case 1019: // 好友上线提现
+              // TODO
+              break;
+          }
+          break;
+      }
+    });
   }
 
   /// Called before [onDelete] method. [onClose] might be used to
@@ -128,10 +122,6 @@ class MessageService extends GetxService {
   /// Might be useful as well to persist some data on disk.
   @override
   void onClose() {
-    if (_msgStreamSubs != null) {
-      _msgStreamSubs!.cancel();
-      _msgStreamSubs = null;
-    }
     super.onClose();
   }
 
