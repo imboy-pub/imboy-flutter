@@ -96,6 +96,7 @@ dependencies:
     path: plugin/flutter_chat_ui
   popup_menu:
     path: plugin/popup_menu
+  #webcrypto: ^0.5.2
 
 dev_dependencies:
   build_runner: ^2.1.4

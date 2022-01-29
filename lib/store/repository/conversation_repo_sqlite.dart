@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/helper/sqflite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 
 class ConversationRepo {
   static String tablename = 'conversation';
 
   static String id = 'id';
-  static String cuid = 'cuid';
   static String typeId = 'type_id';
   static String avatar = 'avatar';
   static String title = 'title';
@@ -28,7 +26,6 @@ class ConversationRepo {
   Future<int> insert(ConversationModel obj) async {
     Map<String, dynamic> insert = {
       'id': obj.id,
-      'cuid': UserRepoLocal.to.currentUid,
       'type_id': obj.typeId,
       'avatar': obj.avatar,
       'title': obj.title,
@@ -61,16 +58,15 @@ class ConversationRepo {
     return await _db.update(
       ConversationRepo.tablename,
       data,
-      where: '${ConversationRepo.cuid} = ? AND ${ConversationRepo.typeId} = ?',
-      whereArgs: [data['cuid'], data['type_id']],
+      where: '${ConversationRepo.typeId} = ?',
+      whereArgs: [data['type_id']],
     );
   }
 
   // 存在就更新，不存在就插入
-  Future<ConversationModel> save(String cuid, ConversationModel obj) async {
-    String where =
-        '${ConversationRepo.cuid} = ? AND ${ConversationRepo.typeId} = ?';
-    ConversationModel? oldObj = await this.find(obj.typeId);
+  Future<ConversationModel> save(ConversationModel obj) async {
+    String where = '${ConversationRepo.typeId} = ?';
+    ConversationModel? oldObj = await this.findByTypeId(obj.typeId);
     int unreadNumOld = oldObj == null ? 0 : oldObj.unreadNum;
     obj.unreadNum = obj.unreadNum + unreadNumOld;
     if (oldObj == null) {
@@ -83,7 +79,7 @@ class ConversationRepo {
       ConversationRepo.id,
       ConversationRepo.tablename,
       where: where,
-      whereArgs: [cuid, obj.typeId],
+      whereArgs: [obj.typeId],
     );
     obj.id = id!;
     return obj;
@@ -114,7 +110,7 @@ class ConversationRepo {
         ConversationRepo.type,
         ConversationRepo.msgtype,
       ],
-      where: 'cuid=${UserRepoLocal.to.currentUid} AND ' + where,
+      where: where,
       whereArgs: whereArgs,
       orderBy: "${ConversationRepo.lasttime} DESC",
     );
@@ -131,13 +127,11 @@ class ConversationRepo {
   }
 
   //
-  Future<Map<String, ConversationModel>> findByCuid(String cuid) async {
-    print(">>>>> on ConversationRepo/findByCuid cuid {$cuid}");
+  Future<Map<String, ConversationModel>> all() async {
     List<Map<String, dynamic>> maps = await _db.query(
       ConversationRepo.tablename,
       columns: [
         ConversationRepo.id,
-        ConversationRepo.cuid,
         ConversationRepo.typeId,
         ConversationRepo.avatar,
         ConversationRepo.title,
@@ -149,10 +143,8 @@ class ConversationRepo {
         ConversationRepo.type,
         ConversationRepo.msgtype,
       ],
-      where: 'cuid=? AND ${ConversationRepo.isShow} = ?',
-      whereArgs: [cuid, 1],
-      // where: 'cuid=?',
-      // whereArgs: [cuid],
+      where: '${ConversationRepo.isShow} = ?',
+      whereArgs: [1],
       orderBy: "${ConversationRepo.lasttime} DESC",
     );
     debugPrint(">>>>> on ConversationRepo/findByCuid maps " + maps.toString());
@@ -169,12 +161,11 @@ class ConversationRepo {
   }
 
   Future<ConversationModel?> findById(int id) async {
-    print(">>>>> on ConversationRepo/findById id {$id}");
+    debugPrint(">>> on ConversationRepo/findById id {$id}");
     List<Map<String, dynamic>> maps = await _db.query(
       ConversationRepo.tablename,
       columns: [
         ConversationRepo.id,
-        ConversationRepo.cuid,
         ConversationRepo.typeId,
         ConversationRepo.avatar,
         ConversationRepo.title,
@@ -188,11 +179,9 @@ class ConversationRepo {
       ],
       where: 'id=?',
       whereArgs: [id],
-      // where: 'cuid=?',
-      // whereArgs: [cuid],
       orderBy: "${ConversationRepo.lasttime} DESC",
     );
-    debugPrint(">>>>> on ConversationRepo/findByCuid maps " + maps.toString());
+    debugPrint(">>> on ConversationRepo/findById maps " + maps.toString());
 
     if (maps.length > 0) {
       return ConversationModel.fromJson(maps.first);
@@ -201,24 +190,24 @@ class ConversationRepo {
   }
 
   //
-  Future<ConversationModel?> find(String typeId) async {
+  Future<ConversationModel?> findByTypeId(String typeId) async {
     List<Map<String, dynamic>> maps = await _db.query(
-        ConversationRepo.tablename,
-        columns: [
-          ConversationRepo.id,
-          ConversationRepo.typeId,
-          ConversationRepo.title,
-          ConversationRepo.subtitle,
-          ConversationRepo.avatar,
-          ConversationRepo.lasttime,
-          ConversationRepo.lastMsgId,
-          ConversationRepo.lastMsgStatus,
-          ConversationRepo.msgtype,
-          ConversationRepo.unreadNum,
-        ],
-        where:
-            '${ConversationRepo.cuid} = ? AND ${ConversationRepo.typeId} = ?',
-        whereArgs: [UserRepoLocal.to.currentUid, typeId]);
+      ConversationRepo.tablename,
+      columns: [
+        ConversationRepo.id,
+        ConversationRepo.typeId,
+        ConversationRepo.title,
+        ConversationRepo.subtitle,
+        ConversationRepo.avatar,
+        ConversationRepo.lasttime,
+        ConversationRepo.lastMsgId,
+        ConversationRepo.lastMsgStatus,
+        ConversationRepo.msgtype,
+        ConversationRepo.unreadNum,
+      ],
+      where: '${ConversationRepo.typeId} = ?',
+      whereArgs: [typeId],
+    );
     if (maps.length > 0) {
       return ConversationModel.fromJson(maps.first);
     }
@@ -227,10 +216,11 @@ class ConversationRepo {
 
   // 根据ID删除信息
   Future<int> delete(String typeId) async {
-    return await _db.delete(ConversationRepo.tablename,
-        where:
-            '${ConversationRepo.cuid} = ? AND ${ConversationRepo.typeId} = ?',
-        whereArgs: [UserRepoLocal.to.currentUid, typeId]);
+    return await _db.delete(
+      ConversationRepo.tablename,
+      where: '${ConversationRepo.typeId} = ?',
+      whereArgs: [typeId],
+    );
   }
 
   // 记得及时关闭数据库，防止内存泄漏

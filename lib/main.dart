@@ -1,5 +1,8 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/view/controller.dart';
@@ -9,6 +12,7 @@ import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/login/login_view.dart';
 import 'package:imboy/page/pages.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -16,9 +20,16 @@ import 'helper/locales.dart';
 import 'helper/locales.g.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await init();
-  await Jiffy.locale('zh_cn');
-  runApp(IMBoyApp());
+  // 要读取系统语言，可以使用window.locale
+  String? local = Intl.shortLocale(ui.window.locale.toString());
+  debugPrint(">>> on main ${local}");
+  // zh_Hans_CN ui.window.locale.toString();
+  await Jiffy.locale(local);
+  // runApp(IMBoyApp());
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((value) => runApp(IMBoyApp()));
 }
 
 class IMBoyApp extends StatelessWidget {

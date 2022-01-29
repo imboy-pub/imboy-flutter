@@ -4,7 +4,6 @@ import 'package:imboy/helper/sqflite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'conversation_state.dart';
@@ -19,9 +18,7 @@ class ConversationLogic extends GetxController {
   }
 
   getConversationsList() async {
-    Map<String, ConversationModel> items =
-        await (ConversationRepo()).findByCuid(UserRepoLocal.to.currentUid);
-    print(">>>>> on items.length: " + items.length.toString());
+    Map<String, ConversationModel> items = await (ConversationRepo()).all();
     return items;
   }
 

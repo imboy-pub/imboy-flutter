@@ -145,11 +145,11 @@ class MessageModel {
   }
 
   Future<ContactModel?> get to async {
-    return await ContactRepo().find(this.toId!);
+    return await ContactRepo().findByUid(this.toId!);
   }
 
   Future<ContactModel?> get from async {
-    return await ContactRepo().find(this.fromId!);
+    return await ContactRepo().findByUid(this.fromId!);
   }
 
   types.Message toTypeMessage() {

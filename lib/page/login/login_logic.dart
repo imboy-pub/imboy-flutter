@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
@@ -82,9 +81,9 @@ class LoginLogic extends GetxController {
         Get.snackbar('提示', msg);
         return false;
       }
-      debugPrint(">>>>> on {resp1.payload}");
-      debugPrint(">>>>> on {resp1}");
-      String pubKey = resp1.payload['login_rsa_pub_key'];
+      // debugPrint(">>>>> on ${resp1.payload.toString()}");
+      // debugPrint(">>>>> on ${resp1.toString()}");
+      String pubKey = resp1.payload['login_rsa_pub_key'] as String;
       final rsaEncrypt = resp1.payload['login_pwd_rsa_encrypt'];
       if (rsaEncrypt == "1") {
         dynamic publicKey = RSAKeyParser().parse(pubKey);
@@ -109,7 +108,7 @@ class LoginLogic extends GetxController {
             duration: Duration(seconds: 5));
         return false;
       } else {
-        debugPrint(">>>>> on user logoin success {$resp2.toString()}");
+        // debugPrint(">>>>> on user logoin success {$resp2.toString()}");
         return await (UserRepoLocal()).loginAfter(resp2.payload);
       }
     } on PlatformException {

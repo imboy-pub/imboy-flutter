@@ -99,14 +99,10 @@ class MessageRepo {
       ],
       where: "${MessageRepo.conversationId} = ?",
       whereArgs: [conversationId],
-      orderBy: "autoid DESC",
+      orderBy: "${MessageRepo.createdAt} DESC",
       offset: ((page - 1) > 0 ? (page - 1) : 0) * size,
       limit: size,
     );
-    // 'SELECT id, type, from_id, to_id, payload, created_at, server_ts, status, conversation_id FROM message
-    // WHERE conversation_id = ? ORDER BY server_ts DESC LIMIT 0 OFFSET 5'
-    debugPrint(
-        ">>>>> on findByConversation/3 page:${page} = ${(((page - 1) > 0 ? (page - 1) : 0))}, size:${size}; ${maps.toString()}");
     if (maps == null || maps.length == 0) {
       return [];
     }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:imboy/component/widget/login/text_field_container.dart';
 
 class RoundedInputField extends StatelessWidget {
@@ -17,6 +18,7 @@ class RoundedInputField extends StatelessWidget {
     return TextFieldContainer(
       child: TextField(
         onChanged: onChanged,
+        keyboardType: TextInputType.numberWithOptions(),
         decoration: InputDecoration(
           icon: Icon(icon, color: Theme.of(context).primaryColor),
           hintText: hintText,

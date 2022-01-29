@@ -28,7 +28,6 @@ class MessageService extends GetxService {
     val = val > 0 ? val : 0;
     conversationRemind[key] = val;
     (ConversationRepo()).update({
-      ConversationRepo.cuid: UserRepoLocal.to.currentUid,
       ConversationRepo.typeId: key,
       ConversationRepo.unreadNum: val,
       ConversationRepo.isShow: 1,
@@ -89,7 +88,7 @@ class MessageService extends GetxService {
           break;
         case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
           break;
-        case 'SYSTEM':
+        case 'S2C':
           switch (code) {
             // case 705: // token无效、刷新token 这里不处理，不发送消息
             case 706: // 需要重新登录
@@ -133,14 +132,13 @@ class MessageService extends GetxService {
 
     String subtitle = '';
 
-    ContactModel? ct = await ContactRepo().find(data['from']);
+    ContactModel? ct = await ContactRepo().findByUid(data['from']);
     String avatar = ct == null ? '' : ct.avatar!;
     String title = ct == null ? '' : ct.nickname;
 
     subtitle = text;
 
     ConversationModel cobj = ConversationModel(
-      cuid: data['to'],
       typeId: data['from'],
       avatar: avatar,
       title: title,
@@ -153,7 +151,7 @@ class MessageService extends GetxService {
       isShow: 1,
       id: 0,
     );
-    cobj = await (ConversationRepo()).save(data['to'], cobj);
+    cobj = await (ConversationRepo()).save(cobj);
 
     MessageModel msg = MessageModel(
       data['id'],
@@ -200,7 +198,7 @@ class MessageService extends GetxService {
 
   /// 收到C2C撤回消息
   Future<void> reciveC2CRevokeMessage(data) async {
-    ContactModel c = await ContactRepo().find(data['from']) as ContactModel;
+    ContactModel? c = await ContactRepo().findByUid(data['from']);
     // debugPrint(">> on reciveC2CRevokeMessage ${c.toJson().toString()}");
     MessageRepo repo = MessageRepo();
     String id = data['id'];
@@ -210,7 +208,7 @@ class MessageService extends GetxService {
       'payload': json.encode({
         "msg_type": "custom",
         "custom_type": "revoked",
-        "from_name": c.nickname
+        "from_name": c!.nickname
       }),
     });
     MessageModel? msg = await repo.find(id);

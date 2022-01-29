@@ -3,6 +3,7 @@ import 'package:imboy/helper/func.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -13,7 +14,6 @@ import 'package:sqflite/sqflite.dart';
  *
  */
 class Sqlite {
-  static final _dbName = "imboy.db";
   static final _dbVersion = 1;
 
   Sqlite._privateConstructor();
@@ -26,13 +26,21 @@ class Sqlite {
     if (_db != null) {
       return _db!;
     }
-    _db = await _initDatabase();
+    String dbName = UserRepoLocal.to.currentUid + "imboy.db";
+    debugPrint(">>> on Sqlite.database ${dbName}");
+    _db = await initDatabase(dbName);
     return _db!;
   }
 
-  _initDatabase() async {
-    String path = join(await getDatabasesPath(), _dbName);
-    debugPrint(">>>>> on open db path {$path}");
+  Future<void> close() async {
+    if (_db != null) {
+      _db = null;
+    }
+  }
+
+  Future<Database> initDatabase(String dbName) async {
+    String path = join(await getDatabasesPath(), dbName);
+    debugPrint(">>> on open db path {$path}");
     // Delete the database
     // await deleteDatabase(path);
 
@@ -50,7 +58,6 @@ class Sqlite {
 
     String contatsSql = '''
       CREATE TABLE IF NOT EXISTS ${ContactRepo.tablename} (
-        ${ContactRepo.cuid} varchar(40) NOT NULL,
         ${ContactRepo.uid} varchar(40) NOT NULL,
         ${ContactRepo.nickname} varchar(40) NOT NULL DEFAULT '',
         ${ContactRepo.avatar} varchar(255) NOT NULL DEFAULT '',
@@ -60,16 +67,16 @@ class Sqlite {
         ${ContactRepo.area} varchar(80) DEFAULT '',
         ${ContactRepo.sign} varchar(255) NOT NULL DEFAULT '',
         ${ContactRepo.updateTime} int(16) NOT NULL DEFAULT 0,
-        PRIMARY KEY("cuid","uid")
+        ${ContactRepo.isFriend} int(4) NOT NULL DEFAULT 0,
+        PRIMARY KEY("uid")
         );
       ''';
-    debugPrint(">>>>> on _onCreate \n${contatsSql}\n");
+    debugPrint(">>> on _onCreate \n${contatsSql}\n");
     await db.execute(contatsSql);
 
     String conversationSql = '''
       CREATE TABLE IF NOT EXISTS ${ConversationRepo.tablename} (
         `${ConversationRepo.id}` INTERGER AUTO_INCREMENT,
-        `${ConversationRepo.cuid}` varchar(40) NOT NULL,
         `${ConversationRepo.typeId}` varchar(40) NOT NULL,
         `${ConversationRepo.avatar}` varchar(255) NOT NULL DEFAULT '',
         `${ConversationRepo.title}` varchar(40) NOT NULL DEFAULT '',
@@ -84,7 +91,7 @@ class Sqlite {
         PRIMARY KEY(${ConversationRepo.id})
         );
       ''';
-    debugPrint(">>>>> on _onCreate \n${conversationSql}\n");
+    debugPrint(">>> on _onCreate \n${conversationSql}\n");
     await db.execute(conversationSql);
 
     String messageSql = '''

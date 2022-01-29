@@ -2,7 +2,6 @@ import 'package:imboy/helper/func.dart';
 
 class ConversationModel {
   int id;
-  final String cuid;
   final String typeId;
   final String avatar;
   final String title;
@@ -19,7 +18,6 @@ class ConversationModel {
 
   ConversationModel({
     required this.id,
-    required this.cuid,
     required this.typeId,
     required this.avatar,
     required this.title,
@@ -36,7 +34,6 @@ class ConversationModel {
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
     return new ConversationModel(
       id: json['id'] ?? 0,
-      cuid: json['cuid'] ?? '',
       typeId: json['type_id'],
       avatar: strEmpty(json['avatar']) ? '' : json['avatar'],
       title: json['title'].toString(),
@@ -53,7 +50,6 @@ class ConversationModel {
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'cuid': cuid,
         'type_id': typeId,
         'avatar': avatar,
         'title': title,

@@ -15,6 +15,7 @@ class ContactModel extends ISuspensionBean {
     this.area,
     this.sign,
     this.updateTime,
+    this.isFriend,
     this.nameIndex,
     this.namePinyin,
     this.bgColor,
@@ -31,6 +32,7 @@ class ContactModel extends ISuspensionBean {
   final String? area;
   final String? sign;
   final int? updateTime;
+  int? isFriend;
 
   String? nameIndex;
   String? namePinyin;
@@ -50,6 +52,7 @@ class ContactModel extends ISuspensionBean {
       sign: json["sign"]?.toString(),
       // 单位毫秒，13位时间戳  1561021145560
       updateTime: json["update_time"] ?? DateTime.now().millisecondsSinceEpoch,
+      isFriend: json["is_friend"] ?? 0,
     );
   }
 
@@ -63,6 +66,7 @@ class ContactModel extends ISuspensionBean {
         'area': area,
         'sign': sign,
         'update_time': updateTime,
+        'is_friend': isFriend,
         //
         'firstletter': firstletter,
         'nameIndex': nameIndex,

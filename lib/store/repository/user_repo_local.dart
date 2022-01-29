@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/helper/sqflite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/user_model.dart';
@@ -32,6 +33,7 @@ class UserRepoLocal extends GetxController {
     await StorageService.to.setString(Keys.currentUid, payload['uid']);
     await StorageService.to.setMap(Keys.currentUser, payload);
     update();
+    Sqlite.instance.database;
     // 初始化 WebSocket 链接
     WSService.to.openSocket();
     return true;
@@ -45,13 +47,13 @@ class UserRepoLocal extends GetxController {
     await StorageService.to.remove(Keys.currentUser);
 
     WSService.to.closeSocket();
-    update();
+    Sqlite.instance.close();
     return true;
   }
 
   @override
   void dispose() {
-    print(">>>>> on user UserRepoSP disponse");
+    debugPrint(">>> on user UserRepoSP disponse");
     super.dispose();
   }
 }

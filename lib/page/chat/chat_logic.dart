@@ -35,7 +35,7 @@ class ChatLogic extends GetxController {
     int size,
   ) async {
     // final response = await rootBundle.loadString('assets/data/messages.json');
-    ConversationModel? obj = await ConversationRepo().find(typeId);
+    ConversationModel? obj = await ConversationRepo().findByTypeId(typeId);
     List<MessageModel> items = await MessageRepo().findByConversation(
       obj!.id,
       page,
@@ -109,7 +109,6 @@ class ChatLogic extends GetxController {
 
     // message.status = types.Status.sent;
     ConversationModel cobj = ConversationModel(
-      cuid: fromId,
       typeId: toId,
       avatar: avatar!,
       title: title,
@@ -123,7 +122,7 @@ class ChatLogic extends GetxController {
       id: 0,
     );
     // 保存会话
-    cobj = await (ConversationRepo()).save(UserRepoLocal.to.currentUid, cobj);
+    cobj = await (ConversationRepo()).save(cobj);
     MessageModel obj = getMsgFromTmsg(type, cobj.id, message);
     bool res = sendWsMsg(obj);
 

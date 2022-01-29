@@ -10,7 +10,6 @@ import 'package:imboy/page/contact/contact_provider.dart';
 import 'package:imboy/page/contact_detail/contact_detail_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'contact_state.dart';
 
@@ -23,28 +22,18 @@ class ContactLogic extends GetxController {
 
   listFriend() async {
     List<ContactModel> contact = [];
-    contact = await (ContactRepo()).findByCuid(UserRepoLocal.to.currentUid);
+    contact = await (ContactRepo()).findFriend();
     if (contact.isNotEmpty) {
       return contact;
     }
-    // // 获取数据
-    // final Response resp = await provider.listFriend();
-    //
-    // // 判断，如果有错误
-    // if (resp.hasError) {
-    //   debugPrint(">>> on Connect listFriend ${resp.statusText}");
-    //   // 改变数据，传入错误状态，在ui中会处理这些错误
-    //   // change(null, status: RxStatus.error(res.statusText));
-    // } else {
-    //   debugPrint(">>> on Connect listFriend ${resp.body.toString()}");
-    //   // 否则，存储数据，改变状态为成功
-    //   // change(res.body, status: RxStatus.success());
-    // }
 
-    HttpResponse resp = await _dio.get(API.friendList,
-        options: Options(
-          contentType: "application/x-www-form-urlencoded",
-        ));
+    // return [];
+    HttpResponse resp = await _dio.get(
+      API.friendList,
+      options: Options(
+        contentType: "application/x-www-form-urlencoded",
+      ),
+    );
 
     if (!resp.ok) {
       return [];
@@ -54,8 +43,9 @@ class ContactLogic extends GetxController {
     var repo = ContactRepo();
     for (int i = 0; i < dLength; i++) {
       ContactModel model = ContactModel.fromJson(dataMap[i]);
+      model.isFriend = 1;
+      repo.save(model);
       contact.insert(0, model);
-      repo.insert(model);
     }
     return contact;
   }

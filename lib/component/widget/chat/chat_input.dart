@@ -103,16 +103,17 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   void _setText(String val) {
     String text = _textController.text;
     TextSelection textSelection = _textController.selection;
+    int start = textSelection.start > -1 ? textSelection.start : 0;
     String newText = text.replaceRange(
-      textSelection.start,
-      textSelection.end,
+      start,
+      textSelection.end > -1 ? textSelection.end : 0,
       val,
     );
-    final len = val.length;
     _textController.text = newText;
+    int offset = start + val.length;
     _textController.selection = textSelection.copyWith(
-      baseOffset: textSelection.start + len,
-      extentOffset: textSelection.start + len,
+      baseOffset: offset,
+      extentOffset: offset,
     );
   }
 
@@ -320,7 +321,12 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       minLines: 1,
       onChanged: widget.onTextChanged,
       onTap: () {
-        updateState(InputType.text);
+        if (inputType != InputType.emoji) {
+          updateState(InputType.text);
+        } else {
+          hideSoftKey();
+          updateState(InputType.emoji);
+        }
         widget.onTextFieldTap;
       },
       style: InheritedChatTheme.of(ctx).theme.inputTextStyle.copyWith(
