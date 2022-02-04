@@ -130,3 +130,10 @@ mkdir -p assets assets/locales
 // 生产json文件之后执行下面命令
 get generate locales assets/locales on helper
 ```
+
+## 临时解决 CocoaPods not installed. Skipping pod install
+
+https://github.com/flutter/flutter/issues/97251
+```
+open /Applications/Android\ Studio\ 4.2\ Preview.app
+```

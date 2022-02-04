@@ -9,6 +9,7 @@ import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -133,6 +134,10 @@ class MessageService extends GetxService {
     String subtitle = '';
 
     ContactModel? ct = await ContactRepo().findByUid(data['from']);
+    // 如果没有联系人，同步去取
+    if (ct == null) {
+      ct = await (ContactProvider()).syncByUid(data['from']);
+    }
     String avatar = ct == null ? '' : ct.avatar!;
     String title = ct == null ? '' : ct.nickname;
 

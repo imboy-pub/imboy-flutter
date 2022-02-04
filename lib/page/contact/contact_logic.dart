@@ -1,24 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/config/const.dart';
-import 'package:imboy/helper/http/http_client.dart';
-import 'package:imboy/helper/http/http_response.dart';
 import 'package:imboy/page/chat/chat_view.dart';
-import 'package:imboy/page/contact/contact_provider.dart';
 import 'package:imboy/page/contact_detail/contact_detail_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
 import 'contact_state.dart';
 
 class ContactLogic extends GetxController {
   final state = ContactState();
-  // 获取实例
-  final provider = Get.put(ContactProvider());
-
-  final HttpClient _dio = Get.put(HttpClient.client);
 
   listFriend() async {
     List<ContactModel> contact = [];
@@ -26,28 +18,7 @@ class ContactLogic extends GetxController {
     if (contact.isNotEmpty) {
       return contact;
     }
-
-    // return [];
-    HttpResponse resp = await _dio.get(
-      API.friendList,
-      options: Options(
-        contentType: "application/x-www-form-urlencoded",
-      ),
-    );
-
-    if (!resp.ok) {
-      return [];
-    }
-    List<dynamic> dataMap = resp.payload['friend'];
-    int dLength = dataMap.length;
-    var repo = ContactRepo();
-    for (int i = 0; i < dLength; i++) {
-      ContactModel model = ContactModel.fromJson(dataMap[i]);
-      model.isFriend = 1;
-      repo.save(model);
-      contact.insert(0, model);
-    }
-    return contact;
+    return await (ContactProvider()).listFriend();
   }
 
   Widget getChatListItem(

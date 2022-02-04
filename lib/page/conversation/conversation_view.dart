@@ -81,6 +81,25 @@ class _ConversationPageState extends State<ConversationPage> {
       MessageService.to.conversations;
       MessageService.to.conversationRemind;
     });
+
+    // User A 生成密钥
+    // var keyPairEd25519App1 = await Ed25519().newKeyPair();
+    // var keyPairX25519App1 = await X25519().newKeyPair();
+    // // User B 生成密钥
+    // var keyPairEd25519App2 = await Ed25519().newKeyPair();
+    // var keyPairX25519App2 = await X25519().newKeyPair();
+    // User A通过 ed25519 密钥对对 x25519 的公钥进行签名
+    // var signature1 = await EncryptUtil.sign(
+    //   keyPairX25519App1.extractPublicKey(),
+    //   keyPairEd25519App1,
+    // );
+    // // User B通过 ed25519 密钥对对 x25519 的公钥进行签名
+    // var signature2 = await EncryptUtil.sign(
+    //     keyPairX25519App2.publicKey.bytes, keyPairEd25519App2);
+
+    // final keyPair = await generateKeys();
+    // debugPrint(">>> on e2ee prikey ${keyPairEd25519App1.extractPublicKey()}");
+    // debugPrint(">>> on e2ee pubkey ${keyPair.publicKey}");
   }
 
   @override

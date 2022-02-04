@@ -3,8 +3,11 @@ import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart' as Getx;
+import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/http/http_exceptions.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'http_config.dart';
 import 'http_parse.dart';
@@ -30,7 +33,7 @@ class HttpClient {
       _dio.interceptors.add(LogInterceptor(
           responseBody: true,
           error: true,
-          requestHeader: false,
+          requestHeader: true,
           responseHeader: false,
           request: false,
           requestBody: true));
@@ -57,6 +60,16 @@ class HttpClient {
     };
   }
 
+  setDefaultConfig() {
+    if (_dio.options.baseUrl == "") {
+      _dio.options.baseUrl = API_BASE_URL;
+    }
+    String tk = UserRepoLocal.to.accessToken;
+    if (strNoEmpty(tk)) {
+      _dio.options.headers[Keys.tokenKey] = tk;
+    }
+  }
+
   Future<HttpResponse> get(String uri,
       {Map<String, dynamic>? queryParameters,
       Options? options,
@@ -64,7 +77,7 @@ class HttpClient {
       ProgressCallback? onReceiveProgress,
       HttpTransformer? httpTransformer}) async {
     try {
-      debugPrint(">>>>> on http_client baseurl: ${_dio.options.baseUrl};");
+      setDefaultConfig();
       var connectivityResult = await (Connectivity().checkConnectivity());
       if (connectivityResult == ConnectivityResult.none) {
         Getx.Get.snackbar("Tips", "网络连接异常get");
@@ -77,8 +90,6 @@ class HttpClient {
         cancelToken: cancelToken,
         onReceiveProgress: onReceiveProgress,
       );
-      // debugPrint(">>>>>> on response.toString(): " + response.toString());
-
       return handleResponse(response, httpTransformer: httpTransformer);
     } on Exception catch (e) {
       debugPrint(">>>>>> on Exception: " + e.toString());
@@ -102,6 +113,7 @@ class HttpClient {
       return handleException(NetworkException());
     }
     try {
+      setDefaultConfig();
       var response = await _dio.post(
         uri,
         data: data,
@@ -126,6 +138,7 @@ class HttpClient {
       ProgressCallback? onReceiveProgress,
       HttpTransformer? httpTransformer}) async {
     try {
+      setDefaultConfig();
       var response = await _dio.patch(
         uri,
         data: data,
@@ -148,6 +161,7 @@ class HttpClient {
       CancelToken? cancelToken,
       HttpTransformer? httpTransformer}) async {
     try {
+      setDefaultConfig();
       var response = await _dio.delete(
         uri,
         data: data,
@@ -168,6 +182,7 @@ class HttpClient {
       CancelToken? cancelToken,
       HttpTransformer? httpTransformer}) async {
     try {
+      setDefaultConfig();
       var response = await _dio.put(
         uri,
         data: data,
@@ -191,6 +206,7 @@ class HttpClient {
       Options? options,
       HttpTransformer? httpTransformer}) async {
     try {
+      setDefaultConfig();
       var response = await _dio.download(
         urlPath,
         savePath,

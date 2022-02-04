@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/helper/datetime.dart';
+import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/sqflite.dart';
 import 'package:imboy/store/model/contact_model.dart';
 
@@ -58,8 +59,6 @@ class ContactRepo {
       orderBy: "update_time desc",
       limit: 10000,
     );
-    debugPrint(">>> on ContactRepo/findFriend/0, ${maps.length} maps: " +
-        maps.toString());
     if (maps.length == 0) {
       return [];
     }
@@ -108,35 +107,55 @@ class ContactRepo {
   }
 
   // 更新信息
-  Future<int> update(ContactModel obj) async {
-    Map<String, Object?> data = {
-      'account': obj.account,
-      'nickname': obj.nickname,
-      'avatar': obj.avatar,
-      'status': obj.status,
-      'remark': obj.remark,
-      'area': obj.area,
-      'sign': obj.sign,
-      'update_time': DateTimeHelper.currentTimeMillis(),
-      'is_friend': obj.isFriend,
-    };
+  Future<int> update(Map<String, dynamic> json) async {
+    String uid = json["id"] ?? (json["uid"] ?? "");
+    Map<String, Object?> data = {};
+    if (strNoEmpty(json["account"])) {
+      data["account"] = json["account"];
+    }
+    if (strNoEmpty(json["nickname"])) {
+      data["nickname"] = json["nickname"];
+    }
+    if (strNoEmpty(json["avatar"] ?? "")) {
+      data["avatar"] = json["avatar"];
+    }
+
+    if (strNoEmpty(json["status"])) {
+      data["status"] = json["status"];
+    }
+    if (strNoEmpty(json["remark"])) {
+      data["remark"] = json["remark"];
+    }
+    if (strNoEmpty(json["area"])) {
+      data["area"] = json["area"];
+    }
+    if (strNoEmpty(json["sign"])) {
+      data["sign"] = json["sign"];
+    }
 
     debugPrint(">>> on ContactRepo/update/1 data: ${data.toString()}");
-    return await _db.update(
-      ContactRepo.tablename,
-      data,
-      where: '${ContactRepo.uid} = ?',
-      whereArgs: [obj.uid],
-    );
+    if (strNoEmpty(uid)) {
+      data["is_friend"] = json["is_friend"] ?? 0;
+      data["update_time"] = DateTimeHelper.currentTimeMillis();
+      return await _db.update(
+        ContactRepo.tablename,
+        data,
+        where: '${ContactRepo.uid} = ?',
+        whereArgs: [uid],
+      );
+    } else {
+      return 0;
+    }
   }
 
-  void save(ContactModel obj) async {
-    ContactModel? old = await this.findByUid(obj.uid!);
+  void save(Map<String, dynamic> json) async {
+    String uid = json["id"] ?? (json["uid"] ?? "");
+    ContactModel? old = await this.findByUid(uid);
     // debugPrint(">>> on ContactRepo/save/1 old: ${old!.toString()}");
     if (old != null || old is ContactModel) {
-      this.update(obj);
+      this.update(json);
     } else {
-      this.insert(obj);
+      this.insert(ContactModel.fromJson(json));
     }
   }
 
