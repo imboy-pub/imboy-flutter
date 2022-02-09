@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/sqflite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/store/provider/user_provider.dart';
 
 class UserRepoLocal extends GetxController {
   static UserRepoLocal get to => Get.find();
@@ -28,7 +30,7 @@ class UserRepoLocal extends GetxController {
   }
 
   Future<bool> loginAfter(Map<String, dynamic> payload) async {
-    debugPrint(">>>>> on user loginAfter");
+    debugPrint(">>> on user loginAfter");
     await StorageService.to.setString(Keys.tokenKey, payload['token']);
     await StorageService.to.setString(Keys.currentUid, payload['uid']);
     await StorageService.to.setMap(Keys.currentUser, payload);
@@ -49,6 +51,18 @@ class UserRepoLocal extends GetxController {
     WSService.to.closeSocket();
     Sqlite.instance.close();
     return true;
+  }
+
+  /**
+   * 刷新token
+   */
+  Future<void> refreshtoken() async {
+    String newToken = await (UserProvider()).refreshtoken(
+      UserRepoLocal.to.currentUser.refreshtoken!,
+    );
+    if (strNoEmpty(newToken)) {
+      await StorageService.to.setString(Keys.tokenKey, newToken);
+    }
   }
 
   @override

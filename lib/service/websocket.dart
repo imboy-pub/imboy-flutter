@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/func.dart';
+import 'package:imboy/helper/http/http_client.dart';
 import 'package:imboy/helper/jwt.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:web_socket_channel/io.dart';
@@ -109,18 +109,11 @@ class WSService extends GetxService {
       return;
     }
     if (token_expired(token)) {
-      // await refreshtoken();
-      // debugPrint('>>> on ws token old $token');
+      await UserRepoLocal.to.refreshtoken();
       token = UserRepoLocal.to.accessToken;
-      debugPrint('>>> on ws ${DateTime.now()} token new $token');
     }
-    var headers = {
-      'vsn': appVsn,
-      'device-type': currentDeviceType(),
-      'client-system': Platform.operatingSystem,
-      'client-system-vsn': Platform.operatingSystemVersion,
-      '${Keys.tokenKey}': token.replaceAll('+', '%2B'),
-    };
+    Map<String, dynamic> headers = defaultHeaders();
+    headers[Keys.tokenKey] = token;
     String url =
         _SOCKET_URL + '?' + Keys.tokenKey + '=' + token.replaceAll('+', '%2B');
     if (subprotocol.isEmpty) {

@@ -9,7 +9,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 class ImboyInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    debugPrint('REQUEST[${options.method}] => PATH: ${options.path}');
+    debugPrint('>>> on REQUEST[${options.method}] => PATH: ${options.path}');
     options.headers['Accept'] = Headers.jsonContentType;
     options.headers['device-type'] = Platform.operatingSystem;
     options.headers['device-type-vsn'] = Platform.operatingSystemVersion;

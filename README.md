@@ -1,6 +1,13 @@
 # imboy
 
-A new Flutter project.
+A new Flutter project for imboy.
+
+imboy 的Flutter项目
+
+因为我是中国人，所以选择了[木兰宽松许可证, 第2版](https://gitee.com/imboy-pub/imboy-flutter/blob/main/LICENSE)
+
+所有依赖的flutter包大部分是“MIT License” 和 “Apache-2.0 License”（以后陆续补充一个）
+
 
 ## Getting Started
 
@@ -27,13 +34,13 @@ samples, guidance on mobile development, and a full API reference.
         * 在线，投递消息给TO, 收到TO的回复后投递给FROM
         * 离线，回复消息给From，修正之前的消息（已经投递/未投递），做一个"离线的撤销消息"以便二次投递
     * 删除消息、或者撤回消息之后，需要更新对应的会话信息 OK
-* 文本聊天 右键菜单之撤回文本消息"重新编辑"功能 OK
-* 文本消息双击全屏显示(单击关闭之） OK
-* 发送表情消息 OK
-* 文本聊天 右键菜单之转发消息功能 TODO
-* 文本聊天 右键菜单之收藏消息功能 TODO
-* 文本聊天 右键菜单之引用消息功能 TODO
-* 文本聊天 右键菜单之多选消息功能 TODO
+    * 文本聊天 右键菜单之撤回文本消息"重新编辑"功能 OK
+    * 文本消息双击全屏显示(单击关闭之） OK
+    * 发送表情消息 OK
+    * 文本聊天 右键菜单之转发消息功能 TODO
+    * 文本聊天 右键菜单之收藏消息功能 TODO
+    * 文本聊天 右键菜单之引用消息功能 TODO
+    * 文本聊天 右键菜单之多选消息功能 TODO
 * 未读消息提醒 OK
 * 我的
     * 个人主页

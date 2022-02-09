@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
@@ -7,12 +9,22 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/http/http_exceptions.dart';
+import 'package:imboy/helper/jwt.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'http_config.dart';
 import 'http_parse.dart';
 import 'http_response.dart';
 import 'http_transformer.dart';
+
+Map<String, dynamic> defaultHeaders() {
+  return {
+    'vsn': appVsn,
+    'device-type': currentDeviceType(),
+    'client-system': Platform.operatingSystem,
+    'client-system-vsn': Platform.operatingSystemVersion,
+  };
+}
 
 class HttpClient {
   static HttpClient get client => Getx.Get.find();
@@ -60,24 +72,31 @@ class HttpClient {
     };
   }
 
-  setDefaultConfig() {
+  Future<void> _setDefaultConfig() async {
     if (_dio.options.baseUrl == "") {
       _dio.options.baseUrl = API_BASE_URL;
     }
     String tk = UserRepoLocal.to.accessToken;
-    if (strNoEmpty(tk)) {
+    bool notRTK = !_dio.options.headers.containsKey(Keys.refreshtokenKey);
+    if (strNoEmpty(tk) && notRTK) {
       _dio.options.headers[Keys.tokenKey] = tk;
+      if (token_expired(tk)) {
+        await UserRepoLocal.to.refreshtoken();
+      }
     }
+    _dio.options.headers.addAll(defaultHeaders());
   }
 
-  Future<HttpResponse> get(String uri,
-      {Map<String, dynamic>? queryParameters,
-      Options? options,
-      CancelToken? cancelToken,
-      ProgressCallback? onReceiveProgress,
-      HttpTransformer? httpTransformer}) async {
+  Future<HttpResponse> get(
+    String uri, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+    HttpTransformer? httpTransformer,
+  }) async {
     try {
-      setDefaultConfig();
+      _setDefaultConfig();
       var connectivityResult = await (Connectivity().checkConnectivity());
       if (connectivityResult == ConnectivityResult.none) {
         Getx.Get.snackbar("Tips", "网络连接异常get");
@@ -113,7 +132,7 @@ class HttpClient {
       return handleException(NetworkException());
     }
     try {
-      setDefaultConfig();
+      _setDefaultConfig();
       var response = await _dio.post(
         uri,
         data: data,
@@ -129,16 +148,18 @@ class HttpClient {
     }
   }
 
-  Future<HttpResponse> patch(String uri,
-      {data,
-      Map<String, dynamic>? queryParameters,
-      Options? options,
-      CancelToken? cancelToken,
-      ProgressCallback? onSendProgress,
-      ProgressCallback? onReceiveProgress,
-      HttpTransformer? httpTransformer}) async {
+  Future<HttpResponse> patch(
+    String uri, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+    HttpTransformer? httpTransformer,
+  }) async {
     try {
-      setDefaultConfig();
+      _setDefaultConfig();
       var response = await _dio.patch(
         uri,
         data: data,
@@ -154,14 +175,16 @@ class HttpClient {
     }
   }
 
-  Future<HttpResponse> delete(String uri,
-      {data,
-      Map<String, dynamic>? queryParameters,
-      Options? options,
-      CancelToken? cancelToken,
-      HttpTransformer? httpTransformer}) async {
+  Future<HttpResponse> delete(
+    String uri, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    HttpTransformer? httpTransformer,
+  }) async {
     try {
-      setDefaultConfig();
+      _setDefaultConfig();
       var response = await _dio.delete(
         uri,
         data: data,
@@ -175,14 +198,16 @@ class HttpClient {
     }
   }
 
-  Future<HttpResponse> put(String uri,
-      {data,
-      Map<String, dynamic>? queryParameters,
-      Options? options,
-      CancelToken? cancelToken,
-      HttpTransformer? httpTransformer}) async {
+  Future<HttpResponse> put(
+    String uri, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    HttpTransformer? httpTransformer,
+  }) async {
     try {
-      setDefaultConfig();
+      _setDefaultConfig();
       var response = await _dio.put(
         uri,
         data: data,
@@ -196,17 +221,20 @@ class HttpClient {
     }
   }
 
-  Future<Response> download(String urlPath, savePath,
-      {ProgressCallback? onReceiveProgress,
-      Map<String, dynamic>? queryParameters,
-      CancelToken? cancelToken,
-      bool deleteOnError = true,
-      String lengthHeader = Headers.contentLengthHeader,
-      data,
-      Options? options,
-      HttpTransformer? httpTransformer}) async {
+  Future<Response> download(
+    String urlPath,
+    savePath, {
+    ProgressCallback? onReceiveProgress,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    bool deleteOnError = true,
+    String lengthHeader = Headers.contentLengthHeader,
+    data,
+    Options? options,
+    HttpTransformer? httpTransformer,
+  }) async {
     try {
-      setDefaultConfig();
+      _setDefaultConfig();
       var response = await _dio.download(
         urlPath,
         savePath,

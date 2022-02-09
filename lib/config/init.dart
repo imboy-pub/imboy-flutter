@@ -15,11 +15,11 @@ import 'package:logger/logger.dart';
 
 typedef Callback(data);
 
-const API_BASE_URL = 'http://dev.imboy.pub:9800';
-const String ws_url = 'ws://dev.imboy.pub:9800/ws/';
+const API_BASE_URL = 'https://dev.imboy.pub';
+const String ws_url = 'wss://dev.imboy.pub/ws/';
 
 const RECORD_LOG = true;
-// const API_BASE_URL = 'http://local.api.imoby.pub:9800';
+// const API_BASE_URL = 'http://local.imoby.pub:9800';
 // const ws_url = 'ws://local.api.imoby.pub:9800/ws/';
 
 // 腾讯云 Dev
