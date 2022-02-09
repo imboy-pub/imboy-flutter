@@ -44,7 +44,8 @@ dependencies:
   # https://github.com/dint-dev/cryptography
   cryptography: ^2.0.5
   cryptography_flutter: ^2.0.2
-  webcrypto: ^0.5.2
+  # e2ee
+  #webcrypto: ^0.5.2
   web_socket_channel: ^2.1.0
   # jwt 插件
   jose: ^0.3.2

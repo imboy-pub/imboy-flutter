@@ -8,7 +8,6 @@ import 'package:imboy/component/widget/chat/conversation_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/datetime.dart';
-import 'package:imboy/helper/e2ee.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -83,7 +82,7 @@ class _ConversationPageState extends State<ConversationPage> {
       MessageService.to.conversationRemind;
     });
     // await UserRepoLocal.to.refreshtoken();
-    final keyPair = await generateKeys();
+    // final keyPair = await generateKeys();
     // debugPrint(">>> on e2ee pubkey ${keyPair.publicKey}");
   }
 
