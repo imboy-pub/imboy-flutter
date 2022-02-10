@@ -71,7 +71,7 @@ class AppColors {
   static const ChatReceivedMessageBodyBgColor =
       Color.fromRGBO(255, 255, 255, 1.0);
   static const ChatInputBackgroundColor = Color.fromRGBO(240, 240, 240, 1.0);
-  static const ChatInputFillGgColor = Color.fromRGBO(255, 255, 255, 1.0);
+  static const ChatInputFillGgColor = Color.fromRGBO(251, 251, 251, 1.0);
 }
 
 const mainSpace = 10.0;

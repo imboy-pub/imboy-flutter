@@ -23,19 +23,19 @@ class _ChatMorePageState extends State<ChatMorePage> {
   final ChatMoreState state = Get.find<ChatMoreLogic>().state;
 
   List data = [
-    {"name": "相册", "icon": "assets/images/chat/ic_details_photo.webp"},
-    {"name": "拍摄", "icon": "assets/images/chat/ic_details_camera.webp"},
-    {"name": "视频通话", "icon": "assets/images/chat/ic_details_media.webp"},
-    {"name": "位置", "icon": "assets/images/chat/ic_details_localtion.webp"},
-    {"name": "红包", "icon": "assets/images/chat/ic_details_red.webp"},
-    {"name": "转账", "icon": "assets/images/chat/ic_details_transfer.webp"},
-    {"name": "语音输入", "icon": "assets/images/chat/ic_chat_voice.webp"},
-    {"name": "我的收藏", "icon": "assets/images/chat/ic_details_favorite.webp"},
+    {"name": "相册", "icon": "assets/images/chat/extra_photo.webp"},
+    {"name": "拍摄", "icon": "assets/images/chat/extra_camera.webp"},
+    {"name": "视频通话", "icon": "assets/images/chat/extra_media.webp"},
+    {"name": "位置", "icon": "assets/images/chat/extra_localtion.webp"},
+    {"name": "红包", "icon": "assets/images/chat/extra_red.webp"},
+    {"name": "转账", "icon": "assets/images/chat/extra_transfer.webp"},
+    {"name": "语音输入", "icon": "assets/images/chat/extra_voice.webp"},
+    {"name": "我的收藏", "icon": "assets/images/chat/extra_favorite.webp"},
   ];
 
   List dataS = [
-    {"name": "名片", "icon": "assets/images/chat/ic_details_card.webp"},
-    {"name": "文件", "icon": "assets/images/chat/ic_details_file.webp"},
+    {"name": "名片", "icon": "assets/images/chat/extra_card.webp"},
+    {"name": "文件", "icon": "assets/images/chat/extra_file.webp"},
   ];
 
   List<AssetEntity> assets = <AssetEntity>[];

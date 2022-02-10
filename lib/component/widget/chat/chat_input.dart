@@ -365,8 +365,8 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       },
       image: AssetImage(
         inputType != InputType.voice
-            ? 'assets/images/chat/voice.png'
-            : 'assets/images/chat/keyboard.png',
+            ? 'assets/images/chat/input_voice.png'
+            : 'assets/images/chat/input_keyboard.png',
       ),
     );
   }
@@ -374,8 +374,8 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   Widget buildEmojiButton() {
     return ImageButton(
       image: AssetImage(inputType != InputType.emoji
-          ? 'assets/images/chat/emoji.png'
-          : 'assets/images/chat/keyboard.png'),
+          ? 'assets/images/chat/input_emoji.png'
+          : 'assets/images/chat/input_keyboard.png'),
       onPressed: () {
         if (inputType != InputType.emoji) {
           updateState(InputType.emoji);
@@ -388,7 +388,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   Widget buildExtra() {
     return ImageButton(
-      image: AssetImage('assets/images/chat/extra.png'),
+      image: AssetImage('assets/images/chat/input_extra.png'),
       onPressed: () => updateState(InputType.extra),
     );
   }

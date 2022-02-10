@@ -5,12 +5,16 @@ class ImageButton extends StatefulWidget {
     Key? key,
     required this.onPressed,
     required this.image,
-    int? width,
-    int? height,
+    double? this.width,
+    double? this.height,
+    String? this.title,
   }) : super(key: key);
 
   final ImageProvider image;
   final void Function()? onPressed;
+  final double? width;
+  final double? height;
+  final String? title;
 
   @override
   _ImageButtonState createState() => _ImageButtonState();
@@ -22,13 +26,13 @@ class _ImageButtonState extends State<ImageButton> {
     return GestureDetector(
       onTap: widget.onPressed,
       child: Container(
-        width: 44,
-        height: 44,
+        width: widget.width ?? 44,
+        height: widget.height ?? 44,
         alignment: Alignment.center,
         child: Image(
           image: widget.image,
-          width: 35,
-          height: 35,
+          width: widget.width ?? 35,
+          height: widget.height ?? 35,
         ),
       ),
     );

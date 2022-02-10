@@ -10,6 +10,8 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/widget/chat/chat_input.dart';
+import 'package:imboy/component/widget/chat/extra_item.dart';
+import 'package:imboy/component/widget/chat/voice_record.dart';
 import 'package:imboy/component/widget/message/custom_message.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
@@ -509,6 +511,8 @@ class ChatPageState extends State<ChatPage> {
           customBottomWidget: ChatInput(
             onSendPressed: _handleSendPressed,
             sendButtonVisibilityMode: SendButtonVisibilityMode.editing,
+            extraWidget: ExtraItems(),
+            voiceWidget: VoiceRecord(),
           ),
         ),
       ),

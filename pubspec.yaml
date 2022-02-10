@@ -98,11 +98,15 @@ dependencies:
   emoji_picker_flutter: ^1.0.8
   # keyboard_actions: ^3.4.6
   # getsocket: ^1.0.1
-  # flutter_chat_ui: ^1.5.4
+  # flutter_chat_ui: ^1.5.5
   flutter_chat_ui:
     path: plugin/flutter_chat_ui
   popup_menu:
     path: plugin/popup_menu
+  #flutter_sound: ^9.1.2
+  #  flutter_plugin_record:
+  #      git:
+  #        url: https://gitee.com/imboy-tripartite-deps/flutter_plugin_record.git
 
 dev_dependencies:
   build_runner: ^2.1.4
@@ -159,10 +163,21 @@ flutter:
     - assets/images/logo.png
     - assets/images/ic_index_bar_bubble_gray.png
 
-    - assets/images/chat/emoji.png
-    - assets/images/chat/extra.png
-    - assets/images/chat/keyboard.png
-    - assets/images/chat/voice.png
+    - assets/images/chat/input_emoji.png
+    - assets/images/chat/input_extra.png
+    - assets/images/chat/input_keyboard.png
+    - assets/images/chat/input_voice.png
+
+    - assets/images/chat/extra_photo.webp # 照片 extra_photo.webp
+    - assets/images/chat/extra_camera.webp # 拍摄  extra_camera.webp
+    - assets/images/chat/extra_media.webp # 语音通话 extra_media.webp
+    - assets/images/chat/extra_localtion.webp # 位置 extra_localtion.webp
+    - assets/images/chat/extra_voice.webp # 语音输入  extra_voice.webp
+    - assets/images/chat/extra_favorite.webp # 收藏  extra_favorite.webp
+    - assets/images/chat/extra_card.webp # 个人名片 extra_card.webp
+    - assets/images/chat/extra_file.webp # 文件  extra_file.webp
+    - assets/images/chat/extra_wallet.png # 卡券 extra_wallet.png
+    - assets/images/chat/extra_red.webp
 
     - assets/images/bar_close.png
     - assets/images/tabbar_contacts_c.webp
@@ -220,4 +235,5 @@ flutter:
     - assets/images/discover/ff_Icon_search.webp
     - assets/images/discover/game_center_h5.webp
     - assets/images/discover/mini_program.webp
+
     - assets/images/group/
