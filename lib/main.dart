@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/view/controller.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/log.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
@@ -15,21 +16,38 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'helper/locales.dart';
 import 'helper/locales.g.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await init();
-  // 要读取系统语言，可以使用window.locale
-  String? local = Intl.shortLocale(ui.window.locale.toString());
-  debugPrint(">>> on main ${local}");
-  // zh_Hans_CN ui.window.locale.toString();
-  await Jiffy.locale(local);
   // runApp(IMBoyApp());
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-      .then((value) => runApp(IMBoyApp()));
+  await SentryFlutter.init(
+    (options) => {
+      options.dsn = SENTRY_DSN,
+      // To set a uniform sample rate
+      options.tracesSampleRate = 1.0,
+      // OR if you prefer, determine traces sample rate based on the sampling context
+      options.tracesSampler = (samplingContext) {
+        // return a number between 0 and 1 or null (to fallback to configured value)
+      },
+    },
+    appRunner: () async {
+      await init();
+      // 要读取系统语言，可以使用window.locale
+      String? local = Intl.shortLocale(ui.window.locale.toString());
+      debugPrint(">>> on main ${local}");
+      // zh_Hans_CN ui.window.locale.toString();
+      await Jiffy.locale(local);
+      // 强制竖屏 DeviceOrientation.portraitUp
+      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+          .then((_) {
+        runApp(IMBoyApp());
+      });
+    },
+  );
 }
 
 class IMBoyApp extends StatelessWidget {

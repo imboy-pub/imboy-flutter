@@ -21,6 +21,9 @@ const CONST_HELP_URL =
 const defContentImg =
     'https://www.runoob.com/wp-content/uploads/2015/06/image_1c58e950q14da167k1nqpu2hn5e9.png';
 
+const SENTRY_DSN =
+    'https://9e512a223b3946b3afe99054078ce04d@o436562.ingest.sentry.io/5397926';
+
 class Keys {
   // 客服端Key
   static final String currentLanguageCode = "current_language_code";

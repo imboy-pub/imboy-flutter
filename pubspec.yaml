@@ -103,6 +103,7 @@ dependencies:
     path: plugin/flutter_chat_ui
   popup_menu:
     path: plugin/popup_menu
+  sentry_flutter: ^6.3.0
   #flutter_sound: ^9.1.2
   #  flutter_plugin_record:
   #      git:
