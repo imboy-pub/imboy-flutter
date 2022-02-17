@@ -24,6 +24,9 @@ const defContentImg =
 const SENTRY_DSN =
     'https://9e512a223b3946b3afe99054078ce04d@o436562.ingest.sentry.io/5397926';
 
+//附件上传认证密钥
+const UP_AUTH_KEY = "B)e?P]+xA3.]X6xC";
+
 class Keys {
   // 客服端Key
   static final String currentLanguageCode = "current_language_code";

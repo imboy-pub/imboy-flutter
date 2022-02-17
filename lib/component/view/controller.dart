@@ -27,7 +27,7 @@ class Controller extends GetNotifier {
   void onInit() {
     String? tk = UserRepoLocal.to.currentUid;
 
-    String url = ws_url + '?' + Keys.tokenKey + '=' + tk.replaceAll('+', '%2B');
+    String url = WS_URL + '?' + Keys.tokenKey + '=' + tk.replaceAll('+', '%2B');
 
     socket = GetSocket(url);
     print('onInit called');

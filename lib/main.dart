@@ -6,8 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/view/controller.dart';
-import 'package:imboy/config/const.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/log.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/login/login_view.dart';
@@ -18,12 +16,28 @@ import 'package:jiffy/jiffy.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import 'config/const.dart';
+import 'config/init.dart';
 import 'helper/locales.dart';
 import 'helper/locales.g.dart';
 
+void run() async {
+  await init();
+  // 要读取系统语言，可以使用window.locale
+  String? local = Intl.shortLocale(ui.window.locale.toString());
+  debugPrint(">>> on main ${local}");
+  // zh_Hans_CN ui.window.locale.toString();
+  await Jiffy.locale(local);
+  // 强制竖屏 DeviceOrientation.portraitUp
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((_) {
+    runApp(IMBoyApp());
+  });
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // runApp(IMBoyApp());
+  // run();
   await SentryFlutter.init(
     (options) => {
       options.dsn = SENTRY_DSN,
@@ -35,17 +49,7 @@ void main() async {
       },
     },
     appRunner: () async {
-      await init();
-      // 要读取系统语言，可以使用window.locale
-      String? local = Intl.shortLocale(ui.window.locale.toString());
-      debugPrint(">>> on main ${local}");
-      // zh_Hans_CN ui.window.locale.toString();
-      await Jiffy.locale(local);
-      // 强制竖屏 DeviceOrientation.portraitUp
-      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-          .then((_) {
-        runApp(IMBoyApp());
-      });
+      run();
     },
   );
 }

@@ -82,14 +82,14 @@ class _EmojiPickerViewState extends State<EmojiPickerView>
                       widget.state.onBackspacePressed!();
                     },
                   ),
-                  IconButton(
-                    // iconSize: 16,
-                    onPressed: () {
-                      widget.handleSendPressed!();
-                    },
-                    // backgroundColor: Colors.lightGreen,
-                    icon: Icon(Icons.send),
-                  ),
+                  // IconButton(
+                  //   // iconSize: 16,
+                  //   onPressed: () {
+                  //     widget.handleSendPressed!();
+                  //   },
+                  //   // backgroundColor: Colors.lightGreen,
+                  //   icon: Icon(Icons.send),
+                  // ),
                 ],
               ),
               Flexible(

@@ -1,4 +1,4 @@
-package pub.imoby.imboy;
+package pub.imoby.apk;
 
 import io.flutter.embedding.android.FlutterActivity;
 

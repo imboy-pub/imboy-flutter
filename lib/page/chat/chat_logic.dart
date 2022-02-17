@@ -73,10 +73,27 @@ class ChatLogic extends GetxController {
     types.Message message,
   ) {
     Map<String, dynamic> payload = {};
-    if (type == 'C2C' && message is types.TextMessage) {
+    if (message is types.TextMessage) {
       payload = {
         "msg_type": "text",
         "text": message.text,
+      };
+    } else if (message is types.ImageMessage) {
+      payload = {
+        "msg_type": "image",
+        "name": message.name,
+        "size": message.size,
+        "uri": message.uri,
+        "width": message.width,
+        "height": message.height,
+      };
+    } else if (message is types.FileMessage) {
+      payload = {
+        "msg_type": "image",
+        "name": message.name,
+        "size": message.size,
+        "uri": message.uri,
+        "mimeType": message.mimeType,
       };
     }
     debugPrint(">>>>> on getMsgFromTmsg ${message.toJson().toString()}");
@@ -130,7 +147,7 @@ class ChatLogic extends GetxController {
     if (res) {
       await (MessageRepo()).insert(obj);
       cobj.msgtype = obj.payload!['msg_type'];
-      cobj.subtitle = obj.payload!['text'];
+      cobj.subtitle = obj.payload!['text'] ?? '[图片]';
       await (ConversationRepo()).updateById(cobj.id, {
         ConversationRepo.msgtype: cobj.msgtype,
         ConversationRepo.subtitle: cobj.subtitle,

@@ -169,6 +169,23 @@ class MessageModel {
         text: this.payload!['text'],
         status: this.typesStatus,
       );
+    } else if (this.payload!['msg_type'] == 'image') {
+      message = types.ImageMessage(
+        author: types.User(
+          id: this.fromId!,
+          // firstName: "",
+          // imageUrl: "",
+        ),
+        createdAt: this.createdAt,
+        id: this.id!,
+        remoteId: this.toId,
+        name: this.payload!['name'],
+        size: this.payload!['size'],
+        uri: this.payload!['uri'],
+        width: this.payload!['width'],
+        height: this.payload!['height'],
+        status: this.typesStatus,
+      );
     } else if (this.payload!['custom_type'] == 'revoked') {
       message = types.CustomMessage(
         author: types.User(

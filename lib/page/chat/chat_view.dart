@@ -1,13 +1,14 @@
 import 'dart:async';
+import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
-import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:get/get.dart' as Getx;
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/widget/chat/chat_input.dart';
 import 'package:imboy/component/widget/chat/extra_item.dart';
@@ -17,13 +18,17 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/theme.dart';
 import 'package:imboy/helper/datetime.dart';
+import 'package:imboy/helper/picker_method.dart';
 import 'package:imboy/page/chat_info/chat_info_view.dart';
 import 'package:imboy/page/group_detail/group_detail_view.dart';
 import 'package:imboy/service/message.dart';
+import 'package:imboy/store/provider/upload_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
 import 'package:popup_menu/popup_menu.dart';
+import 'package:wechat_assets_picker/wechat_assets_picker.dart';
+import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:xid/xid.dart';
 
 import 'chat_logic.dart';
@@ -47,7 +52,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class ChatPageState extends State<ChatPage> {
-  final logic = Get.put(ChatLogic());
+  final logic = Getx.Get.put(ChatLogic());
 
   // 当前会话新增消息
   List<types.Message> messages = [];
@@ -55,9 +60,18 @@ class ChatPageState extends State<ChatPage> {
   String newGroupName = "";
 
   var _connectivityResult;
-  RxString _connectStateDescription = "".obs;
+  Getx.RxString _connectStateDescription = "".obs;
 
   int _page = 1;
+
+  AssetEntity? entity;
+  Uint8List? data;
+
+  int get maxAssetsCount => 9;
+
+  List<AssetEntity> assets = <AssetEntity>[];
+
+  int get assetsLength => assets.length;
 
   @override
   void initState() {
@@ -140,10 +154,8 @@ class ChatPageState extends State<ChatPage> {
     // 异步存储sqlite消息(未发送成功）
     //   发送成功后，更新conversation、更新消息状态
     //   发送失败后，放入异步队列，重新发送
-
-    String cuid = UserRepoLocal.to.currentUid;
     bool res = await logic.addMessage(
-      cuid,
+      UserRepoLocal.to.currentUid,
       widget.toId,
       widget.avatar ?? '',
       widget.title!,
@@ -161,7 +173,7 @@ class ChatPageState extends State<ChatPage> {
   }
 
   void _handleAtachmentPressed() {
-    Get.bottomSheet(
+    Getx.Get.bottomSheet(
       Container(
         child: Wrap(
           children: <Widget>[
@@ -204,44 +216,87 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _handleImageSelection() async {
-    final result = await ImagePicker().pickImage(
-      imageQuality: 70,
-      maxWidth: 1440,
-      source: ImageSource.gallery,
-    );
-
-    if (result != null) {
-      final bytes = await result.readAsBytes();
-      final image = await decodeImageFromList(bytes);
-
-      final message = types.ImageMessage(
-        author: logic.cuser,
-        createdAt: DateTimeHelper.currentTimeMillis(),
-        height: image.height.toDouble(),
-        id: Xid().toString(),
-        name: result.name,
-        size: bytes.length,
-        uri: result.path,
-        width: image.width.toDouble(),
-        remoteId: widget.toId,
-        status: types.Status.sending,
+  /**
+   * 拍摄
+   */
+  Future<void> _handlePickerSelection() async {
+    BuildContext context = Getx.Get.context!;
+    final Size size = MediaQuery.of(context).size;
+    final double scale = MediaQuery.of(context).devicePixelRatio;
+    try {
+      final AssetEntity? _entity = await CameraPicker.pickFromCamera(
+        context,
+        enableRecording: true,
       );
+      if (_entity != null && entity != _entity) {
+        entity = _entity;
+        if (mounted) {
+          setState(() {});
+        }
+        data = await _entity.thumbDataWithSize(
+          (size.width * scale).toInt(),
+          (size.height * scale).toInt(),
+        );
+        if (mounted) {
+          setState(() {});
+        }
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
 
-      _addMessage(message);
+  Future<void> _selectAssets(PickMethod model) async {
+    final List<AssetEntity>? result = await model.method(context, assets);
+    if (result != null) {
+      assets = List<AssetEntity>.from(result);
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  void _handleImageSelection() async {
+    await _selectAssets(PickMethod.cameraAndStay(maxAssetsCount: 9));
+    final result = assetsLength > 0 ? assets[0] : null;
+    if (result != null) {
+      await (UploadProvider()).uploadImg("chat", (
+        Map<String, dynamic> responseData,
+        String imgUrl,
+      ) async {
+        debugPrint(">>> on upload imgUrl ${imgUrl}");
+        debugPrint(">>> on upload ${responseData.toString()}");
+
+        final message = types.ImageMessage(
+          author: logic.cuser,
+          createdAt: DateTimeHelper.currentTimeMillis(),
+          id: Xid().toString(),
+          name: await result.titleAsync,
+          height: result.height * 1.0,
+          width: result.width * 1.0,
+          size: responseData["data"]["size"],
+          uri: imgUrl,
+          remoteId: widget.toId,
+          status: types.Status.sending,
+        );
+
+        _addMessage(message);
+      }, (DioError error) {
+        debugPrint(">>> on upload ${error.toString()}");
+      }, assets[0].file);
     }
   }
 
   void _onMessageDoubleTap(BuildContext c1, types.Message message) async {
     if (message is types.TextMessage) {
-      Get.bottomSheet(
+      Getx.Get.bottomSheet(
         GestureDetector(
           onTap: () {
-            Get.back();
+            Getx.Get.back();
           },
           child: Container(
-            width: Get.width,
-            height: Get.height,
+            width: Getx.Get.width,
+            height: Getx.Get.height,
             // Creates insets from offsets from the left, top, right, and bottom.
             padding: EdgeInsets.fromLTRB(16, 24, 6, 10),
             alignment: Alignment.center,
@@ -465,7 +520,7 @@ class ChatPageState extends State<ChatPage> {
     var rWidget = [
       new InkWell(
         child: new Image(image: AssetImage('assets/images/right_more.png')),
-        onTap: () => Get.to(widget.type == 'GROUP'
+        onTap: () => Getx.Get.to(widget.type == 'GROUP'
             ? GroupDetailPage(
                 widget.toId,
                 callBack: (v) {},
@@ -509,10 +564,19 @@ class ChatPageState extends State<ChatPage> {
           user: logic.cuser,
           theme: const ImboyChatTheme(),
           customBottomWidget: ChatInput(
+            // 发送除非事件
             onSendPressed: _handleSendPressed,
             sendButtonVisibilityMode: SendButtonVisibilityMode.editing,
-            extraWidget: ExtraItems(),
+            onAttachmentPressed: _handleAtachmentPressed,
             voiceWidget: VoiceRecord(),
+            extraWidget: ExtraItems(
+              // 照片
+              handleImageSelection: _handleImageSelection,
+              // 文件
+              handleFileSelection: _handleFileSelection,
+              // 拍摄
+              handlePickerSelection: _handlePickerSelection,
+            ),
           ),
         ),
       ),
@@ -521,7 +585,7 @@ class ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
-    Get.delete<ChatLogic>();
+    Getx.Get.delete<ChatLogic>();
 
     //在页面销毁的时候一定要取消网络状态的监听
     // if (_connectivityResult != null &&

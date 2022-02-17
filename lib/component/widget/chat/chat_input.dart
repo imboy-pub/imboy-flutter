@@ -41,7 +41,7 @@ typedef void OnSend(String text);
 
 InputType _initType = InputType.text;
 
-double _softKeyHeight = 200;
+double _softKeyHeight = 210;
 
 class ChatInput extends StatefulWidget {
   const ChatInput({
@@ -292,7 +292,11 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               buttonMode: ButtonMode.MATERIAL,
             ),
             customWidget: (Config config, EmojiViewState state) =>
-                EmojiPickerView(config, state, _handleSendPressed),
+                EmojiPickerView(
+              config,
+              state,
+              _handleSendPressed,
+            ),
           ),
         ),
       );
@@ -321,12 +325,10 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       minLines: 1,
       onChanged: widget.onTextChanged,
       onTap: () {
-        if (inputType != InputType.emoji) {
-          updateState(InputType.text);
-        } else {
+        if (inputType != InputType.text) {
           hideSoftKey();
-          updateState(InputType.emoji);
         }
+        updateState(inputType);
         widget.onTextFieldTap;
       },
       style: InheritedChatTheme.of(ctx).theme.inputTextStyle.copyWith(
@@ -335,7 +337,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       // 长按是否展示【剪切/复制/粘贴菜单LengthLimitingTextInputFormatter】
       enableInteractiveSelection: true,
       textCapitalization: TextCapitalization.sentences,
-      textInputAction: TextInputAction.send,
+      // textInputAction: TextInputAction.send,
       // 点击键盘的动作按钮时的回调，参数为当前输入框中的值
       onSubmitted: (_) => _handleSendPressed(),
     );
@@ -400,7 +402,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     return GestureDetector(
       onTap: () {
         debugPrint(">>> on chat_input build");
-        _inputFocusNode.requestFocus();
+        showSoftKey();
       },
       child: Focus(
         autofocus: true,
@@ -430,9 +432,16 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                       // emoji
                       buildEmojiButton(),
                       //extra
-                      buildExtra(),
+                      _textController.text.isEmpty
+                          ? buildExtra()
+                          : IconButton(
+                              icon: Icon(Icons.send),
+                              onPressed: _handleSendPressed,
+                              padding: EdgeInsets.only(left: 0),
+                            ),
                     ],
                   ),
+                  Divider(), // 横线
                   _buildBottomContainer(child: _buildBottomItems()),
                 ],
               ),

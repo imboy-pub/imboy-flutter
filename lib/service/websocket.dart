@@ -14,9 +14,6 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-/// WebSocket地址
-const String _SOCKET_URL = ws_url;
-
 /// WebSocket状态
 enum SocketStatus {
   SocketStatusConnected, // 已连接
@@ -115,7 +112,7 @@ class WSService extends GetxService {
     Map<String, dynamic> headers = defaultHeaders();
     headers[Keys.tokenKey] = token;
     String url =
-        _SOCKET_URL + '?' + Keys.tokenKey + '=' + token.replaceAll('+', '%2B');
+        WS_URL + '?' + Keys.tokenKey + '=' + token.replaceAll('+', '%2B');
     if (subprotocol.isEmpty) {
       _webSocketChannel = IOWebSocketChannel.connect(
         url,

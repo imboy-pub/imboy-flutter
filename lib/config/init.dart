@@ -16,9 +16,10 @@ import 'package:logger/logger.dart';
 typedef Callback(data);
 
 const API_BASE_URL = 'https://dev.imboy.pub';
-const String ws_url = 'wss://dev.imboy.pub/ws/';
-
+const WS_URL = 'wss://dev.imboy.pub/ws';
+const UPLOAD_BASE_URL = 'https://a.imboy.pub';
 const RECORD_LOG = true;
+const UPLOAD_SENCE = 'dev';
 // const API_BASE_URL = 'http://local.imoby.pub:9800';
 // const ws_url = 'ws://local.api.imoby.pub:9800/ws/';
 
