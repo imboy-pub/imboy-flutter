@@ -53,13 +53,13 @@ class ConversationRepo {
   }
 
   // 更新信息
-  Future<int> update(Map<String, dynamic> data) async {
+  Future<int> updateByTypeId(String typeId, Map<String, dynamic> data) async {
     data.remove(ConversationRepo.id);
     return await _db.update(
       ConversationRepo.tablename,
       data,
       where: '${ConversationRepo.typeId} = ?',
-      whereArgs: [data['type_id']],
+      whereArgs: [typeId],
     );
   }
 
@@ -73,7 +73,7 @@ class ConversationRepo {
       obj.id = (await maxId()) + 1;
       insert(obj);
     } else {
-      update(obj.toJson());
+      updateByTypeId(obj.typeId, obj.toJson());
     }
     int? id = await _db.pluck(
       ConversationRepo.id,

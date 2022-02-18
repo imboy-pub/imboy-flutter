@@ -15,20 +15,24 @@ class ContentMsg extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     debugPrint("content_msg widget.msg " + msg.toString());
-    String msgType = msg["msg_type"];
+    String msgType = msg["msg_type"].toLowerCase();
     String subtitle = msg["text"] ?? '';
 
     String str = '[未知消息]';
-    if (msgType == 'text') {
+    if (msgType == "text") {
       str = subtitle;
-    } else if (msgType == "Image") {
+    } else if (msgType == "image") {
       str = '[图片]';
-    } else if (msgType == 'Sound') {
+    } else if (msgType == "file") {
+      str = '[文件]';
+    } else if (msgType == "sound") {
       str = '[语音消息]';
     } else if (subtitle.contains('snapshotPath')) {
       str = '[视频]';
-    } else if (msgType == 'custom') {
+    } else if (msgType == "custom") {
       str = subtitle;
+    } else {
+      debugPrint(">>> on content_msg msgType ${msgType};");
     }
     return ExtendedText(
       str,

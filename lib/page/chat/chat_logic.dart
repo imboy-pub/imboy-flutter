@@ -89,14 +89,14 @@ class ChatLogic extends GetxController {
       };
     } else if (message is types.FileMessage) {
       payload = {
-        "msg_type": "image",
+        "msg_type": "file",
         "name": message.name,
         "size": message.size,
         "uri": message.uri,
         "mimeType": message.mimeType,
       };
     }
-    debugPrint(">>>>> on getMsgFromTmsg ${message.toJson().toString()}");
+    debugPrint(">>> on getMsgFromTmsg ${message.toJson().toString()}");
     MessageModel obj = MessageModel(
       message.id,
       type: type,
@@ -121,7 +121,7 @@ class ChatLogic extends GetxController {
     types.Message message,
   ) async {
     String subtitle = '';
-    String msgtype = '';
+    String msgtype = MessageModel.ctype(message.type);
     int createdAt = DateTimeHelper.currentTimeMillis();
 
     // message.status = types.Status.sent;
@@ -142,12 +142,14 @@ class ChatLogic extends GetxController {
     cobj = await (ConversationRepo()).save(cobj);
     MessageModel obj = getMsgFromTmsg(type, cobj.id, message);
     bool res = sendWsMsg(obj);
-
-    debugPrint(">>>>> on chat addMessage ${message.toString()}");
     if (res) {
       await (MessageRepo()).insert(obj);
-      cobj.msgtype = obj.payload!['msg_type'];
-      cobj.subtitle = obj.payload!['text'] ?? '[图片]';
+
+      if (message is types.TextMessage) {
+        cobj.subtitle = obj.payload!['text'];
+      } else if (message is types.ImageMessage) {
+        cobj.subtitle = '[图片]';
+      }
       await (ConversationRepo()).updateById(cobj.id, {
         ConversationRepo.msgtype: cobj.msgtype,
         ConversationRepo.subtitle: cobj.subtitle,

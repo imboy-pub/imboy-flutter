@@ -25,11 +25,10 @@ class MessageService extends GetxService {
       RxMap<String, ConversationModel>();
 
   // 设置会话提醒
-  setConversationRemind(String key, int val) {
+  setConversationRemind(String typeId, int val) {
     val = val > 0 ? val : 0;
-    conversationRemind[key] = val;
-    (ConversationRepo()).update({
-      ConversationRepo.typeId: key,
+    conversationRemind[typeId] = val;
+    (ConversationRepo()).updateByTypeId(typeId, {
       ConversationRepo.unreadNum: val,
       ConversationRepo.isShow: 1,
     });

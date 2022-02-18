@@ -129,6 +129,17 @@ class MessageModel {
     return types.MessageType.unsupported;
   }
 
+  static String ctype(types.MessageType t) {
+    if (t == types.MessageType.text) {
+      return 'text';
+    } else if (t == types.MessageType.image) {
+      return 'image';
+    } else if (t == types.MessageType.file) {
+      return 'file';
+    }
+    return 'unsupported';
+  }
+
   int toStatus(types.Status status) {
     if (status == types.Status.sending) {
       return MessageStatus.sending;
@@ -184,6 +195,21 @@ class MessageModel {
         uri: this.payload!['uri'],
         width: this.payload!['width'],
         height: this.payload!['height'],
+        status: this.typesStatus,
+      );
+    } else if (this.payload!['msg_type'] == 'file') {
+      message = types.FileMessage(
+        author: types.User(
+          id: this.fromId!,
+          // firstName: "",
+          // imageUrl: "",
+        ),
+        createdAt: this.createdAt,
+        id: this.id!,
+        remoteId: this.toId,
+        name: this.payload!['name'],
+        size: this.payload!['size'],
+        uri: this.payload!['uri'],
         status: this.typesStatus,
       );
     } else if (this.payload!['custom_type'] == 'revoked') {

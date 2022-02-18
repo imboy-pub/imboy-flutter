@@ -94,6 +94,8 @@ class _ConversationPageState extends State<ConversationPage> {
     Widget body = ListView.builder(
       itemBuilder: (BuildContext context, int index) {
         ConversationModel model = items[index];
+        debugPrint(
+            ">>> on conversation_view build item ${model.toJson().toString()}");
         int conversationId = model.id;
         return InkWell(
           onTap: () {

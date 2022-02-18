@@ -258,33 +258,36 @@ class ChatPageState extends State<ChatPage> {
 
   void _handleImageSelection() async {
     await _selectAssets(PickMethod.cameraAndStay(maxAssetsCount: 9));
-    final result = assetsLength > 0 ? assets[0] : null;
-    if (result != null) {
-      await (UploadProvider()).uploadImg("chat", (
-        Map<String, dynamic> responseData,
+    var up = UploadProvider();
+    assets.forEach((entity) async {
+      await up.uploadImg("chat", (
+        Map<String, dynamic> resp,
         String imgUrl,
       ) async {
         debugPrint(">>> on upload imgUrl ${imgUrl}");
-        debugPrint(">>> on upload ${responseData.toString()}");
+        debugPrint(">>> on upload ${resp.toString()}");
 
         final message = types.ImageMessage(
           author: logic.cuser,
           createdAt: DateTimeHelper.currentTimeMillis(),
           id: Xid().toString(),
-          name: await result.titleAsync,
-          height: result.height * 1.0,
-          width: result.width * 1.0,
-          size: responseData["data"]["size"],
+          name: await entity.titleAsync,
+          height: entity.height * 1.0,
+          width: entity.width * 1.0,
+          size: resp["data"]["size"],
           uri: imgUrl,
           remoteId: widget.toId,
           status: types.Status.sending,
         );
 
         _addMessage(message);
+        assets.removeAt(
+          assets.indexWhere((element) => element.id == entity.id),
+        );
       }, (DioError error) {
         debugPrint(">>> on upload ${error.toString()}");
-      }, assets[0].file);
-    }
+      }, entity);
+    });
   }
 
   void _onMessageDoubleTap(BuildContext c1, types.Message message) async {

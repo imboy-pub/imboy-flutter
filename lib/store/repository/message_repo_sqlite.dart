@@ -41,11 +41,11 @@ class MessageRepo {
         '${MessageRepo.conversationId}': msg.conversationId,
         '${MessageRepo.status}': msg.status,
       };
-      debugPrint(">>>>> on MessgeMode/insert " + insert.toString());
+      debugPrint(">>> on MessgeMode/insert " + insert.toString());
       await _db.insert(MessageRepo.tablename, insert);
     } else {
       debugPrint(
-          ">>>>> on MessgeMode/insert count $count : " + insert.toString());
+          ">>> on MessgeMode/insert count $count : " + insert.toString());
     }
     return msg;
   }

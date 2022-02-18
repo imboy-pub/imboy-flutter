@@ -9,6 +9,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/datetime.dart';
 import 'package:imboy/helper/func.dart';
+import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xid/xid.dart';
 
 class UploadProvider {
@@ -17,7 +18,7 @@ class UploadProvider {
     String prefix,
     Function callback,
     Function errorCallback,
-    Future<File?> _file,
+    AssetEntity entity,
   ) async {
     var options = BaseOptions(
       baseUrl: UPLOAD_BASE_URL,
@@ -26,13 +27,12 @@ class UploadProvider {
       sendTimeout: 60000,
       receiveTimeout: 30000,
     );
+    File? file = await entity.file;
 
     Dio _dio = Dio(options);
-    File? file = await _file;
     String path = file!.path;
-
-    String name =
-        "${Xid().toString()}.${path.substring(path.lastIndexOf(".") + 1, path.length)}";
+    String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
+    String name = "${Xid().toString()}.${ext}";
     int ts = DateTimeHelper.currentTimeMillis();
     DateTime dt = DateTime.fromMillisecondsSinceEpoch(ts);
     String savePath = "/${prefix}/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";
@@ -58,9 +58,12 @@ class UploadProvider {
       debugPrint(">>> on upload response ${response.toString()}");
       Map<String, dynamic> responseData = json.decode(response.data);
 
-      double w = Getx.Get.width - 50;
       String url = responseData["data"]["url"] +
-          "?s=${UPLOAD_SENCE}&a=${authToken}&v=${v}&width=${w.toInt()}";
+          "?s=${UPLOAD_SENCE}&a=${authToken}&v=${v}";
+      if (ext != "gif") {
+        double w = Getx.Get.width * 2;
+        url += "&width=${w.toInt()}";
+      }
       callback(responseData, url);
     }).catchError((e) {
       debugPrint(">>> on upload err ${e.toString()}");
