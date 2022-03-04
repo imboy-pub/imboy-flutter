@@ -9,20 +9,7 @@ imboy 的Flutter项目
 所有依赖的flutter包大部分是“MIT License” 和 “Apache-2.0 License”（以后陆续补充一个）
 
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
-# 功能 (单个功能实现了，)
+## 功能 (单个功能实现了，)
 * 用户登录（隐藏密码、显示密码，登录密码传输基于RSA算法加密传输） OK
 * 用户退出 OK
 * 文本聊天 数据聊天分页 OK
@@ -59,12 +46,45 @@ samples, guidance on mobile development, and a full API reference.
 * 创建群 TODO
 * 群聊天 TODO
 * 群其他功能 TODO
+* 以.env文件来管理APP环境相关的常量配置
 
-# 已知待修复待完善的功能
+## 已知待修复待完善的功能
 * 聊天界面表情符弹框没法想键盘一样"点击页面其他空白处收缩回去"
 
+## flutter_dotenv
 
-# 规范
+https://pub.flutter-io.cn/packages/flutter_dotenv
+```
+cd imboy-flutter
+cp -f assets/example.env assets/.env
+// 手动修改相应的配置
+
+```
+
+## 多语言
+https://github.com/jonataslaw/get_cli/tree/master/translations
+```
+flutter pub global activate get_cli
+export PATH="$PATH":"$HOME/.pub-cache/bin"
+
+mkdir -p assets assets/locales
+// cd assets/locales/
+// wget https://raw.githubusercontent.com/jonataslaw/get_cli/master/translations/zh_CN.json
+// https://github.com/jonataslaw/get_cli/blob/master/translations/en.json
+// 生产json文件之后执行下面命令
+get generate locales assets/locales on helper
+```
+
+## 临时解决 CocoaPods not installed. Skipping pod install
+
+https://github.com/flutter/flutter/issues/97251
+```
+open /Applications/Android\ Studio\ 4.2\ Preview.app
+```
+
+## Dart 在线运行环境
+* https://www.nhooo.com/tool/dart/
+
 
 ## 目录规范与命名
 ```
@@ -72,14 +92,14 @@ Lib
 │
 ├──page 落地页
 │   └──login 页面落地页文件夹
-│        ├──login_binding.dart => class LoginBinding 
-│        ├──login_logic.dart => class LoginLogic 
-│        ├──login_state.dart => class LoginState 
+│        ├──login_binding.dart => class LoginBinding
+│        ├──login_logic.dart => class LoginLogic
+│        ├──login_state.dart => class LoginState
 │        └──login_view.dart => class LoginPage 后缀为page为落地页 唯一入口
 ├──component 通用组件
-│        ├──ui  
+│        ├──ui
 │             └──common.dart => class UserObject
-│        ├──view 
+│        ├──view
 │             └──user_object.dart => class UserObject
 │        └──widget
 │             └──user_object.dart => class UserObject
@@ -106,9 +126,9 @@ Lib
 ```
 cd plugin/
 
-git submodule add https://gitee.com/imboy-pub/flutter_chat_ui.git flutter_chat_ui
+git submodule add https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git flutter_chat_ui
 
-git submodule add https://gitee.com/imboy-pub/popup_menu.git popup_menu
+git submodule add https://gitee.com/imboy-tripartite-deps/popup_menu.git popup_menu
 
 ```
 
@@ -121,29 +141,4 @@ git submodule add https://gitee.com/imboy-pub/popup_menu.git popup_menu
     path: plugin/popup_menu
 ```
 
-
 参考 https://juejin.cn/post/6844903920322478093
-
-## 多语言
-https://github.com/jonataslaw/get_cli/tree/master/translations
-```
-flutter pub global activate get_cli
-export PATH="$PATH":"$HOME/.pub-cache/bin"
-
-mkdir -p assets assets/locales
-// cd assets/locales/
-// wget https://raw.githubusercontent.com/jonataslaw/get_cli/master/translations/zh_CN.json
-// https://github.com/jonataslaw/get_cli/blob/master/translations/en.json
-// 生产json文件之后执行下面命令
-get generate locales assets/locales on helper
-```
-
-## 临时解决 CocoaPods not installed. Skipping pod install
-
-https://github.com/flutter/flutter/issues/97251
-```
-open /Applications/Android\ Studio\ 4.2\ Preview.app
-```
-
-# Dart 在线运行环境
-* https://www.nhooo.com/tool/dart/

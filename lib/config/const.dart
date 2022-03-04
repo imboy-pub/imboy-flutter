@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 const appVsn = "1.0.0";
 
@@ -21,11 +22,16 @@ const CONST_HELP_URL =
 const defContentImg =
     'https://www.runoob.com/wp-content/uploads/2015/06/image_1c58e950q14da167k1nqpu2hn5e9.png';
 
-const SENTRY_DSN =
-    'https://9e512a223b3946b3afe99054078ce04d@o436562.ingest.sentry.io/5397926';
+const RECORD_LOG = true;
 
+String SENTRY_DSN = dotenv.get('SENTRY_DSN');
 //附件上传认证密钥
-const UP_AUTH_KEY = "B)e?P]+xA3.]X6xC";
+String UP_AUTH_KEY = dotenv.get('UP_AUTH_KEY');
+
+String API_BASE_URL = dotenv.get('API_BASE_URL');
+String WS_URL = dotenv.get('WS_URL');
+String UPLOAD_BASE_URL = dotenv.get('UPLOAD_BASE_URL');
+String UPLOAD_SENCE = dotenv.get('UPLOAD_SENCE');
 
 class Keys {
   // 客服端Key
@@ -129,60 +135,3 @@ class API {
   static const update = 'http://www.flutterj.com/api/update.json';
   static const uploadImg = 'http://www.flutterj.com/upload/avatar';
 }
-
-// class AppStyles {
-//   static const DefStyle = TextStyle(color: Colors.white);
-//
-//   static const TitleStyle = TextStyle(
-//     fontSize: Constants.TitleTextSize,
-//     color: const Color(AppColors.TitleColor),
-//   );
-//
-//   static const DesStyle = TextStyle(
-//     fontSize: Constants.DesTextSize,
-//     color: Color(AppColors.DesTextColor),
-//   );
-//
-//   static const UnreadMsgCountDotStyle = TextStyle(
-//     fontSize: 12.0,
-//     color: Color(AppColors.NotifyDotText),
-//   );
-//
-//   static const DeviceInfoItemTextStyle = TextStyle(
-//     fontSize: Constants.DesTextSize,
-//     color: Color(AppColors.DeviceInfoItemText),
-//   );
-//
-//   static const GroupTitleItemTextStyle = TextStyle(
-//     fontSize: 14.0,
-//     color: Color(AppColors.ContactGroupTitleText),
-//   );
-//
-//   static const IndexLetterBoxTextStyle =
-//       TextStyle(fontSize: 32.0, color: Colors.white);
-//
-//   static const HeaderCardTitleTextStyle = TextStyle(
-//       fontSize: 20.0,
-//       color: Color(AppColors.HeaderCardTitleText),
-//       fontWeight: FontWeight.bold);
-//
-//   static const HeaderCardDesTextStyle = TextStyle(
-//       fontSize: 14.0,
-//       color: Color(AppColors.HeaderCardDesText),
-//       fontWeight: FontWeight.normal);
-//
-//   static const ButtonDesTextStyle = TextStyle(
-//       fontSize: 12.0,
-//       color: Color(AppColors.ButtonDesText),
-//       fontWeight: FontWeight.bold);
-//
-//   static const NewTagTextStyle = TextStyle(
-//       fontSize: Constants.DesTextSize,
-//       color: Colors.white,
-//       fontWeight: FontWeight.bold);
-//
-//   static const ChatBoxTextStyle = TextStyle(
-//       textBaseline: TextBaseline.alphabetic,
-//       fontSize: Constants.ContentTextSize,
-//       color: const Color(AppColors.TitleColor));
-// }

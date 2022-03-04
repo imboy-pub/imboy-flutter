@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:extended_text/extended_text.dart';
@@ -64,14 +63,9 @@ class ChatPageState extends State<ChatPage> {
 
   int _page = 1;
 
-  AssetEntity? entity;
-  Uint8List? data;
-
   int get maxAssetsCount => 9;
 
   List<AssetEntity> assets = <AssetEntity>[];
-
-  int get assetsLength => assets.length;
 
   @override
   void initState() {
@@ -125,7 +119,7 @@ class ChatPageState extends State<ChatPage> {
       10,
     );
 
-    debugPrint(">>>>> on _loadMessages msg: ${items.toString()}");
+    debugPrint(">>> on _loadMessages msg: ${items.toString()}");
     if (items != null && items.length > 0) {
       // 消除消息提醒
       items.forEach((msg) async {
@@ -224,19 +218,41 @@ class ChatPageState extends State<ChatPage> {
     final Size size = MediaQuery.of(context).size;
     final double scale = MediaQuery.of(context).devicePixelRatio;
     try {
-      final AssetEntity? _entity = await CameraPicker.pickFromCamera(
+      final AssetEntity? entity = await CameraPicker.pickFromCamera(
         context,
         enableRecording: true,
       );
-      if (_entity != null && entity != _entity) {
-        entity = _entity;
+      if (entity != null) {
         if (mounted) {
           setState(() {});
         }
-        data = await _entity.thumbDataWithSize(
-          (size.width * scale).toInt(),
-          (size.height * scale).toInt(),
-        );
+        await (UploadProvider()).uploadImg("chat", (
+          Map<String, dynamic> resp,
+          String imgUrl,
+        ) async {
+          debugPrint(">>> on upload imgUrl ${imgUrl}");
+          debugPrint(">>> on upload ${resp.toString()}");
+
+          final message = types.ImageMessage(
+            author: logic.cuser,
+            createdAt: DateTimeHelper.currentTimeMillis(),
+            id: Xid().toString(),
+            name: await entity.titleAsync,
+            height: entity.height * 1.0,
+            width: entity.width * 1.0,
+            size: resp["data"]["size"],
+            uri: imgUrl,
+            remoteId: widget.toId,
+            status: types.Status.sending,
+          );
+
+          _addMessage(message);
+          assets.removeAt(
+            assets.indexWhere((element) => element.id == entity.id),
+          );
+        }, (DioError error) {
+          debugPrint(">>> on upload ${error.toString()}");
+        }, entity);
         if (mounted) {
           setState(() {});
         }
@@ -439,9 +455,9 @@ class ChatPageState extends State<ChatPage> {
     double l = offset.dx / 2 - renderBox.size.width / 2 + 75.0;
     double r = renderBox.size.width / 2 - 75.0;
     double dx = message.author.id == UserRepoLocal.to.currentUid ? r : l;
-    debugPrint(">>>>> on chat _handleMessageTap left ${dx}, l: ${l}, r: ${r}");
+    debugPrint(">>> on chat _handleMessageTap left ${dx}, l: ${l}, r: ${r}");
     debugPrint(
-        ">>>>> on chat _handleMessageTap dx:${offset.dx},dy:${offset.dy},w:${renderBox.size.width},h:${renderBox.size.height}");
+        ">>> on chat _handleMessageTap dx:${offset.dx},dy:${offset.dy},w:${renderBox.size.width},h:${renderBox.size.height}");
     menu.show(
       rect: Rect.fromLTWH(
         dx,
@@ -475,7 +491,7 @@ class ChatPageState extends State<ChatPage> {
       remoteId: widget.toId,
       status: types.Status.sending,
     );
-    debugPrint(">>>>> on chat _handleSendPressed ${textMessage.toString()}");
+    debugPrint(">>> on chat _handleSendPressed ${textMessage.toString()}");
     return await _addMessage(textMessage);
   }
 
@@ -542,6 +558,7 @@ class ChatPageState extends State<ChatPage> {
         //手指滑动
         onPanUpdate: _onPanUpdate,
         child: Chat(
+          user: logic.cuser,
           messages: messages,
           // showUserAvatars: true,
           // showUserNames: true,
@@ -564,7 +581,6 @@ class ChatPageState extends State<ChatPage> {
           onMessageStatusTap: _onMessageStatusTap,
           onMessageStatusLongPress: _onMessageStatusTap,
           hideBackgroundOnEmojiMessages: false,
-          user: logic.cuser,
           theme: const ImboyChatTheme(),
           customBottomWidget: ChatInput(
             // 发送除非事件

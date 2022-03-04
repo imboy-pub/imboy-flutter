@@ -97,13 +97,14 @@ dependencies:
   ntp: ^2.0.0
   emoji_picker_flutter: ^1.0.8
   carousel_slider: ^4.0.0
-  # flutter_chat_ui: ^1.5.5
-  flutter_chat_ui:
-    path: plugin/flutter_chat_ui
+  flutter_chat_ui: ^1.5.5
+  #flutter_chat_ui:
+    #path: plugin/flutter_chat_ui
   popup_menu:
     path: plugin/popup_menu
   permission_handler: ^8.3.0
   wechat_camera_picker: ^2.6.5
+  flutter_dotenv: ^5.0.2
   #flutter_sound: ^9.1.2
 #  flutter_plugin_record:
 #    git:
@@ -158,6 +159,7 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
   assets:
+    - .env
     - assets/data/messages.json
     - assets/images/def_avatar.png
     - assets/images/bsc.webp

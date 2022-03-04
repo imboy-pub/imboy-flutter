@@ -22,7 +22,6 @@ import 'helper/locales.dart';
 import 'helper/locales.g.dart';
 
 void run() async {
-  await init();
   // 要读取系统语言，可以使用window.locale
   String? local = Intl.shortLocale(ui.window.locale.toString());
   debugPrint(">>> on main ${local}");
@@ -37,6 +36,7 @@ void run() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await init();
   // run();
   await SentryFlutter.init(
     (options) => {

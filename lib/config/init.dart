@@ -1,9 +1,11 @@
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart' as Getx;
 import 'package:imboy/component/observder/lifecycle.dart';
 import 'package:imboy/component/view/controller.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/helper/http/http_client.dart';
 import 'package:imboy/helper/http/http_config.dart';
 import 'package:imboy/helper/http/http_interceptor.dart';
@@ -14,18 +16,6 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:logger/logger.dart';
 
 typedef Callback(data);
-
-const API_BASE_URL = 'https://dev.imboy.pub';
-const WS_URL = 'wss://dev.imboy.pub/ws';
-const UPLOAD_BASE_URL = 'https://a.imboy.pub';
-const RECORD_LOG = true;
-const UPLOAD_SENCE = 'dev';
-// const API_BASE_URL = 'http://local.imoby.pub:9800';
-// const ws_url = 'ws://local.api.imoby.pub:9800/ws/';
-
-// 腾讯云 Dev
-// const API_BASE_URL = 'http://81.68.209.56:9800';
-// const ws_url = 'ws://81.68.209.56:9800/ws/';
 
 DefaultCacheManager cacheManager = new DefaultCacheManager();
 
@@ -40,6 +30,8 @@ int ntpOffset = 0;
 EventBus eventBus = EventBus();
 
 Future<void> init() async {
+  await dotenv.load(fileName: "assets/.env"); //
+  // debugPrint(">>> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
   // 放在 UserRepoLocal 前面
   await Getx.Get.putAsync<StorageService>(() => StorageService().init());
   Getx.Get.put(UserRepoLocal(), permanent: true);

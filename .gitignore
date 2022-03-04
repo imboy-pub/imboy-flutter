@@ -51,3 +51,4 @@ app.*.map.json
 # Ignore Gradle build output directory
 build
 Podfile.lock
+.env
