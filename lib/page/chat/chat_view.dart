@@ -52,6 +52,7 @@ class ChatPage extends StatefulWidget {
 
 class ChatPageState extends State<ChatPage> {
   final logic = Getx.Get.put(ChatLogic());
+  Getx.RxBool _showAppBar = true.obs;
 
   // 当前会话新增消息
   List<types.Message> messages = [];
@@ -341,6 +342,10 @@ class ChatPageState extends State<ChatPage> {
         isScrollControlled: true,
         enableDrag: false,
       );
+    } else if (message is types.ImageMessage) {
+      setState(() {
+        _showAppBar.value = false;
+      });
     }
   }
 
@@ -472,14 +477,14 @@ class ChatPageState extends State<ChatPage> {
     types.TextMessage message,
     types.PreviewData previewData,
   ) {
-    final index = messages.indexWhere((element) => element.id == message.id);
-    final updatedMessage = messages[index].copyWith(previewData: previewData);
-
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      setState(() {
-        messages[index] = updatedMessage;
-      });
-    });
+    // final index = messages.indexWhere((element) => element.id == message.id);
+    // final updatedMessage = messages[index].copyWith(previewData: previewData);
+    //
+    // WidgetsBinding.instance?.addPostFrameCallback((_) {
+    //   setState(() {
+    //     messages[index] = updatedMessage;
+    //   });
+    // });
   }
 
   Future<bool> _handleSendPressed(types.PartialText message) async {
@@ -494,9 +499,6 @@ class ChatPageState extends State<ChatPage> {
     debugPrint(">>> on chat _handleSendPressed ${textMessage.toString()}");
     return await _addMessage(textMessage);
   }
-
-  // 手指滑动 事件
-  void _onPanUpdate(DragUpdateDetails e) async {}
 
   void _onMessageStatusTap(BuildContext ctx, types.Message msg) {
     if (msg.status != types.Status.sending) {
@@ -550,13 +552,13 @@ class ChatPageState extends State<ChatPage> {
 
     return Scaffold(
       backgroundColor: AppColors.ChatBg,
-      appBar: new PageAppBar(
-        title: newGroupName == "" ? widget.title : newGroupName,
-        rightDMActions: rWidget,
-      ),
-      body: GestureDetector(
-        //手指滑动
-        onPanUpdate: _onPanUpdate,
+      appBar: _showAppBar.value
+          ? PageAppBar(
+              title: newGroupName == "" ? widget.title : newGroupName,
+              rightDMActions: rWidget,
+            )
+          : null,
+      body: InkWell(
         child: Chat(
           user: logic.cuser,
           messages: messages,
@@ -573,8 +575,25 @@ class ChatPageState extends State<ChatPage> {
               DateTimeHelper.customDateHeader(dt),
           onEndReached: _handleEndReached,
           onAttachmentPressed: _handleAtachmentPressed,
-          // onMessageTap: _handleMessageTap,
+          // onPreviewDataFetched:(types.Message message, types.PreviewData dt) {}),
+          onMessageVisibilityChanged: (types.Message message, bool visible) {
+            debugPrint(
+                ">>> on onMessageVisibilityChanged ${_showAppBar.value}, visible:${visible}");
+          },
+          onMessageTap: (BuildContext c1, types.Message message) async {
+            debugPrint(">>> on onMessageTap ${_showAppBar.value}");
+            setState(() {
+              // _showAppBar.value = _showAppBar.value == true ? false : true;
+              _showAppBar.value = false;
+            });
+          },
           onMessageDoubleTap: _onMessageDoubleTap,
+          onCloseGalleryPressed: () {
+            setState(() {
+              _showAppBar.value = true;
+            });
+          },
+          showGalleryCloseButton: false,
           onMessageLongPress: _onMessageLongPress,
           onPreviewDataFetched: _handlePreviewDataFetched,
           onSendPressed: _handleSendPressed,

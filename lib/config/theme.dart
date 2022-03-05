@@ -186,6 +186,7 @@ class ImboyChatTheme extends ChatTheme {
             top: Radius.circular(8),
           ),
           inputMargin: const EdgeInsets.fromLTRB(16, 8, 18, 8),
+          sendButtonMargin: null,
         );
 }
 

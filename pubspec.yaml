@@ -58,8 +58,8 @@ dependencies:
   logger: ^1.0.0
   sentry_flutter: ^6.3.0
   photo_view: ^0.13.0
-  extended_text: ^8.0.2
-  extended_text_field: ^9.0.3
+  extended_text: ^9.0.0
+  extended_text_field: ^10.0.0
   lpinyin: ^2.0.3
   azlistview: ^2.0.0-nullsafety.0
   video_player: ^2.2.5
@@ -97,9 +97,9 @@ dependencies:
   ntp: ^2.0.0
   emoji_picker_flutter: ^1.0.8
   carousel_slider: ^4.0.0
-  flutter_chat_ui: ^1.5.5
-  #flutter_chat_ui:
-    #path: plugin/flutter_chat_ui
+  #flutter_chat_ui: ^1.5.5
+  flutter_chat_ui:
+    path: plugin/flutter_chat_ui
   popup_menu:
     path: plugin/popup_menu
   permission_handler: ^8.3.0
@@ -159,7 +159,7 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
   assets:
-    - .env
+    - assets/.env
     - assets/data/messages.json
     - assets/images/def_avatar.png
     - assets/images/bsc.webp
