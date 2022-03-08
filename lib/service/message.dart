@@ -206,7 +206,7 @@ class MessageService extends GetxService {
     // debugPrint(">> on reciveC2CRevokeMessage ${c.toJson().toString()}");
     MessageRepo repo = MessageRepo();
     String id = data['id'];
-    int res = await repo.update({
+    await repo.update({
       'id': id,
       'status': MessageStatus.send,
       'payload': json.encode({
@@ -215,34 +215,39 @@ class MessageService extends GetxService {
         "from_name": c!.nickname
       }),
     });
+    // msg = null 的时候数据已经被删除了
     MessageModel? msg = await repo.find(id);
-    if (res > 0 && msg != null) {
-      // 通知服务器已撤销
-      Map<String, dynamic> msg2 = {
-        'id': id,
-        'type': 'C2C_REVOKE_ACK',
-        'from': data["to"],
-        'to': data["from"],
-      };
-      WSService.to.sendMessage(json.encode(msg2));
-
+    if (msg != null) {
       eventBus.fire([msg.toTypeMessage()]);
-      changeConversation(msg);
     }
+    changeConversation(id, data['from'], false);
+
+    // 通知服务器已撤销
+    Map<String, dynamic> msg2 = {
+      'id': id,
+      'type': 'C2C_REVOKE_ACK',
+      'from': data["to"],
+      'to': data["from"],
+    };
+    WSService.to.sendMessage(json.encode(msg2));
   }
 
   /**
    * 撤回消息修正相应会话记录
    */
-  Future<void> changeConversation(MessageModel msg) async {
+  Future<void> changeConversation(
+    String msgId,
+    String msgFromId,
+    bool isack,
+  ) async {
     ConversationRepo repo2 = ConversationRepo();
-    ConversationModel? cobj = await repo2.findById(msg.conversationId!);
-    debugPrint(">>> on changeConversation : ${cobj!.toJson().toString()}");
+    ConversationModel? cobj = await repo2.findByTypeId(msgFromId);
 
-    if (cobj != null && cobj.lastMsgId == msg.id) {
-      Map<String, dynamic> data2 = cobj.toJson();
-      bool isCUid = UserRepoLocal.to.currentUid == msg.fromId ? true : false;
-      String subtitle = isCUid ? '你撤回了一条消息' : '"${cobj.title}"撤回了一条消息';
+    if (cobj != null && cobj.lastMsgId == msgId) {
+      bool isCUid = UserRepoLocal.to.currentUid == msgFromId ? true : false;
+      String subtitle = isCUid || isack ? '你撤回了一条消息' : '"${cobj.title}"撤回了一条消息';
+      debugPrint(
+          ">>> on MessageService changeConversation isCUid： ${isCUid}, subtitle:${subtitle}");
       int res2 = await repo2.updateById(cobj.id, {
         'subtitle': subtitle,
       });
@@ -258,28 +263,30 @@ class MessageService extends GetxService {
     MessageRepo repo = MessageRepo();
     String id = data['id'];
     MessageModel? msg = await repo.find(id);
-    msg!.payload = {
-      "msg_type": "custom",
-      "custom_type": "revoked",
-      'text': msg.payload!['text'],
-    };
-    int res = await repo.update({
-      'id': id,
-      'type': dtype,
-      'status': MessageStatus.send,
-      'payload': json.encode(msg.payload),
-    });
-    // debugPrint(">>> on MessageService REVOKE_C2C ack:$res; msg:" +
-    //     msg.toJson().toString());
-    if (res > 0 && msg != null) {
-      eventBus.fire([msg.toTypeMessage()]);
-      // 确认消息
-      WSService.to.sendMessage(json.encode({
+
+    debugPrint(
+        ">>> on MessageService REVOKE_C2C  msg:" + msg!.toJson().toString());
+    if (msg != null) {
+      msg.payload = {
+        "msg_type": "custom",
+        "custom_type": "revoked",
+        'text': msg.payload!['text'],
+      };
+      await repo.update({
         'id': id,
-        'type': 'C2C_CLIENT_ACK',
-        'remark': 'revoked',
-      }));
-      changeConversation(msg);
+        'type': dtype,
+        'status': MessageStatus.send,
+        'payload': json.encode(msg.payload),
+      });
+      eventBus.fire([msg.toTypeMessage()]);
     }
+    // 确认消息
+    WSService.to.sendMessage(json.encode({
+      'id': id,
+      'type': 'C2C_CLIENT_ACK',
+      'remark': 'revoked',
+    }));
+    ;
+    changeConversation(id, data['from'], true);
   }
 }

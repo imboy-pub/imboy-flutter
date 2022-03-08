@@ -6,7 +6,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart' as Getx;
 import 'package:imboy/config/const.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/helper/func.dart';
 import 'package:imboy/helper/http/http_exceptions.dart';
 import 'package:imboy/helper/jwt.dart';

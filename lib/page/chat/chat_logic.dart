@@ -36,8 +36,11 @@ class ChatLogic extends GetxController {
   ) async {
     // final response = await rootBundle.loadString('assets/data/messages.json');
     ConversationModel? obj = await ConversationRepo().findByTypeId(typeId);
+    if (obj == null) {
+      return [];
+    }
     List<MessageModel> items = await MessageRepo().findByConversation(
-      obj!.id,
+      obj.id,
       page,
       size,
     );

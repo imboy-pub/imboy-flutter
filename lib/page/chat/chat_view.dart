@@ -35,7 +35,7 @@ import 'chat_logic.dart';
 class ChatPage extends StatefulWidget {
   final int id; // 会话ID
   final String toId; // 用户ID
-  final String? type; // [C2C | GROUP]
+  final String type; // [C2C | GROUP]
   final String? title;
   final String? avatar;
 
@@ -53,7 +53,6 @@ class ChatPage extends StatefulWidget {
 class ChatPageState extends State<ChatPage> {
   final logic = Getx.Get.put(ChatLogic());
   Getx.RxBool _showAppBar = true.obs;
-
   // 当前会话新增消息
   List<types.Message> messages = [];
 
@@ -149,12 +148,15 @@ class ChatPageState extends State<ChatPage> {
     // 异步存储sqlite消息(未发送成功）
     //   发送成功后，更新conversation、更新消息状态
     //   发送失败后，放入异步队列，重新发送
+    String type =
+        widget.type == null || widget.type == 'null' ? 'C2C' : widget.type;
+    // debugPrint(">>> on _addMessage type :${type}");
     bool res = await logic.addMessage(
       UserRepoLocal.to.currentUid,
       widget.toId,
       widget.avatar ?? '',
       widget.title!,
-      widget.type!,
+      type,
       message,
     );
 
@@ -508,7 +510,7 @@ class ChatPageState extends State<ChatPage> {
     if (diff > 1500) {
       // 检查为发送消息
       logic.sendWsMsg(logic.getMsgFromTmsg(
-        widget.type!,
+        widget.type,
         widget.id,
         msg,
       ));
@@ -582,10 +584,12 @@ class ChatPageState extends State<ChatPage> {
           },
           onMessageTap: (BuildContext c1, types.Message message) async {
             debugPrint(">>> on onMessageTap ${_showAppBar.value}");
-            setState(() {
-              // _showAppBar.value = _showAppBar.value == true ? false : true;
-              _showAppBar.value = false;
-            });
+            if (message is types.ImageMessage) {
+              setState(() {
+                // _showAppBar.value = _showAppBar.value == true ? false : true;
+                _showAppBar.value = false;
+              });
+            }
           },
           onMessageDoubleTap: _onMessageDoubleTap,
           onCloseGalleryPressed: () {

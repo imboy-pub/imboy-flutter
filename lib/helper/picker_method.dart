@@ -113,6 +113,8 @@ class PickMethod {
           maxAssets: maxAssetsCount,
           selectedAssets: assets,
           requestType: RequestType.common,
+          previewThumbSize: <int>[1024, 1024],
+          gridThumbSize: 120,
           specialItemPosition: SpecialItemPosition.prepend,
           specialItemBuilder: (BuildContext context) {
             return GestureDetector(
@@ -126,9 +128,9 @@ class PickMethod {
                   return;
                 }
                 final AssetPicker<AssetEntity, AssetPathEntity> picker =
-                context.findAncestorWidgetOfExactType()!;
+                    context.findAncestorWidgetOfExactType()!;
                 final DefaultAssetPickerProvider p =
-                picker.builder.provider as DefaultAssetPickerProvider;
+                    picker.builder.provider as DefaultAssetPickerProvider;
                 await p.currentPathEntity!.refreshPathProperties();
                 await p.switchPath(p.currentPathEntity!);
                 p.selectAsset(result);
@@ -254,7 +256,7 @@ class PickMethod {
       description: 'Pick assets from same scroll position.',
       method: (BuildContext context, List<AssetEntity> assets) async {
         final PermissionState _ps =
-        await PhotoManager.requestPermissionExtend();
+            await PhotoManager.requestPermissionExtend();
         if (_ps != PermissionState.authorized &&
             _ps != PermissionState.limited) {
           throw StateError('Permission state error with $_ps.');
@@ -312,9 +314,9 @@ class PickMethod {
 
   /// The core function that defines how to use the picker.
   final Future<List<AssetEntity>?> Function(
-      BuildContext context,
-      List<AssetEntity> selectedAssets,
-      ) method;
+    BuildContext context,
+    List<AssetEntity> selectedAssets,
+  ) method;
 
   final GestureLongPressCallback? onLongPress;
 }

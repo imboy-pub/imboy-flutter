@@ -105,7 +105,7 @@ class _ConversationPageState extends State<ConversationPage> {
                 toId: model.typeId,
                 title: model.title,
                 avatar: model.avatar,
-                type: model.type,
+                type: model.type == null ? 'C2C' : model.type,
               ),
             );
           },

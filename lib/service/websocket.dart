@@ -57,7 +57,7 @@ class WSService extends GetxService {
         eventBus.fire(data);
       }, onError: (e) {
         debugPrint(
-            ">>> on ws ${DateTime.now()} onError ${e.runtimeType} | ${e.toString()}");
+            ">>> on ws onError ${e.runtimeType} | ${e.toString()}; ${DateTime.now()}");
         // change(value, status: RxStatus.error(e.message));
       });
     }
@@ -111,16 +111,14 @@ class WSService extends GetxService {
     }
     Map<String, dynamic> headers = defaultHeaders();
     headers[Keys.tokenKey] = token;
-    String url =
-        WS_URL + '?' + Keys.tokenKey + '=' + token.replaceAll('+', '%2B');
     if (subprotocol.isEmpty) {
       _webSocketChannel = IOWebSocketChannel.connect(
-        url,
+        WS_URL,
         headers: headers,
       );
     } else {
       _webSocketChannel = IOWebSocketChannel.connect(
-        url,
+        WS_URL,
         headers: headers,
         protocols: subprotocol,
       );
@@ -172,8 +170,7 @@ class WSService extends GetxService {
 
   /// WebSocket连接错误回调
   _webSocketOnError(e) {
-    debugPrint(
-        '>>> on ws ${DateTime.now()} _webSocketOnError ${_webSocketOnError.toString()}');
+    debugPrint('>>> on ws _webSocketOnError ${_webSocketOnError.toString()}');
     WebSocketChannelException ex = e;
     _socketStatus = SocketStatus.SocketStatusFailed;
     onError(ex.message);

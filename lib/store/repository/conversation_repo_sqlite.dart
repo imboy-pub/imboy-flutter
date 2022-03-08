@@ -181,7 +181,6 @@ class ConversationRepo {
       whereArgs: [id],
       orderBy: "${ConversationRepo.lasttime} DESC",
     );
-    debugPrint(">>> on ConversationRepo/findById maps " + maps.toString());
 
     if (maps.length > 0) {
       return ConversationModel.fromJson(maps.first);
