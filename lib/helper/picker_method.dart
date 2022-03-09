@@ -3,6 +3,7 @@
 /// [Date] 2020-05-30 20:56
 ///
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 
@@ -115,6 +116,7 @@ class PickMethod {
           requestType: RequestType.common,
           previewThumbSize: <int>[1024, 1024],
           gridThumbSize: 120,
+          sortPathDelegate: CustomSortPathDelegate(),
           specialItemPosition: SpecialItemPosition.prepend,
           specialItemBuilder: (BuildContext context) {
             return GestureDetector(
@@ -319,4 +321,23 @@ class PickMethod {
   ) method;
 
   final GestureLongPressCallback? onLongPress;
+}
+
+class CustomSortPathDelegate extends CommonSortPathDelegate {
+  const CustomSortPathDelegate();
+
+  @override
+  void sort(List<AssetPathEntity> list) {
+    ///...///
+
+    // 在这里你可以对每个你认为需要的路径进行判断。
+    // 我们唯一推荐更改的属性是 [name]，
+    // 并且我们不对更改其他属性造成的问题负责。
+    for (final AssetPathEntity entity in list) {
+      // 如果这个路径的 `isAll` 为真，则该路径就是你需要的。
+      entity.name = entity.name.tr;
+    }
+
+    ///...///
+  }
 }

@@ -98,8 +98,6 @@ class ChatPageState extends State<ChatPage> {
     eventBus.on<List<types.Message>>().listen((e) async {
       types.Message msg = e.first;
       final index = messages.indexWhere((element) => element.id == msg.id);
-      debugPrint(">>> on MessageService chat_view initState:$index; " +
-          msg.toJson().toString());
       if (index > -1) {
         messages.setRange(index, index + 1, e);
         if (mounted) {
@@ -129,7 +127,6 @@ class ChatPageState extends State<ChatPage> {
             MessageService.to.decreaseConversationRemind(widget.toId, 1);
           }
         }
-        debugPrint(">>>>> on chat initData msg :${msg.toString()}");
       });
 
       setState(() {
@@ -169,47 +166,32 @@ class ChatPageState extends State<ChatPage> {
     // _msgService.update();
   }
 
-  void _handleAtachmentPressed() {
-    Getx.Get.bottomSheet(
-      Container(
-        child: Wrap(
-          children: <Widget>[
-            ListTile(
-              leading: Icon(Icons.photo),
-              title: Text('Photo'),
-              onTap: () => {_handleImageSelection()},
-            ),
-            ListTile(
-              leading: Icon(Icons.drive_file_move),
-              title: Text('File'),
-              onTap: () => {_handleFileSelection()},
-            ),
-          ],
-        ),
-      ),
-      backgroundColor: AppColors.BgColor,
-    );
-  }
-
   void _handleFileSelection() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.any,
     );
 
     if (result != null && result.files.single.path != null) {
-      final message = types.FileMessage(
-        author: logic.cuser,
-        createdAt: DateTimeHelper.currentTimeMillis(),
-        id: Xid().toString(),
-        mimeType: lookupMimeType(result.files.single.path!),
-        name: result.files.single.name,
-        size: result.files.single.size,
-        uri: result.files.single.path!,
-        remoteId: widget.toId,
-        status: types.Status.sending,
-      );
+      await (UploadProvider()).uploadFile("files", (
+        Map<String, dynamic> resp,
+        String uri,
+      ) async {
+        final message = types.FileMessage(
+          author: logic.cuser,
+          createdAt: DateTimeHelper.currentTimeMillis(),
+          id: Xid().toString(),
+          mimeType: lookupMimeType(result.files.single.path!),
+          name: result.files.single.name,
+          size: result.files.single.size,
+          uri: uri,
+          remoteId: widget.toId,
+          status: types.Status.sending,
+        );
 
-      _addMessage(message);
+        _addMessage(message);
+      }, (DioError error) {
+        debugPrint(">>> on upload ${error.toString()}");
+      }, result.files.single);
     }
   }
 
@@ -217,48 +199,46 @@ class ChatPageState extends State<ChatPage> {
    * 拍摄
    */
   Future<void> _handlePickerSelection() async {
-    BuildContext context = Getx.Get.context!;
-    final Size size = MediaQuery.of(context).size;
-    final double scale = MediaQuery.of(context).devicePixelRatio;
     try {
       final AssetEntity? entity = await CameraPicker.pickFromCamera(
-        context,
+        Getx.Get.context!,
         enableRecording: true,
       );
-      if (entity != null) {
-        if (mounted) {
-          setState(() {});
-        }
-        await (UploadProvider()).uploadImg("chat", (
-          Map<String, dynamic> resp,
-          String imgUrl,
-        ) async {
-          debugPrint(">>> on upload imgUrl ${imgUrl}");
-          debugPrint(">>> on upload ${resp.toString()}");
+      if (entity == null) {
+        return;
+      }
+      if (mounted) {
+        setState(() {});
+      }
+      await (UploadProvider()).uploadImg("chat", (
+        Map<String, dynamic> resp,
+        String imgUrl,
+      ) async {
+        debugPrint(">>> on upload imgUrl ${imgUrl}");
+        debugPrint(">>> on upload ${resp.toString()}");
 
-          final message = types.ImageMessage(
-            author: logic.cuser,
-            createdAt: DateTimeHelper.currentTimeMillis(),
-            id: Xid().toString(),
-            name: await entity.titleAsync,
-            height: entity.height * 1.0,
-            width: entity.width * 1.0,
-            size: resp["data"]["size"],
-            uri: imgUrl,
-            remoteId: widget.toId,
-            status: types.Status.sending,
-          );
+        final message = types.ImageMessage(
+          author: logic.cuser,
+          createdAt: DateTimeHelper.currentTimeMillis(),
+          id: Xid().toString(),
+          name: await entity.titleAsync,
+          height: entity.height * 1.0,
+          width: entity.width * 1.0,
+          size: resp["data"]["size"],
+          uri: imgUrl,
+          remoteId: widget.toId,
+          status: types.Status.sending,
+        );
 
-          _addMessage(message);
-          assets.removeAt(
-            assets.indexWhere((element) => element.id == entity.id),
-          );
-        }, (DioError error) {
-          debugPrint(">>> on upload ${error.toString()}");
-        }, entity);
-        if (mounted) {
-          setState(() {});
-        }
+        _addMessage(message);
+        assets.removeAt(
+          assets.indexWhere((element) => element.id == entity.id),
+        );
+      }, (DioError error) {
+        debugPrint(">>> on upload ${error.toString()}");
+      }, entity);
+      if (mounted) {
+        setState(() {});
       }
     } catch (e) {
       rethrow;
@@ -277,6 +257,7 @@ class ChatPageState extends State<ChatPage> {
 
   void _handleImageSelection() async {
     await _selectAssets(PickMethod.cameraAndStay(maxAssetsCount: 9));
+
     var up = UploadProvider();
     assets.forEach((entity) async {
       await up.uploadImg("chat", (
@@ -576,7 +557,6 @@ class ChatPageState extends State<ChatPage> {
           customDateHeaderText: (DateTime dt) =>
               DateTimeHelper.customDateHeader(dt),
           onEndReached: _handleEndReached,
-          onAttachmentPressed: _handleAtachmentPressed,
           // onPreviewDataFetched:(types.Message message, types.PreviewData dt) {}),
           onMessageVisibilityChanged: (types.Message message, bool visible) {
             debugPrint(
@@ -609,7 +589,6 @@ class ChatPageState extends State<ChatPage> {
             // 发送除非事件
             onSendPressed: _handleSendPressed,
             sendButtonVisibilityMode: SendButtonVisibilityMode.editing,
-            onAttachmentPressed: _handleAtachmentPressed,
             voiceWidget: VoiceRecord(),
             extraWidget: ExtraItems(
               // 照片
@@ -629,13 +608,6 @@ class ChatPageState extends State<ChatPage> {
   void dispose() {
     Getx.Get.delete<ChatLogic>();
 
-    //在页面销毁的时候一定要取消网络状态的监听
-    // if (_connectivityResult != null &&
-    //     _connectivityResult != ConnectivityResult.none) {
-    //   debugPrint(">>> on chat_view dispose _connectivityResult: " +
-    //       _connectivityResult.toString());
-    //   _connectivityResult.cancle();
-    // }
     super.dispose();
   }
 }
