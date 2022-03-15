@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/helper/func.dart';
+import 'package:imboy/component/helper/func.dart';
 
 import 'search_logic.dart';
 import 'search_state.dart';

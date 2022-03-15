@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:imboy/helper/sqflite.dart';
+import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/store/model/message_model.dart';
 
 class MessageRepo {

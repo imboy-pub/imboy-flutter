@@ -187,8 +187,9 @@ void logError(String code, String message) =>
 
 // md5 加密
 String generateMD5(String data) {
-  var content = new Utf8Encoder().convert(data);
-  var digest = md5.convert(content);
+  // var content = new Utf8Encoder().convert(data);
+  // var digest = md5.convert(content);
+  var digest = md5.convert(utf8.encode(data));
   // 这里其实就是 digest.toString()
   return hex.encode(digest.bytes);
 }

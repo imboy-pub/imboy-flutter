@@ -4,15 +4,15 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/view/null_view.dart';
-import 'package:imboy/component/widget/chat/conversation_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/helper/datetime.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 
 import 'conversation_logic.dart';
+import 'widget/conversation_view.dart';
 
 class ConversationPage extends StatefulWidget {
   @override

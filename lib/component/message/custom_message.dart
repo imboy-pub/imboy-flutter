@@ -5,7 +5,7 @@ import 'package:flutter_chat_ui/src/widgets/inherited_user.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/helper/datetime.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/model/message_model.dart';
 
 /// A class that represents text message widget with optional link preview

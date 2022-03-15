@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:imboy/helper/func.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';

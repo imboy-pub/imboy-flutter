@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/widget/login/alread_have_an_account_check.dart';
-import 'package:imboy/component/widget/login/or_divider.dart';
-import 'package:imboy/component/widget/login/rounded_button.dart';
-import 'package:imboy/component/widget/login/rounded_input_field.dart';
-import 'package:imboy/component/widget/login/rounded_password_field.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/routes.dart';
 
 import 'login_logic.dart';
 import 'login_state.dart';
+import 'widget/alread_have_an_account_check.dart';
+import 'widget/or_divider.dart';
+import 'widget/rounded_button.dart';
+import 'widget/rounded_input_field.dart';
+import 'widget/rounded_password_field.dart';
 
 class LoginPage extends GetWidget {
   final LoginLogic logic = Get.put(LoginLogic());

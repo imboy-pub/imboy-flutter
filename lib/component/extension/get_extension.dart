@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:imboy/component/widget/loading_dialog.dart';
+import 'package:imboy/component/loading_dialog.dart';
 
 extension GetExtension on GetInterface {
   dismiss() {

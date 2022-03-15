@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/helper/func.dart';
+import 'package:imboy/component/helper/func.dart';
 
 /// 1.长按  2.单击
 enum PressType { longPress, singleClick }

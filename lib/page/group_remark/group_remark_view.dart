@@ -5,7 +5,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/view/main_input.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
-import 'package:imboy/helper/func.dart';
+import 'package:imboy/component/helper/func.dart';
 
 import 'group_remark_logic.dart';
 import 'group_remark_state.dart';

@@ -1,4 +1,4 @@
-import 'package:imboy/helper/func.dart';
+import 'package:imboy/component/helper/func.dart';
 
 class ConversationModel {
   int id;

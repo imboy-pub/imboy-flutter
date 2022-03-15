@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/helper/func.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class ImboyInterceptor extends Interceptor {

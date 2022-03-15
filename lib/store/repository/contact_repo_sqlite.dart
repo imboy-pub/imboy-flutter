@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:imboy/helper/datetime.dart';
-import 'package:imboy/helper/func.dart';
-import 'package:imboy/helper/sqflite.dart';
+import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/store/model/contact_model.dart';
 
 class ContactRepo {

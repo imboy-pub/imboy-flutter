@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/view/list_tile_view.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/helper/func.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/personal_info/personal_info_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 

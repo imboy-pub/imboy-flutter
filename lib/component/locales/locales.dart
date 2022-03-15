@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:imboy/helper/locales.g.dart';
+import 'package:imboy/component/locales/locales.g.dart';
 
 class IMBoyTranslations extends Translations {
   @override

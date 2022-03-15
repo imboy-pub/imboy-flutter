@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:imboy/helper/sqflite.dart';
+import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 
 class ConversationRepo {

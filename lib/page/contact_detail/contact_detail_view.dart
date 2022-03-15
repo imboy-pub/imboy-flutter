@@ -5,7 +5,6 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/friend_item_dialog.dart';
 import 'package:imboy/component/ui/label_row.dart';
-import 'package:imboy/component/widget/chat/contact_card.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/friend_circle/friend_circle_view.dart';
@@ -14,6 +13,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'contact_detail_logic.dart';
 import 'contact_detail_state.dart';
+import 'widget/contact_card.dart';
 
 class ContactDetailPage extends StatefulWidget {
   final String id; // 用户ID

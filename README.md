@@ -37,9 +37,11 @@ imboy 的Flutter项目
 * 搜索联系人 TODO
 * 添加分组、编辑分组、删除分组 TODO
 * 发送图片 OK
-    * 聊天界面“单击or双击图片”全屏展示，再单击图片取消全屏
-    * 待压缩上传
-* 发送文件 TODO
+    * 拍摄照片上传 OK
+    * 聊天界面“单击or双击图片”全屏展示，再单击图片取消全屏 OK
+    * 压缩上传 OK
+    * 文件秒传功能（首先通过文件sha1值查询存储服务是否已经上传过，再重新上传
+* 发送文件 OK
 * 邀请注册 TODO
 * 修改密码 TODO
 * 添加好友 TODO
@@ -70,12 +72,12 @@ https://github.com/jonataslaw/get_cli/tree/master/translations
 flutter pub global activate get_cli
 export PATH="$PATH":"$HOME/.pub-cache/bin"
 
-mkdir -p assets assets/locales
+mkdir -p assets assets/locales lib/component/locales
 // cd assets/locales/
 // wget https://raw.githubusercontent.com/jonataslaw/get_cli/master/translations/zh_CN.json
 // https://github.com/jonataslaw/get_cli/blob/master/translations/en.json
 // 生产json文件之后执行下面命令
-get generate locales assets/locales on helper
+get generate locales assets/locales on lib/component/locales
 ```
 
 ## 临时解决 CocoaPods not installed. Skipping pod install
@@ -100,6 +102,12 @@ Lib
 │        ├──login_state.dart => class LoginState
 │        └──login_view.dart => class LoginPage 后缀为page为落地页 唯一入口
 ├──component 通用组件
+│        ├──extension
+│             └──get_extension.dart => class GetExtension
+│        ├──helper 公共方法
+│             └──func.dart => 常规方法、通用方法、全局方法可以用过这个入口export 避免重复引入、可以作用通过用方法入口
+│        ├──http HTTP客户端封装
+│             └──http.dart =>
 │        ├──ui
 │             └──common.dart => class UserObject
 │        ├──view
@@ -115,8 +123,6 @@ Lib
 │    │    └──index.dart => export all models
 │    └──object
 │         └──user_object.dart => class UserObject
-├──helper 公共方法
-│    └──index.dart 常规方法、通用方法、全局方法可以用过这个入口export 避免重复引入、可以作用通过用方法入口
 ├──config 配置中心
 │    ├──index.dart 配置变量与切换方法
 └──router 路由

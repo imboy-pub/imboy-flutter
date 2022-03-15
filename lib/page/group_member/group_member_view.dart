@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/helper/func.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/select_member/select_member_view.dart';
 import 'package:imboy/store/model/group_model.dart';
 

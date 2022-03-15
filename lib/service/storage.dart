@@ -12,12 +12,6 @@ class StorageService extends GetxService {
   static StorageService get to => Get.find();
   late final SharedPreferences _prefs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    init();
-  }
-
   Future<StorageService> init() async {
     _prefs = await SharedPreferences.getInstance();
     return this;
@@ -69,15 +63,18 @@ class StorageService extends GetxService {
     // debugPrint(">>> on currentTimeMillis val1 ${val}");
     // val = null;
     if (val == null) {
-      int offset = await NTP.getNtpOffset(
-        localTime: DateTime.now(),
-        lookUpAddress: 'time5.cloud.tencent.com',
-      );
-      // debugPrint(">>> on currentTimeMillis offset2 ${offset}");
-      String dt = Jiffy().format('y-MM-dd HH:mm:ss');
-      val = '${dt}${offset}';
-      // debugPrint(">>> on currentTimeMillis val2 ${val}");
-      _prefs.setString(key, val);
+      int offset = 0;
+      try {
+        offset = await NTP.getNtpOffset(
+          localTime: DateTime.now(),
+          lookUpAddress: 'time5.cloud.tencent.com',
+        );
+        // debugPrint(">>> on currentTimeMillis offset2 ${offset}");
+        String dt = Jiffy().format('y-MM-dd HH:mm:ss');
+        val = '${dt}${offset}';
+        // debugPrint(">>> on currentTimeMillis val2 ${val}");
+        _prefs.setString(key, val);
+      } catch (e) {}
       return offset;
     } else {
       // 2022-01-23 00:30:35 字符串的长度刚好19位

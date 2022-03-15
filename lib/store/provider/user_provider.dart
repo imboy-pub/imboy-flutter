@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/helper/http/http_client.dart';
-import 'package:imboy/helper/http/http_response.dart';
 
 class UserProvider extends HttpClient {
   Future<String> refreshtoken(String refreshtoken) async {

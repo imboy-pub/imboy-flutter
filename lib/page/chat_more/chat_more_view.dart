@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/widget/more_item_card.dart';
+import 'package:imboy/component/more_item_card.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 import 'chat_more_logic.dart';

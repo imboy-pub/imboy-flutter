@@ -3,22 +3,22 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/view/image_view.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/helper/func.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:photo_view/photo_view.dart';
 
 class ContactCard extends StatelessWidget {
-  final String id;
-  final String nickname;
-  final String avatar;
-  final String account;
+  final String? id;
+  final String? nickname;
+  final String? avatar;
+  final String? account;
   final String? area;
 
-  final bool isBorder;
-  final double lineWidth;
+  final bool? isBorder;
+  final double? lineWidth;
 
   ContactCard({
     required this.id,
-    required this.nickname,
+    this.nickname,
     required this.avatar, // 头像
     required this.account,
     this.area, //
@@ -37,10 +37,10 @@ class ContactCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        border: isBorder
+        border: isBorder!
             ? Border(
                 bottom:
-                    BorderSide(color: AppColors.LineColor, width: lineWidth),
+                    BorderSide(color: AppColors.LineColor, width: lineWidth!),
               )
             : null,
       ),
@@ -51,15 +51,17 @@ class ContactCard extends StatelessWidget {
         children: <Widget>[
           new GestureDetector(
             child: new ImageView(
-                img: avatar, width: 55, height: 55, fit: BoxFit.cover),
+                img: avatar!, width: 55, height: 55, fit: BoxFit.cover),
             onTap: () {
-              if (isNetWorkImg(avatar)) {
-                Get.to(() => PhotoView(
-                      imageProvider: NetworkImage(avatar),
-                      onTapUp: (c, f, s) => Navigator.of(context).pop(),
-                      maxScale: 3.0,
-                      minScale: 1.0,
-                    ));
+              if (isNetWorkImg(avatar!)) {
+                Get.to(
+                  new PhotoView(
+                    imageProvider: NetworkImage(avatar!),
+                    onTapUp: (c, f, s) => Navigator.of(context).pop(),
+                    maxScale: 3.0,
+                    minScale: 1.0,
+                  ),
+                );
               } else {
                 Get.snackbar('', '无头像');
               }
@@ -72,7 +74,7 @@ class ContactCard extends StatelessWidget {
               new Row(
                 children: <Widget>[
                   new Text(
-                    nickname,
+                    nickname ?? '未知',
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 18.0,

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:imboy/helper/sqflite.dart';
+import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';

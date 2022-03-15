@@ -2,11 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/extension/get_extension.dart';
+import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/helper/extension/get_extension.dart';
-import 'package:imboy/helper/func.dart';
-import 'package:imboy/helper/http/http_client.dart';
-import 'package:imboy/helper/http/http_response.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 

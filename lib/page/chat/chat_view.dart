@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:extended_text/extended_text.dart';
@@ -8,20 +9,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart' as Getx;
+import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/picker_method.dart';
+import 'package:imboy/component/message/custom_message.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/widget/chat/chat_input.dart';
-import 'package:imboy/component/widget/chat/extra_item.dart';
-import 'package:imboy/component/widget/chat/voice_record.dart';
-import 'package:imboy/component/widget/message/custom_message.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/theme.dart';
-import 'package:imboy/helper/datetime.dart';
-import 'package:imboy/helper/picker_method.dart';
 import 'package:imboy/page/chat_info/chat_info_view.dart';
 import 'package:imboy/page/group_detail/group_detail_view.dart';
 import 'package:imboy/service/message.dart';
-import 'package:imboy/store/provider/upload_provider.dart';
+import 'package:imboy/store/provider/attachment_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
@@ -31,6 +29,9 @@ import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:xid/xid.dart';
 
 import 'chat_logic.dart';
+import 'widget/chat_input.dart';
+import 'widget/extra_item.dart';
+import 'widget/voice_record.dart';
 
 class ChatPage extends StatefulWidget {
   final int id; // 会话ID
@@ -172,7 +173,7 @@ class ChatPageState extends State<ChatPage> {
     );
 
     if (result != null && result.files.single.path != null) {
-      await (UploadProvider()).uploadFile("files", (
+      await AttachmentProvider.uploadFile("files", result.files.single, (
         Map<String, dynamic> resp,
         String uri,
       ) async {
@@ -191,7 +192,7 @@ class ChatPageState extends State<ChatPage> {
         _addMessage(message);
       }, (DioError error) {
         debugPrint(">>> on upload ${error.toString()}");
-      }, result.files.single);
+      });
     }
   }
 
@@ -210,7 +211,7 @@ class ChatPageState extends State<ChatPage> {
       if (mounted) {
         setState(() {});
       }
-      await (UploadProvider()).uploadImg("chat", (
+      await AttachmentProvider.uploadImg("chat", entity, (
         Map<String, dynamic> resp,
         String imgUrl,
       ) async {
@@ -236,7 +237,7 @@ class ChatPageState extends State<ChatPage> {
         );
       }, (DioError error) {
         debugPrint(">>> on upload ${error.toString()}");
-      }, entity);
+      });
       if (mounted) {
         setState(() {});
       }
@@ -257,13 +258,15 @@ class ChatPageState extends State<ChatPage> {
 
   void _handleImageSelection() async {
     await _selectAssets(PickMethod.cameraAndStay(maxAssetsCount: 9));
-
-    var up = UploadProvider();
+    Getx.Get.snackbar('title', 'message');
     assets.forEach((entity) async {
-      await up.uploadImg("chat", (
+      await AttachmentProvider.uploadImg("chat", entity, (
         Map<String, dynamic> resp,
         String imgUrl,
       ) async {
+        double w = Getx.Get.width * 2;
+        imgUrl += "&width=${w.toInt()}";
+
         debugPrint(">>> on upload imgUrl ${imgUrl}");
         debugPrint(">>> on upload ${resp.toString()}");
 
@@ -286,7 +289,7 @@ class ChatPageState extends State<ChatPage> {
         );
       }, (DioError error) {
         debugPrint(">>> on upload ${error.toString()}");
-      }, entity);
+      });
     });
   }
 
@@ -325,6 +328,9 @@ class ChatPageState extends State<ChatPage> {
         isScrollControlled: true,
         enableDrag: false,
       );
+    } else if (message is types.FileMessage) {
+      File? tmpF = await AttachmentProvider.openUrl(message.uri, '');
+      await OpenFile.open(tmpF!.path);
     } else if (message is types.ImageMessage) {
       setState(() {
         _showAppBar.value = false;
@@ -563,12 +569,14 @@ class ChatPageState extends State<ChatPage> {
                 ">>> on onMessageVisibilityChanged ${_showAppBar.value}, visible:${visible}");
           },
           onMessageTap: (BuildContext c1, types.Message message) async {
-            debugPrint(">>> on onMessageTap ${_showAppBar.value}");
             if (message is types.ImageMessage) {
               setState(() {
                 // _showAppBar.value = _showAppBar.value == true ? false : true;
                 _showAppBar.value = false;
               });
+            } else if (message is types.FileMessage) {
+              File? tmpF = await AttachmentProvider.openUrl(message.uri, '');
+              await OpenFile.open(tmpF!.path);
             }
           },
           onMessageDoubleTap: _onMessageDoubleTap,

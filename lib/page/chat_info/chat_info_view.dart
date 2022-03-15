@@ -4,14 +4,14 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/confirm_alert.dart';
 import 'package:imboy/component/ui/label_row.dart';
-import 'package:imboy/component/widget/item/chat_mamber.dart';
-import 'package:imboy/component/widget/web_view.dart';
+import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat_background/chat_background_view.dart';
 import 'package:imboy/page/search/search_view.dart';
 
 import 'chat_info_logic.dart';
 import 'chat_info_state.dart';
+import 'widget/chat_mamber.dart';
 
 class ChatInfoPage extends StatefulWidget {
   final String id;

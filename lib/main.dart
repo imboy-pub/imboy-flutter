@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/log.dart';
+import 'package:imboy/component/locales/locales.g.dart';
 import 'package:imboy/component/view/controller.dart';
-import 'package:imboy/helper/log.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/login/login_view.dart';
 import 'package:imboy/page/pages.dart';
@@ -16,10 +17,9 @@ import 'package:jiffy/jiffy.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import 'component/locales/locales.dart';
 import 'config/const.dart';
 import 'config/init.dart';
-import 'helper/locales.dart';
-import 'helper/locales.g.dart';
 
 void run() async {
   // 要读取系统语言，可以使用window.locale

@@ -5,10 +5,10 @@ import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart' as Getx;
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/helper/jwt.dart';
+import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/helper/func.dart';
-import 'package:imboy/helper/http/http_exceptions.dart';
-import 'package:imboy/helper/jwt.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'http_config.dart';
