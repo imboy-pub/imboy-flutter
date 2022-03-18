@@ -401,7 +401,6 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
     return GestureDetector(
       onTap: () {
-        debugPrint(">>> on chat_input build");
         showSoftKey();
       },
       child: Focus(

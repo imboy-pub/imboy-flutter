@@ -7,13 +7,13 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
-import "package:path/path.dart" show basename;
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:imboy/store/model/entity_image.dart';
+import 'package:imboy/store/model/entity_video.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xid/xid.dart';
@@ -107,8 +107,13 @@ class AttachmentProvider {
   ) async {
     int quality = 68;
     int width = 800;
-    int height = (entity.height / entity.width * width).toInt();
-
+    int height = 0;
+    if (entity.width < width) {
+      width = entity.width;
+      height = entity.height;
+    } else {
+      height = (entity.height / entity.width * width).toInt();
+    }
     File? file = await entity.file;
     String path = file!.path;
 
@@ -117,21 +122,97 @@ class AttachmentProvider {
     debugPrint(">>> on uploadOriginalImage: ${uploadOriginalImage}");
     String name = "${Xid().toString()}.${ext}";
     if (entity.type == AssetType.video) {
-      File thumbnailFile = await VideoCompress.getFileThumbnail(path,
-          quality: quality, // default(100)
-          position: -1 // default(-1)
-          );
+      String? thumbUri;
+      String? videoUri;
+      // 上传缩略图
+      File thumbnailFile = await VideoCompress.getFileThumbnail(
+        path,
+        quality: quality, // default(100)
+        position: -1, // default(-1)
+      );
+      debugPrint(">>> on upload video ${thumbnailFile.path}");
+      String thumbPath = thumbnailFile.path;
+      var thumbName =
+          thumbPath.substring(thumbPath.lastIndexOf("/") + 1, thumbPath.length);
       Map<String, dynamic> data = {
-        'file':
-            await MultipartFile.fromFile(thumbnailFile.path, filename: name),
+        'file': await MultipartFile.fromFile(thumbPath, filename: thumbName),
       };
-      await _upload(prefix, data, callback, errorCallback);
+      await _upload(prefix, data, (Map<String, dynamic> _resp, String imgUrl) {
+        thumbUri = imgUrl;
+      }, errorCallback);
+      // end 上传缩略图
+
+      MediaInfo? mediaInfo = await VideoCompress.compressVideo(
+        path,
+        quality: VideoQuality.LowQuality,
+        deleteOrigin: true,
+      );
+      File videoFile = mediaInfo!.file!;
+      Map<String, dynamic> predata = {
+        'md5': sha1.convert(await videoFile.readAsBytesSync()),
+      };
+      await preUpload(prefix, predata).then((response) async {
+        Map<String, dynamic> responseData = json.decode(response.data);
+        String status = responseData['status'] ?? '';
+        if (status == 'ok') {
+          String v = (Random()).nextInt(999999).toString();
+          String authToken = generateMD5(UP_AUTH_KEY + v).substring(8, 24);
+          videoUri = responseData["data"]["url"] +
+              "?s=${UPLOAD_SENCE}&a=${authToken}&v=${v}";
+        } else {
+          Map<String, dynamic> data = {
+            'file':
+                await MultipartFile.fromFile(videoFile.path, filename: name),
+          };
+          await _upload(prefix, data, (
+            Map<String, dynamic> resp,
+            String uri,
+          ) {
+            String status = resp['status'] ?? '';
+            if (status == 'ok') {
+              videoUri = uri;
+            }
+          }, errorCallback);
+        }
+      }).catchError((e) {
+        errorCallback(e);
+      });
+      EntityImage thumb = EntityImage(
+        name: thumbName,
+        uri: thumbUri!,
+        size: (await thumbnailFile.readAsBytes()).length,
+        width: width,
+        height: height,
+      );
+      EntityVideo video = EntityVideo(
+        name: name,
+        uri: videoUri!,
+        filesize: mediaInfo.filesize,
+        duration: mediaInfo.duration,
+        author: mediaInfo.author,
+        width: mediaInfo.width!,
+        height: mediaInfo.height!,
+      );
+
+      await callback({
+        'thumb': thumb,
+        'video': video,
+      }, '');
       await VideoCompress.deleteAllCache();
+
+      // EntityImage thumb = new EntityImage(
+      //   name: name,
+      //   uri: thumbUri,
+      //   size: await thumbnailFile.length(),
+      //   width: thumbnailFile.
+      // );
     } else if (entity.type == AssetType.image && uploadOriginalImage == false) {
       // 压缩上传图片
-      final Uint8List? thumbData = await entity.thumbDataWithSize(
-        width,
-        height,
+      final Uint8List? thumbData = await entity.thumbnailDataWithSize(
+        ThumbnailSize(
+          width,
+          height,
+        ),
         quality: quality,
       );
       Map<String, dynamic> predata = {
@@ -200,29 +281,5 @@ class AttachmentProvider {
       'file': await MultipartFile.fromFile(path, filename: name),
     };
     await _upload(prefix, data, callback, errorCallback);
-  }
-
-  /**
-   * 下载下载附件，存储到本地
-   */
-  static Future<File?> openUrl(String url, String filename) async {
-    PermissionStatus permissionResult = await Permission.storage.request();
-    if (permissionResult == PermissionStatus.granted) {
-      Uri u1 = Uri.parse(url);
-      filename = strEmpty(filename) ? basename(u1.path) : filename;
-      String dir = (await getApplicationDocumentsDirectory()).path;
-      String path = '$dir/$filename';
-      File file = File(path);
-      if (await file.exists()) {
-        return file;
-      }
-      var request = await HttpClient().getUrl(u1);
-      var response = await request.close();
-      var bytes = await consolidateHttpClientResponseBytes(response);
-      // debugPrint(">>> on $dir/$filename");
-      file = File(path);
-      await file.writeAsBytes(bytes);
-      return file;
-    }
   }
 }

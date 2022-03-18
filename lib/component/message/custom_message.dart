@@ -1,11 +1,13 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/src/widgets/inherited_user.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/page/chat_video/chat_video_view.dart';
 import 'package:imboy/store/model/message_model.dart';
 
 /// A class that represents text message widget with optional link preview
@@ -45,7 +47,7 @@ class CustomMessage extends StatelessWidget {
               ),
             ),
           )
-        : SizedBox();
+        : const SizedBox.shrink();
     return GestureDetector(
       onTap: () {
         // Get.back();
@@ -86,6 +88,41 @@ class CustomMessage extends StatelessWidget {
     );
   }
 
+  Widget videoMsg(BuildContext ctx) {
+    return Container(
+      constraints: BoxConstraints(maxHeight: Get.height * 0.46),
+      child: InkWell(
+        onTap: () {
+          Get.to(ChatVideoPage(url: this.message.metadata!['video']['uri']));
+        },
+        child: Stack(
+          alignment: Alignment.centerRight,
+          children: <Widget>[
+            CachedNetworkImage(
+              imageUrl: this.message.metadata!['thumb']['uri'],
+              progressIndicatorBuilder: (context, url, downloadProgress) =>
+                  CircularProgressIndicator(value: downloadProgress.progress),
+              errorWidget: (context, url, error) => Icon(Icons.error),
+              //cancelToken: cancellationToken,
+            ),
+            Positioned.fill(
+              child: SizedBox(
+                height: 100,
+                child: Center(
+                  child: Icon(
+                    Icons.video_library,
+                    color: Colors.white,
+                    size: 40,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final _user = InheritedUser.of(context).user;
@@ -94,7 +131,9 @@ class CustomMessage extends StatelessWidget {
     debugPrint(">>> on CustomMessage/build ${message.toJson().toString()}");
     if (message.metadata!['custom_type'] == 'revoked') {
       return revokedMsg(_currentUserIsAuthor, context);
+    } else if (message.metadata!['custom_type'] == 'video') {
+      return videoMsg(context);
     }
-    return const SizedBox();
+    return const SizedBox.shrink();
   }
 }

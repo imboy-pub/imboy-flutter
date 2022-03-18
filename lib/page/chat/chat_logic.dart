@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/sqflite.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -98,6 +98,9 @@ class ChatLogic extends GetxController {
         "uri": message.uri,
         "mimeType": message.mimeType,
       };
+    } else if (message is types.CustomMessage) {
+      payload = message.metadata!;
+      payload['msg_type'] = 'custom';
     }
     debugPrint(">>> on getMsgFromTmsg ${message.toJson().toString()}");
     MessageModel obj = MessageModel(
@@ -120,7 +123,7 @@ class ChatLogic extends GetxController {
     String toId,
     String? avatar,
     String title,
-    String type,
+    String type, // C2C or GROUP
     types.Message message,
   ) async {
     String subtitle = '';
@@ -133,7 +136,7 @@ class ChatLogic extends GetxController {
       avatar: avatar!,
       title: title,
       subtitle: subtitle,
-      type: type,
+      type: type, // C2C or GROUP
       msgtype: msgtype,
       lastMsgId: message.id,
       lasttime: createdAt,
@@ -144,6 +147,7 @@ class ChatLogic extends GetxController {
     // 保存会话
     cobj = await (ConversationRepo()).save(cobj);
     MessageModel obj = getMsgFromTmsg(type, cobj.id, message);
+    // send to servier
     bool res = sendWsMsg(obj);
     if (res) {
       await (MessageRepo()).insert(obj);
@@ -152,13 +156,17 @@ class ChatLogic extends GetxController {
         cobj.subtitle = obj.payload!['text'];
       } else if (message is types.ImageMessage) {
         cobj.subtitle = '[图片]';
+        cobj.msgtype = 'image';
+      } else if (message.metadata!['custom_type'] == 'video') {
+        cobj.msgtype = 'custom';
+        cobj.subtitle = '[视频]';
       }
       await (ConversationRepo()).updateById(cobj.id, {
         ConversationRepo.msgtype: cobj.msgtype,
         ConversationRepo.subtitle: cobj.subtitle,
       });
       eventBus.fire(cobj);
-    } else {}
+    }
     return res;
   }
 

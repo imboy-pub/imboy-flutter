@@ -16,6 +16,8 @@ class ContentMsg extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint("content_msg widget.msg " + msg.toString());
     String msgType = msg["msg_type"].toLowerCase();
+    String customType =
+        msg["custom_type"] != null ? msg["custom_type"].toLowerCase() : '';
     String subtitle = msg["text"] ?? '';
 
     String str = '[未知消息]';
@@ -27,7 +29,7 @@ class ContentMsg extends StatelessWidget {
       str = '[文件]';
     } else if (msgType == "sound") {
       str = '[语音消息]';
-    } else if (subtitle.contains('snapshotPath')) {
+    } else if (customType == "video") {
       str = '[视频]';
     } else if (msgType == "custom") {
       str = subtitle;

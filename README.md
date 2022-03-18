@@ -40,8 +40,10 @@ imboy 的Flutter项目
     * 拍摄照片上传 OK
     * 聊天界面“单击or双击图片”全屏展示，再单击图片取消全屏 OK
     * 压缩上传 OK
-    * 文件秒传功能（首先通过文件sha1值查询存储服务是否已经上传过，再重新上传
+    * 文件秒传功能（首先通过文件sha1值查询存储服务是否已经上传过，再重新上传） OK
+* 发送视频、拍摄短视频 OK
 * 发送文件 OK
+* 附件上传进度条 TODO
 * 邀请注册 TODO
 * 修改密码 TODO
 * 添加好友 TODO
@@ -55,6 +57,9 @@ imboy 的Flutter项目
 
 ## 已知待修复待完善的功能
 * 聊天界面表情符弹框没法想键盘一样"点击页面其他空白处收缩回去"
+* 拍摄视频、上传视频功能（体验不是很好，一分半的视频大小为11M，有待优化）filesize":11649618,"width":640,"height":360,"duration":86876.0
+* 红米A5手机，拍摄视频问题
+* use-flutter-cache-manager-with-video-player 如何边下载、边缓存、边播放 https://stackoverflow.com/questions/68249750/use-flutter-cache-manager-with-video-player
 
 ## flutter_dotenv
 

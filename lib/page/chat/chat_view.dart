@@ -6,6 +6,7 @@ import 'package:extended_text/extended_text.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart' as Getx;
@@ -19,6 +20,8 @@ import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/chat_info/chat_info_view.dart';
 import 'package:imboy/page/group_detail/group_detail_view.dart';
 import 'package:imboy/service/message.dart';
+import 'package:imboy/store/model/entity_image.dart';
+import 'package:imboy/store/model/entity_video.dart';
 import 'package:imboy/store/provider/attachment_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:mime/mime.dart';
@@ -53,7 +56,7 @@ class ChatPage extends StatefulWidget {
 
 class ChatPageState extends State<ChatPage> {
   final logic = Getx.Get.put(ChatLogic());
-  Getx.RxBool _showAppBar = true.obs;
+  bool _showAppBar = true;
   // 当前会话新增消息
   List<types.Message> messages = [];
 
@@ -202,8 +205,13 @@ class ChatPageState extends State<ChatPage> {
   Future<void> _handlePickerSelection() async {
     try {
       final AssetEntity? entity = await CameraPicker.pickFromCamera(
-        Getx.Get.context!,
-        enableRecording: true,
+        context,
+        pickerConfig: CameraPickerConfig(
+          enableRecording: true,
+          onlyEnableRecording: false,
+          enableTapRecording: true,
+          maximumRecordingDuration: Duration(seconds: 24),
+        ),
       );
       if (entity == null) {
         return;
@@ -211,32 +219,48 @@ class ChatPageState extends State<ChatPage> {
       if (mounted) {
         setState(() {});
       }
-      await AttachmentProvider.uploadImg("chat", entity, (
+      await AttachmentProvider.uploadImg("camera", entity, (
         Map<String, dynamic> resp,
         String imgUrl,
       ) async {
+        double w = Getx.Get.width;
+        imgUrl += "&width=${w.toInt()}";
         debugPrint(">>> on upload imgUrl ${imgUrl}");
         debugPrint(">>> on upload ${resp.toString()}");
 
-        final message = types.ImageMessage(
-          author: logic.cuser,
-          createdAt: DateTimeHelper.currentTimeMillis(),
-          id: Xid().toString(),
-          name: await entity.titleAsync,
-          height: entity.height * 1.0,
-          width: entity.width * 1.0,
-          size: resp["data"]["size"],
-          uri: imgUrl,
-          remoteId: widget.toId,
-          status: types.Status.sending,
-        );
-
-        _addMessage(message);
-        assets.removeAt(
-          assets.indexWhere((element) => element.id == entity.id),
-        );
+        if (entity.type == AssetType.image) {
+          final message = types.ImageMessage(
+            author: logic.cuser,
+            createdAt: DateTimeHelper.currentTimeMillis(),
+            id: Xid().toString(),
+            name: await entity.titleAsync,
+            height: entity.height * 1.0,
+            width: entity.width * 1.0,
+            size: resp["data"]["size"],
+            uri: imgUrl,
+            remoteId: widget.toId,
+            status: types.Status.sending,
+          );
+          _addMessage(message);
+        } else if (entity.type == AssetType.video) {
+          Map<String, dynamic> metadata = {
+            'custom_type': 'video',
+            'thumb': (resp['thumb'] as EntityImage).toJson(),
+            'video': (resp['video'] as EntityVideo).toJson(),
+          };
+          debugPrint(">>> on upload metadata: ${metadata.toString()}");
+          final message = types.CustomMessage(
+            author: logic.cuser,
+            createdAt: DateTimeHelper.currentTimeMillis(),
+            id: Xid().toString(),
+            remoteId: widget.toId,
+            status: types.Status.sending,
+            metadata: metadata,
+          );
+          _addMessage(message);
+        }
       }, (DioError error) {
-        debugPrint(">>> on upload ${error.toString()}");
+        debugPrint(">>> on upload error ${error.toString()}");
       });
       if (mounted) {
         setState(() {});
@@ -260,30 +284,48 @@ class ChatPageState extends State<ChatPage> {
     await _selectAssets(PickMethod.cameraAndStay(maxAssetsCount: 9));
     Getx.Get.snackbar('title', 'message');
     assets.forEach((entity) async {
-      await AttachmentProvider.uploadImg("chat", entity, (
+      await AttachmentProvider.uploadImg("img", entity, (
         Map<String, dynamic> resp,
         String imgUrl,
       ) async {
-        double w = Getx.Get.width * 2;
-        imgUrl += "&width=${w.toInt()}";
+        if (entity.type == AssetType.image) {
+          double w = Getx.Get.width;
+          imgUrl += "&width=${w.toInt()}";
 
-        debugPrint(">>> on upload imgUrl ${imgUrl}");
-        debugPrint(">>> on upload ${resp.toString()}");
+          debugPrint(">>> on upload imgUrl ${imgUrl}");
+          debugPrint(">>> on upload ${resp.toString()}");
 
-        final message = types.ImageMessage(
-          author: logic.cuser,
-          createdAt: DateTimeHelper.currentTimeMillis(),
-          id: Xid().toString(),
-          name: await entity.titleAsync,
-          height: entity.height * 1.0,
-          width: entity.width * 1.0,
-          size: resp["data"]["size"],
-          uri: imgUrl,
-          remoteId: widget.toId,
-          status: types.Status.sending,
-        );
+          final message = types.ImageMessage(
+            author: logic.cuser,
+            createdAt: DateTimeHelper.currentTimeMillis(),
+            id: Xid().toString(),
+            name: await entity.titleAsync,
+            height: entity.height * 1.0,
+            width: entity.width * 1.0,
+            size: resp["data"]["size"],
+            uri: imgUrl,
+            remoteId: widget.toId,
+            status: types.Status.sending,
+          );
 
-        _addMessage(message);
+          _addMessage(message);
+        } else if (entity.type == AssetType.video) {
+          Map<String, dynamic> metadata = {
+            'custom_type': 'video',
+            'thumb': (resp['thumb'] as EntityImage).toJson(),
+            'video': (resp['video'] as EntityVideo).toJson(),
+          };
+          debugPrint(">>> on upload metadata: ${metadata.toString()}");
+          final message = types.CustomMessage(
+            author: logic.cuser,
+            createdAt: DateTimeHelper.currentTimeMillis(),
+            id: Xid().toString(),
+            remoteId: widget.toId,
+            status: types.Status.sending,
+            metadata: metadata,
+          );
+          _addMessage(message);
+        }
         assets.removeAt(
           assets.indexWhere((element) => element.id == entity.id),
         );
@@ -329,11 +371,11 @@ class ChatPageState extends State<ChatPage> {
         enableDrag: false,
       );
     } else if (message is types.FileMessage) {
-      File? tmpF = await AttachmentProvider.openUrl(message.uri, '');
+      File? tmpF = await DefaultCacheManager().getSingleFile(message.uri);
       await OpenFile.open(tmpF!.path);
     } else if (message is types.ImageMessage) {
       setState(() {
-        _showAppBar.value = false;
+        _showAppBar = false;
       });
     }
   }
@@ -466,14 +508,14 @@ class ChatPageState extends State<ChatPage> {
     types.TextMessage message,
     types.PreviewData previewData,
   ) {
-    // final index = messages.indexWhere((element) => element.id == message.id);
-    // final updatedMessage = messages[index].copyWith(previewData: previewData);
-    //
-    // WidgetsBinding.instance?.addPostFrameCallback((_) {
-    //   setState(() {
-    //     messages[index] = updatedMessage;
-    //   });
-    // });
+    final index = messages.indexWhere((element) => element.id == message.id);
+    final updatedMessage = messages[index].copyWith(previewData: previewData);
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      setState(() {
+        messages[index] = updatedMessage;
+      });
+    });
   }
 
   Future<bool> _handleSendPressed(types.PartialText message) async {
@@ -485,7 +527,6 @@ class ChatPageState extends State<ChatPage> {
       remoteId: widget.toId,
       status: types.Status.sending,
     );
-    debugPrint(">>> on chat _handleSendPressed ${textMessage.toString()}");
     return await _addMessage(textMessage);
   }
 
@@ -493,18 +534,18 @@ class ChatPageState extends State<ChatPage> {
     if (msg.status != types.Status.sending) {
       return;
     }
-    int diff = DateTimeHelper.currentTimeMillis() as int;
-    if (diff > 1500) {
+    int diff = DateTimeHelper.currentTimeMillis() - msg.createdAt!;
+    if (diff > 1200) {
       // 检查为发送消息
       logic.sendWsMsg(logic.getMsgFromTmsg(
         widget.type,
         widget.id,
         msg,
       ));
+      setState(() {
+        messages;
+      });
     }
-    setState(() {
-      messages;
-    });
   }
 
   onClickMenu(MenuItemProvider item) async {
@@ -541,7 +582,7 @@ class ChatPageState extends State<ChatPage> {
 
     return Scaffold(
       backgroundColor: AppColors.ChatBg,
-      appBar: _showAppBar.value
+      appBar: _showAppBar
           ? PageAppBar(
               title: newGroupName == "" ? widget.title : newGroupName,
               rightDMActions: rWidget,
@@ -566,23 +607,24 @@ class ChatPageState extends State<ChatPage> {
           // onPreviewDataFetched:(types.Message message, types.PreviewData dt) {}),
           onMessageVisibilityChanged: (types.Message message, bool visible) {
             debugPrint(
-                ">>> on onMessageVisibilityChanged ${_showAppBar.value}, visible:${visible}");
+                ">>> on onMessageVisibilityChanged ${_showAppBar}, visible:${visible}");
           },
           onMessageTap: (BuildContext c1, types.Message message) async {
             if (message is types.ImageMessage) {
               setState(() {
-                // _showAppBar.value = _showAppBar.value == true ? false : true;
-                _showAppBar.value = false;
+                // _showAppBar = _showAppBar == true ? false : true;
+                _showAppBar = false;
               });
             } else if (message is types.FileMessage) {
-              File? tmpF = await AttachmentProvider.openUrl(message.uri, '');
+              File? tmpF =
+                  await DefaultCacheManager().getSingleFile(message.uri);
               await OpenFile.open(tmpF!.path);
             }
           },
           onMessageDoubleTap: _onMessageDoubleTap,
           onCloseGalleryPressed: () {
             setState(() {
-              _showAppBar.value = true;
+              _showAppBar = true;
             });
           },
           showGalleryCloseButton: false,

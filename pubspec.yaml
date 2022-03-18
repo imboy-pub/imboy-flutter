@@ -33,8 +33,9 @@ dependencies:
   #演示列表需要用到的库
   dio: ^4.0.0    #网络请求框架
   json_annotation: ^4.0.1 #json序列化和反序列化用的
-  #微信图库
-  wechat_assets_picker: ^6.3.1
+  permission_handler: ^9.2.0
+  wechat_camera_picker: ^3.0.1
+  wechat_assets_picker: ^7.0.5
   # 一组基于 PointyCastle 的高级 API，用于双向加密。 RSA AES
   encrypt: ^5.0.0
   # 在纯 Dart 中实现的一组加密函数。  SHA-* MD5 HMAC
@@ -62,7 +63,9 @@ dependencies:
   extended_text_field: ^10.0.0
   lpinyin: ^2.0.3
   azlistview: ^2.0.0-nullsafety.0
-  video_player: ^2.2.5
+  # 视频播放器
+  video_player: ^2.3.0
+  chewie: ^1.3.1
   webview_flutter: ^3.0.0
   image_picker: ^0.8.4+2
   #extended_image: ^5.1.3
@@ -96,18 +99,18 @@ dependencies:
   ntp: ^2.0.0
   emoji_picker_flutter: ^1.0.8
   carousel_slider: ^4.0.0
-  permission_handler: ^8.3.0
-  wechat_camera_picker: ^2.6.5
   flutter_dotenv: ^5.0.2
   #flutter_chat_ui: ^1.5.5
   flutter_chat_ui:
     path: plugin/flutter_chat_ui
   popup_menu:
     path: plugin/popup_menu
-  photo_manager: ^1.3.10
+  photo_manager: ^2.0.2
   video_compress: ^3.1.0
   path_provider: ^2.0.9
+  # 进度条
   percent_indicator: ^4.0.0
+  json_serializable: ^6.1.5
   #flutter_sound: ^9.1.2
 #  flutter_plugin_record:
 #    git:
