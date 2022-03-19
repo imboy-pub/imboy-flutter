@@ -32,7 +32,7 @@ class _ChatVideoPageState extends State<ChatVideoPage> {
 
   Future<void> initializePlayer() async {
     File? tmpF = await DefaultCacheManager().getSingleFile(widget.url);
-    _videoPlayerController = VideoPlayerController.file(tmpF!);
+    _videoPlayerController = VideoPlayerController.file(tmpF);
     await Future.wait([
       _videoPlayerController.initialize(),
     ]);

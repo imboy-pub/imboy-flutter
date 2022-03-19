@@ -27,12 +27,14 @@ enum InputType {
 Widget _buildVoiceButton(BuildContext context) {
   return Container(
     width: double.infinity,
-    child: FlatButton(
-      color: Colors.white70,
+    child: TextButton(
+      // color: Colors.white70,
       onPressed: () {
         Get.snackbar('Tips', '语音输入功能暂无实现');
       },
-      child: Text('chat_hold_down_talk'.tr),
+      child: Text(
+        'chat_hold_down_talk'.tr,
+      ),
     ),
   );
 }
@@ -129,15 +131,15 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     } else {
       _sendButtonVisible = true;
     }
-    _bottomHeightController = AnimationController(
+
+    _bottomHeightController = Get.put(AnimationController(
       vsync: this,
       duration: Duration(
         milliseconds: 150,
       ),
-    );
+    ));
     // 接收到新的消息订阅
     eventBus.on<ReeditMessage>().listen((msg) async {
-      debugPrint(">>> on reedit ${msg.toString()}");
       if (_textController.text.toString() != msg.text) {
         _setText(msg.text);
       }
@@ -146,6 +148,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    Get.delete<AnimationController>();
     _inputFocusNode.dispose();
     _textController.dispose();
     super.dispose();
@@ -156,7 +159,6 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     if (trimmedText != '') {
       final _partialText = types.PartialText(text: trimmedText);
       bool res = await widget.onSendPressed(_partialText);
-      debugPrint(">>> on _handleSendPressed res ${res.toString()}");
       if (res) {
         _textController.clear();
       } else {
@@ -184,10 +186,9 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
    * 语音按钮事件
    */
   Future<void> _voiceBtnOnPressed(InputType type) async {
-    if (type == inputType) {
+    if (type == this.inputType) {
       return;
     }
-    this.inputType = type;
     if (type != InputType.text) {
       hideSoftKey();
     } else {
@@ -196,7 +197,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
     changeBottomHeight(0);
     setState(() {
-      this.inputType;
+      this.inputType = type;
     });
   }
 
@@ -217,11 +218,10 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     }
 
     if (type == InputType.emoji || type == InputType.extra) {
-      // _currentOtherHeight = _softKeyHeight;
       changeBottomHeight(1);
+      hideSoftKey();
     } else {
       changeBottomHeight(0);
-      // _currentOtherHeight = 0;
     }
 
     setState(() {
@@ -282,7 +282,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               backspaceColor: Colors.black54,
               showRecentsTab: true,
               recentsLimit: 19,
-              noRecentsText: 'No Recents',
+              noRecentsText: 'No Recents'.tr,
               noRecentsStyle: const TextStyle(
                 fontSize: 20,
                 color: Colors.black87,
@@ -320,13 +320,20 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             hintText: 'tip_chat_hint'.tr,
           ),
       focusNode: _inputFocusNode,
-      keyboardType: TextInputType.multiline,
-      maxLines: 5,
+      // maxLength: 400,
+      maxLines: 6,
       minLines: 1,
+      // 长按是否展示【剪切/复制/粘贴菜单LengthLimitingTextInputFormatter】
+      enableInteractiveSelection: true,
+      keyboardType: TextInputType.multiline,
+      textCapitalization: TextCapitalization.sentences,
+      textInputAction: TextInputAction.newline,
       onChanged: widget.onTextChanged,
       onTap: () {
         if (inputType != InputType.text) {
           hideSoftKey();
+        } else {
+          showSoftKey();
         }
         updateState(inputType);
         widget.onTextFieldTap;
@@ -334,10 +341,6 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       style: InheritedChatTheme.of(ctx).theme.inputTextStyle.copyWith(
             color: InheritedChatTheme.of(ctx).theme.inputTextColor,
           ),
-      // 长按是否展示【剪切/复制/粘贴菜单LengthLimitingTextInputFormatter】
-      enableInteractiveSelection: true,
-      textCapitalization: TextCapitalization.sentences,
-      // textInputAction: TextInputAction.send,
       // 点击键盘的动作按钮时的回调，参数为当前输入框中的值
       onSubmitted: (_) => _handleSendPressed(),
     );
@@ -391,13 +394,32 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   Widget buildExtra() {
     return ImageButton(
       image: AssetImage('assets/images/chat/input_extra.png'),
-      onPressed: () => updateState(InputType.extra),
+      onPressed: () {
+        if (inputType != InputType.extra) {
+          updateState(InputType.extra);
+        } else {
+          updateState(InputType.text);
+        }
+      },
+    );
+  }
+
+  void _handleNewLine() {
+    final _newValue = '${_textController.text}\r\n';
+    _textController.value = TextEditingValue(
+      text: _newValue,
+      selection: TextSelection.fromPosition(
+        TextPosition(offset: _newValue.length),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final _query = MediaQuery.of(context);
+
+    final isAndroid = Theme.of(context).platform == TargetPlatform.android;
+    final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
 
     return GestureDetector(
       onTap: () {
@@ -426,7 +448,40 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                       buildLeftButton(),
                       // input
                       Expanded(
-                        child: _buildInputButton(context),
+                        child: Shortcuts(
+                          shortcuts: isAndroid || isIOS
+                              ? {
+                                  LogicalKeySet(LogicalKeyboardKey.enter):
+                                      const NewLineIntent(),
+                                  LogicalKeySet(LogicalKeyboardKey.enter,
+                                          LogicalKeyboardKey.alt):
+                                      const NewLineIntent(),
+                                }
+                              : {
+                                  LogicalKeySet(LogicalKeyboardKey.enter):
+                                      const SendMessageIntent(),
+                                  LogicalKeySet(LogicalKeyboardKey.enter,
+                                          LogicalKeyboardKey.alt):
+                                      const NewLineIntent(),
+                                  LogicalKeySet(LogicalKeyboardKey.enter,
+                                          LogicalKeyboardKey.shift):
+                                      const NewLineIntent(),
+                                },
+                          child: Actions(
+                            actions: {
+                              SendMessageIntent:
+                                  CallbackAction<SendMessageIntent>(
+                                onInvoke: (SendMessageIntent intent) =>
+                                    _handleSendPressed(),
+                              ),
+                              NewLineIntent: CallbackAction<NewLineIntent>(
+                                onInvoke: (NewLineIntent intent) =>
+                                    _handleNewLine(),
+                              ),
+                            },
+                            child: _buildInputButton(context),
+                          ),
+                        ),
                       ),
                       // emoji
                       buildEmojiButton(),
@@ -440,7 +495,10 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                             ),
                     ],
                   ),
-                  Divider(), // 横线
+                  this.inputType == InputType.emoji ||
+                          this.inputType == InputType.extra
+                      ? Divider()
+                      : SizedBox.shrink(), // 横线
                   _buildBottomContainer(child: _buildBottomItems()),
                 ],
               ),

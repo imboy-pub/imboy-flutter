@@ -372,7 +372,7 @@ class ChatPageState extends State<ChatPage> {
       );
     } else if (message is types.FileMessage) {
       File? tmpF = await DefaultCacheManager().getSingleFile(message.uri);
-      await OpenFile.open(tmpF!.path);
+      await OpenFile.open(tmpF.path);
     } else if (message is types.ImageMessage) {
       setState(() {
         _showAppBar = false;
@@ -579,7 +579,6 @@ class ChatPageState extends State<ChatPage> {
             : ChatInfoPage(widget.toId)),
       )
     ];
-
     return Scaffold(
       backgroundColor: AppColors.ChatBg,
       appBar: _showAppBar
@@ -604,12 +603,17 @@ class ChatPageState extends State<ChatPage> {
           customDateHeaderText: (DateTime dt) =>
               DateTimeHelper.customDateHeader(dt),
           onEndReached: _handleEndReached,
+          onBackgroundTap: () {
+            AnimationController _bottomHeightController = Getx.Get.find();
+            _bottomHeightController.animateBack(0);
+          },
           // onPreviewDataFetched:(types.Message message, types.PreviewData dt) {}),
           onMessageVisibilityChanged: (types.Message message, bool visible) {
-            debugPrint(
-                ">>> on onMessageVisibilityChanged ${_showAppBar}, visible:${visible}");
+            // debugPrint(
+            //     ">>> on onMessageVisibilityChanged ${_showAppBar}, visible:${visible}");
           },
           onMessageTap: (BuildContext c1, types.Message message) async {
+            debugPrint(">>> on chat onTap 3");
             if (message is types.ImageMessage) {
               setState(() {
                 // _showAppBar = _showAppBar == true ? false : true;
@@ -618,7 +622,7 @@ class ChatPageState extends State<ChatPage> {
             } else if (message is types.FileMessage) {
               File? tmpF =
                   await DefaultCacheManager().getSingleFile(message.uri);
-              await OpenFile.open(tmpF!.path);
+              await OpenFile.open(tmpF.path);
             }
           },
           onMessageDoubleTap: _onMessageDoubleTap,
@@ -635,6 +639,9 @@ class ChatPageState extends State<ChatPage> {
           onMessageStatusLongPress: _onMessageStatusTap,
           hideBackgroundOnEmojiMessages: false,
           theme: const ImboyChatTheme(),
+          onTextFieldTap: () {
+            debugPrint(">>> on chatinput onTextFieldTap");
+          },
           customBottomWidget: ChatInput(
             // 发送除非事件
             onSendPressed: _handleSendPressed,

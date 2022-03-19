@@ -10,6 +10,7 @@
         android:label="IMBoy"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:name="androidx.multidex.MultiDexApplication"
        >
