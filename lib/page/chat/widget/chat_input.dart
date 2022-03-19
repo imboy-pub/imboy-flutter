@@ -144,6 +144,14 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         _setText(msg.text);
       }
     });
+    //添加listener监听
+    //对应的TextField失去或者获取焦点都会回调此监听
+    _inputFocusNode.addListener(() {
+      // debugPrint(">>> on chatinput ${_inputFocusNode.hasFocus}");
+      if (_inputFocusNode.hasFocus) {
+        updateState(InputType.text);
+      } else {}
+    });
   }
 
   @override
@@ -195,7 +203,6 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       showSoftKey();
     }
 
-    changeBottomHeight(0);
     setState(() {
       this.inputType = type;
     });
@@ -232,10 +239,15 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   void showSoftKey() {
     FocusScope.of(context).requestFocus(_inputFocusNode);
+    changeBottomHeight(0);
+    // debugPrint(">>> on chatinput showSoftKey");
   }
 
   void hideSoftKey() {
     _inputFocusNode.unfocus();
+
+    // 隐藏键盘而不丢失文本字段焦点：from https://developer.aliyun.com/article/763095
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
   }
 
   Widget _buildBottomContainer({required Widget child}) {
@@ -376,6 +388,9 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     );
   }
 
+  /**
+   *
+   */
   Widget buildEmojiButton() {
     return ImageButton(
       image: AssetImage(inputType != InputType.emoji
@@ -391,6 +406,10 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     );
   }
 
+  /**
+   * 更多输入消息类型入口
+   * More input message types entries
+   */
   Widget buildExtra() {
     return ImageButton(
       image: AssetImage('assets/images/chat/input_extra.png'),
@@ -404,6 +423,10 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     );
   }
 
+  /**
+   * 实现换行效果
+   * Implement line breaks
+   */
   void _handleNewLine() {
     final _newValue = '${_textController.text}\r\n';
     _textController.value = TextEditingValue(
@@ -421,10 +444,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     final isAndroid = Theme.of(context).platform == TargetPlatform.android;
     final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
 
-    return GestureDetector(
-      onTap: () {
-        showSoftKey();
-      },
+    return InkWell(
       child: Focus(
         autofocus: true,
         child: Padding(

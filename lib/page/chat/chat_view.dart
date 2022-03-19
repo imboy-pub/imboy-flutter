@@ -613,7 +613,6 @@ class ChatPageState extends State<ChatPage> {
             //     ">>> on onMessageVisibilityChanged ${_showAppBar}, visible:${visible}");
           },
           onMessageTap: (BuildContext c1, types.Message message) async {
-            debugPrint(">>> on chat onTap 3");
             if (message is types.ImageMessage) {
               setState(() {
                 // _showAppBar = _showAppBar == true ? false : true;
@@ -640,7 +639,7 @@ class ChatPageState extends State<ChatPage> {
           hideBackgroundOnEmojiMessages: false,
           theme: const ImboyChatTheme(),
           onTextFieldTap: () {
-            debugPrint(">>> on chatinput onTextFieldTap");
+            // debugPrint(">>> on chatinput onTextFieldTap");
           },
           customBottomWidget: ChatInput(
             // 发送除非事件
