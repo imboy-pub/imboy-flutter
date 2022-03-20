@@ -6,11 +6,10 @@
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-   <application
+    <application
         android:label="IMBoy"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"
-        android:requestLegacyExternalStorage="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:name="androidx.multidex.MultiDexApplication"
        >

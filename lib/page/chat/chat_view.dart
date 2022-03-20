@@ -12,8 +12,9 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart' as Getx;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/picker_method.dart';
-import 'package:imboy/component/message/custom_message.dart';
+import 'package:imboy/component/message/message.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/voice_record/record_screen.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/theme.dart';
@@ -34,7 +35,6 @@ import 'package:xid/xid.dart';
 import 'chat_logic.dart';
 import 'widget/chat_input.dart';
 import 'widget/extra_item.dart';
-import 'widget/voice_record.dart';
 
 class ChatPage extends StatefulWidget {
   final int id; // 会话ID
@@ -113,6 +113,10 @@ class ChatPageState extends State<ChatPage> {
     });
   }
 
+  /**
+   * 用于分页(无限滚动)。当用户滚动时调用
+   * 到列表的最后(减去[onEndReachedThreshold])。
+   */
   Future<void> _handleEndReached() async {
     // 初始化 当前会话新增消息
     List<types.Message>? items = await logic.getMessages(
@@ -121,7 +125,6 @@ class ChatPageState extends State<ChatPage> {
       10,
     );
 
-    debugPrint(">>> on _loadMessages msg: ${items.toString()}");
     if (items != null && items.length > 0) {
       // 消除消息提醒
       items.forEach((msg) async {
@@ -645,7 +648,8 @@ class ChatPageState extends State<ChatPage> {
             // 发送除非事件
             onSendPressed: _handleSendPressed,
             sendButtonVisibilityMode: SendButtonVisibilityMode.editing,
-            voiceWidget: VoiceRecord(),
+            // voiceWidget: VoiceRecord(),
+            voiceWidget: WeChatRecordScreen(toId: widget.toId),
             extraWidget: ExtraItems(
               // 照片
               handleImageSelection: _handleImageSelection,

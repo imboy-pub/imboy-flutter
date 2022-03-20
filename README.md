@@ -60,6 +60,8 @@ imboy 的Flutter项目
 * 聊天界面表情符弹框没法像键盘一样"点击页面其他空白处收缩回去" （已解决）
 * 拍摄视频、上传视频功能（体验不是很好，一分半的视频大小为11M，有待优化）filesize":11649618,"width":640,"height":360,"duration":86876.0
 * 红米A5手机，拍摄视频问题
+    * https://github.com/flutter/flutter/issues/40519
+    * https://github.com/fluttercandies/flutter_wechat_camera_picker/issues/12
 * use-flutter-cache-manager-with-video-player 如何边下载、边缓存、边播放 https://stackoverflow.com/questions/68249750/use-flutter-cache-manager-with-video-player
 
 ## flutter_dotenv

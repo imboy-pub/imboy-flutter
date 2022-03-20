@@ -34,6 +34,7 @@ dependencies:
   dio: ^4.0.0    #网络请求框架
   json_annotation: ^4.0.1 #json序列化和反序列化用的
   permission_handler: ^9.2.0
+  camera: ^0.9.4+16
   wechat_camera_picker: ^3.0.1
   wechat_assets_picker: ^7.0.5
   # 一组基于 PointyCastle 的高级 API，用于双向加密。 RSA AES
@@ -111,7 +112,11 @@ dependencies:
   # 进度条
   percent_indicator: ^4.0.0
   json_serializable: ^6.1.5
-  #flutter_sound: ^9.1.2
+  # flutter_plugin_record: ^1.0.1
+  # 录音
+  flutter_sound: ^9.1.7
+  audio_session: ^0.1.6+1
+  flutter_sound_platform_interface: ^9.1.7
 #  flutter_plugin_record:
 #    git:
 #      url: https://gitee.com/imboy-tripartite-deps/flutter_plugin_record.git
@@ -141,10 +146,21 @@ flutter:
     - assets/images/logo.png
     - assets/images/ic_index_bar_bubble_gray.png
 
+    - assets/images/chat/left_voice_1.png
+    - assets/images/chat/left_voice_2.png
+    - assets/images/chat/left_voice_3.png
+    - assets/images/chat/voice_volume_1.png
+    - assets/images/chat/voice_volume_2.png
+    - assets/images/chat/voice_volume_3.png
+    - assets/images/chat/voice_volume_4.png
+    - assets/images/chat/voice_volume_5.png
+    - assets/images/chat/voice_volume_6.png
+    - assets/images/chat/voice_volume_7.png
+
+    - assets/images/chat/input_voice.png
     - assets/images/chat/input_emoji.png
     - assets/images/chat/input_extra.png
     - assets/images/chat/input_keyboard.png
-    - assets/images/chat/input_voice.png
 
     - assets/images/chat/extra_photo.webp # 照片 extra_photo.webp
     - assets/images/chat/extra_camera.webp # 拍摄  extra_camera.webp

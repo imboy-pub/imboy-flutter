@@ -139,7 +139,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       ),
     ));
     // 接收到新的消息订阅
-    eventBus.on<ReeditMessage>().listen((msg) async {
+    eventBus.on<ReEditMessage>().listen((msg) async {
       if (_textController.text.toString() != msg.text) {
         _setText(msg.text);
       }

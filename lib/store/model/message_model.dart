@@ -23,9 +23,9 @@ class MessageStatus {
   static final int error = 41;
 }
 
-class ReeditMessage {
+class ReEditMessage {
   String text;
-  ReeditMessage({required this.text});
+  ReEditMessage({required this.text});
 }
 
 class MessageModel {
