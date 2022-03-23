@@ -251,6 +251,19 @@ class MessageModel {
         status: this.typesStatus,
         metadata: this.payload,
       );
+    } else if (this.payload!['custom_type'] == 'audio') {
+      message = types.CustomMessage(
+        author: types.User(
+          id: this.fromId!,
+          // firstName: "",
+          // imageUrl: "",
+        ),
+        id: this.id!,
+        createdAt: this.createdAt,
+        remoteId: this.toId,
+        status: this.typesStatus,
+        metadata: this.payload,
+      );
     }
     return message!;
   }

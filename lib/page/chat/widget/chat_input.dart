@@ -379,6 +379,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         } else {
           _voiceBtnOnPressed(InputType.voice);
         }
+        changeBottomHeight(0);
       },
       image: AssetImage(
         inputType != InputType.voice

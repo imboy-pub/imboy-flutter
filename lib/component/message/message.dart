@@ -2,25 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/src/widgets/inherited_user.dart';
 
+import 'message_audio_builder.dart';
 import 'message_revoked_builder.dart';
 import 'message_video_builder.dart';
 
-enum CustomMessageType { file, image, text, audio, video }
+enum CustomMessageType { file, image, text, audio, video, location }
 
 /// A class that represents text message widget with optional link preview
-class CustomMessage extends StatelessWidget {
+class CustomMessageBuilder extends StatelessWidget {
   /// Creates a text message widget from a [types.TextMessage] class
-  CustomMessage({
+  CustomMessageBuilder({
     Key? key,
     required this.message,
-    required this.messageWidth,
   }) : super(key: key);
 
   /// [types.TextMessage]
   final types.CustomMessage message;
-
-  /// Maximum message width
-  final int messageWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +31,12 @@ class CustomMessage extends StatelessWidget {
       return VideoMessageBuilder(
         message: message,
       );
+    } else if (message.metadata!['custom_type'] == 'audio') {
+      return AudioMessageBuilder(
+        message: message,
+        user: InheritedUser.of(context).user,
+      );
     }
-    return const SizedBox.shrink();
+    return SizedBox.shrink();
   }
 }

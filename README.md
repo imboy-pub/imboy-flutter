@@ -43,6 +43,7 @@ imboy 的Flutter项目
     * 文件秒传功能（首先通过文件sha1值查询存储服务是否已经上传过，再重新上传） OK
 * 发送视频、拍摄短视频 OK
 * 发送文件 OK
+* 语音消息录音、发送、播放功能 OK
 * 删除消息（清理消息对应的缓存附件，删除会话，清理所有会话对应的消息的缓存附件） TODO
 * 附件上传进度条 TODO
 * 邀请注册 TODO
@@ -63,6 +64,8 @@ imboy 的Flutter项目
     * https://github.com/flutter/flutter/issues/40519
     * https://github.com/fluttercandies/flutter_wechat_camera_picker/issues/12
 * use-flutter-cache-manager-with-video-player 如何边下载、边缓存、边播放 https://stackoverflow.com/questions/68249750/use-flutter-cache-manager-with-video-player
+* 语音消息播放之后红点需要取消
+* 点击多条语音消息一起播放了，体验不好需要优化，语音消息其他体验测试
 
 ## flutter_dotenv
 

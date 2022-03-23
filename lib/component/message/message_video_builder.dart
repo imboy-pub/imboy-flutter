@@ -10,7 +10,7 @@ class VideoMessageBuilder extends StatelessWidget {
     required this.message,
   }) : super(key: key);
 
-  /// [types.TextMessage]
+  /// [types.CustomMessage]
   final types.CustomMessage message;
 
   @override

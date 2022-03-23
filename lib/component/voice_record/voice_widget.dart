@@ -1,28 +1,41 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:intl/intl.dart' show DateFormat;
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'custom_overlay.dart';
 
+class AudioFile {
+  const AudioFile({
+    required this.file,
+    required this.duration,
+    required this.mimeType,
+  });
+
+  final File file;
+  final Duration duration;
+  final String mimeType;
+}
+
 class VoiceWidget extends StatefulWidget {
-  final Function? startRecord;
-  final Function? stopRecord;
+  final Function()? startRecord;
+  final Function(AudioFile? obj)? stopRecord;
+
   final double? height;
   final EdgeInsets? margin;
   final Decoration? decoration;
 
   /// startRecord 开始录制回调  stopRecord回调
-  const VoiceWidget({
+  VoiceWidget({
     Key? key,
     this.startRecord,
     this.stopRecord,
@@ -37,7 +50,7 @@ class VoiceWidget extends StatefulWidget {
 
 class _VoiceWidgetState extends State<VoiceWidget> {
   // 倒计时总时长
-  int _countTotal = 60;
+  int _countTotal = 300;
   double starty = 0.0;
   double offset = 0.0;
   bool isUp = false;
@@ -45,20 +58,20 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   String toastShow = "手指上滑,取消发送".tr;
   String voiceIco = "assets/images/chat/voice_volume_1.png";
 
-  ///默认隐藏状态
-  bool voiceState = true;
-  // FlutterPluginRecord? recordPlugin;
+  Duration recordingDuration = const Duration();
+  // final List<double> _levels = [];
+  late String recordingMimeType;
+  late Codec recordCodec;
+
   Timer? _timer;
   int _count = 0;
   OverlayEntry? overlayEntry;
 
   /////
   final FlutterSoundRecorder recorderModule = FlutterSoundRecorder();
-  String recorderTxt = '00:00:00';
+  String recorderTxt = '00:00.000';
 
-  Codec _codec = Codec.aacMP4;
-  String _mPath = 'tau_file.mp4';
-  bool mRecorderIsInited = false;
+  String filePath = '';
   StreamSubscription? recorderSubscription;
   int pos = 0;
   double dbLevel = 0;
@@ -117,24 +130,23 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     }
   }
 
-  showVoiceView() {
+  showVoiceView(BuildContext ctx) {
     setState(() {
       textShow = "松开结束".tr;
-      voiceState = false;
     });
 
     ///显示录音悬浮布局
-    buildOverLayView(context);
+    buildOverLayView(ctx);
 
     debugPrint(">>> on record showVoiceView");
-    recorderStart();
+    recorderStart(ctx);
   }
 
-  hideVoiceView() async {
+  hideVoiceView(BuildContext ctx) async {
     if (_timer!.isActive) {
       if (_count < 1) {
         Toast.showView(
-            context: context,
+            context: ctx,
             msg: '说话时间太短'.tr,
             icon: Text(
               '!',
@@ -151,20 +163,30 @@ class _VoiceWidgetState extends State<VoiceWidget> {
 
     setState(() {
       textShow = "按住说话".tr;
-      voiceState = true;
     });
 
-    String? filepath = await recorderStop(recorderModule);
+    recorderStop(recorderModule);
     if (overlayEntry != null) {
       overlayEntry?.remove();
       overlayEntry = null;
     }
     debugPrint(
-        ">>> on record hideVoiceView isUp ${isUp}, filepath: ${filepath}");
+        ">>> on record hideVoiceView isUp ${isUp}, filepath: ${filePath}");
     if (isUp) {
       // print("取消发送");
     } else {
       debugPrint("进行发送");
+
+      widget.stopRecord!.call(
+        strEmpty(filePath)
+            ? null
+            : AudioFile(
+                file: File(filePath),
+                duration: this.recordingDuration,
+                // waveForm: _levels,
+                mimeType: recordingMimeType,
+              ),
+      );
     }
   }
 
@@ -189,6 +211,22 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     }
   }
 
+  /// Creates an path to a temporary file.
+  Future<String> _createTempAacFilePath(String name) async {
+    if (kIsWeb) {
+      throw Exception(
+        'This method only works for mobile as it creates a temporary AAC file',
+      );
+    }
+    String path;
+    final tmpDir = await getTemporaryDirectory();
+    path = '${join(tmpDir.path, name)}.aac';
+    final parent = dirname(path);
+    await Directory(parent).create(recursive: true);
+
+    return path;
+  }
+
   Future<void> openTheRecorder() async {
     if (!kIsWeb) {
       var status = await Permission.microphone.request();
@@ -196,18 +234,6 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         throw RecordingPermissionException('Microphone permission not granted');
       }
     }
-    await recorderModule.openRecorder();
-    if (!await recorderModule.isEncoderSupported(_codec) && kIsWeb) {
-      _codec = Codec.opusWebM;
-      _mPath = 'tau_file.webm';
-      if (!await recorderModule.isEncoderSupported(_codec) && kIsWeb) {
-        mRecorderIsInited = true;
-        return;
-      }
-    }
-
-    setSubscriptionDuration(40);
-
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration(
       avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
@@ -226,61 +252,73 @@ class _VoiceWidgetState extends State<VoiceWidget> {
       androidAudioFocusGainType: AndroidAudioFocusGainType.gain,
       androidWillPauseWhenDucked: true,
     ));
-
-    mRecorderIsInited = true;
-  }
-
-  Future<Uint8List> getAssetData(String path) async {
-    var asset = await rootBundle.load(path);
-    return asset.buffer.asUint8List();
   }
 
   // -------  Here is the code to playback  -----------------------
   /// 开始录音
-  void recorderStart() async {
+  void recorderStart(BuildContext ctx) async {
     debugPrint(">>> on record start");
     try {
       var status = await Permission.microphone.request();
       if (status != PermissionStatus.granted) {
-        Get.snackbar("", "未获取到麦克风权限");
-        throw RecordingPermissionException("未获取到麦克风权限");
+        Get.snackbar("", "未获取到麦克风权限".tr);
+        throw RecordingPermissionException("未获取到麦克风权限".tr);
       }
-      print('===>  获取了权限');
-      Directory tempDir = await getTemporaryDirectory();
-      var time = DateTime.now().millisecondsSinceEpoch ~/ 100;
 
-      String path =
-          // '${tempDir.path}/${recorderModule.slotNo}-$time${ext[Codec.aacADTS.index]}';
-          '${tempDir.path}/${recorderModule.hashCode}-$time${ext[Codec.aacADTS.index]}';
-      print('===>  准备开始录音');
+      await recorderModule.openRecorder();
+
+      // String name = "${Xid().toString()}";
+      String name = "recardtmp";
+      if (kIsWeb) {
+        if (await recorderModule.isEncoderSupported(Codec.opusWebM)) {
+          filePath = '$name.webm';
+          recordCodec = Codec.opusWebM;
+          recordingMimeType = 'audio/webm;codecs="opus"';
+        } else {
+          filePath = '$name.mp4';
+          recordCodec = Codec.aacMP4;
+          recordingMimeType = 'audio/aac';
+        }
+      } else {
+        filePath = await _createTempAacFilePath(name);
+        recordCodec = Codec.aacADTS;
+        recordingMimeType = 'audio/aac';
+      }
+      // 必须要设置，才能够监听 振幅大小
+      setSubscriptionDuration(40);
+
       await recorderModule.startRecorder(
-        toFile: path,
-        codec: Codec.aacADTS,
+        toFile: filePath,
+        codec: recordCodec,
         bitRate: 8000,
         sampleRate: 8000,
       );
-      print('===>  监听录音');
 
       /// 监听录音
       recorderSubscription = recorderModule.onProgress!.listen((e) {
-        debugPrint(">>> on record listen e ${e.toString()}");
+        // debugPrint(">>> on record listen e ${e.toString()}");
         setState(() {
           pos = e.duration.inMilliseconds;
         });
-        debugPrint(">>> on record listen pos: ${pos}, dbLevel: ${e.decibels};");
+        // debugPrint(">>> on record listen pos: ${pos}, dbLevel: ${e.decibels};");
         if (e != null && e.duration != null) {
+          recordingDuration = e.duration;
+          // _levels.add(e.decibels ?? 0.0);
+
           DateTime date = new DateTime.fromMillisecondsSinceEpoch(
-              e.duration.inMilliseconds,
-              isUtc: true);
-          String txt = DateFormat('mm:ss.SSS', 'en_GB').format(date);
+            e.duration.inMilliseconds,
+            isUtc: true,
+          );
+          String txt = DateFormat('mm:ss.SSS').format(date);
           if (date.second >= _countTotal) {
-            recorderStop(recorderModule);
+            // recorderStop(recorderModule);
+            hideVoiceView(ctx);
           }
           if (e.decibels != null) {
             setState(() {
               recorderTxt = txt.substring(0, 9);
               dbLevel = e.decibels!.toDouble();
-              print(">>> on record 当前振幅：$dbLevel");
+              // debugPrint(">>> on record 当前振幅：$dbLevel");
             });
           }
         }
@@ -308,23 +346,20 @@ class _VoiceWidgetState extends State<VoiceWidget> {
           if (overlayEntry != null) {
             overlayEntry!.markNeedsBuild();
           }
-          debugPrint(
-              ">>> on record 振幅大小   " + voiceData.toString() + "  " + voiceIco);
+          // debugPrint(
+          //     ">>> on record 振幅大小   " + voiceData.toString() + "  " + voiceIco);
           setState(() {
             dbLevel = dbLevel;
             voiceIco = voiceIco;
           });
         }
       });
-      this.setState(() {
-        // _state = RecordPlayState.recording;
-        _mPath = path;
-        print("path == $path");
+      setState(() {
+        filePath = filePath;
       });
     } catch (err) {
       setState(() {
         recorderStop(recorderModule);
-        // _state = RecordPlayState.record;
         cancelRecorderSubscriptions();
       });
     }
@@ -333,13 +368,12 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   /// 结束录音
   Future<String?> recorderStop(FlutterSoundRecorder recorder) async {
     try {
-      print('stopRecorder _mPath ${_mPath}');
       String? filepath = await recorder.stopRecorder();
       cancelRecorderSubscriptions();
       setState(() {
         dbLevel = 0.0;
         pos = 0;
-        // _state = RecordPlayState.play;
+        recorderTxt = '00:00.000';
       });
       // _getDuration();
       return filepath;
@@ -348,35 +382,9 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     }
   }
 
-  /// 获取录音文件秒数
-  // Future<void> _getDuration() async {
-  //   Duration d = await flutterSoundHelper.duration(_mPath);
-  //   _duration = d != null ? d.inMilliseconds / 1000.0 : 0.00;
-  //   print("_duration == $_duration");
-  //   var minutes = d.inMinutes;
-  //   var seconds = d.inSeconds % 60;
-  //   var millSecond = d.inMilliseconds % 1000 ~/ 10;
-  //   recorderTxt = "";
-  //   if (minutes > 9) {
-  //     recorderTxt = recorderTxt + "$minutes";
-  //   } else {
-  //     recorderTxt = recorderTxt + "0$minutes";
-  //   }
-  //
-  //   if (seconds > 9) {
-  //     recorderTxt = recorderTxt + ":$seconds";
-  //   } else {
-  //     recorderTxt = recorderTxt + ":0$seconds";
-  //   }
-  //   if (millSecond > 9) {
-  //     recorderTxt = recorderTxt + ":$millSecond";
-  //   } else {
-  //     recorderTxt = recorderTxt + ":0$millSecond";
-  //   }
-  //   print(recorderTxt);
-  //   setState(() {});
-  // }
-
+  /**
+   * 设置订阅周期
+   */
   Future<void> setSubscriptionDuration(
       double d) async // d is between 0.0 and 2000 (milliseconds)
   {
@@ -396,13 +404,13 @@ class _VoiceWidgetState extends State<VoiceWidget> {
           _timer = Timer.periodic(Duration(milliseconds: 1000), (t) {
             _count++;
             if (_count == _countTotal) {
-              hideVoiceView();
+              hideVoiceView(context);
             }
           });
-          showVoiceView();
+          showVoiceView(context);
         },
         onLongPressEnd: (details) {
-          hideVoiceView();
+          hideVoiceView(context);
         },
         onLongPressMoveUpdate: (details) {
           offset = details.globalPosition.dy;

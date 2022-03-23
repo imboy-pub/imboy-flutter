@@ -282,4 +282,20 @@ class AttachmentProvider {
     };
     await _upload(prefix, data, callback, errorCallback);
   }
+
+  static Future<void> uploadAudio(
+    String prefix,
+    File file,
+    Function callback,
+    Function errorCallback,
+  ) async {
+    String path = file.path;
+    String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
+    String name = "${Xid().toString()}.${ext}";
+
+    Map<String, dynamic> data = {
+      'file': await MultipartFile.fromFile(path, filename: name),
+    };
+    await _upload(prefix, data, callback, errorCallback);
+  }
 }

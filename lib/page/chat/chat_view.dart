@@ -14,7 +14,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/picker_method.dart';
 import 'package:imboy/component/message/message.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/voice_record/record_screen.dart';
+import 'package:imboy/component/voice_record/voice_widget.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/theme.dart';
@@ -61,9 +61,6 @@ class ChatPageState extends State<ChatPage> {
   List<types.Message> messages = [];
 
   String newGroupName = "";
-
-  var _connectivityResult;
-  Getx.RxString _connectStateDescription = "".obs;
 
   int _page = 1;
 
@@ -338,10 +335,42 @@ class ChatPageState extends State<ChatPage> {
     });
   }
 
+  void _handleVoiceSelection(AudioFile? obj) async {
+    if (obj != null) {
+      await AttachmentProvider.uploadAudio('audio', obj.file, (
+        Map<String, dynamic> resp,
+        String uri,
+      ) async {
+        Map<String, dynamic> metadata = {
+          'custom_type': 'audio',
+          'uri': uri,
+          'size': (await obj.file.readAsBytes()).length,
+          'duration_ms': obj.duration.inMilliseconds,
+          // 'wave_form': obj.waveForm,
+          'mime_type': obj.mimeType,
+        };
+        debugPrint(">>> on upload metadata: ${metadata.toString()}");
+        final message = types.CustomMessage(
+          author: logic.cuser,
+          createdAt: DateTimeHelper.currentTimeMillis(),
+          id: Xid().toString(),
+          remoteId: widget.toId,
+          status: types.Status.sending,
+          metadata: metadata,
+        );
+
+        obj.file.delete(recursive: true);
+        _addMessage(message);
+      }, (DioError error) {
+        debugPrint(">>> on upload ${error.toString()}");
+      });
+    }
+  }
+
   void _onMessageDoubleTap(BuildContext c1, types.Message message) async {
     if (message is types.TextMessage) {
       Getx.Get.bottomSheet(
-        GestureDetector(
+        InkWell(
           onTap: () {
             Getx.Get.back();
           },
@@ -598,7 +627,9 @@ class ChatPageState extends State<ChatPage> {
           // showUserNames: true,
           customMessageBuilder: (types.CustomMessage msg,
               {required int messageWidth}) {
-            return CustomMessage(message: msg, messageWidth: messageWidth);
+            return CustomMessageBuilder(
+              message: msg,
+            );
           },
           onEndReachedThreshold: 0.8,
           // 300000 = 5分钟 默认 900000 = 15 分钟
@@ -649,7 +680,13 @@ class ChatPageState extends State<ChatPage> {
             onSendPressed: _handleSendPressed,
             sendButtonVisibilityMode: SendButtonVisibilityMode.editing,
             // voiceWidget: VoiceRecord(),
-            voiceWidget: WeChatRecordScreen(toId: widget.toId),
+            voiceWidget: VoiceWidget(
+              startRecord: () {},
+              stopRecord: _handleVoiceSelection,
+              // 加入定制化Container的相关属性
+              height: 40.0,
+              margin: EdgeInsets.zero,
+            ),
             extraWidget: ExtraItems(
               // 照片
               handleImageSelection: _handleImageSelection,

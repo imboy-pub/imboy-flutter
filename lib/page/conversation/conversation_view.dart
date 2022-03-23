@@ -2,11 +2,11 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/view/null_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -94,8 +94,8 @@ class _ConversationPageState extends State<ConversationPage> {
     Widget body = ListView.builder(
       itemBuilder: (BuildContext context, int index) {
         ConversationModel model = items[index];
-        debugPrint(
-            ">>> on conversation_view build item ${model.toJson().toString()}");
+        // debugPrint(
+        //     ">>> on conversation_view build item ${model.toJson().toString()}");
         int conversationId = model.id;
         return InkWell(
           onTap: () {

@@ -146,9 +146,9 @@ flutter:
     - assets/images/logo.png
     - assets/images/ic_index_bar_bubble_gray.png
 
-    - assets/images/chat/left_voice_1.png
-    - assets/images/chat/left_voice_2.png
-    - assets/images/chat/left_voice_3.png
+    - assets/images/chat/voice_playing_1.png
+    - assets/images/chat/voice_playing_2.png
+    - assets/images/chat/voice_playing_3.png
     - assets/images/chat/voice_volume_1.png
     - assets/images/chat/voice_volume_2.png
     - assets/images/chat/voice_volume_3.png
