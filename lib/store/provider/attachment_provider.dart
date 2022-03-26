@@ -9,6 +9,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart' as Getx;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
@@ -52,6 +54,15 @@ class AttachmentProvider {
       data: formdata,
       onSendProgress: (int sent, int total) {
         debugPrint('>>> on upload $sent / $total');
+        EasyLoading.showProgress(
+          sent / total,
+          status: 'uploading'.tr,
+        );
+        if (sent == total) {
+          Future.delayed(const Duration(milliseconds: 1000), () {
+            EasyLoading.dismiss();
+          });
+        }
       },
     ).then((response) {
       debugPrint(">>> on upload response ${response.toString()}");
@@ -82,9 +93,6 @@ class AttachmentProvider {
     data['s'] = UPLOAD_SENCE;
     data['v'] = v;
     data['a'] = authToken;
-    // FormData formdata = FormData.fromMap(data);
-
-    debugPrint(">>> on preUpload request ${data.toString()}");
     var options = BaseOptions(
       baseUrl: UPLOAD_BASE_URL,
       contentType: 'application/x-www-form-urlencoded',
@@ -269,27 +277,18 @@ class AttachmentProvider {
 
   static Future<void> uploadFile(
     String prefix,
-    PlatformFile file,
+    var file,
     Function callback,
     Function errorCallback,
   ) async {
-    String path = file.path!;
-    String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
-    String name = "${Xid().toString()}.${ext}";
-
-    Map<String, dynamic> data = {
-      'file': await MultipartFile.fromFile(path, filename: name),
-    };
-    await _upload(prefix, data, callback, errorCallback);
-  }
-
-  static Future<void> uploadAudio(
-    String prefix,
-    File file,
-    Function callback,
-    Function errorCallback,
-  ) async {
-    String path = file.path;
+    String path = "";
+    if (file is PlatformFile) {
+      path = file.path!;
+    } else if (file is File) {
+      path = file.path;
+    } else {
+      throw new Exception("不支持的文件文件类型");
+    }
     String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
     String name = "${Xid().toString()}.${ext}";
 

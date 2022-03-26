@@ -138,6 +138,9 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         milliseconds: 150,
       ),
     ));
+    // 解决"重新进入聊天页面的时候_bottomHeightController在开启状态"的问题
+    _bottomHeightController.animateBack(0);
+
     // 接收到新的消息订阅
     eventBus.on<ReEditMessage>().listen((msg) async {
       if (_textController.text.toString() != msg.text) {

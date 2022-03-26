@@ -13,7 +13,6 @@ class ChatVideoPage extends StatefulWidget {
 }
 
 class _ChatVideoPageState extends State<ChatVideoPage> {
-  TargetPlatform? _platform;
   late VideoPlayerController _videoPlayerController;
   ChewieController? _chewieController;
 
@@ -70,7 +69,7 @@ class _ChatVideoPageState extends State<ChatVideoPage> {
       // placeholder: Container(
       //   color: Colors.grey,
       // ),
-      // autoInitialize: true,
+      autoInitialize: true,
     );
   }
 
@@ -86,29 +85,18 @@ class _ChatVideoPageState extends State<ChatVideoPage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
       backgroundColor: Get.theme.cardColor,
       // appBar: null,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Center(
-                child: _chewieController != null &&
-                        _chewieController!
-                            .videoPlayerController.value.isInitialized
-                    ? Chewie(
-                        controller: _chewieController!,
-                      )
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          CircularProgressIndicator(),
-                          Text('Loading'),
-                        ],
-                      ),
-              ),
+      body: _chewieController != null &&
+              _chewieController!.videoPlayerController.value.isInitialized
+          ? Chewie(
+              controller: _chewieController!,
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                Text("Loading".tr),
+              ],
             ),
-          ],
-        ),
-      ),
     );
   }
 }

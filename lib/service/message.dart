@@ -43,8 +43,8 @@ class MessageService extends GetxService {
     }
 
     conversationRemind[key] = conversationRemind[key]!.toInt() + val;
-    debugPrint(
-        ">>> on _increaseConversationRemind key ${key}, val: ${val}, ${conversationRemind[key]!}");
+    // debugPrint(
+    //     ">>> on _increaseConversationRemind key ${key}, val: ${val}, ${conversationRemind[key]!}");
     setConversationRemind(key, conversationRemind[key]!);
   }
 

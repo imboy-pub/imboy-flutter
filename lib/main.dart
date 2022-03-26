@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/log.dart';
@@ -20,6 +21,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'component/locales/locales.dart';
 import 'config/const.dart';
 import 'config/init.dart';
+import 'config/theme.dart';
 
 void run() async {
   // 要读取系统语言，可以使用window.locale
@@ -88,9 +90,16 @@ class IMBoyApp extends StatelessWidget {
           defaultTransition: Transition.fade,
           opaqueRoute: Get.isOpaqueRouteDefault,
           popGesture: Get.isPopGestureEnable,
-          theme: Get.find<ThemeController>().darkMode == 0
-              ? ThemeData.light()
-              : ThemeData.dark(),
+          // theme: Get.find<ThemeController>().darkMode == 0
+          //     ? ThemeData.light()
+          //     : ThemeData.dark(),
+          builder: EasyLoading.init(),
+          theme: ThemeData(
+            brightness: Get.find<ThemeController>().darkMode == 0
+                ? Brightness.light
+                : Brightness.dark,
+            primarySwatch: createMaterialColor(Color(0xFF223344)),
+          ),
           enableLog: true,
           logWriterCallback: Logger.write,
         ),

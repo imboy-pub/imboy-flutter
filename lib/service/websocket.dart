@@ -5,11 +5,11 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -239,8 +239,8 @@ class WSService extends GetxService {
           break;
         case SocketStatus.SocketStatusClosed:
           _socketStatus = SocketStatus.SocketStatusClosed;
-          Get.snackbar("Tips", "连接已关闭 ws ${DateTime.now()}");
-          debugPrint('>>> on ws sendMsg ${DateTime.now()}  连接已关闭 $message');
+          // Get.snackbar("Tips", "连接已关闭 ws ${DateTime.now()}");
+          // debugPrint('>>> on ws sendMsg ${DateTime.now()}  连接已关闭 $message');
           break;
         case SocketStatus.SocketStatusFailed:
           _socketStatus = SocketStatus.SocketStatusFailed;

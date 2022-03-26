@@ -127,7 +127,7 @@ class HttpClient {
   }) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
-      Getx.Get.snackbar("Tips", "网络连接异常get");
+      // Getx.Get.snackbar("Tips", "网络连接异常get");
       return handleException(NetworkException());
     }
     try {

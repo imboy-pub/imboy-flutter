@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import 'package:imboy/page/language/language_view.dart';
 import 'package:imboy/page/mine/setting/setting_view.dart';
+import 'package:imboy/page/passport/login_view.dart';
 
 import 'mine_state.dart';
 
@@ -14,10 +14,14 @@ class MineLogic extends GetxController {
           () => SettingPage(),
         );
         break;
+      case '表情':
+        Get.to(() => PassportPage());
+        break;
       default:
-        Get.to(
-          () => LanguagePage(),
-        );
+        Get.snackbar('tips', '在开发中...');
+        // Get.to(
+        //   () => LanguagePage(),
+        // );
         break;
     }
   }

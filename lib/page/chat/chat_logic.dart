@@ -47,14 +47,12 @@ class ChatLogic extends GetxController {
 
     List<types.Message> messages = [];
     items.forEach((obj) async {
-      debugPrint(">>>>> on getMessages obj ${obj.toJson()}");
       messages.insert(0, obj.toTypeMessage());
     });
     return messages;
   }
 
   bool sendWsMsg(MessageModel obj) {
-    debugPrint(">>>>> on chat sendWsMsg ${obj.toJson().toString()}");
     if (obj.status == MessageStatus.sending) {
       Map<String, dynamic> msg = {
         'id': obj.id,
@@ -154,6 +152,9 @@ class ChatLogic extends GetxController {
 
       if (message is types.TextMessage) {
         cobj.subtitle = obj.payload!['text'];
+      } else if (message is types.FileMessage) {
+        cobj.subtitle = '[文件]';
+        cobj.msgtype = 'file';
       } else if (message is types.ImageMessage) {
         cobj.subtitle = '[图片]';
         cobj.msgtype = 'image';

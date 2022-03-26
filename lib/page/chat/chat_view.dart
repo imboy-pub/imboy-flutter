@@ -81,9 +81,6 @@ class ChatPageState extends State<ChatPage> {
     String toId = widget.toId;
     // 接收到新的消息订阅
     eventBus.on<types.Message>().listen((e) async {
-      debugPrint(">>> on MessageService chat_view initState: " +
-          e.runtimeType.toString());
-
       if (e is types.Message && e.author.id == toId) {
         MessageService.to.decreaseConversationRemind(toId, 1);
         messages.insert(0, e);
@@ -282,7 +279,6 @@ class ChatPageState extends State<ChatPage> {
 
   void _handleImageSelection() async {
     await _selectAssets(PickMethod.cameraAndStay(maxAssetsCount: 9));
-    Getx.Get.snackbar('title', 'message');
     assets.forEach((entity) async {
       await AttachmentProvider.uploadImg("img", entity, (
         Map<String, dynamic> resp,
@@ -337,7 +333,7 @@ class ChatPageState extends State<ChatPage> {
 
   void _handleVoiceSelection(AudioFile? obj) async {
     if (obj != null) {
-      await AttachmentProvider.uploadAudio('audio', obj.file, (
+      await AttachmentProvider.uploadFile('audio', obj.file, (
         Map<String, dynamic> resp,
         String uri,
       ) async {

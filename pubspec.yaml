@@ -74,7 +74,7 @@ dependencies:
   mime: ^1.0.1
   file_picker: ^4.1.4
   open_file: ^3.2.1
-  sqflite: ^2.0.0+4
+  sqflite: ^2.0.2
   # 是否联网及网络类型
   connectivity_plus: ^2.0.2
   flutter_screenutil: ^5.0.0+2
@@ -117,6 +117,7 @@ dependencies:
   flutter_sound: ^9.1.7
   audio_session: ^0.1.6+1
   flutter_sound_platform_interface: ^9.1.7
+  flutter_easyloading: ^3.0.3
 #  flutter_plugin_record:
 #    git:
 #      url: https://gitee.com/imboy-tripartite-deps/flutter_plugin_record.git
