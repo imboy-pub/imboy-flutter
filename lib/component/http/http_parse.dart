@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import 'http_exceptions.dart';
 import 'http_response.dart';
@@ -37,6 +38,7 @@ HttpResponse handleResponse(Response? response,
 
 HttpResponse handleException(Exception exception) {
   var parseException = _parseException(exception);
+  debugPrint(">>> on handleException: ${parseException.message.toString()}");
   return HttpResponse.failureFromError(parseException);
 }
 

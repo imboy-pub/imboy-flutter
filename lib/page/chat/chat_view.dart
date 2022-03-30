@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:extended_text/extended_text.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -75,6 +74,7 @@ class ChatPageState extends State<ChatPage> {
     if (!mounted) {
       return;
     }
+
     _handleEndReached();
 
     // Register listeners for all events:
@@ -371,22 +371,23 @@ class ChatPageState extends State<ChatPage> {
             Getx.Get.back();
           },
           child: Container(
-            width: Getx.Get.width,
-            height: Getx.Get.height,
+            width: double.infinity,
+            margin: EdgeInsets.all(0.0),
+            height: double.infinity,
             // Creates insets from offsets from the left, top, right, and bottom.
-            padding: EdgeInsets.fromLTRB(16, 24, 6, 10),
+            padding: EdgeInsets.fromLTRB(16, 28, 0, 10),
             alignment: Alignment.center,
             color: Colors.white,
             child: Center(
               child: Scrollbar(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.vertical,
-                  child: ExtendedText(
+                  child: Text(
                     message.text,
                     textAlign: TextAlign.left,
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 20,
+                      fontSize: 24,
                     ),
                   ),
                 ),

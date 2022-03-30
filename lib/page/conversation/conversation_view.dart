@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/view/null_view.dart';
 import 'package:imboy/config/const.dart';
@@ -24,8 +25,9 @@ class _ConversationPageState extends State<ConversationPage> {
 
   bool alive = true;
 
-  var _connectivityResult;
-  RxString _connectStateDescription = "".obs;
+  var subscription;
+
+  String _connectStateDescription = "";
 
   @override
   void initState() {
@@ -39,27 +41,26 @@ class _ConversationPageState extends State<ConversationPage> {
         });
       }
     });
-
-    if (_connectivityResult == null) {
-      debugPrint(">>> on chat_view/initData _connectivityResult ");
-      _connectivityResult = Connectivity()
-          .onConnectivityChanged
-          .listen((ConnectivityResult result) {
-        if (result == ConnectivityResult.mobile) {
-          _connectStateDescription.value = "手机网络";
-          // setState(() {
-          // });
-        } else if (result == ConnectivityResult.wifi) {
-          _connectStateDescription.value = "Wifi网络";
-        } else {
-          _connectStateDescription.value = "无网络";
-        }
-      });
-    }
+    subscription =
+        Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
+      debugPrint(">>> on checkConnectivity onConnectivityChanged ${r}");
+      if (r == ConnectivityResult.none) {
+        setState(() {
+          _connectStateDescription = "无网络";
+        });
+      }
+    });
     initData();
   }
 
   void initData() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    debugPrint(">>> on checkConnectivity ${connectivityResult}");
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        _connectStateDescription = "无网络";
+      });
+    }
     if (!mounted) {
       return;
     }
@@ -210,7 +211,10 @@ class _ConversationPageState extends State<ConversationPage> {
 
     return Scaffold(
       appBar: NavAppBar(
-        title: '消息',
+        title: '消息' +
+            (strEmpty(_connectStateDescription)
+                ? ''
+                : '(${_connectStateDescription})'),
       ),
       body: SlidableAutoCloseBehavior(
         child: body,
@@ -220,8 +224,8 @@ class _ConversationPageState extends State<ConversationPage> {
 
   @override
   void dispose() {
-    Get.delete<ConversationLogic>();
-
     super.dispose();
+    Get.delete<ConversationLogic>();
+    subscription.cancel();
   }
 }

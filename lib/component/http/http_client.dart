@@ -98,7 +98,6 @@ class HttpClient {
       _setDefaultConfig();
       var connectivityResult = await (Connectivity().checkConnectivity());
       if (connectivityResult == ConnectivityResult.none) {
-        Getx.Get.snackbar("Tips", "网络连接异常get");
         return handleException(NetworkException());
       }
       var response = await _dio.get(
