@@ -27,7 +27,7 @@ class _ConversationPageState extends State<ConversationPage> {
 
   var subscription;
 
-  String _connectStateDescription = "";
+  String _connectDesc = "";
 
   @override
   void initState() {
@@ -46,7 +46,7 @@ class _ConversationPageState extends State<ConversationPage> {
       debugPrint(">>> on checkConnectivity onConnectivityChanged ${r}");
       if (r == ConnectivityResult.none) {
         setState(() {
-          _connectStateDescription = "无网络";
+          _connectDesc = 'tip_connect_desc'.tr;
         });
       }
     });
@@ -58,7 +58,7 @@ class _ConversationPageState extends State<ConversationPage> {
     debugPrint(">>> on checkConnectivity ${connectivityResult}");
     if (connectivityResult == ConnectivityResult.none) {
       setState(() {
-        _connectStateDescription = "无网络";
+        _connectDesc = 'tip_connect_desc'.tr;
       });
     }
     if (!mounted) {
@@ -208,13 +208,10 @@ class _ConversationPageState extends State<ConversationPage> {
     if (MessageService.to.conversations.isEmpty) {
       body = ConversationNullView();
     }
-
+    String title = 'title_message'.tr;
     return Scaffold(
       appBar: NavAppBar(
-        title: '消息' +
-            (strEmpty(_connectStateDescription)
-                ? ''
-                : '(${_connectStateDescription})'),
+        title: strEmpty(_connectDesc) ? title : '${title}(${_connectDesc.tr})',
       ),
       body: SlidableAutoCloseBehavior(
         child: body,

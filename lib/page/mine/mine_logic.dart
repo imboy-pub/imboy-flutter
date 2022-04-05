@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:imboy/page/mine/setting/setting_view.dart';
-import 'package:imboy/page/passport/login_view.dart';
+import 'package:imboy/page/passport/passport_view.dart';
 
 import 'mine_state.dart';
 

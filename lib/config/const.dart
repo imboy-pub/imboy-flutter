@@ -163,7 +163,9 @@ class API {
   static const init = '/init';
   static const refreshtoken = '/refreshtoken';
   static const login = '/passport/login';
-  static const register = '/passport/register';
+  static const signup = '/passport/signup';
+  static const getcode = '/passport/getcode';
+
   static const friendList = '/friend/list';
   static const conversationList = '/conversation/mine';
 

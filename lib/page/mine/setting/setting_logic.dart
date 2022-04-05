@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:imboy/page/login/login_view.dart';
+import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'setting_state.dart';
@@ -19,7 +19,7 @@ class SettingLogic extends GetxController {
     if (name.toString() == 'logout') {
       bool result = await UserRepoLocal.to.logout();
       if (result) {
-        Get.off(() => LoginPage());
+        Get.off(() => PassportPage());
       }
     }
   }

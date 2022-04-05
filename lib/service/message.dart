@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/page/login/login_view.dart';
+import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -93,7 +93,7 @@ class MessageService extends GetxService {
             // case 705: // token无效、刷新token 这里不处理，不发送消息
             case 706: // 需要重新登录
               {
-                Get.off(new LoginPage());
+                Get.off(() => PassportPage());
               }
               break;
             case 786: // 在其他地方上线
@@ -101,7 +101,7 @@ class MessageService extends GetxService {
                 // TODO
                 WSService.to.closeSocket();
                 UserRepoLocal.to.logout();
-                Get.off(new LoginPage());
+                Get.off(() => PassportPage());
               }
               break;
             case 1019: // 好友上线提现

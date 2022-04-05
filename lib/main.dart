@@ -10,7 +10,6 @@ import 'package:imboy/component/helper/log.dart';
 import 'package:imboy/component/locales/locales.g.dart';
 import 'package:imboy/component/view/controller.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
-import 'package:imboy/page/login/login_view.dart';
 import 'package:imboy/page/pages.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:intl/intl.dart';
@@ -22,6 +21,7 @@ import 'component/locales/locales.dart';
 import 'config/const.dart';
 import 'config/init.dart';
 import 'config/theme.dart';
+import 'page/passport/passport_view.dart';
 
 void run() async {
   // 要读取系统语言，可以使用window.locale
@@ -71,7 +71,9 @@ class IMBoyApp extends StatelessWidget {
         child: GetMaterialApp(
           title: 'IMBoy',
           // 底部导航组件
-          home: UserRepoLocal.to.isLogin ? BottomNavigationPage() : LoginPage(),
+          home: UserRepoLocal.to.isLogin
+              ? BottomNavigationPage()
+              : PassportPage(),
           debugShowCheckedModeBanner: false,
           getPages: AppPages.routes,
           // initialRoute: AppPages.INITIAL,

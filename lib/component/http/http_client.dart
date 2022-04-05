@@ -19,9 +19,8 @@ import 'http_transformer.dart';
 Map<String, dynamic> defaultHeaders() {
   return {
     'vsn': appVsn,
-    'device-type': currentDeviceType(),
-    'client-system': Platform.operatingSystem,
-    'client-system-vsn': Platform.operatingSystemVersion,
+    'cos': Platform.operatingSystem,
+    'cosv': Platform.operatingSystemVersion,
   };
 }
 

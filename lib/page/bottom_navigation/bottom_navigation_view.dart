@@ -65,7 +65,7 @@ class BottomNavigationPage extends StatelessWidget {
                   ),
                 ),
               ),
-              label: "消息",
+              label: 'title_message'.tr,
             ),
             // BottomNavigationBarItem(
             //   icon: Icon(Icons.cloud),
@@ -77,11 +77,11 @@ class BottomNavigationPage extends StatelessWidget {
             // ),
             BottomNavigationBarItem(
               icon: Icon(Icons.perm_contact_cal),
-              label: "联系人",
+              label: 'title_contact'.tr,
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
-              label: "我的",
+              label: 'title_mine'.tr,
             )
           ],
         ),

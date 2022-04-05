@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:convert/convert.dart';
@@ -19,13 +18,6 @@ String randomId({int size = 21}) {
     id += _alphabet[(math.Random().nextDouble() * 64).floor() | 0];
   }
   return id;
-}
-
-/// 手机号正则表达式->true匹配
-bool isMobilePhoneNumber(String value) {
-  RegExp mobile = new RegExp(r"(0|86|17951)?(1[0-9][0-9])[0-9]{8}");
-
-  return mobile.hasMatch(value);
 }
 
 ///验证网页URl
@@ -155,6 +147,23 @@ String hiddenPhone(String phone) {
   return result;
 }
 
+bool isPhone(String? value) {
+  if (strEmpty(value) || value!.length != 11) {
+    return false;
+  }
+  String pt = '^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{4}\$';
+  return RegExp(pt).hasMatch(value);
+}
+
+bool isEmail(String value) {
+  if (strEmpty(value)) {
+    return false;
+  }
+  String pt = '^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+\$';
+  // debugPrint(">>> on isEmail ${value} : ${RegExp(pt).hasMatch(value)}");
+  return RegExp(pt).hasMatch(value);
+}
+
 ///去除后面的0
 String stringDisposeWithDouble(v, [fix = 2]) {
   double b = double.parse(v.toString());
@@ -192,20 +201,4 @@ String generateMD5(String data) {
   var digest = md5.convert(utf8.encode(data));
   // 这里其实就是 digest.toString()
   return hex.encode(digest.bytes);
-}
-
-String currentDeviceType() {
-  if (Platform.isIOS) {
-    return 'iOS';
-  } else if (Platform.isAndroid) {
-    return 'Android';
-  } else if (Platform.isMacOS) {
-    return 'MacOS';
-  } else if (Platform.isLinux) {
-    return 'Linux';
-  } else if (Platform.isWindows) {
-    return 'Windows';
-  } else {
-    return 'web';
-  }
 }
