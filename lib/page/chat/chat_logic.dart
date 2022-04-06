@@ -47,6 +47,9 @@ class ChatLogic extends GetxController {
 
     List<types.Message> messages = [];
     items.forEach((obj) async {
+      if (obj.status! == MessageStatus.sending) {
+        sendWsMsg(obj);
+      }
       messages.insert(0, obj.toTypeMessage());
     });
     return messages;
@@ -116,7 +119,7 @@ class ChatLogic extends GetxController {
     return obj;
   }
 
-  Future<bool> addMessage(
+  Future<void> addMessage(
     String fromId,
     String toId,
     String? avatar,
@@ -138,6 +141,7 @@ class ChatLogic extends GetxController {
       msgtype: msgtype,
       lastMsgId: message.id,
       lasttime: createdAt,
+      lastMsgStatus: 10, // astMsgStatus 10 发送中 sending;  11 已发送 send;
       unreadNum: 0,
       isShow: 1,
       id: 0,
@@ -145,33 +149,30 @@ class ChatLogic extends GetxController {
     // 保存会话
     cobj = await (ConversationRepo()).save(cobj);
     MessageModel obj = getMsgFromTmsg(type, cobj.id, message);
-    // send to servier
-    bool res = sendWsMsg(obj);
-    if (res) {
-      await (MessageRepo()).insert(obj);
+    await (MessageRepo()).insert(obj);
 
-      if (message is types.TextMessage) {
-        cobj.subtitle = obj.payload!['text'];
-      } else if (message is types.FileMessage) {
-        cobj.subtitle = '[文件]';
-        cobj.msgtype = 'file';
-      } else if (message is types.ImageMessage) {
-        cobj.subtitle = '[图片]';
-        cobj.msgtype = 'image';
-      } else if (message.metadata!['custom_type'] == 'video') {
-        cobj.msgtype = 'custom';
-        cobj.subtitle = '[视频]';
-      } else if (message.metadata!['custom_type'] == 'audio') {
-        cobj.msgtype = 'custom';
-        cobj.subtitle = '[语音]';
-      }
-      await (ConversationRepo()).updateById(cobj.id, {
-        ConversationRepo.msgtype: cobj.msgtype,
-        ConversationRepo.subtitle: cobj.subtitle,
-      });
-      eventBus.fire(cobj);
+    if (message is types.TextMessage) {
+      cobj.subtitle = obj.payload!['text'];
+    } else if (message is types.FileMessage) {
+      cobj.subtitle = '[文件]';
+      cobj.msgtype = 'file';
+    } else if (message is types.ImageMessage) {
+      cobj.subtitle = '[图片]';
+      cobj.msgtype = 'image';
+    } else if (message.metadata!['custom_type'] == 'video') {
+      cobj.msgtype = 'custom';
+      cobj.subtitle = '[视频]';
+    } else if (message.metadata!['custom_type'] == 'audio') {
+      cobj.msgtype = 'custom';
+      cobj.subtitle = '[语音]';
     }
-    return res;
+    await (ConversationRepo()).updateById(cobj.id, {
+      ConversationRepo.msgtype: cobj.msgtype,
+      ConversationRepo.subtitle: cobj.subtitle,
+    });
+    eventBus.fire(cobj);
+    // send to servier
+    sendWsMsg(obj);
   }
 
   Future<bool> removeMessage(String id) async {

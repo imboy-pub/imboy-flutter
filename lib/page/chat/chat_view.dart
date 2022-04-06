@@ -123,6 +123,7 @@ class ChatPageState extends State<ChatPage> {
       // 消除消息提醒
       items.forEach((msg) async {
         if (msg.status == types.Status.delivered) {
+          // debugPrint(">>> on msg ${msg.toJson().toString()}");
           bool res = await logic.markAsRead(widget.id, msg);
           if (res) {
             MessageService.to.decreaseConversationRemind(widget.toId, 1);
@@ -149,7 +150,7 @@ class ChatPageState extends State<ChatPage> {
     String type =
         widget.type == null || widget.type == 'null' ? 'C2C' : widget.type;
     // debugPrint(">>> on _addMessage type :${type}");
-    bool res = await logic.addMessage(
+    await logic.addMessage(
       UserRepoLocal.to.currentUid,
       widget.toId,
       widget.avatar ?? '',
@@ -159,14 +160,15 @@ class ChatPageState extends State<ChatPage> {
     );
 
     setState(() {
-      if (res) {
-        messages.insert(0, message);
-      }
+      messages.insert(0, message);
     });
-    return res;
+    return true;
     // _msgService.update();
   }
 
+  /**
+   * 选择文件
+   */
   void _handleFileSelection() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.any,
@@ -564,7 +566,7 @@ class ChatPageState extends State<ChatPage> {
       return;
     }
     int diff = DateTimeHelper.currentTimeMillis() - msg.createdAt!;
-    if (diff > 1200) {
+    if (diff > 800) {
       // 检查为发送消息
       logic.sendWsMsg(logic.getMsgFromTmsg(
         widget.type,
@@ -635,6 +637,7 @@ class ChatPageState extends State<ChatPage> {
               DateTimeHelper.customDateHeader(dt),
           onEndReached: _handleEndReached,
           onBackgroundTap: () {
+            // 收起输聊天底部弹出框
             AnimationController _bottomHeightController = Getx.Get.find();
             _bottomHeightController.animateBack(0);
           },
@@ -673,7 +676,7 @@ class ChatPageState extends State<ChatPage> {
             // debugPrint(">>> on chatinput onTextFieldTap");
           },
           customBottomWidget: ChatInput(
-            // 发送除非事件
+            // 发送触发事件
             onSendPressed: _handleSendPressed,
             sendButtonVisibilityMode: SendButtonVisibilityMode.editing,
             // voiceWidget: VoiceRecord(),

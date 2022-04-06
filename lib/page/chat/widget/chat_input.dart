@@ -332,7 +332,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                       .inputTextColor
                       .withOpacity(0.5),
                 ),
-            hintText: 'tip_chat_hint'.tr,
+            hintText: '',
           ),
       focusNode: _inputFocusNode,
       // maxLength: 400,

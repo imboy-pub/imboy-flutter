@@ -53,12 +53,14 @@ class ContactRepo {
         ContactRepo.remark,
         ContactRepo.area,
         ContactRepo.sign,
+        ContactRepo.isFriend,
       ],
       where: '${ContactRepo.isFriend}=?',
       whereArgs: [1],
       orderBy: "update_time desc",
       limit: 10000,
     );
+    // debugPrint(">>> on findFriend ${maps.length}, ${maps.toList().toString()}");
     if (maps.length == 0) {
       return [];
     }

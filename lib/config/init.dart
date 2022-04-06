@@ -14,6 +14,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:logger/logger.dart';
+import 'package:sqflite/sqflite.dart';
 
 typedef Callback(data);
 
@@ -36,6 +37,8 @@ Future<void> init() async {
   await Getx.Get.putAsync<StorageService>(() => StorageService().init());
   Getx.Get.put(UserRepoLocal(), permanent: true);
   Getx.Get.lazyPut(() => ThemeController());
+
+  Sqflite.setDebugModeOn();
 
   // Get.put<AuthController>(AuthController());
   HttpConfig dioConfig = HttpConfig(

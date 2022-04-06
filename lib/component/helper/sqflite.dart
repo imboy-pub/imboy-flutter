@@ -40,11 +40,18 @@ class Sqlite {
 
   Future<Database> initDatabase(String dbName) async {
     String path = join(await getDatabasesPath(), dbName);
-    debugPrint(">>> on open db path {$path}");
+    // 当[readOnly](默认为false)为true时，其他参数均为忽略，数据库按原样打开
+    bool readOnly = await databaseExists(path);
+    debugPrint(">>> on open db readOnly: ${readOnly}, path {$path}");
     // Delete the database
     // await deleteDatabase(path);
-
-    return await openDatabase(path, version: _dbVersion, onCreate: _onCreate);
+    // if
+    return await openDatabase(
+      path,
+      version: _dbVersion,
+      readOnly: readOnly,
+      onCreate: _onCreate,
+    );
   }
 
   // SQL code to create the database table

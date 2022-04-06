@@ -21,13 +21,14 @@ class ContactProvider extends HttpClient {
     List<dynamic> dataMap = resp.payload["friend"];
     int len = dataMap.length;
 
-    debugPrint(">>> on Provider/listFriend dm: ${dataMap.toString()}");
+    // debugPrint(">>> on Provider/listFriend dm: ${dataMap.toString()}");
     List<ContactModel> friend = [];
     var repo = ContactRepo();
 
     for (int i = 0; i < len; i++) {
-      ContactModel model = ContactModel.fromJson(dataMap[i]);
-      model.isFriend = 1;
+      Map<String, dynamic> json = dataMap[i];
+      json["is_friend"] = 1;
+      ContactModel model = ContactModel.fromJson(json);
       friend.insert(0, model);
       repo.save(dataMap[i]);
     }
