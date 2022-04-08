@@ -147,7 +147,7 @@ class ConversationRepo {
       whereArgs: [1],
       orderBy: "${ConversationRepo.lasttime} DESC",
     );
-    debugPrint(">>>>> on ConversationRepo/findByCuid maps " + maps.toString());
+    debugPrint(">>> on ConversationRepo/findByCuid maps " + maps.toString());
     if (maps.length == 0) {
       return {};
     }

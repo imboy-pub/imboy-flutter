@@ -69,7 +69,6 @@ dependencies:
   chewie: ^1.3.1
   webview_flutter: ^3.0.0
   image_picker: ^0.8.4+2
-  #extended_image: ^5.1.3
   #flutter_chat_ui: ^1.5.2
   mime: ^1.0.1
   file_picker: ^4.1.4
@@ -92,7 +91,7 @@ dependencies:
   fps_monitor: ^2.0.0
   # @ 小部件
   flutter_mentions: ^2.0.1
-  getwidget: ^2.0.5
+  # getwidget: ^2.0.5 # 暂时无用
   # 搜索页面
   search_page: ^2.0.0+1
   # 时间处理
@@ -172,6 +171,7 @@ flutter:
     - assets/images/chat/input_emoji.png
     - assets/images/chat/input_extra.png
     - assets/images/chat/input_keyboard.png
+    - assets/images/conversation/sending.png
 
     - assets/images/chat/extra_photo.webp # 照片 extra_photo.webp
     - assets/images/chat/extra_camera.webp # 拍摄  extra_camera.webp

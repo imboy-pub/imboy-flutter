@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/view/main_input.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
-import 'package:imboy/component/helper/func.dart';
 
 import 'group_remark_logic.dart';
 import 'group_remark_state.dart';
@@ -73,7 +73,7 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new MainInputBody(
+    return MainInputBody(
       child: new Scaffold(
         appBar: new PageAppBar(backgroundColor: Colors.white),
         body: new Container(

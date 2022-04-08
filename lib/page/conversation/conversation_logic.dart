@@ -75,6 +75,25 @@ class ConversationLogic extends GetxController {
   }
 
   /**
+   * 按消息ID来更新会话最后一消息的状态
+   */
+  Future<List<ConversationModel>> updateLastMsgStatus(String msgId, int status) async {
+    Database db = await Sqlite.instance.database;
+    String where = "last_msg_id=?";
+    List<String> whereArgs = [msgId];
+    db.update(
+      ConversationRepo.tablename,
+      {ConversationRepo.lastMsgStatus: status},
+      where: where,
+      whereArgs: whereArgs,
+    );
+
+    return await (ConversationRepo()).search(
+      where,
+      whereArgs,
+    );
+  }
+  /**
    * 是否当前会话的最后一条消息
    */
   // Future<bool> isLastMsg(String msgId) async {}

@@ -40,6 +40,7 @@ class ContentMsg extends StatelessWidget {
       str,
       style: _style,
       maxLines: 1,
+      overflow: TextOverflow.ellipsis,
       overflowWidget: TextOverflowWidget(
         position: TextOverflowPosition.end,
         align: TextOverflowAlign.left,

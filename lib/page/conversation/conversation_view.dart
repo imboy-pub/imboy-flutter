@@ -34,10 +34,9 @@ class _ConversationPageState extends State<ConversationPage> {
     super.initState();
 
     eventBus.on<ConversationModel>().listen((e) async {
-      MessageService.to.conversations[e.typeId] = e;
       if (mounted) {
         setState(() {
-          MessageService.to.conversations;
+          MessageService.to.conversations[e.typeId] = e;
         });
       }
     });
@@ -184,6 +183,7 @@ class _ConversationPageState extends State<ConversationPage> {
                   'msg_type': model.msgtype,
                   'text': model.subtitle,
                 },
+                status: model.lastMsgStatus,
                 time: Text(
                   DateTimeHelper.lastConversationFmt(
                     model.lasttime ?? 0,

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -193,8 +194,19 @@ class MessageService extends GetxService {
       'status': MessageStatus.send,
     });
     MessageModel? msg = await repo.find(id);
-    debugPrint(">>>>> on MessageService S_RECEIVED:$res; msg:" +
+    debugPrint(">>> on MessageService S_RECEIVED:$res; msg:" +
         msg!.toJson().toString());
+    // 更新会话状态
+    List<ConversationModel> items =
+        await ConversationLogic().updateLastMsgStatus(
+      id,
+      MessageStatus.send,
+    );
+    if (items.length > 0) {
+      items.forEach((cobj) {
+        eventBus.fire(cobj);
+      });
+    }
     if (res > 0 && msg != null) {
       eventBus.fire([msg.toTypeMessage()]);
     }
