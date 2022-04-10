@@ -1,28 +1,35 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/config/const.dart';
 
 import 'content_msg.dart';
 
-class ConversationView extends StatelessWidget {
-  final String? imageUrl;
+class ConversationItem extends StatelessWidget {
+  // 会话头像
+  final String? imgUri;
+  // 会话头像点击事件
+  final Function()? onTapAvatar;
+  // 会话对象标题
   final String? title;
+  // 会话简述
   final dynamic payload;
+  // 最近会话时间
   final Widget? time;
-  final bool isBorder;
-  final int? remindCounter;
+  // 当前会话未读消息数量
+  RxInt remindCounter;
+  // 最近会话消息状态
   final int? status; // lastMsgStatus
 
-  ConversationView({
-    this.imageUrl,
+  ConversationItem({
+    this.imgUri,
+    this.onTapAvatar,
     this.title,
     this.payload,
     this.time,
-    this.isBorder = true,
-    this.remindCounter = 0,
+    required this.remindCounter,
     this.status,
   });
 
@@ -42,25 +49,32 @@ class ConversationView extends StatelessWidget {
         ),
       );
     }
-    // debugPrint(">>> on this.imageUrl ${this.imageUrl!}");
+    // debugPrint(">>> on this.imgUri ${this.imgUri!}");
     return Container(
       padding: EdgeInsets.only(left: 10.0, right: 10),
       color: Colors.white,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 49,
-            height: 49,
-            decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(4.0),
-              color: Color(0xFFE5E5E5),
-              image: DecorationImage(
-                image: isNetWorkImg(this.imageUrl!)
-                    ? CachedNetworkImageProvider(this.imageUrl!)
-                    : AssetImage(this.imageUrl!) as ImageProvider,
-                fit: BoxFit.cover,
+          Obx(
+            () => Badge(
+              position: BadgePosition.topEnd(top: -4, end: -4),
+              showBadge: (this.remindCounter > 0 ? true : false),
+              shape: BadgeShape.square,
+              borderRadius: BorderRadius.circular(10),
+              padding: EdgeInsets.fromLTRB(5, 3, 5, 3),
+              animationDuration: Duration(milliseconds: 500),
+              animationType: BadgeAnimationType.scale,
+              badgeContent: Text(
+                this.remindCounter.toString(),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 8,
+                ),
+              ),
+              child: Avatar(
+                imgUri: this.imgUri!,
+                onTap: this.onTapAvatar ?? null,
               ),
             ),
           ),
@@ -68,11 +82,9 @@ class ConversationView extends StatelessWidget {
             padding: EdgeInsets.only(right: 0, top: 10.0, bottom: 12.0),
             width: Get.width - 69,
             decoration: BoxDecoration(
-              border: this.isBorder
-                  ? Border(
-                      top: BorderSide(color: AppColors.LineColor, width: 0.2),
-                    )
-                  : null,
+              border: Border(
+                top: BorderSide(color: AppColors.LineColor, width: 0.2),
+              ),
             ),
             child: Row(
               children: <Widget>[

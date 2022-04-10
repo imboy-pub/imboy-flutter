@@ -688,13 +688,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.6.1"
-  getwidget:
-    dependency: "direct main"
-    description:
-      name: getwidget
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.5"
   glob:
     dependency: transitive
     description:

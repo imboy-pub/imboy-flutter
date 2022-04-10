@@ -18,53 +18,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 class MessageService extends GetxService {
   static MessageService get to => Get.find();
-
-  final RxMap<String, int> conversationRemind = RxMap<String, int>({});
-
-  // 会话列表
-  final RxMap<String, ConversationModel> conversations =
-      RxMap<String, ConversationModel>();
-
-  // 设置会话提醒
-  setConversationRemind(String typeId, int val) {
-    val = val > 0 ? val : 0;
-    conversationRemind[typeId] = val;
-    (ConversationRepo()).updateByTypeId(typeId, {
-      ConversationRepo.unreadNum: val,
-      ConversationRepo.isShow: 1,
-    });
-  }
-
-  // 步增会话提醒
-  _increaseConversationRemind(String key, int val) {
-    if (!conversationRemind.containsKey(key) ||
-        conversationRemind[key] == null ||
-        conversationRemind[key]! < 0) {
-      conversationRemind[key] = 0;
-    }
-
-    conversationRemind[key] = conversationRemind[key]!.toInt() + val;
-    // debugPrint(
-    //     ">>> on _increaseConversationRemind key ${key}, val: ${val}, ${conversationRemind[key]!}");
-    setConversationRemind(key, conversationRemind[key]!);
-  }
-
-  // 步减会话提醒
-  decreaseConversationRemind(String key, int val) {
-    if (conversationRemind.containsKey(key)) {
-      val = conversationRemind[key]! - val;
-    }
-    setConversationRemind(key, val);
-  }
-
-  // 聊天消息提醒计数器
-  int get chatMsgRemindCounter {
-    int c = 0;
-    conversationRemind.forEach((key, value) {
-      c += value;
-    });
-    return c;
-  }
+  final clogic = Get.put(ConversationLogic());
 
   @override
   void onInit() {
@@ -173,8 +127,8 @@ class MessageService extends GetxService {
 
     eventBus.fire(cobj);
 
-    // 步增会话消息
-    _increaseConversationRemind(data['from'], 1);
+    // 收到一个消息，步增会话消息 1
+    clogic.increaseConversationRemind(data['from'], 1);
 
     eventBus.fire(msg.toTypeMessage());
     // 确实消息
@@ -204,6 +158,8 @@ class MessageService extends GetxService {
     );
     if (items.length > 0) {
       items.forEach((cobj) {
+        // 更新会话
+        clogic.replace(cobj);
         eventBus.fire(cobj);
       });
     }

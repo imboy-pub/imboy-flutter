@@ -11,19 +11,85 @@ import 'conversation_state.dart';
 class ConversationLogic extends GetxController {
   final state = ConversationState();
 
+  // 会话列表
+  RxList<ConversationModel> conversations = RxList<ConversationModel>([]);
+
+  // 网络状态描述
+  RxString connectDesc = "".obs;
+
+  // 会话提醒数量映射
+  final RxMap<String, int> conversationRemind = RxMap<String, int>({});
+
+  // 设置会话提醒
+  setConversationRemind(String typeId, int val) {
+    val = val > 0 ? val : 0;
+    debugPrint(
+        ">>> on logic.conversations setConversationRemind ${typeId}, ${val}");
+    conversationRemind[typeId] = val;
+    (ConversationRepo()).updateByTypeId(typeId, {
+      ConversationRepo.unreadNum: val,
+      ConversationRepo.isShow: 1,
+    });
+  }
+
+  // 更新会话
+  replace(ConversationModel cobj) {
+    // 第一次会话的时候 i 为 -1
+    final i = this.conversations.indexWhere(
+        (item) => (item as ConversationModel).typeId == cobj.typeId);
+    debugPrint(
+        ">>> on logic.conversations replace i: ${i} , unreadNum: ${cobj.unreadNum}");
+    if (i > -1) {
+      int i2 = i > 0 ? i : 0;
+      this.conversations[i2] = cobj;
+    } else {
+      this.conversations.add(cobj);
+    }
+  }
+
+  // 步增会话提醒
+  increaseConversationRemind(String key, int val) {
+    if (!conversationRemind.containsKey(key) ||
+        conversationRemind[key] == null ||
+        conversationRemind[key]! < 0) {
+      conversationRemind[key] = 0;
+    }
+    conversationRemind[key] = conversationRemind[key]!.toInt() + val;
+    setConversationRemind(key, conversationRemind[key]!);
+  }
+
+  // 步减会话提醒
+  decreaseConversationRemind(String key, int val) {
+    debugPrint(
+        ">>> on logic.conversations decreaseConversationRemind ${key}, ${val}, ${conversationRemind.containsKey(key)}");
+    if (conversationRemind.containsKey(key)) {
+      val = conversationRemind[key]! - val;
+    }
+    setConversationRemind(key, val);
+  }
+
+  // 聊天消息提醒计数器
+  int get chatMsgRemindCounter {
+    int c = 0;
+    conversationRemind.forEach((key, value) {
+      c += value;
+    });
+    return c;
+  }
+
   @override
-  void onReady() {
+  Future<void> onReady() async {
     // TODO: implement onReady
     super.onReady();
   }
 
-  getConversationsList() async {
-    Map<String, ConversationModel> items = await (ConversationRepo()).all();
-    return items;
+  Future<void> getConversationsList() async {
+    conversations.value = await (ConversationRepo()).all();
   }
 
   @override
   void onClose() {
+    // conversations.value = [];
     // TODO: implement onClose
     super.onClose();
   }
@@ -77,7 +143,8 @@ class ConversationLogic extends GetxController {
   /**
    * 按消息ID来更新会话最后一消息的状态
    */
-  Future<List<ConversationModel>> updateLastMsgStatus(String msgId, int status) async {
+  Future<List<ConversationModel>> updateLastMsgStatus(
+      String msgId, int status) async {
     Database db = await Sqlite.instance.database;
     String where = "last_msg_id=?";
     List<String> whereArgs = [msgId];

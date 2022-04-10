@@ -32,7 +32,7 @@ class ConversationModel {
   });
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
-    return new ConversationModel(
+    return ConversationModel(
       id: json['id'] ?? 0,
       typeId: json['type_id'],
       avatar: strEmpty(json['avatar']) ? '' : json['avatar'],
@@ -41,7 +41,7 @@ class ConversationModel {
       lasttime: json['lasttime'] ?? 0,
       lastMsgId: json['last_msg_id'] ?? '',
       lastMsgStatus: json['last_msg_status'] ?? 11,
-      unreadNum: json['unread_num'] == null ? 0 : json['unread_num'],
+      unreadNum: json['unread_num'] ?? 0,
       type: json['type'].toString(),
       msgtype: json['msgtype'].toString(),
       isShow: json['is_show'] ?? 1,

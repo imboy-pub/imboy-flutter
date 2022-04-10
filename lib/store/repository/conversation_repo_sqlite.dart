@@ -127,8 +127,8 @@ class ConversationRepo {
   }
 
   //
-  Future<Map<String, ConversationModel>> all() async {
-    List<Map<String, dynamic>> maps = await _db.query(
+  Future<List<ConversationModel>> all() async {
+    List<Map<String, dynamic>> items = await _db.query(
       ConversationRepo.tablename,
       columns: [
         ConversationRepo.id,
@@ -147,17 +147,18 @@ class ConversationRepo {
       whereArgs: [1],
       orderBy: "${ConversationRepo.lasttime} DESC",
     );
-    debugPrint(">>> on ConversationRepo/findByCuid maps " + maps.toString());
-    if (maps.length == 0) {
-      return {};
+    debugPrint(">>> on ConversationRepo/all ${items.length} items " +
+        items.toString());
+    if (items.length == 0) {
+      return [];
     }
-
-    Map<String, ConversationModel> items = {};
-    for (int i = 0; i < maps.length; i++) {
-      ConversationModel item = ConversationModel.fromJson(maps[i]);
-      items[item.typeId] = item;
-    }
-    return items;
+    List<ConversationModel> item2 = [];
+    items.forEach((element) {
+      item2.add(ConversationModel.fromJson(element));
+    });
+    debugPrint(">>> on ConversationRepo/all ${item2.length} item2 " +
+        item2.toString());
+    return item2;
   }
 
   Future<ConversationModel?> findById(int id) async {

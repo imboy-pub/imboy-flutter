@@ -206,22 +206,45 @@ class ChatLogic extends GetxController {
     super.onClose();
   }
 
-  Future<bool> markAsRead(int conversationId, types.Message msg) async {
+  Future<ConversationModel?> markAsRead(
+    int conversationId,
+    List<String> msgIds,
+  ) async {
     Database db = await Sqlite.instance.database;
-    return await db.transaction((txn) async {
+    ConversationModel? cobj = await ConversationRepo().findById(conversationId);
+    if (cobj == null) {
+      return null;
+    }
+    int newUnreadNum = cobj.unreadNum - msgIds.length;
+    cobj.unreadNum = newUnreadNum > 0 ? newUnreadNum : 0;
+    bool res = await db.transaction((txn) async {
       db.update(
         ConversationRepo.tablename,
-        {ConversationRepo.unreadNum: "${ConversationRepo.unreadNum} - 1"},
+        {
+          ConversationRepo.unreadNum: cobj.unreadNum,
+        },
         where: "id=?",
         whereArgs: [conversationId],
       );
-      db.update(
-        MessageRepo.tablename,
-        {MessageRepo.status: MessageStatus.seen},
-        where: "id=?",
-        whereArgs: [msg.id],
-      );
+      msgIds.forEach((id) {
+        db.update(
+          MessageRepo.tablename,
+          {
+            MessageRepo.status: MessageStatus.seen,
+          },
+          where: "id=?",
+          whereArgs: [id],
+        );
+      });
+
       return true;
     });
+    debugPrint(
+        ">>> on logic.conversations markAsRead res ${res}, conversationId:${conversationId}, newUnreadNum : ${newUnreadNum}");
+    if (res) {
+      return cobj;
+    } else {
+      return null;
+    }
   }
 }

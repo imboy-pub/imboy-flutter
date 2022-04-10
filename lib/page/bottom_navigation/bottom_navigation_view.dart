@@ -3,9 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/page/contact/contact_view.dart';
+import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/conversation/conversation_view.dart';
 import 'package:imboy/page/mine/mine_view.dart';
-import 'package:imboy/service/message.dart';
 
 import 'bottom_navigation_logic.dart';
 import 'bottom_navigation_state.dart';
@@ -13,6 +13,7 @@ import 'bottom_navigation_state.dart';
 class BottomNavigationPage extends StatelessWidget {
   //全局状态控制器
   final logic = Get.put(BottomNavigationLogic());
+  final clogic = Get.put(ConversationLogic());
 
   // final logic = Get.find<BottomNavigationLogic>();
   final BottomNavigationState state = Get.find<BottomNavigationLogic>().state;
@@ -46,8 +47,7 @@ class BottomNavigationPage extends StatelessWidget {
           items: [
             BottomNavigationBarItem(
               icon: Badge(
-                showBadge:
-                    (MessageService.to.chatMsgRemindCounter > 0 ? true : false),
+                showBadge: (clogic.chatMsgRemindCounter > 0 ? true : false),
                 shape: BadgeShape.square,
                 borderRadius: BorderRadius.circular(10),
                 position: BadgePosition.topStart(top: -4, start: 20),
@@ -57,7 +57,7 @@ class BottomNavigationPage extends StatelessWidget {
                   color: Colors.red,
                   alignment: Alignment.center,
                   child: Text(
-                    MessageService.to.chatMsgRemindCounter.toString(),
+                    clogic.chatMsgRemindCounter.toString(),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 8,

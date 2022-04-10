@@ -1,10 +1,10 @@
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/assets.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/view/null_view.dart';
-import 'package:imboy/component/helper/assets.dart';
 import 'package:imboy/page/search/search_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:lpinyin/lpinyin.dart';

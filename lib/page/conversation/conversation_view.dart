@@ -9,220 +9,194 @@ import 'package:imboy/component/view/null_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat_view.dart';
-import 'package:imboy/service/message.dart';
+import 'package:imboy/page/contact_detail/contact_detail_view.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 
 import 'conversation_logic.dart';
-import 'widget/conversation_view.dart';
+import 'widget/conversation_item.dart';
 
-class ConversationPage extends StatefulWidget {
-  @override
-  _ConversationPageState createState() => _ConversationPageState();
-}
-
-class _ConversationPageState extends State<ConversationPage> {
+class ConversationPage extends StatelessWidget {
   final logic = Get.put(ConversationLogic());
 
-  bool alive = true;
-
-  var subscription;
-
-  String _connectDesc = "";
-
-  @override
-  void initState() {
-    super.initState();
-
-    eventBus.on<ConversationModel>().listen((e) async {
-      if (mounted) {
-        setState(() {
-          MessageService.to.conversations[e.typeId] = e;
-        });
-      }
-    });
-    subscription =
-        Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
-      debugPrint(">>> on checkConnectivity onConnectivityChanged ${r}");
-      if (r == ConnectivityResult.none) {
-        setState(() {
-          _connectDesc = 'tip_connect_desc'.tr;
-        });
-      }
-    });
-    initData();
-  }
-
   void initData() async {
+    // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
-    debugPrint(">>> on checkConnectivity ${connectivityResult}");
     if (connectivityResult == ConnectivityResult.none) {
-      setState(() {
-        _connectDesc = 'tip_connect_desc'.tr;
-      });
+      logic.connectDesc.value = '(' + 'tip_connect_desc'.tr + ')';
+    } else {
+      logic.connectDesc.value = '';
     }
-    if (!mounted) {
-      return;
-    }
-    Map<String, ConversationModel> items = await logic.getConversationsList();
-    if (items.isNotEmpty) {
-      MessageService.to.conversations.value = items;
-    }
+    // 监听网络状态
+    Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
+      if (r == ConnectivityResult.none) {
+        logic.connectDesc.value = '(' + 'tip_connect_desc'.tr + ')';
+      } else {
+        logic.connectDesc.value = '';
+      }
+    });
 
-    MessageService.to.conversations.forEach((key, obj) {
+    // 监听会话消息
+    eventBus.on<ConversationModel>().listen((e) async {
       debugPrint(
-          ">>> on _ConversationPageState/initData ${obj.typeId} = ${obj.unreadNum}");
-      int unreadNum = obj.unreadNum;
-      MessageService.to.setConversationRemind(
-        obj.typeId,
-        unreadNum > 0 ? unreadNum : 0,
-      );
+          ">>> on logic.conversations listen ${e.typeId} = ${e.unreadNum}");
+      // 更新会话
+      logic.replace(e);
     });
-    setState(() {
-      MessageService.to.conversations;
-      MessageService.to.conversationRemind;
+    // 设置消息提醒数量
+    logic.conversations.value.forEach((obj) {
+      debugPrint(">>> on logic.conversations ${obj.typeId} = ${obj.unreadNum}");
+      if (obj.unreadNum > 0) {
+        logic.setConversationRemind(
+          obj.typeId,
+          obj.unreadNum,
+        );
+      }
     });
-    // await UserRepoLocal.to.refreshtoken();
-    // final keyPair = await generateKeys();
-    // debugPrint(">>> on e2ee pubkey ${keyPair.publicKey}");
+    // 加载会话记录
+    await logic.getConversationsList();
   }
 
   @override
   Widget build(BuildContext context) {
-    List<ConversationModel> items =
-        MessageService.to.conversations.values.toList();
-
-    Widget body = ListView.builder(
-      itemBuilder: (BuildContext context, int index) {
-        ConversationModel model = items[index];
-        // debugPrint(
-        //     ">>> on conversation_view build item ${model.toJson().toString()}");
-        int conversationId = model.id;
-        return InkWell(
-          onTap: () {
-            Get.to(
-              () => ChatPage(
-                id: model.id,
-                toId: model.typeId,
-                title: model.title,
-                avatar: model.avatar,
-                type: model.type == null ? 'C2C' : model.type,
-              ),
+    initData();
+    Widget body = Obx(() {
+      return logic.conversations.isEmpty
+          ? ConversationNullView()
+          : ListView.builder(
+              itemBuilder: (BuildContext context, int index) {
+                ConversationModel model = logic.conversations[index];
+                int conversationId = model.id;
+                var remindNum =
+                    logic.conversationRemind.containsKey(model.typeId)
+                        ? logic.conversationRemind[model.typeId]!.obs
+                        : 0.obs;
+                return InkWell(
+                  onTap: () {
+                    Get.to(
+                      () => ChatPage(
+                        id: model.id,
+                        toId: model.typeId,
+                        title: model.title,
+                        avatar: model.avatar,
+                        type: strEmpty(model.type) ? 'C2C' : model.type,
+                      ),
+                    );
+                  },
+                  onTapDown: (TapDownDetails details) {},
+                  onLongPress: () {},
+                  child: Slidable(
+                    key: ValueKey(model.id),
+                    groupTag: '0',
+                    closeOnScroll: true,
+                    endActionPane: ActionPane(
+                      extentRatio: 0.75,
+                      motion: StretchMotion(),
+                      children: [
+                        CustomSlidableAction(
+                          onPressed: (_) async {
+                            int num = 1;
+                            remindNum.value = 1;
+                            if (model.unreadNum > 0) {
+                              num = 0;
+                              remindNum.value = 0;
+                            }
+                            logic.markAs(model.id, num);
+                            logic.conversationRemind[model.typeId] = num;
+                            model.unreadNum = num;
+                          },
+                          autoClose: true,
+                          backgroundColor: Colors.blue,
+                          flex: 2,
+                          child: Obx(
+                            () => Text(
+                              remindNum.value > 0 ? "标为已读" : "标为未读",
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                        SlidableAction(
+                          key: ValueKey("hide_${index}"),
+                          flex: 2,
+                          backgroundColor: Colors.amber,
+                          onPressed: (_) async {
+                            await logic.hideConversation(conversationId);
+                            logic.conversations.removeAt(index);
+                            logic.conversationRemind[model.typeId] = 0;
+                            logic.chatMsgRemindCounter;
+                          },
+                          label: "不显示",
+                          spacing: 1,
+                        ),
+                        SlidableAction(
+                          key: ValueKey("delete_${index}"),
+                          flex: 2,
+                          backgroundColor: Colors.red,
+                          // foregroundColor: Colors.white,
+                          onPressed: (_) async {
+                            await logic.removeConversation(conversationId);
+                            logic.conversations.removeAt(index);
+                            logic.conversationRemind[model.typeId] = 0;
+                            logic.chatMsgRemindCounter;
+                          },
+                          label: "删除",
+                          spacing: 1,
+                        ),
+                      ],
+                    ),
+                    child: ConversationItem(
+                      imgUri: model.avatar,
+                      onTapAvatar: () {
+                        Get.to(
+                          ContactDetailPage(
+                            id: model.typeId,
+                            nickname: model.title,
+                            avatar: model.avatar,
+                            account: "",
+                          ),
+                        );
+                      },
+                      title: model.title,
+                      payload: {
+                        'msg_type': model.msgtype,
+                        'text': model.subtitle,
+                      },
+                      status: model.lastMsgStatus,
+                      time: Text(
+                        DateTimeHelper.lastConversationFmt(
+                          model.lasttime ?? 0,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppColors.MainTextColor,
+                          fontSize: 14.0,
+                        ),
+                      ),
+                      remindCounter: remindNum,
+                    ),
+                  ),
+                );
+              },
+              itemCount: logic.conversations.length,
             );
-          },
-          onTapDown: (TapDownDetails details) {},
-          onLongPress: () {},
-          child: Slidable(
-            key: ValueKey(model.id),
-            groupTag: '0',
-            closeOnScroll: true,
-            endActionPane: ActionPane(
-              extentRatio: 0.75,
-              motion: StretchMotion(),
-              children: [
-                SlidableAction(
-                  key: model.unreadNum > 0
-                      ? ValueKey("mark_as_read${index}")
-                      : ValueKey("mark_as_unread${index}"), // or mark_as_unread
-                  flex: 2,
-                  backgroundColor: Colors.blue,
-                  onPressed: (_) async {
-                    // Get.snackbar("title", model.unreadNum.toString());
-                    int num = 1;
-                    if (model.unreadNum > 0) {
-                      num = 0;
-                    }
-                    logic.markAs(model.id, num);
-                    setState(() {
-                      MessageService.to.conversationRemind[model.typeId] = num;
-                    });
-                    model.unreadNum = num;
-                  },
-                  label: model.unreadNum > 0 ? "标为已读" : "标为未读",
-                  spacing: 1,
-                ),
-                SlidableAction(
-                  key: ValueKey("hide_${index}"),
-                  flex: 2,
-                  backgroundColor: Colors.amber,
-                  onPressed: (_) async {
-                    await logic.hideConversation(conversationId);
-                    MessageService.to.conversations.remove(model.typeId);
-                    setState(() {
-                      MessageService.to.conversations.value;
-                      MessageService.to.conversationRemind[model.typeId] = 0;
-                      MessageService.to.chatMsgRemindCounter;
-                    });
-                  },
-                  label: "不显示",
-                  spacing: 1,
-                ),
-                SlidableAction(
-                  key: ValueKey("delete_${index}"),
-                  flex: 2,
-                  backgroundColor: Colors.red,
-                  // foregroundColor: Colors.white,
-                  onPressed: (_) async {
-                    await logic.removeConversation(conversationId);
-                    MessageService.to.conversations.remove(model.typeId);
-                    setState(() {
-                      MessageService.to.conversations.value;
-                      MessageService.to.conversationRemind[model.typeId] = 0;
-                      MessageService.to.chatMsgRemindCounter;
-                    });
-                  },
-                  label: "删除",
-                  spacing: 1,
-                ),
-              ],
-            ),
-            child: Obx(
-              () => ConversationView(
-                imageUrl: model.avatar,
-                title: model.title,
-                payload: {
-                  'msg_type': model.msgtype,
-                  'text': model.subtitle,
-                },
-                status: model.lastMsgStatus,
-                time: Text(
-                  DateTimeHelper.lastConversationFmt(
-                    model.lasttime ?? 0,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: AppColors.MainTextColor,
-                    fontSize: 14.0,
-                  ),
-                ),
-                // isBorder: model.typeId != _msgService.conversations.values[0].typeId,
-                remindCounter:
-                    MessageService.to.conversationRemind[model.typeId],
-              ),
-            ),
-          ),
-        );
-      },
-      itemCount: MessageService.to.conversations.values.length,
-    );
-    if (MessageService.to.conversations.isEmpty) {
-      body = ConversationNullView();
-    }
-    String title = 'title_message'.tr;
+    });
+
     return Scaffold(
       appBar: NavAppBar(
-        title: strEmpty(_connectDesc) ? title : '${title}(${_connectDesc.tr})',
-      ),
+          // title: 'title_message'.tr + logic.connectDesc.value,
+          titleWiew: Obx(
+        () => Text(
+          'title_message'.tr + logic.connectDesc.value,
+          style: new TextStyle(
+            color: Colors.black,
+            fontSize: 16.0,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      )),
       body: SlidableAutoCloseBehavior(
         child: body,
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    Get.delete<ConversationLogic>();
-    subscription.cancel();
   }
 }

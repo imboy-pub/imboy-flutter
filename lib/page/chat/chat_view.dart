@@ -18,8 +18,9 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/chat_info/chat_info_view.dart';
+import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/group_detail/group_detail_view.dart';
-import 'package:imboy/service/message.dart';
+import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
 import 'package:imboy/store/provider/attachment_provider.dart';
@@ -55,6 +56,7 @@ class ChatPage extends StatefulWidget {
 
 class ChatPageState extends State<ChatPage> {
   final logic = Getx.Get.put(ChatLogic());
+  final clogic = Getx.Get.put(ConversationLogic());
   bool _showAppBar = true;
   // 当前会话新增消息
   List<types.Message> messages = [];
@@ -81,8 +83,8 @@ class ChatPageState extends State<ChatPage> {
     String toId = widget.toId;
     // 接收到新的消息订阅
     eventBus.on<types.Message>().listen((e) async {
-      if (e is types.Message && e.author.id == toId) {
-        MessageService.to.decreaseConversationRemind(toId, 1);
+      if (mounted && e is types.Message && e.author.id == toId) {
+        clogic.decreaseConversationRemind(toId, 1);
         messages.insert(0, e);
         if (mounted) {
           setState(() {
@@ -118,18 +120,25 @@ class ChatPageState extends State<ChatPage> {
       _page,
       10,
     );
-
+    List<String> msgIds = [];
     if (items != null && items.length > 0) {
       // 消除消息提醒
       items.forEach((msg) async {
-        if (msg.status == types.Status.delivered) {
-          // debugPrint(">>> on msg ${msg.toJson().toString()}");
-          bool res = await logic.markAsRead(widget.id, msg);
-          if (res) {
-            MessageService.to.decreaseConversationRemind(widget.toId, 1);
-          }
+        //enum Status { delivered, error, seen, sending, sent }
+        debugPrint(
+            ">>> on logic.conversations chat ${msg.author.id == widget.toId}, status: ${msg.status}");
+        if (msg.author.id == widget.toId && msg.status != types.Status.seen) {
+          msgIds.add(msg.id);
         }
       });
+      ConversationModel? cobj =
+          msgIds.length > 0 ? await logic.markAsRead(widget.id, msgIds) : null;
+      debugPrint(
+          ">>> on logic.conversations chat msgIds ${msgIds}, unreadNum: ${cobj?.unreadNum}");
+      if (cobj != null) {
+        clogic.decreaseConversationRemind(widget.toId, msgIds.length);
+        clogic.replace(cobj);
+      }
 
       setState(() {
         messages = [

@@ -22,9 +22,9 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new AppBar(
+    return AppBar(
       title: titleWiew == null
-          ? new Text(
+          ? Text(
               title!,
               style: new TextStyle(
                 color: mainColor,
@@ -63,9 +63,9 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new AppBar(
+    return AppBar(
       title: titleWiew == null
-          ? new Text(
+          ? Text(
               title!,
               style: new TextStyle(
                 color: mainColor,
