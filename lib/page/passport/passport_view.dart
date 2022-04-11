@@ -3,6 +3,7 @@ import 'package:flutter_login/flutter_login.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'passport_logic.dart';
 
@@ -11,6 +12,8 @@ class PassportPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint(
+        ">>> on passport view build ${UserRepoLocal.to.lastLoginAccount}");
     LoginUserType userType = LoginUserType.email;
     String userHint = 'hint_login_email'.tr;
     if (userType == LoginUserType.phone) {
@@ -56,8 +59,8 @@ class PassportPage extends StatelessWidget {
       userValidator: (value) {
         return logic.userValidator(userType, value ?? '');
       },
-      savedEmail: "leeyi@imboy.pub",
-      savedPassword: "admin888",
+      savedEmail: UserRepoLocal.to.lastLoginAccount,
+      savedPassword: "",
       passwordValidator: logic.passwordValidator,
       onLogin: logic.loginUser,
       onSignup: logic.signupUser,

@@ -50,6 +50,8 @@ class Keys {
   // 与服务端约定的Key
   static const tokenKey = 'authorization';
   static const refreshtokenKey = 'imboy-refreshtoken';
+
+  static String lastLoginAccount = 'lastLoginAccount';
 }
 
 class AppColors {

@@ -23,6 +23,9 @@ class UserRepoLocal extends GetxController {
         StorageService.to.getMap(Keys.currentUser),
       );
 
+  String get lastLoginAccount =>
+      StorageService.to.getString(Keys.lastLoginAccount);
+
   @override
   void onInit() {
     super.onInit();

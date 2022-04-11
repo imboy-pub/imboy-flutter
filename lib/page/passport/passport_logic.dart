@@ -10,6 +10,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class PassportLogic extends GetxController {
@@ -107,7 +108,7 @@ class PassportLogic extends GetxController {
         _error = resp2.error!.message;
         return false;
       } else {
-        // debugPrint(">>> on user logoin success {$resp2.toString()}");
+        StorageService.to.setString(Keys.lastLoginAccount, account);
         return await (UserRepoLocal()).loginAfter(resp2.payload);
       }
     } on PlatformException {
@@ -122,9 +123,7 @@ class PassportLogic extends GetxController {
   Future<String?> signupUser(SignupData data) {
     // return null;
     debugPrint(">>> on signupUser data: ${data.name}, ${data.password}");
-    return Future.delayed(Duration(milliseconds: 0)).then((_) {
-      return doSendEmail(data.name ?? '');
-    });
+    return doSendEmail(data.name ?? '');
   }
 
   /**
