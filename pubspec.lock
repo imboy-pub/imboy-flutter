@@ -586,7 +586,7 @@ packages:
       name: flutter_native_splash
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.1.1"
+    version: "2.1.5"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -828,6 +828,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.1.0"
+  lint:
+    dependency: transitive
+    description:
+      name: lint
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.8.2"
   lints:
     dependency: transitive
     description:

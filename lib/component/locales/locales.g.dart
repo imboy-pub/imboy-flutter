@@ -22,6 +22,7 @@ class LocaleKeys {
   static const button_recoverpassword = 'button_recoverpassword';
   static const button_back = 'button_back';
   static const button_submit = 'button_submit';
+  static const button_setpassword = 'button_setpassword';
   static const button_sign_in_fb = 'button_sign_in_fb';
   static const button_sign_in_google = 'button_sign_in_google';
   static const button_sign_in_apple = 'button_sign_in_apple';
@@ -41,6 +42,8 @@ class LocaleKeys {
   static const tip_sigup_intro = 'tip_sigup_intro';
   static const tip_confirmationcode_error = 'tip_confirmationcode_error';
   static const tip_confirmationcode_success = 'tip_confirmationcode_success';
+  static const tip_confirmrecover_intro = 'tip_confirmrecover_intro';
+  static const tip_confirmrecover_success = 'tip_confirmrecover_success';
   static const tip_connect_desc = 'tip_connect_desc';
   static const tip_providers_title_first = 'tip_providers_title_first';
   static const tip_login_true = 'tip_login_true';
@@ -150,6 +153,7 @@ class Locales {
     'button_recoverpassword': '找回密码',
     'button_back': '返回',
     'button_submit': '提交',
+    'button_setpassword': '设置密码',
     'button_sign_in_fb': '用 Facebook 登录',
     'button_sign_in_google': '用 Google 登录',
     'button_sign_in_apple': '用 Apple 登录',
@@ -161,7 +165,7 @@ class Locales {
     'tip_success': '操作成功！',
     'tip_failed': '操作失败！',
     'tip_resendcode_success': '已发送新邮件。',
-    'tip_recoverpassword_success': '获取密码成功',
+    'tip_recoverpassword_success': '验证码发送成功',
     'tip_recoverpassword_desc': '',
     'tip_recoverpassword_intro': '不要感觉不好，这是常有的事。',
     'tip_recovercodepassword_desc': '我们会将密码恢复码发送到您的邮箱。',
@@ -169,6 +173,8 @@ class Locales {
     'tip_sigup_intro': '确认码已发送到您的邮箱，\n请输入确认码确认您的帐户。',
     'tip_confirmationcode_error': '确认码为空',
     'tip_confirmationcode_success': '账户已确认。',
+    'tip_confirmrecover_intro': '验证码已发送到您的邮箱。',
+    'tip_confirmrecover_success': '密码修改成功。',
     'tip_connect_desc': '无网络',
     'tip_providers_title_first': '或用以下账号登录',
     'tip_login_true': '已经有账号了？',
@@ -270,6 +276,7 @@ class Locales {
     'button_recoverpassword': 'Recover password',
     'button_back': 'GO BACK',
     'button_submit': 'SUBMIT',
+    'button_setpassword': 'SET PASSWORD',
     'button_sign_in_fb': 'Sign-in with Facebook',
     'button_sign_in_google': 'Sign-in with Google',
     'button_sign_in_apple': 'Sign-in with Apple',
@@ -281,7 +288,7 @@ class Locales {
     'tip_success': 'Succes!',
     'tip_failed': 'Failed!',
     'tip_resendcode_success': 'A new email has been sent.',
-    'tip_recoverpassword_success': 'Password rescued successfully',
+    'tip_recoverpassword_success': 'An email has been sent',
     'tip_recoverpassword_desc': '',
     'tip_recoverpassword_intro': 'Don\'t feel bad, Happens all the time.',
     'tip_recovercodepassword_desc':
@@ -291,6 +298,9 @@ class Locales {
         'A confirmation code was sent to your email,\nPlease enter the code to confirm your account.',
     'tip_confirmationcode_error': 'Confirmation code is empty',
     'tip_confirmationcode_success': 'Account confirmed.',
+    'tip_confirmrecover_intro':
+        'The recovery code to set a new password was sent to your email.',
+    'tip_confirmrecover_success': 'Password recovered.',
     'tip_connect_desc': 'no network',
     'tip_providers_title_first': 'or login with',
     'tip_login_true': 'Already have a Accont ?',

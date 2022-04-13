@@ -189,19 +189,50 @@ class PassportLogic extends GetxController {
     }
   }
 
-  /**
-   * 确认找回密码
-   */
-  Future<String?> onConfirmRecover(String error, LoginData data) async {
-    debugPrint(
-        ">>> on onConfirmRecover error: ${error}, data: ${data.name}, ${data.password}");
-    return null;
+  // 找回密码，获取Email验证码功能
+  Future<String?> onRecoverPassword(String name) {
+    debugPrint('>>> on onRecoverPassword Name: $name');
+    // 验证码已发送
+    return doSendEmail(name);
+    // return 'User not exists';
+    // return null;
   }
 
-  // 找回密码功能
-  Future<String>? onRecoverPassword(String name) {
-    debugPrint('>>> on onRecoverPassword Name: $name');
-    // return 'User not exists';
-    return null;
+  /**
+   * 邮箱验证码修改密码
+   */
+  Future<String?> onConfirmRecover(String code, LoginData data) async {
+    debugPrint(
+        ">>> on onConfirmRecover code: ${code}, data: ${data.name}, ${data.password}");
+    try {
+      Map<String, dynamic> result = await encryptPassword(data.password);
+      if (strNoEmpty(result['error'])) {
+        _error = result['error'];
+        return result['error'];
+      }
+      HttpResponse resp2 = await HttpClient.client.post(
+        API.findpassword,
+        data: {
+          "type": "email",
+          "account": data.name,
+          "code": code,
+          "pwd": result['password'],
+          "rsa_encrypt": result['rsa_encrypt'],
+        },
+        options: Options(
+          contentType: "application/x-www-form-urlencoded",
+        ),
+      );
+      if (!resp2.ok) {
+        _error = resp2.error!.message;
+        return _error;
+      } else {
+        StorageService.to.setString(Keys.lastLoginAccount, data.name);
+        return null;
+      }
+    } on PlatformException {
+      _error = '网络故障，请稍后重试';
+      return _error;
+    }
   }
 }

@@ -167,6 +167,7 @@ class API {
   static const login = '/passport/login';
   static const signup = '/passport/signup';
   static const getcode = '/passport/getcode';
+  static const findpassword = '/passport/findpassword';
 
   static const friendList = '/friend/list';
   static const conversationList = '/conversation/mine';
