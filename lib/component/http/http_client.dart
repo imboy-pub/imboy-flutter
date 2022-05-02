@@ -5,6 +5,7 @@ import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart' as Getx;
+import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
@@ -82,7 +83,9 @@ class HttpClient {
         await UserRepoLocal.to.refreshtoken();
       }
     }
-    _dio.options.headers.addAll(defaultHeaders());
+    Map<String, dynamic> headers = defaultHeaders();
+    headers["did"] = await DeviceExt.did;
+    _dio.options.headers.addAll(headers);
   }
 
   Future<HttpResponse> get(

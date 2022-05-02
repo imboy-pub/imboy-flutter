@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:flutter_login/src/models/signup_data.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/extension/get_extension.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -93,13 +94,28 @@ class PassportLogic extends GetxController {
         _error = data['error'];
         return false;
       }
+      Map<String, dynamic>? dinfo = await DeviceExt.to.detail;
+
+      Map<String, dynamic> postData = {
+        "account": account,
+        "pwd": data['password'],
+        "rsa_encrypt": data['rsa_encrypt'],
+        // 设备ID
+        "did": dinfo!["did"],
+        // 客户端操作系统（设备类型）
+        "cos": dinfo["cos"],
+        // "dname": dinfo["deviceName"],
+        // "dvsn": dinfo["deviceVersion"],
+      };
+      if (UserRepoLocal.to.lastLoginAccount != account) {
+        // 二次登录的时候不需要这2个参数
+        postData["dname"] = dinfo["deviceName"];
+        postData["dvsn"] = dinfo["deviceVersion"];
+      }
+      debugPrint(">>> on doLogin postData: ${postData.toString()}");
       HttpResponse resp2 = await HttpClient.client.post(
         API.login,
-        data: {
-          "account": account,
-          "pwd": data['password'],
-          "rsa_encrypt": data['rsa_encrypt'],
-        },
+        data: postData,
         options: Options(
           contentType: "application/x-www-form-urlencoded",
         ),
@@ -210,15 +226,17 @@ class PassportLogic extends GetxController {
         _error = result['error'];
         return result['error'];
       }
+
+      Map<String, dynamic> postData = {
+        "type": "email",
+        "account": data.name,
+        "code": code,
+        "pwd": result['password'],
+        "rsa_encrypt": result['rsa_encrypt'],
+      };
       HttpResponse resp2 = await HttpClient.client.post(
         API.findpassword,
-        data: {
-          "type": "email",
-          "account": data.name,
-          "code": code,
-          "pwd": result['password'],
-          "rsa_encrypt": result['rsa_encrypt'],
-        },
+        data: postData,
         options: Options(
           contentType: "application/x-www-form-urlencoded",
         ),

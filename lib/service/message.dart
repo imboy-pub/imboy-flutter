@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/passport/passport_view.dart';
@@ -132,15 +133,19 @@ class MessageService extends GetxService {
 
     eventBus.fire(msg.toTypeMessage());
     // 确实消息
-    WSService.to.sendMessage(json.encode({
-      'id': data['id'],
-      'type': 'C2C_CLIENT_ACK',
-      'remark': 'recived',
-    }));
+    String did = await DeviceExt.did;
+    debugPrint(">>> on C_ACK${data['id']},DID${did}");
+    WSService.to.sendMessage("C_ACK${data['id']},DID${did}");
+    // WSService.to.sendMessage(json.encode({
+    //   'id': data['id'],
+    //   'type': 'C2C_CLIENT_ACK',
+    //   'remark': 'recived',
+    // }));
   }
 
   /// 收到C2C服务端确认消息
   Future<void> reciveC2CServerAckMessage(data) async {
+    debugPrint(">>> on MessageService S_RECEIVED: msg:" + data.toString());
     MessageRepo repo = MessageRepo();
     String id = data['id'];
     int res = await repo.update({
@@ -148,8 +153,7 @@ class MessageService extends GetxService {
       'status': MessageStatus.send,
     });
     MessageModel? msg = await repo.find(id);
-    debugPrint(">>> on MessageService S_RECEIVED:$res; msg:" +
-        msg!.toJson().toString());
+    debugPrint(">>> on MessageService S_RECEIVED:$res");
     // 更新会话状态
     List<ConversationModel> items =
         await ConversationLogic().updateLastMsgStatus(
@@ -229,8 +233,7 @@ class MessageService extends GetxService {
   /// 收到C2C撤回ACK消息
   Future<void> reciveC2CRevokeAckMessage(dtype, data) async {
     MessageRepo repo = MessageRepo();
-    String id = data['id'];
-    MessageModel? msg = await repo.find(id);
+    MessageModel? msg = await repo.find(data['id']);
 
     debugPrint(
         ">>> on MessageService REVOKE_C2C  msg:" + msg!.toJson().toString());
@@ -241,7 +244,7 @@ class MessageService extends GetxService {
         'text': msg.payload!['text'],
       };
       await repo.update({
-        'id': id,
+        'id': data['id'],
         'type': dtype,
         'status': MessageStatus.send,
         'payload': json.encode(msg.payload),
@@ -249,12 +252,14 @@ class MessageService extends GetxService {
       eventBus.fire([msg.toTypeMessage()]);
     }
     // 确认消息
-    WSService.to.sendMessage(json.encode({
-      'id': id,
-      'type': 'C2C_CLIENT_ACK',
-      'remark': 'revoked',
-    }));
-    ;
-    changeConversation(id, data['from'], true);
+    String did = await DeviceExt.did;
+    WSService.to.sendMessage("C_ACK${data['id']},DID${did}");
+    // WSService.to.sendMessage(json.encode({
+    //   'id': id,
+    //   'type': 'C2C_CLIENT_ACK',
+    //   'remark': 'revoked',
+    // }));
+
+    changeConversation(data['id'], data['from'], true);
   }
 }

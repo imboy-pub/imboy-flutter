@@ -5,6 +5,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -110,6 +111,7 @@ class WSService extends GetxService {
       token = UserRepoLocal.to.accessToken;
     }
     Map<String, dynamic> headers = defaultHeaders();
+    headers["did"] = await DeviceExt.did;
     headers[Keys.tokenKey] = token;
     if (subprotocol.isEmpty) {
       _webSocketChannel = IOWebSocketChannel.connect(

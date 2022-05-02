@@ -78,6 +78,11 @@ cp -f assets/example.env assets/.env
 
 ```
 
+## flutter_native_splash
+```
+flutter pub run flutter_native_splash:create
+```
+
 ## 多语言
 https://github.com/jonataslaw/get_cli/tree/master/translations
 ```
@@ -148,6 +153,10 @@ Lib
 cd plugin/
 
 git submodule add https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git flutter_chat_ui
+
+cd flutter_chat_ui/
+
+git fetch origin leeyi && git checkout -f leeyi
 
 git submodule add https://gitee.com/imboy-tripartite-deps/popup_menu.git popup_menu
 

@@ -46,7 +46,10 @@ class ChatLogic extends GetxController {
     );
 
     List<types.Message> messages = [];
+    // 重发在发送中状态的消息
     items.forEach((obj) async {
+      debugPrint(
+          ">>> on msg status ${obj.status}, ${obj.status == MessageStatus.sending}");
       if (obj.status! == MessageStatus.sending) {
         sendWsMsg(obj);
       }

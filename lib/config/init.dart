@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart' as Getx;
+import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_config.dart';
 import 'package:imboy/component/http/http_interceptor.dart';
@@ -52,7 +53,10 @@ Future<void> init() async {
   // 初始化 WebSocket 链接
   // Getx.Get.put(WebSocket());
   Getx.Get.put(WSService());
+  // MessageService 不能用 lazyPut
   Getx.Get.put(MessageService());
+  Getx.Get.put(DeviceExt());
+  // Getx.Get.lazyPut(() => DeviceExt());
 
   ntpOffset = await StorageService.to.ntpOffset();
   WidgetsBinding.instance?.addObserver(
