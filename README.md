@@ -11,6 +11,7 @@ imboy 的Flutter项目
 
 ## 功能 (单个功能实现了，)
 * 用户登录（隐藏密码、显示密码，登录密码传输基于RSA算法加密传输） OK
+    * “在其他设备登录了”同类型设备强制下线功能（已知问题：用户不按确定，按物理返回键之后，就不能够退出登录了）
 * 用户Email注册功能（获取Email验证码，密码传输基于RSA算法加密传输）OK
 * 用户通过Email找回密码 OK
 * 用户退出 OK
@@ -172,3 +173,7 @@ git submodule add https://gitee.com/imboy-tripartite-deps/popup_menu.git popup_m
 ```
 
 参考 https://juejin.cn/post/6844903920322478093
+
+## 分析工具
+
+* https://pub.flutter-io.cn/packages/fps_monitor 这是一个能在 profile/debug 模式下，直观帮助我们评估页面流畅度的工具！！

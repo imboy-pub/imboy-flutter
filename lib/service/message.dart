@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/config/init.dart';
@@ -26,7 +27,6 @@ class MessageService extends GetxService {
     super.onInit();
     eventBus.on<Map>().listen((data) async {
       debugPrint(">>> on MessageService onInit: " + data.toString());
-      int code = data['code'] ?? 99999;
       String dtype = data['type'] ?? 'error';
       dtype = dtype.toUpperCase();
       switch (dtype) {
@@ -45,22 +45,41 @@ class MessageService extends GetxService {
         case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
           break;
         case 'S2C':
-          switch (code) {
+          Map payload = data['payload'] ?? 99999;
+          String msgType = payload['msg_type'] ?? '';
+          String did = payload['did'] ?? '';
+          switch (msgType) {
             // case 705: // token无效、刷新token 这里不处理，不发送消息
-            case 706: // 需要重新登录
+            case "706": // 需要重新登录
               {
                 Get.off(() => PassportPage());
               }
               break;
-            case 786: // 在其他地方上线
+            case "786": // 在其他地方上线
               {
-                // TODO
-                WSService.to.closeSocket();
-                UserRepoLocal.to.logout();
-                Get.off(() => PassportPage());
+                String currentdid = await DeviceExt.did;
+                if (did != currentdid) {
+                  Get.defaultDialog(
+                    title: '',
+                    content: Text('info_logged_in_on_another_device'.tr),
+                    barrierDismissible: false,
+                    confirm: TextButton(
+                      onPressed: () {
+                        WSService.to.closeSocket();
+                        UserRepoLocal.to.logout();
+                        Get.off(() => PassportPage());
+                      },
+                      child: Text('button_confirm'.tr),
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.white70),
+                      ),
+                    ),
+                  );
+                }
               }
               break;
-            case 1019: // 好友上线提现
+            case "1019": // 好友上线提现
               // TODO
               break;
           }

@@ -118,6 +118,7 @@
   "example": "Example:",
   "warning": "Warning:",
   "info": {
+    "logged_in_on_another_device":"Logged in on another device",
     "unnecessary_flag": "The %s is not necessary",
     "unnecessary_flag_prural": "The %s are not necessary",
     "package_not_installed": "Package: %s is not installed in this application",

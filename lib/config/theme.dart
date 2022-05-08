@@ -31,7 +31,7 @@ class ImboyChatTheme extends ChatTheme {
     Color errorColor = error,
     Widget? errorIcon,
     Color inputBackgroundColor = AppColors.ChatInputBackgroundColor,
-    EdgeInsetsGeometry inputPadding = EdgeInsets.zero,
+    EdgeInsets inputPadding = EdgeInsets.zero,
     Color inputTextColor = AppColors.MainTextColor,
     Color? inputTextCursorColor,
     InputDecoration inputTextDecoration = const InputDecoration(
@@ -132,16 +132,16 @@ class ImboyChatTheme extends ChatTheme {
       height: 1.333,
     ),
     //
-    EdgeInsetsGeometry dateDividerMargin = const EdgeInsets.only(
+    EdgeInsets dateDividerMargin = const EdgeInsets.only(
       bottom: 8,
       top: 12,
     ),
     TextStyle receivedEmojiMessageTextStyle = const TextStyle(fontSize: 20),
     TextStyle sentEmojiMessageTextStyle = const TextStyle(fontSize: 20),
-    EdgeInsetsGeometry statusIconPadding =
-        const EdgeInsets.symmetric(horizontal: 4),
+    EdgeInsets statusIconPadding = const EdgeInsets.symmetric(horizontal: 4),
   }) : super(
           attachmentButtonIcon: attachmentButtonIcon,
+          attachmentButtonMargin: null,
           backgroundColor: backgroundColor,
           dateDividerMargin: dateDividerMargin,
           dateDividerTextStyle: dateDividerTextStyle,

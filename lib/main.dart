@@ -60,7 +60,9 @@ class IMBoyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       designSize: Size(375, 812),
-      builder: () => RefreshConfiguration(
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (_) => RefreshConfiguration(
         headerBuilder: () => ClassicHeader(),
         footerBuilder: () => ClassicFooter(),
         hideFooterWhenNotFull: true,

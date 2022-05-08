@@ -118,6 +118,7 @@
   "example": "例:",
   "warning": "警告:",
   "info": {
+    "logged_in_on_another_device":"在其他设备登录了",
     "unnecessary_flag": "%s 是多余的",
     "unnecessary_flag_prural": "%s 是多余的",
     "package_not_installed": "Package: %s 在本应用中未安装",
