@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:jiffy/jiffy.dart';
 
 import 'passport_logic.dart';
 
@@ -19,7 +21,39 @@ class PassportPage extends StatelessWidget {
     } else if (userType == LoginUserType.name) {
       userHint = 'hint_login_account'.tr;
     }
-
+    var args = Get.arguments;
+    String msgtype = "";
+    debugPrint(">>> on args ${args} ${args is Map<String, dynamic>}");
+    if (args is Map<String, dynamic>) {
+      msgtype = args["msgtype"] ?? "";
+    }
+    if (msgtype == "786" && args is Map<String, dynamic>) {
+      String dname = args['dname'] ?? '';
+      if (dname == "") {
+        dname = "其他";
+      } else {
+        dname = "[${dname}]";
+      }
+      int mts = args['server_ts'] ?? DateTimeHelper.currentTimeMillis;
+      String hm = Jiffy.unixFromMillisecondsSinceEpoch(mts).format("H:m");
+      // "logged_in_on_another_device":"你的账号于%s在%s设备上登录了",
+      Future.delayed(Duration(milliseconds: 500), () {
+        Get.defaultDialog(
+          title: '',
+          content: Text('info_logged_in_on_another_device'.trArgs([hm, dname])),
+          barrierDismissible: false,
+          confirm: TextButton(
+            onPressed: () {
+              Get.back();
+            },
+            child: Text('button_confirm'.tr),
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(Colors.white70),
+            ),
+          ),
+        );
+      });
+    }
     return Container(
       decoration: BoxDecoration(
         //背景Colors.transparent 透明

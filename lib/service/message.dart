@@ -45,10 +45,9 @@ class MessageService extends GetxService {
         case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
           break;
         case 'S2C':
-          Map payload = data['payload'] ?? 99999;
-          String msgType = payload['msg_type'] ?? '';
-          String did = payload['did'] ?? '';
-          switch (msgType) {
+          Map<String, dynamic> payload = data['payload'] ?? 99999;
+          var msgType = payload['msg_type'] ?? '';
+          switch (msgType.toString()) {
             // case 705: // token无效、刷新token 这里不处理，不发送消息
             case "706": // 需要重新登录
               {
@@ -58,24 +57,17 @@ class MessageService extends GetxService {
             case "786": // 在其他地方上线
               {
                 String currentdid = await DeviceExt.did;
+                String did = payload['did'] ?? '';
                 if (did != currentdid) {
-                  Get.defaultDialog(
-                    title: '',
-                    content: Text('info_logged_in_on_another_device'.tr),
-                    barrierDismissible: false,
-                    confirm: TextButton(
-                      onPressed: () {
-                        WSService.to.closeSocket();
-                        UserRepoLocal.to.logout();
-                        Get.off(() => PassportPage());
-                      },
-                      child: Text('button_confirm'.tr),
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.white70),
-                      ),
-                    ),
-                  );
+                  String dname = payload['dname'] ?? '';
+                  int server_ts = data['server_ts'] ?? 0;
+                  WSService.to.closeSocket();
+                  UserRepoLocal.to.logout();
+                  Get.off(() => PassportPage(), arguments: {
+                    "msgtype": "786",
+                    "server_ts": server_ts,
+                    "dname": dname,
+                  });
                 }
               }
               break;

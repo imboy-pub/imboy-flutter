@@ -118,7 +118,7 @@
   "example": "Example:",
   "warning": "Warning:",
   "info": {
-    "logged_in_on_another_device":"Logged in on another device",
+    "logged_in_on_another_device":"Your account was logged in on the %s device at %s",
     "unnecessary_flag": "The %s is not necessary",
     "unnecessary_flag_prural": "The %s are not necessary",
     "package_not_installed": "Package: %s is not installed in this application",

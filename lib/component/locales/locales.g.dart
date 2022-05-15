@@ -242,7 +242,7 @@ class Locales {
     'error_no_package_to_remove': '请输入你想移除的 package 名称',
     'example': '例:',
     'warning': '警告:',
-    'info_logged_in_on_another_device': '在其他设备登录了',
+    'info_logged_in_on_another_device': '你的账号于%s在%s设备上登录了',
     'info_unnecessary_flag': '%s 是多余的',
     'info_unnecessary_flag_prural': '%s 是多余的',
     'info_package_not_installed': 'Package: %s 在本应用中未安装',
@@ -377,7 +377,8 @@ class Locales {
         'Enter the name of the package you wanna remove',
     'example': 'Example:',
     'warning': 'Warning:',
-    'info_logged_in_on_another_device': 'Logged in on another device',
+    'info_logged_in_on_another_device':
+        'Your account was logged in on the %s device at %s',
     'info_unnecessary_flag': 'The %s is not necessary',
     'info_unnecessary_flag_prural': 'The %s are not necessary',
     'info_package_not_installed':
