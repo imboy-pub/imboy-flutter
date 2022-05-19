@@ -345,11 +345,6 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       textInputAction: TextInputAction.newline,
       onChanged: widget.onTextChanged,
       onTap: () {
-        if (inputType != InputType.text) {
-          hideSoftKey();
-        } else {
-          showSoftKey();
-        }
         updateState(inputType);
         widget.onTextFieldTap;
       },

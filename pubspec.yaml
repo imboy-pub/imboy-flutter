@@ -109,11 +109,10 @@ dependencies:
   # 进度条
   percent_indicator: ^4.0.0
   json_serializable: ^6.2.0
-  # flutter_plugin_record: ^1.0.1
   # 录音
-  flutter_sound: ^9.2.10
+  flutter_sound: ^9.2.12
+  flutter_sound_platform_interface: ^9.2.12
   audio_session: ^0.1.6+1
-  flutter_sound_platform_interface: ^9.1.7
   # 上传下载进度条显示
   flutter_easyloading: ^3.0.3
   # 生成闪屏页

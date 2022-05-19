@@ -635,21 +635,21 @@ packages:
       name: flutter_sound
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.2.10"
+    version: "9.2.12"
   flutter_sound_platform_interface:
     dependency: "direct main"
     description:
       name: flutter_sound_platform_interface
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.2.10"
+    version: "9.2.12"
   flutter_sound_web:
     dependency: transitive
     description:
       name: flutter_sound_web
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.2.10"
+    version: "9.2.12"
   flutter_spinkit:
     dependency: transitive
     description:
