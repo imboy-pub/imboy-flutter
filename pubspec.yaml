@@ -106,6 +106,8 @@ dependencies:
   photo_manager: ^2.0.8
   video_compress: ^3.1.0
   path_provider: ^2.0.9
+  flutter_login: ^3.2.0
+  image_crop: ^0.4.0
   # 进度条
   percent_indicator: ^4.0.0
   json_serializable: ^6.2.0
@@ -126,7 +128,6 @@ dependencies:
     git:
       url: https://gitee.com/imboy-tripartite-deps/popup_menu.git
       ref: master
-  flutter_login: ^3.2.0
 #  flutter_login:
 #    path: plugin/flutter_login
 

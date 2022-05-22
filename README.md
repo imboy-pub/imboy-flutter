@@ -34,8 +34,20 @@ imboy 的Flutter项目
     * 文本聊天 右键菜单之多选消息功能 TODO
 * 未读消息提醒 OK
 * 我的
-    * 个人主页
-* APP启动引导动画 TODO  https://github.com/jonbhanson/flutter_native_splash#readme
+  * 单击头像，预览图像功能 OK
+  * 个人主页
+    * 更换用户头像功能 OK 
+    * 更换昵称 TODO
+    * 更换账号 TODO
+    * 设置性别 TODO
+    * 设置地区 TODO
+    * 修改密码功能 TODO
+    * 我的地址管理 TODO
+    * 登录设备列表 TODO
+    * 修改登录设备备注名称  TODO
+    * 我的二维码功能 TODO
+    * 扫描二维码添加好友功能 TODO
+* APP启动引导动画 OK (启动时间大概需要6秒，待优化之)
 * 删除会话 OK
 * 搜索联系人 TODO
 * 添加分组、编辑分组、删除分组 TODO

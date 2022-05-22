@@ -32,8 +32,13 @@ class UserRepoLocal extends GetxController {
     update();
   }
 
+  Future<bool> changeInfo(Map<String, dynamic> payload) async {
+    await StorageService.to.setMap(Keys.currentUser, payload);
+    update();
+    return true;
+  }
+
   Future<bool> loginAfter(Map<String, dynamic> payload) async {
-    debugPrint(">>> on user loginAfter");
     await StorageService.to.setString(Keys.tokenKey, payload['token']);
     await StorageService.to.setString(Keys.currentUid, payload['uid']);
     await StorageService.to.setMap(Keys.currentUser, payload);

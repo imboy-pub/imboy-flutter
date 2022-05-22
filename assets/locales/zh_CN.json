@@ -1,5 +1,9 @@
 {
   "button": {
+    "cancel": "取消",
+    "accomplish": "完成",
+    "taking_pictures": "拍照",
+    "select_from_album": "从相册选择",
     "send": "发送",
     "login": "登录",
     "signup": "注册",

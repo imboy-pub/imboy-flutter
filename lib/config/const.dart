@@ -10,7 +10,7 @@ const String defGroupAvatar =
 
 const contactAssets = 'assets/images/contact/';
 
-const defAvatar = 'http://flutterj.com/f.jpeg';
+const defAvatar = 'assets/images/def_avatar.png';
 
 const myCode = 'http://flutterj.com/c.jpg';
 
@@ -172,7 +172,8 @@ class API {
   static const friendList = '/friend/list';
   static const conversationList = '/conversation/mine';
 
-  static const userOpenInfo = '/user/open_info';
+  static const userShow = '/user/show';
+  static const userUpdate = '/user/update';
 
   static const avatarUrl = 'http://www.lorempixel.com/200/200/';
   static const cat = 'https://api.thecatapi.com/v1/images/search';

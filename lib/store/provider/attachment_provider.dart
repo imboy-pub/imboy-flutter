@@ -30,6 +30,9 @@ class AttachmentProvider {
     int ts = DateTimeHelper.currentTimeMillis();
     DateTime dt = DateTime.fromMillisecondsSinceEpoch(ts);
     String savePath = "/${prefix}/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";
+    if (prefix == "avatar") {
+      savePath = "/${prefix}/";
+    }
     String v = (Random()).nextInt(999999).toString();
     String authToken = generateMD5(UP_AUTH_KEY + v).substring(8, 24);
 
@@ -276,11 +279,8 @@ class AttachmentProvider {
   }
 
   static Future<void> uploadFile(
-    String prefix,
-    var file,
-    Function callback,
-    Function errorCallback,
-  ) async {
+      String prefix, var file, Function callback, Function errorCallback,
+      {String name = ""}) async {
     String path = "";
     if (file is PlatformFile) {
       path = file.path!;
@@ -290,7 +290,11 @@ class AttachmentProvider {
       throw new Exception("不支持的文件文件类型");
     }
     String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
-    String name = "${Xid().toString()}.${ext}";
+    if (name == "") {
+      name = "${Xid().toString()}.${ext}";
+    } else {
+      name = "${name}.${ext}";
+    }
 
     Map<String, dynamic> data = {
       'file': await MultipartFile.fromFile(path, filename: name),

@@ -11,6 +11,10 @@ class AppTranslation {
 
 class LocaleKeys {
   LocaleKeys._();
+  static const button_cancel = 'button_cancel';
+  static const button_accomplish = 'button_accomplish';
+  static const button_taking_pictures = 'button_taking_pictures';
+  static const button_select_from_album = 'button_select_from_album';
   static const button_send = 'button_send';
   static const button_login = 'button_login';
   static const button_signup = 'button_signup';
@@ -144,6 +148,10 @@ class LocaleKeys {
 
 class Locales {
   static const zh_CN = {
+    'button_cancel': '取消',
+    'button_accomplish': '完成',
+    'button_taking_pictures': '拍照',
+    'button_select_from_album': '从相册选择',
     'button_send': '发送',
     'button_login': '登录',
     'button_signup': '注册',
@@ -268,6 +276,10 @@ class Locales {
     'sucess_route_created': '%s route 创建成功.',
   };
   static const en_US = {
+    'button_cancel': 'Cancel',
+    'button_accomplish': 'Accomplish',
+    'button_taking_pictures': 'Taking pictures',
+    'button_select_from_album': 'Select from album',
     'button_send': 'Send',
     'button_login': 'Login',
     'button_signup': 'Sign-in',

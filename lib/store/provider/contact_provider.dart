@@ -37,7 +37,7 @@ class ContactProvider extends HttpClient {
 
   Future<ContactModel> syncByUid(String uid) async {
     HttpResponse resp = await get(
-      API.userOpenInfo,
+      API.userShow,
       queryParameters: {"id": uid},
       options: Options(
         contentType: "application/x-www-form-urlencoded",

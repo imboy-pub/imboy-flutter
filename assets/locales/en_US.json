@@ -1,5 +1,9 @@
 {
   "button": {
+    "cancel": "Cancel",
+    "accomplish": "Accomplish",
+    "taking_pictures": "Taking pictures",
+    "select_from_album": "Select from album",
     "send": "Send",
     "login": "Login",
     "signup": "Sign-in",
