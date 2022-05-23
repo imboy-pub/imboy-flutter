@@ -11,8 +11,6 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/page/qr_code/qr_code_view.dart';
-import 'package:imboy/page/user/change_name/change_name_view.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -28,14 +26,6 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   final logic = Get.put(PersonalInfoLogic());
   final PersonalInfoState state = Get.find<PersonalInfoLogic>().state;
   String currentUserAvatar = UserRepoLocal.to.currentUser.avatar!;
-
-  action(v) {
-    if (v == '二维码名片') {
-      Get.to(() => QrCodePage());
-    } else {
-      print(v);
-    }
-  }
 
   ///拍摄照片
   Future fromCamera() async {
@@ -82,12 +72,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             builder: (context) => CropImageRoute(
                   originalImage,
                   "avatar",
-                  preferredSize: 600,
                   filename: UserRepoLocal.to.currentUser.uid!,
                 )));
-    if (url.isEmpty) {
-      print('上传失败');
-    } else {
+    if (url.isNotEmpty) {
       bool ok = await logic.changeInfo({"field": "avatar", "value": url});
       if (ok) {
         //url是图片上传后拿到的url
@@ -104,7 +91,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   Widget dynamicAvatar(avatar, {size}) {
     if (isNetWorkImg(avatar)) {
       return CachedNetworkImage(
-          imageUrl: avatar,
+          imageUrl: avatar + "&width=200",
           cacheManager: cacheManager,
           width: size ?? null,
           height: size ?? null,
@@ -205,7 +192,11 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
         isLine: true,
         isRight: true,
         rValue: UserRepoLocal.to.currentUser.nickname!,
-        onPressed: () => Get.to(() => ChangeNamePage()),
+        // onPressed: () => Get.to(() => UpdatePage(
+        //       "nickname",
+        //       UserRepoLocal.to.currentUser.nickname!,
+        //       "设置昵称",
+        //     )),
       ),
       Column(
         children: data

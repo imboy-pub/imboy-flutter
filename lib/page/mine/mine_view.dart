@@ -82,7 +82,7 @@ class MinePage extends StatelessWidget {
     return DecorationImage(
       image: strEmpty(avatar) || avatar == defAvatar
           ? AssetImage(defAvatar) as ImageProvider
-          : CachedNetworkImageProvider(avatar),
+          : CachedNetworkImageProvider(avatar + "&width=400"),
       fit: BoxFit.cover,
     );
   }

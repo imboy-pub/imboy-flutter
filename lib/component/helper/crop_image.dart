@@ -10,25 +10,21 @@ class CropImageRoute extends StatefulWidget {
   CropImageRoute(
     this.image,
     this.prefix, {
-    this.preferredSize = 400,
+    this.imageScale = 1.0,
     this.filename = "",
   });
   String prefix;
   String filename;
   File image; //原始图片路径
-  int preferredSize = 400;
+
+  //图片缩放比例
+  double imageScale = 1.0;
 
   @override
   _CropImageRouteState createState() => new _CropImageRouteState();
 }
 
 class _CropImageRouteState extends State<CropImageRoute> {
-  late double baseLeft; //图片左上角的x坐标
-  late double baseTop; //图片左上角的y坐标
-  late double imageWidth; //图片宽度，缩放后会变化
-  late double imageScale = 1; //图片缩放比例
-  late Image imageView;
-
   final cropKey = GlobalKey<CropState>();
 
   @override
@@ -103,18 +99,23 @@ class _CropImageRouteState extends State<CropImageRoute> {
       //裁剪结果为空
       print('裁剪不成功');
     }
+    final scale = cropKey.currentState?.scale;
 
     await ImageCrop.requestPermissions().then((value) async {
       if (value) {
-        final sample = await ImageCrop.sampleImage(
+        File sample = await ImageCrop.sampleImage(
           file: originalFile,
-          preferredSize: widget.preferredSize,
+          preferredSize: (880 / scale!).round(),
         );
-        final croppedFile = await ImageCrop.cropImage(
+        File croppedFile = await ImageCrop.cropImage(
           file: sample,
           area: crop.area!,
+          scale: widget.imageScale,
         );
-
+        // var opt1 = await ImageCrop.getImageOptions(file: sample);
+        // debugPrint(">>> on _crop opt1 ${opt1}");
+        // var opt2 = await ImageCrop.getImageOptions(file: croppedFile);
+        // debugPrint(">>> on _crop opt2 ${opt2}");
         upload(croppedFile);
         Future.delayed(Duration(milliseconds: 200)).then((value) {
           sample.delete();
