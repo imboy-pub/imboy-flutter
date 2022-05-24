@@ -8,6 +8,13 @@ imboy 的Flutter项目
 
 所有依赖的flutter包大部分是“MIT License” 和 “Apache-2.0 License”（以后陆续补充一个）
 
+## APP截图
+更多截图[来这里](https://gitee.com/imboy-pub/imboy-images)
+
+<img src="https://gitee.com/imboy-pub/imboy-images/raw/main/assets/login.page.png" width="32%"/>
+<img src="https://gitee.com/imboy-pub/imboy-images/raw/main/assets/conversation.page.2.png" width="32%"/>
+<img src="https://gitee.com/imboy-pub/imboy-images/raw/main/assets/chat.page.4.png" width="32%"/>
+
 
 ## 功能 (单个功能实现了，)
 * 用户登录（隐藏密码、显示密码，登录密码传输基于RSA算法加密传输） OK
