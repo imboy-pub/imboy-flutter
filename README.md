@@ -9,11 +9,11 @@ imboy 的Flutter项目
 所有依赖的flutter包大部分是“MIT License” 和 “Apache-2.0 License”（以后陆续补充一个）
 
 ## APP截图
-更多截图[来这里](https://gitee.com/imboy-pub/imboy-images)
+更多截图[来这里](./doc/appui.md)
 
-<img src="https://gitee.com/imboy-pub/imboy-images/raw/main/assets/login.page.png" width="32%"/>
-<img src="https://gitee.com/imboy-pub/imboy-images/raw/main/assets/conversation.page.2.png" width="32%"/>
-<img src="https://gitee.com/imboy-pub/imboy-images/raw/main/assets/chat.page.4.png" width="32%"/>
+<img src="https://a.imboy.pub/img/20225/25_21/ca73910gph0gio9q2pg0.png?s=dev&a=0b86216ad0e9bafa&v=672233&width=600" width="32%"/>
+<img src="https://a.imboy.pub/img/20225/25_21/ca73cl0gph0gio9q2pp0.png?s=dev&a=14d6648edb2dbc7c&v=962076&width=600" width="32%"/>
+<img src="https://a.imboy.pub/img/20225/25_22/ca73d6ogph0gio9q2psg.png?s=dev&a=bc7527a333d6e5b0&v=378962&width=600" width="32%"/>
 
 
 ## 功能 (单个功能实现了，)
