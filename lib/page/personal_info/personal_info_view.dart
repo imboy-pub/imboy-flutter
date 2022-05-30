@@ -9,6 +9,7 @@ import 'package:imboy/component/helper/crop_image.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
+import 'package:imboy/component/ui/sample_form.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/user_model.dart';
@@ -188,10 +189,34 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
         ),
       ),
       LabelRow(
-        label: '昵称',
+        label: '昵称'.tr,
         isLine: true,
         isRight: true,
         rValue: UserRepoLocal.to.currentUser.nickname!,
+
+        onPressed: () => Get.bottomSheet(
+          SampleForm(
+              title: '设置昵称'.tr,
+              value: UserRepoLocal.to.currentUser.nickname!,
+              callback: (nickname) async {
+                bool ok = await logic
+                    .changeInfo({"field": "nickname", "value": nickname});
+                if (ok) {
+                  //url是图片上传后拿到的url
+                  setState(() {
+                    Map<String, dynamic> payload =
+                        UserRepoLocal.to.currentUser.toJson();
+                    payload["nickname"] = nickname;
+                    UserRepoLocal.to.changeInfo(payload);
+                  });
+                }
+                return ok;
+              }),
+          backgroundColor: Colors.white,
+          // 是否支持全屏弹出，默认false
+          isScrollControlled: true,
+          enableDrag: false,
+        ),
         // onPressed: () => Get.to(() => UpdatePage(
         //       "nickname",
         //       UserRepoLocal.to.currentUser.nickname!,

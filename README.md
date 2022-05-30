@@ -44,7 +44,7 @@ imboy 的Flutter项目
   * 单击头像，预览图像功能 OK
   * 个人主页
     * 更换用户头像功能 OK 
-    * 更换昵称 TODO
+    * 更换昵称 OK
     * 更换账号 TODO
     * 设置性别 TODO
     * 设置地区 TODO
@@ -54,6 +54,7 @@ imboy 的Flutter项目
     * 修改登录设备备注名称  TODO
     * 我的二维码功能 TODO
     * 扫描二维码添加好友功能 TODO
+    * 用户基本信息变更后通知好友 TODO
 * APP启动引导动画 OK (启动时间大概需要6秒，待优化之)
 * 删除会话 OK
 * 搜索联系人 TODO
