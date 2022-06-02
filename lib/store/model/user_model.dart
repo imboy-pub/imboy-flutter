@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 ///
 class UserModel {
   String? uid;
@@ -9,6 +11,7 @@ class UserModel {
   int? role;
   String? token;
   String? refreshtoken;
+  String? sign;
 
   UserModel({
     this.uid,
@@ -20,7 +23,19 @@ class UserModel {
     this.role,
     this.token,
     this.refreshtoken,
+    this.sign,
   });
+
+  String get genderTitle {
+    if (this.gender == "1") {
+      return "男".tr;
+    } else if (this.gender == "2") {
+      return "女".tr;
+    } else if (this.gender == "3") {
+      return "保密".tr;
+    }
+    return "未知";
+  }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return new UserModel(
@@ -33,6 +48,7 @@ class UserModel {
       area: json["area"]?.toString(),
       token: json["token"],
       refreshtoken: json["refreshtoken"],
+      sign: json["sign"],
     );
   }
   Map<String, dynamic> toJson() {
@@ -46,6 +62,7 @@ class UserModel {
     data["area"] = area;
     data["token"] = token;
     data["refreshtoken"] = refreshtoken;
+    data["sign"] = sign;
     return data;
   }
 }

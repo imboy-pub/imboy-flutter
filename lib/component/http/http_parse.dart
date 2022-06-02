@@ -86,7 +86,7 @@ HttpException _parseException(Exception error) {
                   message: "不支持HTTP协议请求", code: errCode);
             case 706: // token无效
               return BadServiceException(message: "token无效", code: errCode);
-            // Get.to(() => LoginPage());
+            // Get.off(LoginPage());
             default:
               return UnknownException(error.message);
           }

@@ -33,15 +33,15 @@ class LabelRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
-      child: new TextButton(
+    return Container(
+      child: TextButton(
         style: TextButton.styleFrom(
           minimumSize: Size.zero,
           padding: EdgeInsets.zero,
           backgroundColor: Colors.white,
         ),
         onPressed: onPressed ?? () {},
-        child: new Container(
+        child: Container(
           padding: padding,
           margin: EdgeInsets.only(left: 20.0),
           decoration: BoxDecoration(
@@ -51,34 +51,34 @@ class LabelRow extends StatelessWidget {
                         color: AppColors.LineColor, width: lineWidth!))
                 : null,
           ),
-          child: new Row(
+          child: Row(
             children: <Widget>[
               if (headW != null) headW!,
-              new SizedBox(
+              SizedBox(
                 width: labelWidth,
-                child: new Text(
+                child: Text(
                   label ?? '',
                   style: TextStyle(fontSize: 17.0),
                 ),
               ),
               value != null
-                  ? new Text(value!,
+                  ? Text(value!,
                       style: TextStyle(
                         color: AppColors.MainTextColor.withOpacity(0.7),
                       ))
-                  : new Container(),
-              new Spacer(),
+                  : Container(),
+              Spacer(),
               rValue != null
-                  ? new Text(rValue!,
+                  ? Text(rValue!,
                       style: TextStyle(
                           color: AppColors.MainTextColor.withOpacity(0.7),
                           fontWeight: FontWeight.w400))
-                  : new Container(),
-              rightW != null ? rightW! : new Container(),
+                  : SizedBox.shrink(),
+              rightW != null ? rightW! : Container(),
               isRight!
-                  ? new Icon(CupertinoIcons.right_chevron,
+                  ? Icon(CupertinoIcons.right_chevron,
                       color: AppColors.MainTextColor.withOpacity(0.5))
-                  : new Container(width: 10.0)
+                  : Container(width: 10.0)
             ],
           ),
         ),

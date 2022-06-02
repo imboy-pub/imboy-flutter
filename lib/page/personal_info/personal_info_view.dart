@@ -103,157 +103,152 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     }
   }
 
-  Widget body(UserModel global) {
-    List data = [
-      {'label': '账号', 'value': global.account},
-      {'label': '二维码名片', 'value': ''},
-      {'label': '更多', 'value': ''},
-      {'label': '我的地址', 'value': ''},
-    ];
-
-    var content = [
-      LabelRow(
-        label: '头像',
-        isLine: true,
-        isRight: true,
-        rightW: SizedBox(
-          width: 55.0,
-          height: 55.0,
-          child: ClipRRect(
-            borderRadius: BorderRadius.all(Radius.circular(5.0)),
-            child: strNoEmpty(currentUserAvatar)
-                ? dynamicAvatar(currentUserAvatar)
-                : Image.asset(defIcon, fit: BoxFit.cover),
-          ),
-        ),
-        onPressed: () => Get.bottomSheet(
-          Container(
-            width: Get.width,
-            height: Get.height * 0.25,
-            child: Wrap(
-              children: <Widget>[
-                Center(
-                  child: TextButton(
-                    onPressed: () => fromCamera(),
-                    child: Text(
-                      'button_taking_pictures'.tr,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        // color: Colors.white,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                ),
-                Center(
-                  child: TextButton(
-                    onPressed: () => fromGallery(),
-                    child: Text(
-                      '从相册选择'.tr,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        // color: Colors.white,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                ),
-                Divider(),
-                Center(
-                  child: TextButton(
-                    onPressed: () => Get.back(),
-                    child: Text(
-                      'button_cancel'.tr,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        // color: Colors.white,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-          backgroundColor: Colors.white,
-          //改变shape这里即可
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20.0),
-              topRight: Radius.circular(20.0),
-            ),
-          ),
-        ),
-      ),
-      LabelRow(
-        label: '昵称'.tr,
-        isLine: true,
-        isRight: true,
-        rValue: UserRepoLocal.to.currentUser.nickname!,
-
-        onPressed: () => Get.bottomSheet(
-          SampleForm(
-              title: '设置昵称'.tr,
-              value: UserRepoLocal.to.currentUser.nickname!,
-              callback: (nickname) async {
-                bool ok = await logic
-                    .changeInfo({"field": "nickname", "value": nickname});
-                if (ok) {
-                  //url是图片上传后拿到的url
-                  setState(() {
-                    Map<String, dynamic> payload =
-                        UserRepoLocal.to.currentUser.toJson();
-                    payload["nickname"] = nickname;
-                    UserRepoLocal.to.changeInfo(payload);
-                  });
-                }
-                return ok;
-              }),
-          backgroundColor: Colors.white,
-          // 是否支持全屏弹出，默认false
-          isScrollControlled: true,
-          enableDrag: false,
-        ),
-        // onPressed: () => Get.to(() => UpdatePage(
-        //       "nickname",
-        //       UserRepoLocal.to.currentUser.nickname!,
-        //       "设置昵称",
-        //     )),
-      ),
-      Column(
-        children: data
-            .map((item) => buildContent(item, UserRepoLocal.to.currentUser))
-            .toList(),
-      ),
-    ];
-
-    return Column(children: content);
-  }
-
   Widget buildContent(item, UserModel user) {
     return LabelRow(
-      label: item['label'],
+      label: item['title'],
       rValue: item['value'],
-      isLine: item['label'] == '我的地址' || item['label'] == '更多' ? false : true,
-      isRight: item['label'] == '微信号' ? false : true,
-      margin: EdgeInsets.only(bottom: item['label'] == '更多' ? 10.0 : 0.0),
-      rightW: item['label'] == '二维码名片'
+      isLine:
+          item['label'] == 'addree' || item['label'] == 'more' ? false : true,
+      isRight: item['label'] == 'account' ? false : true,
+      margin: EdgeInsets.only(bottom: item['label'] == 'more' ? 10.0 : 0.0),
+      rightW: item['label'] == 'qrcode'
           ? Image.asset('assets/images/mine/ic_small_code.png',
               color: AppColors.MainTextColor.withOpacity(0.7))
           : Container(),
-      // onPressed: () => action(item['label']),
+      onPressed: () => logic.labelOnPressed(item['label']),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    List data = [
+      {
+        'label': 'account',
+        'title': '账号',
+        'value': UserRepoLocal.to.currentUser.account
+      },
+      {'label': 'qrcode', 'title': '二维码名片', 'value': ''},
+      {'label': 'more', 'title': '更多', 'value': ''},
+      {'label': 'address', 'title': '我的地址', 'value': ''},
+    ];
+
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(title: '个人信息'),
-      body: SingleChildScrollView(child: body(UserRepoLocal.to.currentUser)),
+      body: SingleChildScrollView(
+          child: Column(children: [
+        LabelRow(
+          label: '头像',
+          isLine: true,
+          isRight: true,
+          rightW: SizedBox(
+            width: 55.0,
+            height: 55.0,
+            child: ClipRRect(
+              borderRadius: BorderRadius.all(Radius.circular(5.0)),
+              child: strNoEmpty(currentUserAvatar)
+                  ? dynamicAvatar(currentUserAvatar)
+                  : Image.asset(defIcon, fit: BoxFit.cover),
+            ),
+          ),
+          onPressed: () => Get.bottomSheet(
+            Container(
+              width: Get.width,
+              height: Get.height * 0.25,
+              child: Wrap(
+                children: <Widget>[
+                  Center(
+                    child: TextButton(
+                      onPressed: () => fromCamera(),
+                      child: Text(
+                        'button_taking_pictures'.tr,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          // color: Colors.white,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: TextButton(
+                      onPressed: () => fromGallery(),
+                      child: Text(
+                        '从相册选择'.tr,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          // color: Colors.white,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Divider(),
+                  Center(
+                    child: TextButton(
+                      onPressed: () => Get.back(),
+                      child: Text(
+                        'button_cancel'.tr,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          // color: Colors.white,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            backgroundColor: Colors.white,
+            //改变shape这里即可
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20.0),
+                topRight: Radius.circular(20.0),
+              ),
+            ),
+          ),
+        ),
+        LabelRow(
+          label: '昵称'.tr,
+          isLine: true,
+          isRight: true,
+          rValue: UserRepoLocal.to.currentUser.nickname!,
+          onPressed: () => Get.bottomSheet(
+            SampleForm(
+                title: '设置昵称'.tr,
+                value: UserRepoLocal.to.currentUser.nickname!,
+                field: 'input',
+                callback: (nickname) async {
+                  bool ok = await logic
+                      .changeInfo({"field": "nickname", "value": nickname});
+                  if (ok) {
+                    //url是图片上传后拿到的url
+                    setState(() {
+                      Map<String, dynamic> payload =
+                          UserRepoLocal.to.currentUser.toJson();
+                      payload["nickname"] = nickname;
+                      UserRepoLocal.to.changeInfo(payload);
+                    });
+                  }
+                  return ok;
+                }),
+            backgroundColor: Colors.white,
+            // 是否支持全屏弹出，默认false
+            isScrollControlled: true,
+            enableDrag: false,
+          ),
+        ),
+        Column(
+          children: data
+              .map((item) => buildContent(item, UserRepoLocal.to.currentUser))
+              .toList(),
+        ),
+      ])),
     );
   }
 

@@ -15,13 +15,11 @@ class MineLogic extends GetxController {
         break;
       case '表情':
         Get.snackbar('tips', '在开发中...');
-        // Get.to(() => PassportPage());
+        // Get.to(PassportPage());
         break;
       default:
         Get.snackbar('tips', '在开发中...');
-        // Get.to(
-        //   () => LanguagePage(),
-        // );
+        // Get.to(LanguagePage());
         break;
     }
   }

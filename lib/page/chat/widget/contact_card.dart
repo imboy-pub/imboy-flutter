@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/view/image_view.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:photo_view/photo_view.dart';
 
 class ContactCard extends StatelessWidget {
@@ -54,12 +54,12 @@ class ContactCard extends StatelessWidget {
                 img: avatar, width: 55, height: 55, fit: BoxFit.cover),
             onTap: () {
               if (isNetWorkImg(avatar)) {
-                Get.to(() => PhotoView(
-                      imageProvider: NetworkImage(avatar),
-                      onTapUp: (c, f, s) => Navigator.of(context).pop(),
-                      maxScale: 3.0,
-                      minScale: 1.0,
-                    ));
+                Get.to(PhotoView(
+                  imageProvider: NetworkImage(avatar),
+                  onTapUp: (c, f, s) => Navigator.of(context).pop(),
+                  maxScale: 3.0,
+                  minScale: 1.0,
+                ));
               } else {
                 Get.snackbar('', '无头像');
               }

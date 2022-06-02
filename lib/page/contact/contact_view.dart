@@ -87,7 +87,7 @@ class ContactPage extends StatelessWidget {
             child:
                 new Image(image: AssetImage('assets/images/search_black.webp')),
           ),
-          onTap: () => Get.to(() => SearchPage()),
+          onTap: () => Get.to(SearchPage()),
         ),
       ],
     );

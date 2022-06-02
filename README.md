@@ -46,7 +46,8 @@ imboy 的Flutter项目
     * 更换用户头像功能 OK 
     * 更换昵称 OK
     * 更换账号 TODO
-    * 设置性别 TODO
+    * 设置性别 OK
+    * 设置个性签名 OK
     * 设置地区 TODO
     * 修改密码功能 TODO
     * 我的地址管理 TODO
