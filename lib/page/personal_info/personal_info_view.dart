@@ -9,7 +9,6 @@ import 'package:imboy/component/helper/crop_image.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
-import 'package:imboy/component/ui/sample_form.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/user_model.dart';
@@ -17,6 +16,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'personal_info_logic.dart';
 import 'personal_info_state.dart';
+import 'update/update_view.dart';
 
 class PersonalInfoPage extends StatefulWidget {
   @override
@@ -219,7 +219,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           isRight: true,
           rValue: UserRepoLocal.to.currentUser.nickname!,
           onPressed: () => Get.bottomSheet(
-            SampleForm(
+            UpdatePage(
                 title: '设置昵称'.tr,
                 value: UserRepoLocal.to.currentUser.nickname!,
                 field: 'input',

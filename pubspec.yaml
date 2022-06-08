@@ -151,7 +151,7 @@ flutter:
 
   assets:
     - assets/.env
-    - assets/data/messages.json
+    - assets/data/region.json
     - assets/images/def_avatar.png
     - assets/images/splash_bg.png
     - assets/images/logo.png

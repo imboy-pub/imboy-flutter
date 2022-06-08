@@ -162,7 +162,7 @@ class MinePage extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              '账号：' + _c.currentUser.account!,
+                              '账号：' + _c.currentUser.account,
                               style: TextStyle(color: AppColors.MainTextColor),
                             ),
                           ],

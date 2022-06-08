@@ -10,8 +10,10 @@ import 'personal_info_state.dart';
 class PersonalInfoLogic extends GetxController {
   final state = PersonalInfoState();
   final HttpClient httpclient = Get.put(HttpClient.client);
+
   RxString genderTitle = "".obs;
   RxString sign = "".obs;
+  RxString region = "".obs;
 
   @override
   void onReady() {

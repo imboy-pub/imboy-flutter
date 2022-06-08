@@ -51,7 +51,7 @@ class UserRepoLocal extends GetxController {
 
   Future<bool> logout() async {
     WSService.to.sendMessage("logout");
-    sleep(Duration(seconds: 1));
+    sleep(const Duration(seconds: 1));
     await StorageService.to.remove(Keys.tokenKey);
     await StorageService.to.remove(Keys.currentUid);
     await StorageService.to.remove(Keys.currentUser);
@@ -61,9 +61,7 @@ class UserRepoLocal extends GetxController {
     return true;
   }
 
-  /**
-   * 刷新token
-   */
+  /// 刷新token
   Future<void> refreshtoken() async {
     String newToken = await (UserProvider()).refreshtoken(
       UserRepoLocal.to.currentUser.refreshtoken!,
