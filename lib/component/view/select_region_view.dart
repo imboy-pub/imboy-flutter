@@ -47,6 +47,7 @@ class SelectRegionLogic extends GetxController {
   /// parent 地区父节点数据
   /// model 当前地区节点数据，如果是叶子节点，类型为String；如果非叶子节点类型为Map
   /// callback 有里面有业务逻辑处理
+  /// outCallback 递归调用的时候传递最外层的callback
   Widget getListItem(
     BuildContext context,
     String parent,
@@ -159,9 +160,7 @@ class SelectRegionPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(
-          // title: '设置地区',
-          titleWiew: Row(
-        children: [
+        titleWiew: n.Row([
           Expanded(
             child: Text(
               '设置地区'.tr,
@@ -213,52 +212,36 @@ class SelectRegionPage extends StatelessWidget {
                     ),
             ),
           ),
-        ],
-      )),
-      body: Container(
-        height: Get.height,
-        child: Expanded(
-          child: n.Column(
-            [
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.only(left: 15.0),
-                width: Get.width,
-                height: 40.0,
-                child: Text("全部".tr),
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Expanded(
-                    child: Container(
-                      height: Get.height - 115,
-                      child: ListView.builder(
-                        // 去掉Container的高度 + 下面两句，自适应高度
-                        // physics: NeverScrollableScrollPhysics(),
-                        // shrinkWrap: true,
-                        itemBuilder: (BuildContext context, int index) {
-                          return logic.getListItem(
-                            context,
-                            this.parent,
-                            this.children[index],
-                            (a, b) async {
-                              return true;
-                            },
-                            this.outCallback,
-                          );
-                        },
-                        itemCount: this.children.length,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-            mainAxisSize: MainAxisSize.min,
-          )..useParent((v) => v..bg = Colors.white),
-        ),
+        ]),
       ),
+      body: n.Column(
+        [
+          Container(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.only(left: 15.0),
+            width: Get.width,
+            height: 40.0,
+            child: Text("全部".tr),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemBuilder: (BuildContext context, int index) {
+                return logic.getListItem(
+                  context,
+                  this.parent,
+                  this.children[index],
+                  (a, b) async {
+                    return true;
+                  },
+                  this.outCallback,
+                );
+              },
+              itemCount: this.children.length,
+            ),
+          ),
+        ],
+        mainAxisSize: MainAxisSize.min,
+      )..useParent((v) => v..bg = Colors.white),
     );
   }
 }
