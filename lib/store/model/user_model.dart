@@ -1,10 +1,11 @@
 import 'package:get/get.dart';
+import 'package:imboy/config/const.dart';
 
 ///
 class UserModel {
-  String? uid;
-  String? nickname;
-  String? avatar;
+  String uid;
+  String nickname;
+  String avatar;
   String account;
   String gender;
   String region;
@@ -14,9 +15,9 @@ class UserModel {
   String sign;
 
   UserModel({
-    this.uid,
-    this.nickname,
-    this.avatar,
+    required this.uid,
+    this.nickname = "",
+    this.avatar = defAvatar,
     required this.account,
     this.gender = "0",
     this.region = "",
@@ -34,7 +35,7 @@ class UserModel {
     } else if (gender == "3") {
       return "保密".tr;
     }
-    return "未知";
+    return "未知".tr;
   }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {

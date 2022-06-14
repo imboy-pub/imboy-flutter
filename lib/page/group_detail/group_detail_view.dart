@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/confirm_alert.dart';
@@ -12,12 +13,10 @@ import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/group_bill_board/group_bill_board_view.dart';
 import 'package:imboy/page/group_member/group_member_view.dart';
 import 'package:imboy/page/group_member_detail/group_member_detail_view.dart';
 import 'package:imboy/page/group_remark/group_remark_view.dart';
-import 'package:imboy/page/qr_code/qr_code_view.dart';
 import 'package:imboy/page/select_member/select_member_view.dart';
 import 'package:imboy/store/model/group_model.dart';
 
@@ -344,7 +343,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         });
         break;
       case '群二维码':
-        Get.to(new QrCodePage());
+        // Get.to(new QrCodePage());
         break;
       case '群公告':
         Get.to(

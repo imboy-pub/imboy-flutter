@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -75,15 +74,6 @@ class MinePage extends StatelessWidget {
       width: 25.0,
       fit: BoxFit.cover,
       horizontal: 15.0,
-    );
-  }
-
-  DecorationImage dynamicAvatar(avatar) {
-    return DecorationImage(
-      image: strEmpty(avatar) || avatar == defAvatar
-          ? AssetImage(defAvatar) as ImageProvider
-          : CachedNetworkImageProvider(avatar + "&width=400"),
-      fit: BoxFit.cover,
     );
   }
 

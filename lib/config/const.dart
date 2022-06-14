@@ -12,10 +12,6 @@ const contactAssets = 'assets/images/contact/';
 
 const defAvatar = 'assets/images/def_avatar.png';
 
-const myCode = 'http://flutterj.com/c.jpg';
-
-const download = 'http://flutterj.com/download.png';
-
 const CONST_HELP_URL =
     'https://kf.qq.com/touch/product/wechat_app.html?scene_id=kf338';
 

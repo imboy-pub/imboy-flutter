@@ -111,7 +111,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           item['label'] == 'addree' || item['label'] == 'more' ? false : true,
       isRight: item['label'] == 'account' ? false : true,
       margin: EdgeInsets.only(bottom: item['label'] == 'more' ? 10.0 : 0.0),
-      rightW: item['label'] == 'qrcode'
+      rightW: item['label'] == 'uqrcode'
           ? Image.asset('assets/images/mine/ic_small_code.png',
               color: AppColors.MainTextColor.withOpacity(0.7))
           : Container(),
@@ -127,9 +127,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
         'title': '账号',
         'value': UserRepoLocal.to.currentUser.account
       },
-      {'label': 'qrcode', 'title': '二维码名片', 'value': ''},
-      {'label': 'more', 'title': '更多', 'value': ''},
-      {'label': 'address', 'title': '我的地址', 'value': ''},
+      {'label': 'uqrcode', 'title': '二维码名片'.tr, 'value': ''},
+      {'label': 'more', 'title': '更多信息'.tr, 'value': ''},
+      {'label': 'address', 'title': '我的地址'.tr, 'value': ''},
     ];
 
     return Scaffold(

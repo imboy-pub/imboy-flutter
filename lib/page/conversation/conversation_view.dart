@@ -10,7 +10,9 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact_detail/contact_detail_view.dart';
+import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:popup_menu/popup_menu.dart';
 
 import 'conversation_logic.dart';
 import 'widget/conversation_item.dart';
@@ -56,146 +58,238 @@ class ConversationPage extends StatelessWidget {
     await logic.getConversationsList();
   }
 
+  void topRightMenu(MenuItemProvider item) {
+    MenuItem it = item as MenuItem;
+    String action = it.userInfo as String;
+    if (action == "scanqrcode") {
+      Navigator.of(Get.context!).push(
+        MaterialPageRoute(
+          builder: (context) => const BarcodeScannerWithController(),
+        ),
+      );
+    } else if (it.menuTitle == "撤回") {
+      // await logic.revokeMessage(msg);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     initData();
-    Widget body = Obx(() {
-      return logic.conversations.isEmpty
-          ? ConversationNullView()
-          : ListView.builder(
-              itemBuilder: (BuildContext context, int index) {
-                ConversationModel model = logic.conversations[index];
-                int conversationId = model.id;
-                var remindNum =
-                    logic.conversationRemind.containsKey(model.typeId)
-                        ? logic.conversationRemind[model.typeId]!.obs
-                        : 0.obs;
-                return InkWell(
-                  onTap: () {
-                    Get.to(
-                      () => ChatPage(
-                        id: model.id,
-                        toId: model.typeId,
-                        title: model.title,
-                        avatar: model.avatar,
-                        type: strEmpty(model.type) ? 'C2C' : model.type,
-                      ),
-                    );
-                  },
-                  onTapDown: (TapDownDetails details) {},
-                  onLongPress: () {},
-                  child: Slidable(
-                    key: ValueKey(model.id),
-                    groupTag: '0',
-                    closeOnScroll: true,
-                    endActionPane: ActionPane(
-                      extentRatio: 0.75,
-                      motion: StretchMotion(),
-                      children: [
-                        CustomSlidableAction(
-                          onPressed: (_) async {
-                            int num = 1;
-                            remindNum.value = 1;
-                            if (model.unreadNum > 0) {
-                              num = 0;
-                              remindNum.value = 0;
-                            }
-                            logic.markAs(model.id, num);
-                            logic.conversationRemind[model.typeId] = num;
-                            model.unreadNum = num;
-                          },
-                          autoClose: true,
-                          backgroundColor: Colors.blue,
-                          flex: 2,
-                          child: Obx(
-                            () => Text(
-                              remindNum.value > 0 ? "标为已读" : "标为未读",
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                        SlidableAction(
-                          key: ValueKey("hide_${index}"),
-                          flex: 2,
-                          backgroundColor: Colors.amber,
-                          onPressed: (_) async {
-                            await logic.hideConversation(conversationId);
-                            logic.conversations.removeAt(index);
-                            logic.conversationRemind[model.typeId] = 0;
-                            logic.chatMsgRemindCounter;
-                          },
-                          label: "不显示",
-                          spacing: 1,
-                        ),
-                        SlidableAction(
-                          key: ValueKey("delete_${index}"),
-                          flex: 2,
-                          backgroundColor: Colors.red,
-                          // foregroundColor: Colors.white,
-                          onPressed: (_) async {
-                            await logic.removeConversation(conversationId);
-                            logic.conversations.removeAt(index);
-                            logic.conversationRemind[model.typeId] = 0;
-                            logic.chatMsgRemindCounter;
-                          },
-                          label: "删除",
-                          spacing: 1,
-                        ),
-                      ],
-                    ),
-                    child: ConversationItem(
-                      imgUri: model.avatar,
-                      onTapAvatar: () {
-                        Get.to(
-                          ContactDetailPage(
-                            id: model.typeId,
-                            nickname: model.title,
-                            avatar: model.avatar,
-                            account: "",
-                          ),
-                        );
-                      },
-                      title: model.title,
-                      payload: {
-                        'msg_type': model.msgtype,
-                        'text': model.subtitle,
-                      },
-                      status: model.lastMsgStatus,
-                      time: Text(
-                        DateTimeHelper.lastConversationFmt(
-                          model.lasttime ?? 0,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: AppColors.MainTextColor,
-                          fontSize: 14.0,
-                        ),
-                      ),
-                      remindCounter: remindNum,
-                    ),
-                  ),
-                );
-              },
-              itemCount: logic.conversations.length,
-            );
-    });
 
     return Scaffold(
       appBar: NavAppBar(
           // title: 'title_message'.tr + logic.connectDesc.value,
+          rightDMActions: <Widget>[
+            InkWell(
+              child: Container(
+                width: 46.0,
+                child: Icon(
+                  Icons.add_circle_outline_sharp,
+                  color: Colors.black54,
+                ),
+              ),
+              onTap: () {
+                var items = [
+                  MenuItem(
+                    title: '发起群聊'.tr,
+                    textAlign: TextAlign.center,
+                    textStyle: TextStyle(
+                      color: Color(0xffc5c5c5),
+                      fontSize: 14.0,
+                    ),
+                    image: Icon(
+                      Icons.chat_rounded,
+                      color: Colors.white,
+                    ),
+                    // userInfo: message,
+                  ),
+                  MenuItem(
+                    title: '添加好友'.tr,
+                    textAlign: TextAlign.center,
+                    textStyle: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.white,
+                    ),
+                    image: Icon(
+                      Icons.person_add,
+                      color: Colors.white,
+                    ),
+                    // userInfo: message,
+                  ),
+                  MenuItem(
+                    title: '扫一扫'.tr,
+                    userInfo: 'scanqrcode',
+                    textAlign: TextAlign.center,
+                    textStyle: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.white,
+                    ),
+                    image: Icon(
+                      Icons.qr_code_scanner,
+                      color: Colors.white,
+                    ),
+                    // userInfo: message,
+                  ),
+                ];
+                PopupMenu menu = PopupMenu(
+                  items: items,
+                  context: context,
+                  config: MenuConfig(
+                    type: MenuType.list,
+                    itemWidth: 110,
+                    itemHeight: 48,
+                    arrowHeight: 8,
+                    backgroundColor: AppColors.ItemBgColor,
+                    highlightColor: AppColors.ItemOnColor,
+                    lineColor: Color.fromRGBO(255, 255, 255, 1),
+                  ),
+                  onClickMenu: topRightMenu,
+                  // stateChanged: stateChanged,
+                  // onDismiss: onDismiss,
+                );
+                menu.show(
+                  rect: Rect.fromLTWH(
+                    Get.width - 78,
+                    0,
+                    110,
+                    64,
+                  ),
+                );
+              },
+            ),
+          ],
           titleWiew: Obx(
-        () => Text(
-          'title_message'.tr + logic.connectDesc.value,
-          style: new TextStyle(
-            color: Colors.black,
-            fontSize: 16.0,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      )),
+            () => Text(
+              'title_message'.tr + logic.connectDesc.value,
+              style: new TextStyle(
+                color: Colors.black,
+                fontSize: 16.0,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          )),
       body: SlidableAutoCloseBehavior(
-        child: body,
+        child: Obx(() {
+          return logic.conversations.isEmpty
+              ? ConversationNullView()
+              : ListView.builder(
+                  itemBuilder: (BuildContext context, int index) {
+                    ConversationModel model = logic.conversations[index];
+                    int conversationId = model.id;
+                    var remindNum =
+                        logic.conversationRemind.containsKey(model.typeId)
+                            ? logic.conversationRemind[model.typeId]!.obs
+                            : 0.obs;
+                    return InkWell(
+                      onTap: () {
+                        Get.to(
+                          () => ChatPage(
+                            id: model.id,
+                            toId: model.typeId,
+                            title: model.title,
+                            avatar: model.avatar,
+                            type: strEmpty(model.type) ? 'C2C' : model.type,
+                          ),
+                        );
+                      },
+                      onTapDown: (TapDownDetails details) {},
+                      onLongPress: () {},
+                      child: Slidable(
+                        key: ValueKey(model.id),
+                        groupTag: '0',
+                        closeOnScroll: true,
+                        endActionPane: ActionPane(
+                          extentRatio: 0.75,
+                          motion: StretchMotion(),
+                          children: [
+                            CustomSlidableAction(
+                              onPressed: (_) async {
+                                int num = 1;
+                                remindNum.value = 1;
+                                if (model.unreadNum > 0) {
+                                  num = 0;
+                                  remindNum.value = 0;
+                                }
+                                logic.markAs(model.id, num);
+                                logic.conversationRemind[model.typeId] = num;
+                                model.unreadNum = num;
+                              },
+                              autoClose: true,
+                              backgroundColor: Colors.blue,
+                              flex: 2,
+                              child: Obx(
+                                () => Text(
+                                  remindNum.value > 0 ? "标为已读" : "标为未读",
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            SlidableAction(
+                              key: ValueKey("hide_${index}"),
+                              flex: 2,
+                              backgroundColor: Colors.amber,
+                              onPressed: (_) async {
+                                await logic.hideConversation(conversationId);
+                                logic.conversations.removeAt(index);
+                                logic.conversationRemind[model.typeId] = 0;
+                                logic.chatMsgRemindCounter;
+                              },
+                              label: "不显示",
+                              spacing: 1,
+                            ),
+                            SlidableAction(
+                              key: ValueKey("delete_${index}"),
+                              flex: 2,
+                              backgroundColor: Colors.red,
+                              // foregroundColor: Colors.white,
+                              onPressed: (_) async {
+                                await logic.removeConversation(conversationId);
+                                logic.conversations.removeAt(index);
+                                logic.conversationRemind[model.typeId] = 0;
+                                logic.chatMsgRemindCounter;
+                              },
+                              label: "删除",
+                              spacing: 1,
+                            ),
+                          ],
+                        ),
+                        child: ConversationItem(
+                          imgUri: model.avatar,
+                          onTapAvatar: () {
+                            Get.to(
+                              ContactDetailPage(
+                                id: model.typeId,
+                                nickname: model.title,
+                                avatar: model.avatar,
+                                account: "",
+                              ),
+                            );
+                          },
+                          title: model.title,
+                          payload: {
+                            'msg_type': model.msgtype,
+                            'text': model.subtitle,
+                          },
+                          status: model.lastMsgStatus,
+                          time: Text(
+                            DateTimeHelper.lastConversationFmt(
+                              model.lasttime ?? 0,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: AppColors.MainTextColor,
+                              fontSize: 14.0,
+                            ),
+                          ),
+                          remindCounter: remindNum,
+                        ),
+                      ),
+                    );
+                  },
+                  itemCount: logic.conversations.length,
+                );
+        }),
       ),
     );
   }

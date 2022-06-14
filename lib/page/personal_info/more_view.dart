@@ -28,7 +28,7 @@ class MoreView extends StatelessWidget {
     };
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
-      appBar: const PageAppBar(title: ''),
+      appBar: PageAppBar(title: "更多信息".tr),
       body: Column(children: [
         LabelRow(
           label: '性别'.tr,

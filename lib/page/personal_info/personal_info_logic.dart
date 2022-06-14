@@ -4,6 +4,7 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/personal_info/more_view.dart';
+import 'package:imboy/page/uqrcode/uqrcode_view.dart';
 
 import 'personal_info_state.dart';
 
@@ -37,6 +38,8 @@ class PersonalInfoLogic extends GetxController {
   labelOnPressed(String label) {
     if (label == "more") {
       Get.to(MoreView());
+    } else if (label == "uqrcode") {
+      Get.to(UqrcodePage());
     }
   }
 }

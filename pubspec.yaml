@@ -129,6 +129,8 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/popup_menu.git
       ref: master
   niku: ^2.2.4
+  mobile_scanner: ^1.1.2
+  qr_flutter: ^4.0.0
 #  flutter_login:
 #    path: plugin/flutter_login
 

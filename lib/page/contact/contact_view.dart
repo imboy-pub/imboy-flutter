@@ -78,21 +78,20 @@ class ContactPage extends StatelessWidget {
   Widget build(BuildContext context) {
     loadData();
 
-    var appBar = new NavAppBar(
-      title: "联系人",
-      rightDMActions: <Widget>[
-        new InkWell(
-          child: new Container(
-            width: 60.0,
-            child:
-                new Image(image: AssetImage('assets/images/search_black.webp')),
-          ),
-          onTap: () => Get.to(SearchPage()),
-        ),
-      ],
-    );
     return Scaffold(
-      appBar: appBar,
+      appBar: NavAppBar(
+        title: "联系人",
+        rightDMActions: <Widget>[
+          InkWell(
+            child: Container(
+              width: 60.0,
+              child:
+                  Image(image: AssetImage('assets/images/search_black.webp')),
+            ),
+            onTap: () => Get.to(SearchPage()),
+          ),
+        ],
+      ),
       body: Obx(
         () => Stack(
           children: [

@@ -531,7 +531,6 @@ class ChatPageState extends State<ChatPage> {
     double l = offset.dx / 2 - renderBox.size.width / 2 + 75.0;
     double r = renderBox.size.width / 2 - 75.0;
     double dx = message.author.id == UserRepoLocal.to.currentUid ? r : l;
-    debugPrint(">>> on chat _handleMessageTap left ${dx}, l: ${l}, r: ${r}");
     debugPrint(
         ">>> on chat _handleMessageTap dx:${offset.dx},dy:${offset.dy},w:${renderBox.size.width},h:${renderBox.size.height}");
     menu.show(

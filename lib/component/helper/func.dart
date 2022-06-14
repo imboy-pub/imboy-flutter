@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/config/const.dart';
 
 // This alphabet uses `A-Za-z0-9_-` symbols. The genetic algorithm helped
 // optimize the gzip compression for this alphabet.
@@ -201,4 +203,17 @@ String generateMD5(String data) {
   var digest = md5.convert(utf8.encode(data));
   // 这里其实就是 digest.toString()
   return hex.encode(digest.bytes);
+}
+
+ImageProvider avatarImageProvider(avatar) {
+  return strEmpty(avatar) || avatar == defAvatar
+      ? AssetImage(defAvatar) as ImageProvider
+      : CachedNetworkImageProvider(avatar + "&width=400");
+}
+
+DecorationImage dynamicAvatar(avatar) {
+  return DecorationImage(
+    image: avatarImageProvider(avatar),
+    fit: BoxFit.cover,
+  );
 }
