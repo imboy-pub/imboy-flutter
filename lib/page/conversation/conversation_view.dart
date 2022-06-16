@@ -64,7 +64,7 @@ class ConversationPage extends StatelessWidget {
     if (action == "scanqrcode") {
       Navigator.of(Get.context!).push(
         MaterialPageRoute(
-          builder: (context) => const BarcodeScannerWithController(),
+          builder: (context) => const ScannerPage(),
         ),
       );
     } else if (it.menuTitle == "撤回") {
@@ -261,6 +261,7 @@ class ConversationPage extends StatelessWidget {
                                 id: model.typeId,
                                 nickname: model.title,
                                 avatar: model.avatar,
+                                region: model.region,
                                 account: "",
                               ),
                             );

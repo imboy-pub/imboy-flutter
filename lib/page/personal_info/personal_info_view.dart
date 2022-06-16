@@ -26,7 +26,7 @@ class PersonalInfoPage extends StatefulWidget {
 class _PersonalInfoPageState extends State<PersonalInfoPage> {
   final logic = Get.put(PersonalInfoLogic());
   final PersonalInfoState state = Get.find<PersonalInfoLogic>().state;
-  String currentUserAvatar = UserRepoLocal.to.currentUser.avatar!;
+  String currentUserAvatar = UserRepoLocal.to.currentUser.avatar;
 
   ///拍摄照片
   Future fromCamera() async {
@@ -73,7 +73,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             builder: (context) => CropImageRoute(
                   originalImage,
                   "avatar",
-                  filename: UserRepoLocal.to.currentUser.uid!,
+                  filename: UserRepoLocal.to.currentUser.uid,
                 )));
     if (url.isNotEmpty) {
       bool ok = await logic.changeInfo({"field": "avatar", "value": url});
@@ -217,11 +217,11 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           label: '昵称'.tr,
           isLine: true,
           isRight: true,
-          rValue: UserRepoLocal.to.currentUser.nickname!,
+          rValue: UserRepoLocal.to.currentUser.nickname,
           onPressed: () => Get.bottomSheet(
             UpdatePage(
                 title: '设置昵称'.tr,
-                value: UserRepoLocal.to.currentUser.nickname!,
+                value: UserRepoLocal.to.currentUser.nickname,
                 field: 'input',
                 callback: (nickname) async {
                   bool ok = await logic

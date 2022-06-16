@@ -217,3 +217,31 @@ DecorationImage dynamicAvatar(avatar) {
     fit: BoxFit.cover,
   );
 }
+
+dynamic genderIcon(int gendor) {
+  var gimg = null;
+  if (gendor == 1) {
+    gimg = Image(
+      image: AssetImage('assets/images/Contact_Male.webp'),
+      width: 20.0,
+      fit: BoxFit.fill,
+    );
+  } else if (gendor == 2) {
+    gimg = Image(
+      image: AssetImage('assets/images/Contact_Female.webp'),
+      width: 20.0,
+      fit: BoxFit.fill,
+    );
+  } else if (gendor == 3) {
+    gimg = Icon(
+      Icons.security,
+      color: Colors.lightBlueAccent,
+    );
+  } else {
+    gimg = Icon(
+      Icons.battery_unknown,
+      color: Colors.lightBlueAccent,
+    );
+  }
+  return gimg;
+}

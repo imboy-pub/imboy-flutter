@@ -10,10 +10,11 @@ class ContactRepo {
   static String uid = 'uid';
   static String nickname = 'nickname';
   static String avatar = 'avatar';
+  static String gender = 'gender';
   static String account = 'account';
   static String status = 'status';
   static String remark = 'remark';
-  static String area = 'area';
+  static String region = 'region';
   static String sign = 'sign';
   static String updateTime = "update_time";
   static String isFriend = 'is_friend';
@@ -29,7 +30,8 @@ class ContactRepo {
       'account': obj.account,
       'status': obj.status,
       'remark': obj.remark,
-      'area': obj.area,
+      'gender': obj.gender,
+      'region': obj.region,
       'sign': obj.sign,
       // 单位毫秒，13位时间戳  1561021145560
       'update_time': obj.updateTime ?? DateTime.now().millisecondsSinceEpoch,
@@ -51,8 +53,9 @@ class ContactRepo {
         ContactRepo.account,
         ContactRepo.status,
         ContactRepo.remark,
-        ContactRepo.area,
+        ContactRepo.region,
         ContactRepo.sign,
+        ContactRepo.gender,
         ContactRepo.isFriend,
       ],
       where: '${ContactRepo.isFriend}=?',
@@ -83,8 +86,9 @@ class ContactRepo {
         ContactRepo.account,
         ContactRepo.status,
         ContactRepo.remark,
-        ContactRepo.area,
+        ContactRepo.region,
         ContactRepo.sign,
+        ContactRepo.gender,
         ContactRepo.updateTime,
         ContactRepo.isFriend,
       ],
@@ -128,11 +132,14 @@ class ContactRepo {
     if (strNoEmpty(json["remark"])) {
       data["remark"] = json["remark"];
     }
-    if (strNoEmpty(json["area"])) {
-      data["area"] = json["area"];
+    if (strNoEmpty(json["region"])) {
+      data["region"] = json["region"];
     }
     if (strNoEmpty(json["sign"])) {
       data["sign"] = json["sign"];
+    }
+    if (json["gender"] > 0) {
+      data["gender"] = json["gender"];
     }
 
     debugPrint(">>> on ContactRepo/update/1 data: ${data.toString()}");

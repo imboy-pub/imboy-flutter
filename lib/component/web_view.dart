@@ -12,28 +12,30 @@ class WebViewPage extends StatefulWidget {
   WebViewPage(this.url, this.title);
 
   @override
-  State<StatefulWidget> createState() => new WebViewPageState();
+  State<StatefulWidget> createState() => WebViewPageState();
 }
 
 class WebViewPageState extends State<WebViewPage> {
   final Completer<WebViewController> _controller =
-      new Completer<WebViewController>();
+      Completer<WebViewController>();
 
   Widget body() {
-    return new Builder(builder: (BuildContext context) {
-      return new WebView(
+    return Builder(builder: (BuildContext context) {
+      return WebView(
         initialUrl: widget.url,
+        allowsInlineMediaPlayback: true,
         javascriptMode: JavascriptMode.unrestricted,
         onWebViewCreated: (WebViewController webViewController) {
           _controller.complete(webViewController);
+        },
+        onPageStarted: (url) {
+          // Get.snackbar('', '加载中...');
         },
         javascriptChannels: <JavascriptChannel>[
           _toasterJavascriptChannel(context),
         ].toSet(),
         navigationDelegate: (NavigationRequest request) {
-          if (request.url
-              .startsWith('https://gitee.com/imboy-pub/imboy-flutter')) {
-            print('blocking navigation to $request}');
+          if (request.url.startsWith('http')) {
             return NavigationDecision.prevent;
           }
           print('allowing navigation to $request');
@@ -49,7 +51,7 @@ class WebViewPageState extends State<WebViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: new PageAppBar(
+      appBar: PageAppBar(
         title: '${widget.title}',
       ),
       body: body(),
@@ -57,11 +59,11 @@ class WebViewPageState extends State<WebViewPage> {
   }
 
   JavascriptChannel _toasterJavascriptChannel(BuildContext context) {
-    return new JavascriptChannel(
+    return JavascriptChannel(
       name: 'Toaster',
       onMessageReceived: (JavascriptMessage message) {
         Scaffold.of(context).showSnackBar(
-          new SnackBar(content: Text(message.message)),
+          SnackBar(content: Text(message.message)),
         );
       },
     );

@@ -7,42 +7,15 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import 'uqrcode_logic.dart';
-
 class UqrcodePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final logic = Get.put(UqrcodeLogic());
-    final state = Get.find<UqrcodeLogic>().state;
-
     // API_BASE_URL=https://dev.imboy.pub
-    String qrdata = "${API_BASE_URL}/uqrcode/${UserRepoLocal.to.currentUid}";
+    String qrdata =
+        "${API_BASE_URL}/uqrcode?id=${UserRepoLocal.to.currentUid}&${uqrcodeDataSuffix}";
 
-    String gender = UserRepoLocal.to.currentUser.gender;
-    var trailing = Icon(
-      Icons.battery_unknown,
-      color: Colors.lightBlueAccent,
-    );
-    switch (gender) {
-      case "1":
-        trailing = Icon(
-          Icons.man,
-          color: Colors.lightBlueAccent,
-        );
-        break;
-      case "2":
-        trailing = Icon(
-          Icons.woman,
-          color: Colors.lightBlueAccent,
-        );
-        break;
-      case "3":
-        trailing = Icon(
-          Icons.security,
-          color: Colors.lightBlueAccent,
-        );
-        break;
-    }
+    int gender = UserRepoLocal.to.currentUser.gender;
+
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(
@@ -86,9 +59,9 @@ class UqrcodePage extends StatelessWidget {
                               emptyColor: Colors.white,
                             ).toImageData(878);
                             //save the orignal image
-                            File qrFile = await SaveNetworkImage().saveImage(
-                                qrBytes,
-                                code.qid); //<--- see below for this function
+                            // File qrFile = await SaveNetworkImage().saveImage(
+                            //     qrBytes,
+                            //     code.qid); //<--- see below for this function
                           },
                         ),
                       ),
@@ -167,7 +140,7 @@ class UqrcodePage extends StatelessWidget {
                   ),
                   title: Text(UserRepoLocal.to.currentUser.nickname),
                   subtitle: Text(UserRepoLocal.to.currentUser.region),
-                  trailing: trailing,
+                  trailing: genderIcon(gender),
                 ),
                 Expanded(
                   child: Center(
@@ -195,7 +168,7 @@ class UqrcodePage extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20)
                       .copyWith(bottom: 20),
-                  child: Text("扫一扫上面的二维码图案，加我为朋友"),
+                  child: Text("扫一扫上面的二维码图案，加我为朋友".tr),
                 ),
               ],
             ),

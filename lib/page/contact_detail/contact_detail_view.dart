@@ -8,7 +8,6 @@ import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/friend_circle/friend_circle_view.dart';
-import 'package:imboy/page/set_remark/set_remark_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'contact_detail_logic.dart';
@@ -20,14 +19,18 @@ class ContactDetailPage extends StatefulWidget {
   final String nickname;
   final String avatar;
   final String account;
-  final String? area;
+  final String region;
+  final String sgin;
+  int gender;
 
   ContactDetailPage({
     required this.id,
     required this.nickname,
     required this.avatar,
     required this.account,
-    this.area,
+    this.region = "",
+    this.sgin = "",
+    this.gender = 0,
   });
 
   @override
@@ -39,30 +42,31 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
   final ContactDetailState state = Get.find<ContactDetailLogic>().state;
 
   List<Widget> body(bool itself) {
-    debugPrint("_ContactDetailPageState >>>>>>> ${widget.id}");
+    debugPrint("_ContactDetailPageState >>>>>>> ${widget.region}");
     return [
-      new ContactCard(
+      ContactCard(
         id: widget.id,
         nickname: widget.nickname,
         account: widget.account,
         avatar: widget.avatar,
-        area: widget.area ?? '深圳 宝安',
+        gender: widget.gender,
+        region: widget.region,
         isBorder: true,
       ),
-      new Visibility(
+      Visibility(
         visible: !itself,
-        child: new LabelRow(
-          label: '设置备注和标签',
-          onPressed: () => Get.to(SetRemarkPage()),
+        child: LabelRow(
+          label: '设置备注和标签'.tr,
+          onPressed: () {},
         ),
       ),
-      new Space(),
-      new LabelRow(
-        label: '朋友圈',
+      Space(),
+      LabelRow(
+        label: '朋友圈'.tr,
         isLine: false,
         onPressed: () => Get.to(FriendCirclePage()),
       ),
-      new ButtonRow(
+      ButtonRow(
         margin: EdgeInsets.only(top: 10.0),
         text: '发消息',
         isBorder: true,
@@ -76,9 +80,9 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
           ),
         ),
       ),
-      new Visibility(
+      Visibility(
         visible: !itself,
-        child: new ButtonRow(
+        child: ButtonRow(
           text: '音视频通话',
           onPressed: () => Get.snackbar('', '敬请期待'),
         ),
@@ -92,30 +96,30 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
     var currentUser = UserRepoLocal.to.currentUser;
     bool isSelf = currentUser.uid == widget.id;
     var rWidget = [
-      new SizedBox(
+      SizedBox(
         width: 60,
-        child: new FlatButton(
+        child: FlatButton(
           padding: EdgeInsets.all(0),
           onPressed: () =>
               friendItemDialog(context, userId: widget.id, suCc: (v) {
             if (v) Navigator.of(context).maybePop();
           }),
-          child: new Image(
+          child: Image(
             image: AssetImage(contactAssets + 'ic_contacts_details.png'),
           ),
         ),
       )
     ];
 
-    return new Scaffold(
+    return Scaffold(
       backgroundColor: AppColors.ChatBg,
-      appBar: new PageAppBar(
+      appBar: PageAppBar(
         title: '',
         backgroundColor: Colors.white,
         rightDMActions: isSelf ? [] : rWidget,
       ),
-      body: new SingleChildScrollView(
-        child: new Column(children: body(isSelf)),
+      body: SingleChildScrollView(
+        child: Column(children: body(isSelf)),
       ),
     );
   }

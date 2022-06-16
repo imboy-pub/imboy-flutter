@@ -7,7 +7,7 @@ class UserModel {
   String nickname;
   String avatar;
   String account;
-  String gender;
+  int gender;
   String region;
   int? role;
   String? token;
@@ -19,7 +19,7 @@ class UserModel {
     this.nickname = "",
     this.avatar = defAvatar,
     required this.account,
-    this.gender = "0",
+    this.gender = 0,
     this.region = "",
     this.role,
     this.token,
@@ -28,11 +28,11 @@ class UserModel {
   });
 
   String get genderTitle {
-    if (gender == "1") {
+    if (gender == 1) {
       return "男".tr;
-    } else if (gender == "2") {
+    } else if (gender == 2) {
       return "女".tr;
-    } else if (gender == "3") {
+    } else if (gender == 3) {
       return "保密".tr;
     }
     return "未知".tr;
@@ -45,7 +45,7 @@ class UserModel {
       avatar: json["avatar"] ?? '',
       account: json["account"],
       role: json["role"]?.toInt(),
-      gender: json["gender"].toString(),
+      gender: int.parse(json["gender"] ?? 0),
       region: json["region"] ?? '',
       token: json["token"] ?? '',
       refreshtoken: json["refreshtoken"] ?? '',

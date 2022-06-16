@@ -38,7 +38,7 @@ class MoreView extends StatelessWidget {
           onPressed: () => Get.bottomSheet(
             UpdatePage(
                 title: '设置性别'.tr,
-                value: UserRepoLocal.to.currentUser.gender,
+                value: UserRepoLocal.to.currentUser.gender.toString(),
                 field: 'gender',
                 callback: (gender) async {
                   bool ok = await logic

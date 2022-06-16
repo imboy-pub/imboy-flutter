@@ -104,7 +104,7 @@ class MinePage extends StatelessWidget {
                           borderRadius: BorderRadius.all(Radius.circular(10.0)),
                           child: InkWell(
                             onTap: () {
-                              String avatar = _c.currentUser.avatar!;
+                              String avatar = _c.currentUser.avatar;
                               Get.bottomSheet(
                                 InkWell(
                                   onTap: () {
@@ -144,7 +144,7 @@ class MinePage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text(
-                              _c.currentUser.nickname!,
+                              _c.currentUser.nickname,
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 20.0,

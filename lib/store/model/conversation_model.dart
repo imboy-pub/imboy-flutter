@@ -6,6 +6,8 @@ class ConversationModel {
   final String avatar;
   final String title;
   String subtitle;
+  String region;
+  String sign;
   final int? lasttime;
   String lastMsgId;
   // lastMsgStatus 10 发送中 sending;  11 已发送 send;
@@ -24,6 +26,8 @@ class ConversationModel {
     required this.subtitle,
     required this.type,
     required this.msgtype,
+    this.region = '',
+    this.sign = '',
     this.lasttime,
     this.lastMsgId = '',
     this.lastMsgStatus,
@@ -37,6 +41,8 @@ class ConversationModel {
       typeId: json['type_id'],
       avatar: strEmpty(json['avatar']) ? '' : json['avatar'],
       title: json['title'].toString(),
+      region: json['region'].toString(),
+      sign: json['sign'].toString(),
       subtitle: json['subtitle'] ?? '',
       lasttime: json['lasttime'] ?? 0,
       lastMsgId: json['last_msg_id'] ?? '',
@@ -53,6 +59,8 @@ class ConversationModel {
         'type_id': typeId,
         'avatar': avatar,
         'title': title,
+        'region': region,
+        'sign': sign,
         'subtitle': subtitle,
         'lasttime': lasttime,
         'last_msg_id': lastMsgId,

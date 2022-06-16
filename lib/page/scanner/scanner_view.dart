@@ -1,39 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/web_view.dart';
+import 'package:imboy/config/const.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'scanner_logic.dart';
+import 'scanner_result_view.dart';
 
-class ScannerPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final logic = Get.find<ScannerLogic>();
-    final state = Get.find<ScannerLogic>().state;
-
-    return Container();
-  }
-}
-
-class BarcodeScannerWithController extends StatefulWidget {
-  const BarcodeScannerWithController({Key? key}) : super(key: key);
+class ScannerPage extends StatefulWidget {
+  const ScannerPage({Key? key}) : super(key: key);
 
   @override
-  _BarcodeScannerWithControllerState createState() =>
-      _BarcodeScannerWithControllerState();
+  _ScannerPageState createState() => _ScannerPageState();
 }
 
-class _BarcodeScannerWithControllerState
-    extends State<BarcodeScannerWithController>
+class _ScannerPageState extends State<ScannerPage>
     with SingleTickerProviderStateMixin {
   String? barcode;
 
   MobileScannerController controller = MobileScannerController(
-    torchEnabled: true,
+    torchEnabled: false,
     formats: [BarcodeFormat.all],
     // facing: CameraFacing.front,
   );
 
+  final logic = Get.put(ScannerLogic());
   bool isStarted = true;
 
   @override
@@ -44,14 +39,63 @@ class _BarcodeScannerWithControllerState
         builder: (context) {
           return Stack(
             children: [
+              Padding(
+                padding: EdgeInsets.only(
+                  left: 0,
+                  top: 20,
+                ),
+                child: MaterialButton(
+                  minWidth: 20,
+                  height: 18,
+                  onPressed: () {
+                    Get.back();
+                  },
+                  color: Colors.white,
+                  textColor: Colors.black54,
+                  child: Icon(
+                    Icons.arrow_left,
+                    size: 16,
+                  ),
+                  shape: CircleBorder(),
+                ),
+              ),
               MobileScanner(
                 controller: controller,
                 fit: BoxFit.contain,
                 allowDuplicates: true,
-                onDetect: (barcode, args) {
-                  setState(() {
-                    this.barcode = barcode.rawValue;
-                  });
+                onDetect: (barcode, args) async {
+                  if (strEmpty(barcode.rawValue)) {
+                    return;
+                  }
+                  String val = barcode.rawValue!;
+                  if (val.endsWith(uqrcodeDataSuffix)) {
+                    HttpResponse resp1 = await HttpClient.client.get(val);
+                    if (!resp1.ok) {
+                      return;
+                    }
+                    Map payload = resp1.payload;
+
+                    Get.to(
+                      ScannerResultPage(
+                        id: payload['id'] ?? '',
+                        nickname: payload['nickname'] ?? '',
+                        avatar: payload['avatar'] ?? defAvatar,
+                        sign: payload['sign'] ?? '',
+                        region: payload['region'] ?? '',
+                        gender: payload['gender'] ?? 0,
+                        is_friend: payload['is_friend'] ?? false,
+                      ),
+                    );
+                  } else if (isUrl(val)) {
+                    Get.to(WebViewPage(val, ''));
+                  } else {
+                    if (!mounted) {
+                      return;
+                    }
+                    setState(() {
+                      this.barcode = barcode.rawValue;
+                    });
+                  }
                 },
               ),
               Align(
@@ -105,15 +149,15 @@ class _BarcodeScannerWithControllerState
                       Center(
                         child: SizedBox(
                           width: MediaQuery.of(context).size.width - 200,
-                          height: 50,
+                          height: 20,
                           child: FittedBox(
                             child: Text(
-                              barcode ?? 'Scan something!',
-                              overflow: TextOverflow.fade,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline4!
-                                  .copyWith(color: Colors.white),
+                              barcode ?? '扫一扫'.tr,
+                              // overflow: TextOverflow.fade,
+                              style: TextStyle(
+                                color: Colors.white,
+                                // fontSize: 24,
+                              ),
                             ),
                           ),
                         ),

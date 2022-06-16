@@ -17,19 +17,19 @@ class ContactPage extends StatelessWidget {
   RxList<ContactModel> contactList = RxList<ContactModel>();
   List<ContactModel> topList = [
     ContactModel(
-      nickname: '新的朋友',
+      nickname: '新的朋友'.tr,
       nameIndex: '↑',
       bgColor: Colors.orange,
       iconData: Icons.person_add,
     ),
     ContactModel(
-      nickname: '群聊',
+      nickname: '群聊'.tr,
       nameIndex: '↑',
       bgColor: Colors.green,
       iconData: Icons.people,
     ),
     ContactModel(
-      nickname: '标签',
+      nickname: '标签'.tr,
       nameIndex: '↑',
       bgColor: Colors.blue,
       iconData: Icons.local_offer,
@@ -80,7 +80,7 @@ class ContactPage extends StatelessWidget {
 
     return Scaffold(
       appBar: NavAppBar(
-        title: "联系人",
+        title: "联系人".tr,
         rightDMActions: <Widget>[
           InkWell(
             child: Container(
@@ -144,7 +144,7 @@ class ContactPage extends StatelessWidget {
             Padding(
               padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: contactIsEmpty.isTrue
-                  ? ConversationNullView(str: '无联系人')
+                  ? ConversationNullView(str: '无联系人'.tr)
                   : Space(),
             ),
           ],

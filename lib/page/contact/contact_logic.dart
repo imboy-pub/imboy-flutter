@@ -65,11 +65,13 @@ class ContactLogic extends GetxController {
       ),
       title: Text(model.nickname),
       onTap: () {
+        debugPrint(">>> on to ContactDetailPage ${model.toJson().toString()} ");
         Get.to(ContactDetailPage(
           id: model.uid!,
           nickname: model.nickname,
           avatar: model.avatar!,
           account: model.account!,
+          region: model.region,
         ));
         // Get.snackbar(
         //   "onItemClick : ${model.nickname}",

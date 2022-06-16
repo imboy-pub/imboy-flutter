@@ -18,6 +18,8 @@ const CONST_HELP_URL =
 const defContentImg =
     'https://www.runoob.com/wp-content/uploads/2015/06/image_1c58e950q14da167k1nqpu2hn5e9.png';
 
+String uqrcodeDataSuffix = "s=uqrcode";
+
 const RECORD_LOG = true;
 
 String SENTRY_DSN = dotenv.get('SENTRY_DSN');
