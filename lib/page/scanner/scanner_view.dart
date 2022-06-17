@@ -64,37 +64,63 @@ class _ScannerPageState extends State<ScannerPage>
                 fit: BoxFit.contain,
                 allowDuplicates: true,
                 onDetect: (barcode, args) async {
-                  if (strEmpty(barcode.rawValue)) {
-                    return;
-                  }
-                  String val = barcode.rawValue!;
-                  if (val.endsWith(uqrcodeDataSuffix)) {
-                    HttpResponse resp1 = await HttpClient.client.get(val);
-                    if (!resp1.ok) {
-                      return;
-                    }
-                    Map payload = resp1.payload;
-
-                    Get.to(
-                      ScannerResultPage(
-                        id: payload['id'] ?? '',
-                        nickname: payload['nickname'] ?? '',
-                        avatar: payload['avatar'] ?? defAvatar,
-                        sign: payload['sign'] ?? '',
-                        region: payload['region'] ?? '',
-                        gender: payload['gender'] ?? 0,
-                        is_friend: payload['is_friend'] ?? false,
-                      ),
-                    );
-                  } else if (isUrl(val)) {
-                    Get.to(WebViewPage(val, ''));
-                  } else {
-                    if (!mounted) {
-                      return;
-                    }
+                  if (this.barcode != barcode.rawValue) {
+                    // New barcode found !!
                     setState(() {
                       this.barcode = barcode.rawValue;
                     });
+                    if (this.barcode!.endsWith(uqrcodeDataSuffix)) {
+                      HttpResponse resp1 =
+                          await HttpClient.client.get(this.barcode!);
+                      if (!resp1.ok) {
+                        return;
+                      }
+                      Map payload = resp1.payload;
+
+                      Get.off(
+                        ScannerResultPage(
+                          id: payload['id'] ?? '',
+                          nickname: payload['nickname'] ?? '',
+                          avatar: payload['avatar'] ?? defAvatar,
+                          sign: payload['sign'] ?? '',
+                          region: payload['region'] ?? '',
+                          gender: payload['gender'] ?? 0,
+                          is_friend: payload['is_friend'] ?? false,
+                        ),
+                      );
+                    } else if (isUrl(this.barcode!)) {
+                      Get.off(WebViewPage(this.barcode!, ''));
+                    } else {
+                      Get.bottomSheet(
+                        InkWell(
+                          onTap: () {
+                            Get.close(2);
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.all(0.0),
+                            height: double.infinity,
+                            // Creates insets from offsets from the left, top, right, and bottom.
+                            padding: EdgeInsets.fromLTRB(16, 28, 0, 10),
+                            alignment: Alignment.center,
+                            color: Colors.white,
+                            child: Center(
+                              child: Text(
+                                this.barcode!,
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 24,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        // 是否支持全屏弹出，默认false
+                        isScrollControlled: true,
+                        enableDrag: false,
+                      );
+                    }
                   }
                 },
               ),
@@ -152,7 +178,8 @@ class _ScannerPageState extends State<ScannerPage>
                           height: 20,
                           child: FittedBox(
                             child: Text(
-                              barcode ?? '扫一扫'.tr,
+                              // barcode ?? '扫一扫'.tr,
+                              '扫一扫'.tr,
                               // overflow: TextOverflow.fade,
                               style: TextStyle(
                                 color: Colors.white,
