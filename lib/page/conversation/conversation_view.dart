@@ -62,11 +62,7 @@ class ConversationPage extends StatelessWidget {
     MenuItem it = item as MenuItem;
     String action = it.userInfo as String;
     if (action == "scanqrcode") {
-      Navigator.of(Get.context!).push(
-        MaterialPageRoute(
-          builder: (context) => const ScannerPage(),
-        ),
-      );
+      Get.to(ScannerPage());
     } else if (it.menuTitle == "撤回") {
       // await logic.revokeMessage(msg);
     }
