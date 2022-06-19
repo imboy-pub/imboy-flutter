@@ -16,6 +16,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -87,7 +88,7 @@ class RepaintBoundaryHelper {
   }
 
   //保存到相册
-  void savePhoto(GlobalKey boundaryKey) async {
+  void savePhoto(GlobalKey boundaryKey, String filename) async {
     RenderRepaintBoundary? boundary = boundaryKey.currentContext!
         .findRenderObject() as RenderRepaintBoundary?;
 
@@ -103,9 +104,13 @@ class RepaintBoundaryHelper {
       if (Platform.isIOS) {
         if (status.isGranted) {
           Uint8List images = byteData!.buffer.asUint8List();
-          final result = await ImageGallerySaver.saveImage(images,
-              quality: 60, name: "hello");
-          EasyLoading.showToast("保存成功");
+          final result = await ImageGallerySaver.saveImage(
+            images,
+            quality: 72,
+            name: filename,
+          );
+          EasyLoading.showToast("保存成功".tr);
+          Get.back();
         }
         if (status.isDenied) {
           debugPrint(">>> on repainBoundaryHelp IOS拒绝");
@@ -115,9 +120,14 @@ class RepaintBoundaryHelper {
         if (status.isGranted) {
           debugPrint(">>> on repainBoundaryHelp Android已授权");
           Uint8List images = byteData!.buffer.asUint8List();
-          final result = await ImageGallerySaver.saveImage(images, quality: 60);
+          final result = await ImageGallerySaver.saveImage(
+            images,
+            quality: 72,
+            name: filename,
+          );
           if (result != null) {
             EasyLoading.showToast("保存成功");
+            Get.back();
           } else {
             debugPrint('>>> on repainBoundaryHelp error');
             // toast("保存失败");
@@ -126,7 +136,7 @@ class RepaintBoundaryHelper {
       }
     } else {
       //重新请求--第一次请求权限时，保存方法不会走，需要重新调一次
-      savePhoto(boundaryKey);
+      savePhoto(boundaryKey, filename);
     }
   }
 }

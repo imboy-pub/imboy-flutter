@@ -45,7 +45,7 @@ class UserModel {
       avatar: json["avatar"] ?? '',
       account: json["account"],
       role: json["role"]?.toInt(),
-      gender: int.parse(json["gender"] ?? 0),
+      gender: json["gender"] ?? 0,
       region: json["region"] ?? '',
       token: json["token"] ?? '',
       refreshtoken: json["refreshtoken"] ?? '',
