@@ -46,7 +46,8 @@ class WebViewPageState extends State<WebViewPage> {
           },
           onPageStarted: (url) {
             debugPrint(">>> on onPageStarted ${url}");
-            if (widget.url.contains("weixin.qq.com/r/")) {
+            if (widget.url.contains("weixin.qq.com/r/") ||
+                widget.url.contains("weixin.qq.com/x/")) {
               widget.errorCallback!(widget.url);
             } else {
               EasyLoading.showToast("加载中...".tr);
