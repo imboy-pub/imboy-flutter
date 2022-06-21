@@ -68,57 +68,44 @@ class _ScannerPageState extends State<ScannerPage>
                     setState(() {
                       this.barcode = barcode.rawValue;
                     });
-                    if (this.barcode!.endsWith(uqrcodeDataSuffix)) {
+                    if (isUrl(this.barcode!) &&
+                        this.barcode!.endsWith(uqrcodeDataSuffix)) {
                       HttpResponse resp1 =
                           await HttpClient.client.get(this.barcode!);
                       if (!resp1.ok) {
                         return;
                       }
                       Map payload = resp1.payload;
-
-                      Get.off(
-                        ScannerResultPage(
-                          id: payload['id'] ?? '',
-                          nickname: payload['nickname'] ?? '',
-                          avatar: payload['avatar'] ?? defAvatar,
-                          sign: payload['sign'] ?? '',
-                          region: payload['region'] ?? '',
-                          gender: payload['gender'] ?? 0,
-                          is_friend: payload['is_friend'] ?? false,
-                        ),
-                      );
-                    } else if (isUrl(this.barcode!)) {
-                      Get.off(WebViewPage(this.barcode!, ''));
-                    } else {
-                      Get.bottomSheet(
-                        InkWell(
-                          onTap: () {
-                            Get.close(2);
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            margin: EdgeInsets.all(0.0),
-                            height: double.infinity,
-                            // Creates insets from offsets from the left, top, right, and bottom.
-                            padding: EdgeInsets.fromLTRB(16, 28, 0, 10),
-                            alignment: Alignment.center,
-                            color: Colors.white,
-                            child: Center(
-                              child: Text(
-                                this.barcode!,
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 24,
-                                ),
-                              ),
-                            ),
+                      String result = payload['result'] ?? '';
+                      if (result == '') {
+                        Get.off(
+                          ScannerResultPage(
+                            id: payload['id'] ?? '',
+                            nickname: payload['nickname'] ?? '',
+                            avatar: payload['avatar'] ?? defAvatar,
+                            sign: payload['sign'] ?? '',
+                            region: payload['region'] ?? '',
+                            gender: payload['gender'] ?? 0,
+                            is_friend: payload['is_friend'] ?? false,
                           ),
-                        ),
-                        // 是否支持全屏弹出，默认false
-                        isScrollControlled: true,
-                        enableDrag: false,
-                      );
+                        );
+                      } else if (result == 'user_not_exist') {
+                        // EasyLoading.showToast("用户不存在".tr);
+                        await logic.showResult("用户不存在".tr);
+                      } else if (result == 'user_is_disabled_or_deleted') {
+                        // EasyLoading.showToast("用户被禁用或已删除".tr);
+                        await logic.showResult("用户被禁用或已删除".tr);
+                      }
+                    } else if (isUrl(this.barcode!)) {
+                      Get.off(WebViewPage(
+                        this.barcode!,
+                        '',
+                        errorCallback: (String url) {
+                          logic.showResult("无法打开网页： ${url}");
+                        },
+                      ));
+                    } else {
+                      logic.showResult(this.barcode!);
                     }
                   }
                 },

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/button_row.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/friend_item_dialog.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact_detail/widget/contact_card.dart';
-import 'package:imboy/page/friend_circle/friend_circle_view.dart';
+import 'package:imboy/page/friend_add/friend_add_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class ScannerResultPage extends StatelessWidget {
@@ -33,7 +33,6 @@ class ScannerResultPage extends StatelessWidget {
   });
 
   List<Widget> body(bool itself) {
-    debugPrint("_ContactDetailPageState >>>>>>> ${this.region}");
     return [
       ContactCard(
         id: this.id,
@@ -47,30 +46,28 @@ class ScannerResultPage extends StatelessWidget {
       Visibility(
         visible: !itself,
         child: LabelRow(
-          label: '设置备注和标签'.tr,
+          label: '备注和标签'.tr,
           onPressed: () {},
         ),
       ),
       Space(),
+      strEmpty(this.sign)
+          ? SizedBox.shrink()
+          : LabelRow(
+              label: '个性签名'.tr,
+              rightW: Text(this.sign),
+              onPressed: () {},
+              isLine: true,
+              isRight: false,
+            ),
       LabelRow(
-        label: '朋友圈'.tr,
+        label: '来源'.tr,
+        rValue: '来自扫一扫'.tr,
         isLine: false,
-        onPressed: () => Get.to(FriendCirclePage()),
+        isRight: false,
+        onPressed: () {},
       ),
-      ButtonRow(
-        margin: EdgeInsets.only(top: 10.0),
-        text: '发消息',
-        isBorder: true,
-        onPressed: () => Get.to(
-          ChatPage(
-            id: 0,
-            toId: this.id,
-            title: this.nickname,
-            avatar: this.avatar,
-            type: 'C2C',
-          ),
-        ),
-      ),
+      Space(),
       is_friend
           ? Visibility(
               visible: !itself,
@@ -83,7 +80,7 @@ class ScannerResultPage extends StatelessWidget {
               visible: !itself,
               child: ButtonRow(
                 text: '添加到通讯录'.tr,
-                onPressed: () => Get.snackbar('', '敬请期待'),
+                onPressed: () => Get.to(FriendAddPage()),
               ),
             ),
     ];

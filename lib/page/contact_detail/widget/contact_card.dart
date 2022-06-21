@@ -57,9 +57,11 @@ class ContactCard extends StatelessWidget {
         child: Text("账号：" + this.account!, style: labelStyle),
       ));
     }
-    items.add(
-      Text("地区：" + region, style: labelStyle),
-    );
+    if (strNoEmpty(this.region)) {
+      items.add(
+        Text("地区：" + this.region, style: labelStyle),
+      );
+    }
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,

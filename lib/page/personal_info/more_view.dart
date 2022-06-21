@@ -41,12 +41,14 @@ class MoreView extends StatelessWidget {
                 value: UserRepoLocal.to.currentUser.gender.toString(),
                 field: 'gender',
                 callback: (gender) async {
-                  bool ok = await logic
-                      .changeInfo({"field": "gender", "value": gender});
+                  bool ok = await logic.changeInfo({
+                    "field": "gender",
+                    "value": gender,
+                  });
                   if (ok) {
                     Map<String, dynamic> payload =
                         UserRepoLocal.to.currentUser.toJson();
-                    payload["gender"] = gender;
+                    payload["gender"] = int.parse(gender);
                     UserRepoLocal.to.changeInfo(payload);
                     logic.genderTitle.value =
                         UserRepoLocal.to.currentUser.genderTitle;

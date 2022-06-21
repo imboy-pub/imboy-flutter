@@ -33,14 +33,14 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
   bool isDoNotDisturb = true;
 
   Widget buildSwitch(item) {
-    return new LabelRow(
+    return LabelRow(
       label: item['label'],
       margin: item['label'] == '消息免打扰' ? EdgeInsets.only(top: 10.0) : null,
       isLine: item['label'] != '强提醒',
       isRight: false,
-      rightW: new SizedBox(
+      rightW: SizedBox(
         height: 25.0,
-        child: new CupertinoSwitch(
+        child: CupertinoSwitch(
           value: item['value'],
           onChanged: (v) {},
         ),
@@ -57,21 +57,21 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
     ];
 
     return [
-      new ChatMamBer(model: model),
-      new LabelRow(
+      ChatMamBer(model: model),
+      LabelRow(
         label: '查找聊天记录',
         margin: EdgeInsets.only(top: 10.0),
         onPressed: () => Get.to(SearchPage()),
       ),
-      new Column(
+      Column(
         children: switchItems.map(buildSwitch).toList(),
       ),
-      new LabelRow(
+      LabelRow(
         label: '设置当前聊天背景',
         margin: EdgeInsets.only(top: 10.0),
         onPressed: () => Get.to(ChatBackgroundPage()),
       ),
-      new LabelRow(
+      LabelRow(
         label: '清空聊天记录',
         margin: EdgeInsets.only(top: 10.0),
         onPressed: () {
@@ -87,7 +87,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
           );
         },
       ),
-      new LabelRow(
+      LabelRow(
         label: '投诉',
         margin: EdgeInsets.only(top: 10.0),
         onPressed: () => Get.to(WebViewPage(CONST_HELP_URL, '投诉')),
@@ -111,11 +111,11 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
       backgroundColor: AppColors.ChatBg,
-      appBar: new PageAppBar(title: '聊天信息'),
-      body: new SingleChildScrollView(
-        child: new Column(children: body()),
+      appBar: PageAppBar(title: '聊天信息'),
+      body: SingleChildScrollView(
+        child: Column(children: body()),
       ),
     );
   }
