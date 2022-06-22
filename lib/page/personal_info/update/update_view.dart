@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/tick_list_title.dart';
+import 'package:imboy/component/ui/radio_list_title.dart';
 import 'package:imboy/component/view/select_region_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:niku/namespace.dart' as n;
@@ -269,15 +269,18 @@ class UpdatePage extends StatelessWidget {
   Widget genderField() {
     Widget secondary = Text(
       "√",
-      style: TextStyle(fontSize: 20),
+      style: TextStyle(
+        fontSize: 20,
+        color: AppColors.primaryElement,
+      ),
     );
     return Obx(
       () => n.Column(
         [
-          TickListTile(
+          IMBoyRadioListTile(
             value: "1",
             title: n.Text("男".tr),
-            selected: logic.val.value == "1",
+            selected: false,
             secondary: logic.val.value == "1" ? secondary : null,
             controlAffinity: ListTileControlAffinity.leading,
             activeColor: AppColors.primaryElement,
@@ -292,10 +295,10 @@ class UpdatePage extends StatelessWidget {
             height: 1,
             color: AppColors.AppBarColor,
           ),
-          TickListTile(
+          IMBoyRadioListTile(
             value: "2",
             title: n.Text("女".tr),
-            selected: logic.val.value == "2",
+            selected: false,
             secondary: logic.val.value == "2" ? secondary : null,
             controlAffinity: ListTileControlAffinity.leading,
             activeColor: AppColors.primaryElement,
@@ -310,10 +313,10 @@ class UpdatePage extends StatelessWidget {
             height: 1,
             color: AppColors.AppBarColor,
           ),
-          TickListTile(
+          IMBoyRadioListTile(
             value: "3",
             title: n.Text("保密".tr),
-            selected: logic.val.value == "3",
+            selected: false,
             secondary: logic.val.value == "3" ? secondary : null,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.only(

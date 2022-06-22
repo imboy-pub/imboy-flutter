@@ -9,7 +9,7 @@ import 'package:flutter/widgets.dart';
 ///  * [CheckboxListTile], a similar widget for checkboxes.
 ///  * [SwitchListTile], a similar widget for switches.
 ///  * [ListTile] and [Radio], the widgets from which this widget is made.
-class TickListTile<T> extends StatelessWidget {
+class IMBoyRadioListTile<T> extends StatelessWidget {
   /// Creates a combination of a list tile and a radio button.
   ///
   /// The radio tile itself does not maintain any state. Instead, when the radio
@@ -23,7 +23,7 @@ class TickListTile<T> extends StatelessWidget {
   /// * [value] and [groupValue] together determine whether the radio button is
   ///   selected.
   /// * [onChanged] is called when the user selects this radio button.
-  const TickListTile({
+  const IMBoyRadioListTile({
     Key? key,
     required this.value,
     required this.groupValue,
@@ -78,7 +78,7 @@ class TickListTile<T> extends StatelessWidget {
   /// gets rebuilt; for example:
   ///
   /// ```dart
-  /// TickListTile<SingingCharacter>(
+  /// IMBoyRadioListTile<SingingCharacter>(
   ///   title: const Text('Lafayette'),
   ///   value: SingingCharacter.lafayette,
   ///   groupValue: _character,
@@ -166,7 +166,7 @@ class TickListTile<T> extends StatelessWidget {
   /// Defines the insets surrounding the contents of the tile.
   ///
   /// Insets the [Radio], [title], [subtitle], and [secondary] widgets
-  /// in [TickListTile].
+  /// in [IMBoyRadioListTile].
   ///
   /// When null, `EdgeInsets.symmetric(horizontal: 16.0)` is used.
   final EdgeInsetsGeometry? contentPadding;
@@ -176,14 +176,14 @@ class TickListTile<T> extends StatelessWidget {
   /// To control this value, set [value] and [groupValue] appropriately.
   bool get checked => value == groupValue;
 
-  /// If specified, [shape] defines the shape of the [TickListTile]'s [InkWell] border.
+  /// If specified, [shape] defines the shape of the [IMBoyRadioListTile]'s [InkWell] border.
   final ShapeBorder? shape;
 
-  /// If specified, defines the background color for `TickListTile` when
-  /// [TickListTile.selected] is false.
+  /// If specified, defines the background color for `IMBoyRadioListTile` when
+  /// [IMBoyRadioListTile.selected] is false.
   final Color? tileColor;
 
-  /// If non-null, defines the background color when [TickListTile.selected] is true.
+  /// If non-null, defines the background color when [IMBoyRadioListTile.selected] is true.
   final Color? selectedTileColor;
 
   /// Defines how compact the list tile's layout will be.

@@ -80,7 +80,10 @@ class ScannerResultPage extends StatelessWidget {
               visible: !itself,
               child: ButtonRow(
                 text: '添加到通讯录'.tr,
-                onPressed: () => Get.to(FriendAddPage()),
+                onPressed: () => Get.to(FriendAddPage(
+                  this.id,
+                  this.nickname,
+                )),
               ),
             ),
     ];
@@ -94,8 +97,8 @@ class ScannerResultPage extends StatelessWidget {
     var rWidget = [
       SizedBox(
         width: 60,
-        child: FlatButton(
-          padding: EdgeInsets.all(0),
+        child: TextButton(
+          // padding: EdgeInsets.all(0),
           onPressed: () =>
               friendItemDialog(context, userId: this.id, suCc: (v) {
             if (v) Navigator.of(context).maybePop();

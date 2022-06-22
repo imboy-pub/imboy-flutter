@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/config/const.dart';
 
 /// 1.长按  2.单击
 enum PressType { longPress, singleClick }
@@ -38,7 +38,7 @@ class WPopupMenu extends StatefulWidget {
         assert(
             color == null || decoration == null,
             'Cannot provide both a color and a decoration\n'
-            'The color argument is just a shorthand for "decoration: new BoxDecoration(color: color)".'),
+            'The color argument is just a shorthand for "decoration: BoxDecoration(color: color)".'),
         // decoration =
         //     decoration ?? (color != null ? BoxDecoration(color: color) : null),
         // constraints = (width != null || height != null)
@@ -70,7 +70,7 @@ class WPopupMenu extends StatefulWidget {
 class _WPopupMenuState extends State<WPopupMenu> {
   @override
   Widget build(BuildContext context) {
-    return new InkWell(
+    return InkWell(
       child: Container(
         key: widget.key,
         padding: widget.padding,
@@ -92,7 +92,7 @@ class _WPopupMenuState extends State<WPopupMenu> {
   void onTap() {
     Navigator.push(
         context,
-        new PopupMenuRoute(
+        PopupMenuRoute(
           context,
           widget.actions,
           widget.pageMaxChildCount,
@@ -147,7 +147,7 @@ class PopupMenuRoute extends PopupRoute {
 
   @override
   Animation<double> createAnimation() {
-    return new CurvedAnimation(
+    return CurvedAnimation(
       parent: super.createAnimation(),
       curve: Curves.linear,
       reverseCurve: const Interval(0.0, 2.0 / 3.0),
@@ -166,7 +166,7 @@ class PopupMenuRoute extends PopupRoute {
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
-    return new MenuPopWidget(
+    return MenuPopWidget(
         this.btnContext,
         _height!,
         _width!,
@@ -180,7 +180,7 @@ class PopupMenuRoute extends PopupRoute {
   }
 
   @override
-  Duration get transitionDuration => new Duration(milliseconds: 300);
+  Duration get transitionDuration => Duration(milliseconds: 300);
 }
 
 class MenuPopWidget extends StatefulWidget {
@@ -230,8 +230,8 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
     button = widget.btnContext.findRenderObject() as RenderBox?;
     overlay =
         Overlay.of(widget.btnContext)!.context.findRenderObject() as RenderBox?;
-    position = new RelativeRect.fromRect(
-      new Rect.fromPoints(
+    position = RelativeRect.fromRect(
+      Rect.fromPoints(
         button!.localToGlobal(Offset(-10, 100), ancestor: overlay),
         button!.localToGlobal(Offset(-10, 0), ancestor: overlay),
       ),
@@ -241,16 +241,16 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return new MediaQuery.removePadding(
+    return MediaQuery.removePadding(
       context: context,
       removeTop: true,
       removeBottom: true,
       removeLeft: true,
       removeRight: true,
       child: Builder(builder: (BuildContext context) {
-        return new CustomSingleChildLayout(
+        return CustomSingleChildLayout(
           // 这里计算偏移量
-          delegate: new PopupMenuRouteLayout(
+          delegate: PopupMenuRouteLayout(
               position!,
               widget.menuHeight + _triangleHeight,
               Directionality.of(widget.btnContext),
@@ -264,28 +264,28 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
   }
 
   Widget body(width) {
-    return new Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-      new Visibility(
+    return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+      Visibility(
         visible: isShow,
-        child: new CustomPaint(
+        child: CustomPaint(
           size: Size(width, _triangleHeight),
-          painter: new TrianglePainter(
+          painter: TrianglePainter(
               color: AppColors.ItemBgColor,
               position: position!,
               isInverted: true,
               size: button!.size),
         ),
       ),
-      new Visibility(
+      Visibility(
         visible: isShow,
-        child: new Expanded(
+        child: Expanded(
           child: Stack(children: <Widget>[
-            new ClipRRect(
+            ClipRRect(
               borderRadius: BorderRadius.all(Radius.circular(5)),
               child: Container(
                   color: AppColors.ItemBgColor, height: widget.menuHeight),
             ),
-            new Column(
+            Column(
               children: widget.actions.map(itemBuild).toList(),
             ),
           ]),
@@ -309,21 +309,20 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
     return SizedBox(
       height: widget.menuHeight + _triangleHeight,
       width: _curPageWidth,
-      child:
-          new Material(color: Colors.transparent, child: body(_curPageWidth)),
+      child: Material(color: Colors.transparent, child: body(_curPageWidth)),
     );
   }
 
   Widget itemBuild(item) {
     var row = [
-      new Padding(
+      Padding(
         padding: EdgeInsets.symmetric(horizontal: 10.0),
         child: strNoEmpty(item['icon'])
-            ? new Image(image: AssetImage(item['icon']))
-            : new Icon(Icons.phone, color: Colors.white),
+            ? Image(image: AssetImage(item['icon']))
+            : Icon(Icons.phone, color: Colors.white),
       ),
-      new Expanded(
-        child: new Container(
+      Expanded(
+        child: Container(
           height: 50,
           alignment: Alignment.centerLeft,
           decoration: BoxDecoration(
@@ -332,14 +331,14 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
                   : Border(
                       top: BorderSide(
                           color: Colors.white.withOpacity(0.3), width: 0.2))),
-          child: new Text(
+          child: Text(
             item['title'],
             style: TextStyle(color: Colors.white),
           ),
         ),
       )
     ];
-    return new TextButton(
+    return TextButton(
       style: TextButton.styleFrom(
         minimumSize: Size.zero,
         padding: EdgeInsets.zero,
@@ -351,12 +350,12 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
         setState(() {});
         Navigator.of(context).pop(item['title']);
       },
-      child: new Container(
+      child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(5)),
         ),
         padding: EdgeInsets.only(left: 10.0),
-        child: new Row(children: row),
+        child: Row(children: row),
       ),
     );
   }

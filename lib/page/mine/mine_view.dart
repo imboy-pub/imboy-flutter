@@ -138,7 +138,7 @@ class MinePage extends StatelessWidget {
                       ),
                       Container(
                         margin: EdgeInsets.only(left: 10.0),
-                        height: 50.0,
+                        height: 55.0,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -155,6 +155,11 @@ class MinePage extends StatelessWidget {
                               '账号：' + _c.currentUser.account,
                               style: TextStyle(color: AppColors.MainTextColor),
                             ),
+                            //TODO
+                            // Text(
+                            //   '地区：' + _c.currentUser.region,
+                            //   style: TextStyle(color: AppColors.MainTextColor),
+                            // ),
                           ],
                         ),
                       ),

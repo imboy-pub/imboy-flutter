@@ -41,11 +41,11 @@ class ListTileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var text = new Column(
+    var text = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        new Text(title ?? '', style: titleStyle),
-        new Text(
+        Text(title ?? '', style: titleStyle),
+        Text(
           label ?? '',
           style: TextStyle(color: AppColors.MainTextColor, fontSize: 12),
         ),
@@ -53,58 +53,58 @@ class ListTileView extends StatelessWidget {
     );
 
     var view = [
-      isLabel ? text : new Text(title!, style: titleStyle),
-      new Spacer(),
+      isLabel ? text : Text(title!, style: titleStyle),
+      Spacer(),
       needRightArrow
-          ? new Container(
+          ? Container(
               width: 7.0,
-              child: new Image(
+              child: Image(
                 image: AssetImage('assets/images/ic_right_arrow_grey.webp'),
                 color: AppColors.MainTextColor.withOpacity(0.5),
                 fit: BoxFit.cover,
               ),
             )
-          : new Space(),
-      new Space(),
+          : Space(),
+      Space(),
     ];
 
     var row = icon == ''
-        ? new Row(
+        ? Row(
             children: <Widget>[
-              new Container(
+              Container(
                 width: Get.width,
-                // padding: new EdgeInsets.all(12.0),
+                // padding: EdgeInsets.all(12.0),
                 padding: padding,
                 decoration: BoxDecoration(border: border),
-                child: new Row(children: view),
+                child: Row(children: view),
               ),
             ],
           )
-        : new Row(
+        : Row(
             children: <Widget>[
-              new Container(
+              Container(
                 width: width,
                 margin: EdgeInsets.symmetric(horizontal: horizontal),
-                child: new ImageView(img: icon, width: width, fit: fit),
+                child: ImageView(img: icon, width: width, fit: fit),
               ),
-              new Container(
+              Container(
                 width: cWidth > 0 ? cWidth : Get.width - 60,
                 padding: padding,
                 decoration: BoxDecoration(border: border),
-                child: new Row(children: view),
+                child: Row(children: view),
               ),
             ],
           );
 
-    return new Container(
+    return Container(
       margin: margin,
-      // child: new FlatButton(
+      // child: FlatButton(
       //   color: Colors.white,
       //   padding: EdgeInsets.all(0),
       //   onPressed: onPressed ?? () {},
       //   child: row,
       // ),
-      child: new TextButton(
+      child: TextButton(
         style: TextButton.styleFrom(
           minimumSize: Size.zero,
           padding: EdgeInsets.zero,
