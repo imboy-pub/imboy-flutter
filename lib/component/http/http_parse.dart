@@ -8,18 +8,18 @@ import 'http_exceptions.dart';
 import 'http_response.dart';
 import 'http_transformer.dart';
 
-HttpResponse handleResponse(Response? response,
+IMBoyHttpResponse handleResponse(Response? response,
     {HttpTransformer? httpTransformer}) {
   httpTransformer ??= DefaultHttpTransformer.getInstance();
 
   // 返回值异常
   if (response == null) {
-    return HttpResponse.failureFromError();
+    return IMBoyHttpResponse.failureFromError();
   }
 
   // token失效
   if (_isTokenTimeout(response.statusCode)) {
-    return HttpResponse.failureFromError(UnauthorisedException(
+    return IMBoyHttpResponse.failureFromError(UnauthorisedException(
       message: "没有权限",
       code: response.statusCode,
     ));
@@ -29,17 +29,17 @@ HttpResponse handleResponse(Response? response,
     return httpTransformer.parse(response);
   } else {
     // 接口调用失败
-    return HttpResponse.failure(
+    return IMBoyHttpResponse.failure(
       errorMsg: response.statusMessage,
       errorCode: response.statusCode,
     );
   }
 }
 
-HttpResponse handleException(Exception exception) {
+IMBoyHttpResponse handleException(Exception exception) {
   var parseException = _parseException(exception);
   debugPrint(">>> on handleException: ${parseException.message.toString()}");
-  return HttpResponse.failureFromError(parseException);
+  return IMBoyHttpResponse.failureFromError(parseException);
 }
 
 /// 鉴权失败

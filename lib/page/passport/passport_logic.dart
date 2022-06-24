@@ -67,7 +67,7 @@ class PassportLogic extends GetxController {
   }
 
   Future<Map<String, dynamic>> encryptPassword(String password) async {
-    HttpResponse resp1 = await HttpClient.client.get("/init");
+    IMBoyHttpResponse resp1 = await HttpClient.client.get("/init");
     if (!resp1.ok) {
       return {"error": "网络故障或服务故障"};
     }
@@ -113,7 +113,7 @@ class PassportLogic extends GetxController {
         postData["dvsn"] = dinfo["deviceVersion"];
       }
       debugPrint(">>> on doLogin postData: ${postData.toString()}");
-      HttpResponse resp2 = await HttpClient.client.post(
+      IMBoyHttpResponse resp2 = await HttpClient.client.post(
         API.login,
         data: postData,
         options: Options(
@@ -151,7 +151,7 @@ class PassportLogic extends GetxController {
       _error = '';
       return data1['error'];
     }
-    HttpResponse resp2 = await HttpClient.client.post(
+    IMBoyHttpResponse resp2 = await HttpClient.client.post(
       API.signup,
       data: {
         "type": "email",
@@ -187,7 +187,7 @@ class PassportLogic extends GetxController {
       return 'error_invalid'.trArgs(['hint_login_email'.tr]);
     }
 
-    HttpResponse resp2 = await HttpClient.client.post(
+    IMBoyHttpResponse resp2 = await HttpClient.client.post(
       API.getcode,
       data: {
         "account": email,
@@ -234,7 +234,7 @@ class PassportLogic extends GetxController {
         "pwd": result['password'],
         "rsa_encrypt": result['rsa_encrypt'],
       };
-      HttpResponse resp2 = await HttpClient.client.post(
+      IMBoyHttpResponse resp2 = await HttpClient.client.post(
         API.findpassword,
         data: postData,
         options: Options(

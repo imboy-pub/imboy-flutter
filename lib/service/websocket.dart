@@ -232,6 +232,8 @@ class WSService extends GetxService {
     bool result = false;
     if (_webSocketChannel == null) {
       closeSocket();
+      openSocket();
+      // return sendMessage(message);
     } else {
       switch (_socketStatus) {
         case SocketStatus.SocketStatusConnected:

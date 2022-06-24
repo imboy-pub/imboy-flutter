@@ -88,7 +88,7 @@ class HttpClient {
     _dio.options.headers.addAll(headers);
   }
 
-  Future<HttpResponse> get(
+  Future<IMBoyHttpResponse> get(
     String uri, {
     Map<String, dynamic>? queryParameters,
     Options? options,
@@ -116,7 +116,7 @@ class HttpClient {
     }
   }
 
-  Future<HttpResponse> post(
+  Future<IMBoyHttpResponse> post(
     String uri, {
     data,
     Map<String, dynamic>? queryParameters,
@@ -148,7 +148,7 @@ class HttpClient {
     }
   }
 
-  Future<HttpResponse> patch(
+  Future<IMBoyHttpResponse> patch(
     String uri, {
     data,
     Map<String, dynamic>? queryParameters,
@@ -175,7 +175,7 @@ class HttpClient {
     }
   }
 
-  Future<HttpResponse> delete(
+  Future<IMBoyHttpResponse> delete(
     String uri, {
     data,
     Map<String, dynamic>? queryParameters,
@@ -198,7 +198,7 @@ class HttpClient {
     }
   }
 
-  Future<HttpResponse> put(
+  Future<IMBoyHttpResponse> put(
     String uri, {
     data,
     Map<String, dynamic>? queryParameters,

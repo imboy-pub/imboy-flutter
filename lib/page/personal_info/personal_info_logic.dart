@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -29,10 +28,8 @@ class PersonalInfoLogic extends GetxController {
   }
 
   Future<bool> changeInfo(Map data) async {
-    HttpResponse result = await httpclient.put(API.userUpdate, data: data);
-    debugPrint(
-        ">>> on changeInfo:${result.ok} ${result.payload.toString()}, data: ${data.toString()}");
-    return result.ok;
+    IMBoyHttpResponse resp = await httpclient.put(API.userUpdate, data: data);
+    return resp.ok;
   }
 
   labelOnPressed(String label) {

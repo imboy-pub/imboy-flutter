@@ -4,18 +4,18 @@ import 'http_response.dart';
 
 /// Response 解析
 abstract class HttpTransformer {
-  HttpResponse parse(Response response);
+  IMBoyHttpResponse parse(Response response);
 }
 
 class DefaultHttpTransformer extends HttpTransformer {
   @override
-  HttpResponse parse(Response response) {
+  IMBoyHttpResponse parse(Response response) {
     if (response.data["status"] == 100) {
-      return HttpResponse.success(response.data["payload"]);
+      return IMBoyHttpResponse.success(response.data["payload"]);
     } else if (response.data["code"] == 0) {
-      return HttpResponse.success(response.data["payload"]);
+      return IMBoyHttpResponse.success(response.data["payload"]);
     } else {
-      return HttpResponse.failure(
+      return IMBoyHttpResponse.failure(
           errorMsg: response.data["msg"], errorCode: response.data["code"]);
     }
   }

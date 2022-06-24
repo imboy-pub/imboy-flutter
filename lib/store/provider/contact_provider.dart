@@ -8,7 +8,7 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
 class ContactProvider extends HttpClient {
   Future<List<ContactModel>> listFriend() async {
-    HttpResponse resp = await get(
+    IMBoyHttpResponse resp = await get(
       API.friendList,
       options: Options(
         contentType: "application/x-www-form-urlencoded",
@@ -36,7 +36,7 @@ class ContactProvider extends HttpClient {
   }
 
   Future<ContactModel> syncByUid(String uid) async {
-    HttpResponse resp = await get(
+    IMBoyHttpResponse resp = await get(
       API.userShow,
       queryParameters: {"id": uid},
       options: Options(

@@ -1,27 +1,27 @@
 import 'http_exceptions.dart';
 
-class HttpResponse {
+class IMBoyHttpResponse {
   late bool ok;
   dynamic? payload;
   HttpException? error;
 
-  HttpResponse._internal({this.ok = false});
+  IMBoyHttpResponse._internal({this.ok = false});
 
-  HttpResponse.success(this.payload) {
+  IMBoyHttpResponse.success(this.payload) {
     this.ok = true;
   }
 
-  HttpResponse.failure({String? errorMsg, int? errorCode}) {
+  IMBoyHttpResponse.failure({String? errorMsg, int? errorCode}) {
     this.error = BadRequestException(message: errorMsg, code: errorCode);
     this.ok = false;
   }
 
-  HttpResponse.failureFormResponse({dynamic? payload}) {
+  IMBoyHttpResponse.failureFormResponse({dynamic? payload}) {
     this.error = BadResponseException(payload);
     this.ok = false;
   }
 
-  HttpResponse.failureFromError([HttpException? error]) {
+  IMBoyHttpResponse.failureFromError([HttpException? error]) {
     this.error = error ?? UnknownException();
     this.ok = false;
   }

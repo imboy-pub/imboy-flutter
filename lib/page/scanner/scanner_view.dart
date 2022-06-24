@@ -70,12 +70,12 @@ class _ScannerPageState extends State<ScannerPage>
                     });
                     if (isUrl(this.barcode!) &&
                         this.barcode!.endsWith(uqrcodeDataSuffix)) {
-                      HttpResponse resp1 =
+                      IMBoyHttpResponse resp =
                           await HttpClient.client.get(this.barcode!);
-                      if (!resp1.ok) {
+                      if (!resp.ok) {
                         return;
                       }
-                      Map payload = resp1.payload;
+                      Map payload = resp.payload;
                       String result = payload['result'] ?? '';
                       if (result == '') {
                         Get.off(

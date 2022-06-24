@@ -10,7 +10,7 @@ class UserProvider extends HttpClient {
     if (connectivityResult == ConnectivityResult.none) {
       return "";
     }
-    HttpResponse resp = await post(
+    IMBoyHttpResponse resp = await post(
       API.refreshtoken,
       options: Options(
         contentType: "application/x-www-form-urlencoded",
