@@ -12,7 +12,7 @@ import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact_detail/contact_detail_view.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/store/model/conversation_model.dart';
-import 'package:popup_menu/popup_menu.dart';
+import 'package:popup_menu/popup_menu.dart' as popupmenu;
 
 import 'conversation_logic.dart';
 import 'widget/conversation_item.dart';
@@ -58,8 +58,8 @@ class ConversationPage extends StatelessWidget {
     await logic.getConversationsList();
   }
 
-  void topRightMenu(MenuItemProvider item) {
-    MenuItem it = item as MenuItem;
+  void topRightMenu(popupmenu.MenuItemProvider item) {
+    popupmenu.MenuItem it = item as popupmenu.MenuItem;
     String action = it.userInfo as String;
     if (action == "scanqrcode") {
       Get.to(ScannerPage());
@@ -85,8 +85,8 @@ class ConversationPage extends StatelessWidget {
                 ),
               ),
               onTap: () {
-                var items = [
-                  MenuItem(
+                List<popupmenu.MenuItemProvider> items = [
+                  popupmenu.MenuItem(
                     title: '发起群聊'.tr,
                     textAlign: TextAlign.center,
                     textStyle: TextStyle(
@@ -99,7 +99,7 @@ class ConversationPage extends StatelessWidget {
                     ),
                     // userInfo: message,
                   ),
-                  MenuItem(
+                  popupmenu.MenuItem(
                     title: '添加好友'.tr,
                     textAlign: TextAlign.center,
                     textStyle: TextStyle(
@@ -112,7 +112,7 @@ class ConversationPage extends StatelessWidget {
                     ),
                     // userInfo: message,
                   ),
-                  MenuItem(
+                  popupmenu.MenuItem(
                     title: '扫一扫'.tr,
                     userInfo: 'scanqrcode',
                     textAlign: TextAlign.center,
@@ -127,11 +127,11 @@ class ConversationPage extends StatelessWidget {
                     // userInfo: message,
                   ),
                 ];
-                PopupMenu menu = PopupMenu(
+                popupmenu.PopupMenu menu = popupmenu.PopupMenu(
                   items: items,
                   context: context,
-                  config: MenuConfig(
-                    type: MenuType.list,
+                  config: popupmenu.MenuConfig(
+                    type: popupmenu.MenuType.list,
                     itemWidth: 110,
                     itemHeight: 48,
                     arrowHeight: 8,

@@ -4,17 +4,6 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-
-# The following defines the version and build number for your application.
-# A version number is three numbers separated by dots, like 1.2.43
-# followed by an optional build number separated by a +.
-# Both the version and the builder number may be overridden in flutter
-# build by specifying --build-name and --build-number, respectively.
-# In Android, build-name is used as versionName while build-number used as versionCode.
-# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
-# Read more about iOS versioning at
-# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 version: 1.0.0+1
 
 environment:
@@ -27,20 +16,20 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.3
+  cupertino_icons: ^1.0.5
   # getx 状态管理框架
-  get: ^4.3.4
+  get: ^4.6.5
   #演示列表需要用到的库
-  dio: ^4.0.0    #网络请求框架
-  json_annotation: ^4.0.1 #json序列化和反序列化用的
+  dio: ^4.0.6    #网络请求框架
+  json_annotation: ^4.5.0 #json序列化和反序列化用的
   permission_handler: ^9.2.0
-  camera: ^0.9.4+16
-  wechat_camera_picker: ^3.0.1
-  wechat_assets_picker: ^7.0.5
+  camera: ^0.9.8+1
+  wechat_camera_picker: ^3.4.0
+  wechat_assets_picker: ^7.3.2
   # 一组基于 PointyCastle 的高级 API，用于双向加密。 RSA AES
-  encrypt: ^5.0.0
+  encrypt: ^5.0.1
   # 在纯 Dart 中实现的一组加密函数。  SHA-* MD5 HMAC
-  # crypto: ^3.0.1
+  # crypto: ^3.0.2
   # Flutter 开发者的密码学：加密、数字签名、密钥协议等。
   # AES, Chacha20, ED25519, X25519, and more. Web Crypto support.
   # https://github.com/dint-dev/cryptography
@@ -48,78 +37,77 @@ dependencies:
   # cryptography_flutter: ^2.0.2
   # e2ee
   #webcrypto: ^0.5.2
-  web_socket_channel: ^2.1.0
+  web_socket_channel: ^2.2.0
   # jwt 插件
   jose: ^0.3.2
 
   # 缓存
-  shared_preferences: ^2.0.8
-  cached_network_image: ^3.1.0
-  flutter_cache_manager: ^3.1.3
+  shared_preferences: ^2.0.15
+  cached_network_image: ^3.2.1
+  flutter_cache_manager: ^3.3.0
 
-  logger: ^1.0.0
-  sentry_flutter: ^6.3.0
+  logger: ^1.1.0
+  sentry_flutter: ^6.6.0
   photo_view: ^0.13.0
-  extended_text: ^9.0.0
-  extended_text_field: ^10.0.0
+  extended_text: ^9.1.0
+  extended_text_field: ^10.1.0
   lpinyin: ^2.0.3
   azlistview: ^2.0.0-nullsafety.0
   # 视频播放器
-  video_player: ^2.4.0
-  chewie: ^1.3.2
-  webview_flutter: ^3.0.2
-  image_picker: ^0.8.5
+  video_player: ^2.4.5
+  chewie: ^1.3.4
+  webview_flutter: ^3.0.4
+  image_picker: ^0.8.5+3
   #flutter_chat_ui: ^1.5.2
   mime: ^1.0.2
-  file_picker: ^4.5.1
+  file_picker: ^4.6.1
   open_file: ^3.2.1
-  sqflite: ^2.0.2
+  sqflite: ^2.0.2+1
   # 是否联网及网络类型
-  connectivity_plus: ^2.0.2
-  flutter_screenutil: ^5.5.1
+  connectivity_plus: ^2.3.5
+  flutter_screenutil: ^5.5.3+2
   pull_to_refresh: ^2.0.0
-  package_info_plus: ^1.3.0
-  device_info_plus: ^3.1.0
+  package_info_plus: ^1.4.2
+  device_info_plus: ^3.2.4
   event_bus: ^2.0.0
   # https://github.com/letsar/flutter_slidable
-  flutter_slidable: ^1.2.0
+  flutter_slidable: ^1.3.0
   # 消息提醒的红点效果
-  badges: ^2.0.2
+  badges: ^2.0.3
   # 聊天气泡
   bubble: ^1.2.1
   xid: ^1.0.7
   fps_monitor: ^2.0.0
   # @ 小部件
   flutter_mentions: ^2.0.1
-  # getwidget: ^2.0.5 # 暂时无用
   # 搜索页面
   search_page: ^2.0.0+1
   # 时间处理
   jiffy: ^5.0.0
   # 用于校正本地系统与时钟源服务器之前的时间
   ntp: ^2.0.0
-  emoji_picker_flutter: ^1.1.2
+  emoji_picker_flutter: ^1.3.0
   carousel_slider: ^4.1.1
   flutter_dotenv: ^5.0.2
   # popup_menu:
   #  path: plugin/popup_menu
-  photo_manager: ^2.0.8
-  video_compress: ^3.1.0
-  path_provider: ^2.0.9
+  photo_manager: ^2.1.4
+  video_compress: ^3.1.1
+  path_provider: ^2.0.11
   flutter_login: ^3.2.0
   image_crop: ^0.4.0
   # 进度条
-  percent_indicator: ^4.0.0
+  percent_indicator: ^4.2.2
   json_serializable: ^6.2.0
   # 录音
-  flutter_sound: ^9.2.12
-  flutter_sound_platform_interface: ^9.2.12
-  audio_session: ^0.1.6+1
+  flutter_sound: ^9.2.13
+  flutter_sound_platform_interface: ^9.2.13
+  audio_session: ^0.1.8
   # 上传下载进度条显示
-  flutter_easyloading: ^3.0.3
+  flutter_easyloading: ^3.0.5
   # 生成闪屏页
-  flutter_native_splash: ^2.1.5
-  huawei_account: ^6.1.0+302
+  flutter_native_splash: ^2.2.3+1
+  huawei_account: ^6.1.0+304
   #flutter_chat_ui: ^1.5.8
   flutter_chat_ui:
     path: plugin/flutter_chat_ui
@@ -128,16 +116,16 @@ dependencies:
     git:
       url: https://gitee.com/imboy-tripartite-deps/popup_menu.git
       ref: master
-  niku: ^2.2.4
+  niku: ^2.3.1
   mobile_scanner: ^1.1.2
   qr_flutter: ^4.0.0
-  url_launcher: ^6.1.3
+  url_launcher: ^6.1.4
   image_gallery_saver: ^1.7.1
 #  flutter_login:
 #    path: plugin/flutter_login
 
 dev_dependencies:
-  build_runner: ^2.1.4
+  build_runner: ^2.1.11
   flutter_lints: ^1.0.4
   flutter_test:
     sdk: flutter

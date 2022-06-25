@@ -5,6 +5,7 @@ import 'package:emoji_picker_flutter/src/emoji_picker_builder.dart';
 import 'package:emoji_picker_flutter/src/emoji_view_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 /// EmojiPicker Implementation
 class EmojiPickerView extends EmojiPickerBuilder {
@@ -185,9 +186,9 @@ class _EmojiPickerViewState extends State<EmojiPickerView>
   Widget _buildNoRecent() {
     return Center(
         child: Text(
-      widget.config.noRecentsText,
-      style: widget.config.noRecentsStyle,
+      'No Recents'.tr,
+      style: TextStyle(fontSize: 20, color: Colors.black26),
       textAlign: TextAlign.center,
-    ));
+    ),);
   }
 }

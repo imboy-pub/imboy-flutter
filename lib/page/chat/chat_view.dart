@@ -27,7 +27,7 @@ import 'package:imboy/store/provider/attachment_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
-import 'package:popup_menu/popup_menu.dart';
+import 'package:popup_menu/popup_menu.dart' as popupmenu;
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:xid/xid.dart';
@@ -425,7 +425,7 @@ class ChatPageState extends State<ChatPage> {
       await OpenFile.open(message.uri);
     }
     var items = [
-      MenuItem(
+      popupmenu.MenuItem(
         title: '复制',
         textAlign: TextAlign.center,
         textStyle: TextStyle(
@@ -438,7 +438,7 @@ class ChatPageState extends State<ChatPage> {
         ),
         userInfo: message,
       ),
-      MenuItem(
+      popupmenu.MenuItem(
         title: '转发',
         textAlign: TextAlign.center,
         textStyle: TextStyle(
@@ -474,22 +474,22 @@ class ChatPageState extends State<ChatPage> {
       //   ),
       //   userInfo: message,
       // ),
-      MenuItem(
+      popupmenu.MenuItem(
         title: '引用',
         textAlign: TextAlign.center,
-        textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-        image: Icon(
+        textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+        image: const Icon(
           Icons.format_quote,
           color: Colors.white,
         ),
         userInfo: message,
       ),
 
-      MenuItem(
+      popupmenu.MenuItem(
         title: '删除',
         textAlign: TextAlign.center,
-        textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-        image: Icon(
+        textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+        image: const Icon(
           Icons.remove,
           color: Colors.white,
         ),
@@ -504,7 +504,7 @@ class ChatPageState extends State<ChatPage> {
     if (message.author.id == UserRepoLocal.to.currentUid &&
         isRevoked == false) {
       items.add(
-        MenuItem(
+        popupmenu.MenuItem(
           title: '撤回',
           textAlign: TextAlign.center,
           textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
@@ -516,7 +516,7 @@ class ChatPageState extends State<ChatPage> {
         ),
       );
     }
-    PopupMenu menu = PopupMenu(
+    popupmenu.PopupMenu menu = popupmenu.PopupMenu(
       // backgroundColor: Colors.teal,
       // lineColor: Colors.tealAccent,
       // maxColumn: 2,
@@ -543,19 +543,20 @@ class ChatPageState extends State<ChatPage> {
     );
   }
 
-  void _handlePreviewDataFetched(
+void _handlePreviewDataFetched(
     types.TextMessage message,
     types.PreviewData previewData,
   ) {
     final index = messages.indexWhere((element) => element.id == message.id);
-    final updatedMessage = messages[index].copyWith(previewData: previewData);
+    final updatedMessage = (messages[index] as types.TextMessage).copyWith(
+      previewData: previewData,
+    );
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      setState(() {
-        messages[index] = updatedMessage;
-      });
+    setState(() {
+      messages[index] = updatedMessage;
     });
   }
+
 
   Future<bool> _handleSendPressed(types.PartialText message) async {
     final textMessage = types.TextMessage(
@@ -587,8 +588,8 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
-  onClickMenu(MenuItemProvider item) async {
-    MenuItem it = item as MenuItem;
+  onClickMenu(popupmenu.MenuItemProvider item) async {
+    popupmenu.MenuItem it = item as popupmenu.MenuItem;
     types.Message msg = it.userInfo as types.Message;
     if (it.menuTitle == "删除") {
       bool res = await logic.removeMessage(msg.id);
@@ -608,8 +609,8 @@ class ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     var rWidget = [
-      new InkWell(
-        child: new Image(image: AssetImage('assets/images/right_more.png')),
+      InkWell(
+        child: const Image(image: AssetImage('assets/images/right_more.png')),
         onTap: () => Getx.Get.to(widget.type == 'GROUP'
             ? GroupDetailPage(
                 widget.toId,

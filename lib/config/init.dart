@@ -59,7 +59,7 @@ Future<void> init() async {
   // Getx.Get.lazyPut(() => DeviceExt());
 
   ntpOffset = await StorageService.to.ntpOffset();
-  WidgetsBinding.instance?.addObserver(
+  WidgetsBinding.instance.addObserver(
     LifecycleEventHandler(resumeCallBack: () async {
       // app 恢复
       debugPrint(">>> on LifecycleEventHandler resumeCallBack");

@@ -297,11 +297,11 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               backspaceColor: Colors.black54,
               showRecentsTab: true,
               recentsLimit: 19,
-              noRecentsText: 'No Recents'.tr,
-              noRecentsStyle: const TextStyle(
-                fontSize: 20,
-                color: Colors.black87,
-              ),
+              // noRecentsText: 'No Recents'.tr,
+              // noRecentsStyle: const TextStyle(
+              //   fontSize: 20,
+              //   color: Colors.black87,
+              // ),
               tabIndicatorAnimDuration: kTabScrollDuration,
               categoryIcons: const CategoryIcons(),
               buttonMode: ButtonMode.MATERIAL,
