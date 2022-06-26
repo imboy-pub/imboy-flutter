@@ -45,10 +45,19 @@ class MessageService extends GetxService {
         case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
           break;
         case 'S2C':
-          Map<String, dynamic> payload = data['payload'] ?? 99999;
+          var payload = data['payload'] ?? {};
+          if (payload is String) {
+            payload = json.decode(payload);
+          }
           var msgType = payload['msg_type'] ?? '';
           switch (msgType.toString()) {
             // case 705: // token无效、刷新token 这里不处理，不发送消息
+            case "apply_as_a_friend": // 添加好友申请
+              // TODO
+
+              String did = await DeviceExt.did;
+              WSService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},${did}");
+              break;
             case "706": // 需要重新登录
               {
                 Get.off(() => PassportPage());
@@ -145,8 +154,8 @@ class MessageService extends GetxService {
     eventBus.fire(msg.toTypeMessage());
     // 确实消息
     String did = await DeviceExt.did;
-    debugPrint(">>> on C_ACK${data['id']},DID${did}");
-    WSService.to.sendMessage("C_ACK${data['id']},DID${did}");
+    debugPrint(">>> on CLIENT_ACK,C2C,${data['id']},${did}");
+    WSService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},${did}");
     // WSService.to.sendMessage(json.encode({
     //   'id': data['id'],
     //   'type': 'C2C_CLIENT_ACK',
@@ -264,12 +273,7 @@ class MessageService extends GetxService {
     }
     // 确认消息
     String did = await DeviceExt.did;
-    WSService.to.sendMessage("C_ACK${data['id']},DID${did}");
-    // WSService.to.sendMessage(json.encode({
-    //   'id': id,
-    //   'type': 'C2C_CLIENT_ACK',
-    //   'remark': 'revoked',
-    // }));
+    WSService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},${did}");
 
     changeConversation(data['id'], data['from'], true);
   }

@@ -5,6 +5,7 @@ import 'package:imboy/component/helper/assets.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/view/null_view.dart';
+import 'package:imboy/page/friend/friend_view.dart';
 import 'package:imboy/page/search/search_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:lpinyin/lpinyin.dart';
@@ -21,6 +22,9 @@ class ContactPage extends StatelessWidget {
       nameIndex: '↑',
       bgColor: Colors.orange,
       iconData: Icons.person_add,
+      onPressed: () {
+        Get.to(FriendPage());
+      },
     ),
     ContactModel(
       nickname: '群聊'.tr,

@@ -8,20 +8,19 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
-import 'friend_add_logic.dart';
-import 'friend_add_state.dart';
+import 'add_friend_logic.dart';
 
-class FriendAddPage extends StatelessWidget {
+class AddFriendPage extends StatelessWidget {
   String uid;
   String remark;
 
-  FriendAddPage(
+  AddFriendPage(
     this.uid,
     this.remark,
   );
 
-  final FriendAddLogic logic = Get.put(FriendAddLogic());
-  final FriendAddState state = Get.find<FriendAddLogic>().state;
+  final AddFriendLogic logic = Get.put(AddFriendLogic());
+
   TextEditingController _msgController = TextEditingController();
   TextEditingController _remarkController = TextEditingController();
 
@@ -53,6 +52,7 @@ class FriendAddPage extends StatelessWidget {
             onPressed: () async {
               Map<String, dynamic> payload = {
                 "from": {
+                  "source": "qrcode",
                   "msg": _msgController.text,
                   "remark": _remarkController.text,
                   "role": logic.role.value,

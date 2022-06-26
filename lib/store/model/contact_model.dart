@@ -5,24 +5,25 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ContactModel extends ISuspensionBean {
-  ContactModel({
-    this.uid,
-    this.account,
-    required this.nickname,
-    this.avatar,
-    this.gender = 0,
-    this.status,
-    this.remark = "",
-    this.region = "",
-    this.sign = "",
-    this.updateTime,
-    this.isFriend,
-    this.nameIndex,
-    this.namePinyin,
-    this.bgColor,
-    this.iconData,
-    this.firstletter,
-  });
+  ContactModel(
+      {this.uid,
+      this.account,
+      required this.nickname,
+      this.avatar,
+      this.gender = 0,
+      this.status,
+      this.remark = "",
+      this.region = "",
+      this.sign = "",
+      this.updateTime,
+      this.isFriend,
+      this.nameIndex,
+      this.namePinyin,
+      this.bgColor,
+      this.iconData,
+      this.firstletter,
+      this.onPressed,
+      this.onLongPressed});
 
   final String? uid; // 用户ID
   final String? account; // 用户ID
@@ -42,8 +43,11 @@ class ContactModel extends ISuspensionBean {
   IconData? iconData;
   String? firstletter;
 
+  final VoidCallback? onPressed;
+  final VoidCallback? onLongPressed;
+
   factory ContactModel.fromJson(Map<String, dynamic> json) {
-    return new ContactModel(
+    return ContactModel(
       uid: json["id"] ?? (json["uid"] ?? ""),
       account: json["account"].toString(),
       nickname: json["nickname"].toString(),

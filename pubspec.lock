@@ -1292,20 +1292,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.0+1"
-  sentry:
-    dependency: transitive
-    description:
-      name: sentry
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "6.6.0"
-  sentry_flutter:
-    dependency: "direct main"
-    description:
-      name: sentry_flutter
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "6.6.0"
   shared_preferences:
     dependency: "direct main"
     description:

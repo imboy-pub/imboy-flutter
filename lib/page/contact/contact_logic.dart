@@ -1,6 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact_detail/contact_detail_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -37,12 +37,7 @@ class ContactLogic extends GetxController {
   }) {
     DecorationImage? image;
     if (model.avatar != null && model.avatar!.isNotEmpty) {
-      image = DecorationImage(
-        image: model.avatar == 'assets/images/def_avatar.png'
-            ? AssetImage(model.avatar!) as ImageProvider
-            : CachedNetworkImageProvider(model.avatar!),
-        fit: BoxFit.cover,
-      );
+      image = dynamicAvatar(model.avatar);
     }
 
     return ListTile(
@@ -64,31 +59,32 @@ class ContactLogic extends GetxController {
               ),
       ),
       title: Text(model.nickname),
-      onTap: () {
-        debugPrint(">>> on to ContactDetailPage ${model.toJson().toString()} ");
-        Get.to(ContactDetailPage(
-          id: model.uid!,
-          nickname: model.nickname,
-          avatar: model.avatar!,
-          account: model.account!,
-          region: model.region,
-        ));
-        // Get.snackbar(
-        //   "onItemClick : ${model.nickname}",
-        //   'onItemClick : ${model}',
-        // );
-      },
-      onLongPress: () {
-        Get.to(
-          ChatPage(
-            id: 0,
-            toId: model.uid!,
-            title: model.nickname,
-            avatar: model.avatar,
-            type: 'C2C',
-          ),
-        );
-      },
+      onTap: model.onPressed ??
+          () {
+            if (model.uid != null) {
+              Get.to(ContactDetailPage(
+                id: model.uid!,
+                nickname: model.nickname,
+                avatar: model.avatar!,
+                account: model.account!,
+                region: model.region,
+              ));
+            }
+          },
+      onLongPress: model.onLongPressed ??
+          () {
+            if (model.uid != null) {
+              Get.to(
+                ChatPage(
+                  id: 0,
+                  toId: model.uid!,
+                  title: model.nickname,
+                  avatar: model.avatar,
+                  type: 'C2C',
+                ),
+              );
+            }
+          },
     );
   }
 

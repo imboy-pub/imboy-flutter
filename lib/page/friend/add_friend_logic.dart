@@ -1,17 +1,14 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:xid/xid.dart';
 
-import 'friend_add_state.dart';
-
-class FriendAddLogic extends GetxController {
-  final state = FriendAddState();
-
+class AddFriendLogic extends GetxController {
   // 聊天、朋友圈、运动数据等
   // role 可能的值 all justchat
   RxString role = "all".obs;
@@ -23,23 +20,19 @@ class FriendAddLogic extends GetxController {
   RxBool donotlookhim = false.obs;
 
   void setRole(String role) {
-    // debugPrint(">>> on FriendAddLogic/setRole1 ${this.role.value} = ${role}");
+    // debugPrint(">>> on AddFriendLogic/setRole1 ${this.role.value} = ${role}");
     this.role.value = role;
     update([this.role]);
 
-    // debugPrint(">>> on FriendAddLogic/setRole2 ${this.role.value} = ${role}");
+    // debugPrint(">>> on AddFriendLogic/setRole2 ${this.role.value} = ${role}");
   }
 
   /// 申请成为好友
   Future<void> apply(String to, Map<String, dynamic> payload) async {
-    payload["msg_type"] = "custom";
-    payload["custom_type"] = "apply_as_a_friend";
+    payload["msg_type"] = "apply_as_a_friend";
     Map<String, dynamic> msg = {
-      "id": Xid().toString(),
-      "type": "C2C",
-      "from": UserRepoLocal.to.currentUid,
       "to": to,
-      "payload": payload,
+      "payload": json.encode(payload),
       "created_at": DateTimeHelper.currentTimeMillis(),
     };
 
@@ -52,8 +45,11 @@ class FriendAddLogic extends GetxController {
     //   Get.close(1);
     // });
     IMBoyHttpResponse resp = await HttpClient.client.post(
-      "${UPLOAD_BASE_URL}/${API.addfriend}",
+      "${API_BASE_URL}${API.addfriend}",
       data: msg,
+      options: Options(
+        contentType: "application/x-www-form-urlencoded",
+      ),
     );
     if (resp.ok) {
       EasyLoading.showSuccess("已发送".tr);

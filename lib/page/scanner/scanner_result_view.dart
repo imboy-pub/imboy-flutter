@@ -8,7 +8,7 @@ import 'package:imboy/component/ui/friend_item_dialog.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/contact_detail/widget/contact_card.dart';
-import 'package:imboy/page/friend_add/friend_add_view.dart';
+import 'package:imboy/page/friend/add_friend_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class ScannerResultPage extends StatelessWidget {
@@ -80,7 +80,7 @@ class ScannerResultPage extends StatelessWidget {
               visible: !itself,
               child: ButtonRow(
                 text: '添加到通讯录'.tr,
-                onPressed: () => Get.to(FriendAddPage(
+                onPressed: () => Get.to(AddFriendPage(
                   this.id,
                   this.nickname,
                 )),
