@@ -167,7 +167,7 @@ class ConversationPage extends StatelessWidget {
       body: SlidableAutoCloseBehavior(
         child: Obx(() {
           return logic.conversations.isEmpty
-              ? ConversationNullView()
+              ? NullView()
               : ListView.builder(
                   itemBuilder: (BuildContext context, int index) {
                     ConversationModel model = logic.conversations[index];

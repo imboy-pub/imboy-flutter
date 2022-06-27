@@ -1,19 +1,9 @@
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-import 'new_friend_state.dart';
-
 class NewFriendLogic extends GetxController {
-  final state = NewFriendState();
+  FocusNode searchF = FocusNode();
+  TextEditingController searchC = TextEditingController();
 
-  @override
-  void onReady() {
-    // TODO: implement onReady
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    // TODO: implement onClose
-    super.onClose();
-  }
+  RxList<dynamic> items = [].obs;
 }

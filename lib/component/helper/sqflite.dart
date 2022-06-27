@@ -3,6 +3,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -40,9 +41,9 @@ class Sqlite {
 
   Future<Database> initDatabase(String dbName) async {
     String path = join(await getDatabasesPath(), dbName);
-    // 当[readOnly](默认为false)为true时，其他参数均为忽略，数据库按原样打开
-    bool isexits = await databaseExists(path);
-    debugPrint(">>> on open db readOnly: ${isexits}, path {$path}");
+    // // 当[readOnly](默认为false)为true时，其他参数均为忽略，数据库按原样打开
+    // bool isexits = await databaseExists(path);
+    // debugPrint(">>> on open db readOnly: ${isexits}, path {$path}");
     // Delete the database
     // await deleteDatabase(path);
     // if
@@ -50,7 +51,8 @@ class Sqlite {
       path,
       version: _dbVersion,
       readOnly: false,
-      onCreate: isexits ? null : _onCreate,
+      // onCreate: isexits ? null : _onCreate,
+      onCreate: _onCreate,
     );
   }
 
@@ -121,6 +123,23 @@ class Sqlite {
     await db.execute(messageSql);
     await db.execute(
         "CREATE UNIQUE INDEX IF NOT EXISTS uk_msgid ON ${MessageRepo.tablename} (${MessageRepo.id});");
+
+    String addFriendSql = '''
+      CREATE TABLE IF NOT EXISTS ${NewFriendRepo.tablename} (
+        ${NewFriendRepo.from} varchar(40) NOT NULL,
+        ${NewFriendRepo.to} varchar(40) NOT NULL,
+        ${NewFriendRepo.nickname} varchar(40) NOT NULL DEFAULT '',
+        ${NewFriendRepo.avatar} varchar(255) NOT NULL DEFAULT '',
+        ${NewFriendRepo.msg} varchar(255) NOT NULL DEFAULT '',
+        ${NewFriendRepo.status} varchar(20) NOT NULL DEFAULT '',
+        ${NewFriendRepo.payload} text DEFAULT '',
+        ${NewFriendRepo.updateTime} int(16) NOT NULL DEFAULT 0,
+        ${NewFriendRepo.createTime} int(16) NOT NULL DEFAULT 0,
+        PRIMARY KEY("to")
+        );
+      ''';
+    debugPrint(">>> on _onCreate \n${addFriendSql}\n");
+    await db.execute(addFriendSql);
   }
 
   Future<int> insert(String table, Map<String, dynamic> data) async {

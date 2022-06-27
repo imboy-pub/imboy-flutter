@@ -16,13 +16,13 @@ class MinePage extends StatelessWidget {
   final MineState state = Get.find<MineLogic>().state;
 
   List data = [
-    {
-      'label': '钱包',
-      'icon': 'assets/images/mine/ic_wallet.webp',
-      'vertical': 10.0,
-      'border':
-          Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
-    },
+    // {
+    //   'label': '钱包',
+    //   'icon': 'assets/images/mine/ic_wallet.webp',
+    //   'vertical': 10.0,
+    //   'border':
+    //       Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
+    // },
     {
       'label': '朋友圈',
       'icon': 'assets/images/mine/ic_social_circle.png',
@@ -37,21 +37,21 @@ class MinePage extends StatelessWidget {
       'border':
           Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
     },
-    {
-      'label': '相册',
-      'icon': 'assets/images/mine/ic_album.png',
-      'vertical': 0.0,
-      'border':
-          Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
-    },
-    {
-      'label': '卡片',
-      'icon': 'assets/images/mine/ic_card_package.png',
-      'vertical': 0.0,
-      'border':
-          Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
-    },
-    {'label': '表情', 'icon': 'assets/images/mine/ic_emoji.png', 'vertical': 0.0},
+    // {
+    //   'label': '相册',
+    //   'icon': 'assets/images/mine/ic_album.png',
+    //   'vertical': 0.0,
+    //   'border':
+    //       Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
+    // },
+    // {
+    //   'label': '卡片',
+    //   'icon': 'assets/images/mine/ic_card_package.png',
+    //   'vertical': 0.0,
+    //   'border':
+    //       Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
+    // },
+    // {'label': '表情', 'icon': 'assets/images/mine/ic_emoji.png', 'vertical': 0.0},
     {
       'label': '设置',
       'icon': 'assets/images/mine/ic_setting.png',
