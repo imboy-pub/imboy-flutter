@@ -4,7 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart' as Getx;
+import 'package:get/get.dart' as getx;
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
@@ -26,7 +26,7 @@ Map<String, dynamic> defaultHeaders() {
 }
 
 class HttpClient {
-  static HttpClient get client => Getx.Get.find();
+  static HttpClient get client => getx.Get.find();
   late Dio _dio;
 
   HttpClient({BaseOptions? options, HttpConfig? dioConfig}) {
@@ -79,7 +79,7 @@ class HttpClient {
     bool notRTK = !_dio.options.headers.containsKey(Keys.refreshtokenKey);
     if (strNoEmpty(tk) && notRTK) {
       _dio.options.headers[Keys.tokenKey] = tk;
-      if (token_expired(tk)) {
+      if (tokenExpired(tk)) {
         await UserRepoLocal.to.refreshtoken();
       }
     }
@@ -128,7 +128,7 @@ class HttpClient {
   }) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
-      // Getx.Get.snackbar("Tips", "网络连接异常get");
+      // getx.Get.snackbar("Tips", "网络连接异常get");
       return handleException(NetworkException());
     }
     try {

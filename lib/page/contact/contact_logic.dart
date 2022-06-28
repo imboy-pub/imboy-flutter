@@ -92,11 +92,11 @@ class ContactLogic extends GetxController {
     return Container(
       height: susHeight,
       width: MediaQuery.of(context).size.width,
-      padding: EdgeInsets.only(left: 16.0),
-      color: Color(0xFFF3F4F5),
+      padding: const EdgeInsets.only(left: 16.0),
+      color: const Color(0xFFF3F4F5),
       alignment: Alignment.centerLeft,
       child: Text(
-        '$tag',
+        tag,
         softWrap: false,
         style: TextStyle(
           fontSize: 14.0,

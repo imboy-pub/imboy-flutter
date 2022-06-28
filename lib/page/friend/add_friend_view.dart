@@ -27,9 +27,9 @@ class AddFriendPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _msgController.text = "我是".tr + " " + UserRepoLocal.to.currentUser.nickname;
-    _remarkController.text = this.remark == null ? "" : this.remark;
+    _remarkController.text = remark == null ? "" : remark;
 
-    Widget secondary = Text(
+    Widget secondary = const Text(
       "√",
       style: TextStyle(
         fontSize: 20,
@@ -44,7 +44,7 @@ class AddFriendPage extends StatelessWidget {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Padding(
-        padding: EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.only(bottom: 16),
         child: SizedBox(
           width: Get.width * 0.5,
           height: 40, // 宽度值必须设置为double.infinity
@@ -61,12 +61,12 @@ class AddFriendPage extends StatelessWidget {
                 },
                 "to": {}
               };
-              await logic.apply(this.uid, payload);
+              await logic.apply(uid, payload);
             },
             child: Text(
               '发送'.tr,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(
@@ -75,7 +75,7 @@ class AddFriendPage extends StatelessWidget {
               foregroundColor: MaterialStateProperty.all<Color>(
                 Colors.white,
               ),
-              minimumSize: MaterialStateProperty.all(Size(60, 40)),
+              minimumSize: MaterialStateProperty.all(const Size(60, 40)),
               visualDensity: VisualDensity.compact,
               padding: MaterialStateProperty.all(EdgeInsets.zero),
             ),
@@ -88,7 +88,7 @@ class AddFriendPage extends StatelessWidget {
           height: Get.height,
           color: AppColors.BgColor,
           child: Padding(
-            padding: EdgeInsets.only(
+            padding: const EdgeInsets.only(
               left: 30,
               top: 10,
               right: 30,
@@ -102,7 +102,7 @@ class AddFriendPage extends StatelessWidget {
                     minLines: 3,
                     maxLines: 4,
                     maxLength: 100,
-                    contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                    contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                   ),
                   TitleTextField(
                     title: '设置备注'.tr,
@@ -110,7 +110,7 @@ class AddFriendPage extends StatelessWidget {
                     minLines: 1,
                     maxLines: 1,
                     maxLength: 40,
-                    contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                    contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                   ),
                   Text('标签'.tr),
                   IconTextView(
@@ -120,20 +120,20 @@ class AddFriendPage extends StatelessWidget {
                       Get.snackbar('Tips', '功能在开发者，请稍等');
                     },
                     decoration: ShapeDecoration(
-                      color: Color.fromARGB(255, 247, 247, 247),
+                      color: const Color.fromARGB(255, 247, 247, 247),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadiusDirectional.circular(5),
                       ),
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(
+                    padding: const EdgeInsets.only(
                       top: 14,
                     ),
                     child: Text('设置朋友圈'.tr),
                   ),
                   Card(
-                    color: Color.fromARGB(255, 247, 247, 247),
+                    color: const Color.fromARGB(255, 247, 247, 247),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadiusDirectional.circular(5),
                     ),
@@ -149,7 +149,7 @@ class AddFriendPage extends StatelessWidget {
                           controlAffinity: ListTileControlAffinity.leading,
                           activeColor: AppColors.primaryElement,
                           groupValue: logic.role.value,
-                          contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                           onChanged: (val) {
                             logic.setRole(val.toString());
                             logic.visibilityLook = true.obs;
@@ -167,7 +167,7 @@ class AddFriendPage extends StatelessWidget {
                           controlAffinity: ListTileControlAffinity.leading,
                           activeColor: AppColors.primaryElement,
                           groupValue: logic.role.value,
-                          contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                           onChanged: (val) {
                             logic.setRole(val.toString());
                             logic.visibilityLook = false.obs;
@@ -186,7 +186,7 @@ class AddFriendPage extends StatelessWidget {
                   Visibility(
                     visible: logic.visibilityLook.isTrue,
                     child: Padding(
-                      padding: EdgeInsets.only(
+                      padding: const EdgeInsets.only(
                         top: 10,
                         bottom: 50,
                       ),
@@ -194,7 +194,7 @@ class AddFriendPage extends StatelessWidget {
                         [
                           Text('朋友圈和状态'.tr),
                           Card(
-                            color: Color.fromARGB(255, 247, 247, 247),
+                            color: const Color.fromARGB(255, 247, 247, 247),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadiusDirectional.circular(5),
                             ),
@@ -215,12 +215,8 @@ class AddFriendPage extends StatelessWidget {
                                   value: logic.donotlookhim.isTrue,
                                   activeColor: AppColors.primaryElement,
                                   onChanged: (val) {
-                                    debugPrint(
-                                        "on >>> logic.donotlethimlook1 ${logic.donotlethimlook}, ${val}");
                                     logic.donotlookhim.value = val;
                                     logic.update([logic.donotlookhim]);
-                                    debugPrint(
-                                        "on >>> logic.donotlethimlook2 ${logic.donotlethimlook}");
                                   },
                                 ),
                               ],

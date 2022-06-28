@@ -67,7 +67,7 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
         onPressed: () => Get.to(FriendCirclePage()),
       ),
       ButtonRow(
-        margin: EdgeInsets.only(top: 10.0),
+        margin: const EdgeInsets.only(top: 10.0),
         text: '发消息',
         isBorder: true,
         onPressed: () => Get.to(
@@ -99,12 +99,12 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
       SizedBox(
         width: 60,
         child: FlatButton(
-          padding: EdgeInsets.all(0),
+          padding: const EdgeInsets.all(0),
           onPressed: () =>
               friendItemDialog(context, userId: widget.id, suCc: (v) {
             if (v) Navigator.of(context).maybePop();
           }),
-          child: Image(
+          child: const Image(
             image: AssetImage(contactAssets + 'ic_contacts_details.png'),
           ),
         ),

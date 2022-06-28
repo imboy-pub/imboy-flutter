@@ -43,10 +43,10 @@ class ComMomButton extends StatelessWidget {
   Widget build(BuildContext context) {
     Color _color = Color.fromRGBO(225, 225, 225, enable! ? 1 : 0.3);
 
-    return new Container(
+    return Container(
       margin: margin,
-      child: new InkWell(
-        child: new Container(
+      child: InkWell(
+        child: Container(
           alignment: Alignment.center,
           padding: padding,
           width: width,
@@ -72,7 +72,7 @@ class ComMomButton extends StatelessWidget {
                     Radius.circular(radius!),
                   ),
                 ),
-          child: new Text(
+          child: Text(
             '$text',
             style: style != null
                 ? style

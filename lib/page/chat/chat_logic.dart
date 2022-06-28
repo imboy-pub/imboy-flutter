@@ -242,8 +242,6 @@ class ChatLogic extends GetxController {
 
       return true;
     });
-    debugPrint(
-        ">>> on logic.conversations markAsRead res ${res}, conversationId:${conversationId}, newUnreadNum : ${newUnreadNum}");
     if (res) {
       return cobj;
     } else {

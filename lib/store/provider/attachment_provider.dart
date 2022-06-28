@@ -169,7 +169,7 @@ class AttachmentProvider {
           String v = (Random()).nextInt(999999).toString();
           String authToken = generateMD5(UP_AUTH_KEY + v).substring(8, 24);
           videoUri = responseData["data"]["url"] +
-              "?s=${UPLOAD_SENCE}&a=${authToken}&v=${v}";
+              "?s=$UPLOAD_SENCE&a=$authToken&v=$v";
         } else {
           Map<String, dynamic> data = {
             'file':

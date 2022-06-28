@@ -5,13 +5,13 @@ class LoadingDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new WillPopScope(
+    return WillPopScope(
         onWillPop: () async => false,
         child: SimpleDialog(
             key: key,
             backgroundColor: Colors.white,
             children: <Widget>[
-              Center(
+              const Center(
                 child: CircularProgressIndicator(),
               )
             ]));

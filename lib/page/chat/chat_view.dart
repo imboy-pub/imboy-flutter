@@ -218,7 +218,7 @@ class ChatPageState extends State<ChatPage> {
           enableRecording: true,
           onlyEnableRecording: false,
           enableTapRecording: true,
-          maximumRecordingDuration: Duration(seconds: 24),
+          maximumRecordingDuration: const Duration(seconds: 24),
         ),
       );
       if (entity == null) {
@@ -233,8 +233,6 @@ class ChatPageState extends State<ChatPage> {
       ) async {
         double w = Getx.Get.width;
         imgUrl += "&width=${w.toInt()}";
-        debugPrint(">>> on upload imgUrl ${imgUrl}");
-        debugPrint(">>> on upload ${resp.toString()}");
 
         if (entity.type == AssetType.image) {
           final message = types.ImageMessage(
@@ -383,10 +381,10 @@ class ChatPageState extends State<ChatPage> {
           },
           child: Container(
             width: double.infinity,
-            margin: EdgeInsets.all(0.0),
+            margin: const EdgeInsets.all(0.0),
             height: double.infinity,
             // Creates insets from offsets from the left, top, right, and bottom.
-            padding: EdgeInsets.fromLTRB(16, 28, 0, 10),
+            padding: const EdgeInsets.fromLTRB(16, 28, 0, 10),
             alignment: Alignment.center,
             color: Colors.white,
             child: Center(
@@ -396,7 +394,7 @@ class ChatPageState extends State<ChatPage> {
                   child: Text(
                     message.text,
                     textAlign: TextAlign.left,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.black,
                       fontSize: 24,
                     ),
@@ -428,11 +426,11 @@ class ChatPageState extends State<ChatPage> {
       popupmenu.MenuItem(
         title: '复制',
         textAlign: TextAlign.center,
-        textStyle: TextStyle(
+        textStyle: const TextStyle(
           color: Color(0xffc5c5c5),
           fontSize: 10.0,
         ),
-        image: Icon(
+        image: const Icon(
           Icons.copy,
           color: Colors.white,
         ),
@@ -441,11 +439,11 @@ class ChatPageState extends State<ChatPage> {
       popupmenu.MenuItem(
         title: '转发',
         textAlign: TextAlign.center,
-        textStyle: TextStyle(
+        textStyle: const TextStyle(
           fontSize: 10.0,
           color: Colors.white,
         ),
-        image: Icon(
+        image: const Icon(
           Icons.forward,
           color: Colors.white,
         ),
@@ -507,8 +505,8 @@ class ChatPageState extends State<ChatPage> {
         popupmenu.MenuItem(
           title: '撤回',
           textAlign: TextAlign.center,
-          textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-          image: Icon(
+          textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+          image: const Icon(
             Icons.play_disabled,
             color: Colors.white,
           ),

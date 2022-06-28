@@ -17,19 +17,19 @@ class MoreItemCard extends StatelessWidget {
         : 0.0;
     double _top = _margin != 0.0 ? _margin / 10 : 20.0;
 
-    return new Container(
+    return Container(
       padding: EdgeInsets.only(top: _top, bottom: 5.0),
       width: (Get.width - 70) / 4,
-      child: new Column(
+      child: Column(
         children: <Widget>[
-          new Container(
+          Container(
             width: 50,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               borderRadius: BorderRadius.all(
                 Radius.circular(10.0),
               ),
             ),
-            child: new TextButton(
+            child: TextButton(
               style: TextButton.styleFrom(
                 minimumSize: Size.zero,
                 padding: EdgeInsets.zero,
@@ -45,14 +45,14 @@ class MoreItemCard extends StatelessWidget {
               //     Radius.circular(10.0),
               //   ),
               // ),
-              child: new Container(
+              child: Container(
                 width: 50.0,
-                child: new Image(image: AssetImage(icon!), fit: BoxFit.cover),
+                child: Image(image: AssetImage(icon!), fit: BoxFit.cover),
               ),
             ),
           ),
-          new Space(width: mainSpace / 2),
-          new Text(
+          Space(width: mainSpace / 2),
+          Text(
             name ?? '',
             style: TextStyle(color: AppColors.MainTextColor, fontSize: 11),
           ),

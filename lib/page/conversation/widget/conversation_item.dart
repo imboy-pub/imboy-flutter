@@ -36,9 +36,9 @@ class ConversationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var icon = <Widget>[];
-    if (this.status == 10) {
+    if (status == 10) {
       icon.add(
-        Padding(
+        const Padding(
           padding: EdgeInsets.only(right: 4),
           child: Image(
             image: AssetImage('assets/images/conversation/sending.png'),
@@ -49,9 +49,9 @@ class ConversationItem extends StatelessWidget {
         ),
       );
     }
-    // debugPrint(">>> on this.imgUri ${this.imgUri!}");
+    // debugPrint(">>> on imgUri ${imgUri!}");
     return Container(
-      padding: EdgeInsets.only(left: 10.0, right: 10),
+      padding: const EdgeInsets.only(left: 10.0, right: 10),
       color: Colors.white,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -59,29 +59,29 @@ class ConversationItem extends StatelessWidget {
           Obx(
             () => Badge(
               position: BadgePosition.topEnd(top: -4, end: -4),
-              showBadge: (this.remindCounter > 0 ? true : false),
+              showBadge: (remindCounter > 0 ? true : false),
               shape: BadgeShape.square,
               borderRadius: BorderRadius.circular(10),
-              padding: EdgeInsets.fromLTRB(5, 3, 5, 3),
-              animationDuration: Duration(milliseconds: 500),
+              padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+              animationDuration: const Duration(milliseconds: 500),
               animationType: BadgeAnimationType.scale,
               badgeContent: Text(
-                this.remindCounter.toString(),
-                style: TextStyle(
+                remindCounter.toString(),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 8,
                 ),
               ),
               child: Avatar(
-                imgUri: this.imgUri!,
-                onTap: this.onTapAvatar ?? null,
+                imgUri: imgUri!,
+                onTap: onTapAvatar,
               ),
             ),
           ),
           Container(
-            padding: EdgeInsets.only(right: 0, top: 10.0, bottom: 12.0),
+            padding: const EdgeInsets.only(right: 0, top: 10.0, bottom: 12.0),
             width: Get.width - 69,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               border: Border(
                 top: BorderSide(color: AppColors.LineColor, width: 0.2),
               ),
@@ -96,8 +96,8 @@ class ConversationItem extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            this.title ?? '',
-                            style: TextStyle(
+                            title ?? '',
+                            style: const TextStyle(
                               fontSize: 18.0,
                               fontWeight: FontWeight.normal,
                             ),
@@ -105,13 +105,13 @@ class ConversationItem extends StatelessWidget {
                         ],
                       ),
                       Padding(
-                        padding: EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.only(top: 4),
                         child: Row(
                           children: [
                             Column(
                               children: icon,
                             ),
-                            Expanded(child: ContentMsg(this.payload)),
+                            Expanded(child: ContentMsg(payload)),
                           ],
                         ),
                       ),
@@ -121,8 +121,8 @@ class ConversationItem extends StatelessWidget {
                 // Space(width: mainSpace),
                 Column(
                   children: [
-                    this.time!,
-                    Icon(Icons.flag, color: Colors.transparent),
+                    time!,
+                    const Icon(Icons.flag, color: Colors.transparent),
                   ],
                 )
               ],

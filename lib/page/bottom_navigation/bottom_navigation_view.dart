@@ -51,14 +51,14 @@ class BottomNavigationPage extends StatelessWidget {
                 shape: BadgeShape.square,
                 borderRadius: BorderRadius.circular(10),
                 position: BadgePosition.topStart(top: -4, start: 20),
-                padding: EdgeInsets.fromLTRB(5, 3, 5, 3),
-                child: Icon(Icons.chat),
+                padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+                child: const Icon(Icons.chat),
                 badgeContent: Container(
                   color: Colors.red,
                   alignment: Alignment.center,
                   child: Text(
                     clogic.chatMsgRemindCounter.toString(),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 8,
                     ),
@@ -76,11 +76,11 @@ class BottomNavigationPage extends StatelessWidget {
             //   label: "工作台",
             // ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.perm_contact_cal),
+              icon: const Icon(Icons.perm_contact_cal),
               label: 'title_contact'.tr,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person),
+              icon: const Icon(Icons.person),
               label: 'title_mine'.tr,
             )
           ],

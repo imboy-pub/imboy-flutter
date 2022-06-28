@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/assets.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/view/nodata_view.dart';
 import 'package:imboy/component/view/null_view.dart';
 import 'package:imboy/page/new_friend/new_friend_view.dart';
 import 'package:imboy/page/search/search_view.dart';
@@ -90,7 +91,7 @@ class ContactPage extends StatelessWidget {
             child: Container(
               width: 60.0,
               child:
-                  Image(image: AssetImage('assets/images/search_black.webp')),
+                  const Image(image: AssetImage('assets/images/search_black.webp')),
             ),
             onTap: () => Get.to(SearchPage()),
           ),
@@ -107,10 +108,10 @@ class ContactPage extends StatelessWidget {
                 return logic.getChatListItem(
                   context,
                   model,
-                  defHeaderBgColor: Color(0xFFE5E5E5),
+                  defHeaderBgColor: const Color(0xFFE5E5E5),
                 );
               },
-              physics: BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               susItemBuilder: (BuildContext context, int index) {
                 ContactModel model = contactList.value[index];
                 if ('↑' == model.getSuspensionTag()) {
@@ -122,11 +123,11 @@ class ContactPage extends StatelessWidget {
               indexBarOptions: IndexBarOptions(
                 needRebuild: true,
                 ignoreDragCancel: true,
-                downTextStyle: TextStyle(
+                downTextStyle: const TextStyle(
                   fontSize: 12,
                   color: Colors.white,
                 ),
-                downItemDecoration: BoxDecoration(
+                downItemDecoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.green,
                 ),
@@ -141,13 +142,13 @@ class ContactPage extends StatelessWidget {
                   ),
                 ),
                 indexHintAlignment: Alignment.centerRight,
-                indexHintChildAlignment: Alignment(-0.25, 0.0),
-                indexHintOffset: Offset(-20, 0),
+                indexHintChildAlignment: const Alignment(-0.25, 0.0),
+                indexHintOffset: const Offset(-20, 0),
               ),
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: contactIsEmpty.isTrue ? NullView(str: '无联系人'.tr) : Space(),
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+              child: contactIsEmpty.isTrue ? NoDataView(str: '无联系人'.tr) : Space(),
             ),
           ],
         ),

@@ -8,8 +8,8 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 class NewFriendRepo {
   static String tablename = 'new_friend';
 
-  static String from = 'from';
-  static String to = 'to';
+  static String from = 'fromid';
+  static String to = 'toid';
   static String nickname = 'nickname';
   static String avatar = 'avatar';
   static String msg = 'msg';
@@ -25,16 +25,16 @@ class NewFriendRepo {
   // 插入一条数据
   Future<NewFriendModel> insert(NewFriendModel obj) async {
     Map<String, dynamic> insert = {
-      'from': obj.from,
-      'to': obj.to,
-      'nickname': obj.nickname,
-      'avatar': obj.avatar,
-      'msg': obj.msg,
-      'status': obj.status,
-      'payload': obj.payload,
+      NewFriendRepo.from: obj.from,
+      NewFriendRepo.to: obj.to,
+      NewFriendRepo.nickname: obj.nickname,
+      NewFriendRepo.avatar: obj.avatar,
+      NewFriendRepo.msg: obj.msg,
+      NewFriendRepo.status: obj.status,
+      NewFriendRepo.payload: obj.payload,
       // 单位毫秒，13位时间戳  1561021145560
-      'update_time': obj.updateTime ?? DateTime.now().millisecondsSinceEpoch,
-      'create_time': DateTime.now().millisecondsSinceEpoch,
+      NewFriendRepo.updateTime: obj.updateTime ?? DateTime.now().millisecondsSinceEpoch,
+      NewFriendRepo.createTime: DateTime.now().millisecondsSinceEpoch,
     };
     debugPrint(">>> on NewFriendRepo/insert/1 " + insert.toString());
 
@@ -60,7 +60,7 @@ class NewFriendRepo {
       limit: 10000,
     );
     // debugPrint(">>> on findFriend ${maps.length}, ${maps.toList().toString()}");
-    if (maps.length == 0) {
+    if (maps.isEmpty) {
       return [];
     }
 
@@ -137,11 +137,11 @@ class NewFriendRepo {
   }
 
   void save(Map<String, dynamic> json) async {
-    NewFriendModel? old = await this.findByUid(json["to"]);
+    NewFriendModel? old = await findByUid(json["to"]);
     if (old != null || old is NewFriendModel) {
-      this.update(json);
+      update(json);
     } else {
-      this.insert(NewFriendModel.fromJson(json));
+      insert(NewFriendModel.fromJson(json));
     }
   }
 

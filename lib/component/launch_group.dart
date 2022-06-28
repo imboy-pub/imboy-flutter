@@ -11,16 +11,16 @@ class LaunchGroupItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
-      decoration: BoxDecoration(
+    return Container(
+      decoration: const BoxDecoration(
         border: Border(
           bottom: BorderSide(color: AppColors.LineColor, width: 0.3),
         ),
       ),
       alignment: Alignment.centerLeft,
-      child: new FlatButton(
+      child: FlatButton(
         color: Colors.white,
-        padding: EdgeInsets.symmetric(vertical: 15.0),
+        padding: const EdgeInsets.symmetric(vertical: 15.0),
         onPressed: () {
           if (item == '选择一个群') {
             Get.to(GroupSelectPage());
@@ -28,10 +28,10 @@ class LaunchGroupItem extends StatelessWidget {
             Get.snackbar('', '敬请期待');
           }
         },
-        child: new Container(
+        child: Container(
           width: Get.width,
-          padding: EdgeInsets.only(left: 20.0),
-          child: new Text(item),
+          padding: const EdgeInsets.only(left: 20.0),
+          child: Text(item),
         ),
       ),
     );
@@ -57,20 +57,20 @@ class LaunchSearch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Row(
+    return Row(
       children: <Widget>[
-        new Padding(
+        const Padding(
           padding: EdgeInsets.only(right: 10.0),
-          child: new Image(
+          child: Image(
             image: AssetImage('assets/images/search_black.webp'),
             color: AppColors.MainTextColor,
           ),
         ),
-        new Expanded(
-          child: new TextField(
+        Expanded(
+          child: TextField(
             focusNode: searchF,
             controller: searchC,
-            style: TextStyle(textBaseline: TextBaseline.alphabetic),
+            style: const TextStyle(textBaseline: TextBaseline.alphabetic),
             decoration: InputDecoration(
               hintText: '搜索',
               hintStyle: TextStyle(color: AppColors.LineColor.withOpacity(0.7)),
@@ -83,8 +83,8 @@ class LaunchSearch extends StatelessWidget {
           ),
         ),
         strNoEmpty(searchC!.text)
-            ? new InkWell(
-                child: new Image(
+            ? InkWell(
+                child: const Image(
                   image: AssetImage('assets/images/ic_delete.webp'),
                 ),
                 onTap: () {
@@ -92,7 +92,7 @@ class LaunchSearch extends StatelessWidget {
                   delOnTap!();
                 },
               )
-            : new Container()
+            : Container()
       ],
     );
   }

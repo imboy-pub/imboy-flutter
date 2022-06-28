@@ -26,23 +26,23 @@ class ExtraItem extends StatelessWidget {
     return GestureDetector(
       onTap: this.onPressed ?? () => Get.snackbar('Tips', '功能暂未实现'),
       child: Padding(
-        padding: EdgeInsets.only(left: 15, top: 13, right: 15, bottom: 0),
+        padding: const EdgeInsets.only(left: 15, top: 13, right: 15, bottom: 0),
         child: Column(
           children: [
             Container(
-              width: this.width ?? 56,
-              height: this.height ?? 56,
+              width: width ?? 56,
+              height: height ?? 56,
               // margin: EdgeInsets.symmetric(horizontal: 10),
               child: Material(
                 color: AppColors.ChatInputBackgroundColor,
                 // INK可以实现装饰容器
-                child: new Ink(
+                child: Ink(
                   // 用ink圆角矩形
                   decoration: BoxDecoration(
                     // 背景
                     color: AppColors.ChatInputFillGgColor,
                     // 设置四周圆角 角度
-                    borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                    borderRadius: const BorderRadius.all(Radius.circular(16.0)),
                     // 设置四周边框
                     border: Border.all(
                       width: 1,
@@ -50,12 +50,12 @@ class ExtraItem extends StatelessWidget {
                     ),
                   ),
                   child: Image(
-                    image: this.image,
+                    image: image,
                   ),
                 ),
               ),
             ),
-            Text(this.title),
+            Text(title),
           ],
         ),
       ),
@@ -92,22 +92,22 @@ class _ExtraItemsState extends State<ExtraItems> {
             children: [
               ExtraItem(
                 title: "照片".tr,
-                image: AssetImage('assets/images/chat/extra_photo.webp'),
+                image: const AssetImage('assets/images/chat/extra_photo.webp'),
                 onPressed: widget.handleImageSelection,
               ),
               ExtraItem(
                 title: "拍摄".tr,
-                image: AssetImage('assets/images/chat/extra_camera.webp'),
+                image: const AssetImage('assets/images/chat/extra_camera.webp'),
                 onPressed: widget.handlePickerSelection,
               ),
               ExtraItem(
                 title: "视频通话".tr,
-                image: AssetImage('assets/images/chat/extra_videocall.webp'),
+                image: const AssetImage('assets/images/chat/extra_videocall.webp'),
                 onPressed: null,
               ),
               ExtraItem(
                 title: "位置".tr,
-                image: AssetImage('assets/images/chat/extra_localtion.webp'),
+                image: const AssetImage('assets/images/chat/extra_localtion.webp'),
                 onPressed: null,
               ),
             ],
@@ -116,22 +116,22 @@ class _ExtraItemsState extends State<ExtraItems> {
             children: [
               ExtraItem(
                 title: "语音通话".tr,
-                image: AssetImage('assets/images/chat/extra_media.webp'),
+                image: const AssetImage('assets/images/chat/extra_media.webp'),
                 onPressed: null,
               ),
               ExtraItem(
                 title: "语音输入".tr,
-                image: AssetImage('assets/images/chat/extra_voice.webp'),
+                image: const AssetImage('assets/images/chat/extra_voice.webp'),
                 onPressed: null,
               ),
               ExtraItem(
                 title: "收藏".tr,
-                image: AssetImage('assets/images/chat/extra_favorite.webp'),
+                image: const AssetImage('assets/images/chat/extra_favorite.webp'),
                 onPressed: null,
               ),
               ExtraItem(
                 title: "个人名片".tr,
-                image: AssetImage('assets/images/chat/extra_card.webp'),
+                image: const AssetImage('assets/images/chat/extra_card.webp'),
                 onPressed: null,
               ),
             ],
@@ -143,12 +143,12 @@ class _ExtraItemsState extends State<ExtraItems> {
           Row(children: [
             ExtraItem(
               title: "文件".tr,
-              image: AssetImage('assets/images/chat/extra_file.webp'),
+              image: const AssetImage('assets/images/chat/extra_file.webp'),
               onPressed: widget.handleFileSelection,
             ),
             ExtraItem(
               title: "卡券".tr,
-              image: AssetImage('assets/images/chat/extra_wallet.png'),
+              image: const AssetImage('assets/images/chat/extra_wallet.png'),
               onPressed: null,
             ),
           ]),
@@ -174,7 +174,7 @@ class _ExtraItemsState extends State<ExtraItems> {
             ),
             items: items.map((tab) {
               return Padding(
-                padding: EdgeInsets.only(left: 8),
+                padding: const EdgeInsets.only(left: 8),
                 child: tab,
               );
             }).toList(),
@@ -188,7 +188,7 @@ class _ExtraItemsState extends State<ExtraItems> {
               child: Container(
                 width: 10.0,
                 height: 10.0,
-                margin: EdgeInsets.symmetric(
+                margin: const EdgeInsets.symmetric(
                   vertical: 8.0,
                   horizontal: 6.0,
                 ),

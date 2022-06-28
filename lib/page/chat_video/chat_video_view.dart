@@ -77,7 +77,7 @@ class _ChatVideoPageState extends State<ChatVideoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: IconButton(
-        icon: Icon(Icons.close),
+        icon: const Icon(Icons.close),
         onPressed: () {
           Get.back();
         },
@@ -93,7 +93,7 @@ class _ChatVideoPageState extends State<ChatVideoPage> {
           : Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircularProgressIndicator(),
+                const CircularProgressIndicator(),
                 Text("Loading".tr),
               ],
             ),

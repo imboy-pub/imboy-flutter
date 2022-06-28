@@ -3,12 +3,12 @@ import 'package:imboy/config/const.dart';
 import 'package:niku/namespace.dart' as n;
 
 class SearchBar extends StatelessWidget {
-  final GestureTapCallback onTap;
+  final GestureTapCallback? onTap;
   final String text;
   final bool isBorder;
 
   SearchBar({
-    required this.onTap,
+    this.onTap,
     required this.text,
     this.isBorder = false,
   });
@@ -20,20 +20,20 @@ class SearchBar extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           border: isBorder
-              ? Border(
+              ? const Border(
                   bottom: BorderSide(color: Colors.grey, width: 0.2),
                 )
               : null,
         ),
-        padding: EdgeInsets.symmetric(vertical: 15.0),
+        padding: const EdgeInsets.symmetric(vertical: 15.0),
         child: n.Row([
-          Padding(
+          const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.0),
             child: Icon(Icons.search, color: AppColors.MainTextColor),
           ),
           Text(
             text,
-            style: TextStyle(color: AppColors.MainTextColor),
+            style: const TextStyle(color: AppColors.MainTextColor),
           )
         ]),
       ),

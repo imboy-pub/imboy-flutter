@@ -24,41 +24,41 @@ void confirmAlert<T>(
       if (!strNoEmpty(warmStr!)) warmStr = '温馨提示：';
       return CupertinoAlertDialog(
         title: isWarm
-            ? new Padding(
-                padding: EdgeInsets.only(bottom: 20.0, top: 0),
+            ? Padding(
+                padding: const EdgeInsets.only(bottom: 20.0, top: 0),
                 child: Text(
                   '$warmStr',
-                  style: TextStyle(
+                  style: const TextStyle(
                       color: Color(0xff343243),
                       fontSize: 19.0,
                       fontWeight: FontWeight.normal),
                 ),
               )
-            : new Padding(
-                padding: EdgeInsets.symmetric(vertical: 10.0),
+            : Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: Text(
                   '$tips',
-                  style: TextStyle(
+                  style: const TextStyle(
                       color: Color(0xff343243),
                       fontSize: 19.0,
                       fontWeight: FontWeight.normal),
                 ),
               ),
         content: isWarm
-            ? new Padding(
-                padding: EdgeInsets.only(bottom: 10.0),
+            ? Padding(
+                padding: const EdgeInsets.only(bottom: 10.0),
                 child: Text(
                   '$tips',
-                  style: TextStyle(color: Color(0xff888697)),
+                  style: const TextStyle(color: Color(0xff888697)),
                 ),
               )
-            : new Container(),
+            : Container(),
         actions: <Widget>[
           CupertinoDialogAction(
-            child: new Text(
+            child: Text(
               '$cancelBtn',
               style:
-                  TextStyle(fontWeight: FontWeight.w400, color: Colors.black),
+                  const TextStyle(fontWeight: FontWeight.w400, color: Colors.black),
             ),
             isDefaultAction: true,
             onPressed: () {
@@ -67,7 +67,7 @@ void confirmAlert<T>(
             },
           ),
           CupertinoDialogAction(
-            child: new Text('$okBtn', style: okBtnStyle),
+            child: Text('$okBtn', style: okBtnStyle),
             isDestructiveAction: true,
             onPressed: () {
               Navigator.pop(context);

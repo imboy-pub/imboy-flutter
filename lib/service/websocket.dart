@@ -106,7 +106,7 @@ class WSService extends GetxService {
       debugPrint('>>> on ws ${DateTime.now()} openSocket token empty');
       return;
     }
-    if (token_expired(token)) {
+    if (tokenExpired(token)) {
       await UserRepoLocal.to.refreshtoken();
       token = UserRepoLocal.to.accessToken;
     }

@@ -56,14 +56,14 @@ class _IconTextViewState extends State<IconTextView> {
 
     if (widget.leftIcon != null) {
       leftList.add(Container(
-        padding: EdgeInsets.only(left: 0, right: 10),
+        padding: const EdgeInsets.only(left: 0, right: 10),
         child: widget.leftIcon,
       ));
     }
 
     if (widget.leftIconAsset != null) {
       Widget leftIconAssetWidget = Container(
-        padding: EdgeInsets.only(left: 10, right: 10),
+        padding: const EdgeInsets.only(left: 10, right: 10),
         child: Image.asset(widget.leftIconAsset!, width: 36, height: 36),
       );
       leftList.add(leftIconAssetWidget);
@@ -71,8 +71,8 @@ class _IconTextViewState extends State<IconTextView> {
 
     if (widget.leftText != null) {
       leftList.add(Container(
-          padding: EdgeInsets.only(left: 0),
-          child: Text(widget.leftText!, style: TextStyle(fontSize: 16))));
+          padding: const EdgeInsets.only(left: 0),
+          child: Text(widget.leftText!, style: const TextStyle(fontSize: 16))));
     }
 
     if (widget.leftTextWidget != null) {
@@ -82,7 +82,7 @@ class _IconTextViewState extends State<IconTextView> {
     if (widget.rightText != null) {
       rightList.add(Text(
         widget.rightText!,
-        style: TextStyle(fontSize: 15),
+        style: const TextStyle(fontSize: 15),
       ));
     }
 
@@ -96,7 +96,7 @@ class _IconTextViewState extends State<IconTextView> {
 
     if (widget.rightIconAsset != null) {
       Widget leftIconAssetWidget = Container(
-        padding: EdgeInsets.only(left: 10, right: 10),
+        padding: const EdgeInsets.only(left: 10, right: 10),
         child: Image.asset(widget.rightIconAsset!, width: 36, height: 36),
       );
       rightList.add(leftIconAssetWidget);
@@ -104,8 +104,8 @@ class _IconTextViewState extends State<IconTextView> {
 
     if (widget.shotArrow == true) {
       Widget leftIconAssetWidget = Container(
-        padding: EdgeInsets.only(left: 10, right: 10),
-        child: Icon(Icons.chevron_right),
+        padding: const EdgeInsets.only(left: 10, right: 10),
+        child: const Icon(Icons.chevron_right),
       );
       rightList.add(leftIconAssetWidget);
     }
@@ -138,7 +138,7 @@ class _IconTextViewState extends State<IconTextView> {
           height: widget.height,
           decoration: widget.decoration ??
               (BoxDecoration(
-                  color: _isClickDown ? Color(0xFFEEEEEE) : Colors.white)),
+                  color: _isClickDown ? const Color(0xFFEEEEEE) : Colors.white)),
           child: Stack(
             children: <Widget>[
               Positioned(

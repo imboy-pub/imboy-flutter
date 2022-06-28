@@ -12,48 +12,48 @@ class SearchTileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var bt = new TextButton(
+    var bt = TextButton(
       onPressed: onPressed ?? () {},
-      child: new Row(
+      child: Row(
         children: <Widget>[
-          new Padding(
+          const Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.0),
-            child: new Icon(
+            child: Icon(
               Icons.map,
               color: Colors.green,
               size: 50.0,
             ),
           ),
-          new Text('搜索：'),
-          new Text(
+          const Text('搜索：'),
+          Text(
             text!,
-            style: TextStyle(color: Colors.green),
+            style: const TextStyle(color: Colors.green),
           ),
         ],
       ),
     );
 
-    var row = new Row(
+    var row = Row(
       children: <Widget>[
-        new Padding(
+        const Padding(
           padding: EdgeInsets.symmetric(horizontal: 10.0),
-          child: new Icon(Icons.map, color: Colors.green, size: 50.0),
+          child: Icon(Icons.map, color: Colors.green, size: 50.0),
         ),
-        new Column(
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            new Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                new Text('搜一搜：'),
-                new Text(
+                const Text('搜一搜：'),
+                Text(
                   text!,
-                  style: TextStyle(color: Colors.green),
+                  style: const TextStyle(color: Colors.green),
                 ),
               ],
             ),
-            new Text(
+            const Text(
               '小程序、公众号、文章、朋友圈、和表情等',
               style: TextStyle(color: AppColors.MainTextColor),
             )
@@ -63,7 +63,7 @@ class SearchTileView extends StatelessWidget {
     );
 
     if (type == 0) {
-      return new Container(
+      return Container(
         decoration: BoxDecoration(
             color: strNoEmpty(text) ? Colors.white : AppColors.AppBarColor,
             border: Border(
@@ -71,10 +71,10 @@ class SearchTileView extends StatelessWidget {
                     color: Colors.grey.withOpacity(0.2), width: 0.5))),
         width: Get.width,
         height: 65.0,
-        child: strNoEmpty(text) ? bt : new Container(),
+        child: strNoEmpty(text) ? bt : Container(),
       );
     } else {
-      return new Container(
+      return Container(
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border(
@@ -83,9 +83,9 @@ class SearchTileView extends StatelessWidget {
         ),
         width: Get.width,
         height: 65.0,
-        child: new TextButton(
+        child: TextButton(
           style: TextButton.styleFrom(
-            padding: EdgeInsets.symmetric(vertical: 15.0),
+            padding: const EdgeInsets.symmetric(vertical: 15.0),
             backgroundColor: Colors.white,
           ),
           onPressed: () {},

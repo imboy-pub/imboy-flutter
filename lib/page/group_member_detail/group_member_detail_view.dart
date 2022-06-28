@@ -21,8 +21,8 @@ class _GroupMemberDetailPageState extends State<GroupMemberDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new PageAppBar(title: '等待编写'),
+    return Scaffold(
+      appBar: PageAppBar(title: '等待编写'.tr),
     );
   }
 

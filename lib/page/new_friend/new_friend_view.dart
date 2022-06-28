@@ -4,6 +4,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/ui/search_bar.dart';
+import 'package:imboy/component/view/nodata_view.dart';
 import 'package:imboy/component/view/null_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
@@ -93,7 +94,7 @@ class NewFriendPage extends StatelessWidget {
               Expanded(
                 child: Obx(() {
                   return logic.items.isEmpty
-                      ? NullView(
+                      ? NoDataView(
                           str: '没有新的好友'.tr,
                         )
                       : ListView.builder(

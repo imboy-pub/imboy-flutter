@@ -21,23 +21,23 @@ class Avatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: this.onTap ?? null,
+      onTap: onTap,
       child: Container(
-        width: this.width ?? 49,
-        height: this.height ?? 49,
+        width: width ?? 49,
+        height: height ?? 49,
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(4.0),
           border: Border.all(
             width: 1,
             style: BorderStyle.solid,
-            color: Color(0xFFE5E5E5),
+            color: const Color(0xFFE5E5E5),
           ),
-          color: Color(0xFFE5E5E5),
+          color: const Color(0xFFE5E5E5),
           image: DecorationImage(
-            image: isNetWorkImg(this.imgUri)
-                ? CachedNetworkImageProvider(this.imgUri)
-                : AssetImage(this.imgUri) as ImageProvider,
+            image: isNetWorkImg(imgUri)
+                ? CachedNetworkImageProvider(imgUri)
+                : AssetImage(imgUri) as ImageProvider,
             fit: BoxFit.cover,
           ),
         ),

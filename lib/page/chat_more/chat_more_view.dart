@@ -69,7 +69,7 @@ class _ChatMorePageState extends State<ChatMorePage> {
       //   WidgetsFlutterBinding.ensureInitialized();
       //   cameras = await availableCameras();
       //
-      //   routePush(new ShootPage(cameras));
+      //   routePush(ShootPage(cameras));
       // } on CameraException catch (e) {
       //   logError(e.code, e.description);
       // }
@@ -79,16 +79,16 @@ class _ChatMorePageState extends State<ChatMorePage> {
   }
 
   itemBuild(data) {
-    return new Container(
-      margin: EdgeInsets.all(20.0),
-      padding: EdgeInsets.only(bottom: 20.0),
-      child: new Wrap(
+    return Container(
+      margin: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: Wrap(
         runSpacing: 10.0,
         spacing: 10,
         children: List.generate(data.length, (index) {
           String name = data[index]['name'];
           String icon = data[index]['icon'];
-          return new MoreItemCard(
+          return MoreItemCard(
             name: name,
             icon: icon,
             keyboardHeight: widget.keyboardHeight,

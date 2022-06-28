@@ -31,15 +31,15 @@ class MessageRepo {
     if (count == 0) {
       Map<String, dynamic> insert = {
         'autoid': null,
-        '${MessageRepo.id}': msg.id,
-        '${MessageRepo.type}': msg.type,
-        '${MessageRepo.from}': msg.fromId,
-        '${MessageRepo.to}': msg.toId,
-        '${MessageRepo.payload}': json.encode(msg.payload),
-        '${MessageRepo.createdAt}': msg.createdAt,
-        '${MessageRepo.serverTs}': msg.serverTs ?? 0,
-        '${MessageRepo.conversationId}': msg.conversationId,
-        '${MessageRepo.status}': msg.status,
+        '$MessageRepo.id': msg.id,
+        '$MessageRepo.type': msg.type,
+        '$MessageRepo.from': msg.fromId,
+        '$MessageRepo.to': msg.toId,
+        '$MessageRepo.payload': json.encode(msg.payload),
+        '$MessageRepo.createdAt': msg.createdAt,
+        '$MessageRepo.serverTs': msg.serverTs ?? 0,
+        '$MessageRepo.conversationId': msg.conversationId,
+        '$MessageRepo.status': msg.status,
       };
       debugPrint(">>> on MessgeMode/insert " + insert.toString());
       await _db.insert(MessageRepo.tablename, insert);
@@ -55,14 +55,14 @@ class MessageRepo {
     return await _db.update(
       MessageRepo.tablename,
       data,
-      where: '${MessageRepo.id} = ?',
+      where: '$MessageRepo.id = ?',
       whereArgs: [data['id']],
     );
   }
 
   // 存在就更新，不存在就插入
   Future<MessageModel> save(MessageModel obj) async {
-    String where = '${MessageRepo.id} = ?';
+    String where = '$MessageRepo.id = ?';
     debugPrint(">>>>> on MessageRepo/save obj: " + obj.toJson().toString());
     int? count = await _db.count(
       MessageRepo.tablename,
@@ -75,7 +75,7 @@ class MessageRepo {
     } else {
       insert(obj);
     }
-    debugPrint(">>>>> on MessageRepo/save count:$count; id: ${obj.id}");
+    debugPrint(">>>>> on MessageRepo/save count:$count; id: $obj.id");
     return obj;
   }
 
@@ -97,13 +97,13 @@ class MessageRepo {
         MessageRepo.status,
         MessageRepo.conversationId,
       ],
-      where: "${MessageRepo.conversationId} = ?",
+      where: "$MessageRepo.conversationId = ?",
       whereArgs: [conversationId],
-      orderBy: "${MessageRepo.createdAt} DESC",
+      orderBy: "$MessageRepo.createdAt DESC",
       offset: ((page - 1) > 0 ? (page - 1) : 0) * size,
       limit: size,
     );
-    if (maps == null || maps.length == 0) {
+    if (maps.isEmpty) {
       return [];
     }
 
@@ -129,9 +129,9 @@ class MessageRepo {
           MessageRepo.conversationId,
           MessageRepo.status,
         ],
-        where: '${MessageRepo.id} = ?',
+        where: '$MessageRepo.id = ?',
         whereArgs: [id]);
-    if (maps.length > 0) {
+    if (maps.isNotEmpty) {
       return MessageModel.fromJson(maps.first);
     }
     return null;
@@ -140,7 +140,7 @@ class MessageRepo {
   // 根据ID删除信息
   Future<int> delete(String id) async {
     return await _db.delete(MessageRepo.tablename,
-        where: '${MessageRepo.id} = ?', whereArgs: [id]);
+        where: '$MessageRepo.id = ?', whereArgs: [id]);
   }
 
 // 记得及时关闭数据库，防止内存泄漏

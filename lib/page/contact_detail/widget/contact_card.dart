@@ -30,7 +30,7 @@ class ContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle labelStyle = TextStyle(
+    TextStyle labelStyle = const TextStyle(
       fontSize: 14,
       color: AppColors.MainTextColor,
     );
@@ -40,7 +40,7 @@ class ContactCard extends StatelessWidget {
         children: <Widget>[
           Text(
             nickname ?? '未知',
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.black,
               fontSize: 18.0,
               fontWeight: FontWeight.w600,
@@ -51,15 +51,15 @@ class ContactCard extends StatelessWidget {
         ],
       ),
     ];
-    if (strNoEmpty(this.account)) {
+    if (strNoEmpty(account)) {
       items.add(Padding(
-        padding: EdgeInsets.only(top: 3.0),
-        child: Text("账号：" + this.account!, style: labelStyle),
+        padding: const EdgeInsets.only(top: 3.0),
+        child: Text("账号：" + account!, style: labelStyle),
       ));
     }
-    if (strNoEmpty(this.region)) {
+    if (strNoEmpty(region)) {
       items.add(
-        Text("地区：" + this.region, style: labelStyle),
+        Text("地区：" + region, style: labelStyle),
       );
     }
     return Container(
@@ -73,7 +73,7 @@ class ContactCard extends StatelessWidget {
             : null,
       ),
       width: Get.width,
-      padding: EdgeInsets.only(right: 15.0, left: 15.0, bottom: 20.0),
+      padding: const EdgeInsets.only(right: 15.0, left: 15.0, bottom: 20.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[

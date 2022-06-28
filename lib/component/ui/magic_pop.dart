@@ -231,7 +231,7 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
                     width: _arrowWidth,
                     height: widget.menuHeight,
                     child: Image(
-                      image: AssetImage('images/left_white.png'),
+                      image: const AssetImage('images/left_white.png'),
                       fit: BoxFit.none,
                     ),
                   ),
@@ -299,7 +299,7 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
               child: Stack(
                 children: <Widget>[
                   ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                    borderRadius: const BorderRadius.all(Radius.circular(5)),
                     child: Container(
                       color: widget.backgroundColor,
                       height: widget.menuHeight,
@@ -353,7 +353,7 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
       double _curArrowWidth, int _curArrowCount) {
     return ListView.separated(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       scrollDirection: Axis.horizontal,
       itemCount: _curPageChildCount,
       itemBuilder: (BuildContext context, int index) {
@@ -372,7 +372,7 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
             child: Center(
               child: Text(
                 widget.actions[_curPage * widget._pageMaxChildCount + index],
-                style: TextStyle(color: Colors.white, fontSize: 16),
+                style: const TextStyle(color: Colors.white, fontSize: 16),
               ),
             ),
           ),

@@ -43,7 +43,7 @@ class LabelRow extends StatelessWidget {
         onPressed: onPressed ?? () {},
         child: Container(
           padding: padding,
-          margin: EdgeInsets.only(left: 20.0),
+          margin: const EdgeInsets.only(left: 20.0),
           decoration: BoxDecoration(
             border: isLine!
                 ? Border(
@@ -58,7 +58,7 @@ class LabelRow extends StatelessWidget {
                 width: labelWidth,
                 child: Text(
                   label ?? '',
-                  style: TextStyle(fontSize: 17.0),
+                  style: const TextStyle(fontSize: 17.0),
                 ),
               ),
               value != null
@@ -67,13 +67,13 @@ class LabelRow extends StatelessWidget {
                         color: AppColors.MainTextColor.withOpacity(0.7),
                       ))
                   : Container(),
-              Spacer(),
+              const Spacer(),
               rValue != null
                   ? Text(rValue!,
                       style: TextStyle(
                           color: AppColors.MainTextColor.withOpacity(0.7),
                           fontWeight: FontWeight.w400))
-                  : SizedBox.shrink(),
+                  : const SizedBox.shrink(),
               rightW != null ? rightW! : Container(),
               isRight!
                   ? Icon(CupertinoIcons.right_chevron,

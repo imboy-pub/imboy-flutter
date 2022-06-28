@@ -47,19 +47,19 @@ class ListTileView extends StatelessWidget {
         Text(title ?? '', style: titleStyle),
         Text(
           label ?? '',
-          style: TextStyle(color: AppColors.MainTextColor, fontSize: 12),
+          style: const TextStyle(color: AppColors.MainTextColor, fontSize: 12),
         ),
       ],
     );
 
     var view = [
       isLabel ? text : Text(title!, style: titleStyle),
-      Spacer(),
+      const Spacer(),
       needRightArrow
           ? Container(
               width: 7.0,
               child: Image(
-                image: AssetImage('assets/images/ic_right_arrow_grey.webp'),
+                image: const AssetImage('assets/images/ic_right_arrow_grey.webp'),
                 color: AppColors.MainTextColor.withOpacity(0.5),
                 fit: BoxFit.cover,
               ),

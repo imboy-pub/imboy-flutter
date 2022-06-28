@@ -12,6 +12,6 @@ extension GetExtension on GetInterface {
     if (Get.isDialogOpen!) {
       Get.back();
     }
-    Get.dialog(LoadingDialog());
+    Get.dialog(const LoadingDialog());
   }
 }

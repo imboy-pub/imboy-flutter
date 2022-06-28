@@ -19,13 +19,13 @@ class SelectRegionLogic extends GetxController {
 
   void valueOnChange(bool ischange) {
     // 必须使用 .value 修饰具体的值
-    this.valueChanged.value = ischange;
-    update([this.valueChanged]);
+    valueChanged.value = ischange;
+    update([valueChanged]);
   }
 
   /// 选中title
   void regionSelectedTitle(String title) {
-    this.regionSelected.value.clear();
+    regionSelected.value.clear();
     // this.regionSelected.value.forEach((key, value) {
     //   this.regionSelected.value[key] = {
     //     "selected": false,
@@ -33,14 +33,14 @@ class SelectRegionLogic extends GetxController {
     //   };
     // });
 
-    this.regionSelected.value[title.trim()] = {
+    regionSelected.value[title.trim()] = {
       "selected": true,
-      "trailing": Text(
+      "trailing": const Text(
         "√",
         style: TextStyle(fontSize: 20),
       ),
     };
-    this.regionSelected.refresh();
+    regionSelected.refresh();
   }
 
   /// context 上下文
@@ -83,15 +83,15 @@ class SelectRegionLogic extends GetxController {
                 )
               : (regionSelected.value[title] != null &&
                       regionSelected.value[title]["selected"] == true
-                  ? this.regionSelected.value[title]["trailing"]
+                  ? regionSelected.value[title]["trailing"]
                   : null),
           onTap: () {
-            this.selectedVal.value =
+            selectedVal.value =
                 strEmpty(parent) ? title : parent + " " + title;
             if (isRight) {
               Get.to(
                 SelectRegionPage(
-                  parent: this.selectedVal.value,
+                  parent: selectedVal.value,
                   children: children,
                   callback: callback,
                   outCallback: outCallback,
@@ -101,15 +101,13 @@ class SelectRegionLogic extends GetxController {
             } else {
               // getListItem/4 第4个参数，有里面有业务逻辑处理
               callback(parent, title);
-              this.regionSelectedTitle(title);
-              this.valueOnChange(true);
+              regionSelectedTitle(title);
+              valueOnChange(true);
             }
-            debugPrint(
-                "on >>> SelectRegionLogic/onTap ${isRight} ${parent} :${title}, selected= ${this.regionSelected[title] != null && this.regionSelected[title]["selected"] == true}, ${this.regionSelected.toString()}");
           },
         ),
         // 下边框
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           border: Border(
             bottom: BorderSide(
               width: 1,
@@ -154,7 +152,7 @@ class SelectRegionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(Duration(milliseconds: 100)).then((e) {
+    Future.delayed(const Duration(milliseconds: 100)).then((e) {
       logic.valueOnChange(false);
     });
     return Scaffold(
@@ -165,7 +163,7 @@ class SelectRegionPage extends StatelessWidget {
             child: Text(
               '设置地区'.tr,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 // color: Colors.white,
                 fontSize: 16.0,
                 fontWeight: FontWeight.bold,
@@ -179,7 +177,6 @@ class SelectRegionPage extends StatelessWidget {
                 bool res = await outCallback(logic.selectedVal.value);
                 if (res) {
                   int t = logic.selectedVal.value.split(" ").length;
-                  debugPrint(">>> on Get.close/${t}");
                   Get.close(t);
                 }
               },
@@ -195,7 +192,7 @@ class SelectRegionPage extends StatelessWidget {
                       foregroundColor: MaterialStateProperty.all<Color>(
                         Colors.white,
                       ),
-                      minimumSize: MaterialStateProperty.all(Size(60, 40)),
+                      minimumSize: MaterialStateProperty.all(const Size(60, 40)),
                       visualDensity: VisualDensity.compact,
                       padding: MaterialStateProperty.all(EdgeInsets.zero),
                     )
@@ -206,7 +203,7 @@ class SelectRegionPage extends StatelessWidget {
                       foregroundColor: MaterialStateProperty.all<Color>(
                         AppColors.LineColor,
                       ),
-                      minimumSize: MaterialStateProperty.all(Size(60, 40)),
+                      minimumSize: MaterialStateProperty.all(const Size(60, 40)),
                       visualDensity: VisualDensity.compact,
                       padding: MaterialStateProperty.all(EdgeInsets.zero),
                     ),
@@ -228,15 +225,15 @@ class SelectRegionPage extends StatelessWidget {
               itemBuilder: (BuildContext context, int index) {
                 return logic.getListItem(
                   context,
-                  this.parent,
-                  this.children[index],
+                  parent,
+                  children[index],
                   (a, b) async {
                     return true;
                   },
-                  this.outCallback,
+                  outCallback,
                 );
               },
-              itemCount: this.children.length,
+              itemCount: children.length,
             ),
           ),
         ],

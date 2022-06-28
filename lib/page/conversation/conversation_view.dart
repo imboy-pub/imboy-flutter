@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/view/nodata_view.dart';
 import 'package:imboy/component/view/null_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
@@ -62,7 +63,7 @@ class ConversationPage extends StatelessWidget {
     popupmenu.MenuItem it = item as popupmenu.MenuItem;
     String action = it.userInfo as String;
     if (action == "scanqrcode") {
-      Get.to(ScannerPage());
+      Get.to(const ScannerPage());
     } else if (it.menuTitle == "撤回") {
       // await logic.revokeMessage(msg);
     }
@@ -79,7 +80,7 @@ class ConversationPage extends StatelessWidget {
             InkWell(
               child: Container(
                 width: 46.0,
-                child: Icon(
+                child: const Icon(
                   Icons.add_circle_outline_sharp,
                   color: Colors.black54,
                 ),
@@ -89,11 +90,11 @@ class ConversationPage extends StatelessWidget {
                   popupmenu.MenuItem(
                     title: '发起群聊'.tr,
                     textAlign: TextAlign.center,
-                    textStyle: TextStyle(
+                    textStyle: const TextStyle(
                       color: Color(0xffc5c5c5),
                       fontSize: 14.0,
                     ),
-                    image: Icon(
+                    image: const Icon(
                       Icons.chat_rounded,
                       color: Colors.white,
                     ),
@@ -102,11 +103,11 @@ class ConversationPage extends StatelessWidget {
                   popupmenu.MenuItem(
                     title: '添加好友'.tr,
                     textAlign: TextAlign.center,
-                    textStyle: TextStyle(
+                    textStyle: const TextStyle(
                       fontSize: 14.0,
                       color: Colors.white,
                     ),
-                    image: Icon(
+                    image: const Icon(
                       Icons.person_add,
                       color: Colors.white,
                     ),
@@ -116,11 +117,11 @@ class ConversationPage extends StatelessWidget {
                     title: '扫一扫'.tr,
                     userInfo: 'scanqrcode',
                     textAlign: TextAlign.center,
-                    textStyle: TextStyle(
+                    textStyle: const TextStyle(
                       fontSize: 14.0,
                       color: Colors.white,
                     ),
-                    image: Icon(
+                    image: const Icon(
                       Icons.qr_code_scanner,
                       color: Colors.white,
                     ),
@@ -130,7 +131,7 @@ class ConversationPage extends StatelessWidget {
                 popupmenu.PopupMenu menu = popupmenu.PopupMenu(
                   items: items,
                   context: context,
-                  config: popupmenu.MenuConfig(
+                  config: const popupmenu.MenuConfig(
                     type: popupmenu.MenuType.list,
                     itemWidth: 110,
                     itemHeight: 48,
@@ -157,7 +158,7 @@ class ConversationPage extends StatelessWidget {
           titleWiew: Obx(
             () => Text(
               'title_message'.tr + logic.connectDesc.value,
-              style: new TextStyle(
+              style: const TextStyle(
                 color: Colors.black,
                 fontSize: 16.0,
                 fontWeight: FontWeight.w600,
@@ -167,7 +168,7 @@ class ConversationPage extends StatelessWidget {
       body: SlidableAutoCloseBehavior(
         child: Obx(() {
           return logic.conversations.isEmpty
-              ? NullView()
+              ? NoDataView(str:'无会话消息'.tr)
               : ListView.builder(
                   itemBuilder: (BuildContext context, int index) {
                     ConversationModel model = logic.conversations[index];
@@ -196,7 +197,7 @@ class ConversationPage extends StatelessWidget {
                         closeOnScroll: true,
                         endActionPane: ActionPane(
                           extentRatio: 0.75,
-                          motion: StretchMotion(),
+                          motion: const StretchMotion(),
                           children: [
                             CustomSlidableAction(
                               onPressed: (_) async {
@@ -274,7 +275,7 @@ class ConversationPage extends StatelessWidget {
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: AppColors.MainTextColor,
                               fontSize: 14.0,
                             ),

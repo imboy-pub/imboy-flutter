@@ -40,7 +40,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
 
   handle(String uId) {
     if (!strNoEmpty(uId)) {
-      Get.to(new SelectMemberPage());
+      Get.to(SelectMemberPage());
 //      routePush(CreateGroupChat(
 //        'invite',
 //        groupId: widget.groupId,
@@ -68,8 +68,8 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
     String? nickname;
 
     if (item['user'] == "+" || item['user'] == '-') {
-      return new InkWell(
-        child: new SizedBox(
+      return InkWell(
+        child: SizedBox(
           width: (Get.width - 60) / 5,
           child: Image(
             image: AssetImage('assets/images/group/${item['user']}.png'),
@@ -81,7 +81,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
       );
     }
 
-    return new FutureBuilder(
+    return FutureBuilder(
       future: GroupModel.getUsersProfile(item['user'], (cb) {
         userInfo = json.decode(cb.toString());
         uId = userInfo![0]['identifier'];
@@ -89,18 +89,18 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
         nickname = userInfo![0]['nickname'];
       }),
       builder: (context, snap) {
-        return new SizedBox(
+        return SizedBox(
           width: (Get.width - 60) / 5,
           child: FlatButton(
             onPressed: () => handle(uId!),
-            padding: EdgeInsets.all(0),
+            padding: const EdgeInsets.all(0),
             highlightColor: Colors.transparent,
             child: Column(
               children: <Widget>[
                 ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(5)),
+                  borderRadius: const BorderRadius.all(Radius.circular(5)),
                   child: !strNoEmpty(uFace)
-                      ? new Image(
+                      ? const Image(
                           image: AssetImage(defIcon),
                           height: 48.0,
                           width: 48.0,
@@ -114,7 +114,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
                           fit: BoxFit.cover,
                         ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Container(
                   alignment: Alignment.center,
                   height: 20.0,
@@ -125,7 +125,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
                         : nickname!.length > 5
                             ? '${nickname!.substring(0, 3)}...'
                             : nickname!,
-                    style: TextStyle(fontSize: 12.0),
+                    style: const TextStyle(fontSize: 12.0),
                   ),
                 ),
               ],
@@ -150,9 +150,9 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
     return FutureBuilder(
       future: _futureBuilderFuture,
       builder: (context, snap) {
-        return new Text(
+        return Text(
           '聊天成员(${memberList.length != null ? memberList.length - 1 : 0})',
-          style: new TextStyle(
+          style: const TextStyle(
               color: Colors.black, fontSize: 17.0, fontWeight: FontWeight.w600),
         );
       },
@@ -165,12 +165,12 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
       return Container();
     }
 
-    return new Scaffold(
-      appBar: new PageAppBar(titleWiew: titleWidget()),
-      body: new ListView(
-        padding: EdgeInsets.all(10),
+    return Scaffold(
+      appBar: PageAppBar(titleWiew: titleWidget()),
+      body: ListView(
+        padding: const EdgeInsets.all(10),
         children: <Widget>[
-          new Wrap(
+          Wrap(
             alignment: WrapAlignment.start,
             children: memberList.map(memberItem).toList(),
             runSpacing: 20.0,

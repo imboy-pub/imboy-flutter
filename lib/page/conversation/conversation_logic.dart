@@ -35,15 +35,13 @@ class ConversationLogic extends GetxController {
   // 更新会话
   replace(ConversationModel cobj) {
     // 第一次会话的时候 i 为 -1
-    final i = this.conversations.indexWhere(
+    final i = conversations.indexWhere(
         (item) => (item as ConversationModel).typeId == cobj.typeId);
-    debugPrint(
-        ">>> on logic.conversations replace i: ${i} , unreadNum: ${cobj.unreadNum}");
     if (i > -1) {
       int i2 = i > 0 ? i : 0;
-      this.conversations[i2] = cobj;
+      conversations[i2] = cobj;
     } else {
-      this.conversations.add(cobj);
+      conversations.add(cobj);
     }
   }
 

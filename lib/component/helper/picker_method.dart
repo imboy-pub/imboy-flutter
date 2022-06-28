@@ -353,7 +353,6 @@ class PickMethod {
             maxAssets: maxAssetsCount,
             selectedAssets: assets,
             selectPredicate: (BuildContext c, AssetEntity a, bool isSelected) {
-              print('Asset title: ${a.title}');
               return a.title?.endsWith('.gif') != true;
             },
           ),

@@ -16,7 +16,7 @@ class IndicatorPageViewState extends State<IndicatorPageView> {
   double size = 5.0;
 
   Widget itemView(index) {
-    return new Container(
+    return Container(
       height: size,
       width: size,
       margin: EdgeInsets.symmetric(horizontal: size),
@@ -33,13 +33,13 @@ class IndicatorPageViewState extends State<IndicatorPageView> {
 
   @override
   Widget build(BuildContext context) {
-    return new GestureDetector(
-      child: new Stack(
+    return GestureDetector(
+      child: Stack(
         alignment: Alignment.bottomCenter,
         children: <Widget>[
-          new ScrollConfiguration(
+          ScrollConfiguration(
             behavior: MyBehavior(),
-            child: new PageView(
+            child: PageView(
               controller: widget.pageC,
               onPageChanged: (v) {
                 setState(() => currentMoreIndex = v);
@@ -47,9 +47,9 @@ class IndicatorPageViewState extends State<IndicatorPageView> {
               children: widget.pages,
             ),
           ),
-          new Container(
+          Container(
             padding: EdgeInsets.only(bottom: 10.0),
-            child: new Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(widget.pages.length, itemView),
             ),

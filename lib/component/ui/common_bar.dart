@@ -18,7 +18,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color? mainColor;
 
   @override
-  Size get preferredSize => Size(100, 50);
+  Size get preferredSize => const Size(100, 50);
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
       foregroundColor: mainColor,
       elevation: 0.0,
       centerTitle: true,
-      actions: rightDMActions ?? [Center()],
+      actions: rightDMActions ?? [const Center()],
     );
   }
 }
@@ -59,7 +59,7 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color? mainColor;
 
   @override
-  Size get preferredSize => Size(100, 50);
+  Size get preferredSize => const Size(100, 50);
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +81,7 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
       foregroundColor: mainColor,
       elevation: 0.0,
       centerTitle: true,
-      actions: rightDMActions ?? [Center()],
+      actions: rightDMActions ?? [const Center()],
     );
   }
 }

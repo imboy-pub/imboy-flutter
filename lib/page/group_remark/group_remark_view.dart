@@ -74,42 +74,42 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
   @override
   Widget build(BuildContext context) {
     return MainInputBody(
-      child: new Scaffold(
-        appBar: new PageAppBar(backgroundColor: Colors.white),
-        body: new Container(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: new Column(
+      child: Scaffold(
+        appBar: const PageAppBar(backgroundColor: Colors.white),
+        body: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              new Space(height: 30),
-              new Text(
-                '$label',
-                style: TextStyle(
+              Space(height: 30),
+              Text(
+                label,
+                style: const TextStyle(
                     color: Colors.black,
                     fontSize: 20,
-                    fontWeight: FontWeight.w600),
+                    fontWeight: FontWeight.w600,),
               ),
-              new Padding(
-                padding: EdgeInsets.symmetric(vertical: 15),
-                child: new Text('$des', textAlign: TextAlign.center),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                child: Text(des, textAlign: TextAlign.center),
               ),
-              new Container(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: const BoxDecoration(
                   border: Border(
                     top: BorderSide(color: Colors.grey, width: 0.2),
                     bottom: BorderSide(color: Colors.grey, width: 0.2),
                   ),
                 ),
-                child: new Row(
+                child: Row(
                   children: <Widget>[
-                    new Image.network(
+                    Image.network(
                       defGroupAvatar,
                       width: 48,
                     ),
-                    new Space(),
-                    new Expanded(
-                      child: new TextField(
+                    Space(),
+                    Expanded(
+                      child: TextField(
                         controller: _textController,
                         decoration: InputDecoration(
                           hintText:
@@ -121,20 +121,20 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                   ],
                 ),
               ),
-              new Space(),
-              new Visibility(
+              Space(),
+              Visibility(
                 visible: widget.groupInfoType == GroupInfoType.remark,
-                child: new Row(
+                child: Row(
                   children: <Widget>[
-                    new Text(
+                    Text(
                       '群聊名称：wechat_flutter 106号群',
                       style: TextStyle(color: Colors.grey, fontSize: 14),
                     ),
-                    new Space(),
-                    new InkWell(
-                      child: new Padding(
+                    Space(),
+                    InkWell(
+                      child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 2),
-                        child: new Text(
+                        child: Text(
                           '填入',
                           style: TextStyle(
                               color: AppColors.MainTextColor, fontSize: 14),
@@ -147,13 +147,13 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                   ],
                 ),
               ),
-              new Spacer(),
-              // new TextButton(
+              Spacer(),
+              // TextButton(
               //   text: '完成',
               //   onTap: () => handle(),
               //   width: Get.width / 2,
               // ),
-              new Space(height: Get.width > 1 ? 15 : 50),
+              Space(height: Get.width > 1 ? 15 : 50),
             ],
           ),
         ),

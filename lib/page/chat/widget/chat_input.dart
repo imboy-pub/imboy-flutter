@@ -134,7 +134,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
     _bottomHeightController = Get.put(AnimationController(
       vsync: this,
-      duration: Duration(
+      duration: const Duration(
         milliseconds: 150,
       ),
     ));
@@ -197,7 +197,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
    * 语音按钮事件
    */
   Future<void> _voiceBtnOnPressed(InputType type) async {
-    if (type == this.inputType) {
+    if (type == inputType) {
       return;
     }
     if (type != InputType.text) {
@@ -207,7 +207,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     }
 
     setState(() {
-      this.inputType = type;
+      inputType = type;
     });
   }
 
@@ -218,7 +218,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     if (type == inputType) {
       return;
     }
-    this.inputType = type;
+    inputType = type;
     // InputTypeNotification(type).dispatch(context);
 
     if (type != InputType.text) {
@@ -235,8 +235,8 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     }
 
     setState(() {
-      this.emojiShowing = type == InputType.emoji;
-      this.inputType;
+      emojiShowing = type == InputType.emoji;
+      inputType;
     });
   }
 
@@ -264,9 +264,9 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   }
 
   Widget _buildBottomItems() {
-    if (this.inputType == InputType.extra) {
-      return widget.extraWidget ?? Center(child: Text("其他item"));
-    } else if (this.inputType == InputType.emoji) {
+    if (inputType == InputType.extra) {
+      return widget.extraWidget ?? const Center(child: const Text("其他item"));
+    } else if (inputType == InputType.emoji) {
       return Offstage(
         offstage: !emojiShowing,
         child: SizedBox(
@@ -411,7 +411,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
    */
   Widget buildExtra() {
     return ImageButton(
-      image: AssetImage('assets/images/chat/input_extra.png'),
+      image: const AssetImage('assets/images/chat/input_extra.png'),
       onPressed: () {
         if (inputType != InputType.extra) {
           updateState(InputType.extra);
@@ -508,16 +508,16 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                       _textController.text.isEmpty
                           ? buildExtra()
                           : IconButton(
-                              icon: Icon(Icons.send),
+                              icon: const Icon(Icons.send),
                               onPressed: _handleSendPressed,
-                              padding: EdgeInsets.only(left: 0),
+                              padding: const EdgeInsets.only(left: 0),
                             ),
                     ],
                   ),
-                  this.inputType == InputType.emoji ||
-                          this.inputType == InputType.extra
-                      ? Divider()
-                      : SizedBox.shrink(), // 横线
+                  inputType == InputType.emoji ||
+                          inputType == InputType.extra
+                      ? const Divider()
+                      : const SizedBox.shrink(), // 横线
                   _buildBottomContainer(child: _buildBottomItems()),
                 ],
               ),

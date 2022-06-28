@@ -20,7 +20,7 @@ friendItemDialog(BuildContext context, {String? userId, OnSuCc? suCc}) {
         okBtn: '删除',
         warmStr: '删除联系人',
         isWarm: true,
-        style: TextStyle(fontWeight: FontWeight.w500),
+        style: const TextStyle(fontWeight: FontWeight.w500),
       );
     } else {
       Get.snackbar('', '参数有误');
@@ -28,24 +28,24 @@ friendItemDialog(BuildContext context, {String? userId, OnSuCc? suCc}) {
   }
 
   Widget item(item) {
-    return new Container(
+    return Container(
       width: Get.width,
       decoration: BoxDecoration(
         border: item != '删除'
-            ? Border(
+            ? const Border(
                 bottom: BorderSide(color: AppColors.LineColor, width: 0.2),
               )
             : null,
       ),
-      child: new TextButton(
+      child: TextButton(
         // padding: EdgeInsets.symmetric(vertical: 15.0),
         style: TextButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 15.0),
+          padding: const EdgeInsets.symmetric(vertical: 15.0),
           backgroundColor: Colors.white,
         ),
         autofocus: true,
         onPressed: () => action(item),
-        child: new Text(item),
+        child: Text(item),
       ),
     );
   }
@@ -65,40 +65,40 @@ friendItemDialog(BuildContext context, {String? userId, OnSuCc? suCc}) {
         '删除',
       ];
 
-      return new Center(
-        child: new Material(
+      return Center(
+        child: Material(
           type: MaterialType.transparency,
-          child: new Column(
+          child: Column(
             children: <Widget>[
-              new Expanded(
-                child: new InkWell(
-                  child: new Container(),
+              Expanded(
+                child: InkWell(
+                  child: Container(),
                   onTap: () => Navigator.of(context).pop(),
                 ),
               ),
-              new ClipRRect(
-                borderRadius: BorderRadius.all(
+              ClipRRect(
+                borderRadius: const BorderRadius.all(
                   Radius.circular(10.0),
                 ),
-                child: new Container(
+                child: Container(
                   color: Colors.white,
-                  child: new Column(
+                  child: Column(
                     children: <Widget>[
-                      new Column(children: data.map(item).toList()),
-                      new HorizontalLine(
+                      Column(children: data.map(item).toList()),
+                      HorizontalLine(
                           color: AppColors.AppBarColor, height: 10.0),
-                      new TextButton(
+                      TextButton(
                         // padding: EdgeInsets.symmetric(vertical: 15.0),
                         style: TextButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 15.0),
+                          padding: const EdgeInsets.symmetric(vertical: 15.0),
                           backgroundColor: Colors.white,
                         ),
                         autofocus: true,
                         onPressed: () => Navigator.of(context).pop(),
-                        child: new Container(
+                        child: Container(
                           width: Get.width,
                           alignment: Alignment.center,
-                          child: new Text('取消'),
+                          child: const Text('取消'),
                         ),
                       ),
                     ],

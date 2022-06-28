@@ -1,6 +1,4 @@
 // 异常处理
-import 'dart:io';
-
 class HttpException implements Exception {
   final String? _message;
 
@@ -11,10 +9,10 @@ class HttpException implements Exception {
   int get code => _code ?? -1;
 
   HttpException([this._message, this._code]);
-
-  String toString() {
-    return "code:$code--message=$message";
-  }
+  //
+  // String toString() {
+  //   return "code:$code--message=$message";
+  // }
 }
 
 /// 客户端请求错误

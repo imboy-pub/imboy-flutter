@@ -232,8 +232,8 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
         Overlay.of(widget.btnContext)!.context.findRenderObject() as RenderBox?;
     position = RelativeRect.fromRect(
       Rect.fromPoints(
-        button!.localToGlobal(Offset(-10, 100), ancestor: overlay),
-        button!.localToGlobal(Offset(-10, 0), ancestor: overlay),
+        button!.localToGlobal(const Offset(-10, 100), ancestor: overlay),
+        button!.localToGlobal(const Offset(-10, 0), ancestor: overlay),
       ),
       Offset.zero & overlay!.size,
     );
@@ -281,7 +281,7 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
         child: Expanded(
           child: Stack(children: <Widget>[
             ClipRRect(
-              borderRadius: BorderRadius.all(Radius.circular(5)),
+              borderRadius: const BorderRadius.all(Radius.circular(5)),
               child: Container(
                   color: AppColors.ItemBgColor, height: widget.menuHeight),
             ),
@@ -316,10 +316,10 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
   Widget itemBuild(item) {
     var row = [
       Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10.0),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: strNoEmpty(item['icon'])
             ? Image(image: AssetImage(item['icon']))
-            : Icon(Icons.phone, color: Colors.white),
+            : const Icon(Icons.phone, color: Colors.white),
       ),
       Expanded(
         child: Container(
@@ -333,7 +333,7 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
                           color: Colors.white.withOpacity(0.3), width: 0.2))),
           child: Text(
             item['title'],
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
           ),
         ),
       )
@@ -351,10 +351,10 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
         Navigator.of(context).pop(item['title']);
       },
       child: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(5)),
         ),
-        padding: EdgeInsets.only(left: 10.0),
+        padding: const EdgeInsets.only(left: 10.0),
         child: Row(children: row),
       ),
     );
@@ -403,14 +403,9 @@ class PopupMenuRouteLayout extends SingleChildLayoutDelegate {
     // getConstraintsForChild.
 
     // Find the ideal vertical position.
-    double y;
-    if (selectedItemOffset == null) {
-      y = position.top;
-    } else {
-      y = position.bottom +
+    double y = position.bottom +
           (size.height - position.top - position.bottom) / 2.0 -
           selectedItemOffset;
-    }
 
     // Find the ideal horizontal position.
     double x;
@@ -424,23 +419,25 @@ class PopupMenuRouteLayout extends SingleChildLayoutDelegate {
         if (size.width - (position.left + width) >
             childSize.width / 2 + _kMenuScreenPadding) {
           x = position.left - (childSize.width - width) / 2;
-        } else
+        } else {
           x = position.left + width - childSize.width;
+        }
       } else if (position.left < size.width - (position.left + width)) {
         if (position.left > childSize.width / 2 + _kMenuScreenPadding) {
           x = position.left - (childSize.width - width) / 2;
-        } else
+        } else {
           x = position.left;
+        }
       } else {
         x = position.right - width / 2 - childSize.width / 2;
       }
     }
 
-    if (y < _kMenuScreenPadding)
+    if (y < _kMenuScreenPadding) {
       y = _kMenuScreenPadding;
-    else if (y + childSize.height > size.height - _kMenuScreenPadding)
+    } else if (y + childSize.height > size.height - _kMenuScreenPadding) {
       y = size.height - childSize.height;
-    else if (y < childSize.height * 2) {
+    } else if (y < childSize.height * 2) {
       y = position.top + height;
     }
     return Offset(x, y);

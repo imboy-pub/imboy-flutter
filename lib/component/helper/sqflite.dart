@@ -8,14 +8,10 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-/**
- * 参考 https://www.javacodegeeks.com/2020/06/using-sqlite-in-flutter-tutorial.html
- *
- * Sqlite 只负责维护表结构
- *
- */
+/// 参考 https://www.javacodegeeks.com/2020/06/using-sqlite-in-flutter-tutorial.html
+/// Sqlite 只负责维护表结构
 class Sqlite {
-  static final _dbVersion = 1;
+  static const _dbVersion = 1;
 
   Sqlite._privateConstructor();
 
@@ -28,7 +24,7 @@ class Sqlite {
       return _db!;
     }
     String dbName = UserRepoLocal.to.currentUid + "imboy.db";
-    debugPrint(">>> on Sqlite.database ${dbName}");
+    debugPrint(">>> on Sqlite.database $dbName");
     _db = await initDatabase(dbName);
     return _db!;
   }
@@ -81,7 +77,7 @@ class Sqlite {
         PRIMARY KEY("uid")
         );
       ''';
-    debugPrint(">>> on _onCreate \n${contatsSql}\n");
+    debugPrint(">>> on _onCreate \n$contatsSql\n");
     await db.execute(contatsSql);
 
     String conversationSql = '''
@@ -101,7 +97,7 @@ class Sqlite {
         PRIMARY KEY(${ConversationRepo.id})
         );
       ''';
-    debugPrint(">>> on _onCreate \n${conversationSql}\n");
+    debugPrint(">>> on _onCreate \n$conversationSql\n");
     await db.execute(conversationSql);
 
     String messageSql = '''
@@ -119,13 +115,14 @@ class Sqlite {
         PRIMARY KEY(autoid)
         );
       ''';
-    debugPrint(">>>>> on _onCreate messageSql \n${messageSql}\n");
+    debugPrint(">>>>> on _onCreate messageSql \n$messageSql\n");
     await db.execute(messageSql);
     await db.execute(
         "CREATE UNIQUE INDEX IF NOT EXISTS uk_msgid ON ${MessageRepo.tablename} (${MessageRepo.id});");
 
     String addFriendSql = '''
       CREATE TABLE IF NOT EXISTS ${NewFriendRepo.tablename} (
+        autoid INTERGER AUTO_INCREMENT,
         ${NewFriendRepo.from} varchar(40) NOT NULL,
         ${NewFriendRepo.to} varchar(40) NOT NULL,
         ${NewFriendRepo.nickname} varchar(40) NOT NULL DEFAULT '',
@@ -135,10 +132,14 @@ class Sqlite {
         ${NewFriendRepo.payload} text DEFAULT '',
         ${NewFriendRepo.updateTime} int(16) NOT NULL DEFAULT 0,
         ${NewFriendRepo.createTime} int(16) NOT NULL DEFAULT 0,
-        PRIMARY KEY("to")
+        PRIMARY KEY("autoid"),
+        CONSTRAINT fromto UNIQUE (
+            ${NewFriendRepo.from},
+            ${NewFriendRepo.to}
+        )
         );
       ''';
-    debugPrint(">>> on _onCreate \n${addFriendSql}\n");
+    debugPrint(">>> on _onCreate \n$addFriendSql\n");
     await db.execute(addFriendSql);
   }
 

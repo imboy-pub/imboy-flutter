@@ -11,25 +11,25 @@ class LoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var body = new Center(
-      child: new Row(
+    var body = Center(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          new InkWell(
-            child: new Column(
+          InkWell(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                new Text(
+                const Text(
                   '加载中',
                   style: TextStyle(color: AppColors.MainTextColor),
                 ),
                 isStr
-                    ? new Text(
+                    ? const Text(
                         '第一次进点我',
                         style: TextStyle(
                             color: AppColors.MainTextColor, fontSize: 9),
                       )
-                    : new Container(),
+                    : Container(),
               ],
             ),
             onTap: () {
@@ -38,22 +38,22 @@ class LoadingView extends StatelessWidget {
               }
             },
           ),
-          new Space(),
-          new SizedBox(
+          Space(),
+          const SizedBox(
             width: 20.0,
             height: 20.0,
-            child: new CircularProgressIndicator(
+            child: CircularProgressIndicator(
               strokeWidth: 1.0,
               backgroundColor: Colors.transparent,
               // value: 0.2,
               valueColor:
-                  new AlwaysStoppedAnimation<Color>(AppColors.MainTextColor),
+                  AlwaysStoppedAnimation<Color>(AppColors.MainTextColor),
             ),
           )
         ],
       ),
     );
 
-    return new Scaffold(body: body);
+    return Scaffold(body: body);
   }
 }

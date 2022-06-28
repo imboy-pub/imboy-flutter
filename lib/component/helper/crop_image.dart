@@ -12,7 +12,8 @@ class CropImageRoute extends StatefulWidget {
     this.prefix, {
     this.imageScale = 1.0,
     this.filename = "",
-  });
+        Key? key,
+  }): super(key: key);
   String prefix;
   String filename;
   File image; //原始图片路径
@@ -21,7 +22,7 @@ class CropImageRoute extends StatefulWidget {
   double imageScale = 1.0;
 
   @override
-  _CropImageRouteState createState() => new _CropImageRouteState();
+  _CropImageRouteState createState() => _CropImageRouteState();
 }
 
 class _CropImageRouteState extends State<CropImageRoute> {
@@ -61,14 +62,14 @@ class _CropImageRouteState extends State<CropImageRoute> {
                 child: Text(
                   'button_cancel'.tr,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16.0,
                     fontWeight: FontWeight.normal,
                   ),
                 ),
               ),
-              Expanded(
+              const Expanded(
                 child: SizedBox.shrink(), // 中间用Expanded控件
               ),
               TextButton(
@@ -78,7 +79,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
                 child: Text(
                   'button_accomplish'.tr,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16.0,
                     fontWeight: FontWeight.normal,
@@ -97,7 +98,6 @@ class _CropImageRouteState extends State<CropImageRoute> {
     final area = crop!.area;
     if (area == null) {
       //裁剪结果为空
-      print('裁剪不成功');
     }
     final scale = cropKey.currentState?.scale;
 
@@ -117,7 +117,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
         // var opt2 = await ImageCrop.getImageOptions(file: croppedFile);
         // debugPrint(">>> on _crop opt2 ${opt2}");
         upload(croppedFile);
-        Future.delayed(Duration(milliseconds: 200)).then((value) {
+        Future.delayed(const Duration(milliseconds: 200)).then((value) {
           sample.delete();
           croppedFile.delete();
         });
@@ -133,7 +133,6 @@ class _CropImageRouteState extends State<CropImageRoute> {
       Map<String, dynamic> resp,
       String uri,
     ) async {
-      debugPrint(">>> on upload uri ${uri}");
       // debugPrint(">>> on upload resp ${resp.toString()}");
       Navigator.pop(context, uri); //这里的url在上一页调用的result可以拿到
     }, (DioError error) {

@@ -25,22 +25,22 @@ class TitleTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return n.Column(
       [
-        Text(this.title),
+        Text(title),
         TextField(
           textAlign: TextAlign.left,
-          controller: this.controller,
+          controller: controller,
           cursorColor: Colors.black54,
           decoration: InputDecoration(
             labelText: "",
-            labelStyle: TextStyle(
+            labelStyle: const TextStyle(
               fontSize: 14,
               color: AppColors.MainTextColor,
             ),
             contentPadding:
-                this.contentPadding ?? EdgeInsets.fromLTRB(10, 10, 10, 10),
-            fillColor: Color.fromARGB(255, 247, 247, 247),
+                contentPadding ?? const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            fillColor: const Color.fromARGB(255, 247, 247, 247),
             filled: true,
-            enabledBorder: OutlineInputBorder(
+            enabledBorder: const OutlineInputBorder(
               /*边角*/
               borderRadius: BorderRadius.all(
                 Radius.circular(5), //边角为5
@@ -50,7 +50,7 @@ class TitleTextField extends StatelessWidget {
                 width: 1, //边线宽度为2
               ),
             ),
-            focusedBorder: OutlineInputBorder(
+            focusedBorder: const OutlineInputBorder(
               borderSide: BorderSide(
                 color: Colors.white, //边框颜色为白色
                 width: 1, //宽度为5
@@ -62,8 +62,8 @@ class TitleTextField extends StatelessWidget {
           ),
           // focusNode: _inputFocusNode,
           maxLength: maxLength,
-          maxLines: this.maxLines,
-          minLines: this.minLines,
+          maxLines: maxLines,
+          minLines: minLines,
           // 长按是否展示【剪切/复制/粘贴菜单LengthLimitingTextInputFormatter】
           enableInteractiveSelection: true,
           keyboardType: TextInputType.multiline,

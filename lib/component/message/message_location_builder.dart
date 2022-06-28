@@ -34,7 +34,7 @@ class RevokedMessageBuilder extends StatelessWidget {
             },
             child: Text(
               '重新编辑'.tr,
-              style: TextStyle(
+              style: const TextStyle(
                 height: 1.5,
                 color: Color.fromRGBO(107, 110, 153, 1),
                 // backgroundColor: Colors.white,
@@ -50,21 +50,21 @@ class RevokedMessageBuilder extends StatelessWidget {
         width: Get.width,
         // height: Get.height,
         // Creates insets from offsets from the left, top, right, and bottom.
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         alignment: Alignment.center,
         color: AppColors.ChatBg,
         child: Row(
           children: [
             Padding(
               padding: userIsAuthor
-                  ? EdgeInsets.only(
+                  ? const EdgeInsets.only(
                       right: 10,
                       left: 40,
                     )
-                  : EdgeInsets.only(left: 80),
+                  : const EdgeInsets.only(left: 80),
               // padding: EdgeInsets.only(right: 10),
               child: ExtendedText(
-                '${nickname}撤回了一条消息',
+                nickname + '撤回了一条消息'.tr,
                 // '${nickname},: ${_user.firstName},is: ${currentUserIsAuthor.toString()}',
                 style: TextStyle(
                   color: AppColors.MainTextColor,

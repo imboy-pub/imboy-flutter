@@ -104,7 +104,7 @@ class RepaintBoundaryHelper {
       if (Platform.isIOS) {
         if (status.isGranted) {
           Uint8List images = byteData!.buffer.asUint8List();
-          final result = await ImageGallerySaver.saveImage(
+          await ImageGallerySaver.saveImage(
             images,
             quality: 72,
             name: filename,

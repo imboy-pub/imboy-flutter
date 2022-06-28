@@ -27,7 +27,7 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
 
   bool inputState = false;
   FocusNode _focusNode = FocusNode();
-  TextEditingController _textController = new TextEditingController();
+  TextEditingController _textController = TextEditingController();
   String? _publishTime;
 
   TextStyle styleLabel =
@@ -46,7 +46,6 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
           '${DateTime.now().day} ' +
           '${DateTime.now().hour}:' +
           '${DateTime.now().minute}';
-      debugPrint('发布时间>>>>> $_publishTime');
       // GroupModel.modifyGroupNotificationModel(
       //     widget.groupId, _textController.text, _publishTime);
       widget.callback!(_publishTime);
@@ -60,22 +59,22 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
 
   @override
   Widget build(BuildContext context) {
-    var rWidget = new ComMomButton(
+    var rWidget = ComMomButton(
       text: '确定',
-      style: TextStyle(color: Colors.white),
+      style: const TextStyle(color: Colors.white),
       width: 45.0,
-      margin: EdgeInsets.all(10.0),
+      margin: const EdgeInsets.all(10.0),
       radius: 4.0,
       onTap: () => onChange(),
     );
 
     return Scaffold(
-      appBar: new PageAppBar(
+      appBar: PageAppBar(
         title: '群公告',
         rightDMActions: <Widget>[rWidget],
       ),
       body: TextField(
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           filled: true,
           fillColor: Colors.white,
           hintText: '请编辑群公告',
@@ -85,7 +84,7 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
         maxLines: null,
         expands: true,
         controller: _textController,
-        style: TextStyle(fontSize: 15.0),
+        style: const TextStyle(fontSize: 15.0),
       ),
     );
   }

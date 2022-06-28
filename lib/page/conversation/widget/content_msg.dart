@@ -34,7 +34,6 @@ class ContentMsg extends StatelessWidget {
     } else if (msgType == "custom") {
       str = subtitle;
     } else {
-      debugPrint(">>> on content_msg msgType ${msgType};");
     }
     return ExtendedText(
       str,

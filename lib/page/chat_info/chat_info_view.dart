@@ -35,7 +35,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
   Widget buildSwitch(item) {
     return LabelRow(
       label: item['label'],
-      margin: item['label'] == '消息免打扰' ? EdgeInsets.only(top: 10.0) : null,
+      margin: item['label'] == '消息免打扰' ? const EdgeInsets.only(top: 10.0) : null,
       isLine: item['label'] != '强提醒',
       isRight: false,
       rightW: SizedBox(
@@ -60,7 +60,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
       ChatMamBer(model: model),
       LabelRow(
         label: '查找聊天记录',
-        margin: EdgeInsets.only(top: 10.0),
+        margin: const EdgeInsets.only(top: 10.0),
         onPressed: () => Get.to(SearchPage()),
       ),
       Column(
@@ -68,12 +68,12 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
       ),
       LabelRow(
         label: '设置当前聊天背景',
-        margin: EdgeInsets.only(top: 10.0),
+        margin: const EdgeInsets.only(top: 10.0),
         onPressed: () => Get.to(ChatBackgroundPage()),
       ),
       LabelRow(
         label: '清空聊天记录',
-        margin: EdgeInsets.only(top: 10.0),
+        margin: const EdgeInsets.only(top: 10.0),
         onPressed: () {
           confirmAlert(
             context,
@@ -89,7 +89,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
       ),
       LabelRow(
         label: '投诉',
-        margin: EdgeInsets.only(top: 10.0),
+        margin: const EdgeInsets.only(top: 10.0),
         onPressed: () => Get.to(WebViewPage(CONST_HELP_URL, '投诉')),
       ),
     ];
@@ -113,7 +113,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.ChatBg,
-      appBar: PageAppBar(title: '聊天信息'),
+      appBar: const PageAppBar(title: '聊天信息'),
       body: SingleChildScrollView(
         child: Column(children: body()),
       ),

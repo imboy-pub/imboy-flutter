@@ -14,37 +14,37 @@ class MainInputBody extends StatefulWidget {
   final GestureTapCallback? onTap;
 
   @override
-  State<StatefulWidget> createState() => new MainInputBodyState();
+  State<StatefulWidget> createState() => MainInputBodyState();
 }
 
 class MainInputBodyState extends State<MainInputBody> {
   @override
   Widget build(BuildContext context) {
     return widget.decoration != null
-        ? new Container(
+        ? Container(
             decoration: widget.decoration,
             height: double.infinity,
             width: double.infinity,
-            child: new GestureDetector(
+            child: GestureDetector(
               child: widget.child,
               behavior: HitTestBehavior.translucent,
               onTap: () {
-                FocusScope.of(context).requestFocus(new FocusNode());
+                FocusScope.of(context).requestFocus(FocusNode());
                 if (widget.onTap != null) {
                   widget.onTap!();
                 }
               },
             ),
           )
-        : new Container(
+        : Container(
             color: widget.color,
             height: double.infinity,
             width: double.infinity,
-            child: new GestureDetector(
+            child: GestureDetector(
               child: widget.child,
               behavior: HitTestBehavior.translucent,
               onTap: () {
-                FocusScope.of(context).requestFocus(new FocusNode());
+                FocusScope.of(context).requestFocus(FocusNode());
                 if (widget.onTap != null) {
                   widget.onTap!();
                 }

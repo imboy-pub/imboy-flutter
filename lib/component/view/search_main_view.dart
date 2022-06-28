@@ -14,30 +14,30 @@ class SearchMainView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var row = new Row(
+    var row = Row(
       children: <Widget>[
-        new Padding(
+        const Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.0),
-          child: new Icon(Icons.search, color: AppColors.MainTextColor),
+          child: Icon(Icons.search, color: AppColors.MainTextColor),
         ),
-        new Text(
+        Text(
           text!,
-          style: TextStyle(color: AppColors.MainTextColor),
+          style: const TextStyle(color: AppColors.MainTextColor),
         )
       ],
     );
 
-    return new InkWell(
-      child: new Container(
+    return InkWell(
+      child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
           border: isBorder!
-              ? Border(
+              ? const Border(
                   bottom: BorderSide(color: AppColors.LineColor, width: 0.2),
                 )
               : null,
         ),
-        padding: EdgeInsets.symmetric(vertical: 15.0),
+        padding: const EdgeInsets.symmetric(vertical: 15.0),
         child: row,
       ),
       onTap: onTap ?? () {},

@@ -24,42 +24,35 @@ String randomId({int size = 21}) {
 
 ///验证网页URl
 bool isUrl(String value) {
-  RegExp url = new RegExp(r"^((https|http|ftp|rtsp|mms)?:\/\/)[^\s]+");
+  RegExp url = RegExp(r"^((https|http|ftp|rtsp|mms)?:\/\/)[^\s]+");
 
   return url.hasMatch(value);
 }
 
 ///校验身份证
 bool isIdCard(String value) {
-  RegExp identity = new RegExp(r"\d{17}[\d|x]|\d{15}");
+  RegExp identity = RegExp(r"\d{17}[\d|x]|\d{15}");
 
   return identity.hasMatch(value);
 }
 
 ///正浮点数
 bool isMoney(String value) {
-  RegExp identity = new RegExp(
+  RegExp identity = RegExp(
       r"^(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*))$");
   return identity.hasMatch(value);
 }
 
-bool isPositiveInt(var num) {
-  if (num == null) {
-    return false;
-  }
-  return num > 0 ? true : false;
-}
-
 ///校验中文
 bool isChinese(String value) {
-  RegExp identity = new RegExp(r"[\u4e00-\u9fa5]");
+  RegExp identity = RegExp(r"[\u4e00-\u9fa5]");
 
   return identity.hasMatch(value);
 }
 
 ///校验支付宝名称
 bool isAliPayName(String value) {
-  RegExp identity = new RegExp(r"[\u4e00-\u9fa5_a-zA-Z]");
+  RegExp identity = RegExp(r"[\u4e00-\u9fa5_a-zA-Z]");
 
   return identity.hasMatch(value);
 }
@@ -70,45 +63,38 @@ bool strEmpty(String? val) {
 
 /// 字符串不为空
 bool strNoEmpty(String? value) {
-  if (value == null) return false;
-
+  if (value == null) {
+    return false;
+  }
   return value.trim().isNotEmpty;
 }
 
 /// 字符串不为空
-bool mapNoEmpty(Map value) {
-  if (value == null) return false;
+bool mapNoEmpty(Map? value) {
+  if (value == null) {
+    return false;
+  }
   return value.isNotEmpty;
 }
 
 ///判断List是否为空
-bool listEmpty(List list) {
+bool listEmpty(List? list) {
   if (list == null) {
     return true;
   }
-
-  if (list.length == 0) {
-    return true;
-  }
-
-  return false;
+  return list.isEmpty;
 }
 
 ///判断List是否为非空
-bool listNoEmpty(List list) {
+bool listNoEmpty(List? list) {
   if (list == null) {
     return false;
   }
-
-  if (list.length == 0) {
-    return false;
-  }
-
-  return true;
+  return list.isNotEmpty;
 }
 
 /// 判断是否网络
-bool isNetWorkImg(String img) {
+bool isNetWorkImg(String? img) {
   if (img == null) {
     return false;
   }
@@ -116,7 +102,7 @@ bool isNetWorkImg(String img) {
 }
 
 /// 判断是否资源图片
-bool isAssetsImg(String img) {
+bool isAssetsImg(String? img) {
   if (img == null) {
     return false;
   }
@@ -131,22 +117,10 @@ void clearMemoryImageCache() {
   PaintingBinding.instance.imageCache.clear();
 }
 
-String stringAsFixed(value, num) {
-  double v = double.parse(value.toString());
-  String str = ((v * 100).floor() / 100).toStringAsFixed(2);
-  return str;
-}
-
 String hiddenPhone(String phone) {
-  String result = '';
-
-  if (phone != null && phone.length >= 11) {
-    String sub = phone.substring(0, 3);
-    String end = phone.substring(8, 11);
-    result = '$sub****$end';
-  }
-
-  return result;
+  String sub = phone.substring(0, 3);
+  String end = phone.substring(phone.length-3, phone.length);
+  return '$sub****$end';
 }
 
 bool isPhone(String? value) {
@@ -189,16 +163,12 @@ String stringDisposeWithDouble(v, [fix = 2]) {
 ///去除小数点
 String removeDot(v) {
   String vStr = v.toString().replaceAll('.', '');
-
   return vStr;
 }
 
-void logError(String code, String message) =>
-    print('Error: $code\nError Message: $message');
-
 // md5 加密
 String generateMD5(String data) {
-  // var content = new Utf8Encoder().convert(data);
+  // var content = Utf8Encoder().convert(data);
   // var digest = md5.convert(content);
   var digest = md5.convert(utf8.encode(data));
   // 这里其实就是 digest.toString()
@@ -207,7 +177,7 @@ String generateMD5(String data) {
 
 ImageProvider avatarImageProvider(avatar) {
   return strEmpty(avatar) || avatar == defAvatar
-      ? AssetImage(defAvatar) as ImageProvider
+      ? const AssetImage(defAvatar) as ImageProvider
       : CachedNetworkImageProvider(avatar + "&width=400");
 }
 
@@ -219,26 +189,26 @@ DecorationImage dynamicAvatar(avatar) {
 }
 
 dynamic genderIcon(int gendor) {
-  var gimg = null;
+  Widget gimg;
   if (gendor == 1) {
-    gimg = Image(
+    gimg = const Image(
       image: AssetImage('assets/images/Contact_Male.webp'),
       width: 20.0,
       fit: BoxFit.fill,
     );
   } else if (gendor == 2) {
-    gimg = Image(
+    gimg = const Image(
       image: AssetImage('assets/images/Contact_Female.webp'),
       width: 20.0,
       fit: BoxFit.fill,
     );
   } else if (gendor == 3) {
-    gimg = Icon(
+    gimg = const Icon(
       Icons.security,
       color: Colors.lightBlueAccent,
     );
   } else {
-    gimg = Icon(
+    gimg = const Icon(
       Icons.battery_unknown,
       color: Colors.lightBlueAccent,
     );

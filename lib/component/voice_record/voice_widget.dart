@@ -99,7 +99,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
                           padding: const EdgeInsets.only(bottom: 15.0),
                           child: Text(
                             (_countTotal - _count).toString(),
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 70.0,
                               color: Colors.white,
                             ),
@@ -117,7 +117,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
                 child: Text(
                   toastShow + "\n" + recorderTxt,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontStyle: FontStyle.normal,
                     color: Colors.white,
                     fontSize: 14,
@@ -150,7 +150,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         Toast.showView(
             context: ctx,
             msg: '说话时间太短'.tr,
-            icon: Text(
+            icon: const Text(
               '!',
               style: TextStyle(
                 fontSize: 60,

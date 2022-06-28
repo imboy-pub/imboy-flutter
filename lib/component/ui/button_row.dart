@@ -23,7 +23,7 @@ class ButtonRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
+    return Container(
       margin: margin,
       decoration: BoxDecoration(
         border: isBorder
@@ -33,7 +33,7 @@ class ButtonRow extends StatelessWidget {
               )
             : null,
       ),
-      child: new TextButton(
+      child: TextButton(
         style: TextButton.styleFrom(
           minimumSize: Size.zero,
           padding: EdgeInsets.zero,
@@ -41,10 +41,10 @@ class ButtonRow extends StatelessWidget {
         ),
         autofocus: true,
         onPressed: onPressed ?? () {},
-        child: new Container(
-          padding: EdgeInsets.symmetric(vertical: 15.0),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 15.0),
           alignment: Alignment.center,
-          child: new Text(text!, style: style),
+          child: Text(text!, style: style),
         ),
       ),
     );

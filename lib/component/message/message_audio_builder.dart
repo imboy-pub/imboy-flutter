@@ -103,7 +103,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
                 children: [
                   Text(
                     duration_s.toString() + "''",
-                    style: TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 16),
                   ),
                   RotatedBox(
                     quarterTurns: 2, // 0 revicer 2 sneder;
@@ -128,14 +128,14 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
                   ),
                   Text(
                     duration_s.toString() + "''",
-                    style: TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 16),
                   ),
                   Badge(
                     showBadge: true,
                     shape: BadgeShape.circle,
                     borderRadius: BorderRadius.circular(8),
                     // position: BadgePosition.topStart(top: -4, start: 20),
-                    padding: EdgeInsets.fromLTRB(5, 3, 5, 3),
+                    padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
                   ),
                 ],
               ),
