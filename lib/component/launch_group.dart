@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/page/group_select/group_select_view.dart';
 
 class LaunchGroupItem extends StatelessWidget {
-  final item;
+  final String item;
 
-  LaunchGroupItem(this.item);
+  const LaunchGroupItem(
+    Key? key,
+    this.item,
+  ) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +21,9 @@ class LaunchGroupItem extends StatelessWidget {
         ),
       ),
       alignment: Alignment.centerLeft,
-      child: FlatButton(
-        color: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 15.0),
+      child: TextButton(
+        // color: Colors.white,
+        // padding: const EdgeInsets.symmetric(vertical: 15.0),
         onPressed: () {
           if (item == '选择一个群') {
             Get.to(GroupSelectPage());
@@ -46,14 +49,15 @@ class LaunchSearch extends StatelessWidget {
   final ValueChanged<String>? onSubmitted;
   final GestureTapCallback? delOnTap;
 
-  LaunchSearch({
+  const LaunchSearch({
+    Key? key,
     this.searchF,
     this.searchC,
     this.onChanged,
     this.onTap,
     this.onSubmitted,
     this.delOnTap,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

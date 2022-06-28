@@ -5,9 +5,9 @@ class ImageButton extends StatefulWidget {
     Key? key,
     required this.onPressed,
     required this.image,
-    double? this.width,
-    double? this.height,
-    String? this.title,
+    this.width,
+    this.height,
+    this.title,
   }) : super(key: key);
 
   final ImageProvider image;

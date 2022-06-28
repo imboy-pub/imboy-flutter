@@ -6,12 +6,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/ui/common_button.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/common_button.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:lpinyin/lpinyin.dart';
 
 import 'select_member_logic.dart';
@@ -53,7 +53,9 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
   }
 
   void _handleList(List<ContactInfoModel> list) {
-    if (list == null || list.isEmpty) return;
+    if (list.isEmpty) {
+      return;
+    }
     for (int i = 0, length = list.length; i < length; i++) {
       String pinyin = PinyinHelper.getPinyinE(list[i].name!);
       String tag = PinyinHelper.getFirstWordPinyin(pinyin).toUpperCase();
@@ -70,7 +72,7 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
 
   Widget _buildSusWidget(String susTag) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15.0),
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
       height: _suspensionHeight.toDouble(),
       width: double.infinity,
       alignment: Alignment.centerLeft,
@@ -78,7 +80,7 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
       child: Text(
         '$susTag',
         textScaleFactor: 1.2,
-        style: TextStyle(
+        style: const TextStyle(
           color: Color(0xff333333),
           fontSize: 12.0,
           fontWeight: FontWeight.w600,
@@ -98,22 +100,23 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
         ),
         SizedBox(
           height: _itemHeight.toDouble(),
-          child: new InkWell(
-            child: new Row(
+          child: InkWell(
+            child: Row(
               children: <Widget>[
-                new Padding(
-                  padding: EdgeInsets.symmetric(horizontal: mainSpace * 1.5),
-                  child: new Icon(
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: mainSpace * 1.5),
+                  child: Icon(
                     model.isSelect!
                         ? CupertinoIcons.check_mark_circled_solid
                         : CupertinoIcons.check_mark_circled,
                     color: model.isSelect! ? Colors.green : Colors.grey,
                   ),
                 ),
-                new ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(5)),
-                  child: !strNoEmpty(uFace)
-                      ? new Image(
+                ClipRRect(
+                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                  child: strEmpty(uFace)
+                      ? const Image(
                           image: AssetImage(defIcon),
                           height: 48.0,
                           width: 48.0,
@@ -127,20 +130,23 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
                           fit: BoxFit.cover,
                         ),
                 ),
-                new Space(),
-                new Expanded(
-                  child: new Container(
+                Space(),
+                Expanded(
+                  child: Container(
                     alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.only(right: 30),
+                    padding: const EdgeInsets.only(right: 30),
                     height: _itemHeight.toDouble(),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       border: Border(
-                          top: BorderSide(
-                              color: AppColors.LineColor, width: 0.2)),
+                        top: BorderSide(
+                          color: AppColors.LineColor,
+                          width: 0.2,
+                        ),
+                      ),
                     ),
-                    child: new Text(
+                    child: Text(
                       model.name!,
-                      style: TextStyle(fontSize: 14.0),
+                      style: const TextStyle(fontSize: 14.0),
                     ),
                   ),
                 ),
@@ -163,18 +169,21 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new PageAppBar(
-        title: '选择联系人',
+    return Scaffold(
+      appBar: PageAppBar(
+        title: '选择联系人'.tr,
         rightDMActions: <Widget>[
-          new ComMomButton(
-            margin: EdgeInsets.symmetric(vertical: 7, horizontal: 5),
+          ComMomButton(
+            margin: const EdgeInsets.symmetric(
+              vertical: 7,
+              horizontal: 5,
+            ),
             onTap: () {
               if (!listNoEmpty(selects)) {
-                Get.snackbar('', '请选择要添加的成员');
+                Get.snackbar('', '请选择要添加的成员'.tr);
               }
             },
-            text: '确定',
+            text: '确定'.tr,
           ),
         ],
       ),

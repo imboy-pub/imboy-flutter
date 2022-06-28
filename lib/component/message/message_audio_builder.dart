@@ -85,7 +85,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
   Widget build(BuildContext context) {
     bool userIsAuthor = widget.user.id == widget.message.author.id;
 
-    double duration_s = widget.message.metadata!["duration_ms"] / 1000;
+    double durationMS = widget.message.metadata!["duration_ms"] / 1000;
     return InkWell(
       onTap: () {
         _togglePlaying();
@@ -93,7 +93,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
       onDoubleTap: () {
         // _togglePlaying();
       },
-      child: Container(
+      child: SizedBox(
         height: 44,
         width: 120,
         child: userIsAuthor
@@ -102,7 +102,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    duration_s.toString() + "''",
+                    durationMS.toString() + "''",
                     style: const TextStyle(fontSize: 16),
                   ),
                   RotatedBox(
@@ -127,7 +127,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
                     userIsAuthor: userIsAuthor,
                   ),
                   Text(
-                    duration_s.toString() + "''",
+                    durationMS.toString() + "''",
                     style: const TextStyle(fontSize: 16),
                   ),
                   Badge(

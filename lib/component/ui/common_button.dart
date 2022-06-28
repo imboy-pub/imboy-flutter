@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ComMomButton extends StatelessWidget {
@@ -17,7 +16,8 @@ class ComMomButton extends StatelessWidget {
   final Gradient? gradient;
   final bool? enable;
 
-  ComMomButton({
+  const ComMomButton({
+    Key? key,
     this.width,
     this.height = 40.0,
     this.boxShadow,
@@ -37,7 +37,7 @@ class ComMomButton extends StatelessWidget {
     ),
     this.enable = true,
     this.borderColor = 0xffFC6973,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -73,10 +73,8 @@ class ComMomButton extends StatelessWidget {
                   ),
                 ),
           child: Text(
-            '$text',
-            style: style != null
-                ? style
-                : TextStyle(fontSize: 15.0, color: _color),
+            text!,
+            style: style ?? TextStyle(fontSize: 15.0, color: _color),
           ),
         ),
         onTap: enable! ? onTap : () {},

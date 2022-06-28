@@ -19,7 +19,7 @@ class ContactRepo {
   static String updateTime = "update_time";
   static String isFriend = 'is_friend';
 
-  Sqlite _db = Sqlite.instance;
+  final Sqlite _db = Sqlite.instance;
 
   // 插入一条数据
   Future<ContactModel> insert(ContactModel obj) async {
@@ -64,7 +64,7 @@ class ContactRepo {
       limit: 10000,
     );
     // debugPrint(">>> on findFriend ${maps.length}, ${maps.toList().toString()}");
-    if (maps.length == 0) {
+    if (maps.isEmpty) {
       return [];
     }
 
@@ -95,9 +95,7 @@ class ContactRepo {
       where: '${ContactRepo.uid} = ?',
       whereArgs: [uid],
     );
-    debugPrint(
-        ">>> on ContactRepo/findByUid/1 ${uid}, ${maps.length} ; maps: ${maps.toString()}");
-    if (maps.length > 0) {
+    if (maps.isNotEmpty) {
       return ContactModel.fromJson(maps.first);
     }
     return null;
@@ -159,12 +157,11 @@ class ContactRepo {
 
   void save(Map<String, dynamic> json) async {
     String uid = json["id"] ?? (json["uid"] ?? "");
-    ContactModel? old = await this.findByUid(uid);
-    // debugPrint(">>> on ContactRepo/save/1 old: ${old!.toString()}");
+    ContactModel? old = await findByUid(uid);
     if (old != null || old is ContactModel) {
-      this.update(json);
+      update(json);
     } else {
-      this.insert(ContactModel.fromJson(json));
+      insert(ContactModel.fromJson(json));
     }
   }
 

@@ -7,11 +7,12 @@ class SearchBar extends StatelessWidget {
   final String text;
   final bool isBorder;
 
-  SearchBar({
+  const SearchBar({
+    Key? key,
     this.onTap,
     required this.text,
     this.isBorder = false,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

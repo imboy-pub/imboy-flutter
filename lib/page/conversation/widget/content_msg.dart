@@ -7,7 +7,7 @@ class ContentMsg extends StatelessWidget {
 
   ContentMsg(this.msg);
 
-  TextStyle _style = TextStyle(
+  TextStyle _style = const TextStyle(
     color: AppColors.MainTextColor,
     fontSize: 14.0,
   );
@@ -33,8 +33,7 @@ class ContentMsg extends StatelessWidget {
       str = '[视频]';
     } else if (msgType == "custom") {
       str = subtitle;
-    } else {
-    }
+    } else {}
     return ExtendedText(
       str,
       style: _style,

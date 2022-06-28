@@ -12,15 +12,15 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 // enum Status { delivered, error, seen, sending, sent }
 class MessageStatus {
   // 发送中
-  static final int sending = 10;
+  static const int sending = 10;
   //  已发送
-  static final int send = 11;
+  static const int send = 11;
   // 未读 已投递
-  static final int delivered = 20;
+  static const int delivered = 20;
   // 已读
-  static final int seen = 21;
+  static const int seen = 21;
   // 错误（发送失败）
-  static final int error = 41;
+  static const int error = 41;
 }
 
 class ReEditMessage {
@@ -58,7 +58,7 @@ class MessageModel {
 
   MessageModel.fromJson(Map<String, dynamic> data) {
     if (data['payload'] == null || data['payload'] == "") {
-      payload = Map<String, dynamic>();
+      payload = <String, dynamic>{};
     } else if (data['payload'] is String) {
       payload = json.decode(data['payload']);
     } else if (data['payload'] is Map<String, dynamic>) {
@@ -76,16 +76,16 @@ class MessageModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['type'] = this.type;
-    data['status'] = this.status;
-    data['from'] = this.fromId;
-    data['to'] = this.toId;
-    data['payload'] = json.encode(this.payload);
-    data['created_at'] = this.createdAt;
-    data['server_ts'] = this.serverTs != null ? this.serverTs : 0;
-    data['conversation_id'] = this.conversationId;
+    Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['type'] = type;
+    data['status'] = status;
+    data['from'] = fromId;
+    data['to'] = toId;
+    data['payload'] = json.encode(payload);
+    data['created_at'] = createdAt;
+    data['server_ts'] = serverTs ?? 0;
+    data['conversation_id'] = conversationId;
 
     debugPrint(">>>>> on MessageModel toMap $data");
     return data;
@@ -95,35 +95,35 @@ class MessageModel {
   /// 20 未读 delivered;  21 已读 seen;
   /// 41 错误（发送失败） error;
   types.Status get typesStatus {
-    if (this.status == MessageStatus.sending) {
+    if (status == MessageStatus.sending) {
       return types.Status.sending;
-    } else if (this.status == MessageStatus.send) {
+    } else if (status == MessageStatus.send) {
       return types.Status.sent;
-    } else if (this.status == MessageStatus.delivered) {
+    } else if (status == MessageStatus.delivered) {
       return types.Status.delivered;
-    } else if (this.status == MessageStatus.seen) {
+    } else if (status == MessageStatus.seen) {
       return types.Status.seen;
-    } else if (this.status == MessageStatus.error) {
+    } else if (status == MessageStatus.error) {
       return types.Status.error;
     }
     return types.Status.error;
   }
 
   types.MessageType get msgType {
-    if (this.payload == null) {
+    if (payload == null) {
       types.MessageType.unsupported;
     }
-    if (this.payload!['msg_type'] == 'text') {
+    if (payload!['msg_type'] == 'text') {
       return types.MessageType.text;
-    } else if (this.payload!['msg_type'] == 'image') {
+    } else if (payload!['msg_type'] == 'image') {
       return types.MessageType.image;
-    } else if (this.payload!['msg_type'] == 'file') {
+    } else if (payload!['msg_type'] == 'file') {
       return types.MessageType.file;
-    } else if (this.payload!['msg_type'] == 'custom') {
+    } else if (payload!['msg_type'] == 'custom') {
       return types.MessageType.custom;
-    } else if (this.payload!['msg_type'] == 'location') {
+    } else if (payload!['msg_type'] == 'location') {
       return types.MessageType.custom;
-    } else if (this.payload!['msg_type'] == 'revoked') {
+    } else if (payload!['msg_type'] == 'revoked') {
       return types.MessageType.custom;
     }
     return types.MessageType.unsupported;
@@ -156,113 +156,113 @@ class MessageModel {
   }
 
   Future<ContactModel?> get to async {
-    return await ContactRepo().findByUid(this.toId!);
+    return await ContactRepo().findByUid(toId!);
   }
 
   Future<ContactModel?> get from async {
-    return await ContactRepo().findByUid(this.fromId!);
+    return await ContactRepo().findByUid(fromId!);
   }
 
   types.Message toTypeMessage() {
     types.Message? message;
 
     // enum MessageType { custom, file, image, text, unsupported }
-    if (this.payload!['msg_type'] == 'text') {
+    if (payload!['msg_type'] == 'text') {
       message = types.TextMessage(
         author: types.User(
-          id: this.fromId!,
+          id: fromId!,
           // firstName: "",
           // imageUrl: "",
         ),
-        createdAt: this.createdAt,
-        id: this.id!,
-        remoteId: this.toId,
-        text: this.payload!['text'],
-        status: this.typesStatus,
+        createdAt: createdAt,
+        id: id!,
+        remoteId: toId,
+        text: payload!['text'],
+        status: typesStatus,
       );
-    } else if (this.payload!['msg_type'] == 'image') {
+    } else if (payload!['msg_type'] == 'image') {
       message = types.ImageMessage(
         author: types.User(
-          id: this.fromId!,
+          id: fromId!,
           // firstName: "",
           // imageUrl: "",
         ),
-        createdAt: this.createdAt,
-        id: this.id!,
-        remoteId: this.toId,
-        name: this.payload!['name'],
-        size: this.payload!['size'],
-        uri: this.payload!['uri'],
-        width: this.payload!['width'],
-        height: this.payload!['height'],
-        status: this.typesStatus,
+        createdAt: createdAt,
+        id: id!,
+        remoteId: toId,
+        name: payload!['name'],
+        size: payload!['size'],
+        uri: payload!['uri'],
+        width: payload!['width'],
+        height: payload!['height'],
+        status: typesStatus,
       );
-    } else if (this.payload!['msg_type'] == 'file') {
+    } else if (payload!['msg_type'] == 'file') {
       message = types.FileMessage(
         author: types.User(
-          id: this.fromId!,
+          id: fromId!,
           // firstName: "",
           // imageUrl: "",
         ),
-        createdAt: this.createdAt,
-        id: this.id!,
-        remoteId: this.toId,
-        name: this.payload!['name'],
-        size: this.payload!['size'],
-        uri: this.payload!['uri'],
-        status: this.typesStatus,
+        createdAt: createdAt,
+        id: id!,
+        remoteId: toId,
+        name: payload!['name'],
+        size: payload!['size'],
+        uri: payload!['uri'],
+        status: typesStatus,
       );
-    } else if (this.payload!['custom_type'] == 'revoked') {
+    } else if (payload!['custom_type'] == 'revoked') {
       message = types.CustomMessage(
         author: types.User(
-          id: this.fromId!,
+          id: fromId!,
           // payload!['from_name'] 目前只在收到撤回消息的时候才存在from_name
-          firstName: this.payload!['from_name'] ?? '',
+          firstName: payload!['from_name'] ?? '',
           // imageUrl: "",
         ),
-        id: this.id!,
-        createdAt: this.createdAt,
-        remoteId: this.toId,
-        metadata: this.payload,
+        id: id!,
+        createdAt: createdAt,
+        remoteId: toId,
+        metadata: payload,
       );
-    } else if (this.payload!['custom_type'] == 'location') {
+    } else if (payload!['custom_type'] == 'location') {
       message = types.CustomMessage(
         author: types.User(
-          id: this.fromId!,
+          id: fromId!,
           // firstName: "",
           // imageUrl: "",
         ),
-        id: this.id!,
-        createdAt: this.createdAt,
-        remoteId: this.toId,
-        status: this.typesStatus,
-        metadata: this.payload,
+        id: id!,
+        createdAt: createdAt,
+        remoteId: toId,
+        status: typesStatus,
+        metadata: payload,
       );
-    } else if (this.payload!['custom_type'] == 'video') {
+    } else if (payload!['custom_type'] == 'video') {
       message = types.CustomMessage(
         author: types.User(
-          id: this.fromId!,
+          id: fromId!,
           // firstName: "",
           // imageUrl: "",
         ),
-        id: this.id!,
-        createdAt: this.createdAt,
-        remoteId: this.toId,
-        status: this.typesStatus,
-        metadata: this.payload,
+        id: id!,
+        createdAt: createdAt,
+        remoteId: toId,
+        status: typesStatus,
+        metadata: payload,
       );
-    } else if (this.payload!['custom_type'] == 'audio') {
+    } else if (payload!['custom_type'] == 'audio') {
       message = types.CustomMessage(
         author: types.User(
-          id: this.fromId!,
+          id: fromId!,
           // firstName: "",
           // imageUrl: "",
         ),
-        id: this.id!,
-        createdAt: this.createdAt,
-        remoteId: this.toId,
-        status: this.typesStatus,
-        metadata: this.payload,
+        id: id!,
+        createdAt: createdAt,
+        remoteId: toId,
+        status: typesStatus,
+        metadata: payload,
       );
     }
     return message!;

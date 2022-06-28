@@ -8,7 +8,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/message_model.dart';
 
 class RevokedMessageBuilder extends StatelessWidget {
-  RevokedMessageBuilder({
+  const RevokedMessageBuilder({
     Key? key,
     required this.user,
     required this.message,
@@ -23,13 +23,13 @@ class RevokedMessageBuilder extends StatelessWidget {
 
     String nickname = userIsAuthor ? '你' : '"${message.author.firstName}"';
     int now = DateTimeHelper.currentTimeMillis();
-    bool canEdit = userIsAuthor && (now - this.message.createdAt!) < 300000;
+    bool canEdit = userIsAuthor && (now - message.createdAt!) < 300000;
     // canEdit = true;
     Widget btn = canEdit
         ? GestureDetector(
             onTap: () {
               eventBus.fire(
-                ReEditMessage(text: this.message.metadata!['text']),
+                ReEditMessage(text: message.metadata!['text']),
               );
             },
             child: Text(
@@ -65,8 +65,7 @@ class RevokedMessageBuilder extends StatelessWidget {
               // padding: EdgeInsets.only(right: 10),
               child: ExtendedText(
                 nickname + '撤回了一条消息'.tr,
-                // '${nickname},: ${_user.firstName},is: ${currentUserIsAuthor.toString()}',
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppColors.MainTextColor,
                   backgroundColor: AppColors.ChatBg,
                   fontSize: 14.0,

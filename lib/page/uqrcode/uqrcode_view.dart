@@ -1,7 +1,4 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/repaint_boundary.dart';
@@ -9,23 +6,18 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class UqrcodePage extends StatelessWidget {
   final GlobalKey globalKey = GlobalKey();
 
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-
-    return directory.path;
-  }
+  UqrcodePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     // API_BASE_URL=https://dev.imboy.pub
     String qrdata =
-        "${API_BASE_URL}/uqrcode?id=${UserRepoLocal.to.currentUid}&${uqrcodeDataSuffix}";
+        "$API_BASE_URL/uqrcode?id=${UserRepoLocal.to.currentUid}&$uqrcodeDataSuffix";
 
     int gender = UserRepoLocal.to.currentUser.gender;
 
@@ -35,7 +27,7 @@ class UqrcodePage extends StatelessWidget {
         title: "二维码名片".tr,
         rightDMActions: <Widget>[
           InkWell(
-            child: Padding(
+            child: const Padding(
               padding: EdgeInsets.only(left: 20, right: 10),
               child: Text(
                 "...",
@@ -46,7 +38,7 @@ class UqrcodePage extends StatelessWidget {
             ),
             onTap: () {
               Get.bottomSheet(
-                Container(
+                SizedBox(
                   width: Get.width,
                   height: Get.height * 0.25,
                   child: Wrap(
@@ -56,7 +48,7 @@ class UqrcodePage extends StatelessWidget {
                           child: Text(
                             '保存二维码'.tr,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               // color: Colors.white,
                               fontSize: 16.0,
                               fontWeight: FontWeight.normal,
@@ -76,12 +68,12 @@ class UqrcodePage extends StatelessWidget {
                         child: TextButton(
                           onPressed: () {
                             Get.back();
-                            Get.to(ScannerPage());
+                            Get.to(const ScannerPage());
                           },
                           child: Text(
                             '扫描二维码'.tr,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               // color: Colors.white,
                               fontSize: 16.0,
                               fontWeight: FontWeight.normal,
@@ -89,14 +81,14 @@ class UqrcodePage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Divider(),
+                      const Divider(),
                       Center(
                         child: TextButton(
                           onPressed: () => Get.back(),
                           child: Text(
                             'button_cancel'.tr,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               // color: Colors.white,
                               fontSize: 16.0,
                               fontWeight: FontWeight.normal,
@@ -121,7 +113,7 @@ class UqrcodePage extends StatelessWidget {
         ],
       ),
       body: Padding(
-        padding: EdgeInsets.only(
+        padding: const EdgeInsets.only(
           left: 20,
           top: 60,
           right: 20,
@@ -161,7 +153,7 @@ class UqrcodePage extends StatelessWidget {
                         data: qrdata,
                         version: QrVersions.auto,
                         size: 320,
-                        padding: EdgeInsets.only(
+                        padding: const EdgeInsets.only(
                           left: 10,
                           right: 10,
                           top: 10,
@@ -173,14 +165,15 @@ class UqrcodePage extends StatelessWidget {
                         // embeddedImage: AssetImage('assets/images/logo.png'),
 
                         embeddedImageStyle: QrEmbeddedImageStyle(
-                          size: Size(64, 64),
+                          size: const Size(64, 64),
                         ),
                       ),
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20)
-                        .copyWith(bottom: 20),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 10, horizontal: 20)
+                            .copyWith(bottom: 20),
                     child: Text("扫一扫上面的二维码图案，加我为朋友".tr),
                   ),
                 ],

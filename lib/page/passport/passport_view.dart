@@ -37,7 +37,7 @@ class PassportPage extends StatelessWidget {
       int mts = args['server_ts'] ?? DateTimeHelper.currentTimeMillis;
       String hm = Jiffy.unixFromMillisecondsSinceEpoch(mts).format("H:m");
       // "logged_in_on_another_device":"你的账号于%s在%s设备上登录了",
-      Future.delayed(Duration(milliseconds: 500), () {
+      Future.delayed(const Duration(milliseconds: 500), () {
         Get.defaultDialog(
           title: '',
           content: Text('info_logged_in_on_another_device'.trArgs([hm, dname])),
@@ -55,7 +55,7 @@ class PassportPage extends StatelessWidget {
       });
     }
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         //背景Colors.transparent 透明
         color: Colors.transparent,
         image: DecorationImage(
@@ -65,7 +65,7 @@ class PassportPage extends StatelessWidget {
       ),
       child: FlutterLogin(
         title: 'IMBoy',
-        logo: AssetImage('assets/images/logo.png'),
+        logo: const AssetImage('assets/images/logo.png'),
         userType: userType,
         messages: LoginMessages(
           // button

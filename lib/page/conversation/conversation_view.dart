@@ -6,7 +6,6 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/view/nodata_view.dart';
-import 'package:imboy/component/view/null_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat_view.dart';
@@ -168,7 +167,7 @@ class ConversationPage extends StatelessWidget {
       body: SlidableAutoCloseBehavior(
         child: Obx(() {
           return logic.conversations.isEmpty
-              ? NoDataView(str:'无会话消息'.tr)
+              ? NoDataView(text: '无会话消息'.tr)
               : ListView.builder(
                   itemBuilder: (BuildContext context, int index) {
                     ConversationModel model = logic.conversations[index];

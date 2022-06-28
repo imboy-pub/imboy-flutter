@@ -8,8 +8,9 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 class NewFriendRepo {
   static String tablename = 'new_friend';
 
-  static String from = 'fromid';
-  static String to = 'toid';
+  static String uid = 'uid'; // 当前用户ID
+  static String from = 'fromid'; // 发送中ID
+  static String to = 'toid'; // 接收者ID
   static String nickname = 'nickname';
   static String avatar = 'avatar';
   static String msg = 'msg';
@@ -20,11 +21,12 @@ class NewFriendRepo {
   static String updateTime = "update_time";
   static String createTime = "create_time";
 
-  Sqlite _db = Sqlite.instance;
+  final Sqlite _db = Sqlite.instance;
 
   // 插入一条数据
   Future<NewFriendModel> insert(NewFriendModel obj) async {
     Map<String, dynamic> insert = {
+      NewFriendRepo.uid: UserRepoLocal.to.currentUid,
       NewFriendRepo.from: obj.from,
       NewFriendRepo.to: obj.to,
       NewFriendRepo.nickname: obj.nickname,
@@ -33,7 +35,8 @@ class NewFriendRepo {
       NewFriendRepo.status: obj.status,
       NewFriendRepo.payload: obj.payload,
       // 单位毫秒，13位时间戳  1561021145560
-      NewFriendRepo.updateTime: obj.updateTime ?? DateTime.now().millisecondsSinceEpoch,
+      NewFriendRepo.updateTime:
+          obj.updateTime ?? DateTime.now().millisecondsSinceEpoch,
       NewFriendRepo.createTime: DateTime.now().millisecondsSinceEpoch,
     };
     debugPrint(">>> on NewFriendRepo/insert/1 " + insert.toString());
@@ -54,7 +57,7 @@ class NewFriendRepo {
         NewFriendRepo.msg,
         NewFriendRepo.payload,
       ],
-      where: '${NewFriendRepo.from}=?',
+      where: '${NewFriendRepo.uid}=?',
       whereArgs: [UserRepoLocal.to.currentUid],
       orderBy: "update_time desc",
       limit: 10000,
@@ -72,10 +75,11 @@ class NewFriendRepo {
   }
 
   //
-  Future<NewFriendModel?> findByUid(String uid) async {
+  Future<NewFriendModel?> findByFromTo(String from, String to) async {
     List<Map<String, dynamic>> maps = await _db.query(
       NewFriendRepo.tablename,
       columns: [
+        NewFriendRepo.uid,
         NewFriendRepo.from,
         NewFriendRepo.to,
         NewFriendRepo.nickname,
@@ -83,11 +87,13 @@ class NewFriendRepo {
         NewFriendRepo.status,
         NewFriendRepo.msg,
         NewFriendRepo.payload,
+        NewFriendRepo.updateTime,
+        NewFriendRepo.createTime,
       ],
       where: '${NewFriendRepo.from} = ? and ${NewFriendRepo.to} = ?',
-      whereArgs: [UserRepoLocal.to.currentUid, uid],
+      whereArgs: [from, to],
     );
-    if (maps.length > 0) {
+    if (maps.isNotEmpty) {
       return NewFriendModel.fromJson(maps.first);
     }
     return null;
@@ -97,17 +103,21 @@ class NewFriendRepo {
   Future<int> delete(String id) async {
     return await _db.delete(
       NewFriendRepo.tablename,
-      where: '${NewFriendRepo.to} = ?',
-      whereArgs: [id],
+      where: '${NewFriendRepo.uid} = ? and ${NewFriendRepo.to} = ?',
+      whereArgs: [UserRepoLocal.to.currentUid, id],
     );
   }
 
   // 更新信息
   Future<int> update(Map<String, dynamic> json) async {
-    String uid = json["id"] ?? (json["uid"] ?? "");
+    String uid = json["uid"] ?? "";
+    String to = json["to"] ?? "";
     Map<String, Object?> data = {};
     if (strNoEmpty(json["msg"])) {
       data["msg"] = json["msg"];
+    }
+    if (strNoEmpty(json["remark"])) {
+      data["remark"] = json["remark"];
     }
     if (strNoEmpty(json["nickname"])) {
       data["nickname"] = json["nickname"];
@@ -123,13 +133,13 @@ class NewFriendRepo {
       data["payload"] = json["payload"];
     }
 
-    if (strNoEmpty(uid)) {
+    if (strNoEmpty(to)) {
       data["update_time"] = DateTimeHelper.currentTimeMillis();
       return await _db.update(
         NewFriendRepo.tablename,
         data,
-        where: '${NewFriendRepo.from} = ?',
-        whereArgs: [uid],
+        where: '${NewFriendRepo.uid} = ? and ${NewFriendRepo.to} = ?',
+        whereArgs: [uid, to],
       );
     } else {
       return 0;
@@ -137,7 +147,10 @@ class NewFriendRepo {
   }
 
   void save(Map<String, dynamic> json) async {
-    NewFriendModel? old = await findByUid(json["to"]);
+    String from = json["from"] ?? "";
+    String to = json["to"] ?? "";
+    NewFriendModel? old = await findByFromTo(from, to);
+    debugPrint(">>> on new_friend save: ${old.toString()}");
     if (old != null || old is NewFriendModel) {
       update(json);
     } else {

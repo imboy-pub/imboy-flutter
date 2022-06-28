@@ -8,13 +8,17 @@ class MoreItemCard extends StatelessWidget {
   final VoidCallback? onPressed;
   final double? keyboardHeight;
 
-  MoreItemCard({this.name, this.icon, this.onPressed, this.keyboardHeight});
+  const MoreItemCard({
+    Key? key,
+    this.name,
+    this.icon,
+    this.onPressed,
+    this.keyboardHeight,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    double _margin = keyboardHeight! != null && keyboardHeight! != 0.0
-        ? keyboardHeight!
-        : 0.0;
+    double _margin = keyboardHeight != 0.0 ? keyboardHeight! : 0.0;
     double _top = _margin != 0.0 ? _margin / 10 : 20.0;
 
     return Container(
@@ -45,16 +49,17 @@ class MoreItemCard extends StatelessWidget {
               //     Radius.circular(10.0),
               //   ),
               // ),
-              child: Container(
+              child: SizedBox(
                 width: 50.0,
                 child: Image(image: AssetImage(icon!), fit: BoxFit.cover),
               ),
             ),
           ),
-          Space(width: mainSpace / 2),
+          const Space(width: mainSpace / 2),
           Text(
             name ?? '',
-            style: TextStyle(color: AppColors.MainTextColor, fontSize: 11),
+            style:
+                const TextStyle(color: AppColors.MainTextColor, fontSize: 11),
           ),
         ],
       ),

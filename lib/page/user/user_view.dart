@@ -8,6 +8,8 @@ class UserPage extends StatelessWidget {
   final UserLogic logic = Get.put(UserLogic());
   final UserState state = Get.find<UserLogic>().state;
 
+  UserPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container();

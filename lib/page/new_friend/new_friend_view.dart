@@ -5,7 +5,6 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/ui/search_bar.dart';
 import 'package:imboy/component/view/nodata_view.dart';
-import 'package:imboy/component/view/null_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -27,7 +26,7 @@ class NewFriendPage extends StatelessWidget {
       avatar: defAvatar,
       nickname: 'nickname',
       msg: '我：我是程老师介绍的李源炳顶顶顶顶顶顶顶',
-      payload: {},
+      payload: '{}',
       createTime: 1,
     ));
     logic.items.value.add(NewFriendModel(
@@ -36,7 +35,7 @@ class NewFriendPage extends StatelessWidget {
       avatar: defAvatar,
       nickname: 'nickname',
       msg: '我：我是程老师介绍的李源炳顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶的',
-      payload: {},
+      payload: '{}',
       createTime: 1,
     ));
     return Scaffold(
@@ -94,9 +93,7 @@ class NewFriendPage extends StatelessWidget {
               Expanded(
                 child: Obx(() {
                   return logic.items.isEmpty
-                      ? NoDataView(
-                          str: '没有新的好友'.tr,
-                        )
+                      ? NoDataView(text: '没有新的好友'.tr)
                       : ListView.builder(
                           itemBuilder: (BuildContext context, int index) {
                             NewFriendModel model = logic.items.value[index];
@@ -108,7 +105,7 @@ class NewFriendPage extends StatelessWidget {
                             }
                             rightWidget.add(Text('等待验证'.tr));
                             return Container(
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 color: Colors.white,
                                 border: Border(
                                   bottom: BorderSide(
@@ -124,7 +121,7 @@ class NewFriendPage extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     shape: BoxShape.rectangle,
                                     borderRadius: BorderRadius.circular(4.0),
-                                    color: Color(0xFFE5E5E5),
+                                    color: const Color(0xFFE5E5E5),
                                     image: dynamicAvatar(model.avatar),
                                   ),
                                 ),

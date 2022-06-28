@@ -7,18 +7,19 @@ class HorizontalLine extends StatelessWidget {
   final Color color;
   final double horizontal;
 
-  HorizontalLine({
+  const HorizontalLine({
+    Key? key,
     this.height = 0.5,
     this.color = const Color(0xFFEEEEEE),
     this.horizontal = 0.0,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
+    return Container(
       height: height,
       color: color,
-      margin: new EdgeInsets.symmetric(horizontal: horizontal),
+      margin: EdgeInsets.symmetric(horizontal: horizontal),
     );
   }
 }
@@ -29,19 +30,20 @@ class VerticalLine extends StatelessWidget {
   final Color color;
   final double vertical;
 
-  VerticalLine({
+  const VerticalLine({
+    Key? key,
     this.width = 1.0,
     this.height = 25,
     this.color = const Color.fromRGBO(209, 209, 209, 0.5),
     this.vertical = 0.0,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
+    return Container(
       width: width,
-      color: Color(0xffDCE0E5),
-      margin: new EdgeInsets.symmetric(vertical: vertical),
+      color: const Color(0xffDCE0E5),
+      margin: EdgeInsets.symmetric(vertical: vertical),
       height: height,
     );
   }
@@ -51,11 +53,15 @@ class Space extends StatelessWidget {
   final double width;
   final double height;
 
-  Space({this.width = 10.0, this.height = 10.0});
+  const Space({
+    Key? key,
+    this.width = 10.0,
+    this.height = 10.0,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return new Container(width: width, height: height);
+    return SizedBox(width: width, height: height);
   }
 }
 

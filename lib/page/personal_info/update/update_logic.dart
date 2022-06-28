@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 class UpdatePageLogic extends GetxController {
   // 用户名控制器
 
-  FocusNode inputFocusNode = new FocusNode();
+  FocusNode inputFocusNode = FocusNode();
   TextEditingController textController = TextEditingController();
 
   RxBool valueChanged = false.obs;
@@ -17,14 +17,14 @@ class UpdatePageLogic extends GetxController {
 
   void valueOnChange(bool ischange) {
     // 必须使用 .value 修饰具体的值
-    this.valueChanged.value = ischange;
-    update([this.valueChanged]);
+    valueChanged.value = ischange;
+    update([valueChanged]);
   }
 
   void setVal(String value) {
     // 必须使用 .value 修饰具体的值
-    this.val.value = value;
-    update([this.val]);
+    val.value = value;
+    update([val]);
   }
 
   void loadData() async {

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 class MainInputBody extends StatefulWidget {
-  MainInputBody({
+  const MainInputBody({
+    Key? key,
     this.child,
     this.color = const Color(0xfff4f4f4),
     this.decoration,
     this.onTap,
-  });
+  }) : super(key: key);
 
   final Widget? child;
   final Color? color;

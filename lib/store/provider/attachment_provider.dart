@@ -10,7 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:get/get.dart' as Getx;
+import 'package:get/get.dart' as getx;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
@@ -29,9 +29,9 @@ class AttachmentProvider {
   ) async {
     int ts = DateTimeHelper.currentTimeMillis();
     DateTime dt = DateTime.fromMillisecondsSinceEpoch(ts);
-    String savePath = "/${prefix}/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";
+    String savePath = "/$prefix/$dt.year$dt.month/$dt.day_$dt.hour/";
     if (prefix == "avatar") {
-      savePath = "/${prefix}/";
+      savePath = "/$prefix/";
     }
     String v = (Random()).nextInt(999999).toString();
     String authToken = generateMD5(UP_AUTH_KEY + v).substring(8, 24);
@@ -53,7 +53,7 @@ class AttachmentProvider {
       receiveTimeout: 30000,
     );
     await Dio(options).post(
-      "${UPLOAD_BASE_URL}/upload",
+      "$UPLOAD_BASE_URL/upload",
       data: formdata,
       onSendProgress: (int sent, int total) {
         debugPrint('>>> on upload $sent / $total');
@@ -68,14 +68,14 @@ class AttachmentProvider {
         }
       },
     ).then((response) {
-      debugPrint(">>> on upload response ${response.toString()}");
+      debugPrint(">>> on upload response $response.toString()}");
       Map<String, dynamic> responseData = json.decode(response.data);
 
-      String url = responseData["data"]["url"] +
-          "?s=${UPLOAD_SENCE}&a=${authToken}&v=${v}";
+      String url =
+          responseData["data"]["url"] + "?s=$UPLOAD_SENCE}&a=$authToken}&v=$v}";
       callback(responseData, url);
     }).catchError((e) {
-      debugPrint(">>> on upload err ${e.toString()}");
+      debugPrint(">>> on upload err $e.toString()}");
       errorCallback(e);
     });
   }
@@ -84,7 +84,7 @@ class AttachmentProvider {
       String prefix, Map<String, dynamic> data) async {
     int ts = DateTimeHelper.currentTimeMillis();
     DateTime dt = DateTime.fromMillisecondsSinceEpoch(ts);
-    String savePath = "/${prefix}/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";
+    String savePath = "/$prefix/$dt.year}$dt.month/$dt.day}_$dt.hour/";
     String v = (Random()).nextInt(999999).toString();
     String authToken = generateMD5(UP_AUTH_KEY + v).substring(8, 24);
 
@@ -104,7 +104,7 @@ class AttachmentProvider {
       receiveTimeout: 30000,
     );
     return Dio(options).get(
-      "${UPLOAD_BASE_URL}/upload",
+      "$UPLOAD_BASE_URL/upload",
       queryParameters: data,
     );
   }
@@ -130,8 +130,8 @@ class AttachmentProvider {
 
     String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
     bool uploadOriginalImage = false;
-    debugPrint(">>> on uploadOriginalImage: ${uploadOriginalImage}");
-    String name = "${Xid().toString()}.${ext}";
+    debugPrint(">>> on uploadOriginalImage: $uploadOriginalImage}");
+    String name = "$Xid().toString()}.$ext}";
     if (entity.type == AssetType.video) {
       String? thumbUri;
       String? videoUri;
@@ -141,7 +141,7 @@ class AttachmentProvider {
         quality: quality, // default(100)
         position: -1, // default(-1)
       );
-      debugPrint(">>> on upload video ${thumbnailFile.path}");
+      debugPrint(">>> on upload video $thumbnailFile.path}");
       String thumbPath = thumbnailFile.path;
       var thumbName =
           thumbPath.substring(thumbPath.lastIndexOf("/") + 1, thumbPath.length);
@@ -160,7 +160,7 @@ class AttachmentProvider {
       );
       File videoFile = mediaInfo!.file!;
       Map<String, dynamic> predata = {
-        'md5': sha1.convert(await videoFile.readAsBytesSync()),
+        'md5': sha1.convert(videoFile.readAsBytesSync()),
       };
       await preUpload(prefix, predata).then((response) async {
         Map<String, dynamic> responseData = json.decode(response.data);
@@ -211,7 +211,7 @@ class AttachmentProvider {
       }, '');
       await VideoCompress.deleteAllCache();
 
-      // EntityImage thumb = new EntityImage(
+      // EntityImage thumb = EntityImage(
       //   name: name,
       //   uri: thumbUri,
       //   size: await thumbnailFile.length(),
@@ -236,17 +236,17 @@ class AttachmentProvider {
           String v = (Random()).nextInt(999999).toString();
           String authToken = generateMD5(UP_AUTH_KEY + v).substring(8, 24);
           String url = responseData["data"]["url"] +
-              "?s=${UPLOAD_SENCE}&a=${authToken}&v=${v}";
+              "?s=$UPLOAD_SENCE}&a=$authToken}&v=$v}";
           callback(responseData, url);
         } else {
           Map<String, dynamic> data = {
-            'file': await MultipartFile.fromBytes(thumbData, filename: name),
+            'file': MultipartFile.fromBytes(thumbData, filename: name),
           };
 
           await _upload(prefix, data, callback, errorCallback);
         }
       }).catchError((e) {
-        debugPrint(">>> on preUpload catchError ${e.toString()}");
+        debugPrint(">>> on preUpload catchError $e.toString()}");
         errorCallback(e);
       });
     } else if (entity.type == AssetType.image && uploadOriginalImage == true) {
@@ -258,12 +258,11 @@ class AttachmentProvider {
       await preUpload(prefix, predata).then((response) async {
         Map<String, dynamic> responseData = json.decode(response.data);
         String status = responseData['status'] ?? '';
-        debugPrint(">>> on preUpload response ${response.toString()}");
         if (status == 'ok') {
           String v = (Random()).nextInt(999999).toString();
           String authToken = generateMD5(UP_AUTH_KEY + v).substring(8, 24);
           String url = responseData["data"]["url"] +
-              "?s=${UPLOAD_SENCE}&a=${authToken}&v=${v}";
+              "?s=$UPLOAD_SENCE&a=$authToken&v=$v";
           callback(responseData, url);
         } else {
           Map<String, dynamic> data = {
@@ -272,7 +271,7 @@ class AttachmentProvider {
           await _upload(prefix, data, callback, errorCallback);
         }
       }).catchError((e) {
-        debugPrint(">>> on preUpload catchError ${e.toString()}");
+        debugPrint(">>> on preUpload catchError $e.toString()");
         errorCallback(e);
       });
     }
@@ -287,13 +286,13 @@ class AttachmentProvider {
     } else if (file is File) {
       path = file.path;
     } else {
-      throw new Exception("不支持的文件文件类型");
+      throw Exception("不支持的文件文件类型".tr);
     }
     String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
     if (name == "") {
-      name = "${Xid().toString()}.${ext}";
+      name = Xid().toString() + ".$ext";
     } else {
-      name = "${name}.${ext}";
+      name = "$name.$ext";
     }
 
     Map<String, dynamic> data = {

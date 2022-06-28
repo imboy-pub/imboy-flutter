@@ -40,5 +40,6 @@ class DeviceExt extends DeviceInfoPlugin {
         "did": data.systemGUID,
       };
     }
+    return null;
   }
 }

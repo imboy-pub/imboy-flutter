@@ -85,9 +85,10 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
               Text(
                 label,
                 style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,),
+                  color: Colors.black,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 15),
@@ -126,13 +127,13 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                 visible: widget.groupInfoType == GroupInfoType.remark,
                 child: Row(
                   children: <Widget>[
-                    Text(
+                    const Text(
                       '群聊名称：wechat_flutter 106号群',
                       style: TextStyle(color: Colors.grey, fontSize: 14),
                     ),
                     Space(),
                     InkWell(
-                      child: Padding(
+                      child: const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 2),
                         child: Text(
                           '填入',
@@ -147,7 +148,7 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                   ],
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               // TextButton(
               //   text: '完成',
               //   onTap: () => handle(),

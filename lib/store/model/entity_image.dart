@@ -11,7 +11,7 @@ class EntityImage {
   });
 
   factory EntityImage.fromJson(Map<String, dynamic> json) {
-    return new EntityImage(
+    return EntityImage(
       name: json["name"],
       uri: json["uri"],
       size: json["size"]?.toInt(),
@@ -20,7 +20,7 @@ class EntityImage {
     );
   }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["name"] = name;
     data["uri"] = uri;
     data["size"] = size;

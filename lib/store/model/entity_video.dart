@@ -21,7 +21,7 @@ class EntityVideo {
   });
 
   factory EntityVideo.fromJson(Map<String, dynamic> json) {
-    return new EntityVideo(
+    return EntityVideo(
       name: json["name"],
       uri: json["uri"],
       filesize: json["filesize"]?.toInt(),
@@ -32,7 +32,7 @@ class EntityVideo {
     );
   }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["name"] = name;
     data["uri"] = uri;
     data["filesize"] = filesize;

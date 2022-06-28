@@ -198,7 +198,7 @@ LoginTheme loginTheme = LoginTheme(
   footerBackgroundColor: AppColors.primaryBackground,
   logoWidth: 1,
   headerMargin: 10,
-  titleStyle: TextStyle(
+  titleStyle: const TextStyle(
     color: AppColors.primaryElement,
   ),
   buttonTheme: LoginButtonTheme(
@@ -210,7 +210,7 @@ LoginTheme loginTheme = LoginTheme(
       borderRadius: BorderRadius.circular(2),
     ),
   ),
-  inputTheme: InputDecorationTheme(
+  inputTheme: const InputDecorationTheme(
     filled: true,
     iconColor: AppColors.primaryElement,
     suffixIconColor: AppColors.primaryElement,

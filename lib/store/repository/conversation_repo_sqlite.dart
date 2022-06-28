@@ -20,7 +20,7 @@ class ConversationRepo {
   static String msgtype = 'msgtype';
   static String isShow = "is_show";
 
-  Sqlite _db = Sqlite.instance;
+  final Sqlite _db = Sqlite.instance;
 
   // 插入一条数据
   Future<int> insert(ConversationModel obj) async {
@@ -66,7 +66,7 @@ class ConversationRepo {
   // 存在就更新，不存在就插入
   Future<ConversationModel> save(ConversationModel obj) async {
     String where = '${ConversationRepo.typeId} = ?';
-    ConversationModel? oldObj = await this.findByTypeId(obj.typeId);
+    ConversationModel? oldObj = await findByTypeId(obj.typeId);
     int unreadNumOld = oldObj == null ? 0 : oldObj.unreadNum;
     obj.unreadNum = obj.unreadNum + unreadNumOld;
     if (oldObj == null) {
@@ -90,7 +90,7 @@ class ConversationRepo {
       "max(${ConversationRepo.id}) as maxId",
       ConversationRepo.tablename,
     );
-    return id == null ? 0 : id;
+    return id ?? 0;
   }
 
   //
@@ -115,7 +115,7 @@ class ConversationRepo {
       orderBy: "${ConversationRepo.lasttime} DESC",
     );
 
-    if (maps.length == 0) {
+    if (maps.isEmpty) {
       return [];
     }
 
@@ -149,20 +149,17 @@ class ConversationRepo {
     );
     debugPrint(">>> on ConversationRepo/all ${items.length} items " +
         items.toString());
-    if (items.length == 0) {
+    if (items.isEmpty) {
       return [];
     }
     List<ConversationModel> item2 = [];
-    items.forEach((element) {
+    for (var element in items) {
       item2.add(ConversationModel.fromJson(element));
-    });
-    debugPrint(">>> on ConversationRepo/all ${item2.length} item2 " +
-        item2.toString());
+    }
     return item2;
   }
 
   Future<ConversationModel?> findById(int id) async {
-    debugPrint(">>> on ConversationRepo/findById id {$id}");
     List<Map<String, dynamic>> maps = await _db.query(
       ConversationRepo.tablename,
       columns: [
@@ -183,7 +180,7 @@ class ConversationRepo {
       orderBy: "${ConversationRepo.lasttime} DESC",
     );
 
-    if (maps.length > 0) {
+    if (maps.isNotEmpty) {
       return ConversationModel.fromJson(maps.first);
     }
     return null;
@@ -208,7 +205,7 @@ class ConversationRepo {
       where: '${ConversationRepo.typeId} = ?',
       whereArgs: [typeId],
     );
-    if (maps.length > 0) {
+    if (maps.isNotEmpty) {
       return ConversationModel.fromJson(maps.first);
     }
     return null;

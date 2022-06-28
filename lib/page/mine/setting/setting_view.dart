@@ -17,10 +17,10 @@ class _SettingPageState extends State<SettingPage> {
   final SettingState state = Get.find<SettingLogic>().state;
 
   Widget buildContent(item) {
-    return new ListTileView(
+    return ListTileView(
       title: item['label'],
-      titleStyle: TextStyle(fontSize: 15.0),
-      padding: new EdgeInsets.fromLTRB(24, 16, 8, 8),
+      titleStyle: const TextStyle(fontSize: 15.0),
+      padding: const EdgeInsets.fromLTRB(24, 16, 8, 8),
       // padding: EdgeInsets.symmetric(vertical: 16.0),
       border: item['border'],
       margin: EdgeInsets.symmetric(vertical: item['vertical']),
@@ -37,8 +37,12 @@ class _SettingPageState extends State<SettingPage> {
       {
         'label': '其少年模式',
         'vertical': 0.0,
-        'border':
-            Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
+        'border': const Border(
+          bottom: BorderSide(
+            color: AppColors.LineColor,
+            width: 0.2,
+          ),
+        ),
       },
       {
         'label': '新消息通知',
@@ -49,8 +53,12 @@ class _SettingPageState extends State<SettingPage> {
       {
         'label': '通用',
         'vertical': 0.0,
-        'border':
-            Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
+        'border': const Border(
+          bottom: BorderSide(
+            color: AppColors.LineColor,
+            width: 0.2,
+          ),
+        ),
       },
       {
         'label': '帮助与反馈',
@@ -60,8 +68,12 @@ class _SettingPageState extends State<SettingPage> {
       {
         'label': '关于',
         'vertical': 0.0,
-        'border':
-            Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
+        'border': const Border(
+          bottom: BorderSide(
+            color: AppColors.LineColor,
+            width: 0.2,
+          ),
+        ),
       },
       {'label': '切换账号', 'vertical': 10.0, 'border': null},
       {
@@ -72,9 +84,9 @@ class _SettingPageState extends State<SettingPage> {
       },
     ];
 
-    return new Column(
+    return Column(
       children: <Widget>[
-        new Column(
+        Column(
           children: data.map(buildContent).toList(),
         ),
       ],
@@ -83,12 +95,12 @@ class _SettingPageState extends State<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new PageAppBar(
-        title: '设置',
+    return Scaffold(
+      appBar: PageAppBar(
+        title: '设置'.tr,
       ),
       // color: appBarColor,
-      body: new SingleChildScrollView(child: body(context)),
+      body: SingleChildScrollView(child: body(context)),
     );
   }
 

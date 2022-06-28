@@ -66,6 +66,7 @@ class HttpClient {
         // proxy all request to localhost:8888
         return "PROXY $proxy";
       };
+      return null;
       // you can also create a HttpClient to dio
       // return HttpClient();
     };
@@ -248,7 +249,7 @@ class HttpClient {
       );
       return response;
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 }

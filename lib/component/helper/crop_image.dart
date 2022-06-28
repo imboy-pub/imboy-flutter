@@ -6,14 +6,15 @@ import 'package:get/get.dart';
 import 'package:image_crop/image_crop.dart';
 import 'package:imboy/store/provider/attachment_provider.dart';
 
+// ignore: must_be_immutable
 class CropImageRoute extends StatefulWidget {
   CropImageRoute(
     this.image,
     this.prefix, {
+    Key? key,
     this.imageScale = 1.0,
     this.filename = "",
-        Key? key,
-  }): super(key: key);
+  }) : super(key: key);
   String prefix;
   String filename;
   File image; //原始图片路径
@@ -43,7 +44,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
       child: Column(
         children: <Widget>[
           Expanded(
-            child: Container(
+            child: SizedBox(
               height: Get.height * 0.8,
               child: Crop.file(
                 widget.image,

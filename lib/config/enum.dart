@@ -3,3 +3,9 @@ enum ButtonType { voice, more }
 enum MsgType { c2c, group, voice }
 
 enum GroupInfoType { remark, name, cardName }
+
+enum NewFriendStatus {
+  waiting_for_validation, // 待验证
+  added, // 已添加
+  expired, // 已过期
+}

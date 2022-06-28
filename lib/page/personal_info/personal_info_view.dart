@@ -92,14 +92,19 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   Widget dynamicAvatar(avatar, {size}) {
     if (isNetWorkImg(avatar)) {
       return CachedNetworkImage(
-          imageUrl: avatar + "&width=200",
-          cacheManager: cacheManager,
-          width: size ?? null,
-          height: size ?? null,
-          fit: BoxFit.fill);
+        imageUrl: avatar + "&width=200",
+        cacheManager: cacheManager,
+        width: size,
+        height: size,
+        fit: BoxFit.fill,
+      );
     } else {
-      return Image.asset(avatar,
-          fit: BoxFit.fill, width: size ?? null, height: size ?? null);
+      return Image.asset(
+        avatar,
+        fit: BoxFit.fill,
+        width: size,
+        height: size,
+      );
     }
   }
 
@@ -134,18 +139,18 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(title: '个人信息'),
+      appBar: PageAppBar(title: '个人信息'.tr),
       body: SingleChildScrollView(
           child: Column(children: [
         LabelRow(
-          label: '头像',
+          label: '头像'.tr,
           isLine: true,
           isRight: true,
           rightW: SizedBox(
             width: 55.0,
             height: 55.0,
             child: ClipRRect(
-              borderRadius: BorderRadius.all(Radius.circular(5.0)),
+              borderRadius: const BorderRadius.all(Radius.circular(5.0)),
               child: strNoEmpty(currentUserAvatar)
                   ? dynamicAvatar(currentUserAvatar)
                   : Image.asset(defIcon, fit: BoxFit.cover),
@@ -163,7 +168,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                       child: Text(
                         'button_taking_pictures'.tr,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           // color: Colors.white,
                           fontSize: 16.0,
                           fontWeight: FontWeight.normal,
@@ -177,7 +182,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                       child: Text(
                         '从相册选择'.tr,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           // color: Colors.white,
                           fontSize: 16.0,
                           fontWeight: FontWeight.normal,
@@ -185,14 +190,14 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                       ),
                     ),
                   ),
-                  Divider(),
+                  const Divider(),
                   Center(
                     child: TextButton(
                       onPressed: () => Get.back(),
                       child: Text(
                         'button_cancel'.tr,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           // color: Colors.white,
                           fontSize: 16.0,
                           fontWeight: FontWeight.normal,

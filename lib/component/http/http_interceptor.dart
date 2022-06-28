@@ -16,21 +16,9 @@ class ImboyInterceptor extends Interceptor {
     options.headers['device-type-vsn'] = Platform.operatingSystemVersion;
 
     String tk = UserRepoLocal.to.accessToken;
-    // debugPrint(">>>>>>> on ImboyInterceptor tk" + (tk == null ? "" : tk));
     if (strNoEmpty(tk)) {
       options.headers[Keys.tokenKey] = tk;
     }
     return super.onRequest(options, handler);
-  }
-
-  @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
-    return super.onResponse(response, handler);
-  }
-
-  @override
-  void onError(DioError err, ErrorInterceptorHandler handler) {
-    debugPrint(">>> on ImboyInterceptor/onError: ${err.message.toString()}");
-    return super.onError(err, handler);
   }
 }

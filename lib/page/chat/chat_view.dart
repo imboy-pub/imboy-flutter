@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
-import 'package:get/get.dart' as Getx;
+import 'package:get/get.dart' as getx;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/picker_method.dart';
 import 'package:imboy/component/message/message.dart';
@@ -28,7 +28,6 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
 import 'package:popup_menu/popup_menu.dart' as popupmenu;
-import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:xid/xid.dart';
 
@@ -43,20 +42,21 @@ class ChatPage extends StatefulWidget {
   final String? title;
   final String? avatar;
 
-  ChatPage({
+  const ChatPage({
+    Key? key,
     required this.id,
     required this.toId,
     this.title,
     this.avatar,
     this.type = 'C2C',
-  });
+  }) : super(key: key);
   @override
   ChatPageState createState() => ChatPageState();
 }
 
 class ChatPageState extends State<ChatPage> {
-  final logic = Getx.Get.put(ChatLogic());
-  final clogic = Getx.Get.put(ConversationLogic());
+  final logic = getx.Get.put(ChatLogic());
+  final clogic = getx.Get.put(ConversationLogic());
   bool _showAppBar = true;
   // 当前会话新增消息
   List<types.Message> messages = [];
@@ -82,8 +82,8 @@ class ChatPageState extends State<ChatPage> {
     // Register listeners for all events:
     String toId = widget.toId;
     // 接收到新的消息订阅
-    eventBus.on<types.Message>().listen((e) async {
-      if (mounted && e is types.Message && e.author.id == toId) {
+    eventBus.on<types.Message>().listen((types.Message e) async {
+      if (mounted && e.author.id == toId) {
         clogic.decreaseConversationRemind(toId, 1);
         messages.insert(0, e);
         if (mounted) {
@@ -109,10 +109,8 @@ class ChatPageState extends State<ChatPage> {
     });
   }
 
-  /**
-   * 用于分页(无限滚动)。当用户滚动时调用
-   * 到列表的最后(减去[onEndReachedThreshold])。
-   */
+  /// 用于分页(无限滚动)。当用户滚动时调用
+  /// 到列表的最后(减去[onEndReachedThreshold])。
   Future<void> _handleEndReached() async {
     // 初始化 当前会话新增消息
     List<types.Message>? items = await logic.getMessages(
@@ -121,20 +119,16 @@ class ChatPageState extends State<ChatPage> {
       10,
     );
     List<String> msgIds = [];
-    if (items != null && items.length > 0) {
+    if (items != null && items.isNotEmpty) {
       // 消除消息提醒
-      items.forEach((msg) async {
+      for (var msg in items) {
         //enum Status { delivered, error, seen, sending, sent }
-        debugPrint(
-            ">>> on logic.conversations chat ${msg.author.id == widget.toId}, status: ${msg.status}");
         if (msg.author.id == widget.toId && msg.status != types.Status.seen) {
           msgIds.add(msg.id);
         }
-      });
+      }
       ConversationModel? cobj =
-          msgIds.length > 0 ? await logic.markAsRead(widget.id, msgIds) : null;
-      debugPrint(
-          ">>> on logic.conversations chat msgIds ${msgIds}, unreadNum: ${cobj?.unreadNum}");
+          msgIds.isNotEmpty ? await logic.markAsRead(widget.id, msgIds) : null;
       if (cobj != null) {
         clogic.decreaseConversationRemind(widget.toId, msgIds.length);
         clogic.replace(cobj);
@@ -156,8 +150,7 @@ class ChatPageState extends State<ChatPage> {
     // 异步存储sqlite消息(未发送成功）
     //   发送成功后，更新conversation、更新消息状态
     //   发送失败后，放入异步队列，重新发送
-    String type =
-        widget.type == null || widget.type == 'null' ? 'C2C' : widget.type;
+    String type = widget.type == 'null' ? 'C2C' : widget.type;
     // debugPrint(">>> on _addMessage type :${type}");
     await logic.addMessage(
       UserRepoLocal.to.currentUid,
@@ -175,9 +168,7 @@ class ChatPageState extends State<ChatPage> {
     // _msgService.update();
   }
 
-  /**
-   * 选择文件
-   */
+  /// 选择文件
   void _handleFileSelection() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.any,
@@ -207,18 +198,16 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
-  /**
-   * 拍摄
-   */
+  /// 拍摄
   Future<void> _handlePickerSelection() async {
     try {
       final AssetEntity? entity = await CameraPicker.pickFromCamera(
         context,
-        pickerConfig: CameraPickerConfig(
+        pickerConfig: const CameraPickerConfig(
           enableRecording: true,
           onlyEnableRecording: false,
           enableTapRecording: true,
-          maximumRecordingDuration: const Duration(seconds: 24),
+          maximumRecordingDuration: Duration(seconds: 24),
         ),
       );
       if (entity == null) {
@@ -231,7 +220,7 @@ class ChatPageState extends State<ChatPage> {
         Map<String, dynamic> resp,
         String imgUrl,
       ) async {
-        double w = Getx.Get.width;
+        double w = getx.Get.width;
         imgUrl += "&width=${w.toInt()}";
 
         if (entity.type == AssetType.image) {
@@ -288,17 +277,17 @@ class ChatPageState extends State<ChatPage> {
 
   void _handleImageSelection() async {
     await _selectAssets(PickMethod.cameraAndStay(maxAssetsCount: 9));
-    assets.forEach((entity) async {
+    for (var entity in assets) {
       await AttachmentProvider.uploadImg("img", entity, (
         Map<String, dynamic> resp,
         String imgUrl,
       ) async {
         if (entity.type == AssetType.image) {
-          double w = Getx.Get.width;
+          double w = getx.Get.width;
           imgUrl += "&width=${w.toInt()}";
 
-          debugPrint(">>> on upload imgUrl ${imgUrl}");
-          debugPrint(">>> on upload ${resp.toString()}");
+          debugPrint(">>> on upload imgUrl $imgUrl");
+          debugPrint(">>> on upload $resp.toString()");
 
           final message = types.ImageMessage(
             author: logic.cuser,
@@ -337,7 +326,7 @@ class ChatPageState extends State<ChatPage> {
       }, (DioError error) {
         debugPrint(">>> on upload ${error.toString()}");
       });
-    });
+    }
   }
 
   void _handleVoiceSelection(AudioFile? obj) async {
@@ -374,10 +363,10 @@ class ChatPageState extends State<ChatPage> {
 
   void _onMessageDoubleTap(BuildContext c1, types.Message message) async {
     if (message is types.TextMessage) {
-      Getx.Get.bottomSheet(
+      getx.Get.bottomSheet(
         InkWell(
           onTap: () {
-            Getx.Get.back();
+            getx.Get.back();
           },
           child: Container(
             width: double.infinity,
@@ -541,7 +530,7 @@ class ChatPageState extends State<ChatPage> {
     );
   }
 
-void _handlePreviewDataFetched(
+  void _handlePreviewDataFetched(
     types.TextMessage message,
     types.PreviewData previewData,
   ) {
@@ -554,7 +543,6 @@ void _handlePreviewDataFetched(
       messages[index] = updatedMessage;
     });
   }
-
 
   Future<bool> _handleSendPressed(types.PartialText message) async {
     final textMessage = types.TextMessage(
@@ -609,7 +597,7 @@ void _handlePreviewDataFetched(
     var rWidget = [
       InkWell(
         child: const Image(image: AssetImage('assets/images/right_more.png')),
-        onTap: () => Getx.Get.to(widget.type == 'GROUP'
+        onTap: () => getx.Get.to(widget.type == 'GROUP'
             ? GroupDetailPage(
                 widget.toId,
                 callBack: (v) {},
@@ -645,7 +633,7 @@ void _handlePreviewDataFetched(
           onEndReached: _handleEndReached,
           onBackgroundTap: () {
             // 收起输聊天底部弹出框
-            AnimationController _bottomHeightController = Getx.Get.find();
+            AnimationController _bottomHeightController = getx.Get.find();
             _bottomHeightController.animateBack(0);
           },
           // onPreviewDataFetched:(types.Message message, types.PreviewData dt) {}),
@@ -710,7 +698,7 @@ void _handlePreviewDataFetched(
 
   @override
   void dispose() {
-    Getx.Get.delete<ChatLogic>();
+    getx.Get.delete<ChatLogic>();
 
     super.dispose();
   }

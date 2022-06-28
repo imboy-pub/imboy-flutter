@@ -11,7 +11,7 @@ enum CustomMessageType { file, image, text, audio, video, location }
 /// A class that represents text message widget with optional link preview
 class CustomMessageBuilder extends StatelessWidget {
   /// Creates a text message widget from a [types.TextMessage] class
-  CustomMessageBuilder({
+  const CustomMessageBuilder({
     Key? key,
     required this.message,
   }) : super(key: key);
@@ -21,7 +21,6 @@ class CustomMessageBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(">>> on CustomMessage/build ${message.toJson().toString()}");
     if (message.metadata!['custom_type'] == 'revoked') {
       return RevokedMessageBuilder(
         message: message,
@@ -37,6 +36,6 @@ class CustomMessageBuilder extends StatelessWidget {
         user: InheritedUser.of(context).user,
       );
     }
-    return SizedBox.shrink();
+    return const SizedBox.shrink();
   }
 }

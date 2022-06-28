@@ -5,8 +5,7 @@ import 'package:get/get.dart';
 import 'package:imboy/page/chat_video/chat_video_view.dart';
 
 class VideoMessageBuilder extends StatelessWidget {
-
-  VideoMessageBuilder({
+  const VideoMessageBuilder({
     Key? key,
     required this.message,
   }) : super(key: key);

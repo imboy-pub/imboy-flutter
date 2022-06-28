@@ -2,7 +2,7 @@
 class HttpException implements Exception {
   final String? _message;
 
-  String get message => _message ?? this.runtimeType.toString();
+  String get message => _message ?? runtimeType.toString();
 
   final int? _code;
 
@@ -43,7 +43,7 @@ class UnauthorisedException extends HttpException {
 }
 
 class BadResponseException extends HttpException {
-  dynamic? data;
+  dynamic data;
 
   BadResponseException([this.data]) : super();
 }

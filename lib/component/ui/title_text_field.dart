@@ -1,8 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/config/const.dart';
 import 'package:niku/namespace.dart' as n;
 
+// ignore: must_be_immutable
 class TitleTextField extends StatelessWidget {
   final String title;
   TextEditingController controller;
@@ -13,13 +13,14 @@ class TitleTextField extends StatelessWidget {
   final EdgeInsetsGeometry? contentPadding;
 
   TitleTextField({
+    Key? key,
     required this.title,
     required this.controller,
     required this.minLines,
     required this.maxLines,
     required this.maxLength,
     this.contentPadding,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

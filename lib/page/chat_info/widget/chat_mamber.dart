@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/view/image_view.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/contact_detail/contact_detail_view.dart';
 import 'package:imboy/page/group_launch/group_launch_view.dart';
 
@@ -44,8 +44,8 @@ class _ChatMamBerState extends State<ChatMamBer> {
                   ),
                   Space(height: mainSpace / 2),
                   Text(
-                    strNoEmpty(name) ? name : '无名氏',
-                    style: TextStyle(color: AppColors.MainTextColor),
+                    strNoEmpty(name) ? name : '无名氏'.tr,
+                    style: const TextStyle(color: AppColors.MainTextColor),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
@@ -84,7 +84,7 @@ class _ChatMamBerState extends State<ChatMamBer> {
     return Container(
       color: Colors.white,
       width: Get.width,
-      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
       child: Wrap(
         spacing: (Get.width - 315) / 5,
         runSpacing: 10.0,

@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
+import 'package:imboy/page/new_friend/new_friend_logic.dart';
 import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -25,7 +26,7 @@ class MessageService extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    eventBus.on<Map>().listen((data) async {
+    eventBus.on<Map>().listen((Map data) async {
       debugPrint(">>> on MessageService onInit: " + data.toString());
       String dtype = data['type'] ?? 'error';
       dtype = dtype.toUpperCase();
@@ -53,10 +54,7 @@ class MessageService extends GetxService {
           switch (msgType.toString()) {
             // case 705: // token无效、刷新token 这里不处理，不发送消息
             case "apply_as_a_friend": // 添加好友申请
-              // TODO
-
-              String did = await DeviceExt.did;
-              WSService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},${did}");
+              await NewFriendLogic.receivedAddFriend(data);
               break;
             case "706": // 需要重新登录
               {
@@ -69,12 +67,12 @@ class MessageService extends GetxService {
                 String did = payload['did'] ?? '';
                 if (did != currentdid) {
                   String dname = payload['dname'] ?? '';
-                  int server_ts = data['server_ts'] ?? 0;
+                  int serverTs = data['server_ts'] ?? 0;
                   WSService.to.closeSocket();
                   UserRepoLocal.to.logout();
                   Get.off(() => PassportPage(), arguments: {
                     "msgtype": "786",
-                    "server_ts": server_ts,
+                    "server_ts": serverTs,
                     "dname": dname,
                   });
                 }
@@ -110,11 +108,9 @@ class MessageService extends GetxService {
 
     ContactModel? ct = await ContactRepo().findByUid(data['from']);
     // 如果没有联系人，同步去取
-    if (ct == null) {
-      ct = await (ContactProvider()).syncByUid(data['from']);
-    }
-    String avatar = ct == null ? '' : ct.avatar!;
-    String title = ct == null ? '' : ct.nickname;
+    ct ??= await (ContactProvider()).syncByUid(data['from']);
+    String avatar = ct.avatar ?? '';
+    String title = ct.nickname;
 
     subtitle = text;
 
@@ -154,8 +150,8 @@ class MessageService extends GetxService {
     eventBus.fire(msg.toTypeMessage());
     // 确实消息
     String did = await DeviceExt.did;
-    debugPrint(">>> on CLIENT_ACK,C2C,${data['id']},${did}");
-    WSService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},${did}");
+    debugPrint(">>> on CLIENT_ACK,C2C,${data['id']},$did");
+    WSService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$did");
     // WSService.to.sendMessage(json.encode({
     //   'id': data['id'],
     //   'type': 'C2C_CLIENT_ACK',
@@ -164,7 +160,7 @@ class MessageService extends GetxService {
   }
 
   /// 收到C2C服务端确认消息
-  Future<void> reciveC2CServerAckMessage(data) async {
+  Future<void> reciveC2CServerAckMessage(Map data) async {
     debugPrint(">>> on MessageService S_RECEIVED: msg:" + data.toString());
     MessageRepo repo = MessageRepo();
     String id = data['id'];
@@ -180,12 +176,12 @@ class MessageService extends GetxService {
       id,
       MessageStatus.send,
     );
-    if (items.length > 0) {
-      items.forEach((cobj) {
+    if (items.isNotEmpty) {
+      for (var cobj in items) {
         // 更新会话
         clogic.replace(cobj);
         eventBus.fire(cobj);
-      });
+      }
     }
     if (res > 0 && msg != null) {
       eventBus.fire([msg.toTypeMessage()]);
@@ -224,9 +220,7 @@ class MessageService extends GetxService {
     WSService.to.sendMessage(json.encode(msg2));
   }
 
-  /**
-   * 撤回消息修正相应会话记录
-   */
+  /// 撤回消息修正相应会话记录
   Future<void> changeConversation(
     String msgId,
     String msgFromId,
@@ -238,8 +232,6 @@ class MessageService extends GetxService {
     if (cobj != null && cobj.lastMsgId == msgId) {
       bool isCUid = UserRepoLocal.to.currentUid == msgFromId ? true : false;
       String subtitle = isCUid || isack ? '你撤回了一条消息' : '"${cobj.title}"撤回了一条消息';
-      debugPrint(
-          ">>> on MessageService changeConversation isCUid： ${isCUid}, subtitle:${subtitle}");
       int res2 = await repo2.updateById(cobj.id, {
         'subtitle': subtitle,
       });
@@ -255,25 +247,21 @@ class MessageService extends GetxService {
     MessageRepo repo = MessageRepo();
     MessageModel? msg = await repo.find(data['id']);
 
-    debugPrint(
-        ">>> on MessageService REVOKE_C2C  msg:" + msg!.toJson().toString());
-    if (msg != null) {
-      msg.payload = {
-        "msg_type": "custom",
-        "custom_type": "revoked",
-        'text': msg.payload!['text'],
-      };
-      await repo.update({
-        'id': data['id'],
-        'type': dtype,
-        'status': MessageStatus.send,
-        'payload': json.encode(msg.payload),
-      });
-      eventBus.fire([msg.toTypeMessage()]);
-    }
+    msg!.payload = {
+      "msg_type": "custom",
+      "custom_type": "revoked",
+      'text': msg.payload!['text'],
+    };
+    await repo.update({
+      'id': data['id'],
+      'type': dtype,
+      'status': MessageStatus.send,
+      'payload': json.encode(msg.payload),
+    });
+    eventBus.fire([msg.toTypeMessage()]);
     // 确认消息
     String did = await DeviceExt.did;
-    WSService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},${did}");
+    WSService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$did");
 
     changeConversation(data['id'], data['from'], true);
   }

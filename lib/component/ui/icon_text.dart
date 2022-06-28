@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class IconTextView extends StatefulWidget {
@@ -22,11 +21,12 @@ class IconTextView extends StatefulWidget {
   final bool? shotArrow;
   // 点击事件
   final VoidCallback? onPressed;
-  final decoration;
+  final Decoration? decoration;
   final double height;
   final double paddingLeft;
 
   const IconTextView({
+    Key? key,
     this.leftIcon,
     this.leftIconAsset,
     this.leftText,
@@ -40,7 +40,7 @@ class IconTextView extends StatefulWidget {
     this.decoration,
     this.height = 48,
     this.paddingLeft = 10,
-  });
+  }) : super(key: key);
 
   @override
   _IconTextViewState createState() => _IconTextViewState();
@@ -138,7 +138,8 @@ class _IconTextViewState extends State<IconTextView> {
           height: widget.height,
           decoration: widget.decoration ??
               (BoxDecoration(
-                  color: _isClickDown ? const Color(0xFFEEEEEE) : Colors.white)),
+                color: _isClickDown ? const Color(0xFFEEEEEE) : Colors.white,
+              )),
           child: Stack(
             children: <Widget>[
               Positioned(

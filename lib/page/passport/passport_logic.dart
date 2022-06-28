@@ -22,9 +22,7 @@ class PassportLogic extends GetxController {
     super.onInit();
   }
 
-  /**
-   * 账号验证
-   */
+  /// 账号验证
   String? userValidator(LoginUserType userType, String value) {
     if (userType == LoginUserType.phone && !isPhone(value)) {
       return 'error_invalid'.trArgs(['hint_login_phone'.tr]);
@@ -34,9 +32,7 @@ class PassportLogic extends GetxController {
     return null;
   }
 
-  /**
-   * 密码格式验证
-   */
+  /// 密码格式验证
   String? passwordValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'error_empty_directory'.trArgs(['hint_login_password'.tr]);
@@ -51,9 +47,7 @@ class PassportLogic extends GetxController {
     return null;
   }
 
-  /**
-   * 用户登录
-   */
+  /// 用户登录
   Future<String?> loginUser(LoginData data) async {
     // Get.loading();
     bool loginSuccess = await login(data.name.trim(), data.password.trim());
@@ -133,18 +127,14 @@ class PassportLogic extends GetxController {
     }
   }
 
-  /**
-   * 用户注册
-   */
+  /// 用户注册
   Future<String?> signupUser(SignupData data) {
     // return null;
     debugPrint(">>> on signupUser data: ${data.name}, ${data.password}");
     return doSendEmail(data.name ?? '');
   }
 
-  /**
-   * 确认注册
-   */
+  /// 确认注册
   Future<String?> onConfirmSignup(String code, LoginData data) async {
     Map<String, dynamic> data1 = await encryptPassword(data.password);
     if (strNoEmpty(data1['error'])) {
@@ -173,9 +163,7 @@ class PassportLogic extends GetxController {
     }
   }
 
-  /**
-   * 重新发送验证码
-   */
+  /// 重新发送验证码
   Future<String?>? onResendCode(SignupData data) {
     debugPrint(">>> on onResendCode data: ${data.name}, ${data.password}");
     // 验证码已发送
@@ -214,9 +202,7 @@ class PassportLogic extends GetxController {
     // return null;
   }
 
-  /**
-   * 邮箱验证码修改密码
-   */
+  /// 邮箱验证码修改密码
   Future<String?> onConfirmRecover(String code, LoginData data) async {
     debugPrint(
         ">>> on onConfirmRecover code: ${code}, data: ${data.name}, ${data.password}");

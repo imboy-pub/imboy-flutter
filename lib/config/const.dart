@@ -33,17 +33,17 @@ String UPLOAD_SENCE = dotenv.get('UPLOAD_SENCE');
 
 class Keys {
   // 客服端Key
-  static final String currentLanguageCode = "current_language_code";
-  static final String currentLanguage = "current_language";
+  static const String currentLanguageCode = "current_language_code";
+  static const String currentLanguage = "current_language";
 
-  static final String currentUid = "current_uid";
-  static final String currentUser = "current_user";
+  static const String currentUid = "current_uid";
+  static const String currentUser = "current_user";
 
-  static final String account = "account";
-  static final String password = "password";
-  static final String nickname = 'nickname';
-  static final String avatar = 'avatar';
-  static final String gender = 'gender';
+  static const String account = "account";
+  static const String password = "password";
+  static const String nickname = 'nickname';
+  static const String avatar = 'avatar';
+  static const String gender = 'gender';
 
   // 与服务端约定的Key
   static const tokenKey = 'authorization';

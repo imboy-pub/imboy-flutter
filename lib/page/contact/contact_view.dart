@@ -5,7 +5,6 @@ import 'package:imboy/component/helper/assets.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/view/nodata_view.dart';
-import 'package:imboy/component/view/null_view.dart';
 import 'package:imboy/page/new_friend/new_friend_view.dart';
 import 'package:imboy/page/search/search_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -90,8 +89,8 @@ class ContactPage extends StatelessWidget {
           InkWell(
             child: Container(
               width: 60.0,
-              child:
-                  const Image(image: AssetImage('assets/images/search_black.webp')),
+              child: const Image(
+                  image: AssetImage('assets/images/search_black.webp')),
             ),
             onTap: () => Get.to(SearchPage()),
           ),
@@ -148,7 +147,8 @@ class ContactPage extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: contactIsEmpty.isTrue ? NoDataView(str: '无联系人'.tr) : Space(),
+              child:
+                  contactIsEmpty.isTrue ? NoDataView(text: '无联系人'.tr) : Space(),
             ),
           ],
         ),

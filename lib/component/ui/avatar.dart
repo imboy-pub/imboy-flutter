@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
 
 class Avatar extends StatelessWidget {
-  Avatar({
+  const Avatar({
     Key? key,
     required this.imgUri,
-    Function()? this.onTap,
-    double? this.width,
-    double? this.height,
-    String? this.title,
-  });
+    this.onTap,
+    this.width,
+    this.height,
+    this.title,
+  }) : super(key: key);
 
   final String imgUri;
   final void Function()? onTap;

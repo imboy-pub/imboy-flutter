@@ -13,7 +13,7 @@ friendItemDialog(BuildContext context, {String? userId, OnSuCc? suCc}) {
     if (v == '删除') {
       confirmAlert(
         context,
-        (bool) {
+        (bool ok) {
           // if (bool) delFriend(userId, context, suCc: (v) => suCc(v));
         },
         tips: '你确定要删除此联系人吗',
@@ -85,7 +85,7 @@ friendItemDialog(BuildContext context, {String? userId, OnSuCc? suCc}) {
                   child: Column(
                     children: <Widget>[
                       Column(children: data.map(item).toList()),
-                      HorizontalLine(
+                      const HorizontalLine(
                           color: AppColors.AppBarColor, height: 10.0),
                       TextButton(
                         // padding: EdgeInsets.symmetric(vertical: 15.0),

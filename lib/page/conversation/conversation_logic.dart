@@ -92,9 +92,7 @@ class ConversationLogic extends GetxController {
     super.onClose();
   }
 
-  /**
-   * 移除会话
-   */
+  /// 移除会话
   Future<bool> removeConversation(int conversationId) async {
     Database db = await Sqlite.instance.database;
     return await db.transaction((txn) async {
@@ -106,15 +104,11 @@ class ConversationLogic extends GetxController {
         "DELETE FROM ${ConversationRepo.tablename} WHERE id=?",
         [conversationId],
       );
-      debugPrint(
-          'on >>>>> removeConversation :' + conversationId.toString() + ';');
       return true;
     });
   }
 
-  /**
-   * 不显示（在会话列表）
-   */
+  /// 不显示（在会话列表）
   hideConversation(int conversationId) async {
     Database db = await Sqlite.instance.database;
     db.update(
@@ -125,9 +119,7 @@ class ConversationLogic extends GetxController {
     );
   }
 
-  /**
-   * 标记为未读 / 已读
-   */
+  /// 标记为未读 / 已读
   markAs(int conversationId, int num) async {
     Database db = await Sqlite.instance.database;
     db.update(
@@ -138,9 +130,7 @@ class ConversationLogic extends GetxController {
     );
   }
 
-  /**
-   * 按消息ID来更新会话最后一消息的状态
-   */
+  /// 按消息ID来更新会话最后一消息的状态
   Future<List<ConversationModel>> updateLastMsgStatus(
       String msgId, int status) async {
     Database db = await Sqlite.instance.database;

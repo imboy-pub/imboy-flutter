@@ -8,7 +8,7 @@ class GroupModel {
       // var result = await im.group.inviteGroupMember(list, groupId);
       // callback(result);
     } on PlatformException {
-      print('邀请好友进群  失败');
+      // print('邀请好友进群  失败');
     }
   }
 
@@ -18,7 +18,7 @@ class GroupModel {
       // var result = await im.group.quitGroup(groupId);
       // callback(result);
     } on PlatformException {
-      print('退出群聊  失败');
+      // print('退出群聊  失败');
       callback!('退出群聊  失败');
     }
   }
@@ -29,7 +29,7 @@ class GroupModel {
       // var result = await im.group.deleteGroupMember(groupId, deleteList);
       // callback(result);
     } on PlatformException {
-      print('删除群成员  失败');
+      // print('删除群成员  失败');
     }
   }
 
@@ -39,7 +39,7 @@ class GroupModel {
       // var result = await im.group.getGroupMembersList(groupId);
       // callback(result);
     } on PlatformException {
-      print('获取群成员  失败');
+      // print('获取群成员  失败');
     }
   }
 
@@ -58,7 +58,7 @@ class GroupModel {
       // }
       // callback(result);
     } on PlatformException {
-      print('获取群成员  失败');
+      // print('获取群成员  失败');
     }
   }
 
@@ -67,7 +67,7 @@ class GroupModel {
       // var result = await im.group.getGroupList();
       // callback(result);
     } on PlatformException {
-      print('获取群列表  失败');
+      // print('获取群列表  失败');
     }
   }
 
@@ -78,7 +78,7 @@ class GroupModel {
       // callback(result);
       // return result;
     } on PlatformException {
-      print('获取群资料  失败');
+      // print('获取群资料  失败');
     }
   }
 
@@ -88,7 +88,7 @@ class GroupModel {
       // var result = await im.group.deleteGroup(groupId);
       // callback(result);
     } on PlatformException {
-      print('解散群  失败');
+      // print('解散群  失败');
     }
   }
 
@@ -99,7 +99,7 @@ class GroupModel {
       // var result = await im.group.modifyGroupName(groupId, setGroupName);
       // callback(result);
     } on PlatformException {
-      print('修改群名称  失败');
+      // print('修改群名称  失败');
     }
   }
 
@@ -111,7 +111,7 @@ class GroupModel {
       //     await im.group.modifyGroupIntroduction(groupId, setIntroduction);
       // callback(result);
     } on PlatformException {
-      print('修改群简介  失败');
+      // print('修改群简介  失败');
     }
   }
 
@@ -123,7 +123,7 @@ class GroupModel {
       //     await im.group.modifyGroupNotification(groupId, notification, time);
       // if (callback != null) callback(result);
     } on PlatformException {
-      print('修改群公告  失败');
+      // print('修改群公告  失败');
     }
   }
 
@@ -135,7 +135,7 @@ class GroupModel {
       //     await im.group.setReceiveMessageOption(groupId, identifier, type);
       // callback(result);
     } on PlatformException {
-      print('修改群消息提醒选项  失败');
+      // print('修改群消息提醒选项  失败');
     }
   }
 

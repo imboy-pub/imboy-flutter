@@ -1,13 +1,11 @@
-import 'dart:convert' as JSON;
+import 'dart:convert' as json;
 
 import 'package:get/get.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:ntp/ntp.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/**
- * from https://github.com/ducafecat/flutter_ducafecat_news_getx/blob/master/lib/common/services/storage.dart
- */
+/// from https://github.com/ducafecat/flutter_ducafecat_news_getx/blob/master/lib/common/services/storage.dart
 class StorageService extends GetxService {
   static StorageService get to => Get.find();
   late final SharedPreferences _prefs;
@@ -22,7 +20,7 @@ class StorageService extends GetxService {
   }
 
   Future<bool> setMap(String key, Map<String, dynamic> value) async {
-    return await _prefs.setString(key, JSON.jsonEncode(value));
+    return await _prefs.setString(key, json.jsonEncode(value));
   }
 
   Future<bool> setBool(String key, bool value) async {
@@ -40,9 +38,9 @@ class StorageService extends GetxService {
   Map<String, dynamic> getMap(String key) {
     String val = getString(key);
     if (val == '') {
-      return Map();
+      return {};
     }
-    return JSON.jsonDecode(val);
+    return json.jsonDecode(val);
   }
 
   bool getBool(String key) {
@@ -59,7 +57,7 @@ class StorageService extends GetxService {
 
   Future<int> ntpOffset() async {
     String key = "ntp_offset";
-    String? val = await _prefs.getString(key);
+    String? val = _prefs.getString(key);
     // debugPrint(">>> on currentTimeMillis val1 ${val}");
     // val = null;
     if (val == null) {
@@ -71,9 +69,10 @@ class StorageService extends GetxService {
         );
         // debugPrint(">>> on currentTimeMillis offset2 ${offset}");
         String dt = Jiffy().format('y-MM-dd HH:mm:ss');
-        val = '${dt}${offset}';
+        val = '$dt$offset';
         // debugPrint(">>> on currentTimeMillis val2 ${val}");
         _prefs.setString(key, val);
+        // ignore: empty_catches
       } catch (e) {}
       return offset;
     } else {

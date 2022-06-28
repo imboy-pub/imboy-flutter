@@ -4,7 +4,8 @@ import 'package:imboy/component/ui/w_popup_menu.dart';
 const double _kMenuScreenPadding = 8.0;
 
 class MagicPop extends StatefulWidget {
-  MagicPop({
+  const MagicPop({
+    Key? key,
     required this.onValueChanged,
     required this.actions,
     required this.child,
@@ -13,9 +14,7 @@ class MagicPop extends StatefulWidget {
     this.backgroundColor = Colors.black,
     this.menuWidth = 250,
     this.menuHeight = 42,
-  })  : assert(onValueChanged != null),
-        assert(actions.length > 0),
-        assert(child != null);
+  }) : super(key: key);
 
   final ValueChanged<int> onValueChanged;
   final List<String> actions;
@@ -68,7 +67,7 @@ enum PressType {
 
 class _PopupMenuRoute extends PopupRoute {
   final BuildContext btnContext;
-  double? _height;
+  double? height;
   double? _width;
   final List<String> actions;
   final int _pageMaxChildCount;
@@ -84,7 +83,7 @@ class _PopupMenuRoute extends PopupRoute {
     this.menuWidth,
     this.menuHeight,
   ) {
-    _height = btnContext.size!.height;
+    height = btnContext.size!.height;
     _width = btnContext.size!.width;
   }
 
@@ -109,17 +108,17 @@ class _PopupMenuRoute extends PopupRoute {
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
-    return _MenuPopWidget(this.btnContext, _height!, _width!, actions,
+    return _MenuPopWidget(btnContext, height!, _width!, actions,
         _pageMaxChildCount, backgroundColor, menuWidth, menuHeight);
   }
 
   @override
-  Duration get transitionDuration => Duration(milliseconds: 300);
+  Duration get transitionDuration => const Duration(milliseconds: 300);
 }
 
 class _MenuPopWidget extends StatefulWidget {
   final BuildContext btnContext;
-  final double _height;
+  final double height;
   final double _width;
   final List<String> actions;
   final int _pageMaxChildCount;
@@ -127,15 +126,16 @@ class _MenuPopWidget extends StatefulWidget {
   final double menuWidth;
   final double menuHeight;
 
-  _MenuPopWidget(
-      this.btnContext,
-      this._height,
-      this._width,
-      this.actions,
-      this._pageMaxChildCount,
-      this.backgroundColor,
-      this.menuWidth,
-      this.menuHeight);
+  const _MenuPopWidget(
+    this.btnContext,
+    this.height,
+    this._width,
+    this.actions,
+    this._pageMaxChildCount,
+    this.backgroundColor,
+    this.menuWidth,
+    this.menuHeight,
+  );
 
   @override
   __MenuPopWidgetState createState() => __MenuPopWidgetState();
@@ -227,11 +227,11 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
                       _curPage--;
                     });
                   },
-                  child: Container(
+                  child: SizedBox(
                     width: _arrowWidth,
                     height: widget.menuHeight,
-                    child: Image(
-                      image: const AssetImage('images/left_white.png'),
+                    child: const Image(
+                      image: AssetImage('images/left_white.png'),
                       fit: BoxFit.none,
                     ),
                   ),
@@ -265,12 +265,13 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
               ? InkWell(
                   onTap: () {
                     if ((_curPage + 1) * widget._pageMaxChildCount <
-                        widget.actions.length)
+                        widget.actions.length) {
                       setState(() {
                         _curPage++;
                       });
+                    }
                   },
-                  child: Container(
+                  child: SizedBox(
                     width: _arrowWidth,
                     height: widget.menuHeight,
                     child: Image(
@@ -391,8 +392,13 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
 
 // Positioning of the menu on the screen.
 class _PopupMenuRouteLayout extends SingleChildLayoutDelegate {
-  _PopupMenuRouteLayout(this.position, this.selectedItemOffset,
-      this.textDirection, this.width, this.menuWidth);
+  _PopupMenuRouteLayout(
+    this.position,
+    this.selectedItemOffset,
+    this.textDirection,
+    this.width,
+    this.menuWidth,
+  );
 
   // Rectangle of underlying button, relative to the overlay's dimensions.
   final RelativeRect position;
@@ -430,40 +436,39 @@ class _PopupMenuRouteLayout extends SingleChildLayoutDelegate {
 
     // Find the ideal vertical position!.
     double y;
-    if (selectedItemOffset == null) {
-      y = position.top;
-    } else {
-      y = position.top +
-          (size.height - position.top - position.bottom) / 2.0 -
-          selectedItemOffset;
-    }
+
+    y = position.top +
+        (size.height - position.top - position.bottom) / 2.0 -
+        selectedItemOffset;
 
     // Find the ideal horizontal position.
     double x;
     if (position.left > position.right) {
       // Menu button is closer to the right edge, so grow to the left, aligned to the right edge.
-//      x = childSize.width - (size.width - position.right);
+      // x = childSize.width - (size.width - position.right);
       x = position.left + width - childSize.width;
     } else if (position.left < position.right) {
       // Menu button is closer to the left edge, so grow to the right, aligned to the left edge.
       if (width > childSize.width) {
         x = position.left + (childSize.width - menuWidth) / 2;
-      } else
+      } else {
         x = position.left;
+      }
     } else {
       x = position.right - width / 2 - childSize.width / 2;
     }
     // Avoid going outside an area defined as the rectangle 8.0 pixels from the
     // edge of the screen in every direction.
-    if (x < _kMenuScreenPadding)
+    if (x < _kMenuScreenPadding) {
       x = _kMenuScreenPadding;
-    else if (x + childSize.width > size.width - _kMenuScreenPadding)
+    } else if (x + childSize.width > size.width - _kMenuScreenPadding) {
       x = size.width - childSize.width - _kMenuScreenPadding;
-    if (y < _kMenuScreenPadding)
+    }
+    if (y < _kMenuScreenPadding) {
       y = _kMenuScreenPadding;
-    else if (y + childSize.height > size.height - _kMenuScreenPadding)
+    } else if (y + childSize.height > size.height - _kMenuScreenPadding) {
       y = size.height - childSize.height;
-    else if (y < childSize.height * 2) {
+    } else if (y < childSize.height * 2) {
       y = position.top + childSize.height;
     }
     return Offset(x, y);

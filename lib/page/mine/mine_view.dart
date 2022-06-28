@@ -27,15 +27,23 @@ class MinePage extends StatelessWidget {
       'label': '朋友圈',
       'icon': 'assets/images/mine/ic_social_circle.png',
       'vertical': 0.0,
-      'border':
-          Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
+      'border': const Border(
+        bottom: BorderSide(
+          color: AppColors.LineColor,
+          width: 0.2,
+        ),
+      ),
     },
     {
       'label': '收藏',
       'icon': 'assets/images/mine/ic_collections.png',
       'vertical': 0.0,
-      'border':
-          Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
+      'border': const Border(
+        bottom: BorderSide(
+          color: AppColors.LineColor,
+          width: 0.2,
+        ),
+      ),
     },
     // {
     //   'label': '相册',
@@ -56,8 +64,12 @@ class MinePage extends StatelessWidget {
       'label': '设置',
       'icon': 'assets/images/mine/ic_setting.png',
       'vertical': 10.0,
-      'border':
-          Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
+      'border': const Border(
+        bottom: BorderSide(
+          color: AppColors.LineColor,
+          width: 0.2,
+        ),
+      ),
     },
   ];
 
@@ -65,9 +77,10 @@ class MinePage extends StatelessWidget {
     return ListTileView(
       border: item['border'],
       title: item['label'],
-      titleStyle: TextStyle(fontSize: 15.0, color: AppColors.MainTextColor),
+      titleStyle:
+          const TextStyle(fontSize: 15.0, color: AppColors.MainTextColor),
       isLabel: false,
-      padding: EdgeInsets.symmetric(vertical: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
       icon: item['icon'],
       margin: EdgeInsets.symmetric(vertical: item['vertical']),
       onPressed: () => logic.action(item['label']),
@@ -89,7 +102,7 @@ class MinePage extends StatelessWidget {
                 child: Container(
                   color: Colors.white,
                   height: (topBarHeight(context) * 2.5) - 10,
-                  padding: EdgeInsets.only(
+                  padding: const EdgeInsets.only(
                     left: 20.0,
                     right: 20.0,
                     top: 40.0,
@@ -101,7 +114,8 @@ class MinePage extends StatelessWidget {
                         width: 88.0,
                         height: 88.0,
                         child: ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10.0)),
                           child: InkWell(
                             onTap: () {
                               String avatar = _c.currentUser.avatar;
@@ -111,10 +125,11 @@ class MinePage extends StatelessWidget {
                                     Get.back();
                                   },
                                   child: PhotoView(
-                                    imageProvider: strEmpty(avatar) ||
-                                            avatar == defAvatar
-                                        ? AssetImage(defAvatar) as ImageProvider
-                                        : NetworkImage(avatar),
+                                    imageProvider:
+                                        strEmpty(avatar) || avatar == defAvatar
+                                            ? const AssetImage(defAvatar)
+                                                as ImageProvider
+                                            : NetworkImage(avatar),
                                     // imageProvider: NetworkImage(avatar),
                                   ),
                                 ),
@@ -137,7 +152,7 @@ class MinePage extends StatelessWidget {
                         ),
                       ),
                       Container(
-                        margin: EdgeInsets.only(left: 10.0),
+                        margin: const EdgeInsets.only(left: 10.0),
                         height: 55.0,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,7 +160,7 @@ class MinePage extends StatelessWidget {
                           children: <Widget>[
                             Text(
                               _c.currentUser.nickname,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.w500,
@@ -153,7 +168,8 @@ class MinePage extends StatelessWidget {
                             ),
                             Text(
                               '账号：' + _c.currentUser.account,
-                              style: TextStyle(color: AppColors.MainTextColor),
+                              style: const TextStyle(
+                                  color: AppColors.MainTextColor),
                             ),
                             //TODO
                             // Text(
@@ -163,18 +179,18 @@ class MinePage extends StatelessWidget {
                           ],
                         ),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       Container(
                         width: 13.0,
-                        margin: EdgeInsets.only(right: 12.0),
+                        margin: const EdgeInsets.only(right: 12.0),
                         child: Image(
-                          image: AssetImage(
+                          image: const AssetImage(
                               'assets/images/mine/ic_small_code.png'),
                           color: AppColors.MainTextColor.withOpacity(0.5),
                           fit: BoxFit.cover,
                         ),
                       ),
-                      Image(
+                      const Image(
                         image: AssetImage(
                             'assets/images/ic_right_arrow_grey.webp'),
                         width: 7.0,

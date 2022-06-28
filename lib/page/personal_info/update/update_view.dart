@@ -32,29 +32,29 @@ class UpdatePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(Duration(milliseconds: 100)).then((e) {
+    Future.delayed(const Duration(milliseconds: 100)).then((e) {
       // 设置提交按钮灰色
       logic.valueOnChange(false);
     });
-    Widget body = SizedBox.shrink();
-    if (this.field == "input") {
+    Widget body = const SizedBox.shrink();
+    if (field == "input") {
       logic.textController.text = value;
-      body = this.inputField();
-    } else if (this.field == "text") {
+      body = inputField();
+    } else if (field == "text") {
       logic.textController.text = value;
       logic.valueOnChange(true);
-      body = this.textField();
-    } else if (this.field == "region") {
+      body = textField();
+    } else if (field == "region") {
       logic.val.value = value;
       // 选择如果是顶级地区,选中之
       regionlogic.regionSelectedTitle(logic.val.value);
       // 加载地区数据
       logic.loadData();
-      body = this.regionField();
-    } else if (this.field == "gender") {
+      body = regionField();
+    } else if (field == "gender") {
       logic.val.value = value;
       logic.valueOnChange(true);
-      body = this.genderField();
+      body = genderField();
     }
     return Container(
       // top 22 in Android
@@ -71,7 +71,7 @@ class UpdatePage extends StatelessWidget {
                   child: Text(
                     title,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16.0,
                       fontWeight: FontWeight.bold,
                     ),
@@ -81,7 +81,7 @@ class UpdatePage extends StatelessWidget {
                 Obx(
                   () => ElevatedButton(
                     onPressed: () async {
-                      if (this.field == "input") {
+                      if (field == "input") {
                         String trimmedText = logic.textController.text.trim();
                         if (trimmedText == '') {
                           logic.valueOnChange(false);
@@ -91,14 +91,13 @@ class UpdatePage extends StatelessWidget {
                             Get.back();
                           }
                         }
-                      } else if (this.field == "text") {
+                      } else if (field == "text") {
                         String trimmedText = logic.textController.text.trim();
                         bool res = await callback(trimmedText);
                         if (res) {
                           Get.back();
                         }
-                      } else if (this.field == "region" ||
-                          this.field == "gender") {
+                      } else if (field == "region" || field == "gender") {
                         bool res = await callback(logic.val.value);
                         if (res) {
                           Get.back();
@@ -118,7 +117,7 @@ class UpdatePage extends StatelessWidget {
                               Colors.white,
                             ),
                             minimumSize:
-                                MaterialStateProperty.all(Size(60, 40)),
+                                MaterialStateProperty.all(const Size(60, 40)),
                             visualDensity: VisualDensity.compact,
                             padding: MaterialStateProperty.all(EdgeInsets.zero),
                           )
@@ -130,7 +129,7 @@ class UpdatePage extends StatelessWidget {
                               AppColors.LineColor,
                             ),
                             minimumSize:
-                                MaterialStateProperty.all(Size(60, 40)),
+                                MaterialStateProperty.all(const Size(60, 40)),
                             visualDensity: VisualDensity.compact,
                             padding: MaterialStateProperty.all(EdgeInsets.zero),
                           ),
@@ -160,29 +159,29 @@ class UpdatePage extends StatelessWidget {
       textCapitalization: TextCapitalization.words,
       textInputAction: TextInputAction.none,
       decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(14, 0, 8, 0),
+          contentPadding: const EdgeInsets.fromLTRB(14, 0, 8, 0),
           filled: true,
           fillColor: Colors.white,
           focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(3),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 width: 1.0,
                 color: AppColors.AppBarColor,
               )),
           enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(3),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 width: 1.0,
                 color: AppColors.AppBarColor,
               )),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(3),
-            borderSide: BorderSide(width: 1.0, color: Colors.red),
+            borderSide: const BorderSide(width: 1.0, color: Colors.red),
           ),
-          errorStyle: TextStyle(),
+          errorStyle: const TextStyle(),
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(3),
-            borderSide: BorderSide(width: 1.0, color: Colors.red),
+            borderSide: const BorderSide(width: 1.0, color: Colors.red),
           ),
           border: InputBorder.none),
       readOnly: false,
@@ -199,7 +198,7 @@ class UpdatePage extends StatelessWidget {
       },
       //style: ,
       onChanged: (value) {
-        if (value == '' || value == this.value) {
+        if (value == '' || value == value) {
           logic.valueOnChange(false);
         } else {
           logic.valueOnChange(true);
@@ -222,29 +221,29 @@ class UpdatePage extends StatelessWidget {
       textCapitalization: TextCapitalization.words,
       textInputAction: TextInputAction.newline,
       decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(14, 16, 8, 0),
+          contentPadding: const EdgeInsets.fromLTRB(14, 16, 8, 0),
           filled: true,
           fillColor: Colors.white,
           focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(3),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 width: 1.0,
                 color: AppColors.AppBarColor,
               )),
           enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(3),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 width: 1.0,
                 color: AppColors.AppBarColor,
               )),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(3),
-            borderSide: BorderSide(width: 1.0, color: Colors.red),
+            borderSide: const BorderSide(width: 1.0, color: Colors.red),
           ),
-          errorStyle: TextStyle(),
+          errorStyle: const TextStyle(),
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(3),
-            borderSide: BorderSide(width: 1.0, color: Colors.red),
+            borderSide: const BorderSide(width: 1.0, color: Colors.red),
           ),
           border: InputBorder.none),
       readOnly: false,
@@ -255,7 +254,7 @@ class UpdatePage extends StatelessWidget {
         }
       },
       onChanged: (value) {
-        if (value == '' || value == this.value) {
+        if (value == '' || value == value) {
           logic.valueOnChange(false);
         } else {
           logic.valueOnChange(true);
@@ -267,7 +266,7 @@ class UpdatePage extends StatelessWidget {
   }
 
   Widget genderField() {
-    Widget secondary = Text(
+    Widget secondary = const Text(
       "√",
       style: TextStyle(
         fontSize: 20,
@@ -363,7 +362,7 @@ class UpdatePage extends StatelessWidget {
                         logic.val.value = strEmpty(p) ? t : p + " " + t;
                         logic.valueOnChange(true);
                         return true;
-                      }, this.callback);
+                      }, callback);
                     },
                     itemCount: logic.regionList.length,
                   ),

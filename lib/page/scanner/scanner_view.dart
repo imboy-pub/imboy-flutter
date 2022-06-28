@@ -39,7 +39,7 @@ class _ScannerPageState extends State<ScannerPage>
           return Stack(
             children: [
               Padding(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   left: 0,
                   top: 20,
                 ),
@@ -51,11 +51,11 @@ class _ScannerPageState extends State<ScannerPage>
                   },
                   color: Colors.white,
                   textColor: Colors.black54,
-                  child: Icon(
+                  child: const Icon(
                     Icons.arrow_left,
                     size: 16,
                   ),
-                  shape: CircleBorder(),
+                  shape: const CircleBorder(),
                 ),
               ),
               MobileScanner(
@@ -167,7 +167,7 @@ class _ScannerPageState extends State<ScannerPage>
                               // barcode ?? '扫一扫'.tr,
                               '扫一扫'.tr,
                               // overflow: TextOverflow.fade,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 // fontSize: 24,
                               ),

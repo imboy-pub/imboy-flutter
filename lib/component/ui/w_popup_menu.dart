@@ -6,7 +6,7 @@ import 'package:imboy/config/const.dart';
 enum PressType { longPress, singleClick }
 
 class WPopupMenu extends StatefulWidget {
-  WPopupMenu({
+  const WPopupMenu({
     Key? key,
     required this.onValueChanged,
     required this.actions,
@@ -28,24 +28,7 @@ class WPopupMenu extends StatefulWidget {
     this.transform,
     this.constraints,
     this.decoration,
-  })  : assert(onValueChanged != null),
-        assert(actions != null && actions.length > 0),
-        assert(child != null),
-        assert(margin == null || margin.isNonNegative),
-        assert(padding == null || padding.isNonNegative),
-        assert(decoration == null || decoration.debugAssertIsValid()),
-        assert(constraints == null || constraints.debugAssertIsValid()),
-        assert(
-            color == null || decoration == null,
-            'Cannot provide both a color and a decoration\n'
-            'The color argument is just a shorthand for "decoration: BoxDecoration(color: color)".'),
-        // decoration =
-        //     decoration ?? (color != null ? BoxDecoration(color: color) : null),
-        // constraints = (width != null || height != null)
-        //     ? constraints?.tighten(width: width, height: height) ??
-        //         BoxConstraints.tightFor(width: width, height: height)
-        //     : constraints,
-        super(key: key);
+  }) : super(key: key);
 
   final BoxConstraints? constraints;
   final Decoration? decoration;
@@ -131,18 +114,8 @@ class PopupMenuRoute extends PopupRoute {
       this.padding,
       this.margin,
       this.onValueChanged) {
-    _height = btnContext.size!.height -
-        (padding == null
-            ? margin == null
-                ? 0
-                : margin.vertical
-            : padding.vertical);
-    _width = btnContext.size!.width -
-        (padding == null
-            ? margin == null
-                ? 0
-                : margin.horizontal
-            : padding.horizontal);
+    _height = btnContext.size!.height - margin.vertical;
+    _width = btnContext.size!.width - margin.horizontal;
   }
 
   @override
@@ -167,7 +140,7 @@ class PopupMenuRoute extends PopupRoute {
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
     return MenuPopWidget(
-        this.btnContext,
+        btnContext,
         _height!,
         _width!,
         actions,
@@ -180,7 +153,7 @@ class PopupMenuRoute extends PopupRoute {
   }
 
   @override
-  Duration get transitionDuration => Duration(milliseconds: 300);
+  Duration get transitionDuration => const Duration(milliseconds: 300);
 }
 
 class MenuPopWidget extends StatefulWidget {
@@ -195,7 +168,8 @@ class MenuPopWidget extends StatefulWidget {
   final EdgeInsets padding;
   final EdgeInsets margin;
 
-  MenuPopWidget(
+  // ignore: use_key_in_widget_constructors
+  const MenuPopWidget(
     this.btnContext,
     this._height,
     this._width,
@@ -213,7 +187,7 @@ class MenuPopWidget extends StatefulWidget {
 }
 
 class _MenuPopWidgetState extends State<MenuPopWidget> {
-  int _curPage = 0;
+  final int _curPage = 0;
   final double _separatorWidth = 1;
   final double _triangleHeight = 10;
   bool isShow = true;
@@ -404,8 +378,8 @@ class PopupMenuRouteLayout extends SingleChildLayoutDelegate {
 
     // Find the ideal vertical position.
     double y = position.bottom +
-          (size.height - position.top - position.bottom) / 2.0 -
-          selectedItemOffset;
+        (size.height - position.top - position.bottom) / 2.0 -
+        selectedItemOffset;
 
     // Find the ideal horizontal position.
     double x;

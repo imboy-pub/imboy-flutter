@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 
 class NewFriendModel {
   NewFriendModel({
-    required this.from,
+    this.uid = "",
     required this.to,
+    required this.from,
     required this.nickname,
     this.avatar,
     this.status,
@@ -18,23 +19,25 @@ class NewFriendModel {
     this.onLongPressed,
   });
 
-  final String from; // 用户ID
-  final String to; // 用户ID
-  final String nickname; // 备注 or 昵称
+  final String uid; // 当前用户ID
+  final String from; // 发送中ID
+  final String to; // 接收者ID
+  final String nickname; // 昵称
   final String? avatar; // 用户头像
-  final String? status; // offline | online |
+  final String? status; //
   String msg;
   final int? updateTime;
   final int createTime;
-  final Map payload;
+  final String payload;
 
   final VoidCallback? onPressed;
   final VoidCallback? onLongPressed;
 
   factory NewFriendModel.fromJson(Map<String, dynamic> json) {
     return NewFriendModel(
-      from: json["from"],
-      to: json["to"].toString(),
+      uid: json["uid"],
+      from: json["from"] ?? json["fromid"],
+      to: json["to"] ?? json["toid"],
       nickname: json["nickname"].toString(),
       avatar: json["avatar"].toString(),
       status: json["status"]?.toString(),
@@ -47,6 +50,7 @@ class NewFriendModel {
   }
 
   Map<String, dynamic> toJson() => {
+        'uid': uid,
         'from': from,
         'to': to,
         'nickname': nickname,

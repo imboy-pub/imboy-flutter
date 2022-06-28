@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common.dart';
@@ -21,7 +20,8 @@ class ListTileView extends StatelessWidget {
   final double cWidth;
   final bool needRightArrow;
 
-  ListTileView({
+  const ListTileView({
+    Key? key,
     this.border,
     this.onPressed,
     this.title,
@@ -37,7 +37,7 @@ class ListTileView extends StatelessWidget {
     this.width = 45.0,
     this.horizontal = 10.0,
     this.cWidth = 0.0,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -56,16 +56,17 @@ class ListTileView extends StatelessWidget {
       isLabel ? text : Text(title!, style: titleStyle),
       const Spacer(),
       needRightArrow
-          ? Container(
+          ? SizedBox(
               width: 7.0,
               child: Image(
-                image: const AssetImage('assets/images/ic_right_arrow_grey.webp'),
+                image:
+                    const AssetImage('assets/images/ic_right_arrow_grey.webp'),
                 color: AppColors.MainTextColor.withOpacity(0.5),
                 fit: BoxFit.cover,
               ),
             )
-          : Space(),
-      Space(),
+          : const Space(),
+      const Space(),
     ];
 
     var row = icon == ''

@@ -8,7 +8,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/message_model.dart';
 
 class RevokedMessageBuilder extends StatelessWidget {
-  RevokedMessageBuilder({
+  const RevokedMessageBuilder({
     Key? key,
     required this.user,
     required this.message,
@@ -21,22 +21,22 @@ class RevokedMessageBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     bool userIsAuthor = user.id == message.author.id;
 
-    String nickname = userIsAuthor ? '你' : '"${message.author.firstName}"';
+    String nickname = userIsAuthor ? '你' : '"$message.author.firstName"';
     int now = DateTimeHelper.currentTimeMillis();
-    bool canEdit = userIsAuthor && (now - this.message.createdAt!) < 300000;
+    bool canEdit = userIsAuthor && (now - message.createdAt!) < 300000;
     // canEdit = true;
     Widget btn = canEdit
         ? GestureDetector(
             onTap: () {
               eventBus.fire(
-                ReEditMessage(text: this.message.metadata!['text']),
+                ReEditMessage(text: message.metadata!['text']),
               );
             },
             child: Text(
               '重新编辑'.tr,
               style: const TextStyle(
                 height: 1.5,
-                color: const Color.fromRGBO(107, 110, 153, 1),
+                color: Color.fromRGBO(107, 110, 153, 1),
                 // backgroundColor: Colors.white,
               ),
             ),
@@ -64,7 +64,7 @@ class RevokedMessageBuilder extends StatelessWidget {
                   : const EdgeInsets.only(left: 80),
               // padding: EdgeInsets.only(right: 10),
               child: ExtendedText(
-                '${nickname}撤回了一条消息',
+                '$nickname撤回了一条消息',
                 // '${nickname},: ${_user.firstName},is: ${currentUserIsAuthor.toString()}',
                 style: const TextStyle(
                   color: AppColors.MainTextColor,

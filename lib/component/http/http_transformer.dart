@@ -21,7 +21,8 @@ class DefaultHttpTransformer extends HttpTransformer {
   }
 
   /// 单例对象
-  static DefaultHttpTransformer _instance = DefaultHttpTransformer._internal();
+  static final DefaultHttpTransformer _instance =
+      DefaultHttpTransformer._internal();
 
   /// 内部构造方法，可避免外部暴露构造函数，进行实例化
   DefaultHttpTransformer._internal();

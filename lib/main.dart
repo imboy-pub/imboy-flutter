@@ -63,8 +63,8 @@ class IMBoyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (_, child) => RefreshConfiguration(
-        headerBuilder: () => ClassicHeader(),
-        footerBuilder: () => ClassicFooter(),
+        headerBuilder: () => const ClassicHeader(),
+        footerBuilder: () => const ClassicFooter(),
         hideFooterWhenNotFull: true,
         headerTriggerDistance: 80,
         maxOverScrollExtent: 100,
@@ -88,8 +88,8 @@ class IMBoyApp extends StatelessWidget {
           translationsKeys: AppTranslation.translations,
 
           translations: IMBoyTranslations(), // 你的翻译
-          locale: Locale('zh', 'CN'), // 将会按照此处指定的语言翻译
-          fallbackLocale: Locale('en', 'US'), // 添加一个回调语言选项，以备上面指定的语言翻译不存在
+          locale: const Locale('zh', 'CN'), // 将会按照此处指定的语言翻译
+          fallbackLocale: const Locale('en', 'US'), // 添加一个回调语言选项，以备上面指定的语言翻译不存在
           defaultTransition: Transition.fade,
           opaqueRoute: Get.isOpaqueRouteDefault,
           popGesture: Get.isPopGestureEnable,
@@ -101,7 +101,7 @@ class IMBoyApp extends StatelessWidget {
             brightness: Get.find<ThemeController>().darkMode == 0
                 ? Brightness.light
                 : Brightness.dark,
-            primarySwatch: createMaterialColor(Color(0xFF223344)),
+            primarySwatch: createMaterialColor(const Color(0xFF223344)),
           ),
           enableLog: true,
           logWriterCallback: Logger.write,

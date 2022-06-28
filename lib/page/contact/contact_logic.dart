@@ -98,7 +98,7 @@ class ContactLogic extends GetxController {
       child: Text(
         tag,
         softWrap: false,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 14.0,
           color: Color(0xFF666666),
         ),

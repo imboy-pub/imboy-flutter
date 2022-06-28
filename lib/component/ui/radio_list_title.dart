@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 ///
 /// See also:
@@ -45,13 +44,7 @@ class IMBoyRadioListTile<T> extends StatelessWidget {
     this.visualDensity,
     this.focusNode,
     this.enableFeedback,
-  })  : assert(toggleable != null),
-        assert(isThreeLine != null),
-        assert(!isThreeLine || subtitle != null),
-        assert(selected != null),
-        assert(controlAffinity != null),
-        assert(autofocus != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// The value represented by this radio button.
   final T value;
@@ -203,7 +196,7 @@ class IMBoyRadioListTile<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget? control = null;
+    Widget? control;
     Widget? leading, trailing;
     switch (controlAffinity) {
       case ListTileControlAffinity.leading:

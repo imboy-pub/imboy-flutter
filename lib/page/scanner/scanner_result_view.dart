@@ -35,12 +35,12 @@ class ScannerResultPage extends StatelessWidget {
   List<Widget> body(bool itself) {
     return [
       ContactCard(
-        id: this.id,
-        nickname: this.nickname,
-        gender: this.gender,
+        id: id,
+        nickname: nickname,
+        gender: gender,
         account: '',
-        avatar: this.avatar,
-        region: this.region,
+        avatar: avatar,
+        region: region,
         isBorder: true,
       ),
       Visibility(
@@ -51,11 +51,11 @@ class ScannerResultPage extends StatelessWidget {
         ),
       ),
       Space(),
-      strEmpty(this.sign)
-          ? SizedBox.shrink()
+      strEmpty(sign)
+          ? const SizedBox.shrink()
           : LabelRow(
               label: '个性签名'.tr,
-              rightW: Text(this.sign),
+              rightW: Text(sign),
               onPressed: () {},
               isLine: true,
               isRight: false,
@@ -81,8 +81,8 @@ class ScannerResultPage extends StatelessWidget {
               child: ButtonRow(
                 text: '添加到通讯录'.tr,
                 onPressed: () => Get.to(AddFriendPage(
-                  this.id,
-                  this.nickname,
+                  id,
+                  nickname,
                 )),
               ),
             ),
@@ -93,17 +93,18 @@ class ScannerResultPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // final global = Provider.of<GlobalModel>(context, listen: false);
     var currentUser = UserRepoLocal.to.currentUser;
-    bool isSelf = currentUser.uid == this.id;
+    bool isSelf = currentUser.uid == id;
     var rWidget = [
       SizedBox(
         width: 60,
         child: TextButton(
           // padding: EdgeInsets.all(0),
-          onPressed: () =>
-              friendItemDialog(context, userId: this.id, suCc: (v) {
-            if (v) Navigator.of(context).maybePop();
+          onPressed: () => friendItemDialog(context, userId: id, suCc: (v) {
+            if (v) {
+              Navigator.of(context).maybePop();
+            }
           }),
-          child: Image(
+          child: const Image(
             image: AssetImage(contactAssets + 'ic_contacts_details.png'),
           ),
         ),

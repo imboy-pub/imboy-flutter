@@ -21,7 +21,9 @@ class RouteAuthMiddleware extends GetMiddleware {
       return null;
     } else {
       Future.delayed(
-          Duration(seconds: 1), () => Get.snackbar("提示", "登录过期,请重新登录"));
+        const Duration(seconds: 1),
+        () => Get.snackbar("提示", "登录过期,请重新登录"),
+      );
       return RouteSettings(name: AppRoutes.SIGN_IN);
     }
   }
