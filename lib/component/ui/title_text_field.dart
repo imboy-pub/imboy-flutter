@@ -8,7 +8,7 @@ class TitleTextField extends StatelessWidget {
   TextEditingController controller;
   final int minLines;
   final int maxLines;
-  final int maxLength;
+  final int? maxLength;
 
   final EdgeInsetsGeometry? contentPadding;
 
@@ -18,7 +18,7 @@ class TitleTextField extends StatelessWidget {
     required this.controller,
     required this.minLines,
     required this.maxLines,
-    required this.maxLength,
+    this.maxLength,
     this.contentPadding,
   }) : super(key: key);
 

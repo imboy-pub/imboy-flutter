@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/service/websocket.dart';
+import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -13,6 +14,10 @@ class NewFriendLogic extends GetxController {
   TextEditingController searchC = TextEditingController();
 
   RxList<dynamic> items = [].obs;
+
+  Future<List<NewFriendModel>> listNewFriend(String uid) async {
+    return await (NewFriendRepo()).listNewFriend(uid);
+  }
 
   /// 收到添加好友
   /// Received add a friend

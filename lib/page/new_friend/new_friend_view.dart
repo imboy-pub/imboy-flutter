@@ -10,6 +10,7 @@ import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
+import 'check_new_friend_view.dart';
 import 'new_friend_logic.dart';
 
 // ignore: must_be_immutable
@@ -21,27 +22,16 @@ class NewFriendPage extends StatelessWidget {
 
   NewFriendPage({Key? key}) : super(key: key);
 
+  void initData() async {
+    logic.items.value = [];
+    logic.items.value = await logic.listNewFriend(UserRepoLocal.to.currentUid);
+    debugPrint(">>> on newfriend items ${logic.items.toString()}");
+    logic.update([logic.items]);
+  }
+
   @override
   Widget build(BuildContext context) {
-    logic.items.value = [];
-    logic.items.add(NewFriendModel(
-      from: "",
-      to: "",
-      avatar: defAvatar,
-      nickname: 'nickname',
-      msg: '我：我是程老师介绍的李源炳顶顶顶顶顶顶顶',
-      payload: '{}',
-      createTime: 1,
-    ));
-    logic.items.add(NewFriendModel(
-      from: UserRepoLocal.to.currentUid,
-      to: "",
-      avatar: defAvatar,
-      nickname: 'nickname',
-      msg: '我：我是程老师介绍的李源炳顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶的',
-      payload: '{}',
-      createTime: 1,
-    ));
+    initData();
     return Scaffold(
       backgroundColor: AppColors.ChatBg,
       appBar: PageAppBar(
@@ -106,8 +96,31 @@ class NewFriendPage extends StatelessWidget {
                               rightWidget.add(
                                 const Icon(Icons.turn_slight_right),
                               );
+                              rightWidget.add(
+                                Text('等待验证'.tr),
+                              );
+                            } else {
+                              rightWidget.add(TextButton(
+                                onPressed: () {
+                                  Get.to(CheckNewFriendPage(
+                                    uid: model.from,
+                                    msg: model.msg,
+                                    nickname: model.nickname,
+                                  ));
+                                },
+                                child: Text('接受'.tr),
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.only(right: 0),
+                                  primary: AppColors.primaryElement,
+                                  backgroundColor:
+                                      AppColors.ChatInputBackgroundColor,
+                                  textStyle: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ));
                             }
-                            rightWidget.add(Text('等待验证'.tr));
                             return Container(
                               decoration: const BoxDecoration(
                                 color: Colors.white,
@@ -134,7 +147,10 @@ class NewFriendPage extends StatelessWidget {
                                 trailing: Container(
                                   width: 80,
                                   alignment: Alignment.centerRight,
-                                  child: n.Row(rightWidget),
+                                  child: n.Row(
+                                    rightWidget,
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                  ),
                                 ),
                               ),
                             );

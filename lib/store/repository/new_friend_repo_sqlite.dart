@@ -45,10 +45,11 @@ class NewFriendRepo {
     return obj;
   }
 
-  Future<List<NewFriendModel>> findFriend() async {
+  Future<List<NewFriendModel>> listNewFriend(String uid) async {
     List<Map<String, dynamic>> maps = await _db.query(
       NewFriendRepo.tablename,
       columns: [
+        NewFriendRepo.uid,
         NewFriendRepo.from,
         NewFriendRepo.to,
         NewFriendRepo.nickname,
@@ -56,9 +57,11 @@ class NewFriendRepo {
         NewFriendRepo.status,
         NewFriendRepo.msg,
         NewFriendRepo.payload,
+        NewFriendRepo.updateTime,
+        NewFriendRepo.createTime,
       ],
       where: '${NewFriendRepo.uid}=?',
-      whereArgs: [UserRepoLocal.to.currentUid],
+      whereArgs: [uid],
       orderBy: "update_time desc",
       limit: 10000,
     );
