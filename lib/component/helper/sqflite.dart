@@ -87,6 +87,8 @@ class Sqlite {
         `${ConversationRepo.avatar}` varchar(255) NOT NULL DEFAULT '',
         `${ConversationRepo.title}` varchar(40) NOT NULL DEFAULT '',
         `${ConversationRepo.subtitle}` varchar(255) DEFAULT '',
+        `${ConversationRepo.region}` varchar(255) DEFAULT '',
+        `${ConversationRepo.sign}` varchar(255) DEFAULT '',
         `${ConversationRepo.unreadNum}` int NOT NULL DEFAULT 0,
         `${ConversationRepo.type}` varchar(40) NOT NULL,
         `${ConversationRepo.msgtype}` varchar(40) NOT NULL,

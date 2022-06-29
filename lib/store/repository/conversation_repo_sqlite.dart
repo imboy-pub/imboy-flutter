@@ -10,6 +10,8 @@ class ConversationRepo {
   static String avatar = 'avatar';
   static String title = 'title';
   static String subtitle = 'subtitle';
+  static String region = 'region';
+  static String sign = 'sign';
   static String lasttime = 'lasttime';
   static String lastMsgId = 'last_msg_id';
   static String lastMsgStatus = 'last_msg_status';
@@ -104,6 +106,8 @@ class ConversationRepo {
         ConversationRepo.title,
         ConversationRepo.subtitle,
         ConversationRepo.lasttime,
+        ConversationRepo.region,
+        ConversationRepo.sign,
         ConversationRepo.lastMsgId,
         ConversationRepo.lastMsgStatus,
         ConversationRepo.unreadNum,
@@ -136,6 +140,8 @@ class ConversationRepo {
         ConversationRepo.avatar,
         ConversationRepo.title,
         ConversationRepo.subtitle,
+        ConversationRepo.region,
+        ConversationRepo.sign,
         ConversationRepo.lasttime,
         ConversationRepo.lastMsgId,
         ConversationRepo.lastMsgStatus,
@@ -168,6 +174,8 @@ class ConversationRepo {
         ConversationRepo.avatar,
         ConversationRepo.title,
         ConversationRepo.subtitle,
+        ConversationRepo.region,
+        ConversationRepo.sign,
         ConversationRepo.lasttime,
         ConversationRepo.lastMsgId,
         ConversationRepo.lastMsgStatus,
@@ -195,6 +203,8 @@ class ConversationRepo {
         ConversationRepo.typeId,
         ConversationRepo.title,
         ConversationRepo.subtitle,
+        ConversationRepo.region,
+        ConversationRepo.sign,
         ConversationRepo.avatar,
         ConversationRepo.lasttime,
         ConversationRepo.lastMsgId,

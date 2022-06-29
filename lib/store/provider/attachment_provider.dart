@@ -29,7 +29,7 @@ class AttachmentProvider {
   ) async {
     int ts = DateTimeHelper.currentTimeMillis();
     DateTime dt = DateTime.fromMillisecondsSinceEpoch(ts);
-    String savePath = "/$prefix/$dt.year$dt.month/$dt.day_$dt.hour/";
+    String savePath = "/$prefix/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";
     if (prefix == "avatar") {
       savePath = "/$prefix/";
     }
@@ -68,14 +68,14 @@ class AttachmentProvider {
         }
       },
     ).then((response) {
-      debugPrint(">>> on upload response $response.toString()}");
+      debugPrint(">>> on upload response ${response.toString()}");
       Map<String, dynamic> responseData = json.decode(response.data);
 
       String url =
-          responseData["data"]["url"] + "?s=$UPLOAD_SENCE}&a=$authToken}&v=$v}";
+          responseData["data"]["url"] + "?s=$UPLOAD_SENCE&a=$authToken&v=$v";
       callback(responseData, url);
     }).catchError((e) {
-      debugPrint(">>> on upload err $e.toString()}");
+      debugPrint(">>> on upload err ${e.toString()}");
       errorCallback(e);
     });
   }
@@ -84,7 +84,7 @@ class AttachmentProvider {
       String prefix, Map<String, dynamic> data) async {
     int ts = DateTimeHelper.currentTimeMillis();
     DateTime dt = DateTime.fromMillisecondsSinceEpoch(ts);
-    String savePath = "/$prefix/$dt.year}$dt.month/$dt.day}_$dt.hour/";
+    String savePath = "/$prefix/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";
     String v = (Random()).nextInt(999999).toString();
     String authToken = generateMD5(UP_AUTH_KEY + v).substring(8, 24);
 
@@ -130,8 +130,8 @@ class AttachmentProvider {
 
     String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
     bool uploadOriginalImage = false;
-    debugPrint(">>> on uploadOriginalImage: $uploadOriginalImage}");
-    String name = "$Xid().toString()}.$ext}";
+    debugPrint(">>> on uploadOriginalImage: $uploadOriginalImage");
+    String name = "${Xid().toString()}.$ext";
     if (entity.type == AssetType.video) {
       String? thumbUri;
       String? videoUri;
@@ -141,7 +141,7 @@ class AttachmentProvider {
         quality: quality, // default(100)
         position: -1, // default(-1)
       );
-      debugPrint(">>> on upload video $thumbnailFile.path}");
+      debugPrint(">>> on upload video ${thumbnailFile.path}");
       String thumbPath = thumbnailFile.path;
       var thumbName =
           thumbPath.substring(thumbPath.lastIndexOf("/") + 1, thumbPath.length);
@@ -236,7 +236,7 @@ class AttachmentProvider {
           String v = (Random()).nextInt(999999).toString();
           String authToken = generateMD5(UP_AUTH_KEY + v).substring(8, 24);
           String url = responseData["data"]["url"] +
-              "?s=$UPLOAD_SENCE}&a=$authToken}&v=$v}";
+              "?s=$UPLOAD_SENCE&a=$authToken&v=$v";
           callback(responseData, url);
         } else {
           Map<String, dynamic> data = {
@@ -246,7 +246,7 @@ class AttachmentProvider {
           await _upload(prefix, data, callback, errorCallback);
         }
       }).catchError((e) {
-        debugPrint(">>> on preUpload catchError $e.toString()}");
+        debugPrint(">>> on preUpload catchError ${e.toString()}");
         errorCallback(e);
       });
     } else if (entity.type == AssetType.image && uploadOriginalImage == true) {
@@ -271,7 +271,7 @@ class AttachmentProvider {
           await _upload(prefix, data, callback, errorCallback);
         }
       }).catchError((e) {
-        debugPrint(">>> on preUpload catchError $e.toString()");
+        debugPrint(">>> on preUpload catchError ${e.toString()}");
         errorCallback(e);
       });
     }
@@ -290,7 +290,7 @@ class AttachmentProvider {
     }
     String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
     if (name == "") {
-      name = Xid().toString() + ".$ext";
+      name = "${Xid().toString()}.$ext";
     } else {
       name = "$name.$ext";
     }
