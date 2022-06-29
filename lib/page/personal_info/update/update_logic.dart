@@ -35,16 +35,4 @@ class UpdatePageLogic extends GetxController {
       update([regionList]);
     });
   }
-
-  @override
-  void onInit() {
-    super.onInit();
-    // print("渲染完成");
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-    // print("close");
-  }
 }

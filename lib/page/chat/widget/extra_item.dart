@@ -1,8 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:imboy/config/const.dart';
 
 class ExtraItem extends StatelessWidget {
@@ -10,8 +8,8 @@ class ExtraItem extends StatelessWidget {
     Key? key,
     required this.onPressed,
     required this.image,
-    double? this.width,
-    double? this.height,
+    this.width,
+    this.height,
     required this.title,
   }) : super(key: key);
 
@@ -24,12 +22,12 @@ class ExtraItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: this.onPressed ?? () => Get.snackbar('Tips', '功能暂未实现'),
+      onTap: onPressed ?? () => Get.snackbar('Tips', '功能暂未实现'),
       child: Padding(
         padding: const EdgeInsets.only(left: 15, top: 13, right: 15, bottom: 0),
         child: Column(
           children: [
-            Container(
+            SizedBox(
               width: width ?? 56,
               height: height ?? 56,
               // margin: EdgeInsets.symmetric(horizontal: 10),
@@ -81,7 +79,7 @@ class ExtraItems extends StatefulWidget {
 
 class _ExtraItemsState extends State<ExtraItems> {
   int _current = 0;
-  CarouselController _controller = CarouselController();
+  final CarouselController _controller = CarouselController();
 
   @override
   Widget build(BuildContext context) {

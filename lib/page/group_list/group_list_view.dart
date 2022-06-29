@@ -5,6 +5,8 @@ import 'group_list_logic.dart';
 import 'group_list_state.dart';
 
 class GroupListPage extends StatefulWidget {
+  const GroupListPage({Key? key}) : super(key: key);
+
   @override
   _GroupListPageState createState() => _GroupListPageState();
 }

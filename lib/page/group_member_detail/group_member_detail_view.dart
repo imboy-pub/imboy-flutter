@@ -9,7 +9,7 @@ class GroupMemberDetailPage extends StatefulWidget {
   // final bool isSelf;
   final String id;
 
-  GroupMemberDetailPage(this.id);
+  const GroupMemberDetailPage(this.id, {Key? key}) : super(key: key);
 
   @override
   _GroupMemberDetailPageState createState() => _GroupMemberDetailPageState();

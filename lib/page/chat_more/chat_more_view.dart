@@ -12,7 +12,7 @@ class ChatMorePage extends StatefulWidget {
   final String? type;
   final double? keyboardHeight;
 
-  ChatMorePage({this.index = 0, this.id, this.type, this.keyboardHeight});
+  const ChatMorePage({Key? key, this.index = 0, this.id, this.type, this.keyboardHeight,}):super(key: key);
 
   @override
   _ChatMorePageState createState() => _ChatMorePageState();

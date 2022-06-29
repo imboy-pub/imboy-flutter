@@ -8,6 +8,8 @@ class RootPage extends StatelessWidget {
   final RootLogic logic = Get.put(RootLogic());
   final RootState state = Get.find<RootLogic>().state;
 
+  RootPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container();

@@ -19,6 +19,8 @@ import 'personal_info_state.dart';
 import 'update/update_view.dart';
 
 class PersonalInfoPage extends StatefulWidget {
+  const PersonalInfoPage({Key? key}) : super(key: key);
+
   @override
   _PersonalInfoPageState createState() => _PersonalInfoPageState();
 }
@@ -66,7 +68,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
   void cropImage(XFile xfile) async {
     Get.back();
-    File originalImage = await File(xfile.path);
+    File originalImage = File(xfile.path);
     String url = await Navigator.push(
         context,
         MaterialPageRoute(
@@ -157,7 +159,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             ),
           ),
           onPressed: () => Get.bottomSheet(
-            Container(
+            SizedBox(
               width: Get.width,
               height: Get.height * 0.25,
               child: Wrap(

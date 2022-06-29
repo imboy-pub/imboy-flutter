@@ -10,16 +10,4 @@ class BottomNavigationLogic extends GetxController {
     state.bottombarIndex.value = index;
     // print(state.bottombarIndex.value);
   }
-
-  @override
-  void onReady() {
-    // TODO: implement onReady
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    // TODO: implement onClose
-    super.onClose();
-  }
 }

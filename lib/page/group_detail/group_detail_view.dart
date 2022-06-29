@@ -27,7 +27,7 @@ class GroupDetailPage extends StatefulWidget {
   final String? peer;
   final Callback? callBack;
 
-  GroupDetailPage(this.peer, {this.callBack});
+  const GroupDetailPage(this.peer, {Key? key, this.callBack}) : super(key: key);
 
   @override
   _GroupDetailPageState createState() => _GroupDetailPageState();
@@ -109,7 +109,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             width: 48.0,
           ),
         ),
-        onTap: () => Get.to(SelectMemberPage()),
+        onTap: () => Get.to(const SelectMemberPage()),
       );
     }
     return FutureBuilder(
@@ -122,10 +122,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
       builder: (context, snap) {
         return SizedBox(
           width: (Get.width - 60) / 5,
-          child: FlatButton(
+          child: TextButton(
             onPressed: () => Get.to(GroupMemberDetailPage(uId!)),
-            padding: const EdgeInsets.all(0),
-            highlightColor: Colors.transparent,
             child: Column(
               children: <Widget>[
                 ClipRRect(
@@ -195,9 +193,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             ),
             Visibility(
               visible: memberList.length > 20,
-              child: FlatButton(
-                padding: const EdgeInsets.only(top: 15.0, bottom: 20.0),
-                color: Colors.white,
+              child: TextButton(
                 child: Text(
                   '查看全部群成员'.tr,
                   style: const TextStyle(fontSize: 14.0, color: Colors.black54),
@@ -228,9 +224,9 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               child: functionBtn('群管理'),
             ),
             functionBtn('备注'),
-            Space(height: 10.0),
+            const Space(height: 10.0),
             functionBtn('查找聊天记录'),
-            Space(height: 10.0),
+            const Space(height: 10.0),
             functionBtn('消息免打扰',
                 right: CupertinoSwitch(
                   value: _dnd,
@@ -258,7 +254,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                     value ? _setTop(1) : _setTop(2);
                   },
                 )),
-            Space(height: 10.0),
+            const Space(height: 10.0),
             functionBtn('我在群里的昵称', detail: cardName),
             functionBtn('显示群成员昵称',
                 right: CupertinoSwitch(
@@ -269,12 +265,12 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                     value ? _setTop(1) : _setTop(2);
                   },
                 )),
-            Space(),
-            functionBtn('设置当前聊天背景'),
-            functionBtn('投诉'),
-            Space(),
-            functionBtn('清空聊天记录'),
-            Space(),
+            const Space(),
+            functionBtn('设置当前聊天背景'.tr),
+            functionBtn('投诉'.tr),
+            const Space(),
+            functionBtn('清空聊天记录'.tr),
+            const Space(),
             TextButton(
               // padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
               // color: Colors.white,
@@ -432,12 +428,12 @@ class GroupItem extends StatelessWidget {
   final VoidCallback? onPressed;
   final Widget? right;
 
-  GroupItem({
+  const GroupItem({Key? key,
     this.detail,
     this.title,
     this.onPressed,
     this.right,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -463,9 +459,7 @@ class GroupItem extends StatelessWidget {
         title == '投诉' ||
         title == '清空聊天记录';
 
-    return FlatButton(
-      padding: const EdgeInsets.only(left: 15, right: 15.0),
-      color: Colors.white,
+    return TextButton(
       onPressed: () => onPressed!(),
       child: Container(
         padding: EdgeInsets.only(
@@ -497,7 +491,7 @@ class GroupItem extends StatelessWidget {
                   ),
                 ),
                 right != null ? right! : Container(),
-                Space(width: 10.0),
+                const Space(width: 10.0),
                 isSwitch
                     ? Container()
                     : const Image(

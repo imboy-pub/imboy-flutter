@@ -5,6 +5,8 @@ import 'all_label_logic.dart';
 import 'all_label_state.dart';
 
 class AllLabelPage extends StatefulWidget {
+  const AllLabelPage({Key? key}) : super(key: key);
+
   @override
   _AllLabelPageState createState() => _AllLabelPageState();
 }

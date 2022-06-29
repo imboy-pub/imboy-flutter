@@ -16,7 +16,7 @@ import 'group_member_state.dart';
 class GroupMemberPage extends StatefulWidget {
   final String groupId;
 
-  GroupMemberPage(this.groupId);
+  const GroupMemberPage(this.groupId, {Key? key}) : super(key: key);
 
   @override
   _GroupMemberPageState createState() => _GroupMemberPageState();
@@ -40,7 +40,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
 
   handle(String uId) {
     if (!strNoEmpty(uId)) {
-      Get.to(SelectMemberPage());
+      Get.to(const SelectMemberPage());
 //      routePush(CreateGroupChat(
 //        'invite',
 //        groupId: widget.groupId,
@@ -91,10 +91,8 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
       builder: (context, snap) {
         return SizedBox(
           width: (Get.width - 60) / 5,
-          child: FlatButton(
+          child: TextButton(
             onPressed: () => handle(uId!),
-            padding: const EdgeInsets.all(0),
-            highlightColor: Colors.transparent,
             child: Column(
               children: <Widget>[
                 ClipRRect(
@@ -151,7 +149,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
       future: _futureBuilderFuture,
       builder: (context, snap) {
         return Text(
-          '聊天成员(${memberList.length != null ? memberList.length - 1 : 0})',
+          '聊天成员(${memberList.length > 1 ? memberList.length - 1 : 0})',
           style: const TextStyle(
               color: Colors.black, fontSize: 17.0, fontWeight: FontWeight.w600),
         );

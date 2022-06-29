@@ -11,6 +11,7 @@ import 'package:photo_view/photo_view.dart';
 import 'mine_logic.dart';
 import 'mine_state.dart';
 
+// ignore: must_be_immutable
 class MinePage extends StatelessWidget {
   final MineLogic logic = Get.put(MineLogic());
   final MineState state = Get.find<MineLogic>().state;
@@ -72,6 +73,8 @@ class MinePage extends StatelessWidget {
       ),
     },
   ];
+
+  MinePage({Key? key}) : super(key: key);
 
   Widget buildContent(item) {
     return ListTileView(
@@ -199,7 +202,7 @@ class MinePage extends StatelessWidget {
                     ],
                   ),
                 ),
-                onTap: () => Get.to(PersonalInfoPage()),
+                onTap: () => Get.to(const PersonalInfoPage()),
               ),
             ),
             Column(

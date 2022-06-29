@@ -7,7 +7,7 @@ import 'package:imboy/page/user/user_view.dart';
 class LoadingView extends StatelessWidget {
   final bool isStr;
 
-  LoadingView({this.isStr = true});
+  const LoadingView({Key? key, this.isStr = true}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class LoadingView extends StatelessWidget {
               }
             },
           ),
-          Space(),
+          const Space(),
           const SizedBox(
             width: 20.0,
             height: 20.0,

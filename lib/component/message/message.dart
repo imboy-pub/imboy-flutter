@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+// ignore: implementation_imports
 import 'package:flutter_chat_ui/src/widgets/inherited_user.dart';
 
 import 'message_audio_builder.dart';

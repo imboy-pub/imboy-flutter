@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/button_row.dart';
+import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/friend_item_dialog.dart';
@@ -11,26 +11,27 @@ import 'package:imboy/page/contact_detail/widget/contact_card.dart';
 import 'package:imboy/page/friend/add_friend_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
+// ignore: must_be_immutable
 class ScannerResultPage extends StatelessWidget {
   final String id; // 用户ID
   final String nickname;
   final String avatar;
   final String region;
   final String sign;
-  final bool is_friend;
+  final bool isFriend;
   String source;
   int gender;
 
-  ScannerResultPage({
+  ScannerResultPage({Key? key,
     required this.id,
     required this.nickname,
     required this.avatar,
-    required this.is_friend,
+    required this.isFriend,
     this.region = "",
     this.sign = "",
     this.gender = 0,
-    this.source = 'uqrcode',
-  });
+    this.source = "uqrcode",
+  }) : super(key: key);
 
   List<Widget> body(bool itself) {
     return [
@@ -50,7 +51,7 @@ class ScannerResultPage extends StatelessWidget {
           onPressed: () {},
         ),
       ),
-      Space(),
+      const Space(),
       strEmpty(sign)
           ? const SizedBox.shrink()
           : LabelRow(
@@ -67,8 +68,8 @@ class ScannerResultPage extends StatelessWidget {
         isRight: false,
         onPressed: () {},
       ),
-      Space(),
-      is_friend
+      const Space(),
+      isFriend
           ? Visibility(
               visible: !itself,
               child: ButtonRow(

@@ -3,7 +3,6 @@ import 'package:encrypt/encrypt.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_login/flutter_login.dart';
-import 'package:flutter_login/src/models/signup_data.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/extension/get_extension.dart';
@@ -15,12 +14,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class PassportLogic extends GetxController {
-  String? _error = null;
-
-  @override
-  void onInit() {
-    super.onInit();
-  }
+  String? _error;
 
   /// 账号验证
   String? userValidator(LoginUserType userType, String value) {
@@ -204,8 +198,6 @@ class PassportLogic extends GetxController {
 
   /// 邮箱验证码修改密码
   Future<String?> onConfirmRecover(String code, LoginData data) async {
-    debugPrint(
-        ">>> on onConfirmRecover code: ${code}, data: ${data.name}, ${data.password}");
     try {
       Map<String, dynamic> result = await encryptPassword(data.password);
       if (strNoEmpty(result['error'])) {

@@ -7,10 +7,7 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
-import 'contact_state.dart';
-
 class ContactLogic extends GetxController {
-  final state = ContactState();
 
   listFriend() async {
     List<ContactModel> contact = [];

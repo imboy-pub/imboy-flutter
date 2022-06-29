@@ -15,18 +15,6 @@ class PersonalInfoLogic extends GetxController {
   RxString sign = "".obs;
   RxString region = "".obs;
 
-  @override
-  void onReady() {
-    // TODO: implement onReady
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    // TODO: implement onClose
-    super.onClose();
-  }
-
   Future<bool> changeInfo(Map data) async {
     IMBoyHttpResponse resp = await httpclient.put(API.userUpdate, data: data);
     return resp.ok;
@@ -34,7 +22,7 @@ class PersonalInfoLogic extends GetxController {
 
   labelOnPressed(String label) {
     if (label == "more") {
-      Get.to(MoreView());
+      Get.to(const MoreView());
     } else if (label == "uqrcode") {
       Get.to(UqrcodePage());
     }

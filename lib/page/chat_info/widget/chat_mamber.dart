@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -11,7 +10,7 @@ import 'package:imboy/page/group_launch/group_launch_view.dart';
 class ChatMamBer extends StatefulWidget {
   final dynamic model;
 
-  ChatMamBer({this.model});
+  const ChatMamBer({Key? key, this.model}) : super(key: key);
 
   @override
   _ChatMamBerState createState() => _ChatMamBerState();
@@ -32,7 +31,7 @@ class _ChatMamBerState extends State<ChatMamBer> {
         runSpacing: 10.0,
         children: [0].map((item) {
           return InkWell(
-            child: Container(
+            child: SizedBox(
               width: 55.0,
               child: Column(
                 children: <Widget>[
@@ -42,7 +41,7 @@ class _ChatMamBerState extends State<ChatMamBer> {
                     height: 55.0,
                     fit: BoxFit.cover,
                   ),
-                  Space(height: mainSpace / 2),
+                  const Space(height: mainSpace / 2),
                   Text(
                     strNoEmpty(name) ? name : '无名氏'.tr,
                     style: const TextStyle(color: AppColors.MainTextColor),

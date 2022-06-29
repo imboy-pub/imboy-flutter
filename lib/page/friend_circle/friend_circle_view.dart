@@ -5,6 +5,8 @@ import 'friend_circle_logic.dart';
 import 'friend_circle_state.dart';
 
 class FriendCirclePage extends StatefulWidget {
+  const FriendCirclePage({Key? key}) : super(key: key);
+
   @override
   _FriendCirclePageState createState() => _FriendCirclePageState();
 }

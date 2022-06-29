@@ -11,8 +11,8 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:lpinyin/lpinyin.dart';
 
 import 'contact_logic.dart';
-import 'contact_state.dart';
 
+// ignore: must_be_immutable
 class ContactPage extends StatelessWidget {
   RxBool contactIsEmpty = true.obs;
   RxList<ContactModel> contactList = RxList<ContactModel>();
@@ -47,7 +47,8 @@ class ContactPage extends StatelessWidget {
   ];
 
   final ContactLogic logic = Get.put(ContactLogic());
-  final ContactState state = Get.find<ContactLogic>().state;
+
+  ContactPage({Key? key}) : super(key: key);
 
   void loadData() async {
     // 加载联系人列表
@@ -75,7 +76,7 @@ class ContactPage extends StatelessWidget {
     SuspensionUtil.setShowSuspensionStatus(contactList);
 
     // add topList.
-    contactList.value.insertAll(0, topList);
+    contactList.insertAll(0, topList);
   }
 
   @override
@@ -87,12 +88,12 @@ class ContactPage extends StatelessWidget {
         title: "联系人".tr,
         rightDMActions: <Widget>[
           InkWell(
-            child: Container(
+            child: const SizedBox(
               width: 60.0,
-              child: const Image(
-                  image: AssetImage('assets/images/search_black.webp')),
+              child: Image(
+                  image: AssetImage('assets/images/search_black.webp'),),
             ),
-            onTap: () => Get.to(SearchPage()),
+            onTap: () => Get.to(const SearchPage()),
           ),
         ],
       ),
@@ -100,10 +101,10 @@ class ContactPage extends StatelessWidget {
         () => Stack(
           children: [
             AzListView(
-              data: contactList.value,
-              itemCount: contactList.value.length,
+              data: contactList,
+              itemCount: contactList.length,
               itemBuilder: (BuildContext context, int index) {
-                ContactModel model = contactList.value[index];
+                ContactModel model = contactList[index];
                 return logic.getChatListItem(
                   context,
                   model,
@@ -112,13 +113,13 @@ class ContactPage extends StatelessWidget {
               },
               physics: const BouncingScrollPhysics(),
               susItemBuilder: (BuildContext context, int index) {
-                ContactModel model = contactList.value[index];
+                ContactModel model = contactList[index];
                 if ('↑' == model.getSuspensionTag()) {
                   return Container();
                 }
                 return logic.getSusItem(context, model.getSuspensionTag());
               },
-              indexBarData: ['↑', ...kIndexBarData],
+              indexBarData: const ['↑', ...kIndexBarData],
               indexBarOptions: IndexBarOptions(
                 needRebuild: true,
                 ignoreDragCancel: true,
@@ -148,7 +149,7 @@ class ContactPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               child:
-                  contactIsEmpty.isTrue ? NoDataView(text: '无联系人'.tr) : Space(),
+                  contactIsEmpty.isTrue ? NoDataView(text: '无联系人'.tr) : const Space(),
             ),
           ],
         ),

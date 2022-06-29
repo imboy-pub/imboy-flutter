@@ -4,9 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 void method1() {
   List<String> myArray = <String>['a', 'b', 'c'];
   debugPrint('1 before loop');
-  myArray.forEach((String value) async {
-    await delayedPrint(value);
-  });
+  for (var value in myArray) {
+    delayedPrint(value);
+  }
   debugPrint('1 end of loop');
 }
 

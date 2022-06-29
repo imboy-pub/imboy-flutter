@@ -7,6 +7,7 @@ import 'package:imboy/config/const.dart';
 
 import 'content_msg.dart';
 
+// ignore: must_be_immutable
 class ConversationItem extends StatelessWidget {
   // 会话头像
   final String? imgUri;
@@ -23,7 +24,7 @@ class ConversationItem extends StatelessWidget {
   // 最近会话消息状态
   final int? status; // lastMsgStatus
 
-  ConversationItem({
+  ConversationItem({Key? key,
     this.imgUri,
     this.onTapAvatar,
     this.title,
@@ -31,7 +32,7 @@ class ConversationItem extends StatelessWidget {
     this.time,
     required this.remindCounter,
     this.status,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +89,7 @@ class ConversationItem extends StatelessWidget {
             ),
             child: Row(
               children: <Widget>[
-                Space(width: 6),
+                const Space(width: 6),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

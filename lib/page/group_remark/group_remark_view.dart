@@ -15,11 +15,11 @@ class GroupRemarkPage extends StatefulWidget {
   final String text;
   final String? groupId;
 
-  GroupRemarkPage({
+  const GroupRemarkPage({Key? key,
     this.groupInfoType = GroupInfoType.remark,
     this.text = '',
     this.groupId,
-  });
+  }) : super(key: key);
 
   @override
   _GroupRemarkPageState createState() => _GroupRemarkPageState();
@@ -29,7 +29,7 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
   final logic = Get.find<GroupRemarkLogic>();
   final GroupRemarkState state = Get.find<GroupRemarkLogic>().state;
 
-  TextEditingController _textController = TextEditingController();
+  final TextEditingController _textController = TextEditingController();
 
   handle() {
     if (!strNoEmpty(_textController.text)) {
@@ -81,7 +81,7 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Space(height: 30),
+              const Space(height: 30),
               Text(
                 label,
                 style: const TextStyle(
@@ -108,13 +108,13 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                       defGroupAvatar,
                       width: 48,
                     ),
-                    Space(),
+                    const Space(),
                     Expanded(
                       child: TextField(
                         controller: _textController,
                         decoration: InputDecoration(
                           hintText:
-                              '${widget.groupInfoType == GroupInfoType.name ? '群聊名称' : '备注'}',
+                              widget.groupInfoType == GroupInfoType.name ? '群聊名称'.tr : '备注'.tr,
                           border: InputBorder.none,
                         ),
                       ),
@@ -122,7 +122,7 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                   ],
                 ),
               ),
-              Space(),
+              const Space(),
               Visibility(
                 visible: widget.groupInfoType == GroupInfoType.remark,
                 child: Row(
@@ -131,7 +131,7 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                       '群聊名称：wechat_flutter 106号群',
                       style: TextStyle(color: Colors.grey, fontSize: 14),
                     ),
-                    Space(),
+                    const Space(),
                     InkWell(
                       child: const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 2),

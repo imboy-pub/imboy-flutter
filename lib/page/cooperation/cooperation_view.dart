@@ -5,6 +5,8 @@ import 'cooperation_logic.dart';
 import 'cooperation_state.dart';
 
 class CooperationPage extends StatefulWidget {
+  const CooperationPage({Key? key}) : super(key: key);
+
   @override
   _CooperationPageState createState() => _CooperationPageState();
 }

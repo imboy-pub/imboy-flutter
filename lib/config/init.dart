@@ -2,7 +2,7 @@ import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:get/get.dart' as Getx;
+import 'package:get/get.dart' as getx;
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_config.dart';
@@ -17,9 +17,10 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
 
+// ignore: prefer_generic_function_type_aliases
 typedef Callback(data);
 
-DefaultCacheManager cacheManager = new DefaultCacheManager();
+DefaultCacheManager cacheManager = DefaultCacheManager();
 
 typedef VoidCallbackConfirm = void Function(bool isOk);
 
@@ -35,9 +36,9 @@ Future<void> init() async {
   await dotenv.load(fileName: "assets/.env"); //
   // debugPrint(">>> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
   // 放在 UserRepoLocal 前面
-  await Getx.Get.putAsync<StorageService>(() => StorageService().init());
-  Getx.Get.put(UserRepoLocal(), permanent: true);
-  Getx.Get.lazyPut(() => ThemeController());
+  await getx.Get.putAsync<StorageService>(() => StorageService().init());
+  getx.Get.put(UserRepoLocal(), permanent: true);
+  getx.Get.lazyPut(() => ThemeController());
 
   Sqflite.setDebugModeOn();
 
@@ -48,15 +49,15 @@ Future<void> init() async {
     interceptors: [ImboyInterceptor()],
   );
 
-  Getx.Get.put(HttpClient(dioConfig: dioConfig));
+  getx.Get.put(HttpClient(dioConfig: dioConfig));
 
   // 初始化 WebSocket 链接
-  // Getx.Get.put(WebSocket());
-  Getx.Get.put(WSService());
+  // getx.Get.put(WebSocket());
+  getx.Get.put(WSService());
   // MessageService 不能用 lazyPut
-  Getx.Get.put(MessageService());
-  Getx.Get.put(DeviceExt());
-  // Getx.Get.lazyPut(() => DeviceExt());
+  getx.Get.put(MessageService());
+  getx.Get.put(DeviceExt());
+  // getx.Get.lazyPut(() => DeviceExt());
 
   ntpOffset = await StorageService.to.ntpOffset();
   WidgetsBinding.instance.addObserver(

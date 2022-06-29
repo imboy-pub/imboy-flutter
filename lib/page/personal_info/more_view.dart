@@ -11,6 +11,8 @@ import 'personal_info_logic.dart';
 import 'update/update_view.dart';
 
 class MoreView extends StatelessWidget {
+  const MoreView({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final logic = Get.put(PersonalInfoLogic());
@@ -18,6 +20,7 @@ class MoreView extends StatelessWidget {
     logic.genderTitle.value = UserRepoLocal.to.currentUser.genderTitle;
     logic.sign.value = UserRepoLocal.to.currentUser.sign;
     logic.region.value = UserRepoLocal.to.currentUser.region;
+    // ignore: prefer_function_declarations_over_variables
     Function deleteFirst = (String val) {
       List items = val.split(" ");
       // debugPrint(">>> on deleteFirst ${items.length} ${items.toString()}");
@@ -89,87 +92,83 @@ class MoreView extends StatelessWidget {
             enableDrag: false,
           ),
         ),
-        Container(
-          child: TextButton(
-            style: TextButton.styleFrom(
-              minimumSize: Size.zero,
-              padding: EdgeInsets.zero,
-              backgroundColor: Colors.white,
+        TextButton(
+          style: TextButton.styleFrom(
+            minimumSize: Size.zero,
+            padding: EdgeInsets.zero,
+            backgroundColor: Colors.white,
+          ),
+          child: Container(
+            padding:
+                const EdgeInsets.only(top: 15.0, bottom: 15.0, right: 5.0),
+            margin: const EdgeInsets.only(
+              left: 20.0,
             ),
-            child: Container(
-              padding:
-                  const EdgeInsets.only(top: 15.0, bottom: 15.0, right: 5.0),
-              margin: const EdgeInsets.only(
-                left: 20.0,
-              ),
-              child: Row(
-                children: <Widget>[
-                  SizedBox(
-                    child: Text(
-                      '个性签名'.tr,
-                      style: const TextStyle(fontSize: 17.0),
-                    ),
+            child: Row(
+              children: <Widget>[
+                SizedBox(
+                  child: Text(
+                    '个性签名'.tr,
+                    style: const TextStyle(fontSize: 17.0),
                   ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 0, 0),
-                      child: Obx(
-                        () => ExtendedText(
-                          logic.sign.value == "" ? "未填写" : logic.sign.value,
-                          style: const TextStyle(
-                            color: AppColors.MainTextColor,
-                            fontSize: 14.0,
-                          ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: logic.sign.value == ""
-                              ? TextAlign.right
-                              : TextAlign.left,
-                          overflowWidget: TextOverflowWidget(
-                            position: TextOverflowPosition.end,
-                            align: TextOverflowAlign.right,
-                            child: Container(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  const Text('...'),
-                                ],
-                              ),
-                            ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 0, 0),
+                    child: Obx(
+                      () => ExtendedText(
+                        logic.sign.value == "" ? "未填写" : logic.sign.value,
+                        style: const TextStyle(
+                          color: AppColors.MainTextColor,
+                          fontSize: 14.0,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: logic.sign.value == ""
+                            ? TextAlign.right
+                            : TextAlign.left,
+                        overflowWidget: TextOverflowWidget(
+                          position: TextOverflowPosition.end,
+                          align: TextOverflowAlign.right,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const <Widget>[
+                              Text('...'),
+                            ],
                           ),
                         ),
                       ),
                     ),
                   ),
-                  Icon(
-                    CupertinoIcons.right_chevron,
-                    color: AppColors.MainTextColor.withOpacity(0.5),
-                  )
-                ],
-              ),
+                ),
+                Icon(
+                  CupertinoIcons.right_chevron,
+                  color: AppColors.MainTextColor.withOpacity(0.5),
+                )
+              ],
             ),
-            onPressed: () => Get.bottomSheet(
-              UpdatePage(
-                  title: '设置个性签名'.tr,
-                  value: UserRepoLocal.to.currentUser.sign,
-                  field: 'text',
-                  callback: (sign) async {
-                    bool ok = await logic
-                        .changeInfo({"field": "sign", "value": sign});
-                    if (ok) {
-                      Map<String, dynamic> payload =
-                          UserRepoLocal.to.currentUser.toJson();
-                      payload["sign"] = sign;
-                      UserRepoLocal.to.changeInfo(payload);
-                      logic.sign.value = UserRepoLocal.to.currentUser.sign;
-                    }
-                    return ok;
-                  }),
-              backgroundColor: Colors.white,
-              // 是否支持全屏弹出，默认false
-              isScrollControlled: true,
-              enableDrag: false,
-            ),
+          ),
+          onPressed: () => Get.bottomSheet(
+            UpdatePage(
+                title: '设置个性签名'.tr,
+                value: UserRepoLocal.to.currentUser.sign,
+                field: 'text',
+                callback: (sign) async {
+                  bool ok = await logic
+                      .changeInfo({"field": "sign", "value": sign});
+                  if (ok) {
+                    Map<String, dynamic> payload =
+                        UserRepoLocal.to.currentUser.toJson();
+                    payload["sign"] = sign;
+                    UserRepoLocal.to.changeInfo(payload);
+                    logic.sign.value = UserRepoLocal.to.currentUser.sign;
+                  }
+                  return ok;
+                }),
+            backgroundColor: Colors.white,
+            // 是否支持全屏弹出，默认false
+            isScrollControlled: true,
+            enableDrag: false,
           ),
         ),
       ]),

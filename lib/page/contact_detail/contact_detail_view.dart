@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/ui/button_row.dart';
+import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/friend_item_dialog.dart';
@@ -14,6 +14,8 @@ import 'contact_detail_logic.dart';
 import 'contact_detail_state.dart';
 import 'widget/contact_card.dart';
 
+
+// ignore: must_be_immutable
 class ContactDetailPage extends StatefulWidget {
   final String id; // 用户ID
   final String nickname;
@@ -24,6 +26,7 @@ class ContactDetailPage extends StatefulWidget {
   int gender;
 
   ContactDetailPage({
+    Key? key,
     required this.id,
     required this.nickname,
     required this.avatar,
@@ -31,7 +34,7 @@ class ContactDetailPage extends StatefulWidget {
     this.region = "",
     this.sgin = "",
     this.gender = 0,
-  });
+  }):super(key: key);
 
   @override
   _ContactDetailPageState createState() => _ContactDetailPageState();
@@ -60,11 +63,11 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
           onPressed: () {},
         ),
       ),
-      Space(),
+      const Space(),
       LabelRow(
         label: '朋友圈'.tr,
         isLine: false,
-        onPressed: () => Get.to(FriendCirclePage()),
+        onPressed: () => Get.to(const FriendCirclePage()),
       ),
       ButtonRow(
         margin: const EdgeInsets.only(top: 10.0),
@@ -98,8 +101,7 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
     var rWidget = [
       SizedBox(
         width: 60,
-        child: FlatButton(
-          padding: const EdgeInsets.all(0),
+        child: TextButton(
           onPressed: () =>
               friendItemDialog(context, userId: widget.id, suCc: (v) {
             if (v) Navigator.of(context).maybePop();

@@ -12,6 +12,8 @@ import 'passport_logic.dart';
 class PassportPage extends StatelessWidget {
   final PassportLogic logic = Get.put(PassportLogic());
 
+  PassportPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     LoginUserType userType = LoginUserType.email;
@@ -23,7 +25,6 @@ class PassportPage extends StatelessWidget {
     }
     var args = Get.arguments;
     String msgtype = "";
-    debugPrint(">>> on args ${args} ${args is Map<String, dynamic>}");
     if (args is Map<String, dynamic>) {
       msgtype = args["msgtype"] ?? "";
     }
@@ -32,7 +33,7 @@ class PassportPage extends StatelessWidget {
       if (dname == "") {
         dname = "其他";
       } else {
-        dname = "[${dname}]";
+        dname = "[$dname]";
       }
       int mts = args['server_ts'] ?? DateTimeHelper.currentTimeMillis;
       String hm = Jiffy.unixFromMillisecondsSinceEpoch(mts).format("H:m");
@@ -128,7 +129,7 @@ class PassportPage extends StatelessWidget {
         loginAfterSignUp: false,
         navigateBackAfterRecovery: true,
         // showDebugButtons: true,
-        loginProviders: [
+        loginProviders: const [
           // LoginProvider(
           //   button: Buttons.LinkedIn,
           //   label: 'Sign in with LinkedIn',

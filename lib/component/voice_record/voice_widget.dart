@@ -35,7 +35,7 @@ class VoiceWidget extends StatefulWidget {
   final Decoration? decoration;
 
   /// startRecord 开始录制回调  stopRecord回调
-  VoiceWidget({
+  const VoiceWidget({
     Key? key,
     this.startRecord,
     this.stopRecord,
@@ -50,7 +50,7 @@ class VoiceWidget extends StatefulWidget {
 
 class _VoiceWidgetState extends State<VoiceWidget> {
   // 倒计时总时长
-  int _countTotal = 300;
+  final int _countTotal = 300;
   double starty = 0.0;
   double offset = 0.0;
   bool isUp = false;
@@ -106,22 +106,20 @@ class _VoiceWidgetState extends State<VoiceWidget> {
                           ),
                         ),
                       )
-                    : new Image.asset(
+                    : Image.asset(
                         voiceIco,
                         width: 100,
                         height: 100,
                         // package: 'flutter_plugin_record',
                       ),
               ),
-              Container(
-                child: Text(
-                  toastShow + "\n" + recorderTxt,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontStyle: FontStyle.normal,
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
+              Text(
+                toastShow + "\n" + recorderTxt,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontStyle: FontStyle.normal,
+                  color: Colors.white,
+                  fontSize: 14,
                 ),
               )
             ],
@@ -172,8 +170,6 @@ class _VoiceWidgetState extends State<VoiceWidget> {
       overlayEntry?.remove();
       overlayEntry = null;
     }
-    debugPrint(
-        ">>> on record hideVoiceView isUp ${isUp}, filepath: ${filePath}");
     if (isUp) {
       // print("取消发送");
     } else {
@@ -184,7 +180,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
             ? null
             : AudioFile(
                 file: File(filePath),
-                duration: this.recordingDuration,
+                duration: recordingDuration,
                 // waveForm: _levels,
                 mimeType: recordingMimeType,
               ),
@@ -236,11 +232,10 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         throw RecordingPermissionException('Microphone permission not granted');
       }
     }
-    if (session == null) {
-      session = await AudioSession.instance;
-      await session.configure(AudioSessionConfiguration(
-        avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
-        avAudioSessionCategoryOptions:
+    session = await AudioSession.instance;
+    await session.configure(AudioSessionConfiguration(
+      avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+      avAudioSessionCategoryOptions:
             AVAudioSessionCategoryOptions.allowBluetooth |
                 AVAudioSessionCategoryOptions.defaultToSpeaker,
         avAudioSessionMode: AVAudioSessionMode.spokenAudio,
@@ -254,8 +249,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         ),
         androidAudioFocusGainType: AndroidAudioFocusGainType.gain,
         androidWillPauseWhenDucked: true,
-      ));
-    }
+    ),);
   }
 
   // -------  Here is the code to playback  -----------------------
@@ -305,11 +299,11 @@ class _VoiceWidgetState extends State<VoiceWidget> {
           pos = e.duration.inMilliseconds;
         });
         // debugPrint(">>> on record listen pos: ${pos}, dbLevel: ${e.decibels};");
-        if (e != null && e.duration != null) {
+        // if (e != null) {
           recordingDuration = e.duration;
           // _levels.add(e.decibels ?? 0.0);
 
-          DateTime date = new DateTime.fromMillisecondsSinceEpoch(
+          DateTime date = DateTime.fromMillisecondsSinceEpoch(
             e.duration.inMilliseconds,
             isUtc: true,
           );
@@ -325,7 +319,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
               // debugPrint(">>> on record 当前振幅：$dbLevel");
             });
           }
-        }
+        // }
 
         if (e.decibels != null) {
           dbLevel = e.decibels as double;
@@ -382,13 +376,12 @@ class _VoiceWidgetState extends State<VoiceWidget> {
       // _getDuration();
       return filepath;
     } catch (err) {
-      print('stopRecorder error: $err');
+      debugPrint('stopRecorder error: $err');
     }
+    return null;
   }
 
-  /**
-   * 设置订阅周期
-   */
+  /// 设置订阅周期
   Future<void> setSubscriptionDuration(
       double d) async // d is between 0.0 and 2000 (milliseconds)
   {
@@ -401,42 +394,40 @@ class _VoiceWidgetState extends State<VoiceWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: GestureDetector(
-        onLongPressStart: (details) {
-          starty = details.globalPosition.dy;
-          _timer = Timer.periodic(Duration(milliseconds: 1000), (t) {
-            _count++;
-            if (_count == _countTotal) {
-              hideVoiceView(context);
-            }
-          });
-          showVoiceView(context);
-        },
-        onLongPressEnd: (details) {
-          hideVoiceView(context);
-        },
-        onLongPressMoveUpdate: (details) {
-          offset = details.globalPosition.dy;
-          moveVoiceView();
-        },
-        child: Container(
-          height: widget.height ?? 60,
-          decoration: widget.decoration ??
-              BoxDecoration(
-                borderRadius: BorderRadius.circular(6.0),
-                border: Border.all(
-                  width: 1.0,
-                  color: Colors.white70,
-                ),
+    return GestureDetector(
+      onLongPressStart: (details) {
+        starty = details.globalPosition.dy;
+        _timer = Timer.periodic(const Duration(milliseconds: 1000), (t) {
+          _count++;
+          if (_count == _countTotal) {
+            hideVoiceView(context);
+          }
+        });
+        showVoiceView(context);
+      },
+      onLongPressEnd: (details) {
+        hideVoiceView(context);
+      },
+      onLongPressMoveUpdate: (details) {
+        offset = details.globalPosition.dy;
+        moveVoiceView();
+      },
+      child: Container(
+        height: widget.height ?? 60,
+        decoration: widget.decoration ??
+            BoxDecoration(
+              borderRadius: BorderRadius.circular(6.0),
+              border: Border.all(
+                width: 1.0,
                 color: Colors.white70,
               ),
-          margin: widget.margin ?? EdgeInsets.fromLTRB(50, 0, 50, 20),
-          child: Center(
-            child: Text(
-              textShow,
-              // '${textShow}(pos: ${pos})',
+              color: Colors.white70,
             ),
+        margin: widget.margin ?? const EdgeInsets.fromLTRB(50, 0, 50, 20),
+        child: Center(
+          child: Text(
+            textShow,
+            // '${textShow}(pos: ${pos})',
           ),
         ),
       ),
@@ -477,36 +468,32 @@ class Toast {
 
     if (overlayEntry == null) {
       overlayEntry = OverlayEntry(builder: (content) {
-        return Container(
-          child: GestureDetector(
-            onTap: () {
-              if (onTap != null) {
-                removeOverlay();
-                onTap();
-              }
-            },
-            child: CustomOverlay(
-              icon: Column(
-                children: [
-                  Padding(
-                    child: icon,
-                    padding: const EdgeInsets.only(
-                      bottom: 10.0,
-                    ),
+        return GestureDetector(
+          onTap: () {
+            if (onTap != null) {
+              removeOverlay();
+              onTap();
+            }
+          },
+          child: CustomOverlay(
+            icon: Column(
+              children: [
+                Padding(
+                  child: icon,
+                  padding: const EdgeInsets.only(
+                    bottom: 10.0,
                   ),
-                  Container(
-                    child: Text(
-                      msg ?? '',
-                      style: style ??
-                          TextStyle(
-                            fontStyle: FontStyle.normal,
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                    ),
-                  )
-                ],
-              ),
+                ),
+                Text(
+                  msg ?? '',
+                  style: style ??
+                      const TextStyle(
+                        fontStyle: FontStyle.normal,
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                )
+              ],
             ),
           ),
         );

@@ -20,6 +20,8 @@ import 'widget/conversation_item.dart';
 class ConversationPage extends StatelessWidget {
   final logic = Get.put(ConversationLogic());
 
+  ConversationPage({Key? key}) : super(key: key);
+
   void initData() async {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -45,7 +47,7 @@ class ConversationPage extends StatelessWidget {
       logic.replace(e);
     });
     // 设置消息提醒数量
-    logic.conversations.value.forEach((obj) {
+    for (var obj in logic.conversations) {
       debugPrint(">>> on logic.conversations ${obj.typeId} = ${obj.unreadNum}");
       if (obj.unreadNum > 0) {
         logic.setConversationRemind(
@@ -53,7 +55,7 @@ class ConversationPage extends StatelessWidget {
           obj.unreadNum,
         );
       }
-    });
+    }
     // 加载会话记录
     await logic.getConversationsList();
   }
@@ -77,9 +79,9 @@ class ConversationPage extends StatelessWidget {
           // title: 'title_message'.tr + logic.connectDesc.value,
           rightDMActions: <Widget>[
             InkWell(
-              child: Container(
+              child: const SizedBox(
                 width: 46.0,
-                child: const Icon(
+                child: Icon(
                   Icons.add_circle_outline_sharp,
                   color: Colors.black54,
                 ),
@@ -221,7 +223,7 @@ class ConversationPage extends StatelessWidget {
                               ),
                             ),
                             SlidableAction(
-                              key: ValueKey("hide_${index}"),
+                              key: ValueKey("hide_$index"),
                               flex: 2,
                               backgroundColor: Colors.amber,
                               onPressed: (_) async {
@@ -234,7 +236,7 @@ class ConversationPage extends StatelessWidget {
                               spacing: 1,
                             ),
                             SlidableAction(
-                              key: ValueKey("delete_${index}"),
+                              key: ValueKey("delete_$index"),
                               flex: 2,
                               backgroundColor: Colors.red,
                               // foregroundColor: Colors.white,

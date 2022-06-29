@@ -22,7 +22,7 @@ dependencies:
   #演示列表需要用到的库
   dio: ^4.0.6    #网络请求框架
   json_annotation: ^4.5.0 #json序列化和反序列化用的
-  permission_handler: ^9.2.0
+  permission_handler: ^10.0.0
   camera: ^0.9.8+1
   wechat_camera_picker: ^3.4.0
   wechat_assets_picker: ^7.3.2

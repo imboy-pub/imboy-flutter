@@ -8,6 +8,8 @@ import 'search_logic.dart';
 import 'search_state.dart';
 
 class SearchPage extends StatefulWidget {
+  const SearchPage({Key? key}) : super(key: key);
+
   @override
   _SearchPageState createState() => _SearchPageState();
 }
@@ -16,7 +18,7 @@ class _SearchPageState extends State<SearchPage> {
   final logic = Get.put(SearchLogic());
   final SearchState state = Get.find<SearchLogic>().state;
 
-  TextEditingController _searchC = TextEditingController();
+  final TextEditingController _searchC = TextEditingController();
 
   List words = ['朋友圈', '文章', '公众号', '小程序', '音乐', '表情'];
 

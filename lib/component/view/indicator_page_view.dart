@@ -6,8 +6,9 @@ class IndicatorPageView extends StatefulWidget {
   final PageController pageC;
   final List<Widget> pages;
 
-  IndicatorPageView({required this.pageC, required this.pages});
+  const IndicatorPageView({Key? key, required this.pageC, required this.pages}) : super(key: key);
 
+  @override
   IndicatorPageViewState createState() => IndicatorPageViewState();
 }
 
@@ -48,7 +49,7 @@ class IndicatorPageViewState extends State<IndicatorPageView> {
             ),
           ),
           Container(
-            padding: EdgeInsets.only(bottom: 10.0),
+            padding: const EdgeInsets.only(bottom: 10.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(widget.pages.length, itemView),
@@ -68,6 +69,7 @@ class MyBehavior extends ScrollBehavior {
     if (Platform.isAndroid || Platform.isFuchsia) {
       return child;
     } else {
+      // ignore: deprecated_member_use
       return super.buildViewportChrome(context, child, axisDirection);
     }
   }

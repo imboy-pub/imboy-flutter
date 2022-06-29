@@ -1,8 +1,6 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
-import 'package:emoji_picker_flutter/src/category_emoji.dart';
-import 'package:emoji_picker_flutter/src/config.dart';
-import 'package:emoji_picker_flutter/src/emoji_picker_builder.dart';
-import 'package:emoji_picker_flutter/src/emoji_view_state.dart';
+// ignore: implementation_imports
+import 'package:emoji_picker_flutter/src/category_emoji.dart' show CategoryEmoji;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,8 +11,8 @@ class EmojiPickerView extends EmojiPickerBuilder {
   EmojiPickerView(
     Config config,
     EmojiViewState state,
-    this.handleSendPressed,
-  ) : super(config, state);
+    this.handleSendPressed, {Key? key,}
+  ) : super(config, state,key: key,);
 
   @override
   _EmojiPickerViewState createState() => _EmojiPickerViewState();
@@ -109,7 +107,7 @@ class _EmojiPickerViewState extends State<EmojiPickerView>
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
-                children: [],
+                children: const [],
               ),
             ],
           ),
@@ -187,7 +185,7 @@ class _EmojiPickerViewState extends State<EmojiPickerView>
     return Center(
         child: Text(
       'No Recents'.tr,
-      style: TextStyle(fontSize: 20, color: Colors.black26),
+      style: const TextStyle(fontSize: 20, color: Colors.black26),
       textAlign: TextAlign.center,
     ),);
   }

@@ -14,8 +14,8 @@ class GroupBillBoardPage extends StatefulWidget {
   final String? time;
   final Callback? callback;
 
-  GroupBillBoardPage(this.groupOwner, this.groupNotice,
-      {this.groupId, this.time, this.callback});
+  const GroupBillBoardPage(this.groupOwner, this.groupNotice,
+      {Key? key, this.groupId, this.time, this.callback}) : super(key: key);
 
   @override
   _GroupBillBoardPageState createState() => _GroupBillBoardPageState();
@@ -26,8 +26,8 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
   final GroupBillBoardState state = Get.find<GroupBillBoardLogic>().state;
 
   bool inputState = false;
-  FocusNode _focusNode = FocusNode();
-  TextEditingController _textController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+  final TextEditingController _textController = TextEditingController();
   String? _publishTime;
 
   TextStyle styleLabel =
@@ -41,13 +41,7 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
 
   onChange() {
     if (inputState) {
-      _publishTime = '${DateTime.now().year}-' +
-          '${DateTime.now().month}-' +
-          '${DateTime.now().day} ' +
-          '${DateTime.now().hour}:' +
-          '${DateTime.now().minute}';
-      // GroupModel.modifyGroupNotificationModel(
-      //     widget.groupId, _textController.text, _publishTime);
+      _publishTime = "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day} ${DateTime.now().hour}:${DateTime.now().minute}";
       widget.callback!(_publishTime);
       Navigator.pop(context, _textController.text);
       inputState = false;

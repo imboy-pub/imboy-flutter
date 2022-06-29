@@ -56,7 +56,6 @@ class RouteObservers<R extends Route<dynamic>> extends RouteObserver<R> {
   void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didRemove(route, previousRoute);
     AppPages.history.remove(route.settings.name);
-    print('didRemove');
     debugPrint('>>>>> on didRemove ${AppPages.history}');
   }
 

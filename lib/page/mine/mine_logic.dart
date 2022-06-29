@@ -10,7 +10,7 @@ class MineLogic extends GetxController {
       case '设置':
         // logout(context);
         Get.to(
-          () => SettingPage(),
+          () => const SettingPage(),
         );
         break;
       case '表情':

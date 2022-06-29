@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class VoiceAnimation extends StatefulWidget {
   final double width;
   final double height;
   int interval;
   bool isStop = false;
   bool userIsAuthor;
-  var callStart;
+  // var callStart;
   late VoiceAnimationState voiceAnimationImageState;
 
-  VoiceAnimation({
+  VoiceAnimation({Key? key,
     required this.width,
     required this.height,
     required this.isStop,
     required this.userIsAuthor,
     this.interval = 200,
-  });
+  }) : super(key: key);
 
   @override
+  // ignore: no_logic_in_create_state
   State<StatefulWidget> createState() {
     voiceAnimationImageState = VoiceAnimationState();
     return voiceAnimationImageState;
@@ -49,10 +51,8 @@ class VoiceAnimationState extends State<VoiceAnimation>
     voicePlayingAsset.add("voice_playing_2.png");
     voicePlayingAsset.add("voice_playing_3.png");
 
-    if (widget.interval != null) {
-      interval = widget.interval;
-    }
-    final int imageCount = 3;
+    interval = widget.interval;
+    const int imageCount = 3;
     final int maxTime = interval * imageCount;
 
     // 启动动画controller

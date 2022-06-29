@@ -1,6 +1,5 @@
 import 'dart:ui' as ui;
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -24,13 +23,13 @@ import 'page/passport/passport_view.dart';
 void run() async {
   // 要读取系统语言，可以使用window.locale
   String? local = Intl.shortLocale(ui.window.locale.toString());
-  debugPrint(">>> on main ${local}");
+  debugPrint(">>> on main $local");
   // zh_Hans_CN ui.window.locale.toString();
   await Jiffy.locale(local);
   // 强制竖屏 DeviceOrientation.portraitUp
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
-    runApp(IMBoyApp());
+    runApp(const IMBoyApp());
   });
 }
 
@@ -56,10 +55,12 @@ void main() async {
 }
 
 class IMBoyApp extends StatelessWidget {
+  const IMBoyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: Size(375, 812),
+      designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (_, child) => RefreshConfiguration(

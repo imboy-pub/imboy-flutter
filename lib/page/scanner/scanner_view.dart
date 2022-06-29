@@ -86,7 +86,7 @@ class _ScannerPageState extends State<ScannerPage>
                             sign: payload['sign'] ?? '',
                             region: payload['region'] ?? '',
                             gender: payload['gender'] ?? 0,
-                            is_friend: payload['is_friend'] ?? false,
+                            isFriend: payload['is_friend'] ?? false,
                           ),
                         );
                       } else if (result == 'user_not_exist') {
@@ -101,7 +101,7 @@ class _ScannerPageState extends State<ScannerPage>
                         this.barcode!,
                         '',
                         errorCallback: (String url) {
-                          logic.showResult("无法打开网页： ${url}");
+                          logic.showResult("无法打开网页： $url");
                         },
                       ));
                     } else {

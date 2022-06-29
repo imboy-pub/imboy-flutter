@@ -6,6 +6,7 @@ import 'package:imboy/component/view/image_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:photo_view/photo_view.dart';
 
+// ignore: must_be_immutable
 class ContactCard extends StatelessWidget {
   final String? id;
   final String? nickname;
@@ -17,7 +18,7 @@ class ContactCard extends StatelessWidget {
   final bool? isBorder;
   final double? lineWidth;
 
-  ContactCard({
+  ContactCard({Key? key,
     required this.id,
     this.nickname,
     required this.avatar, // 头像
@@ -26,7 +27,7 @@ class ContactCard extends StatelessWidget {
     this.region = '', //
     this.isBorder = false,
     this.lineWidth = mainLineWidth,
-  }) : assert(id != null);
+  }) : assert(id != null), super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +47,7 @@ class ContactCard extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          Space(width: mainSpace / 3),
+          const Space(width: mainSpace / 3),
           genderIcon(gender),
         ],
       ),
@@ -95,7 +96,7 @@ class ContactCard extends StatelessWidget {
               }
             },
           ),
-          Space(width: mainSpace * 2),
+          const Space(width: mainSpace * 2),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: items,

@@ -1,6 +1,5 @@
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -11,6 +10,7 @@ import 'package:niku/namespace.dart' as n;
 
 import 'update_logic.dart';
 
+// ignore: must_be_immutable
 class UpdatePage extends StatelessWidget {
   final String title;
   final Future<bool> Function(String) callback;
@@ -19,13 +19,13 @@ class UpdatePage extends StatelessWidget {
   final String field;
   // final EdgeInsetsGeometry? padding;
 
-  UpdatePage({
+  UpdatePage({Key? key,
     this.title = "",
     required this.callback,
     this.value = "",
     this.field = "",
     // this.padding = const EdgeInsets.only(top: 15.0, bottom: 15.0, right: 5.0),
-  });
+  }) : super(key: key);
 
   final logic = Get.put(UpdatePageLogic());
   final regionlogic = Get.put(SelectRegionLogic(), tag: "UpdatePage");
@@ -205,7 +205,9 @@ class UpdatePage extends StatelessWidget {
         }
       },
       onSaved: (value) {},
-      validator: (value) {},
+      validator: (value) {
+        return null;
+      },
     );
   }
 
@@ -261,7 +263,9 @@ class UpdatePage extends StatelessWidget {
         }
       },
       onSaved: (value) {},
-      validator: (value) {},
+      validator: (value) {
+        return null;
+      },
     );
   }
 
@@ -352,12 +356,12 @@ class UpdatePage extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
               Expanded(
-                child: Container(
+                child: SizedBox(
                   height: Get.height - 40,
                   child: ListView.builder(
                     itemBuilder: (BuildContext context, int index) {
                       return regionlogic.getListItem(
-                          context, "", logic.regionList.value[index],
+                          context, "", logic.regionList[index],
                           (String p, String t) async {
                         logic.val.value = strEmpty(p) ? t : p + " " + t;
                         logic.valueOnChange(true);

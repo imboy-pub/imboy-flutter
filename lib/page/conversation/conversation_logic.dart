@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -23,26 +22,26 @@ class ConversationLogic extends GetxController {
   // 设置会话提醒
   setConversationRemind(String typeId, int val) {
     val = val > 0 ? val : 0;
-    debugPrint(
-        ">>> on logic.conversations setConversationRemind ${typeId}, ${val}");
     conversationRemind[typeId] = val;
     (ConversationRepo()).updateByTypeId(typeId, {
       ConversationRepo.unreadNum: val,
       ConversationRepo.isShow: 1,
     });
+    update([conversationRemind]);
   }
 
   // 更新会话
   replace(ConversationModel cobj) {
     // 第一次会话的时候 i 为 -1
     final i = conversations.indexWhere(
-        (item) => (item as ConversationModel).typeId == cobj.typeId);
+        (ConversationModel item) => (item).typeId == cobj.typeId);
     if (i > -1) {
       int i2 = i > 0 ? i : 0;
       conversations[i2] = cobj;
     } else {
       conversations.add(cobj);
     }
+    update([conversations]);
   }
 
   // 步增会话提醒
@@ -58,8 +57,6 @@ class ConversationLogic extends GetxController {
 
   // 步减会话提醒
   decreaseConversationRemind(String key, int val) {
-    debugPrint(
-        ">>> on logic.conversations decreaseConversationRemind ${key}, ${val}, ${conversationRemind.containsKey(key)}");
     if (conversationRemind.containsKey(key)) {
       val = conversationRemind[key]! - val;
     }
@@ -83,13 +80,6 @@ class ConversationLogic extends GetxController {
 
   Future<void> getConversationsList() async {
     conversations.value = await (ConversationRepo()).all();
-  }
-
-  @override
-  void onClose() {
-    // conversations.value = [];
-    // TODO: implement onClose
-    super.onClose();
   }
 
   /// 移除会话

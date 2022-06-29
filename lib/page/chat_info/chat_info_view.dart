@@ -16,7 +16,7 @@ import 'widget/chat_mamber.dart';
 class ChatInfoPage extends StatefulWidget {
   final String id;
 
-  ChatInfoPage(this.id);
+  const ChatInfoPage(this.id, {Key? key}) : super(key: key);
 
   @override
   _ChatInfoPageState createState() => _ChatInfoPageState();
@@ -26,6 +26,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
   final logic = Get.put(ChatInfoLogic());
   final ChatInfoState state = Get.find<ChatInfoLogic>().state;
 
+  // ignore: prefer_typing_uninitialized_variables
   var model;
 
   bool isRemind = false;
@@ -61,7 +62,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
       LabelRow(
         label: '查找聊天记录',
         margin: const EdgeInsets.only(top: 10.0),
-        onPressed: () => Get.to(SearchPage()),
+        onPressed: () => Get.to(const SearchPage()),
       ),
       Column(
         children: switchItems.map(buildSwitch).toList(),
@@ -69,7 +70,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
       LabelRow(
         label: '设置当前聊天背景',
         margin: const EdgeInsets.only(top: 10.0),
-        onPressed: () => Get.to(ChatBackgroundPage()),
+        onPressed: () => Get.to(const ChatBackgroundPage()),
       ),
       LabelRow(
         label: '清空聊天记录',

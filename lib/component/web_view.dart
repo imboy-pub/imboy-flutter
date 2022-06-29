@@ -1,10 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+// ignore: must_be_immutable
 class WebViewPage extends StatefulWidget {
   final String url;
   String title;
@@ -15,9 +15,9 @@ class WebViewPage extends StatefulWidget {
 
   WebViewPage(
     this.url,
-    this.title, {
+    this.title, {Key? key,
     this.errorCallback,
-  });
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => WebViewPageState();
@@ -37,15 +37,15 @@ class WebViewPageState extends State<WebViewPage> {
           initialUrl: widget.url,
           allowsInlineMediaPlayback: false,
           javascriptMode: JavascriptMode.unrestricted,
-          javascriptChannels: <JavascriptChannel>[
+          javascriptChannels: <JavascriptChannel>{
             jsBridge(context),
-          ].toSet(),
+          },
           onWebViewCreated: (WebViewController webViewController) {
             // _controller.complete(webViewController);
             widget._controller = webViewController;
           },
           onPageStarted: (url) {
-            debugPrint(">>> on onPageStarted ${url}");
+            debugPrint(">>> on onPageStarted $url");
             if (widget.url.contains("weixin.qq.com/r/") ||
                 widget.url.contains("weixin.qq.com/x/")) {
               widget.errorCallback!(widget.url);
@@ -54,14 +54,13 @@ class WebViewPageState extends State<WebViewPage> {
             }
           },
           onWebResourceError: (WebResourceError error) {
-            print('onWebResourceError ' + error.description);
             if (widget.errorCallback != null) {
               String msg = widget.url + "; error: " + error.description;
               widget.errorCallback!(msg);
             }
           },
           navigationDelegate: (NavigationRequest request) {
-            print('allowing navigation to $request');
+            debugPrint('allowing navigation to $request');
             return NavigationDecision.prevent;
           },
           onPageFinished: (String url) async {
@@ -87,6 +86,7 @@ class WebViewPageState extends State<WebViewPage> {
     return JavascriptChannel(
       name: 'jsbridge', // 与h5 端的一致 不然收不到消息
       onMessageReceived: (JavascriptMessage message) {
+        // ignore: deprecated_member_use
         Scaffold.of(context).showSnackBar(
           SnackBar(content: Text(message.message)),
         );

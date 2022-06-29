@@ -19,6 +19,7 @@ import 'chat_state.dart';
 class ChatLogic extends GetxController {
   final state = ChatState();
 
+  // ignore: prefer_typing_uninitialized_variables
   late var cuser;
 
   ChatLogic() {
@@ -47,14 +48,14 @@ class ChatLogic extends GetxController {
 
     List<types.Message> messages = [];
     // 重发在发送中状态的消息
-    items.forEach((obj) async {
+    for (MessageModel obj in items) {
       debugPrint(
           ">>> on msg status ${obj.status}, ${obj.status == MessageStatus.sending}");
       if (obj.status! == MessageStatus.sending) {
         sendWsMsg(obj);
       }
       messages.insert(0, obj.toTypeMessage());
-    });
+    }
     return messages;
   }
 
@@ -203,12 +204,6 @@ class ChatLogic extends GetxController {
     return WSService.to.sendMessage(json.encode(msg));
   }
 
-  @override
-  void onClose() {
-    // TODO: implement onClose
-    super.onClose();
-  }
-
   Future<ConversationModel?> markAsRead(
     int conversationId,
     List<String> msgIds,
@@ -229,7 +224,7 @@ class ChatLogic extends GetxController {
         where: "id=?",
         whereArgs: [conversationId],
       );
-      msgIds.forEach((id) {
+      for (var id in msgIds) {
         db.update(
           MessageRepo.tablename,
           {
@@ -238,7 +233,7 @@ class ChatLogic extends GetxController {
           where: "id=?",
           whereArgs: [id],
         );
-      });
+      }
 
       return true;
     });

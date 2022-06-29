@@ -1,5 +1,4 @@
 import 'package:badges/badges.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/page/contact/contact_view.dart';
@@ -10,6 +9,7 @@ import 'package:imboy/page/mine/mine_view.dart';
 import 'bottom_navigation_logic.dart';
 import 'bottom_navigation_state.dart';
 
+// ignore: must_be_immutable
 class BottomNavigationPage extends StatelessWidget {
   //全局状态控制器
   final logic = Get.put(BottomNavigationLogic());
@@ -25,6 +25,8 @@ class BottomNavigationPage extends StatelessWidget {
     ContactPage(),
     MinePage(),
   ];
+
+  BottomNavigationPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

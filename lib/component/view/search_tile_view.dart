@@ -8,7 +8,7 @@ class SearchTileView extends StatelessWidget {
   final int? type;
   final VoidCallback? onPressed;
 
-  SearchTileView(this.text, {this.type = 0, this.onPressed});
+  const SearchTileView(this.text, {Key? key, this.type = 0, this.onPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

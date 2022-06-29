@@ -12,15 +12,19 @@ import 'package:niku/namespace.dart' as n;
 
 import 'new_friend_logic.dart';
 
+// ignore: must_be_immutable
 class NewFriendPage extends StatelessWidget {
   final NewFriendLogic logic = Get.put(NewFriendLogic());
   bool isSearch = false;
   bool showBtn = false;
   bool isResult = false;
+
+  NewFriendPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     logic.items.value = [];
-    logic.items.value.add(NewFriendModel(
+    logic.items.add(NewFriendModel(
       from: "",
       to: "",
       avatar: defAvatar,
@@ -29,7 +33,7 @@ class NewFriendPage extends StatelessWidget {
       payload: '{}',
       createTime: 1,
     ));
-    logic.items.value.add(NewFriendModel(
+    logic.items.add(NewFriendModel(
       from: UserRepoLocal.to.currentUid,
       to: "",
       avatar: defAvatar,
@@ -96,7 +100,7 @@ class NewFriendPage extends StatelessWidget {
                       ? NoDataView(text: '没有新的好友'.tr)
                       : ListView.builder(
                           itemBuilder: (BuildContext context, int index) {
-                            NewFriendModel model = logic.items.value[index];
+                            NewFriendModel model = logic.items[index];
                             List<Widget> rightWidget = [];
                             if (model.from == UserRepoLocal.to.currentUid) {
                               rightWidget.add(

@@ -2,12 +2,13 @@ import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/config/const.dart';
 
+// ignore: must_be_immutable
 class ContentMsg extends StatelessWidget {
   final dynamic msg;
 
-  ContentMsg(this.msg);
+  const ContentMsg(this.msg, {Key? key}) : super(key: key);
 
-  TextStyle _style = const TextStyle(
+  final TextStyle _style = const TextStyle(
     color: AppColors.MainTextColor,
     fontSize: 14.0,
   );
@@ -42,13 +43,11 @@ class ContentMsg extends StatelessWidget {
       overflowWidget: TextOverflowWidget(
         position: TextOverflowPosition.end,
         align: TextOverflowAlign.left,
-        child: Container(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const Text('...'),
-            ],
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: const <Widget>[
+            Text('...'),
+          ],
         ),
       ),
     );

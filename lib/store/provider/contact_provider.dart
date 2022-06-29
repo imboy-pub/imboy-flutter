@@ -43,7 +43,7 @@ class ContactProvider extends HttpClient {
         contentType: "application/x-www-form-urlencoded",
       ),
     );
-    ContactModel? ct = null;
+    ContactModel? ct;
     debugPrint(">>> on Provider/syncByUid resp: ${resp.payload.toString()}");
     if (resp.ok) {
       (ContactRepo()).save(resp.payload);

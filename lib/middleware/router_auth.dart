@@ -8,6 +8,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 class RouteAuthMiddleware extends GetMiddleware {
   // priority 数字小优先级高
   @override
+  // ignore: overridden_fields
   int? priority = 0;
 
   RouteAuthMiddleware({required this.priority});
@@ -24,7 +25,7 @@ class RouteAuthMiddleware extends GetMiddleware {
         const Duration(seconds: 1),
         () => Get.snackbar("提示", "登录过期,请重新登录"),
       );
-      return RouteSettings(name: AppRoutes.SIGN_IN);
+      return const RouteSettings(name: AppRoutes.SIGN_IN);
     }
   }
 }

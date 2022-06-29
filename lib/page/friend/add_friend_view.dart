@@ -10,24 +10,25 @@ import 'package:niku/namespace.dart' as n;
 
 import 'add_friend_logic.dart';
 
+// ignore: must_be_immutable
 class AddFriendPage extends StatelessWidget {
   String uid;
   String remark;
 
   AddFriendPage(
     this.uid,
-    this.remark,
-  );
+    this.remark, {Key? key}
+  ) : super(key: key);
 
   final AddFriendLogic logic = Get.put(AddFriendLogic());
 
-  TextEditingController _msgController = TextEditingController();
-  TextEditingController _remarkController = TextEditingController();
+  final TextEditingController _msgController = TextEditingController();
+  final TextEditingController _remarkController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     _msgController.text = "我是".tr + " " + UserRepoLocal.to.currentUser.nickname;
-    _remarkController.text = remark == null ? "" : remark;
+    _remarkController.text = remark;
 
     Widget secondary = const Text(
       "√",

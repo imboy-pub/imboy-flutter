@@ -135,7 +135,7 @@ bool isEmail(String value) {
   if (strEmpty(value)) {
     return false;
   }
-  String pt = '^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+\$';
+  String pt = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}\$";
   // debugPrint(">>> on isEmail ${value} : ${RegExp(pt).hasMatch(value)}");
   return RegExp(pt).hasMatch(value);
 }

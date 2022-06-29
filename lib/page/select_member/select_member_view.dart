@@ -18,6 +18,8 @@ import 'select_member_logic.dart';
 import 'select_member_state.dart';
 
 class SelectMemberPage extends StatefulWidget {
+  const SelectMemberPage({Key? key}) : super(key: key);
+
   @override
   _SelectMemberPageState createState() => _SelectMemberPageState();
 }
@@ -26,11 +28,10 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
   final logic = Get.find<SelectMemberLogic>();
   final SelectMemberState state = Get.find<SelectMemberLogic>().state;
 
-  List<ContactInfoModel> _contacts = [];
+  final List<ContactInfoModel> _contacts = [];
 
-  int _suspensionHeight = 30;
-  int _itemHeight = 60;
-  double _headHeight = 60;
+  final int _suspensionHeight = 30;
+  final int _itemHeight = 60;
 
   @override
   void initState() {
@@ -44,9 +45,9 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
     //加载联系人列表
     rootBundle.loadString('assets/data/contacts.json').then((value) {
       List list = json.decode(value);
-      list.forEach((value) {
+      for (var value in list) {
         _contacts.add(ContactInfoModel(name: value['name']));
-      });
+      }
       _handleList(_contacts);
       setState(() {});
     });
@@ -78,7 +79,7 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
       alignment: Alignment.centerLeft,
       color: AppColors.AppBarColor,
       child: Text(
-        '$susTag',
+        susTag,
         textScaleFactor: 1.2,
         style: const TextStyle(
           color: Color(0xff333333),
@@ -130,7 +131,7 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
                           fit: BoxFit.cover,
                         ),
                 ),
-                Space(),
+                const Space(),
                 Expanded(
                   child: Container(
                     alignment: Alignment.centerLeft,
@@ -217,7 +218,7 @@ class ContactInfoModel extends ISuspensionBean {
   });
 
   ContactInfoModel.fromJson(Map<String, dynamic> json)
-      : name = json['name'] == null ? "" : json['name'];
+      : name = json['name'] ?? '';
 
   Map<String, dynamic> toJson() => {
         'name': name,
@@ -228,7 +229,4 @@ class ContactInfoModel extends ISuspensionBean {
 
   @override
   String getSuspensionTag() => tagIndex!;
-
-  @override
-  String toString() => "CityBean {" + " \"name\":\"" + name! + "\"" + '}';
 }

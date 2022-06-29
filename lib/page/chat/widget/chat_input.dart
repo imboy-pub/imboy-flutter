@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
-import 'package:emoji_picker_flutter/src/emoji_view_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
-import 'package:flutter_chat_ui/src/widgets/inherited_chat_theme.dart';
+// ignore: implementation_imports
+import 'package:flutter_chat_ui/src/widgets/inherited_chat_theme.dart' show InheritedChatTheme;
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/image_button.dart';
 import 'package:imboy/component/view/emoji_picker_view.dart';
@@ -14,9 +14,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/message_model.dart';
 
-/**
- * 部分代码来自该项目，感谢作者 CaiJingLong https://github.com/CaiJingLong/flutter_like_wechat_input
- */
+/// 部分代码来自该项目，感谢作者 CaiJingLong https://github.com/CaiJingLong/flutter_like_wechat_input
 enum InputType {
   text,
   voice,
@@ -25,7 +23,7 @@ enum InputType {
 }
 
 Widget _buildVoiceButton(BuildContext context) {
-  return Container(
+  return SizedBox(
     width: double.infinity,
     child: TextButton(
       // color: Colors.white70,
@@ -39,7 +37,7 @@ Widget _buildVoiceButton(BuildContext context) {
   );
 }
 
-typedef void OnSend(String text);
+typedef OnSend = void Function(String text);
 
 InputType _initType = InputType.text;
 
@@ -93,15 +91,13 @@ class ChatInput extends StatefulWidget {
 class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   InputType inputType = _initType;
   final _inputFocusNode = FocusNode();
-  bool _sendButtonVisible = false;
+  bool sendButtonVisible = false;
   final _textController = TextEditingController();
   late AnimationController _bottomHeightController;
 
   bool emojiShowing = false;
 
-  /**
-   * https://stackoverflow.com/questions/60057840/flutter-how-to-insert-text-in-middle-of-text-field-text
-   */
+  /// https://stackoverflow.com/questions/60057840/flutter-how-to-insert-text-in-middle-of-text-field-text
   void _setText(String val) {
     String text = _textController.text;
     TextSelection textSelection = _textController.selection;
@@ -126,10 +122,10 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       return;
     }
     if (widget.sendButtonVisibilityMode == SendButtonVisibilityMode.editing) {
-      _sendButtonVisible = _textController.text.trim() != '';
+      sendButtonVisible = _textController.text.trim() != '';
       _textController.addListener(_handleTextControllerChange);
     } else {
-      _sendButtonVisible = true;
+      sendButtonVisible = true;
     }
 
     _bottomHeightController = Get.put(AnimationController(
@@ -181,7 +177,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   void _handleTextControllerChange() {
     setState(() {
-      _sendButtonVisible = _textController.text.trim() != '';
+      sendButtonVisible = _textController.text.trim() != '';
     });
   }
 
@@ -193,9 +189,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     }
   }
 
-  /**
-   * 语音按钮事件
-   */
+  /// 语音按钮事件
   Future<void> _voiceBtnOnPressed(InputType type) async {
     if (type == inputType) {
       return;
@@ -256,7 +250,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   Widget _buildBottomContainer({required Widget child}) {
     return SizeTransition(
       sizeFactor: _bottomHeightController,
-      child: Container(
+      child: SizedBox(
         child: child,
         height: _softKeyHeight,
       ),
@@ -265,7 +259,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   Widget _buildBottomItems() {
     if (inputType == InputType.extra) {
-      return widget.extraWidget ?? const Center(child: const Text("其他item"));
+      return widget.extraWidget ?? const Center(child: Text("其他item"));
     } else if (inputType == InputType.emoji) {
       return Offstage(
         offstage: !emojiShowing,
@@ -387,9 +381,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     );
   }
 
-  /**
-   *
-   */
+  ///
   Widget buildEmojiButton() {
     return ImageButton(
       image: AssetImage(inputType != InputType.emoji
@@ -405,10 +397,8 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     );
   }
 
-  /**
-   * 更多输入消息类型入口
-   * More input message types entries
-   */
+  /// 更多输入消息类型入口
+  /// More input message types entries
   Widget buildExtra() {
     return ImageButton(
       image: const AssetImage('assets/images/chat/input_extra.png'),
@@ -422,10 +412,8 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     );
   }
 
-  /**
-   * 实现换行效果
-   * Implement line breaks
-   */
+  /// 实现换行效果
+  /// Implement line breaks
   void _handleNewLine() {
     final _newValue = '${_textController.text}\r\n';
     _textController.value = TextEditingValue(

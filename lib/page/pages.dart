@@ -22,7 +22,7 @@ class AppPages {
       name: AppRoutes.INITIAL,
       page: () => WelcomePage(),
       binding: WelcomeBinding(),
-      middlewares: [
+      middlewares: const [
         // RouteWelcomeMiddleware(priority: 1),
       ],
     ),

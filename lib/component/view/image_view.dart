@@ -13,13 +13,13 @@ class ImageView extends StatelessWidget {
   final BoxFit? fit;
   final bool isRadius;
 
-  ImageView({
+  const ImageView({Key? key,
     required this.img,
     this.height,
     this.width,
     this.fit,
     this.isRadius = true,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,7 @@ class ImageView extends StatelessWidget {
           border: Border.all(color: Colors.black.withOpacity(0.2), width: 0.3),
         ),
         child: Image(
-          image: AssetImage(defIcon),
+          image: const AssetImage(defIcon),
           width: width! - 1,
           height: height! - 1,
           fit: width != null && height != null ? BoxFit.fill : fit,
@@ -62,7 +62,7 @@ class ImageView extends StatelessWidget {
     }
     if (isRadius) {
       return ClipRRect(
-        borderRadius: BorderRadius.all(
+        borderRadius: const BorderRadius.all(
           Radius.circular(4.0),
         ),
         child: image,

@@ -25,15 +25,15 @@ class SelectRegionLogic extends GetxController {
 
   /// 选中title
   void regionSelectedTitle(String title) {
-    regionSelected.value.clear();
-    // this.regionSelected.value.forEach((key, value) {
+    regionSelected.clear();
+    // this.regionSelected.forEach((key, value) {
     //   this.regionSelected.value[key] = {
     //     "selected": false,
     //     "trailing": SizedBox.shrink(),
     //   };
     // });
 
-    regionSelected.value[title.trim()] = {
+    regionSelected[title.trim()] = {
       "selected": true,
       "trailing": const Text(
         "√",
@@ -73,17 +73,17 @@ class SelectRegionLogic extends GetxController {
           title: Text(
             title,
           ),
-          selected: regionSelected.value[title] != null &&
-              regionSelected.value[title]["selected"] == true,
+          selected: regionSelected[title] != null &&
+              regionSelected[title]["selected"] == true,
           selectedColor: AppColors.primaryElement,
           trailing: isRight
               ? Icon(
                   CupertinoIcons.right_chevron,
                   color: AppColors.MainTextColor.withOpacity(0.5),
                 )
-              : (regionSelected.value[title] != null &&
-                      regionSelected.value[title]["selected"] == true
-                  ? regionSelected.value[title]["trailing"]
+              : (regionSelected[title] != null &&
+                      regionSelected[title]["selected"] == true
+                  ? regionSelected[title]["trailing"]
                   : null),
           onTap: () {
             selectedVal.value =
@@ -118,20 +118,9 @@ class SelectRegionLogic extends GetxController {
       ),
     );
   }
-
-  @override
-  void onInit() {
-    super.onInit();
-    // print("渲染完成");
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-    // print("close");
-  }
 }
 
+// ignore: must_be_immutable
 class SelectRegionPage extends StatelessWidget {
   String parent;
   List children;
@@ -139,12 +128,12 @@ class SelectRegionPage extends StatelessWidget {
   final Future<bool> Function(String, String) callback;
   final Future<bool> Function(String) outCallback;
 
-  SelectRegionPage({
+  SelectRegionPage({Key? key,
     required this.parent,
     required this.children,
     required this.callback,
     required this.outCallback,
-  });
+  }) : super(key: key);
 
   final logic = Get.put(SelectRegionLogic(), tag: "SelectRegionPage");
 

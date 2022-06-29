@@ -5,6 +5,8 @@ import 'group_select_logic.dart';
 import 'group_select_state.dart';
 
 class GroupSelectPage extends StatefulWidget {
+  const GroupSelectPage({Key? key}) : super(key: key);
+
   @override
   _GroupSelectPageState createState() => _GroupSelectPageState();
 }
