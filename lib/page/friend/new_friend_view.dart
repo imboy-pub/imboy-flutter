@@ -6,8 +6,10 @@ import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/ui/search_bar.dart';
 import 'package:imboy/component/view/nodata_view.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/enum.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'check_new_friend_view.dart';
@@ -22,10 +24,10 @@ class NewFriendPage extends StatelessWidget {
 
   NewFriendPage({Key? key}) : super(key: key);
 
+  /// 加载好友申请数据
   void initData() async {
     logic.items.value = [];
     logic.items.value = await logic.listNewFriend(UserRepoLocal.to.currentUid);
-    debugPrint(">>> on newfriend items ${logic.items.toString()}");
     logic.update([logic.items]);
   }
 
@@ -64,7 +66,6 @@ class NewFriendPage extends StatelessWidget {
                   isBorder: true,
                   onTap: () {
                     isSearch = true;
-                    // setState(() {});
                     logic.searchF.requestFocus();
                   },
                 ),
@@ -92,17 +93,29 @@ class NewFriendPage extends StatelessWidget {
                           itemBuilder: (BuildContext context, int index) {
                             NewFriendModel model = logic.items[index];
                             List<Widget> rightWidget = [];
-                            if (model.from == UserRepoLocal.to.currentUid) {
+                            bool fromSelf = model.from == UserRepoLocal.to.currentUid;
+                            if (fromSelf) {
                               rightWidget.add(
                                 const Icon(Icons.turn_slight_right),
                               );
+                            }
+
+                            if (model.status == NewFriendStatus.waiting_for_validation.index) {
+                              DateTime dt = Jiffy.unixFromMillisecondsSinceEpoch(model.createTime).dateTime;
+                              int diff = Jiffy().diff(dt, Units.DAY) as int;
+                              if (diff > 7) {
+                                model.status = NewFriendStatus.expired.index;
+                              }
+                            }
+
+                            if (fromSelf && model.status == NewFriendStatus.waiting_for_validation.index) {
                               rightWidget.add(
                                 Text('等待验证'.tr),
                               );
-                            } else {
+                            } else if(model.status == NewFriendStatus.waiting_for_validation.index) {
                               rightWidget.add(TextButton(
                                 onPressed: () {
-                                  Get.to(CheckNewFriendPage(
+                                  Get.to(() => CheckNewFriendPage(
                                     uid: model.from,
                                     msg: model.msg,
                                     nickname: model.nickname,
@@ -120,7 +133,16 @@ class NewFriendPage extends StatelessWidget {
                                   ),
                                 ),
                               ));
+                            } else if(model.status == NewFriendStatus.added.index) {
+                              rightWidget.add(
+                                Text('已添加'.tr),
+                              );
+                            } else if(model.status == NewFriendStatus.expired.index) {
+                              rightWidget.add(
+                                Text('已过期'.tr),
+                              );
                             }
+
                             return Container(
                               decoration: const BoxDecoration(
                                 color: Colors.white,

@@ -47,11 +47,11 @@ class NewFriendLogic extends GetxController {
       "avatar": payload["from"]["avatar"] ?? "",
       "msg": payload["from"]["msg"] ?? "",
       "payload": json.encode(payload),
-      "status": NewFriendStatus.waiting_for_validation.toString(),
+      "status": NewFriendStatus.waiting_for_validation.index,
       "create_time":
           data["created_at"] ?? DateTime.now().millisecondsSinceEpoch,
     };
-    debugPrint("CLIENT_ACK,S2C ${saveData.toString()}");
+    debugPrint(">>> on receivedAddFriend ${saveData.toString()}");
     (NewFriendRepo()).save(saveData);
     WSService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
   }

@@ -5,7 +5,7 @@ import 'package:imboy/component/helper/assets.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/view/nodata_view.dart';
-import 'package:imboy/page/new_friend/new_friend_view.dart';
+import 'package:imboy/page/friend/new_friend_view.dart';
 import 'package:imboy/page/search/search_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:lpinyin/lpinyin.dart';
@@ -23,7 +23,7 @@ class ContactPage extends StatelessWidget {
       bgColor: Colors.orange,
       iconData: Icons.person_add,
       onPressed: () {
-        Get.to(NewFriendPage());
+        Get.to(() => NewFriendPage());
       },
     ),
     ContactModel(
@@ -93,7 +93,7 @@ class ContactPage extends StatelessWidget {
               child: Image(
                   image: AssetImage('assets/images/search_black.webp'),),
             ),
-            onTap: () => Get.to(const SearchPage()),
+            onTap: () => Get.to(() => const SearchPage()),
           ),
         ],
       ),

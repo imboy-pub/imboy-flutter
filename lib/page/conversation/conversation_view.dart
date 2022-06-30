@@ -64,7 +64,7 @@ class ConversationPage extends StatelessWidget {
     popupmenu.MenuItem it = item as popupmenu.MenuItem;
     String action = it.userInfo as String;
     if (action == "scanqrcode") {
-      Get.to(const ScannerPage());
+      Get.to(() => const ScannerPage());
     } else if (it.menuTitle == "撤回") {
       // await logic.revokeMessage(msg);
     }
@@ -180,8 +180,7 @@ class ConversationPage extends StatelessWidget {
                             : 0.obs;
                     return InkWell(
                       onTap: () {
-                        Get.to(
-                          () => ChatPage(
+                        Get.to(() => ChatPage(
                             id: model.id,
                             toId: model.typeId,
                             title: model.title,
@@ -254,8 +253,7 @@ class ConversationPage extends StatelessWidget {
                         child: ConversationItem(
                           imgUri: model.avatar,
                           onTapAvatar: () {
-                            Get.to(
-                              ContactDetailPage(
+                            Get.to(() => ContactDetailPage(
                                 id: model.typeId,
                                 nickname: model.title,
                                 avatar: model.avatar,

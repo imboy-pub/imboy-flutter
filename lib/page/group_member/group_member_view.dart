@@ -40,7 +40,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
 
   handle(String uId) {
     if (!strNoEmpty(uId)) {
-      Get.to(const SelectMemberPage());
+      Get.to(() => const SelectMemberPage());
 //      routePush(CreateGroupChat(
 //        'invite',
 //        groupId: widget.groupId,

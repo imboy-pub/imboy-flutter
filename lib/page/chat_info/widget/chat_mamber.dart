@@ -50,7 +50,7 @@ class _ChatMamBerState extends State<ChatMamBer> {
                 ],
               ),
             ),
-            onTap: () => Get.to(ContactDetailPage(
+            onTap: () => Get.to(() => ContactDetailPage(
               id: widget.model.identifier,
               nickname: name,
               account: account,
@@ -76,7 +76,7 @@ class _ChatMamBerState extends State<ChatMamBer> {
             fit: BoxFit.cover,
           ),
         ),
-        onTap: () => Get.to(GroupLaunchPage()),
+        onTap: () => Get.to(() => GroupLaunchPage()),
       ),
     );
 

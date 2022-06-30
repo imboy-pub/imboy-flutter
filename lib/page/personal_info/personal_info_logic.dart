@@ -22,9 +22,9 @@ class PersonalInfoLogic extends GetxController {
 
   labelOnPressed(String label) {
     if (label == "more") {
-      Get.to(const MoreView());
+      Get.to(() => const MoreView());
     } else if (label == "uqrcode") {
-      Get.to(UqrcodePage());
+      Get.to(() => UqrcodePage());
     }
   }
 }

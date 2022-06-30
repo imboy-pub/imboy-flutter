@@ -56,7 +56,9 @@ class AddFriendPage extends StatelessWidget {
                   "source": "qrcode",
                   "msg": _msgController.text,
                   "remark": _remarkController.text,
-                  "role": logic.role.value,
+                  "nickname": "", // TODO
+                  "avatar": "", // TODO
+                  "role": logic.role.value, // role 可能的值 all justchat
                   "donotlookhim": logic.donotlookhim.isTrue,
                   "donotlethimlook": logic.donotlethimlook.isTrue,
                 },

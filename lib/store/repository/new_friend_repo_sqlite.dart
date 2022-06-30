@@ -113,7 +113,7 @@ class NewFriendRepo {
 
   // 更新信息
   Future<int> update(Map<String, dynamic> json) async {
-    String uid = json["uid"] ?? "";
+    String from = json["from"] ?? "";
     String to = json["to"] ?? "";
     Map<String, Object?> data = {};
     if (strNoEmpty(json["msg"])) {
@@ -129,20 +129,28 @@ class NewFriendRepo {
       data["avatar"] = json["avatar"];
     }
 
-    if (strNoEmpty(json["status"])) {
+    if (json["status"] >= 0) {
       data["status"] = json["status"];
     }
     if (strNoEmpty(json["payload"])) {
       data["payload"] = json["payload"];
     }
 
+    if (json["update_time"] != null && json["update_time"] >= 0) {
+      data["update_time"] = json["update_time"];
+    }
+    if (json["create_time"] != null && json["create_time"] >= 0) {
+      data["create_time"] = json["create_time"];
+    }
+
+
     if (strNoEmpty(to)) {
       data["update_time"] = DateTimeHelper.currentTimeMillis();
       return await _db.update(
         NewFriendRepo.tablename,
         data,
-        where: '${NewFriendRepo.uid} = ? and ${NewFriendRepo.to} = ?',
-        whereArgs: [uid, to],
+        where: '${NewFriendRepo.from} = ? and ${NewFriendRepo.to} = ?',
+        whereArgs: [from, to],
       );
     } else {
       return 0;

@@ -81,7 +81,7 @@ class ScannerResultPage extends StatelessWidget {
               visible: !itself,
               child: ButtonRow(
                 text: '添加到通讯录'.tr,
-                onPressed: () => Get.to(AddFriendPage(
+                onPressed: () => Get.to(() => AddFriendPage(
                   id,
                   nickname,
                 )),

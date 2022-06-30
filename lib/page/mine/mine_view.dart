@@ -202,7 +202,7 @@ class MinePage extends StatelessWidget {
                     ],
                   ),
                 ),
-                onTap: () => Get.to(const PersonalInfoPage()),
+                onTap: () => Get.to(() => const PersonalInfoPage()),
               ),
             ),
             Column(

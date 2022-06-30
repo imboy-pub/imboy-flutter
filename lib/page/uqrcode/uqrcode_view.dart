@@ -68,7 +68,7 @@ class UqrcodePage extends StatelessWidget {
                         child: TextButton(
                           onPressed: () {
                             Get.back();
-                            Get.to(const ScannerPage());
+                            Get.to(() => const ScannerPage());
                           },
                           child: Text(
                             '扫描二维码'.tr,

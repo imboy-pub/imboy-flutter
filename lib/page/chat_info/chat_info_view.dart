@@ -62,7 +62,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
       LabelRow(
         label: '查找聊天记录',
         margin: const EdgeInsets.only(top: 10.0),
-        onPressed: () => Get.to(const SearchPage()),
+        onPressed: () => Get.to(() => const SearchPage()),
       ),
       Column(
         children: switchItems.map(buildSwitch).toList(),
@@ -70,7 +70,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
       LabelRow(
         label: '设置当前聊天背景',
         margin: const EdgeInsets.only(top: 10.0),
-        onPressed: () => Get.to(const ChatBackgroundPage()),
+        onPressed: () => Get.to(() => const ChatBackgroundPage()),
       ),
       LabelRow(
         label: '清空聊天记录',
@@ -91,7 +91,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
       LabelRow(
         label: '投诉',
         margin: const EdgeInsets.only(top: 10.0),
-        onPressed: () => Get.to(WebViewPage(CONST_HELP_URL, '投诉')),
+        onPressed: () => Get.to(() => WebViewPage(CONST_HELP_URL, '投诉')),
       ),
     ];
   }

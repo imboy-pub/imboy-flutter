@@ -59,7 +59,7 @@ class ContactLogic extends GetxController {
       onTap: model.onPressed ??
           () {
             if (model.uid != null) {
-              Get.to(ContactDetailPage(
+              Get.to(() => ContactDetailPage(
                 id: model.uid!,
                 nickname: model.nickname,
                 avatar: model.avatar!,
@@ -71,8 +71,7 @@ class ContactLogic extends GetxController {
       onLongPress: model.onLongPressed ??
           () {
             if (model.uid != null) {
-              Get.to(
-                ChatPage(
+              Get.to(() => ChatPage(
                   id: 0,
                   toId: model.uid!,
                   title: model.nickname,

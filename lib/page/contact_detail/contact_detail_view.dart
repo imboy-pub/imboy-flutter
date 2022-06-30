@@ -67,14 +67,13 @@ class _ContactDetailPageState extends State<ContactDetailPage> {
       LabelRow(
         label: '朋友圈'.tr,
         isLine: false,
-        onPressed: () => Get.to(const FriendCirclePage()),
+        onPressed: () => Get.to(() => const FriendCirclePage()),
       ),
       ButtonRow(
         margin: const EdgeInsets.only(top: 10.0),
         text: '发消息',
         isBorder: true,
-        onPressed: () => Get.to(
-          ChatPage(
+        onPressed: () => Get.to(() => ChatPage(
             id: 0,
             toId: widget.id,
             title: widget.nickname,

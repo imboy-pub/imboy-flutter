@@ -83,8 +83,7 @@ class ContactCard extends StatelessWidget {
                 img: avatar!, width: 55, height: 55, fit: BoxFit.cover),
             onTap: () {
               if (isNetWorkImg(avatar!)) {
-                Get.to(
-                  PhotoView(
+                Get.to(() => PhotoView(
                     imageProvider: NetworkImage(avatar!),
                     onTapUp: (c, f, s) => Navigator.of(context).pop(),
                     maxScale: 3.0,
