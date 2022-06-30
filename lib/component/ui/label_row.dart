@@ -8,6 +8,7 @@ class LabelRow extends StatelessWidget {
   final double? labelWidth;
   final bool? isRight;
   final bool? isLine;
+  final bool? isSpacer;
   final String? value;
   final String? rValue;
   final Widget? rightW;
@@ -24,6 +25,7 @@ class LabelRow extends StatelessWidget {
     this.labelWidth,
     this.isRight = true,
     this.isLine = false,
+    this.isSpacer = true,
     this.rightW,
     this.rValue,
     this.margin,
@@ -68,7 +70,7 @@ class LabelRow extends StatelessWidget {
                         color: AppColors.MainTextColor.withOpacity(0.7),
                       ))
                   : Container(),
-              const Spacer(),
+              isSpacer == true ? const Spacer() : const SizedBox.shrink(),
               rValue != null
                   ? Text(rValue!,
                       style: TextStyle(

@@ -15,7 +15,6 @@ import 'contact_logic.dart';
 // ignore: must_be_immutable
 class ContactPage extends StatelessWidget {
   RxBool contactIsEmpty = true.obs;
-  RxList<ContactModel> contactList = RxList<ContactModel>();
   List<ContactModel> topList = [
     ContactModel(
       nickname: '新的朋友'.tr,
@@ -46,15 +45,15 @@ class ContactPage extends StatelessWidget {
     // ),
   ];
 
-  final ContactLogic logic = Get.put(ContactLogic());
+  final ContactLogic logic = Get.find();
 
   ContactPage({Key? key}) : super(key: key);
 
   void loadData() async {
     // 加载联系人列表
-    contactList.value = await logic.listFriend();
-    contactIsEmpty.value = contactList.isEmpty;
-    _handleList(contactList);
+    logic.contactList.value = await logic.listFriend();
+    contactIsEmpty.value = logic.contactList.isEmpty;
+    _handleList(logic.contactList);
   }
 
   void _handleList(List<ContactModel> list) {
@@ -70,13 +69,13 @@ class ContactPage extends StatelessWidget {
       }
     }
     // A-Z sort.
-    SuspensionUtil.sortListBySuspensionTag(contactList);
+    SuspensionUtil.sortListBySuspensionTag(logic.contactList);
 
     // show sus tag.
-    SuspensionUtil.setShowSuspensionStatus(contactList);
+    SuspensionUtil.setShowSuspensionStatus(logic.contactList);
 
     // add topList.
-    contactList.insertAll(0, topList);
+    logic.contactList.insertAll(0, topList);
   }
 
   @override
@@ -91,7 +90,8 @@ class ContactPage extends StatelessWidget {
             child: const SizedBox(
               width: 60.0,
               child: Image(
-                  image: AssetImage('assets/images/search_black.webp'),),
+                image: AssetImage('assets/images/search_black.webp'),
+              ),
             ),
             onTap: () => Get.to(() => const SearchPage()),
           ),
@@ -101,10 +101,10 @@ class ContactPage extends StatelessWidget {
         () => Stack(
           children: [
             AzListView(
-              data: contactList,
-              itemCount: contactList.length,
+              data: logic.contactList,
+              itemCount: logic.contactList.length,
               itemBuilder: (BuildContext context, int index) {
-                ContactModel model = contactList[index];
+                ContactModel model = logic.contactList[index];
                 return logic.getChatListItem(
                   context,
                   model,
@@ -113,7 +113,7 @@ class ContactPage extends StatelessWidget {
               },
               physics: const BouncingScrollPhysics(),
               susItemBuilder: (BuildContext context, int index) {
-                ContactModel model = contactList[index];
+                ContactModel model = logic.contactList[index];
                 if ('↑' == model.getSuspensionTag()) {
                   return Container();
                 }
@@ -148,8 +148,9 @@ class ContactPage extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child:
-                  contactIsEmpty.isTrue ? NoDataView(text: '无联系人'.tr) : const Space(),
+              child: contactIsEmpty.isTrue
+                  ? NoDataView(text: '无联系人'.tr)
+                  : const Space(),
             ),
           ],
         ),

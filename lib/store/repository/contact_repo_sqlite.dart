@@ -124,8 +124,8 @@ class ContactRepo {
       data["avatar"] = json["avatar"];
     }
 
-    if (strNoEmpty(json["status"])) {
-      data["status"] = json["status"];
+    if (strNoEmpty(json["status"].toString())) {
+      data["status"] = json["status"].toString();
     }
     if (strNoEmpty(json["remark"])) {
       data["remark"] = json["remark"];

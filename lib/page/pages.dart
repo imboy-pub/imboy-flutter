@@ -4,7 +4,6 @@ import 'package:imboy/config/routes.dart';
 import 'package:imboy/middleware/router_auth.dart';
 import 'package:imboy/page/passport/passport_view.dart';
 
-import 'contact/contact_binding.dart';
 import 'contact/contact_view.dart';
 import 'mine/mine_binding.dart';
 import 'mine/mine_view.dart';
@@ -48,7 +47,6 @@ class AppPages {
     GetPage(
       name: AppRoutes.Contact,
       page: () => ContactPage(),
-      binding: ContactBinding(),
       middlewares: [
         RouteAuthMiddleware(priority: 1),
       ],

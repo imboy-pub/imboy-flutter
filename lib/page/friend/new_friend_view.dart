@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -12,12 +13,13 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:niku/namespace.dart' as n;
 
-import 'check_new_friend_view.dart';
+import 'confirm_new_friend_view.dart';
 import 'new_friend_logic.dart';
 
 // ignore: must_be_immutable
 class NewFriendPage extends StatelessWidget {
-  final NewFriendLogic logic = Get.put(NewFriendLogic());
+  final NewFriendLogic logic = Get.find();
+
   bool isSearch = false;
   bool showBtn = false;
   bool isResult = false;
@@ -26,7 +28,7 @@ class NewFriendPage extends StatelessWidget {
 
   /// 加载好友申请数据
   void initData() async {
-    logic.items.value = [];
+    logic.items = [].obs;
     logic.items.value = await logic.listNewFriend(UserRepoLocal.to.currentUid);
     logic.update([logic.items]);
   }
@@ -86,40 +88,51 @@ class NewFriendPage extends StatelessWidget {
               ),
               // Spacer(),
               Expanded(
-                child: Obx(() {
+                child: SlidableAutoCloseBehavior(child: Obx(() {
                   return logic.items.isEmpty
                       ? NoDataView(text: '没有新的好友'.tr)
                       : ListView.builder(
                           itemBuilder: (BuildContext context, int index) {
                             NewFriendModel model = logic.items[index];
                             List<Widget> rightWidget = [];
-                            bool fromSelf = model.from == UserRepoLocal.to.currentUid;
+                            bool fromSelf =
+                                model.from == UserRepoLocal.to.currentUid;
                             if (fromSelf) {
                               rightWidget.add(
                                 const Icon(Icons.turn_slight_right),
                               );
                             }
 
-                            if (model.status == NewFriendStatus.waiting_for_validation.index) {
-                              DateTime dt = Jiffy.unixFromMillisecondsSinceEpoch(model.createTime).dateTime;
+                            if (model.status ==
+                                NewFriendStatus.waiting_for_validation.index) {
+                              DateTime dt =
+                                  Jiffy.unixFromMillisecondsSinceEpoch(
+                                          model.createTime)
+                                      .dateTime;
                               int diff = Jiffy().diff(dt, Units.DAY) as int;
                               if (diff > 7) {
                                 model.status = NewFriendStatus.expired.index;
                               }
                             }
 
-                            if (fromSelf && model.status == NewFriendStatus.waiting_for_validation.index) {
+                            if (fromSelf &&
+                                model.status ==
+                                    NewFriendStatus
+                                        .waiting_for_validation.index) {
                               rightWidget.add(
                                 Text('等待验证'.tr),
                               );
-                            } else if(model.status == NewFriendStatus.waiting_for_validation.index) {
+                            } else if (model.status ==
+                                NewFriendStatus.waiting_for_validation.index) {
                               rightWidget.add(TextButton(
                                 onPressed: () {
-                                  Get.to(() => CheckNewFriendPage(
-                                    uid: model.from,
-                                    msg: model.msg,
-                                    nickname: model.nickname,
-                                  ));
+                                  Get.to(() => ConfirmNewFriendPage(
+                                        to: model.to,
+                                        from: model.from,
+                                        msg: model.msg,
+                                        nickname: model.nickname,
+                                        payload: model.payload,
+                                      ));
                                 },
                                 child: Text('接受'.tr),
                                 style: TextButton.styleFrom(
@@ -133,45 +146,66 @@ class NewFriendPage extends StatelessWidget {
                                   ),
                                 ),
                               ));
-                            } else if(model.status == NewFriendStatus.added.index) {
+                            } else if (model.status ==
+                                NewFriendStatus.added.index) {
                               rightWidget.add(
                                 Text('已添加'.tr),
                               );
-                            } else if(model.status == NewFriendStatus.expired.index) {
+                            } else if (model.status ==
+                                NewFriendStatus.expired.index) {
                               rightWidget.add(
                                 Text('已过期'.tr),
                               );
                             }
-
-                            return Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                border: Border(
-                                  bottom: BorderSide(
-                                    width: 0.2,
-                                    color: Colors.grey,
+                            return Slidable(
+                              // key: ValueKey(model.uk),
+                              groupTag: '1',
+                              closeOnScroll: true,
+                              endActionPane: ActionPane(
+                                extentRatio: 0.25,
+                                motion: const StretchMotion(),
+                                children: [
+                                  SlidableAction(
+                                    key: ValueKey("delete_$index"),
+                                    backgroundColor: Colors.red,
+                                    onPressed: (_) async {
+                                      await logic.delete(model.from, model.to);
+                                    },
+                                    label: "删除",
+                                    spacing: 1,
                                   ),
-                                ),
+                                ],
                               ),
-                              child: n.ListTile(
-                                leading: Container(
-                                  width: 56,
-                                  height: 56,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.rectangle,
-                                    borderRadius: BorderRadius.circular(4.0),
-                                    color: const Color(0xFFE5E5E5),
-                                    image: dynamicAvatar(model.avatar),
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      width: 0.2,
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                 ),
-                                title: Text(model.nickname),
-                                subtitle: Text(model.msg),
-                                trailing: Container(
-                                  width: 80,
-                                  alignment: Alignment.centerRight,
-                                  child: n.Row(
-                                    rightWidget,
-                                    mainAxisAlignment: MainAxisAlignment.end,
+                                child: n.ListTile(
+                                  leading: Container(
+                                    width: 56,
+                                    height: 56,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.rectangle,
+                                      borderRadius: BorderRadius.circular(4.0),
+                                      color: const Color(0xFFE5E5E5),
+                                      image: dynamicAvatar(model.avatar),
+                                    ),
+                                  ),
+                                  title: Text(model.nickname),
+                                  subtitle: Text(model.msg),
+                                  trailing: Container(
+                                    width: 80,
+                                    alignment: Alignment.centerRight,
+                                    child: n.Row(
+                                      rightWidget,
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -179,7 +213,7 @@ class NewFriendPage extends StatelessWidget {
                           },
                           itemCount: logic.items.length,
                         );
-                }),
+                })),
               ),
             ],
             mainAxisSize: MainAxisSize.min,

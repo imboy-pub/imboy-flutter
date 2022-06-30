@@ -18,7 +18,7 @@ import 'conversation_logic.dart';
 import 'widget/conversation_item.dart';
 
 class ConversationPage extends StatelessWidget {
-  final logic = Get.put(ConversationLogic());
+  final ConversationLogic logic = Get.find();
 
   ConversationPage({Key? key}) : super(key: key);
 
@@ -180,7 +180,8 @@ class ConversationPage extends StatelessWidget {
                             : 0.obs;
                     return InkWell(
                       onTap: () {
-                        Get.to(() => ChatPage(
+                        Get.to(
+                          () => ChatPage(
                             id: model.id,
                             toId: model.typeId,
                             title: model.title,
@@ -253,7 +254,8 @@ class ConversationPage extends StatelessWidget {
                         child: ConversationItem(
                           imgUri: model.avatar,
                           onTapAvatar: () {
-                            Get.to(() => ContactDetailPage(
+                            Get.to(
+                              () => ContactDetailPage(
                                 id: model.typeId,
                                 nickname: model.title,
                                 avatar: model.avatar,

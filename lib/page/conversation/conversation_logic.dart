@@ -5,11 +5,7 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'conversation_state.dart';
-
 class ConversationLogic extends GetxController {
-  final state = ConversationState();
-
   // 会话列表
   RxList<ConversationModel> conversations = RxList<ConversationModel>([]);
 
@@ -33,8 +29,8 @@ class ConversationLogic extends GetxController {
   // 更新会话
   replace(ConversationModel cobj) {
     // 第一次会话的时候 i 为 -1
-    final i = conversations.indexWhere(
-        (ConversationModel item) => (item).typeId == cobj.typeId);
+    final i = conversations
+        .indexWhere((ConversationModel item) => (item).typeId == cobj.typeId);
     if (i > -1) {
       int i2 = i > 0 ? i : 0;
       conversations[i2] = cobj;

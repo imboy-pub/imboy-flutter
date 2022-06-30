@@ -14,11 +14,16 @@ import 'add_friend_logic.dart';
 class AddFriendPage extends StatelessWidget {
   String uid;
   String remark;
+  String avatar;
+  String regin;
 
   AddFriendPage(
     this.uid,
-    this.remark, {Key? key}
-  ) : super(key: key);
+    this.remark,
+    this.avatar,
+    this.regin, {
+    Key? key,
+  }) : super(key: key);
 
   final AddFriendLogic logic = Get.put(AddFriendLogic());
 
@@ -56,15 +61,15 @@ class AddFriendPage extends StatelessWidget {
                   "source": "qrcode",
                   "msg": _msgController.text,
                   "remark": _remarkController.text,
-                  "nickname": "", // TODO
-                  "avatar": "", // TODO
+                  "avatar": UserRepoLocal.to.currentUser.avatar,
+                  "nickname": UserRepoLocal.to.currentUser.nickname,
                   "role": logic.role.value, // role 可能的值 all justchat
                   "donotlookhim": logic.donotlookhim.isTrue,
                   "donotlethimlook": logic.donotlethimlook.isTrue,
                 },
                 "to": {}
               };
-              await logic.apply(uid, payload);
+              await logic.apply(uid, remark, avatar, payload);
             },
             child: Text(
               '发送'.tr,
@@ -152,7 +157,8 @@ class AddFriendPage extends StatelessWidget {
                           controlAffinity: ListTileControlAffinity.leading,
                           activeColor: AppColors.primaryElement,
                           groupValue: logic.role.value,
-                          contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          contentPadding:
+                              const EdgeInsets.fromLTRB(10, 0, 10, 0),
                           onChanged: (val) {
                             logic.setRole(val.toString());
                             logic.visibilityLook = true.obs;
@@ -170,7 +176,8 @@ class AddFriendPage extends StatelessWidget {
                           controlAffinity: ListTileControlAffinity.leading,
                           activeColor: AppColors.primaryElement,
                           groupValue: logic.role.value,
-                          contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          contentPadding:
+                              const EdgeInsets.fromLTRB(10, 0, 10, 0),
                           onChanged: (val) {
                             logic.setRole(val.toString());
                             logic.visibilityLook = false.obs;

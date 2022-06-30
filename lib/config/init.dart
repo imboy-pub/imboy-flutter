@@ -10,6 +10,9 @@ import 'package:imboy/component/http/http_interceptor.dart';
 import 'package:imboy/component/observder/lifecycle.dart';
 import 'package:imboy/component/view/controller.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/contact/contact_logic.dart';
+import 'package:imboy/page/conversation/conversation_logic.dart';
+import 'package:imboy/page/friend/new_friend_logic.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
@@ -37,6 +40,8 @@ Future<void> init() async {
   // debugPrint(">>> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
   // 放在 UserRepoLocal 前面
   await getx.Get.putAsync<StorageService>(() => StorageService().init());
+  // Get.put(DeviceExt()); 需要放到靠前
+  getx.Get.put(DeviceExt());
   getx.Get.put(UserRepoLocal(), permanent: true);
   getx.Get.lazyPut(() => ThemeController());
 
@@ -51,12 +56,16 @@ Future<void> init() async {
 
   getx.Get.put(HttpClient(dioConfig: dioConfig));
 
+  // 需要放在 Get.put(MessageService()); 前
+  getx.Get.lazyPut(() => ContactLogic());
+  getx.Get.lazyPut(() => NewFriendLogic());
+  getx.Get.lazyPut(() => ConversationLogic());
+
   // 初始化 WebSocket 链接
   // getx.Get.put(WebSocket());
   getx.Get.put(WSService());
   // MessageService 不能用 lazyPut
   getx.Get.put(MessageService());
-  getx.Get.put(DeviceExt());
   // getx.Get.lazyPut(() => DeviceExt());
 
   ntpOffset = await StorageService.to.ntpOffset();

@@ -22,7 +22,8 @@ class ScannerResultPage extends StatelessWidget {
   String source;
   int gender;
 
-  ScannerResultPage({Key? key,
+  ScannerResultPage({
+    Key? key,
     required this.id,
     required this.nickname,
     required this.avatar,
@@ -51,12 +52,23 @@ class ScannerResultPage extends StatelessWidget {
           onPressed: () {},
         ),
       ),
-      const Space(),
+      // const Space(),
       strEmpty(sign)
           ? const SizedBox.shrink()
           : LabelRow(
               label: '个性签名'.tr,
-              rightW: Text(sign),
+              labelWidth: 68.0,
+              isSpacer: false,
+              rightW: Expanded(
+                  child: Padding(
+                padding: EdgeInsets.only(left: 24),
+                child: Text(
+                  sign,
+                  style: TextStyle(
+                      color: AppColors.MainTextColor.withOpacity(0.7),
+                      fontWeight: FontWeight.w400),
+                ),
+              )),
               onPressed: () {},
               isLine: true,
               isRight: false,
@@ -64,6 +76,16 @@ class ScannerResultPage extends StatelessWidget {
       LabelRow(
         label: '来源'.tr,
         rValue: '来自扫一扫'.tr,
+        // rightW: Expanded(
+        //     child: Padding(
+        //   padding: EdgeInsets.only(left: 24),
+        //   child: Text(
+        //     '来自扫一扫'.tr,
+        //     style: TextStyle(
+        //         color: AppColors.MainTextColor.withOpacity(0.8),
+        //         fontWeight: FontWeight.w500),
+        //   ),
+        // )),
         isLine: false,
         isRight: false,
         onPressed: () {},
@@ -82,9 +104,11 @@ class ScannerResultPage extends StatelessWidget {
               child: ButtonRow(
                 text: '添加到通讯录'.tr,
                 onPressed: () => Get.to(() => AddFriendPage(
-                  id,
-                  nickname,
-                )),
+                      id,
+                      nickname,
+                      avatar,
+                      region,
+                    )),
               ),
             ),
     ];

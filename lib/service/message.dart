@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/page/contact/contact_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/friend/new_friend_logic.dart';
 import 'package:imboy/page/passport/passport_view.dart';
@@ -21,7 +22,9 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 class MessageService extends GetxService {
   static MessageService get to => Get.find();
-  final clogic = Get.put(ConversationLogic());
+  final ContactLogic ctlogic = Get.find();
+  final NewFriendLogic nflogic = Get.find();
+  final ConversationLogic cvlogic = Get.find();
 
   @override
   void onInit() {
@@ -53,8 +56,14 @@ class MessageService extends GetxService {
           var msgType = payload['msg_type'] ?? '';
           switch (msgType.toString()) {
             // case 705: // token无效、刷新token 这里不处理，不发送消息
-            case "apply_as_a_friend": // 添加好友申请
-              await NewFriendLogic.receivedAddFriend(data);
+            case "apply_friend": // 添加好友申请
+              nflogic.receivedAddFriend(data);
+              break;
+            case "apply_friend_confirm": // 添加好友申请确认
+              // 接受消息人（to）新增联系人
+              ctlogic.receivedConfirFriend(data['payload']);
+              // 修正好友申请状态
+              nflogic.receivedConfirFriend(true, data);
               break;
             case "706": // 需要重新登录
               {
@@ -145,7 +154,7 @@ class MessageService extends GetxService {
     eventBus.fire(cobj);
 
     // 收到一个消息，步增会话消息 1
-    clogic.increaseConversationRemind(data['from'], 1);
+    cvlogic.increaseConversationRemind(data['from'], 1);
 
     eventBus.fire(msg.toTypeMessage());
     // 确实消息
@@ -179,7 +188,7 @@ class MessageService extends GetxService {
     if (items.isNotEmpty) {
       for (var cobj in items) {
         // 更新会话
-        clogic.replace(cobj);
+        cvlogic.replace(cobj);
         eventBus.fire(cobj);
       }
     }

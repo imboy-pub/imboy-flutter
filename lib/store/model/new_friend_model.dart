@@ -25,6 +25,10 @@ class NewFriendModel {
   final int createTime;
   final String payload;
 
+  String get uk {
+    return from + to;
+  }
+
   factory NewFriendModel.fromJson(Map<String, dynamic> json) {
     var status = json["status"] ?? 0;
     return NewFriendModel(

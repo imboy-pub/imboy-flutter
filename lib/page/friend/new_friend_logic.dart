@@ -16,12 +16,12 @@ class NewFriendLogic extends GetxController {
   RxList<dynamic> items = [].obs;
 
   Future<List<NewFriendModel>> listNewFriend(String uid) async {
-    return await (NewFriendRepo()).listNewFriend(uid);
+    return await (NewFriendRepo()).listNewFriend(uid, 500);
   }
 
   /// 收到添加好友
   /// Received add a friend
-  static Future<void> receivedAddFriend(Map data) async {
+  Future<void> receivedAddFriend(Map data) async {
     String did = await DeviceExt.did;
     debugPrint("CLIENT_ACK,S2C,${data['id']},$did");
     // {id: af_7b4v1b_kybqdp, type: S2C,
@@ -51,8 +51,54 @@ class NewFriendLogic extends GetxController {
       "create_time":
           data["created_at"] ?? DateTime.now().millisecondsSinceEpoch,
     };
-    debugPrint(">>> on receivedAddFriend ${saveData.toString()}");
+    // debugPrint(">>> on receivedAddFriend ${saveData.toString()}");
     (NewFriendRepo()).save(saveData);
+    replaceItems(NewFriendModel.fromJson(saveData));
     WSService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
+  }
+
+  /// 确认添加好友，对端消息通知
+  Future<void> receivedConfirFriend(bool ack, Map data) async {
+    String did = await DeviceExt.did;
+    debugPrint("CLIENT_ACK,S2C,${data['id']},$did  data:${data.toString()}");
+    String from = data["from"] ?? "";
+    String to = data["to"] ?? "";
+    NewFriendRepo repo = NewFriendRepo();
+    // 服务端对调了 from to，离线消息需要对调
+    NewFriendModel? obj = await repo.findByFromTo(to, from);
+    if (obj != null) {
+      obj.status = NewFriendStatus.added.index;
+      repo.update({
+        // 服务端对调了 from to，离线消息需要对调
+        "from": to,
+        "to": from,
+        "status": obj.status,
+      });
+      replaceItems(obj);
+    }
+    if (ack) {
+      WSService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
+    }
+  }
+
+  /// 删除好友申请记录
+  Future<int> delete(String from, String to) async {
+    int res = await (NewFriendRepo()).delete(from, to);
+    final index = items.indexWhere((e) => e.uk == from + to);
+    items.removeAt(index);
+    update([items]);
+    return res;
+  }
+
+  /// 替换好友申请记录
+  void replaceItems(NewFriendModel obj) {
+    final index = items.indexWhere((e) => e.uk == obj.uk);
+    debugPrint("CLIENT_ACK replaceItems $index ${obj.toString()}");
+    if (index > -1) {
+      items.setRange(index, index + 1, [obj]);
+    } else {
+      items.insert(0, obj);
+    }
+    update([items]);
   }
 }

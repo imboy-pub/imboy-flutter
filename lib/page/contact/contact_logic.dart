@@ -8,6 +8,7 @@ import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
 class ContactLogic extends GetxController {
+  RxList<ContactModel> contactList = RxList<ContactModel>();
 
   listFriend() async {
     List<ContactModel> contact = [];
@@ -15,7 +16,15 @@ class ContactLogic extends GetxController {
     if (contact.isNotEmpty) {
       return contact;
     }
-    return await (ContactProvider()).listFriend();
+    var repo = ContactRepo();
+    List<dynamic> dataMap = await (ContactProvider()).listFriend();
+    dataMap.forEach((json) {
+      json["is_friend"] = 1;
+      ContactModel model = ContactModel.fromJson(json);
+      contact.insert(0, model);
+      repo.save(json);
+    });
+    return contact;
   }
 
   Widget getChatListItem(
@@ -60,18 +69,19 @@ class ContactLogic extends GetxController {
           () {
             if (model.uid != null) {
               Get.to(() => ContactDetailPage(
-                id: model.uid!,
-                nickname: model.nickname,
-                avatar: model.avatar!,
-                account: model.account!,
-                region: model.region,
-              ));
+                    id: model.uid!,
+                    nickname: model.nickname,
+                    avatar: model.avatar!,
+                    account: model.account!,
+                    region: model.region,
+                  ));
             }
           },
       onLongPress: model.onLongPressed ??
           () {
             if (model.uid != null) {
-              Get.to(() => ChatPage(
+              Get.to(
+                () => ChatPage(
                   id: 0,
                   toId: model.uid!,
                   title: model.nickname,
@@ -100,5 +110,25 @@ class ContactLogic extends GetxController {
         ),
       ),
     );
+  }
+
+  /// 接受消息人（to）新增联系人
+  void receivedConfirFriend(Map data) {
+    var repo = ContactRepo();
+    Map<String, dynamic> json = {
+      // From 的个人信息
+      'uid': data['id'],
+      'account': data['account'],
+      'nickname': data['nickname'],
+      'avatar': data['avatar'],
+      'gender': data['gender'],
+      'status': data['status'],
+      'remark': data['remark'] ?? '',
+      'region': data['region'],
+      'sign': data['sign'],
+      'is_friend': 1,
+    };
+    contactList.add(ContactModel.fromJson(json));
+    repo.save(json);
   }
 }

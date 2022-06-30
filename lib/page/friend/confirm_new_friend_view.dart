@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -5,25 +7,30 @@ import 'package:imboy/component/ui/icon_text.dart';
 import 'package:imboy/component/ui/radio_list_title.dart';
 import 'package:imboy/component/ui/title_text_field.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
-import 'check_new_friend_logic.dart';
+import 'confirm_new_friend_logic.dart';
 
 // ignore: must_be_immutable
-class CheckNewFriendPage extends StatelessWidget {
-  final CheckNewFriendLogic logic = Get.put(CheckNewFriendLogic());
+class ConfirmNewFriendPage extends StatelessWidget {
+  final ConfirmNewFriendLogic logic = Get.put(ConfirmNewFriendLogic());
 
   final TextEditingController _remarkController = TextEditingController();
 
-  final String uid;
+  final String from;
+  final String to;
   final String msg;
   final String nickname;
+  String payload;
 
-  CheckNewFriendPage({
+  ConfirmNewFriendPage({
     Key? key,
-    required this.uid,
+    required this.from,
+    required this.to,
     required this.msg,
     required this.nickname,
+    required this.payload,
   }) : super(key: key);
 
   @override
@@ -50,7 +57,19 @@ class CheckNewFriendPage extends StatelessWidget {
           width: Get.width * 0.5,
           height: 40, // 宽度值必须设置为double.infinity
           child: ElevatedButton(
-            onPressed: () async {},
+            onPressed: () async {
+              Map<String, dynamic> p2 = json.decode(payload);
+              p2['to'] = {
+                "remark": _remarkController.text,
+                "avatar": UserRepoLocal.to.currentUser.avatar,
+                "nickname": UserRepoLocal.to.currentUser.nickname,
+                "role": logic.role.value, // role 可能的值 all justchat
+                "donotlookhim": logic.donotlookhim.isTrue,
+                "donotlethimlook": logic.donotlethimlook.isTrue,
+              };
+              debugPrint(">>> on payload $p2");
+              await logic.confirm(from, to, p2);
+            },
             child: Text(
               '完成'.tr,
               textAlign: TextAlign.center,

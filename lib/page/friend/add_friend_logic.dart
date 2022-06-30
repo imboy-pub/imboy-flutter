@@ -7,6 +7,9 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/enum.dart';
+import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 class AddFriendLogic extends GetxController {
   // 聊天、朋友圈、运动数据等
@@ -28,12 +31,14 @@ class AddFriendLogic extends GetxController {
   }
 
   /// 申请成为好友
-  Future<void> apply(String to, Map<String, dynamic> payload) async {
-    payload["msg_type"] = "apply_as_a_friend";
+  Future<void> apply(String to, String nickname, String avatar,
+      Map<String, dynamic> payload) async {
+    payload["msg_type"] = "apply_friend";
+    int createdAt = DateTimeHelper.currentTimeMillis();
     Map<String, dynamic> msg = {
       "to": to,
       "payload": json.encode(payload),
-      "created_at": DateTimeHelper.currentTimeMillis(),
+      "created_at": createdAt,
     };
 
     EasyLoading.show(
@@ -52,6 +57,19 @@ class AddFriendLogic extends GetxController {
       ),
     );
     if (resp.ok) {
+      Map<String, dynamic> saveData = {
+        "uid": UserRepoLocal.to.currentUid,
+        "from": UserRepoLocal.to.currentUid,
+        "to": to,
+        "nickname": nickname,
+        "avatar": avatar,
+        "msg": payload["from"]["msg"] ?? "",
+        "payload": json.encode(payload),
+        "status": NewFriendStatus.waiting_for_validation.index,
+        "create_time": createdAt,
+      };
+      // debugPrint(">>> on receivedAddFriend ${saveData.toString()}");
+      (NewFriendRepo()).save(saveData);
       EasyLoading.showSuccess("已发送".tr);
       Get.close(1);
     } else {

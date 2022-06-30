@@ -45,7 +45,7 @@ class NewFriendRepo {
     return obj;
   }
 
-  Future<List<NewFriendModel>> listNewFriend(String uid) async {
+  Future<List<NewFriendModel>> listNewFriend(String uid, int limit) async {
     List<Map<String, dynamic>> maps = await _db.query(
       NewFriendRepo.tablename,
       columns: [
@@ -62,8 +62,8 @@ class NewFriendRepo {
       ],
       where: '${NewFriendRepo.uid}=?',
       whereArgs: [uid],
-      orderBy: "update_time desc",
-      limit: 10000,
+      orderBy: "create_time desc",
+      limit: limit,
     );
     // debugPrint(">>> on findFriend ${maps.length}, ${maps.toList().toString()}");
     if (maps.isEmpty) {
@@ -103,18 +103,18 @@ class NewFriendRepo {
   }
 
   // 根据ID删除信息
-  Future<int> delete(String id) async {
+  Future<int> delete(String from, String to) async {
     return await _db.delete(
       NewFriendRepo.tablename,
-      where: '${NewFriendRepo.uid} = ? and ${NewFriendRepo.to} = ?',
-      whereArgs: [UserRepoLocal.to.currentUid, id],
+      where: '${NewFriendRepo.from} = ? and ${NewFriendRepo.to} = ?',
+      whereArgs: [from, to],
     );
   }
 
   // 更新信息
   Future<int> update(Map<String, dynamic> json) async {
-    String from = json["from"] ?? "";
-    String to = json["to"] ?? "";
+    String from = json["from"];
+    String to = json["to"];
     Map<String, Object?> data = {};
     if (strNoEmpty(json["msg"])) {
       data["msg"] = json["msg"];
@@ -143,8 +143,7 @@ class NewFriendRepo {
       data["create_time"] = json["create_time"];
     }
 
-
-    if (strNoEmpty(to)) {
+    if (strNoEmpty(from) && strNoEmpty(to)) {
       data["update_time"] = DateTimeHelper.currentTimeMillis();
       return await _db.update(
         NewFriendRepo.tablename,
@@ -161,7 +160,7 @@ class NewFriendRepo {
     String from = json["from"] ?? "";
     String to = json["to"] ?? "";
     NewFriendModel? old = await findByFromTo(from, to);
-    debugPrint(">>> on new_friend save: ${old.toString()}");
+    // debugPrint(">>> on new_friend save: ${old.toString()}");
     if (old != null || old is NewFriendModel) {
       update(json);
     } else {
