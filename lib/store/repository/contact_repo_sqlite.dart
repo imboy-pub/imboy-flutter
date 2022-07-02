@@ -16,8 +16,11 @@ class ContactRepo {
   static String remark = 'remark';
   static String region = 'region';
   static String sign = 'sign';
+  static String source = 'source';
   static String updateTime = "update_time";
-  static String isFriend = 'is_friend';
+  static String isfriend = 'isfriend';
+  //isfrom 好友关系发起人
+  static String isfrom = 'isfrom';
 
   final Sqlite _db = Sqlite.instance;
 
@@ -33,9 +36,11 @@ class ContactRepo {
       'gender': obj.gender,
       'region': obj.region,
       'sign': obj.sign,
+      'source': obj.source,
       // 单位毫秒，13位时间戳  1561021145560
       'update_time': obj.updateTime ?? DateTime.now().millisecondsSinceEpoch,
-      'is_friend': obj.isFriend,
+      'isfriend': obj.isfriend,
+      'isfrom': obj.isfrom,
     };
     debugPrint(">>> on ContactRepo/insert/1 " + insert.toString());
 
@@ -55,10 +60,12 @@ class ContactRepo {
         ContactRepo.remark,
         ContactRepo.region,
         ContactRepo.sign,
+        ContactRepo.source,
         ContactRepo.gender,
-        ContactRepo.isFriend,
+        ContactRepo.isfriend,
+        ContactRepo.isfrom,
       ],
-      where: '${ContactRepo.isFriend}=?',
+      where: '${ContactRepo.isfriend}=?',
       whereArgs: [1],
       orderBy: "update_time desc",
       limit: 10000,
@@ -88,9 +95,11 @@ class ContactRepo {
         ContactRepo.remark,
         ContactRepo.region,
         ContactRepo.sign,
+        ContactRepo.source,
         ContactRepo.gender,
         ContactRepo.updateTime,
-        ContactRepo.isFriend,
+        ContactRepo.isfriend,
+        ContactRepo.isfrom,
       ],
       where: '${ContactRepo.uid} = ?',
       whereArgs: [uid],
@@ -136,13 +145,17 @@ class ContactRepo {
     if (strNoEmpty(json["sign"])) {
       data["sign"] = json["sign"];
     }
+    if (strNoEmpty(json["source"])) {
+      data["source"] = json["source"];
+    }
     if (json["gender"] > 0) {
       data["gender"] = json["gender"];
     }
 
     debugPrint(">>> on ContactRepo/update/1 data: ${data.toString()}");
     if (strNoEmpty(uid)) {
-      data["is_friend"] = json["is_friend"] ?? 0;
+      data["isfrom"] = json["isfrom"] ?? 0;
+      data["isfriend"] = json["isfriend"] ?? 0;
       data["update_time"] = DateTimeHelper.currentTimeMillis();
       return await _db.update(
         ContactRepo.tablename,

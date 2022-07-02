@@ -18,7 +18,7 @@ class ScannerResultPage extends StatelessWidget {
   final String avatar;
   final String region;
   final String sign;
-  final bool isFriend;
+  final bool isfriend;
   String source;
   int gender;
 
@@ -27,7 +27,7 @@ class ScannerResultPage extends StatelessWidget {
     required this.id,
     required this.nickname,
     required this.avatar,
-    required this.isFriend,
+    required this.isfriend,
     this.region = "",
     this.sign = "",
     this.gender = 0,
@@ -61,7 +61,7 @@ class ScannerResultPage extends StatelessWidget {
               isSpacer: false,
               rightW: Expanded(
                   child: Padding(
-                padding: EdgeInsets.only(left: 24),
+                padding: const EdgeInsets.only(left: 24),
                 child: Text(
                   sign,
                   style: TextStyle(
@@ -91,7 +91,7 @@ class ScannerResultPage extends StatelessWidget {
         onPressed: () {},
       ),
       const Space(),
-      isFriend
+      isfriend
           ? Visibility(
               visible: !itself,
               child: ButtonRow(

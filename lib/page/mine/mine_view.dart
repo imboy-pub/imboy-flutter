@@ -9,12 +9,10 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:photo_view/photo_view.dart';
 
 import 'mine_logic.dart';
-import 'mine_state.dart';
 
 // ignore: must_be_immutable
 class MinePage extends StatelessWidget {
   final MineLogic logic = Get.put(MineLogic());
-  final MineState state = Get.find<MineLogic>().state;
 
   List data = [
     // {
@@ -80,8 +78,10 @@ class MinePage extends StatelessWidget {
     return ListTileView(
       border: item['border'],
       title: item['label'],
-      titleStyle:
-          const TextStyle(fontSize: 15.0, color: AppColors.MainTextColor),
+      titleStyle: const TextStyle(
+        fontSize: 15.0,
+        color: AppColors.MainTextColor,
+      ),
       isLabel: false,
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       icon: item['icon'],
@@ -108,7 +108,10 @@ class MinePage extends StatelessWidget {
                   padding: const EdgeInsets.only(
                     left: 20.0,
                     right: 20.0,
-                    top: 40.0,
+                    top: 32.0,
+                  ),
+                  margin: const EdgeInsets.only(
+                    bottom: 10,
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,

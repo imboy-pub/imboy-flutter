@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ContactModel extends ISuspensionBean {
   ContactModel(
@@ -15,8 +16,10 @@ class ContactModel extends ISuspensionBean {
       this.remark = "",
       this.region = "",
       this.sign = "",
+      this.source = "",
       this.updateTime,
-      this.isFriend,
+      this.isfriend = 1,
+      this.isfrom = 0,
       this.nameIndex,
       this.namePinyin,
       this.bgColor,
@@ -34,8 +37,10 @@ class ContactModel extends ISuspensionBean {
   final String remark;
   final String region;
   final String sign;
+  final String source;
   final int? updateTime;
-  int? isFriend;
+  int isfriend;
+  int isfrom;
 
   String? nameIndex;
   String? namePinyin;
@@ -45,6 +50,19 @@ class ContactModel extends ISuspensionBean {
 
   final VoidCallback? onPressed;
   final VoidCallback? onLongPressed;
+
+  String get sourceTr {
+    String sourceTr = "";
+    // 通过QQ好友添加
+    // 通过群聊添加
+    switch (source.toLowerCase()) {
+      case 'qrcode':
+        // sourceTr = 'source_qrcode'.tr;
+        sourceTr = '通过扫一扫添加'.tr;
+        break;
+    }
+    return sourceTr;
+  }
 
   factory ContactModel.fromJson(Map<String, dynamic> json) {
     return ContactModel(
@@ -56,10 +74,12 @@ class ContactModel extends ISuspensionBean {
       status: json["status"]?.toString(),
       remark: json["remark"].toString(),
       region: json["region"].toString(),
+      source: json["source"].toString(),
       sign: json["sign"].toString(),
       // 单位毫秒，13位时间戳  1561021145560
       updateTime: json["update_time"] ?? DateTime.now().millisecondsSinceEpoch,
-      isFriend: json["is_friend"] ?? 0,
+      isfriend: json["isfriend"] ?? 0,
+      isfrom: json["isfrom"] ?? 0,
     );
   }
 
@@ -73,8 +93,10 @@ class ContactModel extends ISuspensionBean {
         'remark': remark,
         'region': region,
         'sign': sign,
+        'source': source,
         'update_time': updateTime,
-        'is_friend': isFriend,
+        'isfriend': isfriend,
+        'isfrom': isfrom,
         //
         'firstletter': firstletter,
         'nameIndex': nameIndex,

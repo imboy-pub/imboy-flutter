@@ -46,7 +46,7 @@ class LabelRow extends StatelessWidget {
         onPressed: onPressed ?? () {},
         child: Container(
           padding: padding,
-          margin: const EdgeInsets.only(left: 20.0),
+          margin: const EdgeInsets.only(left: 15.0),
           decoration: BoxDecoration(
             border: isLine!
                 ? Border(

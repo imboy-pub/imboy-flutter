@@ -76,6 +76,7 @@ class _ScannerPageState extends State<ScannerPage>
                         return;
                       }
                       Map payload = resp.payload;
+                      // debugPrint(">>> on qrcode: ${payload.toString()}");
                       String result = payload['result'] ?? '';
                       if (result == '') {
                         Get.off(
@@ -86,7 +87,8 @@ class _ScannerPageState extends State<ScannerPage>
                             sign: payload['sign'] ?? '',
                             region: payload['region'] ?? '',
                             gender: payload['gender'] ?? 0,
-                            isFriend: payload['is_friend'] ?? false,
+                            isfriend: payload['isfriend'] ??
+                                (payload['is_friend'] ?? false),
                           ),
                         );
                       } else if (result == 'user_not_exist') {

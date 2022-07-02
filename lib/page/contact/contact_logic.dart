@@ -18,12 +18,12 @@ class ContactLogic extends GetxController {
     }
     var repo = ContactRepo();
     List<dynamic> dataMap = await (ContactProvider()).listFriend();
-    dataMap.forEach((json) {
-      json["is_friend"] = 1;
+    for (var json in dataMap) {
+      json["isfriend"] = 1;
       ContactModel model = ContactModel.fromJson(json);
       contact.insert(0, model);
       repo.save(json);
-    });
+    }
     return contact;
   }
 
@@ -74,6 +74,7 @@ class ContactLogic extends GetxController {
                     avatar: model.avatar!,
                     account: model.account!,
                     region: model.region,
+                    sign: model.sign,
                   ));
             }
           },
@@ -125,8 +126,10 @@ class ContactLogic extends GetxController {
       'status': data['status'],
       'remark': data['remark'] ?? '',
       'region': data['region'],
+      'source': data['source'] ?? "",
+      'isfrom': data['isfrom'] ?? 0,
       'sign': data['sign'],
-      'is_friend': 1,
+      'isfriend': 1,
     };
     contactList.add(ContactModel.fromJson(json));
     repo.save(json);

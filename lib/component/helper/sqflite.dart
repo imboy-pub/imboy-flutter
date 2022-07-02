@@ -72,8 +72,10 @@ class Sqlite {
         ${ContactRepo.remark} varchar(255) DEFAULT '',
         ${ContactRepo.region} varchar(80) DEFAULT '',
         ${ContactRepo.sign} varchar(255) NOT NULL DEFAULT '',
+        ${ContactRepo.source} varchar(40) NOT NULL DEFAULT '',
         ${ContactRepo.updateTime} int(16) NOT NULL DEFAULT 0,
-        ${ContactRepo.isFriend} int(4) NOT NULL DEFAULT 0,
+        ${ContactRepo.isfriend} int(4) NOT NULL DEFAULT 0,
+        ${ContactRepo.isfrom} int(4) NOT NULL DEFAULT 0,
         PRIMARY KEY("uid")
         );
       ''';

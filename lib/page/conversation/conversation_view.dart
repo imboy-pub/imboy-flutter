@@ -260,6 +260,7 @@ class ConversationPage extends StatelessWidget {
                                 nickname: model.title,
                                 avatar: model.avatar,
                                 region: model.region,
+                                sign: model.sign,
                                 account: "",
                               ),
                             );

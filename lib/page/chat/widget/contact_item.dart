@@ -167,6 +167,7 @@ class ContactItem extends ISuspensionBean {
 //             avatar: widget.avatar,
 //             nickname: widget.title,
 //             account: widget.account,
+//             sign: widget.sign,
 //           ));
 //         }
 //       },

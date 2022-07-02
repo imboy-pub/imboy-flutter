@@ -55,8 +55,8 @@ class ConfirmNewFriendLogic extends GetxController {
       EasyLoading.showSuccess("已发送".tr);
       // 修正好友申请状态
       nflogic.receivedConfirFriend(false, {
-        "from": from,
-        "to": to,
+        "from": to,
+        "to": from,
       });
       // 存储好友信息
       ctlogic.receivedConfirFriend(resp.payload);

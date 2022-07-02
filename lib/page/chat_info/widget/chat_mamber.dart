@@ -22,6 +22,7 @@ class _ChatMamBerState extends State<ChatMamBer> {
     String face = widget.model?.avatar;
     String name = widget.model?.nickname;
     String account = widget.model?.account;
+    String sign = widget.model?.sign;
 
     List<Widget> wrap = [];
 
@@ -51,11 +52,12 @@ class _ChatMamBerState extends State<ChatMamBer> {
               ),
             ),
             onTap: () => Get.to(() => ContactDetailPage(
-              id: widget.model.identifier,
-              nickname: name,
-              account: account,
-              avatar: face,
-            )),
+                  id: widget.model.identifier,
+                  nickname: name,
+                  account: account,
+                  avatar: face,
+                  sign: sign,
+                )),
           );
         }).toList(),
       ),

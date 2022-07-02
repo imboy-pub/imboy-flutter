@@ -4,6 +4,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/view/image_view.dart';
 import 'package:imboy/config/const.dart';
+import 'package:niku/namespace.dart' as n;
 import 'package:photo_view/photo_view.dart';
 
 // ignore: must_be_immutable
@@ -17,8 +18,9 @@ class ContactCard extends StatelessWidget {
 
   final bool? isBorder;
   final double? lineWidth;
-
-  ContactCard({Key? key,
+  final EdgeInsets? padding;
+  ContactCard({
+    Key? key,
     required this.id,
     this.nickname,
     required this.avatar, // 头像
@@ -27,7 +29,9 @@ class ContactCard extends StatelessWidget {
     this.region = '', //
     this.isBorder = false,
     this.lineWidth = mainLineWidth,
-  }) : assert(id != null), super(key: key);
+    this.padding,
+  })  : assert(id != null),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +41,8 @@ class ContactCard extends StatelessWidget {
     );
 
     List<Widget> items = <Widget>[
-      Row(
-        children: <Widget>[
+      n.Row(
+        [
           Text(
             nickname ?? '未知',
             style: const TextStyle(
@@ -68,13 +72,20 @@ class ContactCard extends StatelessWidget {
         color: Colors.white,
         border: isBorder!
             ? Border(
-                bottom:
-                    BorderSide(color: AppColors.LineColor, width: lineWidth!),
+                bottom: BorderSide(
+                  color: AppColors.LineColor,
+                  width: lineWidth!,
+                ),
               )
             : null,
       ),
       width: Get.width,
-      padding: const EdgeInsets.only(right: 15.0, left: 15.0, bottom: 20.0),
+      padding: padding ??
+          const EdgeInsets.only(
+            right: 15.0,
+            left: 15.0,
+            bottom: 20.0,
+          ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -83,7 +94,8 @@ class ContactCard extends StatelessWidget {
                 img: avatar!, width: 55, height: 55, fit: BoxFit.cover),
             onTap: () {
               if (isNetWorkImg(avatar!)) {
-                Get.to(() => PhotoView(
+                Get.to(
+                  () => PhotoView(
                     imageProvider: NetworkImage(avatar!),
                     onTapUp: (c, f, s) => Navigator.of(context).pop(),
                     maxScale: 3.0,

@@ -1,7 +1,10 @@
 import 'package:get/get.dart';
-
-import 'contact_detail_state.dart';
+import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
 class ContactDetailLogic extends GetxController {
-  final state = ContactDetailState();
+  Future<ContactModel?> findByID(String uid) async {
+    ContactModel? obj = await ContactRepo().findByUid(uid);
+    return obj;
+  }
 }
