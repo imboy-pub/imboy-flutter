@@ -8,7 +8,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/confirm_alert.dart';
-import 'package:imboy/component/view/indicator_page_view.dart';
+import 'package:imboy/component/ui/indicator_page_view.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
@@ -326,7 +326,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         Get.to(() => GroupDetailPage(widget.peer));
         break;
       case '群聊名称':
-        Get.to(() => GroupRemarkPage(
+        Get.to(
+          () => GroupRemarkPage(
             groupInfoType: GroupInfoType.name,
             text: groupName!,
             groupId: widget.peer,
@@ -341,7 +342,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         // Get.to(() => QrCodePage());
         break;
       case '群公告':
-        Get.to(() => GroupBillBoardPage(
+        Get.to(
+          () => GroupBillBoardPage(
             dataGroup![0]['groupOwner'],
             groupNotification!,
             groupId: widget.peer!,
@@ -368,7 +370,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
       case '设置当前聊天背景':
         break;
       case '我在群里的昵称':
-        Get.to(() => GroupRemarkPage(
+        Get.to(
+          () => GroupRemarkPage(
             groupInfoType: GroupInfoType.cardName,
             text: cardName,
             groupId: widget.peer,
@@ -424,7 +427,8 @@ class GroupItem extends StatelessWidget {
   final VoidCallback? onPressed;
   final Widget? right;
 
-  const GroupItem({Key? key,
+  const GroupItem({
+    Key? key,
     this.detail,
     this.title,
     this.onPressed,
@@ -465,7 +469,8 @@ class GroupItem extends StatelessWidget {
         decoration: BoxDecoration(
           border: noBorder
               ? null
-              : const Border(bottom: BorderSide(color: Colors.grey, width: 0.2)),
+              : const Border(
+                  bottom: BorderSide(color: Colors.grey, width: 0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

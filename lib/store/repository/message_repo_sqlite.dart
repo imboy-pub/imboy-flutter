@@ -147,6 +147,14 @@ class MessageRepo {
     );
   }
 
+  // 根据UID删除信息
+  Future<int> deleteForUid(String uid) async {
+    return await _db.delete(
+      MessageRepo.tablename,
+      where: '${MessageRepo.from} = ?',
+      whereArgs: [uid],
+    );
+  }
 // 记得及时关闭数据库，防止内存泄漏
 // close() async {
 //   await _db.close();

@@ -6,10 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 // ignore: implementation_imports
-import 'package:flutter_chat_ui/src/widgets/inherited_chat_theme.dart' show InheritedChatTheme;
+import 'package:flutter_chat_ui/src/widgets/inherited_chat_theme.dart'
+    show InheritedChatTheme;
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/emoji_picker_view.dart';
 import 'package:imboy/component/ui/image_button.dart';
-import 'package:imboy/component/view/emoji_picker_view.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -502,8 +503,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                             ),
                     ],
                   ),
-                  inputType == InputType.emoji ||
-                          inputType == InputType.extra
+                  inputType == InputType.emoji || inputType == InputType.extra
                       ? const Divider()
                       : const SizedBox.shrink(), // 横线
                   _buildBottomContainer(child: _buildBottomItems()),

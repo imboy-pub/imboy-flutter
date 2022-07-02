@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common.dart';
-import 'package:imboy/component/view/image_view.dart';
+import 'package:imboy/component/ui/image_view.dart';
 import 'package:imboy/config/const.dart';
 
 class ListTileView extends StatelessWidget {

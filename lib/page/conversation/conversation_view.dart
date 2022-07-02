@@ -5,11 +5,11 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/view/nodata_view.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat_view.dart';
-import 'package:imboy/page/contact_detail/contact_detail_view.dart';
+import 'package:imboy/page/contact/contact_detail_view.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:popup_menu/popup_menu.dart' as popupmenu;
@@ -257,11 +257,6 @@ class ConversationPage extends StatelessWidget {
                             Get.to(
                               () => ContactDetailPage(
                                 id: model.typeId,
-                                nickname: model.title,
-                                avatar: model.avatar,
-                                region: model.region,
-                                sign: model.sign,
-                                account: "",
                               ),
                             );
                           },

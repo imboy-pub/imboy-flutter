@@ -6,32 +6,33 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ContactModel extends ISuspensionBean {
-  ContactModel(
-      {this.uid,
-      this.account,
-      required this.nickname,
-      this.avatar,
-      this.gender = 0,
-      this.status,
-      this.remark = "",
-      this.region = "",
-      this.sign = "",
-      this.source = "",
-      this.updateTime,
-      this.isfriend = 1,
-      this.isfrom = 0,
-      this.nameIndex,
-      this.namePinyin,
-      this.bgColor,
-      this.iconData,
-      this.firstletter,
-      this.onPressed,
-      this.onLongPressed});
+  ContactModel({
+    this.uid,
+    required this.nickname,
+    this.account = "",
+    this.avatar = "",
+    this.gender = 0,
+    this.status,
+    this.remark = "",
+    this.region = "",
+    this.sign = "",
+    this.source = "",
+    this.updateTime,
+    this.isfriend = 1,
+    this.isfrom = 0,
+    this.nameIndex,
+    this.namePinyin,
+    this.bgColor,
+    this.iconData,
+    this.firstletter,
+    this.onPressed,
+    this.onLongPressed,
+  });
 
   final String? uid; // 用户ID
-  final String? account; // 用户ID
+  final String account; // 用户ID
   final String nickname; // 备注 or 昵称
-  final String? avatar; // 用户头像
+  final String avatar; // 用户头像
   int gender; // 1 男  2 女  3 保密  0 未知
   final String? status; // offline | online |
   final String remark;

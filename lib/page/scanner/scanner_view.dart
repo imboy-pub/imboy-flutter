@@ -82,13 +82,13 @@ class _ScannerPageState extends State<ScannerPage>
                         Get.off(
                           ScannerResultPage(
                             id: payload['id'] ?? '',
+                            remark: payload['remark'] ?? '',
                             nickname: payload['nickname'] ?? '',
                             avatar: payload['avatar'] ?? defAvatar,
                             sign: payload['sign'] ?? '',
                             region: payload['region'] ?? '',
                             gender: payload['gender'] ?? 0,
-                            isfriend: payload['isfriend'] ??
-                                (payload['is_friend'] ?? false),
+                            isfriend: payload['isfriend'] ?? false,
                           ),
                         );
                       } else if (result == 'user_not_exist') {

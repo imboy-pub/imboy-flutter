@@ -4,17 +4,19 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/friend_item_dialog.dart';
+import 'package:imboy/component/ui/contact_card.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/contact_detail/widget/contact_card.dart';
+import 'package:imboy/page/chat/chat_view.dart';
+import 'package:imboy/page/contact/contact_setting_view.dart';
 import 'package:imboy/page/friend/add_friend_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 // ignore: must_be_immutable
 class ScannerResultPage extends StatelessWidget {
   final String id; // 用户ID
-  final String nickname;
+  final String remark;
+  String nickname;
   final String avatar;
   final String region;
   final String sign;
@@ -25,6 +27,7 @@ class ScannerResultPage extends StatelessWidget {
   ScannerResultPage({
     Key? key,
     required this.id,
+    this.remark = "",
     required this.nickname,
     required this.avatar,
     required this.isfriend,
@@ -38,6 +41,7 @@ class ScannerResultPage extends StatelessWidget {
     return [
       ContactCard(
         id: id,
+        remark: remark,
         nickname: nickname,
         gender: gender,
         account: '',
@@ -52,7 +56,7 @@ class ScannerResultPage extends StatelessWidget {
           onPressed: () {},
         ),
       ),
-      // const Space(),
+      const Space(),
       strEmpty(sign)
           ? const SizedBox.shrink()
           : LabelRow(
@@ -95,7 +99,26 @@ class ScannerResultPage extends StatelessWidget {
           ? Visibility(
               visible: !itself,
               child: ButtonRow(
-                text: '音视频通话',
+                margin: const EdgeInsets.only(bottom: 0.0),
+                text: '发消息',
+                isBorder: true,
+                onPressed: () => Get.to(
+                  () => ChatPage(
+                    id: 0,
+                    toId: id,
+                    title: nickname,
+                    avatar: avatar,
+                    type: 'C2C',
+                  ),
+                ),
+              ),
+            )
+          : SizedBox.shrink(),
+      isfriend
+          ? Visibility(
+              visible: !itself,
+              child: ButtonRow(
+                text: '音视频通话'.tr,
                 onPressed: () => Get.snackbar('', '敬请期待'),
               ),
             )
@@ -124,11 +147,12 @@ class ScannerResultPage extends StatelessWidget {
         width: 60,
         child: TextButton(
           // padding: EdgeInsets.all(0),
-          onPressed: () => friendItemDialog(context, userId: id, suCc: (v) {
-            if (v) {
-              Navigator.of(context).maybePop();
-            }
-          }),
+          onPressed: () {
+            Get.to(ContactSettingPage(
+              id: id,
+              remark: nickname, // TODO user remark ? user nickname?
+            ));
+          },
           child: const Image(
             image: AssetImage(contactAssets + 'ic_contacts_details.png'),
           ),

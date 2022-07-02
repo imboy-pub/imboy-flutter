@@ -111,6 +111,14 @@ class NewFriendRepo {
     );
   }
 
+  Future<int> deleteForUid(String uid) async {
+    return await _db.delete(
+      NewFriendRepo.tablename,
+      where: '${NewFriendRepo.from} = ? or ${NewFriendRepo.to} = ?',
+      whereArgs: [uid, uid],
+    );
+  }
+
   // 更新信息
   Future<int> update(Map<String, dynamic> json) async {
     String from = json["from"];

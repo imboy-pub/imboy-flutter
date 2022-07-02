@@ -12,10 +12,9 @@ import 'bottom_navigation_state.dart';
 // ignore: must_be_immutable
 class BottomNavigationPage extends StatelessWidget {
   //全局状态控制器
-  final logic = Get.put(BottomNavigationLogic());
   final clogic = Get.put(ConversationLogic());
+  final logic = Get.put(BottomNavigationLogic());
 
-  // final logic = Get.find<BottomNavigationLogic>();
   final BottomNavigationState state = Get.find<BottomNavigationLogic>().state;
 
   List pageList = [

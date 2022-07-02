@@ -1,11 +1,12 @@
+import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/common.dart';
-import 'package:imboy/component/view/list_tile_view.dart';
+import 'package:imboy/component/ui/list_tile_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/personal_info/personal_info_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:niku/namespace.dart' as n;
 import 'package:photo_view/photo_view.dart';
 
 import 'mine_logic.dart';
@@ -104,18 +105,17 @@ class MinePage extends StatelessWidget {
               builder: (_c) => InkWell(
                 child: Container(
                   color: Colors.white,
-                  height: (topBarHeight(context) * 2.5) - 10,
+                  height: 160,
                   padding: const EdgeInsets.only(
-                    left: 20.0,
-                    right: 20.0,
+                    left: 15.0,
+                    right: 12.0,
                     top: 32.0,
                   ),
                   margin: const EdgeInsets.only(
                     bottom: 10,
                   ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
+                  child: n.Row(
+                    [
                       SizedBox(
                         width: 88.0,
                         height: 88.0,
@@ -159,19 +159,24 @@ class MinePage extends StatelessWidget {
                       ),
                       Container(
                         margin: const EdgeInsets.only(left: 10.0),
-                        height: 55.0,
+                        width: 172.0,
+                        height: 72.0,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Text(
+                            ExtendedText(
                               _c.currentUser.nickname,
                               style: const TextStyle(
                                 color: Colors.black,
-                                fontSize: 20.0,
+                                fontSize: 18.0,
                                 fontWeight: FontWeight.w500,
                               ),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.left,
                             ),
+
                             Text(
                               '账号：' + _c.currentUser.account,
                               style: const TextStyle(
@@ -187,8 +192,8 @@ class MinePage extends StatelessWidget {
                       ),
                       const Spacer(),
                       Container(
-                        width: 13.0,
-                        margin: const EdgeInsets.only(right: 12.0),
+                        width: 16.0,
+                        margin: const EdgeInsets.only(right: 8.0),
                         child: Image(
                           image: const AssetImage(
                               'assets/images/mine/ic_small_code.png'),
@@ -203,13 +208,14 @@ class MinePage extends StatelessWidget {
                         fit: BoxFit.cover,
                       )
                     ],
+                    mainAxisAlignment: MainAxisAlignment.end,
                   ),
                 ),
                 onTap: () => Get.to(() => const PersonalInfoPage()),
               ),
             ),
-            Column(
-              children: data.map(buildContent).toList(),
+            n.Column(
+              data.map(buildContent).toList(),
             ),
           ],
         ),

@@ -1,10 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/radio_list_title.dart';
-import 'package:imboy/component/view/select_region_view.dart';
+import 'package:imboy/component/ui/select_region_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -19,7 +18,8 @@ class UpdatePage extends StatelessWidget {
   final String field;
   // final EdgeInsetsGeometry? padding;
 
-  UpdatePage({Key? key,
+  UpdatePage({
+    Key? key,
     this.title = "",
     required this.callback,
     this.value = "",
@@ -198,7 +198,7 @@ class UpdatePage extends StatelessWidget {
       },
       //style: ,
       onChanged: (value) {
-        if (value == '' || value == value) {
+        if (value == '' || value == logic.val.value) {
           logic.valueOnChange(false);
         } else {
           logic.valueOnChange(true);
@@ -256,7 +256,7 @@ class UpdatePage extends StatelessWidget {
         }
       },
       onChanged: (value) {
-        if (value == '' || value == value) {
+        if (value == '' || value == logic.val.value) {
           logic.valueOnChange(false);
         } else {
           logic.valueOnChange(true);
@@ -360,9 +360,9 @@ class UpdatePage extends StatelessWidget {
                   height: Get.height - 40,
                   child: ListView.builder(
                     itemBuilder: (BuildContext context, int index) {
-                      return regionlogic.getListItem(
-                          context, "", logic.regionList[index],
-                          (String p, String t) async {
+                      return regionlogic
+                          .getListItem(context, "", logic.regionList[index],
+                              (String p, String t) async {
                         logic.val.value = strEmpty(p) ? t : p + " " + t;
                         logic.valueOnChange(true);
                         return true;

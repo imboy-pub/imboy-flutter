@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/view/list_tile_view.dart';
+import 'package:imboy/component/ui/list_tile_view.dart';
 import 'package:imboy/config/const.dart';
 
 import 'setting_logic.dart';

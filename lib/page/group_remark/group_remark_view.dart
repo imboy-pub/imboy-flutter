@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/view/main_input.dart';
+import 'package:imboy/component/ui/main_input.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
 
@@ -15,7 +15,8 @@ class GroupRemarkPage extends StatefulWidget {
   final String text;
   final String? groupId;
 
-  const GroupRemarkPage({Key? key,
+  const GroupRemarkPage({
+    Key? key,
     this.groupInfoType = GroupInfoType.remark,
     this.text = '',
     this.groupId,
@@ -113,8 +114,9 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                       child: TextField(
                         controller: _textController,
                         decoration: InputDecoration(
-                          hintText:
-                              widget.groupInfoType == GroupInfoType.name ? '群聊名称'.tr : '备注'.tr,
+                          hintText: widget.groupInfoType == GroupInfoType.name
+                              ? '群聊名称'.tr
+                              : '备注'.tr,
                           border: InputBorder.none,
                         ),
                       ),

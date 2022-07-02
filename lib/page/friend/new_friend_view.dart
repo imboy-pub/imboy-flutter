@@ -4,10 +4,11 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/search_bar.dart';
-import 'package:imboy/component/view/nodata_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
+import 'package:imboy/page/contact/contact_detail_view.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:jiffy/jiffy.dart';
@@ -207,6 +208,10 @@ class NewFriendPage extends StatelessWidget {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                     ),
                                   ),
+                                  onTap: () {
+                                    Get.to(
+                                        () => ContactDetailPage(id: model.to));
+                                  },
                                 ),
                               ),
                             );

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
-import 'package:imboy/component/view/image_view.dart';
+import 'package:imboy/component/ui/image_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:photo_view/photo_view.dart';
@@ -10,11 +10,12 @@ import 'package:photo_view/photo_view.dart';
 // ignore: must_be_immutable
 class ContactCard extends StatelessWidget {
   final String? id;
-  final String? nickname;
+  String? nickname;
   final String? avatar;
   final String? account;
   int gender;
   final String region;
+  final String? remark;
 
   final bool? isBorder;
   final double? lineWidth;
@@ -27,6 +28,7 @@ class ContactCard extends StatelessWidget {
     required this.account,
     required this.gender,
     this.region = '', //
+    this.remark = '',
     this.isBorder = false,
     this.lineWidth = mainLineWidth,
     this.padding,
@@ -39,12 +41,16 @@ class ContactCard extends StatelessWidget {
       fontSize: 14,
       color: AppColors.MainTextColor,
     );
-
+    String title = remark ?? '';
+    if (strEmpty(title)) {
+      title = nickname!;
+      nickname = '';
+    }
     List<Widget> items = <Widget>[
       n.Row(
         [
           Text(
-            nickname ?? '未知',
+            title,
             style: const TextStyle(
               color: Colors.black,
               fontSize: 18.0,
@@ -56,6 +62,12 @@ class ContactCard extends StatelessWidget {
         ],
       ),
     ];
+    if (strNoEmpty(nickname)) {
+      items.add(Padding(
+        padding: const EdgeInsets.only(top: 3.0),
+        child: Text("昵称：" + nickname!, style: labelStyle),
+      ));
+    }
     if (strNoEmpty(account)) {
       items.add(Padding(
         padding: const EdgeInsets.only(top: 3.0),

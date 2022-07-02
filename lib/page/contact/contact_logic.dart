@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/chat/chat_view.dart';
-import 'package:imboy/page/contact_detail/contact_detail_view.dart';
+import 'package:imboy/page/contact/contact_detail_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -42,7 +42,7 @@ class ContactLogic extends GetxController {
     Color? defHeaderBgColor,
   }) {
     DecorationImage? image;
-    if (model.avatar != null && model.avatar!.isNotEmpty) {
+    if (model.avatar.isNotEmpty) {
       image = dynamicAvatar(model.avatar);
     }
 
@@ -68,14 +68,7 @@ class ContactLogic extends GetxController {
       onTap: model.onPressed ??
           () {
             if (model.uid != null) {
-              Get.to(() => ContactDetailPage(
-                    id: model.uid!,
-                    nickname: model.nickname,
-                    avatar: model.avatar!,
-                    account: model.account!,
-                    region: model.region,
-                    sign: model.sign,
-                  ));
+              Get.to(() => ContactDetailPage(id: model.uid!));
             }
           },
       onLongPress: model.onLongPressed ??

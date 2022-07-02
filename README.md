@@ -11,9 +11,18 @@ imboy 的Flutter项目
 ## APP截图
 更多截图[来这里](./doc/appui.md)
 
-<img src="https://a.imboy.pub/img/20225/25_21/ca73910gph0gio9q2pg0.png?s=dev&a=0b86216ad0e9bafa&v=672233&width=600" width="32%"/>
-<img src="https://a.imboy.pub/img/20225/25_21/ca73cl0gph0gio9q2pp0.png?s=dev&a=14d6648edb2dbc7c&v=962076&width=600" width="32%"/>
-<img src="https://a.imboy.pub/img/20225/25_22/ca73d6ogph0gio9q2psg.png?s=dev&a=bc7527a333d6e5b0&v=378962&width=600" width="32%"/>
+<table>
+    <td width="32%">
+        <img src="https://a.imboy.pub/img/20225/25_21/ca73910gph0gio9q2pg0.png?s=dev&a=0b86216ad0e9bafa&v=672233&width=600" width="100%"/>
+    </td>
+    <td width="32%">
+        <img src="https://a.imboy.pub/img/20225/25_21/ca73cl0gph0gio9q2pp0.png?s=dev&a=14d6648edb2dbc7c&v=962076&width=600" width="100%"/>
+    </td>
+    <td width="32%">
+        <img src="https://a.imboy.pub/img/20225/25_22/ca73d6ogph0gio9q2psg.png?s=dev&a=bc7527a333d6e5b0&v=378962&width=600" width="100%"/>
+    </td>
+</table>
+
 
 
 ## 功能 (单个功能实现了，)
@@ -69,10 +78,13 @@ imboy 的Flutter项目
 * 语音消息录音、发送、播放功能 OK
 * 删除消息（清理消息对应的缓存附件，删除会话，清理所有会话对应的消息的缓存附件） TODO
 * 附件上传进度条 OK (引入 flutter_easyloading: ^3.0.3，体验待优化)
-* 修改密码 TODO
 * 添加好友 TODO
-* 扫描二维码添加好友 TODO
-* 修改个人资料基本信息 TODO
+  * 扫描二维码添加好友 OK
+  * 申请添加好友页面 OK
+  * 确认申请好友页面 OK
+  * 删除好友申请记录 OK
+  * 删除好友功能 OK
+  * 
 * 多语言支持 OK(服务端还没有支持多语言、很多文案还没有配置多语言)
 * 创建群 TODO
 * 群聊天 TODO

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
-import 'package:imboy/component/view/image_view.dart';
+import 'package:imboy/component/ui/image_view.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/contact_detail/contact_detail_view.dart';
+import 'package:imboy/page/contact/contact_detail_view.dart';
 import 'package:imboy/page/group_launch/group_launch_view.dart';
 
 class ChatMamBer extends StatefulWidget {
@@ -21,8 +21,8 @@ class _ChatMamBerState extends State<ChatMamBer> {
   Widget build(BuildContext context) {
     String face = widget.model?.avatar;
     String name = widget.model?.nickname;
-    String account = widget.model?.account;
-    String sign = widget.model?.sign;
+    // String account = widget.model?.account;
+    // String sign = widget.model?.sign;
 
     List<Widget> wrap = [];
 
@@ -51,13 +51,8 @@ class _ChatMamBerState extends State<ChatMamBer> {
                 ],
               ),
             ),
-            onTap: () => Get.to(() => ContactDetailPage(
-                  id: widget.model.identifier,
-                  nickname: name,
-                  account: account,
-                  avatar: face,
-                  sign: sign,
-                )),
+            onTap: () =>
+                Get.to(() => ContactDetailPage(id: widget.model.identifier)),
           );
         }).toList(),
       ),

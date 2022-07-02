@@ -118,7 +118,7 @@ class MessageService extends GetxService {
     ContactModel? ct = await ContactRepo().findByUid(data['from']);
     // 如果没有联系人，同步去取
     ct ??= await (ContactProvider()).syncByUid(data['from']);
-    String avatar = ct.avatar ?? '';
+    String avatar = ct.avatar;
     String title = ct.nickname;
 
     subtitle = text;
