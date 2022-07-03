@@ -21,6 +21,7 @@ class ContactProvider extends HttpClient {
     return resp.payload["friend"];
   }
 
+  /// 同步非好友联系人信息
   Future<ContactModel> syncByUid(String uid) async {
     IMBoyHttpResponse resp = await get(
       API.userShow,
@@ -36,5 +37,16 @@ class ContactProvider extends HttpClient {
       ct = ContactModel.fromJson(resp.payload);
     }
     return ct!;
+  }
+
+  /// 删除联系人
+  Future<bool> deleteContact(String uid) async {
+    IMBoyHttpResponse resp = await post(
+      API.deleteFriend,
+      data: {"uid": uid},
+    );
+    debugPrint(
+        ">>> on deleteContact resp: ${resp.ok}, ${resp.payload.toString()}");
+    return resp.ok;
   }
 }

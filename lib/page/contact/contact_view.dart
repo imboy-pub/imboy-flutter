@@ -82,7 +82,7 @@ class ContactPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     loadData();
-
+    debugPrint(">>> contact view build");
     return Scaffold(
       appBar: NavAppBar(
         title: "联系人".tr,

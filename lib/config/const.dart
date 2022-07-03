@@ -173,6 +173,7 @@ class API {
 
   static const addfriend = '/friend/add';
   static const confirmfriend = '/friend/confirm';
+  static const deleteFriend = '/friend/delete';
   static const friendList = '/friend/list';
   static const conversationList = '/conversation/mine';
 

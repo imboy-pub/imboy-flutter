@@ -7,7 +7,8 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/contact/contact_view.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
+import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -130,7 +131,9 @@ class ContactSettingPage extends StatelessWidget {
                               bool res = await logic.deleteContact(id);
                               if (res) {
                                 EasyLoading.showSuccess("操作成功");
-                                Get.off(() => ContactPage());
+                                Get.close(3);
+                                Get.to(BottomNavigationPage(),
+                                    arguments: {'index': 1});
                               }
                             },
                             child: Text(
@@ -185,13 +188,16 @@ class ContactSettingPage extends StatelessWidget {
   }
 }
 
-class ContactSettingLogic {
+class ContactSettingLogic extends GetxController {
   /// 将联系人"$remark"删除，同时删除与该联系人的聊天记录
   Future<bool> deleteContact(String uid) async {
-    await MessageRepo().deleteForUid(uid);
-    await ConversationRepo().delete(uid);
-    await NewFriendRepo().deleteForUid(uid);
-    await ContactRepo().deleteForUid(uid);
-    return true;
+    bool res = await (ContactProvider()).deleteContact(uid);
+    if (res) {
+      await MessageRepo().deleteForUid(uid);
+      await ConversationRepo().delete(uid);
+      await NewFriendRepo().deleteForUid(uid);
+      await ContactRepo().deleteForUid(uid);
+    }
+    return res;
   }
 }

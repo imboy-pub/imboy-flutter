@@ -113,7 +113,7 @@ class ScannerResultPage extends StatelessWidget {
                 ),
               ),
             )
-          : SizedBox.shrink(),
+          : const SizedBox.shrink(),
       isfriend
           ? Visibility(
               visible: !itself,

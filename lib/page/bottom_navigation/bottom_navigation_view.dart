@@ -29,6 +29,11 @@ class BottomNavigationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var args = Get.arguments;
+    if (args is Map<String, dynamic>) {
+      state.bottombarIndex.value = args["index"] ?? state.bottombarIndex.value;
+    }
+
     return Scaffold(
       //主题
       body: Obx(() => pageList[state.bottombarIndex.value]),
