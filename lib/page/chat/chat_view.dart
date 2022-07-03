@@ -33,21 +33,23 @@ import 'package:xid/xid.dart';
 
 import 'chat_logic.dart';
 import 'widget/chat_input.dart';
+// ignore: must_be_immutable
 import 'widget/extra_item.dart';
 
+// ignore: must_be_immutable
 class ChatPage extends StatefulWidget {
-  final int id; // 会话ID
+  int conversationId; // 会话ID
   final String toId; // 用户ID
   final String type; // [C2C | GROUP]
-  final String? title;
-  final String? avatar;
+  final String title;
+  final String avatar;
 
-  const ChatPage({
+  ChatPage({
     Key? key,
-    required this.id,
+    this.conversationId = 0,
     required this.toId,
-    this.title,
-    this.avatar,
+    required this.title,
+    required this.avatar,
     this.type = 'C2C',
   }) : super(key: key);
   @override
@@ -76,7 +78,6 @@ class ChatPageState extends State<ChatPage> {
     if (!mounted) {
       return;
     }
-
     _handleEndReached();
 
     // Register listeners for all events:
@@ -112,6 +113,14 @@ class ChatPageState extends State<ChatPage> {
   /// 用于分页(无限滚动)。当用户滚动时调用
   /// 到列表的最后(减去[onEndReachedThreshold])。
   Future<void> _handleEndReached() async {
+    if (widget.conversationId == 0) {
+      widget.conversationId = await clogic.createConversationId(
+        widget.toId,
+        widget.avatar,
+        widget.title,
+        widget.type,
+      );
+    }
     // 初始化 当前会话新增消息
     List<types.Message>? items = await logic.getMessages(
       widget.toId,
@@ -127,8 +136,9 @@ class ChatPageState extends State<ChatPage> {
           msgIds.add(msg.id);
         }
       }
-      ConversationModel? cobj =
-          msgIds.isNotEmpty ? await logic.markAsRead(widget.id, msgIds) : null;
+      ConversationModel? cobj = msgIds.isNotEmpty
+          ? await logic.markAsRead(widget.conversationId, msgIds)
+          : null;
       if (cobj != null) {
         clogic.decreaseConversationRemind(widget.toId, msgIds.length);
         clogic.replace(cobj);
@@ -155,8 +165,8 @@ class ChatPageState extends State<ChatPage> {
     await logic.addMessage(
       UserRepoLocal.to.currentUid,
       widget.toId,
-      widget.avatar ?? '',
-      widget.title!,
+      widget.avatar,
+      widget.title,
       type,
       message,
     );
@@ -565,7 +575,7 @@ class ChatPageState extends State<ChatPage> {
       // 检查为发送消息
       logic.sendWsMsg(logic.getMsgFromTmsg(
         widget.type,
-        widget.id,
+        widget.conversationId,
         msg,
       ));
       setState(() {

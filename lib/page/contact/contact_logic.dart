@@ -64,7 +64,7 @@ class ContactLogic extends GetxController {
                 size: 20,
               ),
       ),
-      title: Text(model.nickname),
+      title: Text(model.title),
       onTap: model.onPressed ??
           () {
             if (model.uid != null) {
@@ -76,9 +76,8 @@ class ContactLogic extends GetxController {
             if (model.uid != null) {
               Get.to(
                 () => ChatPage(
-                  id: 0,
                   toId: model.uid!,
-                  title: model.nickname,
+                  title: model.title,
                   avatar: model.avatar,
                   type: 'C2C',
                 ),

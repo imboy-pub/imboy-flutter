@@ -52,7 +52,7 @@ dependencies:
   extended_text: ^9.1.0
   extended_text_field: ^10.1.0
   lpinyin: ^2.0.3
-  azlistview: ^2.0.0-nullsafety.0
+  azlistview: ^2.0.0
   # 视频播放器
   video_player: ^2.4.5
   chewie: ^1.3.4

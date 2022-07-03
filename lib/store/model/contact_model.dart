@@ -4,6 +4,7 @@ import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 
 class ContactModel extends ISuspensionBean {
   ContactModel({
@@ -20,7 +21,7 @@ class ContactModel extends ISuspensionBean {
     this.updateTime,
     this.isfriend = 1,
     this.isfrom = 0,
-    this.nameIndex,
+    this.nameIndex = "",
     this.namePinyin,
     this.bgColor,
     this.iconData,
@@ -43,7 +44,7 @@ class ContactModel extends ISuspensionBean {
   int isfriend;
   int isfrom;
 
-  String? nameIndex;
+  String nameIndex;
   String? namePinyin;
   Color? bgColor;
   IconData? iconData;
@@ -52,6 +53,7 @@ class ContactModel extends ISuspensionBean {
   final VoidCallback? onPressed;
   final VoidCallback? onLongPressed;
 
+  /// 联系人来源描述
   String get sourceTr {
     String sourceTr = "";
     // 通过QQ好友添加
@@ -63,6 +65,17 @@ class ContactModel extends ISuspensionBean {
         break;
     }
     return sourceTr;
+  }
+
+  /// 联系人title显示规则： remark > nickname > account
+  String get title {
+    if (strNoEmpty(remark)) {
+      return remark;
+    } else if (strNoEmpty(nickname)) {
+      return nickname;
+    } else {
+      return account;
+    }
   }
 
   factory ContactModel.fromJson(Map<String, dynamic> json) {
@@ -105,7 +118,7 @@ class ContactModel extends ISuspensionBean {
       };
 
   @override
-  String getSuspensionTag() => nameIndex!;
+  String getSuspensionTag() => nameIndex;
 
   @override
   String toString() => json.encode(this);

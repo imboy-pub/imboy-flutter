@@ -134,6 +134,30 @@ class ConversationLogic extends GetxController {
       whereArgs,
     );
   }
+
+  Future<int> createConversationId(
+      String typeId, String avatar, String title, String type) async {
+    ConversationRepo repo = ConversationRepo();
+    ConversationModel? obj = await repo.findByTypeId(typeId);
+    if (obj != null) {
+      return obj.id;
+    }
+
+    return await (ConversationRepo()).insert(ConversationModel.fromJson({
+      'type_id': typeId,
+      'avatar': avatar,
+      'title': title,
+      'subtitle': '',
+      // 单位毫秒，13位时间戳  1561021145560
+      'lasttime': DateTime.now().millisecond,
+      'last_msg_id': 0,
+      'last_msg_status': 1,
+      'unread_num': 0,
+      'type': type,
+      'msgtype': '',
+      'is_show': 0,
+    }));
+  }
   /**
    * 是否当前会话的最后一条消息
    */

@@ -52,15 +52,14 @@ class ContactPage extends StatelessWidget {
   void loadData() async {
     // 加载联系人列表
     logic.contactList.value = await logic.listFriend();
-    debugPrint(">>> on contactList ${logic.contactList.toString()}");
+    // debugPrint(">>> on contactList ${logic.contactList.toString()}");
     contactIsEmpty.value = logic.contactList.isEmpty;
     _handleList(logic.contactList);
   }
 
   void _handleList(List<ContactModel> list) {
-    // if (list.isEmpty) return;
     for (int i = 0; i < list.length; i++) {
-      String pinyin = PinyinHelper.getPinyinE(list[i].nickname);
+      String pinyin = PinyinHelper.getPinyinE(list[i].title);
       String tag = pinyin.substring(0, 1).toUpperCase();
       list[i].namePinyin = pinyin;
       if (RegExp("[A-Z]").hasMatch(tag)) {
@@ -82,7 +81,6 @@ class ContactPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     loadData();
-    debugPrint(">>> contact view build");
     return Scaffold(
       appBar: NavAppBar(
         title: "联系人".tr,

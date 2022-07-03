@@ -182,7 +182,7 @@ class ConversationPage extends StatelessWidget {
                       onTap: () {
                         Get.to(
                           () => ChatPage(
-                            id: model.id,
+                            conversationId: model.id,
                             toId: model.typeId,
                             title: model.title,
                             avatar: model.avatar,

@@ -134,7 +134,6 @@ class ContactDetailPage extends StatelessWidget {
                 isBorder: true,
                 onPressed: () => Get.to(
                   () => ChatPage(
-                    id: 0,
                     toId: id,
                     title: nickname.value,
                     avatar: avatar.value,
