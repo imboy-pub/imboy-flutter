@@ -151,8 +151,8 @@ class MessageRepo {
   Future<int> deleteForUid(String uid) async {
     return await _db.delete(
       MessageRepo.tablename,
-      where: '${MessageRepo.from} = ?',
-      whereArgs: [uid],
+      where: '${MessageRepo.from} = ? or ${MessageRepo.to} = ?',
+      whereArgs: [uid, uid],
     );
   }
 // 记得及时关闭数据库，防止内存泄漏
