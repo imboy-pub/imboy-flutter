@@ -25,6 +25,7 @@ class ContactDetailPage extends StatelessWidget {
   RxString region = "".obs;
   RxString sign = "".obs;
   RxString source = "".obs;
+  RxString title = "".obs;
   RxInt gender = 0.obs;
   RxString remark = "".obs;
 
@@ -38,6 +39,7 @@ class ContactDetailPage extends StatelessWidget {
     ContactModel? model = await logic.findByID(id);
     debugPrint(">>> on cdv initData $id");
     debugPrint(">>> on cdv initData ${model!.toJson().toString()}");
+    title.value = model.title;
     nickname.value = model.nickname;
     avatar.value = model.avatar;
     account.value = model.account;
@@ -135,7 +137,7 @@ class ContactDetailPage extends StatelessWidget {
                 onPressed: () => Get.to(
                   () => ChatPage(
                     toId: id,
-                    title: nickname.value,
+                    title: title.value,
                     avatar: avatar.value,
                     type: 'C2C',
                   ),
