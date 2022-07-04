@@ -10,6 +10,7 @@ import 'package:imboy/component/http/http_config.dart';
 import 'package:imboy/component/http/http_interceptor.dart';
 import 'package:imboy/component/observder/lifecycle.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/page/contact/contact_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/friend/new_friend_logic.dart';
@@ -57,6 +58,8 @@ Future<void> init() async {
   getx.Get.put(HttpClient(dioConfig: dioConfig));
 
   // 需要放在 Get.put(MessageService()); 前
+  final bnLogic = getx.Get.put(BottomNavigationLogic());
+  bnLogic.countNewFriendRemindCounter();
   getx.Get.lazyPut(() => ContactLogic());
   getx.Get.lazyPut(() => NewFriendLogic());
   getx.Get.lazyPut(() => ConversationLogic());
@@ -71,6 +74,9 @@ Future<void> init() async {
   ntpOffset = await StorageService.to.ntpOffset();
   WidgetsBinding.instance.addObserver(
     LifecycleEventHandler(resumeCallBack: () async {
+      // 统计新申请好友数量
+      bnLogic.countNewFriendRemindCounter();
+
       // app 恢复
       debugPrint(">>> on LifecycleEventHandler resumeCallBack");
       ntpOffset = await StorageService.to.ntpOffset();

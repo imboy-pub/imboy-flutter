@@ -24,7 +24,8 @@ class ConversationItem extends StatelessWidget {
   // 最近会话消息状态
   final int? status; // lastMsgStatus
 
-  ConversationItem({Key? key,
+  ConversationItem({
+    Key? key,
     this.imgUri,
     this.onTapAvatar,
     this.title,

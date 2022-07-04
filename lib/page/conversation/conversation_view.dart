@@ -46,6 +46,8 @@ class ConversationPage extends StatelessWidget {
       // 更新会话
       logic.replace(e);
     });
+    // 加载会话记录
+    await logic.getConversationsList();
     // 设置消息提醒数量
     for (var obj in logic.conversations) {
       debugPrint(">>> on logic.conversations ${obj.typeId} = ${obj.unreadNum}");
@@ -56,8 +58,6 @@ class ConversationPage extends StatelessWidget {
         );
       }
     }
-    // 加载会话记录
-    await logic.getConversationsList();
   }
 
   void topRightMenu(popupmenu.MenuItemProvider item) {

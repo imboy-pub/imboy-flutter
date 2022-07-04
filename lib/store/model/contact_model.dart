@@ -47,7 +47,7 @@ class ContactModel extends ISuspensionBean {
   String nameIndex;
   String? namePinyin;
   Color? bgColor;
-  IconData? iconData;
+  Widget? iconData;
   String? firstletter;
 
   final VoidCallback? onPressed;

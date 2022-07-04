@@ -176,6 +176,13 @@ class NewFriendRepo {
     }
   }
 
+  Future<int?> countStatus(int status, String to) async {
+    return await _db.count(
+      NewFriendRepo.tablename,
+      where: '${NewFriendRepo.status} = ? and ${NewFriendRepo.to} = ?',
+      whereArgs: [status, to],
+    );
+  }
   // 记得及时关闭数据库，防止内存泄漏
   // close() async {
   //   await _db.close();

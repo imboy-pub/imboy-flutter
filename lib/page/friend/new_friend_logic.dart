@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/config/enum.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
@@ -12,6 +13,8 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 class NewFriendLogic extends GetxController {
   FocusNode searchF = FocusNode();
   TextEditingController searchC = TextEditingController();
+
+  final BottomNavigationLogic bnlogic = Get.find();
 
   RxList<dynamic> items = [].obs;
 
@@ -54,6 +57,8 @@ class NewFriendLogic extends GetxController {
     // debugPrint(">>> on receivedAddFriend ${saveData.toString()}");
     (NewFriendRepo()).save(saveData);
     replaceItems(NewFriendModel.fromJson(saveData));
+    bnlogic.newFriendRemindCounter.value += 1;
+    bnlogic.update([bnlogic.newFriendRemindCounter]);
     WSService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
   }
 

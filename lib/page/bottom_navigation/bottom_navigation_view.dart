@@ -12,8 +12,8 @@ import 'bottom_navigation_state.dart';
 // ignore: must_be_immutable
 class BottomNavigationPage extends StatelessWidget {
   //全局状态控制器
-  final clogic = Get.put(ConversationLogic());
-  final logic = Get.put(BottomNavigationLogic());
+  final ConversationLogic clogic = Get.find();
+  final BottomNavigationLogic logic = Get.find();
 
   final BottomNavigationState state = Get.find<BottomNavigationLogic>().state;
 
@@ -53,7 +53,7 @@ class BottomNavigationPage extends StatelessWidget {
           items: [
             BottomNavigationBarItem(
               icon: Badge(
-                showBadge: (clogic.chatMsgRemindCounter > 0 ? true : false),
+                showBadge: clogic.chatMsgRemindCounter > 0,
                 shape: BadgeShape.square,
                 borderRadius: BorderRadius.circular(10),
                 position: BadgePosition.topStart(top: -4, start: 20),
@@ -82,7 +82,25 @@ class BottomNavigationPage extends StatelessWidget {
             //   label: "工作台",
             // ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.perm_contact_cal),
+              icon: Badge(
+                showBadge: logic.newFriendRemindCounter.value > 0,
+                shape: BadgeShape.square,
+                borderRadius: BorderRadius.circular(10),
+                position: BadgePosition.topStart(top: -4, start: 20),
+                padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+                child: const Icon(Icons.perm_contact_cal),
+                badgeContent: Container(
+                  color: Colors.red,
+                  alignment: Alignment.center,
+                  child: Text(
+                    logic.newFriendRemindCounter.value.toString(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 8,
+                    ),
+                  ),
+                ),
+              ),
               label: 'title_contact'.tr,
             ),
             BottomNavigationBarItem(

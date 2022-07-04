@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact/contact_detail_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -46,44 +47,48 @@ class ContactLogic extends GetxController {
       image = dynamicAvatar(model.avatar);
     }
 
-    return ListTile(
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          shape: BoxShape.rectangle,
-          borderRadius: BorderRadius.circular(4.0),
-          color: model.bgColor ?? defHeaderBgColor,
-          image: image,
+    return Container(
+      margin: const EdgeInsets.only(left: 10, right: 10),
+      width: Get.width,
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: AppColors.LineColor, width: 0.2),
         ),
-        child: model.iconData == null
-            ? null
-            : Icon(
-                model.iconData,
-                color: Colors.white,
-                size: 20,
-              ),
       ),
-      title: Text(model.title),
-      onTap: model.onPressed ??
-          () {
-            if (model.uid != null) {
-              Get.to(() => ContactDetailPage(id: model.uid!));
-            }
-          },
-      onLongPress: model.onLongPressed ??
-          () {
-            if (model.uid != null) {
-              Get.to(
-                () => ChatPage(
-                  toId: model.uid!,
-                  title: model.title,
-                  avatar: model.avatar,
-                  type: 'C2C',
-                ),
-              );
-            }
-          },
+      child: ListTile(
+        leading: Container(
+          width: 49,
+          height: 49,
+          decoration: BoxDecoration(
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(4.0),
+            color: model.bgColor ?? defHeaderBgColor,
+            image: image,
+          ),
+          child: model.iconData,
+        ),
+        contentPadding: const EdgeInsets.only(left: 0),
+        title: Text(model.title),
+        onTap: model.onPressed ??
+            () {
+              if (model.uid != null) {
+                Get.to(() => ContactDetailPage(id: model.uid!));
+              }
+            },
+        onLongPress: model.onLongPressed ??
+            () {
+              if (model.uid != null) {
+                Get.to(
+                  () => ChatPage(
+                    toId: model.uid!,
+                    title: model.title,
+                    avatar: model.avatar,
+                    type: 'C2C',
+                  ),
+                );
+              }
+            },
+      ),
     );
   }
 
@@ -91,7 +96,7 @@ class ContactLogic extends GetxController {
     return Container(
       height: susHeight,
       width: MediaQuery.of(context).size.width,
-      padding: const EdgeInsets.only(left: 16.0),
+      padding: const EdgeInsets.only(left: 10.0),
       color: const Color(0xFFF3F4F5),
       alignment: Alignment.centerLeft,
       child: Text(
