@@ -71,7 +71,7 @@ class AddFriendLogic extends GetxController {
       // debugPrint(">>> on receivedAddFriend ${saveData.toString()}");
       (NewFriendRepo()).save(saveData);
       EasyLoading.showSuccess("已发送".tr);
-      Get.close(1);
+      Get.close(2);
     } else {
       EasyLoading.showError("网络故障，请重试！".tr);
     }

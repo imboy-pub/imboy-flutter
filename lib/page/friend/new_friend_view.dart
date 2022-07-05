@@ -8,7 +8,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/search_bar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
-import 'package:imboy/page/contact/contact_detail_view.dart';
+import 'package:imboy/page/scanner/scanner_result_view.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:jiffy/jiffy.dart';
@@ -209,8 +209,20 @@ class NewFriendPage extends StatelessWidget {
                                     ),
                                   ),
                                   onTap: () {
-                                    Get.to(
-                                        () => ContactDetailPage(id: model.to));
+                                    // Get.to(
+                                    //     () => ContactDetailPage(id: model.to));
+                                    Get.to(() => ScannerResultPage(
+                                          id: model.to,
+                                          // remark: model.payload['remark'] ?? '',
+                                          nickname: model.nickname,
+                                          avatar: model.avatar ?? defAvatar,
+                                          sign: '',
+                                          region: '',
+                                          gender: 0,
+                                          // status 0 待验证  1 已添加  2 已过期
+                                          isfriend:
+                                              model.status == 1 ? true : false,
+                                        ));
                                   },
                                 ),
                               ),

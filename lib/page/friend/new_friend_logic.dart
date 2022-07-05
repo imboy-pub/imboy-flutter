@@ -19,7 +19,7 @@ class NewFriendLogic extends GetxController {
   RxList<dynamic> items = [].obs;
 
   Future<List<NewFriendModel>> listNewFriend(String uid) async {
-    return await (NewFriendRepo()).listNewFriend(uid, 500);
+    return await (NewFriendRepo()).listNewFriend(uid, 10000);
   }
 
   /// 收到添加好友
@@ -57,7 +57,7 @@ class NewFriendLogic extends GetxController {
     // debugPrint(">>> on receivedAddFriend ${saveData.toString()}");
     (NewFriendRepo()).save(saveData);
     replaceItems(NewFriendModel.fromJson(saveData));
-    bnlogic.newFriendRemindCounter.value += 1;
+    bnlogic.newFriendRemindCounter.add(from);
     bnlogic.update([bnlogic.newFriendRemindCounter]);
     WSService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
   }

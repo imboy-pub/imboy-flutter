@@ -14,7 +14,7 @@ class NewFriendRepo {
   static String nickname = 'nickname';
   static String avatar = 'avatar';
   static String msg = 'msg';
-  // 已添加 已过期 待验证 接受
+  // 0 待验证  1 已添加  2 已过期
   static String status = 'status';
 
   static String payload = 'payload';

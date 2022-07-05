@@ -30,25 +30,25 @@ class ContactPage extends StatelessWidget {
         nickname: '新的朋友'.tr,
         nameIndex: '↑',
         bgColor: Colors.orange,
-        iconData: Badge(
-          showBadge: bnLogic.newFriendRemindCounter.value > 0,
-          shape: BadgeShape.square,
-          borderRadius: BorderRadius.circular(10),
-          position: BadgePosition.topStart(top: 0, start: 128),
-          padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
-          child: const Icon(Icons.person_add),
-          badgeContent: Container(
-            color: Colors.red,
-            alignment: Alignment.center,
-            child: Text(
-              bnLogic.newFriendRemindCounter.value.toString(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 8,
+        iconData: Obx(() => Badge(
+              showBadge: bnLogic.newFriendRemindCounter.isNotEmpty,
+              shape: BadgeShape.square,
+              borderRadius: BorderRadius.circular(10),
+              position: BadgePosition.topStart(top: 0, start: 128),
+              padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+              child: const Icon(Icons.person_add),
+              badgeContent: Container(
+                color: Colors.red,
+                alignment: Alignment.center,
+                child: Text(
+                  bnLogic.newFriendRemindCounter.length.toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 8,
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
+            )),
         onPressed: () {
           Get.to(() => NewFriendPage());
         },

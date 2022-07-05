@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/page/contact/contact_logic.dart';
 
 import 'new_friend_logic.dart';
@@ -23,6 +25,7 @@ class ConfirmNewFriendLogic extends GetxController {
 
   final ContactLogic ctlogic = Get.find();
   final NewFriendLogic nflogic = Get.find();
+  final BottomNavigationLogic bnlogic = Get.find();
 
   void setRole(String role) {
     // debugPrint(">>> on ConfirmNewFriendLogic/setRole1 ${this.role.value} = ${role}");
@@ -60,6 +63,13 @@ class ConfirmNewFriendLogic extends GetxController {
       });
       // 存储好友信息
       ctlogic.receivedConfirFriend(resp.payload);
+      Future.delayed(const Duration(seconds: 1), () {
+        // 重新计算"新的好友提醒计数器"
+        debugPrint(">>> on countNewFriendRemindCounter $from");
+        bnlogic.newFriendRemindCounter.remove(from);
+        bnlogic.update([bnlogic.newFriendRemindCounter]);
+      });
+
       Get.close(1);
     } else {
       EasyLoading.showError("网络故障，请重试！".tr);

@@ -19,6 +19,8 @@ class NewFriendModel {
   final String to; // 接收者ID
   final String nickname; // 昵称
   final String? avatar; // 用户头像
+
+  // 0 待验证  1 已添加  2 已过期
   int status; //
   String msg;
   final int? updateTime;

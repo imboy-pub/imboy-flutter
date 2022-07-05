@@ -83,7 +83,7 @@ class BottomNavigationPage extends StatelessWidget {
             // ),
             BottomNavigationBarItem(
               icon: Badge(
-                showBadge: logic.newFriendRemindCounter.value > 0,
+                showBadge: logic.newFriendRemindCounter.isNotEmpty,
                 shape: BadgeShape.square,
                 borderRadius: BorderRadius.circular(10),
                 position: BadgePosition.topStart(top: -4, start: 20),
@@ -93,7 +93,7 @@ class BottomNavigationPage extends StatelessWidget {
                   color: Colors.red,
                   alignment: Alignment.center,
                   child: Text(
-                    logic.newFriendRemindCounter.value.toString(),
+                    logic.newFriendRemindCounter.length.toString(),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 8,
