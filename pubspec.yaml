@@ -117,7 +117,9 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/popup_menu.git
       ref: master
   niku: ^2.3.1
+  # 二维码扫描
   mobile_scanner: ^2.0.0
+  # 二维码生成
   qr_flutter: ^4.0.0
   url_launcher: ^6.1.4
   image_gallery_saver: ^1.7.1

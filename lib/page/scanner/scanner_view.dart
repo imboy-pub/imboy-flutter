@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -22,11 +23,11 @@ class _ScannerPageState extends State<ScannerPage>
   String? barcode;
 
   MobileScannerController controller = MobileScannerController(
-    torchEnabled: false,
+    // torchEnabled: false, // 是否 打开灯
     formats: [BarcodeFormat.all],
+    // formats: [BarcodeFormat.qrCode],
     // facing: CameraFacing.front,
   );
-
   final logic = Get.put(ScannerLogic());
   bool isStarted = true;
 
@@ -61,8 +62,9 @@ class _ScannerPageState extends State<ScannerPage>
               MobileScanner(
                 controller: controller,
                 fit: BoxFit.contain,
-                allowDuplicates: true,
+                allowDuplicates: false,
                 onDetect: (barcode, args) async {
+                  debugPrint(">>> on barcode.rawValue ${barcode.rawValue}");
                   if (this.barcode != barcode.rawValue) {
                     // New barcode found !!
                     setState(() {
@@ -196,37 +198,41 @@ class _ScannerPageState extends State<ScannerPage>
                         iconSize: 32.0,
                         onPressed: () => controller.switchCamera(),
                       ),
-                      // IconButton(
-                      //   color: Colors.white,
-                      //   icon: const Icon(Icons.image),
-                      //   iconSize: 32.0,
-                      //   onPressed: () async {
-                      //     final ImagePicker _picker = ImagePicker();
-                      //     // Pick an image
-                      //     final XFile? image = await _picker.pickImage(
-                      //       source: ImageSource.gallery,
-                      //     );
-                      //     if (image != null) {
-                      //       if (await controller.analyzeImage(image.path)) {
-                      //         if (!mounted) return;
-                      //         ScaffoldMessenger.of(context).showSnackBar(
-                      //           const SnackBar(
-                      //             content: Text('Barcode found!'),
-                      //             backgroundColor: Colors.green,
-                      //           ),
-                      //         );
-                      //       } else {
-                      //         if (!mounted) return;
-                      //         ScaffoldMessenger.of(context).showSnackBar(
-                      //           const SnackBar(
-                      //             content: Text('No barcode found!'),
-                      //             backgroundColor: Colors.red,
-                      //           ),
-                      //         );
-                      //       }
-                      //     }
-                      //   },
-                      // ),
+                      IconButton(
+                        color: Colors.white,
+                        icon: const Icon(Icons.image),
+                        iconSize: 32.0,
+                        onPressed: () async {
+                          isStarted = true;
+                          final ImagePicker _picker = ImagePicker();
+                          // Pick an image
+                          final XFile? image = await _picker.pickImage(
+                            source: ImageSource.gallery,
+                          );
+                          if (image == null) {
+                            return;
+                          }
+                          bool res = await controller.analyzeImage(image.path);
+                          debugPrint(">>> on barcode $res ${image.path}");
+                          if (res) {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Barcode found!'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          } else {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('No barcode found!'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ),
