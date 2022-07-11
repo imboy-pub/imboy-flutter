@@ -38,12 +38,12 @@ class MinePage extends StatelessWidget {
       'label': '收藏',
       'icon': 'assets/images/mine/ic_collections.png',
       'vertical': 0.0,
-      'border': const Border(
-        bottom: BorderSide(
-          color: AppColors.LineColor,
-          width: 0.2,
-        ),
-      ),
+      // 'border': const Border(
+      //   bottom: BorderSide(
+      //     color: AppColors.LineColor,
+      //     width: 0.2,
+      //   ),
+      // ),
     },
     // {
     //   'label': '相册',
@@ -64,12 +64,12 @@ class MinePage extends StatelessWidget {
       'label': '设置',
       'icon': 'assets/images/mine/ic_setting.png',
       'vertical': 10.0,
-      'border': const Border(
-        bottom: BorderSide(
-          color: AppColors.LineColor,
-          width: 0.2,
-        ),
-      ),
+      // 'border': const Border(
+      //   bottom: BorderSide(
+      //     color: AppColors.LineColor,
+      //     width: 0.2,
+      //   ),
+      // ),
     },
   ];
 
