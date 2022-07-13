@@ -151,7 +151,7 @@ class ConversationLogic extends GetxController {
       'subtitle': '',
       // 单位毫秒，13位时间戳  1561021145560
       'lasttime': DateTime.now().millisecond,
-      'last_msg_id': 0,
+      'last_msg_id': '',
       'last_msg_status': 1,
       'unread_num': 0,
       'type': type,
