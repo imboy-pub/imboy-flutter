@@ -28,7 +28,7 @@ class PassportPage extends StatelessWidget {
     if (args is Map<String, dynamic>) {
       msgtype = args["msgtype"] ?? "";
     }
-    if (msgtype == "786" && args is Map<String, dynamic>) {
+    if (msgtype == "logged_another_device" && args is Map<String, dynamic>) {
       String dname = args['dname'] ?? '';
       if (dname == "") {
         dname = "其他";

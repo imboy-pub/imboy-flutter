@@ -48,52 +48,78 @@ class MessageService extends GetxService {
           break;
         case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
           break;
+        case 'error': //
+          await switchError(data);
+          break;
         case 'S2C':
-          var payload = data['payload'] ?? {};
-          if (payload is String) {
-            payload = json.decode(payload);
-          }
-          var msgType = payload['msg_type'] ?? '';
-          switch (msgType.toString()) {
-            // case 705: // token无效、刷新token 这里不处理，不发送消息
-            case "apply_friend": // 添加好友申请
-              nflogic.receivedAddFriend(data);
-              break;
-            case "apply_friend_confirm": // 添加好友申请确认
-              // 接受消息人（to）新增联系人
-              ctlogic.receivedConfirFriend(data['payload']);
-              // 修正好友申请状态
-              nflogic.receivedConfirFriend(true, data);
-              break;
-            case "706": // 需要重新登录
-              {
-                Get.off(() => PassportPage());
-              }
-              break;
-            case "786": // 在其他地方上线
-              {
-                String currentdid = await DeviceExt.did;
-                String did = payload['did'] ?? '';
-                if (did != currentdid) {
-                  String dname = payload['dname'] ?? '';
-                  int serverTs = data['server_ts'] ?? 0;
-                  WSService.to.closeSocket();
-                  UserRepoLocal.to.logout();
-                  Get.off(() => PassportPage(), arguments: {
-                    "msgtype": "786",
-                    "server_ts": serverTs,
-                    "dname": dname,
-                  });
-                }
-              }
-              break;
-            case "1019": // 好友上线提现
-              // TODO
-              break;
-          }
+          await switchS2C(data);
           break;
       }
     });
+  }
+
+  Future<void> switchError(Map data) async {
+    var code = data['code'] ?? '';
+    // * Msg2.code = 1 无需弹窗错误，可以记录日志后直接忽略错误 Msg2.payload 可能为空，不需要处理
+    // * Msg2.code = 2 带title弹窗，Msg2.payload 不能为空 必须包含title content字段
+    // * Msg2.code = 3 无title弹窗，Msg2.payload 不能为空 必须包含 content字段
+    switch (code.toString()) {
+      case '705': // token无效、刷新token
+        // TODO
+        break;
+      case '706': // 需要重新登录
+        Get.off(() => PassportPage());
+        break;
+    }
+  }
+
+  Future<void> switchS2C(Map data) async {
+    var payload = data['payload'] ?? {};
+    if (payload is String) {
+      payload = json.decode(payload);
+    }
+    var msgType = payload['msg_type'] ?? '';
+    switch (msgType.toString().toLowerCase()) {
+      case "apply_friend": // 添加好友申请
+        nflogic.receivedAddFriend(data);
+        break;
+      case "apply_friend_confirm": // 添加好友申请确认
+        // 接受消息人（to）新增联系人
+        ctlogic.receivedConfirFriend(payload);
+        // 修正好友申请状态
+        nflogic.receivedConfirFriend(true, data);
+        break;
+      case "isnotfriend":
+        // String msgId = payload['content'] ?? '';
+        // TODO
+        break;
+      case "logged_another_device": // 在其他设备登录了
+        String currentdid = await DeviceExt.did;
+        String did = payload['did'] ?? '';
+        if (did != currentdid) {
+          String dname = payload['dname'] ?? '';
+          int serverTs = data['server_ts'] ?? 0;
+          WSService.to.closeSocket();
+          UserRepoLocal.to.logout();
+          Get.off(() => PassportPage(), arguments: {
+            "msgtype": "logged_another_device",
+            "server_ts": serverTs,
+            "dname": dname,
+          });
+        }
+
+        break;
+      case "online": // 好友上线提醒
+        // TODO
+        break;
+      case "offline": // 好友下线提醒
+        // TODO
+        break;
+      case "hide": // 好友hide提醒
+        // TODO
+        // String uid = data['from'] ?? '';
+        break;
+    }
   }
 
   /// Called before [onDelete] method. [onClose] might be used to
