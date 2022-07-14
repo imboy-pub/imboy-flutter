@@ -60,6 +60,10 @@
 		<key>UIStatusBarHidden</key>
 		<false/>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
+		<key>UIBackgroundModes</key>
+        <array>
+            <string>remote-notification</string>
+        </array>
 	<true/>
 </dict>
 </plist>
