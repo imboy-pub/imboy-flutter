@@ -25,7 +25,7 @@ enum SocketStatus {
 class WSService extends GetxService {
   static WSService get to => Get.find();
 
-  Iterable<String> subprotocol = ['text'];
+  Iterable<String> subprotocol = ['sip', 'text'];
   String pingMsg = 'ping';
 
   IOWebSocketChannel? _webSocketChannel; // WebSocket
@@ -167,7 +167,10 @@ class WSService extends GetxService {
       }
     }
     _socketStatus = SocketStatus.SocketStatusClosed;
-    _reconnect();
+    // 0.2S 内只能一次 _reconnect
+    imboyDebounce(() async {
+      _reconnect();
+    }, 200);
   }
 
   /// WebSocket连接错误回调

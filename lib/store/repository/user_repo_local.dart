@@ -63,12 +63,15 @@ class UserRepoLocal extends GetxController {
 
   /// 刷新token
   Future<void> refreshtoken() async {
-    String newToken = await (UserProvider()).refreshtoken(
-      UserRepoLocal.to.currentUser.refreshtoken!,
-    );
-    if (strNoEmpty(newToken)) {
-      await StorageService.to.setString(Keys.tokenKey, newToken);
-    }
+    // 0.2S 内只能一次 refreshtoken
+    imboyDebounce(() async {
+      String newToken = await (UserProvider()).refreshtoken(
+        UserRepoLocal.to.currentUser.refreshtoken!,
+      );
+      if (strNoEmpty(newToken)) {
+        await StorageService.to.setString(Keys.tokenKey, newToken);
+      }
+    }, 200);
   }
 
   @override

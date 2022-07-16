@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -119,7 +120,7 @@ void clearMemoryImageCache() {
 
 String hiddenPhone(String phone) {
   String sub = phone.substring(0, 3);
-  String end = phone.substring(phone.length-3, phone.length);
+  String end = phone.substring(phone.length - 3, phone.length);
   return '$sub****$end';
 }
 
@@ -135,7 +136,8 @@ bool isEmail(String value) {
   if (strEmpty(value)) {
     return false;
   }
-  String pt = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}\$";
+  String pt =
+      "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}\$";
   // debugPrint(">>> on isEmail ${value} : ${RegExp(pt).hasMatch(value)}");
   return RegExp(pt).hasMatch(value);
 }
@@ -214,4 +216,17 @@ dynamic genderIcon(int gendor) {
     );
   }
   return gimg;
+}
+
+Function imboyDebounce(Function fn, [int t = 30]) {
+  late Timer _debounce;
+  return () {
+    // 还在时间之内，抛弃上一次
+    if (_debounce.isActive) {
+      _debounce.cancel();
+    }
+    _debounce = Timer(Duration(milliseconds: t), () {
+      fn();
+    });
+  };
 }
