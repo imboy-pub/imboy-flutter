@@ -62,7 +62,6 @@ dependencies:
   mime: ^1.0.2
   file_picker: ^4.6.1
   open_file: ^3.2.1
-  sqflite: ^2.0.2+1
   # 是否联网及网络类型
   connectivity_plus: ^2.3.5
   flutter_screenutil: ^5.5.3+2
@@ -123,14 +122,19 @@ dependencies:
   qr_flutter: ^4.0.0
   url_launcher: ^6.1.4
   image_gallery_saver: ^1.7.1
+  sqflite: ^2.0.2+1
   isar: ^2.5.0
   isar_flutter_libs: ^2.5.0 # contains the binaries
-  sip_ua: ^0.5.1
   flutter_local_notifications: ^9.7.0
   flutter_app_badger: ^1.4.0
-
-#  flutter_login:
-#    path: plugin/flutter_login
+  flutter_webrtc: ^0.8.12
+  # sip_ua: ^0.5.1
+  # sip_ua:
+  #   git:
+  #     url: https://gitee.com/imboy-tripartite-deps/dart-sip-ua.git
+  #     ref: master
+  # flutter_login:
+  #  path: plugin/flutter_login
 
 dev_dependencies:
   build_runner: ^2.1.11

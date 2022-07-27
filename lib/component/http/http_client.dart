@@ -17,9 +17,10 @@ import 'http_parse.dart';
 import 'http_response.dart';
 import 'http_transformer.dart';
 
-Map<String, dynamic> defaultHeaders() {
+Future<Map<String, dynamic>> defaultHeaders() async {
   return {
     'vsn': appVsn,
+    'did': await DeviceExt.did,
     'cos': Platform.operatingSystem,
     'cosv': Platform.operatingSystemVersion,
   };
@@ -53,6 +54,13 @@ class HttpClient {
       _dio.interceptors.addAll(dioConfig!.interceptors!);
     }
     _dio.httpClientAdapter = DefaultHttpClientAdapter();
+    (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+        (client) {
+      client.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+      return client;
+    };
+
     if (dioConfig?.proxy?.isNotEmpty ?? false) {
       setProxy(dioConfig!.proxy!);
     }
@@ -84,8 +92,7 @@ class HttpClient {
         await UserRepoLocal.to.refreshtoken();
       }
     }
-    Map<String, dynamic> headers = defaultHeaders();
-    headers["did"] = await DeviceExt.did;
+    Map<String, dynamic> headers = await defaultHeaders();
     _dio.options.headers.addAll(headers);
   }
 

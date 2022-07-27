@@ -1,3 +1,5 @@
+import 'dart:io' as io;
+
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -36,7 +38,21 @@ int ntpOffset = 0;
 /// The global [EventBus] object.
 EventBus eventBus = EventBus();
 
+// https://github.com/dart-lang/web_socket_channel/issues/134
+class GlobalHttpOverrides extends io.HttpOverrides {
+  @override
+  io.HttpClient createHttpClient(io.SecurityContext? context) {
+    // 全局忽略Https证书验证
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (io.X509Certificate cert, String host, int port) => true;
+  }
+}
+
 Future<void> init() async {
+  // 解决使用自签证书报错问题
+  io.HttpOverrides.global = GlobalHttpOverrides();
+
   await dotenv.load(fileName: "assets/.env"); //
   // debugPrint(">>> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
   // 放在 UserRepoLocal 前面

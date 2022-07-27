@@ -56,6 +56,7 @@ class PassportLogic extends GetxController {
 
   Future<Map<String, dynamic>> encryptPassword(String password) async {
     IMBoyHttpResponse resp1 = await HttpClient.client.get("/init");
+    debugPrint(">>> on init ${resp1.toString()}");
     if (!resp1.ok) {
       return {"error": "网络故障或服务故障"};
     }

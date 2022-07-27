@@ -724,12 +724,12 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_webrtc:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_webrtc
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.8.11"
+    version: "0.8.12"
   font_awesome_flutter:
     dependency: transitive
     description:
@@ -961,13 +961,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.1"
-  lists:
-    dependency: transitive
-    description:
-      name: lists
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.1"
   logger:
     dependency: "direct main"
     description:
@@ -1115,13 +1108,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.5"
-  parser_error:
-    dependency: transitive
-    description:
-      name: parser_error
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.2.0"
   path:
     dependency: transitive
     description:
@@ -1341,13 +1327,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.1.0"
-  random_string:
-    dependency: transitive
-    description:
-      name: random_string
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.3.1"
   recase:
     dependency: transitive
     description:
@@ -1369,13 +1348,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.2.3"
-  sdp_transform:
-    dependency: transitive
-    description:
-      name: sdp_transform
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.3.2"
   search_page:
     dependency: "direct main"
     description:
@@ -1460,13 +1432,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.0.0"
-  sip_ua:
-    dependency: "direct main"
-    description:
-      name: sip_ua
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.5.1"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -1556,13 +1521,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.4.9"
-  text:
-    dependency: transitive
-    description:
-      name: text
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.2.0"
   time:
     dependency: transitive
     description:
