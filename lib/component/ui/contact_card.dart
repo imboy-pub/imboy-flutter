@@ -49,14 +49,17 @@ class ContactCard extends StatelessWidget {
     List<Widget> items = <Widget>[
       n.Row(
         [
-          Text(
+          Expanded(
+              child: Text(
             title,
             style: const TextStyle(
               color: Colors.black,
               fontSize: 18.0,
               fontWeight: FontWeight.w600,
             ),
-          ),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          )),
           const Space(width: mainSpace / 3),
           genderIcon(gender),
         ],
@@ -120,10 +123,9 @@ class ContactCard extends StatelessWidget {
             },
           ),
           const Space(width: mainSpace * 2),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: items,
-          )
+          Expanded(
+              child: n.Column(items)
+                ..crossAxisAlignment = CrossAxisAlignment.start),
         ],
       ),
     );

@@ -27,6 +27,7 @@ import 'package:imboy/store/provider/attachment_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:popup_menu/popup_menu.dart' as popupmenu;
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:xid/xid.dart';
@@ -664,7 +665,11 @@ class ChatPageState extends State<ChatPage> {
               _showAppBar = true;
             });
           },
-          showGalleryCloseButton: false,
+          imageGalleryOptions: const ImageGalleryOptions(
+            maxScale: PhotoViewComputedScale.covered,
+            minScale: PhotoViewComputedScale.contained,
+            showGalleryCloseButton: false,
+          ),
           onMessageLongPress: _onMessageLongPress,
           onPreviewDataFetched: _handlePreviewDataFetched,
           onSendPressed: _handleSendPressed,

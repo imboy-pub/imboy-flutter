@@ -139,6 +139,8 @@ class ImboyChatTheme extends ChatTheme {
     TextStyle sentEmojiMessageTextStyle = const TextStyle(fontSize: 20),
     EdgeInsets statusIconPadding = const EdgeInsets.symmetric(horizontal: 4),
   }) : super(
+          sendButtonMargin: null,
+          attachmentButtonMargin: null,
           attachmentButtonIcon: attachmentButtonIcon,
           backgroundColor: backgroundColor,
           dateDividerMargin: dateDividerMargin,

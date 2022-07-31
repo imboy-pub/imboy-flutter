@@ -572,7 +572,7 @@ packages:
       path: "plugin/flutter_chat_ui"
       relative: true
     source: path
-    version: "1.5.4"
+    version: "1.6.4"
   flutter_dotenv:
     dependency: "direct main"
     description:
@@ -593,7 +593,7 @@ packages:
       name: flutter_link_previewer
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.6.6"
+    version: "3.0.1"
   flutter_linkify:
     dependency: transitive
     description:
@@ -650,6 +650,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.2.6"
+  flutter_parsed_text:
+    dependency: transitive
+    description:
+      name: flutter_parsed_text
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.2.1"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -1661,6 +1668,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.12"
+  visibility_detector:
+    dependency: transitive
+    description:
+      name: visibility_detector
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.3.3"
   wakelock:
     dependency: transitive
     description:
