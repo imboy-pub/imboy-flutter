@@ -140,7 +140,6 @@ class ImboyChatTheme extends ChatTheme {
     EdgeInsets statusIconPadding = const EdgeInsets.symmetric(horizontal: 4),
   }) : super(
           attachmentButtonIcon: attachmentButtonIcon,
-          attachmentButtonMargin: null,
           backgroundColor: backgroundColor,
           dateDividerMargin: dateDividerMargin,
           dateDividerTextStyle: dateDividerTextStyle,
@@ -186,7 +185,6 @@ class ImboyChatTheme extends ChatTheme {
             top: Radius.circular(8),
           ),
           inputMargin: const EdgeInsets.fromLTRB(16, 8, 18, 8),
-          sendButtonMargin: null,
         );
 }
 

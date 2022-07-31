@@ -38,27 +38,26 @@ Widget _buildVoiceButton(BuildContext context) {
   );
 }
 
-typedef OnSend = void Function(String text);
-
 InputType _initType = InputType.text;
 
 double _softKeyHeight = 210;
 
 class ChatInput extends StatefulWidget {
   const ChatInput({
+    // super.key,
     Key? key,
     this.isAttachmentUploading,
     this.onAttachmentPressed,
     required this.onSendPressed,
+    // this.options = const InputOptions(),
+    // imboy add
     this.onTextChanged,
     this.onTextFieldTap,
     required this.sendButtonVisibilityMode,
     this.extraWidget,
     this.voiceWidget,
+    // imboy add end
   }) : super(key: key);
-
-  /// See [AttachmentButton.onPressed]
-  final void Function()? onAttachmentPressed;
 
   /// Whether attachment is uploading. Will replace attachment button with a
   /// [CircularProgressIndicator]. Since we don't have libraries for
@@ -66,9 +65,18 @@ class ChatInput extends StatefulWidget {
   /// something is uploading so you need to set this manually.
   final bool? isAttachmentUploading;
 
+  /// See [AttachmentButton.onPressed].
+  final VoidCallback? onAttachmentPressed;
+
   /// Will be called on [SendButton] tap. Has [types.PartialText] which can
   /// be transformed to [types.TextMessage] and added to the messages list.
+  // final void Function(types.PartialText) onSendPressed;
   final Future<bool> Function(types.PartialText) onSendPressed;
+
+  // /// Customisation options for the [Input].
+  // final InputOptions options;
+
+  // imboy add
 
   /// Will be called whenever the text inside [TextField] changes
   final void Function(String)? onTextChanged;
@@ -83,6 +91,8 @@ class ChatInput extends StatefulWidget {
 
   final Widget? extraWidget;
   final Widget? voiceWidget;
+
+  // imboy add end
 
   @override
   _ChatInputState createState() => _ChatInputState();
@@ -415,22 +425,19 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   /// 实现换行效果
   /// Implement line breaks
-  void _handleNewLine() {
-    final _newValue = '${_textController.text}\r\n';
-    _textController.value = TextEditingValue(
-      text: _newValue,
-      selection: TextSelection.fromPosition(
-        TextPosition(offset: _newValue.length),
-      ),
-    );
-  }
+  // void _handleNewLine() {
+  //   final _newValue = '${_textController.text}\r\n';
+  //   _textController.value = TextEditingValue(
+  //     text: _newValue,
+  //     selection: TextSelection.fromPosition(
+  //       TextPosition(offset: _newValue.length),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
     final _query = MediaQuery.of(context);
-
-    final isAndroid = Theme.of(context).platform == TargetPlatform.android;
-    final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
 
     return InkWell(
       child: Focus(
@@ -456,40 +463,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                       buildLeftButton(),
                       // input
                       Expanded(
-                        child: Shortcuts(
-                          shortcuts: isAndroid || isIOS
-                              ? {
-                                  LogicalKeySet(LogicalKeyboardKey.enter):
-                                      const NewLineIntent(),
-                                  LogicalKeySet(LogicalKeyboardKey.enter,
-                                          LogicalKeyboardKey.alt):
-                                      const NewLineIntent(),
-                                }
-                              : {
-                                  LogicalKeySet(LogicalKeyboardKey.enter):
-                                      const SendMessageIntent(),
-                                  LogicalKeySet(LogicalKeyboardKey.enter,
-                                          LogicalKeyboardKey.alt):
-                                      const NewLineIntent(),
-                                  LogicalKeySet(LogicalKeyboardKey.enter,
-                                          LogicalKeyboardKey.shift):
-                                      const NewLineIntent(),
-                                },
-                          child: Actions(
-                            actions: {
-                              SendMessageIntent:
-                                  CallbackAction<SendMessageIntent>(
-                                onInvoke: (SendMessageIntent intent) =>
-                                    _handleSendPressed(),
-                              ),
-                              NewLineIntent: CallbackAction<NewLineIntent>(
-                                onInvoke: (NewLineIntent intent) =>
-                                    _handleNewLine(),
-                              ),
-                            },
-                            child: _buildInputButton(context),
-                          ),
-                        ),
+                        child: _buildInputButton(context),
                       ),
                       // emoji
                       buildEmojiButton(),

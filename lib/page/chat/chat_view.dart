@@ -646,11 +646,6 @@ class ChatPageState extends State<ChatPage> {
             AnimationController _bottomHeightController = getx.Get.find();
             _bottomHeightController.animateBack(0);
           },
-          // onPreviewDataFetched:(types.Message message, types.PreviewData dt) {}),
-          onMessageVisibilityChanged: (types.Message message, bool visible) {
-            // debugPrint(
-            //     ">>> on onMessageVisibilityChanged ${_showAppBar}, visible:${visible}");
-          },
           onMessageTap: (BuildContext c1, types.Message message) async {
             if (message is types.ImageMessage) {
               setState(() {
@@ -677,9 +672,9 @@ class ChatPageState extends State<ChatPage> {
           onMessageStatusLongPress: _onMessageStatusTap,
           hideBackgroundOnEmojiMessages: false,
           theme: const ImboyChatTheme(),
-          onTextFieldTap: () {
-            // debugPrint(">>> on chatinput onTextFieldTap");
-          },
+          // onTextFieldTap: () {
+          // debugPrint(">>> on chatinput onTextFieldTap");
+          // },
           customBottomWidget: ChatInput(
             // 发送触发事件
             onSendPressed: _handleSendPressed,

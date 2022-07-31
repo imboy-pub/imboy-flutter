@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/contact_card.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/chat/call_screen_view.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact/contact_setting_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -147,7 +148,14 @@ class ContactDetailPage extends StatelessWidget {
                 visible: !isSelf,
                 child: ButtonRow(
                   text: '音视频通话'.tr,
-                  onPressed: () => EasyLoading.showToast('敬请期待'),
+                  onPressed: () {
+                    Get.to(() => CallScreenPage(
+                          to: id,
+                          title: title.value,
+                          avatar: avatar.value,
+                          sign: sign.value,
+                        ));
+                  },
                 ),
               ),
             ],

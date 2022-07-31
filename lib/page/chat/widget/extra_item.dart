@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/chat/call_screen_view.dart';
 
 class ExtraItem extends StatelessWidget {
   const ExtraItem({
@@ -100,12 +101,21 @@ class _ExtraItemsState extends State<ExtraItems> {
               ),
               ExtraItem(
                 title: "视频通话".tr,
-                image: const AssetImage('assets/images/chat/extra_videocall.webp'),
-                onPressed: null,
+                image:
+                    const AssetImage('assets/images/chat/extra_videocall.webp'),
+                onPressed: () async {
+                  Get.to(() => CallScreenPage(
+                        to: 'to',
+                        title: 'toname',
+                        avatar: defAvatar,
+                        sign: 'sign',
+                      ));
+                },
               ),
               ExtraItem(
                 title: "位置".tr,
-                image: const AssetImage('assets/images/chat/extra_localtion.webp'),
+                image:
+                    const AssetImage('assets/images/chat/extra_localtion.webp'),
                 onPressed: null,
               ),
             ],
@@ -124,7 +134,8 @@ class _ExtraItemsState extends State<ExtraItems> {
               ),
               ExtraItem(
                 title: "收藏".tr,
-                image: const AssetImage('assets/images/chat/extra_favorite.webp'),
+                image:
+                    const AssetImage('assets/images/chat/extra_favorite.webp'),
                 onPressed: null,
               ),
               ExtraItem(

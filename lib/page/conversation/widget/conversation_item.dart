@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/config/const.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'content_msg.dart';
 
@@ -92,37 +93,33 @@ class ConversationItem extends StatelessWidget {
               children: <Widget>[
                 const Space(width: 6),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Row(
-                        children: [
-                          Text(
-                            title ?? '',
-                            style: const TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.normal,
-                            ),
+                  child: n.Column(
+                    [
+                      n.Row([
+                        Text(
+                          title ?? '',
+                          style: const TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.normal,
                           ),
-                        ],
-                      ),
+                        ),
+                      ]),
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
-                        child: Row(
-                          children: [
-                            Column(
-                              children: icon,
-                            ),
+                        child: n.Row(
+                          [
+                            n.Column(icon),
                             Expanded(child: ContentMsg(payload)),
                           ],
                         ),
                       ),
                     ],
+                    crossAxisAlignment: CrossAxisAlignment.start,
                   ),
                 ),
                 // Space(width: mainSpace),
-                Column(
-                  children: [
+                n.Column(
+                  [
                     time!,
                     const Icon(Icons.flag, color: Colors.transparent),
                   ],

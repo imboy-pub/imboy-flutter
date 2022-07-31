@@ -1,0 +1,3 @@
+[submodule "plugin/flutter_chat_ui"]
+	path = plugin/flutter_chat_ui
+	url = https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git

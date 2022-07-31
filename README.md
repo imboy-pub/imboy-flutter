@@ -130,6 +130,13 @@ mkdir -p assets assets/locales lib/component/locales
 get generate locales assets/locales on lib/component/locales
 ```
 
+## ISAR
+https://isar.dev/tutorials/quickstart.html
+```
+flutter pub run build_runner build --help
+
+```
+
 ## 临时解决 CocoaPods not installed. Skipping pod install
 
 https://github.com/flutter/flutter/issues/97251
@@ -186,6 +193,8 @@ Lib
 cd plugin/
 
 git submodule add https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git flutter_chat_ui
+
+git submodule add --force https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git flutter_chat_ui
 
 cd flutter_chat_ui/
 
