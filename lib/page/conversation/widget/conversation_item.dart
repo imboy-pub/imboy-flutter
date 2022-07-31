@@ -89,43 +89,45 @@ class ConversationItem extends StatelessWidget {
                 top: BorderSide(color: AppColors.LineColor, width: 0.2),
               ),
             ),
-            child: Row(
-              children: <Widget>[
-                const Space(width: 6),
-                Expanded(
-                  child: n.Column(
-                    [
-                      n.Row([
-                        Text(
+            child: n.Row([
+              const Space(width: 6),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    n.Row([
+                      Expanded(
+                        child: Text(
                           title ?? '',
                           style: const TextStyle(
                             fontSize: 18.0,
                             fontWeight: FontWeight.normal,
                           ),
-                        ),
-                      ]),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: n.Row(
-                          [
-                            n.Column(icon),
-                            Expanded(child: ContentMsg(payload)),
-                          ],
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    ],
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                  ),
-                ),
-                // Space(width: mainSpace),
-                n.Column(
-                  [
-                    time!,
-                    const Icon(Icons.flag, color: Colors.transparent),
+                    ]),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: n.Row(
+                        [
+                          n.Column(icon),
+                          Expanded(child: ContentMsg(payload)),
+                        ],
+                      ),
+                    ),
                   ],
-                )
-              ],
-            ),
+                ),
+              ),
+              // Space(width: mainSpace),
+              n.Column(
+                [
+                  time!,
+                  const Icon(Icons.flag, color: Colors.transparent),
+                ],
+              )
+            ]),
           )
         ],
       ),

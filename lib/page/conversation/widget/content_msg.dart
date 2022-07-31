@@ -1,6 +1,7 @@
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/config/const.dart';
+import 'package:niku/namespace.dart' as n;
 
 // ignore: must_be_immutable
 class ContentMsg extends StatelessWidget {
@@ -43,11 +44,11 @@ class ContentMsg extends StatelessWidget {
       overflowWidget: TextOverflowWidget(
         position: TextOverflowPosition.end,
         align: TextOverflowAlign.left,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: const <Widget>[
+        child: n.Row(
+          [
             Text('...'),
           ],
+          mainAxisSize: MainAxisSize.min,
         ),
       ),
     );
