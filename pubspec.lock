@@ -824,9 +824,11 @@ packages:
   image_crop:
     dependency: "direct main"
     description:
-      name: image_crop
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: leeyi
+      resolved-ref: ff8bfdea9c53fda7881e86b07e74aac5c24cef18
+      url: "https://gitee.com/imboy-tripartite-deps/image_crop.git"
+    source: git
     version: "0.4.0"
   image_gallery_saver:
     dependency: "direct main"
@@ -1299,13 +1301,15 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.2.0"
-  pull_to_refresh_flutter3:
+  pull_to_refresh:
     dependency: "direct main"
     description:
-      name: pull_to_refresh_flutter3
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.1"
+      path: "."
+      ref: leeyi
+      resolved-ref: b2f31e229e47fb8e98e4d5efa9017ebe51892923
+      url: "https://gitee.com/imboy-tripartite-deps/flutter_pulltorefresh.git"
+    source: git
+    version: "2.0.0"
   qr:
     dependency: transitive
     description:

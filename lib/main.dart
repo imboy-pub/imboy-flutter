@@ -13,7 +13,7 @@ import 'package:imboy/page/pages.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'component/locales/locales.dart';
 import 'config/init.dart';

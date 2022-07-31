@@ -66,7 +66,12 @@ dependencies:
   connectivity_plus: ^2.3.5
   flutter_screenutil: ^5.5.3+2
   #pull_to_refresh: ^2.0.0
-  pull_to_refresh_flutter3: ^2.0.1
+  pull_to_refresh:
+    #path: plugin/pull_to_refresh
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/flutter_pulltorefresh.git
+      ref: leeyi
+  #pull_to_refresh_flutter3: ^2.0.1
   package_info_plus: ^1.4.2
   device_info_plus: ^3.2.4
   event_bus: ^2.0.0
@@ -95,7 +100,6 @@ dependencies:
   video_compress: ^3.1.1
   path_provider: ^2.0.11
   flutter_login: ^4.0.0
-  image_crop: ^0.4.0
   # 进度条
   percent_indicator: ^4.2.2
   json_serializable: ^6.2.0
@@ -111,6 +115,12 @@ dependencies:
   #flutter_chat_ui: ^1.6.4
   flutter_chat_ui:
     path: plugin/flutter_chat_ui
+  #image_crop: ^0.4.0
+  image_crop:
+    #path: plugin/image_crop
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/image_crop.git
+      ref: leeyi
   # popup_menu: ^1.0.5
   popup_menu:
     git:
