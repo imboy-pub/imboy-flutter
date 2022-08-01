@@ -77,6 +77,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                   "avatar",
                   filename: UserRepoLocal.to.currentUser.uid,
                 )));
+    debugPrint(">>> cropImage url $url;");
     if (url.isNotEmpty) {
       bool ok = await logic.changeInfo({"field": "avatar", "value": url});
       if (ok) {

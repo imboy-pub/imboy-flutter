@@ -28,8 +28,10 @@ String SENTRY_DSN = dotenv.get('SENTRY_DSN');
 //附件上传认证密钥
 String UP_AUTH_KEY = dotenv.get('UP_AUTH_KEY');
 
-String API_BASE_URL = dotenv.get('API_BASE_URL');
 String WS_URL = dotenv.get('WS_URL');
+String STUN_URL = dotenv.get('STUN_URL');
+String TURN_URL = dotenv.get('TURN_URL');
+String API_BASE_URL = dotenv.get('API_BASE_URL');
 String UPLOAD_BASE_URL = dotenv.get('UPLOAD_BASE_URL');
 String UPLOAD_SENCE = dotenv.get('UPLOAD_SENCE');
 
