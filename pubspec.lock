@@ -729,7 +729,7 @@ packages:
       name: flutter_webrtc
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.8.12"
+    version: "0.9.1"
   font_awesome_flutter:
     dependency: transitive
     description:

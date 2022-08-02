@@ -138,7 +138,7 @@ dependencies:
   isar_flutter_libs: ^2.5.0 # contains the binaries
   flutter_local_notifications: ^9.7.0
   flutter_app_badger: ^1.4.0
-  flutter_webrtc: ^0.8.12
+  flutter_webrtc: ^0.9.1
   # sip_ua: ^0.5.1
   # sip_ua:
   #   git:

@@ -183,7 +183,6 @@ class Signaling {
           _sessions[sessionId] = newSession;
           await newSession.pc?.setRemoteDescription(
               RTCSessionDescription(description['sdp'], description['type']));
-          await _createAnswer(newSession, media);
 
           if (newSession.remoteCandidates.isNotEmpty) {
             for (var candidate in newSession.remoteCandidates) {
