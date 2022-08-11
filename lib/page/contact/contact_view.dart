@@ -25,6 +25,7 @@ class ContactPage extends StatelessWidget {
   ContactPage({Key? key}) : super(key: key);
 
   void loadData() async {
+    debugPrint(">>> contact loadData");
     topList = [
       ContactModel(
         nickname: '新的朋友'.tr,
@@ -82,7 +83,7 @@ class ContactPage extends StatelessWidget {
     ];
 
     // 加载联系人列表
-    logic.contactList.value = await logic.listFriend();
+    logic.contactList.value = await logic.listFriend(false);
     // debugPrint(">>> on contactList ${logic.contactList.toString()}");
     contactIsEmpty.value = logic.contactList.isEmpty;
     _handleList(logic.contactList);
@@ -129,52 +130,59 @@ class ContactPage extends StatelessWidget {
       ),
       body: Obx(
         () => n.Stack([
-          AzListView(
-            data: logic.contactList,
-            itemCount: logic.contactList.length,
-            itemBuilder: (BuildContext context, int index) {
-              ContactModel model = logic.contactList[index];
-              return logic.getChatListItem(
-                context,
-                model,
-                defHeaderBgColor: const Color(0xFFE5E5E5),
-              );
-            },
-            physics: const BouncingScrollPhysics(),
-            susItemBuilder: (BuildContext context, int index) {
-              ContactModel model = logic.contactList[index];
-              if ('↑' == model.getSuspensionTag()) {
-                return Container();
-              }
-              return logic.getSusItem(context, model.getSuspensionTag());
-            },
-            indexBarData: const ['↑', ...kIndexBarData],
-            indexBarOptions: IndexBarOptions(
-              needRebuild: true,
-              ignoreDragCancel: true,
-              downTextStyle: const TextStyle(
-                fontSize: 12,
-                color: Colors.white,
-              ),
-              downItemDecoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.green,
-              ),
-              indexHintWidth: 128 / 2,
-              indexHintHeight: 128 / 2,
-              indexHintDecoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(
-                    Assets.getImgPath('ic_index_bar_bubble_gray'),
+          RefreshIndicator(
+              onRefresh: () async {
+                debugPrint(">>> contact onRefresh");
+                logic.contactList.value = await logic.listFriend(true);
+                contactIsEmpty.value = logic.contactList.isEmpty;
+                _handleList(logic.contactList);
+              },
+              child: AzListView(
+                data: logic.contactList,
+                itemCount: logic.contactList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  ContactModel model = logic.contactList[index];
+                  return logic.getChatListItem(
+                    context,
+                    model,
+                    defHeaderBgColor: const Color(0xFFE5E5E5),
+                  );
+                },
+                physics: const BouncingScrollPhysics(),
+                susItemBuilder: (BuildContext context, int index) {
+                  ContactModel model = logic.contactList[index];
+                  if ('↑' == model.getSuspensionTag()) {
+                    return Container();
+                  }
+                  return logic.getSusItem(context, model.getSuspensionTag());
+                },
+                indexBarData: const ['↑', ...kIndexBarData],
+                indexBarOptions: IndexBarOptions(
+                  needRebuild: true,
+                  ignoreDragCancel: true,
+                  downTextStyle: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
                   ),
-                  fit: BoxFit.contain,
+                  downItemDecoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.green,
+                  ),
+                  indexHintWidth: 128 / 2,
+                  indexHintHeight: 128 / 2,
+                  indexHintDecoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(
+                        Assets.getImgPath('ic_index_bar_bubble_gray'),
+                      ),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  indexHintAlignment: Alignment.centerRight,
+                  indexHintChildAlignment: const Alignment(-0.25, 0.0),
+                  indexHintOffset: const Offset(-20, 0),
                 ),
-              ),
-              indexHintAlignment: Alignment.centerRight,
-              indexHintChildAlignment: const Alignment(-0.25, 0.0),
-              indexHintOffset: const Offset(-20, 0),
-            ),
-          ),
+              )),
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
             child: contactIsEmpty.isTrue

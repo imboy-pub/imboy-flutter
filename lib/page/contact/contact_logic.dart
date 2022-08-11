@@ -11,9 +11,11 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 class ContactLogic extends GetxController {
   RxList<ContactModel> contactList = RxList<ContactModel>();
 
-  listFriend() async {
+  listFriend(bool onRefresh) async {
     List<ContactModel> contact = [];
-    contact = await (ContactRepo()).findFriend();
+    if (onRefresh == false) {
+      contact = await (ContactRepo()).findFriend();
+    }
     if (contact.isNotEmpty) {
       return contact;
     }

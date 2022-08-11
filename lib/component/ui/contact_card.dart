@@ -105,8 +105,17 @@ class ContactCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           GestureDetector(
-            child: ImageView(
-                img: avatar!, width: 55, height: 55, fit: BoxFit.cover),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                top: 4.0,
+              ),
+              child: ImageView(
+                img: avatar!,
+                width: 55,
+                height: 55,
+                fit: BoxFit.cover,
+              ),
+            ),
             onTap: () {
               if (isNetWorkImg(avatar!)) {
                 Get.to(
