@@ -107,6 +107,7 @@ class ScannerResultPage extends StatelessWidget {
                     toId: id,
                     title: nickname,
                     avatar: avatar,
+                    sign: sign,
                     type: 'C2C',
                   ),
                 ),

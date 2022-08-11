@@ -44,6 +44,7 @@ class ChatPage extends StatefulWidget {
   final String type; // [C2C | GROUP]
   final String title;
   final String avatar;
+  final String sign;
 
   ChatPage({
     Key? key,
@@ -51,6 +52,7 @@ class ChatPage extends StatefulWidget {
     required this.toId,
     required this.title,
     required this.avatar,
+    required this.sign,
     this.type = 'C2C',
   }) : super(key: key);
   @override
@@ -693,13 +695,18 @@ class ChatPageState extends State<ChatPage> {
               margin: EdgeInsets.zero,
             ),
             extraWidget: ExtraItems(
-              // 照片
-              handleImageSelection: _handleImageSelection,
-              // 文件
-              handleFileSelection: _handleFileSelection,
-              // 拍摄
-              handlePickerSelection: _handlePickerSelection,
-            ),
+                // 照片
+                handleImageSelection: _handleImageSelection,
+                // 文件
+                handleFileSelection: _handleFileSelection,
+                // 拍摄
+                handlePickerSelection: _handlePickerSelection,
+                options: {
+                  "to": widget.toId,
+                  "title": widget.title,
+                  "avatar": widget.avatar,
+                  "sign": widget.sign,
+                }),
           ),
         ),
       ),

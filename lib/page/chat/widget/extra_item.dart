@@ -68,8 +68,9 @@ class ExtraItems extends StatefulWidget {
     this.handleImageSelection,
     this.handleFileSelection,
     this.handlePickerSelection,
+    required this.options,
   }) : super(key: key);
-
+  final Map options;
   final void Function()? handleImageSelection;
   final void Function()? handleFileSelection;
   final void Function()? handlePickerSelection;
@@ -105,10 +106,10 @@ class _ExtraItemsState extends State<ExtraItems> {
                     const AssetImage('assets/images/chat/extra_videocall.webp'),
                 onPressed: () async {
                   Get.to(() => CallScreenPage(
-                        to: 'to',
-                        title: 'toname',
-                        avatar: defAvatar,
-                        sign: 'sign',
+                        to: widget.options["to"],
+                        title: widget.options["title"],
+                        avatar: widget.options["avatar"],
+                        sign: widget.options["sign"],
                       ));
                 },
               ),

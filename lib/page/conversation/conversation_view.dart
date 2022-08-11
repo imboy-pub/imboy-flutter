@@ -186,6 +186,7 @@ class ConversationPage extends StatelessWidget {
                             toId: model.typeId,
                             title: model.title,
                             avatar: model.avatar,
+                            sign: model.sign,
                             type: strEmpty(model.type) ? 'C2C' : model.type,
                           ),
                         );

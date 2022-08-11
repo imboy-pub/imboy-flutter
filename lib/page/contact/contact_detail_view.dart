@@ -140,6 +140,7 @@ class ContactDetailPage extends StatelessWidget {
                     toId: id,
                     title: title.value,
                     avatar: avatar.value,
+                    sign: sign.value,
                     type: 'C2C',
                   ),
                 ),

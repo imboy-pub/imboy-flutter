@@ -85,6 +85,7 @@ class ContactLogic extends GetxController {
                     toId: model.uid!,
                     title: model.title,
                     avatar: model.avatar,
+                    sign: model.sign,
                     type: 'C2C',
                   ),
                 );
