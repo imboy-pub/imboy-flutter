@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -225,7 +226,18 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           label: '昵称'.tr,
           isLine: true,
           isRight: true,
-          rValue: UserRepoLocal.to.currentUser.nickname,
+          rightW: SizedBox(
+            width: Get.width - 100,
+            child: ExtendedText(
+              UserRepoLocal.to.currentUser.nickname,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                  color: AppColors.MainTextColor.withOpacity(0.7),
+                  fontWeight: FontWeight.w400),
+            ),
+          ),
           onPressed: () => Get.bottomSheet(
             UpdatePage(
                 title: '设置昵称'.tr,

@@ -1,3 +1,4 @@
+import 'package:extended_text/extended_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/config/const.dart';
@@ -65,10 +66,15 @@ class LabelRow extends StatelessWidget {
                 ),
               ),
               value != null
-                  ? Text(value!,
+                  ? ExtendedText(
+                      value!,
                       style: TextStyle(
                         color: AppColors.MainTextColor.withOpacity(0.7),
-                      ))
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.left,
+                    )
                   : Container(),
               isSpacer == true ? const Spacer() : const SizedBox.shrink(),
               rValue != null

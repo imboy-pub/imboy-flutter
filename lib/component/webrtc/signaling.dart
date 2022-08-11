@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/websocket.dart';
+import 'package:imboy/store/provider/user_provider.dart';
 
 enum SignalingState {
   ConnectionOpen,
@@ -21,17 +22,14 @@ enum CallState {
 }
 
 class Signaling {
-  Signaling(this._host, this.from, this.to);
+  Signaling(this.from, this.to);
 
   final JsonEncoder _encoder = JsonEncoder();
-  final JsonDecoder _decoder = JsonDecoder();
   // final String _selfId = randomNumeric(6);
   final String from;
   final String to;
   late WSService _socket;
   late String _selfId;
-  var _host;
-  var _port = 8086;
   var _turnCredential;
   Map<String, Session> _sessions = {};
   MediaStream? _localStream;
@@ -57,8 +55,8 @@ class Signaling {
       },
       {
         'url': TURN_URL,
-        'username': 'change_to_real_user',
-        'credential': 'change_to_real_secret',
+        'username': '1659774666:alice',
+        'credential': 'crypt1c',
       }
       // {'url': 'stun:stun.l.google.com:19302'},
       /*
@@ -184,6 +182,8 @@ class Signaling {
           await newSession.pc?.setRemoteDescription(
               RTCSessionDescription(description['sdp'], description['type']));
 
+          // await _createAnswer(newSession, media);
+
           if (newSession.remoteCandidates.isNotEmpty) {
             for (var candidate in newSession.remoteCandidates) {
               await newSession.pc?.addCandidate(candidate);
@@ -266,27 +266,35 @@ class Signaling {
     _socket = WSService.to;
     _selfId = from;
     debugPrint(">>> ws rtc connect");
-    // if (_turnCredential == null) {
-    //   try {
-    //     _turnCredential = await getTurnCredential(_host, _port);
-    //     /*{
-    //         "username": "1584195784:mbzrxpgjys",
-    //         "password": "isyl6FF6nqMTB9/ig5MrMRUXqZg",
-    //         "ttl": 86400,
-    //         "uris": ["turn:127.0.0.1:19302?transport=udp"]
-    //       }
-    //     */
-    //     _iceServers = {
-    //       'iceServers': [
-    //         {
-    //           'urls': _turnCredential['uris'][0],
-    //           'username': _turnCredential['username'],
-    //           'credential': _turnCredential['password']
-    //         },
-    //       ]
-    //     };
-    //   } catch (e) {}
-    // }
+    if (_turnCredential == null) {
+      try {
+        _turnCredential = await UserProvider().turnCredential();
+        // _turnCredential = await getTurnCredential();
+        /*{
+            "username": "1584195784:mbzrxpgjys",
+            "credential": "isyl6FF6nqMTB9/ig5MrMRUXqZg",
+            "ttl": 86400,
+            "uris": ["turn:127.0.0.1:19302?transport=udp"]
+          }
+        */
+        _iceServers = {
+          'iceServers': [
+            {
+              'url': STUN_URL,
+            },
+            {
+              // 'urls': _turnCredential['uris'][0],
+              'urls': [TURN_URL],
+              "ttl": 86400,
+              'username': _turnCredential['username'],
+              'credential': _turnCredential['credential']
+            },
+          ]
+        };
+        debugPrint(
+            ">>> ws rtc connect _turnCredential ${_turnCredential.toString()} ; _iceServers: ${_iceServers.toString()}");
+      } catch (e) {}
+    }
 
     onSignalingStateChange?.call(SignalingState.ConnectionOpen);
 
@@ -326,6 +334,8 @@ class Signaling {
             }
     };
 
+    debugPrint(
+        ">>> ws rtc createStream userScreen $userScreen, media: $media, s ${mediaConstraints.toString()}");
     MediaStream stream = userScreen
         ? await navigator.mediaDevices.getDisplayMedia(mediaConstraints)
         : await navigator.mediaDevices.getUserMedia(mediaConstraints);
@@ -341,16 +351,18 @@ class Signaling {
     required bool screenSharing,
   }) async {
     var newSession = session ?? Session(sid: sessionId, pid: peerId);
+    debugPrint(
+        ">>> ws rtc _createSession sdpSemantics $sdpSemantics ; media: $media ; session： ${session.toString()}");
+
     if (media != 'data') {
       _localStream = await createStream(media, screenSharing);
     }
-    debugPrint(_iceServers.toString());
+    debugPrint(
+        ">>> ws rtc _createSession _iceServers " + _iceServers.toString());
     RTCPeerConnection pc = await createPeerConnection({
       ..._iceServers,
       ...{'sdpSemantics': sdpSemantics}
     }, _config);
-    debugPrint(
-        ">>> ws rtc _createSession sdpSemantics $sdpSemantics ; media: $media ;");
     if (media != 'data') {
       switch (sdpSemantics) {
         case 'plan-b':
@@ -363,11 +375,8 @@ class Signaling {
         case 'unified-plan':
           // Unified-Plan
           pc.onTrack = (event) {
-            debugPrint(
-                ">>> ws rtc _createSession event.track.kind ${event.track.kind}  media: $media ;");
             if (event.track.kind == 'video') {
               onAddRemoteStream?.call(newSession, event.streams[0]);
-              _remoteStreams.add(event.streams[0]);
             }
           };
           _localStream!.getTracks().forEach((track) {
@@ -377,19 +386,19 @@ class Signaling {
       }
 
       // Unified-Plan: Simuclast
-
+      /*
       await pc.addTransceiver(
-        track: _localStream!.getAudioTracks()[0],
+        track: _localStream.getAudioTracks()[0],
         init: RTCRtpTransceiverInit(
-            direction: TransceiverDirection.SendOnly, streams: [_localStream!]),
+            direction: TransceiverDirection.SendOnly, streams: [_localStream]),
       );
 
       await pc.addTransceiver(
-        track: _localStream!.getVideoTracks()[0],
+        track: _localStream.getVideoTracks()[0],
         init: RTCRtpTransceiverInit(
             direction: TransceiverDirection.SendOnly,
             streams: [
-              _localStream!
+              _localStream
             ],
             sendEncodings: [
               RTCRtpEncoding(rid: 'f', active: true),
@@ -406,7 +415,7 @@ class Signaling {
                 maxBitrate: 100000,
               ),
             ]),
-      );
+      );*/
       /*
         var sender = pc.getSenders().find(s => s.track.kind == "video");
         var parameters = sender.getParameters();
@@ -420,6 +429,7 @@ class Signaling {
         sender.setParameters(parameters);
       */
     }
+
     pc.onIceCandidate = (candidate) async {
       if (candidate == null) {
         debugPrint('onIceCandidate: complete!');
@@ -577,22 +587,22 @@ class Session {
   List<RTCIceCandidate> remoteCandidates = [];
 }
 
-Future<Map> getTurnCredential(String host, int port) async {
-  HttpClient client = HttpClient(context: SecurityContext());
-  client.badCertificateCallback =
-      (X509Certificate cert, String host, int port) {
-    debugPrint(
-        'getTurnCredential: Allow self-signed certificate => $host:$port. ');
-    return true;
-  };
-  var url = 'https://$host:$port/api/turn?service=turn&username=flutter-webrtc';
-  var request = await client.getUrl(Uri.parse(url));
-  var response = await request.close();
-  var responseBody = await response.transform(Utf8Decoder()).join();
-  debugPrint('getTurnCredential:response => $responseBody.');
-  Map data = JsonDecoder().convert(responseBody);
-  return data;
-}
+// Future<Map> getTurnCredential() async {
+//   HttpClient client = HttpClient(context: SecurityContext());
+//   client.badCertificateCallback =
+//       (X509Certificate cert, String host, int port) {
+//     debugPrint(
+//         'getTurnCredential: Allow self-signed certificate => $host:$port. ');
+//     return true;
+//   };
+//   var url = 'https://$host:$port/api/turn?service=turn&username=flutter-webrtc';
+//   var request = await client.getUrl(Uri.parse(url));
+//   var response = await request.close();
+//   var responseBody = await response.transform(Utf8Decoder()).join();
+//   debugPrint('getTurnCredential:response => $responseBody.');
+//   Map data = JsonDecoder().convert(responseBody);
+//   return data;
+// }
 
 class DeviceInfo {
   static String get label {

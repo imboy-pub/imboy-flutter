@@ -5,6 +5,20 @@ import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 
 class UserProvider extends HttpClient {
+  Future<Map<String, dynamic>> turnCredential() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      return {};
+    }
+    IMBoyHttpResponse resp = await get(
+      API.turnCredential,
+    );
+    if (!resp.ok) {
+      return {};
+    }
+    return resp.payload;
+  }
+
   Future<String> refreshtoken(String refreshtoken) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {

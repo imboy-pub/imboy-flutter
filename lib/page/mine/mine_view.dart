@@ -105,7 +105,7 @@ class MinePage extends StatelessWidget {
               builder: (_c) => InkWell(
                 child: Container(
                   color: Colors.white,
-                  height: 160,
+                  height: 200,
                   padding: const EdgeInsets.only(
                     left: 15.0,
                     right: 12.0,
@@ -116,7 +116,8 @@ class MinePage extends StatelessWidget {
                   ),
                   child: n.Row(
                     [
-                      SizedBox(
+                      Container(
+                        margin: const EdgeInsets.only(top: 16.0),
                         width: 88.0,
                         height: 88.0,
                         child: ClipRRect(
@@ -158,12 +159,11 @@ class MinePage extends StatelessWidget {
                         ),
                       ),
                       Container(
-                        margin: const EdgeInsets.only(left: 10.0),
-                        width: 172.0,
-                        height: 72.0,
+                        margin: const EdgeInsets.only(left: 10.0, top: 10.0),
+                        width: 200.0,
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             ExtendedText(
                               _c.currentUser.nickname,
@@ -176,18 +176,25 @@ class MinePage extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.left,
                             ),
-
-                            Text(
-                              '账号：' + _c.currentUser.account,
-                              style: const TextStyle(
-                                  color: AppColors.MainTextColor),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              child: Text(
+                                '账号：' + _c.currentUser.account,
+                                style: const TextStyle(
+                                  color: AppColors.MainTextColor,
+                                ),
+                              ),
                             ),
-                            //TODO
-                            // Text(
-                            //   '地区：' + _c.currentUser.region,
-                            //   style: TextStyle(color: AppColors.MainTextColor),
-                            // ),
+                            strNoEmpty(_c.currentUser.region)
+                                ? Text(
+                                    '地区：' + _c.currentUser.region,
+                                    style: const TextStyle(
+                                        color: AppColors.MainTextColor),
+                                  )
+                                : const SizedBox.shrink(),
                           ],
+                          mainAxisSize: MainAxisSize.min,
                         ),
                       ),
                       const Spacer(),
@@ -208,7 +215,7 @@ class MinePage extends StatelessWidget {
                         fit: BoxFit.cover,
                       )
                     ],
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    // mainAxisAlignment: MainAxisAlignment.end,
                   ),
                 ),
                 onTap: () => Get.to(() => const PersonalInfoPage()),

@@ -75,10 +75,9 @@ class _CallScreenPageState extends State<CallScreenPage> {
   }
 
   void _connect() async {
-    String host = "192.168.3.1";
     debugPrint(">>> ws rtc _connect 78");
     String from = UserRepoLocal.to.currentUid;
-    _signaling ??= Signaling(host, from, widget.to)..connect();
+    _signaling ??= Signaling(from, widget.to)..connect();
     _signaling?.onSignalingStateChange = (SignalingState state) {
       debugPrint(
           ">>> ws rtc _connect onSignalingStateChange state ${state.toString()}");
@@ -214,7 +213,6 @@ class _CallScreenPageState extends State<CallScreenPage> {
 
   _invitePeer(BuildContext context, String peerId, bool useScreen) async {
     if (_signaling != null && peerId != _selfId) {
-      // if (_signaling != null) {
       _signaling?.invite(peerId, 'video', useScreen);
     }
   }

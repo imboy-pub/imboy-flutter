@@ -180,6 +180,7 @@ class API {
   static const conversationList = '/conversation/mine';
 
   static const userShow = '/user/show';
+  static const turnCredential = '/user/credential';
   static const userUpdate = '/user/update';
 
   static const avatarUrl = 'http://www.lorempixel.com/200/200/';
