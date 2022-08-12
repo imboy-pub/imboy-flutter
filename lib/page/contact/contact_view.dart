@@ -1,5 +1,6 @@
 import 'package:azlistview/azlistview.dart';
 import 'package:badges/badges.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/assets.dart';
@@ -132,10 +133,17 @@ class ContactPage extends StatelessWidget {
         () => n.Stack([
           RefreshIndicator(
               onRefresh: () async {
-                debugPrint(">>> contact onRefresh");
-                logic.contactList.value = await logic.listFriend(true);
-                contactIsEmpty.value = logic.contactList.isEmpty;
-                _handleList(logic.contactList);
+                // 检查网络状态
+                var res = await Connectivity().checkConnectivity();
+                if (res != ConnectivityResult.none) {
+                  debugPrint(">>> contact onRefresh");
+                  List<ContactModel> contact = await logic.listFriend(true);
+                  if (contact.isNotEmpty) {
+                    logic.contactList.value = contact;
+                    contactIsEmpty.value = logic.contactList.isEmpty;
+                    _handleList(logic.contactList);
+                  }
+                }
               },
               child: AzListView(
                 data: logic.contactList,

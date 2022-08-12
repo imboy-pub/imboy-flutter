@@ -24,8 +24,8 @@ class ConversationPage extends StatelessWidget {
 
   void initData() async {
     // 检查网络状态
-    var connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none) {
+    var res = await Connectivity().checkConnectivity();
+    if (res == ConnectivityResult.none) {
       logic.connectDesc.value = '(' + 'tip_connect_desc'.tr + ')';
     } else {
       logic.connectDesc.value = '';
