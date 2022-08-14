@@ -45,7 +45,7 @@ class ContentMsg extends StatelessWidget {
         position: TextOverflowPosition.end,
         align: TextOverflowAlign.left,
         child: n.Row(
-          [
+          const [
             Text('...'),
           ],
           mainAxisSize: MainAxisSize.min,

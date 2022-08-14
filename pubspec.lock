@@ -569,9 +569,9 @@ packages:
   flutter_chat_ui:
     dependency: "direct main"
     description:
-      path: "plugin/flutter_chat_ui"
-      relative: true
-    source: path
+      name: flutter_chat_ui
+      url: "https://pub.flutter-io.cn"
+    source: hosted
     version: "1.6.4"
   flutter_dotenv:
     dependency: "direct main"

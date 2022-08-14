@@ -106,7 +106,7 @@ class WSService extends GetxService {
 
     if (_socketStatus == SocketStatus.SocketStatusConnected &&
         _webSocketChannel != null) {
-      debugPrint('>>> ws openSocket _socketStatus: ${_socketStatus};');
+      debugPrint('>>> ws openSocket _socketStatus: $_socketStatus;');
       return;
     } else {
       closeSocket();

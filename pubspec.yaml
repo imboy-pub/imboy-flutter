@@ -111,9 +111,7 @@ dependencies:
   # 生成闪屏页
   flutter_native_splash: ^2.2.3+1
   huawei_account: ^6.1.0+304
-  #flutter_chat_ui: ^1.6.4
-  flutter_chat_ui:
-    path: plugin/flutter_chat_ui
+  flutter_chat_ui: ^1.6.4
   #image_crop: ^0.4.0
   image_crop:
     #path: plugin/image_crop

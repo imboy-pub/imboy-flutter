@@ -24,7 +24,7 @@ enum CallState {
 class Signaling {
   Signaling(this.from, this.to);
 
-  final JsonEncoder _encoder = JsonEncoder();
+  final JsonEncoder _encoder = const JsonEncoder();
   // final String _selfId = randomNumeric(6);
   final String from;
   final String to;
@@ -72,6 +72,7 @@ class Signaling {
 
   final Map<String, dynamic> _config = {
     'mandatory': {},
+    // 如果要与浏览器互通，需要设置DtlsSrtpKeyAgreement为true
     'optional': [
       {'DtlsSrtpKeyAgreement': true},
     ]
@@ -79,8 +80,10 @@ class Signaling {
 
   final Map<String, dynamic> _dcConstraints = {
     'mandatory': {
+      // 是否接受语音数据
       'OfferToReceiveAudio': false,
-      'OfferToReceiveVideo': false,
+      // 是否接受视频数据
+      'OfferToReceiveVideo': true,
     },
     'optional': [],
   };
@@ -151,9 +154,12 @@ class Signaling {
   void onMessage(Map message) async {
     var data = message['payload'];
     String type = message['type'];
-    switch (type.toLowerCase()) {
+    type = type.toLowerCase();
+    if (type.startsWith('webrtc_')) {
+      type = type.replaceFirst('webrtc_', '');
+    }
+    switch (type) {
       case 'peers':
-      case 'webrtc_peers':
         {
           List<dynamic> peers = data;
           if (onPeersUpdate != null) {
@@ -165,7 +171,6 @@ class Signaling {
         }
         break;
       case 'offer': // 收到from 发送的 offer
-      case 'webrtc_offer':
         {
           var peerId = data['peer_id'];
           var description = data['description'];
@@ -196,7 +201,6 @@ class Signaling {
         }
         break;
       case 'answer':
-      case 'webrtc_answer':
         {
           debugPrint(">>> ws rtc answer ${data.toString()}");
           var description = data['description'];
@@ -208,7 +212,6 @@ class Signaling {
         }
         break;
       case 'candidate':
-      case 'webrtc_candidate':
         {
           var peerId = data['from'];
           var candidateMap = data['candidate'];
@@ -232,14 +235,12 @@ class Signaling {
         }
         break;
       case 'leave':
-      case 'webrtc_leave':
         {
           var peerId = data as String;
           _closeSessionByPeerId(peerId);
         }
         break;
       case 'bye':
-      case 'webrtc_bye':
         {
           var sessionId = data['session_id'];
           debugPrint('bye: ' + sessionId);
@@ -251,7 +252,6 @@ class Signaling {
         }
         break;
       case 'keepalive':
-      case 'webrtc_keepalive':
         {
           debugPrint('keepalive response!');
         }
@@ -524,7 +524,7 @@ class Signaling {
   }
 
   _send(String event, Map payload) {
-    var request = Map();
+    Map request = {};
     request["type"] = "webrtc_" + event;
     request["payload"] = payload;
     // request["from"] = from;
