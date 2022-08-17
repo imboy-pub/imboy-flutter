@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:get/get.dart' as getx;
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/provider/user_provider.dart';
@@ -32,7 +33,7 @@ class Signaling {
   late String _selfId;
   var _turnCredential;
   Map<String, Session> _sessions = {};
-  MediaStream? _localStream;
+  MediaStream? localStream;
   final List<MediaStream> _remoteStreams = <MediaStream>[];
 
   Function(SignalingState state)? onSignalingStateChange;
@@ -94,19 +95,21 @@ class Signaling {
   }
 
   void switchCamera() {
-    if (_localStream != null) {
-      Helper.switchCamera(_localStream!.getVideoTracks()[0]);
+    if (localStream != null) {
+      Helper.switchCamera(localStream!.getVideoTracks()[0]);
     }
   }
 
   void muteMic() {
-    if (_localStream != null) {
-      bool enabled = _localStream!.getAudioTracks()[0].enabled;
-      _localStream!.getAudioTracks()[0].enabled = !enabled;
+    if (localStream != null) {
+      bool enabled = localStream!.getAudioTracks()[0].enabled;
+      localStream!.getAudioTracks()[0].enabled = !enabled;
     }
   }
 
   void invite(String peerId, String media, bool useScreen) async {
+    debugPrint(
+        ">>> ws rtc invite selfid $_selfId peerId $peerId media $media useScreen $useScreen");
     String sessionId = _selfId + '-' + peerId;
     Session session = await _createSession(null,
         peerId: peerId,
@@ -202,7 +205,7 @@ class Signaling {
         break;
       case 'answer':
         {
-          debugPrint(">>> ws rtc answer ${data.toString()}");
+          debugPrint(">>> ws rtc answer xxx ${data.toString()}");
           var description = data['description'];
           var sessionId = data['session_id'];
           var session = _sessions[sessionId];
@@ -243,12 +246,13 @@ class Signaling {
       case 'bye':
         {
           var sessionId = data['session_id'];
-          debugPrint('bye: ' + sessionId);
+          // debugPrint('bye: ' + sessionId);
           var session = _sessions.remove(sessionId);
           if (session != null) {
             onCallStateChange?.call(session, CallState.CallStateBye);
             _closeSession(session);
           }
+          getx.Get.back();
         }
         break;
       case 'keepalive':
@@ -355,7 +359,7 @@ class Signaling {
         ">>> ws rtc _createSession sdpSemantics $sdpSemantics ; media: $media ; session： ${session.toString()}");
 
     if (media != 'data') {
-      _localStream = await createStream(media, screenSharing);
+      localStream = await createStream(media, screenSharing);
     }
     debugPrint(
         ">>> ws rtc _createSession _iceServers " + _iceServers.toString());
@@ -370,7 +374,7 @@ class Signaling {
             onAddRemoteStream?.call(newSession, stream);
             _remoteStreams.add(stream);
           };
-          await pc.addStream(_localStream!);
+          await pc.addStream(localStream!);
           break;
         case 'unified-plan':
           // Unified-Plan
@@ -379,8 +383,8 @@ class Signaling {
               onAddRemoteStream?.call(newSession, event.streams[0]);
             }
           };
-          _localStream!.getTracks().forEach((track) {
-            pc.addTrack(track, _localStream!);
+          localStream!.getTracks().forEach((track) {
+            pc.addTrack(track, localStream!);
           });
           break;
       }
@@ -388,17 +392,17 @@ class Signaling {
       // Unified-Plan: Simuclast
       /*
       await pc.addTransceiver(
-        track: _localStream.getAudioTracks()[0],
+        track: localStream.getAudioTracks()[0],
         init: RTCRtpTransceiverInit(
-            direction: TransceiverDirection.SendOnly, streams: [_localStream]),
+            direction: TransceiverDirection.SendOnly, streams: [localStream]),
       );
 
       await pc.addTransceiver(
-        track: _localStream.getVideoTracks()[0],
+        track: localStream.getVideoTracks()[0],
         init: RTCRtpTransceiverInit(
             direction: TransceiverDirection.SendOnly,
             streams: [
-              _localStream
+              localStream
             ],
             sendEncodings: [
               RTCRtpEncoding(rid: 'f', active: true),
@@ -500,7 +504,7 @@ class Signaling {
         'media': media,
       });
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint(">>> ws rtc invite _createOffer err" + e.toString());
     }
   }
 
@@ -534,12 +538,12 @@ class Signaling {
   }
 
   Future<void> _cleanSessions() async {
-    if (_localStream != null) {
-      _localStream!.getTracks().forEach((element) async {
+    if (localStream != null) {
+      localStream!.getTracks().forEach((element) async {
         await element.stop();
       });
-      await _localStream!.dispose();
-      _localStream = null;
+      await localStream!.dispose();
+      localStream = null;
     }
     _sessions.forEach((key, sess) async {
       await sess.pc?.close();
@@ -562,11 +566,11 @@ class Signaling {
   }
 
   Future<void> _closeSession(Session session) async {
-    _localStream?.getTracks().forEach((element) async {
+    localStream?.getTracks().forEach((element) async {
       await element.stop();
     });
-    await _localStream?.dispose();
-    _localStream = null;
+    await localStream?.dispose();
+    localStream = null;
 
     await session.pc?.close();
     await session.dc?.close();

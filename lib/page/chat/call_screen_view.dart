@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/webrtc/signaling.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:niku/namespace.dart' as n;
 
 class CallScreenPage extends StatefulWidget {
   static String tag = 'call_sample';
@@ -13,7 +14,6 @@ class CallScreenPage extends StatefulWidget {
   final String title;
   final String avatar;
   final String sign;
-  // final String host;
 
   const CallScreenPage({
     Key? key,
@@ -21,7 +21,6 @@ class CallScreenPage extends StatefulWidget {
     required this.title,
     required this.avatar,
     this.sign = "",
-    // this.host,
   }) : super(key: key);
 
   @override
@@ -34,11 +33,15 @@ class _CallScreenPageState extends State<CallScreenPage> {
   String? _selfId;
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
-  bool _inCalling = false;
+  bool _connected = false;
+  bool _inCalling = true;
+
   Session? _session;
 
   bool _waitAccept = false;
 
+  double localX = 0;
+  double localY = 0;
   // ignore: unused_element
   _CallScreenPageState();
 
@@ -53,7 +56,7 @@ class _CallScreenPageState extends State<CallScreenPage> {
       debugPrint(">>> ws rtc CallScreenPage initState: " + data.toString());
       _signaling?.onMessage(data);
     });
-    // _selfId = UserRepoLocal.to.currentUid;
+    _selfId = UserRepoLocal.to.currentUid;
     _invitePeer(context, widget.to, false);
   }
 
@@ -73,7 +76,7 @@ class _CallScreenPageState extends State<CallScreenPage> {
   }
 
   void _connect() async {
-    debugPrint(">>> ws rtc _connect 78");
+    debugPrint(">>> ws rtc _connect ");
     String from = UserRepoLocal.to.currentUid;
     _signaling ??= Signaling(from, widget.to)..connect();
     _signaling?.onSignalingStateChange = (SignalingState state) {
@@ -122,14 +125,20 @@ class _CallScreenPageState extends State<CallScreenPage> {
           break;
         case CallState.CallStateInvite:
           _waitAccept = true;
-          _showInvateDialog();
           break;
         case CallState.CallStateConnected:
+          debugPrint(">>> ws rtc view s ${CallState.CallStateConnected}");
+
           if (_waitAccept) {
-            _waitAccept = false;
-            Navigator.of(context).pop(false);
+            setState(() {
+              _waitAccept = false;
+            });
           }
           setState(() {
+            localX = 8;
+            localY = 8;
+            _connected = true;
+
             _inCalling = true;
           });
 
@@ -188,36 +197,23 @@ class _CallScreenPageState extends State<CallScreenPage> {
     );
   }
 
-  Future<bool?> _showInvateDialog() {
-    return showDialog<bool?>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("title"),
-          content: const Text("waiting"),
-          actions: <Widget>[
-            TextButton(
-              child: const Text("cancel"),
-              onPressed: () {
-                Navigator.of(context).pop(false);
-                _hangUp();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   _invitePeer(BuildContext context, String peerId, bool useScreen) async {
     if (_signaling != null && peerId != _selfId) {
       _signaling?.invite(peerId, 'video', useScreen);
+      if (_signaling?.localStream != null) {
+        _localRenderer.srcObject = _signaling?.localStream;
+      }
     }
   }
 
   _accept() {
     if (_session != null) {
       _signaling?.accept(_session!.sid);
+      setState(() {
+        localX = 8;
+        localY = 8;
+        _connected = true;
+      });
     }
   }
 
@@ -230,6 +226,7 @@ class _CallScreenPageState extends State<CallScreenPage> {
   _hangUp() {
     if (_session != null) {
       _signaling?.bye(_session!.sid);
+      Get.back();
     }
   }
 
@@ -250,23 +247,25 @@ class _CallScreenPageState extends State<CallScreenPage> {
             : peer['name'] + ', ID: ${peer['id']} '),
         onTap: null,
         trailing: SizedBox(
-            width: 100.0,
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  IconButton(
-                    icon: Icon(self ? Icons.close : Icons.videocam,
-                        color: self ? Colors.grey : Colors.black),
-                    onPressed: () => _invitePeer(context, peer['id'], false),
-                    tooltip: 'Video calling',
-                  ),
-                  IconButton(
-                    icon: Icon(self ? Icons.close : Icons.screen_share,
-                        color: self ? Colors.grey : Colors.black),
-                    onPressed: () => _invitePeer(context, peer['id'], true),
-                    tooltip: 'Screen sharing',
-                  )
-                ])),
+          width: 100.0,
+          child: n.Row(
+            [
+              IconButton(
+                icon: Icon(self ? Icons.close : Icons.videocam,
+                    color: self ? Colors.grey : Colors.black),
+                onPressed: () => _invitePeer(context, peer['id'], false),
+                tooltip: 'Video calling',
+              ),
+              IconButton(
+                icon: Icon(self ? Icons.close : Icons.screen_share,
+                    color: self ? Colors.grey : Colors.black),
+                onPressed: () => _invitePeer(context, peer['id'], true),
+                tooltip: 'Screen sharing',
+              )
+            ],
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ),
+        ),
         subtitle: Text('[' + peer['user_agent'] + ']'),
       ),
       const Divider()
@@ -276,16 +275,6 @@ class _CallScreenPageState extends State<CallScreenPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('P2P Call ${widget.title}'),
-        // actions: const <Widget>[
-        //   IconButton(
-        //     icon: Icon(Icons.settings),
-        //     onPressed: null,
-        //     tooltip: 'setup',
-        //   ),
-        // ],
-      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: _inCalling
           ? SizedBox(
@@ -317,8 +306,22 @@ class _CallScreenPageState extends State<CallScreenPage> {
       body: _inCalling
           ? OrientationBuilder(
               builder: (context, orientation) {
+                double w = orientation == Orientation.portrait ? 90.0 : 120.0;
+                double h = orientation == Orientation.portrait ? 120.0 : 90.0;
+                Widget localBox = Container(
+                  margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                  width: _connected ? w : Get.width,
+                  height: _connected ? h : Get.height,
+                  child: RTCVideoView(
+                    _localRenderer,
+                    objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                    mirror: true,
+                  ),
+                  // decoration: const BoxDecoration(color: Colors.black54),
+                );
                 return Stack(
                   children: <Widget>[
+                    // remote
                     Positioned(
                       left: 0.0,
                       right: 0.0,
@@ -328,20 +331,28 @@ class _CallScreenPageState extends State<CallScreenPage> {
                         margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                         width: Get.width,
                         height: Get.height,
-                        child: RTCVideoView(_remoteRenderer),
+                        child: RTCVideoView(
+                          _remoteRenderer,
+                          objectFit:
+                              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                        ),
                         decoration: const BoxDecoration(color: Colors.black54),
                       ),
                     ),
+                    // local
                     Positioned(
-                      left: 20.0,
-                      top: 20.0,
-                      child: Container(
-                        width:
-                            orientation == Orientation.portrait ? 90.0 : 120.0,
-                        height:
-                            orientation == Orientation.portrait ? 120.0 : 90.0,
-                        child: RTCVideoView(_localRenderer, mirror: true),
-                        decoration: const BoxDecoration(color: Colors.black54),
+                      left: localX,
+                      top: localY,
+                      child: GestureDetector(
+                        child: localBox,
+                        onHorizontalDragUpdate: (details) {
+                          if (_connected) {
+                            setState(() {
+                              localX = details.localPosition.dx;
+                              localY = details.localPosition.dy;
+                            });
+                          }
+                        },
                       ),
                     ),
                   ],
