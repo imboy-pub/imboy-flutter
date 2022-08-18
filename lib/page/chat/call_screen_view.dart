@@ -33,15 +33,19 @@ class _CallScreenPageState extends State<CallScreenPage> {
   String? _selfId;
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
-  bool _connected = false;
   bool _inCalling = true;
 
   Session? _session;
 
   bool _waitAccept = false;
 
+  //
   double localX = 0;
   double localY = 0;
+
+  bool _connected = false;
+  bool showTool = true;
+  bool renderLocalRemote = true;
   // ignore: unused_element
   _CallScreenPageState();
 
@@ -100,15 +104,10 @@ class _CallScreenPageState extends State<CallScreenPage> {
           });
           break;
         case CallState.CallStateRinging:
-          bool? accept = await _showAcceptDialog();
-          if (accept!) {
-            _accept();
-            setState(() {
-              _inCalling = true;
-            });
-          } else {
-            _reject();
-          }
+          _accept();
+          setState(() {
+            _inCalling = true;
+          });
           break;
         case CallState.CallStateBye:
           if (_waitAccept) {
@@ -173,30 +172,6 @@ class _CallScreenPageState extends State<CallScreenPage> {
     });
   }
 
-  Future<bool?> _showAcceptDialog() {
-    return showDialog<bool?>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("title"),
-          content: const Text("accept?"),
-          actions: <Widget>[
-            TextButton(
-              child: const Text("reject"),
-              onPressed: () => Navigator.of(context).pop(false),
-            ),
-            TextButton(
-              child: const Text("accept"),
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   _invitePeer(BuildContext context, String peerId, bool useScreen) async {
     if (_signaling != null && peerId != _selfId) {
       _signaling?.invite(peerId, 'video', useScreen);
@@ -217,11 +192,11 @@ class _CallScreenPageState extends State<CallScreenPage> {
     }
   }
 
-  _reject() {
-    if (_session != null) {
-      _signaling?.reject(_session!.sid);
-    }
-  }
+  // _reject() {
+  //   if (_session != null) {
+  //     _signaling?.reject(_session!.sid);
+  //   }
+  // }
 
   _hangUp() {
     if (_session != null) {
@@ -276,12 +251,11 @@ class _CallScreenPageState extends State<CallScreenPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: _inCalling
+      floatingActionButton: showTool
           ? SizedBox(
               width: 200.0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
+              child: n.Row(
+                <Widget>[
                   FloatingActionButton(
                     heroTag: "switch_camera",
                     child: const Icon(Icons.switch_camera),
@@ -300,6 +274,7 @@ class _CallScreenPageState extends State<CallScreenPage> {
                     onPressed: _muteMic,
                   )
                 ],
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
               ),
             )
           : null,
@@ -312,10 +287,19 @@ class _CallScreenPageState extends State<CallScreenPage> {
                   margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                   width: _connected ? w : Get.width,
                   height: _connected ? h : Get.height,
-                  child: RTCVideoView(
-                    _localRenderer,
-                    objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                    mirror: true,
+                  child: InkWell(
+                    child: RTCVideoView(
+                      renderLocalRemote ? _localRenderer : _remoteRenderer,
+                      objectFit:
+                          RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                      mirror: true,
+                    ),
+                    onTap: () {
+                      // 点击切换 本地和远端 RTCVideoRenderer
+                      setState(() {
+                        renderLocalRemote = !renderLocalRemote;
+                      });
+                    },
                   ),
                   // decoration: const BoxDecoration(color: Colors.black54),
                 );
@@ -331,10 +315,20 @@ class _CallScreenPageState extends State<CallScreenPage> {
                         margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                         width: Get.width,
                         height: Get.height,
-                        child: RTCVideoView(
-                          _remoteRenderer,
-                          objectFit:
-                              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                        child: InkWell(
+                          onTap: () {
+                            // 切换工具栏
+                            setState(() {
+                              showTool = !showTool;
+                            });
+                          },
+                          child: RTCVideoView(
+                            renderLocalRemote
+                                ? _remoteRenderer
+                                : _localRenderer,
+                            objectFit: RTCVideoViewObjectFit
+                                .RTCVideoViewObjectFitCover,
+                          ),
                         ),
                         decoration: const BoxDecoration(color: Colors.black54),
                       ),
@@ -343,13 +337,16 @@ class _CallScreenPageState extends State<CallScreenPage> {
                     Positioned(
                       left: localX,
                       top: localY,
-                      child: GestureDetector(
+                      child: Draggable(
                         child: localBox,
-                        onHorizontalDragUpdate: (details) {
+                        feedback: localBox,
+                        childWhenDragging: const SizedBox.shrink(),
+                        // 拖动中的回调
+                        onDragEnd: (details) {
                           if (_connected) {
                             setState(() {
-                              localX = details.localPosition.dx;
-                              localY = details.localPosition.dy;
+                              localX = details.offset.dx;
+                              localY = details.offset.dy;
                             });
                           }
                         },
