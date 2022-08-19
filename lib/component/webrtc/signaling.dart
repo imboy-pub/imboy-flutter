@@ -85,6 +85,8 @@ class Signaling {
       'OfferToReceiveAudio': false,
       // 是否接受视频数据
       'OfferToReceiveVideo': true,
+      // https://github.com/flutter-webrtc/flutter-webrtc/issues/509
+      'IceRestart': true,
     },
     'optional': [],
   };
@@ -199,7 +201,6 @@ class Signaling {
             newSession.remoteCandidates.clear();
           }
           onCallStateChange?.call(newSession, CallState.CallStateNew);
-
           onCallStateChange?.call(newSession, CallState.CallStateRinging);
         }
         break;
@@ -246,7 +247,6 @@ class Signaling {
       case 'bye':
         {
           var sessionId = data['session_id'];
-          // debugPrint('bye: ' + sessionId);
           var session = _sessions.remove(sessionId);
           if (session != null) {
             onCallStateChange?.call(session, CallState.CallStateBye);
@@ -303,7 +303,6 @@ class Signaling {
     onSignalingStateChange?.call(SignalingState.ConnectionOpen);
 
     WSService.to.openSocket();
-    // INVITE 邀请会话
     // _send('authenticate', {
     //   'username': UserRepoLocal.to.currentUser.account,
     //   'password': 'password',

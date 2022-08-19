@@ -28,24 +28,27 @@ class CallScreenPage extends StatefulWidget {
 }
 
 class _CallScreenPageState extends State<CallScreenPage> {
-  Signaling? _signaling;
-  List<dynamic> _peers = [];
-  String? _selfId;
-  final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
-  final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
-  bool _inCalling = true;
+  Signaling? signaling;
+  List<dynamic> peers = [];
+  String? selfId;
+  final RTCVideoRenderer localRenderer = RTCVideoRenderer();
+  final RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
+  bool inCalling = true;
 
-  Session? _session;
+  Session? session;
 
-  bool _waitAccept = false;
+  bool waitAccept = false;
 
   //
   double localX = 0;
   double localY = 0;
 
-  bool _connected = false;
+  bool connected = false;
   bool showTool = true;
   bool renderLocalRemote = true;
+
+  // Floating? floating;
+
   // ignore: unused_element
   _CallScreenPageState();
 
@@ -58,163 +61,172 @@ class _CallScreenPageState extends State<CallScreenPage> {
     // 接收到新的消息订阅
     eventBus.on<Map>().listen((Map data) async {
       debugPrint(">>> ws rtc CallScreenPage initState: " + data.toString());
-      _signaling?.onMessage(data);
+      signaling?.onMessage(data);
     });
-    _selfId = UserRepoLocal.to.currentUid;
+    selfId = UserRepoLocal.to.currentUid;
     _invitePeer(context, widget.to, false);
   }
 
   initRenderers() async {
-    await _localRenderer.initialize();
-    await _remoteRenderer.initialize();
+    await localRenderer.initialize();
+    await remoteRenderer.initialize();
   }
 
   @override
   deactivate() {
     super.deactivate();
-    _localRenderer.dispose();
-    _remoteRenderer.dispose();
-    if (_signaling != null) {
-      _signaling?.close();
+    localRenderer.dispose();
+    remoteRenderer.dispose();
+    if (signaling != null) {
+      signaling?.close();
     }
+    // if (floating != null) {
+    //   floating?.close();
+    // }
   }
 
   void _connect() async {
     debugPrint(">>> ws rtc _connect ");
     String from = UserRepoLocal.to.currentUid;
-    _signaling ??= Signaling(from, widget.to)..connect();
-    _signaling?.onSignalingStateChange = (SignalingState state) {
+    signaling ??= Signaling(from, widget.to)..connect();
+    signaling?.onSignalingStateChange = (SignalingState state) {
       debugPrint(
           ">>> ws rtc _connect onSignalingStateChange state ${state.toString()}");
       switch (state) {
         case SignalingState.ConnectionClosed:
+          debugPrint(
+              ">>> ws rtc state _connect ${SignalingState.ConnectionClosed}");
+          break;
         case SignalingState.ConnectionError:
+          debugPrint(
+              ">>> ws rtc state _connect ${SignalingState.ConnectionError}");
+          break;
         case SignalingState.ConnectionOpen:
+          debugPrint(
+              ">>> ws rtc state _connect ${SignalingState.ConnectionOpen}");
           break;
       }
     };
 
-    _signaling?.onCallStateChange = (Session session, CallState state) async {
+    signaling?.onCallStateChange = (Session s1, CallState state) async {
       debugPrint(
-          ">>> ws rtc _connect onCallStateChange state ${state.toString()}; session: ${session.sid} ${session.pid}");
+          ">>> ws rtc state _connect onCallStateChange ${state.toString()}; session: ${s1.sid} ${s1.pid}");
       switch (state) {
         case CallState.CallStateNew:
           setState(() {
-            _session = session;
+            session = s1;
           });
           break;
         case CallState.CallStateRinging:
           _accept();
           setState(() {
-            _inCalling = true;
+            inCalling = true;
           });
           break;
         case CallState.CallStateBye:
-          if (_waitAccept) {
+          if (waitAccept) {
             debugPrint('peer reject');
-            _waitAccept = false;
+            waitAccept = false;
             Navigator.of(context).pop(false);
           }
           setState(() {
-            _localRenderer.srcObject = null;
-            _remoteRenderer.srcObject = null;
-            _inCalling = false;
-            _session = null;
+            localRenderer.srcObject = null;
+            remoteRenderer.srcObject = null;
+            inCalling = false;
+            session = null;
           });
           break;
         case CallState.CallStateInvite:
-          _waitAccept = true;
+          waitAccept = true;
           break;
         case CallState.CallStateConnected:
           debugPrint(">>> ws rtc view s ${CallState.CallStateConnected}");
 
-          if (_waitAccept) {
+          if (waitAccept) {
             setState(() {
-              _waitAccept = false;
+              waitAccept = false;
             });
           }
           setState(() {
             localX = 8;
             localY = 8;
-            _connected = true;
+            connected = true;
 
-            _inCalling = true;
+            inCalling = true;
           });
-
           break;
-        case CallState.CallStateRinging:
       }
     };
 
-    _signaling?.onPeersUpdate = ((event) {
+    signaling?.onPeersUpdate = ((event) {
       debugPrint(">>> ws rtc _connect onPeersUpdate");
       setState(() {
-        _selfId = event['self'];
-        _peers = event['peers'];
+        selfId = event['self'];
+        peers = event['peers'];
       });
     });
 
-    _signaling?.onLocalStream = ((stream) {
+    signaling?.onLocalStream = ((stream) {
       debugPrint(">>> ws rtc _connect onLocalStream");
-      _localRenderer.srcObject = stream;
+      localRenderer.srcObject = stream;
       setState(() {});
     });
 
-    _signaling?.onAddRemoteStream = ((_, stream) {
+    signaling?.onAddRemoteStream = ((_, stream) {
       debugPrint(">>> ws rtc _connect onAddRemoteStream");
-      _remoteRenderer.srcObject = stream;
+      remoteRenderer.srcObject = stream;
       setState(() {});
     });
 
-    _signaling?.onRemoveRemoteStream = ((_, stream) {
+    signaling?.onRemoveRemoteStream = ((_, stream) {
       debugPrint(">>> ws rtc _connect onRemoveRemoteStream");
-      _remoteRenderer.srcObject = null;
+      remoteRenderer.srcObject = null;
     });
   }
 
   _invitePeer(BuildContext context, String peerId, bool useScreen) async {
-    if (_signaling != null && peerId != _selfId) {
-      _signaling?.invite(peerId, 'video', useScreen);
-      if (_signaling?.localStream != null) {
-        _localRenderer.srcObject = _signaling?.localStream;
+    if (signaling != null && peerId != selfId) {
+      signaling?.invite(peerId, 'video', useScreen);
+      if (signaling?.localStream != null) {
+        localRenderer.srcObject = signaling?.localStream;
       }
     }
   }
 
   _accept() {
-    if (_session != null) {
-      _signaling?.accept(_session!.sid);
+    if (session != null) {
+      signaling?.accept(session!.sid);
       setState(() {
         localX = 8;
         localY = 8;
-        _connected = true;
+        connected = true;
       });
     }
   }
 
   // _reject() {
-  //   if (_session != null) {
-  //     _signaling?.reject(_session!.sid);
+  //   if (session != null) {
+  //     signaling?.reject(session!.sid);
   //   }
   // }
 
   _hangUp() {
-    if (_session != null) {
-      _signaling?.bye(_session!.sid);
+    if (session != null) {
+      signaling?.bye(session!.sid);
       Get.back();
     }
   }
 
   _switchCamera() {
-    _signaling?.switchCamera();
+    signaling?.switchCamera();
   }
 
   _muteMic() {
-    _signaling?.muteMic();
+    signaling?.muteMic();
   }
 
   _buildRow(context, peer) {
-    var self = (peer['id'] == _selfId);
+    var self = (peer['id'] == selfId);
     return ListBody(children: <Widget>[
       ListTile(
         title: Text(self
@@ -278,92 +290,102 @@ class _CallScreenPageState extends State<CallScreenPage> {
               ),
             )
           : null,
-      body: _inCalling
-          ? OrientationBuilder(
-              builder: (context, orientation) {
-                double w = orientation == Orientation.portrait ? 90.0 : 120.0;
-                double h = orientation == Orientation.portrait ? 120.0 : 90.0;
-                Widget localBox = Container(
-                  margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                  width: _connected ? w : Get.width,
-                  height: _connected ? h : Get.height,
-                  child: InkWell(
-                    child: RTCVideoView(
-                      renderLocalRemote ? _localRenderer : _remoteRenderer,
-                      objectFit:
-                          RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                      mirror: true,
-                    ),
-                    onTap: () {
-                      // 点击切换 本地和远端 RTCVideoRenderer
-                      setState(() {
-                        renderLocalRemote = !renderLocalRemote;
-                      });
-                    },
-                  ),
-                  // decoration: const BoxDecoration(color: Colors.black54),
-                );
-                return Stack(
-                  children: <Widget>[
-                    // remote
-                    Positioned(
-                      left: 0.0,
-                      right: 0.0,
-                      top: 0.0,
-                      bottom: 0.0,
-                      child: Container(
-                        margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                        width: Get.width,
-                        height: Get.height,
-                        child: InkWell(
-                          onTap: () {
-                            // 切换工具栏
-                            setState(() {
-                              showTool = !showTool;
-                            });
-                          },
-                          child: RTCVideoView(
-                            renderLocalRemote
-                                ? _remoteRenderer
-                                : _localRenderer,
-                            objectFit: RTCVideoViewObjectFit
-                                .RTCVideoViewObjectFitCover,
-                          ),
-                        ),
-                        decoration: const BoxDecoration(color: Colors.black54),
-                      ),
-                    ),
-                    // local
-                    Positioned(
-                      left: localX,
-                      top: localY,
-                      child: Draggable(
-                        child: localBox,
-                        feedback: localBox,
-                        childWhenDragging: const SizedBox.shrink(),
-                        // 拖动中的回调
-                        onDragEnd: (details) {
-                          if (_connected) {
-                            setState(() {
-                              localX = details.offset.dx;
-                              localY = details.offset.dy;
-                            });
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                );
-              },
-            )
-          : ListView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.all(0.0),
-              itemCount: (_peers != null ? _peers.length : 0),
-              itemBuilder: (context, i) {
-                return _buildRow(context, _peers[i]);
+      body: OrientationBuilder(
+        builder: (context, orientation) {
+          double w = orientation == Orientation.portrait ? 90.0 : 120.0;
+          double h = orientation == Orientation.portrait ? 120.0 : 90.0;
+          Widget localBox = Container(
+            margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+            width: connected ? w : Get.width,
+            height: connected ? h : Get.height,
+            child: InkWell(
+              child: RTCVideoView(
+                renderLocalRemote ? localRenderer : remoteRenderer,
+                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                mirror: true,
+              ),
+              onTap: () {
+                // 点击切换 本地和远端 RTCVideoRenderer
+                setState(() {
+                  renderLocalRemote = !renderLocalRemote;
+                });
               },
             ),
+            // decoration: const BoxDecoration(color: Colors.black54),
+          );
+          return Stack(
+            children: <Widget>[
+              // remote
+              Positioned(
+                left: 0.0,
+                right: 0.0,
+                top: 0.0,
+                bottom: 0.0,
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                  width: Get.width,
+                  height: Get.height,
+                  child: InkWell(
+                    onTap: () {
+                      // 切换工具栏
+                      setState(() {
+                        showTool = !showTool;
+                      });
+                    },
+                    child: RTCVideoView(
+                      renderLocalRemote ? remoteRenderer : localRenderer,
+                      objectFit:
+                          RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                    ),
+                  ),
+                  decoration: const BoxDecoration(color: Colors.black54),
+                ),
+              ),
+              Positioned(
+                left: 0.0,
+                top: 20.0,
+                child: IconButton(
+                  icon: const Icon(Icons.flash_on_rounded),
+                  color: Colors.white,
+                  onPressed: () {
+                    debugPrint(">>> ws rtc floating onPressed");
+                    // floating = Floating(
+                    //     CallScreenPage(
+                    //       to: widget.to,
+                    //       title: widget.title,
+                    //       avatar: widget.avatar,
+                    //       sign: widget.sign,
+                    //     ),
+                    //     slideType: FloatingSlideType.onLeftAndTop,
+                    //     isShowLog: false,
+                    //     slideBottomHeight: 100);
+                    // floating?.open(Get.context!);
+                  },
+                ),
+              ),
+              // local
+              Positioned(
+                left: localX,
+                top: localY,
+                child: Draggable(
+                  child: localBox,
+                  feedback: localBox,
+                  childWhenDragging: const SizedBox.shrink(),
+                  // 拖动中的回调
+                  onDragEnd: (details) {
+                    if (connected) {
+                      setState(() {
+                        localX = details.offset.dx;
+                        localY = details.offset.dy;
+                      });
+                    }
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
