@@ -6,7 +6,9 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/contact_card.dart';
 import 'package:imboy/component/ui/label_row.dart';
+import 'package:imboy/component/webrtc/signaling.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/chat/call_screen_view.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact/contact_setting_view.dart';
 import 'package:imboy/page/friend/add_friend_view.dart';
@@ -119,7 +121,22 @@ class ScannerResultPage extends StatelessWidget {
               visible: !itself,
               child: ButtonRow(
                 text: '音视频通话'.tr,
-                onPressed: () => Get.snackbar('', '敬请期待'),
+                onPressed: () {
+                  OverlayEntry? _entry;
+                  final entry = OverlayEntry(builder: (context) {
+                    return CallScreenPage(
+                        to: id,
+                        title: nickname,
+                        avatar: avatar,
+                        sign: sign,
+                        close: () {
+                          _entry?.remove();
+                          _entry = null;
+                        });
+                  });
+                  _entry = entry;
+                  Signaling.navigatorKey.currentState?.overlay?.insert(entry);
+                },
               ),
             )
           : Visibility(

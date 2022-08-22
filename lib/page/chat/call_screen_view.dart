@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/webrtc/dragable.dart';
 import 'package:imboy/component/webrtc/signaling.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -14,6 +15,7 @@ class CallScreenPage extends StatefulWidget {
   final String title;
   final String avatar;
   final String sign;
+  final Function close;
 
   const CallScreenPage({
     Key? key,
@@ -21,6 +23,7 @@ class CallScreenPage extends StatefulWidget {
     required this.title,
     required this.avatar,
     this.sign = "",
+    required this.close,
   }) : super(key: key);
 
   @override
@@ -47,7 +50,7 @@ class _CallScreenPageState extends State<CallScreenPage> {
   bool showTool = true;
   bool renderLocalRemote = true;
 
-  // Floating? floating;
+  bool isMinized = false;
 
   // ignore: unused_element
   _CallScreenPageState();
@@ -135,6 +138,7 @@ class _CallScreenPageState extends State<CallScreenPage> {
             inCalling = false;
             session = null;
           });
+          _close();
           break;
         case CallState.CallStateInvite:
           waitAccept = true;
@@ -151,13 +155,11 @@ class _CallScreenPageState extends State<CallScreenPage> {
             localX = 8;
             localY = 8;
             connected = true;
-
             inCalling = true;
           });
           break;
       }
     };
-
     signaling?.onPeersUpdate = ((event) {
       debugPrint(">>> ws rtc _connect onPeersUpdate");
       setState(() {
@@ -213,8 +215,12 @@ class _CallScreenPageState extends State<CallScreenPage> {
   _hangUp() {
     if (session != null) {
       signaling?.bye(session!.sid);
-      Get.back();
     }
+    _close();
+  }
+
+  _close() {
+    widget.close();
   }
 
   _switchCamera() {
@@ -261,131 +267,154 @@ class _CallScreenPageState extends State<CallScreenPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: showTool
-          ? SizedBox(
-              width: 200.0,
-              child: n.Row(
-                <Widget>[
-                  FloatingActionButton(
-                    heroTag: "switch_camera",
-                    child: const Icon(Icons.switch_camera),
-                    onPressed: _switchCamera,
-                  ),
-                  FloatingActionButton(
-                    heroTag: "call_end",
-                    onPressed: _hangUp,
-                    tooltip: 'Hangup',
-                    child: const Icon(Icons.call_end),
-                    backgroundColor: Colors.pink,
-                  ),
-                  FloatingActionButton(
-                    heroTag: "mic_off",
-                    child: const Icon(Icons.mic_off),
-                    onPressed: _muteMic,
-                  )
-                ],
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return IndexedStack(index: isMinized ? 1 : 0, children: [
+      Scaffold(
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: showTool
+            ? SizedBox(
+                width: 200.0,
+                child: n.Row(
+                  <Widget>[
+                    FloatingActionButton(
+                      heroTag: "switch_camera",
+                      child: const Icon(Icons.switch_camera),
+                      onPressed: _switchCamera,
+                    ),
+                    FloatingActionButton(
+                      heroTag: "call_end",
+                      onPressed: _hangUp,
+                      tooltip: 'Hangup',
+                      child: const Icon(Icons.call_end),
+                      backgroundColor: Colors.pink,
+                    ),
+                    FloatingActionButton(
+                      heroTag: "mic_off",
+                      child: const Icon(Icons.mic_off),
+                      onPressed: _muteMic,
+                    )
+                  ],
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                ),
+              )
+            : null,
+        body: OrientationBuilder(
+          builder: (context, orientation) {
+            double w = orientation == Orientation.portrait ? 90.0 : 120.0;
+            double h = orientation == Orientation.portrait ? 120.0 : 90.0;
+            Widget localBox = Container(
+              margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+              width: connected ? w : Get.width,
+              height: connected ? h : Get.height,
+              child: InkWell(
+                child: RTCVideoView(
+                  renderLocalRemote ? localRenderer : remoteRenderer,
+                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                  mirror: true,
+                ),
+                onTap: () {
+                  // 点击切换 本地和远端 RTCVideoRenderer
+                  if (connected) {
+                    setState(() {
+                      renderLocalRemote = !renderLocalRemote;
+                    });
+                  }
+                },
               ),
-            )
-          : null,
-      body: OrientationBuilder(
-        builder: (context, orientation) {
-          double w = orientation == Orientation.portrait ? 90.0 : 120.0;
-          double h = orientation == Orientation.portrait ? 120.0 : 90.0;
-          Widget localBox = Container(
-            margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-            width: connected ? w : Get.width,
-            height: connected ? h : Get.height,
-            child: InkWell(
-              child: RTCVideoView(
-                renderLocalRemote ? localRenderer : remoteRenderer,
-                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                mirror: true,
-              ),
-              onTap: () {
-                // 点击切换 本地和远端 RTCVideoRenderer
-                setState(() {
-                  renderLocalRemote = !renderLocalRemote;
-                });
-              },
-            ),
-            // decoration: const BoxDecoration(color: Colors.black54),
-          );
-          return Stack(
-            children: <Widget>[
-              // remote
-              Positioned(
-                left: 0.0,
-                right: 0.0,
-                top: 0.0,
-                bottom: 0.0,
-                child: Container(
-                  margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                  width: Get.width,
-                  height: Get.height,
-                  child: InkWell(
-                    onTap: () {
-                      // 切换工具栏
-                      setState(() {
-                        showTool = !showTool;
-                      });
+              // decoration: const BoxDecoration(color: Colors.black54),
+            );
+            return Stack(
+              children: <Widget>[
+                // remote
+                Positioned(
+                  left: 0.0,
+                  right: 0.0,
+                  top: 0.0,
+                  bottom: 0.0,
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                    width: Get.width,
+                    height: Get.height,
+                    child: InkWell(
+                      onTap: () {
+                        // 切换工具栏
+                        setState(() {
+                          showTool = !showTool;
+                        });
+                      },
+                      child: RTCVideoView(
+                        renderLocalRemote ? remoteRenderer : localRenderer,
+                        objectFit:
+                            RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                      ),
+                    ),
+                    decoration: const BoxDecoration(color: Colors.black54),
+                  ),
+                ),
+                // local
+                Positioned(
+                  left: localX,
+                  top: localY,
+                  child: Draggable(
+                    child: localBox,
+                    feedback: localBox,
+                    childWhenDragging: const SizedBox.shrink(),
+                    // 拖动中的回调
+                    onDragEnd: (details) {
+                      if (connected) {
+                        setState(() {
+                          localX = details.offset.dx;
+                          localY = details.offset.dy;
+                        });
+                      }
                     },
-                    child: RTCVideoView(
-                      renderLocalRemote ? remoteRenderer : localRenderer,
-                      objectFit:
-                          RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                  ),
+                ),
+                Positioned(
+                  top: 30,
+                  left: 8,
+                  child: InkWell(
+                    onTap: (() {
+                      setState(() {
+                        isMinized = true;
+                      });
+                    }),
+                    child: Image.asset(
+                      'assets/images/chat/minization-window.png',
+                      height: 32,
                     ),
                   ),
-                  decoration: const BoxDecoration(color: Colors.black54),
                 ),
-              ),
-              Positioned(
-                left: 0.0,
-                top: 20.0,
-                child: IconButton(
-                  icon: const Icon(Icons.flash_on_rounded),
-                  color: Colors.white,
-                  onPressed: () {
-                    debugPrint(">>> ws rtc floating onPressed");
-                    // floating = Floating(
-                    //     CallScreenPage(
-                    //       to: widget.to,
-                    //       title: widget.title,
-                    //       avatar: widget.avatar,
-                    //       sign: widget.sign,
-                    //     ),
-                    //     slideType: FloatingSlideType.onLeftAndTop,
-                    //     isShowLog: false,
-                    //     slideBottomHeight: 100);
-                    // floating?.open(Get.context!);
-                  },
-                ),
-              ),
-              // local
-              Positioned(
-                left: localX,
-                top: localY,
-                child: Draggable(
-                  child: localBox,
-                  feedback: localBox,
-                  childWhenDragging: const SizedBox.shrink(),
-                  // 拖动中的回调
-                  onDragEnd: (details) {
-                    if (connected) {
-                      setState(() {
-                        localX = details.offset.dx;
-                        localY = details.offset.dy;
-                      });
-                    }
-                  },
-                ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
-    );
+      DragArea(
+          child: InkWell(
+        onTap: () {
+          isMinized = false;
+          setState(() {});
+        },
+        child: Container(
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: const Color(0xFFE5E6E9), width: 7)),
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            children: [
+              const Icon(
+                Icons.call,
+                color: Colors.green,
+              ),
+              const Text(
+                "正在通话",
+                style: const TextStyle(color: Colors.green),
+              )
+            ],
+          ),
+        ),
+      ))
+    ]);
   }
 }

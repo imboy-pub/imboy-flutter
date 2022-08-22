@@ -187,6 +187,7 @@ flutter:
     - assets/images/chat/input_emoji.png
     - assets/images/chat/input_extra.png
     - assets/images/chat/input_keyboard.png
+    - assets/images/chat/minization-window.png
     - assets/images/conversation/sending.png
 
     - assets/images/chat/extra_photo.webp # 照片 extra_photo.webp

@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:get/get.dart' as getx;
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/provider/user_provider.dart';
@@ -23,6 +23,8 @@ enum CallState {
 }
 
 class Signaling {
+  static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   Signaling(this.from, this.to);
 
   final JsonEncoder _encoder = const JsonEncoder();
@@ -252,7 +254,6 @@ class Signaling {
             onCallStateChange?.call(session, CallState.CallStateBye);
             _closeSession(session);
           }
-          getx.Get.back();
         }
         break;
       case 'keepalive':
