@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/dragable.dart';
 import 'package:imboy/component/webrtc/signaling.dart';
 import 'package:imboy/config/init.dart';
@@ -44,7 +45,7 @@ class _CallScreenPageState extends State<CallScreenPage> {
 
   //
   double localX = 0;
-  double localY = 0;
+  double localY = 30;
 
   bool connected = false;
   bool showTool = true;
@@ -200,7 +201,7 @@ class _CallScreenPageState extends State<CallScreenPage> {
       signaling?.accept(session!.sid);
       setState(() {
         localX = 8;
-        localY = 8;
+        localY = 30;
         connected = true;
       });
     }
@@ -352,7 +353,7 @@ class _CallScreenPageState extends State<CallScreenPage> {
                 ),
                 // local
                 Positioned(
-                  left: localX,
+                  right: localX,
                   top: localY,
                   child: Draggable(
                     child: localBox,
@@ -384,6 +385,43 @@ class _CallScreenPageState extends State<CallScreenPage> {
                     ),
                   ),
                 ),
+                Positioned(
+                  top: 30,
+                  left: Get.width / 2,
+                  child: const Text(
+                    "11:59",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                if (!connected)
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: Get.height * 0.3),
+                      child: n.Column([
+                        Avatar(
+                          imgUri: widget.avatar,
+                          width: 80,
+                          height: 80,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 12,
+                            left: 12,
+                            right: 12,
+                          ),
+                          child: Text(
+                            widget.title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                            ),
+                          ),
+                        ),
+                      ]),
+                    ),
+                  ),
               ],
             );
           },

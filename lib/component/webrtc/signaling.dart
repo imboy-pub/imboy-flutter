@@ -191,8 +191,10 @@ class Signaling {
               media: media,
               screenSharing: false);
           _sessions[sessionId] = newSession;
-          await newSession.pc?.setRemoteDescription(
-              RTCSessionDescription(description['sdp'], description['type']));
+          await newSession.pc?.setRemoteDescription(RTCSessionDescription(
+            description['sdp'],
+            description['type'],
+          ));
 
           // await _createAnswer(newSession, media);
 
