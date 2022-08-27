@@ -23,8 +23,6 @@ enum CallState {
 }
 
 class Signaling {
-  static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
   Signaling(this.from, this.to);
 
   final JsonEncoder _encoder = const JsonEncoder();

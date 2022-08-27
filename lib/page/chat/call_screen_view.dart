@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/counter.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/dragable.dart';
 import 'package:imboy/component/webrtc/signaling.dart';
@@ -53,12 +55,23 @@ class _CallScreenPageState extends State<CallScreenPage> {
 
   bool isMinized = false;
 
+  Counter counter = Counter(start: 0);
+
   // ignore: unused_element
   _CallScreenPageState();
 
   @override
   initState() {
     super.initState();
+    counter.startTimer((Timer tm) {
+      //更新界面
+      setState(() {
+        //秒数+1，因为一秒回调一次R
+        counter.start += 1;
+      });
+      debugPrint(">>> on counter/startTimer ${counter.start}");
+    });
+
     initRenderers();
     _connect();
 
@@ -79,14 +92,23 @@ class _CallScreenPageState extends State<CallScreenPage> {
   @override
   deactivate() {
     super.deactivate();
+    _close();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _close();
+  }
+
+  _close() {
     localRenderer.dispose();
     remoteRenderer.dispose();
     if (signaling != null) {
       signaling?.close();
     }
-    // if (floating != null) {
-    //   floating?.close();
-    // }
+    counter.close();
+    widget.close();
   }
 
   void _connect() async {
@@ -153,8 +175,8 @@ class _CallScreenPageState extends State<CallScreenPage> {
             });
           }
           setState(() {
-            localX = 8;
-            localY = 8;
+            localX = Get.width - 90;
+            localY = 30;
             connected = true;
             inCalling = true;
           });
@@ -200,7 +222,7 @@ class _CallScreenPageState extends State<CallScreenPage> {
     if (session != null) {
       signaling?.accept(session!.sid);
       setState(() {
-        localX = 8;
+        localX = Get.width - 90;
         localY = 30;
         connected = true;
       });
@@ -218,10 +240,6 @@ class _CallScreenPageState extends State<CallScreenPage> {
       signaling?.bye(session!.sid);
     }
     _close();
-  }
-
-  _close() {
-    widget.close();
   }
 
   _switchCamera() {
@@ -353,7 +371,7 @@ class _CallScreenPageState extends State<CallScreenPage> {
                 ),
                 // local
                 Positioned(
-                  right: localX,
+                  left: localX,
                   top: localY,
                   child: Draggable(
                     child: localBox,
@@ -386,11 +404,12 @@ class _CallScreenPageState extends State<CallScreenPage> {
                   ),
                 ),
                 Positioned(
-                  top: 30,
-                  left: Get.width / 2,
-                  child: const Text(
-                    "11:59",
-                    style: TextStyle(
+                  top: 40,
+                  left: (Get.width - 64) / 2,
+                  width: 64,
+                  child: Text(
+                    counter.show(),
+                    style: const TextStyle(
                       color: Colors.white,
                     ),
                   ),
@@ -439,18 +458,41 @@ class _CallScreenPageState extends State<CallScreenPage> {
               borderRadius: BorderRadius.circular(15),
               border: Border.all(color: const Color(0xFFE5E6E9), width: 7)),
           padding: const EdgeInsets.all(12),
-          child: Column(
-            children: [
-              const Icon(
-                Icons.call,
-                color: Colors.green,
-              ),
-              const Text(
-                "正在通话",
-                style: const TextStyle(color: Colors.green),
-              )
-            ],
-          ),
+          child: n.Row([
+            n.Column([
+              n.Row(const [
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: 4,
+                    right: 4,
+                  ),
+                  child: Icon(
+                    Icons.call,
+                    color: Colors.green,
+                  ),
+                ),
+              ])
+                ..crossAxisAlignment = CrossAxisAlignment.center
+                ..height = 20,
+            ]),
+            n.Column([
+              n.Row([
+                Text(
+                  counter.show(),
+                  style: const TextStyle(
+                    color: Colors.green,
+                  ),
+                ),
+              ]),
+              n.Row(const [
+                Text(
+                  "正在通话",
+                  style: TextStyle(color: Colors.green),
+                ),
+              ]),
+            ]),
+          ])
+            ..crossAxisAlignment = CrossAxisAlignment.start,
         ),
       ))
     ]);

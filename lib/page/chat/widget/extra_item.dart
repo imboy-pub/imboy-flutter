@@ -1,8 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/webrtc/signaling.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/call_screen_view.dart';
 
 class ExtraItem extends StatelessWidget {
@@ -119,7 +119,7 @@ class _ExtraItemsState extends State<ExtraItems> {
                         });
                   });
                   _entry = entry;
-                  Signaling.navigatorKey.currentState?.overlay?.insert(entry);
+                  navigatorKey.currentState?.overlay?.insert(entry);
                 },
               ),
               ExtraItem(

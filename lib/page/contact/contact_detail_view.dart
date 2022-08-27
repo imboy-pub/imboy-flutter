@@ -6,8 +6,8 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/contact_card.dart';
 import 'package:imboy/component/ui/label_row.dart';
-import 'package:imboy/component/webrtc/signaling.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/call_screen_view.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact/contact_setting_view.dart';
@@ -164,7 +164,7 @@ class ContactDetailPage extends StatelessWidget {
                           });
                     });
                     _entry = entry;
-                    Signaling.navigatorKey.currentState?.overlay?.insert(entry);
+                    navigatorKey.currentState?.overlay?.insert(entry);
                   },
                 ),
               ),

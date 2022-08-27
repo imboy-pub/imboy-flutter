@@ -186,7 +186,7 @@ class UpdatePage extends StatelessWidget {
           border: InputBorder.none),
       readOnly: false,
       onFieldSubmitted: (value) async {
-        // FocusScope.of(context).requestFocus();
+        // FocusScope.of(Get.context!).requestFocus();
         if (value == '') {
           logic.valueOnChange(false);
         } else {

@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:imboy/component/controller.dart';
 import 'package:imboy/component/helper/log.dart';
 import 'package:imboy/component/locales/locales.g.dart';
-import 'package:imboy/component/webrtc/signaling.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/pages.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -72,7 +71,7 @@ class IMBoyApp extends StatelessWidget {
         maxOverScrollExtent: 100,
         footerTriggerDistance: 150,
         child: GetMaterialApp(
-          navigatorKey: Signaling.navigatorKey,
+          navigatorKey: navigatorKey,
           title: 'IMBoy',
           // 底部导航组件
           home: UserRepoLocal.to.isLogin

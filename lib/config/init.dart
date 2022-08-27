@@ -40,6 +40,7 @@ int ntpOffset = 0;
 
 /// The global [EventBus] object.
 EventBus eventBus = EventBus();
+GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 // https://github.com/dart-lang/web_socket_channel/issues/134
 class GlobalHttpOverrides extends io.HttpOverrides {
