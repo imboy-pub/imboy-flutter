@@ -6,7 +6,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/websocket.dart';
+import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/provider/user_provider.dart';
+
+enum CallType {
+  videoCall,
+  audioCall,
+}
 
 enum SignalingState {
   ConnectionOpen,
@@ -22,8 +28,8 @@ enum CallState {
   CallStateBye,
 }
 
-class Signaling {
-  Signaling(this.from, this.to);
+class WebRTCSignaling {
+  WebRTCSignaling(this.from, this.to);
 
   final JsonEncoder _encoder = const JsonEncoder();
   // final String _selfId = randomNumeric(6);
@@ -54,11 +60,11 @@ class Signaling {
       {
         'url': STUN_URL,
       },
-      {
-        'url': TURN_URL,
-        'username': '1659774666:alice',
-        'credential': 'crypt1c',
-      }
+      // {
+      //   'url': TURN_URL,
+      //   'username': '',
+      //   'credential': '',
+      // }
       // {'url': 'stun:stun.l.google.com:19302'},
       /*
        * turn server configuration example.
@@ -156,17 +162,15 @@ class Signaling {
     bye(session.sid);
   }
 
-  void onMessage(Map message) async {
-    var data = message['payload'];
-    String type = message['type'];
-    type = type.toLowerCase();
-    if (type.startsWith('webrtc_')) {
-      type = type.replaceFirst('webrtc_', '');
-    }
-    switch (type) {
+  void onMessage(WebRTCSignalingModel msg) async {
+    var data = msg.payload;
+
+    debugPrint(
+        ">>> ws rtc onMessage ${msg.webrtctype} payload ${data.toString()}");
+    switch (msg.webrtctype) {
       case 'peers':
         {
-          List<dynamic> peers = data;
+          Map peers = data;
           if (onPeersUpdate != null) {
             Map<String, dynamic> event = Map<String, dynamic>();
             event['self'] = _selfId;
@@ -208,7 +212,6 @@ class Signaling {
         break;
       case 'answer':
         {
-          debugPrint(">>> ws rtc answer xxx ${data.toString()}");
           var description = data['description'];
           var sessionId = data['session_id'];
           var session = _sessions[sessionId];
@@ -235,8 +238,11 @@ class Signaling {
               session.remoteCandidates.add(candidate);
             }
           } else {
-            _sessions[sessionId] = Session(pid: peerId, sid: sessionId)
-              ..remoteCandidates.add(candidate);
+            _sessions[sessionId] = Session(
+              pid: peerId,
+              sid: sessionId,
+              callType: CallType.audioCall,
+            )..remoteCandidates.add(candidate);
           }
         }
         break;
@@ -294,7 +300,8 @@ class Signaling {
               'username': _turnCredential['username'],
               'credential': _turnCredential['credential']
             },
-          ]
+          ],
+          'iceTransportPolicy': 'relay',
         };
         debugPrint(
             ">>> ws rtc connect _turnCredential ${_turnCredential.toString()} ; _iceServers: ${_iceServers.toString()}");
@@ -354,7 +361,12 @@ class Signaling {
     required String media,
     required bool screenSharing,
   }) async {
-    var newSession = session ?? Session(sid: sessionId, pid: peerId);
+    var newSession = session ??
+        Session(
+          sid: sessionId,
+          pid: peerId,
+          callType: CallType.videoCall,
+        );
     debugPrint(
         ">>> ws rtc _createSession sdpSemantics $sdpSemantics ; media: $media ; session： ${session.toString()}");
 
@@ -491,20 +503,21 @@ class Signaling {
     _addDataChannel(session, channel);
   }
 
-  Future<void> _createOffer(Session session, String media) async {
+  Future<void> _createOffer(Session s, String media) async {
+    debugPrint(">>> ws rtc invite _createOffer media $media ");
     try {
-      RTCSessionDescription s =
-          await session.pc!.createOffer(media == 'data' ? _dcConstraints : {});
-      await session.pc!.setLocalDescription(s);
+      RTCSessionDescription sd =
+          await s.pc!.createOffer(media == 'data' ? _dcConstraints : {});
+      await s.pc!.setLocalDescription(sd);
       _send('offer', {
-        'to': session.pid,
+        'to': s.pid,
         'peer_id': _selfId,
-        'description': {'sdp': s.sdp, 'type': s.type},
-        'session_id': session.sid,
+        'description': {'sdp': sd.sdp, 'type': sd.type},
+        'session_id': s.sid,
         'media': media,
       });
     } catch (e) {
-      debugPrint(">>> ws rtc invite _createOffer err" + e.toString());
+      debugPrint(">>> ws rtc invite _createOffer err " + e.toString());
     }
   }
 
@@ -581,7 +594,9 @@ class Session {
   Session({
     required this.pid,
     required this.sid,
+    required this.callType,
   });
+  CallType callType;
   // peerId
   String pid;
   // sessionId

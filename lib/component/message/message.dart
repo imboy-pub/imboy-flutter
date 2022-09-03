@@ -7,7 +7,18 @@ import 'message_audio_builder.dart';
 import 'message_revoked_builder.dart';
 import 'message_video_builder.dart';
 
-enum CustomMessageType { file, image, text, audio, video, location }
+enum CustomMessageType {
+  file,
+  image,
+  text,
+  audio,
+  video,
+  location,
+  // webrtc 音频消息
+  webrtcAudio,
+  // webrtc 视频消息
+  webrtcVideo,
+}
 
 /// A class that represents text message widget with optional link preview
 class CustomMessageBuilder extends StatelessWidget {

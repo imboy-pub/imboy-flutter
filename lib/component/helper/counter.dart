@@ -1,7 +1,7 @@
 import 'dart:async';
 
 /// 一个简单的计数器封装
-///   Counter counter = Counter(start: 0);
+///   Counter counter = Counter(count: 0);
 ///   启动计时器
 //     counter.startTimer((Timer tm) {
 //       //更新界面
@@ -9,16 +9,17 @@ import 'dart:async';
 //         //秒数+1，因为一秒回调一次R
 //         counter.start += 1;
 //       });
-//       debugPrint(">>> on counter/startTimer ${counter.start}");
+//       debugPrint(">>> on counter/startTimer ${counter.initial}");
 //     });
 ///
 ///  不要忘记了在 dispose 的时候 关闭计时器
 ///  counter.close();
 class Counter {
   Timer? timer;
-  int start = 0;
+  // 初始值
+  int count = 0;
   Counter({
-    this.start = 0,
+    this.count = 0,
   });
 
   String formatTime(int timeNum) {
@@ -36,7 +37,7 @@ class Counter {
         formatTime(second);
   }
 
-  void startTimer(Function callback) {
+  void start(Function callback) {
     //设置 1 秒回调一次
     const period = Duration(seconds: 1);
     timer = Timer.periodic(period, (tm) {
@@ -45,7 +46,7 @@ class Counter {
   }
 
   String show() {
-    return constructTime(start);
+    return constructTime(count);
   }
 
   void close() {

@@ -2,8 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/config/init.dart';
-import 'package:imboy/page/chat/call_screen_view.dart';
+import 'package:imboy/page/chat/conversation_call_screen_view.dart';
 
 class ExtraItem extends StatelessWidget {
   const ExtraItem({
@@ -106,20 +105,12 @@ class _ExtraItemsState extends State<ExtraItems> {
                 image:
                     const AssetImage('assets/images/chat/extra_videocall.webp'),
                 onPressed: () async {
-                  OverlayEntry? _entry;
-                  final entry = OverlayEntry(builder: (context) {
-                    return CallScreenPage(
-                        to: widget.options["to"],
-                        title: widget.options["title"],
-                        avatar: widget.options["avatar"],
-                        sign: widget.options["sign"],
-                        close: () {
-                          _entry?.remove();
-                          _entry = null;
-                        });
-                  });
-                  _entry = entry;
-                  navigatorKey.currentState?.overlay?.insert(entry);
+                  openCallScreen(
+                    widget.options["to"],
+                    widget.options["title"],
+                    widget.options["avatar"],
+                    widget.options["sign"],
+                  );
                 },
               ),
               ExtraItem(

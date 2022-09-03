@@ -67,9 +67,11 @@ packages:
   azlistview:
     dependency: "direct main"
     description:
-      name: azlistview
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: leeyi
+      resolved-ref: "791f1ea68127c99bed84d762450adad6c064b9f0"
+      url: "https://gitee.com/imboy-tripartite-deps/azlistview.git"
+    source: git
     version: "2.0.0"
   badges:
     dependency: "direct main"
@@ -147,7 +149,7 @@ packages:
       name: built_value
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "8.4.0"
+    version: "8.4.1"
   cached_network_image:
     dependency: "direct main"
     description:
@@ -189,7 +191,7 @@ packages:
       name: camera_avfoundation
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.8+3"
+    version: "0.9.8+5"
   camera_platform_interface:
     dependency: transitive
     description:
@@ -448,7 +450,7 @@ packages:
       name: equatable
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.3"
+    version: "2.0.5"
   event_bus:
     dependency: "direct main"
     description:
@@ -511,7 +513,7 @@ packages:
       name: file
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.1.2"
+    version: "6.1.4"
   file_picker:
     dependency: "direct main"
     description:
@@ -607,7 +609,7 @@ packages:
       name: flutter_local_notifications
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.7.1"
+    version: "9.7.0"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
@@ -642,7 +644,7 @@ packages:
       name: flutter_native_splash
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.2.7"
+    version: "2.2.8"
   flutter_parsed_text:
     dependency: transitive
     description:
@@ -722,7 +724,7 @@ packages:
       name: flutter_webrtc
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.3"
+    version: "0.9.5"
   font_awesome_flutter:
     dependency: transitive
     description:
@@ -1123,7 +1125,7 @@ packages:
       name: path_provider_android
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.19"
+    version: "2.0.20"
   path_provider_ios:
     dependency: transitive
     description:
@@ -1221,7 +1223,7 @@ packages:
       name: photo_manager
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.2.0"
+    version: "2.2.1"
   photo_view:
     dependency: "direct main"
     description:
@@ -1293,7 +1295,7 @@ packages:
       name: pubspec_parse
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.2.0"
+    version: "1.2.1"
   pull_to_refresh:
     dependency: "direct main"
     description:
@@ -1344,7 +1346,7 @@ packages:
       name: scrollable_positioned_list
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.2.3"
+    version: "0.3.2"
   search_page:
     dependency: "direct main"
     description:
@@ -1393,7 +1395,7 @@ packages:
       name: shared_preferences_platform_interface
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.0"
+    version: "2.1.0"
   shared_preferences_web:
     dependency: transitive
     description:
@@ -1524,7 +1526,7 @@ packages:
       name: time
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.1.1"
+    version: "2.1.2"
   timezone:
     dependency: transitive
     description:
@@ -1636,14 +1638,14 @@ packages:
       name: video_player
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.4.6"
+    version: "2.4.7"
   video_player_android:
     dependency: transitive
     description:
       name: video_player_android
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.3.8"
+    version: "2.3.9"
   video_player_avfoundation:
     dependency: transitive
     description:
@@ -1748,7 +1750,7 @@ packages:
       name: webview_flutter_platform_interface
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.9.1"
+    version: "1.9.2"
   webview_flutter_wkwebview:
     dependency: transitive
     description:
@@ -1790,7 +1792,7 @@ packages:
       name: xdg_directories
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.2.0+1"
+    version: "0.2.0+2"
   xid:
     dependency: "direct main"
     description:

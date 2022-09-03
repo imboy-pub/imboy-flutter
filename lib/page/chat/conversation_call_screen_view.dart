@@ -9,23 +9,173 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/dragable.dart';
 import 'package:imboy/component/webrtc/signaling.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
-class CallScreenPage extends StatefulWidget {
-  static String tag = 'call_sample';
+void incomingCallCcreen(
+  String peerId,
+  String title,
+  String avatar,
+  String sign,
+) {
+  // 已经在通话中，不需要调起通话了
+  if (callScreenOn == true) {
+    // 给对端发送消息，说真正通话中 TODO
+    return;
+  }
+
+  Get.defaultDialog(
+    title: "",
+    backgroundColor: Colors.black54,
+    titlePadding: const EdgeInsets.all(0),
+    barrierDismissible: false,
+    radius: 10,
+    content: SizedBox(
+        width: Get.width,
+        child: n.Row([
+          n.Column([
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: Avatar(
+                imgUri: avatar,
+                width: 44,
+                height: 44,
+              ),
+            ),
+          ]),
+          n.Column([
+            n.Row([
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.left,
+                ),
+              ),
+            ]),
+            n.Row(const [
+              Padding(
+                padding: EdgeInsets.only(
+                  top: 10,
+                ),
+                child: Text(
+                  "Incoming video call",
+                  style: TextStyle(
+                    color: Colors.white60,
+                    fontSize: 12,
+                  ),
+                  textAlign: TextAlign.left,
+                ),
+              ),
+            ]),
+          ])
+            ..width = 116
+            ..crossAxisAlignment = CrossAxisAlignment.start,
+          n.Column([
+            Padding(
+              padding: const EdgeInsets.only(right: 0),
+              child: FloatingActionButton(
+                mini: true,
+                heroTag: "RejectCall",
+                child: const Icon(
+                  Icons.call_end,
+                  color: Colors.white,
+                ),
+                backgroundColor: Colors.red,
+                // onPressed: () => _rejectCall(context, _callSession),
+                onPressed: () {
+                  Get.close(0);
+                },
+              ),
+            )
+          ]),
+          n.Column([
+            Padding(
+              padding: const EdgeInsets.only(left: 0),
+              child: FloatingActionButton(
+                mini: true,
+                heroTag: "AcceptCall",
+                child: const Icon(
+                  Icons.video_camera_back,
+                  color: Colors.white,
+                ),
+                backgroundColor: Colors.green,
+                // onPressed: () => _acceptCall(context, _callSession),
+                onPressed: () {
+                  Get.close(0);
+                  openCallScreen(
+                    peerId,
+                    title,
+                    avatar,
+                    sign,
+                    callee: true,
+                  );
+                },
+              ),
+            ),
+          ]),
+        ])
+          ..mainAxisSize = MainAxisSize.min
+          ..crossAxisAlignment = CrossAxisAlignment.start),
+  );
+}
+
+/// 调起
+void openCallScreen(
+  String id,
+  String title,
+  String avatar,
+  String sign, {
+  //  被叫者
+  bool callee = false,
+}) {
+  if (callScreenOn == true) {
+    // 已经在通话中，不需要调起通话了
+    return;
+  }
+  debugPrint(">>> ws rtc state openCallScreen");
+
+  OverlayEntry? _entry;
+  final entry = OverlayEntry(builder: (context) {
+    return ConversationCallScreenPage(
+      to: id,
+      title: title,
+      avatar: avatar,
+      sign: sign,
+      callee: callee,
+      close: () {
+        _entry?.remove();
+        _entry = null;
+      },
+    );
+  });
+  _entry = entry;
+  navigatorKey.currentState?.overlay?.insert(entry);
+}
+
+class ConversationCallScreenPage extends StatefulWidget {
   final String to;
   final String title;
   final String avatar;
   final String sign;
+  final bool callee;
   final Function close;
 
-  const CallScreenPage({
+  const ConversationCallScreenPage({
     Key? key,
     required this.to,
     required this.title,
     required this.avatar,
     this.sign = "",
+    // 被叫者
+    this.callee = false,
     required this.close,
   }) : super(key: key);
 
@@ -33,13 +183,12 @@ class CallScreenPage extends StatefulWidget {
   _CallScreenPageState createState() => _CallScreenPageState();
 }
 
-class _CallScreenPageState extends State<CallScreenPage> {
-  Signaling? signaling;
-  List<dynamic> peers = [];
+class _CallScreenPageState extends State<ConversationCallScreenPage> {
+  WebRTCSignaling? signaling;
   String? selfId;
   final RTCVideoRenderer localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
-  bool inCalling = true;
+  bool inCalling = false;
 
   Session? session;
 
@@ -47,15 +196,15 @@ class _CallScreenPageState extends State<CallScreenPage> {
 
   //
   double localX = 0;
-  double localY = 30;
+  double localY = 0;
 
   bool connected = false;
   bool showTool = true;
-  bool renderLocalRemote = true;
-
-  bool isMinized = false;
-
-  Counter counter = Counter(start: 0);
+  bool switchRenderer = true;
+  // 最小化的
+  bool minimized = false;
+  // 计时器
+  Counter counter = Counter(count: 0);
 
   // ignore: unused_element
   _CallScreenPageState();
@@ -63,24 +212,26 @@ class _CallScreenPageState extends State<CallScreenPage> {
   @override
   initState() {
     super.initState();
-    counter.startTimer((Timer tm) {
-      //更新界面
+    callScreenOn = true;
+    selfId = UserRepoLocal.to.currentUid;
+    counter.start((Timer tm) {
+      // 更新界面
       setState(() {
-        //秒数+1，因为一秒回调一次R
-        counter.start += 1;
+        // 秒数+1，因为一秒回调一次
+        counter.count += 1;
       });
-      debugPrint(">>> on counter/startTimer ${counter.start}");
     });
 
     initRenderers();
     _connect();
 
     // 接收到新的消息订阅
-    eventBus.on<Map>().listen((Map data) async {
-      debugPrint(">>> ws rtc CallScreenPage initState: " + data.toString());
-      signaling?.onMessage(data);
+    eventBus
+        .on<WebRTCSignalingModel>()
+        .listen((WebRTCSignalingModel obj) async {
+      debugPrint(">>> on rtc listen: " + obj.toJson().toString());
+      signaling?.onMessage(obj);
     });
-    selfId = UserRepoLocal.to.currentUid;
     _invitePeer(context, widget.to, false);
   }
 
@@ -109,15 +260,15 @@ class _CallScreenPageState extends State<CallScreenPage> {
     }
     counter.close();
     widget.close();
+    callScreenOn = false;
   }
 
   void _connect() async {
     debugPrint(">>> ws rtc _connect ");
     String from = UserRepoLocal.to.currentUid;
-    signaling ??= Signaling(from, widget.to)..connect();
+    signaling ??= WebRTCSignaling(from, widget.to)..connect();
     signaling?.onSignalingStateChange = (SignalingState state) {
-      debugPrint(
-          ">>> ws rtc _connect onSignalingStateChange state ${state.toString()}");
+      debugPrint(">>> ws rtc state _connect ${state.toString()}");
       switch (state) {
         case SignalingState.ConnectionClosed:
           debugPrint(
@@ -150,10 +301,10 @@ class _CallScreenPageState extends State<CallScreenPage> {
           });
           break;
         case CallState.CallStateBye:
+          debugPrint('peer reject');
           if (waitAccept) {
-            debugPrint('peer reject');
             waitAccept = false;
-            Navigator.of(context).pop(false);
+            // Navigator.of(context).pop(false);
           }
           setState(() {
             localRenderer.srcObject = null;
@@ -187,7 +338,7 @@ class _CallScreenPageState extends State<CallScreenPage> {
       debugPrint(">>> ws rtc _connect onPeersUpdate");
       setState(() {
         selfId = event['self'];
-        peers = event['peers'];
+        // peers = event['peers'];
       });
     });
 
@@ -229,12 +380,6 @@ class _CallScreenPageState extends State<CallScreenPage> {
     }
   }
 
-  // _reject() {
-  //   if (session != null) {
-  //     signaling?.reject(session!.sid);
-  //   }
-  // }
-
   _hangUp() {
     if (session != null) {
       signaling?.bye(session!.sid);
@@ -250,43 +395,9 @@ class _CallScreenPageState extends State<CallScreenPage> {
     signaling?.muteMic();
   }
 
-  _buildRow(context, peer) {
-    var self = (peer['id'] == selfId);
-    return ListBody(children: <Widget>[
-      ListTile(
-        title: Text(self
-            ? peer['name'] + ', ID: ${peer['id']} ' + ' [Your self]'
-            : peer['name'] + ', ID: ${peer['id']} '),
-        onTap: null,
-        trailing: SizedBox(
-          width: 100.0,
-          child: n.Row(
-            [
-              IconButton(
-                icon: Icon(self ? Icons.close : Icons.videocam,
-                    color: self ? Colors.grey : Colors.black),
-                onPressed: () => _invitePeer(context, peer['id'], false),
-                tooltip: 'Video calling',
-              ),
-              IconButton(
-                icon: Icon(self ? Icons.close : Icons.screen_share,
-                    color: self ? Colors.grey : Colors.black),
-                onPressed: () => _invitePeer(context, peer['id'], true),
-                tooltip: 'Screen sharing',
-              )
-            ],
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          ),
-        ),
-        subtitle: Text('[' + peer['user_agent'] + ']'),
-      ),
-      const Divider()
-    ]);
-  }
-
   @override
   Widget build(BuildContext context) {
-    return IndexedStack(index: isMinized ? 1 : 0, children: [
+    return IndexedStack(index: minimized ? 1 : 0, children: [
       Scaffold(
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: showTool
@@ -326,7 +437,7 @@ class _CallScreenPageState extends State<CallScreenPage> {
               height: connected ? h : Get.height,
               child: InkWell(
                 child: RTCVideoView(
-                  renderLocalRemote ? localRenderer : remoteRenderer,
+                  switchRenderer ? localRenderer : remoteRenderer,
                   objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
                   mirror: true,
                 ),
@@ -334,7 +445,7 @@ class _CallScreenPageState extends State<CallScreenPage> {
                   // 点击切换 本地和远端 RTCVideoRenderer
                   if (connected) {
                     setState(() {
-                      renderLocalRemote = !renderLocalRemote;
+                      switchRenderer = !switchRenderer;
                     });
                   }
                 },
@@ -361,7 +472,7 @@ class _CallScreenPageState extends State<CallScreenPage> {
                         });
                       },
                       child: RTCVideoView(
-                        renderLocalRemote ? remoteRenderer : localRenderer,
+                        switchRenderer ? remoteRenderer : localRenderer,
                         objectFit:
                             RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
                       ),
@@ -373,47 +484,52 @@ class _CallScreenPageState extends State<CallScreenPage> {
                 Positioned(
                   left: localX,
                   top: localY,
-                  child: Draggable(
-                    child: localBox,
-                    feedback: localBox,
-                    childWhenDragging: const SizedBox.shrink(),
-                    // 拖动中的回调
-                    onDragEnd: (details) {
-                      if (connected) {
+                  child: connected
+                      ? Draggable(
+                          child: localBox,
+                          feedback: localBox,
+                          childWhenDragging: const SizedBox.shrink(),
+                          // 拖动中的回调
+                          onDragEnd: (details) {
+                            if (connected) {
+                              setState(() {
+                                localX = details.offset.dx;
+                                localY = details.offset.dy;
+                              });
+                            }
+                          },
+                        )
+                      : localBox,
+                ),
+                if (showTool)
+                  Positioned(
+                    top: 30,
+                    left: 8,
+                    child: InkWell(
+                      onTap: (() {
                         setState(() {
-                          localX = details.offset.dx;
-                          localY = details.offset.dy;
+                          minimized = true;
                         });
-                      }
-                    },
-                  ),
-                ),
-                Positioned(
-                  top: 30,
-                  left: 8,
-                  child: InkWell(
-                    onTap: (() {
-                      setState(() {
-                        isMinized = true;
-                      });
-                    }),
-                    child: Image.asset(
-                      'assets/images/chat/minization-window.png',
-                      height: 32,
+                      }),
+                      child: Image.asset(
+                        'assets/images/chat/minization-window.png',
+                        height: 32,
+                      ),
                     ),
                   ),
-                ),
-                Positioned(
-                  top: 40,
-                  left: (Get.width - 64) / 2,
-                  width: 64,
-                  child: Text(
-                    counter.show(),
-                    style: const TextStyle(
-                      color: Colors.white,
+                if (showTool)
+                  Positioned(
+                    top: 40,
+                    left: (Get.width - 64) / 2,
+                    width: 64,
+                    child: Text(
+                      counter.show(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                ),
+
                 if (!connected)
                   Center(
                     child: Padding(
@@ -449,7 +565,7 @@ class _CallScreenPageState extends State<CallScreenPage> {
       DragArea(
           child: InkWell(
         onTap: () {
-          isMinized = false;
+          minimized = false;
           setState(() {});
         },
         child: Container(

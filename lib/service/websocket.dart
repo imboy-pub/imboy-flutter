@@ -44,7 +44,7 @@ class WSService extends GetxService {
   void onInit() {
     super.onInit();
     if (_socketStatus != SocketStatus.SocketStatusConnected) {
-      closeSocket();
+      // closeSocket();
       initWebSocket(onOpen: () {
         initHeartBeat();
         // change(value, status: RxStatus.success());

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/page/chat/conversation_call_screen_view.dart';
 import 'package:imboy/page/contact/contact_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/friend/new_friend_logic.dart';
@@ -14,6 +15,7 @@ import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
@@ -30,30 +32,51 @@ class MessageService extends GetxService {
   void onInit() {
     super.onInit();
     eventBus.on<Map>().listen((Map data) async {
-      debugPrint(">>> on MessageService onInit: " + data.toString());
       String dtype = data['type'] ?? 'error';
       dtype = dtype.toUpperCase();
-      switch (dtype) {
-        case 'C2C':
-          await reciveC2CMessage(data);
-          break;
-        case 'C2C_SERVER_ACK': // C2C 服务端消息确认
-          await reciveC2CServerAckMessage(data);
-          break;
-        case 'C2C_REVOKE': // 对端撤回消息
-          await reciveC2CRevokeMessage(data);
-          break;
-        case 'C2C_REVOKE_ACK': // 对端撤回消息ACK
-          await reciveC2CRevokeAckMessage(dtype, data);
-          break;
-        case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
-          break;
-        case 'error': //
-          await switchError(data);
-          break;
-        case 'S2C':
-          await switchS2C(data);
-          break;
+      debugPrint(">>> on MessageService onInit: $dtype " + data.toString());
+      if (dtype.startsWith('WEBRTC_')) {
+        if (dtype == 'WEBRTC_OFFER') {
+          String peerId = data['payload']['peer_id'];
+          ContactModel? obj = await ContactRepo().findByUid(peerId);
+          debugPrint(">>> ws rtc state ContactModel ${obj!.toJson()}");
+          if (obj != null) {
+            incomingCallCcreen(
+              peerId,
+              obj.title,
+              obj.avatar,
+              obj.sign,
+            );
+          }
+        }
+        eventBus.fire(WebRTCSignalingModel(
+          type: data['type'],
+          to: data['to'],
+          payload: data['payload'],
+        ));
+      } else {
+        switch (dtype) {
+          case 'C2C':
+            await reciveC2CMessage(data);
+            break;
+          case 'C2C_SERVER_ACK': // C2C 服务端消息确认
+            await reciveC2CServerAckMessage(data);
+            break;
+          case 'C2C_REVOKE': // 对端撤回消息
+            await reciveC2CRevokeMessage(data);
+            break;
+          case 'C2C_REVOKE_ACK': // 对端撤回消息ACK
+            await reciveC2CRevokeAckMessage(dtype, data);
+            break;
+          case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
+            break;
+          case 'error': //
+            await switchError(data);
+            break;
+          case 'S2C':
+            await switchS2C(data);
+            break;
+        }
       }
     });
   }
