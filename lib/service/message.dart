@@ -5,8 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/extension/device_ext.dart';
+import 'package:imboy/component/webrtc/index.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/page/chat/conversation_call_screen_view.dart';
 import 'package:imboy/page/contact/contact_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/friend/new_friend_logic.dart';
@@ -35,22 +35,27 @@ class MessageService extends GetxService {
       String dtype = data['type'] ?? 'error';
       dtype = dtype.toUpperCase();
       debugPrint(">>> on MessageService onInit: $dtype " + data.toString());
+      if (dtype == 'OFFER' || dtype == 'CANDIDATE') {
+        dtype = 'WEBRTC_' + dtype;
+      }
       if (dtype.startsWith('WEBRTC_')) {
         if (dtype == 'WEBRTC_OFFER') {
-          String peerId = data['payload']['peer_id'];
+          String peerId = data['from'];
           ContactModel? obj = await ContactRepo().findByUid(peerId);
           debugPrint(">>> ws rtc state ContactModel ${obj!.toJson()}");
-          if (obj != null) {
-            incomingCallCcreen(
+          if (callScreenOn == false && obj != null) {
+            incomingCallScreen(
               peerId,
               obj.title,
               obj.avatar,
               obj.sign,
+              data['payload'],
             );
           }
         }
         eventBus.fire(WebRTCSignalingModel(
           type: data['type'],
+          from: data['from'],
           to: data['to'],
           payload: data['payload'],
         ));
@@ -70,7 +75,7 @@ class MessageService extends GetxService {
             break;
           case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
             break;
-          case 'error': //
+          case 'ERROR': //
             await switchError(data);
             break;
           case 'S2C':

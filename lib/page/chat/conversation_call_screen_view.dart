@@ -13,170 +13,31 @@ import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
-void incomingCallCcreen(
-  String peerId,
-  String title,
-  String avatar,
-  String sign,
-) {
-  // 已经在通话中，不需要调起通话了
-  if (callScreenOn == true) {
-    // 给对端发送消息，说真正通话中 TODO
-    return;
-  }
-
-  Get.defaultDialog(
-    title: "",
-    backgroundColor: Colors.black54,
-    titlePadding: const EdgeInsets.all(0),
-    barrierDismissible: false,
-    radius: 10,
-    content: SizedBox(
-        width: Get.width,
-        child: n.Row([
-          n.Column([
-            Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child: Avatar(
-                imgUri: avatar,
-                width: 44,
-                height: 44,
-              ),
-            ),
-          ]),
-          n.Column([
-            n.Row([
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12.0,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.left,
-                ),
-              ),
-            ]),
-            n.Row(const [
-              Padding(
-                padding: EdgeInsets.only(
-                  top: 10,
-                ),
-                child: Text(
-                  "Incoming video call",
-                  style: TextStyle(
-                    color: Colors.white60,
-                    fontSize: 12,
-                  ),
-                  textAlign: TextAlign.left,
-                ),
-              ),
-            ]),
-          ])
-            ..width = 116
-            ..crossAxisAlignment = CrossAxisAlignment.start,
-          n.Column([
-            Padding(
-              padding: const EdgeInsets.only(right: 0),
-              child: FloatingActionButton(
-                mini: true,
-                heroTag: "RejectCall",
-                child: const Icon(
-                  Icons.call_end,
-                  color: Colors.white,
-                ),
-                backgroundColor: Colors.red,
-                // onPressed: () => _rejectCall(context, _callSession),
-                onPressed: () {
-                  Get.close(0);
-                },
-              ),
-            )
-          ]),
-          n.Column([
-            Padding(
-              padding: const EdgeInsets.only(left: 0),
-              child: FloatingActionButton(
-                mini: true,
-                heroTag: "AcceptCall",
-                child: const Icon(
-                  Icons.video_camera_back,
-                  color: Colors.white,
-                ),
-                backgroundColor: Colors.green,
-                // onPressed: () => _acceptCall(context, _callSession),
-                onPressed: () {
-                  Get.close(0);
-                  openCallScreen(
-                    peerId,
-                    title,
-                    avatar,
-                    sign,
-                    callee: true,
-                  );
-                },
-              ),
-            ),
-          ]),
-        ])
-          ..mainAxisSize = MainAxisSize.min
-          ..crossAxisAlignment = CrossAxisAlignment.start),
-  );
-}
-
-/// 调起
-void openCallScreen(
-  String id,
-  String title,
-  String avatar,
-  String sign, {
-  //  被叫者
-  bool callee = false,
-}) {
-  if (callScreenOn == true) {
-    // 已经在通话中，不需要调起通话了
-    return;
-  }
-  debugPrint(">>> ws rtc state openCallScreen");
-
-  OverlayEntry? _entry;
-  final entry = OverlayEntry(builder: (context) {
-    return ConversationCallScreenPage(
-      to: id,
-      title: title,
-      avatar: avatar,
-      sign: sign,
-      callee: callee,
-      close: () {
-        _entry?.remove();
-        _entry = null;
-      },
-    );
-  });
-  _entry = entry;
-  navigatorKey.currentState?.overlay?.insert(entry);
-}
-
 class ConversationCallScreenPage extends StatefulWidget {
   final String to;
   final String title;
   final String avatar;
   final String sign;
+  // video audio data
+  final String media;
   final bool callee;
   final Function close;
 
-  const ConversationCallScreenPage({
+  WebRTCSignaling? signaling;
+  WebRTCSession? session;
+
+  ConversationCallScreenPage({
     Key? key,
     required this.to,
     required this.title,
     required this.avatar,
     this.sign = "",
+    this.media = 'video',
     // 被叫者
     this.callee = false,
     required this.close,
+    this.signaling,
+    this.session,
   }) : super(key: key);
 
   @override
@@ -185,14 +46,9 @@ class ConversationCallScreenPage extends StatefulWidget {
 
 class _CallScreenPageState extends State<ConversationCallScreenPage> {
   WebRTCSignaling? signaling;
-  String? selfId;
+  WebRTCSession? session;
   final RTCVideoRenderer localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
-  bool inCalling = false;
-
-  Session? session;
-
-  bool waitAccept = false;
 
   //
   double localX = 0;
@@ -201,6 +57,8 @@ class _CallScreenPageState extends State<ConversationCallScreenPage> {
   bool connected = false;
   bool showTool = true;
   bool switchRenderer = true;
+  //麦克风 默认开启的
+  bool micoff = false;
   // 最小化的
   bool minimized = false;
   // 计时器
@@ -213,18 +71,15 @@ class _CallScreenPageState extends State<ConversationCallScreenPage> {
   initState() {
     super.initState();
     callScreenOn = true;
-    selfId = UserRepoLocal.to.currentUid;
-    counter.start((Timer tm) {
-      // 更新界面
-      setState(() {
-        // 秒数+1，因为一秒回调一次
-        counter.count += 1;
-      });
-    });
-
     initRenderers();
+    signaling = widget.signaling;
+    session = widget.session;
     _connect();
-
+    if (widget.callee) {
+      _accept();
+    } else {
+      _invitePeer(context, widget.to, widget.media);
+    }
     // 接收到新的消息订阅
     eventBus
         .on<WebRTCSignalingModel>()
@@ -232,7 +87,6 @@ class _CallScreenPageState extends State<ConversationCallScreenPage> {
       debugPrint(">>> on rtc listen: " + obj.toJson().toString());
       signaling?.onMessage(obj);
     });
-    _invitePeer(context, widget.to, false);
   }
 
   initRenderers() async {
@@ -242,94 +96,78 @@ class _CallScreenPageState extends State<ConversationCallScreenPage> {
 
   @override
   deactivate() {
-    super.deactivate();
     _close();
+    super.deactivate();
   }
 
   @override
   void dispose() {
-    super.dispose();
     _close();
+    super.dispose();
   }
 
   _close() {
+    localRenderer.srcObject = null;
+    remoteRenderer.srcObject = null;
     localRenderer.dispose();
     remoteRenderer.dispose();
     if (signaling != null) {
       signaling?.close();
     }
     counter.close();
-    widget.close();
+
     callScreenOn = false;
+    widget.close();
   }
 
   void _connect() async {
+    signaling ??= WebRTCSignaling(
+      UserRepoLocal.to.currentUid,
+      widget.to,
+    )..connect();
     debugPrint(">>> ws rtc _connect ");
-    String from = UserRepoLocal.to.currentUid;
-    signaling ??= WebRTCSignaling(from, widget.to)..connect();
-    signaling?.onSignalingStateChange = (SignalingState state) {
+    signaling?.onSignalingStateChange = (WebRTCSignalingState state) {
       debugPrint(">>> ws rtc state _connect ${state.toString()}");
       switch (state) {
-        case SignalingState.ConnectionClosed:
+        case WebRTCSignalingState.ConnectionClosed:
           debugPrint(
-              ">>> ws rtc state _connect ${SignalingState.ConnectionClosed}");
+              ">>> ws rtc state _connect ${WebRTCSignalingState.ConnectionClosed}");
           break;
-        case SignalingState.ConnectionError:
+        case WebRTCSignalingState.ConnectionError:
           debugPrint(
-              ">>> ws rtc state _connect ${SignalingState.ConnectionError}");
+              ">>> ws rtc state _connect ${WebRTCSignalingState.ConnectionError}");
           break;
-        case SignalingState.ConnectionOpen:
+        case WebRTCSignalingState.ConnectionOpen:
           debugPrint(
-              ">>> ws rtc state _connect ${SignalingState.ConnectionOpen}");
+              ">>> ws rtc cc state _connect ${WebRTCSignalingState.ConnectionOpen}");
           break;
       }
     };
 
-    signaling?.onCallStateChange = (Session s1, CallState state) async {
+    signaling?.onCallStateChange =
+        (WebRTCSession s1, WebRTCCallState state) async {
       debugPrint(
-          ">>> ws rtc state _connect onCallStateChange ${state.toString()}; session: ${s1.sid} ${s1.pid}");
+          ">>> ws rtc cc onCallStateChange ${state.toString()}; session: ${s1.sid} ${s1.pid}");
       switch (state) {
-        case CallState.CallStateNew:
+        case WebRTCCallState.CallStateNew:
           setState(() {
             session = s1;
           });
           break;
-        case CallState.CallStateRinging:
-          _accept();
-          setState(() {
-            inCalling = true;
-          });
+        case WebRTCCallState.CallStateRinging:
           break;
-        case CallState.CallStateBye:
-          debugPrint('peer reject');
-          if (waitAccept) {
-            waitAccept = false;
-            // Navigator.of(context).pop(false);
-          }
-          setState(() {
-            localRenderer.srcObject = null;
-            remoteRenderer.srcObject = null;
-            inCalling = false;
-            session = null;
-          });
+        case WebRTCCallState.CallStateBye:
           _close();
           break;
-        case CallState.CallStateInvite:
-          waitAccept = true;
+        case WebRTCCallState.CallStateInvite:
           break;
-        case CallState.CallStateConnected:
-          debugPrint(">>> ws rtc view s ${CallState.CallStateConnected}");
-
-          if (waitAccept) {
+        case WebRTCCallState.CallStateConnected:
+          Future.delayed(const Duration(milliseconds: 200), () {
             setState(() {
-              waitAccept = false;
+              localX = Get.width - 90;
+              localY = 30;
+              connected = true;
             });
-          }
-          setState(() {
-            localX = Get.width - 90;
-            localY = 30;
-            connected = true;
-            inCalling = true;
           });
           break;
       }
@@ -337,42 +175,74 @@ class _CallScreenPageState extends State<ConversationCallScreenPage> {
     signaling?.onPeersUpdate = ((event) {
       debugPrint(">>> ws rtc _connect onPeersUpdate");
       setState(() {
-        selfId = event['self'];
         // peers = event['peers'];
       });
     });
 
+    await localRenderer.initialize();
     signaling?.onLocalStream = ((stream) {
       debugPrint(">>> ws rtc _connect onLocalStream");
       localRenderer.srcObject = stream;
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     });
 
+    await remoteRenderer.initialize();
     signaling?.onAddRemoteStream = ((_, stream) {
-      debugPrint(">>> ws rtc _connect onAddRemoteStream");
+      debugPrint(">>> ws rtc _connect onAddRemoteStream ${stream.toString()}");
       remoteRenderer.srcObject = stream;
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     });
 
     signaling?.onRemoveRemoteStream = ((_, stream) {
       debugPrint(">>> ws rtc _connect onRemoveRemoteStream");
       remoteRenderer.srcObject = null;
     });
+
+    counter.start((Timer tm) {
+      if (!mounted) {
+        return;
+      }
+      // 更新界面
+      setState(() {
+        // 秒数+1，因为一秒回调一次
+        counter.count += 1;
+      });
+    });
   }
 
-  _invitePeer(BuildContext context, String peerId, bool useScreen) async {
-    if (signaling != null && peerId != selfId) {
-      signaling?.invite(peerId, 'video', useScreen);
+  _invitePeer(BuildContext context, String peerId, String media) async {
+    debugPrint(
+        ">>> ws rtc cc ${DateTime.now()} _invitePeer ${signaling.toString()} ");
+    if (signaling != null && peerId != UserRepoLocal.to.currentUid) {
+      signaling?.invite(peerId, media);
       if (signaling?.localStream != null) {
         localRenderer.srcObject = signaling?.localStream;
       }
     }
   }
 
-  _accept() {
+  _accept() async {
+    debugPrint(
+        ">>> ws rtc cc ${DateTime.now()} _accept ${session.toString()} sid: ${session!.sid}");
     if (session != null) {
       signaling?.accept(session!.sid);
+      if (signaling?.localStream != null) {
+        await localRenderer.initialize();
+        localRenderer.srcObject = signaling?.localStream;
+      }
+
+      if (signaling!.remoteStreams.isNotEmpty) {
+        await remoteRenderer.initialize();
+        remoteRenderer.srcObject = signaling!.remoteStreams.first;
+      }
       setState(() {
+        localRenderer;
+        remoteRenderer;
+        // localRenderer 右上角
         localX = Get.width - 90;
         localY = 30;
         connected = true;
@@ -393,6 +263,9 @@ class _CallScreenPageState extends State<ConversationCallScreenPage> {
 
   _muteMic() {
     signaling?.muteMic();
+    setState(() {
+      micoff = !micoff;
+    });
   }
 
   @override
@@ -419,7 +292,9 @@ class _CallScreenPageState extends State<ConversationCallScreenPage> {
                     ),
                     FloatingActionButton(
                       heroTag: "mic_off",
-                      child: const Icon(Icons.mic_off),
+                      child: micoff
+                          ? const Icon(Icons.mic_off)
+                          : const Icon(Icons.mic),
                       onPressed: _muteMic,
                     )
                   ],

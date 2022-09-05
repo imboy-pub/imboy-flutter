@@ -359,7 +359,7 @@ packages:
       name: dart_webrtc
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.7"
+    version: "1.0.8"
   dartx:
     dependency: transitive
     description:
@@ -721,10 +721,12 @@ packages:
   flutter_webrtc:
     dependency: "direct main"
     description:
-      name: flutter_webrtc
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.9.5"
+      path: "."
+      ref: main
+      resolved-ref: "939367f4c74517fdf68c29f70e24c9e32f849ea6"
+      url: "https://gitee.com/imboy-tripartite-deps/flutter-webrtc.git"
+    source: git
+    version: "0.9.7"
   font_awesome_flutter:
     dependency: transitive
     description:
@@ -1729,7 +1731,7 @@ packages:
       name: webrtc_interface
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.7"
+    version: "1.0.8"
   webview_flutter:
     dependency: "direct main"
     description:

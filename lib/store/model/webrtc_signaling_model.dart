@@ -1,9 +1,11 @@
 class WebRTCSignalingModel {
   String type;
+  String from;
   String to;
   Map payload;
   WebRTCSignalingModel({
     required this.type,
+    required this.from,
     required this.to,
     required this.payload,
   });
@@ -19,6 +21,7 @@ class WebRTCSignalingModel {
   factory WebRTCSignalingModel.fromJson(Map<String, dynamic> json) {
     return WebRTCSignalingModel(
       type: json['type'],
+      from: json['from'],
       to: json['to'],
       payload: json['payload'],
     );
@@ -26,6 +29,7 @@ class WebRTCSignalingModel {
 
   Map<String, dynamic> toJson() => {
         'type': type,
+        'from': from,
         'to': to,
         'payload': payload,
       };

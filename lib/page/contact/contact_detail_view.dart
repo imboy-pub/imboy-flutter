@@ -6,9 +6,9 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/contact_card.dart';
 import 'package:imboy/component/ui/label_row.dart';
+import 'package:imboy/component/webrtc/index.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_view.dart';
-import 'package:imboy/page/chat/conversation_call_screen_view.dart';
 import 'package:imboy/page/contact/contact_setting_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -150,12 +150,6 @@ class ContactDetailPage extends StatelessWidget {
                 child: ButtonRow(
                   text: '音视频通话'.tr,
                   onPressed: () {
-                    // noticCallScreen(
-                    //   id,
-                    //   title.value,
-                    //   avatar.value,
-                    //   sign.value,
-                    // );
                     openCallScreen(
                       id,
                       title.value,
