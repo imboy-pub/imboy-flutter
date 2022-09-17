@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/extension/device_ext.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/webrtc/index.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/contact/contact_logic.dart';
@@ -34,6 +35,9 @@ class MessageService extends GetxService {
     eventBus.on<Map>().listen((Map data) async {
       String dtype = data['type'] ?? 'error';
       dtype = dtype.toUpperCase();
+      int now = DateTimeHelper.currentTimeMillis();
+      debugPrint(
+          ">>> on MessageService onInit now: $now diff: ${now - data['ts']}");
       debugPrint(">>> on MessageService onInit: $dtype " + data.toString());
       if (dtype == 'OFFER' || dtype == 'CANDIDATE') {
         dtype = 'WEBRTC_' + dtype;

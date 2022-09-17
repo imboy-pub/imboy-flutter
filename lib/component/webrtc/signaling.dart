@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
@@ -37,11 +38,16 @@ class WebRTCSession {
 }
 
 class WebRTCSignaling {
-  WebRTCSignaling(this.from, this.to);
+  WebRTCSignaling(
+    this.from,
+    this.to, {
+    this.micoff = true,
+  });
 
   final JsonEncoder _encoder = const JsonEncoder();
   final String from;
   final String to;
+  final bool micoff;
   late WSService _socket;
   var _turnCredential;
   Map<String, WebRTCSession> sessions = {};
@@ -102,7 +108,7 @@ class WebRTCSignaling {
   }
 
   void muteMic() {
-    if (localStream != null) {
+    if (localStream != null && localStream!.getAudioTracks().isNotEmpty) {
       bool enabled = localStream!.getAudioTracks()[0].enabled;
       localStream!.getAudioTracks()[0].enabled = !enabled;
     }
@@ -297,28 +303,27 @@ class WebRTCSignaling {
     // await _socket.onOpen();
   }
 
-  Future<MediaStream> createStream(String media, bool userScreen) async {
+  Future<MediaStream> createStream(String media) async {
     final Map<String, dynamic> mediaConstraints = {
-      'audio': userScreen ? false : true,
-      'video': userScreen
-          ? true
-          : {
-              'mandatory': {
-                'minWidth':
-                    '640', // Provide your own width, height and frame rate here
-                'minHeight': '480',
-                'minFrameRate': '30',
-              },
-              'facingMode': 'user',
-              'optional': [],
-            }
+      // 'audio': micoff ? false : true,
+      'audio': true,
+      'video': {
+        'mandatory': {
+          'minWidth':
+              '640', // Provide your own width, height and frame rate here
+          'minHeight': '480',
+          'minFrameRate': '30',
+        },
+        'facingMode': 'user',
+        'optional': [],
+      }
     };
 
     debugPrint(
-        ">>> ws rtc createStream userScreen $userScreen, media: $media, s ${mediaConstraints.toString()}");
-    MediaStream stream = userScreen
-        ? await navigator.mediaDevices.getDisplayMedia(mediaConstraints)
-        : await navigator.mediaDevices.getUserMedia(mediaConstraints);
+        ">>> ws rtc createStream media: $media, s ${mediaConstraints.toString()}");
+    MediaStream stream = await navigator.mediaDevices.getUserMedia(
+      mediaConstraints,
+    );
     onLocalStream?.call(stream);
     return stream;
   }
@@ -339,7 +344,7 @@ class WebRTCSignaling {
         ">>> ws rtc _createSession sdpSemantics $sdpSemantics ; media: $media ; sid: ${sessionId}; session： ${session.toString()}; newSession ${newSession.toString()}");
 
     if (media != 'data') {
-      localStream = await createStream(media, screenSharing);
+      localStream = await createStream(media);
     }
     RTCPeerConnection pc = await createPeerConnection({
       ..._iceServers,
@@ -379,7 +384,7 @@ class WebRTCSignaling {
       // before skipping to the next one. 1 second is just an heuristic value
       // and should be thoroughly tested in your own environment.
       await Future.delayed(
-          const Duration(milliseconds: 500),
+          const Duration(milliseconds: 0),
           () => _send('candidate', {
                 'candidate': {
                   'sdpMLineIndex': candidate.sdpMLineIndex,
@@ -461,6 +466,7 @@ class WebRTCSignaling {
 
   _send(String event, Map payload) {
     Map request = {};
+    request["ts"] = DateTimeHelper.currentTimeMillis();
     request["to"] = to;
     request["from"] = from;
     request["type"] = "webrtc_" + event;

@@ -254,7 +254,8 @@ class _CallScreenPageState extends State<ConversationCallScreenPage> {
     if (session != null) {
       signaling?.bye(session!.sid);
     }
-    _close();
+    //
+    deactivate();
   }
 
   _switchCamera() {
