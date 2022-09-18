@@ -68,13 +68,7 @@ class WebRTCSignaling {
   String get sdpSemantics =>
       WebRTC.platformIsWindows ? 'plan-b' : 'unified-plan';
 
-  Map<String, dynamic> _iceServers = {
-    'iceServers': [
-      {
-        'url': STUN_URL,
-      },
-    ]
-  };
+  Map<String, dynamic> _iceServers = {};
 
   final Map<String, dynamic> _config = {
     'mandatory': {},
@@ -131,7 +125,6 @@ class WebRTCSignaling {
       _createDataChannel(session);
     }
     _createOffer(session, media);
-    debugPrint(">>> ws rtc cc ${DateTime.now()} invite _createOffer end ");
     onCallStateChange?.call(session, WebRTCCallState.CallStateNew);
     onCallStateChange?.call(session, WebRTCCallState.CallStateInvite);
   }
@@ -269,17 +262,14 @@ class WebRTCSignaling {
               'url': STUN_URL,
             },
             {
-              // 'urls': _turnCredential['uris'][0],
-              'urls': [TURN_URL],
-              "ttl": 86400,
+              'urls': _turnCredential['uris'] ?? [TURN_URL],
+              "ttl": _turnCredential['ttl'] ?? 86400,
               'username': _turnCredential['username'],
               'credential': _turnCredential['credential']
             },
           ],
           'iceTransportPolicy': 'relay',
         };
-        debugPrint(
-            ">>> ws rtc connect _turnCredential ${_turnCredential.toString()} ; _iceServers: ${_iceServers.toString()}");
       } catch (e) {}
     }
     WSService.to.openSocket();
@@ -319,8 +309,6 @@ class WebRTCSignaling {
       }
     };
 
-    debugPrint(
-        ">>> ws rtc createStream media: $media, s ${mediaConstraints.toString()}");
     MediaStream stream = await navigator.mediaDevices.getUserMedia(
       mediaConstraints,
     );
@@ -435,6 +423,7 @@ class WebRTCSignaling {
     try {
       RTCSessionDescription sd =
           await s.pc!.createOffer(media == 'data' ? _dcConstraints : {});
+      // await s.pc!.createOffer(_dcConstraints);
       await s.pc!.setLocalDescription(sd);
       _send('offer', {
         'sd': {'sdp': sd.sdp, 'type': sd.type},
@@ -450,6 +439,7 @@ class WebRTCSignaling {
     try {
       RTCSessionDescription s =
           await session.pc!.createAnswer(media == 'data' ? _dcConstraints : {});
+      // await session.pc!.createAnswer(_dcConstraints);
       await session.pc!.setLocalDescription(s);
       _send('answer', {
         'media': media,

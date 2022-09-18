@@ -1029,7 +1029,7 @@ packages:
       name: niku
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.3.2"
+    version: "2.3.3"
   nm:
     dependency: transitive
     description:

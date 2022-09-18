@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/signaling.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/page/chat/conversation_call_screen_view.dart';
+import 'package:imboy/page/p2p_call_screen/p2p_call_screen_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -174,7 +174,7 @@ void openCallScreen(
 
   OverlayEntry? _entry;
   final entry = OverlayEntry(builder: (context) {
-    return ConversationCallScreenPage(
+    return P2pCallScreenPage(
       to: id,
       title: title,
       avatar: avatar,
