@@ -95,24 +95,22 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
   }
 
   @override
-  deactivate() {
-    _close();
+  deactivate() async {
+    await _close();
     super.deactivate();
   }
 
-  @override
-  void dispose() {
-    _close();
-    super.dispose();
-  }
-
-  _close() {
-    localRenderer.srcObject = null;
-    remoteRenderer.srcObject = null;
-    localRenderer.dispose();
-    remoteRenderer.dispose();
+  _close() async {
+    if (remoteRenderer != null) {
+      if (remoteRenderer.srcObject != null) remoteRenderer.srcObject = null;
+      await remoteRenderer.dispose();
+    }
+    if (localRenderer != null) {
+      if (localRenderer.srcObject != null) localRenderer.srcObject = null;
+      await localRenderer.dispose();
+    }
     if (signaling != null) {
-      signaling?.close();
+      await signaling?.close();
     }
     counter.close();
 
@@ -162,11 +160,22 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
         case WebRTCCallState.CallStateInvite:
           break;
         case WebRTCCallState.CallStateConnected:
-          Future.delayed(const Duration(milliseconds: 200), () {
+          setState(() {
+            localX = Get.width - 90;
+            localY = 30;
+            connected = true;
+
+            debugPrint(
+                ">>> ws rtc ccc2 ${DateTime.now()} _accept ${session.toString()} sid: ${session!.sid}");
+          });
+          counter.start((Timer tm) {
+            if (!mounted) {
+              return;
+            }
+            // 更新界面
             setState(() {
-              localX = Get.width - 90;
-              localY = 30;
-              connected = true;
+              // 秒数+1，因为一秒回调一次
+              counter.count += 1;
             });
           });
           break;
@@ -200,17 +209,6 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
     signaling?.onRemoveRemoteStream = ((_, stream) {
       debugPrint(">>> ws rtc _connect onRemoveRemoteStream");
       remoteRenderer.srcObject = null;
-    });
-
-    counter.start((Timer tm) {
-      if (!mounted) {
-        return;
-      }
-      // 更新界面
-      setState(() {
-        // 秒数+1，因为一秒回调一次
-        counter.count += 1;
-      });
     });
   }
 
@@ -254,7 +252,6 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
     if (session != null) {
       signaling?.bye(session!.sid);
     }
-    //
     deactivate();
   }
 
@@ -396,13 +393,14 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
                 if (showTool)
                   Positioned(
                     top: 40,
-                    left: (Get.width - 64) / 2,
-                    width: 64,
+                    left: (Get.width - 160) / 2,
+                    width: 160,
                     child: Text(
-                      counter.show(),
+                      connected ? counter.show() : '等待对方接受邀请...'.tr,
                       style: const TextStyle(
                         color: Colors.white,
                       ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
 

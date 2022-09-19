@@ -187,13 +187,12 @@ class WebRTCSignaling {
           var sessionId = data['sid'];
           var session = sessions[sessionId];
           debugPrint(
-              ">>> ws rtc cc answer sid ${sessionId} ; ${session.toString()}");
-          session?.pc?.setRemoteDescription(RTCSessionDescription(
+              ">>> ws rtc ccc1 ${DateTime.now()}  answer sid ${sessionId} ; ${session.toString()}");
+          await session?.pc?.setRemoteDescription(RTCSessionDescription(
             description['sdp'],
             description['type'],
           ));
           onCallStateChange?.call(session!, WebRTCCallState.CallStateConnected);
-          // sessions[sessionId] = session;
         }
         break;
       case 'candidate':
@@ -474,7 +473,10 @@ class WebRTCSignaling {
       localStream = null;
     }
     sessions.forEach((key, sess) async {
+      sess.pc?.onIceCandidate = null;
+      sess.pc?.onTrack = null;
       await sess.pc?.close();
+      await sess.pc?.dispose();
       await sess.dc?.close();
     });
     sessions.clear();
