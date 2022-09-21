@@ -35,10 +35,13 @@ class MessageService extends GetxService {
     eventBus.on<Map>().listen((Map data) async {
       String dtype = data['type'] ?? 'error';
       dtype = dtype.toUpperCase();
-      int now = DateTimeHelper.currentTimeMillis();
-      debugPrint(
-          ">>> on MessageService onInit now: $now diff: ${now - data['ts']}");
-      debugPrint(">>> on MessageService onInit: $dtype " + data.toString());
+      if (data.containsKey('ts')) {
+        int now = DateTimeHelper.currentTimeMillis();
+        debugPrint(
+            ">>> on MessageService onInit now: $now elapsed: ${now - data['ts']}");
+      }
+      debugPrint(">>> on MessageService onInit: $dtype" + data.toString());
+
       if (dtype == 'OFFER' || dtype == 'CANDIDATE') {
         dtype = 'WEBRTC_' + dtype;
       }
@@ -170,7 +173,9 @@ class MessageService extends GetxService {
     var msgtype = data['payload']['msg_type'] ?? '';
     var text = data['payload']['text'] ?? '';
     debugPrint(">>> on reciveMessage " + data.toString());
-
+    int now = DateTimeHelper.currentTimeMillis();
+    debugPrint(
+        ">>> on reciveC2CMessage now: $now elapsed: ${now - data['created_at']}");
     String subtitle = '';
 
     ContactModel? ct = await ContactRepo().findByUid(data['from']);

@@ -139,12 +139,11 @@ class WebRTCSignaling {
     }
   }
 
-  void accept(String sessionId) {
+  Future<void> accept(String sessionId) async {
     var session = sessions[sessionId];
-    if (session == null) {
-      return;
+    if (session != null) {
+      _createAnswer(session, 'video');
     }
-    _createAnswer(session, 'video');
   }
 
   void reject(String sessionId) {

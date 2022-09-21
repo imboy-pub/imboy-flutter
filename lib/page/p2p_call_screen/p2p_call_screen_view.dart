@@ -47,8 +47,8 @@ class P2pCallScreenPage extends StatefulWidget {
 class _P2pCallScreenState extends State<P2pCallScreenPage> {
   WebRTCSignaling? signaling;
   WebRTCSession? session;
-  final RTCVideoRenderer localRenderer = RTCVideoRenderer();
-  final RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
+  RTCVideoRenderer localRenderer = RTCVideoRenderer();
+  RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
 
   //
   double localX = 0;
@@ -63,6 +63,7 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
   bool minimized = false;
   // 计时器
   Counter counter = Counter(count: 0);
+  String stateTips = "";
 
   // ignore: unused_element
   _P2pCallScreenState();
@@ -79,6 +80,9 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
       _accept();
     } else {
       _invitePeer(context, widget.to, widget.media);
+      setState(() {
+        stateTips = '等待对方接受邀请...'.tr;
+      });
     }
     // 接收到新的消息订阅
     eventBus
@@ -101,19 +105,20 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
   }
 
   _close() async {
-    if (remoteRenderer != null) {
-      if (remoteRenderer.srcObject != null) remoteRenderer.srcObject = null;
+    if (remoteRenderer != null && remoteRenderer.textureId != null) {
+      remoteRenderer.srcObject = null;
       await remoteRenderer.dispose();
     }
-    if (localRenderer != null) {
-      if (localRenderer.srcObject != null) localRenderer.srcObject = null;
+    if (localRenderer != null && localRenderer.textureId != null) {
+      localRenderer.srcObject = null;
       await localRenderer.dispose();
     }
     if (signaling != null) {
       await signaling?.close();
     }
-    counter.close();
-
+    if (counter.timer != null) {
+      counter.close();
+    }
     callScreenOn = false;
     widget.close();
   }
@@ -144,8 +149,7 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
 
     signaling?.onCallStateChange =
         (WebRTCSession s1, WebRTCCallState state) async {
-      debugPrint(
-          ">>> ws rtc cc onCallStateChange ${state.toString()}; session: ${s1.sid} ${s1.pid}");
+      debugPrint(">>> ws rtc onCallStateChange ${state.toString()};");
       switch (state) {
         case WebRTCCallState.CallStateNew:
           setState(() {
@@ -153,9 +157,25 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
           });
           break;
         case WebRTCCallState.CallStateRinging:
+          setState(() {
+            stateTips = '已响铃...'.tr;
+          });
           break;
         case WebRTCCallState.CallStateBye:
-          _close();
+          if (mounted) {
+            counter.close();
+            setState(() {
+              stateTips = connected ? '对方已挂断'.tr : '对方正忙...'.tr;
+            });
+          }
+          Future.delayed(const Duration(seconds: 3), () {
+            if (mounted) {
+              setState(() {
+                connected = false;
+              });
+            }
+            _close();
+          });
           break;
         case WebRTCCallState.CallStateInvite:
           break;
@@ -172,12 +192,16 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
             if (!mounted) {
               return;
             }
-            // 更新界面
-            setState(() {
-              // 秒数+1，因为一秒回调一次
-              counter.count += 1;
-            });
+            if (connected) {
+              // 更新界面
+              setState(() {
+                // 秒数+1，因为一秒回调一次
+                counter.count += 1;
+                stateTips = counter.show();
+              });
+            }
           });
+
           break;
       }
     };
@@ -227,7 +251,7 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
     debugPrint(
         ">>> ws rtc cc ${DateTime.now()} _accept ${session.toString()} sid: ${session!.sid}");
     if (session != null) {
-      signaling?.accept(session!.sid);
+      await signaling?.accept(session!.sid);
       if (signaling?.localStream != null) {
         await localRenderer.initialize();
         localRenderer.srcObject = signaling?.localStream;
@@ -244,6 +268,19 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
         localX = Get.width - 90;
         localY = 30;
         connected = true;
+      });
+      counter.start((Timer tm) {
+        if (!mounted) {
+          return;
+        }
+        // 更新界面
+        if (connected) {
+          setState(() {
+            // 秒数+1，因为一秒回调一次
+            counter.count += 1;
+            stateTips = counter.show();
+          });
+        }
       });
     }
   }
@@ -396,7 +433,7 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
                     left: (Get.width - 160) / 2,
                     width: 160,
                     child: Text(
-                      connected ? counter.show() : '等待对方接受邀请...'.tr,
+                      stateTips,
                       style: const TextStyle(
                         color: Colors.white,
                       ),

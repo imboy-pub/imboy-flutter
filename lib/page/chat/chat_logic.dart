@@ -62,6 +62,7 @@ class ChatLogic extends GetxController {
   bool sendWsMsg(MessageModel obj) {
     if (obj.status == MessageStatus.sending) {
       Map<String, dynamic> msg = {
+        'ts': DateTimeHelper.currentTimeMillis(),
         'id': obj.id,
         'type': obj.type,
         'from': obj.fromId,
@@ -195,6 +196,7 @@ class ChatLogic extends GetxController {
   /// 撤回消息
   Future<bool> revokeMessage(types.Message obj) async {
     Map<String, dynamic> msg = {
+      'ts': DateTimeHelper.currentTimeMillis(),
       'id': obj.id,
       'type': 'C2C_REVOKE',
       'from': obj.author.id,
