@@ -4,10 +4,39 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/signaling.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/p2p_call_screen/p2p_call_screen_view.dart';
+import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
+
+Map<String, dynamic>? iceServers = null;
+
+/// 初始化 ice 配置信息
+getIceServers() async {
+  debugPrint("getIceServers iceServers == null: ${iceServers == null}");
+  if (iceServers == null) {
+    try {
+      var _turnCredential = await UserProvider().turnCredential();
+      debugPrint("getIceServers _turnCredential ${_turnCredential.toString()}");
+      iceServers = {
+        'iceServers': [
+          {
+            'url': STUN_URL,
+          },
+          {
+            'urls': _turnCredential['uris'] ?? [TURN_URL],
+            "ttl": _turnCredential['ttl'] ?? 86400,
+            'username': _turnCredential['username'],
+            'credential': _turnCredential['credential']
+          },
+        ],
+        'iceTransportPolicy': 'relay',
+      };
+    } catch (e) {}
+  }
+}
 
 Future<void> incomingCallScreen(
   String peerId,
@@ -21,10 +50,11 @@ Future<void> incomingCallScreen(
     // 给对端发送消息，说真正通话中 TODO
     return;
   }
-
+  await getIceServers();
   WebRTCSignaling signaling = WebRTCSignaling(
     UserRepoLocal.to.currentUid,
     peerId,
+    iceServers!,
   )..connect();
 
   // String sessionId = UserRepoLocal.to.currentUid + '-' + peerId;

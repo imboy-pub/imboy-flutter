@@ -4,10 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
-import 'package:imboy/store/provider/user_provider.dart';
 
 enum WebRTCSignalingState {
   ConnectionOpen,
@@ -38,18 +36,11 @@ class WebRTCSession {
 }
 
 class WebRTCSignaling {
-  WebRTCSignaling(
-    this.from,
-    this.to, {
-    this.micoff = true,
-  });
-
   final JsonEncoder _encoder = const JsonEncoder();
   final String from;
   final String to;
   final bool micoff;
   late WSService _socket;
-  var _turnCredential;
   Map<String, WebRTCSession> sessions = {};
   MediaStream? localStream;
   final List<MediaStream> remoteStreams = <MediaStream>[];
@@ -68,7 +59,7 @@ class WebRTCSignaling {
   String get sdpSemantics =>
       WebRTC.platformIsWindows ? 'plan-b' : 'unified-plan';
 
-  Map<String, dynamic> _iceServers = {};
+  Map<String, dynamic> iceServers;
 
   final Map<String, dynamic> _config = {
     'mandatory': {},
@@ -89,6 +80,13 @@ class WebRTCSignaling {
     },
     'optional': [],
   };
+
+  WebRTCSignaling(
+    this.from,
+    this.to,
+    this.iceServers, {
+    this.micoff = true,
+  }) {}
 
   close() async {
     await _cleanSessions();
@@ -124,7 +122,7 @@ class WebRTCSignaling {
     if (media == 'data') {
       _createDataChannel(session);
     }
-    _createOffer(session, media);
+    await _createOffer(session, media);
     onCallStateChange?.call(session, WebRTCCallState.CallStateNew);
     onCallStateChange?.call(session, WebRTCCallState.CallStateInvite);
   }
@@ -186,7 +184,7 @@ class WebRTCSignaling {
           var sessionId = data['sid'];
           var session = sessions[sessionId];
           debugPrint(
-              ">>> ws rtc ccc1 ${DateTime.now()}  answer sid ${sessionId} ; ${session.toString()}");
+              ">>> ws rtc ccc1 ${DateTime.now()}  answer sid ${sessionId}; ${session.toString()}; desc type: ${description['type']}");
           await session?.pc?.setRemoteDescription(RTCSessionDescription(
             description['sdp'],
             description['type'],
@@ -206,6 +204,8 @@ class WebRTCSignaling {
             candidateMap['sdpMLineIndex'],
           );
 
+          debugPrint(
+              ">>> ws rtc candidate sessionId $sessionId, peerid ${peerId}, s ${session.toString()}");
           if (session != null) {
             debugPrint(
                 ">>> ws rtc candidate sessionId $sessionId, peerid ${peerId}, s ${session.pc.toString()}");
@@ -250,26 +250,6 @@ class WebRTCSignaling {
 
   Future<void> connect() async {
     _socket = WSService.to;
-    debugPrint(">>> ws rtc connect");
-    if (_turnCredential == null) {
-      try {
-        _turnCredential = await UserProvider().turnCredential();
-        _iceServers = {
-          'iceServers': [
-            {
-              'url': STUN_URL,
-            },
-            {
-              'urls': _turnCredential['uris'] ?? [TURN_URL],
-              "ttl": _turnCredential['ttl'] ?? 86400,
-              'username': _turnCredential['username'],
-              'credential': _turnCredential['credential']
-            },
-          ],
-          'iceTransportPolicy': 'relay',
-        };
-      } catch (e) {}
-    }
     WSService.to.openSocket();
 
     onSignalingStateChange?.call(WebRTCSignalingState.ConnectionOpen);
@@ -333,7 +313,7 @@ class WebRTCSignaling {
       localStream = await createStream(media);
     }
     RTCPeerConnection pc = await createPeerConnection({
-      ..._iceServers,
+      ...iceServers,
       ...{'sdpSemantics': sdpSemantics}
     }, _config);
     if (media != 'data') {
@@ -361,6 +341,7 @@ class WebRTCSignaling {
     }
 
     pc.onIceCandidate = (candidate) async {
+      debugPrint('>>> ws rtc onIceCandidate: ${candidate.toMap().toString()}');
       if (candidate == null) {
         debugPrint('onIceCandidate: complete!');
         return;
@@ -370,7 +351,7 @@ class WebRTCSignaling {
       // before skipping to the next one. 1 second is just an heuristic value
       // and should be thoroughly tested in your own environment.
       await Future.delayed(
-          const Duration(milliseconds: 0),
+          const Duration(milliseconds: 500),
           () => _send('candidate', {
                 'candidate': {
                   'sdpMLineIndex': candidate.sdpMLineIndex,
@@ -417,7 +398,7 @@ class WebRTCSignaling {
   }
 
   Future<void> _createOffer(WebRTCSession s, String media) async {
-    debugPrint(">>> ws rtc invite _createOffer media $media ");
+    debugPrint(">>> ws rtc invite _createOffer media $media sid ${s.sid}");
     try {
       RTCSessionDescription sd =
           await s.pc!.createOffer(media == 'data' ? _dcConstraints : {});

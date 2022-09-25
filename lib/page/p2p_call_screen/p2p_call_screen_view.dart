@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/counter.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/dragable.dart';
+import 'package:imboy/component/webrtc/index.dart';
 import 'package:imboy/component/webrtc/signaling.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
@@ -76,14 +77,6 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
     signaling = widget.signaling;
     session = widget.session;
     _connect();
-    if (widget.callee) {
-      _accept();
-    } else {
-      _invitePeer(context, widget.to, widget.media);
-      setState(() {
-        stateTips = '等待对方接受邀请...'.tr;
-      });
-    }
     // 接收到新的消息订阅
     eventBus
         .on<WebRTCSignalingModel>()
@@ -124,11 +117,23 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
   }
 
   void _connect() async {
+    await getIceServers();
     signaling ??= WebRTCSignaling(
       UserRepoLocal.to.currentUid,
       widget.to,
+      iceServers!,
     )..connect();
     debugPrint(">>> ws rtc _connect ");
+
+    if (widget.callee) {
+      _accept();
+    } else {
+      _invitePeer(context, widget.to, widget.media);
+      setState(() {
+        stateTips = '等待对方接受邀请...'.tr;
+      });
+    }
+
     signaling?.onSignalingStateChange = (WebRTCSignalingState state) {
       debugPrint(">>> ws rtc state _connect ${state.toString()}");
       switch (state) {
@@ -236,11 +241,12 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
     });
   }
 
+  /// 邀请对端通话
   _invitePeer(BuildContext context, String peerId, String media) async {
     debugPrint(
         ">>> ws rtc cc ${DateTime.now()} _invitePeer ${signaling.toString()} ");
     if (signaling != null && peerId != UserRepoLocal.to.currentUid) {
-      signaling?.invite(peerId, media);
+      await signaling?.invite(peerId, media);
       if (signaling?.localStream != null) {
         localRenderer.srcObject = signaling?.localStream;
       }
@@ -248,8 +254,6 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
   }
 
   _accept() async {
-    debugPrint(
-        ">>> ws rtc cc ${DateTime.now()} _accept ${session.toString()} sid: ${session!.sid}");
     if (session != null) {
       await signaling?.accept(session!.sid);
       if (signaling?.localStream != null) {
