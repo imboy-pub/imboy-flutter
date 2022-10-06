@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 // ignore: implementation_imports
-import 'package:flutter_chat_ui/src/widgets/inherited_chat_theme.dart'
+import 'package:flutter_chat_ui/src/widgets/state/inherited_chat_theme.dart'
     show InheritedChatTheme;
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/emoji_picker_view.dart';
@@ -277,7 +277,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         child: SizedBox(
           height: 400,
           child: EmojiPicker(
-            onEmojiSelected: (Category category, Emoji emoji) {
+            onEmojiSelected: (Category? category, Emoji emoji) {
               _setText(emoji.emoji);
             },
             onBackspacePressed: () {
@@ -298,7 +298,6 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               indicatorColor: Colors.black87,
               iconColorSelected: Colors.black87,
               iconColor: Colors.grey,
-              progressIndicatorColor: Colors.blue,
               backspaceColor: Colors.black54,
               showRecentsTab: true,
               recentsLimit: 19,

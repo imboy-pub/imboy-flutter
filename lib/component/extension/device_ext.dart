@@ -19,7 +19,7 @@ class DeviceExt extends DeviceInfoPlugin {
         "cos": "android",
         "deviceName": data.model,
         "deviceVersion": json.encode(data.version.toMap()),
-        "did": data.androidId,
+        "did": data.id,
       };
 
       //UUID for Android

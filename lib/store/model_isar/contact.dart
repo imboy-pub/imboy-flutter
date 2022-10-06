@@ -9,7 +9,7 @@ part 'contact.g.dart';
 
 @Collection()
 class Contact {
-  int? id;
+  Id? id;
 
   @Index(unique: true)
   late String? uid; // 用户ID
@@ -28,11 +28,14 @@ class Contact {
 
   String? nameIndex;
   String? namePinyin;
+  @ignore
   Color? bgColor;
+  @ignore
   Widget? iconData;
   String? firstletter;
-
+  @ignore
   VoidCallback? onPressed;
+  @ignore
   VoidCallback? onLongPressed;
 
   /// 联系人来源描述

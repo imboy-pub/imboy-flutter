@@ -87,9 +87,9 @@ class WebViewPageState extends State<WebViewPage> {
       name: 'jsbridge', // 与h5 端的一致 不然收不到消息
       onMessageReceived: (JavascriptMessage message) {
         // ignore: deprecated_member_use
-        Scaffold.of(context).showSnackBar(
-          SnackBar(content: Text(message.message)),
-        );
+        // Scaffold.of(context).showSnackBar(
+        //   SnackBar(content: Text(message.message)),
+        // );
       },
     );
   }

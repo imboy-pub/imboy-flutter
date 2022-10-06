@@ -64,7 +64,7 @@ Future<void> init() async {
   final dir = await getApplicationSupportDirectory();
 
   final isar = await Isar.open(
-    schemas: [ContactSchema],
+    [ContactSchema],
     directory: dir.path,
   );
   // 放在 UserRepoLocal 前面

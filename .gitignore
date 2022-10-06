@@ -52,3 +52,12 @@ app.*.map.json
 build
 Podfile.lock
 .env
+linux/flutter/ephemeral/.plugin_symlinks/device_info_plus_linux
+linux/flutter/ephemeral/.plugin_symlinks/isar_flutter_libs
+connectivity_plus_linux
+package_info_plus_linux
+linux/flutter/ephemeral/.plugin_symlinks/path_provider_linux
+linux/flutter/ephemeral/.plugin_symlinks/shared_preferences_linux
+linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux
+macos/Flutter/ephemeral/Flutter-Generated.xcconfig
+macos/Flutter/ephemeral/flutter_export_environment.sh

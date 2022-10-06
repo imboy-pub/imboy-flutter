@@ -187,6 +187,15 @@ class ImboyChatTheme extends ChatTheme {
             top: Radius.circular(8),
           ),
           inputMargin: const EdgeInsets.fromLTRB(16, 8, 18, 8),
+          unreadHeaderTheme: const UnreadHeaderTheme(
+            color: secondary,
+            textStyle: TextStyle(
+              color: neutral2,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              height: 1.333,
+            ),
+          ),
         );
 }
 

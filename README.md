@@ -138,6 +138,9 @@ https://isar.dev/tutorials/quickstart.html
 ```
 flutter pub run build_runner build --help
 
+flutter pub run build_runner build --delete-conflicting-outputs
+flutter pub run build_runner build
+
 ```
 
 ## 临时解决 CocoaPods not installed. Skipping pod install
@@ -224,7 +227,11 @@ git submodule add https://gitee.com/imboy-tripartite-deps/popup_menu.git popup_m
 
 
 ```
+cd ios
 arch -x86_64 pod update
+
+arch -x86_64 pod update flutter_webrtc
+
 ```
 
 deps:

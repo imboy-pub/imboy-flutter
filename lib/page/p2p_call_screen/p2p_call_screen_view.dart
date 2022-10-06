@@ -185,6 +185,9 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
         case WebRTCCallState.CallStateInvite:
           break;
         case WebRTCCallState.CallStateConnected:
+          if (!mounted) {
+            return;
+          }
           setState(() {
             localX = Get.width - 90;
             localY = 30;
@@ -194,9 +197,6 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
                 ">>> ws rtc ccc2 ${DateTime.now()} _accept ${session.toString()} sid: ${session!.sid}");
           });
           counter.start((Timer tm) {
-            if (!mounted) {
-              return;
-            }
             if (connected) {
               // 更新界面
               setState(() {
