@@ -184,12 +184,17 @@ class WebRTCSignaling {
           var sessionId = data['sid'];
           var session = sessions[sessionId];
           debugPrint(
-              ">>> ws rtc ccc1 ${DateTime.now()}  answer sid ${sessionId}; ${session.toString()}; desc type: ${description['type']}");
-          await session?.pc?.setRemoteDescription(RTCSessionDescription(
-            description['sdp'],
-            description['type'],
-          ));
-          onCallStateChange?.call(session!, WebRTCCallState.CallStateConnected);
+              ">>> ws rtc ccc1 ${DateTime.now()} answer sid ${sessionId}; ${session.toString()}, pc ${session?.pc.toString()}; desc type: ${description['type']}");
+          if (session != null) {
+            await session.pc?.setRemoteDescription(RTCSessionDescription(
+              description['sdp'],
+              description['type'],
+            ));
+            onCallStateChange?.call(
+              session,
+              WebRTCCallState.CallStateConnected,
+            );
+          }
         }
         break;
       case 'candidate':
@@ -208,7 +213,7 @@ class WebRTCSignaling {
               ">>> ws rtc candidate sessionId $sessionId, peerid ${peerId}, s ${session.toString()}");
           if (session != null) {
             debugPrint(
-                ">>> ws rtc candidate sessionId $sessionId, peerid ${peerId}, s ${session.pc.toString()}");
+                ">>> ws rtc candidate sessionId $sessionId, peerid ${peerId}, s.pc ${session.pc.toString()}");
             if (session.pc != null) {
               await session.pc?.addCandidate(candidate);
             } else {
@@ -280,13 +285,12 @@ class WebRTCSignaling {
           'minWidth':
               '640', // Provide your own width, height and frame rate here
           'minHeight': '480',
-          'minFrameRate': '30',
+          'minFrameRate': '24',
         },
         'facingMode': 'user',
         'optional': [],
       }
     };
-
     MediaStream stream = await navigator.mediaDevices.getUserMedia(
       mediaConstraints,
     );

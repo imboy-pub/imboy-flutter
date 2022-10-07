@@ -14,6 +14,7 @@ import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
+// ignore: must_be_immutable
 class P2pCallScreenPage extends StatefulWidget {
   final String to;
   final String title;
@@ -42,6 +43,7 @@ class P2pCallScreenPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _P2pCallScreenState createState() => _P2pCallScreenState();
 }
 
@@ -81,6 +83,7 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
     eventBus
         .on<WebRTCSignalingModel>()
         .listen((WebRTCSignalingModel obj) async {
+      // ignore: prefer_interpolation_to_compose_strings
       debugPrint(">>> on rtc listen: " + obj.toJson().toString());
       signaling?.onMessage(obj);
     });
@@ -98,11 +101,11 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
   }
 
   _close() async {
-    if (remoteRenderer != null && remoteRenderer.textureId != null) {
+    if (remoteRenderer.textureId != null) {
       remoteRenderer.srcObject = null;
       await remoteRenderer.dispose();
     }
-    if (localRenderer != null && localRenderer.textureId != null) {
+    if (localRenderer.textureId != null) {
       localRenderer.srcObject = null;
       await localRenderer.dispose();
     }
@@ -128,7 +131,7 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
     if (widget.callee) {
       _accept();
     } else {
-      _invitePeer(context, widget.to, widget.media);
+      _invitePeer(widget.to, widget.media);
       setState(() {
         stateTips = '等待对方接受邀请...'.tr;
       });
@@ -242,7 +245,7 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
   }
 
   /// 邀请对端通话
-  _invitePeer(BuildContext context, String peerId, String media) async {
+  _invitePeer(String peerId, String media) async {
     debugPrint(
         ">>> ws rtc cc ${DateTime.now()} _invitePeer ${signaling.toString()} ");
     if (signaling != null && peerId != UserRepoLocal.to.currentUid) {
@@ -319,22 +322,22 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
                   <Widget>[
                     FloatingActionButton(
                       heroTag: "switch_camera",
-                      child: const Icon(Icons.switch_camera),
                       onPressed: _switchCamera,
+                      child: const Icon(Icons.switch_camera),
                     ),
                     FloatingActionButton(
                       heroTag: "call_end",
                       onPressed: _hangUp,
                       tooltip: 'Hangup',
-                      child: const Icon(Icons.call_end),
                       backgroundColor: Colors.pink,
+                      child: const Icon(Icons.call_end),
                     ),
                     FloatingActionButton(
                       heroTag: "mic_off",
+                      onPressed: _muteMic,
                       child: micoff
                           ? const Icon(Icons.mic_off)
                           : const Icon(Icons.mic),
-                      onPressed: _muteMic,
                     )
                   ],
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -378,6 +381,7 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
                     margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                     width: Get.width,
                     height: Get.height,
+                    decoration: const BoxDecoration(color: Colors.black54),
                     child: InkWell(
                       onTap: () {
                         // 切换工具栏
@@ -391,7 +395,6 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
                             RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
                       ),
                     ),
-                    decoration: const BoxDecoration(color: Colors.black54),
                   ),
                 ),
                 // local
@@ -400,7 +403,6 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
                   top: localY,
                   child: connected
                       ? Draggable(
-                          child: localBox,
                           feedback: localBox,
                           childWhenDragging: const SizedBox.shrink(),
                           // 拖动中的回调
@@ -412,6 +414,7 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
                               });
                             }
                           },
+                          child: localBox,
                         )
                       : localBox,
                 ),

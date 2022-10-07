@@ -11,30 +11,32 @@ import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
-Map<String, dynamic>? iceServers = null;
+Map<String, dynamic>? iceServers;
 
 /// 初始化 ice 配置信息
 getIceServers() async {
   debugPrint("getIceServers iceServers == null: ${iceServers == null}");
   if (iceServers == null) {
     try {
-      var _turnCredential = await UserProvider().turnCredential();
-      debugPrint("getIceServers _turnCredential ${_turnCredential.toString()}");
+      var turnCredential = await UserProvider().turnCredential();
+      debugPrint("getIceServers _turnCredential ${turnCredential.toString()}");
       iceServers = {
         'iceServers': [
           {
             'url': STUN_URL,
           },
           {
-            'urls': _turnCredential['uris'] ?? [TURN_URL],
-            "ttl": _turnCredential['ttl'] ?? 86400,
-            'username': _turnCredential['username'],
-            'credential': _turnCredential['credential']
+            'urls': turnCredential['uris'] ?? [TURN_URL],
+            "ttl": turnCredential['ttl'] ?? 86400,
+            'username': turnCredential['username'],
+            'credential': turnCredential['credential']
           },
         ],
         'iceTransportPolicy': 'relay',
       };
-    } catch (e) {}
+    } catch (e) {
+      //
+    }
   }
 }
 
@@ -47,7 +49,7 @@ Future<void> incomingCallScreen(
 ) async {
   // 已经在通话中，不需要调起通话了
   if (callScreenOn == true) {
-    // 给对端发送消息，说真正通话中 TODO
+    // 给对端发送消息，说正在通话中 TODO
     return;
   }
   await getIceServers();
@@ -136,16 +138,16 @@ Future<void> incomingCallScreen(
               child: FloatingActionButton(
                 mini: true,
                 heroTag: "RejectCall",
-                child: const Icon(
-                  Icons.call_end,
-                  color: Colors.white,
-                ),
                 backgroundColor: Colors.red,
                 // onPressed: () => _rejectCall(context, _callSession),
                 onPressed: () {
                   signaling.close();
                   Get.close(0);
                 },
+                child: const Icon(
+                  Icons.call_end,
+                  color: Colors.white,
+                ),
               ),
             )
           ]),
@@ -155,10 +157,6 @@ Future<void> incomingCallScreen(
               child: FloatingActionButton(
                 mini: true,
                 heroTag: "AcceptCall",
-                child: const Icon(
-                  Icons.video_camera_back,
-                  color: Colors.white,
-                ),
                 backgroundColor: Colors.green,
                 // onPressed: () => _acceptCall(context, _callSession),
                 onPressed: () {
@@ -174,6 +172,10 @@ Future<void> incomingCallScreen(
                     session: session,
                   );
                 },
+                child: const Icon(
+                  Icons.video_camera_back,
+                  color: Colors.white,
+                ),
               ),
             ),
           ]),
@@ -202,7 +204,7 @@ void openCallScreen(
   debugPrint(
       ">>> ws rtc cc ${DateTime.now()} openCallScreen ${signaling.toString()}");
 
-  OverlayEntry? _entry;
+  OverlayEntry? tempEntry;
   final entry = OverlayEntry(builder: (context) {
     return P2pCallScreenPage(
       to: id,
@@ -214,11 +216,11 @@ void openCallScreen(
       signaling: signaling,
       session: session,
       close: () {
-        _entry?.remove();
-        _entry = null;
+        tempEntry?.remove();
+        tempEntry = null;
       },
     );
   });
-  _entry = entry;
+  tempEntry = entry;
   navigatorKey.currentState?.overlay?.insert(entry);
 }

@@ -33,24 +33,23 @@ class MessageService extends GetxService {
   void onInit() {
     super.onInit();
     eventBus.on<Map>().listen((Map data) async {
-      String dtype = data['type'] ?? 'error';
-      dtype = dtype.toUpperCase();
+      String type = data['type'] ?? 'error';
+      type = type.toUpperCase();
       if (data.containsKey('ts')) {
         int now = DateTimeHelper.currentTimeMillis();
         debugPrint(
             ">>> on MessageService onInit now: $now elapsed: ${now - data['ts']}");
       }
-      debugPrint(">>> on MessageService onInit: $dtype" + data.toString());
+      debugPrint(">>> on MessageService onInit: $type$data");
 
-      if (dtype == 'OFFER' || dtype == 'CANDIDATE') {
-        dtype = 'WEBRTC_' + dtype;
+      if (type == 'OFFER' || type == 'CANDIDATE') {
+        type = "WEBRTC_$type";
       }
-      if (dtype.startsWith('WEBRTC_')) {
-        if (dtype == 'WEBRTC_OFFER') {
+      if (type.startsWith('WEBRTC_')) {
+        if (type == 'WEBRTC_OFFER') {
           String peerId = data['from'];
           ContactModel? obj = await ContactRepo().findByUid(peerId);
-          debugPrint(">>> ws rtc state ContactModel ${obj!.toJson()}");
-          if (callScreenOn == false && obj != null) {
+          if (obj != null) {
             incomingCallScreen(
               peerId,
               obj.title,
@@ -67,7 +66,7 @@ class MessageService extends GetxService {
           payload: data['payload'],
         ));
       } else {
-        switch (dtype) {
+        switch (type) {
           case 'C2C':
             await reciveC2CMessage(data);
             break;
@@ -78,7 +77,7 @@ class MessageService extends GetxService {
             await reciveC2CRevokeMessage(data);
             break;
           case 'C2C_REVOKE_ACK': // 对端撤回消息ACK
-            await reciveC2CRevokeAckMessage(dtype, data);
+            await reciveC2CRevokeAckMessage(type, data);
             break;
           case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
             break;
@@ -172,7 +171,7 @@ class MessageService extends GetxService {
   Future<void> reciveC2CMessage(data) async {
     var msgtype = data['payload']['msg_type'] ?? '';
     var text = data['payload']['text'] ?? '';
-    debugPrint(">>> on reciveMessage " + data.toString());
+    debugPrint(">>> on reciveMessage $data");
     int now = DateTimeHelper.currentTimeMillis();
     debugPrint(
         ">>> on reciveC2CMessage now: $now elapsed: ${now - data['created_at']}");
@@ -233,7 +232,7 @@ class MessageService extends GetxService {
 
   /// 收到C2C服务端确认消息
   Future<void> reciveC2CServerAckMessage(Map data) async {
-    debugPrint(">>> on MessageService S_RECEIVED: msg:" + data.toString());
+    debugPrint(">>> on MessageService S_RECEIVED: msg:$data");
     MessageRepo repo = MessageRepo();
     String id = data['id'];
     int res = await repo.update({
