@@ -48,7 +48,7 @@ Future<void> incomingCallScreen(
   Map<String, dynamic> option,
 ) async {
   // 已经在通话中，不需要调起通话了
-  if (callScreenOn == true) {
+  if (p2pCallScreenOn == true) {
     // 给对端发送消息，说正在通话中 TODO
     return;
   }
@@ -197,7 +197,7 @@ void openCallScreen(
   WebRTCSignaling? signaling,
   WebRTCSession? session,
 }) {
-  if (callScreenOn == true) {
+  if (p2pCallScreenOn == true) {
     // 已经在通话中，不需要调起通话了
     return;
   }

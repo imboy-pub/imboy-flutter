@@ -35,7 +35,7 @@ typedef VoidCallbackConfirm = void Function(bool isOk);
 
 enum ClickType { select, open }
 
-bool callScreenOn = false;
+bool p2pCallScreenOn = false;
 
 var logger = Logger();
 int ntpOffset = 0;

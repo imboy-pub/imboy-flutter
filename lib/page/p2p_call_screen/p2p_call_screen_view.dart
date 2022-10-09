@@ -74,10 +74,13 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
   @override
   initState() {
     super.initState();
-    callScreenOn = true;
+    p2pCallScreenOn = true;
     initRenderers();
-    signaling = widget.signaling;
-    session = widget.session;
+
+    if (!widget.callee) {
+      signaling = widget.signaling;
+      session = widget.session;
+    }
     _connect();
     // 接收到新的消息订阅
     eventBus
@@ -101,13 +104,13 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
   }
 
   _close() async {
-    if (remoteRenderer.textureId != null) {
-      remoteRenderer.srcObject = null;
-      await remoteRenderer.dispose();
-    }
-    if (localRenderer.textureId != null) {
+    if (localRenderer.srcObject != null) {
       localRenderer.srcObject = null;
       await localRenderer.dispose();
+    }
+    if (remoteRenderer.srcObject != null) {
+      remoteRenderer.srcObject = null;
+      await remoteRenderer.dispose();
     }
     if (signaling != null) {
       await signaling?.close();
@@ -115,7 +118,7 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
     if (counter.timer != null) {
       counter.close();
     }
-    callScreenOn = false;
+    p2pCallScreenOn = false;
     widget.close();
   }
 
@@ -249,10 +252,11 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
     debugPrint(
         ">>> ws rtc cc ${DateTime.now()} _invitePeer ${signaling.toString()} ");
     if (signaling != null && peerId != UserRepoLocal.to.currentUid) {
-      await signaling?.invite(peerId, media);
+      // await signaling?.invite(peerId, media);
       if (signaling?.localStream != null) {
         localRenderer.srcObject = signaling?.localStream;
       }
+      signaling?.invite(peerId, media);
     }
   }
 

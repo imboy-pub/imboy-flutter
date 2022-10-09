@@ -21,6 +21,7 @@ enum WebRTCCallState {
   CallStateBye,
 }
 
+// ignore: must_be_immutable
 class WebRTCSession {
   WebRTCSession({
     required this.pid,
@@ -33,6 +34,9 @@ class WebRTCSession {
   RTCPeerConnection? pc;
   RTCDataChannel? dc;
   List<RTCIceCandidate> remoteCandidates = [];
+  //
+  // @override
+  // List<Object?> get props => [pid, sid, pc, dc, remoteCandidates];
 }
 
 class WebRTCSignaling {
@@ -69,24 +73,26 @@ class WebRTCSignaling {
     ]
   };
 
-  final Map<String, dynamic> _dcConstraints = {
-    'mandatory': {
-      // 是否接受语音数据
-      'OfferToReceiveAudio': false,
-      // 是否接受视频数据
-      'OfferToReceiveVideo': true,
-      // https://github.com/flutter-webrtc/flutter-webrtc/issues/509
-      'IceRestart': true,
-    },
-    'optional': [],
-  };
+  late Map<String, dynamic> _dcConstraints;
 
   WebRTCSignaling(
     this.from,
     this.to,
     this.iceServers, {
     this.micoff = true,
-  }) {}
+  }) {
+    _dcConstraints = {
+      'mandatory': {
+        // 是否接受语音数据
+        'OfferToReceiveAudio': micoff,
+        // 是否接受视频数据
+        'OfferToReceiveVideo': true,
+        // https://github.com/flutter-webrtc/flutter-webrtc/issues/509
+        'IceRestart': true,
+      },
+      'optional': [],
+    };
+  }
 
   close() async {
     await _cleanSessions();
@@ -109,7 +115,7 @@ class WebRTCSignaling {
   /// 邀请会话
   /// invite
   Future<void> invite(String peerId, String media) async {
-    String sessionId = from + '-' + peerId;
+    String sessionId = "$from-$peerId";
     WebRTCSession session = await createSession(
       null,
       peerId: peerId,
@@ -162,6 +168,7 @@ class WebRTCSignaling {
         {
           Map peers = data;
           if (onPeersUpdate != null) {
+            // ignore: prefer_collection_literals
             Map<String, dynamic> event = Map<String, dynamic>();
             event['peers'] = peers;
             onPeersUpdate?.call(event);
@@ -184,7 +191,7 @@ class WebRTCSignaling {
           var sessionId = data['sid'];
           var session = sessions[sessionId];
           debugPrint(
-              ">>> ws rtc ccc1 ${DateTime.now()} answer sid ${sessionId}; ${session.toString()}, pc ${session?.pc.toString()}; desc type: ${description['type']}");
+              ">>> ws rtc ccc1 ${DateTime.now()} answer sid $sessionId; ${session.toString()}, pc ${session?.pc.toString()}; desc type: ${description['type']}");
           if (session != null) {
             await session.pc?.setRemoteDescription(RTCSessionDescription(
               description['sdp'],
@@ -210,10 +217,10 @@ class WebRTCSignaling {
           );
 
           debugPrint(
-              ">>> ws rtc candidate sessionId $sessionId, peerid ${peerId}, s ${session.toString()}");
+              ">>> ws rtc candidate sessionId $sessionId, peerid $peerId, s ${session.toString()}");
           if (session != null) {
             debugPrint(
-                ">>> ws rtc candidate sessionId $sessionId, peerid ${peerId}, s.pc ${session.pc.toString()}");
+                ">>> ws rtc candidate sessionId $sessionId, peerid $peerId, s.pc ${session.pc.toString()}");
             if (session.pc != null) {
               await session.pc?.addCandidate(candidate);
             } else {
@@ -311,7 +318,7 @@ class WebRTCSignaling {
           pid: peerId,
         );
     debugPrint(
-        ">>> ws rtc _createSession sdpSemantics $sdpSemantics ; media: $media ; sid: ${sessionId}; session： ${session.toString()}; newSession ${newSession.toString()}");
+        ">>> ws rtc _createSession sdpSemantics $sdpSemantics ; media: $media ; sid: $sessionId; session： $session; newSession $newSession");
 
     if (media != 'data') {
       localStream = await createStream(media);
@@ -331,9 +338,9 @@ class WebRTCSignaling {
           break;
         case 'unified-plan':
           // Unified-Plan
-          pc.onTrack = (event) {
+          pc.onTrack = (RTCTrackEvent event) {
             if (event.track.kind == 'video') {
-              remoteStreams.add(event.streams[0]);
+              // remoteStreams.add(event.streams[0]);
               onAddRemoteStream?.call(newSession, event.streams[0]);
             }
           };
@@ -344,13 +351,8 @@ class WebRTCSignaling {
       }
     }
 
-    pc.onIceCandidate = (candidate) async {
+    pc.onIceCandidate = (RTCIceCandidate candidate) async {
       debugPrint('>>> ws rtc onIceCandidate: ${candidate.toMap().toString()}');
-      if (candidate == null) {
-        debugPrint('onIceCandidate: complete!');
-        return;
-      }
-
       // This delay is needed to allow enough time to try an ICE candidate
       // before skipping to the next one. 1 second is just an heuristic value
       // and should be thoroughly tested in your own environment.
@@ -393,7 +395,7 @@ class WebRTCSignaling {
   }
 
   Future<void> _createDataChannel(WebRTCSession session,
-      {label: 'fileTransfer'}) async {
+      {label = 'fileTransfer'}) async {
     RTCDataChannelInit dataChannelDict = RTCDataChannelInit()
       ..maxRetransmits = 30;
     RTCDataChannel channel =
@@ -405,8 +407,8 @@ class WebRTCSignaling {
     debugPrint(">>> ws rtc invite _createOffer media $media sid ${s.sid}");
     try {
       RTCSessionDescription sd =
-          await s.pc!.createOffer(media == 'data' ? _dcConstraints : {});
-      // await s.pc!.createOffer(_dcConstraints);
+          // await s.pc!.createOffer(media == 'data' ? _dcConstraints : {});
+          await s.pc!.createOffer(_dcConstraints);
       await s.pc!.setLocalDescription(sd);
       _send('offer', {
         'sd': {'sdp': sd.sdp, 'type': sd.type},
@@ -414,15 +416,15 @@ class WebRTCSignaling {
         'media': media,
       });
     } catch (e) {
-      debugPrint(">>> ws rtc invite _createOffer err " + e.toString());
+      debugPrint(">>> ws rtc invite _createOffer err $e");
     }
   }
 
   Future<void> _createAnswer(WebRTCSession session, String media) async {
     try {
       RTCSessionDescription s =
-          await session.pc!.createAnswer(media == 'data' ? _dcConstraints : {});
-      // await session.pc!.createAnswer(_dcConstraints);
+          // await session.pc!.createAnswer(media == 'data' ? _dcConstraints : {});
+          await session.pc!.createAnswer(_dcConstraints);
       await session.pc!.setLocalDescription(s);
       _send('answer', {
         'media': media,
@@ -430,7 +432,7 @@ class WebRTCSignaling {
         'sd': {'sdp': s.sdp, 'type': s.type},
       });
     } catch (e) {
-      debugPrint(">>> ws rtc answer _createAnswer $media e " + e.toString());
+      debugPrint(">>> ws rtc answer media $media e $e");
       debugPrint(
           ">>> ws rtc answer session: ${session.toString()}, pc: ${session.pc!.toString()}",
           wrapWidth: 2048);
@@ -442,7 +444,7 @@ class WebRTCSignaling {
     request["ts"] = DateTimeHelper.currentTimeMillis();
     request["to"] = to;
     request["from"] = from;
-    request["type"] = "webrtc_" + event;
+    request["type"] = "webrtc_$event";
     request["payload"] = payload;
     debugPrint('>>> ws rtc cc _send $event ${request.toString()}');
     _socket.sendMessage(_encoder.convert(request));
@@ -508,8 +510,6 @@ class WebRTCSignaling {
       description['sdp'],
       description['type'],
     ));
-
-    // await _createAnswer(newSession, media);
 
     if (newSession.remoteCandidates.isNotEmpty) {
       for (var candidate in newSession.remoteCandidates) {

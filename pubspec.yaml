@@ -74,7 +74,7 @@ dependencies:
       url: https://gitee.com/mirrors_crazecoder/open_file.git
       ref: master
   # 是否联网及网络类型
-  connectivity_plus: ^2.3.8
+  connectivity_plus: ^2.3.9
   flutter_screenutil: ^5.5.4
   #pull_to_refresh: ^2.0.0
   pull_to_refresh:
@@ -83,7 +83,7 @@ dependencies:
       ref: leeyi
   #pull_to_refresh_flutter3: ^2.0.1
   package_info_plus: ^1.4.3+1
-  device_info_plus: ^5.0.1
+  device_info_plus: ^5.0.5
   event_bus: ^2.0.0
   # https://github.com/letsar/flutter_slidable
   flutter_slidable: ^2.0.0
@@ -112,7 +112,7 @@ dependencies:
   flutter_login: ^4.0.0
   # 进度条
   percent_indicator: ^4.2.2
-  json_serializable: ^6.4.1
+  json_serializable: ^6.5.0
   # 录音
   flutter_sound: ^9.2.13
   flutter_sound_platform_interface: ^9.2.13
@@ -143,10 +143,9 @@ dependencies:
   sqflite: ^2.1.0+1
   isar: ^3.0.2
   isar_flutter_libs: ^3.0.2 # contains the binaries
-  flutter_local_notifications: 12.0.0
+  flutter_local_notifications: 12.0.1+1
   flutter_app_badger: ^1.5.0
   flutter_webrtc: ^0.9.8
-  meta: ^1.8.0
   # flutter_webrtc:
   #  git:
   #    url: https://gitee.com/imboy-tripartite-deps/flutter-webrtc.git
