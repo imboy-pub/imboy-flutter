@@ -11,6 +11,7 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_config.dart';
 import 'package:imboy/component/http/http_interceptor.dart';
 import 'package:imboy/component/observder/lifecycle.dart';
+import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/page/contact/contact_logic.dart';
@@ -39,6 +40,9 @@ bool p2pCallScreenOn = false;
 
 var logger = Logger();
 int ntpOffset = 0;
+
+// ice 配置信息
+Map<String, dynamic>? iceServers;
 
 /// The global [EventBus] object.
 EventBus eventBus = EventBus();
@@ -100,6 +104,9 @@ Future<void> init() async {
   // getx.Get.lazyPut(() => DeviceExt());
 
   ntpOffset = await StorageService.to.ntpOffset();
+
+  await initIceServers();
+
   WidgetsBinding.instance.addObserver(
     LifecycleEventHandler(resumeCallBack: () async {
       // 统计新申请好友数量
@@ -108,7 +115,6 @@ Future<void> init() async {
       // app 恢复
       debugPrint(">>> on LifecycleEventHandler resumeCallBack");
       ntpOffset = await StorageService.to.ntpOffset();
-      WSService.to.sentHeart();
       WSService.to.openSocket();
     }, suspendingCallBack: () async {
       // app 挂起

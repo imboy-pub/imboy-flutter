@@ -6,11 +6,12 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/contact_card.dart';
 import 'package:imboy/component/ui/label_row.dart';
-import 'package:imboy/component/webrtc/index.dart';
+import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact/contact_setting_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -67,7 +68,7 @@ class ContactDetailPage extends StatelessWidget {
             ));
           },
           child: const Image(
-            image: AssetImage(contactAssets + 'ic_contacts_details.png'),
+            image: AssetImage('${contactAssets}ic_contacts_details.png'),
           ),
         ),
       )
@@ -151,10 +152,12 @@ class ContactDetailPage extends StatelessWidget {
                   text: '音视频通话'.tr,
                   onPressed: () {
                     openCallScreen(
-                      id,
-                      title.value,
-                      avatar.value,
-                      sign.value,
+                      UserModel.fromJson({
+                        "uid": id,
+                        "nickname": title.value,
+                        "avatar": avatar.value,
+                        "sign": sign.value,
+                      }),
                     );
                   },
                 ),

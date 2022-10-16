@@ -6,11 +6,12 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/contact_card.dart';
 import 'package:imboy/component/ui/label_row.dart';
-import 'package:imboy/component/webrtc/index.dart';
+import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact/contact_setting_view.dart';
 import 'package:imboy/page/friend/add_friend_view.dart';
+import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 // ignore: must_be_immutable
@@ -122,10 +123,12 @@ class ScannerResultPage extends StatelessWidget {
                 text: '音视频通话'.tr,
                 onPressed: () {
                   openCallScreen(
-                    id,
-                    nickname,
-                    avatar,
-                    sign,
+                    UserModel.fromJson({
+                      "uid": id,
+                      "nickname": nickname,
+                      "avatar": avatar,
+                      "sign": sign,
+                    }),
                   );
                 },
               ),

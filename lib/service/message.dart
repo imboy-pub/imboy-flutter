@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/webrtc/index.dart';
+import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/contact/contact_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
@@ -16,6 +16,7 @@ import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -51,10 +52,12 @@ class MessageService extends GetxService {
           ContactModel? obj = await ContactRepo().findByUid(peerId);
           if (obj != null) {
             incomingCallScreen(
-              peerId,
-              obj.title,
-              obj.avatar,
-              obj.sign,
+              UserModel.fromJson({
+                "uid": obj.uid!,
+                "nickname": obj.title,
+                "avatar": obj.avatar,
+                "sign": obj.sign,
+              }),
               data['payload'],
             );
           }

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:get/get.dart' as getx;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
@@ -39,7 +40,7 @@ class WebRTCSession {
   // List<Object?> get props => [pid, sid, pc, dc, remoteCandidates];
 }
 
-class WebRTCSignaling {
+class WebRTCSignaling extends getx.GetxController {
   final JsonEncoder _encoder = const JsonEncoder();
   final String from;
   final String to;
@@ -56,8 +57,10 @@ class WebRTCSignaling {
   Function(WebRTCSession session, MediaStream stream)? onRemoveRemoteStream;
   Function(dynamic event)? onPeersUpdate;
   Function(
-          WebRTCSession session, RTCDataChannel dc, RTCDataChannelMessage data)?
-      onDataChannelMessage;
+    WebRTCSession session,
+    RTCDataChannel dc,
+    RTCDataChannelMessage data,
+  )? onDataChannelMessage;
   Function(WebRTCSession session, RTCDataChannel dc)? onDataChannel;
 
   String get sdpSemantics =>
@@ -74,6 +77,11 @@ class WebRTCSignaling {
   };
 
   late Map<String, dynamic> _dcConstraints;
+  @override
+  @mustCallSuper
+  void onInit() async {
+    super.onInit();
+  }
 
   WebRTCSignaling(
     this.from,
@@ -145,6 +153,7 @@ class WebRTCSignaling {
 
   Future<void> accept(String sessionId) async {
     var session = sessions[sessionId];
+    debugPrint(">>> rtc accept $session");
     if (session != null) {
       _createAnswer(session, 'video');
     }
@@ -260,7 +269,7 @@ class WebRTCSignaling {
     }
   }
 
-  Future<void> connect() async {
+  Future<void> signalingConnect() async {
     _socket = WSService.to;
     WSService.to.openSocket();
 
@@ -406,14 +415,13 @@ class WebRTCSignaling {
   Future<void> _createOffer(WebRTCSession s, String media) async {
     debugPrint(">>> ws rtc invite _createOffer media $media sid ${s.sid}");
     try {
-      RTCSessionDescription sd =
-          // await s.pc!.createOffer(media == 'data' ? _dcConstraints : {});
-          await s.pc!.createOffer(_dcConstraints);
-      await s.pc!.setLocalDescription(sd);
-      _send('offer', {
-        'sd': {'sdp': sd.sdp, 'type': sd.type},
-        'sid': s.sid,
-        'media': media,
+      s.pc!.createOffer(media == 'data' ? _dcConstraints : {}).then((sd) async {
+        await s.pc!.setLocalDescription(sd);
+        _send('offer', {
+          'sd': {'sdp': sd.sdp, 'type': sd.type},
+          'sid': s.sid,
+          'media': media,
+        });
       });
     } catch (e) {
       debugPrint(">>> ws rtc invite _createOffer err $e");
@@ -422,14 +430,15 @@ class WebRTCSignaling {
 
   Future<void> _createAnswer(WebRTCSession session, String media) async {
     try {
-      RTCSessionDescription s =
-          // await session.pc!.createAnswer(media == 'data' ? _dcConstraints : {});
-          await session.pc!.createAnswer(_dcConstraints);
-      await session.pc!.setLocalDescription(s);
-      _send('answer', {
-        'media': media,
-        'sid': session.sid,
-        'sd': {'sdp': s.sdp, 'type': s.type},
+      session.pc!
+          .createAnswer(media == 'data' ? _dcConstraints : {})
+          .then((sd) async {
+        await session.pc!.setLocalDescription(sd);
+        _send('answer', {
+          'media': media,
+          'sid': session.sid,
+          'sd': {'sdp': sd.sdp, 'type': sd.type},
+        });
       });
     } catch (e) {
       debugPrint(">>> ws rtc answer media $media e $e");

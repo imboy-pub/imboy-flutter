@@ -1,146 +1,59 @@
 import 'dart:async';
-import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/counter.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/dragable.dart';
-import 'package:imboy/component/webrtc/index.dart';
 import 'package:imboy/component/webrtc/signaling.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/store/model/webrtc_signaling_model.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/model/user_model.dart';
 import 'package:niku/namespace.dart' as n;
 
+import 'p2p_call_screen_logic.dart';
+
 // ignore: must_be_immutable
-class P2pCallScreenPage extends StatefulWidget {
-  final String to;
-  final String title;
-  final String avatar;
-  final String sign;
+class P2pCallScreenPage extends StatelessWidget {
+  // final P2pCallScreenLogic logic = Get.find();
+  final logic = Get.put(P2pCallScreenLogic());
+  final UserModel peer;
+
+  String sessionid;
   // video audio data
   final String media;
-  final bool callee;
-  final Function close;
-
-  WebRTCSignaling? signaling;
-  WebRTCSession? session;
+  final bool caller;
+  final Function closePage;
 
   P2pCallScreenPage({
     Key? key,
-    required this.to,
-    required this.title,
-    required this.avatar,
-    this.sign = "",
+    required this.peer,
+    required this.sessionid,
     this.media = 'video',
-    // 被叫者
-    this.callee = false,
-    required this.close,
-    this.signaling,
-    this.session,
+    // 主叫者，发起通话人
+    this.caller = true,
+    required this.closePage,
   }) : super(key: key);
 
-  @override
-  // ignore: library_private_types_in_public_api
-  _P2pCallScreenState createState() => _P2pCallScreenState();
-}
+  final double localWidth = 114.0;
+  final double localHeight = 72.0;
 
-class _P2pCallScreenState extends State<P2pCallScreenPage> {
-  WebRTCSignaling? signaling;
-  WebRTCSession? session;
-  RTCVideoRenderer localRenderer = RTCVideoRenderer();
-  RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
-
-  //
-  double localX = 0;
-  double localY = 0;
-
-  bool connected = false;
-  bool showTool = true;
-  bool switchRenderer = true;
-  //麦克风 默认开启的
-  bool micoff = false;
-  // 最小化的
-  bool minimized = false;
-  // 计时器
-  Counter counter = Counter(count: 0);
-  String stateTips = "";
-
-  // ignore: unused_element
-  _P2pCallScreenState();
-
-  @override
-  initState() {
-    super.initState();
+  init() async {
     p2pCallScreenOn = true;
-    initRenderers();
 
-    if (!widget.callee) {
-      signaling = widget.signaling;
-      session = widget.session;
-    }
-    _connect();
-    // 接收到新的消息订阅
-    eventBus
-        .on<WebRTCSignalingModel>()
-        .listen((WebRTCSignalingModel obj) async {
-      // ignore: prefer_interpolation_to_compose_strings
-      debugPrint(">>> on rtc listen: " + obj.toJson().toString());
-      signaling?.onMessage(obj);
-    });
-  }
-
-  initRenderers() async {
-    await localRenderer.initialize();
-    await remoteRenderer.initialize();
-  }
-
-  @override
-  deactivate() async {
-    await _close();
-    super.deactivate();
-  }
-
-  _close() async {
-    if (localRenderer.srcObject != null) {
-      localRenderer.srcObject = null;
-      await localRenderer.dispose();
-    }
-    if (remoteRenderer.srcObject != null) {
-      remoteRenderer.srcObject = null;
-      await remoteRenderer.dispose();
-    }
-    if (signaling != null) {
-      await signaling?.close();
-    }
-    if (counter.timer != null) {
-      counter.close();
-    }
-    p2pCallScreenOn = false;
-    widget.close();
-  }
-
-  void _connect() async {
-    await getIceServers();
-    signaling ??= WebRTCSignaling(
-      UserRepoLocal.to.currentUid,
-      widget.to,
-      iceServers!,
-    )..connect();
-    debugPrint(">>> ws rtc _connect ");
-
-    if (widget.callee) {
-      _accept();
+    await logic.initRenderers();
+    if (caller) {
+      // 发起通话
+      logic.invitePeer(peer.uid, media);
+      logic.update([
+        logic.stateTips.value = '等待对方接受邀请...'.tr,
+      ]);
     } else {
-      _invitePeer(widget.to, widget.media);
-      setState(() {
-        stateTips = '等待对方接受邀请...'.tr;
-      });
+      // 接受通话
+      debugPrint("> rtc init $sessionid");
+      logic.accept(sessionid);
     }
 
-    signaling?.onSignalingStateChange = (WebRTCSignalingState state) {
+    logic.signaling.onSignalingStateChange = (WebRTCSignalingState state) {
       debugPrint(">>> ws rtc state _connect ${state.toString()}");
       switch (state) {
         case WebRTCSignalingState.ConnectionClosed:
@@ -158,343 +71,162 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
       }
     };
 
-    signaling?.onCallStateChange =
+    logic.signaling.onCallStateChange =
         (WebRTCSession s1, WebRTCCallState state) async {
       debugPrint(">>> ws rtc onCallStateChange ${state.toString()};");
       switch (state) {
         case WebRTCCallState.CallStateNew:
-          setState(() {
-            session = s1;
-          });
+          logic.update();
+          sessionid = s1.sid;
+          // setState(() {
+          //   session = s1;
+          // });
           break;
         case WebRTCCallState.CallStateRinging:
-          setState(() {
-            stateTips = '已响铃...'.tr;
-          });
+          logic.update([
+            logic.stateTips.value = '已响铃...'.tr,
+          ]);
           break;
         case WebRTCCallState.CallStateBye:
-          if (mounted) {
-            counter.close();
-            setState(() {
-              stateTips = connected ? '对方已挂断'.tr : '对方正忙...'.tr;
-            });
-          }
+          logic.update([
+            logic.stateTips.value =
+                logic.connected.isTrue ? '对方已挂断'.tr : '对方正忙...'.tr,
+          ]);
+
           Future.delayed(const Duration(seconds: 3), () {
-            if (mounted) {
-              setState(() {
-                connected = false;
-              });
-            }
-            _close();
+            logic.update([
+              logic.connected = false.obs,
+            ]);
+            cleanUp();
           });
           break;
         case WebRTCCallState.CallStateInvite:
+          logic.update();
           break;
         case WebRTCCallState.CallStateConnected:
-          if (!mounted) {
-            return;
-          }
-          setState(() {
-            localX = Get.width - 90;
-            localY = 30;
-            connected = true;
-
-            debugPrint(
-                ">>> ws rtc ccc2 ${DateTime.now()} _accept ${session.toString()} sid: ${session!.sid}");
-          });
-          counter.start((Timer tm) {
-            if (connected) {
+          logic.update([
+            logic.connected = true.obs,
+            logic.localX.value = Get.width - 90,
+            logic.localY.value = 30,
+            logic.counter.value.count = 0,
+          ]);
+          logic.counter.value.start((Timer tm) {
+            if (logic.connected.isTrue) {
+              // 秒数+1，因为一秒回调一次
+              logic.counter.value.count += 1;
               // 更新界面
-              setState(() {
-                // 秒数+1，因为一秒回调一次
-                counter.count += 1;
-                stateTips = counter.show();
-              });
+              logic.update([
+                logic.stateTips.value = logic.counter.value.show(),
+              ]);
             }
           });
-
           break;
       }
     };
-    signaling?.onPeersUpdate = ((event) {
+    logic.signaling.onPeersUpdate = ((event) {
       debugPrint(">>> ws rtc _connect onPeersUpdate");
-      setState(() {
-        // peers = event['peers'];
-      });
+      // setState(() {
+      //   peers = event['peers'];
+      // });
     });
 
-    await localRenderer.initialize();
-    signaling?.onLocalStream = ((stream) {
+    logic.signaling.onLocalStream = ((stream) async {
+      await logic.localRenderer.value.initialize();
       debugPrint(">>> ws rtc _connect onLocalStream");
-      localRenderer.srcObject = stream;
-      if (mounted) {
-        setState(() {});
-      }
+      logic.update([
+        logic.localRenderer.value.srcObject = stream,
+      ]);
     });
 
-    await remoteRenderer.initialize();
-    signaling?.onAddRemoteStream = ((_, stream) {
+    logic.signaling.onAddRemoteStream = ((_, stream) async {
+      await logic.remoteRenderer.value.initialize();
       debugPrint(">>> ws rtc _connect onAddRemoteStream ${stream.toString()}");
-      remoteRenderer.srcObject = stream;
-      if (mounted) {
-        setState(() {});
-      }
+      logic.update([
+        logic.remoteRenderer.value.srcObject = stream,
+      ]);
     });
 
-    signaling?.onRemoveRemoteStream = ((_, stream) {
+    logic.signaling.onRemoveRemoteStream = ((_, stream) {
       debugPrint(">>> ws rtc _connect onRemoveRemoteStream");
-      remoteRenderer.srcObject = null;
+      logic.remoteRenderer.value.srcObject = null;
     });
   }
 
-  /// 邀请对端通话
-  _invitePeer(String peerId, String media) async {
-    debugPrint(
-        ">>> ws rtc cc ${DateTime.now()} _invitePeer ${signaling.toString()} ");
-    if (signaling != null && peerId != UserRepoLocal.to.currentUid) {
-      // await signaling?.invite(peerId, media);
-      if (signaling?.localStream != null) {
-        localRenderer.srcObject = signaling?.localStream;
-      }
-      signaling?.invite(peerId, media);
-    }
-  }
-
-  _accept() async {
-    if (session != null) {
-      await signaling?.accept(session!.sid);
-      if (signaling?.localStream != null) {
-        await localRenderer.initialize();
-        localRenderer.srcObject = signaling?.localStream;
-      }
-
-      if (signaling!.remoteStreams.isNotEmpty) {
-        await remoteRenderer.initialize();
-        remoteRenderer.srcObject = signaling!.remoteStreams.first;
-      }
-      setState(() {
-        localRenderer;
-        remoteRenderer;
-        // localRenderer 右上角
-        localX = Get.width - 90;
-        localY = 30;
-        connected = true;
-      });
-      counter.start((Timer tm) {
-        if (!mounted) {
-          return;
-        }
-        // 更新界面
-        if (connected) {
-          setState(() {
-            // 秒数+1，因为一秒回调一次
-            counter.count += 1;
-            stateTips = counter.show();
-          });
-        }
-      });
-    }
-  }
-
-  _hangUp() {
-    if (session != null) {
-      signaling?.bye(session!.sid);
-    }
-    deactivate();
-  }
-
-  _switchCamera() {
-    signaling?.switchCamera();
-  }
-
-  _muteMic() {
-    signaling?.muteMic();
-    setState(() {
-      micoff = !micoff;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return IndexedStack(index: minimized ? 1 : 0, children: [
-      Scaffold(
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: showTool
-            ? SizedBox(
-                width: 200.0,
-                child: n.Row(
-                  <Widget>[
-                    FloatingActionButton(
-                      heroTag: "switch_camera",
-                      onPressed: _switchCamera,
-                      child: const Icon(Icons.switch_camera),
-                    ),
-                    FloatingActionButton(
-                      heroTag: "call_end",
-                      onPressed: _hangUp,
-                      tooltip: 'Hangup',
-                      backgroundColor: Colors.pink,
-                      child: const Icon(Icons.call_end),
-                    ),
-                    FloatingActionButton(
-                      heroTag: "mic_off",
-                      onPressed: _muteMic,
-                      child: micoff
-                          ? const Icon(Icons.mic_off)
-                          : const Icon(Icons.mic),
-                    )
-                  ],
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                ),
-              )
-            : null,
-        body: OrientationBuilder(
-          builder: (context, orientation) {
-            double w = orientation == Orientation.portrait ? 90.0 : 120.0;
-            double h = orientation == Orientation.portrait ? 120.0 : 90.0;
-            Widget localBox = Container(
-              margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-              width: connected ? w : Get.width,
-              height: connected ? h : Get.height,
-              child: InkWell(
-                child: RTCVideoView(
-                  switchRenderer ? localRenderer : remoteRenderer,
-                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                  mirror: true,
-                ),
-                onTap: () {
-                  // 点击切换 本地和远端 RTCVideoRenderer
-                  if (connected) {
-                    setState(() {
-                      switchRenderer = !switchRenderer;
-                    });
-                  }
-                },
+  Widget _buildPeerInfo() {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.only(top: Get.height * 0.3),
+        child: n.Column([
+          Avatar(
+            imgUri: peer.avatar,
+            width: 80,
+            height: 80,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 12,
+              left: 12,
+              right: 12,
+            ),
+            child: Text(
+              peer.nickname,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
               ),
-              // decoration: const BoxDecoration(color: Colors.black54),
-            );
-            return Stack(
-              children: <Widget>[
-                // remote
-                Positioned(
-                  left: 0.0,
-                  right: 0.0,
-                  top: 0.0,
-                  bottom: 0.0,
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                    width: Get.width,
-                    height: Get.height,
-                    decoration: const BoxDecoration(color: Colors.black54),
-                    child: InkWell(
-                      onTap: () {
-                        // 切换工具栏
-                        setState(() {
-                          showTool = !showTool;
-                        });
-                      },
-                      child: RTCVideoView(
-                        switchRenderer ? remoteRenderer : localRenderer,
-                        objectFit:
-                            RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                      ),
-                    ),
-                  ),
-                ),
-                // local
-                Positioned(
-                  left: localX,
-                  top: localY,
-                  child: connected
-                      ? Draggable(
-                          feedback: localBox,
-                          childWhenDragging: const SizedBox.shrink(),
-                          // 拖动中的回调
-                          onDragEnd: (details) {
-                            if (connected) {
-                              setState(() {
-                                localX = details.offset.dx;
-                                localY = details.offset.dy;
-                              });
-                            }
-                          },
-                          child: localBox,
-                        )
-                      : localBox,
-                ),
-                if (showTool)
-                  Positioned(
-                    top: 30,
-                    left: 8,
-                    child: InkWell(
-                      onTap: (() {
-                        setState(() {
-                          minimized = true;
-                        });
-                      }),
-                      child: Image.asset(
-                        'assets/images/chat/minization-window.png',
-                        height: 32,
-                      ),
-                    ),
-                  ),
-                if (showTool)
-                  Positioned(
-                    top: 40,
-                    left: (Get.width - 160) / 2,
-                    width: 160,
-                    child: Text(
-                      stateTips,
-                      style: const TextStyle(
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-
-                if (!connected)
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: Get.height * 0.3),
-                      child: n.Column([
-                        Avatar(
-                          imgUri: widget.avatar,
-                          width: 80,
-                          height: 80,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: 12,
-                            left: 12,
-                            right: 12,
-                          ),
-                          child: Text(
-                            widget.title,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                            ),
-                          ),
-                        ),
-                      ]),
-                    ),
-                  ),
-              ],
-            );
-          },
-        ),
+            ),
+          ),
+        ]),
       ),
-      DragArea(
-          child: InkWell(
-        onTap: () {
-          minimized = false;
-          setState(() {});
-        },
+    );
+  }
+
+  //tools
+  Widget _buildTools() {
+    return SizedBox(
+      width: 200.0,
+      child: n.Row(
+        <Widget>[
+          FloatingActionButton(
+            heroTag: "switch_camera",
+            onPressed: logic.switchCamera,
+            child: const Icon(Icons.switch_camera),
+          ),
+          FloatingActionButton(
+            heroTag: "call_end",
+            onPressed: () {
+              debugPrint(">>> rtc hangUp");
+              // logic.hangUp();
+              logic.signaling.bye(sessionid);
+              cleanUp();
+            },
+            tooltip: 'Hangup',
+            backgroundColor: Colors.pink,
+            child: const Icon(Icons.call_end),
+          ),
+          FloatingActionButton(
+            heroTag: "mic_off",
+            onPressed: logic.turnMicrophone,
+            child: logic.microphoneOff.value
+                ? const Icon(Icons.mic_off)
+                : const Icon(Icons.mic),
+          ),
+        ],
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      ),
+    );
+  }
+
+  Widget _buildDragArea() {
+    return DragArea(
+      child: InkWell(
+        onTap: _zoom,
         child: Container(
           decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: const Color(0xFFE5E6E9), width: 7)),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFE5E6E9), width: 3),
+          ),
           padding: const EdgeInsets.all(12),
           child: n.Row([
             n.Column([
@@ -516,7 +248,7 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
             n.Column([
               n.Row([
                 Text(
-                  counter.show(),
+                  logic.counter.value.show(),
                   style: const TextStyle(
                     color: Colors.green,
                   ),
@@ -532,7 +264,153 @@ class _P2pCallScreenState extends State<P2pCallScreenPage> {
           ])
             ..crossAxisAlignment = CrossAxisAlignment.start,
         ),
-      ))
+      ),
+    );
+  }
+
+  Widget _buildRemoteVideo() {
+    return Obx(
+      () => Positioned(
+        left: 0.0,
+        right: 0.0,
+        top: 0.0,
+        bottom: 0.0,
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+          width: Get.width,
+          height: Get.height,
+          decoration: const BoxDecoration(color: Colors.black54),
+          child: InkWell(
+            onTap: logic.switchTools,
+            child: RTCVideoView(
+              logic.switchRenderer.isTrue
+                  ? logic.remoteRenderer.value
+                  : logic.localRenderer.value,
+              objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLocalBox(Orientation orientation) {
+    double w = orientation == Orientation.portrait ? 90.0 : 120.0;
+    double h = orientation == Orientation.portrait ? 120.0 : 90.0;
+    return Obx(() => Container(
+          margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+          width: logic.connected.isTrue ? w : Get.width,
+          height: logic.connected.isTrue ? h : Get.height,
+          child: InkWell(
+            child: logic.connected.isTrue
+                ? RTCVideoView(
+                    logic.switchRenderer.isTrue
+                        ? logic.localRenderer.value
+                        : logic.remoteRenderer.value,
+                    objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                    mirror: true,
+                  )
+                : null,
+            onTap: () {
+              logic.switchTools();
+              // 点击切换 本地和远端 RTCVideoRenderer
+              if (logic.connected.isTrue) {
+                logic.update([
+                  logic.switchRenderer.value = !logic.switchRenderer.value,
+                ]);
+              }
+            },
+          ),
+          // decoration: const BoxDecoration(color: Colors.black54),
+        ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    init();
+    return Obx(() =>
+        IndexedStack(index: logic.minimized.isTrue ? 1 : 0, children: [
+          Scaffold(
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+            floatingActionButton: logic.showTool.isTrue ? _buildTools() : null,
+            body: OrientationBuilder(
+              builder: (context, Orientation orientation) {
+                Widget localBox = _buildLocalBox(orientation);
+                return Stack(
+                  children: <Widget>[
+                    // remote video
+                    _buildRemoteVideo(),
+
+                    // local video
+                    Obx(
+                      () => Positioned(
+                        left: logic.localX.value,
+                        top: logic.localY.value,
+                        child: logic.connected.isTrue
+                            ? Draggable(
+                                feedback: localBox,
+                                childWhenDragging: const SizedBox.shrink(),
+                                // 拖动中的回调
+                                onDragEnd: (details) {
+                                  if (logic.connected.isTrue) {
+                                    logic.update([
+                                      logic.localX.value = details.offset.dx,
+                                      logic.localY.value = details.offset.dy,
+                                    ]);
+                                  }
+                                },
+                                child: localBox,
+                              )
+                            : localBox,
+                      ),
+                    ),
+                    if (logic.showTool.isTrue)
+                      Positioned(
+                        top: 30,
+                        left: 8,
+                        child: InkWell(
+                          onTap: _zoom,
+                          child: Image.asset(
+                            'assets/images/chat/minization-window.png',
+                            height: 32,
+                          ),
+                        ),
+                      ),
+                    if (logic.showTool.isTrue)
+                      Positioned(
+                        top: 40,
+                        left: (Get.width - 160) / 2,
+                        width: 160,
+                        child: Obx(() => Text(
+                              logic.stateTips.value,
+                              style: const TextStyle(
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
+                            )),
+                      ),
+
+                    if (logic.connected.isFalse && logic.showTool.isTrue)
+                      _buildPeerInfo(),
+                  ],
+                );
+              },
+            ),
+          ),
+          _buildDragArea(),
+        ]));
+  }
+
+  void _zoom() {
+    logic.update([
+      logic.minimized.value = !logic.minimized.value,
     ]);
+    debugPrint(">>> on wrt minimized = ${logic.minimized.value}");
+  }
+
+  void cleanUp() {
+    logic.cleanUp();
+    closePage();
   }
 }

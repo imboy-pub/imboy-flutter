@@ -19,7 +19,7 @@ class UserProvider extends HttpClient {
     return resp.payload;
   }
 
-  Future<String> refreshtoken(String refreshtoken) async {
+  Future<String> refreshAccessToken(String refreshtoken) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       return "";

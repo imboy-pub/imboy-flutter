@@ -89,7 +89,7 @@ class HttpClient {
     if (strNoEmpty(tk) && notRTK) {
       _dio.options.headers[Keys.tokenKey] = tk;
       if (tokenExpired(tk)) {
-        await UserRepoLocal.to.refreshtoken();
+        await UserRepoLocal.to.refreshAccessToken();
       }
     }
     Map<String, dynamic> headers = await defaultHeaders();

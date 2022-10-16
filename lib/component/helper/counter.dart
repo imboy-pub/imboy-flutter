@@ -53,6 +53,7 @@ class Counter {
     if (timer != null) {
       timer?.cancel();
     }
+    count = 0;
     timer = null;
   }
 }

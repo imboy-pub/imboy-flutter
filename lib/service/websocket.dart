@@ -47,7 +47,6 @@ class WSService extends GetxService {
       // closeSocket();
       initWebSocket(onOpen: () {
         initHeartBeat();
-        // change(value, status: RxStatus.success());
       }, onMessage: (event) {
         // change(data);
         if (event == "pong" || event == "pong2") {
@@ -57,7 +56,6 @@ class WSService extends GetxService {
         eventBus.fire(data);
       }, onError: (e) {
         debugPrint(">>> ws onError ${e.runtimeType} | ${e.toString()};");
-        // change(value, status: RxStatus.error(e.message));
       });
     }
   }
@@ -92,24 +90,19 @@ class WSService extends GetxService {
       debugPrint('>>> ws openSocket is not login');
       return;
     }
-    String token = UserRepoLocal.to.accessToken;
-    if (strEmpty(token)) {
-      // Get.off(LoginPage());
-      debugPrint('>>> ws openSocket token empty');
-      return;
-    }
-    if (tokenExpired(token)) {
-      debugPrint('>>> ws openSocket tokenExpired true');
-      await UserRepoLocal.to.refreshtoken();
-      token = UserRepoLocal.to.accessToken;
-    }
-
+    // 链接状态正常，不需要任何处理
     if (_socketStatus == SocketStatus.SocketStatusConnected &&
         _webSocketChannel != null) {
       debugPrint('>>> ws openSocket _socketStatus: $_socketStatus;');
       return;
     } else {
       closeSocket();
+    }
+    String token = UserRepoLocal.to.accessToken;
+    if (tokenExpired(token)) {
+      debugPrint('>>> ws openSocket tokenExpired true');
+      await UserRepoLocal.to.refreshAccessToken();
+      token = UserRepoLocal.to.accessToken;
     }
     Map<String, dynamic> headers = await defaultHeaders();
     headers[Keys.tokenKey] = token;
@@ -127,7 +120,6 @@ class WSService extends GetxService {
     }
     // 连接成功，返回WebSocket实例
     _socketStatus = SocketStatus.SocketStatusConnected;
-    // Get.snackbar("Tips", "ws连接成功");
     // 连接成功，重置重连计数器
     _reconnectTimes = 0;
     if (_reconnectTimer != null) {

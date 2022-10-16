@@ -1,29 +1,24 @@
 import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
 
-///
 class UserModel {
   String uid;
+  String account;
   String nickname;
   String avatar;
-  String account;
   int gender;
   String region;
   int? role;
-  String? token;
-  String? refreshtoken;
   String sign;
 
   UserModel({
     required this.uid,
+    required this.account,
     this.nickname = "",
     this.avatar = defAvatar,
-    required this.account,
     this.gender = 0,
     this.region = "",
     this.role,
-    this.token,
-    this.refreshtoken,
     this.sign = "",
   });
 
@@ -42,14 +37,12 @@ class UserModel {
     var g = json["gender"] ?? 0;
     return UserModel(
       uid: json["uid"],
+      account: json["account"] ?? '',
       nickname: json["nickname"],
       avatar: json["avatar"] ?? '',
-      account: json["account"],
       role: json["role"]?.toInt(),
       gender: g is String ? int.parse(g) : g,
       region: json["region"] ?? '',
-      token: json["token"] ?? '',
-      refreshtoken: json["refreshtoken"] ?? '',
       sign: json["sign"] ?? '',
     );
   }
@@ -62,8 +55,6 @@ class UserModel {
     data["role"] = role;
     data["gender"] = gender;
     data["region"] = region;
-    data["token"] = token;
-    data["refreshtoken"] = refreshtoken;
     data["sign"] = sign;
     return data;
   }

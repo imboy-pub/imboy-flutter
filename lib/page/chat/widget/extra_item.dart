@@ -1,8 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/webrtc/index.dart';
+import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/store/model/user_model.dart';
 
 class ExtraItem extends StatelessWidget {
   const ExtraItem({
@@ -106,10 +107,12 @@ class _ExtraItemsState extends State<ExtraItems> {
                     const AssetImage('assets/images/chat/extra_videocall.webp'),
                 onPressed: () async {
                   openCallScreen(
-                    widget.options["to"],
-                    widget.options["title"],
-                    widget.options["avatar"],
-                    widget.options["sign"],
+                    UserModel.fromJson({
+                      "uid": widget.options["to"],
+                      "nickname": widget.options["title"],
+                      "avatar": widget.options["avatar"],
+                      "sign": widget.options["sign"],
+                    }),
                   );
                 },
               ),
