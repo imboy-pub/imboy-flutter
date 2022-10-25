@@ -76,7 +76,18 @@ class WebRTCSignaling extends getx.GetxController {
     ]
   };
 
-  late Map<String, dynamic> _dcConstraints;
+  Map<String, dynamic> _dcConstraints = {
+    'mandatory': {
+      // 是否接受语音数据
+      'OfferToReceiveAudio': true,
+      // 是否接受视频数据
+      'OfferToReceiveVideo': true,
+      // https://github.com/flutter-webrtc/flutter-webrtc/issues/509
+      'IceRestart': true,
+    },
+    'optional': [],
+  };
+
   @override
   @mustCallSuper
   void onInit() async {
