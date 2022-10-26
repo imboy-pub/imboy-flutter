@@ -54,26 +54,26 @@ class P2pCallScreenPage extends StatelessWidget {
     }
 
     logic.signaling.onSignalingStateChange = (WebRTCSignalingState state) {
-      debugPrint(">>> ws rtc state _connect ${state.toString()}");
+      debugPrint("> rtc state _connect ${state.toString()}");
       switch (state) {
         case WebRTCSignalingState.ConnectionClosed:
           debugPrint(
-              ">>> ws rtc state _connect ${WebRTCSignalingState.ConnectionClosed}");
+              "> rtc state _connect ${WebRTCSignalingState.ConnectionClosed}");
           break;
         case WebRTCSignalingState.ConnectionError:
           debugPrint(
-              ">>> ws rtc state _connect ${WebRTCSignalingState.ConnectionError}");
+              "> rtc state _connect ${WebRTCSignalingState.ConnectionError}");
           break;
         case WebRTCSignalingState.ConnectionOpen:
           debugPrint(
-              ">>> ws rtc cc state _connect ${WebRTCSignalingState.ConnectionOpen}");
+              "> rtc cc state _connect ${WebRTCSignalingState.ConnectionOpen}");
           break;
       }
     };
 
     logic.signaling.onCallStateChange =
         (WebRTCSession s1, WebRTCCallState state) async {
-      debugPrint(">>> ws rtc onCallStateChange ${state.toString()};");
+      debugPrint("> rtc onCallStateChange ${state.toString()};");
       switch (state) {
         case WebRTCCallState.CallStateNew:
           logic.update();
@@ -124,7 +124,7 @@ class P2pCallScreenPage extends StatelessWidget {
       }
     };
     logic.signaling.onPeersUpdate = ((event) {
-      debugPrint(">>> ws rtc _connect onPeersUpdate");
+      debugPrint("> rtc _connect onPeersUpdate");
       // setState(() {
       //   peers = event['peers'];
       // });
@@ -132,22 +132,27 @@ class P2pCallScreenPage extends StatelessWidget {
 
     logic.signaling.onLocalStream = ((stream) async {
       await logic.localRenderer.value.initialize();
-      debugPrint(">>> ws rtc _connect onLocalStream");
+      debugPrint("> rtc _connect onLocalStream");
+      logic.localRenderer.value.setSrcObject(stream: stream);
       logic.update([
-        logic.localRenderer.value.srcObject = stream,
+        logic.localRenderer,
       ]);
+      // logic.localRenderer.value.onFirstFrameRendered = () {
+      //   debugPrint("> rtc _connect onLocalStream onFirstFrameRendered");
+      //   logic.update();
+      // };
     });
 
     logic.signaling.onAddRemoteStream = ((_, stream) async {
       await logic.remoteRenderer.value.initialize();
-      debugPrint(">>> ws rtc _connect onAddRemoteStream ${stream.toString()}");
+      debugPrint("> rtc _connect onAddRemoteStream ${stream.toString()}");
       logic.update([
         logic.remoteRenderer.value.srcObject = stream,
       ]);
     });
 
     logic.signaling.onRemoveRemoteStream = ((_, stream) {
-      debugPrint(">>> ws rtc _connect onRemoveRemoteStream");
+      debugPrint("> rtc _connect onRemoveRemoteStream");
       logic.remoteRenderer.value.srcObject = null;
     });
   }
@@ -294,35 +299,31 @@ class P2pCallScreenPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLocalBox(Orientation orientation) {
-    double w = orientation == Orientation.portrait ? 90.0 : 120.0;
-    double h = orientation == Orientation.portrait ? 120.0 : 90.0;
-    return Obx(() => Container(
-          margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-          width: logic.connected.isTrue ? w : Get.width,
-          height: logic.connected.isTrue ? h : Get.height,
-          child: InkWell(
-            child: logic.connected.isTrue
-                ? RTCVideoView(
-                    logic.switchRenderer.isTrue
-                        ? logic.localRenderer.value
-                        : logic.remoteRenderer.value,
-                    objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                    mirror: true,
-                  )
-                : null,
-            onTap: () {
-              logic.switchTools();
-              // 点击切换 本地和远端 RTCVideoRenderer
-              if (logic.connected.isTrue) {
-                logic.update([
-                  logic.switchRenderer.value = !logic.switchRenderer.value,
-                ]);
-              }
-            },
-          ),
-          // decoration: const BoxDecoration(color: Colors.black54),
-        ));
+  Widget _buildLocalBox(double w, double h) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+      width: logic.connected.isTrue ? w : Get.width,
+      height: logic.connected.isTrue ? h : Get.height,
+      child: InkWell(
+        child: Obx(() => RTCVideoView(
+              logic.switchRenderer.isTrue
+                  ? logic.localRenderer.value
+                  : logic.remoteRenderer.value,
+              objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+              mirror: true,
+            )),
+        onTap: () {
+          logic.switchTools();
+          // 点击切换 本地和远端 RTCVideoRenderer
+          if (logic.connected.isTrue) {
+            logic.update([
+              logic.switchRenderer.value = !logic.switchRenderer.value,
+            ]);
+          }
+        },
+      ),
+      // decoration: const BoxDecoration(color: Colors.black54),
+    );
   }
 
   @override
@@ -336,7 +337,9 @@ class P2pCallScreenPage extends StatelessWidget {
             floatingActionButton: logic.showTool.isTrue ? _buildTools() : null,
             body: OrientationBuilder(
               builder: (context, Orientation orientation) {
-                Widget localBox = _buildLocalBox(orientation);
+                double w = orientation == Orientation.portrait ? 90.0 : 120.0;
+                double h = orientation == Orientation.portrait ? 120.0 : 90.0;
+                Widget localBox = _buildLocalBox(w, h);
                 return Stack(
                   children: <Widget>[
                     // remote video
