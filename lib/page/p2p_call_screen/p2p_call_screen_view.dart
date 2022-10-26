@@ -134,26 +134,20 @@ class P2pCallScreenPage extends StatelessWidget {
       await logic.localRenderer.value.initialize();
       debugPrint("> rtc _connect onLocalStream");
       logic.localRenderer.value.setSrcObject(stream: stream);
-      logic.update([
-        logic.localRenderer,
-      ]);
-      // logic.localRenderer.value.onFirstFrameRendered = () {
-      //   debugPrint("> rtc _connect onLocalStream onFirstFrameRendered");
-      //   logic.update();
-      // };
+      logic.localRenderer.refresh();
     });
 
     logic.signaling.onAddRemoteStream = ((_, stream) async {
       await logic.remoteRenderer.value.initialize();
       debugPrint("> rtc _connect onAddRemoteStream ${stream.toString()}");
-      logic.update([
-        logic.remoteRenderer.value.srcObject = stream,
-      ]);
+      logic.remoteRenderer.value.setSrcObject(stream: stream);
+      logic.remoteRenderer.refresh();
     });
 
     logic.signaling.onRemoveRemoteStream = ((_, stream) {
       debugPrint("> rtc _connect onRemoveRemoteStream");
       logic.remoteRenderer.value.srcObject = null;
+      logic.remoteRenderer.refresh();
     });
   }
 
@@ -322,7 +316,6 @@ class P2pCallScreenPage extends StatelessWidget {
           }
         },
       ),
-      // decoration: const BoxDecoration(color: Colors.black54),
     );
   }
 
