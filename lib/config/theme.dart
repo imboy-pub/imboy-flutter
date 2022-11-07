@@ -179,6 +179,20 @@ class ImboyChatTheme extends ChatTheme {
               sentMessageLinkDescriptionTextStyle,
           sentMessageLinkTitleTextStyle: sentMessageLinkTitleTextStyle,
           statusIconPadding: statusIconPadding,
+          systemMessageTheme: const SystemMessageTheme(
+            margin: EdgeInsets.only(
+              bottom: 24,
+              top: 8,
+              left: 8,
+              right: 8,
+            ),
+            textStyle: TextStyle(
+              color: neutral2,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              height: 1.333,
+            ),
+          ),
           userAvatarImageBackgroundColor: userAvatarImageBackgroundColor,
           userAvatarNameColors: userAvatarNameColors,
           userAvatarTextStyle: userAvatarTextStyle,

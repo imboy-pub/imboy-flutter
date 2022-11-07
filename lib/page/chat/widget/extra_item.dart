@@ -113,6 +113,7 @@ class _ExtraItemsState extends State<ExtraItems> {
                       "avatar": widget.options["avatar"],
                       "sign": widget.options["sign"],
                     }),
+                    {},
                   );
                 },
               ),

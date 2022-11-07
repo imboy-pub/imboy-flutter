@@ -42,6 +42,7 @@ Future<void> incomingCallScreen(
   UserModel peer,
   Map<String, dynamic> option,
 ) async {
+  debugPrint("> rtc p2pCallScreenOn $p2pCallScreenOn");
   // 已经在通话中，不需要调起通话了
   if (p2pCallScreenOn == true) {
     // 给对端发送消息，说正在通话中 TODO
@@ -49,11 +50,13 @@ Future<void> incomingCallScreen(
   }
   p2pCallScreenOn = true;
   // 被叫，初始化信令
-  WebRTCSignaling signaling = Get.put(WebRTCSignaling(
-    UserRepoLocal.to.currentUid,
-    peer.uid,
-    iceServers!,
-  )..signalingConnect());
+  WebRTCSignaling signaling = Get.put(
+      WebRTCSignaling(
+        UserRepoLocal.to.currentUid,
+        peer.uid,
+        iceServers!,
+      )..signalingConnect(),
+      tag: 'p2psignaling');
 
   // String sessionId = UserRepoLocal.to.currentUid + '-' + peerId;
   String sessionId = option['sid'];
@@ -65,16 +68,8 @@ Future<void> incomingCallScreen(
     screenSharing: false,
   );
   signaling.sessions[sessionId] = session;
-  debugPrint(
-      ">>> ws rtc cc ${DateTime.now()} incomingCallScreen ${signaling.toString()}");
+  debugPrint("> rtc incomingCallScreen ${signaling.toString()}");
 
-  await signaling.reciveOffer(
-    peer.uid,
-    // sd = session description
-    option['sd'],
-    option['media'],
-    option['sid'],
-  );
   Get.defaultDialog(
     title: "",
     backgroundColor: Colors.black54,
@@ -160,8 +155,7 @@ Future<void> incomingCallScreen(
                   Get.close(0);
                   openCallScreen(
                     peer,
-                    media: option['media'],
-                    sid: sessionId,
+                    option,
                     caller: false,
                   );
                 },
@@ -180,26 +174,26 @@ Future<void> incomingCallScreen(
 
 /// 调起
 void openCallScreen(
-  UserModel peer, {
+  UserModel peer,
+  Map<String, dynamic> option, {
   //  默认是主叫者
   bool caller = true,
-  String sid = "",
-  String media = 'video',
 }) {
   if (caller) {
     // 主叫，初始化信令
-    Get.put(WebRTCSignaling(
-      UserRepoLocal.to.currentUid,
-      peer.uid,
-      iceServers!,
-    )..signalingConnect());
+    Get.put(
+        WebRTCSignaling(
+          UserRepoLocal.to.currentUid,
+          peer.uid,
+          iceServers!,
+        )..signalingConnect(),
+        tag: 'p2psignaling');
   }
   OverlayEntry? tempEntry;
   final entry = OverlayEntry(builder: (context) {
     return P2pCallScreenPage(
       peer: peer,
-      sessionid: sid,
-      media: media,
+      option: option,
       caller: caller,
       closePage: () {
         debugPrint(">>> rtc closePage");

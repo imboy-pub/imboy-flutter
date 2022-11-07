@@ -129,6 +129,7 @@ class ScannerResultPage extends StatelessWidget {
                       "avatar": avatar,
                       "sign": sign,
                     }),
+                    {},
                   );
                 },
               ),

@@ -151,6 +151,13 @@ class ContactDetailPage extends StatelessWidget {
                 child: ButtonRow(
                   text: '音视频通话'.tr,
                   onPressed: () {
+                    // Map<String, dynamic> j1 = {
+                    //   "uid": id,
+                    //   "nickname": title.value,
+                    //   "avatar": avatar.value,
+                    //   "sign": sign.value,
+                    // };
+                    // debugPrint("> rtc beforopenCallScreen ${j1.toString()}");
                     openCallScreen(
                       UserModel.fromJson({
                         "uid": id,
@@ -158,6 +165,7 @@ class ContactDetailPage extends StatelessWidget {
                         "avatar": avatar.value,
                         "sign": sign.value,
                       }),
+                      {},
                     );
                   },
                 ),

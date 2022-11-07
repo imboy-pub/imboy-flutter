@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/counter.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/webrtc/signaling.dart';
 import 'package:imboy/config/init.dart';
@@ -11,7 +8,7 @@ import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class P2pCallScreenLogic extends GetxController {
-  WebRTCSignaling signaling = Get.find();
+  WebRTCSignaling signaling = Get.find(tag: 'p2psignaling');
 
   // bool callee = false;
   var connected = false.obs;
@@ -34,8 +31,6 @@ class P2pCallScreenLogic extends GetxController {
   Rx<double> localX = 0.0.obs;
   Rx<double> localY = 0.0.obs;
 
-  // 计时器
-  Rx<Counter> counter = Counter(count: 0).obs;
   // LocalStream? localStream;
 
   @override
@@ -111,20 +106,19 @@ class P2pCallScreenLogic extends GetxController {
     if (localRenderer.value.srcObject != null) {
       localRenderer.value.srcObject = null;
       await localRenderer.value.dispose();
+      localRenderer.refresh();
     }
     if (remoteRenderer.value.srcObject != null) {
       remoteRenderer.value.srcObject = null;
       await remoteRenderer.value.dispose();
+      remoteRenderer.refresh();
     }
     await signaling.close();
     Get.delete<WebRTCSignaling>(force: true);
 
-    if (counter.value.timer != null) {
-      counter.value.close();
-    }
     connected = false.obs;
-    p2pCallScreenOn = false;
-    update();
+    connected.refresh();
+    refresh();
   }
 
   _debug(String message) {
@@ -160,8 +154,7 @@ class P2pCallScreenLogic extends GetxController {
 
   /// 邀请对端通话
   void invitePeer(String peerId, String media) async {
-    debugPrint(
-        ">>> ws rtc cc ${DateTime.now()} _invitePeer ${signaling.toString()} ");
+    debugPrint("> rtc invitePeer ${signaling.toString()} ");
     if (peerId != UserRepoLocal.to.currentUid) {
       signaling.invite(peerId, media);
     }
@@ -169,24 +162,23 @@ class P2pCallScreenLogic extends GetxController {
 
   accept(String sid) async {
     if (strNoEmpty(sid)) {
+      debugPrint("> rtc accept $sid");
       await signaling.accept(sid);
-      if (signaling.localStream != null) {
-        await localRenderer.value.initialize();
-        localRenderer.value.srcObject = signaling.localStream;
-      }
 
       if (signaling.remoteStreams.isNotEmpty) {
         await remoteRenderer.value.initialize();
-        remoteRenderer.value.srcObject = signaling.remoteStreams.first;
+        remoteRenderer.value.setSrcObject(
+          stream: signaling.remoteStreams.first,
+        );
+        remoteRenderer.refresh();
       }
-      update([
-        localRenderer,
-        remoteRenderer,
-        // localRenderer 右上角
-        localX.value = Get.width - 90,
-        localY.value = 30,
-        connected.value = true,
-      ]);
+      connected = true.obs;
+      connected.refresh();
+      // localRenderer 右上角
+      localX.value = Get.width - 90;
+      localY.value = 30;
+      localX.refresh();
+      localY.refresh();
       // setState(() {
       //   localRenderer;
       //   remoteRenderer;
@@ -195,18 +187,6 @@ class P2pCallScreenLogic extends GetxController {
       //   localY = 30;
       //   connected = true;
       // });
-
-      counter.value.count = 0;
-      counter.value.start((Timer tm) {
-        if (connected.isTrue) {
-          // 秒数+1，因为一秒回调一次
-          counter.value.count += 1;
-          // 更新界面
-          update([
-            stateTips.value = counter.value.show(),
-          ]);
-        }
-      });
     }
   }
 

@@ -3,7 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  isar_flutter_libs
+  emoji_picker_flutter
   url_launcher_linux
 )
 

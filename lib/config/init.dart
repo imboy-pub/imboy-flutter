@@ -20,11 +20,8 @@ import 'package:imboy/page/friend/new_friend_logic.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
-import 'package:imboy/store/model_isar/contact.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:isar/isar.dart';
 import 'package:logger/logger.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 // ignore: prefer_generic_function_type_aliases
@@ -65,12 +62,7 @@ Future<void> init() async {
 
   await dotenv.load(fileName: "assets/.env"); //
   // debugPrint(">>> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
-  final dir = await getApplicationSupportDirectory();
 
-  final isar = await Isar.open(
-    [ContactSchema],
-    directory: dir.path,
-  );
   // 放在 UserRepoLocal 前面
   await getx.Get.putAsync<StorageService>(() => StorageService().init());
   // Get.put(DeviceExt()); 需要放到靠前
