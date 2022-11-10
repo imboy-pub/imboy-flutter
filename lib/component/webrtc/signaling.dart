@@ -22,16 +22,16 @@ class WebRTCSession {
     required this.pid,
     required this.sid,
   });
-  // peerId
+// peerId
   String pid;
-  // sessionId
+// sessionId
   String sid;
   RTCPeerConnection? pc;
   RTCDataChannel? dc;
   List<RTCIceCandidate> remoteCandidates = [];
-  //
-  // @override
-  // List<Object?> get props => [pid, sid, pc, dc, remoteCandidates];
+//
+// @override
+// List<Object?> get props => [pid, sid, pc, dc, remoteCandidates];
 }
 
 class WebRTCSignaling extends getx.GetxController {
@@ -64,7 +64,7 @@ class WebRTCSignaling extends getx.GetxController {
 
   final Map<String, dynamic> _config = {
     'mandatory': {},
-    // 如果要与浏览器互通，需要设置DtlsSrtpKeyAgreement为true
+// 如果要与浏览器互通，需要设置DtlsSrtpKeyAgreement为true
     'optional': [
       {'DtlsSrtpKeyAgreement': true},
     ]
@@ -72,35 +72,35 @@ class WebRTCSignaling extends getx.GetxController {
 
   Map<String, dynamic> _dcConstraints = {
     'mandatory': {
-      // 是否接受语音数据
+// 是否接受语音数据
       'OfferToReceiveAudio': true,
-      // 是否接受视频数据
+// 是否接受视频数据
       'OfferToReceiveVideo': true,
-      // https://github.com/flutter-webrtc/flutter-webrtc/issues/509
+// https://github.com/flutter-webrtc/flutter-webrtc/issues/509
       'IceRestart': true,
     },
     'optional': [],
   };
-
-  @override
-  @mustCallSuper
-  void onInit() async {
-    super.onInit();
-  }
 
   WebRTCSignaling(
     this.from,
     this.to,
     this.iceServers, {
     this.micoff = true,
-  }) {
+  });
+
+  @override
+  @mustCallSuper
+  void onInit() async {
+    super.onInit();
+
     _dcConstraints = {
       'mandatory': {
-        // 是否接受语音数据
+// 是否接受语音数据
         'OfferToReceiveAudio': micoff,
-        // 是否接受视频数据
+// 是否接受视频数据
         'OfferToReceiveVideo': true,
-        // https://github.com/flutter-webrtc/flutter-webrtc/issues/509
+// https://github.com/flutter-webrtc/flutter-webrtc/issues/509
         'IceRestart': true,
       },
       'optional': [],
@@ -109,7 +109,7 @@ class WebRTCSignaling extends getx.GetxController {
 
   close() async {
     await _cleanSessions();
-    // _socket.close();
+// _socket.close();
   }
 
   void switchCamera() {
@@ -129,6 +129,7 @@ class WebRTCSignaling extends getx.GetxController {
   /// invite
   Future<void> invite(String peerId, String media) async {
     String sessionId = "$from-$peerId";
+    debugPrint("> rtc invite sessionId $sessionId");
     WebRTCSession session = await createSession(
       null,
       peerId: peerId,
@@ -142,7 +143,7 @@ class WebRTCSignaling extends getx.GetxController {
       _createDataChannel(session);
     }
     await _createOffer(session, media);
-    onCallStateChange?.call(session, WebRTCCallState.CallStateNew);
+// onCallStateChange?.call(session, WebRTCCallState.CallStateNew);
     onCallStateChange?.call(session, WebRTCCallState.CallStateInvite);
   }
 
@@ -182,7 +183,7 @@ class WebRTCSignaling extends getx.GetxController {
         {
           Map peers = data;
           if (onPeersUpdate != null) {
-            // ignore: prefer_collection_literals
+// ignore: prefer_collection_literals
             Map<String, dynamic> event = Map<String, dynamic>();
             event['peers'] = peers;
             onPeersUpdate?.call(event);
@@ -191,7 +192,7 @@ class WebRTCSignaling extends getx.GetxController {
         break;
       case 'offer': // 收到from 发送的 offer
         {
-          // sd = session description
+// sd = session description
           var description = data['sd'];
           var media = data['media'];
           var sessionId = data['sid'];
@@ -200,7 +201,7 @@ class WebRTCSignaling extends getx.GetxController {
         break;
       case 'answer':
         {
-          // sd = session description
+// sd = session description
           var description = data['sd'];
           var sessionId = data['sid'];
           var session = sessions[sessionId];
@@ -282,33 +283,33 @@ class WebRTCSignaling extends getx.GetxController {
     _socket = WSService.to;
     WSService.to.openSocket();
 
-    // _send('authenticate', {
-    //   'username': UserRepoLocal.to.currentUser.account,
-    //   'password': 'password',
-    // });
+// _send('authenticate', {
+//   'username': UserRepoLocal.to.currentUser.account,
+//   'password': 'password',
+// });
 
-    // _socket.onMessage = (message) {
-    //   debugPrint('Received data: ' + message);
-    //   onMessage(_decoder.convert(message));
-    // };
+// _socket.onMessage = (message) {
+//   debugPrint('Received data: ' + message);
+//   onMessage(_decoder.convert(message));
+// };
 
-    // _socket.onError = (int? code, String? reason) {
-    //   debugPrint('Closed by server [$code => $reason]!');
-    //   onSignalingStateChange?.call(SignalingState.ConnectionClosed);
-    // };
-    // await _socket.onOpen();
+// _socket.onError = (int? code, String? reason) {
+//   debugPrint('Closed by server [$code => $reason]!');
+//   onSignalingStateChange?.call(SignalingState.ConnectionClosed);
+// };
+// await _socket.onOpen();
   }
 
   Future<MediaStream> createStream(String media) async {
     final Map<String, dynamic> mediaConstraints = {
-      // 'audio': micoff ? false : true,
+// 'audio': micoff ? false : true,
       'audio': true,
       'video': {
         'mandatory': {
           'minWidth':
               '640', // Provide your own width, height and frame rate here
           'minHeight': '480',
-          'minFrameRate': '24',
+          'minFrameRate': '30',
         },
         'facingMode': 'user',
         'optional': [],
@@ -353,7 +354,7 @@ class WebRTCSignaling extends getx.GetxController {
           await pc.addStream(localStream!);
           break;
         case 'unified-plan':
-          // Unified-Plan
+// Unified-Plan
           pc.onTrack = (RTCTrackEvent event) {
             if (event.track.kind == 'video') {
               onAddRemoteStream?.call(newSession, event.streams[0]);
@@ -368,9 +369,9 @@ class WebRTCSignaling extends getx.GetxController {
 
     pc.onIceCandidate = (RTCIceCandidate candidate) async {
       debugPrint('> rtc onIceCandidate: ${candidate.toMap().toString()}');
-      // This delay is needed to allow enough time to try an ICE candidate
-      // before skipping to the next one. 1 second is just an heuristic value
-      // and should be thoroughly tested in your own environment.
+// This delay is needed to allow enough time to try an ICE candidate
+// before skipping to the next one. 1 second is just an heuristic value
+// and should be thoroughly tested in your own environment.
       await Future.delayed(
           const Duration(milliseconds: 500),
           () => _send('candidate', {
@@ -386,12 +387,12 @@ class WebRTCSignaling extends getx.GetxController {
     pc.onSignalingState = (RTCSignalingState state) {
       debugPrint('> rtc onSignalingState: ${state.toString()}');
       onSignalingStateChange?.call(state);
-      Future.delayed(
-        const Duration(milliseconds: 500),
-        () {
-          onSignalingStateChange?.call(state);
-        },
-      );
+// Future.delayed(
+//   const Duration(milliseconds: 100),
+//   () {
+//     onSignalingStateChange?.call(state);
+//   },
+// );
     };
 
     pc.onIceConnectionState = (state) {};
@@ -446,17 +447,27 @@ class WebRTCSignaling extends getx.GetxController {
   }
 
   Future<void> _createAnswer(WebRTCSession session, String media) async {
+    debugPrint("> rtc createAnswer media $media $session");
     try {
-      session.pc!
-          .createAnswer(media == 'data' ? _dcConstraints : {})
-          .then((sd) async {
-        await session.pc!.setLocalDescription(sd);
-        _send('answer', {
-          'media': media,
-          'sid': session.sid,
-          'sd': {'sdp': sd.sdp, 'type': sd.type},
-        });
+      RTCSessionDescription sd =
+          await session.pc!.createAnswer(media == 'data' ? _dcConstraints : {});
+      await session.pc!.setLocalDescription(sd);
+
+      _send('answer', {
+        'media': media,
+        'sid': session.sid,
+        'sd': {'sdp': sd.sdp, 'type': sd.type},
       });
+      // session.pc!
+      //     .createAnswer(media == 'data' ? _dcConstraints : {})
+      //     .then((sd) async {
+      //   await session.pc!.setLocalDescription(sd);
+      //   _send('answer', {
+      //     'media': media,
+      //     'sid': session.sid,
+      //     'sd': {'sdp': sd.sdp, 'type': sd.type},
+      //   });
+      // });
     } catch (e) {
       debugPrint("> rtc createAnswer media $media e $e");
       debugPrint(
@@ -544,7 +555,7 @@ class WebRTCSignaling extends getx.GetxController {
       }
       newSession.remoteCandidates.clear();
     }
-    onCallStateChange?.call(newSession, WebRTCCallState.CallStateNew);
+// onCallStateChange?.call(newSession, WebRTCCallState.CallStateNew);
     onCallStateChange?.call(newSession, WebRTCCallState.CallStateRinging);
   }
 }

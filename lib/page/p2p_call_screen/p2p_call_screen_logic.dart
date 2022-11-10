@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/counter.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/webrtc/signaling.dart';
 import 'package:imboy/config/init.dart';
@@ -8,7 +11,7 @@ import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class P2pCallScreenLogic extends GetxController {
-  WebRTCSignaling signaling = Get.find(tag: 'p2psignaling');
+  WebRTCSignaling signaling = Get.find<WebRTCSignaling>(tag: 'p2psignaling');
 
   // bool callee = false;
   var connected = false.obs;
@@ -31,6 +34,10 @@ class P2pCallScreenLogic extends GetxController {
   Rx<double> localX = 0.0.obs;
   Rx<double> localY = 0.0.obs;
 
+  // 计时器
+  Rx<Counter> counter = Counter(count: 0).obs;
+  Rx<String> sessionid = "".obs;
+
   // LocalStream? localStream;
 
   @override
@@ -45,6 +52,112 @@ class P2pCallScreenLogic extends GetxController {
       // ignore: prefer_interpolation_to_compose_strings
       debugPrint(">>> on rtc listen: " + obj.toJson().toString());
       signaling.onMessage(obj);
+    });
+
+    signaling.onSignalingStateChange = (RTCSignalingState state) {
+      debugPrint("> rtc onSignalingStateChange state ${state.toString()}");
+      if (state == RTCSignalingState.RTCSignalingStateStable) {
+        // counter.value.count = 0;
+        // counter.value.start((Timer tm) {
+        //   if (connected.isTrue) {
+        //     // 秒数+1，因为一秒回调一次
+        //     counter.value.count += 1;
+        //     // 更新界面
+        //     stateTips.value = counter.value.show();
+        //     // update([
+        //     //   stateTips.value = counter.value.show(),
+        //     // ]);
+        //   }
+        // });
+      } else if (state == RTCSignalingState.RTCSignalingStateClosed) {
+        cleanUp();
+      } else if (state == RTCSignalingState.RTCSignalingStateHaveRemoteOffer) {
+        accept(sessionid.value);
+      }
+    };
+
+    signaling.onCallStateChange =
+        (WebRTCSession s1, WebRTCCallState state) async {
+      debugPrint("> rtc onCallStateChange ${state.toString()};");
+      switch (state) {
+        case WebRTCCallState.CallStateNew:
+          sessionid.value = s1.sid;
+          sessionid.refresh();
+          break;
+        case WebRTCCallState.CallStateRinging:
+          update([
+            stateTips.value = '已响铃...'.tr,
+          ]);
+          accept(sessionid.value);
+          break;
+        case WebRTCCallState.CallStateBye:
+          update([
+            stateTips.value = connected.isTrue ? '对方已挂断'.tr : '对方正忙...'.tr,
+          ]);
+
+          Future.delayed(const Duration(seconds: 3), () {
+            update([
+              connected = false.obs,
+            ]);
+            cleanUp();
+          });
+          break;
+        case WebRTCCallState.CallStateInvite:
+          update();
+          break;
+        case WebRTCCallState.CallStateConnected:
+          // recive answer
+          connected = true.obs;
+          connected.refresh();
+          counter.value.count = 0;
+          counter.refresh();
+          localX.value = Get.width - 90;
+          localY.value = 30;
+          localX.refresh();
+          localY.refresh();
+          debugPrint("> rtc CallStateConnected ${connected}");
+          counter.value.start((Timer tm) {
+            if (connected.isTrue) {
+              // 秒数+1，因为一秒回调一次
+              counter.value.count += 1;
+              // 更新界面
+              update([
+                stateTips.value = counter.value.show(),
+              ]);
+            }
+          });
+          break;
+      }
+    };
+    signaling.onPeersUpdate = ((event) {
+      debugPrint("> rtc _connect onPeersUpdate");
+      // setState(() {
+      //   peers = event['peers'];
+      // });
+    });
+
+    signaling.onLocalStream = ((stream) async {
+      await localRenderer.value.initialize();
+      debugPrint("> rtc onLocalStream");
+      localRenderer.value.setSrcObject(stream: stream);
+      localRenderer.refresh();
+    });
+
+    signaling.onAddRemoteStream = ((WebRTCSession sess, stream) async {
+      debugPrint("> rtc onAddRemoteStream ${stream.toString()} , ${sess.sid}");
+      sessionid.value = sess.sid;
+      sessionid.refresh();
+      await remoteRenderer.value.initialize();
+      remoteRenderer.value.setSrcObject(stream: stream);
+      remoteRenderer.refresh();
+    });
+
+    signaling.onRemoveRemoteStream = ((WebRTCSession sess, stream) {
+      debugPrint("> rtc _connect onRemoveRemoteStream , ${sess.sid}");
+      sessionid.value = sess.sid;
+      sessionid.refresh();
+      remoteRenderer.value.srcObject = null;
+      remoteRenderer.refresh();
     });
   }
 
@@ -103,6 +216,8 @@ class P2pCallScreenLogic extends GetxController {
 
   /// 退出之前清理打开的资源
   cleanUp() async {
+    counter.value.close();
+    counter.refresh();
     if (localRenderer.value.srcObject != null) {
       localRenderer.value.srcObject = null;
       await localRenderer.value.dispose();
@@ -195,5 +310,11 @@ class P2pCallScreenLogic extends GetxController {
     update([
       showTool.value = !showTool.value,
     ]);
+  }
+
+  @override
+  void onClose() {
+    cleanUp();
+    super.onClose();
   }
 }

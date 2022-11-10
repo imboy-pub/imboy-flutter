@@ -1,12 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/counter.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/dragable.dart';
-import 'package:imboy/component/webrtc/signaling.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:niku/namespace.dart' as n;
@@ -15,12 +11,10 @@ import 'p2p_call_screen_logic.dart';
 
 // ignore: must_be_immutable
 class P2pCallScreenPage extends StatelessWidget {
-  // final P2pCallScreenLogic logic = Get.find();
-  final logic = Get.put(P2pCallScreenLogic());
+  final P2pCallScreenLogic logic = Get.find<P2pCallScreenLogic>();
   final UserModel peer;
   final Map<String, dynamic> option;
   // option['media'] = video audio data
-  Rx<String> sessionid = "".obs;
 
   final bool caller;
   final Function closePage;
@@ -37,11 +31,8 @@ class P2pCallScreenPage extends StatelessWidget {
   final double localWidth = 114.0;
   final double localHeight = 72.0;
 
-  // 计时器
-  Rx<Counter> counter = Counter(count: 0).obs;
-
   init() async {
-    counter.refresh();
+    logic.counter.refresh();
     logic.update([
       logic.connected = false.obs,
     ]);
@@ -53,7 +44,7 @@ class P2pCallScreenPage extends StatelessWidget {
         logic.stateTips.value = '等待对方接受邀请...'.tr,
       ]);
     } else {
-      sessionid.value = option['sid'];
+      logic.sessionid.value = option['sid'];
 
       if (logic.signaling.localStream != null) {
         await logic.localRenderer.value.initialize();
@@ -69,116 +60,8 @@ class P2pCallScreenPage extends StatelessWidget {
         option['sid'],
       );
       // 接受通话
-      debugPrint("> rtc init $sessionid");
-      logic.accept(option['sid']);
+      // logic.accept(option['sid']);
     }
-
-    logic.signaling.onSignalingStateChange = (RTCSignalingState state) {
-      debugPrint("> rtc onSignalingStateChange state ${state.toString()}");
-      if (state == RTCSignalingState.RTCSignalingStateStable) {
-        counter.value.count = 0;
-        counter.value.start((Timer tm) {
-          if (logic.connected.isTrue) {
-            // 秒数+1，因为一秒回调一次
-            counter.value.count += 1;
-            // 更新界面
-            logic.stateTips.value = counter.value.show();
-            // logic.update([
-            //   logic.stateTips.value = counter.value.show(),
-            // ]);
-          }
-        });
-      } else if (state == RTCSignalingState.RTCSignalingStateClosed) {
-        cleanUp();
-      } else if (state == RTCSignalingState.RTCSignalingStateHaveRemoteOffer) {
-        logic.accept(sessionid.value);
-      }
-    };
-
-    logic.signaling.onCallStateChange =
-        (WebRTCSession s1, WebRTCCallState state) async {
-      debugPrint("> rtc onCallStateChange ${state.toString()};");
-      switch (state) {
-        case WebRTCCallState.CallStateNew:
-          sessionid.value = s1.sid;
-          sessionid.refresh();
-          break;
-        case WebRTCCallState.CallStateRinging:
-          logic.update([
-            logic.stateTips.value = '已响铃...'.tr,
-          ]);
-          // logic.accept(sessionid.value);
-          break;
-        case WebRTCCallState.CallStateBye:
-          logic.update([
-            logic.stateTips.value =
-                logic.connected.isTrue ? '对方已挂断'.tr : '对方正忙...'.tr,
-          ]);
-
-          Future.delayed(const Duration(seconds: 3), () {
-            logic.update([
-              logic.connected = false.obs,
-            ]);
-            cleanUp();
-          });
-          break;
-        case WebRTCCallState.CallStateInvite:
-          logic.update();
-          break;
-        case WebRTCCallState.CallStateConnected:
-          // recive answer
-          logic.connected = true.obs;
-          logic.connected.refresh();
-          counter.value.count = 0;
-          counter.refresh();
-          logic.localX.value = Get.width - 90;
-          logic.localY.value = 30;
-          logic.localX.refresh();
-          logic.localY.refresh();
-          debugPrint("> rtc CallStateConnected ${logic.connected}");
-          counter.value.start((Timer tm) {
-            if (logic.connected.isTrue) {
-              // 秒数+1，因为一秒回调一次
-              counter.value.count += 1;
-              // 更新界面
-              logic.update([
-                logic.stateTips.value = counter.value.show(),
-              ]);
-            }
-          });
-          break;
-      }
-    };
-    logic.signaling.onPeersUpdate = ((event) {
-      debugPrint("> rtc _connect onPeersUpdate");
-      // setState(() {
-      //   peers = event['peers'];
-      // });
-    });
-
-    logic.signaling.onLocalStream = ((stream) async {
-      await logic.localRenderer.value.initialize();
-      debugPrint("> rtc onLocalStream");
-      logic.localRenderer.value.setSrcObject(stream: stream);
-      logic.localRenderer.refresh();
-    });
-
-    logic.signaling.onAddRemoteStream = ((WebRTCSession sess, stream) async {
-      debugPrint("> rtc onAddRemoteStream ${stream.toString()} , ${sess.sid}");
-      sessionid.value = sess.sid;
-      sessionid.refresh();
-      await logic.remoteRenderer.value.initialize();
-      logic.remoteRenderer.value.setSrcObject(stream: stream);
-      logic.remoteRenderer.refresh();
-    });
-
-    logic.signaling.onRemoveRemoteStream = ((WebRTCSession sess, stream) {
-      debugPrint("> rtc _connect onRemoveRemoteStream , ${sess.sid}");
-      sessionid.value = sess.sid;
-      sessionid.refresh();
-      logic.remoteRenderer.value.srcObject = null;
-      logic.remoteRenderer.refresh();
-    });
   }
 
   Widget _buildPeerInfo() {
@@ -226,7 +109,7 @@ class P2pCallScreenPage extends StatelessWidget {
             onPressed: () {
               debugPrint("> rtc hangUp");
               // logic.hangUp();
-              logic.signaling.bye(sessionid.value);
+              logic.signaling.bye(logic.sessionid.value);
               cleanUp();
             },
             tooltip: 'Hangup',
@@ -277,7 +160,7 @@ class P2pCallScreenPage extends StatelessWidget {
             n.Column([
               n.Row([
                 Obx(() => Text(
-                      counter.value.show(),
+                      logic.counter.value.show(),
                       style: const TextStyle(
                         color: Colors.green,
                       ),
@@ -434,8 +317,6 @@ class P2pCallScreenPage extends StatelessWidget {
 
   void cleanUp() {
     p2pCallScreenOn = false;
-    counter.value.close();
-    counter.refresh();
     logic.cleanUp();
     closePage();
   }

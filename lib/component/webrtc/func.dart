@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/page/p2p_call_screen/p2p_call_screen_logic.dart';
 import 'package:imboy/page/p2p_call_screen/p2p_call_screen_view.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/provider/user_provider.dart';
@@ -49,26 +50,6 @@ Future<void> incomingCallScreen(
     return;
   }
   p2pCallScreenOn = true;
-  // 被叫，初始化信令
-  WebRTCSignaling signaling = Get.put(
-      WebRTCSignaling(
-        UserRepoLocal.to.currentUid,
-        peer.uid,
-        iceServers!,
-      )..signalingConnect(),
-      tag: 'p2psignaling');
-
-  // String sessionId = UserRepoLocal.to.currentUid + '-' + peerId;
-  String sessionId = option['sid'];
-  WebRTCSession session = await signaling.createSession(
-    null,
-    peerId: peer.uid,
-    sessionId: sessionId,
-    media: option['media'],
-    screenSharing: false,
-  );
-  signaling.sessions[sessionId] = session;
-  debugPrint("> rtc incomingCallScreen ${signaling.toString()}");
 
   Get.defaultDialog(
     title: "",
@@ -130,10 +111,8 @@ Future<void> incomingCallScreen(
                 mini: true,
                 heroTag: "RejectCall",
                 backgroundColor: Colors.red,
-                // onPressed: () => _rejectCall(context, _callSession),
                 onPressed: () {
                   p2pCallScreenOn = false;
-                  signaling.close();
                   Get.close(0);
                 },
                 child: const Icon(
@@ -150,7 +129,6 @@ Future<void> incomingCallScreen(
                 mini: true,
                 heroTag: "AcceptCall",
                 backgroundColor: Colors.green,
-                // onPressed: () => _acceptCall(context, _callSession),
                 onPressed: () {
                   Get.close(0);
                   openCallScreen(
@@ -179,16 +157,16 @@ void openCallScreen(
   //  默认是主叫者
   bool caller = true,
 }) {
-  if (caller) {
-    // 主叫，初始化信令
-    Get.put(
-        WebRTCSignaling(
-          UserRepoLocal.to.currentUid,
-          peer.uid,
-          iceServers!,
-        )..signalingConnect(),
-        tag: 'p2psignaling');
-  }
+  // 初始化信令
+  Get.lazyPut<WebRTCSignaling>(
+      () => WebRTCSignaling(
+            UserRepoLocal.to.currentUid,
+            peer.uid,
+            iceServers!,
+          )..signalingConnect(),
+      tag: 'p2psignaling');
+  Get.lazyPut<P2pCallScreenLogic>(() => P2pCallScreenLogic());
+
   OverlayEntry? tempEntry;
   final entry = OverlayEntry(builder: (context) {
     return P2pCallScreenPage(
@@ -199,6 +177,7 @@ void openCallScreen(
         debugPrint(">>> rtc closePage");
         tempEntry?.remove();
         tempEntry = null;
+        Get.delete<P2pCallScreenLogic>(force: true);
       },
     );
   });
