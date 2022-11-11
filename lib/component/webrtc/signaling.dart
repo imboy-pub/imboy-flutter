@@ -6,7 +6,6 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart' as getx;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/service/websocket.dart';
-import 'package:imboy/store/model/webrtc_signaling_model.dart';
 
 enum WebRTCCallState {
   CallStateNew,
@@ -22,9 +21,9 @@ class WebRTCSession {
     required this.pid,
     required this.sid,
   });
-// peerId
+  // peerId
   String pid;
-// sessionId
+  // sessionId
   String sid;
   RTCPeerConnection? pc;
   RTCDataChannel? dc;
@@ -38,6 +37,8 @@ class WebRTCSignaling extends getx.GetxController {
   final JsonEncoder _encoder = const JsonEncoder();
   final String from;
   final String to;
+  final String media; // video audio data
+
   final bool micoff;
   late WSService _socket;
   Map<String, WebRTCSession> sessions = {};
@@ -85,6 +86,7 @@ class WebRTCSignaling extends getx.GetxController {
   WebRTCSignaling(
     this.from,
     this.to,
+    this.media,
     this.iceServers, {
     this.micoff = true,
   });
@@ -108,8 +110,7 @@ class WebRTCSignaling extends getx.GetxController {
   }
 
   close() async {
-    await _cleanSessions();
-// _socket.close();
+    await cleanSessions();
   }
 
   void switchCamera() {
@@ -129,6 +130,7 @@ class WebRTCSignaling extends getx.GetxController {
   /// invite
   Future<void> invite(String peerId, String media) async {
     String sessionId = "$from-$peerId";
+    // sessionId = "kybqdp-7b4v1b";
     debugPrint("> rtc invite sessionId $sessionId");
     WebRTCSession session = await createSession(
       null,
@@ -153,17 +155,17 @@ class WebRTCSignaling extends getx.GetxController {
     });
     var sess = sessions[sessionId];
     if (sess != null) {
-      _closeSession(sess);
+      closeSession(sess);
     }
   }
 
-  Future<void> accept(String sessionId) async {
+  Future<void> accept(String sessionId, String media) async {
     var session = sessions[sessionId];
     debugPrint("> rtc accept signaling  $session");
     if (session == null) {
       return;
     }
-    _createAnswer(session, 'video');
+    createAnswer(session, media);
   }
 
   void reject(String sessionId) {
@@ -172,111 +174,6 @@ class WebRTCSignaling extends getx.GetxController {
       return;
     }
     bye(session.sid);
-  }
-
-  void onMessage(WebRTCSignalingModel msg) async {
-    var data = msg.payload;
-
-    debugPrint("> rtc revice ${msg.webrtctype} payload ${data.toString()}");
-    switch (msg.webrtctype) {
-      case 'peers':
-        {
-          Map peers = data;
-          if (onPeersUpdate != null) {
-// ignore: prefer_collection_literals
-            Map<String, dynamic> event = Map<String, dynamic>();
-            event['peers'] = peers;
-            onPeersUpdate?.call(event);
-          }
-        }
-        break;
-      case 'offer': // 收到from 发送的 offer
-        {
-// sd = session description
-          var description = data['sd'];
-          var media = data['media'];
-          var sessionId = data['sid'];
-          reciveOffer(to, description, media, sessionId);
-        }
-        break;
-      case 'answer':
-        {
-// sd = session description
-          var description = data['sd'];
-          var sessionId = data['sid'];
-          var session = sessions[sessionId];
-          debugPrint(
-              "> rtc answer sid $sessionId; ${session.toString()}, pc ${session?.pc.toString()}; desc type: ${description['type']}");
-          if (session != null) {
-            await session.pc
-                ?.setRemoteDescription(RTCSessionDescription(
-              description['sdp'],
-              description['type'],
-            ))
-                .then((value) {
-              onCallStateChange?.call(
-                session,
-                WebRTCCallState.CallStateConnected,
-              );
-            });
-          }
-        }
-        break;
-      case 'candidate':
-        {
-          var peerId = msg.from;
-          var candidateMap = data['candidate'];
-          var sessionId = data['sid'];
-          var session = sessions[sessionId];
-          RTCIceCandidate candidate = RTCIceCandidate(
-            candidateMap['candidate'],
-            candidateMap['sdpMid'],
-            candidateMap['sdpMLineIndex'],
-          );
-
-          debugPrint(
-              "> rtc candidate sessionId $sessionId, peerid $peerId, s ${session.toString()}");
-          if (session != null) {
-            debugPrint(
-                "> rtc candidate sessionId $sessionId, peerid $peerId, s.pc ${session.pc.toString()}");
-            if (session.pc != null) {
-              await session.pc?.addCandidate(candidate);
-            } else {
-              session.remoteCandidates.add(candidate);
-            }
-          } else {
-            sessions[sessionId] = WebRTCSession(
-              pid: peerId,
-              sid: sessionId,
-            )..remoteCandidates.add(candidate);
-          }
-        }
-        break;
-      case 'leave':
-        {
-          var peerId = msg.from;
-          _closeSessionByPeerId(peerId);
-        }
-        break;
-      case 'bye':
-        {
-          var sessionId = data['sid'];
-          var session = sessions.remove(sessionId);
-          debugPrint("> rtc bye $sessionId : $session");
-          if (session != null) {
-            onCallStateChange?.call(session, WebRTCCallState.CallStateBye);
-            _closeSession(session);
-          }
-        }
-        break;
-      case 'keepalive':
-        {
-          debugPrint('keepalive response!');
-        }
-        break;
-      default:
-        break;
-    }
   }
 
   Future<void> signalingConnect() async {
@@ -301,8 +198,8 @@ class WebRTCSignaling extends getx.GetxController {
   }
 
   Future<MediaStream> createStream(String media) async {
+    debugPrint("> rtc createStream sdpSemantics");
     final Map<String, dynamic> mediaConstraints = {
-// 'audio': micoff ? false : true,
       'audio': true,
       'video': {
         'mandatory': {
@@ -337,7 +234,7 @@ class WebRTCSignaling extends getx.GetxController {
     debugPrint(
         "> rtc _createSession sdpSemantics $sdpSemantics ; media: $media ; sid: $sessionId; session： $session; newSession $newSession");
 
-    if (media != 'data') {
+    if (media != 'data' && localStream == null) {
       localStream = await createStream(media);
     }
     RTCPeerConnection pc = await createPeerConnection({
@@ -353,10 +250,10 @@ class WebRTCSignaling extends getx.GetxController {
           };
           await pc.addStream(localStream!);
           break;
-        case 'unified-plan':
-// Unified-Plan
+        case 'unified-plan': // Unified-Plan
           pc.onTrack = (RTCTrackEvent event) {
             if (event.track.kind == 'video') {
+              // remoteStreams.add(event.streams[0]);
               onAddRemoteStream?.call(newSession, event.streams[0]);
             }
           };
@@ -369,11 +266,11 @@ class WebRTCSignaling extends getx.GetxController {
 
     pc.onIceCandidate = (RTCIceCandidate candidate) async {
       debugPrint('> rtc onIceCandidate: ${candidate.toMap().toString()}');
-// This delay is needed to allow enough time to try an ICE candidate
-// before skipping to the next one. 1 second is just an heuristic value
-// and should be thoroughly tested in your own environment.
+      // This delay is needed to allow enough time to try an ICE candidate
+      // before skipping to the next one. 1 second is just an heuristic value
+      // and should be thoroughly tested in your own environment.
       await Future.delayed(
-          const Duration(milliseconds: 500),
+          const Duration(milliseconds: 100),
           () => _send('candidate', {
                 'candidate': {
                   'sdpMLineIndex': candidate.sdpMLineIndex,
@@ -387,17 +284,14 @@ class WebRTCSignaling extends getx.GetxController {
     pc.onSignalingState = (RTCSignalingState state) {
       debugPrint('> rtc onSignalingState: ${state.toString()}');
       onSignalingStateChange?.call(state);
-// Future.delayed(
-//   const Duration(milliseconds: 100),
-//   () {
-//     onSignalingStateChange?.call(state);
-//   },
-// );
     };
 
-    pc.onIceConnectionState = (state) {};
+    pc.onIceConnectionState = (state) {
+      debugPrint('> rtc onIceConnectionState: ${state.toString()}');
+    };
 
     pc.onRemoveStream = (stream) {
+      debugPrint('> rtc onRemoveStream: ${stream.toString()}');
       onRemoveRemoteStream?.call(newSession, stream);
       remoteStreams.removeWhere((it) {
         return (it.id == stream.id);
@@ -435,6 +329,7 @@ class WebRTCSignaling extends getx.GetxController {
     try {
       s.pc!.createOffer(media == 'data' ? _dcConstraints : {}).then((sd) async {
         await s.pc!.setLocalDescription(sd);
+
         _send('offer', {
           'sd': {'sdp': sd.sdp, 'type': sd.type},
           'sid': s.sid,
@@ -446,28 +341,20 @@ class WebRTCSignaling extends getx.GetxController {
     }
   }
 
-  Future<void> _createAnswer(WebRTCSession session, String media) async {
-    debugPrint("> rtc createAnswer media $media $session");
+  Future<void> createAnswer(WebRTCSession session, String media) async {
+    debugPrint(
+        "> rtc accept createAnswer ${session.pc.toString()} state ${session.pc!.connectionState}");
     try {
-      RTCSessionDescription sd =
-          await session.pc!.createAnswer(media == 'data' ? _dcConstraints : {});
-      await session.pc!.setLocalDescription(sd);
-
-      _send('answer', {
-        'media': media,
-        'sid': session.sid,
-        'sd': {'sdp': sd.sdp, 'type': sd.type},
+      session.pc!
+          .createAnswer(media == 'data' ? _dcConstraints : {})
+          .then((RTCSessionDescription sd) async {
+        await session.pc!.setLocalDescription(sd);
+        _send('answer', {
+          'media': media,
+          'sid': session.sid,
+          'sd': {'sdp': sd.sdp, 'type': sd.type},
+        });
       });
-      // session.pc!
-      //     .createAnswer(media == 'data' ? _dcConstraints : {})
-      //     .then((sd) async {
-      //   await session.pc!.setLocalDescription(sd);
-      //   _send('answer', {
-      //     'media': media,
-      //     'sid': session.sid,
-      //     'sd': {'sdp': sd.sdp, 'type': sd.type},
-      //   });
-      // });
     } catch (e) {
       debugPrint("> rtc createAnswer media $media e $e");
       debugPrint(
@@ -483,11 +370,11 @@ class WebRTCSignaling extends getx.GetxController {
     request["from"] = from;
     request["type"] = "webrtc_$event";
     request["payload"] = payload;
-    debugPrint('>>> ws rtc cc _send $event ${request.toString()}');
+    debugPrint('> rtc _send $event ${request.toString()}');
     _socket.sendMessage(_encoder.convert(request));
   }
 
-  Future<void> _cleanSessions() async {
+  Future<void> cleanSessions() async {
     if (localStream != null) {
       localStream!.getTracks().forEach((element) async {
         await element.stop();
@@ -505,7 +392,7 @@ class WebRTCSignaling extends getx.GetxController {
     sessions.clear();
   }
 
-  void _closeSessionByPeerId(String peerId) {
+  void closeSessionByPeerId(String peerId) {
     WebRTCSession? session;
     sessions.removeWhere((String key, WebRTCSession sess) {
       var ids = key.split('-');
@@ -513,12 +400,12 @@ class WebRTCSignaling extends getx.GetxController {
       return peerId == ids[0] || peerId == ids[1];
     });
     if (session != null) {
-      _closeSession(session!);
+      closeSession(session!);
       onCallStateChange?.call(session!, WebRTCCallState.CallStateBye);
     }
   }
 
-  Future<void> _closeSession(WebRTCSession session) async {
+  Future<void> closeSession(WebRTCSession session) async {
     localStream?.getTracks().forEach((element) async {
       await element.stop();
     });
@@ -527,35 +414,5 @@ class WebRTCSignaling extends getx.GetxController {
 
     await session.pc?.close();
     await session.dc?.close();
-  }
-
-  Future<void> reciveOffer(
-    String peerId,
-    Map<String, dynamic> description,
-    String media,
-    String sessionId,
-  ) async {
-    var session = sessions[sessionId];
-
-    debugPrint("> rtc reciveOffer $sessionId : $session");
-    var newSession = await createSession(session,
-        peerId: peerId,
-        sessionId: sessionId,
-        media: media,
-        screenSharing: false);
-    sessions[sessionId] = newSession;
-    await newSession.pc?.setRemoteDescription(RTCSessionDescription(
-      description['sdp'],
-      description['type'],
-    ));
-
-    if (newSession.remoteCandidates.isNotEmpty) {
-      for (var candidate in newSession.remoteCandidates) {
-        await newSession.pc?.addCandidate(candidate);
-      }
-      newSession.remoteCandidates.clear();
-    }
-// onCallStateChange?.call(newSession, WebRTCCallState.CallStateNew);
-    onCallStateChange?.call(newSession, WebRTCCallState.CallStateRinging);
   }
 }

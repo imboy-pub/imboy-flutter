@@ -41,13 +41,13 @@ class MessageService extends GetxService {
         debugPrint(
             ">>> on MessageService onInit now: $now elapsed: ${now - data['ts']}");
       }
-      debugPrint(">>> on MessageService onInit: $type$data");
+      debugPrint("> rtc MessageService onInit: $type $p2pCallScreenOn $data");
 
       if (type == 'OFFER' || type == 'CANDIDATE') {
         type = "WEBRTC_$type";
       }
       if (type.startsWith('WEBRTC_')) {
-        if (type == 'WEBRTC_OFFER') {
+        if (type == 'WEBRTC_OFFER' && p2pCallScreenOn == false) {
           String peerId = data['from'];
           ContactModel? obj = await ContactRepo().findByUid(peerId);
           if (obj != null) {

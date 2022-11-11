@@ -59,5 +59,6 @@ package_info_plus_linux
 linux/flutter/ephemeral/.plugin_symlinks/path_provider_linux
 linux/flutter/ephemeral/.plugin_symlinks/shared_preferences_linux
 linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux
+linux/flutter/ephemeral/.plugin_symlinks/flutter_webrtc
 macos/Flutter/ephemeral/Flutter-Generated.xcconfig
 macos/Flutter/ephemeral/flutter_export_environment.sh

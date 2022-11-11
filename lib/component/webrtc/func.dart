@@ -14,7 +14,7 @@ import 'signaling.dart';
 
 /// 初始化 ice 配置信息
 initIceServers() async {
-  debugPrint("getIceServers iceServers == null: ${iceServers == null}");
+  debugPrint("> rtc initIceServers iceServers == null: ${iceServers == null}");
   if (iceServers == null) {
     try {
       var turnCredential = await UserProvider().turnCredential();
@@ -157,11 +157,14 @@ void openCallScreen(
   //  默认是主叫者
   bool caller = true,
 }) {
+  initIceServers();
+  p2pCallScreenOn = true;
   // 初始化信令
   Get.lazyPut<WebRTCSignaling>(
       () => WebRTCSignaling(
             UserRepoLocal.to.currentUid,
             peer.uid,
+            option['media'] ?? 'video',
             iceServers!,
           )..signalingConnect(),
       tag: 'p2psignaling');
@@ -178,6 +181,7 @@ void openCallScreen(
         tempEntry?.remove();
         tempEntry = null;
         Get.delete<P2pCallScreenLogic>(force: true);
+        p2pCallScreenOn = false;
       },
     );
   });

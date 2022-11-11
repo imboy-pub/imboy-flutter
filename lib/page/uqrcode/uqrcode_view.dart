@@ -152,6 +152,7 @@ class UqrcodePage extends StatelessWidget {
                       child: QrImage(
                         data: qrdata,
                         version: QrVersions.auto,
+                        errorCorrectionLevel: QrErrorCorrectLevel.H,
                         size: 320,
                         padding: const EdgeInsets.only(
                           left: 10,
@@ -159,7 +160,7 @@ class UqrcodePage extends StatelessWidget {
                           top: 10,
                           // bottom: 10,
                         ),
-                        gapless: false,
+                        gapless: true,
                         embeddedImage: avatarImageProvider(
                             UserRepoLocal.to.currentUser.avatar),
                         // embeddedImage: AssetImage('assets/images/logo.png'),
