@@ -3,6 +3,8 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/counter.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/webrtc/enum.dart';
+import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/component/webrtc/signaling.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
@@ -20,8 +22,7 @@ class P2pCallScreenLogic extends GetxController {
   var stateTips = "".obs;
 
   var switchRenderer = true.obs;
-  // late Rx<RTCVideoRenderer> localRenderer;
-  // late Rx<RTCVideoRenderer> remoteRenderer;
+
   Rx<RTCVideoRenderer> localRenderer = RTCVideoRenderer().obs;
   Rx<RTCVideoRenderer> remoteRenderer = RTCVideoRenderer().obs;
 
@@ -88,7 +89,7 @@ class P2pCallScreenLogic extends GetxController {
     signaling.onLocalStream = ((stream) async {
       debugPrint("> rtc onLocalStream");
       if (localRenderer.value.textureId == null) {
-        localRenderer.value.initialize();
+        await localRenderer.value.initialize();
       }
       localRenderer.value.setSrcObject(stream: stream);
       localRenderer.refresh();
@@ -99,7 +100,7 @@ class P2pCallScreenLogic extends GetxController {
       sessionid.value = sess.sid;
       sessionid.refresh();
       if (remoteRenderer.value.textureId == null) {
-        remoteRenderer.value.initialize();
+        await remoteRenderer.value.initialize();
       }
       remoteRenderer.value.setSrcObject(stream: stream);
       remoteRenderer.refresh();
@@ -146,7 +147,7 @@ class P2pCallScreenLogic extends GetxController {
             description['type'],
           ));
 
-          await signaling.createAnswer(newSession, media);
+          // await signaling.createAnswer(newSession, media);
           if (newSession.remoteCandidates.isNotEmpty) {
             for (var candidate in newSession.remoteCandidates) {
               await newSession.pc?.addCandidate(candidate);
@@ -173,17 +174,6 @@ class P2pCallScreenLogic extends GetxController {
               session,
               WebRTCCallState.CallStateConnected,
             );
-            // await session.pc
-            //     ?.setRemoteDescription(RTCSessionDescription(
-            //   description['sdp'],
-            //   description['type'],
-            // ))
-            //     .then((value) {
-            //   onCallStateChange?.call(
-            //     session,
-            //     WebRTCCallState.CallStateConnected,
-            //   );
-            // });
           }
         }
         break;

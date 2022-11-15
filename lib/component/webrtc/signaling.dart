@@ -7,31 +7,8 @@ import 'package:get/get.dart' as getx;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/service/websocket.dart';
 
-enum WebRTCCallState {
-  CallStateNew,
-  CallStateRinging,
-  CallStateInvite,
-  CallStateConnected,
-  CallStateBye,
-}
-
-// ignore: must_be_immutable
-class WebRTCSession {
-  WebRTCSession({
-    required this.pid,
-    required this.sid,
-  });
-  // peerId
-  String pid;
-  // sessionId
-  String sid;
-  RTCPeerConnection? pc;
-  RTCDataChannel? dc;
-  List<RTCIceCandidate> remoteCandidates = [];
-//
-// @override
-// List<Object?> get props => [pid, sid, pc, dc, remoteCandidates];
-}
+import 'enum.dart';
+import 'session.dart';
 
 class WebRTCSignaling extends getx.GetxController {
   final JsonEncoder _encoder = const JsonEncoder();
@@ -201,16 +178,18 @@ class WebRTCSignaling extends getx.GetxController {
     debugPrint("> rtc createStream sdpSemantics");
     final Map<String, dynamic> mediaConstraints = {
       'audio': true,
-      'video': {
-        'mandatory': {
-          'minWidth':
-              '640', // Provide your own width, height and frame rate here
-          'minHeight': '480',
-          'minFrameRate': '30',
-        },
-        'facingMode': 'user',
-        'optional': [],
-      }
+      'video': media == "video"
+          ? {
+              'mandatory': {
+                // Provide your own width, height and frame rate here
+                'minWidth': '640',
+                'minHeight': '480',
+                'minFrameRate': '30',
+              },
+              'facingMode': 'user',
+              'optional': [],
+            }
+          : false,
     };
     MediaStream stream = await navigator.mediaDevices.getUserMedia(
       mediaConstraints,
@@ -270,7 +249,7 @@ class WebRTCSignaling extends getx.GetxController {
       // before skipping to the next one. 1 second is just an heuristic value
       // and should be thoroughly tested in your own environment.
       await Future.delayed(
-          const Duration(milliseconds: 100),
+          const Duration(milliseconds: 500),
           () => _send('candidate', {
                 'candidate': {
                   'sdpMLineIndex': candidate.sdpMLineIndex,
@@ -345,15 +324,16 @@ class WebRTCSignaling extends getx.GetxController {
     debugPrint(
         "> rtc accept createAnswer ${session.pc.toString()} state ${session.pc!.connectionState}");
     try {
-      session.pc!
-          .createAnswer(media == 'data' ? _dcConstraints : {})
-          .then((RTCSessionDescription sd) async {
-        await session.pc!.setLocalDescription(sd);
-        _send('answer', {
-          'media': media,
-          'sid': session.sid,
-          'sd': {'sdp': sd.sdp, 'type': sd.type},
-        });
+      RTCSessionDescription s =
+          await session.pc!.createAnswer(media == 'data' ? _dcConstraints : {});
+      if (s.type != "answer") {
+        return;
+      }
+      await session.pc!.setLocalDescription(s);
+      _send('answer', {
+        'media': media,
+        'sid': session.sid,
+        'sd': {'sdp': s.sdp, 'type': s.type},
       });
     } catch (e) {
       debugPrint("> rtc createAnswer media $media e $e");
