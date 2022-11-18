@@ -6,6 +6,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart' as getx;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/service/websocket.dart';
+import 'package:xid/xid.dart';
 
 import 'enum.dart';
 import 'session.dart';
@@ -346,6 +347,7 @@ class WebRTCSignaling extends getx.GetxController {
   _send(String event, Map payload) {
     Map request = {};
     request["ts"] = DateTimeHelper.currentTimeMillis();
+    request["id"] = Xid().toString();
     request["to"] = to;
     request["from"] = from;
     request["type"] = "webrtc_$event";

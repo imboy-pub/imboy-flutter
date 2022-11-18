@@ -91,7 +91,7 @@ dependencies:
   badges: ^2.0.3
   # 聊天气泡
   bubble: ^1.2.1
-  xid: ^1.0.7
+  xid: ^1.0.12
   fps_monitor: ^2.0.0
   # @ 小部件
   flutter_mentions: ^2.0.1

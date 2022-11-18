@@ -1731,7 +1731,7 @@ packages:
       name: xid
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.7"
+    version: "1.0.12"
   xml:
     dependency: transitive
     description:

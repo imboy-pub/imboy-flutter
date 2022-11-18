@@ -68,6 +68,10 @@ class MessageService extends GetxService {
           to: data['to'],
           payload: data['payload'],
         ));
+        // 确认消息
+        String did = await DeviceExt.did;
+        debugPrint(">>> on CLIENT_ACK,WEBRTC,${data['id']},$did");
+        WSService.to.sendMessage("CLIENT_ACK,WEBRTC,${data['id']},$did");
       } else {
         switch (type) {
           case 'C2C':
@@ -157,6 +161,10 @@ class MessageService extends GetxService {
         // String uid = data['from'] ?? '';
         break;
     }
+    // 确认消息
+    String did = await DeviceExt.did;
+    debugPrint(">>> on CLIENT_ACK,S2C,${data['id']},$did");
+    WSService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
   }
 
   /// Called before [onDelete] method. [onClose] might be used to
@@ -222,15 +230,10 @@ class MessageService extends GetxService {
     cvlogic.increaseConversationRemind(data['from'], 1);
 
     eventBus.fire(msg.toTypeMessage());
-    // 确实消息
+    // 确认消息
     String did = await DeviceExt.did;
     debugPrint(">>> on CLIENT_ACK,C2C,${data['id']},$did");
     WSService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$did");
-    // WSService.to.sendMessage(json.encode({
-    //   'id': data['id'],
-    //   'type': 'C2C_CLIENT_ACK',
-    //   'remark': 'recived',
-    // }));
   }
 
   /// 收到C2C服务端确认消息
