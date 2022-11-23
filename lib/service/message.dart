@@ -34,14 +34,13 @@ class MessageService extends GetxService {
   void onInit() {
     super.onInit();
     eventBus.on<Map>().listen((Map data) async {
+      debugPrint("> rtc eventBus listen: $p2pCallScreenOn $data");
       String type = data['type'] ?? 'error';
       type = type.toUpperCase();
       if (data.containsKey('ts')) {
         int now = DateTimeHelper.currentTimeMillis();
-        debugPrint(
-            ">>> on MessageService onInit now: $now elapsed: ${now - data['ts']}");
+        debugPrint("> rtc eventBus now: $now elapsed: ${now - data['ts']}");
       }
-      debugPrint("> rtc MessageService onInit: $type $p2pCallScreenOn $data");
 
       if (type == 'OFFER' || type == 'CANDIDATE') {
         type = "WEBRTC_$type";
