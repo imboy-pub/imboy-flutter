@@ -10,8 +10,6 @@ import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
-import 'signaling.dart';
-
 /// 初始化 ice 配置信息
 initIceServers() async {
   debugPrint("> rtc initIceServers iceServers == null: ${iceServers == null}");
@@ -45,11 +43,11 @@ Future<void> incomingCallScreen(
 ) async {
   debugPrint("> rtc p2pCallScreenOn $p2pCallScreenOn");
   // 已经在通话中，不需要调起通话了
-  if (p2pCallScreenOn == true) {
-    // 给对端发送消息，说正在通话中 TODO
-    return;
-  }
-  p2pCallScreenOn = true;
+  // if (p2pCallScreenOn == true) {
+  //   // 给对端发送消息，说正在通话中 TODO
+  //   return;
+  // }
+  // p2pCallScreenOn = true;
 
   Get.defaultDialog(
     title: "",
@@ -158,26 +156,23 @@ void openCallScreen(
   bool caller = true,
 }) {
   initIceServers();
-  p2pCallScreenOn = true;
-  // 初始化信令
-  Get.lazyPut<WebRTCSignaling>(
-      () => WebRTCSignaling(
-            UserRepoLocal.to.currentUid,
-            peer.uid,
-            option['media'] ?? 'video',
-            iceServers!,
-          )..signalingConnect(),
-      tag: 'p2psignaling');
-  Get.lazyPut<P2pCallScreenLogic>(() => P2pCallScreenLogic());
-
+  // p2pCallScreenOn = true;
   OverlayEntry? tempEntry;
   final entry = OverlayEntry(builder: (context) {
+    Get.put(P2pCallScreenLogic(
+      UserRepoLocal.to.currentUid,
+      peer.uid,
+      option['media'] ?? 'video',
+      caller == true ? false : true,
+      iceServers!,
+    )..signalingConnect());
+
     return P2pCallScreenPage(
       peer: peer,
       option: option,
       caller: caller,
       closePage: () {
-        debugPrint(">>> rtc closePage");
+        debugPrint("> rtc closePage");
         tempEntry?.remove();
         tempEntry = null;
         Get.delete<P2pCallScreenLogic>(force: true);

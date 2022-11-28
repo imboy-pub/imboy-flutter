@@ -34,19 +34,19 @@ class MessageService extends GetxService {
   void onInit() {
     super.onInit();
     eventBus.on<Map>().listen((Map data) async {
-      debugPrint("> rtc eventBus listen: $p2pCallScreenOn $data");
       String type = data['type'] ?? 'error';
       type = type.toUpperCase();
+      debugPrint("> rtc msgs listen: $type $p2pCallScreenOn $data");
       if (data.containsKey('ts')) {
         int now = DateTimeHelper.currentTimeMillis();
-        debugPrint("> rtc eventBus now: $now elapsed: ${now - data['ts']}");
+        debugPrint("> rtc msgs now: $now elapsed: ${now - data['ts']}");
       }
 
       if (type == 'OFFER' || type == 'CANDIDATE') {
         type = "WEBRTC_$type";
       }
       if (type.startsWith('WEBRTC_')) {
-        if (type == 'WEBRTC_OFFER' && p2pCallScreenOn == false) {
+        if (type == 'WEBRTC_OFFER') {
           String peerId = data['from'];
           ContactModel? obj = await ContactRepo().findByUid(peerId);
           if (obj != null) {
@@ -69,7 +69,7 @@ class MessageService extends GetxService {
         ));
         // 确认消息
         String did = await DeviceExt.did;
-        debugPrint(">>> on CLIENT_ACK,WEBRTC,${data['id']},$did");
+        debugPrint("> rtc msgs CLIENT_ACK,WEBRTC,${data['id']},$did");
         WSService.to.sendMessage("CLIENT_ACK,WEBRTC,${data['id']},$did");
       } else {
         switch (type) {
@@ -162,7 +162,7 @@ class MessageService extends GetxService {
     }
     // 确认消息
     String did = await DeviceExt.did;
-    debugPrint(">>> on CLIENT_ACK,S2C,${data['id']},$did");
+    debugPrint("> rtc msgs CLIENT_ACK,S2C,${data['id']},$did");
     WSService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
   }
 
@@ -181,10 +181,9 @@ class MessageService extends GetxService {
   Future<void> reciveC2CMessage(data) async {
     var msgtype = data['payload']['msg_type'] ?? '';
     var text = data['payload']['text'] ?? '';
-    debugPrint(">>> on reciveMessage $data");
+    debugPrint("> rtc msgs c2c reciveMessage $data");
     int now = DateTimeHelper.currentTimeMillis();
-    debugPrint(
-        ">>> on reciveC2CMessage now: $now elapsed: ${now - data['created_at']}");
+    debugPrint("> rtc msgs c2c now: $now elapsed: ${now - data['created_at']}");
     String subtitle = '';
 
     ContactModel? ct = await ContactRepo().findByUid(data['from']);
@@ -231,13 +230,13 @@ class MessageService extends GetxService {
     eventBus.fire(msg.toTypeMessage());
     // 确认消息
     String did = await DeviceExt.did;
-    debugPrint(">>> on CLIENT_ACK,C2C,${data['id']},$did");
+    debugPrint("> rtc msgs CLIENT_ACK,C2C,${data['id']},$did");
     WSService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$did");
   }
 
   /// 收到C2C服务端确认消息
   Future<void> reciveC2CServerAckMessage(Map data) async {
-    debugPrint(">>> on MessageService S_RECEIVED: msg:$data");
+    debugPrint("> rtc msgs S_RECEIVED: msg:$data");
     MessageRepo repo = MessageRepo();
     String id = data['id'];
     int res = await repo.update({
@@ -245,7 +244,7 @@ class MessageService extends GetxService {
       'status': MessageStatus.send,
     });
     MessageModel? msg = await repo.find(id);
-    debugPrint(">>> on MessageService S_RECEIVED:$res");
+    debugPrint("> rtc msgs S_RECEIVED:$res");
     // 更新会话状态
     List<ConversationModel> items =
         await ConversationLogic().updateLastMsgStatus(

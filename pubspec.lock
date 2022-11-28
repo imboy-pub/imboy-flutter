@@ -63,7 +63,7 @@ packages:
       name: audio_session
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.1.10"
+    version: "0.1.11"
   azlistview:
     dependency: "direct main"
     description:
@@ -394,7 +394,7 @@ packages:
       name: emoji_picker_flutter
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.5.0"
+    version: "1.5.1"
   encrypt:
     dependency: "direct main"
     description:
@@ -602,7 +602,7 @@ packages:
       name: flutter_native_splash
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.2.13"
+    version: "2.2.16"
   flutter_parsed_text:
     dependency: transitive
     description:
@@ -682,7 +682,7 @@ packages:
       name: flutter_webrtc
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.16"
+    version: "0.9.17"
   font_awesome_flutter:
     dependency: transitive
     description:
@@ -1155,7 +1155,7 @@ packages:
       name: photo_manager
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.4.1"
+    version: "2.5.1+1"
   photo_view:
     dependency: "direct main"
     description:
@@ -1563,7 +1563,7 @@ packages:
       name: video_compress
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.1.1"
+    version: "3.1.2"
   video_player:
     dependency: "direct main"
     description:

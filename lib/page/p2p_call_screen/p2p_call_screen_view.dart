@@ -38,11 +38,12 @@ class P2pCallScreenPage extends StatelessWidget {
   final double localHeight = 72.0;
 
   init() async {
-    // logic.invitePeer(peer.uid, option['media'] ?? 'video');
+    logic.closePage = closePage;
     if (caller) {
+      logic.invitePeer(peer.uid, option['media'] ?? 'video');
       logic.stateTips.value = '等待对方接受邀请...'.tr;
       // 发起通话
-    } else if (logic.connected.isFalse) {
+    } else {
       eventBus.fire(WebRTCSignalingModel(
         type: 'WEBRTC_OFFER',
         from: peer.uid,
@@ -50,8 +51,8 @@ class P2pCallScreenPage extends StatelessWidget {
         payload: option,
       ));
     }
-    logic.signaling.onCallStateChange =
-        (WebRTCSession s1, WebRTCCallState state) async {
+
+    logic.onCallStateChange = (WebRTCSession s1, WebRTCCallState state) async {
       debugPrint(
           "> rtc onCallStateChange view ${state.toString()} sid ${s1.sid};");
       logic.sessionid.value = s1.sid;
@@ -73,7 +74,7 @@ class P2pCallScreenPage extends StatelessWidget {
           Future.delayed(const Duration(seconds: 2), () {
             logic.connected = false.obs;
             logic.connected.refresh();
-            cleanUp();
+            logic.cleanUp();
           });
           break;
         case WebRTCCallState.CallStateInvite:
@@ -148,9 +149,7 @@ class P2pCallScreenPage extends StatelessWidget {
             heroTag: "call_end",
             onPressed: () {
               debugPrint("> rtc hangUp");
-              // logic.hangUp();
-              logic.signaling.bye(logic.sessionid.value);
-              cleanUp();
+              logic.bye(logic.sessionid.value);
             },
             tooltip: 'Hangup',
             backgroundColor: Colors.pink,
@@ -359,11 +358,5 @@ class P2pCallScreenPage extends StatelessWidget {
       logic.minimized.value = !logic.minimized.value,
     ]);
     debugPrint(">>> on wrt minimized = ${logic.minimized.value}");
-  }
-
-  void cleanUp() {
-    p2pCallScreenOn = false;
-    logic.cleanUp();
-    closePage();
   }
 }

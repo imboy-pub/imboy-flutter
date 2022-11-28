@@ -101,26 +101,26 @@ dependencies:
   jiffy: ^5.0.0
   # 用于校正本地系统与时钟源服务器之前的时间
   ntp: ^2.0.0
-  emoji_picker_flutter: ^1.4.0
+  emoji_picker_flutter: ^1.5.1
   carousel_slider: ^4.1.1
   flutter_dotenv: ^5.0.2
   # popup_menu:
   #  path: plugin/popup_menu
-  photo_manager: ^2.4.1
-  video_compress: ^3.1.1
+  photo_manager: ^2.5.1+1
+  video_compress: ^3.1.2
   path_provider: ^2.0.11
   flutter_login: ^4.1.0
   # 进度条
   percent_indicator: ^4.2.2
-  json_serializable: ^6.5.0
+  json_serializable: ^6.5.4
   # 录音
   flutter_sound: ^9.2.13
   flutter_sound_platform_interface: ^9.2.13
-  audio_session: ^0.1.10
+  audio_session: ^0.1.11
   # 一个干净和轻量级的加载/吐司小部件
   flutter_easyloading: ^3.0.5
   # 生成闪屏页
-  flutter_native_splash: ^2.2.10+1
+  flutter_native_splash: ^2.2.16
   huawei_account: ^6.1.0+304
   flutter_chat_ui: ^1.6.6
   #image_crop: ^0.4.0
@@ -143,7 +143,7 @@ dependencies:
   sqflite: ^2.2.0+3
   flutter_local_notifications: 12.0.3
   flutter_app_badger: ^1.5.0
-  flutter_webrtc: ^0.9.16
+  flutter_webrtc: ^0.9.17
   # flutter_webrtc:
   #  git:
   #    url: https://gitee.com/imboy-tripartite-deps/flutter-webrtc.git
