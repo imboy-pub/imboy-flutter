@@ -43,11 +43,11 @@ Future<void> incomingCallScreen(
 ) async {
   debugPrint("> rtc p2pCallScreenOn $p2pCallScreenOn");
   // 已经在通话中，不需要调起通话了
-  // if (p2pCallScreenOn == true) {
-  //   // 给对端发送消息，说正在通话中 TODO
-  //   return;
-  // }
-  // p2pCallScreenOn = true;
+  if (p2pCallScreenOn == true) {
+    // 给对端发送消息，说正在通话中 TODO
+    return;
+  }
+  p2pCallScreenOn = true;
 
   Get.defaultDialog(
     title: "",
@@ -156,7 +156,7 @@ void openCallScreen(
   bool caller = true,
 }) {
   initIceServers();
-  // p2pCallScreenOn = true;
+  p2pCallScreenOn = true;
   OverlayEntry? tempEntry;
   final entry = OverlayEntry(builder: (context) {
     Get.put(P2pCallScreenLogic(

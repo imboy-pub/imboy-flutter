@@ -67,9 +67,6 @@ class P2pCallScreenLogic extends getx.GetxController {
   Function(WebRTCSession session, RTCDataChannel dc)? onDataChannel;
 
   Function? closePage;
-  String get sdpSemantics =>
-      WebRTC.platformIsWindows ? 'plan-b' : 'unified-plan';
-
   late Map<String, dynamic> iceServers;
 
   final Map<String, dynamic> _config = {
@@ -94,7 +91,7 @@ class P2pCallScreenLogic extends getx.GetxController {
 
   // bool callee = false;
   var connected = false.obs;
-
+  var makingAnswer = false.obs;
   var makingOffer = false.obs;
   var ignoreOffer = false.obs;
   var isSettingRemoteAnswerPending = false.obs;
@@ -116,6 +113,7 @@ class P2pCallScreenLogic extends getx.GetxController {
   Future<void> signalingConnect() async {
     _socket = WSService.to;
     WSService.to.openSocket();
+    counter.value.close();
   }
 
   @override
@@ -146,9 +144,7 @@ class P2pCallScreenLogic extends getx.GetxController {
 
     onLocalStream = ((stream) async {
       debugPrint("> rtc onLocalStream");
-      if (localStream == null) {
-        localStream = stream;
-      }
+      localStream ??= stream;
       if (localRenderer.value.textureId == null) {
         await localRenderer.value.initialize();
       }
@@ -195,16 +191,20 @@ class P2pCallScreenLogic extends getx.GetxController {
           var description = data['sd'];
           var media = data['media'];
           var sessionId = data['sid'];
-          var session = sessions[sessionId];
 
-          var newSession = await createSession(session,
-              peerId: msg.from,
-              sessionId: sessionId,
-              media: media,
-              screenSharing: false);
-          sessions[sessionId] = newSession;
+          var rtcSession = sessions[sessionId];
 
-          await _onReceivedDescription(newSession, media, description);
+          if (rtcSession == null) {
+            rtcSession = await createSession(
+                peerId: msg.from,
+                sessionId: sessionId,
+                media: media,
+                screenSharing: false);
+            sessions[sessionId] = rtcSession;
+            makingAnswer = true.obs;
+          }
+
+          await _onReceivedDescription(rtcSession, media, description);
         }
         break;
       case 'answer':
@@ -219,14 +219,15 @@ class P2pCallScreenLogic extends getx.GetxController {
           if (session == null) {
             return;
           }
-          // session.pc?.setRemoteDescription(
-          //   RTCSessionDescription(
-          //     description['sdp'],
-          //     description['type'],
-          //   ),
-          // );
-          await _onReceivedDescription(session, media, description);
+          session.pc?.setRemoteDescription(
+            RTCSessionDescription(
+              description['sdp'],
+              description['type'],
+            ),
+          );
 
+          await _onReceivedDescription(session, media, description);
+          // accept(sessionId, media);
           onCallStateChange?.call(
             session,
             WebRTCCallState.CallStateConnected,
@@ -333,49 +334,37 @@ class P2pCallScreenLogic extends getx.GetxController {
     return stream;
   }
 
-  Future<WebRTCSession> createSession(
-    WebRTCSession? session, {
+  Future<WebRTCSession> createSession({
     required String peerId,
     required String sessionId,
     required String media,
     required bool screenSharing,
   }) async {
-    var newSession = session ??
-        WebRTCSession(
-          sid: sessionId,
-          pid: peerId,
-        );
+    var newSession = WebRTCSession(
+      sid: sessionId,
+      pid: peerId,
+    );
     debugPrint(
-        "> rtc _createSession sdpSemantics $sdpSemantics ; media: $media ; sid: $sessionId; session： $session; newSession $newSession");
+        "> rtc _createSession media: $media ; sid: $sessionId; iceServers： $iceServers; newSession $newSession");
 
     if (media != 'data' && localStream == null) {
       localStream = await createStream(media);
     }
     RTCPeerConnection pc = await createPeerConnection({
       ...iceServers,
-      ...{'sdpSemantics': sdpSemantics}
+      ...{'sdpSemantics': 'unified-plan'}
     }, _config);
     if (media != 'data') {
-      switch (sdpSemantics) {
-        case 'plan-b':
-          pc.onAddStream = (MediaStream stream) {
-            onAddRemoteStream?.call(newSession, stream);
-            remoteStreams.add(stream);
-          };
-          await pc.addStream(localStream!);
-          break;
-        case 'unified-plan': // Unified-Plan
-          pc.onTrack = (RTCTrackEvent event) {
-            if (event.track.kind == 'video') {
-              // remoteStreams.add(event.streams[0]);
-              onAddRemoteStream?.call(newSession, event.streams[0]);
-            }
-          };
-          localStream!.getTracks().forEach((track) {
-            pc.addTrack(track, localStream!);
-          });
-          break;
-      }
+      pc.onTrack = (RTCTrackEvent event) {
+        if (event.track.kind == 'video') {
+          debugPrint('> rtc onTrack: ${event.toString()}');
+          remoteStreams.add(event.streams[0]);
+          onAddRemoteStream?.call(newSession, event.streams[0]);
+        }
+      };
+      localStream!.getTracks().forEach((track) {
+        pc.addTrack(track, localStream!);
+      });
     }
 
     pc.onIceCandidate = (RTCIceCandidate candidate) async {
@@ -384,20 +373,14 @@ class P2pCallScreenLogic extends getx.GetxController {
         debugPrint('> rtc onIceCandidate: empty!');
         return;
       }
-
-      // This delay is needed to allow enough time to try an ICE candidate
-      // before skipping to the next one. 1 second is just an heuristic value
-      // and should be thoroughly tested in your own environment.
-      await Future.delayed(
-          const Duration(milliseconds: 500),
-          () => _send('candidate', {
-                'candidate': {
-                  'sdpMLineIndex': candidate.sdpMLineIndex,
-                  'sdpMid': candidate.sdpMid,
-                  'candidate': candidate.candidate,
-                },
-                'sid': sessionId,
-              }));
+      _send('candidate', {
+        'candidate': {
+          'sdpMLineIndex': candidate.sdpMLineIndex,
+          'sdpMid': candidate.sdpMid,
+          'candidate': candidate.candidate,
+        },
+        'sid': sessionId,
+      });
     };
 
     pc.onSignalingState = (RTCSignalingState state) {
@@ -502,6 +485,7 @@ class P2pCallScreenLogic extends getx.GetxController {
     }
     connected = false.obs;
     connected.refresh();
+    p2pCallScreenOn = false;
     if (closePage != null) {
       closePage?.call();
     }
@@ -553,7 +537,6 @@ class P2pCallScreenLogic extends getx.GetxController {
     // sessionId = "kybqdp-7b4v1b";
     debugPrint("> rtc invite sessionId $sessionId");
     WebRTCSession session = await createSession(
-      null,
       peerId: peerId,
       sessionId: sessionId,
       media: media,
@@ -615,21 +598,8 @@ class P2pCallScreenLogic extends getx.GetxController {
     if (session == null) {
       return;
     }
-    // _onReceivedDescription(session, media, );
 
-    if (remoteStreams.isNotEmpty) {
-      remoteRenderer.value.setSrcObject(
-        stream: remoteStreams.first,
-      );
-      remoteRenderer.refresh();
-      connected = true.obs;
-      connected.refresh();
-      // localRenderer 右上角
-      localX.value = getx.Get.width - 90;
-      localY.value = 30;
-      localX.refresh();
-      localY.refresh();
-    }
+    _createAnswer(session, media);
   }
 
   /// 切换工具栏
@@ -769,12 +739,12 @@ class P2pCallScreenLogic extends getx.GetxController {
   }
 
   void _onRenegotiationNeeded() async {
+    debugPrint('> rtc onRenegotiationNeeded start');
     var session = sessions[sessionid.value] ?? null;
-    if (session == null) {
+    if (session == null || makingAnswer.value || makingOffer.value) {
       return;
     }
     try {
-      debugPrint('> rtc onRenegotiationNeeded start');
       makingOffer = true.obs;
       await session.pc!
           .setLocalDescription(await session.pc!.createOffer(mediaConstraints));

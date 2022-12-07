@@ -38,11 +38,13 @@ class Counter {
   }
 
   void start(Function callback) {
-    //设置 1 秒回调一次
-    const period = Duration(seconds: 1);
-    timer = Timer.periodic(period, (tm) {
-      callback(tm);
-    });
+    if (timer == null) {
+      //设置 1 秒回调一次
+      const period = Duration(seconds: 1);
+      timer = Timer.periodic(period, (tm) {
+        callback(tm);
+      });
+    }
   }
 
   String show() {
