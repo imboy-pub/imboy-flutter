@@ -5,7 +5,6 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart' as getx;
 import 'package:imboy/component/helper/counter.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/config/init.dart';
@@ -217,17 +216,15 @@ class P2pCallScreenLogic extends getx.GetxController {
 
           debugPrint("> rtc recive answer ${session.toString()}");
           if (session == null) {
-            return;
+            session = await createSession(
+              peerId: msg.from,
+              sessionId: sessionId,
+              media: media,
+              screenSharing: false,
+            );
+            sessions[sessionId] = session;
           }
-          session.pc?.setRemoteDescription(
-            RTCSessionDescription(
-              description['sdp'],
-              description['type'],
-            ),
-          );
-
           await _onReceivedDescription(session, media, description);
-          // accept(sessionId, media);
           onCallStateChange?.call(
             session,
             WebRTCCallState.CallStateConnected,
@@ -274,10 +271,9 @@ class P2pCallScreenLogic extends getx.GetxController {
           var session = sessions.remove(sessionId);
           debugPrint("> rtc logic bye $sessionId : $session");
           if (session != null) {
-            onCallStateChange?.call(session, WebRTCCallState.CallStateBye);
             closeSession(session);
+            onCallStateChange?.call(session, WebRTCCallState.CallStateBye);
           }
-          // cleanUp();
         }
         break;
       case 'keepalive':
@@ -411,29 +407,6 @@ class P2pCallScreenLogic extends getx.GetxController {
     return newSession;
   }
 
-  Future<void> _createAnswer(WebRTCSession session, String media) async {
-    debugPrint(
-        "> rtc accept createAnswer ${session.pc.toString()} state ${session.pc!.connectionState}");
-    try {
-      RTCSessionDescription s =
-          await session.pc!.createAnswer(media == 'data' ? _dcConstraints : {});
-      if (s.type != "answer") {
-        return;
-      }
-      await session.pc!.setLocalDescription(s);
-      _send('answer', {
-        'media': media,
-        'sid': session.sid,
-        'sd': {'sdp': s.sdp, 'type': s.type},
-      });
-    } catch (e) {
-      debugPrint("> rtc createAnswer media $media e $e");
-      debugPrint(
-          "> rtc createAnswer session: ${session.toString()}, pc: ${session.pc!.toString()}",
-          wrapWidth: 2048);
-    }
-  }
-
   void _addDataChannel(WebRTCSession session, RTCDataChannel channel) {
     channel.onDataChannelState = (e) {};
     channel.onMessage = (RTCDataChannelMessage data) {
@@ -472,7 +445,6 @@ class P2pCallScreenLogic extends getx.GetxController {
     await cleanSessions();
 
     counter.value.close();
-    counter.refresh();
     if (localRenderer.value.srcObject != null) {
       localRenderer.value.srcObject = null;
       await localRenderer.value.dispose();
@@ -588,20 +560,6 @@ class P2pCallScreenLogic extends getx.GetxController {
     cleanUp();
   }
 
-  accept(String sid, String media) async {
-    debugPrint("> rtc accept $sid ${remoteStreams.length}");
-    if (strEmpty(sid)) {
-      return;
-    }
-    var session = sessions[sid];
-    debugPrint("> rtc accept signaling  $session");
-    if (session == null) {
-      return;
-    }
-
-    _createAnswer(session, media);
-  }
-
   /// 切换工具栏
   void switchTools() {
     update([
@@ -680,7 +638,8 @@ class P2pCallScreenLogic extends getx.GetxController {
     // this code implements the "polite peer" principle, as described here:
     // https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation
     try {
-      var offerCollision = (description['type'] == "offer") &&
+      String type = description['type'];
+      var offerCollision = (type.toLowerCase() == 'offer') &&
           (makingOffer.isTrue ||
               (session.pc!.signalingState !=
                       RTCSignalingState.RTCSignalingStateStable ||

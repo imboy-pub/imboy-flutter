@@ -63,7 +63,6 @@ class P2pCallScreenPage extends StatelessWidget {
         case WebRTCCallState.CallStateRinging:
           logic.stateTips.value = '已响铃...'.tr;
           logic.stateTips.refresh();
-          // logic.accept(s1.sid, option['media'] ?? 'video');
           break;
         case WebRTCCallState.CallStateBye:
           logic.counter.value.close();
@@ -80,12 +79,11 @@ class P2pCallScreenPage extends StatelessWidget {
         case WebRTCCallState.CallStateConnected:
           // recive answer
           logic.connected = true.obs;
-          logic.connected.refresh();
           logic.counter.value.close();
           logic.localX.value = Get.width - 90;
           logic.localY.value = 30;
-          logic.localX.refresh();
-          logic.localY.refresh();
+
+          logic.refresh();
           debugPrint("> rtc CallStateConnected ${logic.connected}");
           logic.counter.value.start((Timer tm) {
             if (logic.connected.isTrue) {

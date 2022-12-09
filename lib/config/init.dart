@@ -38,6 +38,7 @@ bool p2pCallScreenOn = false;
 var logger = Logger();
 int ntpOffset = 0;
 
+OverlayEntry? p2pEntry;
 // ice 配置信息
 Map<String, dynamic>? iceServers;
 

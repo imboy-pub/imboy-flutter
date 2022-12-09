@@ -156,9 +156,11 @@ void openCallScreen(
   bool caller = true,
 }) {
   initIceServers();
+  if (p2pEntry != null) {
+    return;
+  }
   p2pCallScreenOn = true;
-  OverlayEntry? tempEntry;
-  final entry = OverlayEntry(builder: (context) {
+  p2pEntry = OverlayEntry(builder: (context) {
     Get.put(P2pCallScreenLogic(
       UserRepoLocal.to.currentUid,
       peer.uid,
@@ -166,20 +168,18 @@ void openCallScreen(
       caller == true ? false : true,
       iceServers!,
     )..signalingConnect());
-
     return P2pCallScreenPage(
       peer: peer,
       option: option,
       caller: caller,
       closePage: () {
         debugPrint("> rtc closePage");
-        tempEntry?.remove();
-        tempEntry = null;
+        p2pEntry?.remove();
+        p2pEntry = null;
         Get.delete<P2pCallScreenLogic>(force: true);
         p2pCallScreenOn = false;
       },
     );
   });
-  tempEntry = entry;
-  navigatorKey.currentState?.overlay?.insert(entry);
+  navigatorKey.currentState?.overlay?.insert(p2pEntry!);
 }

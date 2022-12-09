@@ -60,13 +60,14 @@ class MessageService extends GetxService {
               data['payload'],
             );
           }
+        } else {
+          eventBus.fire(WebRTCSignalingModel(
+            type: data['type'],
+            from: data['from'],
+            to: data['to'],
+            payload: data['payload'],
+          ));
         }
-        eventBus.fire(WebRTCSignalingModel(
-          type: data['type'],
-          from: data['from'],
-          to: data['to'],
-          payload: data['payload'],
-        ));
         // 确认消息
         String did = await DeviceExt.did;
         debugPrint("> rtc msgs CLIENT_ACK,WEBRTC,${data['id']},$did");
