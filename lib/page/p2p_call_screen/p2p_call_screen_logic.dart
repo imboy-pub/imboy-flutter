@@ -216,14 +216,21 @@ class P2pCallScreenLogic extends getx.GetxController {
 
           debugPrint("> rtc recive answer ${session.toString()}");
           if (session == null) {
-            session = await createSession(
-              peerId: msg.from,
-              sessionId: sessionId,
-              media: media,
-              screenSharing: false,
-            );
-            sessions[sessionId] = session;
+            return;
+            // session = await createSession(
+            //   peerId: msg.from,
+            //   sessionId: sessionId,
+            //   media: media,
+            //   screenSharing: false,
+            // );
+            // sessions[sessionId] = session;
           }
+          // session.pc?.setRemoteDescription(
+          //   RTCSessionDescription(
+          //     description['sdp'],
+          //     description['type'],
+          //   ),
+          // );
           await _onReceivedDescription(session, media, description);
           onCallStateChange?.call(
             session,
@@ -270,8 +277,9 @@ class P2pCallScreenLogic extends getx.GetxController {
           var sessionId = data['sid'];
           var session = sessions.remove(sessionId);
           debugPrint("> rtc logic bye $sessionId : $session");
-          if (session != null) {
-            closeSession(session);
+          if (session == null) {
+            cleanUp();
+          } else {
             onCallStateChange?.call(session, WebRTCCallState.CallStateBye);
           }
         }
@@ -530,7 +538,7 @@ class P2pCallScreenLogic extends getx.GetxController {
         });
       });
     } catch (e) {
-      debugPrint("> rtc _createOffer err $e");
+      debugPrint("> rtc _createOffer error $e");
     } finally {
       debugPrint("> rtc _createOffer finally");
       makingOffer = false.obs;

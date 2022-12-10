@@ -232,7 +232,7 @@ class WSService extends GetxService {
     } else {
       switch (_socketStatus) {
         case SocketStatus.SocketStatusConnected:
-          debugPrint('>>> ws sendMsg $message');
+          // debugPrint('>>> ws sendMsg $message');
           _webSocketChannel!.sink.add(message);
           result = true;
           break;
