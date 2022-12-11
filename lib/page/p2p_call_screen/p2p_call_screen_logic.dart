@@ -225,13 +225,13 @@ class P2pCallScreenLogic extends getx.GetxController {
             // );
             // sessions[sessionId] = session;
           }
-          // session.pc?.setRemoteDescription(
-          //   RTCSessionDescription(
-          //     description['sdp'],
-          //     description['type'],
-          //   ),
-          // );
-          await _onReceivedDescription(session, media, description);
+          session.pc?.setRemoteDescription(
+            RTCSessionDescription(
+              description['sdp'],
+              description['type'],
+            ),
+          );
+          // await _onReceivedDescription(session, media, description);
           onCallStateChange?.call(
             session,
             WebRTCCallState.CallStateConnected,
@@ -707,19 +707,22 @@ class P2pCallScreenLogic extends getx.GetxController {
     }
     try {
       makingOffer = true.obs;
-      await session.pc!.setLocalDescription(
-        await session.pc!.createOffer(mediaConstraints),
+      await await session.pc!.createOffer(mediaConstraints);
+      // debugPrint(
+      //     '> rtc onRenegotiationNeeded state after setLocalDescription: ' +
+      //         session.pc!.signalingState.toString());
+      // // send offer via callManager
+      // var localDesc = await session.pc!.getLocalDescription();
+
+      RTCSessionDescription s = await session.pc!.createAnswer(
+        media == 'data' ? _dcConstraints : {},
       );
-      debugPrint(
-          '> rtc onRenegotiationNeeded state after setLocalDescription: ' +
-              session.pc!.signalingState.toString());
-      // send offer via callManager
-      var localDesc = await session.pc!.getLocalDescription();
+      await session.pc!.setLocalDescription(s);
 
       await _send('answer', {
         'media': media,
         'sid': session.sid,
-        'sd': {'sdp': localDesc!.sdp, 'type': localDesc.type},
+        'sd': {'sdp': s.sdp, 'type': s.type},
       });
       debugPrint('> rtc onRenegotiationNeeded; offer sent');
     } catch (e) {
