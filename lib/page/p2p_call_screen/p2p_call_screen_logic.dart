@@ -163,10 +163,10 @@ class P2pCallScreenLogic extends getx.GetxController {
     });
 
     onRemoveRemoteStream = ((WebRTCSession sess, stream) {
-      debugPrint("> rtc _connect onRemoveRemoteStream , ${sess.sid}");
+      debugPrint("> rtc onRemoveRemoteStream , ${sess.sid}");
       sessionid.value = sess.sid;
       sessionid.refresh();
-      remoteRenderer.value.srcObject = null;
+      remoteRenderer.value.dispose();
       remoteRenderer.refresh();
     });
   }
@@ -217,13 +217,6 @@ class P2pCallScreenLogic extends getx.GetxController {
           debugPrint("> rtc recive answer ${session.toString()}");
           if (session == null) {
             return;
-            // session = await createSession(
-            //   peerId: msg.from,
-            //   sessionId: sessionId,
-            //   media: media,
-            //   screenSharing: false,
-            // );
-            // sessions[sessionId] = session;
           }
           session.pc?.setRemoteDescription(
             RTCSessionDescription(
@@ -231,7 +224,6 @@ class P2pCallScreenLogic extends getx.GetxController {
               description['type'],
             ),
           );
-          // await _onReceivedDescription(session, media, description);
           onCallStateChange?.call(
             session,
             WebRTCCallState.CallStateConnected,
@@ -371,6 +363,9 @@ class P2pCallScreenLogic extends getx.GetxController {
       });
     }
 
+    if (localStream == null) {
+      pc.addStream(localStream!);
+    }
     pc.onIceCandidate = (RTCIceCandidate candidate) async {
       debugPrint('> rtc onIceCandidate: ${candidate.toMap().toString()}');
       if (candidate == null) {
@@ -398,7 +393,11 @@ class P2pCallScreenLogic extends getx.GetxController {
         pc.restartIce();
       }
     };
-
+    pc.onAddStream = (stream) {
+      debugPrint('> rtc onAddStream: ${stream.toString()}');
+      remoteRenderer.value.srcObject = stream;
+      remoteRenderer.refresh();
+    };
     pc.onRemoveStream = (stream) {
       debugPrint('> rtc onRemoveStream: ${stream.toString()}');
       onRemoveRemoteStream?.call(newSession, stream);
@@ -635,6 +634,8 @@ class P2pCallScreenLogic extends getx.GetxController {
   ) async {
     debugPrint("> rtc _onReceivedDescription start _peerConnection=" +
         session.pc.toString());
+    debugPrint("> rtc _onReceivedDescription start signalingState=" +
+        session.pc!.signalingState.toString());
 
     // this code implements the "polite peer" principle, as described here:
     // https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation
@@ -670,6 +671,12 @@ class P2pCallScreenLogic extends getx.GetxController {
         ),
       ); // SRD rolls back as needed
 
+      if (session.remoteCandidates.isNotEmpty) {
+        for (var candidate in session.remoteCandidates) {
+          await session.pc?.addCandidate(candidate);
+        }
+        session.remoteCandidates.clear();
+      }
       if (type == 'offer') {
         debugPrint("> rtc onReceivedDescription received offer");
         await session.pc!.setLocalDescription(
@@ -682,16 +689,6 @@ class P2pCallScreenLogic extends getx.GetxController {
           'sd': {'sdp': localDesc!.sdp, 'type': localDesc.type},
         });
 
-        if (session.remoteCandidates.isNotEmpty) {
-          for (var candidate in session.remoteCandidates) {
-            await session.pc?.addCandidate(candidate);
-          }
-          session.remoteCandidates.clear();
-        }
-        onCallStateChange?.call(
-          session,
-          WebRTCCallState.CallStateConnected,
-        );
         debugPrint("> rtc onReceivedDescription answer sent");
       }
     } catch (e) {
@@ -702,29 +699,34 @@ class P2pCallScreenLogic extends getx.GetxController {
   void _onRenegotiationNeeded() async {
     debugPrint('> rtc onRenegotiationNeeded start');
     var session = sessions[sessionid.value] ?? null;
-    if (session == null || makingAnswer.value || makingOffer.value) {
+    if (makingAnswer.value || makingOffer.value) {
       return;
     }
+    if (session == null || session.pc!.signalingState == null) {
+      return;
+    }
+    debugPrint('onRenegotiationNeeded state before setLocalDescription: ' +
+        session.pc!.signalingState.toString());
     try {
       makingOffer = true.obs;
-      await await session.pc!.createOffer(mediaConstraints);
-      // debugPrint(
-      //     '> rtc onRenegotiationNeeded state after setLocalDescription: ' +
-      //         session.pc!.signalingState.toString());
-      // // send offer via callManager
-      // var localDesc = await session.pc!.getLocalDescription();
 
-      RTCSessionDescription s = await session.pc!.createAnswer(
-        media == 'data' ? _dcConstraints : {},
-      );
-      await session.pc!.setLocalDescription(s);
-
-      await _send('answer', {
-        'media': media,
-        'sid': session.sid,
-        'sd': {'sdp': s.sdp, 'type': s.type},
+      await session.pc!
+          .createOffer(mediaConstraints)
+          .then((RTCSessionDescription s) async {
+        await session.pc!.setLocalDescription(s);
+        await _send('answer', {
+          'media': media,
+          'sid': session.sid,
+          'sd': {'sdp': s.sdp, 'type': s.type},
+        });
+        debugPrint('> rtc onRenegotiationNeeded; offer sent');
+        if (session.remoteCandidates.isNotEmpty) {
+          for (var candidate in session.remoteCandidates) {
+            await session.pc?.addCandidate(candidate);
+          }
+          session.remoteCandidates.clear();
+        }
       });
-      debugPrint('> rtc onRenegotiationNeeded; offer sent');
     } catch (e) {
       debugPrint("> rtc onRenegotiationNeeded error " + e.toString());
     } finally {

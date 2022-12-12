@@ -38,6 +38,9 @@ class P2pCallScreenPage extends StatelessWidget {
   final double localHeight = 72.0;
 
   init() async {
+    if (logic.connected.isTrue) {
+      return;
+    }
     logic.closePage = closePage;
     if (caller) {
       logic.invitePeer(peer.uid, option['media'] ?? 'video');

@@ -22,9 +22,9 @@ dependencies:
   #演示列表需要用到的库
   dio: ^4.0.6    #网络请求框架
   json_annotation: ^4.7.0 #json序列化和反序列化用的
-  permission_handler: ^10.1.0
+  permission_handler: ^10.2.0
   camera: ^0.10.0+4
-  wechat_camera_picker: ^3.6.1
+  wechat_camera_picker: ^3.6.5
   #wechat_camera_picker:
   #  git:
   #    url: https://gitee.com/imboy-tripartite-deps/flutter_wechat_camera_picker.git
@@ -109,7 +109,7 @@ dependencies:
   photo_manager: ^2.5.1+1
   video_compress: ^3.1.2
   path_provider: ^2.0.11
-  flutter_login: ^4.1.0
+  flutter_login: ^4.1.1
   # 进度条
   percent_indicator: ^4.2.2
   json_serializable: ^6.5.4
@@ -135,15 +135,15 @@ dependencies:
       ref: master
   niku: ^2.3.3
   # 二维码扫描
-  mobile_scanner: ^2.0.0
+  mobile_scanner: ^2.1.0
   # 二维码生成
   qr_flutter: ^4.0.0
   url_launcher: ^6.1.4
   image_gallery_saver: ^1.7.1
-  sqflite: ^2.2.0+3
-  flutter_local_notifications: 12.0.3
+  sqflite: ^2.2.2
+  flutter_local_notifications: 12.0.4
   flutter_app_badger: ^1.5.0
-  flutter_webrtc: ^0.9.17
+  flutter_webrtc: ^0.9.18
   # flutter_webrtc:
   #  git:
   #    url: https://gitee.com/imboy-tripartite-deps/flutter-webrtc.git
