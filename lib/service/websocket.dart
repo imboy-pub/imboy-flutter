@@ -238,13 +238,10 @@ class WSService extends GetxService {
           break;
         case SocketStatus.SocketStatusClosed:
           _socketStatus = SocketStatus.SocketStatusClosed;
-          // Get.snackbar("Tips", "连接已关闭 ws");
-          // debugPrint('>>> ws sendMsg  连接已关闭 $message');
           break;
         case SocketStatus.SocketStatusFailed:
           _socketStatus = SocketStatus.SocketStatusFailed;
-          Get.snackbar("Tips", "发送失败 SocketStatusFailed");
-          debugPrint('>>> ws sendMsg  发送失败 $message');
+          debugPrint('> ws sendMsg  发送失败 $message');
           break;
         default:
           _socketStatus = SocketStatus.SocketStatusFailed;

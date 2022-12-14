@@ -20,7 +20,7 @@ initIceServers() async {
       iceServers = {
         'iceServers': [
           {
-            'url': STUN_URL,
+            'urls': [STUN_URL],
           },
           {
             'urls': turnCredential['uris'] ?? [TURN_URL],
@@ -29,6 +29,8 @@ initIceServers() async {
             'credential': turnCredential['credential']
           },
         ],
+        // all:可以使用任何类型的候选者(表示host类型、srflx反射、relay中继都支持)
+        // relay: 只使用中继候选者（在真实的网络情况下一般都使用relay，因为Nat穿越在中国很困难）
         'iceTransportPolicy': 'relay',
       };
     } catch (e) {

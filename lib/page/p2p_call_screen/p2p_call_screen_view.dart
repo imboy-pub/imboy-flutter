@@ -82,7 +82,6 @@ class P2pCallScreenPage extends StatelessWidget {
         case WebRTCCallState.CallStateConnected:
           // recive answer
           logic.connected = true.obs;
-          logic.counter.value.close();
           logic.localX.value = Get.width - 90;
           logic.localY.value = 30;
 

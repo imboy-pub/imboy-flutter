@@ -46,6 +46,10 @@ class MessageService extends GetxService {
         type = "WEBRTC_$type";
       }
       if (type.startsWith('WEBRTC_')) {
+        // 确认消息
+        String did = await DeviceExt.did;
+        debugPrint("> rtc msgs CLIENT_ACK,WEBRTC,${data['id']},$did");
+        WSService.to.sendMessage("CLIENT_ACK,WEBRTC,${data['id']},$did");
         if (type == 'WEBRTC_OFFER') {
           String peerId = data['from'];
           ContactModel? obj = await ContactRepo().findByUid(peerId);
@@ -68,10 +72,6 @@ class MessageService extends GetxService {
             payload: data['payload'],
           ));
         }
-        // 确认消息
-        String did = await DeviceExt.did;
-        debugPrint("> rtc msgs CLIENT_ACK,WEBRTC,${data['id']},$did");
-        WSService.to.sendMessage("CLIENT_ACK,WEBRTC,${data['id']},$did");
       } else {
         switch (type) {
           case 'C2C':
