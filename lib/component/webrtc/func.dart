@@ -51,6 +51,14 @@ Future<void> incomingCallScreen(
   }
   p2pCallScreenOn = true;
 
+  Get.put(P2pCallScreenLogic(
+    UserRepoLocal.to.currentUid,
+    peer.uid,
+    iceServers!,
+    isPolite: true,
+    media: option['media'] ?? 'video',
+  )..signalingConnect());
+
   Get.defaultDialog(
     title: "",
     backgroundColor: Colors.black54,
@@ -112,6 +120,7 @@ Future<void> incomingCallScreen(
                 heroTag: "RejectCall",
                 backgroundColor: Colors.red,
                 onPressed: () {
+                  Get.delete<P2pCallScreenLogic>(force: true);
                   p2pCallScreenOn = false;
                   Get.close(0);
                 },
@@ -130,6 +139,7 @@ Future<void> incomingCallScreen(
                 heroTag: "AcceptCall",
                 backgroundColor: Colors.green,
                 onPressed: () {
+                  Get.find<P2pCallScreenLogic>().reciveOffer(peer.uid, option);
                   Get.close(0);
                   openCallScreen(
                     peer,
@@ -157,19 +167,21 @@ void openCallScreen(
   //  默认是主叫者
   bool caller = true,
 }) {
-  initIceServers();
   if (p2pEntry != null) {
     return;
   }
+  initIceServers();
   p2pCallScreenOn = true;
-  p2pEntry = OverlayEntry(builder: (context) {
+  if (caller) {
     Get.put(P2pCallScreenLogic(
       UserRepoLocal.to.currentUid,
       peer.uid,
-      option['media'] ?? 'video',
-      caller == true ? false : true,
       iceServers!,
+      isPolite: caller == true ? false : true,
+      media: option['media'] ?? 'video',
     )..signalingConnect());
+  }
+  p2pEntry = OverlayEntry(builder: (context) {
     return P2pCallScreenPage(
       peer: peer,
       option: option,

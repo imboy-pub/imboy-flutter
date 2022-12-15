@@ -7,10 +7,7 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/dragable.dart';
 import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/session.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/user_model.dart';
-import 'package:imboy/store/model/webrtc_signaling_model.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'p2p_call_screen_logic.dart';
@@ -46,13 +43,6 @@ class P2pCallScreenPage extends StatelessWidget {
       logic.invitePeer(peer.uid, option['media'] ?? 'video');
       logic.stateTips.value = '等待对方接受邀请...'.tr;
       // 发起通话
-    } else {
-      eventBus.fire(WebRTCSignalingModel(
-        type: 'WEBRTC_OFFER',
-        from: peer.uid,
-        to: UserRepoLocal.to.currentUid,
-        payload: option,
-      ));
     }
 
     logic.onCallStateChange = (WebRTCSession s1, WebRTCCallState state) async {
@@ -62,22 +52,25 @@ class P2pCallScreenPage extends StatelessWidget {
       logic.sessionid.refresh();
       switch (state) {
         case WebRTCCallState.CallStateNew:
+          // 外呼=。New + Invite
+          break;
+        case WebRTCCallState.CallStateInvite:
           break;
         case WebRTCCallState.CallStateRinging:
+          // 呼入=。New + Ringing
           logic.stateTips.value = '已响铃...'.tr;
           logic.stateTips.refresh();
           break;
         case WebRTCCallState.CallStateBye:
           logic.counter.value.close();
-          logic.stateTips.value =
-              logic.connected.isTrue ? '对方已挂断'.tr : '对方正忙...'.tr;
+          logic.stateTips.value = caller ? '对方正忙...'.tr : '对方已挂断'.tr;
+          if (caller && logic.connected.isTrue) {
+            logic.stateTips.value = '对方已挂断'.tr;
+          }
           Future.delayed(const Duration(seconds: 2), () {
             logic.connected = false.obs;
-            logic.connected.refresh();
             logic.cleanUp();
           });
-          break;
-        case WebRTCCallState.CallStateInvite:
           break;
         case WebRTCCallState.CallStateConnected:
           // recive answer

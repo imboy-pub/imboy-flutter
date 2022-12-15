@@ -7,13 +7,13 @@ import Foundation
 
 import audio_session
 import connectivity_plus
-import device_info_plus_macos
+import device_info_plus
 import emoji_picker_flutter
 import flutter_app_badger
 import flutter_local_notifications
 import flutter_webrtc
 import mobile_scanner
-import package_info_plus_macos
+import package_info_plus
 import path_provider_macos
 import photo_manager
 import shared_preferences_macos

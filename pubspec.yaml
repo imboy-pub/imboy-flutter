@@ -23,13 +23,13 @@ dependencies:
   dio: ^4.0.6    #网络请求框架
   json_annotation: ^4.7.0 #json序列化和反序列化用的
   permission_handler: ^10.2.0
-  camera: ^0.10.0+4
+  camera: ^0.10.0+5
   wechat_camera_picker: ^3.6.5
   #wechat_camera_picker:
   #  git:
   #    url: https://gitee.com/imboy-tripartite-deps/flutter_wechat_camera_picker.git
   #    ref: leeyi
-  wechat_assets_picker: ^8.1.2
+  wechat_assets_picker: ^8.2.0
   # 一组基于 PointyCastle 的高级 API，用于双向加密。 RSA AES
   encrypt: ^5.0.1
   # 在纯 Dart 中实现的一组加密函数。  SHA-* MD5 HMAC
@@ -43,18 +43,18 @@ dependencies:
   #webcrypto: ^0.5.2
   web_socket_channel: ^2.2.0
   # jwt 插件
-  jose: ^0.3.2
+  jose: ^0.3.3
 
   # 缓存
   shared_preferences: ^2.0.15
-  cached_network_image: ^3.2.2
+  cached_network_image: ^3.2.3
   flutter_cache_manager: ^3.3.0
 
   logger: ^1.1.0
   # sentry_flutter: ^6.6.0
   photo_view: ^0.14.0
   extended_text: ^9.1.2
-  extended_text_field: ^10.1.1
+  extended_text_field: ^10.2.0
   lpinyin: ^2.0.3
   #azlistview: ^2.0.0
   azlistview:
@@ -62,12 +62,12 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/azlistview.git
       ref: leeyi
   # 视频播放器
-  video_player: ^2.4.7
-  chewie: ^1.3.5
+  video_player: ^2.4.9
+  chewie: ^1.3.6
   webview_flutter: ^3.0.4
   image_picker: ^0.8.6
-  mime: ^1.0.2
-  file_picker: ^5.2.0+1
+  mime: ^1.0.3
+  file_picker: ^5.2.4
   #open_file: ^3.2.1
   open_file:
     git:
@@ -75,15 +75,15 @@ dependencies:
       ref: master
   # 是否联网及网络类型
   connectivity_plus: ^3.0.2
-  flutter_screenutil: ^5.5.4
+  flutter_screenutil: ^5.6.0
   #pull_to_refresh: ^2.0.0
   pull_to_refresh:
     git:
       url: https://gitee.com/imboy-tripartite-deps/flutter_pulltorefresh.git
       ref: leeyi
   #pull_to_refresh_flutter3: ^2.0.1
-  package_info_plus: ^1.4.3+1
-  device_info_plus: ^5.0.5
+  package_info_plus: ^3.0.2
+  device_info_plus: ^8.0.0
   event_bus: ^2.0.0
   # https://github.com/letsar/flutter_slidable
   flutter_slidable: ^2.0.0
@@ -102,7 +102,7 @@ dependencies:
   # 用于校正本地系统与时钟源服务器之前的时间
   ntp: ^2.0.0
   emoji_picker_flutter: ^1.5.1
-  carousel_slider: ^4.1.1
+  carousel_slider: ^4.2.1
   flutter_dotenv: ^5.0.2
   # popup_menu:
   #  path: plugin/popup_menu
@@ -116,7 +116,7 @@ dependencies:
   # 录音
   flutter_sound: ^9.2.13
   flutter_sound_platform_interface: ^9.2.13
-  audio_session: ^0.1.11
+  audio_session: ^0.1.13
   # 一个干净和轻量级的加载/吐司小部件
   flutter_easyloading: ^3.0.5
   # 生成闪屏页
@@ -138,7 +138,7 @@ dependencies:
   mobile_scanner: ^2.1.0
   # 二维码生成
   qr_flutter: ^4.0.0
-  url_launcher: ^6.1.4
+  url_launcher: ^6.1.7
   image_gallery_saver: ^1.7.1
   sqflite: ^2.2.2
   flutter_local_notifications: 12.0.4
