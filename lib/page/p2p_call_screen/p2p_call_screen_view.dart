@@ -58,7 +58,11 @@ class P2pCallScreenPage extends StatelessWidget {
           break;
         case WebRTCCallState.CallStateRinging:
           // 呼入=。New + Ringing
-          logic.stateTips.value = '已响铃...'.tr;
+          if (caller) {
+            logic.stateTips.value = '已响铃...'.tr;
+          } else {
+            logic.stateTips.value = ''.tr;
+          }
           logic.stateTips.refresh();
           break;
         case WebRTCCallState.CallStateBye:

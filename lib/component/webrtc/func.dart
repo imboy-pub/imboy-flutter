@@ -6,18 +6,20 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/page/p2p_call_screen/p2p_call_screen_logic.dart';
 import 'package:imboy/page/p2p_call_screen/p2p_call_screen_view.dart';
 import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
 /// 初始化 ice 配置信息
 initIceServers() async {
-  debugPrint("> rtc initIceServers iceServers == null: ${iceServers == null}");
-  if (iceServers == null) {
+  debugPrint(
+      "> rtc initIceServers iceConfiguration == null: ${iceConfiguration == null}");
+  if (iceConfiguration == null) {
     try {
       var turnCredential = await UserProvider().turnCredential();
       debugPrint("getIceServers _turnCredential ${turnCredential.toString()}");
-      iceServers = {
+      iceConfiguration = {
         'iceServers': [
           {
             'urls': [STUN_URL],
@@ -32,6 +34,7 @@ initIceServers() async {
         // all:可以使用任何类型的候选者(表示host类型、srflx反射、relay中继都支持)
         // relay: 只使用中继候选者（在真实的网络情况下一般都使用relay，因为Nat穿越在中国很困难）
         'iceTransportPolicy': 'relay',
+        'sdpSemantics': 'unified-plan',
       };
     } catch (e) {
       //
@@ -54,7 +57,7 @@ Future<void> incomingCallScreen(
   Get.put(P2pCallScreenLogic(
     UserRepoLocal.to.currentUid,
     peer.uid,
-    iceServers!,
+    iceConfiguration!,
     isPolite: true,
     media: option['media'] ?? 'video',
   )..signalingConnect());
@@ -139,7 +142,12 @@ Future<void> incomingCallScreen(
                 heroTag: "AcceptCall",
                 backgroundColor: Colors.green,
                 onPressed: () {
-                  Get.find<P2pCallScreenLogic>().reciveOffer(peer.uid, option);
+                  Get.find<P2pCallScreenLogic>().onReceivedDescription(
+                      WebRTCSignalingModel(
+                          type: 'WEBRTC_OFFER',
+                          from: peer.uid,
+                          to: UserRepoLocal.to.currentUid,
+                          payload: option));
                   Get.close(0);
                   openCallScreen(
                     peer,
@@ -176,7 +184,7 @@ void openCallScreen(
     Get.put(P2pCallScreenLogic(
       UserRepoLocal.to.currentUid,
       peer.uid,
-      iceServers!,
+      iceConfiguration!,
       isPolite: caller == true ? false : true,
       media: option['media'] ?? 'video',
     )..signalingConnect());

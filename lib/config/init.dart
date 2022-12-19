@@ -40,7 +40,7 @@ int ntpOffset = 0;
 
 OverlayEntry? p2pEntry;
 // ice 配置信息
-Map<String, dynamic>? iceServers;
+Map<String, dynamic>? iceConfiguration;
 
 /// The global [EventBus] object.
 EventBus eventBus = EventBus();

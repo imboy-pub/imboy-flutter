@@ -63,7 +63,7 @@ class P2pCallScreenLogic extends getx.GetxController {
   Function(WebRTCSession session, RTCDataChannel dc)? onDataChannel;
 
   Function? closePage;
-  late Map<String, dynamic> iceServers;
+  late Map<String, dynamic> iceConfiguration;
 
   final Map<String, dynamic> offerSdpConstraints = {
     'mandatory': {},
@@ -87,10 +87,10 @@ class P2pCallScreenLogic extends getx.GetxController {
 
   // bool callee = false;
   var connected = false.obs;
-  var makingAnswer = false.obs;
-  var makingOffer = false.obs;
-  var ignoreOffer = false.obs;
-  var isSettingRemoteAnswerPending = false.obs;
+  //
+  bool makingOffer = false;
+  bool ignoreOffer = false;
+  bool isSettingRemoteAnswerPending = false;
   bool isPolite;
 
   final mediaConstraints = <String, dynamic>{
@@ -102,7 +102,7 @@ class P2pCallScreenLogic extends getx.GetxController {
     this.from,
     // peer id
     this.to,
-    this.iceServers, {
+    this.iceConfiguration, {
     // video audio data
     this.media = 'video',
     this.isPolite = true,
@@ -126,22 +126,27 @@ class P2pCallScreenLogic extends getx.GetxController {
         .on<WebRTCSignalingModel>()
         .listen((WebRTCSignalingModel obj) async {
       // ignore: prefer_interpolation_to_compose_strings
-      debugPrint("> rtc logic onInit listen " + obj.toJson().toString());
-      onMessage(obj);
+      debugPrint("> rtc ${DateTime.now()} listen " + obj.toJson().toString());
+      try {
+        onMessage(obj);
+      } catch (e) {
+        debugPrint("> rtc ${DateTime.now()} listen error " + e.toString());
+      }
     });
-    debugPrint("> rtc logic onInit ");
+    debugPrint("> rtc logic onInit ${DateTime.now()}");
 
     // OnSignalingChange：信令状态改变。
     onSignalingStateChange = (RTCSignalingState state) async {
-      debugPrint("> rtc onSignalingStateChange logic ${state.toString()}");
+      debugPrint(
+          "> rtc onSignalingStateChange ${DateTime.now()} state ${state.toString()}");
     };
 
     onPeersUpdate = ((event) {
-      debugPrint("> rtc onPeersUpdate onPeersUpdate $event ");
+      debugPrint("> rtc onPeersUpdate ${DateTime.now()} event $event ");
     });
 
     onLocalStream = ((stream) async {
-      debugPrint("> rtc onLocalStream");
+      debugPrint("> rtc onLocalStream ${DateTime.now()}");
       _localStream ??= stream;
       if (localRenderer.value.textureId == null) {
         await localRenderer.value.initialize();
@@ -154,20 +159,24 @@ class P2pCallScreenLogic extends getx.GetxController {
 
     onAddRemoteStream = ((WebRTCSession sess, stream) async {
       // 收到对方音频/视频流数据
-      debugPrint("> rtc onAddRemoteStream ${stream.toString()} , ${sess.sid}");
+      debugPrint(
+          "> rtc onAddRemoteStream ${DateTime.now()} ${remoteRenderer.value.textureId} , ${sess.sid == sessionid.value} , stream ${stream.id}");
       if (remoteRenderer.value.textureId == null) {
         await remoteRenderer.value.initialize();
       }
+      debugPrint(
+          "> rtc onAddRemoteStream ${remoteRenderer.value.textureId} before ${DateTime.now()}, stream ${stream.id == remoteRenderer.value.srcObject?.id}");
       if (remoteRenderer.value.srcObject?.id != stream.id) {
         sessionid.value = sess.sid;
         remoteRenderer.value.setSrcObject(stream: stream);
         remoteRenderer.refresh();
       }
+      debugPrint(
+          "> rtc onAddRemoteStream ${remoteRenderer.value.textureId} after ${DateTime.now()}, stream ${stream.id == remoteRenderer.value.srcObject?.id}");
     });
 
     onRemoveRemoteStream = ((WebRTCSession sess, stream) {
-      debugPrint("> rtc onRemoveRemoteStream , ${sess.sid}");
-      sessionid.value = sess.sid;
+      debugPrint("> rtc onRemoveRemoteStream , ${sess.sid} ${DateTime.now()}");
       remoteRenderer.value.dispose();
       remoteRenderer.refresh();
     });
@@ -175,195 +184,159 @@ class P2pCallScreenLogic extends getx.GetxController {
 
   // 设置Renderers
   initRenderers() async {
-    await localRenderer.value.initialize();
-    localRenderer.refresh();
-    await remoteRenderer.value.initialize();
-    remoteRenderer.refresh();
+    if (localRenderer.value.textureId == null) {
+      await localRenderer.value.initialize();
+    }
+    if (remoteRenderer.value.textureId == null) {
+      await remoteRenderer.value.initialize();
+    }
   }
 
   void onMessage(WebRTCSignalingModel msg) async {
-    Map<String, dynamic> data = msg.payload;
-    debugPrint("> rtc logic onMessage ${msg.webrtctype}: ${data.toString()}");
-    switch (msg.webrtctype) {
-      case 'offer': // 收到from 发送的 offer
-        {
-          reciveOffer(msg.from, data);
-        }
-        break;
-      case 'answer':
-        {
-          // sd = session description
-          var sd = data['sd'];
-          var sessionId = data['sid'];
+    debugPrint(
+        "> rtc onMessage ${msg.webrtctype}: ${DateTime.now()} ${msg.toJson().toString()}");
+    if (msg.webrtctype == 'offer' || msg.webrtctype == 'answer') {
+      onReceivedDescription(msg);
+    } else if (msg.webrtctype == 'candidate') {
+      String peerId = msg.from;
+      String sid = msg.payload['sid'];
+      sessionid.value = sid;
+      var candidateMap = msg.payload['candidate'];
+      var session = sessions[sid];
+      RTCIceCandidate candidate = RTCIceCandidate(
+        candidateMap['candidate'],
+        candidateMap['sdpMid'],
+        candidateMap['sdpMLineIndex'],
+      );
 
-          var session = sessions[sessionId];
-
-          debugPrint("> rtc recive answer ${session.toString()}");
-          if (session == null) {
-            return;
-          }
-          // unified-plan 语法下，该回调方法才会被触发 onTrack
-          await session.pc?.setRemoteDescription(
-            RTCSessionDescription(
-              sd['sdp'],
-              sd['type'],
-            ),
-          );
-          onCallStateChange?.call(
-            session,
-            WebRTCCallState.CallStateConnected,
-          );
+      debugPrint("> rtc candidate peerid $peerId, s ${session.toString()}");
+      if (session != null) {
+        debugPrint(
+            "> rtc candidate peerid $peerId, s.pc ${session.pc.toString()}");
+        if (session.pc != null) {
+          // addCandidate is addIceCandidate ? TODO leeyi 2022-12-13
+          await session.pc?.addCandidate(candidate);
+          session.remoteCandidates.clear();
+        } else {
+          session.remoteCandidates.add(candidate);
         }
-        break;
-      case 'candidate':
-        {
-          var peerId = msg.from;
-          var candidateMap = data['candidate'];
-          var sid = data['sid'];
-          var session = sessions[sid];
-          RTCIceCandidate candidate = RTCIceCandidate(
-            candidateMap['candidate'],
-            candidateMap['sdpMid'],
-            candidateMap['sdpMLineIndex'],
-          );
-
-          debugPrint("> rtc candidate peerid $peerId, s ${session.toString()}");
-          if (session != null) {
-            debugPrint(
-                "> rtc candidate peerid $peerId, s.pc ${session.pc.toString()}");
-            if (session.pc != null) {
-              // addCandidate is addIceCandidate ? TODO leeyi 2022-12-13
-              await session.pc?.addCandidate(candidate);
-            } else {
-              session.remoteCandidates.add(candidate);
-            }
-          } else {
-            sessions[sid] = await _createSession(
-                peerId: msg.from,
-                sessionId: sid,
-                media: media,
-                screenSharing: false)
-              ..remoteCandidates.add(candidate);
-          }
-        }
-        break;
-      case 'leave':
-        {
-          var peerId = msg.from;
-          closeSessionByPeerId(peerId);
-        }
-        break;
-      case 'bye':
-        {
-          var sessionId = data['sid'];
-          var session = sessions.remove(sessionId);
-          debugPrint("> rtc logic bye $sessionId : $session");
-          if (session == null) {
-            cleanUp();
-          } else {
-            onCallStateChange?.call(session, WebRTCCallState.CallStateBye);
-          }
-        }
-        break;
-      case 'keepalive':
-        {
-          debugPrint('keepalive response!');
-        }
-        break;
-      default:
-        break;
-    }
+      } else {
+        sessions[sid] = await _createSession(
+            peerId: msg.from,
+            sessionId: sid,
+            media: media,
+            screenSharing: false)
+          ..remoteCandidates.add(candidate);
+      }
+    } else if (msg.webrtctype == 'bye') {
+      String sid = msg.payload['sid'];
+      var session = sessions.remove(sid);
+      debugPrint("> rtc logic bye $sid : $session");
+      if (session == null) {
+        cleanUp();
+      } else {
+        onCallStateChange?.call(session, WebRTCCallState.CallStateBye);
+      }
+    } else if (msg.webrtctype == 'leave') {
+      String peerId = msg.from;
+      closeSessionByPeerId(peerId);
+    } else if (msg.webrtctype == 'keepalive') {
+    } else if (msg.webrtctype == 'keepalive') {}
   }
 
-  Future<void> reciveOffer(String peerId, Map<String, dynamic> data) async {
-    // sd = session description
-    var sd = data['sd'];
-    var media = data['media'];
-    var sid = data['sid'];
-
+  Future<void> onReceivedDescription(WebRTCSignalingModel msg) async {
+    String sid = msg.payload['sid'];
+    String peerId = msg.from;
+    String m = msg.payload['media'] ?? media;
+    sessionid.value = sid;
     var session = sessions[sid];
-
-    debugPrint(
-        "> rtc recive offer $sid ${session.toString()}, pc ${session?.pc.toString()}");
     if (session == null) {
       session = await _createSession(
-          peerId: peerId, sessionId: sid, media: media, screenSharing: false);
+        peerId: peerId,
+        sessionId: sid,
+        media: m,
+        screenSharing: false,
+      );
       sessions[sid] = session;
-      makingAnswer = true.obs;
     }
-
+    // sd = session description
+    var sd = msg.payload['sd'];
     // this code implements the "polite peer" principle, as described here:
     // https://w3c.github.io/webrtc-pc/#peer-to-peer-connections
-    try {
-      String type = sd['type'].toString().toLowerCase();
-      // An offer may come in while we are busy processing SRD(answer).
-      // In this case, we will be in "stable" by the time the offer is processed
-      // so it is safe to chain it on our Operations Chain now.
-      var readyForOffer = makingOffer.isTrue &&
-          (session.pc!.signalingState ==
-                  RTCSignalingState.RTCSignalingStateStable ||
-              isSettingRemoteAnswerPending.isTrue);
-      var offerCollision = type == 'offer' && !readyForOffer;
+    String type = sd['type'].toString().toLowerCase();
+    // An offer may come in while we are busy processing SRD(answer).
+    // In this case, we will be in "stable" by the time the offer is processed
+    // so it is safe to chain it on our Operations Chain now.
+    bool readyForOffer = !makingOffer &&
+        (session.pc!.signalingState ==
+                RTCSignalingState.RTCSignalingStateStable ||
+            isSettingRemoteAnswerPending);
+    bool offerCollision = type == 'offer' && !readyForOffer;
 
-      debugPrint("> rtc onReceivedDescription offerCollision: " +
-          offerCollision.toString());
+    debugPrint(
+        "> rtc onReceivedDescription offerCollision: ${DateTime.now()} " +
+            offerCollision.toString());
 
-      ignoreOffer.value = !isPolite && offerCollision;
+    ignoreOffer = !isPolite && offerCollision;
 
-      debugPrint("> rtc l              state: " +
-          session.pc!.signalingState.toString());
-      debugPrint("> rtc l        makingOffer: " + makingOffer.toString());
-      debugPrint("> rtc l     offerCollision: " + offerCollision.toString());
-      debugPrint("> rtc l        ignoreOffer: " + ignoreOffer.toString());
-      debugPrint("> rtc l             polite: " + isPolite.toString());
+    debugPrint("> rtc l              state: ${DateTime.now()} " +
+        session.pc!.signalingState.toString());
+    debugPrint("> rtc l        makingOffer: " + makingOffer.toString());
+    debugPrint("> rtc l     offerCollision: " + offerCollision.toString());
+    debugPrint("> rtc l        ignoreOffer: " + ignoreOffer.toString());
+    debugPrint("> rtc l             polite: " + isPolite.toString());
 
-      if (ignoreOffer.isTrue) {
-        debugPrint("> rtc onReceivedDescription offer ignored");
-        return;
-      }
-
-      isSettingRemoteAnswerPending = type == 'answer' ? true.obs : false.obs;
-      // unified-plan 语法下，该回调方法才会被触发 onTrack
-      await session.pc!.setRemoteDescription(
-        RTCSessionDescription(
-          sd['sdp'],
-          sd['type'],
-        ),
-      ); // SRD rolls back as needed
-      isSettingRemoteAnswerPending = false.obs;
-      if (type == 'offer') {
-        debugPrint("> rtc onReceivedDescription received offer");
-        // 此方法触发 onIceCandidate
-        await session.pc!.setLocalDescription(
-          await session.pc!.createAnswer(mediaConstraints),
-        );
-        var localDesc = await session.pc!.getLocalDescription();
-        await _send('answer', {
-          'media': media,
-          'sid': session.sid,
-          'sd': {'sdp': localDesc!.sdp, 'type': localDesc.type},
-        });
-
-        debugPrint("> rtc onReceivedDescription answer sent");
-      }
-    } catch (e) {
-      debugPrint("> rtc _onReceivedDescription error " + e.toString());
+    if (ignoreOffer) {
+      debugPrint("> rtc onReceivedDescription $type ignored ${DateTime.now()}");
+      return;
     }
-    if (session.remoteCandidates.isNotEmpty) {
-      for (var candidate in session.remoteCandidates) {
-        // addCandidate is addIceCandidate ? TODO leeyi 2022-12-13
-        await session.pc?.addCandidate(candidate);
+    isSettingRemoteAnswerPending = type == 'answer';
+    // unified-plan 语法下，该回调方法才会被触发 onTrack
+    await session.pc!.setRemoteDescription(
+      RTCSessionDescription(
+        sd['sdp'],
+        sd['type'],
+      ),
+    ); // SRD rolls back as needed
+    isSettingRemoteAnswerPending = false;
+
+    if (type == 'offer') {
+      debugPrint(
+          "> rtc onReceivedDescription received offer ${DateTime.now()}");
+      // 此方法触发 onIceCandidate
+      await session.pc!.setLocalDescription(
+        await session.pc!.createAnswer(mediaConstraints),
+      );
+      var localDesc = await session.pc!.getLocalDescription();
+      await _send('answer', {
+        'media': media,
+        'sid': session.sid,
+        'sd': {'sdp': localDesc!.sdp, 'type': localDesc.type},
+      });
+
+      debugPrint("> rtc onReceivedDescription answer sent ${DateTime.now()}");
+      if (session.remoteCandidates.isNotEmpty) {
+        for (var candidate in session.remoteCandidates) {
+          // addCandidate is addIceCandidate ? TODO leeyi 2022-12-13
+          await session.pc?.addCandidate(candidate);
+        }
+        session.remoteCandidates.clear();
       }
-      session.remoteCandidates.clear();
+      // 外呼=。New + Invite
+      // 呼入=。New + Ringing
+      onCallStateChange?.call(session, WebRTCCallState.CallStateNew);
+      onCallStateChange?.call(session, WebRTCCallState.CallStateRinging);
+    } else {
+      // recive answer
+      onCallStateChange?.call(
+        session,
+        WebRTCCallState.CallStateConnected,
+      );
     }
-    // 外呼=。New + Invite
-    // 呼入=。New + Ringing
-    onCallStateChange?.call(session, WebRTCCallState.CallStateNew);
-    onCallStateChange?.call(session, WebRTCCallState.CallStateRinging);
   }
 
   Future<MediaStream> _createStream(String media) async {
-    debugPrint("> rtc createStream sdpSemantics");
+    debugPrint("> rtc createStream sdpSemantics ${DateTime.now()}");
     final Map<String, dynamic> mediaConstraints = {
       'audio': true,
       'video': media == 'video'
@@ -397,24 +370,23 @@ class P2pCallScreenLogic extends getx.GetxController {
       pid: peerId,
     );
     debugPrint(
-        "> rtc _createSession media: $media ; sid: $sessionId; iceServers： $iceServers; newSession $newSession");
+        "> rtc _createSession ${DateTime.now()} sid: $sessionId; iceConfiguration： $iceConfiguration; newSession $newSession");
 
     if (media != 'data' && _localStream == null) {
       _localStream = await _createStream(media);
     }
-    RTCPeerConnection pc = await createPeerConnection({
-      ...iceServers,
-      ...{'sdpSemantics': 'unified-plan'}
-    }, offerSdpConstraints);
+    RTCPeerConnection pc =
+        await createPeerConnection(iceConfiguration, offerSdpConstraints);
     if (media != 'data') {
       // 该方法在收到的信令指示一个transceiver将从远端接收媒体时被调用，实际就是在调用 SetRemoteDescription 时被触发。
       // 该接收track可以通过transceiver->receiver()->track()方法被访问到，其关联的streams可以通过transceiver->receiver()->streams()获取。
       // 只有在 unified-plan 语法下，该回调方法才会被触发。
       pc.onTrack = (RTCTrackEvent event) {
+        debugPrint(
+            "> rtc onTrack ${event.track.kind} ${DateTime.now()} ${event.track.toString()}");
         // 收到对方音频/视频流数据
         if (event.track.kind == 'video') {
-          debugPrint('> rtc pc onTrack: ${event.toString()}');
-          // remoteStreams.add(event.streams[0]);
+          debugPrint('> rtc onTrack pc: ${event.toString()}');
           onAddRemoteStream?.call(newSession, event.streams[0]);
         }
       };
@@ -458,7 +430,8 @@ class P2pCallScreenLogic extends getx.GetxController {
     // 收集到一个新的ICE候选项时触发
     // ice 收集是由 setLocalDescription 触发，主/被叫都是
     pc.onIceCandidate = (RTCIceCandidate candidate) async {
-      debugPrint('> rtc pc onIceCandidate: ${candidate.toMap().toString()}');
+      debugPrint(
+          '> rtc pc onIceCandidate: ${DateTime.now()} ${candidate.toMap().toString()}');
       if (candidate.candidate == null) {
         debugPrint('> rtc pc onIceCandidate: complete!');
         return;
@@ -490,20 +463,26 @@ class P2pCallScreenLogic extends getx.GetxController {
     // pc.onIceCandidateError = () {};
     // 信令状态改变 等价 OnSignalingChange
     pc.onSignalingState = (RTCSignalingState state) {
-      debugPrint('> rtc pc onSignalingState: ${state.toString()}');
+      debugPrint(
+          '> rtc pc onSignalingState: ${DateTime.now()} ${state.toString()}');
       onSignalingStateChange?.call(state);
     };
     // PeerConnection状态改变 等价 OnConnectionChange
     pc.onIceConnectionState = (RTCIceConnectionState state) {
-      debugPrint('> rtc pc onIceConnectionState: ${state.toString()}');
+      debugPrint(
+          '> rtc pc onIceConnectionState: ${DateTime.now()} ${state.toString()}');
       if (state == RTCIceConnectionState.RTCIceConnectionStateFailed) {
         pc.restartIce();
       }
     };
 
     // 收到远端Peer的一个新stream
-    pc.onAddStream = (stream) {
-      debugPrint('> rtc pc onAddStream: ${stream.toString()}');
+    pc.onAddStream = (stream) async {
+      debugPrint(
+          '> rtc pc onAddStream: ${DateTime.now()} ${stream.toString()}');
+      if (remoteRenderer.value.textureId == null) {
+        await remoteRenderer.value.initialize();
+      }
       if (remoteRenderer.value.srcObject?.id != stream.id) {
         remoteRenderer.value.srcObject = stream;
         remoteRenderer.refresh();
@@ -546,7 +525,7 @@ class P2pCallScreenLogic extends getx.GetxController {
       return;
     }
     String sessionId = "$from-$peerId";
-    debugPrint("> rtc invite sessionId $sessionId");
+    debugPrint("> rtc invite sessionId $sessionId ${DateTime.now()}");
     WebRTCSession session = await _createSession(
       peerId: peerId,
       sessionId: sessionId,
@@ -562,25 +541,34 @@ class P2pCallScreenLogic extends getx.GetxController {
     onCallStateChange?.call(session, WebRTCCallState.CallStateInvite);
   }
 
-  Future<void> _createOffer(WebRTCSession s, String media) async {
-    debugPrint("> rtc _createOffer media $media sid ${s.sid}");
+  RTCSessionDescription _fixSdp(RTCSessionDescription s) {
+    return s;
+    var sdp = s.sdp;
+    s.sdp =
+        sdp!.replaceAll('profile-level-id=640c1f', 'profile-level-id=42e032');
+    return s;
+  }
+
+  Future<void> _createOffer(WebRTCSession s, String m) async {
+    debugPrint(
+        "> rtc _createOffer ${DateTime.now()} media $media sid ${s.sid}");
     try {
-      makingOffer = true.obs;
-      s.pc!.createOffer(media == 'data' ? _dcConstraints : {}).then((sd) async {
+      makingOffer = true;
+      s.pc!.createOffer(m == 'data' ? _dcConstraints : {}).then((sd) async {
         await _send('offer', {
           'sd': {'sdp': sd.sdp, 'type': sd.type},
           'sid': s.sid,
-          'media': media,
+          'media': m,
         });
 
         // 此方法触发 onIceCandidate
-        await s.pc!.setLocalDescription(sd);
+        await s.pc!.setLocalDescription(_fixSdp(sd));
       });
     } catch (e) {
       debugPrint("> rtc _createOffer error $e");
     } finally {
-      debugPrint("> rtc _createOffer finally");
-      makingOffer = false.obs;
+      debugPrint("> rtc _createOffer finally ${DateTime.now()}");
+      makingOffer = false;
     }
   }
 
@@ -603,7 +591,7 @@ class P2pCallScreenLogic extends getx.GetxController {
     request["from"] = from;
     request["type"] = "webrtc_$event";
     request["payload"] = payload;
-    debugPrint('> rtc _send $event ${request.toString()}');
+    debugPrint('> rtc _send ${DateTime.now()} $event ${request.toString()}');
     _socket.sendMessage(json.encode(request));
   }
 
@@ -651,19 +639,17 @@ class P2pCallScreenLogic extends getx.GetxController {
 
   /// 需要重新协商时触发，比如重启ICE时
   void _onRenegotiationNeeded() async {
-    debugPrint('> rtc pc onRenegotiationNeeded start');
+    debugPrint('> rtc pc onRenegotiationNeeded start ${DateTime.now()}');
     var session = sessions[sessionid.value] ?? null;
-    if (makingAnswer.value || makingOffer.value) {
-      return;
-    }
+
     if (session == null || session.pc!.signalingState == null) {
       return;
     }
     debugPrint(
-        '> rtc pc onRenegotiationNeeded state before setLocalDescription: ' +
+        '> rtc pc onRenegotiationNeeded state before ${DateTime.now()}: ' +
             session.pc!.signalingState.toString());
     try {
-      makingOffer = true.obs;
+      makingOffer = true;
 
       await session.pc!
           .createOffer(mediaConstraints)
@@ -675,23 +661,30 @@ class P2pCallScreenLogic extends getx.GetxController {
           'sid': session.sid,
           'sd': {'sdp': s.sdp, 'type': s.type},
         });
-        debugPrint('> rtc pc onRenegotiationNeeded; offer sent');
+        debugPrint('> rtc pc onRenegotiationNeeded sent ${DateTime.now()}');
       });
     } catch (e) {
       debugPrint("> rtc pc onRenegotiationNeeded error " + e.toString());
     } finally {
-      makingOffer = false.obs;
-      debugPrint('> rtc pc onRenegotiationNeeded done');
+      makingOffer = false;
+      debugPrint('> rtc pc onRenegotiationNeeded done ${DateTime.now()}');
     }
   }
 
   /// 退出之前清理打开的资源
   void cleanUp() async {
-    await cleanSessions();
-
+    try {
+      await cleanSessions();
+    } catch (e) {}
     counter.value.close();
+    if (localRenderer.value.srcObject != null) {
+      localRenderer.value.srcObject = null;
+    }
     if (localRenderer.value.textureId != null) {
       await localRenderer.value.dispose();
+    }
+    if (remoteRenderer.value.srcObject != null) {
+      remoteRenderer.value.srcObject = null;
     }
     if (remoteRenderer.value.textureId != null) {
       await remoteRenderer.value.dispose();
