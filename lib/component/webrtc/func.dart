@@ -196,9 +196,12 @@ void openCallScreen(
       caller: caller,
       closePage: () {
         debugPrint("> rtc closePage");
-        p2pEntry?.remove();
-        p2pEntry = null;
+        if (p2pEntry != null) {
+          p2pEntry?.remove();
+          p2pEntry = null;
+        }
         Get.delete<P2pCallScreenLogic>(force: true);
+        Get.delete<P2pCallScreenPage>(force: true);
         p2pCallScreenOn = false;
       },
     );

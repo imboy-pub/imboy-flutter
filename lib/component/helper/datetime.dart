@@ -31,13 +31,13 @@ class DateTimeHelper {
 
   /// 当前时间的毫秒时间戳
   static int currentTimeMillis() {
-    DateTime _myTime;
-    DateTime _ntpTime;
-    _myTime = DateTime.now();
+    DateTime myTime;
+    DateTime ntpTime;
+    myTime = DateTime.now();
     // debugPrint(">>> on currentTimeMillis _myTime ${_myTime.toString()}");
     // ntpOffset 是一个全局变量
-    _ntpTime = _myTime.add(Duration(milliseconds: ntpOffset));
-    // debugPrint(">>> on currentTimeMillis _ntpTime ${_ntpTime.toString()}");
-    return _ntpTime.millisecondsSinceEpoch;
+    ntpTime = myTime.add(Duration(milliseconds: ntpOffset));
+    // debugPrint(">>> on currentTimeMillis ntpTime ${ntpTime.toString()}");
+    return ntpTime.millisecondsSinceEpoch;
   }
 }

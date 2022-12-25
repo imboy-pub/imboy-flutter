@@ -36,21 +36,17 @@ class MessageService extends GetxService {
     eventBus.on<Map>().listen((Map data) async {
       String type = data['type'] ?? 'error';
       type = type.toUpperCase();
-      debugPrint("> rtc msgs listen: $type $p2pCallScreenOn $data");
+      debugPrint("> rtc msgs listen: $type , $p2pCallScreenOn, ${DateTime.now()} $data");
       if (data.containsKey('ts')) {
         int now = DateTimeHelper.currentTimeMillis();
         debugPrint("> rtc msgs now: $now elapsed: ${now - data['ts']}");
-      }
-
-      if (type == 'OFFER' || type == 'CANDIDATE') {
-        type = "WEBRTC_$type";
       }
       if (type.startsWith('WEBRTC_')) {
         // 确认消息
         String did = await DeviceExt.did;
         debugPrint("> rtc msgs CLIENT_ACK,WEBRTC,${data['id']},$did");
         WSService.to.sendMessage("CLIENT_ACK,WEBRTC,${data['id']},$did");
-        if (type == 'WEBRTC_OFFER') {
+        if (p2pCallScreenOn == false && type == 'WEBRTC_OFFER') {
           String peerId = data['from'];
           ContactModel? obj = await ContactRepo().findByUid(peerId);
           if (obj != null) {

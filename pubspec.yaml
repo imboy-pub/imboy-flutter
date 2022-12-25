@@ -23,7 +23,7 @@ dependencies:
   dio: ^4.0.6    #网络请求框架
   json_annotation: ^4.7.0 #json序列化和反序列化用的
   permission_handler: ^10.2.0
-  camera: ^0.10.0+5
+  camera: ^0.10.1
   wechat_camera_picker: ^3.6.5
   #wechat_camera_picker:
   #  git:

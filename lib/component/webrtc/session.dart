@@ -16,7 +16,6 @@ class WebRTCSession {
 
   RTCPeerConnection? pc;
   RTCDataChannel? dc;
-  List<RTCIceCandidate> remoteCandidates = [];
 
   //
   // @override

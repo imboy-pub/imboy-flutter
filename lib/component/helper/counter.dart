@@ -51,7 +51,7 @@ class Counter {
     return constructTime(count);
   }
 
-  void close() {
+  void cleanUp() {
     if (timer != null) {
       timer?.cancel();
     }

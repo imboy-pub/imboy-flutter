@@ -177,7 +177,7 @@ packages:
       name: camera
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.10.0+5"
+    version: "0.10.1"
   camera_android:
     dependency: transitive
     description:

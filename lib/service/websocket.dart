@@ -55,7 +55,7 @@ class WSService extends GetxService {
         Map data = event is Map ? event : json.decode(event);
         eventBus.fire(data);
       }, onError: (e) {
-        debugPrint(">>> ws onError ${e.runtimeType} | ${e.toString()};");
+        debugPrint("> ws onError ${e.runtimeType} | ${e.toString()};");
       });
     }
   }
@@ -83,24 +83,26 @@ class WSService extends GetxService {
   void openSocket() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
-      debugPrint('>>> ws openSocket 网络连接异常ws');
+      debugPrint('> ws openSocket 网络连接异常ws');
       return;
     }
     if (!UserRepoLocal.to.isLogin) {
-      debugPrint('>>> ws openSocket is not login');
+      debugPrint('> ws openSocket is not login');
       return;
     }
+    if (_webSocketChannel == null) {
+      _socketStatus = SocketStatus.SocketStatusFailed;
+    }
     // 链接状态正常，不需要任何处理
-    if (_socketStatus == SocketStatus.SocketStatusConnected &&
-        _webSocketChannel != null) {
-      debugPrint('>>> ws openSocket _socketStatus: $_socketStatus;');
+    if (_socketStatus == SocketStatus.SocketStatusConnected) {
+      // debugPrint('> ws openSocket _socketStatus: $_socketStatus;');
       return;
     } else {
       closeSocket();
     }
     String token = UserRepoLocal.to.accessToken;
     if (tokenExpired(token)) {
-      debugPrint('>>> ws openSocket tokenExpired true');
+      debugPrint('> ws openSocket tokenExpired true');
       await UserRepoLocal.to.refreshAccessToken();
       token = UserRepoLocal.to.accessToken;
     }
@@ -127,7 +129,7 @@ class WSService extends GetxService {
       _reconnectTimer = null;
     }
 
-    debugPrint('>>> ws openSocket onOpen');
+    debugPrint('> ws openSocket onOpen');
     // onOpen onMessage onError onClose
     onOpen();
     // 接收消息
@@ -152,23 +154,20 @@ class WSService extends GetxService {
   _webSocketOnDone() {
     // https://developer.mozilla.org/zh-CN/docs/Web/API/CloseEvent
     // closeCode 1000 正常关闭; 无论为何目的而创建, 该链接都已成功完成任务.
-    debugPrint('>>> ws _webSocketOnDone');
+    debugPrint('> ws _webSocketOnDone');
     if (_webSocketChannel != null) {
       if (_webSocketChannel!.closeCode != null) {
         debugPrint(
-            '>>> ws _webSocketOnDone closeCode: ${_webSocketChannel!.closeCode}, closeReason: ${_webSocketChannel!.closeReason.toString()}');
+            '> ws _webSocketOnDone closeCode: ${_webSocketChannel!.closeCode}, closeReason: ${_webSocketChannel!.closeReason.toString()}');
       }
     }
     _socketStatus = SocketStatus.SocketStatusClosed;
-    // 0.2S 内只能一次 _reconnect
-    imboyDebounce(() async {
       _reconnect();
-    }, 200);
   }
 
   /// WebSocket连接错误回调
   _webSocketOnError(e) {
-    debugPrint('>>> ws _webSocketOnError ${_webSocketOnError.toString()}');
+    debugPrint('> ws _webSocketOnError ${_webSocketOnError.toString()}');
     WebSocketChannelException ex = e;
     _socketStatus = SocketStatus.SocketStatusFailed;
     onError(ex.message);
@@ -177,7 +176,7 @@ class WSService extends GetxService {
 
   /// 初始化心跳
   void initHeartBeat() {
-    debugPrint('>>> ws initHeartBeat');
+    debugPrint('> ws initHeartBeat');
     destroyHeartBeat();
     _heartBeat = Timer.periodic(
       Duration(milliseconds: _heartTimes),
@@ -194,7 +193,7 @@ class WSService extends GetxService {
 
   /// 销毁心跳
   void destroyHeartBeat() {
-    debugPrint('>>> ws destroyHeartBeat');
+    debugPrint('> ws destroyHeartBeat');
     if (_heartBeat != null) {
       _heartBeat!.cancel();
       _heartBeat = null;
@@ -203,7 +202,7 @@ class WSService extends GetxService {
 
   void destroyReconnectTimer() {
     if (_reconnectTimer != null) {
-      debugPrint('>>> ws destroyReconnectTimer 重连次数超过最大次数 $_reconnectTimes');
+      debugPrint('> ws destroyReconnectTimer 重连次数超过最大次数 $_reconnectTimes');
       _reconnectTimer!.cancel();
       _reconnectTimer = null;
     }
@@ -211,11 +210,11 @@ class WSService extends GetxService {
 
   /// 关闭WebSocket
   void closeSocket() {
-    debugPrint('>>> ws closeSocket');
+    debugPrint('> ws closeSocket');
     destroyHeartBeat();
     destroyReconnectTimer();
     if (_webSocketChannel != null) {
-      debugPrint('>>> ws WebSocket连接关闭');
+      debugPrint('> ws WebSocket连接关闭');
       _webSocketChannel!.sink.close();
       _socketStatus = SocketStatus.SocketStatusClosed;
       _webSocketChannel = null;
@@ -225,31 +224,13 @@ class WSService extends GetxService {
   /// 发送WebSocket消息
   bool sendMessage(String message) {
     bool result = false;
-    if (_webSocketChannel == null) {
-      closeSocket();
-      openSocket();
-      // return sendMessage(message);
+    openSocket();
+    if(_socketStatus == SocketStatus.SocketStatusConnected) {
+      // debugPrint('> ws sendMsg $message');
+      _webSocketChannel!.sink.add(message);
+      result = true;
     } else {
-      switch (_socketStatus) {
-        case SocketStatus.SocketStatusConnected:
-          // debugPrint('>>> ws sendMsg $message');
-          _webSocketChannel!.sink.add(message);
-          result = true;
-          break;
-        case SocketStatus.SocketStatusClosed:
-          _socketStatus = SocketStatus.SocketStatusClosed;
-          break;
-        case SocketStatus.SocketStatusFailed:
-          _socketStatus = SocketStatus.SocketStatusFailed;
-          debugPrint('> ws sendMsg  发送失败 $message');
-          break;
-        default:
-          _socketStatus = SocketStatus.SocketStatusFailed;
-          // Get.snackbar("Tips", "发送失败 ws" + _socketStatus.toString());
-          debugPrint(
-              '>>> ws sendMsg 发送失败 ${_socketStatus.toString()} $message');
-          break;
-      }
+      debugPrint('> ws error _socketStatus ${_socketStatus.toString()} $message');
     }
     return result;
   }
@@ -264,7 +245,7 @@ class WSService extends GetxService {
       _reconnectTimer = Timer.periodic(
         Duration(milliseconds: _heartTimes),
         (timer) {
-          debugPrint('>>> ws _reconnect _reconnectTimes $_reconnectTimes');
+          debugPrint('> ws _reconnect _reconnectTimes $_reconnectTimes');
           openSocket();
         },
       );

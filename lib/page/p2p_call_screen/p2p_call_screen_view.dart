@@ -40,33 +40,27 @@ class P2pCallScreenPage extends StatelessWidget {
     }
     logic.closePage = closePage;
     if (caller) {
-      logic.invitePeer(peer.uid, option['media'] ?? 'video');
-      logic.stateTips.value = '等待对方接受邀请...'.tr;
       // 发起通话
+      logic.invitePeer(peer.uid, option['media'] ?? 'video');
     }
 
     logic.onCallStateChange = (WebRTCSession s1, WebRTCCallState state) async {
-      debugPrint(
-          "> rtc onCallStateChange view ${state.toString()} sid ${s1.sid};");
-      logic.sessionid.value = s1.sid;
-      logic.sessionid.refresh();
+      debugPrint("> rtc onCallStateChange view ${state.toString()} sid ${s1.sid};");
       switch (state) {
         case WebRTCCallState.CallStateNew:
           // 外呼=。New + Invite
           break;
         case WebRTCCallState.CallStateInvite:
+          logic.stateTips.value = '等待对方接受邀请...'.tr;
           break;
         case WebRTCCallState.CallStateRinging:
           // 呼入=。New + Ringing
           if (caller) {
             logic.stateTips.value = '已响铃...'.tr;
-          } else {
-            logic.stateTips.value = ''.tr;
           }
-          logic.stateTips.refresh();
           break;
         case WebRTCCallState.CallStateBye:
-          logic.counter.value.close();
+          logic.counter.value.cleanUp();
           logic.stateTips.value = caller ? '对方正忙...'.tr : '对方已挂断'.tr;
           if (caller && logic.connected.isTrue) {
             logic.stateTips.value = '对方已挂断'.tr;
@@ -77,23 +71,7 @@ class P2pCallScreenPage extends StatelessWidget {
           });
           break;
         case WebRTCCallState.CallStateConnected:
-          // recive answer
-          logic.connected = true.obs;
-          logic.localX.value = Get.width - 90;
-          logic.localY.value = 30;
-
-          logic.refresh();
-          debugPrint("> rtc CallStateConnected ${logic.connected}");
-          logic.counter.value.start((Timer tm) {
-            if (logic.connected.isTrue) {
-              // 秒数+1，因为一秒回调一次
-              logic.counter.value.count += 1;
-              logic.counter.refresh();
-              // 更新界面
-              logic.stateTips.value = logic.counter.value.show();
-              logic.stateTips.refresh();
-            }
-          });
+          logic.connectedAfter();
           break;
       }
     };
@@ -143,7 +121,7 @@ class P2pCallScreenPage extends StatelessWidget {
             heroTag: "call_end",
             onPressed: () {
               debugPrint("> rtc hangUp");
-              logic.bye(logic.sessionid.value);
+              logic.bye();
             },
             tooltip: 'Hangup',
             backgroundColor: Colors.pink,
@@ -237,7 +215,7 @@ class P2pCallScreenPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLocalBox(double w, double h) {
+  Widget _buildLocalVideo(double w, double h) {
     return Container(
       margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
       width: logic.connected.isTrue ? w : Get.width,
@@ -282,7 +260,7 @@ class P2pCallScreenPage extends StatelessWidget {
                 debugPrint(
                     "> rtc build p ${logic.connected}; showTool ${logic.showTool}; logic.minimized ${logic.minimized}; w $w, h $h; x ${logic.localX}; y ${logic.localY}");
 
-                Widget localBox = _buildLocalBox(w, h);
+                Widget localVideo = _buildLocalVideo(w, h);
                 return Stack(
                   children: <Widget>[
                     // remote video
@@ -294,7 +272,7 @@ class P2pCallScreenPage extends StatelessWidget {
                       top: logic.connected.isTrue ? logic.localY.value : 0,
                       child: logic.connected.isTrue
                           ? Draggable(
-                              feedback: localBox,
+                              feedback: localVideo,
                               childWhenDragging: const SizedBox.shrink(),
                               // 拖动中的回调
                               onDragEnd: (details) {
@@ -305,9 +283,9 @@ class P2pCallScreenPage extends StatelessWidget {
                                   logic.localY.refresh();
                                 }
                               },
-                              child: localBox,
+                              child: localVideo,
                             )
-                          : localBox,
+                          : localVideo,
                     ),
 
                     if (logic.showTool.isTrue)
@@ -351,6 +329,6 @@ class P2pCallScreenPage extends StatelessWidget {
     logic.update([
       logic.minimized.value = !logic.minimized.value,
     ]);
-    debugPrint(">>> on wrt minimized = ${logic.minimized.value}");
+    debugPrint("> rtc _zoom minimized = ${logic.minimized.value}");
   }
 }

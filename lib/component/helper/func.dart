@@ -217,16 +217,3 @@ dynamic genderIcon(int gendor) {
   }
   return gimg;
 }
-
-Function imboyDebounce(Function fn, [int t = 30]) {
-  late Timer _debounce;
-  return () {
-    // 还在时间之内，抛弃上一次
-    if (_debounce.isActive) {
-      _debounce.cancel();
-    }
-    _debounce = Timer(Duration(milliseconds: t), () {
-      fn();
-    });
-  };
-}
