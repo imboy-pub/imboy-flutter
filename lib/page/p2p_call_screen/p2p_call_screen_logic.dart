@@ -6,7 +6,6 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart' as getx;
 import 'package:imboy/component/helper/counter.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/config/init.dart';
@@ -124,17 +123,18 @@ class P2pCallScreenLogic extends getx.GetxController {
     debugPrint("> rtc logic onInit start ${DateTime.now()}");
     super.onInit();
     await initRenderers();
-    // await _createStream(media);
+    await _createStream(media);
+    await _createSession(peerId, media);
     // 接收到新的消息订阅
     eventBus
         .on<WebRTCSignalingModel>()
         .listen((WebRTCSignalingModel obj) async {
       // ignore: prefer_interpolation_to_compose_strings
-      debugPrint("> rtc listen ${DateTime.now()} " + obj.toJson().toString());
+      debugPrint("> rtc msg listen ${DateTime.now()} " + obj.toJson().toString());
       try {
         onMessage(obj);
       } catch (e) {
-        debugPrint("> rtc listen error ${DateTime.now()} " + e.toString());
+        debugPrint("> rtc msg listen error ${DateTime.now()} " + e.toString());
       }
     });
 
@@ -155,7 +155,7 @@ class P2pCallScreenLogic extends getx.GetxController {
 
   void onMessage(WebRTCSignalingModel msg) async {
     debugPrint(
-        "> rtc onMessage ${msg.webrtctype}: ${DateTime.now()} ${msg.toJson().toString()}");
+        "> rtc msg onMessage ${msg.webrtctype}: ${DateTime.now()} ${msg.toJson().toString()}");
     if (msg.webrtctype == 'offer' || msg.webrtctype == 'answer') {
       onReceivedDescription(msg);
     } else if (msg.webrtctype == 'candidate') {
@@ -215,7 +215,7 @@ class P2pCallScreenLogic extends getx.GetxController {
       session = await _createSession(peerId, m);
       sessions[sessionid] = session;
     }
-    debugPrint("> rtc onReceivedDescription state: ${DateTime.now()} " +
+    debugPrint("> rtc msg onReceivedDescription state: ${DateTime.now()} " +
         session.pc!.signalingState.toString());
     // sd = session description
     var sd = msg.payload['sd'];
@@ -235,17 +235,17 @@ class P2pCallScreenLogic extends getx.GetxController {
     ignoreOffer = !isPolite && offerCollision;
 
     debugPrint(
-        "> rtc onReceivedDescription offerCollision: ${DateTime.now()} " +
+        "> rtc msg onReceivedDescription offerCollision: ${DateTime.now()} " +
             offerCollision.toString());
-    debugPrint("> rtc l              state: ${DateTime.now()} " +
+    debugPrint("> rtc msg l              state: ${DateTime.now()} " +
         session.pc!.signalingState.toString());
-    debugPrint("> rtc l        makingOffer: " + makingOffer.toString());
-    debugPrint("> rtc l     offerCollision: " + offerCollision.toString());
-    debugPrint("> rtc l        ignoreOffer: " + ignoreOffer.toString());
-    debugPrint("> rtc l             polite: " + isPolite.toString());
+    debugPrint("> rtc msg l        makingOffer: " + makingOffer.toString());
+    debugPrint("> rtc msg l     offerCollision: " + offerCollision.toString());
+    debugPrint("> rtc msg l        ignoreOffer: " + ignoreOffer.toString());
+    debugPrint("> rtc msg l             polite: " + isPolite.toString());
 
     if (ignoreOffer) {
-      debugPrint("> rtc onReceivedDescription $type ignored ${DateTime.now()}");
+      debugPrint("> rtc msg onReceivedDescription $type ignored ${DateTime.now()}");
       return;
     }
     isSettingRemoteAnswerPending = type == 'answer';
@@ -260,15 +260,15 @@ class P2pCallScreenLogic extends getx.GetxController {
 
     if (type == 'offer') {
       debugPrint(
-          "> rtc onReceivedDescription received offer ${DateTime.now()}");
+          "> rtc msg onReceivedDescription received offer ${DateTime.now()}");
       await _createAnswer(session, media);
-      debugPrint("> rtc onReceivedDescription answer sent ${DateTime.now()}");
+      debugPrint("> rtc msg onReceivedDescription answer sent ${DateTime.now()}");
       debugPrint(
-          "> rtc candidateadd remoteCandidates ${remoteCandidates.length} ${DateTime.now()}");
+          "> rtc msg candidateadd remoteCandidates ${remoteCandidates.length} ${DateTime.now()}");
       if (remoteCandidates.isNotEmpty) {
         for (var candidate in remoteCandidates) {
           debugPrint(
-              "> rtc candidateadd onReceivedDescription ${candidate.toMap().toString()} ${DateTime.now()}");
+              "> rtc msg candidateadd onReceivedDescription ${candidate.toMap().toString()} ${DateTime.now()}");
           // addCandidate is addIceCandidate 方法向 ICE 代理提供远程候选对象。
           // 除了将其添加到远程描述中之外，只要 IceTransports 约束未设置为 “none”，连通性检查将被发送到新的候选对象。
           await session.pc?.addCandidate(candidate);
@@ -382,28 +382,25 @@ class P2pCallScreenLogic extends getx.GetxController {
     debugPrint(
         "> rtc _createSession ${DateTime.now()} sid: $sessionid; _localStream ${_localStream.toString()};");
 
-    if (media != 'data' && _localStream == null) {
-      await _createStream(media);
-    }
-    RTCPeerConnection pc =
-        await createPeerConnection(iceConfiguration, offerSdpConstraints);
-    if (media != 'data') {
-      // 该方法在收到的信令指示一个transceiver将从远端接收媒体时被调用，实际就是在调用 SetRemoteDescription 时被触发。
-      // 该接收track可以通过transceiver->receiver()->track()方法被访问到，其关联的streams可以通过transceiver->receiver()->streams()获取。
-      // 只有在 unified-plan 语法下，该回调方法才会被触发。
-      pc.onTrack = (RTCTrackEvent event) async {
-        debugPrint(
-            "> rtc onTrack ${event.track.kind} ${DateTime.now()} ${event.track.toString()}");
-        // 收到对方音频/视频流数据
-        if (event.track.kind == 'video') {
-          // onAddRemoteStream?.call(newSession, event.streams[0]);
-          await _setRemoteRenderer(event.streams[0]);
-        }
-      };
-      _localStream!.getTracks().forEach((track) {
-        pc.addTrack(track, _localStream!);
-      });
-    }
+    RTCPeerConnection pc = await createPeerConnection(
+      iceConfiguration,
+      offerSdpConstraints,
+    );
+    // 该方法在收到的信令指示一个transceiver将从远端接收媒体时被调用，实际就是在调用 SetRemoteDescription 时被触发。
+    // 该接收track可以通过transceiver->receiver()->track()方法被访问到，其关联的streams可以通过transceiver->receiver()->streams()获取。
+    // 只有在 unified-plan 语法下，该回调方法才会被触发。
+    pc.onTrack = (RTCTrackEvent event) {
+      debugPrint("> rtc onTrack ${event.track.enabled} ${DateTime.now()} "
+          "${event.track.toString()}");
+      // 收到对方音频/视频流数据
+      if (event.track.kind == 'video') {
+        // onAddRemoteStream?.call(newSession, event.streams[0]);
+        _setRemoteRenderer(event.streams[0]);
+      }
+    };
+    _localStream?.getTracks().forEach((track) {
+      pc.addTrack(track, _localStream!);
+    });
 
     // Unified-Plan: Simuclast
     /*
@@ -440,8 +437,8 @@ class P2pCallScreenLogic extends getx.GetxController {
     // 收集到一个新的ICE候选项时触发
     // ice 收集是由 setLocalDescription 触发，主/被叫都是
     pc.onIceCandidate = (RTCIceCandidate candidate) async {
-      debugPrint(
-          '> rtc candidat pc onIceCandidate: ${DateTime.now()} ${candidate.toMap().toString()}');
+      debugPrint('> rtc candidat pc onIceCandidate: ${DateTime.now()} '
+              '${candidate.toMap().toString()}');
       if (candidate.candidate == null) {
         debugPrint('> rtc pc onIceCandidate: complete!');
         return;
@@ -509,6 +506,7 @@ class P2pCallScreenLogic extends getx.GetxController {
     pc.onRenegotiationNeeded = _onRenegotiationNeeded;
 
     newSession.pc = pc;
+    sessions[sessionid] = newSession;
     return newSession;
   }
 
@@ -649,8 +647,7 @@ class P2pCallScreenLogic extends getx.GetxController {
     try {
       makingOffer = true;
 
-      await session.pc
-          ?.createOffer(media == 'data' ? _dcConstraints : {})
+      await session.pc?.createOffer()
           .then((RTCSessionDescription s) async {
         // 此方法触发 onIceCandidate
         await session.pc?.setLocalDescription(s);
