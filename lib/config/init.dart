@@ -101,18 +101,19 @@ Future<void> init() async {
   await initIceServers();
 
   WidgetsBinding.instance.addObserver(
-    LifecycleEventHandler(resumeCallBack: () async {
+    LifecycleEventHandler(resumeCallBack: () async {// app 恢复
       // 统计新申请好友数量
       bnLogic.countNewFriendRemindCounter();
-
-      // app 恢复
       debugPrint(">>> on LifecycleEventHandler resumeCallBack");
       ntpOffset = await StorageService.to.ntpOffset();
       WSService.to.openSocket();
-    }, suspendingCallBack: () async {
-      // app 挂起
+    },
+    suspendingCallBack: () async {// app 挂起
       debugPrint(">>> on LifecycleEventHandler suspendingCallBack");
-    }),
+    },
+    pausedCallBack: () async { // 已暂停的
+    },
+    ),
   );
   // debugPrint(">>> on currentTimeMillis init ${ntpOffset}");
 }

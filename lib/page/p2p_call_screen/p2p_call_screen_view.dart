@@ -34,6 +34,7 @@ class P2pCallScreenPage extends StatelessWidget {
   final double localWidth = 114.0;
   final double localHeight = 72.0;
 
+  Timer? answerTimer;
   init() async {
     if (logic.connected.isTrue) {
       return;
@@ -50,11 +51,21 @@ class P2pCallScreenPage extends StatelessWidget {
       switch (state) {
         case WebRTCCallState.CallStateInvite:
           logic.stateTips.value = '等待对方接受邀请...'.tr;
+          answerTimer = Timer(Duration(seconds: 10), () {
+            logic.stateTips.value = '对方无应答...'.tr;
+            Future.delayed(const Duration(seconds: 2), () {
+              logic.connected = false.obs;
+              logic.cleanUp();
+            });
+          });
           break;
         case WebRTCCallState.CallStateRinging:
           // 呼入= Ringing
           if (caller) {
             logic.stateTips.value = '已响铃...'.tr;
+          }
+          if (answerTimer != null) {
+            answerTimer?.cancel();
           }
           break;
         case WebRTCCallState.CallStateBye:
@@ -70,12 +81,15 @@ class P2pCallScreenPage extends StatelessWidget {
           break;
         case WebRTCCallState.CallStateBusy:
           logic.stateTips.value = '对方正忙，请稍后重试'.tr;
-          Future.delayed(const Duration(seconds: 3), () {
+          Future.delayed(const Duration(seconds: 2), () {
             logic.connected = false.obs;
             logic.cleanUp();
           });
           break;
         case WebRTCCallState.CallStateConnected:
+          if (answerTimer != null) {
+            answerTimer?.cancel();
+          }
           logic.connectedAfter();
           debugPrint("> rtc onCallStateChange view showTool ${logic.showTool}; ${DateTime.now()}");
           break;
@@ -127,7 +141,8 @@ class P2pCallScreenPage extends StatelessWidget {
             heroTag: "call_end",
             onPressed: () {
               debugPrint("> rtc hangUp");
-              logic.bye();
+              logic.sendBye();
+              logic.cleanUp();
             },
             tooltip: 'Hangup',
             backgroundColor: Colors.pink,

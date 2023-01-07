@@ -149,11 +149,15 @@ class P2pCallScreenLogic extends getx.GetxController {
     debugPrint(
         "> rtc msg onMessage ${msg.webrtctype}: ${DateTime.now()} ${msg.toJson().toString()}");
 
-    P2pCallScreenLogic logic = getx.Get.find<P2pCallScreenLogic>();
-    if (logic.peerId != msg.from) {
-      // 已经在通话中，不需要调起通话了，发送方显示： 对方正忙，请稍后重试
-      logic.sendBusy(msg.from);
-      return;
+    try {
+      P2pCallScreenLogic logic = getx.Get.find<P2pCallScreenLogic>();
+      if (logic.peerId != msg.from) {
+        // 已经在通话中，不需要调起通话了，发送方显示： 对方正忙，请稍后重试
+        logic.sendBusy(msg.from);
+        return;
+      }
+    } catch (e) {
+      //
     }
     var session = sessions[sessionid];
     if (msg.webrtctype == 'offer' || msg.webrtctype == 'answer') {
@@ -660,7 +664,7 @@ class P2pCallScreenLogic extends getx.GetxController {
   }
 
   /// 退出之前清理打开的资源
-  cleanUp() async {
+  Future<void> cleanUp() async {
     try {
       await cleanSessions();
     } catch (e) {}
@@ -672,11 +676,16 @@ class P2pCallScreenLogic extends getx.GetxController {
       remoteRenderer.value.srcObject = null;
     }
 
+    await _stopLocalStream();
+
     connected = false.obs;
     refresh();
     p2pCallScreenOn = false;
     if (closePage != null) {
       closePage?.call();
+    }
+    if (subscription != null) {
+      subscription?.cancel();
     }
   }
 
@@ -708,18 +717,16 @@ class P2pCallScreenLogic extends getx.GetxController {
         ]));
   }
 
-  void bye() {
+  void sendBye() {
     _send('bye', {
       'sid': sessionid,
     });
-    cleanUp();
   }
 
   @override
   void onClose() async {
     remoteCandidates.clear();
-    await _stopLocalStream();
-    await cleanUp();
+    sendBye();
 
     showTool.subject.isClosed ? showTool.close() : null;
     minimized.subject.isClosed ? minimized.close() : null;
@@ -736,15 +743,13 @@ class P2pCallScreenLogic extends getx.GetxController {
     localRenderer.subject.isClosed ? localRenderer.close() : null;
     remoteRenderer.subject.isClosed ? remoteRenderer.close() : null;
 
+    await cleanUp();
+
     if (localRenderer.value.textureId != null) {
       await localRenderer.value.dispose();
     }
     if (remoteRenderer.value.textureId != null) {
       await remoteRenderer.value.dispose();
-    }
-    counter.value.cleanUp();
-    if (subscription != null) {
-      subscription?.cancel();
     }
     super.onClose();
   }

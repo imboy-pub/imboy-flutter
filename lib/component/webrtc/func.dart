@@ -46,7 +46,6 @@ Future<void> incomingCallScreen(
   UserModel peer,
   Map<String, dynamic> option,
 ) async {
-  debugPrint("> rtc p2pCallScreenOn $p2pCallScreenOn");
   if (p2pCallScreenOn == true) {
     return;
   }
@@ -120,6 +119,7 @@ Future<void> incomingCallScreen(
                 heroTag: "RejectCall",
                 backgroundColor: Colors.red,
                 onPressed: () {
+                  Get.find<P2pCallScreenLogic>().sendBusy(peer.uid);
                   Get.delete<P2pCallScreenLogic>(force: true);
                   p2pCallScreenOn = false;
                   Get.close(0);
@@ -163,6 +163,21 @@ Future<void> incomingCallScreen(
           ..mainAxisSize = MainAxisSize.min
           ..crossAxisAlignment = CrossAxisAlignment.start),
   );
+
+  Future.delayed(const Duration(seconds: 10), () {
+    if (Get.isDialogOpen != null && Get.isDialogOpen == true) {
+      Get.close(0);
+    }
+    try {
+      P2pCallScreenLogic logic = Get.find<P2pCallScreenLogic>();
+      if (logic.connected.isFalse) {
+        Get.delete<P2pCallScreenLogic>(force: true);
+        p2pCallScreenOn = false;
+      }
+    } catch (e) {
+      //
+    }
+  });
 }
 
 /// 调起
