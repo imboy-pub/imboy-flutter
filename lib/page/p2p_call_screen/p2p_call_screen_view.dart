@@ -39,17 +39,15 @@ class P2pCallScreenPage extends StatelessWidget {
       return;
     }
     logic.closePage = closePage;
+    logic.switchRenderer = caller ? false.obs : true.obs;
     if (caller) {
       // 发起通话
       logic.invitePeer(peer.uid, option['media'] ?? 'video');
     }
 
     logic.onCallStateChange = (WebRTCSession s1, WebRTCCallState state) async {
-      debugPrint("> rtc onCallStateChange view ${state.toString()} sid ${s1.sid};");
+      debugPrint("> rtc onCallStateChange view ${state.toString()} ${DateTime.now()}");
       switch (state) {
-        case WebRTCCallState.CallStateNew:
-          // 外呼=。New + Invite
-          break;
         case WebRTCCallState.CallStateInvite:
           logic.stateTips.value = '等待对方接受邀请...'.tr;
           break;
@@ -72,6 +70,7 @@ class P2pCallScreenPage extends StatelessWidget {
           break;
         case WebRTCCallState.CallStateConnected:
           logic.connectedAfter();
+          debugPrint("> rtc onCallStateChange view showTool ${logic.showTool}; ${DateTime.now()}");
           break;
       }
     };
@@ -216,18 +215,18 @@ class P2pCallScreenPage extends StatelessWidget {
   }
 
   Widget _buildLocalVideo(double w, double h) {
-    return Container(
+    return Obx(() => Container(
       margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
       width: logic.connected.isTrue ? w : Get.width,
       height: logic.connected.isTrue ? h : Get.height,
       child: InkWell(
-        child: Obx(() => RTCVideoView(
+        child: RTCVideoView(
               logic.switchRenderer.isTrue
                   ? logic.localRenderer.value
                   : logic.remoteRenderer.value,
               objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
               mirror: true,
-            )),
+            ),
         onTap: () {
           logic.switchTools();
           // 点击切换 本地和远端 RTCVideoRenderer
@@ -238,14 +237,12 @@ class P2pCallScreenPage extends StatelessWidget {
           }
         },
       ),
-    );
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
     init();
-    debugPrint(
-        "> rtc build ${logic.connected}; showTool ${logic.showTool}; logic.minimized ${logic.minimized}");
     return Obx(() =>
         IndexedStack(index: logic.minimized.isTrue ? 1 : 0, children: [
           Scaffold(

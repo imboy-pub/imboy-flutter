@@ -64,13 +64,14 @@ class UserRepoLocal extends GetxController {
   }
 
   /// 刷新token
-  Future<void> refreshAccessToken() async {
-      String newToken = await (UserProvider()).refreshAccessToken(
-        UserRepoLocal.to.refreshtoken,
-      );
-      if (strNoEmpty(newToken)) {
-        await StorageService.to.setString(Keys.tokenKey, newToken);
-      }
+  Future<String> refreshAccessToken() async {
+    String newToken = await (UserProvider()).refreshAccessToken(
+      UserRepoLocal.to.refreshtoken,
+    );
+    if (strNoEmpty(newToken)) {
+      await StorageService.to.setString(Keys.tokenKey, newToken);
+    }
+    return newToken;
   }
 
   @override
