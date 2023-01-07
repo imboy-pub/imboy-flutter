@@ -37,19 +37,17 @@ class P2pCallScreenLogic extends getx.GetxController {
   getx.Rx<RTCVideoRenderer> localRenderer = RTCVideoRenderer().obs;
   getx.Rx<RTCVideoRenderer> remoteRenderer = RTCVideoRenderer().obs;
 
-  final String from; // current user id
-  final String to; // peer id
+  final String peerId; // peer id
   final String media; // video audio data
 
   final bool micoff;
-  late WSService _socket;
 
   Map<String, WebRTCSession> sessions = {};
   MediaStream? _localStream;
   List<RTCIceCandidate> remoteCandidates = [];
 
   Function(RTCSignalingState state)? onSignalingStateChange;
-  Function(WebRTCSession session, WebRTCCallState state)? onCallStateChange;
+  Function(WebRTCSession? session, WebRTCCallState state)? onCallStateChange;
 
   Function(
     WebRTCSession session,
@@ -89,11 +87,10 @@ class P2pCallScreenLogic extends getx.GetxController {
   bool isSettingRemoteAnswerPending = false;
   bool isPolite;
   StreamSubscription? subscription;
+
   P2pCallScreenLogic(
-    // current user id
-    this.from,
     // peer id
-    this.to,
+    this.peerId,
     this.iceConfiguration, {
     // video audio data
     this.media = 'video',
@@ -102,18 +99,13 @@ class P2pCallScreenLogic extends getx.GetxController {
   });
 
   String get sessionid {
-    List<String> li = [from, to];
+    List<String> li = [UserRepoLocal.to.currentUid, peerId];
     li.sort();
     return "${li[0]}-${li[1]}";
   }
 
-  String get peerId {
-    return UserRepoLocal.to.currentUid == from ? to : from;
-  }
-
   Future<void> signalingConnect() async {
     debugPrint("> rtc logic signalingConnect ${DateTime.now()}");
-    _socket = WSService.to;
     WSService.to.openSocket();
     counter.value.cleanUp();
   }
@@ -156,12 +148,19 @@ class P2pCallScreenLogic extends getx.GetxController {
   void onMessage(WebRTCSignalingModel msg) async {
     debugPrint(
         "> rtc msg onMessage ${msg.webrtctype}: ${DateTime.now()} ${msg.toJson().toString()}");
+
+    P2pCallScreenLogic logic = getx.Get.find<P2pCallScreenLogic>();
+    if (logic.peerId != msg.from) {
+      // 已经在通话中，不需要调起通话了，发送方显示： 对方正忙，请稍后重试
+      logic.sendBusy(msg.from);
+      return;
+    }
+    var session = sessions[sessionid];
     if (msg.webrtctype == 'offer' || msg.webrtctype == 'answer') {
       onReceivedDescription(msg);
     } else if (msg.webrtctype == 'candidate') {
       try {
         var candidateMap = msg.payload['candidate'];
-        var session = sessions[sessionid];
         RTCIceCandidate candidate = RTCIceCandidate(
           candidateMap['candidate'],
           candidateMap['sdpMid'],
@@ -204,7 +203,8 @@ class P2pCallScreenLogic extends getx.GetxController {
     } else if (msg.webrtctype == 'leave') {
       String peerId = msg.from;
       closeSessionByPeerId(peerId);
-    } else if (msg.webrtctype == 'keepalive') {
+    } else if (msg.webrtctype == 'busy') {
+      onCallStateChange?.call(session, WebRTCCallState.CallStateBusy);
     } else if (msg.webrtctype == 'keepalive') {}
   }
 
@@ -561,16 +561,20 @@ class P2pCallScreenLogic extends getx.GetxController {
     _addDataChannel(session, channel);
   }
 
-  _send(String event, Map payload, {String? debug}) {
+  sendBusy(String to) {
+    _send('busy', {}, to: to);
+  }
+
+  _send(String event, Map payload, {String? to,String? debug}) {
     Map request = {};
     request["ts"] = DateTimeHelper.currentTimeMillis();
     request["id"] = Xid().toString();
-    request["to"] = to;
-    request["from"] = from;
+    request["to"] = to ?? peerId;
+    request["from"] = UserRepoLocal.to.currentUid; // currentUid
     request["type"] = "webrtc_$event";
     request["payload"] = payload;
     debugPrint('> rtc _send $event, debug ${debug}, ${DateTime.now()} ${request.toString()}');
-    _socket.sendMessage(json.encode(request));
+    WSService.to.sendMessage(json.encode(request));
   }
 
   _stopLocalStream() async {

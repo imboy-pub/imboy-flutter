@@ -47,15 +47,12 @@ Future<void> incomingCallScreen(
   Map<String, dynamic> option,
 ) async {
   debugPrint("> rtc p2pCallScreenOn $p2pCallScreenOn");
-  // 已经在通话中，不需要调起通话了
   if (p2pCallScreenOn == true) {
-    // 给对端发送消息，说正在通话中 TODO
     return;
   }
   p2pCallScreenOn = true;
 
   Get.put(P2pCallScreenLogic(
-    UserRepoLocal.to.currentUid,
     peer.uid,
     iceConfiguration!,
     isPolite: true,
@@ -182,7 +179,6 @@ void openCallScreen(
   p2pCallScreenOn = true;
   if (caller) {
     Get.put(P2pCallScreenLogic(
-      UserRepoLocal.to.currentUid,
       peer.uid,
       iceConfiguration!,
       isPolite: caller == true ? false : true,

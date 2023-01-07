@@ -45,14 +45,14 @@ class P2pCallScreenPage extends StatelessWidget {
       logic.invitePeer(peer.uid, option['media'] ?? 'video');
     }
 
-    logic.onCallStateChange = (WebRTCSession s1, WebRTCCallState state) async {
+    logic.onCallStateChange = (WebRTCSession? s1, WebRTCCallState state) async {
       debugPrint("> rtc onCallStateChange view ${state.toString()} ${DateTime.now()}");
       switch (state) {
         case WebRTCCallState.CallStateInvite:
           logic.stateTips.value = '等待对方接受邀请...'.tr;
           break;
         case WebRTCCallState.CallStateRinging:
-          // 呼入=。New + Ringing
+          // 呼入= Ringing
           if (caller) {
             logic.stateTips.value = '已响铃...'.tr;
           }
@@ -64,6 +64,13 @@ class P2pCallScreenPage extends StatelessWidget {
             logic.stateTips.value = '对方已挂断'.tr;
           }
           Future.delayed(const Duration(seconds: 2), () {
+            logic.connected = false.obs;
+            logic.cleanUp();
+          });
+          break;
+        case WebRTCCallState.CallStateBusy:
+          logic.stateTips.value = '对方正忙，请稍后重试'.tr;
+          Future.delayed(const Duration(seconds: 3), () {
             logic.connected = false.obs;
             logic.cleanUp();
           });
