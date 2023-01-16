@@ -8,89 +8,84 @@ import 'package:webview_flutter/webview_flutter.dart';
 class WebViewPage extends StatefulWidget {
   final String url;
   String title;
-
+  late WebViewController _controller;
   final void Function(String url)? errorCallback;
 
-  late WebViewController _controller;
-
   WebViewPage(
-    this.url,
-    this.title, {Key? key,
-    this.errorCallback,
-  }) : super(key: key);
+      this.url,
+      this.title, {Key? key,
+        this.errorCallback,
+      }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => WebViewPageState();
 }
 
 class WebViewPageState extends State<WebViewPage> {
-  // final Completer<WebViewController> _controller =
-  //     Completer<WebViewController>();
+
+  @override
+  void initState() {
+    super.initState();
+
+    widget._controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0x00000000))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {
+            if (widget.title.isEmpty) {
+              EasyLoading.showProgress(progress / 100, status: "加载中...".tr);
+            }
+            debugPrint('> WebView is loading (progress : $progress%)');
+          },
+          onPageStarted: (String url) {
+            debugPrint(">>> on onPageStarted $url");
+            if (widget.url.contains("weixin.qq.com/r/") ||
+                widget.url.contains("weixin.qq.com/x/")) {
+              widget.errorCallback!(widget.url);
+            }
+          },
+          onPageFinished: (String url) {
+            EasyLoading.dismiss();
+            if (widget.title.isEmpty) {
+              widget._controller.getTitle().then((title) {
+                debugPrint('> getTitle onPageFinished $title end');
+                if (title != null) {
+                  setState(() {
+                    widget.title = title;
+                  });
+                }
+              });
+            }
+          },
+          onWebResourceError: (WebResourceError error) {
+            if (widget.errorCallback != null) {
+              String msg = "${widget.url}; error: ${error.description}";
+              widget.errorCallback!(msg);
+            }
+          },
+          onNavigationRequest: (NavigationRequest request) {
+            // if (request.url.startsWith('https://www.imboy.pub/')) {
+            //   return NavigationDecision.prevent;
+            // }
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
+      ..addJavaScriptChannel('imboy_jsbridge', // 与h5 端的一致 不然收不到消息
+          onMessageReceived: (JavaScriptMessage message) {
+
+          })
+      ..loadRequest(Uri.parse(widget.url));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PageAppBar(
         titleWiew: Text(widget.title),
       ),
-      body: Builder(builder: (BuildContext context) {
-        return WebView(
-          initialUrl: widget.url,
-          allowsInlineMediaPlayback: false,
-          javascriptMode: JavascriptMode.unrestricted,
-          javascriptChannels: <JavascriptChannel>{
-            jsBridge(context),
-          },
-          onWebViewCreated: (WebViewController webViewController) {
-            // _controller.complete(webViewController);
-            widget._controller = webViewController;
-          },
-          onPageStarted: (url) {
-            debugPrint(">>> on onPageStarted $url");
-            if (widget.url.contains("weixin.qq.com/r/") ||
-                widget.url.contains("weixin.qq.com/x/")) {
-              widget.errorCallback!(widget.url);
-            } else {
-              EasyLoading.showToast("加载中...".tr);
-            }
-          },
-          onWebResourceError: (WebResourceError error) {
-            if (widget.errorCallback != null) {
-              String msg = widget.url + "; error: " + error.description;
-              widget.errorCallback!(msg);
-            }
-          },
-          navigationDelegate: (NavigationRequest request) {
-            debugPrint('allowing navigation to $request');
-            return NavigationDecision.prevent;
-          },
-          onPageFinished: (String url) async {
-            await widget._controller
-                .runJavascriptReturningResult("document.title")
-                .then((result) {
-              result = result.trim();
-              result = result
-                  .replaceFirst("\"", "")
-                  .replaceRange(result.length - 2, result.length - 1, "");
-              // debugPrint(">>> on onPageFinished result  ${result.trim()}");
-              setState(() {
-                widget.title = result;
-              });
-            });
-          },
-        );
-      }),
-    );
-  }
-
-  JavascriptChannel jsBridge(BuildContext context) {
-    return JavascriptChannel(
-      name: 'jsbridge', // 与h5 端的一致 不然收不到消息
-      onMessageReceived: (JavascriptMessage message) {
-        // ignore: deprecated_member_use
-        // Scaffold.of(context).showSnackBar(
-        //   SnackBar(content: Text(message.message)),
-        // );
-      },
+      body: WebViewWidget(controller: widget._controller),
     );
   }
 }

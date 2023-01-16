@@ -681,12 +681,8 @@ class P2pCallScreenLogic extends getx.GetxController {
     connected = false.obs;
     refresh();
     p2pCallScreenOn = false;
-    if (closePage != null) {
-      closePage?.call();
-    }
-    if (subscription != null) {
-      subscription?.cancel();
-    }
+    closePage?.call();
+    subscription?.cancel();
   }
 
   /// 挂断
