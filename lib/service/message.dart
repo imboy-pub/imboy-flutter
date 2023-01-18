@@ -177,11 +177,11 @@ class MessageService extends GetxService {
   /// 收到C2C消息
   Future<void> reciveC2CMessage(data) async {
     var msgtype = data['payload']['msg_type'] ?? '';
+    var custom_type = data['payload']['custom_type'] ?? '';
     var text = data['payload']['text'] ?? '';
     debugPrint("> rtc msgs c2c reciveMessage $data");
     int now = DateTimeHelper.currentTimeMillis();
     debugPrint("> rtc msgs c2c now: $now elapsed: ${now - data['created_at']}");
-    String subtitle = '';
 
     ContactModel? ct = await ContactRepo().findByUid(data['from']);
     // 如果没有联系人，同步去取
@@ -189,8 +189,10 @@ class MessageService extends GetxService {
     String avatar = ct.avatar;
     String title = ct.nickname;
 
-    subtitle = text;
-
+    String subtitle = text;
+    if (custom_type == 'audio') {
+      msgtype = 'audio';
+    }
     ConversationModel cobj = ConversationModel(
       typeId: data['from'],
       avatar: avatar,

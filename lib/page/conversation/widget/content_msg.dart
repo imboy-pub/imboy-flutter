@@ -29,7 +29,7 @@ class ContentMsg extends StatelessWidget {
       str = '[图片]';
     } else if (msgType == "file") {
       str = '[文件]';
-    } else if (msgType == "sound") {
+    } else if (msgType == "audio") {
       str = '[语音消息]';
     } else if (customType == "video") {
       str = '[视频]';

@@ -56,9 +56,7 @@ class ConversationItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.only(left: 10.0, right: 10),
       color: Colors.white,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
+      child: n.Row([
           Obx(
             () => Badge(
               position: BadgePosition.topEnd(top: -4, end: -4),
@@ -130,7 +128,8 @@ class ConversationItem extends StatelessWidget {
             ]),
           )
         ],
-      ),
+      )..
+      crossAxisAlignment = CrossAxisAlignment.center,
     );
   }
 }

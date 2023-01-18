@@ -356,35 +356,37 @@ class ChatPageState extends State<ChatPage> {
   }
 
   void _handleVoiceSelection(AudioFile? obj) async {
-    if (obj != null) {
-      await AttachmentProvider.uploadFile('audio', obj.file, (
-        Map<String, dynamic> resp,
-        String uri,
-      ) async {
-        Map<String, dynamic> metadata = {
-          'custom_type': 'audio',
-          'uri': uri,
-          'size': (await obj.file.readAsBytes()).length,
-          'duration_ms': obj.duration.inMilliseconds,
-          // 'wave_form': obj.waveForm,
-          'mime_type': obj.mimeType,
-        };
-        debugPrint(">>> on upload metadata: ${metadata.toString()}");
-        final message = types.CustomMessage(
-          author: logic.cuser,
-          createdAt: DateTimeHelper.currentTimeMillis(),
-          id: Xid().toString(),
-          remoteId: widget.toId,
-          status: types.Status.sending,
-          metadata: metadata,
-        );
-
-        obj.file.delete(recursive: true);
-        _addMessage(message);
-      }, (DioError error) {
-        debugPrint(">>> on upload ${error.toString()}");
-      });
+    if (obj == null) {
+      return;
     }
+    await AttachmentProvider.uploadFile('audio', obj.file, (
+      Map<String, dynamic> resp,
+      String uri,
+    ) async {
+      Map<String, dynamic> metadata = {
+        'custom_type': 'audio',
+        'uri': uri,
+        'size': (await obj.file.readAsBytes()).length,
+        'duration_ms': obj.duration.inMilliseconds,
+        // 'wave_form': obj.waveForm,
+        'mime_type': obj.mimeType,
+      };
+      debugPrint("> on upload metadata: ${metadata.toString()}");
+      final message = types.CustomMessage(
+        author: logic.cuser,
+        createdAt: DateTimeHelper.currentTimeMillis(),
+        id: Xid().toString(),
+        remoteId: widget.toId,
+        status: types.Status.sending,
+        metadata: metadata,
+      );
+
+      obj.file.delete(recursive: true);
+      _addMessage(message);
+    }, (DioError error) {
+      debugPrint(">>> on upload ${error.toString()}");
+    }, process: false);
+
   }
 
   void _onMessageDoubleTap(BuildContext c1, types.Message message) async {

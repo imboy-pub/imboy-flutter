@@ -226,6 +226,15 @@ git submodule add https://gitee.com/imboy-tripartite-deps/popup_menu.git popup_m
 * https://pub.flutter-io.cn/packages/fps_monitor 这是一个能在 profile/debug 模式下，直观帮助我们评估页面流畅度的工具！！
 
 
+## deps:
+```
+arch -x86_64 pod update
+
+arch -x86_64 pod install
+
+```
+
+
 ```
 cd ios
 arch -x86_64 pod update
@@ -234,82 +243,25 @@ arch -x86_64 pod update flutter_webrtc
 
 ```
 
-deps:
+### deps flutter_sound_install
+
+https://flutter-sound.canardoux.xyz/flutter_sound_install.html
+On iOS you need to add usage descriptions to info.plist:
+
+
 ```
-arch -x86_64 pod update
-Update all pods
-Updating local specs repositories
-Analyzing dependencies
-Downloading dependencies
-Installing DKImagePickerController (4.3.4)
-Installing DKPhotoGallery (0.0.17)
-Installing FMDB (2.7.5)
-Installing Flutter (1.0.0)
-Installing GTMSessionFetcher (1.7.2)
-Installing GoogleDataTransport (9.2.0)
-Installing GoogleMLKit (2.6.0)
-Installing GoogleToolboxForMac (2.3.2)
-Installing GoogleUtilities (7.7.0)
-Installing GoogleUtilitiesComponents (1.1.0)
-Installing MLImage (1.0.0-beta2)
-Installing MLKitBarcodeScanning (1.7.0)
-Installing MLKitCommon (5.0.0)
-Installing MLKitVision (3.0.0)
-Installing PromisesObjC (2.1.1)
-Installing Protobuf (3.21.5)
-Installing ReachabilitySwift (5.0.0)
-Installing SDWebImage (5.13.2)
-Installing SwiftyGif (5.4.3)
-Installing WebRTC-SDK (104.5112.02)
-Installing audio_session (0.0.1)
-Installing camera_avfoundation (0.0.1)
-Installing connectivity_plus (0.0.1)
-Installing device_info_plus (0.0.1)
-Installing emoji_picker_flutter (0.0.1)
-Installing file_picker (0.0.1)
-Installing flutter_app_badger (1.3.0)
-Installing flutter_local_notifications (0.0.1)
-Installing flutter_native_splash (0.0.1)
-Installing flutter_sound (9.2.13)
-Installing flutter_sound_core (9.2.13)
-Installing flutter_webrtc (0.9.2)
-Installing image_crop (0.0.1)
-Installing image_gallery_saver (1.5.0)
-Installing image_picker_ios (0.0.1)
-Installing isar_flutter_libs (1.0.0)
-Installing mobile_scanner (0.0.1)
-Installing nanopb (2.30909.0)
-Installing open_file (0.0.1)
-Installing package_info_plus (0.4.5)
-Installing path_provider_ios (0.0.1)
-Installing permission_handler_apple (9.0.4)
-Installing photo_manager (2.0.0)
-Installing shared_preferences_ios (0.0.1)
-Installing sqflite (0.0.2)
-Installing url_launcher_ios (0.0.1)
-Installing video_compress (0.3.0)
-Installing video_player_avfoundation (0.0.1)
-Installing wakelock (0.0.1)
-Installing webview_flutter_wkwebview (0.0.1)
-Generating Pods project
-Integrating client project
-Pod installation complete! There are 29 dependencies from the Podfile and 50 total pods installed.
-
-
-// 时间有点儿长，等了我两个小时
-
-https://github.com/zhangao0086/DKImagePickerController.git
-https://github.com/zhangao0086/DKPhotoGallery.git
-https://github.com/ccgus/fmdb.git
-https://github.com/google/GoogleDataTransport.git
-https://github.com/google/google-toolbox-for-mac.git
-https://github.com/firebase/firebase-ios-sdk.git
-https://github.com/google/promises.git
-https://github.com/ashleymills/Reachability.swift
-https://github.com/SDWebImage/SDWebImage.git
-https://github.com/kirualex/SwiftyGif.git
-https://github.com/webrtc-sdk/Specs/releases/download/104.5112.02/WebRTC.xcframework.zip
-
-arch -x86_64 pod install
-
+cd ios
+pod cache clean --all
+rm Podfile.lock
+rm -rf .symlinks/
+cd ..
+flutter clean
+flutter pub get
+cd ios
+pod update
+pod repo update
+pod install --repo-update
+pod update
+pod install
+cd ..
 ```

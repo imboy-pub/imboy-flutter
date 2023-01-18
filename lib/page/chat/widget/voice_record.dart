@@ -10,7 +10,7 @@ class VoiceRecord extends StatelessWidget {
       width: double.infinity,
       child: TextButton(
         onPressed: () {
-          Get.snackbar('Tips', '语音输入功能暂无实现');
+          Get.snackbar('tips'.tr, '语音输入功能暂无实现'.tr);
         },
         child: Text('chat_hold_down_talk'.tr),
         style: ButtonStyle(

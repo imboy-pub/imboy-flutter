@@ -26,6 +26,7 @@ class ConversationPage extends StatelessWidget {
     // 检查网络状态
     var res = await Connectivity().checkConnectivity();
     if (res == ConnectivityResult.none) {
+      // ignore: prefer_interpolation_to_compose_strings
       logic.connectDesc.value = '(' + 'tip_connect_desc'.tr + ')';
     } else {
       logic.connectDesc.value = '';
@@ -33,6 +34,7 @@ class ConversationPage extends StatelessWidget {
     // 监听网络状态
     Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
       if (r == ConnectivityResult.none) {
+        // ignore: prefer_interpolation_to_compose_strings
         logic.connectDesc.value = '(' + 'tip_connect_desc'.tr + ')';
       } else {
         logic.connectDesc.value = '';

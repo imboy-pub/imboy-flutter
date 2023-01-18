@@ -168,8 +168,8 @@ class ChatLogic extends GetxController {
       cobj.msgtype = 'custom';
       cobj.subtitle = '[视频]';
     } else if (message.metadata!['custom_type'] == 'audio') {
-      cobj.msgtype = 'custom';
-      cobj.subtitle = '[语音]';
+      cobj.msgtype = 'audio';
+      cobj.subtitle = '[语音消息]';
     }
     await (ConversationRepo()).updateById(cobj.id, {
       ConversationRepo.msgtype: cobj.msgtype,

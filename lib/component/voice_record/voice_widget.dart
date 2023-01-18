@@ -5,9 +5,12 @@ import 'package:audio_session/audio_session.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+// ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart' show DateFormat;
+// ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -45,13 +48,14 @@ class VoiceWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _VoiceWidgetState createState() => _VoiceWidgetState();
 }
 
 class _VoiceWidgetState extends State<VoiceWidget> {
   // 倒计时总时长
   final int _countTotal = 300;
-  double starty = 0.0;
+  double start = 0.0;
   double offset = 0.0;
   bool isUp = false;
   String textShow = "按住说话".tr;
@@ -76,58 +80,57 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   int pos = 0;
   double dbLevel = 0;
 
-  late AudioSession session;
+  AudioSession? session;
 
   @override
   void initState() {
     super.initState();
+    openTheRecorder();
     debugPrint(">>> on chat _VoiceWidgetState initState");
   }
 
   ///显示录音悬浮布局
   buildOverLayView(BuildContext context) {
-    if (overlayEntry == null) {
-      overlayEntry = OverlayEntry(builder: (content) {
-        return CustomOverlay(
-          icon: Column(
-            children: <Widget>[
-              Container(
-                margin: const EdgeInsets.only(top: 10),
-                child: _countTotal - _count < 11
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 15.0),
-                          child: Text(
-                            (_countTotal - _count).toString(),
-                            style: const TextStyle(
-                              fontSize: 70.0,
-                              color: Colors.white,
-                            ),
+    overlayEntry ??= OverlayEntry(builder: (content) {
+      return CustomOverlay(
+        icon: Column(
+          children: <Widget>[
+            Container(
+              margin: const EdgeInsets.only(top: 10),
+              child: _countTotal - _count < 11
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 15.0),
+                        child: Text(
+                          (_countTotal - _count).toString(),
+                          style: const TextStyle(
+                            fontSize: 70.0,
+                            color: Colors.white,
                           ),
                         ),
-                      )
-                    : Image.asset(
-                        voiceIco,
-                        width: 100,
-                        height: 100,
-                        // package: 'flutter_plugin_record',
                       ),
+                    )
+                  : Image.asset(
+                      voiceIco,
+                      width: 100,
+                      height: 100,
+                      // package: 'flutter_plugin_record',
+                    ),
+            ),
+            Text(
+              "$toastShow\n$recorderTxt",
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontStyle: FontStyle.normal,
+                color: Colors.white,
+                fontSize: 14,
               ),
-              Text(
-                toastShow + "\n" + recorderTxt,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontStyle: FontStyle.normal,
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
-              )
-            ],
-          ),
-        );
-      });
-      Overlay.of(context)!.insert(overlayEntry!);
-    }
+            )
+          ],
+        ),
+      );
+    });
+    Overlay.of(context)!.insert(overlayEntry!);
   }
 
   showVoiceView(BuildContext ctx) {
@@ -165,20 +168,16 @@ class _VoiceWidgetState extends State<VoiceWidget> {
       textShow = "按住说话".tr;
     });
 
-    recorderStop(recorderModule);
+    filePath = (await recorderStop(recorderModule))!;
     if (overlayEntry != null) {
       overlayEntry?.remove();
       overlayEntry = null;
     }
     if (isUp) {
       // print("取消发送");
-    } else {
-      debugPrint("进行发送");
-
-      widget.stopRecord!.call(
-        strEmpty(filePath)
-            ? null
-            : AudioFile(
+    } else if (strNoEmpty(filePath)) {
+      debugPrint("进行发送 $filePath");
+      widget.stopRecord!.call(AudioFile(
                 file: File(filePath),
                 duration: recordingDuration,
                 // waveForm: _levels,
@@ -191,7 +190,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   moveVoiceView() {
     // print(offset - start);
     setState(() {
-      isUp = starty - offset > 100 ? true : false;
+      isUp = start - offset > 100 ? true : false;
       if (isUp) {
         textShow = "松开手指,取消发送".tr;
         toastShow = textShow;
@@ -203,10 +202,8 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   }
 
   void cancelRecorderSubscriptions() {
-    if (recorderSubscription != null) {
-      recorderSubscription!.cancel();
-      recorderSubscription = null;
-    }
+    recorderSubscription?.cancel();
+    recorderSubscription = null;
   }
 
   /// Creates an path to a temporary file.
@@ -225,6 +222,8 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     return path;
   }
 
+  /// 在iOS真机上面依赖该方法
+  /// https://github.com/Canardoux/flutter_sound/issues/868
   Future<void> openTheRecorder() async {
     if (!kIsWeb) {
       var status = await Permission.microphone.request();
@@ -232,8 +231,8 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         throw RecordingPermissionException('Microphone permission not granted');
       }
     }
-    session = await AudioSession.instance;
-    await session.configure(AudioSessionConfiguration(
+    session ??= await AudioSession.instance;
+    await session?.configure(AudioSessionConfiguration(
       avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
       avAudioSessionCategoryOptions:
             AVAudioSessionCategoryOptions.allowBluetooth |
@@ -290,15 +289,16 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         codec: recordCodec,
         bitRate: 8000,
         sampleRate: 8000,
+        audioSource: AudioSource.microphone,
       );
 
       /// 监听录音
       recorderSubscription = recorderModule.onProgress!.listen((e) {
-        // debugPrint(">>> on record listen e ${e.toString()}");
+        debugPrint("> on record listen e ${e.toString()} ${DateTime.now()}");
         setState(() {
           pos = e.duration.inMilliseconds;
         });
-        // debugPrint(">>> on record listen pos: ${pos}, dbLevel: ${e.decibels};");
+        debugPrint("> on record listen pos: $pos, dbLevel: ${e.decibels};");
         // if (e != null) {
           recordingDuration = e.duration;
           // _levels.add(e.decibels ?? 0.0);
@@ -364,7 +364,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   }
 
   /// 结束录音
-  Future<String?> recorderStop(FlutterSoundRecorder recorder) async {
+  Future<String?>  recorderStop(FlutterSoundRecorder recorder) async {
     try {
       String? filepath = await recorder.stopRecorder();
       cancelRecorderSubscriptions();
@@ -396,7 +396,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onLongPressStart: (details) {
-        starty = details.globalPosition.dy;
+        start = details.globalPosition.dy;
         _timer = Timer.periodic(const Duration(milliseconds: 1000), (t) {
           _count++;
           if (_count == _countTotal) {
@@ -441,7 +441,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
 
     // Be careful : you must `close` the audio session when you have finished with it.
     recorderModule.closeRecorder();
-
+    session = null;
     // recordPlugin?.dispose();
     _timer?.cancel();
     super.dispose();
@@ -459,6 +459,7 @@ class Toast {
     Function? onTap,
   }) {
     OverlayEntry? overlayEntry;
+    // ignore: no_leading_underscores_for_local_identifiers
     int _count = 0;
 
     void removeOverlay() {
@@ -479,6 +480,7 @@ class Toast {
             icon: Column(
               children: [
                 Padding(
+                  // ignore: sort_child_properties_last
                   child: icon,
                   padding: const EdgeInsets.only(
                     bottom: 10.0,

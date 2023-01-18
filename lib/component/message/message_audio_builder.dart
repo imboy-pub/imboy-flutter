@@ -1,17 +1,22 @@
-import 'package:badges/badges.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_sound/flutter_sound.dart';
-import 'package:imboy/component/voice_record/voice_animation.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:voice_message_package/voice_message_package.dart';
 
 ///方向
 enum BubbleDirection { left, right }
 
+// ignore: must_be_immutable
 class AudioMessageBuilder extends StatefulWidget {
-  const AudioMessageBuilder({
+  AudioMessageBuilder({
     Key? key,
     required this.user,
     required this.message,
+    this.onPlay,
   }) : super(key: key);
 
   final types.User user;
@@ -19,66 +24,24 @@ class AudioMessageBuilder extends StatefulWidget {
   /// [types.CustomMessage]
   final types.CustomMessage message;
 
+  Function()? onPlay;
+
   @override
+  // ignore: library_private_types_in_public_api
   _AudioMessageBuilderState createState() => _AudioMessageBuilderState();
 }
 
 class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
-  final _audioPlayer = FlutterSoundPlayer();
-
-  bool _playing = false;
-  bool _audioPlayerReady = false;
 
   @override
   void initState() {
     super.initState();
-    _initAudioPlayer();
   }
 
   @override
   Future<void> dispose() async {
     // await _audioPlayer.closeAudioSession();
-    await _audioPlayer.closePlayer();
     super.dispose();
-  }
-
-  Future<void> _initAudioPlayer() async {
-    // await _audioPlayer.openAudioSession();
-    await _audioPlayer.openPlayer();
-    setState(() {
-      _audioPlayerReady = true;
-    });
-  }
-
-  Future<void> _togglePlaying() async {
-    if (!_audioPlayerReady) {
-      return;
-    }
-    if (_playing) {
-      await _audioPlayer.pausePlayer();
-      setState(() {
-        _playing = false;
-      });
-    } else if (_audioPlayer.isPaused) {
-      await _audioPlayer.resumePlayer();
-      setState(() {
-        _playing = true;
-      });
-    } else {
-      await _audioPlayer.setSubscriptionDuration(
-        const Duration(milliseconds: 10),
-      );
-      await _audioPlayer.startPlayer(
-          fromURI: widget.message.metadata!['uri'],
-          whenFinished: () {
-            setState(() {
-              _playing = false;
-            });
-          });
-      setState(() {
-        _playing = true;
-      });
-    }
   }
 
   @override
@@ -86,60 +49,25 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
     bool userIsAuthor = widget.user.id == widget.message.author.id;
 
     double durationMS = widget.message.metadata!["duration_ms"] / 1000;
-    return InkWell(
-      onTap: () {
-        _togglePlaying();
-      },
-      onDoubleTap: () {
-        // _togglePlaying();
-      },
-      child: SizedBox(
-        height: 44,
-        width: 120,
-        child: userIsAuthor
-            ? Row(
-                // sneder
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    durationMS.toString() + "''",
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  RotatedBox(
-                    quarterTurns: 2, // 0 revicer 2 sneder;
-                    child: VoiceAnimation(
-                      width: 40,
-                      height: 32,
-                      isStop: _playing,
-                      userIsAuthor: userIsAuthor,
-                    ),
-                  ),
-                ],
-              )
-            : Row(
-                // revicer
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  VoiceAnimation(
-                    width: 40,
-                    height: 32,
-                    isStop: _playing,
-                    userIsAuthor: userIsAuthor,
-                  ),
-                  Text(
-                    durationMS.toString() + "''",
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  Badge(
-                    showBadge: true,
-                    shape: BadgeShape.circle,
-                    borderRadius: BorderRadius.circular(8),
-                    // position: BadgePosition.topStart(top: -4, start: 20),
-                    padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
-                  ),
-                ],
-              ),
-      ),
+    return VoiceMessage(
+      audioSrc: widget.message.metadata!['uri'],
+      played: widget.message.metadata!['played'] ?? false, // To show played badge or not.
+      me: userIsAuthor, // Set message side.
+      meBgColor: AppColors.ChatSendMessgeBgColor,
+      // meFgColor: AppColors.ChatSentMessageBodyTextColor,
+      noiseCount: durationMS.toInt(),
+      onPlay: () {
+        if (widget.onPlay != null) widget.onPlay!();
+
+        setState(() {
+          widget.message.metadata!['played'] = true;
+        });
+        Map<String, dynamic> data = {
+          'id': widget.message.id,
+          'payload': json.encode(widget.message.metadata),
+        };
+        (MessageRepo()).update(data);
+      }, // Do something when voice played.
     );
   }
 }

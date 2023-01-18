@@ -85,5 +85,26 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+
+	<key>NSAppleMusicUsageDescription</key>
+	<string>IMBoy does not need this permission</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>IMBoy does not need this permission</string>
+	<key>NSCameraUsageDescription</key>
+	<string>IMBoy does not need this permission</string>
+	<key>NSContactsUsageDescription</key>
+	<string>IMBoy does not need this permission</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>IMBoy does not need this permission</string>
+	<key>NSMotionUsageDescription</key>
+	<string>IMBoy does not need this permission</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>IMBoy does not need this permission</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>IMBoy uses the microphone to record your speech and convert it to text.</string>
 </dict>
 </plist>

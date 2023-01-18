@@ -1,5 +1,7 @@
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
+import 'package:niku/namespace.dart' as n;
+// ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -21,10 +23,12 @@ class RevokedMessageBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     bool userIsAuthor = user.id == message.author.id;
 
-    String nickname = userIsAuthor ? '你' : '"$message.author.firstName"';
+    String nickname = userIsAuthor ? '你' : '"${message.author.firstName}"';
     int now = DateTimeHelper.currentTimeMillis();
     bool canEdit = userIsAuthor && (now - message.createdAt!) < 300000;
-    // canEdit = true;
+    if (message.type != types.MessageType.text) {
+      canEdit = false;
+    }
     Widget btn = canEdit
         ? GestureDetector(
             onTap: () {
@@ -53,31 +57,31 @@ class RevokedMessageBuilder extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         alignment: Alignment.center,
         color: AppColors.ChatBg,
-        child: Row(
-          children: [
+        child: n.Row([
             Padding(
               padding: userIsAuthor
                   ? const EdgeInsets.only(
                       right: 10,
                       left: 40,
                     )
-                  : const EdgeInsets.only(left: 80),
+                  : const EdgeInsets.only(left: 20),
               // padding: EdgeInsets.only(right: 10),
               child: ExtendedText(
-                '$nickname撤回了一条消息',
-                // '${nickname},: ${_user.firstName},is: ${currentUserIsAuthor.toString()}',
+                nickname + '撤回了一条消息'.tr,
                 style: const TextStyle(
                   color: AppColors.MainTextColor,
                   backgroundColor: AppColors.ChatBg,
                   fontSize: 14.0,
                 ),
+                maxLines: 2,
                 textAlign: TextAlign.center,
-                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             btn,
           ],
-        ),
+        )
+          ..crossAxisAlignment = CrossAxisAlignment.center,
       ),
     );
   }

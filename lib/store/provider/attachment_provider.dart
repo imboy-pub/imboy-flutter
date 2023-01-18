@@ -3,12 +3,11 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+// ignore: depend_on_referenced_packages
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart' as getx;
 import 'package:imboy/component/helper/datetime.dart';
@@ -26,6 +25,9 @@ class AttachmentProvider {
     Map<String, dynamic> data,
     Function callback,
     Function errorCallback,
+    {
+      bool process = true,
+    }
   ) async {
     int ts = DateTimeHelper.currentTimeMillis();
     DateTime dt = DateTime.fromMillisecondsSinceEpoch(ts);
@@ -43,6 +45,8 @@ class AttachmentProvider {
     data['s'] = UPLOAD_SENCE;
     data['v'] = v;
     data['a'] = authToken;
+    debugPrint("> on upload param ${data.toString()}");
+    debugPrint("> on upload param ${(data['file'] as MultipartFile).filename}");
     FormData formdata = FormData.fromMap(data);
 
     var options = BaseOptions(
@@ -56,24 +60,25 @@ class AttachmentProvider {
       "$UPLOAD_BASE_URL/upload",
       data: formdata,
       onSendProgress: (int sent, int total) {
-        debugPrint('>>> on upload $sent / $total');
-        EasyLoading.showProgress(
-          sent / total,
-          status: 'uploading'.tr,
-        );
-        if (sent == total) {
-          Future.delayed(const Duration(milliseconds: 1000), () {
-            EasyLoading.dismiss();
-          });
+        // debugPrint('> on upload $sent / $total');
+        if (process) {
+          EasyLoading.showProgress(
+            sent / total,
+            status: 'uploading'.tr,
+          );
+          if (sent == total) {
+            Future.delayed(const Duration(milliseconds: 2000), () {
+              EasyLoading.dismiss();
+            });
+          }
         }
       },
     ).then((response) {
-      debugPrint(">>> on upload response ${response.toString()}");
-      Map<String, dynamic> responseData = json.decode(response.data);
+      debugPrint("> on upload response ${response.toString()}");
+      Map<String, dynamic> resp = json.decode(response.data);
 
-      String url =
-          responseData["data"]["url"] + "?s=$UPLOAD_SENCE&a=$authToken&v=$v";
-      callback(responseData, url);
+      String url = resp["data"]["url"] + "?s=$UPLOAD_SENCE&a=$authToken&v=$v";
+      callback(resp, url);
     }).catchError((e) {
       debugPrint(">>> on upload err ${e.toString()}");
       errorCallback(e);
@@ -148,7 +153,7 @@ class AttachmentProvider {
       Map<String, dynamic> data = {
         'file': await MultipartFile.fromFile(thumbPath, filename: thumbName),
       };
-      await _upload(prefix, data, (Map<String, dynamic> _resp, String imgUrl) {
+      await _upload(prefix, data, (Map<String, dynamic> resp, String imgUrl) {
         thumbUri = imgUrl;
       }, errorCallback);
       // end 上传缩略图
@@ -279,7 +284,7 @@ class AttachmentProvider {
 
   static Future<void> uploadFile(
       String prefix, var file, Function callback, Function errorCallback,
-      {String name = ""}) async {
+      {String name = "", bool process = true}) async {
     String path = "";
     if (file is PlatformFile) {
       path = file.path!;
@@ -298,6 +303,7 @@ class AttachmentProvider {
     Map<String, dynamic> data = {
       'file': await MultipartFile.fromFile(path, filename: name),
     };
-    await _upload(prefix, data, callback, errorCallback);
+    debugPrint("> on uploadFile path $path, name: $name, ext: $ext");
+    await _upload(prefix, data, callback, errorCallback, process: process);
   }
 }
