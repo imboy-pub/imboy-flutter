@@ -5,6 +5,7 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+// ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -23,7 +24,7 @@ class Sqlite {
     if (_db != null) {
       return _db!;
     }
-    String dbName = UserRepoLocal.to.currentUid + "imboy.db";
+    String dbName = "${UserRepoLocal.to.currentUid}imboy.db";
     debugPrint(">>> on Sqlite.database $dbName");
     _db = await initDatabase(dbName);
     return _db!;
@@ -85,7 +86,7 @@ class Sqlite {
     String conversationSql = '''
       CREATE TABLE IF NOT EXISTS ${ConversationRepo.tablename} (
         `${ConversationRepo.id}` INTERGER AUTO_INCREMENT,
-        `${ConversationRepo.typeId}` varchar(40) NOT NULL,
+        `${ConversationRepo.peerId}` varchar(40) NOT NULL,
         `${ConversationRepo.avatar}` varchar(255) NOT NULL DEFAULT '',
         `${ConversationRepo.title}` varchar(40) NOT NULL DEFAULT '',
         `${ConversationRepo.subtitle}` varchar(255) DEFAULT '',
@@ -205,9 +206,9 @@ class Sqlite {
     String? where,
     List<Object?>? whereArgs,
   }) async {
-    String sql = "SELECT COUNT(*) FROM " + table;
+    String sql = "SELECT COUNT(*) FROM $table";
     if (strNoEmpty(where)) {
-      sql += " WHERE " + where!;
+      sql += " WHERE $where";
     }
     Database db = await instance.database;
     int? res = Sqflite.firstIntValue(await db.rawQuery(
@@ -223,9 +224,9 @@ class Sqlite {
     String? where,
     List<Object?>? whereArgs,
   }) async {
-    String sql = "SELECT " + column + " FROM " + table;
+    String sql = "SELECT $column FROM $table";
     if (strNoEmpty(where)) {
-      sql += " WHERE " + where!;
+      sql += " WHERE $where";
     }
     Database db = await instance.database;
     int? res = Sqflite.firstIntValue(await db.rawQuery(

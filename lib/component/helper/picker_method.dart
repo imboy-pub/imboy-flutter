@@ -112,6 +112,7 @@ class PickMethod {
                     Feedback.forTap(context);
                     final AssetEntity? result = await _pickFromCamera(context);
                     if (result != null) {
+                      // ignore: use_build_context_synchronously
                       handleResult(context, result);
                     }
                   },
@@ -162,6 +163,7 @@ class PickMethod {
                       return;
                     }
                     final AssetPicker<AssetEntity, AssetPathEntity> picker =
+                        // ignore: use_build_context_synchronously
                         context.findAncestorWidgetOfExactType()!;
                     final DefaultAssetPickerBuilderDelegate builder =
                         picker.builder as DefaultAssetPickerBuilderDelegate;
@@ -309,13 +311,14 @@ class PickMethod {
       name: 'Keep scroll offset',
       description: 'Pick assets from same scroll position.',
       method: (BuildContext context, List<AssetEntity> assets) async {
-        final PermissionState _ps =
+        final PermissionState ps =
             await PhotoManager.requestPermissionExtend();
-        if (_ps != PermissionState.authorized &&
-            _ps != PermissionState.limited) {
-          throw StateError('Permission state error with $_ps.');
+        if (ps != PermissionState.authorized &&
+            ps != PermissionState.limited) {
+          throw StateError('Permission state error with $ps.');
         }
-        onPermission(_ps);
+        onPermission(ps);
+        // ignore: use_build_context_synchronously
         return AssetPicker.pickAssetsWithDelegate(
           context,
           delegate: delegate(),

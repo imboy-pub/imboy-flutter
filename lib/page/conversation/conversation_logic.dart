@@ -16,10 +16,10 @@ class ConversationLogic extends GetxController {
   final RxMap<String, int> conversationRemind = RxMap<String, int>({});
 
   // 设置会话提醒
-  setConversationRemind(String typeId, int val) {
+  setConversationRemind(String peerId, int val) {
     val = val > 0 ? val : 0;
-    conversationRemind[typeId] = val;
-    (ConversationRepo()).updateByTypeId(typeId, {
+    conversationRemind[peerId] = val;
+    (ConversationRepo()).updateByPeerId(peerId, {
       ConversationRepo.unreadNum: val,
       ConversationRepo.isShow: 1,
     });
@@ -30,7 +30,7 @@ class ConversationLogic extends GetxController {
   replace(ConversationModel cobj) {
     // 第一次会话的时候 i 为 -1
     final i = conversations
-        .indexWhere((ConversationModel item) => (item).typeId == cobj.typeId);
+        .indexWhere((ConversationModel item) => (item).peerId == cobj.peerId);
     if (i > -1) {
       int i2 = i > 0 ? i : 0;
       conversations[i2] = cobj;
@@ -137,15 +137,15 @@ class ConversationLogic extends GetxController {
   }
 
   Future<int> createConversationId(
-      String typeId, String avatar, String title, String type) async {
+      String peerId, String avatar, String title, String type) async {
     ConversationRepo repo = ConversationRepo();
-    ConversationModel? obj = await repo.findByTypeId(typeId);
+    ConversationModel? obj = await repo.findByPeerId(peerId);
     if (obj != null) {
       return obj.id;
     }
 
     return await (ConversationRepo()).insert(ConversationModel.fromJson({
-      'type_id': typeId,
+      'peer_id': peerId,
       'avatar': avatar,
       'title': title,
       'subtitle': '',

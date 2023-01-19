@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+// ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 // ignore: implementation_imports
@@ -95,6 +96,7 @@ class ChatInput extends StatefulWidget {
   // imboy add end
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChatInputState createState() => _ChatInputState();
 }
 
@@ -175,8 +177,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   Future<void> _handleSendPressed() async {
     final trimmedText = _textController.text.trim();
     if (trimmedText != '') {
-      final _partialText = types.PartialText(text: trimmedText);
-      bool res = await widget.onSendPressed(_partialText);
+      bool res = await widget.onSendPressed(types.PartialText(text: trimmedText));
       if (res) {
         _textController.clear();
       } else {
@@ -262,6 +263,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     return SizeTransition(
       sizeFactor: _bottomHeightController,
       child: SizedBox(
+        // ignore: sort_child_properties_last
         child: child,
         height: _softKeyHeight,
       ),
@@ -362,10 +364,12 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     return Stack(
       children: <Widget>[
         Offstage(
+          // ignore: sort_child_properties_last
           child: inputButton,
           offstage: inputType == InputType.voice,
         ),
         Offstage(
+          // ignore: sort_child_properties_last
           child: voiceButton,
           offstage: inputType != InputType.voice,
         ),
@@ -436,7 +440,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final _query = MediaQuery.of(context);
+    final query = MediaQuery.of(context);
 
     return InkWell(
       child: Focus(
@@ -449,10 +453,10 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             color: InheritedChatTheme.of(context).theme.inputBackgroundColor,
             child: Container(
               padding: EdgeInsets.fromLTRB(
-                _query.padding.left,
+                query.padding.left,
                 4,
-                _query.padding.right,
-                4 + _query.viewInsets.bottom + _query.padding.bottom,
+                query.padding.right,
+                4 + query.viewInsets.bottom + query.padding.bottom,
               ),
               child: Column(
                 children: <Widget>[

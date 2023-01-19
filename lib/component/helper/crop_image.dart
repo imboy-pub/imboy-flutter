@@ -23,6 +23,7 @@ class CropImageRoute extends StatefulWidget {
   double imageScale = 1.0;
 
   @override
+  // ignore: library_private_types_in_public_api
   _CropImageRouteState createState() => _CropImageRouteState();
 }
 

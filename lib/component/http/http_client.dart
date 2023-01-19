@@ -119,7 +119,7 @@ class HttpClient {
       );
       return handleResponse(response, httpTransformer: httpTransformer);
     } on Exception catch (e) {
-      debugPrint(">>>>>> on Exception: " + e.toString());
+      debugPrint("> on Exception: $e");
       return handleException(e);
     }
   }

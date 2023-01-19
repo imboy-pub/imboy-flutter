@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+// ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -31,12 +32,12 @@ class ChatLogic extends GetxController {
   }
 
   Future<List<types.Message>?> getMessages(
-    String typeId,
+    String peerId,
     int page,
     int size,
   ) async {
     // final response = await rootBundle.loadString('assets/data/messages.json');
-    ConversationModel? obj = await ConversationRepo().findByTypeId(typeId);
+    ConversationModel? obj = await ConversationRepo().findByPeerId(peerId);
     if (obj == null) {
       return [];
     }
@@ -126,19 +127,22 @@ class ChatLogic extends GetxController {
 
   Future<void> addMessage(
     String fromId,
-    String toId,
+    String toId, // peerId
     String? avatar,
     String title,
     String type, // C2C or GROUP
     types.Message message,
   ) async {
     String subtitle = '';
-    String msgtype = MessageModel.ctype(message.type);
+    String msgtype = MessageModel.conversationMsgType(message);
     int createdAt = DateTimeHelper.currentTimeMillis();
 
+    if (message is types.TextMessage) {
+      subtitle = message.text;
+    }
     // message.status = types.Status.sent;
     ConversationModel cobj = ConversationModel(
-      typeId: toId,
+      peerId: toId,
       avatar: avatar!,
       title: title,
       subtitle: subtitle,
@@ -155,26 +159,6 @@ class ChatLogic extends GetxController {
     cobj = await (ConversationRepo()).save(cobj);
     MessageModel obj = getMsgFromTmsg(type, cobj.id, message);
     await (MessageRepo()).insert(obj);
-
-    if (message is types.TextMessage) {
-      cobj.subtitle = obj.payload!['text'];
-    } else if (message is types.FileMessage) {
-      cobj.subtitle = '[文件]';
-      cobj.msgtype = 'file';
-    } else if (message is types.ImageMessage) {
-      cobj.subtitle = '[图片]';
-      cobj.msgtype = 'image';
-    } else if (message.metadata!['custom_type'] == 'video') {
-      cobj.msgtype = 'custom';
-      cobj.subtitle = '[视频]';
-    } else if (message.metadata!['custom_type'] == 'audio') {
-      cobj.msgtype = 'audio';
-      cobj.subtitle = '[语音消息]';
-    }
-    await (ConversationRepo()).updateById(cobj.id, {
-      ConversationRepo.msgtype: cobj.msgtype,
-      ConversationRepo.subtitle: cobj.subtitle,
-    });
     eventBus.fire(cobj);
     // send to servier
     sendWsMsg(obj);
@@ -187,8 +171,7 @@ class ChatLogic extends GetxController {
         "DELETE FROM ${MessageRepo.tablename} WHERE ${MessageRepo.id}=?",
         [id],
       );
-
-      debugPrint('on >>>>> removeMessage :' + id + ';');
+      debugPrint('> on removeMessage : $id ;');
       return true;
     });
   }

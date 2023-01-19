@@ -42,7 +42,7 @@ class ContactRepo {
       'isfriend': obj.isfriend,
       'isfrom': obj.isfrom,
     };
-    debugPrint(">>> on ContactRepo/insert/1 " + insert.toString());
+    debugPrint(">>> on ContactRepo/insert/1 $insert");
 
     await _db.insert(ContactRepo.tablename, insert);
     return obj;

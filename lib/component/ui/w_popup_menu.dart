@@ -47,6 +47,7 @@ class WPopupMenu extends StatefulWidget {
   final double menuHeight;
 
   @override
+  // ignore: library_private_types_in_public_api
   _WPopupMenuState createState() => _WPopupMenuState();
 }
 
@@ -183,6 +184,7 @@ class MenuPopWidget extends StatefulWidget {
   );
 
   @override
+  // ignore: library_private_types_in_public_api
   _MenuPopWidgetState createState() => _MenuPopWidgetState();
 }
 
@@ -270,20 +272,18 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
 
   Widget contentBuild() {
     // 这里计算出来 当前页的 child 一共有多少个
-    int _curPageChildCount =
+    int curPageChildCount =
         (_curPage + 1) * widget._pageMaxChildCount > widget.actions.length
             ? widget.actions.length % widget._pageMaxChildCount
             : widget._pageMaxChildCount;
 
-    double _curArrowWidth = 0;
-    int _curArrowCount = 0; // 一共几个箭头
-    double _curPageWidth = widget.menuWidth +
-        (_curPageChildCount - 1 + _curArrowCount) * _separatorWidth +
-        _curArrowWidth;
+    double curArrowWidth = 0;
+    int curArrowCount = 0; // 一共几个箭头
+    double curPageWidth = widget.menuWidth + (curPageChildCount - 1 + curArrowCount) * _separatorWidth + curArrowWidth;
     return SizedBox(
       height: widget.menuHeight + _triangleHeight,
-      width: _curPageWidth,
-      child: Material(color: Colors.transparent, child: body(_curPageWidth)),
+      width: curPageWidth,
+      child: Material(color: Colors.transparent, child: body(curPageWidth)),
     );
   }
 

@@ -6,7 +6,7 @@ class ConversationRepo {
   static String tablename = 'conversation';
 
   static String id = 'id';
-  static String typeId = 'type_id';
+  static String peerId = 'peer_id';
   static String avatar = 'avatar';
   static String title = 'title';
   static String subtitle = 'subtitle';
@@ -18,7 +18,7 @@ class ConversationRepo {
   static String unreadNum = 'unread_num';
   // 等价与 msg type: C2C C2G 等等，根据type显示item
   static String type = 'type';
-  // enum MessageType { custom, file, image, text, unsupported }
+  // msgtype 定义见 ConversationModel/content 的定义
   static String msgtype = 'msgtype';
   static String isShow = "is_show";
 
@@ -28,7 +28,7 @@ class ConversationRepo {
   Future<int> insert(ConversationModel obj) async {
     Map<String, dynamic> insert = {
       'id': obj.id,
-      'type_id': obj.typeId,
+      'peer_id': obj.peerId,
       'avatar': obj.avatar,
       'title': obj.title,
       'subtitle': obj.subtitle,
@@ -55,33 +55,33 @@ class ConversationRepo {
   }
 
   // 更新信息
-  Future<int> updateByTypeId(String typeId, Map<String, dynamic> data) async {
+  Future<int> updateByPeerId(String peerId, Map<String, dynamic> data) async {
     data.remove(ConversationRepo.id);
     return await _db.update(
       ConversationRepo.tablename,
       data,
-      where: '${ConversationRepo.typeId} = ?',
-      whereArgs: [typeId],
+      where: '${ConversationRepo.peerId} = ?',
+      whereArgs: [peerId],
     );
   }
 
   // 存在就更新，不存在就插入
   Future<ConversationModel> save(ConversationModel obj) async {
-    String where = '${ConversationRepo.typeId} = ?';
-    ConversationModel? oldObj = await findByTypeId(obj.typeId);
+    String where = '${ConversationRepo.peerId} = ?';
+    ConversationModel? oldObj = await findByPeerId(obj.peerId);
     int unreadNumOld = oldObj == null ? 0 : oldObj.unreadNum;
     obj.unreadNum = obj.unreadNum + unreadNumOld;
     if (oldObj == null) {
       obj.id = (await maxId()) + 1;
       insert(obj);
     } else {
-      updateByTypeId(obj.typeId, obj.toJson());
+      updateByPeerId(obj.peerId, obj.toJson());
     }
     int? id = await _db.pluck(
       ConversationRepo.id,
       ConversationRepo.tablename,
       where: where,
-      whereArgs: [obj.typeId],
+      whereArgs: [obj.peerId],
     );
     obj.id = id!;
     return obj;
@@ -101,7 +101,7 @@ class ConversationRepo {
     List<Map<String, dynamic>> maps = await _db.query(
       ConversationRepo.tablename,
       columns: [
-        ConversationRepo.typeId,
+        ConversationRepo.peerId,
         ConversationRepo.avatar,
         ConversationRepo.title,
         ConversationRepo.subtitle,
@@ -136,7 +136,7 @@ class ConversationRepo {
       ConversationRepo.tablename,
       columns: [
         ConversationRepo.id,
-        ConversationRepo.typeId,
+        ConversationRepo.peerId,
         ConversationRepo.avatar,
         ConversationRepo.title,
         ConversationRepo.subtitle,
@@ -153,8 +153,7 @@ class ConversationRepo {
       whereArgs: [1],
       orderBy: "${ConversationRepo.lasttime} DESC",
     );
-    debugPrint(">>> on ConversationRepo/all ${items.length} items " +
-        items.toString());
+    debugPrint(">>> on ConversationRepo/all ${items.length} items ${items.toString()}");
     if (items.isEmpty) {
       return [];
     }
@@ -170,7 +169,7 @@ class ConversationRepo {
       ConversationRepo.tablename,
       columns: [
         ConversationRepo.id,
-        ConversationRepo.typeId,
+        ConversationRepo.peerId,
         ConversationRepo.avatar,
         ConversationRepo.title,
         ConversationRepo.subtitle,
@@ -195,12 +194,12 @@ class ConversationRepo {
   }
 
   //
-  Future<ConversationModel?> findByTypeId(String typeId) async {
+  Future<ConversationModel?> findByPeerId(String peerId) async {
     List<Map<String, dynamic>> maps = await _db.query(
       ConversationRepo.tablename,
       columns: [
         ConversationRepo.id,
-        ConversationRepo.typeId,
+        ConversationRepo.peerId,
         ConversationRepo.title,
         ConversationRepo.subtitle,
         ConversationRepo.region,
@@ -212,8 +211,8 @@ class ConversationRepo {
         ConversationRepo.msgtype,
         ConversationRepo.unreadNum,
       ],
-      where: '${ConversationRepo.typeId} = ?',
-      whereArgs: [typeId],
+      where: '${ConversationRepo.peerId} = ?',
+      whereArgs: [peerId],
     );
     if (maps.isNotEmpty) {
       return ConversationModel.fromJson(maps.first);
@@ -222,11 +221,11 @@ class ConversationRepo {
   }
 
   // 根据ID删除信息
-  Future<int> delete(String typeId) async {
+  Future<int> delete(String peerId) async {
     return await _db.delete(
       ConversationRepo.tablename,
-      where: '${ConversationRepo.typeId} = ?',
-      whereArgs: [typeId],
+      where: '${ConversationRepo.peerId} = ?',
+      whereArgs: [peerId],
     );
   }
 

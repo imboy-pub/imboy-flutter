@@ -2,7 +2,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -43,8 +42,6 @@ class ConversationPage extends StatelessWidget {
 
     // 监听会话消息
     eventBus.on<ConversationModel>().listen((e) async {
-      debugPrint(
-          ">>> on logic.conversations listen ${e.typeId} = ${e.unreadNum}");
       // 更新会话
       logic.replace(e);
     });
@@ -52,10 +49,9 @@ class ConversationPage extends StatelessWidget {
     await logic.getConversationsList();
     // 设置消息提醒数量
     for (var obj in logic.conversations) {
-      debugPrint(">>> on logic.conversations ${obj.typeId} = ${obj.unreadNum}");
       if (obj.unreadNum > 0) {
         logic.setConversationRemind(
-          obj.typeId,
+          obj.peerId,
           obj.unreadNum,
         );
       }
@@ -177,15 +173,15 @@ class ConversationPage extends StatelessWidget {
                     ConversationModel model = logic.conversations[index];
                     int conversationId = model.id;
                     var remindNum =
-                        logic.conversationRemind.containsKey(model.typeId)
-                            ? logic.conversationRemind[model.typeId]!.obs
+                        logic.conversationRemind.containsKey(model.peerId)
+                            ? logic.conversationRemind[model.peerId]!.obs
                             : 0.obs;
                     return InkWell(
                       onTap: () {
                         Get.to(
                           () => ChatPage(
                             conversationId: model.id,
-                            toId: model.typeId,
+                            toId: model.peerId,
                             title: model.title,
                             avatar: model.avatar,
                             sign: model.sign,
@@ -212,7 +208,7 @@ class ConversationPage extends StatelessWidget {
                                   remindNum.value = 0;
                                 }
                                 logic.markAs(model.id, num);
-                                logic.conversationRemind[model.typeId] = num;
+                                logic.conversationRemind[model.peerId] = num;
                                 model.unreadNum = num;
                               },
                               autoClose: true,
@@ -232,7 +228,7 @@ class ConversationPage extends StatelessWidget {
                               onPressed: (_) async {
                                 await logic.hideConversation(conversationId);
                                 logic.conversations.removeAt(index);
-                                logic.conversationRemind[model.typeId] = 0;
+                                logic.conversationRemind[model.peerId] = 0;
                                 logic.chatMsgRemindCounter;
                               },
                               label: "不显示",
@@ -246,7 +242,7 @@ class ConversationPage extends StatelessWidget {
                               onPressed: (_) async {
                                 await logic.removeConversation(conversationId);
                                 logic.conversations.removeAt(index);
-                                logic.conversationRemind[model.typeId] = 0;
+                                logic.conversationRemind[model.peerId] = 0;
                                 logic.chatMsgRemindCounter;
                               },
                               label: "删除",
@@ -255,32 +251,15 @@ class ConversationPage extends StatelessWidget {
                           ],
                         ),
                         child: ConversationItem(
-                          imgUri: model.avatar,
+                          model: model,
+                          remindCounter: remindNum,
                           onTapAvatar: () {
                             Get.to(
                               () => ContactDetailPage(
-                                id: model.typeId,
+                                id: model.peerId,
                               ),
                             );
                           },
-                          title: model.title,
-                          payload: {
-                            'msg_type': model.msgtype,
-                            'text': model.subtitle,
-                          },
-                          status: model.lastMsgStatus,
-                          time: Text(
-                            DateTimeHelper.lastConversationFmt(
-                              model.lasttime ?? 0,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AppColors.MainTextColor,
-                              fontSize: 14.0,
-                            ),
-                          ),
-                          remindCounter: remindNum,
                         ),
                       ),
                     );

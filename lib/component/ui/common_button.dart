@@ -41,40 +41,30 @@ class ComMomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color _color = Color.fromRGBO(225, 225, 225, enable! ? 1 : 0.3);
+    Color color = Color.fromRGBO(225, 225, 225, enable! ? 1 : 0.3);
 
     return Container(
       margin: margin,
       child: InkWell(
+        // ignore: sort_child_properties_last
         child: Container(
           alignment: Alignment.center,
           padding: padding,
           width: width,
           height: height,
-          decoration: color == null
-              ? BoxDecoration(
-                  gradient: gradient,
-                  boxShadow: boxShadow,
-                  border: isBorder!
-                      ? Border.all(width: 0.5, color: Color(borderColor!))
-                      : null,
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(radius!),
-                  ),
-                )
-              : BoxDecoration(
-                  color: color,
-                  boxShadow: boxShadow,
-                  border: isBorder!
-                      ? Border.all(width: 0.5, color: Color(borderColor!))
-                      : null,
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(radius!),
-                  ),
-                ),
+          decoration: BoxDecoration(
+            color: color,
+            boxShadow: boxShadow,
+            border: isBorder!
+                ? Border.all(width: 0.5, color: Color(borderColor!))
+                : null,
+            borderRadius: BorderRadius.all(
+              Radius.circular(radius!),
+            ),
+          ),
           child: Text(
             text!,
-            style: style ?? TextStyle(fontSize: 15.0, color: _color),
+            style: style ?? TextStyle(fontSize: 15.0, color: color),
           ),
         ),
         onTap: enable! ? onTap : () {},

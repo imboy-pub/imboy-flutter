@@ -39,7 +39,7 @@ class NewFriendRepo {
           obj.updateTime ?? DateTime.now().millisecondsSinceEpoch,
       NewFriendRepo.createTime: DateTime.now().millisecondsSinceEpoch,
     };
-    debugPrint(">>> on NewFriendRepo/insert/1 " + insert.toString());
+    debugPrint(">>> on NewFriendRepo/insert/1 $insert");
 
     await _db.insert(NewFriendRepo.tablename, insert);
     return obj;

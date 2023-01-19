@@ -27,6 +27,7 @@ class MainInputBodyState extends State<MainInputBody> {
             height: double.infinity,
             width: double.infinity,
             child: GestureDetector(
+              // ignore: sort_child_properties_last
               child: widget.child,
               behavior: HitTestBehavior.translucent,
               onTap: () {

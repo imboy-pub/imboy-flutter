@@ -18,11 +18,11 @@ class MoreItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double _margin = keyboardHeight != 0.0 ? keyboardHeight! : 0.0;
-    double _top = _margin != 0.0 ? _margin / 10 : 20.0;
+    double margin = keyboardHeight != 0.0 ? keyboardHeight! : 0.0;
+    double top = margin != 0.0 ? margin / 10 : 20.0;
 
     return Container(
-      padding: EdgeInsets.only(top: _top, bottom: 5.0),
+      padding: EdgeInsets.only(top: top, bottom: 5.0),
       width: (Get.width - 70) / 4,
       child: Column(
         children: <Widget>[

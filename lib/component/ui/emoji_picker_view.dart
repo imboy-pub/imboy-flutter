@@ -1,5 +1,5 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
-// ignore: implementation_imports
+// ignore: implementation_imports, unnecessary_import
 import 'package:emoji_picker_flutter/src/category_emoji.dart' show CategoryEmoji;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +15,7 @@ class EmojiPickerView extends EmojiPickerBuilder {
   ) : super(config, state,key: key,);
 
   @override
+  // ignore: library_private_types_in_public_api
   _EmojiPickerViewState createState() => _EmojiPickerViewState();
 
   /// See [AttachmentButton.onPressed]
@@ -129,6 +130,7 @@ class _EmojiPickerViewState extends State<EmojiPickerView>
     if (widget.config.buttonMode == ButtonMode.MATERIAL) {
       return TextButton(
         onPressed: onPressed,
+        // ignore: sort_child_properties_last
         child: child,
         style: ButtonStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),
       );

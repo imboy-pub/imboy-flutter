@@ -104,6 +104,7 @@ class UpdatePage extends StatelessWidget {
                         }
                       }
                     },
+                    // ignore: sort_child_properties_last
                     child: Text(
                       'button_accomplish'.tr,
                       textAlign: TextAlign.center,
@@ -350,7 +351,7 @@ class UpdatePage extends StatelessWidget {
             padding: const EdgeInsets.only(left: 15.0),
             width: Get.width,
             height: 40.0,
-            child: Text("已选地区： " + logic.val.value),
+            child: Text("已选地区： ".tr + logic.val.value),
           ),
           Row(
             mainAxisSize: MainAxisSize.max,
@@ -363,7 +364,7 @@ class UpdatePage extends StatelessWidget {
                       return regionlogic
                           .getListItem(context, "", logic.regionList[index],
                               (String p, String t) async {
-                        logic.val.value = strEmpty(p) ? t : p + " " + t;
+                        logic.val.value = strEmpty(p) ? t : "$p $t";
                         logic.valueOnChange(true);
                         return true;
                       }, callback);

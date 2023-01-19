@@ -1,45 +1,33 @@
 import 'package:badges/badges.dart';
+import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/store/model/conversation_model.dart';
 import 'package:niku/namespace.dart' as n;
-
-import 'content_msg.dart';
 
 // ignore: must_be_immutable
 class ConversationItem extends StatelessWidget {
-  // 会话头像
-  final String? imgUri;
+  final ConversationModel model;
   // 会话头像点击事件
   final Function()? onTapAvatar;
-  // 会话对象标题
-  final String? title;
-  // 会话简述
-  final dynamic payload;
-  // 最近会话时间
-  final Widget? time;
   // 当前会话未读消息数量
   RxInt remindCounter;
-  // 最近会话消息状态
-  final int? status; // lastMsgStatus
 
   ConversationItem({
     Key? key,
-    this.imgUri,
-    this.onTapAvatar,
-    this.title,
-    this.payload,
-    this.time,
+    required this.model,
+    required this.onTapAvatar,
     required this.remindCounter,
-    this.status,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     var icon = <Widget>[];
-    if (status == 10) {
+    if (model.lastMsgStatus == 10) {
       icon.add(
         const Padding(
           padding: EdgeInsets.only(right: 4),
@@ -73,8 +61,9 @@ class ConversationItem extends StatelessWidget {
                   fontSize: 8,
                 ),
               ),
+              // 会话头像
               child: Avatar(
-                imgUri: imgUri!,
+                imgUri: model.avatar,
                 onTap: onTapAvatar,
               ),
             ),
@@ -96,7 +85,8 @@ class ConversationItem extends StatelessWidget {
                     n.Row([
                       Expanded(
                         child: Text(
-                          title ?? '',
+                          // 会话对象标题
+                          model.title,
                           style: const TextStyle(
                             fontSize: 18.0,
                             fontWeight: FontWeight.normal,
@@ -111,7 +101,26 @@ class ConversationItem extends StatelessWidget {
                       child: n.Row(
                         [
                           n.Column(icon),
-                          Expanded(child: ContentMsg(payload)),
+                          // 会话对象子标题
+                          Expanded(child: ExtendedText(
+                            model.content,
+                            style: const TextStyle(
+                              color: AppColors.MainTextColor,
+                              fontSize: 14.0,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            overflowWidget: TextOverflowWidget(
+                              position: TextOverflowPosition.end,
+                              align: TextOverflowAlign.left,
+                              child: n.Row(
+                                const [
+                                  Text('...'),
+                                ],
+                                mainAxisSize: MainAxisSize.min,
+                              ),
+                            ),
+                          )),
                         ],
                       ),
                     ),
@@ -121,7 +130,18 @@ class ConversationItem extends StatelessWidget {
               // Space(width: mainSpace),
               n.Column(
                 [
-                  time!,
+                  // 最近会话时间
+                  Text(
+                    DateTimeHelper.lastConversationFmt(
+                      model.lasttime ?? 0,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.MainTextColor,
+                      fontSize: 14.0,
+                    ),
+                  ),
                   const Icon(Icons.flag, color: Colors.transparent),
                 ],
               )

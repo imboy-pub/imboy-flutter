@@ -69,6 +69,7 @@ class SelectRegionLogic extends GetxController {
     return Obx(
       () => Container(
         height: 52,
+        // ignore: sort_child_properties_last
         child: ListTile(
           title: Text(
             title,
@@ -87,7 +88,7 @@ class SelectRegionLogic extends GetxController {
                   : null),
           onTap: () {
             selectedVal.value =
-                strEmpty(parent) ? title : parent + " " + title;
+                strEmpty(parent) ? title : "$parent $title";
             if (isRight) {
               Get.to(() => SelectRegionPage(
                   parent: selectedVal.value,
@@ -168,6 +169,7 @@ class SelectRegionPage extends StatelessWidget {
                   Get.close(t);
                 }
               },
+              // ignore: sort_child_properties_last
               child: Text(
                 'button_accomplish'.tr,
                 textAlign: TextAlign.center,

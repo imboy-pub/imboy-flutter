@@ -12,6 +12,7 @@ import 'package:imboy/store/model/message_model.dart';
 class RevokedMessageBuilder extends StatelessWidget {
   const RevokedMessageBuilder({
     Key? key,
+    // 当前登录用户
     required this.user,
     required this.message,
   }) : super(key: key);
@@ -26,14 +27,16 @@ class RevokedMessageBuilder extends StatelessWidget {
     String nickname = userIsAuthor ? '你' : '"${message.author.firstName}"';
     int now = DateTimeHelper.currentTimeMillis();
     bool canEdit = userIsAuthor && (now - message.createdAt!) < 300000;
-    if (message.type != types.MessageType.text) {
+    String text = message.metadata?['text'] ?? '';
+    if (text.isEmpty) {
       canEdit = false;
     }
+    debugPrint("> on canEdit $canEdit; ${message.type} , userIsAuthor: $userIsAuthor, text: $text, msg: ${message.toJson().toString()}");
     Widget btn = canEdit
         ? GestureDetector(
             onTap: () {
               eventBus.fire(
-                ReEditMessage(text: message.metadata!['text']),
+                ReEditMessage(text: text),
               );
             },
             child: Text(
@@ -52,7 +55,6 @@ class RevokedMessageBuilder extends StatelessWidget {
       },
       child: Container(
         width: Get.width,
-        // height: Get.height,
         // Creates insets from offsets from the left, top, right, and bottom.
         padding: const EdgeInsets.all(12),
         alignment: Alignment.center,

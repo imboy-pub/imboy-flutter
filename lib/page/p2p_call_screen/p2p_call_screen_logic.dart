@@ -121,12 +121,11 @@ class P2pCallScreenLogic extends getx.GetxController {
     subscription ??= eventBus
         .on<WebRTCSignalingModel>()
         .listen((WebRTCSignalingModel obj) async {
-      // ignore: prefer_interpolation_to_compose_strings
-      debugPrint("> rtc msg listen ${DateTime.now()} " + obj.toJson().toString());
+      debugPrint("> rtc msg listen ${obj.toJson().toString()} ${DateTime.now()}");
       try {
         onMessage(obj);
       } catch (e) {
-        debugPrint("> rtc msg listen error ${DateTime.now()} " + e.toString());
+        debugPrint("> rtc msg listen error ${DateTime.now()} ${e.toString()}");
       }
     });
 
@@ -192,6 +191,7 @@ class P2pCallScreenLogic extends getx.GetxController {
         }
       } catch (e) {
         if (!ignoreOffer) {
+          // ignore: use_rethrow_when_possible
           throw e;
         }
       }
@@ -219,8 +219,7 @@ class P2pCallScreenLogic extends getx.GetxController {
       session = await _createSession(peerId, m);
       sessions[sessionid] = session;
     }
-    debugPrint("> rtc msg onReceivedDescription state: ${DateTime.now()} connected ${connected.isTrue} " +
-        session.pc!.signalingState.toString());
+    debugPrint("> rtc msg onReceivedDescription state: ${DateTime.now()} connected ${connected.isTrue} ${session.pc!.signalingState.toString()}");
     // sd = session description
     var sd = msg.payload['sd'];
     String type = sd['type'].toString().toLowerCase();
@@ -239,14 +238,12 @@ class P2pCallScreenLogic extends getx.GetxController {
     ignoreOffer = !isPolite && offerCollision;
 
     debugPrint(
-        "> rtc msg onReceivedDescription offerCollision: ${DateTime.now()} " +
-            offerCollision.toString());
-    debugPrint("> rtc msg l              state: ${DateTime.now()} " +
-        session.pc!.signalingState.toString());
-    debugPrint("> rtc msg l        makingOffer: " + makingOffer.toString());
-    debugPrint("> rtc msg l     offerCollision: " + offerCollision.toString());
-    debugPrint("> rtc msg l        ignoreOffer: " + ignoreOffer.toString());
-    debugPrint("> rtc msg l             polite: " + isPolite.toString());
+        "> rtc msg onReceivedDescription offerCollision: ${DateTime.now()} $offerCollision");
+    debugPrint("> rtc msg l              state: ${DateTime.now()} ${session.pc!.signalingState}");
+    debugPrint("> rtc msg l        makingOffer: $makingOffer");
+    debugPrint("> rtc msg l     offerCollision: $offerCollision");
+    debugPrint("> rtc msg l        ignoreOffer: $ignoreOffer");
+    debugPrint("> rtc msg l             polite: $isPolite");
 
     debugPrint("> rtc msg onReceivedDescription $type ${DateTime.now()}");
     if (ignoreOffer) {
@@ -300,7 +297,7 @@ class P2pCallScreenLogic extends getx.GetxController {
         'sd': {'sdp': s.sdp, 'type': s.type},
       }, debug: 'from_createAnswer');
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 
@@ -443,20 +440,6 @@ class P2pCallScreenLogic extends getx.GetxController {
           'candidate': candidate.candidate,
         },
       });
-
-      // This delay is needed to allow enough time to try an ICE candidate
-      // before skipping to the next one. 1 second is just an heuristic value
-      // and should be thoroughly tested in your own environment.
-      // await Future.delayed(const Duration(milliseconds: 500), () {
-      //   _send('candidate', {
-      //     'candidate': {
-      //       'sdpMLineIndex': candidate.sdpMLineIndex,
-      //       'sdpMid': candidate.sdpMid,
-      //       'candidate': candidate.candidate,
-      //     },
-      //     'sid': sessionId,
-      //   });
-      // });
     };
 
     // flutter-webrtc 貌似没有定义实现 onIceCandidateError
@@ -464,7 +447,7 @@ class P2pCallScreenLogic extends getx.GetxController {
     // 信令状态改变 等价 OnSignalingChange
     pc.onSignalingState = (RTCSignalingState state) {
       debugPrint(
-          '> rtc pc onSignalingState: ${state.toString()} ;connected ${connected} ${DateTime.now()}');
+          '> rtc pc onSignalingState: ${state.toString()} ;connected $connected ${DateTime.now()}');
       onSignalingStateChange?.call(state);
     };
 
@@ -520,7 +503,7 @@ class P2pCallScreenLogic extends getx.GetxController {
       return;
     }
 
-    WebRTCSession? session = sessions[sessionid] ?? null;
+    WebRTCSession? session = sessions[sessionid];
     debugPrint("> rtc invitePeer sessionid   $sessionid ${session.toString()}");
     if (session == null) {
       session = await _createSession(peer, media);
@@ -577,7 +560,7 @@ class P2pCallScreenLogic extends getx.GetxController {
     request["from"] = UserRepoLocal.to.currentUid; // currentUid
     request["type"] = "webrtc_$event";
     request["payload"] = payload;
-    debugPrint('> rtc _send $event, debug ${debug}, ${DateTime.now()} ${request.toString()}');
+    debugPrint('> rtc _send $event, debug $debug, ${DateTime.now()} ${request.toString()}');
     WSService.to.sendMessage(json.encode(request));
   }
 
@@ -632,16 +615,13 @@ class P2pCallScreenLogic extends getx.GetxController {
   void _onRenegotiationNeeded() async {
     debugPrint('> rtc pc onRenegotiationNeeded start ${DateTime.now()}');
     // return;
-    var session = sessions[sessionid] ?? null;
+    var session = sessions[sessionid];
 
     if (session == null ||
         session.pc == null ||
         session.pc?.signalingState == null) {
       return;
     }
-    debugPrint(
-        '> rtc pc onRenegotiationNeeded state before ${connected} ${DateTime.now()}: ' +
-            session.pc!.signalingState.toString());
     try {
       makingOffer = true;
 
@@ -656,7 +636,7 @@ class P2pCallScreenLogic extends getx.GetxController {
         debugPrint('> rtc pc onRenegotiationNeeded sent ${DateTime.now()}');
       });
     } catch (e) {
-      debugPrint("> rtc pc onRenegotiationNeeded error " + e.toString());
+      debugPrint("> rtc pc onRenegotiationNeeded error ${e.toString()}");
     } finally {
       makingOffer = false;
       debugPrint('> rtc pc onRenegotiationNeeded done ${DateTime.now()}');
@@ -667,7 +647,9 @@ class P2pCallScreenLogic extends getx.GetxController {
   Future<void> cleanUp() async {
     try {
       await cleanSessions();
-    } catch (e) {}
+    } catch (e) {
+      //
+    }
     counter.value.cleanUp();
     if (localRenderer.value.srcObject != null) {
       localRenderer.value.srcObject = null;
@@ -772,8 +754,6 @@ class P2pCallScreenLogic extends getx.GetxController {
       speakerOn.value = !speakerOn.value;
       MediaStreamTrack audioTrack = _localStream!.getAudioTracks()[0];
       audioTrack.enableSpeakerphone(speakerOn.value);
-      debugPrint(
-          "> rtc switchSpeaker" + (speakerOn.value ? "speaker" : "earpiece"));
     }
   }
 

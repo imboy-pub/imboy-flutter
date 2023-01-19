@@ -23,13 +23,14 @@ class Counter {
   });
 
   String formatTime(int timeNum) {
-    return timeNum < 10 ? "0" + timeNum.toString() : timeNum.toString();
+    return timeNum < 10 ? "0$timeNum": timeNum.toString();
   }
 
   String constructTime(int seconds) {
     int hour = seconds ~/ 3600;
     int minute = seconds % 3600 ~/ 60;
     int second = seconds % 60;
+    // ignore: prefer_interpolation_to_compose_strings
     return formatTime(hour) +
         ":" +
         formatTime(minute) +

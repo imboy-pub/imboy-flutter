@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -129,13 +130,15 @@ class MessageModel {
     return types.MessageType.unsupported;
   }
 
-  static String ctype(types.MessageType t) {
-    if (t == types.MessageType.text) {
+  static String conversationMsgType(types.Message message) {
+    if (message.type == types.MessageType.text) {
       return 'text';
-    } else if (t == types.MessageType.image) {
+    } else if (message.type == types.MessageType.image) {
       return 'image';
-    } else if (t == types.MessageType.file) {
+    } else if (message.type == types.MessageType.file) {
       return 'file';
+    } else if (message.type == types.MessageType.custom) {
+      return message.metadata?['custom_type'] ?? 'unsupported';
     }
     return 'unsupported';
   }

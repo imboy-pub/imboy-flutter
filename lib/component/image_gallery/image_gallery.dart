@@ -1,8 +1,9 @@
+// ignore: depend_on_referenced_packages
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 // ignore: implementation_imports
-import 'package:flutter_chat_ui/src/conditional/conditional.dart'
-    show Conditional;
+import 'package:flutter_chat_ui/src/conditional/conditional.dart' show Conditional;
+// ignore: depend_on_referenced_packages
 import 'package:niku/namespace.dart' as n;
 import 'package:photo_view/photo_view_gallery.dart';
 

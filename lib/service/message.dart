@@ -177,8 +177,7 @@ class MessageService extends GetxService {
   /// 收到C2C消息
   Future<void> reciveC2CMessage(data) async {
     var msgtype = data['payload']['msg_type'] ?? '';
-    var custom_type = data['payload']['custom_type'] ?? '';
-    var text = data['payload']['text'] ?? '';
+    var subtitle = data['payload']['text'] ?? '';
     debugPrint("> rtc msgs c2c reciveMessage $data");
     int now = DateTimeHelper.currentTimeMillis();
     debugPrint("> rtc msgs c2c now: $now elapsed: ${now - data['created_at']}");
@@ -189,12 +188,12 @@ class MessageService extends GetxService {
     String avatar = ct.avatar;
     String title = ct.nickname;
 
-    String subtitle = text;
-    if (custom_type == 'audio') {
-      msgtype = 'audio';
+    if (msgtype == 'custom') {
+      msgtype = data['payload']['custom_type'] ?? '';
+      subtitle = '';
     }
     ConversationModel cobj = ConversationModel(
-      typeId: data['from'],
+      peerId: data['from'],
       avatar: avatar,
       title: title,
       subtitle: subtitle,
@@ -281,8 +280,8 @@ class MessageService extends GetxService {
     MessageModel? msg = await repo.find(id);
     if (msg != null) {
       eventBus.fire([msg.toTypeMessage()]);
+      changeConversation(msg, 'peer_revoked');
     }
-    changeConversation(id, data['from'], false);
 
     // 通知服务器已撤销
     Map<String, dynamic> msg2 = {
@@ -295,24 +294,32 @@ class MessageService extends GetxService {
   }
 
   /// 撤回消息修正相应会话记录
-  Future<void> changeConversation(
-    String msgId,
-    String msgFromId,
-    bool isack,
-  ) async {
-    ConversationRepo repo2 = ConversationRepo();
-    ConversationModel? cobj = await repo2.findByTypeId(msgFromId);
-
-    if (cobj != null && cobj.lastMsgId == msgId) {
-      bool isCUid = UserRepoLocal.to.currentUid == msgFromId ? true : false;
-      String subtitle = isCUid || isack ? '你撤回了一条消息' : '"${cobj.title}"撤回了一条消息';
-      int res2 = await repo2.updateById(cobj.id, {
-        'subtitle': subtitle,
-      });
-      if (res2 > 0) {
-        cobj.subtitle = subtitle;
-        eventBus.fire(cobj);
-      }
+  Future<void> changeConversation(MessageModel msg, String msgtype) async {
+    String peerId = '';
+    if (msg.fromId == UserRepoLocal.to.currentUid) {
+      peerId = msg.toId ?? '';
+    } else if (msg.toId == UserRepoLocal.to.currentUid) {
+      peerId = msg.fromId ?? '';
+    }
+    if (peerId.isEmpty) {
+      return;
+    }
+    ConversationRepo repo = ConversationRepo();
+    ConversationModel? cobj = await repo.findByPeerId(peerId);
+    if (cobj == null) {
+      return;
+    }
+    if (cobj.lastMsgId != msg.id) {
+      return;
+    }
+    cobj.subtitle = '';
+    cobj.msgtype = msgtype; //peerId == UserRepoLocal.to.currentUid ? 'peer_revoked' : 'my_revoked';
+    int res2 = await repo.updateByPeerId(peerId, {
+      'msgtype': cobj.msgtype,
+      'subtitle': '',
+    });
+    if (res2 > 0) {
+      eventBus.fire(cobj);
     }
   }
 
@@ -320,8 +327,10 @@ class MessageService extends GetxService {
   Future<void> reciveC2CRevokeAckMessage(dtype, data) async {
     MessageRepo repo = MessageRepo();
     MessageModel? msg = await repo.find(data['id']);
-
-    msg!.payload = {
+    if (msg == null) {
+      return;
+    }
+    msg.payload = {
       "msg_type": "custom",
       "custom_type": "revoked",
       'text': msg.payload!['text'],
@@ -332,11 +341,11 @@ class MessageService extends GetxService {
       'status': MessageStatus.send,
       'payload': json.encode(msg.payload),
     });
+
     eventBus.fire([msg.toTypeMessage()]);
     // 确认消息
     String did = await DeviceExt.did;
     WSService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$did");
-
-    changeConversation(data['id'], data['from'], true);
+    changeConversation(msg, 'my_revoked');
   }
 }

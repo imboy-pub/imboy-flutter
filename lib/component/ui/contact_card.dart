@@ -68,18 +68,18 @@ class ContactCard extends StatelessWidget {
     if (strNoEmpty(nickname)) {
       items.add(Padding(
         padding: const EdgeInsets.only(top: 3.0),
-        child: Text("昵称：" + nickname!, style: labelStyle),
+        child: Text("昵称：".tr + nickname!, style: labelStyle),
       ));
     }
     if (strNoEmpty(account)) {
       items.add(Padding(
         padding: const EdgeInsets.only(top: 3.0),
-        child: Text("账号：" + account!, style: labelStyle),
+        child: Text("账号：".tr + account!, style: labelStyle),
       ));
     }
     if (strNoEmpty(region)) {
       items.add(
-        Text("地区：" + region, style: labelStyle),
+        Text("地区：".tr + region, style: labelStyle),
       );
     }
     return Container(

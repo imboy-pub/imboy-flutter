@@ -55,10 +55,13 @@ void confirmAlert<T>(
             : Container(),
         actions: <Widget>[
           CupertinoDialogAction(
+            // ignore: sort_child_properties_last
             child: Text(
-              '$cancelBtn',
-              style:
-                  const TextStyle(fontWeight: FontWeight.w400, color: Colors.black),
+              cancelBtn ?? '',
+              style: const TextStyle(
+                  fontWeight: FontWeight.w400,
+                  color: Colors.black
+              ),
             ),
             isDefaultAction: true,
             onPressed: () {
@@ -67,6 +70,7 @@ void confirmAlert<T>(
             },
           ),
           CupertinoDialogAction(
+            // ignore: sort_child_properties_last
             child: Text('$okBtn', style: okBtnStyle),
             isDestructiveAction: true,
             onPressed: () {
