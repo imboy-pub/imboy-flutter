@@ -51,7 +51,7 @@ class P2pCallScreenPage extends StatelessWidget {
       switch (state) {
         case WebRTCCallState.CallStateInvite:
           logic.stateTips.value = '等待对方接受邀请...'.tr;
-          answerTimer = Timer(Duration(seconds: 10), () {
+          answerTimer = Timer(const Duration(seconds: 10), () {
             logic.stateTips.value = '对方无应答...'.tr;
             Future.delayed(const Duration(seconds: 2), () {
               logic.connected = false.obs;
@@ -132,28 +132,42 @@ class P2pCallScreenPage extends StatelessWidget {
       width: 200.0,
       child: n.Row(
         <Widget>[
+          // 麦克风
           FloatingActionButton(
-            heroTag: "switch_camera",
-            onPressed: logic.switchCamera,
-            child: const Icon(Icons.switch_camera),
+            heroTag: "microphone",
+            tooltip: "microphone".tr,
+            onPressed: logic.turnMicrophone,
+            child: logic.microphoneOff.isTrue
+                ? const Icon(Icons.mic_off)
+                : const Icon(Icons.mic),
           ),
+          // hangup
           FloatingActionButton(
-            heroTag: "call_end",
+            heroTag: "hangup",
+            tooltip: 'hangup'.tr,
             onPressed: () {
               debugPrint("> rtc hangUp");
               logic.sendBye();
               logic.cleanUp();
             },
-            tooltip: 'Hangup',
             backgroundColor: Colors.pink,
             child: const Icon(Icons.call_end),
           ),
-          FloatingActionButton(
-            heroTag: "mic_off",
-            onPressed: logic.turnMicrophone,
-            child: logic.microphoneOff.value
-                ? const Icon(Icons.mic_off)
-                : const Icon(Icons.mic),
+          if (logic.media == 'video') FloatingActionButton(
+            heroTag: "switch_video",
+            tooltip: "switch_video".tr,
+            onPressed: logic.switchCamera,
+            child: const Icon(Icons.videocam),
+          ),
+          // 扬声器开关
+          if (logic.media == 'audio') FloatingActionButton(
+            heroTag: "loudspeaker",
+            tooltip: "loudspeaker".tr,
+            onPressed: logic.switchSpeaker,
+            // child: const Icon(Icons.volume_up),
+            child: logic.speakerOn.isTrue
+                ? const Icon(Icons.volume_up)
+                : const Icon(Icons.volume_off),
           ),
         ],
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -252,7 +266,7 @@ class P2pCallScreenPage extends StatelessWidget {
         onTap: () {
           logic.switchTools();
           // 点击切换 本地和远端 RTCVideoRenderer
-          if (logic.connected.isTrue) {
+          if (logic.connected.isTrue && logic.media == 'video') {
             logic.update([
               logic.switchRenderer.value = !logic.switchRenderer.value,
             ]);
@@ -309,14 +323,16 @@ class P2pCallScreenPage extends StatelessWidget {
 
                     if (logic.showTool.isTrue)
                       Positioned(
-                        top: 30,
+                        top: 32,
                         left: 8,
                         child: InkWell(
                           onTap: _zoom,
-                          child: Image.asset(
-                            'assets/images/chat/minization-window.png',
-                            height: 32,
+                          child: const Icon(
+                            Icons.fullscreen_exit_rounded,
+                            color:Colors.white,
+                            size:30.0,
                           ),
+                          // child: const Icon(Icons.zoom_in_map_rounded, color:Colors.white,),
                         ),
                       ),
                     if (logic.showTool.isTrue)
@@ -333,7 +349,7 @@ class P2pCallScreenPage extends StatelessWidget {
                             )),
                       ),
 
-                    if (logic.connected.isFalse && logic.showTool.isTrue)
+                    if ((logic.connected.isFalse && logic.showTool.isTrue) || logic.media == 'audio')
                       _buildPeerInfo(),
                   ],
                 );

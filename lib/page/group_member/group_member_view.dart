@@ -19,6 +19,7 @@ class GroupMemberPage extends StatefulWidget {
   const GroupMemberPage(this.groupId, {Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _GroupMemberPageState createState() => _GroupMemberPageState();
 }
 
@@ -98,12 +99,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
                 ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(5)),
                   child: !strNoEmpty(uFace)
-                      ? const Image(
-                          image: AssetImage(defIcon),
-                          height: 48.0,
-                          width: 48.0,
-                          fit: BoxFit.cover,
-                        )
+                      ? defAvatarIcon
                       : CachedNetworkImage(
                           imageUrl: uFace!,
                           height: 48.0,
@@ -170,6 +166,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
         children: <Widget>[
           Wrap(
             alignment: WrapAlignment.start,
+            // ignore: sort_child_properties_last
             children: memberList.map(memberItem).toList(),
             runSpacing: 20.0,
             spacing: 10,

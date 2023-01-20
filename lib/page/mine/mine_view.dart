@@ -102,7 +102,7 @@ class MinePage extends StatelessWidget {
         child: Column(
           children: <Widget>[
             GetBuilder<UserRepoLocal>(
-              builder: (_c) => InkWell(
+              builder: (controller) => InkWell(
                 child: Container(
                   color: Colors.white,
                   height: 200,
@@ -125,7 +125,7 @@ class MinePage extends StatelessWidget {
                               const BorderRadius.all(Radius.circular(10.0)),
                           child: InkWell(
                             onTap: () {
-                              String avatar = _c.currentUser.avatar;
+                              String avatar = controller.currentUser.avatar;
                               Get.bottomSheet(
                                 InkWell(
                                   onTap: () {
@@ -152,7 +152,7 @@ class MinePage extends StatelessWidget {
                                 shape: BoxShape.rectangle,
                                 borderRadius: BorderRadius.circular(10.0),
                                 // color: defHeaderBgColor,
-                                image: dynamicAvatar(_c.currentUser.avatar),
+                                image: dynamicAvatar(controller.currentUser.avatar),
                               ),
                             ),
                           ),
@@ -161,12 +161,10 @@ class MinePage extends StatelessWidget {
                       Container(
                         margin: const EdgeInsets.only(left: 10.0, top: 10.0),
                         width: 200.0,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
+                        child: n.Column(
+                          <Widget>[
                             ExtendedText(
-                              _c.currentUser.nickname,
+                              controller.currentUser.nickname,
                               style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 18.0,
@@ -180,33 +178,30 @@ class MinePage extends StatelessWidget {
                               padding:
                                   const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
-                                '账号：' + _c.currentUser.account,
+                                '账号：'.tr + controller.currentUser.account,
                                 style: const TextStyle(
                                   color: AppColors.MainTextColor,
                                 ),
                               ),
                             ),
-                            strNoEmpty(_c.currentUser.region)
+                            strNoEmpty(controller.currentUser.region)
                                 ? Text(
-                                    '地区：' + _c.currentUser.region,
+                                    '地区：'.tr + controller.currentUser.region,
                                     style: const TextStyle(
                                         color: AppColors.MainTextColor),
                                   )
                                 : const SizedBox.shrink(),
                           ],
                           mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                         ),
                       ),
                       const Spacer(),
                       Container(
                         width: 16.0,
                         margin: const EdgeInsets.only(right: 8.0),
-                        child: Image(
-                          image: const AssetImage(
-                              'assets/images/mine/ic_small_code.png'),
-                          color: AppColors.MainTextColor.withOpacity(0.5),
-                          fit: BoxFit.cover,
-                        ),
+                        child: const Icon(Icons.qr_code_2),
                       ),
                       const Image(
                         image: AssetImage(

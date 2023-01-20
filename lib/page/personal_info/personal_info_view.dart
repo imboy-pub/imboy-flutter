@@ -23,6 +23,7 @@ class PersonalInfoPage extends StatefulWidget {
   const PersonalInfoPage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _PersonalInfoPageState createState() => _PersonalInfoPageState();
 }
 
@@ -121,8 +122,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       isRight: item['label'] == 'account' ? false : true,
       margin: EdgeInsets.only(bottom: item['label'] == 'more' ? 10.0 : 0.0),
       rightW: item['label'] == 'uqrcode'
-          ? Image.asset('assets/images/mine/ic_small_code.png',
-              color: AppColors.MainTextColor.withOpacity(0.7))
+          ? const Icon(Icons.qr_code_2)
           : Container(),
       onPressed: () => logic.labelOnPressed(item['label']),
     );
@@ -157,7 +157,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               borderRadius: const BorderRadius.all(Radius.circular(5.0)),
               child: strNoEmpty(currentUserAvatar)
                   ? dynamicAvatar(currentUserAvatar)
-                  : Image.asset(defIcon, fit: BoxFit.cover),
+                  : defAvatarIcon,
             ),
           ),
           onPressed: () => Get.bottomSheet(

@@ -31,9 +31,10 @@ imboy 的Flutter项目
 * 用户Email注册功能（获取Email验证码，密码传输基于RSA算法加密传输）OK
 * 用户通过Email找回密码 OK
 * 用户退出 OK
-* 一对一视频聊天功能 OK
+* 一对一语音通话功能 OK
+* 一对一视频通话功能 OK
   * “音视频通话悬浮”功能 OK
-  * 一对一视频通话切换网络不掉线
+  * 一对一视频通话切换网络不掉线 OK(webrtc支持的功能)
 * 文本聊天 数据聊天分页 OK
 * 聊天消息长按右键菜单 OK
 * 文本聊天 右键菜单之删除消息功能 OK
@@ -80,7 +81,7 @@ imboy 的Flutter项目
 * 发送文件 OK
 * 语音消息录音、发送、播放功能 OK
 * 删除消息（清理消息对应的缓存附件，删除会话，清理所有会话对应的消息的缓存附件） TODO
-* 附件上传进度条 OK (引入 flutter_easyloading: ^3.0.3，体验待优化)
+* 附件上传进度条 OK (引入 flutter_easyloading，体验待优化)
 * 添加好友 TODO
   * 扫描二维码添加好友 OK
   * 申请添加好友页面 OK
@@ -102,7 +103,7 @@ imboy 的Flutter项目
     * https://github.com/fluttercandies/flutter_wechat_camera_picker/issues/12
 * use-flutter-cache-manager-with-video-player 如何边下载、边缓存、边播放 https://stackoverflow.com/questions/68249750/use-flutter-cache-manager-with-video-player
 * 语音消息播放之后红点需要取消
-* 点击多条语音消息一起播放了，体验不好需要优化，语音消息其他体验测试
+* 一对一视频通话偶尔有问题，需要进一步优化
 
 ## flutter_dotenv
 

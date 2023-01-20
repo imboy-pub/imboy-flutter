@@ -102,6 +102,7 @@ class ChatInput extends StatefulWidget {
 
 /// [Input] widget state
 class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
+  double iconSize = 30;
   InputType inputType = _initType;
   final _inputFocusNode = FocusNode();
   bool sendButtonVisible = false;
@@ -387,20 +388,24 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         }
         changeBottomHeight(0);
       },
-      image: AssetImage(
-        inputType != InputType.voice
-            ? 'assets/images/chat/input_voice.png'
-            : 'assets/images/chat/input_keyboard.png',
-      ),
+      // image: AssetImage(
+      //   inputType != InputType.voice
+      //       ? 'assets/images/chat/input_voice.png'
+      //       : 'assets/images/chat/input_keyboard.png',
+      // ),
+        image: inputType != InputType.voice ? Icon(Icons.keyboard_voice_outlined, size: iconSize)
+            : Icon(Icons.keyboard_alt_outlined, size: iconSize),
     );
   }
 
   ///
   Widget buildEmojiButton() {
     return ImageButton(
-      image: AssetImage(inputType != InputType.emoji
-          ? 'assets/images/chat/input_emoji.png'
-          : 'assets/images/chat/input_keyboard.png'),
+      // image: AssetImage(inputType != InputType.emoji
+      //     ? 'assets/images/chat/input_emoji.png'
+      //     : 'assets/images/chat/input_keyboard.png'),
+      image: inputType != InputType.emoji ? Icon(Icons.emoji_emotions_outlined, size: iconSize)
+          : Icon(Icons.keyboard_alt_outlined, size: iconSize),
       onPressed: () {
         if (inputType != InputType.emoji) {
           updateState(InputType.emoji);
@@ -415,7 +420,8 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   /// More input message types entries
   Widget buildExtra() {
     return ImageButton(
-      image: const AssetImage('assets/images/chat/input_extra.png'),
+      // image: const AssetImage('assets/images/chat/input_extra.png'),
+      image: Icon(Icons.control_point, size: iconSize),
       onPressed: () {
         if (inputType != InputType.extra) {
           updateState(InputType.extra);

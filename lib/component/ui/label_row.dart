@@ -1,6 +1,7 @@
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:niku/namespace.dart' as n;
 import 'package:imboy/config/const.dart';
 
 class LabelRow extends StatelessWidget {
@@ -38,6 +39,7 @@ class LabelRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      // ignore: sort_child_properties_last
       child: TextButton(
         style: TextButton.styleFrom(
           minimumSize: Size.zero,
@@ -55,8 +57,7 @@ class LabelRow extends StatelessWidget {
                         color: AppColors.LineColor, width: lineWidth!))
                 : null,
           ),
-          child: Row(
-            children: <Widget>[
+          child: n.Row(<Widget>[
               if (headW != null) headW!,
               SizedBox(
                 width: labelWidth,
@@ -83,7 +84,7 @@ class LabelRow extends StatelessWidget {
                           color: AppColors.MainTextColor.withOpacity(0.7),
                           fontWeight: FontWeight.w400))
                   : const SizedBox.shrink(),
-              rightW != null ? rightW! : Container(),
+              rightW != null ? Center(child: rightW!) : Container(),
               isRight!
                   ? Icon(CupertinoIcons.right_chevron,
                       color: AppColors.MainTextColor.withOpacity(0.5))

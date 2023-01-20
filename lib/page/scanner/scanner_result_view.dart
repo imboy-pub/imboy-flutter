@@ -116,11 +116,32 @@ class ScannerResultPage extends StatelessWidget {
               ),
             )
           : const SizedBox.shrink(),
+      if (isfriend)
+      Visibility(
+        visible: !itself,
+        child: ButtonRow(
+          text: '语音通话'.tr,
+          isBorder: true,
+          onPressed: () {
+            openCallScreen(
+              UserModel.fromJson({
+                "uid": id,
+                "nickname": nickname,
+                "avatar": avatar,
+                "sign": sign,
+              }),
+              {
+                'media': 'audio',
+              },
+            );
+          },
+        ),
+      ),
       isfriend
           ? Visibility(
               visible: !itself,
               child: ButtonRow(
-                text: '音视频通话'.tr,
+                text: '视频通话'.tr,
                 onPressed: () {
                   openCallScreen(
                     UserModel.fromJson({
@@ -166,7 +187,7 @@ class ScannerResultPage extends StatelessWidget {
             ));
           },
           child: const Image(
-            image: AssetImage(contactAssets + 'ic_contacts_details.png'),
+            image: AssetImage('assets/images/right_more.png'),
           ),
         ),
       )

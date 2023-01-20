@@ -52,12 +52,7 @@ class ImageView extends StatelessWidget {
           color: Colors.black26.withOpacity(0.1),
           border: Border.all(color: Colors.black.withOpacity(0.2), width: 0.3),
         ),
-        child: Image(
-          image: const AssetImage(defIcon),
-          width: width! - 1,
-          height: height! - 1,
-          fit: width != null && height != null ? BoxFit.fill : fit,
-        ),
+        child: defAvatarIcon,
       );
     }
     if (isRadius) {

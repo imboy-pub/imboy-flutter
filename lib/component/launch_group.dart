@@ -65,10 +65,7 @@ class LaunchSearch extends StatelessWidget {
       children: <Widget>[
         const Padding(
           padding: EdgeInsets.only(right: 10.0),
-          child: Image(
-            image: AssetImage('assets/images/search_black.webp'),
-            color: AppColors.MainTextColor,
-          ),
+          child: Icon(Icons.search_outlined),
         ),
         Expanded(
           child: TextField(

@@ -30,6 +30,7 @@ class GroupDetailPage extends StatefulWidget {
   const GroupDetailPage(this.peer, {Key? key, this.callBack}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _GroupDetailPageState createState() => _GroupDetailPageState();
 }
 
@@ -129,12 +130,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(5)),
                   child: !strNoEmpty(uFace)
-                      ? const Image(
-                          image: AssetImage(defIcon),
-                          height: 48.0,
-                          width: 48.0,
-                          fit: BoxFit.cover,
-                        )
+                      ? defAvatarIcon
                       : CachedNetworkImage(
                           imageUrl: uFace,
                           height: 48.0,

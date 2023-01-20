@@ -38,7 +38,6 @@ class ContactPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               position: BadgePosition.topStart(top: 0, start: 128),
               padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
-              child: const Icon(Icons.person_add),
               badgeContent: Container(
                 color: Colors.red,
                 alignment: Alignment.center,
@@ -50,6 +49,7 @@ class ContactPage extends StatelessWidget {
                   ),
                 ),
               ),
+              child: const Icon(Icons.person_add),
             )),
         onPressed: () {
           Get.to(() => NewFriendPage());
@@ -121,9 +121,7 @@ class ContactPage extends StatelessWidget {
           InkWell(
             child: const SizedBox(
               width: 60.0,
-              child: Image(
-                image: AssetImage('assets/images/search_black.webp'),
-              ),
+              child: Icon(Icons.search_outlined),
             ),
             onTap: () => Get.to(() => const SearchPage()),
           ),

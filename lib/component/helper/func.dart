@@ -194,26 +194,24 @@ DecorationImage dynamicAvatar(avatar) {
 dynamic genderIcon(int gendor) {
   Widget gimg;
   if (gendor == 1) {
-    gimg = const Image(
-      image: AssetImage('assets/images/Contact_Male.webp'),
-      width: 20.0,
-      fit: BoxFit.fill,
+    gimg = const Icon(
+      Icons.male,
+      color: Colors.lightBlueAccent,
     );
   } else if (gendor == 2) {
-    gimg = const Image(
-      image: AssetImage('assets/images/Contact_Female.webp'),
-      width: 20.0,
-      fit: BoxFit.fill,
+    gimg = const Icon(
+      Icons.female,
+      color: Colors.pink,
     );
   } else if (gendor == 3) {
     gimg = const Icon(
       Icons.security,
-      color: Colors.lightBlueAccent,
+      color: Colors.black87,
     );
   } else {
     gimg = const Icon(
       Icons.battery_unknown,
-      color: Colors.lightBlueAccent,
+      color: Colors.grey,
     );
   }
   return gimg;

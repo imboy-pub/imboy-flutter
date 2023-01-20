@@ -44,8 +44,9 @@ class ContactSettingPage extends StatelessWidget {
             LabelRow(
               label: '设置备注和标签'.tr,
               isLine: true,
-              rValue: remark,
-              onPressed: () => EasyLoading.showToast('敬请期待'),
+              onPressed: () {
+                //
+              },
             ),
             LabelRow(
               label: '朋友权限'.tr,

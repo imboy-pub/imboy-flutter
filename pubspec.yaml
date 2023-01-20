@@ -21,10 +21,10 @@ dependencies:
   get: ^4.6.5
   #演示列表需要用到的库
   dio: ^4.0.6    #网络请求框架
-  json_annotation: ^4.7.0 #json序列化和反序列化用的
+  json_annotation: ^4.8.0 #json序列化和反序列化用的
   permission_handler: ^10.2.0
-  camera: ^0.10.1
-  wechat_camera_picker: ^3.6.5
+  camera: ^0.10.2
+  wechat_camera_picker: ^3.7.0
   #wechat_camera_picker:
   #  git:
   #    url: https://gitee.com/imboy-tripartite-deps/flutter_wechat_camera_picker.git
@@ -62,7 +62,7 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/azlistview.git
       ref: leeyi
   # 视频播放器
-  video_player: ^2.4.10
+  video_player: ^2.5.0
   chewie: ^1.3.6
   webview_flutter: ^4.0.1
   image_picker: ^0.8.6
@@ -110,11 +110,11 @@ dependencies:
   flutter_login: ^4.1.1
   # 进度条
   percent_indicator: ^4.2.2
-  json_serializable: ^6.5.4
+  json_serializable: ^6.6.0
   # 一个干净和轻量级的加载/吐司小部件
   flutter_easyloading: ^3.0.5
   # 生成闪屏页
-  flutter_native_splash: ^2.2.16
+  flutter_native_splash: ^2.2.17
   huawei_account: ^6.1.0+304
   flutter_chat_ui: ^1.6.6
   #image_crop: ^0.4.0
@@ -189,50 +189,12 @@ flutter:
     - assets/images/chat/voice_volume_6.png
     - assets/images/chat/voice_volume_7.png
 
-    - assets/images/chat/input_voice.png
-    - assets/images/chat/input_emoji.png
-    - assets/images/chat/input_extra.png
-    - assets/images/chat/input_keyboard.png
-    - assets/images/chat/minization-window.png
     - assets/images/conversation/sending.png
-
-    - assets/images/chat/extra_photo.webp # 照片 extra_photo.webp
-    - assets/images/chat/extra_camera.webp # 拍摄  extra_camera.webp
-    - assets/images/chat/extra_videocall.webp # 视频通话  extra_camera.webp
-    - assets/images/chat/extra_localtion.webp # 位置 extra_localtion.webp
-    - assets/images/chat/extra_media.webp # 语音通话 extra_media.webp
-    - assets/images/chat/extra_voice.webp # 语音输入  extra_voice.webp
-    - assets/images/chat/extra_favorite.webp # 收藏  extra_favorite.webp
-    - assets/images/chat/extra_card.webp # 个人名片 extra_card.webp
-    - assets/images/chat/extra_file.webp # 文件  extra_file.webp
-    - assets/images/chat/extra_wallet.png # 卡券 extra_wallet.png
-    - assets/images/chat/extra_red.webp
-
-    - assets/images/bar_close.png
-    - assets/images/tabbar_contacts_c.webp
-    - assets/images/tabbar_contacts_s.webp
-    - assets/images/tabbar_discover_c.webp
-    - assets/images/tabbar_discover_s.webp
-    - assets/images/tabbar_chat_c.webp
-    - assets/images/tabbar_chat_s.webp
-    - assets/images/tabbar_me_c.webp
-    - assets/images/tabbar_me_s.webp
-    - assets/images/def_avatar.png
-    - assets/images/search_black.webp
-    - assets/images/search_white.png
-    - assets/images/Contact_Female.webp
-    - assets/images/Contact_Male.webp
-    - assets/images/right_more.png
-    - assets/images/favorite.webp
-    - assets/images/contacts_add_newmessage.png
-    - assets/images/add_addressicon.png
-    - assets/images/ic_delete.webp
-    - assets/images/ic_right_arrow_black.webp
-    - assets/images/ic_right_arrow_grey.webp
-    - assets/images/ic_add_friend.webp
     - assets/images/ic_no_data.webp
+    - assets/images/right_more.png
+    - assets/images/ic_right_arrow_grey.webp
 
-    - assets/images/mine/ic_small_code.png
+    - assets/images/mine/ic_social_circle.png
     - assets/images/mine/ic_wallet.webp
     - assets/images/mine/ic_card_package.png
     - assets/images/mine/ic_emoji.png
@@ -240,29 +202,3 @@ flutter:
     - assets/images/mine/ic_setting.png
     - assets/images/mine/ic_collections.png
     - assets/images/mine/ic_album.png
-    - assets/images/mine/ic_social_circle.png
-
-    - assets/images/contact/ic_contacts_details.png
-    - assets/images/contact/ic_no_public.webp
-    - assets/images/contact/ic_tag.webp
-    - assets/images/contact/ic_group.webp
-    - assets/images/contact/ic_new_friend.webp
-    - assets/images/contact/ic_video.png
-    - assets/images/contact/ic_voice.png
-    - assets/images/contact/ic_offical.webp
-    - assets/images/contact/ic_reda.webp
-    - assets/images/contact/ic_scanqr.webp
-    - assets/images/contact/ic_search_wework.webp
-    - assets/images/contact/ic_contact_add.webp
-
-    - assets/images/discover/ff_Icon_album.webp
-    - assets/images/discover/ff_Icon_shake.webp
-    - assets/images/discover/ff_Icon_bottle.webp
-    - assets/images/discover/ff_Icon_browse.webp
-    - assets/images/discover/ff_Icon_nearby.webp
-    - assets/images/discover/ff_Icon_qr_code.webp
-    - assets/images/discover/ff_Icon_search.webp
-    - assets/images/discover/game_center_h5.webp
-    - assets/images/discover/mini_program.webp
-
-    - assets/images/group/

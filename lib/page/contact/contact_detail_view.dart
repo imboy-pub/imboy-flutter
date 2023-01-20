@@ -68,7 +68,7 @@ class ContactDetailPage extends StatelessWidget {
             ));
           },
           child: const Image(
-            image: AssetImage('${contactAssets}ic_contacts_details.png'),
+            image: AssetImage('assets/images/right_more.png'),
           ),
         ),
       )
@@ -149,15 +149,9 @@ class ContactDetailPage extends StatelessWidget {
               Visibility(
                 visible: !isSelf,
                 child: ButtonRow(
-                  text: '音视频通话'.tr,
+                  text: '语音通话'.tr,
+                  isBorder: true,
                   onPressed: () {
-                    // Map<String, dynamic> j1 = {
-                    //   "uid": id,
-                    //   "nickname": title.value,
-                    //   "avatar": avatar.value,
-                    //   "sign": sign.value,
-                    // };
-                    // debugPrint("> rtc beforopenCallScreen ${j1.toString()}");
                     openCallScreen(
                       UserModel.fromJson({
                         "uid": id,
@@ -165,7 +159,28 @@ class ContactDetailPage extends StatelessWidget {
                         "avatar": avatar.value,
                         "sign": sign.value,
                       }),
-                      {},
+                      {
+                        'media': 'audio',
+                      },
+                    );
+                  },
+                ),
+              ),
+              Visibility(
+                visible: !isSelf,
+                child: ButtonRow(
+                  text: '视频通话'.tr,
+                  onPressed: () {
+                    openCallScreen(
+                      UserModel.fromJson({
+                        "uid": id,
+                        "nickname": title.value,
+                        "avatar": avatar.value,
+                        "sign": sign.value,
+                      }),
+                      {
+                        'media': 'video',
+                      },
                     );
                   },
                 ),

@@ -117,12 +117,7 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
                 ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(5)),
                   child: strEmpty(uFace)
-                      ? const Image(
-                          image: AssetImage(defIcon),
-                          height: 48.0,
-                          width: 48.0,
-                          fit: BoxFit.cover,
-                        )
+                      ? defAvatarIcon
                       : CachedNetworkImage(
                           imageUrl: uFace,
                           height: 48.0,

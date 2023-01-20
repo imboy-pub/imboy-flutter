@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 const appVsn = "1.0.0";
-
-const defIcon = 'assets/images/def_avatar.png';
+Icon defAvatarIcon = const Icon(Icons.account_circle);
 
 const String defGroupAvatar =
     'http://www.flutterj.com/content/uploadfile/zidingyi/g.png';
@@ -16,9 +15,6 @@ const defAvatar = 'assets/images/def_avatar.png';
 
 const CONST_HELP_URL =
     'https://kf.qq.com/touch/product/wechat_app.html?scene_id=kf338';
-
-const defContentImg =
-    'https://www.runoob.com/wp-content/uploads/2015/06/image_1c58e950q14da167k1nqpu2hn5e9.png';
 
 String uqrcodeDataSuffix = "s=uqrcode";
 

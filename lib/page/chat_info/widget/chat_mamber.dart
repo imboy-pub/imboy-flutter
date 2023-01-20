@@ -13,6 +13,7 @@ class ChatMamBer extends StatefulWidget {
   const ChatMamBer({Key? key, this.model}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChatMamBerState createState() => _ChatMamBerState();
 }
 
@@ -37,7 +38,7 @@ class _ChatMamBerState extends State<ChatMamBer> {
               child: Column(
                 children: <Widget>[
                   ImageView(
-                    img: strNoEmpty(face) ? face : defIcon,
+                    img: strNoEmpty(face) ? face : defAvatar,
                     width: 55.0,
                     height: 55.0,
                     fit: BoxFit.cover,

@@ -184,35 +184,35 @@ packages:
       name: camera
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.10.1"
+    version: "0.10.2"
   camera_android:
     dependency: transitive
     description:
       name: camera_android
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.10.0+4"
+    version: "0.10.2+2"
   camera_avfoundation:
     dependency: transitive
     description:
       name: camera_avfoundation
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.8+6"
+    version: "0.9.10+1"
   camera_platform_interface:
     dependency: transitive
     description:
       name: camera_platform_interface
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.3.0"
+    version: "2.3.3"
   camera_web:
     dependency: transitive
     description:
       name: camera_web
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.3.0+1"
+    version: "0.3.1"
   carousel_slider:
     dependency: "direct main"
     description:
@@ -581,7 +581,7 @@ packages:
       name: flutter_native_splash
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.2.16"
+    version: "2.2.17"
   flutter_parsed_text:
     dependency: transitive
     description:
@@ -752,7 +752,7 @@ packages:
       name: image
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.2.2"
+    version: "4.0.10"
   image_crop:
     dependency: "direct main"
     description:
@@ -845,14 +845,14 @@ packages:
       name: json_annotation
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.7.0"
+    version: "4.8.0"
   json_serializable:
     dependency: "direct main"
     description:
       name: json_serializable
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.5.4"
+    version: "6.6.0"
   just_audio:
     dependency: transitive
     description:
@@ -1556,7 +1556,7 @@ packages:
       name: video_player
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.4.10"
+    version: "2.5.0"
   video_player_android:
     dependency: transitive
     description:
@@ -1696,7 +1696,7 @@ packages:
       name: wechat_camera_picker
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.6.5"
+    version: "3.7.0"
   win32:
     dependency: transitive
     description:

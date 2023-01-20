@@ -10,13 +10,14 @@ class ImageButton extends StatefulWidget {
     this.title,
   }) : super(key: key);
 
-  final ImageProvider image;
+  final Widget image;
   final void Function()? onPressed;
   final double? width;
   final double? height;
   final String? title;
 
   @override
+  // ignore: library_private_types_in_public_api
   _ImageButtonState createState() => _ImageButtonState();
 }
 
@@ -29,11 +30,7 @@ class _ImageButtonState extends State<ImageButton> {
         width: widget.width ?? 44,
         height: widget.height ?? 44,
         alignment: Alignment.center,
-        child: Image(
-          image: widget.image,
-          width: widget.width ?? 35,
-          height: widget.height ?? 35,
-        ),
+        child: widget.image,
       ),
     );
   }

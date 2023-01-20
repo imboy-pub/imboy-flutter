@@ -57,7 +57,7 @@ class P2pCallScreenLogic extends getx.GetxController {
   Function(WebRTCSession session, RTCDataChannel dc)? onDataChannel;
 
   Function? closePage;
-  late Map<String, dynamic> iceConfiguration;
+  final Map<String, dynamic> iceConfiguration;
 
   final Map<String, dynamic> offerSdpConstraints = {
     'mandatory': {},
@@ -67,7 +67,7 @@ class P2pCallScreenLogic extends getx.GetxController {
     ]
   };
 
-  final Map<String, dynamic> _dcConstraints = {
+  Map<String, dynamic> privDcConstraints = {
     'mandatory': {
       // 是否接受语音数据
       'OfferToReceiveAudio': true,
@@ -98,6 +98,7 @@ class P2pCallScreenLogic extends getx.GetxController {
     this.micoff = true,
   });
 
+  /// 排线两端，使得两端sessionid一致
   String get sessionid {
     List<String> li = [UserRepoLocal.to.currentUid, peerId];
     li.sort();
@@ -131,8 +132,7 @@ class P2pCallScreenLogic extends getx.GetxController {
 
     // OnSignalingChange：信令状态改变。
     onSignalingStateChange = (RTCSignalingState state) async {
-      debugPrint(
-          "> rtc onSignalingStateChange ${DateTime.now()} state ${state.toString()}");
+      debugPrint("> rtc onSignalingStateChange ${DateTime.now()} state ${state.toString()}");
     };
 
     debugPrint("> rtc logic onInit end ${DateTime.now()}");
@@ -145,8 +145,7 @@ class P2pCallScreenLogic extends getx.GetxController {
   }
 
   void onMessage(WebRTCSignalingModel msg) async {
-    debugPrint(
-        "> rtc msg onMessage ${msg.webrtctype}: ${DateTime.now()} ${msg.toJson().toString()}");
+    debugPrint("> rtc msg onMessage ${msg.webrtctype}: ${DateTime.now()} ${msg.toJson().toString()}");
 
     try {
       P2pCallScreenLogic logic = getx.Get.find<P2pCallScreenLogic>();
@@ -284,9 +283,11 @@ class P2pCallScreenLogic extends getx.GetxController {
   }
 
   Future<void> _createAnswer(WebRTCSession session, String media) async {
+    // 是否接受视频数据
+    privDcConstraints['mandatory']['OfferToReceiveVideo'] = media == 'video' ? true : false;
     try {
       RTCSessionDescription s =
-          await session.pc!.createAnswer(media == 'data' ? _dcConstraints : {});
+          await session.pc!.createAnswer(media == 'data' ? privDcConstraints : {});
 
       // 此方法触发 onIceCandidate
       await session.pc!.setLocalDescription(s);
@@ -325,12 +326,13 @@ class P2pCallScreenLogic extends getx.GetxController {
         mediaConstraints,
       );
       _localStream = stream;
-
-      if (localRenderer.value.textureId == null) {
-        await localRenderer.value.initialize();
+      if (media == 'video') {
+        if (localRenderer.value.textureId == null) {
+          await localRenderer.value.initialize();
+        }
+        localRenderer.value.srcObject = stream;
+        localRenderer.refresh();
       }
-      localRenderer.value.srcObject = stream;
-      localRenderer.refresh();
       debugPrint(
           "> rtc createStream call ${_localStream?.id} ${DateTime.now()}");
     } catch (e) {
@@ -518,9 +520,11 @@ class P2pCallScreenLogic extends getx.GetxController {
 
   Future<void> _createOffer(WebRTCSession s, String m) async {
     debugPrint("> rtc _createOffer media $m sid ${s.sid} ${DateTime.now()}");
+    // 是否接受视频数据
+    privDcConstraints['mandatory']['OfferToReceiveVideo'] = media == 'video' ? true : false;
     try {
       makingOffer = true;
-      s.pc!.createOffer(media == 'data' ? _dcConstraints : {}).then((sd) async {
+      s.pc!.createOffer(media == 'data' ? privDcConstraints : {}).then((sd) async {
         // 此方法触发 onIceCandidate
         await s.pc!.setLocalDescription(sd);
         await _send('offer', {
@@ -723,12 +727,8 @@ class P2pCallScreenLogic extends getx.GetxController {
 
     await cleanUp();
 
-    if (localRenderer.value.textureId != null) {
-      await localRenderer.value.dispose();
-    }
-    if (remoteRenderer.value.textureId != null) {
-      await remoteRenderer.value.dispose();
-    }
+    await localRenderer.value.dispose();
+    await remoteRenderer.value.dispose();
     super.onClose();
   }
 

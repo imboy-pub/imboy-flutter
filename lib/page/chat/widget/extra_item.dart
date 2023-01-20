@@ -15,7 +15,7 @@ class ExtraItem extends StatelessWidget {
     required this.title,
   }) : super(key: key);
 
-  final ImageProvider image;
+  final Widget image;
   final void Function()? onPressed;
   final double? width;
   final double? height;
@@ -49,9 +49,9 @@ class ExtraItem extends StatelessWidget {
                       color: AppColors.ChatInputBackgroundColor,
                     ),
                   ),
-                  child: Image(
-                    image: image,
-                  ),
+                  child: image is ImageProvider ? Image(
+                    image: image as ImageProvider,
+                  ) : image,
                 ),
               ),
             ),
@@ -77,6 +77,7 @@ class ExtraItems extends StatefulWidget {
   final void Function()? handlePickerSelection;
 
   @override
+  // ignore: library_private_types_in_public_api
   _ExtraItemsState createState() => _ExtraItemsState();
 }
 
@@ -86,6 +87,7 @@ class _ExtraItemsState extends State<ExtraItems> {
 
   @override
   Widget build(BuildContext context) {
+    const double iconSize = 30;
     var items = [
       Column(
         children: <Widget>[
@@ -93,19 +95,18 @@ class _ExtraItemsState extends State<ExtraItems> {
             children: [
               ExtraItem(
                 title: "照片".tr,
-                image: const AssetImage('assets/images/chat/extra_photo.webp'),
+                image: const Icon(Icons.photo, size: iconSize),
                 onPressed: widget.handleImageSelection,
               ),
               ExtraItem(
                 title: "拍摄".tr,
-                image: const AssetImage('assets/images/chat/extra_camera.webp'),
+                image: const Icon(Icons.camera_alt, size: iconSize),
                 onPressed: widget.handlePickerSelection,
               ),
               ExtraItem(
                 title: "视频通话".tr,
-                image:
-                    const AssetImage('assets/images/chat/extra_videocall.webp'),
-                onPressed: () async {
+                image: const Icon(Icons.videocam, size: iconSize),
+                onPressed: () {
                   openCallScreen(
                     UserModel.fromJson({
                       "uid": widget.options["to"],
@@ -113,39 +114,51 @@ class _ExtraItemsState extends State<ExtraItems> {
                       "avatar": widget.options["avatar"],
                       "sign": widget.options["sign"],
                     }),
-                    {},
+                    {
+                      'media': 'video',
+                    },
                   );
                 },
               ),
               ExtraItem(
-                title: "位置".tr,
-                image:
-                    const AssetImage('assets/images/chat/extra_localtion.webp'),
-                onPressed: null,
+                title: "语音通话".tr,
+                image: const Icon(Icons.phone, size: iconSize),
+                onPressed: () {
+                  openCallScreen(
+                    UserModel.fromJson({
+                      "uid": widget.options["to"],
+                      "nickname": widget.options["title"],
+                      "avatar": widget.options["avatar"],
+                      "sign": widget.options["sign"],
+                    }),
+                    {
+                      'media': 'audio',
+                    },
+                  );
+                },
               ),
             ],
           ),
           Row(
             children: [
               ExtraItem(
-                title: "语音通话".tr,
-                image: const AssetImage('assets/images/chat/extra_media.webp'),
-                onPressed: null,
-              ),
-              ExtraItem(
-                title: "语音输入".tr,
-                image: const AssetImage('assets/images/chat/extra_voice.webp'),
+                title: "位置".tr,
+                image: const Icon(Icons.location_on, size: iconSize),
                 onPressed: null,
               ),
               ExtraItem(
                 title: "收藏".tr,
-                image:
-                    const AssetImage('assets/images/chat/extra_favorite.webp'),
+                image: const Icon(Icons.collections_bookmark, size: iconSize),
+                onPressed: null,
+              ),
+              ExtraItem(
+                title: "语音输入".tr,
+                image: const Icon(Icons.keyboard_voice, size: iconSize),
                 onPressed: null,
               ),
               ExtraItem(
                 title: "个人名片".tr,
-                image: const AssetImage('assets/images/chat/extra_card.webp'),
+                image: const Icon(Icons.person, size: iconSize),
                 onPressed: null,
               ),
             ],
@@ -157,14 +170,16 @@ class _ExtraItemsState extends State<ExtraItems> {
           Row(children: [
             ExtraItem(
               title: "文件".tr,
-              image: const AssetImage('assets/images/chat/extra_file.webp'),
+              image: const Icon(Icons.file_copy, size: iconSize),
               onPressed: widget.handleFileSelection,
             ),
+            /**
             ExtraItem(
               title: "卡券".tr,
               image: const AssetImage('assets/images/chat/extra_wallet.png'),
               onPressed: null,
             ),
+            */
           ]),
         ],
       ),
