@@ -1,13 +1,13 @@
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+import 'package:photo_view/photo_view.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/list_tile_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/personal_info/personal_info_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
-import 'package:photo_view/photo_view.dart';
 
 import 'mine_logic.dart';
 
@@ -132,12 +132,7 @@ class MinePage extends StatelessWidget {
                                     Get.back();
                                   },
                                   child: PhotoView(
-                                    imageProvider:
-                                        strEmpty(avatar) || avatar == defAvatar
-                                            ? const AssetImage(defAvatar)
-                                                as ImageProvider
-                                            : NetworkImage(avatar),
-                                    // imageProvider: NetworkImage(avatar),
+                                    imageProvider: avatarImageProvider(avatar),
                                   ),
                                 ),
                                 // 是否支持全屏弹出，默认false
@@ -198,14 +193,14 @@ class MinePage extends StatelessWidget {
                         ),
                       ),
                       const Spacer(),
+
                       Container(
-                        width: 16.0,
-                        margin: const EdgeInsets.only(right: 8.0),
+                        width: 18.0,
+                        margin: const EdgeInsets.only(right: 10.0),
                         child: const Icon(Icons.qr_code_2),
                       ),
                       const Image(
-                        image: AssetImage(
-                            'assets/images/ic_right_arrow_grey.webp'),
+                        image: AssetImage('assets/images/ic_right_arrow_grey.webp'),
                         width: 7.0,
                         fit: BoxFit.cover,
                       )

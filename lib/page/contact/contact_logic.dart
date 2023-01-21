@@ -44,9 +44,9 @@ class ContactLogic extends GetxController {
     ContactModel model, {
     Color? defHeaderBgColor,
   }) {
-    DecorationImage? image;
+    DecorationImage? avatar;
     if (model.avatar.isNotEmpty) {
-      image = dynamicAvatar(model.avatar);
+      avatar = dynamicAvatar(model.avatar);
     }
 
     return Container(
@@ -65,7 +65,7 @@ class ContactLogic extends GetxController {
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(4.0),
             color: model.bgColor ?? defHeaderBgColor,
-            image: image,
+            image: avatar,
           ),
           child: model.iconData,
         ),

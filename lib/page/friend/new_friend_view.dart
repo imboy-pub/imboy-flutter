@@ -76,15 +76,14 @@ class NewFriendPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 20),
                 child: LabelRow(
-                  headW: Padding(
-                    padding: const EdgeInsets.only(right: 15.0),
-                    child: Image.asset(
-                      'assets/images/contact/ic_voice.png',
-                      width: 25,
-                      fit: BoxFit.cover,
+                  headW: const Padding(
+                    padding: EdgeInsets.only(right: 15.0),
+                    child: Icon(
+                      Icons.phone,
+                      color: AppColors.primaryElement,
                     ),
                   ),
-                  label: '添加手机联系人',
+                  label: '添加手机联系人'.tr,
                 ),
               ),
               // Spacer(),
@@ -135,10 +134,9 @@ class NewFriendPage extends StatelessWidget {
                                         payload: model.payload,
                                       ));
                                 },
-                                child: Text('接受'.tr),
                                 style: TextButton.styleFrom(
                                   padding: const EdgeInsets.only(right: 0),
-                                  primary: AppColors.primaryElement,
+                                  foregroundColor: AppColors.primaryElement,
                                   backgroundColor:
                                       AppColors.ChatInputBackgroundColor,
                                   textStyle: const TextStyle(
@@ -146,6 +144,7 @@ class NewFriendPage extends StatelessWidget {
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
+                                child: Text('接受'.tr),
                               ));
                             } else if (model.status ==
                                 NewFriendStatus.added.index) {

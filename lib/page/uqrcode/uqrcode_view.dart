@@ -133,14 +133,13 @@ class UqrcodePage extends StatelessWidget {
                 children: [
                   ListTile(
                     leading: Container(
-                      width: 56,
-                      height: 56,
+                      width: 64,
+                      height: 64,
                       decoration: BoxDecoration(
                         shape: BoxShape.rectangle,
                         borderRadius: BorderRadius.circular(10.0),
                         // color: defHeaderBgColor,
-                        image:
-                            dynamicAvatar(UserRepoLocal.to.currentUser.avatar),
+                        image: dynamicAvatar(UserRepoLocal.to.currentUser.avatar),
                       ),
                     ),
                     title: Text(UserRepoLocal.to.currentUser.nickname),
@@ -161,12 +160,20 @@ class UqrcodePage extends StatelessWidget {
                           // bottom: 10,
                         ),
                         gapless: true,
-                        embeddedImage: avatarImageProvider(
-                            UserRepoLocal.to.currentUser.avatar),
+                        //
+                        eyeStyle: const QrEyeStyle(
+                          eyeShape: QrEyeShape.circle,
+                          color: Colors.black,
+                        ),
+                        dataModuleStyle: const QrDataModuleStyle(
+                          dataModuleShape: QrDataModuleShape.circle,
+                          color: Colors.black,
+                        ),
+                        embeddedImage: avatarImageProvider(UserRepoLocal.to.currentUser.avatar),
                         // embeddedImage: AssetImage('assets/images/logo.png'),
-
                         embeddedImageStyle: QrEmbeddedImageStyle(
-                          size: const Size(64, 64),
+                          size: const Size.square(64),
+                          // color: Colors.pink,
                         ),
                       ),
                     ),

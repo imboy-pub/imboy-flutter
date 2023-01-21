@@ -178,41 +178,44 @@ String generateMD5(String data) {
   return hex.encode(digest.bytes);
 }
 
-ImageProvider avatarImageProvider(avatar) {
-  return strEmpty(avatar) || avatar == defAvatar
-      ? const AssetImage(defAvatar) as ImageProvider
-      : CachedNetworkImageProvider(avatar + "&width=400");
+ImageProvider avatarImageProvider(String? avatar, {int w = 400}) {
+  if (strEmpty(avatar) || avatar == defAvatar) {
+    return const AssetImage(defAvatar);
+  }
+  return CachedNetworkImageProvider("$avatar&width=$w",
+    cacheKey: generateMD5(avatar!),
+  );
 }
 
-DecorationImage dynamicAvatar(avatar) {
+DecorationImage dynamicAvatar(String? avatar, {int w = 400}) {
   return DecorationImage(
-    image: avatarImageProvider(avatar),
+    image: avatarImageProvider(avatar, w: w),
     fit: BoxFit.cover,
   );
 }
 
-dynamic genderIcon(int gendor) {
-  Widget gimg;
-  if (gendor == 1) {
-    gimg = const Icon(
+dynamic genderIcon(int gender) {
+  Widget icon;
+  if (gender == 1) {
+    icon = const Icon(
       Icons.male,
       color: Colors.lightBlueAccent,
     );
-  } else if (gendor == 2) {
-    gimg = const Icon(
+  } else if (gender == 2) {
+    icon = const Icon(
       Icons.female,
       color: Colors.pink,
     );
-  } else if (gendor == 3) {
-    gimg = const Icon(
+  } else if (gender == 3) {
+    icon = const Icon(
       Icons.security,
       color: Colors.black87,
     );
   } else {
-    gimg = const Icon(
+    icon = const Icon(
       Icons.battery_unknown,
       color: Colors.grey,
     );
   }
-  return gimg;
+  return icon;
 }

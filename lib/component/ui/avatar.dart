@@ -34,12 +34,7 @@ class Avatar extends StatelessWidget {
             color: const Color(0xFFE5E5E5),
           ),
           color: const Color(0xFFE5E5E5),
-          image: DecorationImage(
-            image: isNetWorkImg(imgUri)
-                ? CachedNetworkImageProvider(imgUri)
-                : AssetImage(imgUri) as ImageProvider,
-            fit: BoxFit.cover,
-          ),
+          image: dynamicAvatar(imgUri),
         ),
       ),
     );

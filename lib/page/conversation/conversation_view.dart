@@ -10,6 +10,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact/contact_detail_view.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
+import 'package:imboy/page/uqrcode/uqrcode_view.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:popup_menu/popup_menu.dart' as popupmenu;
 
@@ -61,8 +62,10 @@ class ConversationPage extends StatelessWidget {
   void topRightMenu(popupmenu.MenuItemProvider item) {
     popupmenu.MenuItem it = item as popupmenu.MenuItem;
     String action = it.userInfo as String;
-    if (action == "scanqrcode") {
+    if (action == 'scanqrcode') {
       Get.to(() => const ScannerPage());
+    } else if (action == 'myqrcode') {
+      Get.to(() => UqrcodePage());
     } else if (it.menuTitle == "撤回") {
       // await logic.revokeMessage(msg);
     }
@@ -94,7 +97,7 @@ class ConversationPage extends StatelessWidget {
                       fontSize: 14.0,
                     ),
                     image: const Icon(
-                      Icons.chat_rounded,
+                      Icons.chat_bubble_outlined,
                       color: Colors.white,
                     ),
                     // userInfo: message,
@@ -107,7 +110,21 @@ class ConversationPage extends StatelessWidget {
                       color: Colors.white,
                     ),
                     image: const Icon(
-                      Icons.person_add,
+                      Icons.person_add_alt_1,
+                      color: Colors.white,
+                    ),
+                    // userInfo: message,
+                  ),
+                  popupmenu.MenuItem(
+                    title: '我的二维码'.tr,
+                    userInfo: 'myqrcode',
+                    textAlign: TextAlign.center,
+                    textStyle: const TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.white,
+                    ),
+                    image: const Icon(
+                      Icons.qr_code_2,
                       color: Colors.white,
                     ),
                     // userInfo: message,
@@ -121,7 +138,7 @@ class ConversationPage extends StatelessWidget {
                       color: Colors.white,
                     ),
                     image: const Icon(
-                      Icons.qr_code_scanner,
+                      Icons.qr_code_scanner_outlined,
                       color: Colors.white,
                     ),
                     // userInfo: message,
@@ -132,8 +149,8 @@ class ConversationPage extends StatelessWidget {
                   context: context,
                   config: const popupmenu.MenuConfig(
                     type: popupmenu.MenuType.list,
-                    itemWidth: 110,
-                    itemHeight: 48,
+                    itemWidth: 124,
+                    itemHeight: 38,
                     arrowHeight: 8,
                     backgroundColor: AppColors.ItemBgColor,
                     highlightColor: AppColors.ItemOnColor,
