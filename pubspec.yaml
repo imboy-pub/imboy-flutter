@@ -117,11 +117,11 @@ dependencies:
   flutter_native_splash: ^2.2.17
   huawei_account: ^6.1.0+304
   flutter_chat_ui: ^1.6.6
-  #image_crop: ^0.4.0
-  image_crop:
-    git:
-      url: https://gitee.com/imboy-tripartite-deps/image_crop.git
-      ref: leeyi
+  image_crop: ^0.4.1
+  #image_crop:
+  #  git:
+  #    url: https://gitee.com/imboy-tripartite-deps/image_crop.git
+  #    ref: leeyi
   # popup_menu: ^1.0.5
   popup_menu:
     git:

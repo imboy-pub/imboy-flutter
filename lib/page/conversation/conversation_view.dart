@@ -68,8 +68,6 @@ class ConversationPage extends StatelessWidget {
       Get.to(() => const ScannerPage());
     } else if (action == 'myqrcode') {
       Get.to(() => UqrcodePage());
-    } else if (it.menuTitle == "撤回") {
-      // await logic.revokeMessage(msg);
     }
   }
 
