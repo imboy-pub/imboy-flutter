@@ -40,7 +40,6 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
 
   @override
   Future<void> dispose() async {
-    // await _audioPlayer.closeAudioSession();
     super.dispose();
   }
 
@@ -54,8 +53,9 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
       played: widget.message.metadata!['played'] ?? false, // To show played badge or not.
       me: userIsAuthor, // Set message side.
       meBgColor: AppColors.ChatSendMessgeBgColor,
-      // meFgColor: AppColors.ChatSentMessageBodyTextColor,
-      noiseCount: durationMS.toInt(),
+      contactFgColor: AppColors.ChatSentMessageBodyTextColor,
+      contactPlayIconColor: Colors.white,
+      durationTime: "$durationMS''",
       onPlay: () {
         if (widget.onPlay != null) widget.onPlay!();
 

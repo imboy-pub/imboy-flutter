@@ -1,8 +1,7 @@
 // ignore: depend_on_referenced_packages
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-// ignore: implementation_imports
-import 'package:flutter_chat_ui/src/conditional/conditional.dart' show Conditional;
+import 'package:imboy/component/helper/func.dart';
 // ignore: depend_on_referenced_packages
 import 'package:niku/namespace.dart' as n;
 import 'package:photo_view/photo_view_gallery.dart';
@@ -64,7 +63,7 @@ class IMBoyImageGallery extends StatelessWidget {
               PhotoViewGallery.builder(
                 builder: (BuildContext context, int index) =>
                     PhotoViewGalleryPageOptions(
-                  imageProvider: Conditional().getProvider(images[index].uri),
+                  imageProvider: cachedImageProvider(images[index].uri, w:0),
                   minScale: options.minScale,
                   maxScale: options.maxScale,
                 ),

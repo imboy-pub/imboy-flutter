@@ -132,7 +132,7 @@ class MinePage extends StatelessWidget {
                                     Get.back();
                                   },
                                   child: PhotoView(
-                                    imageProvider: avatarImageProvider(avatar),
+                                    imageProvider: cachedImageProvider(avatar),
                                   ),
                                 ),
                                 // 是否支持全屏弹出，默认false

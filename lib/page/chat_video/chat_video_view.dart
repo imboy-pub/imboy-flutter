@@ -9,6 +9,7 @@ class ChatVideoPage extends StatefulWidget {
   const ChatVideoPage({Key? key, required this.url}) : super(key: key);
   final String url;
   @override
+  // ignore: library_private_types_in_public_api
   _ChatVideoPageState createState() => _ChatVideoPageState();
 }
 
@@ -42,8 +43,10 @@ class _ChatVideoPageState extends State<ChatVideoPage> {
   void _createChewieController() {
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController,
-      autoPlay: true,
+      autoPlay: false,
       looping: false,
+      useRootNavigator: false,
+      showControls: true,
       //subtitle: Subtitles(subtitles),
       subtitleBuilder: (context, dynamic subtitle) => Container(
         padding: const EdgeInsets.all(0.0),
@@ -94,7 +97,7 @@ class _ChatVideoPageState extends State<ChatVideoPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const CircularProgressIndicator(),
-                Text("Loading".tr),
+                Center(child: Text("Loading".tr),),
               ],
             ),
     );

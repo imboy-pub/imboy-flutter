@@ -70,7 +70,49 @@ packages:
       name: audioplayers
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.20.1"
+    version: "2.0.0"
+  audioplayers_android:
+    dependency: transitive
+    description:
+      name: audioplayers_android
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.4"
+  audioplayers_darwin:
+    dependency: transitive
+    description:
+      name: audioplayers_darwin
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.0.0"
+  audioplayers_linux:
+    dependency: transitive
+    description:
+      name: audioplayers_linux
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.3"
+  audioplayers_platform_interface:
+    dependency: transitive
+    description:
+      name: audioplayers_platform_interface
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.0"
+  audioplayers_web:
+    dependency: transitive
+    description:
+      name: audioplayers_web
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.1.1"
+  audioplayers_windows:
+    dependency: transitive
+    description:
+      name: audioplayers_windows
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.2"
   azlistview:
     dependency: "direct main"
     description:
@@ -1416,14 +1458,14 @@ packages:
       name: syncfusion_flutter_core
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "20.4.43"
+    version: "20.4.44"
   syncfusion_flutter_sliders:
     dependency: transitive
     description:
       name: syncfusion_flutter_sliders
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "20.4.43"
+    version: "20.4.44"
   synchronized:
     dependency: transitive
     description:
@@ -1595,9 +1637,11 @@ packages:
   voice_message_package:
     dependency: "direct main"
     description:
-      name: voice_message_package
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: leeyi
+      resolved-ref: "3a1d9a363fe2efd10ccda3d871f0ad13296cc85c"
+      url: "https://gitee.com/imboy-tripartite-deps/voice_message_player.git"
+    source: git
     version: "0.0.74"
   wakelock:
     dependency: transitive

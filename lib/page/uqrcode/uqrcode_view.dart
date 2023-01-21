@@ -169,7 +169,7 @@ class UqrcodePage extends StatelessWidget {
                           dataModuleShape: QrDataModuleShape.circle,
                           color: Colors.black,
                         ),
-                        embeddedImage: avatarImageProvider(UserRepoLocal.to.currentUser.avatar),
+                        embeddedImage: cachedImageProvider(UserRepoLocal.to.currentUser.avatar),
                         // embeddedImage: AssetImage('assets/images/logo.png'),
                         embeddedImageStyle: QrEmbeddedImageStyle(
                           size: const Size.square(64),

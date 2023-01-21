@@ -178,18 +178,18 @@ String generateMD5(String data) {
   return hex.encode(digest.bytes);
 }
 
-ImageProvider avatarImageProvider(String? avatar, {int w = 400}) {
-  if (strEmpty(avatar) || avatar == defAvatar) {
+ImageProvider cachedImageProvider(String? url, {int w = 400}) {
+  if (strEmpty(url) || url == defAvatar) {
     return const AssetImage(defAvatar);
   }
-  return CachedNetworkImageProvider("$avatar&width=$w",
-    cacheKey: generateMD5(avatar!),
+  return CachedNetworkImageProvider(w > 0 ? "$url&width=$w" : url!,
+    cacheKey: generateMD5(url!),
   );
 }
 
 DecorationImage dynamicAvatar(String? avatar, {int w = 400}) {
   return DecorationImage(
-    image: avatarImageProvider(avatar, w: w),
+    image: cachedImageProvider(avatar, w: w),
     fit: BoxFit.cover,
   );
 }

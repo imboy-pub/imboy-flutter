@@ -64,3 +64,4 @@ macos/Flutter/ephemeral/Flutter-Generated.xcconfig
 macos/Flutter/ephemeral/flutter_export_environment.sh
 emoji_picker_flutter
 .run
+linux/flutter/ephemeral/.plugin_symlinks

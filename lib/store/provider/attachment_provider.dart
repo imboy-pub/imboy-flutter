@@ -155,7 +155,7 @@ class AttachmentProvider {
       };
       await _upload(prefix, data, (Map<String, dynamic> resp, String imgUrl) {
         thumbUri = imgUrl;
-      }, errorCallback);
+      }, errorCallback, process: false);
       // end 上传缩略图
 
       MediaInfo? mediaInfo = await VideoCompress.compressVideo(

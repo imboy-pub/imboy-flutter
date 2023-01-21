@@ -266,3 +266,9 @@ pod update
 pod install
 cd ..
 ```
+
+### voice_message_package
+```
+mkdir -p plugin && cd plugin/
+git clone https://gitee.com/imboy-tripartite-deps/voice_message_player.git voice_message_package
+```
