@@ -15,12 +15,13 @@ class ScannerPage extends StatefulWidget {
   const ScannerPage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _ScannerPageState createState() => _ScannerPageState();
 }
 
 class _ScannerPageState extends State<ScannerPage>
     with SingleTickerProviderStateMixin {
-  String? barcode;
+  String? barcodeStr;
 
   MobileScannerController controller = MobileScannerController(
     // torchEnabled: false, // 是否 打开灯
@@ -31,8 +32,17 @@ class _ScannerPageState extends State<ScannerPage>
   final logic = Get.put(ScannerLogic());
   bool isStarted = true;
 
+  Barcode? barcode;
+  BarcodeCapture? capture;
+  MobileScannerArguments? arguments;
+
   @override
   Widget build(BuildContext context) {
+    final scanWindow = Rect.fromCenter(
+      center: MediaQuery.of(context).size.center(Offset.zero),
+      width: 320,
+      height: 320,
+    );
     return Scaffold(
       backgroundColor: Colors.black,
       body: Builder(
@@ -52,67 +62,75 @@ class _ScannerPageState extends State<ScannerPage>
                   },
                   color: Colors.white,
                   textColor: Colors.black54,
-                  child: const Icon(
-                    Icons.arrow_left,
-                    size: 16,
-                  ),
                   shape: const CircleBorder(),
+                  child: const Icon(Icons.arrow_left, size: 16),
                 ),
               ),
               MobileScanner(
-                controller: controller,
                 fit: BoxFit.contain,
-                allowDuplicates: false,
-                onDetect: (barcode, args) async {
-                  debugPrint(">>> on barcode.rawValue ${barcode.rawValue}");
-                  if (this.barcode != barcode.rawValue) {
-                    // New barcode found !!
-                    setState(() {
-                      this.barcode = barcode.rawValue;
-                    });
-                    if (isUrl(this.barcode!) &&
-                        this.barcode!.endsWith(uqrcodeDataSuffix)) {
-                      IMBoyHttpResponse resp =
-                          await HttpClient.client.get(this.barcode!);
-                      if (!resp.ok) {
-                        return;
-                      }
-                      Map payload = resp.payload;
-                      // debugPrint(">>> on qrcode: ${payload.toString()}");
-                      String result = payload['result'] ?? '';
-                      if (result == '') {
-                        Get.off(
-                          ScannerResultPage(
-                            id: payload['id'] ?? '',
-                            remark: payload['remark'] ?? '',
-                            nickname: payload['nickname'] ?? '',
-                            avatar: payload['avatar'] ?? defAvatar,
-                            sign: payload['sign'] ?? '',
-                            region: payload['region'] ?? '',
-                            gender: payload['gender'] ?? 0,
-                            isfriend: payload['isfriend'] ?? false,
-                          ),
-                        );
-                      } else if (result == 'user_not_exist') {
-                        // EasyLoading.showToast("用户不存在".tr);
-                        await logic.showResult("用户不存在".tr);
-                      } else if (result == 'user_is_disabled_or_deleted') {
-                        // EasyLoading.showToast("用户被禁用或已删除".tr);
-                        await logic.showResult("用户被禁用或已删除".tr);
-                      }
-                    } else if (isUrl(this.barcode!)) {
-                      Get.off(WebViewPage(
-                        this.barcode!,
-                        '',
-                        errorCallback: (String url) {
-                          logic.showResult("无法打开网页： $url");
-                        },
-                      ));
-                    } else {
-                      logic.showResult(this.barcode!);
+                scanWindow: scanWindow,
+                controller: controller,
+                onScannerStarted: (arguments) {
+                  debugPrint("> scanner onScannerStarted ${arguments.toString()}");
+                  setState(() {
+                    this.arguments = arguments;
+                  });
+                },
+                onDetect: (BarcodeCapture barcodes) async {
+                  debugPrint("> scanner onDetect ${barcodes.barcodes.length}");
+                  capture = barcodes;
+                  setState(() => barcode = barcodes.barcodes.first);
+                  // return;
+                  if (barcodeStr == barcodes.barcodes.last.rawValue) {
+                    return;
+                  }
+                  // New barcode found !!
+                  setState(() {
+                    barcodeStr = barcodes.barcodes.last.rawValue;
+                  });
+                  if (isUrl(barcodeStr!) && barcodeStr!.endsWith(uqrcodeDataSuffix)) {
+                    IMBoyHttpResponse resp = await HttpClient.client.get(barcodeStr!);
+                    if (!resp.ok) {
+                      return;
                     }
+                    Map payload = resp.payload;
+                    // debugPrint(">>> on qrcode: ${payload.toString()}");
+                    String result = payload['result'] ?? '';
+                    if (result == '') {
+                      Get.off(
+                        ScannerResultPage(
+                          id: payload['id'] ?? '',
+                          remark: payload['remark'] ?? '',
+                          nickname: payload['nickname'] ?? '',
+                          avatar: payload['avatar'] ?? defAvatar,
+                          sign: payload['sign'] ?? '',
+                          region: payload['region'] ?? '',
+                          gender: payload['gender'] ?? 0,
+                          isfriend: payload['isfriend'] ?? false,
+                        ),
+                      );
+                    } else if (result == 'user_not_exist') {
+                      // EasyLoading.showToast("用户不存在".tr);
+                      await logic.showResult("用户不存在".tr);
+                    } else if (result == 'user_is_disabled_or_deleted') {
+                      // EasyLoading.showToast("用户被禁用或已删除".tr);
+                      await logic.showResult("用户被禁用或已删除".tr);
+                    }
+                  } else if (isUrl(barcodeStr!)) {
+                    Get.off(WebViewPage(
+                      barcodeStr!,
+                      '',
+                      errorCallback: (String url) {
+                        logic.showResult("无法打开网页： $url");
+                      },
+                    ));
+                  } else {
+                    logic.showResult(barcodeStr!);
                   }
                 },
+              ),
+              CustomPaint(
+                painter: ScannerOverlay(scanWindow),
               ),
               Align(
                 alignment: Alignment.bottomCenter,
@@ -204,9 +222,9 @@ class _ScannerPageState extends State<ScannerPage>
                         iconSize: 32.0,
                         onPressed: () async {
                           isStarted = true;
-                          final ImagePicker _picker = ImagePicker();
+                          final ImagePicker picker = ImagePicker();
                           // Pick an image
-                          final XFile? image = await _picker.pickImage(
+                          final XFile? image = await picker.pickImage(
                             source: ImageSource.gallery,
                           );
                           if (image == null) {
@@ -242,5 +260,34 @@ class _ScannerPageState extends State<ScannerPage>
         },
       ),
     );
+  }
+}
+
+class ScannerOverlay extends CustomPainter {
+  ScannerOverlay(this.scanWindow);
+
+  final Rect scanWindow;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final backgroundPath = Path()..addRect(Rect.largest);
+    final cutoutPath = Path()..addRect(scanWindow);
+
+    final backgroundPaint = Paint()
+      ..color = Colors.black.withOpacity(0.5)
+      ..style = PaintingStyle.fill
+      ..blendMode = BlendMode.dstOut;
+
+    final backgroundWithCutout = Path.combine(
+      PathOperation.difference,
+      backgroundPath,
+      cutoutPath,
+    );
+    canvas.drawPath(backgroundWithCutout, backgroundPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
   }
 }

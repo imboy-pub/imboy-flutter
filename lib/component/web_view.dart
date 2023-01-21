@@ -8,7 +8,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 class WebViewPage extends StatefulWidget {
   final String url;
   String title;
-  late WebViewController _controller;
+  WebViewController? _controller;
   final void Function(String url)? errorCallback;
 
   WebViewPage(
@@ -47,8 +47,8 @@ class WebViewPageState extends State<WebViewPage> {
           },
           onPageFinished: (String url) {
             EasyLoading.dismiss();
-            if (widget.title.isEmpty) {
-              widget._controller.getTitle().then((title) {
+            if (widget.title.isEmpty && widget._controller != null) {
+              widget._controller!.getTitle().then((title) {
                 debugPrint('> getTitle onPageFinished $title end');
                 if (title != null) {
                   setState(() {
@@ -80,12 +80,21 @@ class WebViewPageState extends State<WebViewPage> {
   }
 
   @override
+  void dispose() {
+    EasyLoading.dismiss();
+    widget._controller!.removeJavaScriptChannel('imboy_jsbridge');
+    widget._controller!.clearLocalStorage();
+    widget._controller = null;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PageAppBar(
         titleWiew: Text(widget.title),
       ),
-      body: WebViewWidget(controller: widget._controller),
+      body: WebViewWidget(controller: widget._controller!),
     );
   }
 }

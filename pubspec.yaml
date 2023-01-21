@@ -129,7 +129,7 @@ dependencies:
       ref: master
   niku: ^2.3.3
   # 二维码扫描
-  mobile_scanner: ^2.1.0
+  mobile_scanner: ^3.0.0-beta.4
   # 二维码生成
   qr_flutter: ^4.0.0
   url_launcher: ^6.1.7

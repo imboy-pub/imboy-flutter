@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -160,10 +162,14 @@ class ConversationPage extends StatelessWidget {
                   // stateChanged: stateChanged,
                   // onDismiss: onDismiss,
                 );
+                double rtop = 0;
+                if (Platform.isIOS) {
+                  rtop = -24;
+                }
                 menu.show(
                   rect: Rect.fromLTWH(
                     Get.width - 78,
-                    0,
+                    rtop,
                     110,
                     64,
                   ),
