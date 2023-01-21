@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/dragable.dart';
 import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/session.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -181,21 +182,21 @@ class P2pCallScreenPage extends StatelessWidget {
         onTap: _zoom,
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.AppBarColor,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFE5E6E9), width: 3),
+            border: Border.all(color: Colors.white10, width: 2),
           ),
           padding: const EdgeInsets.all(12),
           child: n.Row([
             n.Column([
-              n.Row(const [
+              n.Row([
                 Padding(
-                  padding: EdgeInsets.only(
+                  padding: const EdgeInsets.only(
                     top: 4,
                     right: 4,
                   ),
                   child: Icon(
-                    Icons.call,
+                    logic.media == 'video' ? Icons.videocam : Icons.phone,
                     color: Colors.green,
                   ),
                 ),
@@ -212,10 +213,10 @@ class P2pCallScreenPage extends StatelessWidget {
                       ),
                     )),
               ]),
-              n.Row(const [
+              n.Row([
                 Text(
-                  "正在通话",
-                  style: TextStyle(color: Colors.green),
+                  "正在通话".tr,
+                  style: const TextStyle(color: Colors.green),
                 ),
               ]),
             ]),
