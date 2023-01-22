@@ -87,7 +87,7 @@ class _SearchPageState extends State<SearchPage> {
     );
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(titleWiew: searchView),
+      appBar: PageAppBar(titleWidget: searchView),
       body: SizedBox(width: Get.width, child: body()),
     );
   }

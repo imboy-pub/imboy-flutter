@@ -65,7 +65,7 @@ class UpdatePage extends StatelessWidget {
       child: Wrap(
         children: <Widget>[
           PageAppBar(
-            titleWiew: Row(
+            titleWidget: Row(
               children: [
                 Expanded(
                   child: Text(

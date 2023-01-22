@@ -156,10 +156,14 @@ open /Applications/Android\ Studio\ 4.2\ Preview.app
 
 
 ## 目录规范与命名
+
+* 新增 ./lib/page/single/ 目录，所有的 "类单页面" 都放到该目录
+
 ```
 Lib
 │
 ├──page 落地页
+│   ├──single 所有的 "类单页面" 都放到该目录
 │   └──login 页面落地页文件夹
 │        ├──login_binding.dart => class LoginBinding
 │        ├──login_logic.dart => class LoginLogic

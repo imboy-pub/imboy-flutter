@@ -71,9 +71,6 @@ class AppColors {
 
   static const ButtonTextColor = Color.fromRGBO(112, 113, 135, 1.0);
 
-  static const TitleColor = 0xff181818;
-  static const ButtonArrowColor = 0xffadadad;
-
   ///
 
   /// 主背景 白色

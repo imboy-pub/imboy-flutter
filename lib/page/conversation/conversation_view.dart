@@ -4,6 +4,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/network_failure_tips.dart';
+import 'package:niku/namespace.dart' as n;
+import 'package:popup_menu/popup_menu.dart' as popupmenu;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -14,7 +17,6 @@ import 'package:imboy/page/contact/contact_detail_view.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/page/uqrcode/uqrcode_view.dart';
 import 'package:imboy/store/model/conversation_model.dart';
-import 'package:popup_menu/popup_menu.dart' as popupmenu;
 
 import 'conversation_logic.dart';
 import 'widget/conversation_item.dart';
@@ -175,7 +177,7 @@ class ConversationPage extends StatelessWidget {
               },
             ),
           ],
-          titleWiew: Obx(
+          titleWidget: Obx(
             () => Text(
               'title_message'.tr + logic.connectDesc.value,
               style: const TextStyle(
@@ -185,110 +187,122 @@ class ConversationPage extends StatelessWidget {
               ),
             ),
           )),
-      body: SlidableAutoCloseBehavior(
-        child: Obx(() {
-          return logic.conversations.isEmpty
-              ? NoDataView(text: '无会话消息'.tr)
-              : ListView.builder(
-                  itemBuilder: (BuildContext context, int index) {
-                    ConversationModel model = logic.conversations[index];
-                    int conversationId = model.id;
-                    var remindNum =
-                        logic.conversationRemind.containsKey(model.peerId)
-                            ? logic.conversationRemind[model.peerId]!.obs
-                            : 0.obs;
-                    return InkWell(
-                      onTap: () {
-                        Get.to(
-                          () => ChatPage(
-                            conversationId: model.id,
-                            toId: model.peerId,
-                            title: model.title,
-                            avatar: model.avatar,
-                            sign: model.sign,
-                            type: strEmpty(model.type) ? 'C2C' : model.type,
-                          ),
-                        );
-                      },
-                      onTapDown: (TapDownDetails details) {},
-                      onLongPress: () {},
-                      child: Slidable(
-                        key: ValueKey(model.id),
-                        groupTag: '0',
-                        closeOnScroll: true,
-                        endActionPane: ActionPane(
-                          extentRatio: 0.75,
-                          motion: const StretchMotion(),
-                          children: [
-                            CustomSlidableAction(
-                              onPressed: (_) async {
-                                int num = 1;
-                                remindNum.value = 1;
-                                if (model.unreadNum > 0) {
-                                  num = 0;
-                                  remindNum.value = 0;
-                                }
-                                logic.markAs(model.id, num);
-                                logic.conversationRemind[model.peerId] = num;
-                                model.unreadNum = num;
-                              },
-                              autoClose: true,
-                              backgroundColor: Colors.blue,
-                              flex: 2,
-                              child: Obx(
-                                () => Text(
-                                  remindNum.value > 0 ? "标为已读" : "标为未读",
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ),
-                            SlidableAction(
-                              key: ValueKey("hide_$index"),
-                              flex: 2,
-                              backgroundColor: Colors.amber,
-                              onPressed: (_) async {
-                                await logic.hideConversation(conversationId);
-                                logic.conversations.removeAt(index);
-                                logic.conversationRemind[model.peerId] = 0;
-                                logic.chatMsgRemindCounter;
-                              },
-                              label: "不显示",
-                              spacing: 1,
-                            ),
-                            SlidableAction(
-                              key: ValueKey("delete_$index"),
-                              flex: 2,
-                              backgroundColor: Colors.red,
-                              // foregroundColor: Colors.white,
-                              onPressed: (_) async {
-                                await logic.removeConversation(conversationId);
-                                logic.conversations.removeAt(index);
-                                logic.conversationRemind[model.peerId] = 0;
-                                logic.chatMsgRemindCounter;
-                              },
-                              label: "删除",
-                              spacing: 1,
-                            ),
-                          ],
-                        ),
-                        child: ConversationItem(
-                          model: model,
-                          remindCounter: remindNum,
-                          onTapAvatar: () {
+      body: n.Column([
+        Obx(() {
+          return logic.connectDesc.isEmpty
+              ? const SizedBox.shrink()
+              : const NetworkFailureTips();
+        }),
+        Expanded(
+          child: SlidableAutoCloseBehavior(
+            child: Obx(() {
+              return logic.conversations.isEmpty
+                  ? NoDataView(text: '无会话消息'.tr)
+                  : ListView.builder(
+                      itemBuilder: (BuildContext context, int index) {
+                        ConversationModel model = logic.conversations[index];
+                        int conversationId = model.id;
+                        var remindNum =
+                            logic.conversationRemind.containsKey(model.peerId)
+                                ? logic.conversationRemind[model.peerId]!.obs
+                                : 0.obs;
+                        return InkWell(
+                          onTap: () {
                             Get.to(
-                              () => ContactDetailPage(
-                                id: model.peerId,
+                              () => ChatPage(
+                                conversationId: model.id,
+                                toId: model.peerId,
+                                title: model.title,
+                                avatar: model.avatar,
+                                sign: model.sign,
+                                type: strEmpty(model.type) ? 'C2C' : model.type,
                               ),
                             );
                           },
-                        ),
-                      ),
+                          onTapDown: (TapDownDetails details) {},
+                          onLongPress: () {},
+                          child: Slidable(
+                            key: ValueKey(model.id),
+                            groupTag: '0',
+                            closeOnScroll: true,
+                            endActionPane: ActionPane(
+                              extentRatio: 0.75,
+                              motion: const StretchMotion(),
+                              children: [
+                                CustomSlidableAction(
+                                  onPressed: (_) async {
+                                    int num = 1;
+                                    remindNum.value = 1;
+                                    if (model.unreadNum > 0) {
+                                      num = 0;
+                                      remindNum.value = 0;
+                                    }
+                                    logic.markAs(model.id, num);
+                                    logic.conversationRemind[model.peerId] =
+                                        num;
+                                    model.unreadNum = num;
+                                  },
+                                  autoClose: true,
+                                  backgroundColor: Colors.blue,
+                                  flex: 2,
+                                  child: Obx(
+                                    () => Text(
+                                      remindNum.value > 0 ? "标为已读" : "标为未读",
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                SlidableAction(
+                                  key: ValueKey("hide_$index"),
+                                  flex: 2,
+                                  backgroundColor: Colors.amber,
+                                  onPressed: (_) async {
+                                    await logic
+                                        .hideConversation(conversationId);
+                                    logic.conversations.removeAt(index);
+                                    logic.conversationRemind[model.peerId] = 0;
+                                    logic.chatMsgRemindCounter;
+                                  },
+                                  label: "不显示",
+                                  spacing: 1,
+                                ),
+                                SlidableAction(
+                                  key: ValueKey("delete_$index"),
+                                  flex: 2,
+                                  backgroundColor: Colors.red,
+                                  // foregroundColor: Colors.white,
+                                  onPressed: (_) async {
+                                    await logic
+                                        .removeConversation(conversationId);
+                                    logic.conversations.removeAt(index);
+                                    logic.conversationRemind[model.peerId] = 0;
+                                    logic.chatMsgRemindCounter;
+                                  },
+                                  label: "删除",
+                                  spacing: 1,
+                                ),
+                              ],
+                            ),
+                            child: ConversationItem(
+                              model: model,
+                              remindCounter: remindNum,
+                              onTapAvatar: () {
+                                Get.to(
+                                  () => ContactDetailPage(
+                                    id: model.peerId,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      itemCount: logic.conversations.length,
                     );
-                  },
-                  itemCount: logic.conversations.length,
-                );
-        }),
-      ),
+            }),
+          ),
+        ),
+      ]),
     );
   }
 }

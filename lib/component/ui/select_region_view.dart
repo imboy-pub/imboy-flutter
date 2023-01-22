@@ -87,10 +87,10 @@ class SelectRegionLogic extends GetxController {
                   ? regionSelected[title]["trailing"]
                   : null),
           onTap: () {
-            selectedVal.value =
-                strEmpty(parent) ? title : "$parent $title";
+            selectedVal.value = strEmpty(parent) ? title : "$parent $title";
             if (isRight) {
-              Get.to(() => SelectRegionPage(
+              Get.to(
+                () => SelectRegionPage(
                   parent: selectedVal.value,
                   children: children,
                   callback: callback,
@@ -128,7 +128,8 @@ class SelectRegionPage extends StatelessWidget {
   final Future<bool> Function(String, String) callback;
   final Future<bool> Function(String) outCallback;
 
-  SelectRegionPage({Key? key,
+  SelectRegionPage({
+    Key? key,
     required this.parent,
     required this.children,
     required this.callback,
@@ -147,7 +148,7 @@ class SelectRegionPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(
-        titleWiew: n.Row([
+        titleWidget: n.Row([
           Expanded(
             child: Text(
               '设置地区'.tr,
@@ -182,7 +183,8 @@ class SelectRegionPage extends StatelessWidget {
                       foregroundColor: MaterialStateProperty.all<Color>(
                         Colors.white,
                       ),
-                      minimumSize: MaterialStateProperty.all(const Size(60, 40)),
+                      minimumSize:
+                          MaterialStateProperty.all(const Size(60, 40)),
                       visualDensity: VisualDensity.compact,
                       padding: MaterialStateProperty.all(EdgeInsets.zero),
                     )
@@ -193,7 +195,8 @@ class SelectRegionPage extends StatelessWidget {
                       foregroundColor: MaterialStateProperty.all<Color>(
                         AppColors.LineColor,
                       ),
-                      minimumSize: MaterialStateProperty.all(const Size(60, 40)),
+                      minimumSize:
+                          MaterialStateProperty.all(const Size(60, 40)),
                       visualDensity: VisualDensity.compact,
                       padding: MaterialStateProperty.all(EdgeInsets.zero),
                     ),

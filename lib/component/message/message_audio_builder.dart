@@ -50,8 +50,10 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
     double durationMS = widget.message.metadata!["duration_ms"] / 1000;
     return VoiceMessage(
       audioSrc: widget.message.metadata!['uri'],
-      played: widget.message.metadata!['played'] ?? false, // To show played badge or not.
-      me: userIsAuthor, // Set message side.
+      played: widget.message.metadata!['played'] ?? false,
+      // To show played badge or not.
+      me: userIsAuthor,
+      // Set message side.
       meBgColor: AppColors.ChatSendMessgeBgColor,
       contactFgColor: AppColors.ChatSentMessageBodyTextColor,
       contactPlayIconColor: Colors.white,

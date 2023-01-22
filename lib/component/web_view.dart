@@ -92,7 +92,7 @@ class WebViewPageState extends State<WebViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PageAppBar(
-        titleWiew: Text(widget.title),
+        titleWidget: Text(widget.title),
       ),
       body: WebViewWidget(controller: widget._controller!),
     );

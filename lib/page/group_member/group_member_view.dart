@@ -160,7 +160,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
     }
 
     return Scaffold(
-      appBar: PageAppBar(titleWiew: titleWidget()),
+      appBar: PageAppBar(titleWidget: titleWidget()),
       body: ListView(
         padding: const EdgeInsets.all(10),
         children: <Widget>[

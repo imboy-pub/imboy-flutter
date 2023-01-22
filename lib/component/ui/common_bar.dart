@@ -5,14 +5,14 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
   const NavAppBar({
     Key? key,
     this.title = '',
-    this.titleWiew,
+    this.titleWidget,
     this.rightDMActions,
     this.backgroundColor = AppColors.AppBarColor,
     this.mainColor = Colors.black,
   }) : super(key: key);
 
   final String? title;
-  final Widget? titleWiew;
+  final Widget? titleWidget;
   final List<Widget>? rightDMActions;
   final Color? backgroundColor;
   final Color? mainColor;
@@ -23,7 +23,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: titleWiew ??
+      title: titleWidget ??
           Text(
             title!,
             style: TextStyle(
@@ -46,14 +46,14 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
   const PageAppBar({
     Key? key,
     this.title = '',
-    this.titleWiew,
+    this.titleWidget,
     this.rightDMActions,
     this.backgroundColor = AppColors.AppBarColor,
     this.mainColor = Colors.black,
   }) : super(key: key);
 
   final String? title;
-  final Widget? titleWiew;
+  final Widget? titleWidget;
   final List<Widget>? rightDMActions;
   final Color? backgroundColor;
   final Color? mainColor;
@@ -64,7 +64,7 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: titleWiew ??
+      title: titleWidget ??
           Text(
             title!,
             style: TextStyle(

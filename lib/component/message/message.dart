@@ -34,20 +34,28 @@ class CustomMessageBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (message.metadata!['custom_type'] == 'revoked') {
-      return RevokedMessageBuilder(
-        message: message,
-        user: InheritedUser.of(context).user,
-      );
-    } else if (message.metadata!['custom_type'] == 'video') {
-      return VideoMessageBuilder(
-        message: message,
-      );
-    } else if (message.metadata!['custom_type'] == 'audio') {
-      return AudioMessageBuilder(
-        message: message,
-        user: InheritedUser.of(context).user,
-      );
+    try {
+      if (message.metadata!['custom_type'] == 'revoked') {
+        return RevokedMessageBuilder(
+          message: message,
+          user: InheritedUser
+              .of(context)
+              .user,
+        );
+      } else if (message.metadata!['custom_type'] == 'video') {
+        return VideoMessageBuilder(
+          message: message,
+        );
+      } else if (message.metadata!['custom_type'] == 'audio') {
+        return AudioMessageBuilder(
+          message: message,
+          user: InheritedUser
+              .of(context)
+              .user,
+        );
+      }
+    } catch (e) {
+      debugPrint("> on CustomMessageBuilder e ${e.toString()}");
     }
     return const SizedBox.shrink();
   }

@@ -228,7 +228,7 @@ class WSService extends GetxService {
       _webSocketChannel!.sink.add(message);
       result = true;
     } else {
-      debugPrint('> ws error _socketStatus ${_socketStatus.toString()} $message');
+      debugPrint('> ws error _socketStatus ${_socketStatus.toString()} $message ${DateTime.now()}');
     }
     return result;
   }

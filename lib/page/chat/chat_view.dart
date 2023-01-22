@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+
+// ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart' as getx;
@@ -15,6 +18,7 @@ import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
 import 'package:imboy/component/message/message.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/voice_record/voice_widget.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
@@ -37,6 +41,7 @@ import 'package:xid/xid.dart';
 
 import 'chat_logic.dart';
 import 'widget/chat_input.dart';
+
 // ignore: must_be_immutable
 import 'widget/extra_item.dart';
 
@@ -58,16 +63,21 @@ class ChatPage extends StatefulWidget {
     required this.sign,
     this.type = 'C2C',
   }) : super(key: key);
+
   @override
   ChatPageState createState() => ChatPageState();
 }
 
 class ChatPageState extends State<ChatPage> {
+  // 网络状态描述
+  getx.RxBool connected = false.obs;
+
   final logic = getx.Get.put(ChatLogic());
   final clogic = getx.Get.put(ConversationLogic());
   final gallerylogic = getx.Get.put(ImageGalleryLogic());
 
   bool _showAppBar = true;
+
   // 当前会话新增消息
   List<types.Message> messages = [];
 
@@ -83,9 +93,11 @@ class ChatPageState extends State<ChatPage> {
   void initState() {
     //监听Widget是否绘制完毕
     super.initState();
+
     if (!mounted) {
       return;
     }
+    initData();
     _handleEndReached();
 
     // Register listeners for all events:
@@ -386,7 +398,6 @@ class ChatPageState extends State<ChatPage> {
     }, (DioError error) {
       debugPrint(">>> on upload ${error.toString()}");
     }, process: false);
-
   }
 
   void _onMessageDoubleTap(BuildContext c1, types.Message message) async {
@@ -643,100 +654,107 @@ class ChatPageState extends State<ChatPage> {
               rightDMActions: rWidget,
             )
           : null,
-      body: n.Stack(
-        [
-          Chat(
-            user: logic.cuser,
-            messages: messages,
-            // showUserAvatars: true,
-            // showUserNames: true,
-            customMessageBuilder: (types.CustomMessage msg,
-                {required int messageWidth}) {
-              return CustomMessageBuilder(
-                message: msg,
-              );
-            },
-            onEndReachedThreshold: 0.8,
-            // 300000 = 5分钟 默认 900000 = 15 分钟
-            dateHeaderThreshold: 300000,
-            customDateHeaderText: (DateTime dt) =>
-                DateTimeHelper.customDateHeader(dt),
-            onEndReached: _handleEndReached,
-            onBackgroundTap: () {
-              // 收起输聊天底部弹出框
-              AnimationController _bottomHeightController = getx.Get.find();
-              _bottomHeightController.animateBack(0);
-            },
-            onMessageTap: (BuildContext c1, types.Message message) async {
-              if (message is types.ImageMessage) {
-                gallerylogic.onImagePressed(message);
-                setState(() {
-                  _showAppBar = false;
-                });
-              } else if (message is types.FileMessage) {
-                File? tmpF =
-                    await DefaultCacheManager().getSingleFile(message.uri);
-                await OpenFile.open(tmpF.path);
-              }
-            },
-            onMessageLongPress: _onMessageLongPress,
-            onMessageDoubleTap: _onMessageDoubleTap,
-            onPreviewDataFetched: _handlePreviewDataFetched,
-            onSendPressed: _handleSendPressed,
-            onMessageStatusTap: _onMessageStatusTap,
-            onMessageStatusLongPress: _onMessageStatusTap,
-            hideBackgroundOnEmojiMessages: false,
-            theme: const ImboyChatTheme(),
-            // onTextFieldTap: () {
-            // debugPrint(">>> on chatinput onTextFieldTap");
-            // },
-            customBottomWidget: ChatInput(
-              // 发送触发事件
-              onSendPressed: _handleSendPressed,
-              sendButtonVisibilityMode: SendButtonVisibilityMode.editing,
-              // voiceWidget: VoiceRecord(),
-              voiceWidget: VoiceWidget(
-                startRecord: () {},
-                stopRecord: _handleVoiceSelection,
-                // 加入定制化Container的相关属性
-                height: 40.0,
-                margin: EdgeInsets.zero,
-              ),
-              extraWidget: ExtraItems(
-                  // 照片
-                  handleImageSelection: _handleImageSelection,
-                  // 文件
-                  handleFileSelection: _handleFileSelection,
-                  // 拍摄
-                  handlePickerSelection: _handlePickerSelection,
-                  options: {
-                    "to": widget.toId,
-                    "title": widget.title,
-                    "avatar": widget.avatar,
-                    "sign": widget.sign,
-                  }),
-            ),
-            // 禁用 flutter_chat_ui 的相册
-            disableImageGallery: true,
-          ),
-          if (gallerylogic.isImageViewVisible.isTrue)
-            IMBoyImageGallery(
-              images: gallerylogic.gallery.value,
-              pageController: gallerylogic.galleryPageController!,
-              onClosePressed: () {
-                debugPrint(">>> on onClosePressed ");
-                gallerylogic.onCloseGalleryPressed();
-                setState(() {
-                  _showAppBar = true;
-                });
+      body: n.Column([
+        getx.Obx(() {
+          return connected.isTrue
+              ? const SizedBox.shrink()
+              : const NetworkFailureTips();
+        }),
+        Expanded(
+            child: n.Stack([
+            Chat(
+              user: logic.cuser,
+              messages: messages,
+              // showUserAvatars: true,
+              // showUserNames: true,
+              customMessageBuilder: (types.CustomMessage msg,
+                  {required int messageWidth}) {
+                return CustomMessageBuilder(
+                  message: msg,
+                );
               },
-              options: const IMBoyImageGalleryOptions(
-                maxScale: PhotoViewComputedScale.covered,
-                minScale: PhotoViewComputedScale.contained,
+              onEndReachedThreshold: 0.8,
+              // 300000 = 5分钟 默认 900000 = 15 分钟
+              dateHeaderThreshold: 300000,
+              customDateHeaderText: (DateTime dt) =>
+                  DateTimeHelper.customDateHeader(dt),
+              onEndReached: _handleEndReached,
+              onBackgroundTap: () {
+                // 收起输聊天底部弹出框
+                AnimationController bottomHeightController = getx.Get.find();
+                bottomHeightController.animateBack(0);
+              },
+              onMessageTap: (BuildContext c1, types.Message message) async {
+                if (message is types.ImageMessage) {
+                  gallerylogic.onImagePressed(message);
+                  setState(() {
+                    _showAppBar = false;
+                  });
+                } else if (message is types.FileMessage) {
+                  File? tmpF =
+                      await DefaultCacheManager().getSingleFile(message.uri);
+                  await OpenFile.open(tmpF.path);
+                }
+              },
+              onMessageLongPress: _onMessageLongPress,
+              onMessageDoubleTap: _onMessageDoubleTap,
+              onPreviewDataFetched: _handlePreviewDataFetched,
+              onSendPressed: _handleSendPressed,
+              onMessageStatusTap: _onMessageStatusTap,
+              onMessageStatusLongPress: _onMessageStatusTap,
+              hideBackgroundOnEmojiMessages: false,
+              theme: const ImboyChatTheme(),
+              // onTextFieldTap: () {
+              // debugPrint(">>> on chatinput onTextFieldTap");
+              // },
+              customBottomWidget: ChatInput(
+                // 发送触发事件
+                onSendPressed: _handleSendPressed,
+                sendButtonVisibilityMode: SendButtonVisibilityMode.editing,
+                // voiceWidget: VoiceRecord(),
+                voiceWidget: VoiceWidget(
+                  startRecord: () {},
+                  stopRecord: _handleVoiceSelection,
+                  // 加入定制化Container的相关属性
+                  height: 40.0,
+                  margin: EdgeInsets.zero,
+                ),
+                extraWidget: ExtraItems(
+                    // 照片
+                    handleImageSelection: _handleImageSelection,
+                    // 文件
+                    handleFileSelection: _handleFileSelection,
+                    // 拍摄
+                    handlePickerSelection: _handlePickerSelection,
+                    options: {
+                      "to": widget.toId,
+                      "title": widget.title,
+                      "avatar": widget.avatar,
+                      "sign": widget.sign,
+                    }),
               ),
-            )
-        ],
-      ),
+              // 禁用 flutter_chat_ui 的相册
+              disableImageGallery: true,
+            ),
+            if (gallerylogic.isImageViewVisible.isTrue)
+              IMBoyImageGallery(
+                images: gallerylogic.gallery.value,
+                pageController: gallerylogic.galleryPageController!,
+                onClosePressed: () {
+                  debugPrint(">>> on onClosePressed ");
+                  gallerylogic.onCloseGalleryPressed();
+                  setState(() {
+                    _showAppBar = true;
+                  });
+                },
+                options: const IMBoyImageGalleryOptions(
+                  maxScale: PhotoViewComputedScale.covered,
+                  minScale: PhotoViewComputedScale.contained,
+                ),
+              )
+          ],
+        ))
+      ]),
     );
   }
 
@@ -745,5 +763,23 @@ class ChatPageState extends State<ChatPage> {
     getx.Get.delete<ChatLogic>();
 
     super.dispose();
+  }
+
+  Future<void> initData() async {
+    // 检查网络状态
+    var res = await Connectivity().checkConnectivity();
+    if (res == ConnectivityResult.none) {
+      connected = false.obs;
+    } else {
+      connected = true.obs;
+    }
+    // 监听网络状态
+    Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
+      if (r == ConnectivityResult.none) {
+        connected = false.obs;
+      } else {
+        connected = true.obs;
+      }
+    });
   }
 }

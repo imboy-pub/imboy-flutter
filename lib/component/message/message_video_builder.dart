@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
-import 'package:imboy/page/chat_video/chat_video_view.dart';
+import 'package:imboy/page/single/chat_video.dart';
 
 class VideoMessageBuilder extends StatelessWidget {
   const VideoMessageBuilder({
