@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -101,42 +102,44 @@ class ScannerResultPage extends StatelessWidget {
           ? Visibility(
               visible: !itself,
               child: ButtonRow(
-                margin: const EdgeInsets.only(bottom: 0.0),
-                text: '发消息',
-                isBorder: true,
-                onPressed: () => Get.to(
-                  () => ChatPage(
-                    toId: id,
-                    title: nickname,
-                    avatar: avatar,
-                    sign: sign,
-                    type: 'C2C',
-                  ),
-                ),
-              ),
+                  margin: const EdgeInsets.only(bottom: 0.0),
+                  text: '发消息',
+                  isBorder: true,
+                  onPressed: () {
+                    Navigator.push(
+                        Get.context!,
+                        CupertinoPageRoute(
+                            builder: (_) => ChatPage(
+                                  toId: id,
+                                  title: nickname,
+                                  avatar: avatar,
+                                  sign: sign,
+                                  type: 'C2C',
+                                )));
+                  }),
             )
           : const SizedBox.shrink(),
       if (isfriend)
-      Visibility(
-        visible: !itself,
-        child: ButtonRow(
-          text: '语音通话'.tr,
-          isBorder: true,
-          onPressed: () {
-            openCallScreen(
-              UserModel.fromJson({
-                "uid": id,
-                "nickname": nickname,
-                "avatar": avatar,
-                "sign": sign,
-              }),
-              {
-                'media': 'audio',
-              },
-            );
-          },
+        Visibility(
+          visible: !itself,
+          child: ButtonRow(
+            text: '语音通话'.tr,
+            isBorder: true,
+            onPressed: () {
+              openCallScreen(
+                UserModel.fromJson({
+                  "uid": id,
+                  "nickname": nickname,
+                  "avatar": avatar,
+                  "sign": sign,
+                }),
+                {
+                  'media': 'audio',
+                },
+              );
+            },
+          ),
         ),
-      ),
       isfriend
           ? Visibility(
               visible: !itself,

@@ -8,9 +8,9 @@ import 'package:imboy/page/contact/contact_detail_view.dart';
 import 'package:imboy/page/group_launch/group_launch_view.dart';
 
 class ChatMamBer extends StatefulWidget {
-  final dynamic model;
+  final Map<String, dynamic> options;
 
-  const ChatMamBer({Key? key, this.model}) : super(key: key);
+  const ChatMamBer({Key? key, required this.options}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
@@ -20,8 +20,8 @@ class ChatMamBer extends StatefulWidget {
 class _ChatMamBerState extends State<ChatMamBer> {
   @override
   Widget build(BuildContext context) {
-    String face = widget.model?.avatar;
-    String name = widget.model?.nickname;
+    String face = widget.options['avatar'] ?? '';
+    String name = widget.options['nickname'] ?? '';
     // String account = widget.model?.account;
     // String sign = widget.model?.sign;
 
@@ -53,12 +53,11 @@ class _ChatMamBerState extends State<ChatMamBer> {
               ),
             ),
             onTap: () =>
-                Get.to(() => ContactDetailPage(id: widget.model.identifier)),
+                Get.to(() => ContactDetailPage(id: widget.options['id']??'')),
           );
         }).toList(),
       ),
     );
-
     wrap.add(
       InkWell(
         child: Container(
@@ -67,12 +66,7 @@ class _ChatMamBerState extends State<ChatMamBer> {
             color: AppColors.LineColor,
             width: 0.2,
           )),
-          child: const Image(
-            image: AssetImage('assets/images/chat/ic_details_add.png'),
-            width: 55.0,
-            height: 55.0,
-            fit: BoxFit.cover,
-          ),
+          child: const Icon(Icons.add),
         ),
         onTap: () => Get.to(() => GroupLaunchPage()),
       ),

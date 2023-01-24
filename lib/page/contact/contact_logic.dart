@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -80,15 +81,16 @@ class ContactLogic extends GetxController {
         onLongPress: model.onLongPressed ??
             () {
               if (model.uid != null) {
-                Get.to(
-                  () => ChatPage(
-                    toId: model.uid!,
-                    title: model.title,
-                    avatar: model.avatar,
-                    sign: model.sign,
-                    type: 'C2C',
-                  ),
-                );
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                        builder: (_) => ChatPage(
+                              toId: model.uid!,
+                              title: model.title,
+                              avatar: model.avatar,
+                              sign: model.sign,
+                              type: 'C2C',
+                            )));
               }
             },
       ),

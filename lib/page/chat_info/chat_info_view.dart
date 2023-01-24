@@ -13,12 +13,16 @@ import 'chat_info_logic.dart';
 import 'chat_info_state.dart';
 import 'widget/chat_mamber.dart';
 
+
+// ignore: must_be_immutable
 class ChatInfoPage extends StatefulWidget {
   final String id;
+  Map<String, dynamic>? options;
 
-  const ChatInfoPage(this.id, {Key? key}) : super(key: key);
+  ChatInfoPage(this.id, {Key? key, this.options}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChatInfoPageState createState() => _ChatInfoPageState();
 }
 
@@ -26,8 +30,6 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
   final logic = Get.put(ChatInfoLogic());
   final ChatInfoState state = Get.find<ChatInfoLogic>().state;
 
-  // ignore: prefer_typing_uninitialized_variables
-  var model;
 
   bool isRemind = false;
   bool isTop = false;
@@ -58,7 +60,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
     ];
 
     return [
-      ChatMamBer(model: model),
+      ChatMamBer(options: widget.options!),
       LabelRow(
         label: '查找聊天记录',
         margin: const EdgeInsets.only(top: 10.0),

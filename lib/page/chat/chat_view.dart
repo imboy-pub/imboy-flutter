@@ -70,7 +70,7 @@ class ChatPage extends StatefulWidget {
 
 class ChatPageState extends State<ChatPage> {
   // 网络状态描述
-  getx.RxBool connected = false.obs;
+  getx.RxBool connected = true.obs;
 
   final logic = getx.Get.put(ChatLogic());
   final clogic = getx.Get.put(ConversationLogic());
@@ -98,14 +98,31 @@ class ChatPageState extends State<ChatPage> {
       return;
     }
     initData();
-    _handleEndReached();
+    unawaited(_handleEndReached());
+  }
 
-    // Register listeners for all events:
-    String toId = widget.toId;
+  /// 初始化一些数据
+  Future<void> initData() async {
+    // 检查网络状态
+    var res = await Connectivity().checkConnectivity();
+    if (res == ConnectivityResult.none) {
+      connected = false.obs;
+    } else {
+      connected = true.obs;
+    }
+    // 监听网络状态
+    Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
+      if (r == ConnectivityResult.none) {
+        connected = false.obs;
+      } else {
+        connected = true.obs;
+      }
+    });
+
     // 接收到新的消息订阅
     eventBus.on<types.Message>().listen((types.Message e) async {
-      if (mounted && e.author.id == toId) {
-        clogic.decreaseConversationRemind(toId, 1);
+      if (mounted && e.author.id == widget.toId) {
+        clogic.decreaseConversationRemind(widget.toId, 1);
         messages.insert(0, e);
         if (mounted) {
           setState(() {
@@ -120,7 +137,7 @@ class ChatPageState extends State<ChatPage> {
       types.Message msg = e.first;
 
       if (msg is types.ImageMessage) {
-        gallerylogic.pushToGallery(msg);
+        gallerylogic.pushToGallery(msg.id, msg.uri);
       }
 
       final index = messages.indexWhere((element) => element.id == msg.id);
@@ -133,6 +150,14 @@ class ChatPageState extends State<ChatPage> {
         }
       }
     });
+  }
+
+  @override
+  void dispose() {
+    getx.Get.delete<ChatLogic>();
+    getx.Get.delete<ImageGalleryLogic>();
+
+    super.dispose();
   }
 
   /// 用于分页(无限滚动)。当用户滚动时调用
@@ -157,7 +182,7 @@ class ChatPageState extends State<ChatPage> {
       // 消除消息提醒
       for (var msg in items) {
         if (msg is types.ImageMessage) {
-          gallerylogic.pushToGallery(msg);
+          gallerylogic.pushToGallery(msg.id, msg.uri);
         }
         //enum Status { delivered, error, seen, sending, sent }
         if (msg.author.id == widget.toId && msg.status != types.Status.seen) {
@@ -453,8 +478,8 @@ class ChatPageState extends State<ChatPage> {
     }
     var items = [
       popupmenu.MenuItem(
-        // id: 'copy', // TODO 2023-01-11 为了支持多语言需要新增id参数
         title: '复制',
+        userInfo: {"id":"copy", "msg":message},
         textAlign: TextAlign.center,
         textStyle: const TextStyle(
           color: Color(0xffc5c5c5),
@@ -462,25 +487,32 @@ class ChatPageState extends State<ChatPage> {
         ),
         image: const Icon(
           Icons.copy,
-          color: Colors.white,
+          size: 16,
+          color: Color(0xffc5c5c5),
         ),
-        userInfo: message,
       ),
       popupmenu.MenuItem(
-        title: '转发',
+        title: '转发'.tr,
+        userInfo: {"id":"transpond", "msg":message},
         textAlign: TextAlign.center,
         textStyle: const TextStyle(
           fontSize: 10.0,
-          color: Colors.white,
+          color: Color(0xffc5c5c5),
         ),
-        image: const Icon(
-          Icons.forward,
-          color: Colors.white,
-        ),
-        userInfo: message,
+        // image: const Icon(
+        //   Icons.fork_right_rounded,
+        //   color: Colors.white,
+        // ),
+        image: Image.asset(
+          'assets/images/chat/reply_to.png',
+          // size: 16,
+          color: const Color(0xffc5c5c5),
+          // package: 'flutter_plugin_record',
+        )
       ),
       // MenuItem(
-      //   title: '收藏',
+      //   title: '收藏'.tr,
+      //   userInfo: {"id":"", "msg":message},
       //   textAlign: TextAlign.center,
       //   textStyle: TextStyle(
       //     color: Color(0xffc5c5c5),
@@ -488,40 +520,43 @@ class ChatPageState extends State<ChatPage> {
       //   ),
       //   image: Icon(
       //     Icons.collections_bookmark,
-      //     color: Colors.white,
+      //     size: 16,
+      //     color: Color(0xffc5c5c5),
       //   ),
-      //   userInfo: message,
       // ),
       // MenuItem(
-      //   title: '多选',
+      //   title: '多选'.tr,
+      //   userInfo: {"id":"multiselect", "msg":message},
       //   textAlign: TextAlign.center,
       //   textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
       //   image: Icon(
       //     Icons.add_road,
-      //     color: Colors.white,
+      //     size: 16,
+      //     color: Color(0xffc5c5c5),
       //   ),
-      //   userInfo: message,
       // ),
       popupmenu.MenuItem(
-        title: '引用',
+        title: '引用'.tr,
+        userInfo: {"id":"quote", "msg":message},
         textAlign: TextAlign.center,
         textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
         image: const Icon(
           Icons.format_quote,
-          color: Colors.white,
+          size: 16,
+          color: Color(0xffc5c5c5),
         ),
-        userInfo: message,
       ),
 
       popupmenu.MenuItem(
         title: '删除',
+        userInfo: {"id":"delete", "msg":message},
         textAlign: TextAlign.center,
         textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
         image: const Icon(
-          Icons.remove,
-          color: Colors.white,
+          Icons.remove_circle_outline_rounded,
+          size: 16,
+          color: Color(0xffc5c5c5),
         ),
-        userInfo: message,
       ),
     ];
     //
@@ -534,13 +569,14 @@ class ChatPageState extends State<ChatPage> {
       items.add(
         popupmenu.MenuItem(
           title: '撤回',
+          userInfo: {"id":"cancel", "msg":message},
           textAlign: TextAlign.center,
           textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
           image: const Icon(
-            Icons.play_disabled,
-            color: Colors.white,
+            Icons.layers_clear_rounded,
+            size: 16,
+            color: Color(0xffc5c5c5),
           ),
-          userInfo: message,
         ),
       );
     }
@@ -554,6 +590,7 @@ class ChatPageState extends State<ChatPage> {
       // stateChanged: stateChanged,
       // onDismiss: onDismiss,
     );
+    // ignore: use_build_context_synchronously
     RenderBox renderBox = c1.findRenderObject() as RenderBox;
     var offset = renderBox.localToGlobal(Offset.zero);
     double l = offset.dx / 2 - renderBox.size.width / 2 + 75.0;
@@ -617,8 +654,9 @@ class ChatPageState extends State<ChatPage> {
 
   onClickMenu(popupmenu.MenuItemProvider item) async {
     popupmenu.MenuItem it = item as popupmenu.MenuItem;
-    types.Message msg = it.userInfo as types.Message;
-    if (it.menuTitle == "删除") {
+    types.Message msg = it.userInfo['msg'] as types.Message;
+    String itemId = it.userInfo['id'] ?? '';
+    if (itemId == "delete") {
       bool res = await logic.removeMessage(msg.id);
       if (res) {
         final index = messages.indexWhere((element) => element.id == msg.id);
@@ -626,10 +664,11 @@ class ChatPageState extends State<ChatPage> {
           messages.removeAt(index);
         });
       }
-    } else if (it.menuTitle == "复制" && msg is types.TextMessage) {
+    } else if (itemId == "copy" && msg is types.TextMessage) {
       Clipboard.setData(ClipboardData(text: msg.text));
-    } else if (it.menuTitle == "撤回") {
+    } else if (itemId == "cancel") {
       await logic.revokeMessage(msg);
+    } else if (itemId == "quote") {
     }
   }
 
@@ -643,9 +682,14 @@ class ChatPageState extends State<ChatPage> {
                 widget.toId,
                 callBack: (v) {},
               )
-            : ChatInfoPage(widget.toId)),
+            : ChatInfoPage(widget.toId, options: {
+              "id": widget.toId,
+          "avatar": widget.avatar,
+          "nickname": widget.title,
+        })),
       )
     ];
+
     return Scaffold(
       backgroundColor: AppColors.ChatBg,
       appBar: _showAppBar
@@ -738,6 +782,7 @@ class ChatPageState extends State<ChatPage> {
             ),
             if (gallerylogic.isImageViewVisible.isTrue)
               IMBoyImageGallery(
+                // ignore: invalid_use_of_protected_member
                 images: gallerylogic.gallery.value,
                 pageController: gallerylogic.galleryPageController!,
                 onClosePressed: () {
@@ -756,30 +801,5 @@ class ChatPageState extends State<ChatPage> {
         ))
       ]),
     );
-  }
-
-  @override
-  void dispose() {
-    getx.Get.delete<ChatLogic>();
-
-    super.dispose();
-  }
-
-  Future<void> initData() async {
-    // 检查网络状态
-    var res = await Connectivity().checkConnectivity();
-    if (res == ConnectivityResult.none) {
-      connected = false.obs;
-    } else {
-      connected = true.obs;
-    }
-    // 监听网络状态
-    Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
-      if (r == ConnectivityResult.none) {
-        connected = false.obs;
-      } else {
-        connected = true.obs;
-      }
-    });
   }
 }

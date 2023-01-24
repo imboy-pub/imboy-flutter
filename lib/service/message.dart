@@ -4,8 +4,11 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+// ignore: depend_on_referenced_packages
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/contact/contact_logic.dart';
@@ -218,18 +221,29 @@ class MessageService extends GetxService {
       conversationId: cobj.id,
       status: MessageStatus.delivered,
     );
-    await (MessageRepo()).save(msg);
-
-    eventBus.fire(cobj);
-
-    // 收到一个消息，步增会话消息 1
-    cvlogic.increaseConversationRemind(data['from'], 1);
-
-    eventBus.fire(msg.toTypeMessage());
+    int? exited = await (MessageRepo()).save(msg);
     // 确认消息
     String did = await DeviceExt.did;
     debugPrint("> rtc msgs CLIENT_ACK,C2C,${data['id']},$did");
     WSService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$did");
+    if (exited != null && exited > 0) {
+      return;
+    }
+
+    eventBus.fire(cobj);
+    // 收到一个消息，步增会话消息 1
+    cvlogic.increaseConversationRemind(data['from'], 1);
+    types.Message tMsg = msg.toTypeMessage();
+
+    if (tMsg is types.ImageMessage) {
+      try {
+        ImageGalleryLogic galleryLogic = Get.find();
+        galleryLogic.pushToGallery(tMsg.id, tMsg.uri);
+      } catch (e){
+        //
+      }
+    }
+    eventBus.fire(tMsg);
   }
 
   /// 收到C2C服务端确认消息

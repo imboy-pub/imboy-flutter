@@ -11,6 +11,7 @@ import 'package:imboy/component/locales/locales.g.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/pages.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+// ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -100,6 +101,7 @@ class IMBoyApp extends StatelessWidget {
           //     : ThemeData.dark(),
           builder: EasyLoading.init(),
           theme: ThemeData(
+            platform: TargetPlatform.iOS,
             brightness: Get.find<ThemeController>().darkMode == 0
                 ? Brightness.light
                 : Brightness.dark,

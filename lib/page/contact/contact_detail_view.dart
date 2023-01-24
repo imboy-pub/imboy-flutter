@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -37,6 +38,7 @@ class ContactDetailPage extends StatelessWidget {
   }) : super(key: key);
 
   final logic = Get.put(ContactDetailLogic());
+
   Future<void> initData() async {
     ContactModel? model = await logic.findByID(id);
     debugPrint(">>> on cdv initData $id");
@@ -133,19 +135,21 @@ class ContactDetailPage extends StatelessWidget {
                 ),
               ),
               ButtonRow(
-                margin: const EdgeInsets.only(top: 10.0),
-                text: '发消息'.tr,
-                isBorder: true,
-                onPressed: () => Get.to(
-                  () => ChatPage(
-                    toId: id,
-                    title: title.value,
-                    avatar: avatar.value,
-                    sign: sign.value,
-                    type: 'C2C',
-                  ),
-                ),
-              ),
+                  margin: const EdgeInsets.only(top: 10.0),
+                  text: '发消息'.tr,
+                  isBorder: true,
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                            builder: (_) => ChatPage(
+                                  toId: id,
+                                  title: title.value,
+                                  avatar: avatar.value,
+                                  sign: sign.value,
+                                  type: 'C2C',
+                                )));
+                  }),
               Visibility(
                 visible: !isSelf,
                 child: ButtonRow(

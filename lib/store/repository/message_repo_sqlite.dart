@@ -61,7 +61,7 @@ class MessageRepo {
   }
 
   // 存在就更新，不存在就插入
-  Future<MessageModel> save(MessageModel obj) async {
+  Future<int?> save(MessageModel obj) async {
     String where = '${MessageRepo.id} = ?';
     int? count = await _db.count(
       MessageRepo.tablename,
@@ -75,7 +75,7 @@ class MessageRepo {
       insert(obj);
     }
     debugPrint(">>>>> on MessageRepo/save count:$count; id: $obj.id");
-    return obj;
+    return count;
   }
 
   Future<List<MessageModel>> findByConversation(

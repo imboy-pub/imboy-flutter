@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
@@ -208,16 +209,19 @@ class ConversationPage extends StatelessWidget {
                                 : 0.obs;
                         return InkWell(
                           onTap: () {
-                            Get.to(
-                              () => ChatPage(
-                                conversationId: model.id,
-                                toId: model.peerId,
-                                title: model.title,
-                                avatar: model.avatar,
-                                sign: model.sign,
-                                type: strEmpty(model.type) ? 'C2C' : model.type,
-                              ),
-                            );
+                            Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                    builder: (_) => ChatPage(
+                                          conversationId: model.id,
+                                          toId: model.peerId,
+                                          title: model.title,
+                                          avatar: model.avatar,
+                                          sign: model.sign,
+                                          type: strEmpty(model.type)
+                                              ? 'C2C'
+                                              : model.type,
+                                        )));
                           },
                           onTapDown: (TapDownDetails details) {},
                           onLongPress: () {},

@@ -27,13 +27,13 @@ class ImageGalleryLogic extends GetxController {
     galleryPageController = null;
   }
 
-  void pushToGallery(types.ImageMessage msg) {
+  void pushToGallery(String msgId, String msgUri) {
     if (GetPlatform.isWeb) {
-      if (msg.uri.startsWith('http') || msg.uri.startsWith('blob')) {
-        gallery.insert(0, PreviewImage(id: msg.id, uri: msg.uri));
+      if (msgUri.startsWith('http') || msgUri.startsWith('blob')) {
+        gallery.insert(0, PreviewImage(id: msgId, uri: msgUri));
       }
     } else {
-      gallery.insert(0, PreviewImage(id: msg.id, uri: msg.uri));
+      gallery.insert(0, PreviewImage(id: msgId, uri: msgUri));
     }
   }
 }
