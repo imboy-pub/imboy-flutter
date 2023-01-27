@@ -140,15 +140,17 @@ class ContactDetailPage extends StatelessWidget {
                   isBorder: true,
                   onPressed: () {
                     Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                            builder: (_) => ChatPage(
-                                  toId: id,
-                                  title: title.value,
-                                  avatar: avatar.value,
-                                  sign: sign.value,
-                                  type: 'C2C',
-                                )));
+                      context,
+                      CupertinoPageRoute(
+                        builder: (_) => ChatPage(
+                          peerId: id,
+                          peerTitle: title.value,
+                          peerAvatar: avatar.value,
+                          peerSign: sign.value,
+                          type: 'C2C',
+                        ),
+                      ),
+                    );
                   }),
               Visibility(
                 visible: !isSelf,

@@ -210,18 +210,19 @@ class ConversationPage extends StatelessWidget {
                         return InkWell(
                           onTap: () {
                             Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                    builder: (_) => ChatPage(
-                                          conversationId: model.id,
-                                          toId: model.peerId,
-                                          title: model.title,
-                                          avatar: model.avatar,
-                                          sign: model.sign,
-                                          type: strEmpty(model.type)
-                                              ? 'C2C'
-                                              : model.type,
-                                        )));
+                              context,
+                              CupertinoPageRoute(
+                                builder: (_) => ChatPage(
+                                  conversationId: model.id,
+                                  peerId: model.peerId,
+                                  peerTitle: model.title,
+                                  peerAvatar: model.avatar,
+                                  peerSign: model.sign,
+                                  type:
+                                      strEmpty(model.type) ? 'C2C' : model.type,
+                                ),
+                              ),
+                            );
                           },
                           onTapDown: (TapDownDetails details) {},
                           onLongPress: () {},

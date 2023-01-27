@@ -13,7 +13,6 @@ import 'chat_info_logic.dart';
 import 'chat_info_state.dart';
 import 'widget/chat_mamber.dart';
 
-
 // ignore: must_be_immutable
 class ChatInfoPage extends StatefulWidget {
   final String id;
@@ -30,7 +29,6 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
   final logic = Get.put(ChatInfoLogic());
   final ChatInfoState state = Get.find<ChatInfoLogic>().state;
 
-
   bool isRemind = false;
   bool isTop = false;
   bool isDoNotDisturb = true;
@@ -38,7 +36,8 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
   Widget buildSwitch(item) {
     return LabelRow(
       label: item['label'],
-      margin: item['label'] == '消息免打扰' ? const EdgeInsets.only(top: 10.0) : null,
+      margin:
+          item['label'] == '消息免打扰' ? const EdgeInsets.only(top: 10.0) : null,
       isLine: item['label'] != '强提醒',
       isRight: false,
       rightW: SizedBox(

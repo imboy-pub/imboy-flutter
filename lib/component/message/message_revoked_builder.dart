@@ -1,6 +1,6 @@
-import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:niku/namespace.dart' as n;
+
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
@@ -31,7 +31,8 @@ class RevokedMessageBuilder extends StatelessWidget {
     if (text.isEmpty) {
       canEdit = false;
     }
-    debugPrint("> on canEdit $canEdit; ${message.type} , userIsAuthor: $userIsAuthor, text: $text, msg: ${message.toJson().toString()}");
+    debugPrint(
+        "> on canEdit $canEdit; ${message.type} , userIsAuthor: $userIsAuthor, text: $text, msg: ${message.toJson().toString()}");
     Widget btn = canEdit
         ? GestureDetector(
             onTap: () {
@@ -59,16 +60,18 @@ class RevokedMessageBuilder extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         alignment: Alignment.center,
         color: AppColors.ChatBg,
-        child: n.Row([
-            Padding(
+        child: n.Row(
+          [
+            Expanded(
+                child: Padding(
               padding: userIsAuthor
                   ? const EdgeInsets.only(
                       right: 10,
-                      left: 40,
+                      left: 0,
                     )
-                  : const EdgeInsets.only(left: 20),
+                  : const EdgeInsets.only(left: 50),
               // padding: EdgeInsets.only(right: 10),
-              child: ExtendedText(
+              child: Text(
                 nickname + '撤回了一条消息'.tr,
                 style: const TextStyle(
                   color: AppColors.MainTextColor,
@@ -79,11 +82,10 @@ class RevokedMessageBuilder extends StatelessWidget {
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,
               ),
-            ),
+            )),
             btn,
           ],
-        )
-          ..crossAxisAlignment = CrossAxisAlignment.center,
+        )..crossAxisAlignment = CrossAxisAlignment.center,
       ),
     );
   }

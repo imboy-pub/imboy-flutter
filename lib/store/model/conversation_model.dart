@@ -42,6 +42,8 @@ class ConversationModel {
     String str = '未知消息'.tr;
     if (msgtype == "text") {
       return subtitle;
+    } else if (msgtype == "quote") {
+      return subtitle;
     } else if (msgtype == "image") {
       str = '图片'.tr;
     } else if (msgtype == "file") {
@@ -51,7 +53,7 @@ class ConversationModel {
     } else if (msgtype == "video") {
       str = '视频'.tr;
     } else if (msgtype == "peer_revoked") {
-      return '"${title}"' + '撤回了一条消息'.tr;
+      return '"$title"${'撤回了一条消息'.tr}';
     } else if (msgtype == "my_revoked") {
       return '你撤回了一条消息'.tr;
     } else if (msgtype == "custom") {

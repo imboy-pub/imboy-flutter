@@ -44,23 +44,24 @@ import 'widget/chat_input.dart';
 
 // ignore: must_be_immutable
 import 'widget/extra_item.dart';
+import 'widget/quote_tips.dart';
 
 // ignore: must_be_immutable
 class ChatPage extends StatefulWidget {
   int conversationId; // 会话ID
-  final String toId; // 用户ID
+  final String peerId; // 用户ID
+  final String peerAvatar;
+  final String peerTitle;
+  final String peerSign;
   final String type; // [C2C | GROUP]
-  final String title;
-  final String avatar;
-  final String sign;
 
   ChatPage({
     Key? key,
     this.conversationId = 0,
-    required this.toId,
-    required this.title,
-    required this.avatar,
-    required this.sign,
+    required this.peerId,
+    required this.peerTitle,
+    required this.peerAvatar,
+    required this.peerSign,
     this.type = 'C2C',
   }) : super(key: key);
 
@@ -73,8 +74,8 @@ class ChatPageState extends State<ChatPage> {
   getx.RxBool connected = true.obs;
 
   final logic = getx.Get.put(ChatLogic());
-  final clogic = getx.Get.put(ConversationLogic());
-  final gallerylogic = getx.Get.put(ImageGalleryLogic());
+  final galleryLogic = getx.Get.put(ImageGalleryLogic());
+  final conversationLogic = getx.Get.put(ConversationLogic());
 
   bool _showAppBar = true;
 
@@ -88,6 +89,8 @@ class ChatPageState extends State<ChatPage> {
   int get maxAssetsCount => 9;
 
   List<AssetEntity> assets = <AssetEntity>[];
+
+  types.Message? quoteMessage;
 
   @override
   void initState() {
@@ -121,8 +124,8 @@ class ChatPageState extends State<ChatPage> {
 
     // 接收到新的消息订阅
     eventBus.on<types.Message>().listen((types.Message e) async {
-      if (mounted && e.author.id == widget.toId) {
-        clogic.decreaseConversationRemind(widget.toId, 1);
+      if (mounted && e.author.id == widget.peerId) {
+        conversationLogic.decreaseConversationRemind(widget.peerId, 1);
         messages.insert(0, e);
         if (mounted) {
           setState(() {
@@ -137,7 +140,7 @@ class ChatPageState extends State<ChatPage> {
       types.Message msg = e.first;
 
       if (msg is types.ImageMessage) {
-        gallerylogic.pushToGallery(msg.id, msg.uri);
+        galleryLogic.pushToGallery(msg.id, msg.uri);
       }
 
       final index = messages.indexWhere((element) => element.id == msg.id);
@@ -164,16 +167,16 @@ class ChatPageState extends State<ChatPage> {
   /// 到列表的最后(减去[onEndReachedThreshold])。
   Future<void> _handleEndReached() async {
     if (widget.conversationId == 0) {
-      widget.conversationId = await clogic.createConversationId(
-        widget.toId,
-        widget.avatar,
-        widget.title,
+      widget.conversationId = await conversationLogic.createConversationId(
+        widget.peerId,
+        widget.peerAvatar,
+        widget.peerTitle,
         widget.type,
       );
     }
     // 初始化 当前会话新增消息
     List<types.Message>? items = await logic.getMessages(
-      widget.toId,
+      widget.peerId,
       _page,
       10,
     );
@@ -182,10 +185,10 @@ class ChatPageState extends State<ChatPage> {
       // 消除消息提醒
       for (var msg in items) {
         if (msg is types.ImageMessage) {
-          gallerylogic.pushToGallery(msg.id, msg.uri);
+          galleryLogic.pushToGallery(msg.id, msg.uri);
         }
         //enum Status { delivered, error, seen, sending, sent }
-        if (msg.author.id == widget.toId && msg.status != types.Status.seen) {
+        if (msg.author.id == widget.peerId && msg.status != types.Status.seen) {
           msgIds.add(msg.id);
         }
       }
@@ -193,8 +196,9 @@ class ChatPageState extends State<ChatPage> {
           ? await logic.markAsRead(widget.conversationId, msgIds)
           : null;
       if (cobj != null) {
-        clogic.decreaseConversationRemind(widget.toId, msgIds.length);
-        clogic.replace(cobj);
+        conversationLogic.decreaseConversationRemind(
+            widget.peerId, msgIds.length);
+        conversationLogic.replace(cobj);
       }
 
       setState(() {
@@ -215,19 +219,24 @@ class ChatPageState extends State<ChatPage> {
     //   发送失败后，放入异步队列，重新发送
     String type = widget.type == 'null' ? 'C2C' : widget.type;
     // debugPrint(">>> on _addMessage type :${type}");
-    await logic.addMessage(
-      UserRepoLocal.to.currentUid,
-      widget.toId,
-      widget.avatar,
-      widget.title,
-      type,
-      message,
-    );
+    try {
+      await logic.addMessage(
+        UserRepoLocal.to.currentUid,
+        widget.peerId,
+        widget.peerAvatar,
+        widget.peerTitle,
+        type,
+        message,
+      );
 
-    setState(() {
-      messages.insert(0, message);
-    });
-    return true;
+      setState(() {
+        messages.insert(0, message);
+      });
+      return true;
+    } catch (e) {
+      //
+    }
+    return false;
     // _msgService.update();
   }
 
@@ -243,14 +252,14 @@ class ChatPageState extends State<ChatPage> {
         String uri,
       ) async {
         final message = types.FileMessage(
-          author: logic.cuser,
+          author: logic.currentUser,
           createdAt: DateTimeHelper.currentTimeMillis(),
           id: Xid().toString(),
           mimeType: lookupMimeType(result.files.single.path!),
           name: result.files.single.name,
           size: result.files.single.size,
           uri: uri,
-          remoteId: widget.toId,
+          remoteId: widget.peerId,
           status: types.Status.sending,
         );
 
@@ -288,7 +297,7 @@ class ChatPageState extends State<ChatPage> {
 
         if (entity.type == AssetType.image) {
           final message = types.ImageMessage(
-            author: logic.cuser,
+            author: logic.currentUser,
             createdAt: DateTimeHelper.currentTimeMillis(),
             id: Xid().toString(),
             name: await entity.titleAsync,
@@ -296,7 +305,7 @@ class ChatPageState extends State<ChatPage> {
             width: entity.width * 1.0,
             size: resp["data"]["size"],
             uri: imgUrl,
-            remoteId: widget.toId,
+            remoteId: widget.peerId,
             status: types.Status.sending,
           );
           _addMessage(message);
@@ -308,10 +317,10 @@ class ChatPageState extends State<ChatPage> {
           };
           debugPrint(">>> on upload metadata: ${metadata.toString()}");
           final message = types.CustomMessage(
-            author: logic.cuser,
+            author: logic.currentUser,
             createdAt: DateTimeHelper.currentTimeMillis(),
             id: Xid().toString(),
-            remoteId: widget.toId,
+            remoteId: widget.peerId,
             status: types.Status.sending,
             metadata: metadata,
           );
@@ -353,7 +362,7 @@ class ChatPageState extends State<ChatPage> {
           debugPrint(">>> on upload $resp.toString()");
 
           final message = types.ImageMessage(
-            author: logic.cuser,
+            author: logic.currentUser,
             createdAt: DateTimeHelper.currentTimeMillis(),
             id: Xid().toString(),
             name: await entity.titleAsync,
@@ -361,7 +370,7 @@ class ChatPageState extends State<ChatPage> {
             width: entity.width * 1.0,
             size: resp["data"]["size"],
             uri: imgUrl,
-            remoteId: widget.toId,
+            remoteId: widget.peerId,
             status: types.Status.sending,
           );
 
@@ -374,10 +383,10 @@ class ChatPageState extends State<ChatPage> {
           };
           debugPrint(">>> on upload metadata: ${metadata.toString()}");
           final message = types.CustomMessage(
-            author: logic.cuser,
+            author: logic.currentUser,
             createdAt: DateTimeHelper.currentTimeMillis(),
             id: Xid().toString(),
-            remoteId: widget.toId,
+            remoteId: widget.peerId,
             status: types.Status.sending,
             metadata: metadata,
           );
@@ -410,10 +419,10 @@ class ChatPageState extends State<ChatPage> {
       };
       debugPrint("> on upload metadata: ${metadata.toString()}");
       final message = types.CustomMessage(
-        author: logic.cuser,
+        author: logic.currentUser,
         createdAt: DateTimeHelper.currentTimeMillis(),
         id: Xid().toString(),
-        remoteId: widget.toId,
+        remoteId: widget.peerId,
         status: types.Status.sending,
         metadata: metadata,
       );
@@ -465,7 +474,7 @@ class ChatPageState extends State<ChatPage> {
       File? tmpF = await DefaultCacheManager().getSingleFile(message.uri);
       await OpenFile.open(tmpF.path);
     } else if (message is types.ImageMessage) {
-      gallerylogic.onImagePressed(message);
+      galleryLogic.onImagePressed(message);
       setState(() {
         _showAppBar = false;
       });
@@ -479,7 +488,7 @@ class ChatPageState extends State<ChatPage> {
     var items = [
       popupmenu.MenuItem(
         title: '复制',
-        userInfo: {"id":"copy", "msg":message},
+        userInfo: {"id": "copy", "msg": message},
         textAlign: TextAlign.center,
         textStyle: const TextStyle(
           color: Color(0xffc5c5c5),
@@ -490,25 +499,6 @@ class ChatPageState extends State<ChatPage> {
           size: 16,
           color: Color(0xffc5c5c5),
         ),
-      ),
-      popupmenu.MenuItem(
-        title: '转发'.tr,
-        userInfo: {"id":"transpond", "msg":message},
-        textAlign: TextAlign.center,
-        textStyle: const TextStyle(
-          fontSize: 10.0,
-          color: Color(0xffc5c5c5),
-        ),
-        // image: const Icon(
-        //   Icons.fork_right_rounded,
-        //   color: Colors.white,
-        // ),
-        image: Image.asset(
-          'assets/images/chat/reply_to.png',
-          // size: 16,
-          color: const Color(0xffc5c5c5),
-          // package: 'flutter_plugin_record',
-        )
       ),
       // MenuItem(
       //   title: '收藏'.tr,
@@ -535,9 +525,35 @@ class ChatPageState extends State<ChatPage> {
       //     color: Color(0xffc5c5c5),
       //   ),
       // ),
-      popupmenu.MenuItem(
+    ];
+    //
+    bool isRevoked = (message is types.CustomMessage) &&
+            message.metadata!['custom_type'] == 'revoked'
+        ? true
+        : false;
+    if (!isRevoked) {
+      items.add(popupmenu.MenuItem(
+        title: '转发'.tr,
+        userInfo: {"id": "transpond", "msg": message},
+        textAlign: TextAlign.center,
+        textStyle: const TextStyle(
+          fontSize: 10.0,
+          color: Color(0xffc5c5c5),
+        ),
+        // image: const Icon(
+        //   Icons.fork_right_rounded,
+        //   color: Colors.white,
+        // ),
+        image: Image.asset(
+          'assets/images/chat/reply_to.png',
+          // size: 16,
+          color: const Color(0xffc5c5c5),
+          // package: 'flutter_plugin_record',
+        ),
+      ));
+      items.add(popupmenu.MenuItem(
         title: '引用'.tr,
-        userInfo: {"id":"quote", "msg":message},
+        userInfo: {"id": "quote", "msg": message},
         textAlign: TextAlign.center,
         textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
         image: const Icon(
@@ -545,31 +561,14 @@ class ChatPageState extends State<ChatPage> {
           size: 16,
           color: Color(0xffc5c5c5),
         ),
-      ),
-
-      popupmenu.MenuItem(
-        title: '删除',
-        userInfo: {"id":"delete", "msg":message},
-        textAlign: TextAlign.center,
-        textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-        image: const Icon(
-          Icons.remove_circle_outline_rounded,
-          size: 16,
-          color: Color(0xffc5c5c5),
-        ),
-      ),
-    ];
-    //
-    bool isRevoked = (message is types.CustomMessage) &&
-            message.metadata!['custom_type'] == 'revoked'
-        ? true
-        : false;
+      ));
+    }
     if (message.author.id == UserRepoLocal.to.currentUid &&
         isRevoked == false) {
       items.add(
         popupmenu.MenuItem(
           title: '撤回',
-          userInfo: {"id":"cancel", "msg":message},
+          userInfo: {"id": "revoke", "msg": message},
           textAlign: TextAlign.center,
           textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
           image: const Icon(
@@ -580,6 +579,17 @@ class ChatPageState extends State<ChatPage> {
         ),
       );
     }
+    items.add(popupmenu.MenuItem(
+      title: '删除',
+      userInfo: {"id": "delete", "msg": message},
+      textAlign: TextAlign.center,
+      textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+      image: const Icon(
+        Icons.remove_circle_outline_rounded,
+        size: 16,
+        color: Color(0xffc5c5c5),
+      ),
+    ));
     popupmenu.PopupMenu menu = popupmenu.PopupMenu(
       // backgroundColor: Colors.teal,
       // lineColor: Colors.tealAccent,
@@ -622,16 +632,49 @@ class ChatPageState extends State<ChatPage> {
     });
   }
 
-  Future<bool> _handleSendPressed(types.PartialText message) async {
-    final textMessage = types.TextMessage(
-      author: logic.cuser,
-      createdAt: DateTimeHelper.currentTimeMillis(),
-      id: Xid().toString(),
-      text: message.text,
-      remoteId: widget.toId,
-      status: types.Status.sending,
-    );
-    return await _addMessage(textMessage);
+  Future<void> updateQuoteMessage(types.Message? msg) async {
+    debugPrint('> on updateQuoteMessage ${msg.toString()}');
+    setState(() {
+      quoteMessage = msg;
+    });
+  }
+
+  Future<bool> _handleSendPressed(types.PartialText msg) async {
+    if (quoteMessage == null) {
+      final textMessage = types.TextMessage(
+        author: logic.currentUser,
+        createdAt: DateTimeHelper.currentTimeMillis(),
+        id: Xid().toString(),
+        text: msg.text,
+        remoteId: widget.peerId,
+        status: types.Status.sending,
+      );
+      return await _addMessage(textMessage);
+    } else {
+      String quoteMsgAuthorName = quoteMessage!.author.id == widget.peerId
+          ? widget.peerTitle
+          : UserRepoLocal.to.currentUser.nickname;
+      Map<String, dynamic> metadata = {
+        'custom_type': 'quote',
+        'quote_msg': quoteMessage?.toJson(),
+        'quote_msg_author_name': quoteMsgAuthorName,
+        'quote_text': msg.text,
+      };
+      debugPrint("> on upload metadata: ${metadata.toString()}");
+      final message = types.CustomMessage(
+        author: logic.currentUser,
+        createdAt: DateTimeHelper.currentTimeMillis(),
+        id: Xid().toString(),
+        remoteId: widget.peerId,
+        status: types.Status.sending,
+        metadata: metadata,
+      );
+      bool res = await _addMessage(message);
+      if (res) {
+        updateQuoteMessage(null);
+      }
+      return res;
+    }
   }
 
   void _onMessageStatusTap(BuildContext ctx, types.Message msg) {
@@ -656,6 +699,7 @@ class ChatPageState extends State<ChatPage> {
     popupmenu.MenuItem it = item as popupmenu.MenuItem;
     types.Message msg = it.userInfo['msg'] as types.Message;
     String itemId = it.userInfo['id'] ?? '';
+    debugPrint("> on onClickMenu $itemId, ${msg.id}");
     if (itemId == "delete") {
       bool res = await logic.removeMessage(msg.id);
       if (res) {
@@ -666,9 +710,10 @@ class ChatPageState extends State<ChatPage> {
       }
     } else if (itemId == "copy" && msg is types.TextMessage) {
       Clipboard.setData(ClipboardData(text: msg.text));
-    } else if (itemId == "cancel") {
+    } else if (itemId == "revoke") {
       await logic.revokeMessage(msg);
     } else if (itemId == "quote") {
+      updateQuoteMessage(msg);
     }
   }
 
@@ -679,22 +724,21 @@ class ChatPageState extends State<ChatPage> {
         child: const Image(image: AssetImage('assets/images/right_more.png')),
         onTap: () => getx.Get.to(widget.type == 'GROUP'
             ? GroupDetailPage(
-                widget.toId,
+                widget.peerId,
                 callBack: (v) {},
               )
-            : ChatInfoPage(widget.toId, options: {
-              "id": widget.toId,
-          "avatar": widget.avatar,
-          "nickname": widget.title,
-        })),
+            : ChatInfoPage(widget.peerId, options: {
+                "id": widget.peerId,
+                "avatar": widget.peerAvatar,
+                "nickname": widget.peerTitle,
+              })),
       )
     ];
-
     return Scaffold(
       backgroundColor: AppColors.ChatBg,
       appBar: _showAppBar
           ? PageAppBar(
-              title: newGroupName == "" ? widget.title : newGroupName,
+              title: newGroupName == "" ? widget.peerTitle : newGroupName,
               rightDMActions: rWidget,
             )
           : null,
@@ -705,18 +749,19 @@ class ChatPageState extends State<ChatPage> {
               : const NetworkFailureTips();
         }),
         Expanded(
-            child: n.Stack([
+            child: n.Stack(
+          [
             Chat(
-              user: logic.cuser,
+              user: logic.currentUser,
               messages: messages,
               // showUserAvatars: true,
               // showUserNames: true,
-              customMessageBuilder: (types.CustomMessage msg,
-                  {required int messageWidth}) {
+              customMessageBuilder: (types.CustomMessage msg, {required int messageWidth}) {
                 return CustomMessageBuilder(
                   message: msg,
                 );
               },
+              scrollController: logic.state.scrollController,
               onEndReachedThreshold: 0.8,
               // 300000 = 5分钟 默认 900000 = 15 分钟
               dateHeaderThreshold: 300000,
@@ -730,7 +775,7 @@ class ChatPageState extends State<ChatPage> {
               },
               onMessageTap: (BuildContext c1, types.Message message) async {
                 if (message is types.ImageMessage) {
-                  gallerylogic.onImagePressed(message);
+                  galleryLogic.onImagePressed(message);
                   setState(() {
                     _showAppBar = false;
                   });
@@ -751,6 +796,14 @@ class ChatPageState extends State<ChatPage> {
               // onTextFieldTap: () {
               // debugPrint(">>> on chatinput onTextFieldTap");
               // },
+              slidableMessageBuilder: (types.Message msg, Widget msgWidget) {
+                return GestureDetector(
+                  onPanEnd: (DragEndDetails details) {
+                    updateQuoteMessage(msg);
+                  },
+                  child: msgWidget,
+                );
+              },
               customBottomWidget: ChatInput(
                 // 发送触发事件
                 onSendPressed: _handleSendPressed,
@@ -771,23 +824,35 @@ class ChatPageState extends State<ChatPage> {
                     // 拍摄
                     handlePickerSelection: _handlePickerSelection,
                     options: {
-                      "to": widget.toId,
-                      "title": widget.title,
-                      "avatar": widget.avatar,
-                      "sign": widget.sign,
+                      "to": widget.peerId,
+                      "title": widget.peerTitle,
+                      "avatar": widget.peerAvatar,
+                      "sign": widget.peerSign,
                     }),
+                // 引用消息
+                quoteTipsWidget: QuoteTipsWidget(
+                  title: (quoteMessage != null &&
+                          quoteMessage?.author.id ==
+                              UserRepoLocal.to.currentUid)
+                      ? UserRepoLocal.to.currentUser.nickname
+                      : widget.peerTitle,
+                  message: quoteMessage,
+                  close: () {
+                    updateQuoteMessage(null);
+                  },
+                ),
               ),
               // 禁用 flutter_chat_ui 的相册
               disableImageGallery: true,
             ),
-            if (gallerylogic.isImageViewVisible.isTrue)
+            if (galleryLogic.isImageViewVisible.isTrue)
               IMBoyImageGallery(
                 // ignore: invalid_use_of_protected_member
-                images: gallerylogic.gallery.value,
-                pageController: gallerylogic.galleryPageController!,
+                images: galleryLogic.gallery.value,
+                pageController: galleryLogic.galleryPageController!,
                 onClosePressed: () {
                   debugPrint(">>> on onClosePressed ");
-                  gallerylogic.onCloseGalleryPressed();
+                  galleryLogic.onCloseGalleryPressed();
                   setState(() {
                     _showAppBar = true;
                   });

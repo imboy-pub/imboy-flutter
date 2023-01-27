@@ -21,10 +21,10 @@ class ChatLogic extends GetxController {
   final state = ChatState();
 
   // ignore: prefer_typing_uninitialized_variables
-  late var cuser;
+  late var currentUser;
 
   ChatLogic() {
-    cuser = types.User(
+    currentUser = types.User(
       id: UserRepoLocal.to.currentUid,
       firstName: UserRepoLocal.to.currentUser.nickname,
       imageUrl: UserRepoLocal.to.currentUser.avatar,
@@ -109,7 +109,7 @@ class ChatLogic extends GetxController {
       payload = message.metadata!;
       payload['msg_type'] = 'custom';
     }
-    debugPrint(">>> on getMsgFromTmsg ${message.toJson().toString()}");
+
     MessageModel obj = MessageModel(
       message.id,
       type: type,
@@ -134,20 +134,27 @@ class ChatLogic extends GetxController {
     types.Message message,
   ) async {
     String subtitle = '';
-    String msgtype = MessageModel.conversationMsgType(message);
+    String msgType = MessageModel.conversationMsgType(message);
     int createdAt = DateTimeHelper.currentTimeMillis();
 
+    String customType = '';
+    if (message is types.CustomMessage) {
+      customType = message.metadata?['custom_type'] ?? '';
+    }
     if (message is types.TextMessage) {
       subtitle = message.text;
+    } else if (customType == 'quote') {
+      subtitle = message.metadata?['quote_text'] ?? '';
     }
+
     // message.status = types.Status.sent;
-    ConversationModel cobj = ConversationModel(
+    ConversationModel conversation = ConversationModel(
       peerId: toId,
       avatar: avatar!,
       title: title,
       subtitle: subtitle,
       type: type, // C2C or GROUP
-      msgtype: msgtype,
+      msgtype: msgType,
       lastMsgId: message.id,
       lasttime: createdAt,
       lastMsgStatus: 10, // astMsgStatus 10 发送中 sending;  11 已发送 send;
@@ -156,11 +163,11 @@ class ChatLogic extends GetxController {
       id: 0,
     );
     // 保存会话
-    cobj = await (ConversationRepo()).save(cobj);
-    MessageModel obj = getMsgFromTmsg(type, cobj.id, message);
+    conversation = await (ConversationRepo()).save(conversation);
+    MessageModel obj = getMsgFromTmsg(type, conversation.id, message);
     await (MessageRepo()).insert(obj);
-    eventBus.fire(cobj);
-    // send to servier
+    eventBus.fire(conversation);
+    // send to server
     sendWsMsg(obj);
   }
 

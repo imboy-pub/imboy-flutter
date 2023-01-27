@@ -54,7 +54,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
       // To show played badge or not.
       me: userIsAuthor,
       // Set message side.
-      meBgColor: AppColors.ChatSendMessgeBgColor,
+      meBgColor: AppColors.ChatSendMessageBgColor,
       contactFgColor: AppColors.ChatSentMessageBodyTextColor,
       contactPlayIconColor: Colors.white,
       durationTime: "$durationMS''",

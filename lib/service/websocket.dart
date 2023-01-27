@@ -103,6 +103,7 @@ class WSService extends GetxService {
     if (tokenExpired(token)) {
       debugPrint('> ws openSocket tokenExpired true');
       token = await UserRepoLocal.to.refreshAccessToken();
+      await Future.delayed(const Duration(seconds: 1));
     }
     Map<String, dynamic> headers = await defaultHeaders();
     headers[Keys.tokenKey] = token;

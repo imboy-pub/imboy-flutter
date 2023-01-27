@@ -107,15 +107,17 @@ class ScannerResultPage extends StatelessWidget {
                   isBorder: true,
                   onPressed: () {
                     Navigator.push(
-                        Get.context!,
-                        CupertinoPageRoute(
-                            builder: (_) => ChatPage(
-                                  toId: id,
-                                  title: nickname,
-                                  avatar: avatar,
-                                  sign: sign,
-                                  type: 'C2C',
-                                )));
+                      Get.context!,
+                      CupertinoPageRoute(
+                        builder: (_) => ChatPage(
+                          peerId: id,
+                          peerTitle: nickname,
+                          peerAvatar: avatar,
+                          peerSign: sign,
+                          type: 'C2C',
+                        ),
+                      ),
+                    );
                   }),
             )
           : const SizedBox.shrink(),

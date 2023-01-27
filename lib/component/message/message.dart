@@ -5,6 +5,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/src/widgets/state/inherited_user.dart';
 
 import 'message_audio_builder.dart';
+import 'message_quote_builder.dart';
 import 'message_revoked_builder.dart';
 import 'message_video_builder.dart';
 
@@ -19,6 +20,8 @@ enum CustomMessageType {
   webrtcAudio,
   // webrtc 视频消息
   webrtcVideo,
+  // 引用消息
+  quote,
 }
 
 /// A class that represents text message widget with optional link preview
@@ -34,19 +37,29 @@ class CustomMessageBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint(
+        "> on CustomMessageBuilder ${message.type}, msg: ${message.toJson().toString()}");
     try {
-      if (message.metadata!['custom_type'] == 'revoked') {
+      String customType = message.metadata?['custom_type'] ?? '';
+      if (customType == 'revoked') {
         return RevokedMessageBuilder(
           message: message,
           user: InheritedUser
               .of(context)
               .user,
         );
-      } else if (message.metadata!['custom_type'] == 'video') {
+      } else if (customType == 'quote') {
+        return QuoteMessageBuilder(
+          message: message,
+          user: InheritedUser
+              .of(context)
+              .user,
+        );
+      } else if (customType == 'video') {
         return VideoMessageBuilder(
           message: message,
         );
-      } else if (message.metadata!['custom_type'] == 'audio') {
+      } else if (customType == 'audio') {
         return AudioMessageBuilder(
           message: message,
           user: InheritedUser

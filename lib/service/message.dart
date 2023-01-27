@@ -74,16 +74,16 @@ class MessageService extends GetxService {
       } else {
         switch (type) {
           case 'C2C':
-            await reciveC2CMessage(data);
+            await receiveC2CMessage(data);
             break;
           case 'C2C_SERVER_ACK': // C2C 服务端消息确认
-            await reciveC2CServerAckMessage(data);
+            await receiveC2CServerAckMessage(data);
             break;
           case 'C2C_REVOKE': // 对端撤回消息
-            await reciveC2CRevokeMessage(data);
+            await receiveC2CRevokeMessage(data);
             break;
           case 'C2C_REVOKE_ACK': // 对端撤回消息ACK
-            await reciveC2CRevokeAckMessage(type, data);
+            await receiveC2CRevokeAckMessage(type, data);
             break;
           case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
             break;
@@ -134,17 +134,16 @@ class MessageService extends GetxService {
         // TODO
         break;
       case "logged_another_device": // 在其他设备登录了
-        String currentdid = await DeviceExt.did;
+        String currentId = await DeviceExt.did;
         String did = payload['did'] ?? '';
-        if (did != currentdid) {
-          String dname = payload['dname'] ?? '';
+        if (did != currentId) {
           int serverTs = data['server_ts'] ?? 0;
           WSService.to.closeSocket();
           UserRepoLocal.to.logout();
           Get.off(() => PassportPage(), arguments: {
             "msgtype": "logged_another_device",
             "server_ts": serverTs,
-            "dname": dname,
+            "dname": payload['dname'] ?? '', // 设备名称
           });
         }
 
@@ -178,10 +177,10 @@ class MessageService extends GetxService {
   }
 
   /// 收到C2C消息
-  Future<void> reciveC2CMessage(data) async {
+  Future<void> receiveC2CMessage(data) async {
     var msgtype = data['payload']['msg_type'] ?? '';
     var subtitle = data['payload']['text'] ?? '';
-    debugPrint("> rtc msgs c2c reciveMessage $data");
+    debugPrint("> rtc msgs c2c receiveMessage $data");
     int now = DateTimeHelper.currentTimeMillis();
     debugPrint("> rtc msgs c2c now: $now elapsed: ${now - data['created_at']}");
 
@@ -194,6 +193,9 @@ class MessageService extends GetxService {
     if (msgtype == 'custom') {
       msgtype = data['payload']['custom_type'] ?? '';
       subtitle = '';
+    }
+    if (msgtype == 'quote') {
+      subtitle = data['payload']['quote_text'] ?? '';
     }
     ConversationModel cobj = ConversationModel(
       peerId: data['from'],
@@ -247,7 +249,7 @@ class MessageService extends GetxService {
   }
 
   /// 收到C2C服务端确认消息
-  Future<void> reciveC2CServerAckMessage(Map data) async {
+  Future<void> receiveC2CServerAckMessage(Map data) async {
     debugPrint("> rtc msgs S_RECEIVED: msg:$data");
     MessageRepo repo = MessageRepo();
     String id = data['id'];
@@ -276,9 +278,8 @@ class MessageService extends GetxService {
   }
 
   /// 收到C2C撤回消息
-  Future<void> reciveC2CRevokeMessage(data) async {
-    ContactModel? c = await ContactRepo().findByUid(data['from']);
-    // debugPrint(">> on reciveC2CRevokeMessage ${c.toJson().toString()}");
+  Future<void> receiveC2CRevokeMessage(data) async {
+    ContactModel? contact = await ContactRepo().findByUid(data['from']);
     MessageRepo repo = MessageRepo();
     String id = data['id'];
     await repo.update({
@@ -287,7 +288,7 @@ class MessageService extends GetxService {
       'payload': json.encode({
         "msg_type": "custom",
         "custom_type": "revoked",
-        "from_name": c!.nickname
+        "peer_name": contact?.nickname
       }),
     });
     // msg = null 的时候数据已经被删除了
@@ -308,7 +309,7 @@ class MessageService extends GetxService {
   }
 
   /// 撤回消息修正相应会话记录
-  Future<void> changeConversation(MessageModel msg, String msgtype) async {
+  Future<void> changeConversation(MessageModel msg, String msgType) async {
     String peerId = '';
     if (msg.fromId == UserRepoLocal.to.currentUid) {
       peerId = msg.toId ?? '';
@@ -319,26 +320,26 @@ class MessageService extends GetxService {
       return;
     }
     ConversationRepo repo = ConversationRepo();
-    ConversationModel? cobj = await repo.findByPeerId(peerId);
-    if (cobj == null) {
+    ConversationModel? conversation = await repo.findByPeerId(peerId);
+    if (conversation == null) {
       return;
     }
-    if (cobj.lastMsgId != msg.id) {
+    if (conversation.lastMsgId != msg.id) {
       return;
     }
-    cobj.subtitle = '';
-    cobj.msgtype = msgtype; //peerId == UserRepoLocal.to.currentUid ? 'peer_revoked' : 'my_revoked';
+    conversation.subtitle = '';
+    conversation.msgtype = msgType; //peerId == UserRepoLocal.to.currentUid ? 'peer_revoked' : 'my_revoked';
     int res2 = await repo.updateByPeerId(peerId, {
-      'msgtype': cobj.msgtype,
+      'msgtype': conversation.msgtype,
       'subtitle': '',
     });
     if (res2 > 0) {
-      eventBus.fire(cobj);
+      eventBus.fire(conversation);
     }
   }
 
   /// 收到C2C撤回ACK消息
-  Future<void> reciveC2CRevokeAckMessage(dtype, data) async {
+  Future<void> receiveC2CRevokeAckMessage(dtype, data) async {
     MessageRepo repo = MessageRepo();
     MessageModel? msg = await repo.find(data['id']);
     if (msg == null) {

@@ -82,15 +82,17 @@ class ContactLogic extends GetxController {
             () {
               if (model.uid != null) {
                 Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                        builder: (_) => ChatPage(
-                              toId: model.uid!,
-                              title: model.title,
-                              avatar: model.avatar,
-                              sign: model.sign,
-                              type: 'C2C',
-                            )));
+                  context,
+                  CupertinoPageRoute(
+                    builder: (_) => ChatPage(
+                      peerId: model.uid!,
+                      peerTitle: model.title,
+                      peerAvatar: model.avatar,
+                      peerSign: model.sign,
+                      type: 'C2C',
+                    ),
+                  ),
+                );
               }
             },
       ),

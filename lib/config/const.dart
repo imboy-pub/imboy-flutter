@@ -111,7 +111,7 @@ class AppColors {
 
   // for chat
   static const ChatBg = Color.fromRGBO(243, 243, 243, 1.0);
-  static const ChatSendMessgeBgColor = Color.fromRGBO(169, 234, 122, 1.0);
+  static const ChatSendMessageBgColor = Color.fromRGBO(169, 234, 122, 1.0);
   static const ChatSentMessageBodyTextColor = Color.fromRGBO(19, 29, 13, 1.0);
 
   static const ChatReceivedMessageBodyTextColor =

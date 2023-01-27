@@ -219,8 +219,20 @@ class MessageModel {
       message = types.CustomMessage(
         author: types.User(
           id: fromId!,
-          // payload!['from_name'] 目前只在收到撤回消息的时候才存在from_name
-          firstName: payload!['from_name'] ?? '',
+          // payload!['peer_name'] 目前只在收到撤回消息的时候才存在 peer_name
+          firstName: payload!['peer_name'] ?? '',
+          // imageUrl: "",
+        ),
+        id: id!,
+        createdAt: createdAt,
+        remoteId: toId,
+        metadata: payload,
+      );
+    } else if (payload!['custom_type'] == 'quote') {
+      message = types.CustomMessage(
+        author: types.User(
+          id: fromId!,
+          firstName: payload!['quote_msg_author_name'] ?? '',
           // imageUrl: "",
         ),
         id: id!,

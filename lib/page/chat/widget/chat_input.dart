@@ -3,13 +3,16 @@ import 'dart:async';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+
 // ignore: implementation_imports
 import 'package:flutter_chat_ui/src/widgets/state/inherited_chat_theme.dart'
     show InheritedChatTheme;
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/ui/emoji_picker_view.dart';
 import 'package:imboy/component/ui/image_button.dart';
 import 'package:imboy/config/init.dart';
@@ -57,6 +60,7 @@ class ChatInput extends StatefulWidget {
     required this.sendButtonVisibilityMode,
     this.extraWidget,
     this.voiceWidget,
+    this.quoteTipsWidget,
     // imboy add end
   }) : super(key: key);
 
@@ -93,6 +97,8 @@ class ChatInput extends StatefulWidget {
   final Widget? extraWidget;
   final Widget? voiceWidget;
 
+  final Widget? quoteTipsWidget;
+
   // imboy add end
 
   @override
@@ -102,14 +108,14 @@ class ChatInput extends StatefulWidget {
 
 /// [Input] widget state
 class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
-  double iconSize = 30;
-  InputType inputType = _initType;
   final _inputFocusNode = FocusNode();
-  bool sendButtonVisible = false;
   final _textController = TextEditingController();
   late AnimationController _bottomHeightController;
 
+  double iconSize = 30;
   bool emojiShowing = false;
+  bool sendButtonVisible = false;
+  InputType inputType = _initType;
 
   /// https://stackoverflow.com/questions/60057840/flutter-how-to-insert-text-in-middle-of-text-field-text
   void _setText(String val) {
@@ -160,7 +166,6 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     //添加listener监听
     //对应的TextField失去或者获取焦点都会回调此监听
     _inputFocusNode.addListener(() {
-      // debugPrint(">>> on chatinput ${_inputFocusNode.hasFocus}");
       if (_inputFocusNode.hasFocus) {
         updateState(InputType.text);
       } else {}
@@ -172,13 +177,15 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     Get.delete<AnimationController>();
     _inputFocusNode.dispose();
     _textController.dispose();
+    _bottomHeightController.dispose();
     super.dispose();
   }
 
   Future<void> _handleSendPressed() async {
     final trimmedText = _textController.text.trim();
     if (trimmedText != '') {
-      bool res = await widget.onSendPressed(types.PartialText(text: trimmedText));
+      bool res =
+          await widget.onSendPressed(types.PartialText(text: trimmedText));
       if (res) {
         _textController.clear();
       } else {
@@ -250,7 +257,6 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   void showSoftKey() {
     FocusScope.of(context).requestFocus(_inputFocusNode);
     changeBottomHeight(0);
-    // debugPrint(">>> on chatinput showSoftKey");
   }
 
   void hideSoftKey() {
@@ -308,6 +314,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               // noRecentsStyle: const TextStyle(
               //   fontSize: 20,
               //   color: Colors.black87,
+              // ),
               // ),
               tabIndicatorAnimDuration: kTabScrollDuration,
               categoryIcons: const CategoryIcons(),
@@ -393,8 +400,9 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       //       ? 'assets/images/chat/input_voice.png'
       //       : 'assets/images/chat/input_keyboard.png',
       // ),
-        image: inputType != InputType.voice ? Icon(Icons.keyboard_voice_outlined, size: iconSize)
-            : Icon(Icons.keyboard_alt_outlined, size: iconSize),
+      image: inputType != InputType.voice
+          ? Icon(Icons.keyboard_voice_outlined, size: iconSize)
+          : Icon(Icons.keyboard_alt_outlined, size: iconSize),
     );
   }
 
@@ -404,7 +412,8 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       // image: AssetImage(inputType != InputType.emoji
       //     ? 'assets/images/chat/input_emoji.png'
       //     : 'assets/images/chat/input_keyboard.png'),
-      image: inputType != InputType.emoji ? Icon(Icons.emoji_emotions_outlined, size: iconSize)
+      image: inputType != InputType.emoji
+          ? Icon(Icons.emoji_emotions_outlined, size: iconSize)
           : Icon(Icons.keyboard_alt_outlined, size: iconSize),
       onPressed: () {
         if (inputType != InputType.emoji) {
@@ -420,7 +429,6 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   /// More input message types entries
   Widget buildExtra() {
     return ImageButton(
-      // image: const AssetImage('assets/images/chat/input_extra.png'),
       image: Icon(Icons.control_point, size: iconSize),
       onPressed: () {
         if (inputType != InputType.extra) {
@@ -464,10 +472,11 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                 query.padding.right,
                 4 + query.viewInsets.bottom + query.padding.bottom,
               ),
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    children: [
+              child: n.Column(
+                [
+                  widget.quoteTipsWidget ?? const SizedBox.shrink(),
+                  n.Row(
+                    [
                       // voice
                       buildLeftButton(),
                       // input

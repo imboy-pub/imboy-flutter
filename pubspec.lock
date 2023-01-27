@@ -543,9 +543,9 @@ packages:
   flutter_chat_ui:
     dependency: "direct main"
     description:
-      name: flutter_chat_ui
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "plugin/flutter_chat_ui"
+      relative: true
+    source: path
     version: "1.6.6"
   flutter_dotenv:
     dependency: "direct main"
@@ -1292,7 +1292,7 @@ packages:
     source: hosted
     version: "0.27.5"
   scroll_to_index:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: scroll_to_index
       url: "https://pub.flutter-io.cn"

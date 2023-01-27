@@ -85,7 +85,7 @@ class ImboyChatTheme extends ChatTheme {
       height: 1.375,
       color: AppColors.ChatInputFillGgColor,
     ),
-    Color primaryColor = AppColors.ChatSendMessgeBgColor,
+    Color primaryColor = AppColors.ChatSendMessageBgColor,
     TextStyle sentMessageBodyTextStyle = const TextStyle(
       color: AppColors.ChatSentMessageBodyTextColor,
       fontFamily: 'Avenir',
@@ -138,7 +138,21 @@ class ImboyChatTheme extends ChatTheme {
     TextStyle receivedEmojiMessageTextStyle = const TextStyle(fontSize: 20),
     TextStyle sentEmojiMessageTextStyle = const TextStyle(fontSize: 20),
     EdgeInsets statusIconPadding = const EdgeInsets.symmetric(horizontal: 4),
+    TypingIndicatorTheme typingIndicatorTheme = const TypingIndicatorTheme(
+      animatedCirclesColor: neutral1,
+      animatedCircleSize: 5.0,
+      bubbleBorder: BorderRadius.all(Radius.circular(27.0)),
+      bubbleColor: neutral7,
+      countAvatarColor: primary,
+      countTextColor: secondary,
+      multipleUserTextStyle: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        color: neutral2,
+      ),
+    ),
   }) : super(
+          typingIndicatorTheme:typingIndicatorTheme,
           sendButtonMargin: null,
           attachmentButtonMargin: null,
           attachmentButtonIcon: attachmentButtonIcon,

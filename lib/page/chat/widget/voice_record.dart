@@ -12,10 +12,10 @@ class VoiceRecord extends StatelessWidget {
         onPressed: () {
           Get.snackbar('tips'.tr, '语音输入功能暂无实现'.tr);
         },
-        child: Text('chat_hold_down_talk'.tr),
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all<Color>(Colors.white70),
         ),
+        child: Text('chat_hold_down_talk'.tr),
       ),
     );
   }
