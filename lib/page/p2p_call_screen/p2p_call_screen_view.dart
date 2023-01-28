@@ -48,11 +48,12 @@ class P2pCallScreenPage extends StatelessWidget {
     }
 
     logic.onCallStateChange = (WebRTCSession? s1, WebRTCCallState state) async {
-      debugPrint("> rtc onCallStateChange view ${state.toString()} ${DateTime.now()}");
+      debugPrint(
+          "> rtc onCallStateChange view ${state.toString()} ${DateTime.now()}");
       switch (state) {
         case WebRTCCallState.CallStateInvite:
           logic.stateTips.value = '等待对方接受邀请...'.tr;
-          answerTimer = Timer(const Duration(seconds: 10), () {
+          answerTimer = Timer(const Duration(seconds: 60), () {
             logic.stateTips.value = '对方无应答...'.tr;
             Future.delayed(const Duration(seconds: 2), () {
               logic.connected = false.obs;
@@ -92,7 +93,8 @@ class P2pCallScreenPage extends StatelessWidget {
             answerTimer?.cancel();
           }
           logic.connectedAfter();
-          debugPrint("> rtc onCallStateChange view showTool ${logic.showTool}; ${DateTime.now()}");
+          debugPrint(
+              "> rtc onCallStateChange view showTool ${logic.showTool}; ${DateTime.now()}");
           break;
       }
     };
@@ -131,48 +133,74 @@ class P2pCallScreenPage extends StatelessWidget {
   Widget _buildTools() {
     return SizedBox(
       width: 200.0,
-      child: n.Row(
-        <Widget>[
-          // 麦克风
-          FloatingActionButton(
-            heroTag: "microphone",
-            tooltip: "microphone".tr,
-            onPressed: logic.turnMicrophone,
-            child: logic.microphoneOff.isTrue
-                ? const Icon(Icons.mic_off)
-                : const Icon(Icons.mic),
+      height: 180.0,
+      child: n.Column([
+        n.Row(
+          [
+            // 麦克风
+            FloatingActionButton(
+              heroTag: "microphone",
+              tooltip: "microphone".tr,
+              onPressed: logic.turnMicrophone,
+              child: logic.microphoneOff.isTrue
+                  ? const Icon(Icons.mic_off)
+                  : const Icon(Icons.mic),
+            ),
+            if (logic.media == 'audio')
+              // hangup
+              FloatingActionButton(
+                heroTag: "hangup",
+                tooltip: 'hangup'.tr,
+                onPressed: () {
+                  debugPrint("> rtc hangUp");
+                  logic.sendBye();
+                  logic.cleanUp();
+                },
+                backgroundColor: Colors.pink,
+                child: const Icon(Icons.call_end),
+              ),
+            // 扬声器开关
+            FloatingActionButton(
+              heroTag: "loudspeaker",
+              tooltip: "loudspeaker".tr,
+              onPressed: logic.switchSpeaker,
+              // child: const Icon(Icons.volume_up),
+              child: logic.speakerOn.isTrue
+                  ? const Icon(Icons.volume_up)
+                  : const Icon(Icons.volume_off),
+            ),
+            if (logic.media == 'video')
+              FloatingActionButton(
+                heroTag: "switch_camera",
+                onPressed: logic.switchCamera,
+                child: const Icon(Icons.switch_camera),
+              ),
+          ],
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        ),
+        if (logic.media == 'video')
+          n.Row(
+            [
+              n.Padding(
+                left: 72,
+                top: 20,
+                child: // hangup
+                    FloatingActionButton(
+                  heroTag: "hangup",
+                  tooltip: 'hangup'.tr,
+                  onPressed: () {
+                    debugPrint("> rtc hangUp");
+                    logic.sendBye();
+                    logic.cleanUp();
+                  },
+                  backgroundColor: Colors.pink,
+                  child: const Icon(Icons.call_end),
+                ),
+              ),
+            ],
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
           ),
-          // hangup
-          FloatingActionButton(
-            heroTag: "hangup",
-            tooltip: 'hangup'.tr,
-            onPressed: () {
-              debugPrint("> rtc hangUp");
-              logic.sendBye();
-              logic.cleanUp();
-            },
-            backgroundColor: Colors.pink,
-            child: const Icon(Icons.call_end),
-          ),
-          if (logic.media == 'video') FloatingActionButton(
-            heroTag: "switch_video",
-            tooltip: "switch_video".tr,
-            onPressed: logic.switchCamera,
-            child: const Icon(Icons.videocam),
-          ),
-          // 扬声器开关
-          if (logic.media == 'audio') FloatingActionButton(
-            heroTag: "loudspeaker",
-            tooltip: "loudspeaker".tr,
-            onPressed: logic.switchSpeaker,
-            // child: const Icon(Icons.volume_up),
-            child: logic.speakerOn.isTrue
-                ? const Icon(Icons.volume_up)
-                : const Icon(Icons.volume_off),
-          ),
-        ],
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      ),
+      ]),
     );
   }
 
@@ -253,28 +281,28 @@ class P2pCallScreenPage extends StatelessWidget {
 
   Widget _buildLocalVideo(double w, double h) {
     return Obx(() => Container(
-      margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-      width: logic.connected.isTrue ? w : Get.width,
-      height: logic.connected.isTrue ? h : Get.height,
-      child: InkWell(
-        child: RTCVideoView(
+          margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+          width: logic.connected.isTrue ? w : Get.width,
+          height: logic.connected.isTrue ? h : Get.height,
+          child: InkWell(
+            child: RTCVideoView(
               logic.switchRenderer.isTrue
                   ? logic.localRenderer.value
                   : logic.remoteRenderer.value,
               objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
               mirror: true,
             ),
-        onTap: () {
-          logic.switchTools();
-          // 点击切换 本地和远端 RTCVideoRenderer
-          if (logic.connected.isTrue && logic.media == 'video') {
-            logic.update([
-              logic.switchRenderer.value = !logic.switchRenderer.value,
-            ]);
-          }
-        },
-      ),
-    ));
+            onTap: () {
+              logic.switchTools();
+              // 点击切换 本地和远端 RTCVideoRenderer
+              if (logic.connected.isTrue && logic.media == 'video') {
+                logic.update([
+                  logic.switchRenderer.value = !logic.switchRenderer.value,
+                ]);
+              }
+            },
+          ),
+        ));
   }
 
   @override
@@ -284,7 +312,7 @@ class P2pCallScreenPage extends StatelessWidget {
         IndexedStack(index: logic.minimized.isTrue ? 1 : 0, children: [
           Scaffold(
             floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerFloat,
+                FloatingActionButtonLocation.miniCenterFloat,
             floatingActionButton: logic.showTool.isTrue ? _buildTools() : null,
             body: OrientationBuilder(
               builder: (context, Orientation orientation) {
@@ -330,8 +358,8 @@ class P2pCallScreenPage extends StatelessWidget {
                           onTap: _zoom,
                           child: const Icon(
                             Icons.fullscreen_exit_rounded,
-                            color:Colors.white,
-                            size:30.0,
+                            color: Colors.white,
+                            size: 30.0,
                           ),
                           // child: const Icon(Icons.zoom_in_map_rounded, color:Colors.white,),
                         ),
@@ -350,7 +378,8 @@ class P2pCallScreenPage extends StatelessWidget {
                             )),
                       ),
 
-                    if ((logic.connected.isFalse && logic.showTool.isTrue) || logic.media == 'audio')
+                    if ((logic.connected.isFalse && logic.showTool.isTrue) ||
+                        logic.media == 'audio')
                       _buildPeerInfo(),
                   ],
                 );

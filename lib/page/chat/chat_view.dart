@@ -7,11 +7,19 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:mime/mime.dart';
+import 'package:niku/namespace.dart' as n;
+import 'package:photo_view/photo_view.dart';
+import 'package:wechat_camera_picker/wechat_camera_picker.dart';
+import 'package:xid/xid.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart' as getx;
+import 'package:open_file/open_file.dart';
+import 'package:popup_menu/popup_menu.dart' as popupmenu;
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/picker_method.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
@@ -31,13 +39,6 @@ import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
 import 'package:imboy/store/provider/attachment_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:mime/mime.dart';
-import 'package:niku/namespace.dart' as n;
-import 'package:open_file/open_file.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:popup_menu/popup_menu.dart' as popupmenu;
-import 'package:wechat_camera_picker/wechat_camera_picker.dart';
-import 'package:xid/xid.dart';
 
 import 'chat_logic.dart';
 import 'widget/chat_input.dart';
@@ -78,9 +79,6 @@ class ChatPageState extends State<ChatPage> {
   final conversationLogic = getx.Get.put(ConversationLogic());
 
   bool _showAppBar = true;
-
-  // 当前会话新增消息
-  List<types.Message> messages = [];
 
   String newGroupName = "";
 
@@ -126,10 +124,9 @@ class ChatPageState extends State<ChatPage> {
     eventBus.on<types.Message>().listen((types.Message e) async {
       if (mounted && e.author.id == widget.peerId) {
         conversationLogic.decreaseConversationRemind(widget.peerId, 1);
-        messages.insert(0, e);
         if (mounted) {
           setState(() {
-            messages;
+            logic.state.messages.insert(0, e);
           });
         }
       }
@@ -143,12 +140,13 @@ class ChatPageState extends State<ChatPage> {
         galleryLogic.pushToGallery(msg.id, msg.uri);
       }
 
-      final index = messages.indexWhere((element) => element.id == msg.id);
+      final index =
+          logic.state.messages.indexWhere((element) => element.id == msg.id);
       if (index > -1) {
-        messages.setRange(index, index + 1, e);
+        logic.state.messages.setRange(index, index + 1, e);
         if (mounted) {
           setState(() {
-            messages;
+            logic.state.messages;
           });
         }
       }
@@ -202,8 +200,8 @@ class ChatPageState extends State<ChatPage> {
       }
 
       setState(() {
-        messages = [
-          ...messages,
+        logic.state.messages = [
+          ...logic.state.messages,
           ...items,
         ];
         _page = _page + 1;
@@ -230,7 +228,7 @@ class ChatPageState extends State<ChatPage> {
       );
 
       setState(() {
-        messages.insert(0, message);
+        logic.state.messages.insert(0, message);
       });
       return true;
     } catch (e) {
@@ -481,154 +479,19 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _onMessageLongPress(BuildContext c1, types.Message message) async {
-    if (message is types.FileMessage) {
-      await OpenFile.open(message.uri);
-    }
-    var items = [
-      popupmenu.MenuItem(
-        title: '复制',
-        userInfo: {"id": "copy", "msg": message},
-        textAlign: TextAlign.center,
-        textStyle: const TextStyle(
-          color: Color(0xffc5c5c5),
-          fontSize: 10.0,
-        ),
-        image: const Icon(
-          Icons.copy,
-          size: 16,
-          color: Color(0xffc5c5c5),
-        ),
-      ),
-      // MenuItem(
-      //   title: '收藏'.tr,
-      //   userInfo: {"id":"", "msg":message},
-      //   textAlign: TextAlign.center,
-      //   textStyle: TextStyle(
-      //     color: Color(0xffc5c5c5),
-      //     fontSize: 10.0,
-      //   ),
-      //   image: Icon(
-      //     Icons.collections_bookmark,
-      //     size: 16,
-      //     color: Color(0xffc5c5c5),
-      //   ),
-      // ),
-      // MenuItem(
-      //   title: '多选'.tr,
-      //   userInfo: {"id":"multiselect", "msg":message},
-      //   textAlign: TextAlign.center,
-      //   textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-      //   image: Icon(
-      //     Icons.add_road,
-      //     size: 16,
-      //     color: Color(0xffc5c5c5),
-      //   ),
-      // ),
-    ];
-    //
-    bool isRevoked = (message is types.CustomMessage) &&
-            message.metadata!['custom_type'] == 'revoked'
-        ? true
-        : false;
-    if (!isRevoked) {
-      items.add(popupmenu.MenuItem(
-        title: '转发'.tr,
-        userInfo: {"id": "transpond", "msg": message},
-        textAlign: TextAlign.center,
-        textStyle: const TextStyle(
-          fontSize: 10.0,
-          color: Color(0xffc5c5c5),
-        ),
-        // image: const Icon(
-        //   Icons.fork_right_rounded,
-        //   color: Colors.white,
-        // ),
-        image: Image.asset(
-          'assets/images/chat/reply_to.png',
-          // size: 16,
-          color: const Color(0xffc5c5c5),
-          // package: 'flutter_plugin_record',
-        ),
-      ));
-      items.add(popupmenu.MenuItem(
-        title: '引用'.tr,
-        userInfo: {"id": "quote", "msg": message},
-        textAlign: TextAlign.center,
-        textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-        image: const Icon(
-          Icons.format_quote,
-          size: 16,
-          color: Color(0xffc5c5c5),
-        ),
-      ));
-    }
-    if (message.author.id == UserRepoLocal.to.currentUid &&
-        isRevoked == false) {
-      items.add(
-        popupmenu.MenuItem(
-          title: '撤回',
-          userInfo: {"id": "revoke", "msg": message},
-          textAlign: TextAlign.center,
-          textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-          image: const Icon(
-            Icons.layers_clear_rounded,
-            size: 16,
-            color: Color(0xffc5c5c5),
-          ),
-        ),
-      );
-    }
-    items.add(popupmenu.MenuItem(
-      title: '删除',
-      userInfo: {"id": "delete", "msg": message},
-      textAlign: TextAlign.center,
-      textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-      image: const Icon(
-        Icons.remove_circle_outline_rounded,
-        size: 16,
-        color: Color(0xffc5c5c5),
-      ),
-    ));
-    popupmenu.PopupMenu menu = popupmenu.PopupMenu(
-      // backgroundColor: Colors.teal,
-      // lineColor: Colors.tealAccent,
-      // maxColumn: 2,
-      items: items,
-      context: c1,
-      onClickMenu: onClickMenu,
-      // stateChanged: stateChanged,
-      // onDismiss: onDismiss,
-    );
-    // ignore: use_build_context_synchronously
-    RenderBox renderBox = c1.findRenderObject() as RenderBox;
-    var offset = renderBox.localToGlobal(Offset.zero);
-    double l = offset.dx / 2 - renderBox.size.width / 2 + 75.0;
-    double r = renderBox.size.width / 2 - 75.0;
-    double dx = message.author.id == UserRepoLocal.to.currentUid ? r : l;
-    debugPrint(
-        ">>> on chat _handleMessageTap dx:${offset.dx},dy:${offset.dy},w:${renderBox.size.width},h:${renderBox.size.height}");
-    menu.show(
-      rect: Rect.fromLTWH(
-        dx,
-        offset.dy,
-        renderBox.size.width,
-        renderBox.size.height,
-      ),
-    );
-  }
-
   void _handlePreviewDataFetched(
     types.TextMessage message,
     types.PreviewData previewData,
   ) {
-    final index = messages.indexWhere((element) => element.id == message.id);
-    final updatedMessage = (messages[index] as types.TextMessage).copyWith(
+    final index =
+        logic.state.messages.indexWhere((element) => element.id == message.id);
+    final updatedMessage =
+        (logic.state.messages[index] as types.TextMessage).copyWith(
       previewData: previewData,
     );
 
     setState(() {
-      messages[index] = updatedMessage;
+      logic.state.messages[index] = updatedMessage;
     });
   }
 
@@ -690,12 +553,159 @@ class ChatPageState extends State<ChatPage> {
         msg,
       ));
       setState(() {
-        messages;
+        logic.state.messages;
       });
     }
   }
 
-  onClickMenu(popupmenu.MenuItemProvider item) async {
+  void _onMessageLongPress(BuildContext c1, types.Message message) async {
+    if (message is types.FileMessage) {
+      await OpenFile.open(message.uri);
+    }
+    List<popupmenu.MenuItemProvider> items = [
+      // MenuItem(
+      //   title: '收藏'.tr,
+      //   userInfo: {"id":"", "msg":message},
+      //   textAlign: TextAlign.center,
+      //   textStyle: TextStyle(
+      //     color: Color(0xffc5c5c5),
+      //     fontSize: 10.0,
+      //   ),
+      //   image: Icon(
+      //     Icons.collections_bookmark,
+      //     size: 16,
+      //     color: Color(0xffc5c5c5),
+      //   ),
+      // ),
+      // MenuItem(
+      //   title: '多选'.tr,
+      //   userInfo: {"id":"multiselect", "msg":message},
+      //   textAlign: TextAlign.center,
+      //   textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+      //   image: Icon(
+      //     Icons.add_road,
+      //     size: 16,
+      //     color: Color(0xffc5c5c5),
+      //   ),
+      // ),
+    ];
+    bool canCopy = false;
+    String customType = message.metadata!['custom_type'] ?? '';
+    if (message.type == types.MessageType.text) {
+      canCopy = true;
+    } else if (customType == 'quote') {
+      canCopy = true;
+    }
+    if (canCopy) {
+      items.add(popupmenu.MenuItem(
+        title: '复制',
+        userInfo: {"id": "copy", "msg": message},
+        textAlign: TextAlign.center,
+        textStyle: const TextStyle(
+          color: Color(0xffc5c5c5),
+          fontSize: 10.0,
+        ),
+        image: const Icon(
+          Icons.copy,
+          size: 16,
+          color: Color(0xffc5c5c5),
+        ),
+      ));
+    }
+    //
+    bool isRevoked = (message is types.CustomMessage) && customType == 'revoked'
+        ? true
+        : false;
+    if (!isRevoked) {
+      items.add(popupmenu.MenuItem(
+        title: '转发'.tr,
+        userInfo: {"id": "transpond", "msg": message},
+        textAlign: TextAlign.center,
+        textStyle: const TextStyle(
+          fontSize: 10.0,
+          color: Color(0xffc5c5c5),
+        ),
+        // image: const Icon(
+        //   Icons.fork_right_rounded,
+        //   color: Colors.white,
+        // ),
+        image: Image.asset(
+          'assets/images/chat/reply_to.png',
+          // size: 16,
+          color: const Color(0xffc5c5c5),
+          // package: 'flutter_plugin_record',
+        ),
+      ));
+      items.add(popupmenu.MenuItem(
+        title: '引用'.tr,
+        userInfo: {"id": "quote", "msg": message},
+        textAlign: TextAlign.center,
+        textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+        image: const Icon(
+          Icons.format_quote,
+          size: 16,
+          color: Color(0xffc5c5c5),
+        ),
+      ));
+    }
+    if (message.author.id == UserRepoLocal.to.currentUid &&
+        isRevoked == false) {
+      items.add(
+        popupmenu.MenuItem(
+          title: '撤回',
+          userInfo: {"id": "revoke", "msg": message},
+          textAlign: TextAlign.center,
+          textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+          image: const Icon(
+            Icons.layers_clear_rounded,
+            size: 16,
+            color: Color(0xffc5c5c5),
+          ),
+        ),
+      );
+    }
+    items.add(popupmenu.MenuItem(
+      title: '删除',
+      userInfo: {"id": "delete", "msg": message},
+      textAlign: TextAlign.center,
+      textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+      image: const Icon(
+        Icons.remove_circle_outline_rounded,
+        size: 16,
+        color: Color(0xffc5c5c5),
+      ),
+    ));
+
+    popupmenu.PopupMenu menu = popupmenu.PopupMenu(
+      // backgroundColor: Colors.teal,
+      // lineColor: Colors.tealAccent,
+      // maxColumn: 2,
+      items: items,
+      context: c1,
+      // onClickMenu: onClickMenu,
+      // stateChanged: stateChanged,
+      // onDismiss: onDismiss,
+    );
+    // ignore: use_build_context_synchronously
+    RenderBox renderBox = c1.findRenderObject() as RenderBox;
+    Offset offset = renderBox.localToGlobal(Offset.zero);
+    double l = offset.dx / 2 - renderBox.size.width / 2 + 75.0;
+    double r = renderBox.size.width / 2 - 75.0;
+    double dx = message.author.id == UserRepoLocal.to.currentUid ? r : l;
+    debugPrint(">>> on chat _handleMessageTap "
+        "dx:${offset.dx},dy:${offset.dy},"
+        "w:${renderBox.size.width},h:${renderBox.size.height}");
+    menu.show(
+      rect: Rect.fromLTWH(
+        dx,
+        offset.dy,
+        renderBox.size.width,
+        renderBox.size.height,
+      ),
+    );
+  }
+
+  void onClickMenu(popupmenu.MenuItemProvider item) async {
     popupmenu.MenuItem it = item as popupmenu.MenuItem;
     types.Message msg = it.userInfo['msg'] as types.Message;
     String itemId = it.userInfo['id'] ?? '';
@@ -703,9 +713,10 @@ class ChatPageState extends State<ChatPage> {
     if (itemId == "delete") {
       bool res = await logic.removeMessage(msg.id);
       if (res) {
-        final index = messages.indexWhere((element) => element.id == msg.id);
+        final index =
+            logic.state.messages.indexWhere((element) => element.id == msg.id);
         setState(() {
-          messages.removeAt(index);
+          logic.state.messages.removeAt(index);
         });
       }
     } else if (itemId == "copy" && msg is types.TextMessage) {
@@ -753,10 +764,11 @@ class ChatPageState extends State<ChatPage> {
           [
             Chat(
               user: logic.currentUser,
-              messages: messages,
+              messages: logic.state.messages,
               // showUserAvatars: true,
               // showUserNames: true,
-              customMessageBuilder: (types.CustomMessage msg, {required int messageWidth}) {
+              customMessageBuilder: (types.CustomMessage msg,
+                  {required int messageWidth}) {
                 return CustomMessageBuilder(
                   message: msg,
                 );
@@ -798,6 +810,10 @@ class ChatPageState extends State<ChatPage> {
               // },
               slidableMessageBuilder: (types.Message msg, Widget msgWidget) {
                 return GestureDetector(
+                  onLongPress: () {
+                    debugPrint("> on GestureDetector");
+                    // _onMessageLongPress(getx.Get.context!, msg);
+                  },
                   onPanEnd: (DragEndDetails details) {
                     updateQuoteMessage(msg);
                   },

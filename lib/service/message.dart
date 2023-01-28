@@ -118,7 +118,7 @@ class MessageService extends GetxService {
     if (payload is String) {
       payload = json.decode(payload);
     }
-    var msgType = payload['msg_type'] ?? '';
+    String msgType = payload['msg_type'] ?? '';
     switch (msgType.toString().toLowerCase()) {
       case "apply_friend": // 添加好友申请
         nflogic.receivedAddFriend(data);
