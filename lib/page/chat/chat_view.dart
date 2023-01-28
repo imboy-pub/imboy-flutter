@@ -7,6 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:imboy/page/chat/send_to/send_to_view.dart';
 import 'package:mime/mime.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:photo_view/photo_view.dart';
@@ -682,7 +683,7 @@ class ChatPageState extends State<ChatPage> {
       // maxColumn: 2,
       items: items,
       context: c1,
-      // onClickMenu: onClickMenu,
+      onClickMenu: onClickMenu,
       // stateChanged: stateChanged,
       // onDismiss: onDismiss,
     );
@@ -711,6 +712,7 @@ class ChatPageState extends State<ChatPage> {
     String itemId = it.userInfo['id'] ?? '';
     debugPrint("> on onClickMenu $itemId, ${msg.id}");
     if (itemId == "delete") {
+      // 删除消息
       bool res = await logic.removeMessage(msg.id);
       if (res) {
         final index =
@@ -720,11 +722,17 @@ class ChatPageState extends State<ChatPage> {
         });
       }
     } else if (itemId == "copy" && msg is types.TextMessage) {
+      // 复制消息
       Clipboard.setData(ClipboardData(text: msg.text));
     } else if (itemId == "revoke") {
+      // 撤回消息
       await logic.revokeMessage(msg);
     } else if (itemId == "quote") {
+      // 引用消息
       updateQuoteMessage(msg);
+    } else if (itemId == "transpond") {
+      // 转发消息
+      getx.Get.to(SendToPage(msg: msg));
     }
   }
 

@@ -23,6 +23,7 @@ class QuoteMessageBuilder extends StatelessWidget {
   final types.CustomMessage message;
 
   RxDouble quoteMsgBgColorOpacity = 0.1.obs;
+
   /// 构建被引用消息Widget
   Widget? quoteMsgWidget(types.Message quoteMsg) {
     Widget? quoteMsgWidget;
@@ -73,6 +74,16 @@ class QuoteMessageBuilder extends StatelessWidget {
           height: 40,
         ),
       ]);
+    } else if (customType == 'quote') {
+      quoteMsgWidget = Text(
+        quoteMsg.metadata?['quote_text'] ?? '',
+        style: const TextStyle(
+          color: AppColors.MainTextColor,
+          fontSize: 13.0,
+        ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      );
     }
     return quoteMsgWidget;
   }
@@ -106,14 +117,14 @@ class QuoteMessageBuilder extends StatelessWidget {
         // Future.delayed(const Duration(milliseconds: 3000), (){
         //   quoteMsgBgColorOpacity = 0.1.obs;
         // });
-
       },
       child: n.Column([
         // 被引用消息
         n.Row([
           Obx(() {
             return Container(
-              margin: const EdgeInsets.only(left: 6, top: 6, right: 6, bottom: 6),
+              margin:
+                  const EdgeInsets.only(left: 6, top: 6, right: 6, bottom: 6),
               padding: const EdgeInsets.all(8),
               //设置 child 居中
               alignment: const Alignment(0, 0),
@@ -122,7 +133,8 @@ class QuoteMessageBuilder extends StatelessWidget {
               //边框设置
               decoration: BoxDecoration(
                 //背景
-                color: quoteMsgBgColor.withOpacity(quoteMsgBgColorOpacity.value),
+                color:
+                    quoteMsgBgColor.withOpacity(quoteMsgBgColorOpacity.value),
                 //设置四周圆角 角度
                 borderRadius: const BorderRadius.all(Radius.circular(16.0)),
                 //设置四周边框
@@ -133,13 +145,13 @@ class QuoteMessageBuilder extends StatelessWidget {
                 n.Row([
                   Expanded(
                       child: Text(
-                        message.metadata?['quote_msg_author_name'] ?? '',
-                        style: const TextStyle(
-                          // color: AppColors.MainTextColor,
-                          // fontSize: 14.0,
+                    message.metadata?['quote_msg_author_name'] ?? '',
+                    style: const TextStyle(
+                        // color: AppColors.MainTextColor,
+                        // fontSize: 14.0,
                         ),
-                        overflow: TextOverflow.ellipsis,
-                      )),
+                    overflow: TextOverflow.ellipsis,
+                  )),
                   Text(
                     DateTimeHelper.lastConversationFmt(
                       message.metadata?['quote_msg']['createdAt'] ?? 0,
@@ -157,7 +169,8 @@ class QuoteMessageBuilder extends StatelessWidget {
                   ..mainAxisAlignment = MainAxisAlignment.end,
                 n.Row([
                   Expanded(
-                      child: quoteMsgWidget(quoteMsg) ?? const SizedBox.shrink())
+                      child:
+                          quoteMsgWidget(quoteMsg) ?? const SizedBox.shrink())
                 ]),
               ]),
             );
