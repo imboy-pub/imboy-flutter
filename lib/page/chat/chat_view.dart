@@ -101,6 +101,7 @@ class ChatPageState extends State<ChatPage> {
     }
     initData();
     unawaited(_handleEndReached());
+    // 异步检查是否有离线数据 TODO leeyi 2023-01-29 16:43:47
   }
 
   /// 初始化一些数据
@@ -217,7 +218,6 @@ class ChatPageState extends State<ChatPage> {
     //   发送成功后，更新conversation、更新消息状态
     //   发送失败后，放入异步队列，重新发送
     String type = widget.type == 'null' ? 'C2C' : widget.type;
-    // debugPrint(">>> on _addMessage type :${type}");
     try {
       await logic.addMessage(
         UserRepoLocal.to.currentUid,
@@ -251,9 +251,9 @@ class ChatPageState extends State<ChatPage> {
         String uri,
       ) async {
         final message = types.FileMessage(
+          id: Xid().toString(),
           author: logic.currentUser,
           createdAt: DateTimeHelper.currentTimeMillis(),
-          id: Xid().toString(),
           mimeType: lookupMimeType(result.files.single.path!),
           name: result.files.single.name,
           size: result.files.single.size,
@@ -548,7 +548,7 @@ class ChatPageState extends State<ChatPage> {
     int diff = DateTimeHelper.currentTimeMillis() - msg.createdAt!;
     if (diff > 800) {
       // 检查为发送消息
-      logic.sendWsMsg(logic.getMsgFromTmsg(
+      logic.sendWsMsg(logic.getMsgFromTMsg(
         widget.type,
         widget.conversationId,
         msg,
@@ -591,7 +591,7 @@ class ChatPageState extends State<ChatPage> {
       // ),
     ];
     bool canCopy = false;
-    String customType = message.metadata!['custom_type'] ?? '';
+    String customType = message.metadata?['custom_type'] ?? '';
     if (message.type == types.MessageType.text) {
       canCopy = true;
     } else if (customType == 'quote') {
@@ -738,7 +738,7 @@ class ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    var rWidget = [
+    var topRightWidget = [
       InkWell(
         child: const Image(image: AssetImage('assets/images/right_more.png')),
         onTap: () => getx.Get.to(widget.type == 'GROUP'
@@ -758,7 +758,7 @@ class ChatPageState extends State<ChatPage> {
       appBar: _showAppBar
           ? PageAppBar(
               title: newGroupName == "" ? widget.peerTitle : newGroupName,
-              rightDMActions: rWidget,
+              rightDMActions: topRightWidget,
             )
           : null,
       body: n.Column([

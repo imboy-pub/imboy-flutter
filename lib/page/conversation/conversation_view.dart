@@ -40,7 +40,7 @@ class ConversationPage extends StatelessWidget {
     Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
       if (r == ConnectivityResult.none) {
         // ignore: prefer_interpolation_to_compose_strings
-        logic.connectDesc.value = '(' + 'tip_connect_desc'.tr + ')';
+        logic.connectDesc.value = '(${'tip_connect_desc'.tr})';
       } else {
         logic.connectDesc.value = '';
       }
@@ -52,7 +52,7 @@ class ConversationPage extends StatelessWidget {
       logic.replace(e);
     });
     // 加载会话记录
-    await logic.getConversationsList();
+    await logic.conversationsList();
     // 设置消息提醒数量
     for (var obj in logic.conversations) {
       if (obj.unreadNum > 0) {
@@ -200,6 +200,7 @@ class ConversationPage extends StatelessWidget {
               return logic.conversations.isEmpty
                   ? NoDataView(text: '无会话消息'.tr)
                   : ListView.builder(
+                      itemCount: logic.conversations.length,
                       itemBuilder: (BuildContext context, int index) {
                         ConversationModel model = logic.conversations[index];
                         int conversationId = model.id;
@@ -302,7 +303,6 @@ class ConversationPage extends StatelessWidget {
                           ),
                         );
                       },
-                      itemCount: logic.conversations.length,
                     );
             }),
           ),

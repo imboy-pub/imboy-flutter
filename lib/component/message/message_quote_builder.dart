@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/ui/image_view.dart';
+import 'package:imboy/component/message/message.dart';
 import 'package:imboy/page/chat/chat_logic.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -23,70 +23,6 @@ class QuoteMessageBuilder extends StatelessWidget {
   final types.CustomMessage message;
 
   RxDouble quoteMsgBgColorOpacity = 0.1.obs;
-
-  /// 构建被引用消息Widget
-  Widget? quoteMsgWidget(types.Message quoteMsg) {
-    Widget? quoteMsgWidget;
-    if (quoteMsg is types.TextMessage) {
-      quoteMsgWidget = Text(
-        quoteMsg.text,
-        style: const TextStyle(
-          color: AppColors.MainTextColor,
-          fontSize: 13.0,
-        ),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      );
-    } else if (quoteMsg is types.FileMessage) {
-      quoteMsgWidget = n.Column([
-        n.Row([
-          Text(
-            "[${'文件'.tr}] (${formatBytes(quoteMsg.size.truncate())})",
-            style: const TextStyle(color: AppColors.thirdElementText),
-          ),
-          // ImageView(img: message?.metadata?['thumb']['uri'], height: 40,),
-        ]),
-        n.Row([
-          Expanded(
-            child: Text(
-              quoteMsg.name,
-              style: const TextStyle(color: AppColors.thirdElementText),
-            ),
-          ),
-          // ImageView(img: message?.metadata?['thumb']['uri'], height: 40,),
-        ])
-      ]);
-    } else if (quoteMsg is types.ImageMessage) {
-      quoteMsgWidget = ImageView(
-        img: quoteMsg.uri,
-        height: 160,
-      );
-    }
-    String customType = quoteMsg.metadata?['custom_type'] ?? '';
-    if (customType == 'video') {
-      quoteMsgWidget = n.Row([
-        Text(
-          "[${'视频'.tr}] ",
-          style: const TextStyle(color: AppColors.thirdElementText),
-        ),
-        ImageView(
-          img: quoteMsg.metadata?['thumb']['uri'],
-          height: 40,
-        ),
-      ]);
-    } else if (customType == 'quote') {
-      quoteMsgWidget = Text(
-        quoteMsg.metadata?['quote_text'] ?? '',
-        style: const TextStyle(
-          color: AppColors.MainTextColor,
-          fontSize: 13.0,
-        ),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      );
-    }
-    return quoteMsgWidget;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -169,8 +105,8 @@ class QuoteMessageBuilder extends StatelessWidget {
                   ..mainAxisAlignment = MainAxisAlignment.end,
                 n.Row([
                   Expanded(
-                      child:
-                          quoteMsgWidget(quoteMsg) ?? const SizedBox.shrink())
+                    child: messageMsgWidget(quoteMsg),
+                  )
                 ]),
               ]),
             );

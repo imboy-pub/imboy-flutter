@@ -131,7 +131,7 @@ class ConversationRepo {
   }
 
   //
-  Future<List<ConversationModel>> all() async {
+  Future<List<ConversationModel>> list({limit = 2000}) async {
     List<Map<String, dynamic>> items = await _db.query(
       ConversationRepo.tablename,
       columns: [
@@ -153,7 +153,8 @@ class ConversationRepo {
       whereArgs: [1],
       orderBy: "${ConversationRepo.lasttime} DESC",
     );
-    debugPrint(">>> on ConversationRepo/all ${items.length} items ${items.toString()}");
+    debugPrint(
+        ">>> on ConversationRepo/all ${items.length} items ${items.toString()}");
     if (items.isEmpty) {
       return [];
     }

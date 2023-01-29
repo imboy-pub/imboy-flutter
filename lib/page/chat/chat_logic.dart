@@ -52,8 +52,10 @@ class ChatLogic extends GetxController {
     // 重发在发送中状态的消息
     for (MessageModel obj in items) {
       debugPrint(
-          ">>> on msg status ${obj.status}, ${obj.status == MessageStatus.sending}");
+          "> on msg check status ${obj.status}, ${obj.status == MessageStatus.sending}");
       if (obj.status! == MessageStatus.sending) {
+        debugPrint(
+            "> on msg check sending ${obj.status}, ${obj.status == MessageStatus.sending}");
         sendWsMsg(obj);
       }
       messages.insert(0, obj.toTypeMessage());
@@ -72,18 +74,19 @@ class ChatLogic extends GetxController {
         'payload': obj.payload,
         'created_at': obj.createdAt,
       };
-
+      debugPrint("> on msg check sending ${msg.toString()}");
       return WSService.to.sendMessage(json.encode(msg));
     }
     return true;
   }
 
-  MessageModel getMsgFromTmsg(
+  MessageModel getMsgFromTMsg(
     String type,
     int conversationId,
     types.Message message,
   ) {
     Map<String, dynamic> payload = {};
+    debugPrint("> on addMessage getMsgFromTMsg 2");
     if (message is types.TextMessage) {
       payload = {
         "msg_type": "text",
@@ -107,22 +110,23 @@ class ChatLogic extends GetxController {
         "mimeType": message.mimeType,
       };
     } else if (message is types.CustomMessage) {
-      payload = message.metadata!;
+      payload = message.metadata ?? {};
       payload['msg_type'] = 'custom';
     }
-
+    debugPrint("> on addMessage getMsgFromTMsg 2 ${payload.toString()}");
     MessageModel obj = MessageModel(
       message.id,
       type: type,
       fromId: message.author.id,
-      toId: message.remoteId!,
+      toId: message.remoteId,
       payload: payload,
       createdAt: message.createdAt,
       serverTs: message.updatedAt,
       conversationId: conversationId,
       status: MessageStatus.sending,
     );
-    obj.status = obj.toStatus(message.status!);
+    debugPrint("> on addMessage getMsgFromTMsg 3 ${message.status}");
+    obj.status = obj.toStatus(message.status ?? types.Status.sending);
     return obj;
   }
 
@@ -165,8 +169,10 @@ class ChatLogic extends GetxController {
     );
     // 保存会话
     conversation = await (ConversationRepo()).save(conversation);
-    MessageModel obj = getMsgFromTmsg(type, conversation.id, message);
+    MessageModel obj = getMsgFromTMsg(type, conversation.id, message);
+    debugPrint("> on addMessage before insert MessageRepo");
     await (MessageRepo()).insert(obj);
+    debugPrint("> on addMessage after insert MessageRepo");
     eventBus.fire(conversation);
     // send to server
     sendWsMsg(obj);

@@ -19,9 +19,9 @@ void confirmAlert<T>(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext context) {
-      if (!strNoEmpty(okBtn!)) okBtn = '确定';
-      if (!strNoEmpty(cancelBtn!)) cancelBtn = '取消';
-      if (!strNoEmpty(warmStr!)) warmStr = '温馨提示：';
+      if (strEmpty(okBtn)) okBtn = '确定';
+      if (strEmpty(cancelBtn)) cancelBtn = '取消';
+      if (strEmpty(warmStr)) warmStr = '温馨提示：';
       return CupertinoAlertDialog(
         title: isWarm
             ? Padding(
@@ -59,9 +59,7 @@ void confirmAlert<T>(
             child: Text(
               cancelBtn ?? '',
               style: const TextStyle(
-                  fontWeight: FontWeight.w400,
-                  color: Colors.black
-              ),
+                  fontWeight: FontWeight.w400, color: Colors.black),
             ),
             isDefaultAction: true,
             onPressed: () {

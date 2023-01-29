@@ -44,7 +44,8 @@ class ConversationItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.only(left: 10.0, right: 10),
       color: Colors.white,
-      child: n.Row([
+      child: n.Row(
+        [
           Obx(
             () => Badge(
               position: BadgePosition.topEnd(top: -4, end: -4),
@@ -91,7 +92,7 @@ class ConversationItem extends StatelessWidget {
                             fontSize: 18.0,
                             fontWeight: FontWeight.normal,
                           ),
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -102,7 +103,8 @@ class ConversationItem extends StatelessWidget {
                         [
                           n.Column(icon),
                           // 会话对象子标题
-                          Expanded(child: ExtendedText(
+                          Expanded(
+                              child: ExtendedText(
                             model.content,
                             style: const TextStyle(
                               color: AppColors.MainTextColor,
@@ -148,8 +150,7 @@ class ConversationItem extends StatelessWidget {
             ]),
           )
         ],
-      )..
-      crossAxisAlignment = CrossAxisAlignment.center,
+      )..crossAxisAlignment = CrossAxisAlignment.center,
     );
   }
 }

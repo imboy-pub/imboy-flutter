@@ -75,8 +75,8 @@ class ConversationLogic extends GetxController {
     super.onReady();
   }
 
-  Future<void> getConversationsList() async {
-    conversations.value = await (ConversationRepo()).all();
+  Future<void> conversationsList() async {
+    conversations.value = await (ConversationRepo()).list();
   }
 
   /// 移除会话
