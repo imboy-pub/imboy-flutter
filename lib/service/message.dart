@@ -13,7 +13,7 @@ import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/contact/contact_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
-import 'package:imboy/page/friend/new_friend_logic.dart';
+import 'package:imboy/page/contact/friend/new_friend_logic.dart';
 import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -39,7 +39,8 @@ class MessageService extends GetxService {
     eventBus.on<Map>().listen((Map data) async {
       String type = data['type'] ?? 'error';
       type = type.toUpperCase();
-      debugPrint("> rtc msgs listen: $type , $p2pCallScreenOn, ${DateTime.now()} $data");
+      debugPrint(
+          "> rtc msgs listen: $type , $p2pCallScreenOn, ${DateTime.now()} $data");
       if (data.containsKey('ts')) {
         int now = DateTimeHelper.currentTimeMillis();
         debugPrint("> rtc msgs now: $now elapsed: ${now - data['ts']}");
@@ -241,7 +242,7 @@ class MessageService extends GetxService {
       try {
         ImageGalleryLogic galleryLogic = Get.find();
         galleryLogic.pushToGallery(tMsg.id, tMsg.uri);
-      } catch (e){
+      } catch (e) {
         //
       }
     }
@@ -328,7 +329,8 @@ class MessageService extends GetxService {
       return;
     }
     conversation.subtitle = '';
-    conversation.msgtype = msgType; //peerId == UserRepoLocal.to.currentUid ? 'peer_revoked' : 'my_revoked';
+    conversation.msgtype =
+        msgType; //peerId == UserRepoLocal.to.currentUid ? 'peer_revoked' : 'my_revoked';
     int res2 = await repo.updateByPeerId(peerId, {
       'msgtype': conversation.msgtype,
       'subtitle': '',

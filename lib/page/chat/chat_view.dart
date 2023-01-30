@@ -32,7 +32,7 @@ import 'package:imboy/component/voice_record/voice_widget.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/theme.dart';
-import 'package:imboy/page/chat_info/chat_info_view.dart';
+import 'package:imboy/page/chat/chat_setting/chat_setting_view.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/group_detail/group_detail_view.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -746,8 +746,8 @@ class ChatPageState extends State<ChatPage> {
                 widget.peerId,
                 callBack: (v) {},
               )
-            : ChatInfoPage(widget.peerId, options: {
-                "id": widget.peerId,
+            : ChatSettingPage(widget.peerId, options: {
+                "peerId": widget.peerId,
                 "avatar": widget.peerAvatar,
                 "nickname": widget.peerTitle,
               })),

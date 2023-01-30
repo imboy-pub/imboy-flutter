@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
 
@@ -19,9 +20,9 @@ void confirmAlert<T>(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext context) {
-      if (strEmpty(okBtn)) okBtn = '确定';
-      if (strEmpty(cancelBtn)) cancelBtn = '取消';
-      if (strEmpty(warmStr)) warmStr = '温馨提示：';
+      if (strEmpty(okBtn)) okBtn = '确定'.tr;
+      if (strEmpty(cancelBtn)) cancelBtn = '取消'.tr;
+      if (strEmpty(warmStr)) warmStr = '${'温馨提示'.tr}：';
       return CupertinoAlertDialog(
         title: isWarm
             ? Padding(

@@ -8,7 +8,7 @@ import 'package:imboy/component/helper/assets.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
-import 'package:imboy/page/friend/new_friend_view.dart';
+import 'package:imboy/page/contact/friend/new_friend_view.dart';
 import 'package:imboy/page/search/search_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:lpinyin/lpinyin.dart';
@@ -131,71 +131,70 @@ class ContactPage extends StatelessWidget {
       body: Obx(
         () => n.Stack([
           RefreshIndicator(
-            onRefresh: () async {
-              debugPrint(">>> contact onRefresh");
-              // 检查网络状态
-              var res = await Connectivity().checkConnectivity();
-              if (res == ConnectivityResult.none) {
-                String msg = 'tip_connect_desc'.tr;
-                EasyLoading.showInfo(' $msg        ');
-                return;
-              }
-              List<ContactModel> contact = await logic.listFriend(true);
-              if (contact.isNotEmpty) {
-                logic.contactList.value = contact;
-                contactIsEmpty.value = logic.contactList.isEmpty;
-                _handleList(logic.contactList);
-              }
-            },
-            child: AzListView(
-              data: logic.contactList,
-              itemCount: logic.contactList.length,
-              itemBuilder: (BuildContext context, int index) {
-                ContactModel model = logic.contactList[index];
-                return logic.getChatListItem(
-                  context,
-                  model,
-                  defHeaderBgColor: const Color(0xFFE5E5E5),
-                );
-              },
-              // 解决联系人数据量少的情况下无法刷新的问题
-              // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
-              physics: const AlwaysScrollableScrollPhysics(),
-              susItemBuilder: (BuildContext context, int index) {
-                ContactModel model = logic.contactList[index];
-                if ('↑' == model.getSuspensionTag()) {
-                  return Container();
+              onRefresh: () async {
+                debugPrint(">>> contact onRefresh");
+                // 检查网络状态
+                var res = await Connectivity().checkConnectivity();
+                if (res == ConnectivityResult.none) {
+                  String msg = 'tip_connect_desc'.tr;
+                  EasyLoading.showInfo(' $msg        ');
+                  return;
                 }
-                return logic.getSusItem(context, model.getSuspensionTag());
+                List<ContactModel> contact = await logic.listFriend(true);
+                if (contact.isNotEmpty) {
+                  logic.contactList.value = contact;
+                  contactIsEmpty.value = logic.contactList.isEmpty;
+                  _handleList(logic.contactList);
+                }
               },
-              indexBarData: const ['↑', ...kIndexBarData],
-              indexBarOptions: IndexBarOptions(
-                needRebuild: true,
-                ignoreDragCancel: true,
-                downTextStyle: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.white,
-                ),
-                downItemDecoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.green,
-                ),
-                indexHintWidth: 128 / 2,
-                indexHintHeight: 128 / 2,
-                indexHintDecoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(
-                      Assets.getImgPath('ic_index_bar_bubble_gray'),
-                    ),
-                    fit: BoxFit.contain,
+              child: AzListView(
+                data: logic.contactList,
+                itemCount: logic.contactList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  ContactModel model = logic.contactList[index];
+                  return logic.getChatListItem(
+                    context,
+                    model,
+                    defHeaderBgColor: const Color(0xFFE5E5E5),
+                  );
+                },
+                // 解决联系人数据量少的情况下无法刷新的问题
+                // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
+                physics: const AlwaysScrollableScrollPhysics(),
+                susItemBuilder: (BuildContext context, int index) {
+                  ContactModel model = logic.contactList[index];
+                  if ('↑' == model.getSuspensionTag()) {
+                    return Container();
+                  }
+                  return logic.getSusItem(context, model.getSuspensionTag());
+                },
+                indexBarData: const ['↑', ...kIndexBarData],
+                indexBarOptions: IndexBarOptions(
+                  needRebuild: true,
+                  ignoreDragCancel: true,
+                  downTextStyle: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
                   ),
+                  downItemDecoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.green,
+                  ),
+                  indexHintWidth: 128 / 2,
+                  indexHintHeight: 128 / 2,
+                  indexHintDecoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(
+                        Assets.getImgPath('ic_index_bar_bubble_gray'),
+                      ),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  indexHintAlignment: Alignment.centerRight,
+                  indexHintChildAlignment: const Alignment(-0.25, 0.0),
+                  indexHintOffset: const Offset(-20, 0),
                 ),
-                indexHintAlignment: Alignment.centerRight,
-                indexHintChildAlignment: const Alignment(-0.25, 0.0),
-                indexHintOffset: const Offset(-20, 0),
-              ),
-            )
-          ),
+              )),
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
             child: contactIsEmpty.isTrue

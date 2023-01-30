@@ -108,8 +108,9 @@ imboy 的Flutter项目
     * https://github.com/flutter/flutter/issues/40519
     * https://github.com/fluttercandies/flutter_wechat_camera_picker/issues/12
 * use-flutter-cache-manager-with-video-player 如何边下载、边缓存、边播放 https://stackoverflow.com/questions/68249750/use-flutter-cache-manager-with-video-player
-* 语音消息播放之后红点需要取消
+* 语音消息播放之后红点需要取消（已解决）
 * 一对一视频通话偶尔有问题，需要进一步优化
+* 消息"长按事件"不够灵活
 
 ## flutter_dotenv
 

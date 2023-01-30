@@ -16,7 +16,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/page/contact/contact_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
-import 'package:imboy/page/friend/new_friend_logic.dart';
+import 'package:imboy/page/contact/friend/new_friend_logic.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
@@ -101,18 +101,22 @@ Future<void> init() async {
   await initIceServers();
 
   WidgetsBinding.instance.addObserver(
-    LifecycleEventHandler(resumeCallBack: () async {// app 恢复
-      // 统计新申请好友数量
-      bnLogic.countNewFriendRemindCounter();
-      debugPrint(">>> on LifecycleEventHandler resumeCallBack");
-      ntpOffset = await StorageService.to.ntpOffset();
-      WSService.to.openSocket();
-    },
-    suspendingCallBack: () async {// app 挂起
-      debugPrint(">>> on LifecycleEventHandler suspendingCallBack");
-    },
-    pausedCallBack: () async { // 已暂停的
-    },
+    LifecycleEventHandler(
+      resumeCallBack: () async {
+        // app 恢复
+        // 统计新申请好友数量
+        bnLogic.countNewFriendRemindCounter();
+        debugPrint(">>> on LifecycleEventHandler resumeCallBack");
+        ntpOffset = await StorageService.to.ntpOffset();
+        WSService.to.openSocket();
+      },
+      suspendingCallBack: () async {
+        // app 挂起
+        debugPrint(">>> on LifecycleEventHandler suspendingCallBack");
+      },
+      pausedCallBack: () async {
+        // 已暂停的
+      },
     ),
   );
   // debugPrint(">>> on currentTimeMillis init ${ntpOffset}");

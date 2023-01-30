@@ -11,7 +11,7 @@ import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact/contact_setting_view.dart';
-import 'package:imboy/page/friend/add_friend_view.dart';
+import 'package:imboy/page/contact/friend/add_friend_view.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
