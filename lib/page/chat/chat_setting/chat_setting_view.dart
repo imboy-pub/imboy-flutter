@@ -35,8 +35,8 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
 
   Widget buildSwitch(item) {
     return LabelRow(
-      label: item['label'],
-      margin: item['id'] == 'no_disturbing'
+      label: item['title'],
+      margin: item['label'] == 'no_disturbing'
           ? const EdgeInsets.only(top: 10.0)
           : null,
       isLine: item['id'] != 'strong_reminder', // '强提醒',
@@ -54,9 +54,9 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
 
   List<Widget> body() {
     List switchItems = [
-      {'id': 'no_disturbing', 'label': '消息免打扰'.tr, 'value': isDoNotDisturb},
-      {'id': 'chat_on_top', 'label': '置顶聊天'.tr, 'value': isTop},
-      {'id': 'strong_reminder', 'label': '强提醒'.tr, 'value': isRemind},
+      {'label': 'no_disturbing', 'title': '消息免打扰'.tr, 'value': isDoNotDisturb},
+      {'label': 'chat_on_top', 'title': '置顶聊天'.tr, 'value': isTop},
+      {'label': 'strong_reminder', 'title': '强提醒'.tr, 'value': isRemind},
     ];
 
     return [

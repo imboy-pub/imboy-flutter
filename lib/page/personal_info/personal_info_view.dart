@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:imboy/component/helper/crop_image.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/config/const.dart';
@@ -94,25 +95,6 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     }
   }
 
-  Widget dynamicAvatar(avatar, {size}) {
-    if (isNetWorkImg(avatar)) {
-      return CachedNetworkImage(
-        imageUrl: avatar + "&width=200",
-        cacheManager: cacheManager,
-        width: size,
-        height: size,
-        fit: BoxFit.fill,
-      );
-    } else {
-      return Image.asset(
-        avatar,
-        fit: BoxFit.fill,
-        width: size,
-        height: size,
-      );
-    }
-  }
-
   Widget buildContent(item, UserModel user) {
     return LabelRow(
       label: item['title'],
@@ -155,9 +137,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             height: 55.0,
             child: ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-              child: strNoEmpty(currentUserAvatar)
-                  ? dynamicAvatar(currentUserAvatar)
-                  : defAvatarIcon,
+              child: Avatar(imgUri: currentUserAvatar),
             ),
           ),
           onPressed: () => Get.bottomSheet(

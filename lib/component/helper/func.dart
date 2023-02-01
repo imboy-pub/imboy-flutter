@@ -182,7 +182,9 @@ ImageProvider cachedImageProvider(String? url, {int w = 400}) {
   if (strEmpty(url) || url == defAvatar) {
     return const AssetImage(defAvatar);
   }
-  return CachedNetworkImageProvider(w > 0 ? "$url&width=$w" : url!,
+
+  return CachedNetworkImageProvider(
+    w > 0 ? "$url&width=$w" : url!,
     cacheKey: generateMD5(url!),
   );
 }
