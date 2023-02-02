@@ -24,6 +24,45 @@ class ContactRepo {
 
   final Sqlite _db = Sqlite.instance;
 
+  Future<List<ContactModel>> search({
+    required String kwd,
+    int limit = 1000,
+  }) async {
+    List<Map<String, dynamic>> maps = await _db.query(
+      ContactRepo.tablename,
+      columns: [
+        ContactRepo.uid,
+        ContactRepo.nickname,
+        ContactRepo.avatar,
+        ContactRepo.account,
+        ContactRepo.status,
+        ContactRepo.remark,
+        ContactRepo.region,
+        ContactRepo.sign,
+        ContactRepo.source,
+        ContactRepo.gender,
+        ContactRepo.isfriend,
+        ContactRepo.isfrom,
+      ],
+      where: '${ContactRepo.isfriend}=? and ('
+          '${ContactRepo.nickname} like "%$kwd%" or ${ContactRepo.remark} like "%$kwd%"'
+          ')',
+      whereArgs: [1],
+      orderBy: "update_time desc",
+      limit: limit,
+    );
+    debugPrint("> on search ${maps.length}, ${maps.toList().toString()}");
+    if (maps.isEmpty) {
+      return [];
+    }
+
+    List<ContactModel> items = [];
+    for (int i = 0; i < maps.length; i++) {
+      items.add(ContactModel.fromJson(maps[i]));
+    }
+    return items;
+  }
+
   // 插入一条数据
   Future<ContactModel> insert(ContactModel obj) async {
     Map<String, dynamic> insert = {
@@ -70,7 +109,7 @@ class ContactRepo {
       orderBy: "update_time desc",
       limit: 10000,
     );
-    // debugPrint(">>> on findFriend ${maps.length}, ${maps.toList().toString()}");
+    // debugPrint("> on findFriend ${maps.length}, ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }

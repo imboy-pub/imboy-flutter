@@ -732,7 +732,16 @@ class ChatPageState extends State<ChatPage> {
       updateQuoteMessage(msg);
     } else if (itemId == "transpond") {
       // 转发消息
-      getx.Get.to(SendToPage(msg: msg));
+      getx.Get.bottomSheet(
+        n.Padding(
+          top: 24,
+          child: SendToPage(msg: msg),
+        ),
+        // 是否支持全屏弹出，默认false
+        isScrollControlled: true,
+        // enableDrag: false,
+      );
+      // getx.Get.to(SendToPage(msg: msg));
     }
   }
 

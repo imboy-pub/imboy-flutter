@@ -95,8 +95,6 @@ dependencies:
   fps_monitor: ^2.0.0
   # @ 小部件
   flutter_mentions: ^2.0.1
-  # 搜索页面
-  search_page: ^2.2.0
   # 时间处理
   jiffy: ^5.0.0
   # 用于校正本地系统与时钟源服务器之前的时间
