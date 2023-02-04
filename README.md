@@ -138,27 +138,18 @@ Lib
 ## plugin
 
 ```
-cd plugin/
+mkdir -p plugin && cd plugin/
 
-git submodule add https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git flutter_chat_ui
+git clone https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git
 
-git submodule add --force https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git flutter_chat_ui
-
-cd flutter_chat_ui/
-
-git fetch origin leeyi && git checkout -f leeyi
-
-git submodule add https://gitee.com/imboy-tripartite-deps/popup_menu.git popup_menu
+cd flutter_chat_ui && git fetch origin leeyi && git checkout -f leeyi
 
 ```
 
 然后在 pubspec.yaml 文件添加
 ```
-
   flutter_chat_ui:
     path: plugin/flutter_chat_ui
-  popup_menu:
-    path: plugin/popup_menu
 ```
 
 参考 https://juejin.cn/post/6844903920322478093
@@ -183,6 +174,7 @@ arch -x86_64 pod update
 
 arch -x86_64 pod update flutter_webrtc
 
+cd ios && rm -rf Pods && pod cache clean --all && pod install && cd ..
 ```
 
 ### deps flutter_sound_install

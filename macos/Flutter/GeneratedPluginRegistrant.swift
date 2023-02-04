@@ -16,7 +16,7 @@ import flutter_webrtc
 import just_audio
 import mobile_scanner
 import package_info_plus
-import path_provider_macos
+import path_provider_foundation
 import photo_manager
 import shared_preferences_foundation
 import sqflite

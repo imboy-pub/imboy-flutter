@@ -175,4 +175,4 @@
 * 异步拉取离线消息功能 TODO
 * APP强制更新功能 TODO
 * 附件本地存储管理功能（图片、视频、音频等文件本地缓存管理） TODO
-*
+* 存储安全，计划引入 flutter_secure_storage package TODO

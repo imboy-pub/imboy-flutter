@@ -60,8 +60,8 @@ class StorageService extends GetxService {
     String? val = _prefs.getString(key);
     // debugPrint(">>> on currentTimeMillis val1 ${val}");
     // val = null;
+    int offset = 0;
     if (val == null) {
-      int offset = 0;
       try {
         offset = await NTP.getNtpOffset(
           localTime: DateTime.now(),
@@ -74,15 +74,14 @@ class StorageService extends GetxService {
         _prefs.setString(key, val);
         // ignore: empty_catches
       } catch (e) {}
-      return offset;
     } else {
       // 2022-01-23 00:30:35 字符串的长度刚好19位
-      int diff = Jiffy().diff(val.substring(0, 19), Units.SECOND) as int;
-      if (diff > 3600) {
+      offset = Jiffy().diff(val.substring(0, 19), Units.SECOND) as int;
+      if (offset > 3600) {
         await _prefs.remove(key);
         return ntpOffset();
       }
-      return int.parse(val.substring(19));
     }
+    return offset;
   }
 }

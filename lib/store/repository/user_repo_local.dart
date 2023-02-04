@@ -44,7 +44,6 @@ class UserRepoLocal extends GetxController {
         .setString(Keys.refreshtokenKey, payload['refreshtoken']);
     await StorageService.to.setString(Keys.currentUid, payload['uid']);
     await StorageService.to.setMap(Keys.currentUser, payload);
-    update();
     Sqlite.instance.database;
     // 初始化 WebSocket 链接
     WSService.to.openSocket();
