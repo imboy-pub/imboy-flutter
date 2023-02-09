@@ -103,7 +103,6 @@ class WSService extends GetxService {
     if (tokenExpired(token)) {
       debugPrint('> ws openSocket tokenExpired true');
       token = await UserRepoLocal.to.refreshAccessToken();
-      await Future.delayed(const Duration(seconds: 1));
     }
     Map<String, dynamic> headers = await defaultHeaders();
     headers[Keys.tokenKey] = token;
@@ -161,7 +160,7 @@ class WSService extends GetxService {
       }
     }
     _socketStatus = SocketStatus.SocketStatusClosed;
-      _reconnect();
+    _reconnect();
   }
 
   /// WebSocket连接错误回调
@@ -224,12 +223,13 @@ class WSService extends GetxService {
   bool sendMessage(String message) {
     bool result = false;
     openSocket();
-    if(_socketStatus == SocketStatus.SocketStatusConnected) {
+    if (_socketStatus == SocketStatus.SocketStatusConnected) {
       // debugPrint('> ws sendMsg $message');
       _webSocketChannel!.sink.add(message);
       result = true;
     } else {
-      debugPrint('> ws error _socketStatus ${_socketStatus.toString()} $message ${DateTime.now()}');
+      debugPrint(
+          '> ws error _socketStatus ${_socketStatus.toString()} $message ${DateTime.now()}');
     }
     return result;
   }

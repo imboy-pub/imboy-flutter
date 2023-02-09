@@ -70,6 +70,7 @@ class UserRepoLocal extends GetxController {
     if (strNoEmpty(newToken)) {
       await StorageService.to.setString(Keys.tokenKey, newToken);
     }
+    await Future.delayed(const Duration(seconds: 1));
     return newToken;
   }
 
