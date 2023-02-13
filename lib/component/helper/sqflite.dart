@@ -85,7 +85,7 @@ class Sqlite {
 
     String conversationSql = '''
       CREATE TABLE IF NOT EXISTS ${ConversationRepo.tablename} (
-        `${ConversationRepo.id}` INTERGER AUTO_INCREMENT,
+        `${ConversationRepo.id}` INTEGER,
         `${ConversationRepo.peerId}` varchar(40) NOT NULL,
         `${ConversationRepo.avatar}` varchar(255) NOT NULL DEFAULT '',
         `${ConversationRepo.title}` varchar(40) NOT NULL DEFAULT '',
@@ -107,7 +107,7 @@ class Sqlite {
 
     String messageSql = '''
       CREATE TABLE IF NOT EXISTS ${MessageRepo.tablename} (
-        autoid INTERGER AUTO_INCREMENT,
+        autoid INTEGER,
         ${MessageRepo.id} varchar(40) NOT NULL,
         ${MessageRepo.type} VARCHAR (20),
         ${MessageRepo.from} VARCHAR (80),
@@ -127,7 +127,7 @@ class Sqlite {
 
     String addFriendSql = '''
       CREATE TABLE IF NOT EXISTS ${NewFriendRepo.tablename} (
-        autoid INTERGER AUTO_INCREMENT,
+        autoid INTEGER,
         ${NewFriendRepo.uid} varchar(40) NOT NULL,
         ${NewFriendRepo.from} varchar(40) NOT NULL,
         ${NewFriendRepo.to} varchar(40) NOT NULL,

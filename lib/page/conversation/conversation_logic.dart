@@ -98,7 +98,7 @@ class ConversationLogic extends GetxController {
   /// 不显示（在会话列表）
   hideConversation(int conversationId) async {
     Database db = await Sqlite.instance.database;
-    db.update(
+    await db.update(
       ConversationRepo.tablename,
       {ConversationRepo.isShow: 0},
       where: "id=?",
@@ -109,7 +109,7 @@ class ConversationLogic extends GetxController {
   /// 标记为未读 / 已读
   markAs(int conversationId, int num) async {
     Database db = await Sqlite.instance.database;
-    db.update(
+    await db.update(
       ConversationRepo.tablename,
       {ConversationRepo.unreadNum: num},
       where: "id=?",
@@ -123,7 +123,7 @@ class ConversationLogic extends GetxController {
     Database db = await Sqlite.instance.database;
     String where = "last_msg_id=?";
     List<String> whereArgs = [msgId];
-    db.update(
+    await db.update(
       ConversationRepo.tablename,
       {ConversationRepo.lastMsgStatus: status},
       where: where,

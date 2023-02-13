@@ -78,15 +78,15 @@ class MessageModel {
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['type'] = type;
-    data['status'] = status;
-    data['from'] = fromId;
-    data['to'] = toId;
-    data['payload'] = json.encode(payload);
-    data['created_at'] = createdAt;
-    data['server_ts'] = serverTs ?? 0;
-    data['conversation_id'] = conversationId;
+    data[MessageRepo.id] = id;
+    data[MessageRepo.type] = type;
+    data[MessageRepo.status] = status;
+    data[MessageRepo.from] = fromId;
+    data[MessageRepo.to] = toId;
+    data[MessageRepo.payload] = json.encode(payload);
+    data[MessageRepo.createdAt] = createdAt;
+    data[MessageRepo.serverTs] = serverTs ?? 0;
+    data[MessageRepo.conversationId] = conversationId;
 
     debugPrint(">>>>> on MessageModel toMap $data");
     return data;

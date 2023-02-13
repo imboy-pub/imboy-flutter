@@ -44,8 +44,7 @@ class MessageRepo {
       debugPrint(">>> on MessgeMode/insert $insert");
       await _db.insert(MessageRepo.tablename, insert);
     } else {
-      debugPrint(
-          ">>> on MessgeMode/insert count $count : $insert");
+      debugPrint(">>> on MessgeMode/insert count $count : $insert");
     }
     return msg;
   }
@@ -68,11 +67,10 @@ class MessageRepo {
       where: where,
       whereArgs: [obj.id],
     );
-
-    if (count! > 0) {
-      update(obj.toJson());
+    if (count == null) {
+      await insert(obj);
     } else {
-      insert(obj);
+      await update(obj.toJson());
     }
     debugPrint(">>>>> on MessageRepo/save count:$count; id: $obj.id");
     return count;
@@ -102,6 +100,8 @@ class MessageRepo {
       offset: ((page - 1) > 0 ? (page - 1) : 0) * size,
       limit: size,
     );
+    debugPrint(
+        "> on findByConversation : $conversationId, $page, ${maps.length}; ${maps.toString()}");
     if (maps.isEmpty) {
       return [];
     }

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 
 class ConversationModel {
   int id;
@@ -82,19 +83,19 @@ class ConversationModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'peer_id': peerId,
-        'avatar': avatar,
-        'title': title,
-        'region': region,
-        'sign': sign,
-        'subtitle': subtitle,
-        'lasttime': lasttime,
-        'last_msg_id': lastMsgId,
-        'last_msg_status': lastMsgStatus,
-        'unread_num': unreadNum,
-        'type': type,
-        'msgtype': msgtype,
-        'is_show': isShow,
+        ConversationRepo.id: id,
+        ConversationRepo.peerId: peerId,
+        ConversationRepo.avatar: avatar,
+        ConversationRepo.title: title,
+        ConversationRepo.region: region,
+        ConversationRepo.sign: sign,
+        ConversationRepo.subtitle: subtitle,
+        ConversationRepo.lasttime: lasttime,
+        ConversationRepo.lastMsgId: lastMsgId,
+        ConversationRepo.lastMsgStatus: lastMsgStatus,
+        ConversationRepo.unreadNum: unreadNum,
+        ConversationRepo.type: type,
+        ConversationRepo.msgtype: msgtype,
+        ConversationRepo.isShow: isShow,
       };
 }

@@ -125,34 +125,31 @@ class NewFriendRepo {
     String to = json["to"];
     Map<String, Object?> data = {};
     if (strNoEmpty(json["msg"])) {
-      data["msg"] = json["msg"];
-    }
-    if (strNoEmpty(json["remark"])) {
-      data["remark"] = json["remark"];
+      data[NewFriendRepo.msg] = json["msg"];
     }
     if (strNoEmpty(json["nickname"])) {
-      data["nickname"] = json["nickname"];
+      data[NewFriendRepo.nickname] = json["nickname"];
     }
     if (strNoEmpty(json["avatar"] ?? "")) {
-      data["avatar"] = json["avatar"];
+      data[NewFriendRepo.avatar] = json["avatar"];
     }
 
     if (json["status"] >= 0) {
-      data["status"] = json["status"];
+      data[NewFriendRepo.status] = json["status"];
     }
     if (strNoEmpty(json["payload"])) {
-      data["payload"] = json["payload"];
+      data[NewFriendRepo.payload] = json["payload"];
     }
 
     if (json["update_time"] != null && json["update_time"] >= 0) {
-      data["update_time"] = json["update_time"];
+      data[NewFriendRepo.updateTime] = json["update_time"];
     }
     if (json["create_time"] != null && json["create_time"] >= 0) {
-      data["create_time"] = json["create_time"];
+      data[NewFriendRepo.createTime] = json["create_time"];
     }
 
     if (strNoEmpty(from) && strNoEmpty(to)) {
-      data["update_time"] = DateTimeHelper.currentTimeMillis();
+      data[NewFriendRepo.updateTime] = DateTimeHelper.currentTimeMillis();
       return await _db.update(
         NewFriendRepo.tablename,
         data,
@@ -170,9 +167,9 @@ class NewFriendRepo {
     NewFriendModel? old = await findByFromTo(from, to);
     // debugPrint(">>> on new_friend save: ${old.toString()}");
     if (old != null || old is NewFriendModel) {
-      update(json);
+      await update(json);
     } else {
-      insert(NewFriendModel.fromJson(json));
+      await insert(NewFriendModel.fromJson(json));
     }
   }
 

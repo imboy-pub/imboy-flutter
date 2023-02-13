@@ -27,18 +27,18 @@ class ConversationRepo {
   // 插入一条数据
   Future<int> insert(ConversationModel obj) async {
     Map<String, dynamic> insert = {
-      'peer_id': obj.peerId,
-      'avatar': obj.avatar,
-      'title': obj.title,
-      'subtitle': obj.subtitle,
+      ConversationRepo.peerId: obj.peerId,
+      ConversationRepo.avatar: obj.avatar,
+      ConversationRepo.title: obj.title,
+      ConversationRepo.subtitle: obj.subtitle,
       // 单位毫秒，13位时间戳  1561021145560
-      'lasttime': obj.lasttime ?? DateTime.now().millisecond,
-      'last_msg_id': obj.lastMsgId,
-      'last_msg_status': obj.lastMsgStatus ?? 11,
-      'unread_num': obj.unreadNum > 0 ? obj.unreadNum : 0,
-      'type': obj.type,
-      'msgtype': obj.msgtype,
-      'is_show': obj.isShow,
+      ConversationRepo.lasttime: obj.lasttime ?? DateTime.now().millisecond,
+      ConversationRepo.lastMsgId: obj.lastMsgId,
+      ConversationRepo.lastMsgStatus: obj.lastMsgStatus ?? 11,
+      ConversationRepo.unreadNum: obj.unreadNum > 0 ? obj.unreadNum : 0,
+      ConversationRepo.type: obj.type,
+      ConversationRepo.msgtype: obj.msgtype,
+      ConversationRepo.isShow: obj.isShow,
     };
     int lastInsertId = await _db.insert(ConversationRepo.tablename, insert);
     return lastInsertId;
@@ -76,14 +76,16 @@ class ConversationRepo {
     } else {
       await updateByPeerId(obj.peerId, obj.toJson());
     }
-    int? id = await _db.pluck(
-      ConversationRepo.id,
-      ConversationRepo.tablename,
-      where: where,
-      whereArgs: [obj.peerId],
-    );
-    if (id != null) {
-      obj.id = id!;
+    if (obj.id == 0) {
+      int? id = await _db.pluck(
+        ConversationRepo.id,
+        ConversationRepo.tablename,
+        where: where,
+        whereArgs: [obj.peerId],
+      );
+      if (id != null) {
+        obj.id = id!;
+      }
     }
     return obj;
   }
@@ -155,7 +157,7 @@ class ConversationRepo {
       orderBy: "${ConversationRepo.lasttime} DESC",
     );
     debugPrint(
-        ">>> on ConversationRepo/all ${items.length} items ${items.toString()}");
+        "> on ConversationRepo/all ${items.length} items ${items.toString()}");
     if (items.isEmpty) {
       return [];
     }

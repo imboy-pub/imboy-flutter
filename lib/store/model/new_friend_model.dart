@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
+
 class NewFriendModel {
   NewFriendModel({
     this.uid = "",
@@ -49,16 +51,16 @@ class NewFriendModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'uid': uid,
-        'from': from,
-        'to': to,
-        'nickname': nickname,
-        'avatar': avatar,
-        'status': status,
-        'msg': msg,
-        'update_time': updateTime,
-        'create_time': createTime,
-        'payload': payload,
+        NewFriendRepo.uid: uid,
+        NewFriendRepo.from: from,
+        NewFriendRepo.to: to,
+        NewFriendRepo.nickname: nickname,
+        NewFriendRepo.avatar: avatar,
+        NewFriendRepo.status: status,
+        NewFriendRepo.msg: msg,
+        NewFriendRepo.updateTime: updateTime,
+        NewFriendRepo.createTime: createTime,
+        NewFriendRepo.payload: payload,
       };
 
   @override

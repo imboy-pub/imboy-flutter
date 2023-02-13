@@ -66,20 +66,21 @@ class ContactRepo {
   // 插入一条数据
   Future<ContactModel> insert(ContactModel obj) async {
     Map<String, dynamic> insert = {
-      'uid': obj.uid,
-      'nickname': obj.nickname,
-      'avatar': obj.avatar,
-      'account': obj.account,
-      'status': obj.status,
-      'remark': obj.remark,
-      'gender': obj.gender,
-      'region': obj.region,
-      'sign': obj.sign,
-      'source': obj.source,
+      ContactRepo.uid: obj.uid,
+      ContactRepo.nickname: obj.nickname,
+      ContactRepo.avatar: obj.avatar,
+      ContactRepo.account: obj.account,
+      ContactRepo.status: obj.status,
+      ContactRepo.remark: obj.remark,
+      ContactRepo.gender: obj.gender,
+      ContactRepo.region: obj.region,
+      ContactRepo.sign: obj.sign,
+      ContactRepo.source: obj.source,
       // 单位毫秒，13位时间戳  1561021145560
-      'update_time': obj.updateTime ?? DateTime.now().millisecondsSinceEpoch,
-      'isfriend': obj.isfriend,
-      'isfrom': obj.isfrom,
+      ContactRepo.updateTime:
+          obj.updateTime ?? DateTime.now().millisecondsSinceEpoch,
+      ContactRepo.isfriend: obj.isfriend,
+      ContactRepo.isfrom: obj.isfrom,
     };
     debugPrint(">>> on ContactRepo/insert/1 $insert");
 
@@ -163,39 +164,39 @@ class ContactRepo {
     String uid = json["id"] ?? (json["uid"] ?? "");
     Map<String, Object?> data = {};
     if (strNoEmpty(json["account"])) {
-      data["account"] = json["account"];
+      data[ContactRepo.account] = json["account"];
     }
     if (strNoEmpty(json["nickname"])) {
-      data["nickname"] = json["nickname"];
+      data[ContactRepo.nickname] = json["nickname"];
     }
     if (strNoEmpty(json["avatar"] ?? "")) {
-      data["avatar"] = json["avatar"];
+      data[ContactRepo.avatar] = json["avatar"];
     }
 
     if (strNoEmpty(json["status"].toString())) {
-      data["status"] = json["status"].toString();
+      data[ContactRepo.status] = json["status"].toString();
     }
     if (strNoEmpty(json["remark"])) {
-      data["remark"] = json["remark"];
+      data[ContactRepo.remark] = json["remark"];
     }
     if (strNoEmpty(json["region"])) {
-      data["region"] = json["region"];
+      data[ContactRepo.region] = json["region"];
     }
     if (strNoEmpty(json["sign"])) {
-      data["sign"] = json["sign"];
+      data[ContactRepo.sign] = json["sign"];
     }
     if (strNoEmpty(json["source"])) {
-      data["source"] = json["source"];
+      data[ContactRepo.source] = json["source"];
     }
     if (json["gender"] > 0) {
-      data["gender"] = json["gender"];
+      data[ContactRepo.gender] = json["gender"];
     }
 
     debugPrint(">>> on ContactRepo/update/1 data: ${data.toString()}");
     if (strNoEmpty(uid)) {
-      data["isfrom"] = json["isfrom"] ?? 0;
-      data["isfriend"] = json["isfriend"] ?? 0;
-      data["update_time"] = DateTimeHelper.currentTimeMillis();
+      data[ContactRepo.isfrom] = json["isfrom"] ?? 0;
+      data[ContactRepo.isfriend] = json["isfriend"] ?? 0;
+      data[ContactRepo.updateTime] = DateTimeHelper.currentTimeMillis();
       return await _db.update(
         ContactRepo.tablename,
         data,
@@ -211,9 +212,9 @@ class ContactRepo {
     String uid = json["id"] ?? (json["uid"] ?? "");
     ContactModel? old = await findByUid(uid);
     if (old != null || old is ContactModel) {
-      update(json);
+      await update(json);
     } else {
-      insert(ContactModel.fromJson(json));
+      await insert(ContactModel.fromJson(json));
     }
   }
 
