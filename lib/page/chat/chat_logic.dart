@@ -53,7 +53,7 @@ class ChatLogic extends GetxController {
     for (MessageModel obj in items) {
       debugPrint(
           "> on msg check status ${obj.status}, ${obj.status == MessageStatus.sending}");
-      if (obj.status! == MessageStatus.sending) {
+      if (obj.status == MessageStatus.sending) {
         debugPrint(
             "> on msg check sending ${obj.status}, ${obj.status == MessageStatus.sending}");
         sendWsMsg(obj);

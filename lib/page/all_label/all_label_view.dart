@@ -8,6 +8,7 @@ class AllLabelPage extends StatefulWidget {
   const AllLabelPage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _AllLabelPageState createState() => _AllLabelPageState();
 }
 

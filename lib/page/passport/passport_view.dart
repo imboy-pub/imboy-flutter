@@ -47,10 +47,10 @@ class PassportPage extends StatelessWidget {
             onPressed: () {
               Get.back();
             },
-            child: Text('button_confirm'.tr),
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(Colors.white70),
             ),
+            child: Text('button_confirm'.tr),
           ),
         );
       });

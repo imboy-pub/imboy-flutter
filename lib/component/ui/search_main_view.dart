@@ -6,7 +6,8 @@ class SearchMainView extends StatelessWidget {
   final String? text;
   final bool? isBorder;
 
-  const SearchMainView({Key? key,
+  const SearchMainView({
+    Key? key,
     this.onTap,
     this.text,
     this.isBorder = false,
@@ -28,6 +29,7 @@ class SearchMainView extends StatelessWidget {
     );
 
     return InkWell(
+      onTap: onTap ?? () {},
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -40,7 +42,6 @@ class SearchMainView extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 15.0),
         child: row,
       ),
-      onTap: onTap ?? () {},
     );
   }
 }

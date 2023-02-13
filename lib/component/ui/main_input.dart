@@ -43,7 +43,6 @@ class MainInputBodyState extends State<MainInputBody> {
             height: double.infinity,
             width: double.infinity,
             child: GestureDetector(
-              child: widget.child,
               behavior: HitTestBehavior.translucent,
               onTap: () {
                 FocusScope.of(context).requestFocus(FocusNode());
@@ -51,6 +50,7 @@ class MainInputBodyState extends State<MainInputBody> {
                   widget.onTap!();
                 }
               },
+              child: widget.child,
             ),
           );
   }

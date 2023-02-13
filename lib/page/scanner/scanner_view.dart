@@ -71,7 +71,8 @@ class _ScannerPageState extends State<ScannerPage>
                 scanWindow: scanWindow,
                 controller: controller,
                 onScannerStarted: (arguments) {
-                  debugPrint("> scanner onScannerStarted ${arguments.toString()}");
+                  debugPrint(
+                      "> scanner onScannerStarted ${arguments.toString()}");
                   setState(() {
                     this.arguments = arguments;
                   });
@@ -88,8 +89,10 @@ class _ScannerPageState extends State<ScannerPage>
                   setState(() {
                     barcodeStr = barcodes.barcodes.last.rawValue;
                   });
-                  if (isUrl(barcodeStr!) && barcodeStr!.endsWith(uqrcodeDataSuffix)) {
-                    IMBoyHttpResponse resp = await HttpClient.client.get(barcodeStr!);
+                  if (isUrl(barcodeStr!) &&
+                      barcodeStr!.endsWith(uqrcodeDataSuffix)) {
+                    IMBoyHttpResponse resp =
+                        await HttpClient.client.get(barcodeStr!);
                     if (!resp.ok) {
                       return;
                     }
@@ -146,13 +149,7 @@ class _ScannerPageState extends State<ScannerPage>
                         icon: ValueListenableBuilder(
                           valueListenable: controller.torchState,
                           builder: (context, state, child) {
-                            if (state == null) {
-                              return const Icon(
-                                Icons.flash_off,
-                                color: Colors.grey,
-                              );
-                            }
-                            switch (state as TorchState) {
+                            switch (state) {
                               case TorchState.off:
                                 return const Icon(
                                   Icons.flash_off,
@@ -162,6 +159,11 @@ class _ScannerPageState extends State<ScannerPage>
                                 return const Icon(
                                   Icons.flash_on,
                                   color: Colors.yellow,
+                                );
+                              default:
+                                return const Icon(
+                                  Icons.flash_off,
+                                  color: Colors.grey,
                                 );
                             }
                           },
@@ -202,14 +204,13 @@ class _ScannerPageState extends State<ScannerPage>
                         icon: ValueListenableBuilder(
                           valueListenable: controller.cameraFacingState,
                           builder: (context, state, child) {
-                            if (state == null) {
-                              return const Icon(Icons.camera_front);
-                            }
-                            switch (state as CameraFacing) {
+                            switch (state) {
                               case CameraFacing.front:
                                 return const Icon(Icons.camera_front);
                               case CameraFacing.back:
                                 return const Icon(Icons.camera_rear);
+                              default:
+                                return const Icon(Icons.camera_front);
                             }
                           },
                         ),

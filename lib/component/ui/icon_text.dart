@@ -43,6 +43,7 @@ class IconTextView extends StatefulWidget {
   }) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _IconTextViewState createState() => _IconTextViewState();
 }
 
@@ -110,19 +111,20 @@ class _IconTextViewState extends State<IconTextView> {
       rightList.add(leftIconAssetWidget);
     }
 
-    void _onViewClickDown(TapDownDetails d) {
+    // ignore: no_leading_underscores_for_local_identifiers
+    void onViewClickDown(TapDownDetails d) {
       setState(() {
         _isClickDown = true;
       });
     }
 
-    void _onViewClickUp(TapUpDetails d) {
+    void onViewClickUp(TapUpDetails d) {
       setState(() {
         _isClickDown = false;
       });
     }
 
-    void _onViewClickCancel() {
+    void onViewClickCancel() {
       setState(() {
         _isClickDown = false;
       });
@@ -130,9 +132,9 @@ class _IconTextViewState extends State<IconTextView> {
 
     return GestureDetector(
       onTap: widget.onPressed,
-      onTapDown: _onViewClickDown,
-      onTapUp: _onViewClickUp,
-      onTapCancel: _onViewClickCancel,
+      onTapDown: onViewClickDown,
+      onTapUp: onViewClickUp,
+      onTapCancel: onViewClickCancel,
       child: Container(
 //          color: isClickDown ? Colors.red : Colors.white,
           height: widget.height,

@@ -32,7 +32,7 @@ class AddFriendPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _msgController.text = "我是".tr + " " + UserRepoLocal.to.currentUser.nickname;
+    _msgController.text = "${'我是'.tr} ${UserRepoLocal.to.currentUser.nickname}";
     _remarkController.text = remark;
 
     Widget secondary = const Text(
@@ -71,11 +71,6 @@ class AddFriendPage extends StatelessWidget {
               };
               await logic.apply(uid, remark, avatar, payload);
             },
-            child: Text(
-              '发送'.tr,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
-            ),
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(
                 AppColors.primaryElement,
@@ -86,6 +81,11 @@ class AddFriendPage extends StatelessWidget {
               minimumSize: MaterialStateProperty.all(const Size(60, 40)),
               visualDensity: VisualDensity.compact,
               padding: MaterialStateProperty.all(EdgeInsets.zero),
+            ),
+            child: Text(
+              '发送'.tr,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16),
             ),
           ),
         ),

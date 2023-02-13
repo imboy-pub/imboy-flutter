@@ -70,11 +70,6 @@ class ConfirmNewFriendPage extends StatelessWidget {
               debugPrint(">>> on payload $p2");
               await logic.confirm(from, to, p2);
             },
-            child: Text(
-              '完成'.tr,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
-            ),
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(
                 AppColors.primaryElement,
@@ -85,6 +80,11 @@ class ConfirmNewFriendPage extends StatelessWidget {
               minimumSize: MaterialStateProperty.all(const Size(40, 40)),
               visualDensity: VisualDensity.compact,
               padding: MaterialStateProperty.all(EdgeInsets.zero),
+            ),
+            child: Text(
+              '完成'.tr,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16),
             ),
           ),
         ),

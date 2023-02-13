@@ -26,6 +26,7 @@ class MagicPop extends StatefulWidget {
   final double menuHeight;
 
   @override
+  // ignore: library_private_types_in_public_api
   _WPopupMenuState createState() => _WPopupMenuState();
 }
 
@@ -169,30 +170,30 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
   @override
   Widget build(BuildContext context) {
     // 这里计算出来 当前页的 child 一共有多少个
-    int _curPageChildCount =
+    int curPageChildCount =
         (_curPage + 1) * widget._pageMaxChildCount > widget.actions.length
             ? widget.actions.length % widget._pageMaxChildCount
             : widget._pageMaxChildCount;
 
-    double _curArrowWidth = 0;
-    int _curArrowCount = 0; // 一共几个箭头
+    double curArrowWidth = 0;
+    int curArrowCount = 0; // 一共几个箭头
 
     if (widget.actions.length > widget._pageMaxChildCount) {
       // 数据长度大于 widget._pageMaxChildCount
       if (_curPage == 0) {
         // 如果是第一页
-        _curArrowWidth = _arrowWidth;
-        _curArrowCount = 1;
+        curArrowWidth = _arrowWidth;
+        curArrowCount = 1;
       } else {
         // 如果不是第一页 则需要也显示左箭头
-        _curArrowWidth = _arrowWidth * 2;
-        _curArrowCount = 2;
+        curArrowWidth = _arrowWidth * 2;
+        curArrowCount = 2;
       }
     }
 
-    double _curPageWidth = widget.menuWidth +
-        (_curPageChildCount - 1 + _curArrowCount) * _separatorWidth +
-        _curArrowWidth;
+    double curPageWidth = widget.menuWidth +
+        (curPageChildCount - 1 + curArrowCount) * _separatorWidth +
+        curArrowWidth;
 
     // ignore: unused_element
     Widget view() {
@@ -205,7 +206,7 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
           (widget.menuHeight + _triangleHeight) * 2;
 
       var pain = CustomPaint(
-        size: Size(_curPageWidth, _triangleHeight),
+        size: Size(curPageWidth, _triangleHeight),
         painter: TrianglePainter(
             color: widget.backgroundColor,
             position: position!,
@@ -248,11 +249,11 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
                 ),
 
           // 中间是ListView
-          _buildList(_curPageChildCount, _curPageWidth, _curArrowWidth,
-              _curArrowCount),
+          _buildList(
+              curPageChildCount, curPageWidth, curArrowWidth, curArrowCount),
 
           // 右箭头：判断是否有箭头，如果有就显示，没有就不显示
-          _curArrowCount > 0
+          curArrowCount > 0
               ? Container(
                   width: 1,
                   color: Colors.grey,
@@ -261,7 +262,7 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
               : Container(
                   height: widget.menuHeight,
                 ),
-          _curArrowCount > 0
+          curArrowCount > 0
               ? InkWell(
                   onTap: () {
                     if ((_curPage + 1) * widget._pageMaxChildCount <
@@ -313,7 +314,7 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
             isInverted
                 ? Container()
                 : CustomPaint(
-                    size: Size(_curPageWidth, _triangleHeight),
+                    size: Size(curPageWidth, _triangleHeight),
                     painter: TrianglePainter(
                         color: widget.backgroundColor,
                         position: position!,
@@ -342,7 +343,7 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
                 widget.menuWidth),
             child: SizedBox(
                 height: widget.menuHeight + _triangleHeight,
-                width: _curPageWidth,
+                width: curPageWidth,
                 child: view()),
           );
         },
@@ -350,13 +351,13 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
     );
   }
 
-  Widget _buildList(int _curPageChildCount, double _curPageWidth,
-      double _curArrowWidth, int _curArrowCount) {
+  Widget _buildList(int curPageChildCount, double curPageWidth,
+      double curArrowWidth, int curArrowCount) {
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       scrollDirection: Axis.horizontal,
-      itemCount: _curPageChildCount,
+      itemCount: curPageChildCount,
       itemBuilder: (BuildContext context, int index) {
         return InkWell(
           onTap: () {
@@ -364,11 +365,10 @@ class __MenuPopWidgetState extends State<_MenuPopWidget> {
                 context, _curPage * widget._pageMaxChildCount + index);
           },
           child: SizedBox(
-            width: (_curPageWidth -
-                    _curArrowWidth -
-                    (_curPageChildCount - 1 + _curArrowCount) *
-                        _separatorWidth) /
-                _curPageChildCount,
+            width: (curPageWidth -
+                    curArrowWidth -
+                    (curPageChildCount - 1 + curArrowCount) * _separatorWidth) /
+                curPageChildCount,
             height: widget.menuHeight,
             child: Center(
               child: Text(

@@ -166,6 +166,9 @@ class ChatPageState extends State<ChatPage> {
   /// 用于分页(无限滚动)。当用户滚动时调用
   /// 到列表的最后(减去[onEndReachedThreshold])。
   Future<void> _handleEndReached() async {
+    if (!mounted) {
+      return;
+    }
     if (widget.conversationId == 0) {
       widget.conversationId = await conversationLogic.createConversationId(
         widget.peerId,

@@ -58,7 +58,6 @@ class BottomNavigationPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 position: BadgePosition.topStart(top: -4, start: 20),
                 padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
-                child: const Icon(Icons.chat),
                 badgeContent: Container(
                   color: Colors.red,
                   alignment: Alignment.center,
@@ -70,6 +69,7 @@ class BottomNavigationPage extends StatelessWidget {
                     ),
                   ),
                 ),
+                child: const Icon(Icons.chat),
               ),
               label: 'title_message'.tr,
             ),
@@ -88,7 +88,6 @@ class BottomNavigationPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 position: BadgePosition.topStart(top: -4, start: 20),
                 padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
-                child: const Icon(Icons.perm_contact_cal),
                 badgeContent: Container(
                   color: Colors.red,
                   alignment: Alignment.center,
@@ -100,6 +99,7 @@ class BottomNavigationPage extends StatelessWidget {
                     ),
                   ),
                 ),
+                child: const Icon(Icons.perm_contact_cal),
               ),
               label: 'title_contact'.tr,
             ),

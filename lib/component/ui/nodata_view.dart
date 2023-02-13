@@ -15,11 +15,11 @@ class NoDataView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: InkWell(
+        onTap: onTop,
         child: Text(
           text,
           style: const TextStyle(color: AppColors.MainTextColor),
         ),
-        onTap: onTop,
       ),
     );
   }

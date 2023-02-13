@@ -15,9 +15,11 @@ class GroupBillBoardPage extends StatefulWidget {
   final Callback? callback;
 
   const GroupBillBoardPage(this.groupOwner, this.groupNotice,
-      {Key? key, this.groupId, this.time, this.callback}) : super(key: key);
+      {Key? key, this.groupId, this.time, this.callback})
+      : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _GroupBillBoardPageState createState() => _GroupBillBoardPageState();
 }
 
@@ -41,7 +43,8 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
 
   onChange() {
     if (inputState) {
-      _publishTime = "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day} ${DateTime.now().hour}:${DateTime.now().minute}";
+      _publishTime =
+          "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day} ${DateTime.now().hour}:${DateTime.now().minute}";
       widget.callback!(_publishTime);
       Navigator.pop(context, _textController.text);
       inputState = false;

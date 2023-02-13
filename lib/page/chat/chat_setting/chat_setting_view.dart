@@ -6,8 +6,6 @@ import 'package:imboy/component/ui/confirm_alert.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/chat/chat_background/chat_background_view.dart';
-import 'package:imboy/page/search/search_view.dart';
 
 import 'chat_setting_logic.dart';
 import 'chat_setting_state.dart';

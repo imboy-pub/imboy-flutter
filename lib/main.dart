@@ -51,6 +51,7 @@ void main() async {
         options.tracesSampleRate = 1.0,
         // OR if you prefer, determine traces sample rate based on the sampling context
         options.tracesSampler = (samplingContext) {
+          return null;
           // return a number between 0 and 1 or null (to fallback to configured value)
         },
       },

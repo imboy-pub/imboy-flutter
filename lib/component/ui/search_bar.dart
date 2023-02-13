@@ -17,6 +17,7 @@ class SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      onTap: onTap ?? () {},
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -38,7 +39,6 @@ class SearchBar extends StatelessWidget {
           )
         ]),
       ),
-      onTap: onTap ?? () {},
     );
   }
 }

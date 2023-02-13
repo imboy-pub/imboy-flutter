@@ -373,7 +373,7 @@ packages:
       name: dart_webrtc
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.14"
+    version: "1.0.15"
   dbus:
     dependency: transitive
     description:
@@ -387,7 +387,7 @@ packages:
       name: device_info_plus
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "8.0.0"
+    version: "8.1.0"
   device_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -710,7 +710,7 @@ packages:
       name: flutter_webrtc
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.20"
+    version: "0.9.21"
   font_awesome_flutter:
     dependency: transitive
     description:
@@ -990,7 +990,7 @@ packages:
       name: mobile_scanner
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.0.0-beta.4"
+    version: "3.0.0"
   nested:
     dependency: transitive
     description:
@@ -1048,7 +1048,7 @@ packages:
       name: package_info_plus
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.0.2"
+    version: "3.0.3"
   package_info_plus_platform_interface:
     dependency: transitive
     description:

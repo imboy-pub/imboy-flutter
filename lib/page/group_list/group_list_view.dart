@@ -8,6 +8,7 @@ class GroupListPage extends StatefulWidget {
   const GroupListPage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _GroupListPageState createState() => _GroupListPageState();
 }
 
