@@ -72,9 +72,9 @@ class ConversationRepo {
     obj.unreadNum = obj.unreadNum + unreadNumOld;
     if (oldObj == null) {
       obj.id = (await maxId()) + 1;
-      insert(obj);
+      await insert(obj);
     } else {
-      updateByPeerId(obj.peerId, obj.toJson());
+      await updateByPeerId(obj.peerId, obj.toJson());
     }
     int? id = await _db.pluck(
       ConversationRepo.id,
@@ -82,7 +82,9 @@ class ConversationRepo {
       where: where,
       whereArgs: [obj.peerId],
     );
-    obj.id = id!;
+    if (id != null) {
+      obj.id = id!;
+    }
     return obj;
   }
 

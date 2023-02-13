@@ -51,7 +51,7 @@ class ContactLogic extends GetxController {
     }
 
     return Container(
-      margin: const EdgeInsets.only(left: 10, right: 10),
+      margin: const EdgeInsets.only(top:6, left: 10, right: 10),
       width: Get.width,
       decoration: const BoxDecoration(
         border: Border(
