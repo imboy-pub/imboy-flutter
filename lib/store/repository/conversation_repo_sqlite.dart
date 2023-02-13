@@ -27,7 +27,6 @@ class ConversationRepo {
   // 插入一条数据
   Future<int> insert(ConversationModel obj) async {
     Map<String, dynamic> insert = {
-      'id': obj.id,
       'peer_id': obj.peerId,
       'avatar': obj.avatar,
       'title': obj.title,
