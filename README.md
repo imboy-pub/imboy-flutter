@@ -26,8 +26,8 @@ imboy 的Flutter项目
 ## 功能树
 
 * 大概的大大小小功能实现情况：
-    * TODO 77
-    * OK 68
+    * TODO 78
+    * OK 69
 
 [查看](./doc/feature_tree.md)
 
@@ -71,21 +71,23 @@ mkdir -p assets assets/locales lib/component/locales
 get generate locales assets/locales on lib/component/locales
 ```
 
-## ISAR
-https://isar.dev/tutorials/quickstart.html
-```
-flutter pub run build_runner build --help
+## 开发环境遇到的一些问题
 
-flutter pub run build_runner build --delete-conflicting-outputs
-flutter pub run build_runner build
-
-```
-
-## 临时解决 CocoaPods not installed. Skipping pod install
+### 临时解决 CocoaPods not installed. Skipping pod install
 
 https://github.com/flutter/flutter/issues/97251
 ```
 open /Applications/Android\ Studio\ 4.2\ Preview.app
+```
+
+### 各个 Android Gradle 插件版本所需的 Gradle 版本
+
+https://developer.android.google.cn/studio/releases/gradle-plugin?hl=zh-cn
+
+Preferences -> Build -> Build Tools -> Gradle -> Gradle JDK
+
+```
+./gradlew wrapper
 ```
 
 ## Dart 在线运行环境
