@@ -10,6 +10,7 @@ import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:niku/namespace.dart' as n;
+import 'package:permission_handler/permission_handler.dart';
 
 import 'p2p_call_screen_logic.dart';
 
@@ -37,6 +38,16 @@ class P2pCallScreenPage extends StatelessWidget {
 
   Timer? answerTimer;
   init() async {
+    bool microphoneDenied = await Permission.microphone.isPermanentlyDenied;
+    // bool cameraDenied = await Permission.camera.isDenied;
+    // bool speechDenied = await Permission.speech.isDenied;
+    if (microphoneDenied) {
+      // The user opted to never again see the permission request dialog for this
+      // app. The only way to change the permission's status now is to let the
+      // user manually enable it in the system settings.
+      openAppSettings();
+      return;
+    }
     if (logic.connected.isTrue) {
       return;
     }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/file.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:video_player/video_player.dart';
 
 class ChatVideoPage extends StatefulWidget {
@@ -31,7 +32,10 @@ class _ChatVideoPageState extends State<ChatVideoPage> {
   }
 
   Future<void> initializePlayer() async {
-    File? tmpF = await DefaultCacheManager().getSingleFile(widget.url);
+    File? tmpF = await DefaultCacheManager().getSingleFile(
+      widget.url,
+      key:generateMD5(widget.url),
+    );
     _videoPlayerController = VideoPlayerController.file(tmpF);
     await Future.wait([
       _videoPlayerController.initialize(),
