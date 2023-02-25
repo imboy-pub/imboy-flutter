@@ -19,7 +19,7 @@ class GroupLaunchPage extends StatelessWidget {
       backgroundColor: AppColors.ChatBg,
       appBar: PageAppBar(title: '选择联系人'.tr),
       body: SingleChildScrollView(
-        child: n.Column([]),
+        child: n.Column(const []),
       ),
     );
   }

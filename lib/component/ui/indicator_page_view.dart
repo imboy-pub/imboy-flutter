@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 
@@ -64,13 +63,8 @@ class IndicatorPageViewState extends State<IndicatorPageView> {
 
 class MyBehavior extends ScrollBehavior {
   @override
-  Widget buildViewportChrome(
-      BuildContext context, Widget child, AxisDirection axisDirection) {
-    if (Platform.isAndroid || Platform.isFuchsia) {
-      return child;
-    } else {
-      // ignore: deprecated_member_use
-      return super.buildViewportChrome(context, child, axisDirection);
-    }
+  Widget buildOverscrollIndicator(
+      BuildContext context, Widget child, ScrollableDetails details) {
+    return child;
   }
 }

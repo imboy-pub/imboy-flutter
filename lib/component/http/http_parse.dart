@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'http_exceptions.dart';
 import 'http_response.dart';
@@ -55,13 +56,13 @@ bool _isRequestSuccess(int? statusCode) {
 HttpException _parseException(Exception error) {
   if (error is DioError) {
     switch (error.type) {
-      case DioErrorType.connectTimeout:
+      case DioErrorType.connectionTimeout:
       case DioErrorType.receiveTimeout:
       case DioErrorType.sendTimeout:
         return NetworkException(message: error.message);
       case DioErrorType.cancel:
         return CancelException(error.message);
-      case DioErrorType.response:
+      case DioErrorType.badResponse:
         try {
           int? errCode = error.response?.statusCode;
           switch (errCode) {
@@ -85,6 +86,7 @@ HttpException _parseException(Exception error) {
               return UnauthorisedException(
                   message: "不支持HTTP协议请求", code: errCode);
             case 706: // token无效
+              UserRepoLocal.to.refreshAccessToken();
               return BadServiceException(message: "token无效", code: errCode);
             // Get.off(LoginPage());
             default:
@@ -94,7 +96,7 @@ HttpException _parseException(Exception error) {
           return UnknownException(error.message);
         }
 
-      case DioErrorType.other:
+      case DioErrorType.unknown:
         if (error.error is SocketException) {
           return NetworkException(message: error.message);
         } else {

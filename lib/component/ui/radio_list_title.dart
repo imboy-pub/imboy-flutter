@@ -212,7 +212,7 @@ class IMBoyRadioListTile<T> extends StatelessWidget {
 
     return MergeSemantics(
       child: ListTileTheme.merge(
-        selectedColor: activeColor ?? Theme.of(context).toggleableActiveColor,
+        selectedColor: activeColor ?? Theme.of(context).colorScheme.secondary,
         child: ListTile(
           leading: leading,
           title: title,

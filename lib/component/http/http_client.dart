@@ -1,13 +1,12 @@
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart' as getx;
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -34,9 +33,9 @@ class HttpClient {
     options ??= BaseOptions(
       baseUrl: dioConfig?.baseUrl ?? "",
       contentType: 'application/x-www-form-urlencoded',
-      connectTimeout: dioConfig?.connectTimeout,
-      sendTimeout: dioConfig?.sendTimeout,
-      receiveTimeout: dioConfig?.receiveTimeout,
+      connectTimeout: Duration(milliseconds: dioConfig?.connectTimeout ?? Duration.millisecondsPerMinute),
+      sendTimeout: Duration(milliseconds: dioConfig?.sendTimeout ?? Duration.millisecondsPerMinute),
+      receiveTimeout: Duration(milliseconds: dioConfig?.receiveTimeout ?? Duration.millisecondsPerMinute),
     )..headers = dioConfig?.headers;
 
     _dio = Dio(options);
@@ -53,9 +52,7 @@ class HttpClient {
     if (dioConfig?.interceptors?.isNotEmpty ?? false) {
       _dio.interceptors.addAll(dioConfig!.interceptors!);
     }
-    _dio.httpClientAdapter = DefaultHttpClientAdapter();
-    (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-        (client) {
+    _dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (client) {
       client.badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
       return client;
@@ -67,8 +64,7 @@ class HttpClient {
   }
 
   setProxy(String proxy) {
-    (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-        (client) {
+    _dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (client) {
       // config the http client
       client.findProxy = (uri) {
         // proxy all request to localhost:8888
@@ -88,9 +84,6 @@ class HttpClient {
     bool notRTK = !_dio.options.headers.containsKey(Keys.refreshtokenKey);
     if (strNoEmpty(tk) && notRTK) {
       _dio.options.headers[Keys.tokenKey] = tk;
-      if (tokenExpired(tk)) {
-        await UserRepoLocal.to.refreshAccessToken();
-      }
     }
     Map<String, dynamic> headers = await defaultHeaders();
     _dio.options.headers.addAll(headers);

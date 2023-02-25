@@ -680,6 +680,7 @@ class ChatPageState extends State<ChatPage> {
       ),
     ));
 
+    // ignore: use_build_context_synchronously
     popupmenu.PopupMenu menu = popupmenu.PopupMenu(
       // backgroundColor: Colors.teal,
       // lineColor: Colors.tealAccent,

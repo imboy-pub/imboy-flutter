@@ -1,4 +1,4 @@
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -47,14 +47,14 @@ class ConversationItem extends StatelessWidget {
       child: n.Row(
         [
           Obx(
-            () => Badge(
-              position: BadgePosition.topEnd(top: -4, end: -4),
+            () => badges.Badge(
+              position: badges.BadgePosition.topEnd(top: -4, end: -4),
               showBadge: (remindCounter > 0 ? true : false),
-              shape: BadgeShape.square,
-              borderRadius: BorderRadius.circular(10),
-              padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
-              animationDuration: const Duration(milliseconds: 500),
-              animationType: BadgeAnimationType.scale,
+              // shape: badges.BadgeShape.square,
+              // borderRadius: BorderRadius.circular(10),
+              // padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+              // animationDuration: const Duration(milliseconds: 500),
+              // animationType: badges.BadgeAnimationType.scale,
               badgeContent: Text(
                 remindCounter.toString(),
                 style: const TextStyle(

@@ -1,5 +1,5 @@
 import 'package:azlistview/azlistview.dart';
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -33,12 +33,12 @@ class ContactPage extends StatelessWidget {
         nickname: '新的朋友'.tr,
         nameIndex: '↑',
         bgColor: Colors.orange,
-        iconData: Obx(() => Badge(
+        iconData: Obx(() => badges.Badge(
               showBadge: bnLogic.newFriendRemindCounter.isNotEmpty,
-              shape: BadgeShape.square,
-              borderRadius: BorderRadius.circular(10),
-              position: BadgePosition.topStart(top: 0, start: 128),
-              padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+              // shape: badges.BadgeShape.square,
+              // borderRadius: BorderRadius.circular(10),
+              position: badges.BadgePosition.topStart(top: 0, start: 128),
+              // padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
               badgeContent: Container(
                 color: Colors.red,
                 alignment: Alignment.center,

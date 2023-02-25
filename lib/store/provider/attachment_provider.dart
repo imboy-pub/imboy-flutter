@@ -52,9 +52,9 @@ class AttachmentProvider {
     var options = BaseOptions(
       baseUrl: UPLOAD_BASE_URL,
       contentType: 'application/x-www-form-urlencoded',
-      connectTimeout: 30000,
-      sendTimeout: 60000,
-      receiveTimeout: 30000,
+      connectTimeout: const Duration(milliseconds: 30000),
+      sendTimeout: const Duration(milliseconds: 60000),
+      receiveTimeout: const Duration(milliseconds: 30000),
     );
     await Dio(options).post(
       "$UPLOAD_BASE_URL/upload",
@@ -104,9 +104,9 @@ class AttachmentProvider {
     var options = BaseOptions(
       baseUrl: UPLOAD_BASE_URL,
       contentType: 'application/x-www-form-urlencoded',
-      connectTimeout: 30000,
-      sendTimeout: 60000,
-      receiveTimeout: 30000,
+      connectTimeout: const Duration(milliseconds: 30000),
+      sendTimeout: const Duration(milliseconds: 60000),
+      receiveTimeout: const Duration(milliseconds: 30000),
     );
     return Dio(options).get(
       "$UPLOAD_BASE_URL/upload",

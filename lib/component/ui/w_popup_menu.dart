@@ -205,7 +205,7 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
     super.initState();
     button = widget.btnContext.findRenderObject() as RenderBox?;
     overlay =
-        Overlay.of(widget.btnContext)!.context.findRenderObject() as RenderBox?;
+        Overlay.of(widget.btnContext).context.findRenderObject() as RenderBox?;
     position = RelativeRect.fromRect(
       Rect.fromPoints(
         button!.localToGlobal(const Offset(-10, 100), ancestor: overlay),

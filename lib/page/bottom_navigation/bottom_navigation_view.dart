@@ -1,4 +1,4 @@
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/page/contact/contact_view.dart';
@@ -18,7 +18,7 @@ class BottomNavigationPage extends StatelessWidget {
   final BottomNavigationState state = Get.find<BottomNavigationLogic>().state;
 
   List pageList = [
-    ConversationPage(),
+    const ConversationPage(),
     // CooperationPage(),
     // WorkbenchPage(),
     ContactPage(),
@@ -52,12 +52,12 @@ class BottomNavigationPage extends StatelessWidget {
           type: BottomNavigationBarType.fixed,
           items: [
             BottomNavigationBarItem(
-              icon: Badge(
+              icon: badges.Badge(
                 showBadge: clogic.chatMsgRemindCounter > 0,
-                shape: BadgeShape.square,
-                borderRadius: BorderRadius.circular(10),
-                position: BadgePosition.topStart(top: -4, start: 20),
-                padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+                // shape: badges.BadgeShape.square,
+                // borderRadius: BorderRadius.circular(10),
+                position: badges.BadgePosition.topStart(top: -4, start: 20),
+                // padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
                 badgeContent: Container(
                   color: Colors.red,
                   alignment: Alignment.center,
@@ -82,12 +82,12 @@ class BottomNavigationPage extends StatelessWidget {
             //   label: "工作台",
             // ),
             BottomNavigationBarItem(
-              icon: Badge(
+              icon: badges.Badge(
                 showBadge: logic.newFriendRemindCounter.isNotEmpty,
-                shape: BadgeShape.square,
-                borderRadius: BorderRadius.circular(10),
-                position: BadgePosition.topStart(top: -4, start: 20),
-                padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+                // shape: badges.BadgeShape.square,
+                // borderRadius: BorderRadius.circular(10),
+                position: badges.BadgePosition.topStart(top: -4, start: 20),
+                // padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
                 badgeContent: Container(
                   color: Colors.red,
                   alignment: Alignment.center,

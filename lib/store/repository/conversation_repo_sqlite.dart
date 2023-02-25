@@ -84,7 +84,7 @@ class ConversationRepo {
         whereArgs: [obj.peerId],
       );
       if (id != null) {
-        obj.id = id!;
+        obj.id = id;
       }
     }
     return obj;
