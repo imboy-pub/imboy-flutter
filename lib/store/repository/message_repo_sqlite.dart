@@ -67,7 +67,7 @@ class MessageRepo {
       where: where,
       whereArgs: [obj.id],
     );
-    if (count == null) {
+    if (count == null || count == 0) {
       await insert(obj);
     } else {
       await update(obj.toJson());
