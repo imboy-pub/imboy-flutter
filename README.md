@@ -80,6 +80,24 @@ https://github.com/flutter/flutter/issues/97251
 open /Applications/Android\ Studio\ 4.2\ Preview.app
 ```
 
+### flutter项目报错：Error: Entrypoint isn‘t within the current project
+https://blog.csdn.net/lifengli123/article/details/129009577
+
+Error: Entrypoint isn't within the current project
+
+网上看到很多中解决办法，但是我都试了都不行；然后换了一种搜索方式搜到一篇[文章](https://stackoverflow.com/questions/57154394/webstorm-has-marked-all-files-in-a-directory-as-non-project-files)
+
+大概是我不小心把lib文件加标记成了no project了，然后试着删掉 idea android ios dart_tool文件夹，重启as，右键项目文件夹，选择 Mark Directory as 选择 Sources Root
+
+### 解决  flutter doctor --android-licenses 报错
+https://gist.github.com/tommysdk/35053b71293d1a28d5f207ebb5abbf93
+
+in ~/.config/fish/config.fish
+```
+set -x JAVA_HOME (/usr/libexec/java_home -v 19)
+```
+java -version
+
 ### 各个 Android Gradle 插件版本所需的 Gradle 版本
 
 https://developer.android.google.cn/studio/releases/gradle-plugin?hl=zh-cn
