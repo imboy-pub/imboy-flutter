@@ -215,7 +215,9 @@ class MessageModel {
         uri: payload!['uri'],
         status: typesStatus,
       );
-    } else if (payload!['custom_type'] == 'revoked') {
+    } else if (payload!['custom_type'] == 'revoked' ||
+        payload!['custom_type'] == 'peer_revoked' ||
+        payload!['custom_type'] == 'c2c_revoke') {
       message = types.CustomMessage(
         author: types.User(
           id: fromId!,
@@ -279,6 +281,9 @@ class MessageModel {
         status: typesStatus,
         metadata: payload,
       );
+    }
+    if (message == null) {
+      debugPrint("> on toTypeMessage md ${this.toJson().toString()}");
     }
     return message!;
   }
