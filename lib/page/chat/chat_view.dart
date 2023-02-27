@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/message/message_image_builder.dart';
 import 'package:imboy/page/chat/send_to/send_to_view.dart';
 import 'package:mime/mime.dart';
 import 'package:niku/namespace.dart' as n;
@@ -790,6 +791,9 @@ class ChatPageState extends State<ChatPage> {
             Chat(
               user: logic.currentUser,
               messages: logic.state.messages,
+              imageMessageBuilder: (types.ImageMessage message, {required int messageWidth}){
+                return ImageMessageBuilder(message:message, messageWidth:messageWidth);
+              },
               // showUserAvatars: true,
               // showUserNames: true,
               customMessageBuilder: (types.CustomMessage msg,
