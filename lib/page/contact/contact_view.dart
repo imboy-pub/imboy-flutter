@@ -50,7 +50,9 @@ class ContactPage extends StatelessWidget {
                   ),
                 ),
               ),
-              child: const Icon(Icons.person_add),
+              child: const Center(
+                child: Icon(Icons.person_add),
+              ),
             )),
         onPressed: () {
           Get.to(() => NewFriendPage());
