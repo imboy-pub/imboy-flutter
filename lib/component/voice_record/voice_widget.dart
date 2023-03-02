@@ -22,11 +22,13 @@ class AudioFile {
     required this.file,
     required this.duration,
     required this.mimeType,
+    required this.waveForm,
   });
 
   final File file;
   final Duration duration;
   final String mimeType;
+  final List<double> waveForm;
 }
 
 class VoiceWidget extends StatefulWidget {
@@ -63,7 +65,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   String voiceIco = "assets/images/chat/voice_volume_1.png";
 
   Duration recordingDuration = const Duration();
-  // final List<double> _levels = [];
+  final List<double> waveForm = [];
   late String recordingMimeType;
   late Codec recordCodec;
 
@@ -180,10 +182,11 @@ class _VoiceWidgetState extends State<VoiceWidget> {
       widget.stopRecord!.call(AudioFile(
                 file: File(filePath),
                 duration: recordingDuration,
-                // waveForm: _levels,
+                waveForm: waveForm,
                 mimeType: recordingMimeType,
               ),
       );
+      waveForm.clear();
     }
   }
 
@@ -261,11 +264,10 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         Get.snackbar("", "未获取到麦克风权限".tr);
         throw RecordingPermissionException("未获取到麦克风权限".tr);
       }
-
       await recorderModule.openRecorder();
 
       // String name = "${Xid().toString()}";
-      String name = "recardtmp";
+      String name = "record_tmp";
       if (kIsWeb) {
         if (await recorderModule.isEncoderSupported(Codec.opusWebM)) {
           filePath = '$name.webm';
@@ -292,6 +294,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         audioSource: AudioSource.microphone,
       );
 
+      waveForm.clear();
       /// 监听录音
       recorderSubscription = recorderModule.onProgress!.listen((e) {
         debugPrint("> on record listen e ${e.toString()} ${DateTime.now()}");
@@ -299,9 +302,10 @@ class _VoiceWidgetState extends State<VoiceWidget> {
           pos = e.duration.inMilliseconds;
         });
         debugPrint("> on record listen pos: $pos, dbLevel: ${e.decibels};");
-        // if (e != null) {
+        if (e.decibels != null) {
           recordingDuration = e.duration;
-          // _levels.add(e.decibels ?? 0.0);
+          dbLevel = e.decibels as double;
+          waveForm.add(dbLevel);
 
           DateTime date = DateTime.fromMillisecondsSinceEpoch(
             e.duration.inMilliseconds,
@@ -309,20 +313,10 @@ class _VoiceWidgetState extends State<VoiceWidget> {
           );
           String txt = DateFormat('mm:ss.SSS').format(date);
           if (date.second >= _countTotal) {
-            // recorderStop(recorderModule);
+            recorderStop(recorderModule);
             hideVoiceView(ctx);
           }
-          if (e.decibels != null) {
-            setState(() {
-              recorderTxt = txt.substring(0, 9);
-              dbLevel = e.decibels!.toDouble();
-              // debugPrint(">>> on record 当前振幅：$dbLevel");
-            });
-          }
-        // }
 
-        if (e.decibels != null) {
-          dbLevel = e.decibels as double;
           double voiceData = ((dbLevel * 100.0).floor()) / 10000;
           if (voiceData > 0 && voiceData < 0.1) {
             voiceIco = "assets/images/chat/voice_volume_2.png";
@@ -347,6 +341,8 @@ class _VoiceWidgetState extends State<VoiceWidget> {
           // debugPrint(
           //     ">>> on record 振幅大小   " + voiceData.toString() + "  " + voiceIco);
           setState(() {
+            recorderTxt = txt.substring(0, 9);
+            // debugPrint(">>> on record 当前振幅：$dbLevel");
             dbLevel = dbLevel;
             voiceIco = voiceIco;
           });
@@ -364,7 +360,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   }
 
   /// 结束录音
-  Future<String?>  recorderStop(FlutterSoundRecorder recorder) async {
+  Future<String?> recorderStop(FlutterSoundRecorder recorder) async {
     try {
       String? filepath = await recorder.stopRecorder();
       cancelRecorderSubscriptions();
@@ -397,7 +393,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     return GestureDetector(
       onLongPressStart: (details) {
         start = details.globalPosition.dy;
-        _timer = Timer.periodic(const Duration(milliseconds: 1000), (t) {
+        _timer = Timer.periodic(const Duration(milliseconds: 500), (t) {
           _count++;
           if (_count == _countTotal) {
             hideVoiceView(context);

@@ -73,6 +73,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.1.13"
+  audio_waveforms:
+    dependency: "direct main"
+    description:
+      name: audio_waveforms
+      sha256: "791a79ddb939b1de529b97d8d74d601065ad56c4c1ce24cf1154b9d5761aa295"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.2"
   audioplayers:
     dependency: transitive
     description:
@@ -1676,18 +1684,18 @@ packages:
     dependency: transitive
     description:
       name: syncfusion_flutter_core
-      sha256: "66529f3f102c6501a75811e8d931a1908ad9865ea4d3416c40ac05cf62fdcd44"
+      sha256: "4319454a92fe5aea1e90ff68c17703a39517ab05dd3074c34c9553e5f7cbf414"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "20.4.44"
+    version: "20.4.52"
   syncfusion_flutter_sliders:
     dependency: transitive
     description:
       name: syncfusion_flutter_sliders
-      sha256: ae4427a2324a7c33df80af541c27a6049c6f5f30ca687a61e8fbbcb2ec6b3915
+      sha256: "7f1bb58290e9fc19a564af069296f0308c36ebc963e0d3578e350ca80ae13e33"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "20.4.44"
+    version: "20.4.52"
   synchronized:
     dependency: transitive
     description:
@@ -1812,10 +1820,10 @@ packages:
     dependency: transitive
     description:
       name: uuid
-      sha256: "2469694ad079893e3b434a627970c33f2fa5adc46dfe03c9617546969a9a8afc"
+      sha256: "648e103079f7c64a36dc7d39369cabb358d377078a051d6ae2ad3aa539519313"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.0.6"
+    version: "3.0.7"
   vector_math:
     dependency: transitive
     description:
@@ -1883,11 +1891,9 @@ packages:
   voice_message_package:
     dependency: "direct main"
     description:
-      path: "."
-      ref: leeyi
-      resolved-ref: "3a1d9a363fe2efd10ccda3d871f0ad13296cc85c"
-      url: "https://gitee.com/imboy-tripartite-deps/voice_message_player.git"
-    source: git
+      path: "plugin/voice_message_package"
+      relative: true
+    source: path
     version: "0.0.74"
   wakelock:
     dependency: transitive

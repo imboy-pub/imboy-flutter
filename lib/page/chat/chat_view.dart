@@ -10,6 +10,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/message/message_image_builder.dart';
 import 'package:imboy/page/chat/send_to/send_to_view.dart';
+import 'package:imboy/service/websocket.dart';
 import 'package:mime/mime.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:photo_view/photo_view.dart';
@@ -101,6 +102,7 @@ class ChatPageState extends State<ChatPage> {
     if (!mounted) {
       return;
     }
+    WSService.to.openSocket();
     initData();
     unawaited(_handleEndReached());
     // 异步检查是否有离线数据 TODO leeyi 2023-01-29 16:43:47
@@ -418,7 +420,7 @@ class ChatPageState extends State<ChatPage> {
         'uri': uri,
         'size': (await obj.file.readAsBytes()).length,
         'duration_ms': obj.duration.inMilliseconds,
-        // 'wave_form': obj.waveForm,
+        'wave_form': obj.waveForm,
         'mime_type': obj.mimeType,
       };
       debugPrint("> on upload metadata: ${metadata.toString()}");

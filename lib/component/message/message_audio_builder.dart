@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:voice_message_package/voice_message_package.dart';
@@ -46,10 +49,15 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
   @override
   Widget build(BuildContext context) {
     bool userIsAuthor = widget.user.id == widget.message.author.id;
-
-    double durationMS = widget.message.metadata!["duration_ms"] / 1000;
+    Future<File> tmpF = DefaultCacheManager().getSingleFile(
+        widget.message.metadata!['uri'],
+        key: generateMD5(widget.message.metadata!['uri'])
+    );
     return VoiceMessage(
       audioSrc: widget.message.metadata!['uri'],
+      audioFile: tmpF,
+      duration: Duration(milliseconds: widget.message.metadata!["duration_ms"]),
+      // waveForm: widget.message.metadata!['wave_form'],
       played: widget.message.metadata!['played'] ?? false,
       // To show played badge or not.
       me: userIsAuthor,
@@ -57,7 +65,6 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
       meBgColor: AppColors.ChatSendMessageBgColor,
       contactFgColor: AppColors.ChatSentMessageBodyTextColor,
       contactPlayIconColor: Colors.white,
-      durationTime: "$durationMS''",
       onPlay: () {
         if (widget.onPlay != null) widget.onPlay!();
 

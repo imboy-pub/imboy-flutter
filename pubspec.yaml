@@ -149,16 +149,17 @@ dependencies:
   # 语音消息播放器
   # voice_message_package: ^0.0.74
   voice_message_package:
-    #path: plugin/voice_message_package
-    git:
-      url: https://gitee.com/imboy-tripartite-deps/voice_message_player.git
-      ref: leeyi
+    path: plugin/voice_message_package
+  #    git:
+  #      url: https://gitee.com/imboy-tripartite-deps/voice_message_player.git
+  #      ref: 0.0.74+1
   flutter_webrtc: ^0.9.23
   # 可滚动小部件的固定/可变行高提供了滚动到索引的机制
   scroll_to_index: ^3.0.1
   # 封装了基本的图形样式，矩形、圆角矩形、圆形、椭圆形，以及自定义虚线框
   dotted_border: ^2.0.0+3
   flutter_blurhash: ^0.7.0
+  audio_waveforms: ^1.0.2
   # flutter_webrtc:
   #  git:
   #    url: https://gitee.com/imboy-tripartite-deps/flutter-webrtc.git
