@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart' as getx;
 import 'package:imboy/component/controller.dart';
 import 'package:imboy/component/extension/device_ext.dart';
+import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_config.dart';
 import 'package:imboy/component/http/http_interceptor.dart';
@@ -27,7 +28,7 @@ import 'package:sqflite/sqflite.dart';
 // ignore: prefer_generic_function_type_aliases
 typedef Callback(data);
 
-DefaultCacheManager cacheManager = DefaultCacheManager();
+IMBoyCacheManager cacheManager = IMBoyCacheManager();
 
 typedef VoidCallbackConfirm = void Function(bool isOk);
 

@@ -31,15 +31,20 @@ class ConversationPage extends StatefulWidget {
 }
 
 class _ConversationPageState extends State<ConversationPage> {
-
   @override
   void initState() {
     super.initState();
+    String url =
+        "http://a.imboy.pub/audio/20233/3_0/cg0d101811i9djtu0glg.aac?s=dev&a=554c56c3cbd7e16c&v=67465";
+    String ext = url.substring(url.lastIndexOf("."),
+        url.lastIndexOf("?") > 0 ? url.lastIndexOf("?") : url.length);
+    debugPrint("> _startPlaying ext $ext dd: ${url.lastIndexOf("#")}");
     if (!mounted) {
       return;
     }
     initData();
   }
+
   final ConversationLogic logic = Get.find();
 
   void initData() async {
@@ -95,7 +100,7 @@ class _ConversationPageState extends State<ConversationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: NavAppBar(
-        // title: 'title_message'.tr + logic.connectDesc.value,
+          // title: 'title_message'.tr + logic.connectDesc.value,
           rightDMActions: <Widget>[
             InkWell(
               child: const SizedBox(
@@ -194,7 +199,7 @@ class _ConversationPageState extends State<ConversationPage> {
             ),
           ],
           titleWidget: Obx(
-                () => Text(
+            () => Text(
               'title_message'.tr + logic.connectDesc.value,
               style: const TextStyle(
                 color: Colors.black,
@@ -215,116 +220,120 @@ class _ConversationPageState extends State<ConversationPage> {
               return logic.conversations.isEmpty
                   ? NoDataView(text: '无会话消息'.tr)
                   : ListView.builder(
-                itemCount: logic.conversations.length,
-                itemBuilder: (BuildContext context, int index) {
-                  ConversationModel model = logic.conversations[index];
-                  int conversationId = model.id;
-                  var remindNum =
-                  logic.conversationRemind.containsKey(model.peerId)
-                      ? logic.conversationRemind[model.peerId]!.obs
-                      : 0.obs;
-                  return InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (_) => ChatPage(
-                            conversationId: model.id,
-                            peerId: model.peerId,
-                            peerTitle: model.title,
-                            peerAvatar: model.avatar,
-                            peerSign: model.sign,
-                            type:
-                            strEmpty(model.type) ? 'C2C' : model.type,
-                          ),
-                        ),
-                      );
-                    },
-                    onTapDown: (TapDownDetails details) {},
-                    onLongPress: () {},
-                    child: Slidable(
-                      key: ValueKey(model.id),
-                      groupTag: '0',
-                      closeOnScroll: true,
-                      endActionPane: ActionPane(
-                        extentRatio: 0.75,
-                        motion: const StretchMotion(),
-                        children: [
-                          CustomSlidableAction(
-                            onPressed: (_) async {
-                              int num = 1;
-                              remindNum.value = 1;
-                              if (model.unreadNum > 0) {
-                                num = 0;
-                                remindNum.value = 0;
-                              }
-                              logic.markAs(model.id, num);
-                              model.unreadNum = num;
-                              logic.update([
-                                logic.conversationRemind[model.peerId] = num,
-                                logic.conversations[index].unreadNum = num,
-                              ]);
-                            },
-                            autoClose: true,
-                            backgroundColor: Colors.blue,
-                            flex: 2,
-                            child: Obx(
-                                  () => Text(
-                                remindNum.value > 0 ? "标为已读" : "标为未读",
-                                overflow: TextOverflow.ellipsis,
+                      itemCount: logic.conversations.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        ConversationModel model = logic.conversations[index];
+                        int conversationId = model.id;
+                        var remindNum =
+                            logic.conversationRemind.containsKey(model.peerId)
+                                ? logic.conversationRemind[model.peerId]!.obs
+                                : 0.obs;
+                        return InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                builder: (_) => ChatPage(
+                                  conversationId: model.id,
+                                  peerId: model.peerId,
+                                  peerTitle: model.title,
+                                  peerAvatar: model.avatar,
+                                  peerSign: model.sign,
+                                  type:
+                                      strEmpty(model.type) ? 'C2C' : model.type,
+                                ),
                               ),
+                            );
+                          },
+                          onTapDown: (TapDownDetails details) {},
+                          onLongPress: () {},
+                          child: Slidable(
+                            key: ValueKey(model.id),
+                            groupTag: '0',
+                            closeOnScroll: true,
+                            endActionPane: ActionPane(
+                              extentRatio: 0.75,
+                              motion: const StretchMotion(),
+                              children: [
+                                CustomSlidableAction(
+                                  onPressed: (_) async {
+                                    int num = 1;
+                                    remindNum.value = 1;
+                                    if (model.unreadNum > 0) {
+                                      num = 0;
+                                      remindNum.value = 0;
+                                    }
+                                    logic.markAs(model.id, num);
+                                    model.unreadNum = num;
+                                    logic.update([
+                                      logic.conversationRemind[model.peerId] =
+                                          num,
+                                      logic.conversations[index].unreadNum =
+                                          num,
+                                    ]);
+                                  },
+                                  autoClose: true,
+                                  backgroundColor: Colors.blue,
+                                  flex: 2,
+                                  child: Obx(
+                                    () => Text(
+                                      remindNum.value > 0 ? "标为已读" : "标为未读",
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                SlidableAction(
+                                  key: ValueKey("hide_$index"),
+                                  flex: 2,
+                                  backgroundColor: Colors.amber,
+                                  onPressed: (_) async {
+                                    await logic
+                                        .hideConversation(conversationId);
+                                    logic.update([
+                                      logic.conversations.removeAt(index),
+                                      logic.conversationRemind[model.peerId] =
+                                          0,
+                                      logic.chatMsgRemindCounter,
+                                    ]);
+                                  },
+                                  label: "不显示".tr,
+                                  spacing: 1,
+                                ),
+                                SlidableAction(
+                                  key: ValueKey("delete_$index"),
+                                  flex: 2,
+                                  backgroundColor: Colors.red,
+                                  // foregroundColor: Colors.white,
+                                  onPressed: (_) async {
+                                    await logic
+                                        .removeConversation(conversationId);
+                                    logic.update([
+                                      logic.conversations.removeAt(index),
+                                      logic.conversationRemind[model.peerId] =
+                                          0,
+                                      logic.chatMsgRemindCounter,
+                                    ]);
+                                  },
+                                  label: "删除".tr,
+                                  spacing: 1,
+                                ),
+                              ],
+                            ),
+                            child: ConversationItem(
+                              model: model,
+                              remindCounter: remindNum,
+                              onTapAvatar: () {
+                                Get.to(
+                                  () => ContactDetailPage(
+                                    id: model.peerId,
+                                  ),
+                                );
+                              },
                             ),
                           ),
-                          SlidableAction(
-                            key: ValueKey("hide_$index"),
-                            flex: 2,
-                            backgroundColor: Colors.amber,
-                            onPressed: (_) async {
-                              await logic
-                                  .hideConversation(conversationId);
-                              logic.update([
-                                logic.conversations.removeAt(index),
-                                logic.conversationRemind[model.peerId] = 0,
-                                logic.chatMsgRemindCounter,
-                              ]);
-                            },
-                            label: "不显示".tr,
-                            spacing: 1,
-                          ),
-                          SlidableAction(
-                            key: ValueKey("delete_$index"),
-                            flex: 2,
-                            backgroundColor: Colors.red,
-                            // foregroundColor: Colors.white,
-                            onPressed: (_) async {
-                              await logic
-                                  .removeConversation(conversationId);
-                              logic.update([
-                                logic.conversations.removeAt(index),
-                                logic.conversationRemind[model.peerId] = 0,
-                                logic.chatMsgRemindCounter,
-                              ]);
-                            },
-                            label: "删除".tr,
-                            spacing: 1,
-                          ),
-                        ],
-                      ),
-                      child: ConversationItem(
-                        model: model,
-                        remindCounter: remindNum,
-                        onTapAvatar: () {
-                          Get.to(
-                                () => ContactDetailPage(
-                              id: model.peerId,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  );
-                },
-              );
+                        );
+                      },
+                    );
             }),
           ),
         ),

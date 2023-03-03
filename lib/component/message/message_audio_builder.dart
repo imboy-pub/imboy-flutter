@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -35,7 +36,6 @@ class AudioMessageBuilder extends StatefulWidget {
 }
 
 class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
-
   @override
   void initState() {
     super.initState();
@@ -49,14 +49,22 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
   @override
   Widget build(BuildContext context) {
     bool userIsAuthor = widget.user.id == widget.message.author.id;
-    Future<File> tmpF = DefaultCacheManager().getSingleFile(
-        widget.message.metadata!['uri'],
-        key: generateMD5(widget.message.metadata!['uri'])
+    Future<File> tmpF = IMBoyCacheManager().getSingleFile(
+      widget.message.metadata!['uri'],
+      key: generateMD5(widget.message.metadata!['uri']),
+    );
+
+    Duration d = Duration(
+      milliseconds: widget.message.metadata!["duration_ms"],
     );
     return VoiceMessage(
       audioSrc: widget.message.metadata!['uri'],
       audioFile: tmpF,
-      duration: Duration(milliseconds: widget.message.metadata!["duration_ms"]),
+      duration: d,
+      showDuration: true,
+      formatDuration: (Duration duration) {
+        return duration.toString().substring(2, 11);
+      },
       // waveForm: widget.message.metadata!['wave_form'],
       played: widget.message.metadata!['played'] ?? false,
       // To show played badge or not.
@@ -67,15 +75,16 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
       contactPlayIconColor: Colors.white,
       onPlay: () {
         if (widget.onPlay != null) widget.onPlay!();
-
-        setState(() {
-          widget.message.metadata!['played'] = true;
-        });
-        Map<String, dynamic> data = {
-          'id': widget.message.id,
-          'payload': json.encode(widget.message.metadata),
-        };
-        (MessageRepo()).update(data);
+        if (widget.message.metadata!['played'] != true) {
+          setState(() {
+            widget.message.metadata!['played'] = true;
+          });
+          Map<String, dynamic> data = {
+            'id': widget.message.id,
+            'payload': json.encode(widget.message.metadata),
+          };
+          (MessageRepo()).update(data);
+        }
       }, // Do something when voice played.
     );
   }
