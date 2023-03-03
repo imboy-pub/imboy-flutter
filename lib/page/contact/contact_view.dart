@@ -68,6 +68,7 @@ class ContactPage extends StatelessWidget {
           size: 20,
         ),
       ),
+      /*
       ContactModel(
         nickname: '标签'.tr,
         nameIndex: '↑',
@@ -78,12 +79,13 @@ class ContactPage extends StatelessWidget {
           size: 20,
         ),
       ),
-      // ContactModel(
-      //     nickname: '公众号',
-      //     nameIndex: '↑',
-      //     bgColor: Colors.blueAccent,
-      //     iconData: Icons.person,
-      // ),
+      ContactModel(
+          nickname: '公众号',
+          nameIndex: '↑',
+          bgColor: Colors.blueAccent,
+          iconData: Icons.person,
+      ),
+      */
     ];
 
     // 加载联系人列表

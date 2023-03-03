@@ -117,7 +117,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       },
       {'label': 'uqrcode', 'title': '二维码名片'.tr, 'value': ''},
       {'label': 'more', 'title': '更多信息'.tr, 'value': ''},
-      {'label': 'address', 'title': '我的地址'.tr, 'value': ''},
+      // {'label': 'address', 'title': '我的地址'.tr, 'value': ''},
     ];
 
     return Scaffold(

@@ -8,7 +8,6 @@ import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
-import 'friends_permissions_view.dart';
 import 'setting_logic.dart';
 
 class SettingPage extends StatefulWidget {
@@ -32,6 +31,7 @@ class _SettingPageState extends State<SettingPage> {
       body: SingleChildScrollView(
           child: n.Column(
         [
+          /*
           ListTileView(
             title: '账号与安全',
             titleStyle: const TextStyle(fontSize: 15.0),
@@ -68,8 +68,9 @@ class _SettingPageState extends State<SettingPage> {
             fit: BoxFit.cover,
             horizontal: 15.0,
           ),
+          */
           ListTileView(
-            title: '新消息通知',
+            title: '消息通知'.tr,
             titleStyle: const TextStyle(fontSize: 15.0),
             padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
             border: const Border(
@@ -83,6 +84,7 @@ class _SettingPageState extends State<SettingPage> {
             fit: BoxFit.cover,
             horizontal: 15.0,
           ),
+          /*
           ListTileView(
             title: '通用',
             titleStyle: const TextStyle(fontSize: 15.0),
@@ -144,6 +146,8 @@ class _SettingPageState extends State<SettingPage> {
             fit: BoxFit.cover,
             horizontal: 15.0,
           ),
+
+          */
           ListTileView(
             title: '帮助与反馈',
             titleStyle: const TextStyle(fontSize: 15.0),

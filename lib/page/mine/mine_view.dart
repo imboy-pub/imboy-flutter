@@ -1,6 +1,8 @@
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/button.dart';
+import 'package:imboy/page/passport/passport_view.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:photo_view/photo_view.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -14,7 +16,7 @@ import 'mine_logic.dart';
 // ignore: must_be_immutable
 class MinePage extends StatelessWidget {
   final MineLogic logic = Get.put(MineLogic());
-
+  /*
   List data = [
     // {
     //   'label': '钱包',
@@ -72,7 +74,7 @@ class MinePage extends StatelessWidget {
       // ),
     },
   ];
-
+  */
   MinePage({Key? key}) : super(key: key);
 
   Widget buildContent(item) {
@@ -105,54 +107,58 @@ class MinePage extends StatelessWidget {
               builder: (controller) => InkWell(
                 child: Container(
                   color: Colors.white,
-                  height: 200,
+                  height: 360,
                   padding: const EdgeInsets.only(
-                    left: 15.0,
+                    left: 8.0,
                     right: 12.0,
                     top: 32.0,
                   ),
                   margin: const EdgeInsets.only(
                     bottom: 10,
                   ),
-                  child: n.Row(
-                    [
+                  child: n.Column([
+                    // avatar
+                    n.Row([
                       Container(
-                        margin: const EdgeInsets.only(top: 16.0),
-                        width: 88.0,
-                        height: 88.0,
-                        child: ClipRRect(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(10.0)),
-                          child: InkWell(
-                            onTap: () {
-                              String avatar = controller.currentUser.avatar;
-                              Get.bottomSheet(
-                                InkWell(
-                                  onTap: () {
-                                    Get.back();
-                                  },
-                                  child: PhotoView(
-                                    imageProvider: cachedImageProvider(avatar),
-                                  ),
+                      margin: const EdgeInsets.only(top: 40.0),
+                      width: 160.0,
+                      height: 160.0,
+                      child: ClipRRect(
+                        borderRadius:
+                        const BorderRadius.all(Radius.circular(10.0)),
+                        child: InkWell(
+                          onTap: () {
+                            String avatar = controller.currentUser.avatar;
+                            Get.bottomSheet(
+                              InkWell(
+                                onTap: () {
+                                  Get.back();
+                                },
+                                child: PhotoView(
+                                  imageProvider: cachedImageProvider(avatar),
                                 ),
-                                // 是否支持全屏弹出，默认false
-                                isScrollControlled: true,
-                                enableDrag: false,
-                              );
-                            },
-                            child: Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.rectangle,
-                                borderRadius: BorderRadius.circular(10.0),
-                                // color: defHeaderBgColor,
-                                image: dynamicAvatar(controller.currentUser.avatar),
                               ),
+                              // 是否支持全屏弹出，默认false
+                              isScrollControlled: true,
+                              enableDrag: false,
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.rectangle,
+                              borderRadius: BorderRadius.circular(80.0),
+                              // color: defHeaderBgColor,
+                              image: dynamicAvatar(controller.currentUser.avatar),
                             ),
                           ),
                         ),
                       ),
+                    )
+                    ],
+                      mainAxisAlignment: MainAxisAlignment.center,
+                    ),
+                    n.Row(
+                    [
                       Container(
                         margin: const EdgeInsets.only(left: 10.0, top: 10.0),
                         width: 200.0,
@@ -207,12 +213,83 @@ class MinePage extends StatelessWidget {
                     ],
                     // mainAxisAlignment: MainAxisAlignment.end,
                   ),
+                  ]),
                 ),
                 onTap: () => Get.to(() => const PersonalInfoPage()),
               ),
             ),
             n.Column(
-              data.map(buildContent).toList(),
+              // data.map(buildContent).toList(),
+            [  ListTileView(
+              title: '消息通知'.tr,
+              titleStyle: const TextStyle(fontSize: 15.0),
+              padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
+              border: const Border(
+                bottom: BorderSide(
+                  color: AppColors.LineColor,
+                  width: 0.2,
+                ),
+              ),
+              onPressed: () {},
+              width: 25.0,
+              fit: BoxFit.cover,
+              horizontal: 15.0,
+            ),
+              ListTileView(
+                title: '帮助与反馈',
+                titleStyle: const TextStyle(fontSize: 15.0),
+                padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
+                onPressed: () {},
+                width: 25.0,
+                fit: BoxFit.cover,
+                horizontal: 15.0,
+                border: const Border(
+                  bottom: BorderSide(
+                    color: AppColors.LineColor,
+                    width: 0.2,
+                  ),
+                ),
+              ),
+              ListTileView(
+                title: '关于IMBoy',
+                titleStyle: const TextStyle(fontSize: 15.0),
+                padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
+                onPressed: () {},
+                width: 25.0,
+                fit: BoxFit.cover,
+                horizontal: 15.0,
+              ),
+              ButtonRow(
+                margin: const EdgeInsets.only(
+                  top: 10.0,
+                ),
+                text: '切换账号'.tr,
+                style: const TextStyle(
+                  color: AppColors.ButtonTextColor,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+                isBorder: false,
+                onPressed: () async {},
+              ),
+              ButtonRow(
+                margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                text: '退出登录'.tr,
+                style: const TextStyle(
+                  color: AppColors.ButtonTextColor,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+                isBorder: false,
+                onPressed: () async {
+                  bool result = await UserRepoLocal.to.logout();
+                  if (result) {
+                    Get.off(() => PassportPage());
+                  }
+                },
+              ),
+            ]
+
             ),
           ],
         ),

@@ -34,11 +34,6 @@ class _ConversationPageState extends State<ConversationPage> {
   @override
   void initState() {
     super.initState();
-    String url =
-        "http://a.imboy.pub/audio/20233/3_0/cg0d101811i9djtu0glg.aac?s=dev&a=554c56c3cbd7e16c&v=67465";
-    String ext = url.substring(url.lastIndexOf("."),
-        url.lastIndexOf("?") > 0 ? url.lastIndexOf("?") : url.length);
-    debugPrint("> _startPlaying ext $ext dd: ${url.lastIndexOf("#")}");
     if (!mounted) {
       return;
     }
