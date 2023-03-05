@@ -60,6 +60,8 @@
 	<string>请允许$(PRODUCT_NAME)访问您的相册</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>IMBoy does not need this permission</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>The app needs the location</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

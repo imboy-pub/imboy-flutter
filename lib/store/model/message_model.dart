@@ -283,7 +283,7 @@ class MessageModel {
       );
     }
     if (message == null) {
-      debugPrint("> on toTypeMessage md ${this.toJson().toString()}");
+      debugPrint("> on toTypeMessage md ${toJson().toString()}");
     }
     return message!;
   }
