@@ -108,7 +108,7 @@ class ScannerResultPage extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       Get.context!,
-                      CupertinoPageRoute(
+                      CupertinoPageRoute( // 右滑，返回上一页
                         builder: (_) => ChatPage(
                           peerId: id,
                           peerTitle: nickname,

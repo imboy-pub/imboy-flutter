@@ -1,8 +1,10 @@
 import 'package:extended_text/extended_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/page/passport/passport_view.dart';
+import 'package:imboy/page/single/about_imboy.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:photo_view/photo_view.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -105,6 +107,14 @@ class MinePage extends StatelessWidget {
           children: <Widget>[
             GetBuilder<UserRepoLocal>(
               builder: (controller) => InkWell(
+                onTap: () {
+                  Navigator.push(
+                    Get.context!,
+                    CupertinoPageRoute( // 右滑，返回上一页
+                      builder: (_) => const PersonalInfoPage(),
+                    ),
+                  );
+                } ,
                 child: Container(
                   color: Colors.white,
                   height: 360,
@@ -118,123 +128,172 @@ class MinePage extends StatelessWidget {
                   ),
                   child: n.Column([
                     // avatar
-                    n.Row([
-                      Container(
-                      margin: const EdgeInsets.only(top: 40.0),
-                      width: 160.0,
-                      height: 160.0,
-                      child: ClipRRect(
-                        borderRadius:
-                        const BorderRadius.all(Radius.circular(10.0)),
-                        child: InkWell(
-                          onTap: () {
-                            String avatar = controller.currentUser.avatar;
-                            Get.bottomSheet(
-                              InkWell(
-                                onTap: () {
-                                  Get.back();
-                                },
-                                child: PhotoView(
-                                  imageProvider: cachedImageProvider(avatar),
+                    n.Row(
+                      [
+                        Container(
+                          margin: const EdgeInsets.only(top: 32.0),
+                          width: 180.0,
+                          height: 180.0,
+                          child: ClipRRect(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(100.0)),
+                            child: InkWell(
+                              onTap: () {
+                                String avatar = controller.currentUser.avatar;
+                                Get.bottomSheet(
+                                  InkWell(
+                                    onTap: () {
+                                      Get.back();
+                                    },
+                                    child: PhotoView(
+                                      imageProvider:
+                                          cachedImageProvider(avatar),
+                                    ),
+                                  ),
+                                  // 是否支持全屏弹出，默认false
+                                  isScrollControlled: true,
+                                  enableDrag: false,
+                                );
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.rectangle,
+                                  borderRadius: BorderRadius.circular(80.0),
+                                  // color: defHeaderBgColor,
+                                  image: dynamicAvatar(
+                                      controller.currentUser.avatar),
                                 ),
                               ),
-                              // 是否支持全屏弹出，默认false
-                              isScrollControlled: true,
-                              enableDrag: false,
-                            );
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(80.0),
-                              // color: defHeaderBgColor,
-                              image: dynamicAvatar(controller.currentUser.avatar),
                             ),
                           ),
-                        ),
-                      ),
-                    )
-                    ],
+                        )
+                      ],
                       mainAxisAlignment: MainAxisAlignment.center,
                     ),
                     n.Row(
-                    [
-                      Container(
-                        margin: const EdgeInsets.only(left: 10.0, top: 10.0),
-                        width: 200.0,
-                        child: n.Column(
-                          <Widget>[
-                            ExtendedText(
-                              controller.currentUser.nickname,
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.left,
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                              child: Text(
-                                '账号：'.tr + controller.currentUser.account,
+                      [
+                        Container(
+                          margin: const EdgeInsets.only(left: 10.0, top: 10.0),
+                          width: 200.0,
+                          child: n.Column(
+                            <Widget>[
+                              ExtendedText(
+                                controller.currentUser.nickname,
                                 style: const TextStyle(
-                                  color: AppColors.MainTextColor,
+                                  color: Colors.black,
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.left,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 8.0, bottom: 8.0),
+                                child: Text(
+                                  '账号：'.tr + controller.currentUser.account,
+                                  style: const TextStyle(
+                                    color: AppColors.MainTextColor,
+                                  ),
                                 ),
                               ),
-                            ),
-                            strNoEmpty(controller.currentUser.region)
-                                ? Text(
-                                    '地区：'.tr + controller.currentUser.region,
-                                    style: const TextStyle(
-                                        color: AppColors.MainTextColor),
-                                  )
-                                : const SizedBox.shrink(),
-                          ],
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                              strNoEmpty(controller.currentUser.region)
+                                  ? Text(
+                                      '地区：'.tr + controller.currentUser.region,
+                                      style: const TextStyle(
+                                          color: AppColors.MainTextColor),
+                                    )
+                                  : const SizedBox.shrink(),
+                            ],
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                          ),
                         ),
-                      ),
-                      const Spacer(),
-
-                      Container(
-                        width: 18.0,
-                        margin: const EdgeInsets.only(right: 10.0),
-                        child: const Icon(Icons.qr_code_2),
-                      ),
-                      const Image(
-                        image: AssetImage('assets/images/ic_right_arrow_grey.webp'),
-                        width: 7.0,
-                        fit: BoxFit.cover,
-                      )
-                    ],
-                    // mainAxisAlignment: MainAxisAlignment.end,
-                  ),
+                        const Spacer(),
+                        Container(
+                          width: 18.0,
+                          margin: const EdgeInsets.only(right: 10.0),
+                          child: const Icon(Icons.qr_code_2),
+                        ),
+                        const Image(
+                          image: AssetImage(
+                              'assets/images/ic_right_arrow_grey.webp'),
+                          width: 7.0,
+                          fit: BoxFit.cover,
+                        )
+                      ],
+                      // mainAxisAlignment: MainAxisAlignment.end,
+                    ),
                   ]),
                 ),
-                onTap: () => Get.to(() => const PersonalInfoPage()),
               ),
             ),
-            n.Column(
-              // data.map(buildContent).toList(),
-            [  ListTileView(
-              title: '消息通知'.tr,
-              titleStyle: const TextStyle(fontSize: 15.0),
-              padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
-              border: const Border(
-                bottom: BorderSide(
-                  color: AppColors.LineColor,
-                  width: 0.2,
+            // n.Column(
+            // data.map(buildContent).toList(),
+            n.Column([
+              ListTileView(
+                title: '我的收藏'.tr,
+                titleStyle: const TextStyle(fontSize: 15.0),
+                padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
+                border: const Border(
+                  bottom: BorderSide(
+                    color: AppColors.LineColor,
+                    width: 0.2,
+                  ),
                 ),
+                onPressed: () {},
+                width: 25.0,
+                fit: BoxFit.cover,
+                horizontal: 15.0,
               ),
-              onPressed: () {},
-              width: 25.0,
-              fit: BoxFit.cover,
-              horizontal: 15.0,
-            ),
+              ListTileView(
+                title: '设备列表'.tr,
+                titleStyle: const TextStyle(fontSize: 15.0),
+                padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
+                border: const Border(
+                  bottom: BorderSide(
+                    color: AppColors.LineColor,
+                    width: 0.2,
+                  ),
+                ),
+                onPressed: () {},
+                width: 25.0,
+                fit: BoxFit.cover,
+                horizontal: 15.0,
+              ),
+              ListTileView(
+                title: '储存空间'.tr,
+                titleStyle: const TextStyle(fontSize: 15.0),
+                padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
+                border: const Border(
+                  bottom: BorderSide(
+                    color: AppColors.LineColor,
+                    width: 0.2,
+                  ),
+                ),
+                onPressed: () {},
+                width: 25.0,
+                fit: BoxFit.cover,
+                horizontal: 15.0,
+              ),
+              ListTileView(
+                title: '消息通知'.tr,
+                titleStyle: const TextStyle(fontSize: 15.0),
+                margin: const EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
+                border: const Border(
+                  bottom: BorderSide(
+                    color: AppColors.LineColor,
+                    width: 0.2,
+                  ),
+                ),
+                onPressed: () {},
+                width: 25.0,
+                fit: BoxFit.cover,
+                horizontal: 15.0,
+              ),
               ListTileView(
                 title: '帮助与反馈',
                 titleStyle: const TextStyle(fontSize: 15.0),
@@ -251,10 +310,17 @@ class MinePage extends StatelessWidget {
                 ),
               ),
               ListTileView(
-                title: '关于IMBoy',
+                title: '关于IMBoy'.tr,
                 titleStyle: const TextStyle(fontSize: 15.0),
                 padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    Get.context!,
+                    CupertinoPageRoute( // 右滑，返回上一页
+                      builder: (_) => AboutIMBoyPage(),
+                    ),
+                  );
+                },
                 width: 25.0,
                 fit: BoxFit.cover,
                 horizontal: 15.0,
@@ -288,9 +354,7 @@ class MinePage extends StatelessWidget {
                   }
                 },
               ),
-            ]
-
-            ),
+            ]),
           ],
         ),
       ),

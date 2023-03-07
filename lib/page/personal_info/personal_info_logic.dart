@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -22,9 +24,20 @@ class PersonalInfoLogic extends GetxController {
 
   labelOnPressed(String label) {
     if (label == "more") {
-      Get.to(() => const MoreView());
-    } else if (label == "uqrcode") {
-      Get.to(() => UqrcodePage());
+      Navigator.push(
+        Get.context!,
+        CupertinoPageRoute( // 右滑，返回上一页
+          builder: (_) => const MoreView(),
+        ),
+      );
+    } else if (label == "user_qrcode") {
+      Navigator.push(
+        Get.context!,
+        CupertinoPageRoute( // 右滑，返回上一页
+          builder: (_) => UqrcodePage(),
+        ),
+      );
     }
+
   }
 }

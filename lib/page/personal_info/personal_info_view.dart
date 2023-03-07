@@ -97,10 +97,10 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       label: item['title'],
       rValue: item['value'],
       isLine:
-          item['label'] == 'addree' || item['label'] == 'more' ? false : true,
+          item['label'] == 'address' || item['label'] == 'more' ? false : true,
       isRight: item['label'] == 'account' ? false : true,
       margin: EdgeInsets.only(bottom: item['label'] == 'more' ? 10.0 : 0.0),
-      rightW: item['label'] == 'uqrcode'
+      rightW: item['label'] == 'user_qrcode'
           ? const Icon(Icons.qr_code_2)
           : Container(),
       onPressed: () => logic.labelOnPressed(item['label']),
@@ -115,7 +115,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
         'title': '账号',
         'value': UserRepoLocal.to.currentUser.account
       },
-      {'label': 'uqrcode', 'title': '二维码名片'.tr, 'value': ''},
+      {'label': 'user_qrcode', 'title': '二维码名片'.tr, 'value': ''},
       {'label': 'more', 'title': '更多信息'.tr, 'value': ''},
       // {'label': 'address', 'title': '我的地址'.tr, 'value': ''},
     ];

@@ -31,7 +31,7 @@ class WSService extends GetxService {
   Timer? _heartBeat; // 心跳定时器
   // _heartTimes 必须比 服务端 idle_timeout 小一些
   final int _heartTimes = 50000; // 心跳间隔(毫秒)
-  final int _reconnectCount = 60; // 重连次数，默认60次
+  final int _reconnectCount = 10; // 重连次数，默认10次
   int _reconnectTimes = 0; // 重连计数器
   Timer? _reconnectTimer; // 重连定时器
 

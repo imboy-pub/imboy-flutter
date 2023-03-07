@@ -75,7 +75,12 @@ class ContactLogic extends GetxController {
         onTap: model.onPressed ??
             () {
               if (model.uid != null) {
-                Get.to(() => ContactDetailPage(id: model.uid!));
+                Navigator.push(
+                  Get.context!,
+                  CupertinoPageRoute( // 右滑，返回上一页
+                    builder: (_) => ContactDetailPage(id: model.uid!),
+                  ),
+                );
               }
             },
         onLongPress: model.onLongPressed ??
@@ -83,7 +88,7 @@ class ContactLogic extends GetxController {
               if (model.uid != null) {
                 Navigator.push(
                   context,
-                  CupertinoPageRoute(
+                  CupertinoPageRoute( // 右滑，返回上一页
                     builder: (_) => ChatPage(
                       peerId: model.uid!,
                       peerTitle: model.title,

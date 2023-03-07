@@ -141,7 +141,7 @@ class ContactDetailPage extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      CupertinoPageRoute(
+                      CupertinoPageRoute( // 右滑，返回上一页
                         builder: (_) => ChatPage(
                           peerId: id,
                           peerTitle: title.value,

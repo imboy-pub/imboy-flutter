@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
@@ -42,7 +43,9 @@ class BottomNavigationLogic extends GetxController {
 
   //改变底部导航栏索引
   void changeBottomBarIndex(int index) {
-    state.bottombarIndex.value = index;
+    update([
+      state.bottombarIndex.value = index,
+    ]);
     // print(state.bottombarIndex.value);
   }
 }

@@ -1,6 +1,7 @@
 import 'package:azlistview/azlistview.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -55,7 +56,12 @@ class ContactPage extends StatelessWidget {
               ),
             )),
         onPressed: () {
-          Get.to(() => NewFriendPage());
+          Navigator.push(
+            Get.context!,
+            CupertinoPageRoute( // 右滑，返回上一页
+              builder: (_) => NewFriendPage(),
+            ),
+          );
         },
       ),
       ContactModel(
@@ -124,11 +130,18 @@ class ContactPage extends StatelessWidget {
         title: "联系人".tr,
         rightDMActions: <Widget>[
           InkWell(
+            onTap:() {
+              Navigator.push(
+                Get.context!,
+                CupertinoPageRoute( // 右滑，返回上一页
+                  builder: (_) => const SearchPage(),
+                ),
+              );
+            },
             child: const SizedBox(
               width: 60.0,
               child: Icon(Icons.search_outlined),
             ),
-            onTap: () => Get.to(() => const SearchPage()),
           ),
         ],
       ),

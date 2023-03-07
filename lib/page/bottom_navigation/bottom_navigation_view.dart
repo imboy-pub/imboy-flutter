@@ -12,12 +12,12 @@ import 'bottom_navigation_state.dart';
 // ignore: must_be_immutable
 class BottomNavigationPage extends StatelessWidget {
   //全局状态控制器
-  final ConversationLogic clogic = Get.find();
   final BottomNavigationLogic logic = Get.find();
+  final ConversationLogic conversationLogic = Get.find();
 
   final BottomNavigationState state = Get.find<BottomNavigationLogic>().state;
 
-  List pageList = [
+  List<Widget> pageList = [
     const ConversationPage(),
     // CooperationPage(),
     // WorkbenchPage(),
@@ -25,6 +25,11 @@ class BottomNavigationPage extends StatelessWidget {
     MinePage(),
   ];
 
+  /// PageView 控制器 , 用于控制 PageView
+  PageController pageController = PageController(
+    /// 初始索引值
+    initialPage: 0,
+  );
   BottomNavigationPage({Key? key}) : super(key: key);
 
   @override
@@ -36,7 +41,13 @@ class BottomNavigationPage extends StatelessWidget {
 
     return Scaffold(
       //主题
-      body: Obx(() => pageList[state.bottombarIndex.value]),
+      body: PageView(
+        controller: pageController,
+        onPageChanged: (int index) {
+          logic.changeBottomBarIndex(index);
+        },
+        children: pageList,
+      ),
       //底部导航条
       bottomNavigationBar: Obx(
         () => BottomNavigationBar(
@@ -45,6 +56,8 @@ class BottomNavigationPage extends StatelessWidget {
           // 点击事件,获取当前点击的标签下标
           onTap: (int index) {
             logic.changeBottomBarIndex(index);
+            // 控制 PageView 跳转到指定的页面
+            pageController.jumpToPage(index);
           },
           iconSize: 30.0,
           // 底部导航栏按钮选中时的颜色
@@ -53,7 +66,7 @@ class BottomNavigationPage extends StatelessWidget {
           items: [
             BottomNavigationBarItem(
               icon: badges.Badge(
-                showBadge: clogic.chatMsgRemindCounter > 0,
+                showBadge: conversationLogic.chatMsgRemindCounter > 0,
                 // shape: badges.BadgeShape.square,
                 // borderRadius: BorderRadius.circular(10),
                 position: badges.BadgePosition.topStart(top: -4, start: 20),
@@ -62,7 +75,7 @@ class BottomNavigationPage extends StatelessWidget {
                   color: Colors.red,
                   alignment: Alignment.center,
                   child: Text(
-                    clogic.chatMsgRemindCounter.toString(),
+                    conversationLogic.chatMsgRemindCounter.toString(),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 8,

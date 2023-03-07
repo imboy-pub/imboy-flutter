@@ -702,6 +702,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.1.1"
+  flutter_markdown:
+    dependency: "direct main"
+    description:
+      name: flutter_markdown
+      sha256: "7b25c10de1fea883f3c4f9b8389506b54053cd00807beab69fd65c8653a2711f"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.6.14"
   flutter_mentions:
     dependency: "direct main"
     description:
@@ -714,10 +722,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_native_splash
-      sha256: e301ae206ff0fb09b67d3716009c6c28c2da57a0ad164827b178421bb9d601f7
+      sha256: af665ef80a213a9ed502845a3d7a61b9acca4100ee7e9f067a7440bc3acd6730
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.2.18"
+    version: "2.2.19"
   flutter_parsed_text:
     dependency: transitive
     description:
@@ -803,12 +811,11 @@ packages:
   flutter_webrtc:
     dependency: "direct main"
     description:
-      path: "."
-      ref: main
-      resolved-ref: c5a59e208af55dcd35138d5ce364310087837688
-      url: "https://gitee.com/imboy-tripartite-deps/flutter-webrtc.git"
-    source: git
-    version: "0.9.23"
+      name: flutter_webrtc
+      sha256: "4eacac1b49c65fd225ea69f41b3c28fae55c1f2caba6d5f21a6de2bd43e6dc02"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.9.24"
   font_awesome_flutter:
     dependency: transitive
     description:
@@ -861,10 +868,10 @@ packages:
     dependency: transitive
     description:
       name: html
-      sha256: d9793e10dbe0e6c364f4c59bf3e01fb33a9b2a674bc7a1081693dba0614b6269
+      sha256: "79d498e6d6761925a34ee5ea8fa6dfef38607781d2fa91e37523474282af55cb"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.15.1"
+    version: "0.15.2"
   http:
     dependency: transitive
     description:
@@ -1138,7 +1145,7 @@ packages:
     source: hosted
     version: "2.0.3"
   markdown:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: markdown
       sha256: b3c60dee8c2af50ad0e6e90cceba98e47718a6ee0a7a6772c77846a0cc21f78b
@@ -1560,18 +1567,18 @@ packages:
     dependency: transitive
     description:
       name: sentry
-      sha256: "1128b2b3801b6176d2e0f27800658c43788ddba2799704c9743a083b2c81a8fc"
+      sha256: a1529c545fcbc899e5dcc7c94ff1c6ad0c334dfc99a3cda366b1da98af7c5678
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.21.0"
+    version: "6.22.0"
   sentry_flutter:
     dependency: "direct main"
     description:
       name: sentry_flutter
-      sha256: "56d12444ce0ee6d903ca5434da1b89c711af144a846aa5c7e8f32002d86127db"
+      sha256: cab07e99a8f27af94f399cabceaff6968011660505b30a0e2286728a81bc476c
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.21.0"
+    version: "6.22.0"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -2092,10 +2099,10 @@ packages:
     dependency: transitive
     description:
       name: xml
-      sha256: ac0e3f4bf00ba2708c33fbabbbe766300e509f8c82dbd4ab6525039813f7e2fb
+      sha256: "979ee37d622dec6365e2efa4d906c37470995871fe9ae080d967e192d88286b5"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.1.0"
+    version: "6.2.2"
   yaml:
     dependency: transitive
     description:

@@ -227,7 +227,7 @@ class _ConversationPageState extends State<ConversationPage> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              CupertinoPageRoute(
+                              CupertinoPageRoute( // 右滑，返回上一页
                                 builder: (_) => ChatPage(
                                   conversationId: model.id,
                                   peerId: model.peerId,
