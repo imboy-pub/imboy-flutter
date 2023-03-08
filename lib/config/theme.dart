@@ -152,7 +152,7 @@ class ImboyChatTheme extends ChatTheme {
       ),
     ),
   }) : super(
-          typingIndicatorTheme:typingIndicatorTheme,
+          typingIndicatorTheme: typingIndicatorTheme,
           sendButtonMargin: null,
           attachmentButtonMargin: null,
           attachmentButtonIcon: attachmentButtonIcon,

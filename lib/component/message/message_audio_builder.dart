@@ -64,7 +64,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
       formatDuration: (Duration duration) {
         return duration.toString().substring(2, 11);
       },
-      // waveForm: widget.message.metadata!['wave_form'],
+      // waveform: widget.message.metadata!['waveform'],
       played: widget.message.metadata!['played'] ?? false,
       // To show played badge or not.
       me: userIsAuthor,

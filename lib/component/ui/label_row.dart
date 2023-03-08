@@ -57,7 +57,8 @@ class LabelRow extends StatelessWidget {
                         color: AppColors.LineColor, width: lineWidth!))
                 : null,
           ),
-          child: n.Row(<Widget>[
+          child: n.Row(
+            <Widget>[
               if (headW != null) headW!,
               SizedBox(
                 width: labelWidth,

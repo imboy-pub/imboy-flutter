@@ -49,9 +49,11 @@ class ExtraItem extends StatelessWidget {
                       color: AppColors.ChatInputBackgroundColor,
                     ),
                   ),
-                  child: image is ImageProvider ? Image(
-                    image: image as ImageProvider,
-                  ) : image,
+                  child: image is ImageProvider
+                      ? Image(
+                          image: image as ImageProvider,
+                        )
+                      : image,
                 ),
               ),
             ),

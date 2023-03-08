@@ -56,10 +56,12 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
         ]),
         n.Row([
-          Expanded(child: Text(
-            fileMsg.name,
-            style: const TextStyle(color: AppColors.thirdElementText),
-          ),),
+          Expanded(
+            child: Text(
+              fileMsg.name,
+              style: const TextStyle(color: AppColors.thirdElementText),
+            ),
+          ),
         ])
       ]);
     } else if (message is types.AudioMessage) {

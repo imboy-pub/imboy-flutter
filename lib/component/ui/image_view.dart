@@ -13,7 +13,8 @@ class ImageView extends StatelessWidget {
   final BoxFit? fit;
   final bool isRadius;
 
-  const ImageView({Key? key,
+  const ImageView({
+    Key? key,
     required this.img,
     this.height,
     this.width,

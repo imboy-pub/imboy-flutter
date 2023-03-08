@@ -279,7 +279,9 @@ class _MenuPopWidgetState extends State<MenuPopWidget> {
 
     double curArrowWidth = 0;
     int curArrowCount = 0; // 一共几个箭头
-    double curPageWidth = widget.menuWidth + (curPageChildCount - 1 + curArrowCount) * _separatorWidth + curArrowWidth;
+    double curPageWidth = widget.menuWidth +
+        (curPageChildCount - 1 + curArrowCount) * _separatorWidth +
+        curArrowWidth;
     return SizedBox(
       height: widget.menuHeight + _triangleHeight,
       width: curPageWidth,

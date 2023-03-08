@@ -1,4 +1,3 @@
-
 import 'dart:typed_data';
 import 'dart:ui';
 import 'dart:ui' as ui;
@@ -11,7 +10,6 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class RepaintBoundaryHelper {
-
   //保存到相册
   void savePhoto(GlobalKey boundaryKey, String filename) async {
     RenderRepaintBoundary? boundary = boundaryKey.currentContext!

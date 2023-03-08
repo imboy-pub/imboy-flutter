@@ -1,11 +1,11 @@
-
 import 'package:flutter/material.dart';
 
 class IndicatorPageView extends StatefulWidget {
   final PageController pageC;
   final List<Widget> pages;
 
-  const IndicatorPageView({Key? key, required this.pageC, required this.pages}) : super(key: key);
+  const IndicatorPageView({Key? key, required this.pageC, required this.pages})
+      : super(key: key);
 
   @override
   IndicatorPageViewState createState() => IndicatorPageViewState();

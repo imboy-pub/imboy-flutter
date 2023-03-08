@@ -12,17 +12,17 @@ class WebViewPage extends StatefulWidget {
   final void Function(String url)? errorCallback;
 
   WebViewPage(
-      this.url,
-      this.title, {Key? key,
-        this.errorCallback,
-      }) : super(key: key);
+    this.url,
+    this.title, {
+    Key? key,
+    this.errorCallback,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => WebViewPageState();
 }
 
 class WebViewPageState extends State<WebViewPage> {
-
   @override
   void initState() {
     super.initState();
@@ -73,9 +73,7 @@ class WebViewPageState extends State<WebViewPage> {
         ),
       )
       ..addJavaScriptChannel('imboy_jsbridge', // 与h5 端的一致 不然收不到消息
-          onMessageReceived: (JavaScriptMessage message) {
-
-          })
+          onMessageReceived: (JavaScriptMessage message) {})
       ..loadRequest(Uri.parse(widget.url));
   }
 

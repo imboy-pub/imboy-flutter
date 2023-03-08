@@ -82,15 +82,18 @@ class P2pCallScreenPage extends StatelessWidget {
           }
           break;
         case WebRTCCallState.CallStateBye:
-          logic.counter.value.cleanUp();
-          logic.stateTips.value = caller ? '对方正忙...'.tr : '对方已挂断'.tr;
-          if (caller && logic.connected.isTrue) {
-            logic.stateTips.value = '对方已挂断'.tr;
+          // 忽略未链接状态的关闭消息
+          if (logic.connected.isTrue) {
+            logic.counter.value.cleanUp();
+            logic.stateTips.value = caller ? '对方正忙...'.tr : '对方已挂断'.tr;
+            if (caller) {
+              logic.stateTips.value = '对方已挂断'.tr;
+            }
+            Future.delayed(const Duration(seconds: 2), () {
+              logic.connected = false.obs;
+              logic.cleanUp();
+            });
           }
-          Future.delayed(const Duration(seconds: 2), () {
-            logic.connected = false.obs;
-            logic.cleanUp();
-          });
           break;
         case WebRTCCallState.CallStateBusy:
           logic.stateTips.value = '对方正忙，请稍后重试'.tr;

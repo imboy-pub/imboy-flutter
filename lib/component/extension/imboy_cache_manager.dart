@@ -4,7 +4,6 @@ import 'package:flutter_cache_manager/file.dart';
 import 'package:http/http.dart' as http;
 import 'package:clock/clock.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:flutter_cache_manager/src/storage/file_system/file_system_io.dart';
 import 'mime_converter.dart';
 
 class IMBoyCacheManager extends CacheManager {
@@ -37,7 +36,7 @@ class IMBoyCacheManager extends CacheManager {
             stalePeriod: const Duration(days: 7),
             maxNrOfCacheObjects: 20,
             repo: JsonCacheInfoRepository(databaseName: key),
-            fileSystem: IOFileSystem(key),
+            // fileSystem: IOFileSystem(key),
             fileService: IMBoyHttpFileService(),
           ),
         );

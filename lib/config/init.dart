@@ -108,6 +108,7 @@ Future<void> init() async {
         bnLogic.countNewFriendRemindCounter();
         debugPrint(">>> on LifecycleEventHandler resumeCallBack");
         ntpOffset = await StorageService.to.ntpOffset();
+        // 检查WS链接状态
         WSService.to.openSocket();
       },
       suspendingCallBack: () async {

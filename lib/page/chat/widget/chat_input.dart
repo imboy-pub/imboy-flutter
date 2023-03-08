@@ -189,6 +189,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       if (res) {
         _textController.clear();
       } else {
+        // 检查WS链接状态
         WSService.to.openSocket();
         // 网络原因，发送失败
       }

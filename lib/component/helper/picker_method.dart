@@ -311,10 +311,8 @@ class PickMethod {
       name: 'Keep scroll offset',
       description: 'Pick assets from same scroll position.',
       method: (BuildContext context, List<AssetEntity> assets) async {
-        final PermissionState ps =
-            await PhotoManager.requestPermissionExtend();
-        if (ps != PermissionState.authorized &&
-            ps != PermissionState.limited) {
+        final PermissionState ps = await PhotoManager.requestPermissionExtend();
+        if (ps != PermissionState.authorized && ps != PermissionState.limited) {
           throw StateError('Permission state error with $ps.');
         }
         onPermission(ps);

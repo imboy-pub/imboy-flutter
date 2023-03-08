@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -51,7 +50,7 @@ class ContactLogic extends GetxController {
     }
 
     return Container(
-      margin: const EdgeInsets.only(top:6, left: 10, right: 10),
+      margin: const EdgeInsets.only(top: 6, left: 10, right: 10),
       width: Get.width,
       decoration: const BoxDecoration(
         border: Border(
@@ -75,28 +74,26 @@ class ContactLogic extends GetxController {
         onTap: model.onPressed ??
             () {
               if (model.uid != null) {
-                Navigator.push(
-                  Get.context!,
-                  CupertinoPageRoute( // 右滑，返回上一页
-                    builder: (_) => ContactDetailPage(id: model.uid!),
-                  ),
+                Get.to(
+                  ContactDetailPage(id: model.uid!),
+                  transition: Transition.rightToLeft,
+                  popGesture: true, // 右滑，返回上一页
                 );
               }
             },
         onLongPress: model.onLongPressed ??
             () {
               if (model.uid != null) {
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute( // 右滑，返回上一页
-                    builder: (_) => ChatPage(
-                      peerId: model.uid!,
-                      peerTitle: model.title,
-                      peerAvatar: model.avatar,
-                      peerSign: model.sign,
-                      type: 'C2C',
-                    ),
+                Get.to(
+                  ChatPage(
+                    peerId: model.uid!,
+                    peerTitle: model.title,
+                    peerAvatar: model.avatar,
+                    peerSign: model.sign,
+                    type: 'C2C',
                   ),
+                  transition: Transition.rightToLeft,
+                  popGesture: true, // 右滑，返回上一页
                 );
               }
             },

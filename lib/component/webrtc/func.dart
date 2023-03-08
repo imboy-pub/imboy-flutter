@@ -152,13 +152,15 @@ Future<void> incomingCallScreen(
                     caller: false,
                   );
                 },
-                child: option['media'] == 'video' ? const Icon(
-                  Icons.videocam,
-                  color: Colors.white,
-                  ) : const Icon(
-                  Icons.phone,
-                  color: Colors.white,
-                ),
+                child: option['media'] == 'video'
+                    ? const Icon(
+                        Icons.videocam,
+                        color: Colors.white,
+                      )
+                    : const Icon(
+                        Icons.phone,
+                        color: Colors.white,
+                      ),
               ),
             ),
           ]),

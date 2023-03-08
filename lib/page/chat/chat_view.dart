@@ -102,6 +102,7 @@ class ChatPageState extends State<ChatPage> {
     if (!mounted) {
       return;
     }
+    // 检查WS链接状态
     WSService.to.openSocket();
     initData();
     unawaited(_handleEndReached());
@@ -195,7 +196,8 @@ class ChatPageState extends State<ChatPage> {
           galleryLogic.pushToGallery(msg.id, msg.uri);
         }
         //enum Status { delivered, error, seen, sending, sent }
-        if (msg.author.id == widget.peerId && msg.status != types.Status.seen) {
+        if (msg.author.id != UserRepoLocal.to.currentUid &&
+            msg.status != types.Status.seen) {
           msgIds.add(msg.id);
         }
       }
@@ -411,16 +413,19 @@ class ChatPageState extends State<ChatPage> {
     if (obj == null) {
       return;
     }
+    final List<double> waveform = obj.waveform;
+    debugPrint("> on _handleVoiceSelection1 ${obj.waveform.toString()}");
     await AttachmentProvider.uploadFile('audio', obj.file, (
       Map<String, dynamic> resp,
       String uri,
     ) async {
+      debugPrint("> on _handleVoiceSelection2 ${waveform.toString()}");
       Map<String, dynamic> metadata = {
         'custom_type': 'audio',
         'uri': uri,
         'size': (await obj.file.readAsBytes()).length,
         'duration_ms': obj.duration.inMilliseconds,
-        'wave_form': obj.waveForm,
+        'waveform': waveform,
         'mime_type': obj.mimeType,
       };
       debugPrint("> on upload metadata: ${metadata.toString()}");
@@ -815,6 +820,9 @@ class ChatPageState extends State<ChatPage> {
                 // 收起输聊天底部弹出框
                 AnimationController bottomHeightController = getx.Get.find();
                 bottomHeightController.animateBack(0);
+                setState(() {
+                  quoteMessage = null;
+                });
               },
               onMessageTap: (BuildContext c1, types.Message message) async {
                 if (message is types.ImageMessage) {

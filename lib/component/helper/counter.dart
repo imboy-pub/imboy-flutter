@@ -23,7 +23,7 @@ class Counter {
   });
 
   String formatTime(int timeNum) {
-    return timeNum < 10 ? "0$timeNum": timeNum.toString();
+    return timeNum < 10 ? "0$timeNum" : timeNum.toString();
   }
 
   String constructTime(int seconds) {

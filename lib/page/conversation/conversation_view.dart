@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
@@ -225,19 +224,17 @@ class _ConversationPageState extends State<ConversationPage> {
                                 : 0.obs;
                         return InkWell(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              CupertinoPageRoute( // 右滑，返回上一页
-                                builder: (_) => ChatPage(
-                                  conversationId: model.id,
-                                  peerId: model.peerId,
-                                  peerTitle: model.title,
-                                  peerAvatar: model.avatar,
-                                  peerSign: model.sign,
-                                  type:
-                                      strEmpty(model.type) ? 'C2C' : model.type,
-                                ),
+                            Get.to(
+                              ChatPage(
+                                conversationId: model.id,
+                                peerId: model.peerId,
+                                peerTitle: model.title,
+                                peerAvatar: model.avatar,
+                                peerSign: model.sign,
+                                type: strEmpty(model.type) ? 'C2C' : model.type,
                               ),
+                              transition: Transition.rightToLeft,
+                              popGesture: true, // 右滑，返回上一页
                             );
                           },
                           onTapDown: (TapDownDetails details) {},

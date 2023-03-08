@@ -99,8 +99,7 @@ class MoreView extends StatelessWidget {
             backgroundColor: Colors.white,
           ),
           child: Container(
-            padding:
-                const EdgeInsets.only(top: 15.0, bottom: 15.0, right: 5.0),
+            padding: const EdgeInsets.only(top: 15.0, bottom: 15.0, right: 5.0),
             margin: const EdgeInsets.only(
               left: 20.0,
             ),
@@ -154,8 +153,8 @@ class MoreView extends StatelessWidget {
                 value: UserRepoLocal.to.currentUser.sign,
                 field: 'text',
                 callback: (sign) async {
-                  bool ok = await logic
-                      .changeInfo({"field": "sign", "value": sign});
+                  bool ok =
+                      await logic.changeInfo({"field": "sign", "value": sign});
                   if (ok) {
                     Map<String, dynamic> payload =
                         UserRepoLocal.to.currentUser.toJson();

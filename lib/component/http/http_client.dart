@@ -33,9 +33,15 @@ class HttpClient {
     options ??= BaseOptions(
       baseUrl: dioConfig?.baseUrl ?? "",
       contentType: 'application/x-www-form-urlencoded',
-      connectTimeout: Duration(milliseconds: dioConfig?.connectTimeout ?? Duration.millisecondsPerMinute),
-      sendTimeout: Duration(milliseconds: dioConfig?.sendTimeout ?? Duration.millisecondsPerMinute),
-      receiveTimeout: Duration(milliseconds: dioConfig?.receiveTimeout ?? Duration.millisecondsPerMinute),
+      connectTimeout: Duration(
+          milliseconds:
+              dioConfig?.connectTimeout ?? Duration.millisecondsPerMinute),
+      sendTimeout: Duration(
+          milliseconds:
+              dioConfig?.sendTimeout ?? Duration.millisecondsPerMinute),
+      receiveTimeout: Duration(
+          milliseconds:
+              dioConfig?.receiveTimeout ?? Duration.millisecondsPerMinute),
     )..headers = dioConfig?.headers;
 
     _dio = Dio(options);
@@ -52,11 +58,12 @@ class HttpClient {
     if (dioConfig?.interceptors?.isNotEmpty ?? false) {
       _dio.interceptors.addAll(dioConfig!.interceptors!);
     }
-    _dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (client) {
-      client.badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-      return client;
-    };
+    _dio.httpClientAdapter = IOHttpClientAdapter()
+      ..onHttpClientCreate = (client) {
+        client.badCertificateCallback =
+            (X509Certificate cert, String host, int port) => true;
+        return client;
+      };
 
     if (dioConfig?.proxy?.isNotEmpty ?? false) {
       setProxy(dioConfig!.proxy!);
@@ -64,16 +71,17 @@ class HttpClient {
   }
 
   setProxy(String proxy) {
-    _dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (client) {
-      // config the http client
-      client.findProxy = (uri) {
-        // proxy all request to localhost:8888
-        return "PROXY $proxy";
+    _dio.httpClientAdapter = IOHttpClientAdapter()
+      ..onHttpClientCreate = (client) {
+        // config the http client
+        client.findProxy = (uri) {
+          // proxy all request to localhost:8888
+          return "PROXY $proxy";
+        };
+        return null;
+        // you can also create a HttpClient to dio
+        // return HttpClient();
       };
-      return null;
-      // you can also create a HttpClient to dio
-      // return HttpClient();
-    };
   }
 
   Future<void> _setDefaultConfig() async {

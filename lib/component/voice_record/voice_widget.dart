@@ -22,13 +22,13 @@ class AudioFile {
     required this.file,
     required this.duration,
     required this.mimeType,
-    required this.waveForm,
+    required this.waveform,
   });
 
   final File file;
   final Duration duration;
   final String mimeType;
-  final List<double> waveForm;
+  final List<double> waveform;
 }
 
 class VoiceWidget extends StatefulWidget {
@@ -65,7 +65,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   String voiceIco = "assets/images/chat/voice_volume_1.png";
 
   Duration recordingDuration = const Duration();
-  final List<double> waveForm = [];
+  final List<double> waveform = [];
   late String recordingMimeType;
   late Codec recordCodec;
 
@@ -178,15 +178,16 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     if (isUp) {
       // print("取消发送");
     } else if (strNoEmpty(filePath)) {
-      debugPrint("进行发送 $filePath");
-      widget.stopRecord!.call(AudioFile(
-                file: File(filePath),
-                duration: recordingDuration,
-                waveForm: waveForm,
-                mimeType: recordingMimeType,
-              ),
+      debugPrint("进行发送 $filePath waveform ${waveform.toString()}");
+      widget.stopRecord!.call(
+        AudioFile(
+          file: File(filePath),
+          duration: recordingDuration,
+          waveform: waveform,
+          mimeType: recordingMimeType,
+        ),
       );
-      waveForm.clear();
+      waveform.clear();
     }
   }
 
@@ -235,9 +236,10 @@ class _VoiceWidgetState extends State<VoiceWidget> {
       }
     }
     session ??= await AudioSession.instance;
-    await session?.configure(AudioSessionConfiguration(
-      avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
-      avAudioSessionCategoryOptions:
+    await session?.configure(
+      AudioSessionConfiguration(
+        avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+        avAudioSessionCategoryOptions:
             AVAudioSessionCategoryOptions.allowBluetooth |
                 AVAudioSessionCategoryOptions.defaultToSpeaker,
         avAudioSessionMode: AVAudioSessionMode.spokenAudio,
@@ -251,7 +253,8 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         ),
         androidAudioFocusGainType: AndroidAudioFocusGainType.gain,
         androidWillPauseWhenDucked: true,
-    ),);
+      ),
+    );
   }
 
   // -------  Here is the code to playback  -----------------------
@@ -294,7 +297,8 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         audioSource: AudioSource.microphone,
       );
 
-      waveForm.clear();
+      waveform.clear();
+
       /// 监听录音
       recorderSubscription = recorderModule.onProgress!.listen((e) {
         debugPrint("> on record listen e ${e.toString()} ${DateTime.now()}");
@@ -305,7 +309,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         if (e.decibels != null) {
           recordingDuration = e.duration;
           dbLevel = e.decibels as double;
-          waveForm.add(dbLevel);
+          waveform.add(dbLevel);
 
           DateTime date = DateTime.fromMillisecondsSinceEpoch(
             e.duration.inMilliseconds,

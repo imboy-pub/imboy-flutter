@@ -46,6 +46,7 @@ class UserRepoLocal extends GetxController {
     await StorageService.to.setMap(Keys.currentUser, payload);
     Sqlite.instance.database;
     // 初始化 WebSocket 链接
+    // 检查WS链接状
     WSService.to.openSocket();
     return true;
   }

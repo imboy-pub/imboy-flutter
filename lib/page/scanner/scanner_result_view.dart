@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -106,17 +105,16 @@ class ScannerResultPage extends StatelessWidget {
                   text: '发消息',
                   isBorder: true,
                   onPressed: () {
-                    Navigator.push(
-                      Get.context!,
-                      CupertinoPageRoute( // 右滑，返回上一页
-                        builder: (_) => ChatPage(
-                          peerId: id,
-                          peerTitle: nickname,
-                          peerAvatar: avatar,
-                          peerSign: sign,
-                          type: 'C2C',
-                        ),
+                    Get.to(
+                      ChatPage(
+                        peerId: id,
+                        peerTitle: nickname,
+                        peerAvatar: avatar,
+                        peerSign: sign,
+                        type: 'C2C',
                       ),
+                      transition: Transition.rightToLeft,
+                      popGesture: true, // 右滑，返回上一页
                     );
                   }),
             )

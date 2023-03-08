@@ -17,7 +17,7 @@ class LifecycleEventHandler extends WidgetsBindingObserver {
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
       case AppLifecycleState.resumed: // 恢复
-          await resumeCallBack();
+        await resumeCallBack();
         break;
       case AppLifecycleState.inactive: // 不活跃的
         break;
@@ -25,7 +25,7 @@ class LifecycleEventHandler extends WidgetsBindingObserver {
         await pausedCallBack();
         break;
       case AppLifecycleState.detached: // 分离的
-          await suspendingCallBack();
+        await suspendingCallBack();
         break;
     }
   }

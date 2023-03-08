@@ -57,5 +57,4 @@ class AppPages {
 //   name: AppRoutes.NotFound,
 //   page: () => NotfoundView(),
 // );
-
 }

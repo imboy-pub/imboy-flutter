@@ -6,9 +6,11 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 // ignore: implementation_imports
 import 'package:flutter_chat_ui/src/util.dart' show formatBytes;
 // ignore: implementation_imports
-import 'package:flutter_chat_ui/src/widgets/state/inherited_chat_theme.dart' show InheritedChatTheme;
+import 'package:flutter_chat_ui/src/widgets/state/inherited_chat_theme.dart'
+    show InheritedChatTheme;
 // ignore: implementation_imports
-import 'package:flutter_chat_ui/src/widgets/state/inherited_user.dart' show InheritedUser;
+import 'package:flutter_chat_ui/src/widgets/state/inherited_user.dart'
+    show InheritedUser;
 import 'package:imboy/component/helper/func.dart';
 
 /// A class that represents image message widget. Supports different
@@ -119,11 +121,11 @@ class _ImageMessageState extends State<ImageMessageBuilder> {
                       widget.message.name,
                       style: user.id == widget.message.author.id
                           ? InheritedChatTheme.of(context)
-                          .theme
-                          .sentMessageBodyTextStyle
+                              .theme
+                              .sentMessageBodyTextStyle
                           : InheritedChatTheme.of(context)
-                          .theme
-                          .receivedMessageBodyTextStyle,
+                              .theme
+                              .receivedMessageBodyTextStyle,
                       textWidthBasis: TextWidthBasis.longestLine,
                     ),
                     Container(
@@ -134,11 +136,11 @@ class _ImageMessageState extends State<ImageMessageBuilder> {
                         formatBytes(widget.message.size.truncate()),
                         style: user.id == widget.message.author.id
                             ? InheritedChatTheme.of(context)
-                            .theme
-                            .sentMessageCaptionTextStyle
+                                .theme
+                                .sentMessageCaptionTextStyle
                             : InheritedChatTheme.of(context)
-                            .theme
-                            .receivedMessageCaptionTextStyle,
+                                .theme
+                                .receivedMessageCaptionTextStyle,
                       ),
                     ),
                   ],

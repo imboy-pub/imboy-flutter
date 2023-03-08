@@ -63,7 +63,7 @@ class IMBoyImageGallery extends StatelessWidget {
               PhotoViewGallery.builder(
                 builder: (BuildContext context, int index) =>
                     PhotoViewGalleryPageOptions(
-                  imageProvider: cachedImageProvider(images[index].uri, w:0),
+                  imageProvider: cachedImageProvider(images[index].uri, w: 0),
                   minScale: options.minScale,
                   maxScale: options.maxScale,
                 ),

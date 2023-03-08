@@ -8,7 +8,6 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 
-
 // ignore: must_be_immutable
 class AboutIMBoyPage extends StatelessWidget {
   AboutIMBoyPage({super.key});
@@ -32,8 +31,8 @@ class AboutIMBoyPage extends StatelessWidget {
       body: Container(
           color: AppColors.primaryBackground,
           child: Obx(
-        () => Markdown(data: mdstring.value),
-      )),
+            () => Markdown(data: mdstring.value),
+          )),
     );
   }
 }

@@ -24,11 +24,9 @@ class AttachmentProvider {
     String prefix,
     Map<String, dynamic> data,
     Function callback,
-    Function errorCallback,
-    {
-      bool process = true,
-    }
-  ) async {
+    Function errorCallback, {
+    bool process = true,
+  }) async {
     int ts = DateTimeHelper.currentTimeMillis();
     DateTime dt = DateTime.fromMillisecondsSinceEpoch(ts);
     String savePath = "/$prefix/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";

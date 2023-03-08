@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/sqflite.dart';
+import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -43,6 +44,8 @@ class BottomNavigationLogic extends GetxController {
 
   //改变底部导航栏索引
   void changeBottomBarIndex(int index) {
+    // 检查WS链接状态
+    WSService.to.openSocket();
     update([
       state.bottombarIndex.value = index,
     ]);

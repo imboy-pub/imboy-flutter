@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -139,17 +138,16 @@ class ContactDetailPage extends StatelessWidget {
                   text: '发消息'.tr,
                   isBorder: true,
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      CupertinoPageRoute( // 右滑，返回上一页
-                        builder: (_) => ChatPage(
-                          peerId: id,
-                          peerTitle: title.value,
-                          peerAvatar: avatar.value,
-                          peerSign: sign.value,
-                          type: 'C2C',
-                        ),
+                    Get.to(
+                      ChatPage(
+                        peerId: id,
+                        peerTitle: title.value,
+                        peerAvatar: avatar.value,
+                        peerSign: sign.value,
+                        type: 'C2C',
                       ),
+                      transition: Transition.rightToLeft,
+                      popGesture: true, // 右滑，返回上一页
                     );
                   }),
               Visibility(

@@ -1,5 +1,4 @@
 import 'package:extended_text/extended_text.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/button.dart';
@@ -108,13 +107,12 @@ class MinePage extends StatelessWidget {
             GetBuilder<UserRepoLocal>(
               builder: (controller) => InkWell(
                 onTap: () {
-                  Navigator.push(
-                    Get.context!,
-                    CupertinoPageRoute( // 右滑，返回上一页
-                      builder: (_) => const PersonalInfoPage(),
-                    ),
+                  Get.to(
+                    const PersonalInfoPage(),
+                    transition: Transition.rightToLeft,
+                    popGesture: true, // 右滑，返回上一页
                   );
-                } ,
+                },
                 child: Container(
                   color: Colors.white,
                   height: 360,
@@ -314,11 +312,10 @@ class MinePage extends StatelessWidget {
                 titleStyle: const TextStyle(fontSize: 15.0),
                 padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
                 onPressed: () {
-                  Navigator.push(
-                    Get.context!,
-                    CupertinoPageRoute( // 右滑，返回上一页
-                      builder: (_) => AboutIMBoyPage(),
-                    ),
+                  Get.to(
+                    AboutIMBoyPage(),
+                    transition: Transition.rightToLeft,
+                    popGesture: true, // 右滑，返回上一页
                   );
                 },
                 width: 25.0,

@@ -23,7 +23,7 @@ class UserProvider extends HttpClient {
   }
 
   Future<String> refreshAccessToken(String refreshtoken) async {
-    if(strEmpty(refreshtoken)) {
+    if (strEmpty(refreshtoken)) {
       Get.to(PassportPage());
     }
     var connectivityResult = await (Connectivity().checkConnectivity());
