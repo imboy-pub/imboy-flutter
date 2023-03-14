@@ -10,6 +10,7 @@ import 'package:imboy/component/ui/image_view.dart';
 import 'package:imboy/config/const.dart';
 
 import 'message_audio_builder.dart';
+import 'message_location_builder.dart';
 import 'message_quote_builder.dart';
 import 'message_revoked_builder.dart';
 import 'message_video_builder.dart';
@@ -62,6 +63,11 @@ class CustomMessageBuilder extends StatelessWidget {
         );
       } else if (customType == 'audio') {
         return AudioMessageBuilder(
+          message: message,
+          user: InheritedUser.of(context).user,
+        );
+      } else if (customType == 'location') {
+        return LocationMessageBuilder(
           message: message,
           user: InheritedUser.of(context).user,
         );

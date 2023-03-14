@@ -39,6 +39,15 @@ android {
     }
     dependencies {
         implementation "androidx.multidex:multidex:2.0.1"
+        // 高德
+        //定位功能
+        implementation "com.amap.api:location:latest.integration"
+        //3D地图
+        // implementation "com.amap.api:map3d:latest.integration"
+        implementation "com.amap.api:3dmap:8.1.0"
+        //搜索功能
+        implementation "com.amap.api:search:latest.integration"
+        // 高德 end
     }
     buildTypes {
         release {

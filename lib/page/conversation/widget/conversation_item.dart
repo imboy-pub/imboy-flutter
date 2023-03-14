@@ -104,25 +104,26 @@ class ConversationItem extends StatelessWidget {
                           n.Column(icon),
                           // 会话对象子标题
                           Expanded(
-                              child: ExtendedText(
-                            model.content,
-                            style: const TextStyle(
-                              color: AppColors.MainTextColor,
-                              fontSize: 14.0,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            overflowWidget: TextOverflowWidget(
-                              position: TextOverflowPosition.end,
-                              align: TextOverflowAlign.left,
-                              child: n.Row(
-                                const [
-                                  Text('...'),
-                                ],
-                                mainAxisSize: MainAxisSize.min,
+                            child: ExtendedText(
+                              model.content,
+                              style: const TextStyle(
+                                color: AppColors.MainTextColor,
+                                fontSize: 14.0,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              overflowWidget: TextOverflowWidget(
+                                position: TextOverflowPosition.end,
+                                align: TextOverflowAlign.left,
+                                child: n.Row(
+                                  const [
+                                    Text('...'),
+                                  ],
+                                  mainAxisSize: MainAxisSize.min,
+                                ),
                               ),
                             ),
-                          )),
+                          ),
                         ],
                       ),
                     ),

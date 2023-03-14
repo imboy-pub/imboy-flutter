@@ -1,6 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:fl_amap/fl_amap.dart' as flmap;
+import 'package:imboy/component/location/index.dart';
+import 'package:imboy/component/location/widget.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/user_model.dart';
@@ -71,12 +77,15 @@ class ExtraItems extends StatefulWidget {
     this.handleImageSelection,
     this.handleFileSelection,
     this.handlePickerSelection,
+    this.handleLocationSelection,
     required this.options,
   }) : super(key: key);
   final Map options;
   final void Function()? handleImageSelection;
   final void Function()? handleFileSelection;
   final void Function()? handlePickerSelection;
+  final void Function(String, Uint8List, String, String, String, String)?
+      handleLocationSelection;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -146,7 +155,47 @@ class _ExtraItemsState extends State<ExtraItems> {
               ExtraItem(
                 title: "位置".tr,
                 image: const Icon(Icons.location_on, size: iconSize),
-                onPressed: null,
+                onPressed: () async {
+                  flmap.AMapLocation? location = await getLocation(true);
+                  debugPrint("getLocation ${location?.toMap()}");
+                  if (location != null && location.latLng != null) {
+                    // ignore: use_build_context_synchronously
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MapLocationPicker(arguments: {
+                          "lat": double.parse(
+                              location.latLng!.latitude.toString()),
+                          "lng": double.parse(
+                              location.latLng!.longitude.toString()),
+                          "citycode": LocationHelper.getCityNameByGaoDe(
+                              location.adCode!),
+                          "isMapImage": true
+                        }),
+                      ),
+                    ).then((value) {
+                      debugPrint("getLocation MapLocationPicker_reslut $value");
+                      if (value != null) {
+                        if (value["image"] == null) {
+                          EasyLoading.showError("获取地图失败,请重试".tr);
+                          FocusScope.of(context).requestFocus(FocusNode());
+                          return;
+                        }
+                        if (widget.handleLocationSelection != null &&
+                            value["image"] != null) {
+                          widget.handleLocationSelection!(
+                            value["id"],
+                            value["image"],
+                            value["address"],
+                            value["title"],
+                            value["latitude"].toString(),
+                            value["longitude"].toString(),
+                          );
+                        }
+                      }
+                    });
+                  }
+                },
               ),
               ExtraItem(
                 title: "收藏".tr,
@@ -176,12 +225,12 @@ class _ExtraItemsState extends State<ExtraItems> {
               onPressed: widget.handleFileSelection,
             ),
             /**
-            ExtraItem(
-              title: "卡券".tr,
-              image: const AssetImage('assets/images/chat/extra_wallet.png'),
-              onPressed: null,
-            ),
-            */
+                ExtraItem(
+                title: "卡券".tr,
+                image: const AssetImage('assets/images/chat/extra_wallet.png'),
+                onPressed: null,
+                ),
+             */
           ]),
         ],
       ),

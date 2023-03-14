@@ -149,8 +149,10 @@ class ChatLogic extends GetxController {
     }
     if (message is types.TextMessage) {
       subtitle = message.text;
-    } else if (customType == 'quote') {
+    } else if (customType == "quote") {
       subtitle = message.metadata?['quote_text'] ?? '';
+    } else if (customType == "location") {
+      subtitle = message.metadata?['title'] ?? '';
     }
 
     // message.status = types.Status.sent;

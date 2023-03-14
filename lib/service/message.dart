@@ -197,8 +197,10 @@ class MessageService extends GetxService {
     }
     if (msgtype == 'quote') {
       subtitle = data['payload']['quote_text'] ?? '';
+    } else if (msgtype == 'location') {
+      subtitle = data['payload']['title'] ?? '';
     }
-    ConversationModel cobj = ConversationModel(
+    ConversationModel conversationObj = ConversationModel(
       peerId: data['from'],
       avatar: avatar,
       title: title,
@@ -211,7 +213,7 @@ class MessageService extends GetxService {
       isShow: 1,
       id: 0,
     );
-    cobj = await (ConversationRepo()).save(cobj);
+    conversationObj = await (ConversationRepo()).save(conversationObj);
 
     MessageModel msg = MessageModel(
       data['id'],
@@ -221,7 +223,7 @@ class MessageService extends GetxService {
       payload: data['payload'],
       createdAt: data['created_at'],
       serverTs: data['server_ts'],
-      conversationId: cobj.id,
+      conversationId: conversationObj.id,
       status: MessageStatus.delivered,
     );
     int? exited = await (MessageRepo()).save(msg);
@@ -233,7 +235,7 @@ class MessageService extends GetxService {
       return;
     }
 
-    eventBus.fire(cobj);
+    eventBus.fire(conversationObj);
     // 收到一个消息，步增会话消息 1
     cvlogic.increaseConversationRemind(data['from'], 1);
     types.Message tMsg = msg.toTypeMessage();

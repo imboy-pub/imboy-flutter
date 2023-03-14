@@ -66,7 +66,7 @@ dependencies:
   video_player: ^2.5.3
   chewie: ^1.4.0
   webview_flutter: ^4.0.6
-  image_picker: ^0.8.6+4
+  image_picker: ^0.8.7
   mime: ^1.0.4
   file_picker: ^5.2.5
   #open_file: ^3.2.1
@@ -77,12 +77,8 @@ dependencies:
   # 是否联网及网络类型
   connectivity_plus: ^3.0.3
   flutter_screenutil: ^5.6.1
-  #pull_to_refresh: ^2.0.0
-  pull_to_refresh:
-    git:
-      url: https://gitee.com/imboy-tripartite-deps/flutter_pulltorefresh.git
-      ref: leeyi
-  #pull_to_refresh_flutter3: ^2.0.1
+  # 页面刷新
+  easy_refresh: ^3.3.1
   package_info_plus: ^3.0.3
   device_info_plus: ^8.1.0
   event_bus: ^2.0.0
@@ -161,9 +157,20 @@ dependencies:
   flutter_blurhash: ^0.7.0
   clock: ^1.1.1
   flutter_markdown: ^0.6.14
-  location: ^5.0.0-dev.8
   flutter_webrtc: ^0.9.24
   http: ^0.13.5
+  # 下载更新
+  flutter_downloader: ^1.10.2
+  # 滑动吸顶
+  sliding_up_panel: ^2.0.0+1
+  map_launcher: ^2.5.0+1
+  # 高德地图
+  fl_amap: ^2.5.1
+  amap_flutter_location: ^3.0.0
+  amap_flutter_map: ^3.0.0
+  amap_flutter_base: ^3.0.0
+  flutter_svg: ^2.0.3
+
   #  flutter_webrtc:
   #    git:
   #      url: https://gitee.com/imboy-tripartite-deps/flutter-webrtc.git
@@ -173,8 +180,6 @@ dependencies:
   #   git:
   #     url: https://gitee.com/imboy-tripartite-deps/dart-sip-ua.git
   #     ref: master
-  # flutter_login:
-  #  path: plugin/flutter_login
 
 dev_dependencies:
   build_runner: ^2.3.3

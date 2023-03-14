@@ -26,8 +26,7 @@ String randomId({int size = 21}) {
 
 ///验证网页URl
 bool isUrl(String value) {
-  RegExp url = RegExp(r"^((https|http|ftp|rtsp|mms)?:\/\/)[^\s]+");
-
+  RegExp url = RegExp(r"^((https|http|ftp|rtsp|mms)?:\/\/)\S+");
   return url.hasMatch(value);
 }
 
@@ -40,8 +39,8 @@ bool isIdCard(String value) {
 
 ///正浮点数
 bool isMoney(String value) {
-  RegExp identity = RegExp(
-      r"^(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*))$");
+  RegExp identity =
+      RegExp(r"^((\d+\.\d*[1-9]\d*)|(\d*[1-9]\d*\.\d+)|(\d*[1-9]\d*))$");
   return identity.hasMatch(value);
 }
 

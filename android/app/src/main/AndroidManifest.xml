@@ -1,25 +1,46 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="pub.imoby.apk">
+    <!--允许访问网络，必选权限-->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!--后台获取位置信息，若需后台定位则必选-->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
+    <!--允许读设备等信息，用于问题排查-->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!--允许写入扩展存储，用于写入缓存定位数据-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.GET_COMMON_DATA" />
+    <!--允许获取精确位置，精准定位必选-->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!--允许获取粗略位置，粗略定位必选-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!--允许获取设备和运营商信息，用于问题排查和网络定位（无gps情况下的定位），若需网络定位功能则必选-->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!--允许获取网络状态，用于网络定位（无gps情况下的定位），若需网络定位功能则必选-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!--允许获取wifi网络信息，用于网络定位（无gps情况下的定位），若需网络定位功能则必选-->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!--允许获取wifi状态改变，用于网络定位（无gps情况下的定位），若需网络定位功能则必选-->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <!--用于申请调用A-GPS模块,卫星定位加速-->
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
+    <!--允许写设备缓存，用于问题排查-->
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
+    <!--用于申请获取蓝牙信息进行室内定位-->
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
     <application
         android:label="IMBoy"
         android:icon="@mipmap/ic_launcher"
@@ -67,6 +88,8 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- 高德定位Service -->
+        <service android:name="com.amap.api.location.APSService"/>
     </application>
 
     <queries>

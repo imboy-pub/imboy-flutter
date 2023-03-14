@@ -26,8 +26,8 @@ imboy 的Flutter项目
 ## 功能树
 
 * 大概的大大小小功能实现情况：
-    * TODO 78
-    * OK 69
+    * TODO 77
+    * OK 70
 
 [查看](./doc/feature_tree.md)
 
@@ -72,6 +72,14 @@ get generate locales assets/locales on lib/component/locales
 ```
 
 ## 开发环境遇到的一些问题
+
+### Mac本下Android项目获取调试版SHA1和发布版SHA1
+```
+keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
+
+keytool -list -v -keystore ~/.android/debug.keystore
+```
+输入密钥库口令 android 回车键，就可以看到调试版SHA1啦！
 
 ### 临时解决 CocoaPods not installed. Skipping pod install
 

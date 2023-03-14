@@ -44,8 +44,23 @@ post_install do |installer|
       #  Preprocessor definitions can be found in: https://github.com/Baseflow/flutter-permission-handler/blob/master/permission_handler_apple/ios/Classes/PermissionHandlerEnums.h
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
         '$(inherited)',
-        # dart: PermissionGroup.microphone
+        ## dart: PermissionGroup.camera
+       'PERMISSION_CAMERA=1',
+
+        ## dart: PermissionGroup.microphone
         'PERMISSION_MICROPHONE=1',
+
+        ## dart: PermissionGroup.speech
+        'PERMISSION_SPEECH_RECOGNIZER=1',
+
+        ## dart: PermissionGroup.photos
+        'PERMISSION_PHOTOS=1',
+
+        ## dart: [PermissionGroup.location, PermissionGroup.locationAlways, PermissionGroup.locationWhenInUse]
+        'PERMISSION_LOCATION=1',
+
+        ## dart: PermissionGroup.notification
+        'PERMISSION_NOTIFICATIONS=1',
       ]
      end
   end

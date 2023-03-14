@@ -16,7 +16,6 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'component/locales/locales.dart';
@@ -71,52 +70,44 @@ class IMBoyApp extends StatelessWidget {
       designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (_, child) => RefreshConfiguration(
-        headerBuilder: () => const ClassicHeader(),
-        footerBuilder: () => const ClassicFooter(),
-        hideFooterWhenNotFull: true,
-        headerTriggerDistance: 80,
-        maxOverScrollExtent: 100,
-        footerTriggerDistance: 150,
-        child: GetMaterialApp(
-          navigatorKey: navigatorKey,
-          title: 'IMBoy',
-          // 底部导航组件
-          home: UserRepoLocal.to.isLogin
-              ? BottomNavigationPage()
-              : PassportPage(),
-          debugShowCheckedModeBanner: false,
-          getPages: AppPages.routes,
-          // initialRoute: AppPages.INITIAL,
-          // translations: TranslationService(),
-          navigatorObservers: [AppPages.observer],
-          // localizationsDelegates: [
-          //   GlobalMaterialLocalizations.delegate,
-          //   GlobalWidgetsLocalizations.delegate,
-          //   GlobalCupertinoLocalizations.delegate,
-          // ],
-          translationsKeys: AppTranslation.translations,
+      builder: (_, child) => GetMaterialApp(
+        navigatorKey: navigatorKey,
+        title: 'IMBoy',
+        // 底部导航组件
+        home: UserRepoLocal.to.isLogin
+            ? BottomNavigationPage()
+            : PassportPage(),
+        debugShowCheckedModeBanner: false,
+        getPages: AppPages.routes,
+        // initialRoute: AppPages.INITIAL,
+        // translations: TranslationService(),
+        navigatorObservers: [AppPages.observer],
+        // localizationsDelegates: [
+        //   GlobalMaterialLocalizations.delegate,
+        //   GlobalWidgetsLocalizations.delegate,
+        //   GlobalCupertinoLocalizations.delegate,
+        // ],
+        translationsKeys: AppTranslation.translations,
 
-          translations: IMBoyTranslations(), // 你的翻译
-          locale: const Locale('zh', 'CN'), // 将会按照此处指定的语言翻译
-          fallbackLocale: const Locale('en', 'US'), // 添加一个回调语言选项，以备上面指定的语言翻译不存在
-          defaultTransition: Transition.fade,
-          opaqueRoute: Get.isOpaqueRouteDefault,
-          popGesture: Get.isPopGestureEnable,
-          // theme: Get.find<ThemeController>().darkMode == 0
-          //     ? ThemeData.light()
-          //     : ThemeData.dark(),
-          builder: EasyLoading.init(),
-          theme: ThemeData(
-            platform: TargetPlatform.iOS,
-            brightness: Get.find<ThemeController>().darkMode == 0
-                ? Brightness.light
-                : Brightness.dark,
-            primarySwatch: createMaterialColor(const Color(0xFF223344)),
-          ),
-          enableLog: true,
-          logWriterCallback: Logger.write,
+        translations: IMBoyTranslations(), // 你的翻译
+        locale: const Locale('zh', 'CN'), // 将会按照此处指定的语言翻译
+        fallbackLocale: const Locale('en', 'US'), // 添加一个回调语言选项，以备上面指定的语言翻译不存在
+        defaultTransition: Transition.fade,
+        opaqueRoute: Get.isOpaqueRouteDefault,
+        popGesture: Get.isPopGestureEnable,
+        // theme: Get.find<ThemeController>().darkMode == 0
+        //     ? ThemeData.light()
+        //     : ThemeData.dark(),
+        builder: EasyLoading.init(),
+        theme: ThemeData(
+          platform: TargetPlatform.iOS,
+          brightness: Get.find<ThemeController>().darkMode == 0
+              ? Brightness.light
+              : Brightness.dark,
+          primarySwatch: createMaterialColor(const Color(0xFF223344)),
         ),
+        enableLog: true,
+        logWriterCallback: Logger.write,
       ),
     );
   }

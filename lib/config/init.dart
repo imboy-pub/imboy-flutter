@@ -22,6 +22,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:logger/logger.dart';
+import 'package:map_launcher/map_launcher.dart';
 import 'package:sqflite/sqflite.dart';
 
 // ignore: prefer_generic_function_type_aliases
@@ -57,9 +58,14 @@ class GlobalHttpOverrides extends io.HttpOverrides {
   }
 }
 
+List<AvailableMap> availableMaps = [];
+
 Future<void> init() async {
   // 解决使用自签证书报错问题
   io.HttpOverrides.global = GlobalHttpOverrides();
+
+  availableMaps = await MapLauncher.installedMaps;
+  debugPrint("availableMaps ${availableMaps}");
 
   await dotenv.load(fileName: "assets/.env"); //
   // debugPrint(">>> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");

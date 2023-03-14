@@ -37,8 +37,8 @@
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
-        <key>NSAllowsArbitraryLoadsInWebContent</key>
-        <true/>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+		<true/>
 	</dict>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>IMBoy does not need this permission</string>
@@ -49,7 +49,7 @@
 	<key>NSContactsUsageDescription</key>
 	<string>IMBoy does not need this permission</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>IMBoy does not need this permission</string>
+	<string>请允许$(PRODUCT_NAME)获取您的位置信息</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>IMBoy uses the microphone to record your speech and convert it to text.</string>
 	<key>NSMotionUsageDescription</key>
@@ -58,10 +58,14 @@
 	<string>请允许$(PRODUCT_NAME)保存图片到相册</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>请允许$(PRODUCT_NAME)访问您的相册</string>
+	<key>NSLocationUsageDescription</key>
+	<string>请允许$(PRODUCT_NAME)获取您的位置信息</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>请允许$(PRODUCT_NAME)获取您的位置信息</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>This app needs access to location when open and in the background.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>IMBoy does not need this permission</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>The app needs the location</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

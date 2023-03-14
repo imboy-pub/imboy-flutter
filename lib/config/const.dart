@@ -24,6 +24,11 @@ String SENTRY_DSN = dotenv.get('SENTRY_DSN');
 //附件上传认证密钥
 String UP_AUTH_KEY = dotenv.get('UP_AUTH_KEY');
 
+///高德地图 key
+String AMAP_WEBS_KEY = dotenv.get('AMAP_WEBS_KEY');
+String AMAP_IOS_KEY = dotenv.get('AMAP_IOS_KEY');
+String AMAP_ANDROID_KEY = dotenv.get('AMAP_ANDROID_KEY');
+
 String WS_URL = dotenv.get('WS_URL');
 String STUN_URL = dotenv.get('STUN_URL');
 String TURN_URL = dotenv.get('TURN_URL');

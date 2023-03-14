@@ -13,6 +13,7 @@ import 'package:imboy/page/chat/send_to/send_to_view.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:mime/mime.dart';
 import 'package:niku/namespace.dart' as n;
+import 'package:path_provider/path_provider.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:xid/xid.dart';
@@ -270,7 +271,7 @@ class ChatPageState extends State<ChatPage> {
           remoteId: widget.peerId,
           status: types.Status.sending,
         );
-
+        // 上传现有的附件，是不需要清理临时文件的
         _addMessage(message);
       }, (DioError error) {
         debugPrint(">>> on upload ${error.toString()}");
@@ -296,7 +297,7 @@ class ChatPageState extends State<ChatPage> {
       if (mounted) {
         setState(() {});
       }
-      await AttachmentProvider.uploadImg("camera", entity, (
+      await AttachmentProvider.uploadVideo("camera", entity, (
         Map<String, dynamic> resp,
         String imgUrl,
       ) async {
@@ -323,7 +324,7 @@ class ChatPageState extends State<ChatPage> {
             'thumb': (resp['thumb'] as EntityImage).toJson(),
             'video': (resp['video'] as EntityVideo).toJson(),
           };
-          debugPrint(">>> on upload metadata: ${metadata.toString()}");
+          debugPrint("> on upload metadata: ${metadata.toString()}");
           final message = types.CustomMessage(
             author: logic.currentUser,
             createdAt: DateTimeHelper.currentTimeMillis(),
@@ -340,6 +341,8 @@ class ChatPageState extends State<ChatPage> {
       if (mounted) {
         setState(() {});
       }
+      // 上传成功，删除本地临时文件
+      (await entity.file)?.deleteSync();
     } catch (e) {
       rethrow;
     }
@@ -355,10 +358,53 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
+  /// 发送位置消息
+  void _handleLocationSelection(
+    String id,
+    Uint8List? imageBytes,
+    String address,
+    String title,
+    String latitude,
+    String longitude,
+  ) async {
+    final tempDir = await getTemporaryDirectory();
+    final file = await File('${tempDir.path}/$id.png').create();
+    file.writeAsBytesSync(imageBytes as List<int>);
+    AttachmentProvider.uploadFile("location", file, (
+      Map<String, dynamic> resp,
+      String imgUrl,
+    ) async {
+      double w = getx.Get.width;
+      imgUrl += "&width=${w.toInt()}";
+      Map<String, dynamic> metadata = {
+        'custom_type': 'location',
+        'title': title,
+        'address': address,
+        'latitude': latitude,
+        'longitude': longitude,
+        'thumb': imgUrl,
+      };
+      debugPrint("> location metadata: ${metadata.toString()}");
+      final message = types.CustomMessage(
+        author: logic.currentUser,
+        createdAt: DateTimeHelper.currentTimeMillis(),
+        id: Xid().toString(),
+        remoteId: widget.peerId,
+        status: types.Status.sending,
+        metadata: metadata,
+      );
+      _addMessage(message);
+      // 上传成功，删除本地临时文件
+      file.deleteSync();
+    }, (DioError error) {
+      debugPrint(">>> on upload ${error.toString()}");
+    }, name: id);
+  }
+
   void _handleImageSelection() async {
     await _selectAssets(PickMethod.cameraAndStay(maxAssetsCount: 9));
     for (var entity in assets) {
-      await AttachmentProvider.uploadImg("img", entity, (
+      await AttachmentProvider.uploadVideo("img", entity, (
         Map<String, dynamic> resp,
         String imgUrl,
       ) async {
@@ -548,6 +594,7 @@ class ChatPageState extends State<ChatPage> {
       );
       bool res = await _addMessage(message);
       if (res) {
+        // 消息发送成功，取消被引用的消息提示
         updateQuoteMessage(null);
       }
       return res;
@@ -880,6 +927,8 @@ class ChatPageState extends State<ChatPage> {
                     handleFileSelection: _handleFileSelection,
                     // 拍摄
                     handlePickerSelection: _handlePickerSelection,
+                    // 位置消息
+                    handleLocationSelection: _handleLocationSelection,
                     options: {
                       "to": widget.peerId,
                       "title": widget.peerTitle,

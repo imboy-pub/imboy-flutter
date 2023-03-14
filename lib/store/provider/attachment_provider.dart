@@ -112,8 +112,8 @@ class AttachmentProvider {
     );
   }
 
-  /// 上传图片
-  static Future<void> uploadImg(
+  /// 上传视频
+  static Future<void> uploadVideo(
     String prefix,
     AssetEntity entity,
     Function callback,
