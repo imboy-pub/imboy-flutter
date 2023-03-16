@@ -19,7 +19,7 @@ class UqrcodePage extends StatelessWidget {
     String qrdata =
         "$API_BASE_URL/uqrcode?id=${UserRepoLocal.to.currentUid}&$uqrcodeDataSuffix";
 
-    int gender = UserRepoLocal.to.currentUser.gender;
+    int gender = UserRepoLocal.to.current.gender;
 
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
@@ -140,11 +140,11 @@ class UqrcodePage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10.0),
                         // color: defHeaderBgColor,
                         image:
-                            dynamicAvatar(UserRepoLocal.to.currentUser.avatar),
+                            dynamicAvatar(UserRepoLocal.to.current.avatar),
                       ),
                     ),
-                    title: Text(UserRepoLocal.to.currentUser.nickname),
-                    subtitle: Text(UserRepoLocal.to.currentUser.region),
+                    title: Text(UserRepoLocal.to.current.nickname),
+                    subtitle: Text(UserRepoLocal.to.current.region),
                     trailing: genderIcon(gender),
                   ),
                   Expanded(
@@ -171,7 +171,7 @@ class UqrcodePage extends StatelessWidget {
                           color: Colors.black,
                         ),
                         embeddedImage: cachedImageProvider(
-                            UserRepoLocal.to.currentUser.avatar),
+                            UserRepoLocal.to.current.avatar),
                         // embeddedImage: AssetImage('assets/images/logo.png'),
                         embeddedImageStyle: QrEmbeddedImageStyle(
                           size: const Size.square(64),

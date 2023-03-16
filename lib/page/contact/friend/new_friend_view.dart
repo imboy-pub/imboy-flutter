@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -187,16 +187,7 @@ class NewFriendPage extends StatelessWidget {
                                   ),
                                 ),
                                 child: n.ListTile(
-                                  leading: Container(
-                                    width: 56,
-                                    height: 56,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.rectangle,
-                                      borderRadius: BorderRadius.circular(4.0),
-                                      color: const Color(0xFFE5E5E5),
-                                      image: dynamicAvatar(model.avatar),
-                                    ),
-                                  ),
+                                  leading: Avatar(imgUri: model.avatar!, width: 56, height: 56,),
                                   title: Text(model.nickname),
                                   subtitle: Text(model.msg),
                                   trailing: Container(
@@ -210,18 +201,22 @@ class NewFriendPage extends StatelessWidget {
                                   onTap: () {
                                     // Get.to(
                                     //     () => ContactDetailPage(id: model.to));
-                                    Get.to(() => ScannerResultPage(
-                                          id: model.to,
-                                          // remark: model.payload['remark'] ?? '',
-                                          nickname: model.nickname,
-                                          avatar: model.avatar ?? defAvatar,
-                                          sign: '',
-                                          region: '',
-                                          gender: 0,
-                                          // status 0 待验证  1 已添加  2 已过期
-                                          isfriend:
-                                              model.status == 1 ? true : false,
-                                        ));
+                                    Get.to(
+                                      ScannerResultPage(
+                                        id: model.to,
+                                        // remark: model.payload['remark'] ?? '',
+                                        nickname: model.nickname,
+                                        avatar: model.avatar ?? defAvatar,
+                                        sign: '',
+                                        region: '',
+                                        gender: 0,
+                                        // status 0 待验证  1 已添加  2 已过期
+                                        isFriend:
+                                            model.status == 1 ? true : false,
+                                      ),
+                                      transition: Transition.rightToLeft,
+                                      popGesture: true, // 右滑，返回上一页
+                                    );
                                   },
                                 ),
                               ),

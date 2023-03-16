@@ -16,11 +16,17 @@ class UserRepoLocal extends GetxController {
   bool get isLogin => accessToken.isNotEmpty;
   bool get hasToken => accessToken.isNotEmpty;
 
+  //
+  UserSettingModel get setting {
+    Map<String, dynamic> u = StorageService.to.getMap(Keys.currentUser);
+    return UserSettingModel.fromJson(u['setting'] ?? {});
+  }
+
   // 令牌 token
   String get accessToken => StorageService.to.getString(Keys.tokenKey);
   String get refreshtoken => StorageService.to.getString(Keys.refreshtokenKey);
   String get currentUid => StorageService.to.getString(Keys.currentUid);
-  UserModel get currentUser => UserModel.fromJson(
+  UserModel get current => UserModel.fromJson(
         StorageService.to.getMap(Keys.currentUser),
       );
   String get lastLoginAccount =>
@@ -30,6 +36,14 @@ class UserRepoLocal extends GetxController {
   void onInit() {
     super.onInit();
     update();
+  }
+
+  Future<bool> changeSetting(UserSettingModel setting) async {
+    Map<String, dynamic> u = StorageService.to.getMap(Keys.currentUser);
+    u['setting'] = setting.toMap();
+    await StorageService.to.setMap(Keys.currentUser, u);
+    update();
+    return true;
   }
 
   Future<bool> changeInfo(Map<String, dynamic> payload) async {

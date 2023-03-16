@@ -61,8 +61,8 @@ class ConfirmNewFriendPage extends StatelessWidget {
               Map<String, dynamic> p2 = json.decode(payload);
               p2['to'] = {
                 "remark": _remarkController.text,
-                "avatar": UserRepoLocal.to.currentUser.avatar,
-                "nickname": UserRepoLocal.to.currentUser.nickname,
+                "avatar": UserRepoLocal.to.current.avatar,
+                "nickname": UserRepoLocal.to.current.nickname,
                 "role": logic.role.value, // role 可能的值 all justchat
                 "donotlookhim": logic.donotlookhim.isTrue,
                 "donotlethimlook": logic.donotlethimlook.isTrue,

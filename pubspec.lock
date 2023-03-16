@@ -41,6 +41,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "5.2.0"
+  animate_do:
+    dependency: "direct main"
+    description:
+      name: animate_do
+      sha256: "9aeacc1a7238f971c039bdf45d13c628be554a242e0251c4ddda09d19a1a923f"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.2"
   another_flushbar:
     dependency: transitive
     description:
@@ -758,14 +766,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.6.14"
-  flutter_mentions:
-    dependency: "direct main"
-    description:
-      name: flutter_mentions
-      sha256: "86206b70e14a96c195130202f258c5764ef16f406c72613dfadbaea6bc4717d2"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.1"
   flutter_native_splash:
     dependency: "direct main"
     description:
@@ -790,14 +790,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.7"
-  flutter_portal:
-    dependency: transitive
-    description:
-      name: flutter_portal
-      sha256: "0e3f9428dbe9f5253b0e65cdc5ce4fa65a1d8cd6ec2a3f3770b46785aa3c57fd"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.4.0"
   flutter_screenutil:
     dependency: "direct main"
     description:

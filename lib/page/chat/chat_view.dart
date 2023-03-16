@@ -11,6 +11,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/message/message_image_builder.dart';
 import 'package:imboy/page/chat/send_to/send_to_view.dart';
 import 'package:imboy/service/websocket.dart';
+import 'package:map_launcher/map_launcher.dart';
 import 'package:mime/mime.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:path_provider/path_provider.dart';
@@ -103,6 +104,7 @@ class ChatPageState extends State<ChatPage> {
     if (!mounted) {
       return;
     }
+
     // 检查WS链接状态
     WSService.to.openSocket();
     initData();
@@ -112,6 +114,10 @@ class ChatPageState extends State<ChatPage> {
 
   /// 初始化一些数据
   Future<void> initData() async {
+    if (availableMaps.isEmpty) {
+      availableMaps = await MapLauncher.installedMaps;
+    }
+    debugPrint("availableMaps $availableMaps");
     // 检查网络状态
     var res = await Connectivity().checkConnectivity();
     if (res == ConnectivityResult.none) {
@@ -576,7 +582,7 @@ class ChatPageState extends State<ChatPage> {
     } else {
       String quoteMsgAuthorName = quoteMessage!.author.id == widget.peerId
           ? widget.peerTitle
-          : UserRepoLocal.to.currentUser.nickname;
+          : UserRepoLocal.to.current.nickname;
       Map<String, dynamic> metadata = {
         'custom_type': 'quote',
         'quote_msg': quoteMessage?.toJson(),
@@ -940,7 +946,7 @@ class ChatPageState extends State<ChatPage> {
                   title: (quoteMessage != null &&
                           quoteMessage?.author.id ==
                               UserRepoLocal.to.currentUid)
-                      ? UserRepoLocal.to.currentUser.nickname
+                      ? UserRepoLocal.to.current.nickname
                       : widget.peerTitle,
                   message: quoteMessage,
                   close: () {

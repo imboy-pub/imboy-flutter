@@ -25,7 +25,7 @@ class Sqlite {
       return _db!;
     }
     String dbName = "${UserRepoLocal.to.currentUid}imboy.db";
-    debugPrint(">>> on Sqlite.database $dbName");
+    debugPrint("> on Sqlite.database $dbName");
     _db = await initDatabase(dbName);
     return _db!;
   }

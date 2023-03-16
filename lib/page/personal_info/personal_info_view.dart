@@ -28,7 +28,7 @@ class PersonalInfoPage extends StatefulWidget {
 class _PersonalInfoPageState extends State<PersonalInfoPage> {
   final logic = Get.put(PersonalInfoLogic());
   final PersonalInfoState state = Get.find<PersonalInfoLogic>().state;
-  String currentUserAvatar = UserRepoLocal.to.currentUser.avatar;
+  String currentUserAvatar = UserRepoLocal.to.current.avatar;
 
   ///拍摄照片
   Future fromCamera() async {
@@ -75,7 +75,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             builder: (context) => CropImageRoute(
                   originalImage,
                   "avatar",
-                  filename: UserRepoLocal.to.currentUser.uid,
+                  filename: UserRepoLocal.to.current.uid,
                 )));
     debugPrint(">>> cropImage url $url;");
     if (url.isNotEmpty) {
@@ -84,7 +84,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
         //url是图片上传后拿到的url
         setState(() {
           currentUserAvatar = url;
-          Map<String, dynamic> payload = UserRepoLocal.to.currentUser.toJson();
+          Map<String, dynamic> payload = UserRepoLocal.to.current.toMap();
           payload["avatar"] = url;
           UserRepoLocal.to.changeInfo(payload);
         });
@@ -113,7 +113,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       {
         'label': 'account',
         'title': '账号',
-        'value': UserRepoLocal.to.currentUser.account
+        'value': UserRepoLocal.to.current.account
       },
       {'label': 'user_qrcode', 'title': '二维码名片'.tr, 'value': ''},
       {'label': 'more', 'title': '更多信息'.tr, 'value': ''},
@@ -206,7 +206,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           rightW: SizedBox(
             width: Get.width - 100,
             child: ExtendedText(
-              UserRepoLocal.to.currentUser.nickname,
+              UserRepoLocal.to.current.nickname,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.right,
@@ -218,7 +218,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           onPressed: () => Get.bottomSheet(
             UpdatePage(
                 title: '设置昵称'.tr,
-                value: UserRepoLocal.to.currentUser.nickname,
+                value: UserRepoLocal.to.current.nickname,
                 field: 'input',
                 callback: (nickname) async {
                   bool ok = await logic
@@ -227,7 +227,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                     //url是图片上传后拿到的url
                     setState(() {
                       Map<String, dynamic> payload =
-                          UserRepoLocal.to.currentUser.toJson();
+                          UserRepoLocal.to.current.toMap();
                       payload["nickname"] = nickname;
                       UserRepoLocal.to.changeInfo(payload);
                     });
@@ -242,7 +242,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
         ),
         Column(
           children: data
-              .map((item) => buildContent(item, UserRepoLocal.to.currentUser))
+              .map((item) => buildContent(item, UserRepoLocal.to.current))
               .toList(),
         ),
       ])),

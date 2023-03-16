@@ -208,7 +208,7 @@ class _ExtraItemsState extends State<ExtraItems> {
                 onPressed: null,
               ),
               ExtraItem(
-                title: "个人名片".tr,
+                title: "个人名片".tr, // visit card
                 image: const Icon(Icons.person, size: iconSize),
                 onPressed: null,
               ),

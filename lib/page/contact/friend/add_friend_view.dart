@@ -32,7 +32,7 @@ class AddFriendPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _msgController.text = "${'我是'.tr} ${UserRepoLocal.to.currentUser.nickname}";
+    _msgController.text = "${'我是'.tr} ${UserRepoLocal.to.current.nickname}";
     _remarkController.text = remark;
 
     Widget secondary = const Text(
@@ -61,8 +61,8 @@ class AddFriendPage extends StatelessWidget {
                   "source": "qrcode",
                   "msg": _msgController.text,
                   "remark": _remarkController.text,
-                  "avatar": UserRepoLocal.to.currentUser.avatar,
-                  "nickname": UserRepoLocal.to.currentUser.nickname,
+                  "avatar": UserRepoLocal.to.current.avatar,
+                  "nickname": UserRepoLocal.to.current.nickname,
                   "role": logic.role.value, // role 可能的值 all justchat
                   "donotlookhim": logic.donotlookhim.isTrue,
                   "donotlethimlook": logic.donotlethimlook.isTrue,

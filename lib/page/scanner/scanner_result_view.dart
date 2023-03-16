@@ -22,7 +22,7 @@ class ScannerResultPage extends StatelessWidget {
   final String avatar;
   final String region;
   final String sign;
-  final bool isfriend;
+  final bool isFriend;
   String source;
   int gender;
 
@@ -32,7 +32,7 @@ class ScannerResultPage extends StatelessWidget {
     this.remark = "",
     required this.nickname,
     required this.avatar,
-    required this.isfriend,
+    required this.isFriend,
     this.region = "",
     this.sign = "",
     this.gender = 0,
@@ -65,17 +65,19 @@ class ScannerResultPage extends StatelessWidget {
               label: '个性签名'.tr,
               labelWidth: 68.0,
               isSpacer: false,
-              rightW: Expanded(
-                  child: Padding(
-                padding: const EdgeInsets.only(left: 24),
+              rightW: Container(
+                width: Get.width - 100,
+                padding: const EdgeInsets.only(left: 10),
                 child: Text(
-                  sign,
-                  style: TextStyle(
-                      color: AppColors.MainTextColor.withOpacity(0.7),
-                      fontWeight: FontWeight.w400),
+                sign,
+                style: TextStyle(
+                  color: AppColors.MainTextColor.withOpacity(0.7),
+                  fontWeight: FontWeight.w400,
                 ),
-              )),
-              onPressed: () {},
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
+              ),),
+              // onPressed: () {},
               isLine: true,
               isRight: false,
             ),
@@ -97,7 +99,7 @@ class ScannerResultPage extends StatelessWidget {
         onPressed: () {},
       ),
       const Space(),
-      isfriend
+      isFriend
           ? Visibility(
               visible: !itself,
               child: ButtonRow(
@@ -119,7 +121,7 @@ class ScannerResultPage extends StatelessWidget {
                   }),
             )
           : const SizedBox.shrink(),
-      if (isfriend)
+      if (isFriend)
         Visibility(
           visible: !itself,
           child: ButtonRow(
@@ -140,7 +142,7 @@ class ScannerResultPage extends StatelessWidget {
             },
           ),
         ),
-      isfriend
+      isFriend
           ? Visibility(
               visible: !itself,
               child: ButtonRow(
@@ -176,7 +178,7 @@ class ScannerResultPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // final global = Provider.of<GlobalModel>(context, listen: false);
-    var currentUser = UserRepoLocal.to.currentUser;
+    var currentUser = UserRepoLocal.to.current;
     bool isSelf = currentUser.uid == id;
     var rWidget = [
       SizedBox(

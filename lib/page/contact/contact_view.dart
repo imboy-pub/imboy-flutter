@@ -4,6 +4,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/people_nearby/people_nearby_view.dart';
+import 'package:lpinyin/lpinyin.dart';
+import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/helper/assets.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -11,8 +14,6 @@ import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/page/contact/friend/new_friend_view.dart';
 import 'package:imboy/page/search/search_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
-import 'package:lpinyin/lpinyin.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'contact_logic.dart';
 
@@ -29,6 +30,25 @@ class ContactPage extends StatelessWidget {
   void loadData() async {
     debugPrint(">>> contact loadData");
     topList = [
+      ContactModel(
+        nickname: '找附近的人'.tr,
+        nameIndex: '↑',
+        bgColor: Colors.blueAccent,
+        iconData: const Center(
+          child: Icon(
+            Icons.person_pin_circle,
+            size: 24,
+            color: Colors.white,
+          ),
+        ),
+        onPressed: () {
+          Get.to(
+            const PeopleNearbyPage(),
+            transition: Transition.rightToLeft,
+            popGesture: true, // 右滑，返回上一页
+          );
+        },
+      ),
       ContactModel(
         nickname: '新的朋友'.tr,
         nameIndex: '↑',
@@ -51,7 +71,10 @@ class ContactPage extends StatelessWidget {
                 ),
               ),
               child: const Center(
-                child: Icon(Icons.person_add),
+                child: Icon(
+                  Icons.person_add,
+                  size: 24,
+                ),
               ),
             )),
         onPressed: () {
@@ -68,8 +91,8 @@ class ContactPage extends StatelessWidget {
         bgColor: Colors.green,
         iconData: const Icon(
           Icons.people,
+          size: 24,
           color: Colors.white,
-          size: 20,
         ),
       ),
       /*

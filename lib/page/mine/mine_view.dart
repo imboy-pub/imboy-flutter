@@ -137,7 +137,7 @@ class MinePage extends StatelessWidget {
                                 const BorderRadius.all(Radius.circular(100.0)),
                             child: InkWell(
                               onTap: () {
-                                String avatar = controller.currentUser.avatar;
+                                String avatar = controller.current.avatar;
                                 Get.bottomSheet(
                                   InkWell(
                                     onTap: () {
@@ -158,8 +158,8 @@ class MinePage extends StatelessWidget {
                                   shape: BoxShape.rectangle,
                                   borderRadius: BorderRadius.circular(80.0),
                                   // color: defHeaderBgColor,
-                                  image: dynamicAvatar(
-                                      controller.currentUser.avatar),
+                                  image:
+                                      dynamicAvatar(controller.current.avatar),
                                 ),
                               ),
                             ),
@@ -176,7 +176,7 @@ class MinePage extends StatelessWidget {
                           child: n.Column(
                             <Widget>[
                               ExtendedText(
-                                controller.currentUser.nickname,
+                                controller.current.nickname,
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 18.0,
@@ -190,15 +190,15 @@ class MinePage extends StatelessWidget {
                                 padding: const EdgeInsets.only(
                                     top: 8.0, bottom: 8.0),
                                 child: Text(
-                                  '账号：'.tr + controller.currentUser.account,
+                                  '账号：'.tr + controller.current.account,
                                   style: const TextStyle(
                                     color: AppColors.MainTextColor,
                                   ),
                                 ),
                               ),
-                              strNoEmpty(controller.currentUser.region)
+                              strNoEmpty(controller.current.region)
                                   ? Text(
-                                      '地区：'.tr + controller.currentUser.region,
+                                      '地区：'.tr + controller.current.region,
                                       style: const TextStyle(
                                           color: AppColors.MainTextColor),
                                     )

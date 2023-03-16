@@ -109,7 +109,7 @@ class _ScannerPageState extends State<ScannerPage>
                           sign: payload['sign'] ?? '',
                           region: payload['region'] ?? '',
                           gender: payload['gender'] ?? 0,
-                          isfriend: payload['isfriend'] ?? false,
+                          isFriend: payload['isfriend'] ?? false,
                         ),
                       );
                     } else if (result == 'user_not_exist') {

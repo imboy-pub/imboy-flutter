@@ -181,6 +181,11 @@ class API {
   static const turnCredential = '/user/credential';
   static const userUpdate = '/user/update';
 
+  // 附近的人
+  static const peopleNearby = '/location/peopleNearby';
+  static const makeMyselfVisible = '/location/makeMyselfVisible';
+  static const makeMyselfUnvisible = '/location/makeMyselfUnvisible';
+
   static const avatarUrl = 'http://www.lorempixel.com/200/200/';
   static const cat = 'https://api.thecatapi.com/v1/images/search';
   static const upImg = "http://111.230.251.115/oldchen/fUser/oneDaySuggestion";

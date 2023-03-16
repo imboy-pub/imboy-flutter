@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
 
@@ -30,9 +31,10 @@ void confirmAlert<T>(
                 child: Text(
                   '$warmStr',
                   style: const TextStyle(
-                      color: Color(0xff343243),
-                      fontSize: 19.0,
-                      fontWeight: FontWeight.normal),
+                    color: Color(0xff343243),
+                    fontSize: 19.0,
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
               )
             : Padding(
@@ -40,9 +42,10 @@ void confirmAlert<T>(
                 child: Text(
                   '$tips',
                   style: const TextStyle(
-                      color: Color(0xff343243),
-                      fontSize: 19.0,
-                      fontWeight: FontWeight.normal),
+                    color: AppColors.ItemOnColor,
+                    fontSize: 19.0,
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
               ),
         content: isWarm
@@ -50,7 +53,7 @@ void confirmAlert<T>(
                 padding: const EdgeInsets.only(bottom: 10.0),
                 child: Text(
                   '$tips',
-                  style: const TextStyle(color: Color(0xff888697)),
+                  style: const TextStyle(color: AppColors.TipColor),
                 ),
               )
             : Container(),
@@ -60,7 +63,9 @@ void confirmAlert<T>(
             child: Text(
               cancelBtn ?? '',
               style: const TextStyle(
-                  fontWeight: FontWeight.w400, color: Colors.black),
+                fontWeight: FontWeight.w400,
+                color: Colors.black,
+              ),
             ),
             isDefaultAction: true,
             onPressed: () {

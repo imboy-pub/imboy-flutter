@@ -27,8 +27,8 @@ class ChatLogic extends GetxController {
   ChatLogic() {
     currentUser = types.User(
       id: UserRepoLocal.to.currentUid,
-      firstName: UserRepoLocal.to.currentUser.nickname,
-      imageUrl: UserRepoLocal.to.currentUser.avatar,
+      firstName: UserRepoLocal.to.current.nickname,
+      imageUrl: UserRepoLocal.to.current.avatar,
     );
   }
 

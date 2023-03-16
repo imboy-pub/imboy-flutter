@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
@@ -25,22 +26,11 @@ class LocationMessageBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // bool userIsAuthor = user.id == message.author.id;
-
-    // String nickname = userIsAuthor ? '你' : '"${message.author.firstName}"';
-    // int now = DateTimeHelper.currentTimeMillis();
     String thumb = message.metadata?['thumb'];
-    String width = Uri.parse(message.metadata?['thumb']).queryParameters['width'] ?? "" ;
-    if (width.isNotEmpty) {
-      int w = int.parse(width) * 2;
-      thumb = thumb.replaceAll('&width=$width', '&width=$w');
-    }
     ImageProvider thumbProvider = CachedNetworkImageProvider(
       thumb,
       cacheKey: generateMD5(thumb),
     );
-    // debugPrint(
-    //     "LocationMessageBuilder width $width, ${message.metadata?['thumb']} ; thumb $thumb");
     return Container(
       width: Get.width,
       height: 240,
@@ -58,38 +48,34 @@ class LocationMessageBuilder extends StatelessWidget {
                 // )
                 child: availableMaps.isEmpty
                     ? Center(
-                  child: Text('您没有安装任何地区APP哦'.tr),
-                )
+                        child: Text('您没有安装任何地区APP哦'.tr),
+                      )
                     : SingleChildScrollView(
-                  child: Wrap(
-                    //使用 ListTile 平铺布局即可
-                    children: availableMaps.map<Widget>((map) {
-                      return ListTile(
-                        onTap: () {
-                          map.showMarker(
-                            coords: Coords(
-                              double.parse(
-                                  message.metadata?['latitude']),
-                              double.parse(
-                                  message.metadata?['longitude']),
-                            ),
-                            title: message.metadata?['title'],
-                            description:
-                            message.metadata?['description'],
-                          );
-                        },
-                        title: Text(map.mapName),
-                        leading: SvgPicture.asset(
-                          map.icon,
-                          height: 30.0,
-                          width: 30.0,
+                        child: Wrap(
+                          //使用 ListTile 平铺布局即可
+                          children: availableMaps.map<Widget>((map) {
+                            return ListTile(
+                              onTap: () {
+                                map.showMarker(
+                                  coords: Coords(
+                                    double.parse(message.metadata?['latitude']),
+                                    double.parse(
+                                        message.metadata?['longitude']),
+                                  ),
+                                  title: message.metadata?['title'],
+                                  description: message.metadata?['description'],
+                                );
+                              },
+                              title: Text(map.mapName),
+                              leading: SvgPicture.asset(
+                                map.icon,
+                                height: 30.0,
+                                width: 30.0,
+                              ),
+                            );
+                          }).toList(),
                         ),
-
-                        // leading: Icon(Icons.assistant_navigation),
-                      );
-                    }).toList(),
-                  ),
-                ),
+                      ),
               ),
             );
           },
@@ -127,7 +113,22 @@ class LocationMessageBuilder extends StatelessWidget {
         ),
         Expanded(
           child: InkWell(
-            onTap: () {
+            onTap: () async {
+              // 检查网络状态
+              var res = await Connectivity().checkConnectivity();
+              String width = Uri.parse(message.metadata?['thumb'])
+                      .queryParameters['width'] ??
+                  "";
+              // 如果有网络、并且图片有设置width，就从网络读取2倍清晰图片
+              if (res != ConnectivityResult.none && width.isNotEmpty) {
+                int w = int.parse(width) * 2;
+                thumb = thumb.replaceAll('&width=$width', '&width=$w');
+                thumbProvider = CachedNetworkImageProvider(
+                  thumb,
+                  // 不要缓存大文件，以节省设备存储空间
+                  // cacheKey: generateMD5(thumb),
+                );
+              }
               Get.bottomSheet(
                 InkWell(
                   onTap: () {

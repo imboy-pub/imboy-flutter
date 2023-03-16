@@ -17,9 +17,9 @@ class MoreView extends StatelessWidget {
   Widget build(BuildContext context) {
     final logic = Get.put(PersonalInfoLogic());
 
-    logic.genderTitle.value = UserRepoLocal.to.currentUser.genderTitle;
-    logic.sign.value = UserRepoLocal.to.currentUser.sign;
-    logic.region.value = UserRepoLocal.to.currentUser.region;
+    logic.genderTitle.value = UserRepoLocal.to.current.genderTitle;
+    logic.sign.value = UserRepoLocal.to.current.sign;
+    logic.region.value = UserRepoLocal.to.current.region;
     // ignore: prefer_function_declarations_over_variables
     Function deleteFirst = (String val) {
       List items = val.split(" ");
@@ -41,7 +41,7 @@ class MoreView extends StatelessWidget {
           onPressed: () => Get.bottomSheet(
             UpdatePage(
                 title: '设置性别'.tr,
-                value: UserRepoLocal.to.currentUser.gender.toString(),
+                value: UserRepoLocal.to.current.gender.toString(),
                 field: 'gender',
                 callback: (gender) async {
                   bool ok = await logic.changeInfo({
@@ -50,11 +50,11 @@ class MoreView extends StatelessWidget {
                   });
                   if (ok) {
                     Map<String, dynamic> payload =
-                        UserRepoLocal.to.currentUser.toJson();
+                        UserRepoLocal.to.current.toMap();
                     payload["gender"] = int.parse(gender);
                     UserRepoLocal.to.changeInfo(payload);
                     logic.genderTitle.value =
-                        UserRepoLocal.to.currentUser.genderTitle;
+                        UserRepoLocal.to.current.genderTitle;
                   }
                   return ok;
                 }),
@@ -79,7 +79,7 @@ class MoreView extends StatelessWidget {
                       .changeInfo({"field": "region", "value": region});
                   if (ok) {
                     Map<String, dynamic> payload =
-                        UserRepoLocal.to.currentUser.toJson();
+                        UserRepoLocal.to.current.toMap();
                     payload["region"] = region;
                     UserRepoLocal.to.changeInfo(payload);
                     logic.region.value = region;
@@ -150,17 +150,17 @@ class MoreView extends StatelessWidget {
           onPressed: () => Get.bottomSheet(
             UpdatePage(
                 title: '设置个性签名'.tr,
-                value: UserRepoLocal.to.currentUser.sign,
+                value: UserRepoLocal.to.current.sign,
                 field: 'text',
                 callback: (sign) async {
                   bool ok =
                       await logic.changeInfo({"field": "sign", "value": sign});
                   if (ok) {
                     Map<String, dynamic> payload =
-                        UserRepoLocal.to.currentUser.toJson();
+                        UserRepoLocal.to.current.toMap();
                     payload["sign"] = sign;
                     UserRepoLocal.to.changeInfo(payload);
-                    logic.sign.value = UserRepoLocal.to.currentUser.sign;
+                    logic.sign.value = UserRepoLocal.to.current.sign;
                   }
                   return ok;
                 }),

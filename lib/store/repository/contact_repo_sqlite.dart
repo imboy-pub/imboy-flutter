@@ -88,23 +88,51 @@ class ContactRepo {
     return obj;
   }
 
-  Future<List<ContactModel>> findFriend() async {
+  Future<List<Map<String, dynamic>>> selectFriend({List<String>? columns}) async {
+    columns ??= [
+      ContactRepo.uid,
+      ContactRepo.nickname,
+      ContactRepo.avatar,
+      ContactRepo.account,
+      ContactRepo.status,
+      ContactRepo.remark,
+      ContactRepo.region,
+      ContactRepo.sign,
+      ContactRepo.source,
+      ContactRepo.gender,
+      ContactRepo.isfriend,
+      ContactRepo.isfrom,
+    ];
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tablename,
-      columns: [
-        ContactRepo.uid,
-        ContactRepo.nickname,
-        ContactRepo.avatar,
-        ContactRepo.account,
-        ContactRepo.status,
-        ContactRepo.remark,
-        ContactRepo.region,
-        ContactRepo.sign,
-        ContactRepo.source,
-        ContactRepo.gender,
-        ContactRepo.isfriend,
-        ContactRepo.isfrom,
-      ],
+      columns: columns,
+      where: '${ContactRepo.isfriend}=?',
+      whereArgs: [1],
+      orderBy: "update_time desc",
+      limit: 10000,
+    );
+    debugPrint("> on selectFriend ${maps.length}, ${maps.toList().toString()}");
+    return maps;
+  }
+
+  Future<List<ContactModel>> findFriend({List<String>? columns}) async {
+    columns ??= [
+      ContactRepo.uid,
+      ContactRepo.nickname,
+      ContactRepo.avatar,
+      ContactRepo.account,
+      ContactRepo.status,
+      ContactRepo.remark,
+      ContactRepo.region,
+      ContactRepo.sign,
+      ContactRepo.source,
+      ContactRepo.gender,
+      ContactRepo.isfriend,
+      ContactRepo.isfrom,
+    ];
+    List<Map<String, dynamic>> maps = await _db.query(
+      ContactRepo.tablename,
+      columns: columns,
       where: '${ContactRepo.isfriend}=?',
       whereArgs: [1],
       orderBy: "update_time desc",

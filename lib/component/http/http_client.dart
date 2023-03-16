@@ -32,7 +32,7 @@ class HttpClient {
   HttpClient({BaseOptions? options, HttpConfig? dioConfig}) {
     options ??= BaseOptions(
       baseUrl: dioConfig?.baseUrl ?? "",
-      contentType: 'application/x-www-form-urlencoded',
+      contentType: 'application/json',
       connectTimeout: Duration(
           milliseconds:
               dioConfig?.connectTimeout ?? Duration.millisecondsPerMinute),

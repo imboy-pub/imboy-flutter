@@ -1,6 +1,32 @@
 import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
 
+class UserSettingModel {
+  // 附近的人可见
+  bool peopleNearbyVisible;
+  // 聊天状态 hide online offline
+  String chatState; //
+
+  UserSettingModel({
+    required this.peopleNearbyVisible,
+    this.chatState = '',
+  });
+
+  factory UserSettingModel.fromJson(Map<String, dynamic> json) {
+    return UserSettingModel(
+      peopleNearbyVisible: json['people_nearby_visible'] ?? false,
+      chatState: json['chat_state'] ?? 'hide',
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'people_nearby_visible': peopleNearbyVisible,
+      'chat_state': chatState,
+    };
+  }
+}
+
 class UserModel {
   String uid;
   String account;
@@ -10,6 +36,7 @@ class UserModel {
   String region;
   int? role;
   String sign;
+  Map<String, dynamic>? setting;
 
   UserModel({
     required this.uid,
@@ -20,6 +47,7 @@ class UserModel {
     this.region = "",
     this.role,
     this.sign = "",
+    this.setting,
   });
 
   String get genderTitle {
@@ -44,9 +72,11 @@ class UserModel {
       gender: g is String ? int.parse(g) : g,
       region: json["region"] ?? '',
       sign: json["sign"] ?? '',
+      setting: json["setting"] ?? {},
     );
   }
-  Map<String, dynamic> toJson() {
+
+  Map<String, dynamic> toMap() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["uid"] = uid;
     data["nickname"] = nickname;
@@ -56,6 +86,7 @@ class UserModel {
     data["gender"] = gender;
     data["region"] = region;
     data["sign"] = sign;
+    data["setting"] = setting;
     return data;
   }
 }

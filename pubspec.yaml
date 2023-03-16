@@ -90,8 +90,7 @@ dependencies:
   bubble: ^1.2.1
   xid: ^1.0.12
   fps_monitor: ^2.0.0
-  # @ 小部件
-  flutter_mentions: ^2.0.1
+
   # 时间处理
   jiffy: ^5.0.1
   # 用于校正本地系统与时钟源服务器之前的时间
@@ -170,6 +169,8 @@ dependencies:
   amap_flutter_map: ^3.0.0
   amap_flutter_base: ^3.0.0
   flutter_svg: ^2.0.3
+  # 动画效果
+  animate_do: ^3.0.2
 
   #  flutter_webrtc:
   #    git:

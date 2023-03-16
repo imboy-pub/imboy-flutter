@@ -36,7 +36,7 @@ class ContactDetailMorePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     initData();
-    // var currentUser = UserRepoLocal.to.currentUser;
+    // var currentUser = UserRepoLocal.to.current;
     // bool isSelf = currentUser.uid == id;
     return Scaffold(
       backgroundColor: AppColors.ChatBg,

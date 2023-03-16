@@ -21,8 +21,9 @@ Future<flmap.AMapLocation?> getLocation([bool needsAddress = false]) async {
 
   /// 初始化AMap
   await flmap.FlAMapLocation().initialize(flmap.AMapLocationOption(
-      locationMode: flmap.AMapLocationMode.heightAccuracy,
-      desiredAccuracy: flmap.CLLocationAccuracy.kCLLocationAccuracyBest));
+    locationMode: flmap.AMapLocationMode.heightAccuracy,
+    desiredAccuracy: flmap.CLLocationAccuracy.kCLLocationAccuracyBest,
+  ));
   return flmap.FlAMapLocation().getLocation(needsAddress);
 }
 
