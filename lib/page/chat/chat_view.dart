@@ -855,7 +855,8 @@ class ChatPageState extends State<ChatPage> {
               imageMessageBuilder: (types.ImageMessage message,
                   {required int messageWidth}) {
                 return ImageMessageBuilder(
-                    message: message, messageWidth: messageWidth);
+                    message: message, messageWidth: messageWidth,
+                );
               },
               // showUserAvatars: true,
               // showUserNames: true,

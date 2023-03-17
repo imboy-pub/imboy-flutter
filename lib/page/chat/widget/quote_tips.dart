@@ -70,8 +70,9 @@ class QuoteTipsWidget extends StatelessWidget {
 
     String customType = message?.metadata?['custom_type'] ?? '';
     if (customType == 'quote') {
+      String txt =  message?.metadata?['quote_text'] ?? '';
       body = Text(
-        message?.metadata?['quote_text'] ?? '',
+        "[${'引用'.tr}] $txt",
         style: const TextStyle(color: AppColors.thirdElementText),
       );
     } else if (customType == 'audio') {
@@ -79,6 +80,11 @@ class QuoteTipsWidget extends StatelessWidget {
       body = Text(
         "[${'语音消息'.tr}] $durationMS''",
         style: const TextStyle(color: AppColors.thirdElementText),
+      );
+    } else if (customType == 'location') {
+      body = Text(
+          "[${'位置'.tr}] ${message?.metadata?['title'] ?? ''}",
+          style: const TextStyle(color: AppColors.thirdElementText),
       );
     } else if (customType == 'video') {
       body = n.Row([
@@ -103,7 +109,7 @@ class QuoteTipsWidget extends StatelessWidget {
               left: 20,
               right: 8,
               child: const SizedBox(
-                height: 30,
+                height: 64,
                 width: 4,
                 child: VerticalDivider(
                   thickness: 2, // 分割线的厚度

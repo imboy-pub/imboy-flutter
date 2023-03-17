@@ -32,7 +32,7 @@ class LocationMessageBuilder extends StatelessWidget {
       cacheKey: generateMD5(thumb),
     );
     return Container(
-      width: Get.width,
+      width: Get.width * 0.618,
       height: 240,
       alignment: Alignment.center,
       color: AppColors.ChatReceivedMessageBodyBgColor,

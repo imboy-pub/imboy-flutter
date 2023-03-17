@@ -1,13 +1,19 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+
 // ignore: implementation_imports
 import 'package:flutter_chat_ui/src/widgets/state/inherited_user.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:imboy/component/ui/image_view.dart';
 import 'package:imboy/config/const.dart';
+import 'package:photo_view/photo_view.dart';
 
 import 'message_audio_builder.dart';
 import 'message_location_builder.dart';
@@ -83,6 +89,12 @@ class CustomMessageBuilder extends StatelessWidget {
 /// 构建被转发消息Widget
 /// messageMsgWidget(msg)
 Widget messageMsgWidget(types.Message msg) {
+  // 当前登录用户
+  types.User user = types.User(
+    id: UserRepoLocal.to.currentUid,
+    firstName: UserRepoLocal.to.current.nickname,
+    imageUrl: UserRepoLocal.to.current.avatar,
+  );
   Widget msgWidget = const SizedBox.shrink();
   if (msg is types.TextMessage) {
     msgWidget = Text(
@@ -114,26 +126,80 @@ Widget messageMsgWidget(types.Message msg) {
       ])
     ]);
   } else if (msg is types.ImageMessage) {
-    msgWidget = ImageView(
-      img: msg.uri,
-      height: 200,
+    // msgWidget = ImageMessageBuilder(
+    //   message: msg, messageWidth: (Get.width * 0.618).toInt() ,
+    // );
+    String thumb = msg.uri;
+    ImageProvider thumbProvider = CachedNetworkImageProvider(
+      thumb,
+      cacheKey: generateMD5(thumb),
+    );
+    msgWidget = InkWell(
+      onTap: () async {
+        // 检查网络状态
+        var res = await Connectivity().checkConnectivity();
+        String width = Uri.parse(thumb)
+            .queryParameters['width'] ??
+            "";
+        // 如果有网络、并且图片有设置width，就从网络读取2倍清晰图片
+        if (res != ConnectivityResult.none && width.isNotEmpty) {
+          int w = int.parse(width) * 2;
+          thumb = thumb.replaceAll('&width=$width', '&width=$w');
+          thumbProvider = CachedNetworkImageProvider(
+            thumb,
+            // 不要缓存大文件，以节省设备存储空间
+            // cacheKey: generateMD5(thumb),
+          );
+        }
+        Get.bottomSheet(
+          InkWell(
+            onTap: () {
+              Get.back();
+            },
+            child: PhotoView(
+              imageProvider: thumbProvider,
+            ),
+          ),
+          // 是否支持全屏弹出，默认false
+          isScrollControlled: true,
+          enableDrag: false,
+        );
+      },
+      child: Image(
+        width: Get.width * 0.618,
+        fit: BoxFit.cover,
+        image: thumbProvider,
+      ),
     );
   }
   String customType = msg.metadata?['custom_type'] ?? '';
   if (customType == 'video') {
-    msgWidget = n.Row([
-      Text(
-        "[${'视频'.tr}] ",
-        style: const TextStyle(color: AppColors.thirdElementText),
-      ),
-      ImageView(
-        img: msg.metadata?['thumb']['uri'],
-        height: 120,
-      ),
-    ]);
+    msgWidget = VideoMessageBuilder(
+      message: msg as types.CustomMessage,
+    );
+    // msgWidget = n.Row([
+    //   Text(
+    //     "[${'视频'.tr}] ",
+    //     style: const TextStyle(color: AppColors.thirdElementText),
+    //   ),
+    //   ImageView(
+    //     img: msg.metadata?['thumb']['uri'],
+    //     height: 120,
+    //   ),
+    // ]);
+  } else if (customType == 'audio') {
+    msgWidget = AudioMessageBuilder(
+      user: user, message: msg as types.CustomMessage,
+    );
+  } else if (customType == 'location') {
+    msgWidget = LocationMessageBuilder(
+      user: user,
+      message: msg as types.CustomMessage,
+    );
   } else if (customType == 'quote') {
+    String txt =  msg.metadata?['quote_text'] ?? '';
     msgWidget = Text(
-      msg.metadata?['quote_text'] ?? '',
+      "[${'引用'.tr}] $txt",
       style: const TextStyle(
         color: AppColors.MainTextColor,
         fontSize: 13.0,
