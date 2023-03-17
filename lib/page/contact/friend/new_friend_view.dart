@@ -126,13 +126,17 @@ class NewFriendPage extends StatelessWidget {
                                 NewFriendStatus.waiting_for_validation.index) {
                               rightWidget.add(TextButton(
                                 onPressed: () {
-                                  Get.to(() => ConfirmNewFriendPage(
-                                        to: model.to,
-                                        from: model.from,
-                                        msg: model.msg,
-                                        nickname: model.nickname,
-                                        payload: model.payload,
-                                      ));
+                                  Get.to(
+                                    ConfirmNewFriendPage(
+                                      to: model.to,
+                                      from: model.from,
+                                      msg: model.msg,
+                                      nickname: model.nickname,
+                                      payload: model.payload,
+                                    ),
+                                    transition: Transition.rightToLeft,
+                                    popGesture: true, // 右滑，返回上一页
+                                  );
                                 },
                                 style: TextButton.styleFrom(
                                   padding: const EdgeInsets.only(right: 0),
@@ -199,8 +203,6 @@ class NewFriendPage extends StatelessWidget {
                                     ),
                                   ),
                                   onTap: () {
-                                    // Get.to(
-                                    //     () => ContactDetailPage(id: model.to));
                                     Get.to(
                                       ScannerResultPage(
                                         id: model.to,
@@ -211,8 +213,7 @@ class NewFriendPage extends StatelessWidget {
                                         region: '',
                                         gender: 0,
                                         // status 0 待验证  1 已添加  2 已过期
-                                        isFriend:
-                                            model.status == 1 ? true : false,
+                                        isFriend: model.status == 1 ? true : false,
                                       ),
                                       transition: Transition.rightToLeft,
                                       popGesture: true, // 右滑，返回上一页

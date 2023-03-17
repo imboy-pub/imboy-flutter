@@ -110,7 +110,11 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             width: 48.0,
           ),
         ),
-        onTap: () => Get.to(() => const SelectMemberPage()),
+        onTap: () => Get.to(
+          const SelectMemberPage(),
+          transition: Transition.rightToLeft,
+          popGesture: true, // 右滑，返回上一页
+        ),
       );
     }
     return FutureBuilder(
@@ -378,7 +382,11 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         });
         break;
       case '投诉':
-        Get.to(() => WebViewPage(CONST_HELP_URL, '投诉'));
+        Get.to(
+          WebViewPage(CONST_HELP_URL, '投诉'),
+          transition: Transition.rightToLeft,
+          popGesture: true, // 右滑，返回上一页
+        );
         break;
       case '清空聊天记录':
         confirmAlert(

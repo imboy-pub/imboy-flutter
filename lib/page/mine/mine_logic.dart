@@ -6,15 +6,17 @@ class MineLogic extends GetxController {
     switch (name) {
       case '设置':
         // logout(context);
-        Get.to(() => const SettingPage());
+        Get.to(
+          const SettingPage(),
+          transition: Transition.rightToLeft,
+          popGesture: true, // 右滑，返回上一页
+        );
         break;
       case '表情':
         Get.snackbar('tips', '在开发中...');
-        // Get.to(() => PassportPage());
         break;
       default:
         Get.snackbar('tips', '在开发中...');
-        // Get.to(() => LanguagePage());
         break;
     }
   }

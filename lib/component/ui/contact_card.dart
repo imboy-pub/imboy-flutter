@@ -118,13 +118,14 @@ class ContactCard extends StatelessWidget {
             ),
             onTap: () {
               if (isNetWorkImg(avatar!)) {
-                Get.to(
-                  () => PhotoView(
+                Get.to(PhotoView(
                     imageProvider: NetworkImage(avatar!),
                     onTapUp: (c, f, s) => Navigator.of(context).pop(),
                     maxScale: 3.0,
                     minScale: 1.0,
                   ),
+                  transition: Transition.rightToLeft,
+                  popGesture: true, // 右滑，返回上一页
                 );
               } else {
                 Get.snackbar('', '无头像'.tr);

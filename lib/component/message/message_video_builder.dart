@@ -20,7 +20,11 @@ class VideoMessageBuilder extends StatelessWidget {
       constraints: BoxConstraints(maxHeight: Get.height * 0.46),
       child: InkWell(
         onTap: () {
-          Get.to(() => ChatVideoPage(url: message.metadata!['video']['uri']));
+          Get.to(
+            ChatVideoPage(url: message.metadata!['video']['uri']),
+            transition: Transition.rightToLeft,
+            popGesture: true, // 右滑，返回上一页
+          );
         },
         child: Stack(
           alignment: Alignment.centerRight,

@@ -90,13 +90,15 @@ class SelectRegionLogic extends GetxController {
             selectedVal.value = strEmpty(parent) ? title : "$parent $title";
             if (isRight) {
               Get.to(
-                () => SelectRegionPage(
+                SelectRegionPage(
                   parent: selectedVal.value,
                   children: children,
                   callback: callback,
                   outCallback: outCallback,
                 ),
                 preventDuplicates: false,
+                transition: Transition.rightToLeft,
+                popGesture: true, // 右滑，返回上一页
               );
             } else {
               // getListItem/4 第4个参数，有里面有业务逻辑处理

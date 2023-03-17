@@ -109,7 +109,11 @@ class _SettingPageState extends State<SettingPage> {
             titleStyle: const TextStyle(fontSize: 15.0),
             padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
             onPressed: () {
-              Get.to(() => FriendsPermissionsPage());
+              Get.to(
+                FriendsPermissionsPage(),
+                transition: Transition.rightToLeft,
+                popGesture: true, // 右滑，返回上一页
+              );
             },
             width: 25.0,
             fit: BoxFit.cover,

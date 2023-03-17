@@ -84,9 +84,17 @@ class _ConversationPageState extends State<ConversationPage> {
     popupmenu.MenuItem it = item as popupmenu.MenuItem;
     String action = it.userInfo as String;
     if (action == 'scanqrcode') {
-      Get.to(() => const ScannerPage());
+      Get.to(
+        const ScannerPage(),
+        transition: Transition.rightToLeft,
+        popGesture: true, // 右滑，返回上一页
+      );
     } else if (action == 'myqrcode') {
-      Get.to(() => UqrcodePage());
+      Get.to(
+        UqrcodePage(),
+          transition: Transition.rightToLeft,
+          popGesture: true, // 右滑，返回上一页
+        );
     }
   }
 
@@ -316,9 +324,11 @@ class _ConversationPageState extends State<ConversationPage> {
                               remindCounter: remindNum,
                               onTapAvatar: () {
                                 Get.to(
-                                  () => ContactDetailPage(
+                                  ContactDetailPage(
                                     id: model.peerId,
                                   ),
+                                  transition: Transition.rightToLeft,
+                                  popGesture: true, // 右滑，返回上一页
                                 );
                               },
                             ),

@@ -8,6 +8,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
+import 'package:imboy/page/friend_circle/friend_circle_view.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
@@ -56,8 +57,11 @@ class ContactSettingPage extends StatelessWidget {
             LabelRow(
               label: '把他推荐给朋友'.tr,
               isLine: false,
-              onPressed: () => EasyLoading.showToast('敬请期待'),
-              // onPressed: () => Get.to(() => const FriendCirclePage()),
+              onPressed: () => Get.to(
+                const FriendCirclePage(),
+                transition: Transition.rightToLeft,
+                popGesture: true, // 右滑，返回上一页
+              ),
             ),
             const Space(),
             Container(
@@ -133,8 +137,12 @@ class ContactSettingPage extends StatelessWidget {
                               if (res) {
                                 EasyLoading.showSuccess("操作成功");
                                 Get.close(3);
-                                Get.to(BottomNavigationPage(),
-                                    arguments: {'index': 1});
+                                Get.to(
+                                  BottomNavigationPage(),
+                                  arguments: {'index': 1},
+                                  transition: Transition.rightToLeft,
+                                  popGesture: true, // 右滑，返回上一页
+                                );
                               }
                             },
                             child: Text(

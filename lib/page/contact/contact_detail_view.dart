@@ -10,6 +10,7 @@ import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact/contact_setting_view.dart';
+import 'package:imboy/page/friend_circle/friend_circle_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -63,10 +64,14 @@ class ContactDetailPage extends StatelessWidget {
         width: 60,
         child: TextButton(
           onPressed: () {
-            Get.to(ContactSettingPage(
-              id: id,
-              remark: remark.value,
-            ));
+            Get.to(
+              ContactSettingPage(
+                id: id,
+                remark: remark.value,
+              ),
+              transition: Transition.rightToLeft,
+              popGesture: true, // 右滑，返回上一页
+            );
           },
           child: const Image(
             image: AssetImage('assets/images/right_more.png'),
@@ -121,16 +126,19 @@ class ContactDetailPage extends StatelessWidget {
               LabelRow(
                 label: '朋友圈'.tr,
                 isLine: true,
-                onPressed: () => EasyLoading.showToast('敬请期待'),
-                // onPressed: () => Get.to(() => const FriendCirclePage()),
+                onPressed: () => Get.to(
+                  const FriendCirclePage(),
+                  transition: Transition.rightToLeft,
+                  popGesture: true, // 右滑，返回上一页
+                ),
               ),
               LabelRow(
                 label: '更多信息'.tr,
                 isLine: false,
                 onPressed: () => Get.to(
-                  () => ContactDetailMorePage(
-                    id: id,
-                  ),
+                  ContactDetailMorePage(id: id),
+                  transition: Transition.rightToLeft,
+                  popGesture: true, // 右滑，返回上一页
                 ),
               ),
               ButtonRow(

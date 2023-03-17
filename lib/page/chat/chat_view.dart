@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/message/message_image_builder.dart';
@@ -117,7 +118,6 @@ class ChatPageState extends State<ChatPage> {
     if (availableMaps.isEmpty) {
       availableMaps = await MapLauncher.installedMaps;
     }
-    debugPrint("availableMaps $availableMaps");
     // 检查网络状态
     var res = await Connectivity().checkConnectivity();
     if (res == ConnectivityResult.none) {
@@ -808,7 +808,6 @@ class ChatPageState extends State<ChatPage> {
         isScrollControlled: true,
         // enableDrag: false,
       );
-      // getx.Get.to(SendToPage(msg: msg));
     }
   }
 
@@ -817,16 +816,20 @@ class ChatPageState extends State<ChatPage> {
     var topRightWidget = [
       InkWell(
         child: const Image(image: AssetImage('assets/images/right_more.png')),
-        onTap: () => getx.Get.to(widget.type == 'GROUP'
-            ? GroupDetailPage(
-                widget.peerId,
-                callBack: (v) {},
-              )
-            : ChatSettingPage(widget.peerId, options: {
-                "peerId": widget.peerId,
-                "avatar": widget.peerAvatar,
-                "nickname": widget.peerTitle,
-              })),
+        onTap: () => getx.Get.to(
+          widget.type == 'GROUP'
+              ? GroupDetailPage(
+                  widget.peerId,
+                  callBack: (v) {},
+                )
+              : ChatSettingPage(widget.peerId, options: {
+                  "peerId": widget.peerId,
+                  "avatar": widget.peerAvatar,
+                  "nickname": widget.peerTitle,
+                }),
+          transition: Transition.rightToLeft,
+          popGesture: true, // 右滑，返回上一页
+        ),
       )
     ];
     return Scaffold(

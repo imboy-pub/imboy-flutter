@@ -187,11 +187,6 @@ class PeopleNearbyPage extends StatelessWidget {
                                       transition: Transition.rightToLeft,
                                       popGesture: true, // 右滑，返回上一页
                                     );
-                                    // Get.to(
-                                    //   ContactDetailPage(id: model.id),
-                                    //   transition: Transition.rightToLeft,
-                                    //   popGesture: true, // 右滑，返回上一页
-                                    // );
                                   },
                                 )
                               ]);

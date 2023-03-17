@@ -26,7 +26,11 @@ class LaunchGroupItem extends StatelessWidget {
         // padding: const EdgeInsets.symmetric(vertical: 15.0),
         onPressed: () {
           if (item == '选择一个群') {
-            Get.to(() => const GroupSelectPage());
+            Get.to(
+              const GroupSelectPage(),
+              transition: Transition.rightToLeft,
+              popGesture: true, // 右滑，返回上一页
+            );
           } else {
             Get.snackbar('', '敬请期待');
           }

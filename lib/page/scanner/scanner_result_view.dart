@@ -69,14 +69,15 @@ class ScannerResultPage extends StatelessWidget {
                 width: Get.width - 100,
                 padding: const EdgeInsets.only(left: 10),
                 child: Text(
-                sign,
-                style: TextStyle(
-                  color: AppColors.MainTextColor.withOpacity(0.7),
-                  fontWeight: FontWeight.w400,
+                  sign,
+                  style: TextStyle(
+                    color: AppColors.MainTextColor.withOpacity(0.7),
+                    fontWeight: FontWeight.w400,
+                  ),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 4,
-                overflow: TextOverflow.ellipsis,
-              ),),
+              ),
               // onPressed: () {},
               isLine: true,
               isRight: false,
@@ -164,12 +165,16 @@ class ScannerResultPage extends StatelessWidget {
               visible: !itself,
               child: ButtonRow(
                 text: '添加到通讯录'.tr,
-                onPressed: () => Get.to(() => AddFriendPage(
-                      id,
-                      nickname,
-                      avatar,
-                      region,
-                    )),
+                onPressed: () => Get.to(
+                  AddFriendPage(
+                    id,
+                    nickname,
+                    avatar,
+                    region,
+                  ),
+                  transition: Transition.rightToLeft,
+                  popGesture: true, // 右滑，返回上一页
+                ),
               ),
             ),
     ];
@@ -186,10 +191,14 @@ class ScannerResultPage extends StatelessWidget {
         child: TextButton(
           // padding: EdgeInsets.all(0),
           onPressed: () {
-            Get.to(ContactSettingPage(
-              id: id,
-              remark: nickname, // TODO user remark ? user nickname?
-            ));
+            Get.to(
+              ContactSettingPage(
+                id: id,
+                remark: nickname, // TODO user remark ? user nickname?
+              ),
+              transition: Transition.rightToLeft,
+              popGesture: true, // 右滑，返回上一页
+            );
           },
           child: const Image(
             image: AssetImage('assets/images/right_more.png'),

@@ -6,6 +6,8 @@ import 'package:imboy/component/ui/confirm_alert.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/chat/chat_background/chat_background_view.dart';
+import 'package:imboy/page/search/search_view.dart';
 
 import 'chat_setting_logic.dart';
 import 'chat_setting_state.dart';
@@ -63,7 +65,11 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
         label: '查找聊天记录'.tr,
         margin: const EdgeInsets.only(top: 10.0),
         onPressed: () {
-          // Get.to(const SearchPage());
+          Get.to(
+            const SearchPage(),
+            transition: Transition.rightToLeft,
+            popGesture: true, // 右滑，返回上一页
+          );
         },
       ),
       Column(
@@ -73,7 +79,11 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
         label: '设置当前聊天背景'.tr,
         margin: const EdgeInsets.only(top: 10.0),
         onPressed: () {
-          // Get.to(const ChatBackgroundPage());
+          Get.to(
+            const ChatBackgroundPage(),
+            transition: Transition.rightToLeft,
+            popGesture: true, // 右滑，返回上一页
+          );
         },
       ),
       LabelRow(
@@ -93,10 +103,15 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
         },
       ),
       LabelRow(
-        label: '投诉'.tr,
-        margin: const EdgeInsets.only(top: 10.0),
-        onPressed: () => Get.to(() => WebViewPage(CONST_HELP_URL, '投诉'.tr)),
-      ),
+          label: '投诉'.tr,
+          margin: const EdgeInsets.only(top: 10.0),
+          onPressed: () {
+            Get.to(
+              WebViewPage(CONST_HELP_URL, '投诉'.tr),
+              transition: Transition.rightToLeft,
+              popGesture: true, // 右滑，返回上一页
+            );
+          }),
     ];
   }
 

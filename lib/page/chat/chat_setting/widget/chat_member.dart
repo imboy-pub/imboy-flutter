@@ -34,6 +34,8 @@ class ChatMember extends StatelessWidget {
                 InkWell(
                   onTap: () => Get.to(
                     ContactDetailPage(id: options['peerId'] ?? ''),
+                    transition: Transition.rightToLeft,
+                    popGesture: true, // 右滑，返回上一页
                   ),
                   child: Avatar(imgUri: face, width: 55, height: 55),
                 ),
@@ -58,7 +60,11 @@ class ChatMember extends StatelessWidget {
                     ),
                     onTap: () {
                       // 发起群聊 TODO
-                      Get.to(GroupLaunchPage());
+                      Get.to(
+                        GroupLaunchPage(),
+                        transition: Transition.rightToLeft,
+                        popGesture: true, // 右滑，返回上一页
+                      );
                     },
                   ),
                 )
