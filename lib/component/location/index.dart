@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:amap_flutter_base/amap_flutter_base.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:fl_amap/fl_amap.dart' as flmap;
 import 'package:flutter/material.dart';
@@ -10,6 +11,11 @@ import 'package:imboy/config/const.dart';
 ///  直接获取定位
 ///  @param needsAddress 是否需要详细地址信息 默认false
 Future<flmap.AMapLocation?> getLocation([bool needsAddress = false]) async {
+  // 检查网络状态
+  var res = await Connectivity().checkConnectivity();
+  if (res == ConnectivityResult.none) {
+    return null;
+  }
   bool serviceStatusIsEnabled = await requestLocationPermission();
   if (serviceStatusIsEnabled == false) {
     return null;
@@ -21,8 +27,9 @@ Future<flmap.AMapLocation?> getLocation([bool needsAddress = false]) async {
 
   /// 初始化AMap
   await flmap.FlAMapLocation().initialize(flmap.AMapLocationOption(
-    locationMode: flmap.AMapLocationMode.heightAccuracy,
-    desiredAccuracy: flmap.CLLocationAccuracy.kCLLocationAccuracyBest,
+    gpsFirst: true,
+    locationMode: flmap.AMapLocationMode.batterySaving,
+    desiredAccuracy: flmap.CLLocationAccuracy.kCLLocationAccuracyNearestTenMeters,
   ));
   return flmap.FlAMapLocation().getLocation(needsAddress);
 }

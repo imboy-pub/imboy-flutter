@@ -19,8 +19,13 @@ class PeopleNearbyLogic extends GetxController {
     init();
   }
   Future<void> init() async {
+
+    DateTime s = DateTime.now();
     flmap.AMapLocation? l = await getLocation(false);
-    debugPrint("PeopleNearbyLogic init peopleNearbyVisible ${state.peopleNearbyVisible}");
+
+    DateTime end = DateTime.now();
+    debugPrint(
+        "PeopleNearbyLogic init peopleNearbyVisible ${state.peopleNearbyVisible} diff ${end.difference(s)}");
     state.longitude.value = '${l?.latLng?.longitude}';
     state.latitude.value = '${l?.latLng?.latitude}';
     peopleNearby();
@@ -50,7 +55,8 @@ class PeopleNearbyLogic extends GetxController {
     if (payload == null) {
       return;
     }
-    List<Map<String, dynamic>> li = await ContactRepo().selectFriend(columns: [ContactRepo.uid]);
+    List<Map<String, dynamic>> li =
+        await ContactRepo().selectFriend(columns: [ContactRepo.uid]);
     List<String> friendUidList = [];
     for (var f in li) {
       friendUidList.add(f[ContactRepo.uid]);
