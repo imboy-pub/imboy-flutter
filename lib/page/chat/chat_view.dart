@@ -855,7 +855,8 @@ class ChatPageState extends State<ChatPage> {
               imageMessageBuilder: (types.ImageMessage message,
                   {required int messageWidth}) {
                 return ImageMessageBuilder(
-                    message: message, messageWidth: messageWidth,
+                  message: message,
+                  messageWidth: messageWidth,
                 );
               },
               // showUserAvatars: true,
@@ -888,11 +889,20 @@ class ChatPageState extends State<ChatPage> {
                     _showAppBar = false;
                   });
                 } else if (message is types.FileMessage) {
-                  File? tmpF = await IMBoyCacheManager().getSingleFile(
-                    message.uri,
-                    key: generateMD5(message.uri),
+                  Get.defaultDialog(
+                    title: 'Alert'.tr,
+                    content: Text('确定要打开文件吗？'.tr),
+                    textConfirm: '确定'.tr,
+                    confirmTextColor: AppColors.primaryElementText,
+                    onConfirm: () async {
+                      File? tmpF = await IMBoyCacheManager().getSingleFile(
+                        message.uri,
+                        key: generateMD5(message.uri),
+                      );
+                      Get.back();
+                      await OpenFile.open(tmpF.path);
+                    },
                   );
-                  await OpenFile.open(tmpF.path);
                 }
               },
               onMessageLongPress: _onMessageLongPress,

@@ -4,7 +4,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/component/ui/confirm_alert.dart';
 import 'package:imboy/page/scanner/scanner_result_view.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:niku/namespace.dart' as n;
@@ -81,22 +80,26 @@ class PeopleNearbyPage extends StatelessWidget {
                           child: TextButton(
                             onPressed: () {
                               if (state.peopleNearbyVisible.isFalse) {
-                                confirmAlert(
-                                  context,
-                                      (isOK) {
-                                    if (isOK) {
-                                      // 异步处理
-                                      logic.makeMyselfVisible();
-                                      EasyLoading.showSuccess('操作成功'.tr);
-                                    }
+                                String tips =
+                                    '附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。\n\n你的电话号码将会被隐藏。'
+                                        .tr;
+                                // Users nearby will be able to view your profile and send you messages. This may help you find new friends, but could also attract excessive attention. You can stop sharing your profile at any time.
+                                //
+                                // Your phone number will remain hidden.
+
+                                Get.defaultDialog(
+                                  title: '显示你的资料'.tr, // Show You Profile
+                                  content: Text(tips),
+                                  textCancel: "  ${'取消'.tr}  ",
+                                  textConfirm: "  ${'确定'.tr}  ",
+                                  confirmTextColor:
+                                      AppColors.primaryElementText,
+                                  onConfirm: () {
+                                    // 异步处理
+                                    logic.makeMyselfVisible();
+                                    Get.back();
+                                    EasyLoading.showSuccess('操作成功'.tr);
                                   },
-                                  isWarm: true,
-                                  warmStr: '显示你的资料'.tr, // Show You Profile
-                                  tips:
-                                  '附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。\n\n你的电话号码将会被隐藏。',
-                                  // Users nearby will be able to view your profile and send you messages. This may help you find new friends, but could also attract excessive attention. You can stop sharing your profile at any time.
-                                  //
-                                  // Your phone number will remain hidden.
                                 );
                               } else {
                                 logic.makeMyselfUnvisible();
@@ -104,9 +107,9 @@ class PeopleNearbyPage extends StatelessWidget {
                             },
                             style: ButtonStyle(
                               overlayColor:
-                              MaterialStateProperty.all(Colors.transparent),
+                                  MaterialStateProperty.all(Colors.transparent),
                               backgroundColor:
-                              MaterialStateProperty.resolveWith((states) {
+                                  MaterialStateProperty.resolveWith((states) {
                                 return states.contains(MaterialState.pressed)
                                     ? Colors.black12
                                     : Colors.white;
@@ -120,26 +123,26 @@ class PeopleNearbyPage extends StatelessWidget {
                             child: n.Row(
                               [
                                 Obx(() => Icon(
-                                  state.peopleNearbyVisible.isFalse
-                                      ? Icons.location_on
-                                      : Icons.location_off,
-                                  size: 28.0,
-                                  color: Colors.lightBlue,
-                                )),
+                                      state.peopleNearbyVisible.isFalse
+                                          ? Icons.location_on
+                                          : Icons.location_off,
+                                      size: 28.0,
+                                      color: Colors.lightBlue,
+                                    )),
                                 const SizedBox(
                                   width: 8,
                                   height: 32,
                                 ),
                                 Obx(() => Text(
-                                  state.peopleNearbyVisible.isFalse
-                                      ? '让自己可见'.tr
-                                      : '让自己不可见'.tr, // Stop Showing Me
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.lightBlue,
-                                  ),
-                                ))
+                                      state.peopleNearbyVisible.isFalse
+                                          ? '让自己可见'.tr
+                                          : '让自己不可见'.tr, // Stop Showing Me
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.lightBlue,
+                                      ),
+                                    ))
                               ],
                               mainAxisAlignment: MainAxisAlignment.start,
                             ),
@@ -155,10 +158,8 @@ class PeopleNearbyPage extends StatelessWidget {
                         child: Obx(() {
                           return ListView.builder(
                             itemCount: state.peopleList.length,
-                            itemBuilder:
-                                (BuildContext context, int index) {
-                              PeopleModel model =
-                              state.peopleList[index];
+                            itemBuilder: (BuildContext context, int index) {
+                              PeopleModel model = state.peopleList[index];
                               return n.Column([
                                 const Divider(
                                   height: 8.0,
@@ -168,7 +169,7 @@ class PeopleNearbyPage extends StatelessWidget {
                                 ListTile(
                                   leading: Avatar(imgUri: model.avatar),
                                   contentPadding:
-                                  const EdgeInsets.only(left: 0),
+                                      const EdgeInsets.only(left: 0),
                                   title: Text(model.nickname),
                                   subtitle: Text(
                                       '${model.distince} ${model.distinceUnit}'),

@@ -40,7 +40,7 @@ class PassportPage extends StatelessWidget {
       // "logged_in_on_another_device":"你的账号于%s在%s设备上登录了",
       Future.delayed(const Duration(milliseconds: 500), () {
         Get.defaultDialog(
-          title: '',
+          title: 'Alert'.tr,
           content: Text('info_logged_in_on_another_device'.trArgs([hm, dname])),
           barrierDismissible: false,
           confirm: TextButton(

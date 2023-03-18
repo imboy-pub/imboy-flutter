@@ -59,7 +59,8 @@ Future<void> incomingCallScreen(
   )..signalingConnect());
 
   Get.defaultDialog(
-    title: "",
+    //title: 'Alert'.tr,
+    title: '',
     backgroundColor: Colors.black54,
     titlePadding: const EdgeInsets.all(0),
     barrierDismissible: false,

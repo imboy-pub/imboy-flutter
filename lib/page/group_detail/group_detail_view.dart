@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/confirm_alert.dart';
 import 'package:imboy/component/ui/indicator_page_view.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
@@ -277,8 +277,14 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               onPressed: () {
                 if (widget.peer == '') return;
 
-                confirmAlert(context, (isOK) {
-                  if (isOK) {
+                String tips = '确定要退出本群吗？'.tr;
+                Get.defaultDialog(
+                  title: 'Alert'.tr,
+                  content: Text(tips),
+                  textCancel: "  ${'取消'.tr}  ",
+                  textConfirm: "  ${'清空'.tr}  ",
+                  confirmTextColor: AppColors.primaryElementText,
+                  onConfirm: () {
                     GroupModel.quitGroupModel(widget.peer!, callback: (str) {
                       if (str.toString().contains('失败')) {
                         // print('失败了，开始执行解散');
@@ -302,8 +308,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                         Get.snackbar('', '退出成功');
                       }
                     });
-                  }
-                }, tips: '确定要退出本群吗？');
+                  },
+                );
               },
               child: const Text(
                 '删除并退出',
@@ -389,15 +395,17 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         );
         break;
       case '清空聊天记录':
-        confirmAlert(
-          context,
-          (isOK) {
-            if (isOK) {
-              Get.snackbar('Tips', "敬请期待");
-            }
+        String tips = '确定删除群的聊天记录吗？'.tr;
+        Get.defaultDialog(
+          title: 'Alert'.tr,
+          content: Text(tips),
+          textCancel: "  ${'取消'.tr}  ",
+          textConfirm: "  ${'清空'.tr}  ",
+          confirmTextColor: AppColors.primaryElementText,
+          onConfirm: () {
+            Get.back();
+            EasyLoading.showSuccess('操作成功'.tr);
           },
-          tips: '确定删除群的聊天记录吗？',
-          okBtn: '清空',
         );
         break;
     }

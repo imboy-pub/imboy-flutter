@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/confirm_alert.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
@@ -90,15 +90,17 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
         label: '清空聊天记录'.tr,
         margin: const EdgeInsets.only(top: 10.0),
         onPressed: () {
-          confirmAlert(
-            context,
-            (isOK) {
-              if (isOK) {
-                Get.snackbar('', '敬请期待');
-              }
+          String tips = '确定删除聊天记录吗？'.tr;
+          Get.defaultDialog(
+            title: 'Alert'.tr,
+            content: Text(tips),
+            textCancel: "  ${'取消'.tr}  ",
+            textConfirm: "  ${'清空'.tr}  ",
+            confirmTextColor: AppColors.primaryElementText,
+            onConfirm: () {
+              Get.back();
+              EasyLoading.showSuccess('操作成功'.tr);
             },
-            tips: '确定删除聊天记录吗？'.tr,
-            okBtn: '清空'.tr,
           );
         },
       ),

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -9,10 +11,12 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 // ignore: implementation_imports
 import 'package:flutter_chat_ui/src/widgets/state/inherited_user.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:imboy/config/const.dart';
+import 'package:open_file/open_file.dart';
 import 'package:photo_view/photo_view.dart';
 
 import 'message_audio_builder.dart';
@@ -51,29 +55,30 @@ class CustomMessageBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint(
         "> on CustomMessageBuilder ${message.type}, msg: ${message.toJson().toString()}");
+    Widget w = const SizedBox.shrink();
     try {
       String customType = message.metadata?['custom_type'] ?? '';
       if (customType == 'revoked') {
-        return RevokedMessageBuilder(
+        w = RevokedMessageBuilder(
           message: message,
           user: InheritedUser.of(context).user,
         );
       } else if (customType == 'quote') {
-        return QuoteMessageBuilder(
+        w = QuoteMessageBuilder(
           message: message,
           user: InheritedUser.of(context).user,
         );
       } else if (customType == 'video') {
-        return VideoMessageBuilder(
+        w = VideoMessageBuilder(
           message: message,
         );
       } else if (customType == 'audio') {
-        return AudioMessageBuilder(
+        w = AudioMessageBuilder(
           message: message,
           user: InheritedUser.of(context).user,
         );
       } else if (customType == 'location') {
-        return LocationMessageBuilder(
+        w = LocationMessageBuilder(
           message: message,
           user: InheritedUser.of(context).user,
         );
@@ -81,7 +86,10 @@ class CustomMessageBuilder extends StatelessWidget {
     } catch (e) {
       debugPrint("> on CustomMessageBuilder e ${e.toString()}");
     }
-    return const SizedBox.shrink();
+    return Container(
+      color: AppColors.ChatBg,
+      child: w,
+    );
   }
 }
 
@@ -107,24 +115,38 @@ Widget messageMsgWidget(types.Message msg) {
       overflow: TextOverflow.ellipsis,
     );
   } else if (msg is types.FileMessage) {
-    msgWidget = n.Column([
-      n.Row([
-        Text(
-          "[${'文件'.tr}] (${formatBytes(msg.size.truncate())})",
-          style: const TextStyle(color: AppColors.thirdElementText),
-        ),
-        // ImageView(img: message?.metadata?['thumb']['uri'], height: 40,),
-      ]),
-      n.Row([
-        Expanded(
-          child: Text(
+    msgWidget = InkWell(
+        onTap: () {
+          Get.defaultDialog(
+            title: 'Alert'.tr,
+            content: Text('确定要打开文件吗？'.tr),
+            textConfirm: '确定'.tr,
+            confirmTextColor: AppColors.primaryElementText,
+            onConfirm: () async {
+              File? tmpF = await IMBoyCacheManager().getSingleFile(
+                msg.uri,
+                key: generateMD5(msg.uri),
+              );
+              Get.back();
+              await OpenFile.open(tmpF.path);
+            },
+          );
+        },
+        child: n.Row([
+          Text(
+            "[${'文件'.tr}] (${formatBytes(msg.size.truncate())})",
+            style: const TextStyle(color: AppColors.thirdElementText),
+          ),
+          const SizedBox(
+            height: 40,
+            width: 20,
+          ),
+          Text(
             msg.name,
             style: const TextStyle(color: AppColors.thirdElementText),
           ),
-        ),
-        // ImageView(img: message?.metadata?['thumb']['uri'], height: 40,),
-      ])
-    ]);
+        ])
+          ..mainAxisAlignment = MainAxisAlignment.start);
   } else if (msg is types.ImageMessage) {
     // msgWidget = ImageMessageBuilder(
     //   message: msg, messageWidth: (Get.width * 0.618).toInt() ,
@@ -138,9 +160,7 @@ Widget messageMsgWidget(types.Message msg) {
       onTap: () async {
         // 检查网络状态
         var res = await Connectivity().checkConnectivity();
-        String width = Uri.parse(thumb)
-            .queryParameters['width'] ??
-            "";
+        String width = Uri.parse(thumb).queryParameters['width'] ?? "";
         // 如果有网络、并且图片有设置width，就从网络读取2倍清晰图片
         if (res != ConnectivityResult.none && width.isNotEmpty) {
           int w = int.parse(width) * 2;
@@ -189,7 +209,8 @@ Widget messageMsgWidget(types.Message msg) {
     // ]);
   } else if (customType == 'audio') {
     msgWidget = AudioMessageBuilder(
-      user: user, message: msg as types.CustomMessage,
+      user: user,
+      message: msg as types.CustomMessage,
     );
   } else if (customType == 'location') {
     msgWidget = LocationMessageBuilder(
@@ -197,7 +218,7 @@ Widget messageMsgWidget(types.Message msg) {
       message: msg as types.CustomMessage,
     );
   } else if (customType == 'quote') {
-    String txt =  msg.metadata?['quote_text'] ?? '';
+    String txt = msg.metadata?['quote_text'] ?? '';
     msgWidget = Text(
       "[${'引用'.tr}] $txt",
       style: const TextStyle(
