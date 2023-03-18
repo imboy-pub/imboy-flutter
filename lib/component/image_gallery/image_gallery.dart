@@ -1,9 +1,13 @@
 // ignore: depend_on_referenced_packages
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 // ignore: depend_on_referenced_packages
 import 'package:niku/namespace.dart' as n;
+import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 /// A class that represents an image showed in a preview widget.
@@ -111,4 +115,38 @@ class IMBoyImageGalleryOptions {
 
   /// See [PhotoViewGalleryPageOptions.minScale].
   final dynamic minScale;
+}
+
+/// 单击图片的时候放到显示图片的效果
+void zoomInPhotoView(String thumb) async {
+  ImageProvider thumbProvider = CachedNetworkImageProvider(
+    thumb,
+    cacheKey: generateMD5(thumb),
+  );
+  // 检查网络状态
+  var res = await Connectivity().checkConnectivity();
+  String width = Uri.parse(thumb).queryParameters['width'] ?? "";
+  // 如果有网络、并且图片有设置width，就从网络读取2倍清晰图片
+  if (res != ConnectivityResult.none && width.isNotEmpty) {
+    int w = int.parse(width) * 2;
+    thumb = thumb.replaceAll('&width=$width', '&width=$w');
+    thumbProvider = CachedNetworkImageProvider(
+      thumb,
+      // 不要缓存大文件，以节省设备存储空间
+      // cacheKey: generateMD5(thumb),
+    );
+  }
+  Get.bottomSheet(
+    InkWell(
+      onTap: () {
+        Get.back();
+      },
+      child: PhotoView(
+        imageProvider: thumbProvider,
+      ),
+    ),
+    // 是否支持全屏弹出，默认false
+    isScrollControlled: true,
+    enableDrag: false,
+  );
 }

@@ -2,6 +2,7 @@ import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/message/message.dart';
 import 'package:imboy/page/chat/chat_logic.dart';
 import 'package:jiffy/jiffy.dart';
@@ -39,6 +40,7 @@ class QuoteMessageBuilder extends StatelessWidget {
           color: AppColors.ChatSendMessageBgColor,
           nip: userIsAuthor ? BubbleNip.rightBottom : BubbleNip.leftBottom,
           nipRadius: 4,
+          style: const BubbleStyle(nipWidth: 16),
           margin: const BubbleEdges.only(top: 16, bottom: 0),
           padding: const BubbleEdges.only(top: 8, bottom: 8),
           child: Text(
@@ -60,6 +62,7 @@ class QuoteMessageBuilder extends StatelessWidget {
       Bubble(
         color: AppColors.AppBarColor,
         margin: const BubbleEdges.only(top: 4),
+        padding: const BubbleEdges.only(bottom: 10),
         child: n.Column([
           n.Padding(
             left: 10,
@@ -106,9 +109,28 @@ class QuoteMessageBuilder extends StatelessWidget {
                 ..mainAxisAlignment = MainAxisAlignment.end,
             ),
           ),
-          n.Padding(
-            bottom: 10,
-            child: n.Row([messageMsgWidget(quoteMsg)])
+          InkWell(
+            onDoubleTap: () async {
+              if (quoteMsg is types.TextMessage) {
+                showTextMessage(quoteMsg.text);
+              } else if (quoteMsg is types.ImageMessage) {
+                String thumb = quoteMsg.uri;
+                zoomInPhotoView(thumb);
+              } else if (quoteMsg is types.FileMessage) {
+                confirmOpenFile(quoteMsg.uri);
+              } else if (quoteMsg is types.CustomMessage) {
+                String txt = quoteMsg.metadata?['quote_text'] ?? '';
+                if (txt.isNotEmpty) {
+                  showTextMessage(txt);
+                }
+              }
+            },
+            child: n.Row([
+              SizedBox(
+                width: Get.width * 0.618,
+                child: messageMsgWidget(quoteMsg),
+              ),
+            ])
               ..mainAxisAlignment = MainAxisAlignment.center,
           ),
         ]),

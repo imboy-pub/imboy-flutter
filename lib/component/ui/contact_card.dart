@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/image_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:photo_view/photo_view.dart';
 
 // ignore: must_be_immutable
 class ContactCard extends StatelessWidget {
@@ -118,15 +118,7 @@ class ContactCard extends StatelessWidget {
             ),
             onTap: () {
               if (isNetWorkImg(avatar!)) {
-                Get.to(PhotoView(
-                    imageProvider: NetworkImage(avatar!),
-                    onTapUp: (c, f, s) => Navigator.of(context).pop(),
-                    maxScale: 3.0,
-                    minScale: 1.0,
-                  ),
-                  transition: Transition.rightToLeft,
-                  popGesture: true, // 右滑，返回上一页
-                );
+                zoomInPhotoView(avatar!);
               } else {
                 Get.snackbar('', '无头像'.tr);
               }

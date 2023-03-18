@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:fl_amap/fl_amap.dart' as flmap;
+import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/location/index.dart';
 import 'package:imboy/component/location/widget.dart';
 import 'package:imboy/component/webrtc/func.dart';
@@ -31,10 +32,13 @@ class ExtraItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onPressed ?? () => Get.snackbar('Tips', '功能暂未实现'),
-      child: Padding(
-        padding: const EdgeInsets.only(left: 15, top: 13, right: 15, bottom: 0),
-        child: Column(
-          children: [
+      child: n.Padding(
+        left: 15,
+        top: 13,
+        right: 15,
+        bottom: 0,
+        child: n.Column(
+          [
             SizedBox(
               width: width ?? 56,
               height: height ?? 56,
@@ -100,10 +104,10 @@ class _ExtraItemsState extends State<ExtraItems> {
   Widget build(BuildContext context) {
     const double iconSize = 30;
     var items = [
-      Column(
-        children: <Widget>[
-          Row(
-            children: [
+      n.Column(
+        [
+          n.Row(
+            [
               ExtraItem(
                 title: "照片".tr,
                 image: const Icon(Icons.photo, size: iconSize),
@@ -150,8 +154,8 @@ class _ExtraItemsState extends State<ExtraItems> {
               ),
             ],
           ),
-          Row(
-            children: [
+          n.Row(
+            [
               ExtraItem(
                 title: "位置".tr,
                 image: const Icon(Icons.location_on, size: iconSize),
@@ -203,9 +207,9 @@ class _ExtraItemsState extends State<ExtraItems> {
                 onPressed: null,
               ),
               ExtraItem(
-                title: "语音输入".tr,
-                image: const Icon(Icons.keyboard_voice, size: iconSize),
-                onPressed: null,
+                title: "文件".tr,
+                image: const Icon(Icons.file_copy, size: iconSize),
+                onPressed: widget.handleFileSelection,
               ),
               ExtraItem(
                 title: "个人名片".tr, // visit card
@@ -216,13 +220,13 @@ class _ExtraItemsState extends State<ExtraItems> {
           )
         ],
       ),
-      Column(
-        children: <Widget>[
-          Row(children: [
+      n.Column(
+        [
+          n.Row([
             ExtraItem(
-              title: "文件".tr,
-              image: const Icon(Icons.file_copy, size: iconSize),
-              onPressed: widget.handleFileSelection,
+              title: "语音输入".tr,
+              image: const Icon(Icons.keyboard_voice, size: iconSize),
+              onPressed: null,
             ),
             /**
                 ExtraItem(
@@ -235,8 +239,8 @@ class _ExtraItemsState extends State<ExtraItems> {
         ],
       ),
     ];
-    return Column(
-      children: <Widget>[
+    return n.Column(
+      [
         Expanded(
           child: CarouselSlider(
             options: CarouselOptions(

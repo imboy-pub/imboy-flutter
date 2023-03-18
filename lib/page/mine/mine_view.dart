@@ -1,11 +1,11 @@
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/page/single/about_imboy.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:photo_view/photo_view.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/list_tile_view.dart';
 import 'package:imboy/config/const.dart';
@@ -137,21 +137,7 @@ class MinePage extends StatelessWidget {
                                 const BorderRadius.all(Radius.circular(100.0)),
                             child: InkWell(
                               onTap: () {
-                                String avatar = controller.current.avatar;
-                                Get.bottomSheet(
-                                  InkWell(
-                                    onTap: () {
-                                      Get.back();
-                                    },
-                                    child: PhotoView(
-                                      imageProvider:
-                                          cachedImageProvider(avatar),
-                                    ),
-                                  ),
-                                  // 是否支持全屏弹出，默认false
-                                  isScrollControlled: true,
-                                  enableDrag: false,
-                                );
+                                zoomInPhotoView(controller.current.avatar);
                               },
                               child: Container(
                                 decoration: BoxDecoration(

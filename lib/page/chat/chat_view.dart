@@ -499,49 +499,20 @@ class ChatPageState extends State<ChatPage> {
 
   void _onMessageDoubleTap(BuildContext c1, types.Message message) async {
     if (message is types.TextMessage) {
-      getx.Get.bottomSheet(
-        InkWell(
-          onTap: () {
-            getx.Get.back();
-          },
-          child: Container(
-            width: double.infinity,
-            margin: const EdgeInsets.all(0.0),
-            height: double.infinity,
-            // Creates insets from offsets from the left, top, right, and bottom.
-            padding: const EdgeInsets.fromLTRB(16, 28, 0, 10),
-            alignment: Alignment.center,
-            color: Colors.white,
-            child: Center(
-              child: Scrollbar(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: Text(
-                    message.text,
-                    textAlign: TextAlign.left,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 24,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        // 是否支持全屏弹出，默认false
-        isScrollControlled: true,
-        enableDrag: false,
-      );
+      showTextMessage(message.text);
     } else if (message is types.FileMessage) {
-      File? tmpF = await IMBoyCacheManager()
-          .getSingleFile(message.uri, key: generateMD5(message.uri));
-      await OpenFile.open(tmpF.path);
+      confirmOpenFile(message.uri);
     } else if (message is types.ImageMessage) {
       galleryLogic.onImagePressed(message);
       setState(() {
         _showAppBar = false;
       });
+    } else if (message is types.CustomMessage) {
+      // String customType = message.metadata?['custom_type'] ?? '';
+      String txt = message.metadata?['quote_text'] ?? '';
+      if (txt.isNotEmpty) {
+        showTextMessage(txt);
+      }
     }
   }
 
@@ -889,20 +860,7 @@ class ChatPageState extends State<ChatPage> {
                     _showAppBar = false;
                   });
                 } else if (message is types.FileMessage) {
-                  Get.defaultDialog(
-                    title: 'Alert'.tr,
-                    content: Text('确定要打开文件吗？'.tr),
-                    textConfirm: '确定'.tr,
-                    confirmTextColor: AppColors.primaryElementText,
-                    onConfirm: () async {
-                      File? tmpF = await IMBoyCacheManager().getSingleFile(
-                        message.uri,
-                        key: generateMD5(message.uri),
-                      );
-                      Get.back();
-                      await OpenFile.open(tmpF.path);
-                    },
-                  );
+                  confirmOpenFile(message.uri);
                 }
               },
               onMessageLongPress: _onMessageLongPress,

@@ -171,6 +171,8 @@ dependencies:
   flutter_svg: ^2.0.3
   # 动画效果
   animate_do: ^3.0.2
+  equatable: ^2.0.5
+  upgrader: ^6.2.0
 
   #  flutter_webrtc:
   #    git:
