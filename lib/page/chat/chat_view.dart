@@ -7,8 +7,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/extension/imboy_cache_manager.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/message/message_image_builder.dart';
 import 'package:imboy/page/chat/send_to/send_to_view.dart';
 import 'package:imboy/service/websocket.dart';

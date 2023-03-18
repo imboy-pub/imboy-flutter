@@ -173,6 +173,11 @@ dependencies:
   animate_do: ^3.0.2
   equatable: ^2.0.5
   upgrader: ^6.2.0
+  jpush_flutter: ^2.4.2
+  #jpush_flutter:
+  #  git:
+  #    url: git://github.com/jpush/jpush-flutter-plugin.git
+  #    ref: master
 
   #  flutter_webrtc:
   #    git:
