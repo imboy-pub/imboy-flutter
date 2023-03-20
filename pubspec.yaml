@@ -118,6 +118,8 @@ dependencies:
   #  git:
   #    url: https://gitee.com/imboy-tripartite-deps/image_crop.git
   #    ref: leeyi
+  # 右键菜单功能 TODO replace popup_menu
+  context_menus: ^1.0.2
   # popup_menu: ^1.0.5
   popup_menu:
     git:
@@ -172,8 +174,10 @@ dependencies:
   # 动画效果
   animate_do: ^3.0.2
   equatable: ^2.0.5
-  upgrader: ^6.2.0
+  # Flutter应用升级/ Flutter App Upgrade /Flutter App Update/Flutter Update / 下载插件（有提示栏进度），支持全量升级、热更新和增量升级
+  r_upgrade: ^0.4.2
   jpush_flutter: ^2.4.2
+  flex_color_scheme: ^7.0.0-dev.3
   #jpush_flutter:
   #  git:
   #    url: git://github.com/jpush/jpush-flutter-plugin.git
@@ -225,14 +229,9 @@ flutter:
 
     - assets/images/conversation/sending.png
     - assets/images/ic_no_data.webp
-    - assets/images/right_more.png
-    - assets/images/ic_right_arrow_grey.webp
 
-    - assets/images/mine/ic_social_circle.png
-    - assets/images/mine/ic_wallet.webp
     - assets/images/mine/ic_card_package.png
     - assets/images/mine/ic_emoji.png
     - assets/images/mine/ic_pay.png
     - assets/images/mine/ic_setting.png
     - assets/images/mine/ic_collections.png
-    - assets/images/mine/ic_album.png

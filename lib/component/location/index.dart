@@ -29,7 +29,8 @@ Future<flmap.AMapLocation?> getLocation([bool needsAddress = false]) async {
   await flmap.FlAMapLocation().initialize(flmap.AMapLocationOption(
     gpsFirst: true,
     locationMode: flmap.AMapLocationMode.batterySaving,
-    desiredAccuracy: flmap.CLLocationAccuracy.kCLLocationAccuracyNearestTenMeters,
+    desiredAccuracy:
+        flmap.CLLocationAccuracy.kCLLocationAccuracyNearestTenMeters,
   ));
   return flmap.FlAMapLocation().getLocation(needsAddress);
 }

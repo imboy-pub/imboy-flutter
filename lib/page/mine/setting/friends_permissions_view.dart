@@ -16,6 +16,7 @@ class FriendsPermissionsPage extends StatelessWidget {
   }) : super(key: key);
 
   final logic = Get.put(SettingLogic());
+
   Future<void> initData() async {}
 
   @override

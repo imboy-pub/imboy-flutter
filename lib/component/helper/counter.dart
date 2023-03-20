@@ -16,8 +16,10 @@ import 'dart:async';
 ///  counter.close();
 class Counter {
   Timer? timer;
+
   // 初始值
   int count = 0;
+
   Counter({
     this.count = 0,
   });

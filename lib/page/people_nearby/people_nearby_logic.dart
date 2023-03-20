@@ -18,8 +18,8 @@ class PeopleNearbyLogic extends GetxController {
     ///Initialize variables
     init();
   }
-  Future<void> init() async {
 
+  Future<void> init() async {
     DateTime s = DateTime.now();
     flmap.AMapLocation? l = await getLocation(false);
 

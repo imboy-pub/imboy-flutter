@@ -39,7 +39,8 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
       margin: item['label'] == 'no_disturbing'
           ? const EdgeInsets.only(top: 10.0)
           : null,
-      isLine: item['id'] != 'strong_reminder', // '强提醒',
+      isLine: item['id'] != 'strong_reminder',
+      // '强提醒',
       isRight: false,
       rightW: SizedBox(
         height: 25.0,

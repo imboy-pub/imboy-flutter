@@ -26,6 +26,7 @@ class P2pCallScreenLogic extends getx.GetxController {
   var cameraOff = false.obs;
   var microphoneOff = false.obs;
   var speakerOn = true.obs;
+
   //
   getx.Rx<double> localX = 0.0.obs;
   getx.Rx<double> localY = 0.0.obs;
@@ -81,6 +82,7 @@ class P2pCallScreenLogic extends getx.GetxController {
 
   // bool callee = false;
   var connected = false.obs;
+
   //
   bool makingOffer = false;
   bool ignoreOffer = false;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common.dart';
@@ -200,8 +201,12 @@ class ScannerResultPage extends StatelessWidget {
               popGesture: true, // 右滑，返回上一页
             );
           },
-          child: const Image(
-            image: AssetImage('assets/images/right_more.png'),
+          child: n.Padding(
+            right: 10,
+            child: const Icon(
+              Icons.more_horiz,
+              // size: 40,
+            ),
           ),
         ),
       )

@@ -13,6 +13,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/pages.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
@@ -74,9 +75,8 @@ class IMBoyApp extends StatelessWidget {
         navigatorKey: navigatorKey,
         title: 'IMBoy',
         // 底部导航组件
-        home: UserRepoLocal.to.isLogin
-            ? BottomNavigationPage()
-            : PassportPage(),
+        home:
+            UserRepoLocal.to.isLogin ? BottomNavigationPage() : PassportPage(),
         debugShowCheckedModeBanner: false,
         getPages: AppPages.routes,
         // initialRoute: AppPages.INITIAL,
@@ -89,9 +89,12 @@ class IMBoyApp extends StatelessWidget {
         // ],
         translationsKeys: AppTranslation.translations,
 
-        translations: IMBoyTranslations(), // 你的翻译
-        locale: const Locale('zh', 'CN'), // 将会按照此处指定的语言翻译
-        fallbackLocale: const Locale('en', 'US'), // 添加一个回调语言选项，以备上面指定的语言翻译不存在
+        translations: IMBoyTranslations(),
+        // 你的翻译
+        locale: const Locale('zh', 'CN'),
+        // 将会按照此处指定的语言翻译
+        fallbackLocale: const Locale('en', 'US'),
+        // 添加一个回调语言选项，以备上面指定的语言翻译不存在
         defaultTransition: Transition.fade,
         opaqueRoute: Get.isOpaqueRouteDefault,
         popGesture: Get.isPopGestureEnable,

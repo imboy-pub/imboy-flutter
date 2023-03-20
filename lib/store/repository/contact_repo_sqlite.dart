@@ -19,6 +19,7 @@ class ContactRepo {
   static String source = 'source';
   static String updateTime = "update_time";
   static String isfriend = 'isfriend';
+
   //isfrom 好友关系发起人
   static String isfrom = 'isfrom';
 
@@ -88,7 +89,8 @@ class ContactRepo {
     return obj;
   }
 
-  Future<List<Map<String, dynamic>>> selectFriend({List<String>? columns}) async {
+  Future<List<Map<String, dynamic>>> selectFriend(
+      {List<String>? columns}) async {
     columns ??= [
       ContactRepo.uid,
       ContactRepo.nickname,
@@ -253,8 +255,8 @@ class ContactRepo {
       whereArgs: [uid],
     );
   }
-  // 记得及时关闭数据库，防止内存泄漏
-  // close() async {
-  //   await _db.close();
-  // }
+// 记得及时关闭数据库，防止内存泄漏
+// close() async {
+//   await _db.close();
+// }
 }

@@ -3,22 +3,31 @@ import 'package:flutter/material.dart';
 class IconTextView extends StatefulWidget {
   // 左侧 图标
   final Widget? leftIcon;
+
   // 左侧 图标资源地址
   final String? leftIconAsset;
+
   // 左侧 文案
   final String? leftText;
+
   // 左侧 文案组件
   final Widget? leftTextWidget;
+
   // 右侧 文案
   final String? rightText;
+
   // 右侧 文案组件
   final Widget? rightTextWidget;
+
   // 右侧 图标组件
   final Widget? rightIcon;
+
   // 右侧 图标资源地址
   final String? rightIconAsset;
+
   // 是否显示右侧箭头，默认显示
   final bool? shotArrow;
+
   // 点击事件
   final VoidCallback? onPressed;
   final Decoration? decoration;

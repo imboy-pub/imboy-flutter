@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
@@ -161,11 +162,13 @@ class ChatLogic extends GetxController {
       avatar: avatar!,
       title: title,
       subtitle: subtitle,
-      type: type, // C2C or GROUP
+      type: type,
+      // C2C or GROUP
       msgtype: msgType,
       lastMsgId: message.id,
       lasttime: createdAt,
-      lastMsgStatus: 10, // astMsgStatus 10 发送中 sending;  11 已发送 send;
+      lastMsgStatus: 10,
+      // astMsgStatus 10 发送中 sending;  11 已发送 send;
       unreadNum: 0,
       isShow: 1,
       id: 0,

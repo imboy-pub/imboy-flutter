@@ -784,7 +784,14 @@ class ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     var topRightWidget = [
       InkWell(
-        child: const Image(image: AssetImage('assets/images/right_more.png')),
+        // child: const Image(image: AssetImage('assets/images/right_more.png')),
+        child: n.Padding(
+          right: 10,
+          child: const Icon(
+            Icons.more_horiz,
+            // size: 40,
+          ),
+        ),
         onTap: () => getx.Get.to(
           widget.type == 'GROUP'
               ? GroupDetailPage(
@@ -813,7 +820,7 @@ class ChatPageState extends State<ChatPage> {
         getx.Obx(() {
           return connected.isTrue
               ? const SizedBox.shrink()
-              : const NetworkFailureTips();
+              : NetworkFailureTips();
         }),
         Expanded(
             child: n.Stack(

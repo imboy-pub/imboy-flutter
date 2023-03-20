@@ -3,6 +3,7 @@ class WebRTCSignalingModel {
   String from;
   String to;
   Map<String, dynamic> payload;
+
   WebRTCSignalingModel({
     required this.type,
     required this.from,

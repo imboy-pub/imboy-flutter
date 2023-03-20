@@ -30,6 +30,7 @@ class BottomNavigationPage extends StatelessWidget {
     /// 初始索引值
     initialPage: 0,
   );
+
   BottomNavigationPage({Key? key}) : super(key: key);
 
   @override

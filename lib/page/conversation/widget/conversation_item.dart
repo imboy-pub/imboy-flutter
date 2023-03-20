@@ -12,8 +12,10 @@ import 'package:niku/namespace.dart' as n;
 // ignore: must_be_immutable
 class ConversationItem extends StatelessWidget {
   final ConversationModel model;
+
   // 会话头像点击事件
   final Function()? onTapAvatar;
+
   // 当前会话未读消息数量
   RxInt remindCounter;
 

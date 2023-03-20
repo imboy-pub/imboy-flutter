@@ -4,6 +4,7 @@ import 'package:imboy/config/const.dart';
 class UserSettingModel {
   // 附近的人可见
   bool peopleNearbyVisible;
+
   // 聊天状态 hide online offline
   String chatState; //
 

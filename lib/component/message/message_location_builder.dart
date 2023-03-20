@@ -1,6 +1,7 @@
 import 'package:bubble/bubble.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,6 +11,7 @@ import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/config/init.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:niku/namespace.dart' as n;
+
 // import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/config/const.dart';
 

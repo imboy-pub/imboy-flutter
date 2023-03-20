@@ -56,13 +56,10 @@ class ListTileView extends StatelessWidget {
       isLabel ? text : Text(title!, style: titleStyle),
       const Spacer(),
       needRightArrow
-          ? SizedBox(
+          ? const SizedBox(
               width: 7.0,
-              child: Image(
-                image:
-                    const AssetImage('assets/images/ic_right_arrow_grey.webp'),
-                color: AppColors.MainTextColor.withOpacity(0.5),
-                fit: BoxFit.cover,
+              child: Icon(
+                Icons.navigate_next,
               ),
             )
           : const Space(),

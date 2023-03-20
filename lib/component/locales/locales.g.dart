@@ -11,6 +11,7 @@ class AppTranslation {
 
 class LocaleKeys {
   LocaleKeys._();
+
   static const button_cancel = 'button_cancel';
   static const button_accomplish = 'button_accomplish';
   static const button_taking_pictures = 'button_taking_pictures';

@@ -2,13 +2,15 @@ import 'dart:io' as io;
 
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart' as getx;
+import 'package:imboy/component/controller.dart';
+import 'package:jpush_flutter/jpush_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'package:imboy/component/controller.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -48,18 +50,9 @@ Map<String, dynamic>? iceConfiguration;
 EventBus eventBus = EventBus();
 GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-// https://github.com/dart-lang/web_socket_channel/issues/134
-class GlobalHttpOverrides extends io.HttpOverrides {
-  @override
-  io.HttpClient createHttpClient(io.SecurityContext? context) {
-    // 全局忽略Https证书验证
-    return super.createHttpClient(context)
-      ..badCertificateCallback =
-          (io.X509Certificate cert, String host, int port) => true;
-  }
-}
-
 List<AvailableMap> availableMaps = [];
+
+JPush push = JPush();
 
 Future<void> init() async {
   // 解决使用自签证书报错问题
@@ -74,7 +67,6 @@ Future<void> init() async {
   getx.Get.put(DeviceExt());
   getx.Get.put(UserRepoLocal(), permanent: true);
   getx.Get.lazyPut(() => ThemeController());
-
   Sqflite.setDebugModeOn();
 
   // Get.put<AuthController>(AuthController());
@@ -103,6 +95,33 @@ Future<void> init() async {
   ntpOffset = await StorageService.to.ntpOffset();
 
   await initIceServers();
+
+  push.addEventHandler(
+    // 接收通知回调方法。
+    onReceiveNotification: (Map<String, dynamic> message) async {
+      debugPrint("push onReceiveNotification: $message");
+    },
+    // 点击通知回调方法。
+    onOpenNotification: (Map<String, dynamic> message) async {
+      debugPrint("push onOpenNotification: $message");
+    },
+    // 接收自定义消息回调方法。
+    onReceiveMessage: (Map<String, dynamic> message) async {
+      debugPrint("push onReceiveMessage: $message");
+    },
+  );
+  // https://github.com/jpush/jpush-flutter-plugin/blob/master/documents/APIs.md
+  // addEventHandler 方法建议放到 setup 之前，其他方法需要在 setup 方法之后调用
+  push.setup(
+    appKey: JPUSH_APPKEY,
+    channel: "theChannel", //
+    production: false,
+    debug: kDebugMode ? true : false, // 设置是否打印 debug 日志
+  );
+  // 获取 registrationId，这个 JPush 运行通过 registrationId 来进行推送.
+  push.getRegistrationID().then((rid) {
+    debugPrint("push registrationId $rid");
+  });
 
   WidgetsBinding.instance.addObserver(
     LifecycleEventHandler(

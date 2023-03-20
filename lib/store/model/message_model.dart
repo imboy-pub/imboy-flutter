@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:imboy/store/model/contact_model.dart';
@@ -14,18 +15,23 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 class MessageStatus {
   // 发送中
   static const int sending = 10;
+
   //  已发送
   static const int send = 11;
+
   // 未读 已投递
   static const int delivered = 20;
+
   // 已读
   static const int seen = 21;
+
   // 错误（发送失败）
   static const int error = 41;
 }
 
 class ReEditMessage {
   String text;
+
   ReEditMessage({required this.text});
 }
 
@@ -39,6 +45,7 @@ class MessageModel {
   int? serverTs; // 服务器组装消息的时间戳
   //
   int? conversationId;
+
   // enum Status { delivered, error, seen, sending, sent }
   // types.Status status;
   // 10 发送中 sending;  11 已发送 send; 20 未读 delivered;  21 已读 seen; 41 错误（发送失败） error;

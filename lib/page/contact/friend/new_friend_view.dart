@@ -191,7 +191,11 @@ class NewFriendPage extends StatelessWidget {
                                   ),
                                 ),
                                 child: n.ListTile(
-                                  leading: Avatar(imgUri: model.avatar!, width: 56, height: 56,),
+                                  leading: Avatar(
+                                    imgUri: model.avatar!,
+                                    width: 56,
+                                    height: 56,
+                                  ),
                                   title: Text(model.nickname),
                                   subtitle: Text(model.msg),
                                   trailing: Container(
@@ -213,7 +217,8 @@ class NewFriendPage extends StatelessWidget {
                                         region: '',
                                         gender: 0,
                                         // status 0 待验证  1 已添加  2 已过期
-                                        isFriend: model.status == 1 ? true : false,
+                                        isFriend:
+                                            model.status == 1 ? true : false,
                                       ),
                                       transition: Transition.rightToLeft,
                                       popGesture: true, // 右滑，返回上一页

@@ -14,6 +14,7 @@ class UserRepoLocal extends GetxController {
   static UserRepoLocal get to => Get.find();
 
   bool get isLogin => accessToken.isNotEmpty;
+
   bool get hasToken => accessToken.isNotEmpty;
 
   //
@@ -24,11 +25,15 @@ class UserRepoLocal extends GetxController {
 
   // 令牌 token
   String get accessToken => StorageService.to.getString(Keys.tokenKey);
+
   String get refreshtoken => StorageService.to.getString(Keys.refreshtokenKey);
+
   String get currentUid => StorageService.to.getString(Keys.currentUid);
+
   UserModel get current => UserModel.fromJson(
         StorageService.to.getMap(Keys.currentUser),
       );
+
   String get lastLoginAccount =>
       StorageService.to.getString(Keys.lastLoginAccount);
 

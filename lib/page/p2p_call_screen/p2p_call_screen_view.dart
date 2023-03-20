@@ -19,6 +19,7 @@ class P2pCallScreenPage extends StatelessWidget {
   final P2pCallScreenLogic logic = Get.find<P2pCallScreenLogic>();
   final UserModel peer;
   final Map<String, dynamic> option;
+
   // option['media'] = video audio data
 
   final bool caller;
@@ -37,6 +38,7 @@ class P2pCallScreenPage extends StatelessWidget {
   final double localHeight = 72.0;
 
   Timer? answerTimer;
+
   init() async {
     bool microphoneDenied = await Permission.microphone.isPermanentlyDenied;
     // bool cameraDenied = await Permission.camera.isDenied;

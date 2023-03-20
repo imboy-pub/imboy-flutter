@@ -69,8 +69,10 @@ class _MapLocationPickerState extends State<MapLocationPicker>
 
   final _searchQueryController = TextEditingController();
   CustomStyleOptions customStyleOptions = CustomStyleOptions(false);
+
   //小蓝点
   MyLocationStyleOptions myLocationStyleOptions = MyLocationStyleOptions(false);
+
   // 当前地图中心点
   LatLng _currentCenterCoordinate = const LatLng(39.909187, 116.397451);
   CameraPosition _kInitialPosition = const CameraPosition(
@@ -126,10 +128,14 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       ),
       initialCameraPosition: _kInitialPosition,
       mapType: MapType.normal,
-      buildingsEnabled: true, // 是否显示3D建筑物
-      compassEnabled: false, // 是否指南针
-      labelsEnabled: true, // 是否显示底图文字
-      scaleEnabled: false, // 比例尺是否显示
+      buildingsEnabled: true,
+      // 是否显示3D建筑物
+      compassEnabled: false,
+      // 是否指南针
+      labelsEnabled: true,
+      // 是否显示底图文字
+      scaleEnabled: false,
+      // 比例尺是否显示
       touchPoiEnabled: true,
       rotateGesturesEnabled: true,
       scrollGesturesEnabled: true,

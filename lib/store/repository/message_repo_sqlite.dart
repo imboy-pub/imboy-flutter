@@ -8,6 +8,7 @@ class MessageRepo {
   static String tablename = 'message';
 
   static String id = 'id';
+
   // C2C GROUP
   static String type = 'type';
   static String from = 'from_id';
@@ -15,6 +16,7 @@ class MessageRepo {
   static String payload = 'payload';
   static String createdAt = 'created_at';
   static String serverTs = 'server_ts';
+
   //
   static String conversationId = 'conversation_id';
   static String status = 'status';

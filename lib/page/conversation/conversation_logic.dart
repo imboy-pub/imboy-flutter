@@ -159,8 +159,8 @@ class ConversationLogic extends GetxController {
       'is_show': 0,
     }));
   }
-  /**
-   * 是否当前会话的最后一条消息
-   */
-  // Future<bool> isLastMsg(String msgId) async {}
+/**
+ * 是否当前会话的最后一条消息
+ */
+// Future<bool> isLastMsg(String msgId) async {}
 }

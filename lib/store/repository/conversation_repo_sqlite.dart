@@ -16,8 +16,10 @@ class ConversationRepo {
   static String lastMsgId = 'last_msg_id';
   static String lastMsgStatus = 'last_msg_status';
   static String unreadNum = 'unread_num';
+
   // 等价与 msg type: C2C C2G 等等，根据type显示item
   static String type = 'type';
+
   // msgtype 定义见 ConversationModel/content 的定义
   static String msgtype = 'msgtype';
   static String isShow = "is_show";

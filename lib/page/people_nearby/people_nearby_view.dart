@@ -88,7 +88,8 @@ class PeopleNearbyPage extends StatelessWidget {
                                 // Your phone number will remain hidden.
 
                                 Get.defaultDialog(
-                                  title: '显示你的资料'.tr, // Show You Profile
+                                  title: '显示你的资料'.tr,
+                                  // Show You Profile
                                   content: Text(tips),
                                   textCancel: "  ${'取消'.tr}  ",
                                   textConfirm: "  ${'确定'.tr}  ",

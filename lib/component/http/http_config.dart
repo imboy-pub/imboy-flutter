@@ -1,3 +1,4 @@
+import 'dart:io' as io;
 import 'package:dio/dio.dart';
 
 /// dio 配置项
@@ -23,4 +24,15 @@ class HttpConfig {
   });
 
 // static DioConfig of() => Get.find<DioConfig>();
+}
+
+// https://github.com/dart-lang/web_socket_channel/issues/134
+class GlobalHttpOverrides extends io.HttpOverrides {
+  @override
+  io.HttpClient createHttpClient(io.SecurityContext? context) {
+    // 全局忽略Https证书验证
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (io.X509Certificate cert, String host, int port) => true;
+  }
 }

@@ -394,6 +394,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.2.4"
+  context_menus:
+    dependency: "direct main"
+    description:
+      name: context_menus
+      sha256: "25313f2a17dc936f541f8012761648cb58d936c5d6f6bf7282f137a4b9dedddb"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.2"
   convert:
     dependency: transitive
     description:
@@ -634,6 +642,22 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.5.1"
+  flex_color_scheme:
+    dependency: "direct main"
+    description:
+      name: flex_color_scheme
+      sha256: c8153899b7146143ca844da12bca910cf35eb58e65a8ffc3f8530820952be43c
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "7.0.0-dev.3"
+  flex_seed_scheme:
+    dependency: transitive
+    description:
+      name: flex_seed_scheme
+      sha256: e61950ccadfb8d43ce5cdef382e8f689edc053ce6b837e277539410ecfb3b3e5
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.2.2"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -1257,14 +1281,6 @@ packages:
       url: "https://gitee.com/mirrors_crazecoder/open_file.git"
     source: git
     version: "3.2.2"
-  os_detect:
-    dependency: transitive
-    description:
-      name: os_detect
-      sha256: faf3bcf39515e64da8ff76b2f2805b20a6ff47ae515393e535f8579ff91d6b7f
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.1"
   package_config:
     dependency: transitive
     description:
@@ -1546,6 +1562,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.1.0"
+  r_upgrade:
+    dependency: "direct main"
+    description:
+      name: r_upgrade
+      sha256: "14337dd29cf67265ec86e1d518212cb6b6eafe9167fd366b050ccb1656461c55"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.4.2"
   recase:
     dependency: transitive
     description:
@@ -1831,14 +1855,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.2.0"
-  upgrader:
-    dependency: "direct main"
-    description:
-      name: upgrader
-      sha256: "1498347497ef880668990021ad487fb5733a797f33357152a9a7ff0c202b1ac8"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "6.2.0"
   url_launcher:
     dependency: "direct main"
     description:
@@ -1943,14 +1959,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.4"
-  version:
-    dependency: transitive
-    description:
-      name: version
-      sha256: "3d4140128e6ea10d83da32fef2fa4003fccbf6852217bb854845802f04191f94"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.0.2"
   video_compress:
     dependency: "direct main"
     description:

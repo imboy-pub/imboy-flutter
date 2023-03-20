@@ -70,7 +70,7 @@ class QuoteTipsWidget extends StatelessWidget {
 
     String customType = message?.metadata?['custom_type'] ?? '';
     if (customType == 'quote') {
-      String txt =  message?.metadata?['quote_text'] ?? '';
+      String txt = message?.metadata?['quote_text'] ?? '';
       body = Text(
         "[${'引用'.tr}] $txt",
         style: const TextStyle(color: AppColors.thirdElementText),
@@ -83,8 +83,8 @@ class QuoteTipsWidget extends StatelessWidget {
       );
     } else if (customType == 'location') {
       body = Text(
-          "[${'位置'.tr}] ${message?.metadata?['title'] ?? ''}",
-          style: const TextStyle(color: AppColors.thirdElementText),
+        "[${'位置'.tr}] ${message?.metadata?['title'] ?? ''}",
+        style: const TextStyle(color: AppColors.thirdElementText),
       );
     } else if (customType == 'video') {
       body = n.Row([

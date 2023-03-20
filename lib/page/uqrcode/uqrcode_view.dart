@@ -143,8 +143,7 @@ class UqrcodePage extends StatelessWidget {
                         shape: BoxShape.rectangle,
                         borderRadius: BorderRadius.circular(10.0),
                         // color: defHeaderBgColor,
-                        image:
-                            dynamicAvatar(UserRepoLocal.to.current.avatar),
+                        image: dynamicAvatar(UserRepoLocal.to.current.avatar),
                       ),
                     ),
                     title: Text(UserRepoLocal.to.current.nickname),

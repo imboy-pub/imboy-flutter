@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:niku/namespace.dart' as n;
 import 'package:photo_view/photo_view.dart';

@@ -21,13 +21,16 @@ String uqrcodeDataSuffix = "s=uqrcode";
 const RECORD_LOG = true;
 
 String SENTRY_DSN = dotenv.get('SENTRY_DSN');
-//附件上传认证密钥
+// 附件上传认证密钥
 String UP_AUTH_KEY = dotenv.get('UP_AUTH_KEY');
 
-///高德地图 key
+// 高德地图 key
 String AMAP_WEBS_KEY = dotenv.get('AMAP_WEBS_KEY');
 String AMAP_IOS_KEY = dotenv.get('AMAP_IOS_KEY');
 String AMAP_ANDROID_KEY = dotenv.get('AMAP_ANDROID_KEY');
+
+// 极光推送 APPKEY
+String JPUSH_APPKEY = dotenv.get('JPUSH_APPKEY');
 
 String WS_URL = dotenv.get('WS_URL');
 String STUN_URL = dotenv.get('STUN_URL');
@@ -127,7 +130,7 @@ class AppColors {
 
   static const ChatInputBackgroundColor = Color.fromRGBO(240, 240, 240, 1.0);
   static const ChatInputFillGgColor = Color.fromRGBO(251, 251, 251, 1.0);
-  // end for chat
+// end for chat
 }
 
 const mainSpace = 10.0;

@@ -13,6 +13,7 @@ class ContactItem extends ISuspensionBean {
   final String title; // nickname or title
   final String? groupTitle;
   final bool isLine;
+
   // final ClickType type;
   final OnAdd? add;
   final OnCancel? cancel;
@@ -23,6 +24,7 @@ class ContactItem extends ISuspensionBean {
   final Color? bgColor;
   final IconData? iconData;
   final String? firstletter;
+
   //
 
   ContactItem({

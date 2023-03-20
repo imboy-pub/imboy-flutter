@@ -50,7 +50,7 @@ class ContactLogic extends GetxController {
     }
 
     return Container(
-      margin: const EdgeInsets.only(top: 6, left: 10, right: 10),
+      margin: const EdgeInsets.only(top: 6, left: 10, right: 20),
       width: Get.width,
       decoration: const BoxDecoration(
         border: Border(
@@ -70,7 +70,9 @@ class ContactLogic extends GetxController {
           child: model.iconData,
         ),
         contentPadding: const EdgeInsets.only(left: 0),
-        title: Text(model.title),
+        title: Text(
+          model.title,
+        ),
         onTap: model.onPressed ??
             () {
               if (model.uid != null) {

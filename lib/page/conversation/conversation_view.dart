@@ -92,9 +92,9 @@ class _ConversationPageState extends State<ConversationPage> {
     } else if (action == 'myqrcode') {
       Get.to(
         UqrcodePage(),
-          transition: Transition.rightToLeft,
-          popGesture: true, // 右滑，返回上一页
-        );
+        transition: Transition.rightToLeft,
+        popGesture: true, // 右滑，返回上一页
+      );
     }
   }
 
@@ -214,7 +214,7 @@ class _ConversationPageState extends State<ConversationPage> {
         Obx(() {
           return logic.connectDesc.isEmpty
               ? const SizedBox.shrink()
-              : const NetworkFailureTips();
+              : NetworkFailureTips();
         }),
         Expanded(
           child: SlidableAutoCloseBehavior(

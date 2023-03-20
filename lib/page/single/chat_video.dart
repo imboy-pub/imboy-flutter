@@ -9,6 +9,7 @@ import 'package:video_player/video_player.dart';
 class ChatVideoPage extends StatefulWidget {
   const ChatVideoPage({Key? key, required this.url}) : super(key: key);
   final String url;
+
   @override
   // ignore: library_private_types_in_public_api
   _ChatVideoPageState createState() => _ChatVideoPageState();

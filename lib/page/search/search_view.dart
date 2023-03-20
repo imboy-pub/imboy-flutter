@@ -75,9 +75,7 @@ class _SearchPageState extends State<SearchPage> {
         ),
         strNoEmpty(_searchC.text)
             ? InkWell(
-                child: const Image(
-                  image: AssetImage('assets/images/ic_delete.webp'),
-                ),
+                child: const Icon(Icons.backspace),
                 onTap: () {
                   _searchC.text = '';
                   setState(() {});

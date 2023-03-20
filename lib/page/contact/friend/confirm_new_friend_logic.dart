@@ -18,8 +18,10 @@ class ConfirmNewFriendLogic extends GetxController {
   RxString role = "all".obs;
 
   RxBool visibilityLook = true.obs;
+
   //  不让他（她）看
   RxBool donotlethimlook = false.obs;
+
   // 不看他（她）
   RxBool donotlookhim = false.obs;
 

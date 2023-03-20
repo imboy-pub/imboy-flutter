@@ -20,6 +20,7 @@ class ContactCard extends StatelessWidget {
   final bool? isBorder;
   final double? lineWidth;
   final EdgeInsets? padding;
+
   ContactCard({
     Key? key,
     required this.id,

@@ -5,15 +5,16 @@ import 'package:imboy/page/single/network_failure_guidance.dart';
 import 'package:get/get.dart' as getx;
 import 'package:niku/namespace.dart' as n;
 
+// ignore: must_be_immutable
 class NetworkFailureTips extends StatelessWidget {
-  const NetworkFailureTips({
-    Key? key,
-  }) : super(key: key);
+  Color? backgroundColor;
+
+  NetworkFailureTips({Key? key, this.backgroundColor}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color.fromRGBO(247, 226, 230, 1),
+      color: backgroundColor ?? const Color.fromRGBO(247, 226, 230, 1),
       child: RawMaterialButton(
         // highlightColor是点击的时候的高亮效果
         // highlightColor: const Color.fromRGBO(247, 226, 230, 1),

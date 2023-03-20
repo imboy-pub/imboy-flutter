@@ -14,6 +14,7 @@ class NewFriendRepo {
   static String nickname = 'nickname';
   static String avatar = 'avatar';
   static String msg = 'msg';
+
   // 0 待验证  1 已添加  2 已过期
   static String status = 'status';
 
@@ -180,8 +181,8 @@ class NewFriendRepo {
       whereArgs: [status, to],
     );
   }
-  // 记得及时关闭数据库，防止内存泄漏
-  // close() async {
-  //   await _db.close();
-  // }
+// 记得及时关闭数据库，防止内存泄漏
+// close() async {
+//   await _db.close();
+// }
 }

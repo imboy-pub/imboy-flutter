@@ -16,7 +16,9 @@ class _DragAreaStateStateful extends State<DragArea> {
   double scale = 1;
 
   void updateScale(double zoom) => setState(() => scale = prevScale * zoom);
+
   void commitScale() => setState(() => prevScale = scale);
+
   void updatePosition(Offset newPosition) {
     bool isLeft = true;
     final maxY = MediaQuery.of(context).size.height - 90;

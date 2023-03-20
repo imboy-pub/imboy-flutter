@@ -14,6 +14,9 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class PassportLogic extends GetxController {
+  // 网络状态描述
+  RxString connectDesc = "".obs;
+
   String? _error;
 
   /// 账号验证

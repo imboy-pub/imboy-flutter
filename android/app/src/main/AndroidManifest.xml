@@ -90,9 +90,15 @@
             android:value="2" />
         <!-- 高德定位Service -->
         <service android:name="com.amap.api.location.APSService"/>
+
     </application>
 
     <queries>
+        <!-- If your app opens https URLs -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
         <!-- If your app checks for SMS support -->
         <intent>
             <action android:name="android.intent.action.VIEW" />

@@ -28,6 +28,7 @@ class ContactSettingPage extends StatelessWidget {
   }) : super(key: key);
 
   final logic = Get.put(ContactSettingLogic());
+
   Future<void> initData() async {}
 
   @override

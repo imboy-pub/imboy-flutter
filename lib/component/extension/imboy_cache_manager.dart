@@ -10,6 +10,7 @@ class IMBoyCacheManager extends CacheManager {
   static const key = 'imboyCacheKey';
 
   static final IMBoyCacheManager _instance = IMBoyCacheManager._();
+
   factory IMBoyCacheManager() {
     return _instance;
   }

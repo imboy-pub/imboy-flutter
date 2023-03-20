@@ -12,11 +12,14 @@ class ConversationModel {
   String sign;
   final int? lasttime;
   String lastMsgId;
+
   // lastMsgStatus 10 发送中 sending;  11 已发送 send;
   final int? lastMsgStatus;
   int unreadNum;
+
   // 等价与 msg type: C2C C2G S2C 等等，根据type显示item
   final String type;
+
   //
   String msgtype;
   final int? isShow;

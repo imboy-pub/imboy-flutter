@@ -11,6 +11,7 @@ import 'package:imboy/config/const.dart';
 // ignore: must_be_immutable
 class AboutIMBoyPage extends StatelessWidget {
   AboutIMBoyPage({super.key});
+
   RxString mdstring = "".obs;
 
   void initData() async {

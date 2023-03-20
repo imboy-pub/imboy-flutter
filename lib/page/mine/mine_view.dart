@@ -17,17 +17,19 @@ import 'mine_logic.dart';
 // ignore: must_be_immutable
 class MinePage extends StatelessWidget {
   final MineLogic logic = Get.put(MineLogic());
+
   /*
   List data = [
     // {
     //   'label': '钱包',
-    //   'icon': 'assets/images/mine/ic_wallet.webp',
+    //   'icon': Icon(Icons.account_balance_wallet),
     //   'vertical': 10.0,
     //   'border':
     //       Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
     // },
     {
       'label': '朋友圈',
+    //   'icon': Icon(Icons.account_balance_wallet),
       'icon': 'assets/images/mine/ic_social_circle.png',
       'vertical': 0.0,
       'border': const Border(
@@ -50,7 +52,7 @@ class MinePage extends StatelessWidget {
     },
     // {
     //   'label': '相册',
-    //   'icon': 'assets/images/mine/ic_album.png',
+    //   'icon': Icon(Icons.photo_library),
     //   'vertical': 0.0,
     //   'border':
     //       Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
@@ -201,12 +203,12 @@ class MinePage extends StatelessWidget {
                           margin: const EdgeInsets.only(right: 10.0),
                           child: const Icon(Icons.qr_code_2),
                         ),
-                        const Image(
-                          image: AssetImage(
-                              'assets/images/ic_right_arrow_grey.webp'),
-                          width: 7.0,
-                          fit: BoxFit.cover,
-                        )
+                        const SizedBox(
+                          width: 16.0,
+                          child: Icon(
+                            Icons.navigate_next,
+                          ),
+                        ),
                       ],
                       // mainAxisAlignment: MainAxisAlignment.end,
                     ),

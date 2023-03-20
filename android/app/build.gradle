@@ -21,6 +21,11 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+def jPushAppKey = localProperties.getProperty('jpush.appKey')
+if (jPushAppKey == null) {
+    throw new FileNotFoundException("jPushAppKey not found. Define location with jpush.appKey in the local.properties file.")
+}
+
 apply plugin: 'com.android.application'
 
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
@@ -30,7 +35,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "pub.imoby.apk"
+        applicationId "pub.imboy.apk"
         minSdkVersion 23
         targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
@@ -42,6 +47,11 @@ android {
             abiFilters 'armeabi', 'armeabi-v7a', 'x86', 'x86_64', 'mips', 'mips64', 'arm64-v8a'
             // 还可以添加 'x86', 'x86_64', 'mips', 'mips64'
         }
+        manifestPlaceholders = [
+            JPUSH_PKGNAME : applicationId,
+            JPUSH_APPKEY : jPushAppKey, //JPush 上注册的包名对应的 Appkey.
+            JPUSH_CHANNEL : "developer-default", //暂时填写默认值即可.
+        ]
     }
     dependencies {
         implementation "androidx.multidex:multidex:2.0.1"
