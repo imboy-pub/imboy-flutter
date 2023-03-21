@@ -1,11 +1,15 @@
+import 'dart:convert';
 import 'dart:io' as io;
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart' as getx;
+import 'package:get/get.dart';
 import 'package:imboy/component/controller.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:jpush_flutter/jpush_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:map_launcher/map_launcher.dart';
@@ -100,10 +104,23 @@ Future<void> init() async {
     // 接收通知回调方法。
     onReceiveNotification: (Map<String, dynamic> message) async {
       debugPrint("push onReceiveNotification: $message");
+      // Map<dynamic, dynamic> extra = message['extras'];
+      // String androidExtra = extra['cn.jpush.android.EXTRA'] ?? '';
+      // Map<String, dynamic> extra2 = jsonDecode(androidExtra);
     },
+
     // 点击通知回调方法。
     onOpenNotification: (Map<String, dynamic> message) async {
-      debugPrint("push onOpenNotification: $message");
+      // debugPrint("push onOpenNotification: $message");
+      Map<dynamic, dynamic> extra = message['extras'];
+      String androidExtra = extra['cn.jpush.android.EXTRA'] ?? '';
+      Map<String, dynamic> extra2 = jsonDecode(androidExtra);
+
+      String peerId = extra2['peerId'] ?? '';
+      String type = extra2['type'].toString().toLowerCase();
+      if (type == 'c2c' || type == 'c2g') {
+        toChatPage(peerId, type);
+      }
     },
     // 接收自定义消息回调方法。
     onReceiveMessage: (Map<String, dynamic> message) async {
@@ -118,10 +135,6 @@ Future<void> init() async {
     production: false,
     debug: kDebugMode ? true : false, // 设置是否打印 debug 日志
   );
-  // 获取 registrationId，这个 JPush 运行通过 registrationId 来进行推送.
-  push.getRegistrationID().then((rid) {
-    debugPrint("push registrationId $rid");
-  });
 
   WidgetsBinding.instance.addObserver(
     LifecycleEventHandler(
@@ -143,5 +156,12 @@ Future<void> init() async {
       },
     ),
   );
+  // 监听网络状态
+  Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
+    if (r != ConnectivityResult.none) {
+      // 检查WS链接状态
+      WSService.to.openSocket();
+    }
+  });
   // debugPrint(">>> on currentTimeMillis init ${ntpOffset}");
 }

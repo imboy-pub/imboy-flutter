@@ -63,6 +63,10 @@ class ContactModel extends ISuspensionBean {
         // sourceTr = 'source_qrcode'.tr;
         sourceTr = '通过扫一扫添加'.tr;
         break;
+      case 'people_nearby':
+        // sourceTr = 'source_qrcode'.tr;
+        sourceTr = '附近的人'.tr;
+        break;
     }
     return sourceTr;
   }
@@ -85,7 +89,7 @@ class ContactModel extends ISuspensionBean {
       nickname: json["nickname"].toString(),
       avatar: json["avatar"].toString(),
       gender: json["gender"] ?? 0,
-      status: json["status"]?.toString(),
+      status: json["status"] ?? '',
       remark: json["remark"].toString(),
       region: json["region"].toString(),
       source: json["source"].toString(),

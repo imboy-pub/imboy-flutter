@@ -23,7 +23,7 @@ enum SocketStatus {
 class WSService extends GetxService {
   static WSService get to => Get.find();
 
-  Iterable<String> subprotocol = ['sip', 'text'];
+  Iterable<String> subprotocol = ['text', 'sip'];
   String pingMsg = 'ping';
 
   IOWebSocketChannel? _webSocketChannel; // WebSocket

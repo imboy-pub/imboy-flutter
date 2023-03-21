@@ -66,9 +66,10 @@ android {
         // 高德 end
 
         // https://docs.jiguang.cn/jpush/client/Android/android_guide
-        implementation 'cn.jiguang.sdk:jpush:4.8.5'  // 此处以JPush 4.8.5 版本为例。
-        implementation 'cn.jiguang.sdk:jcore:4.0.0'  // 此处以JCore 4.0.0 版本为例。
-
+        // implementation 'cn.jiguang.sdk:jpush:4.8.5'  // 此处以JPush 4.8.5 版本为例。
+        // implementation 'cn.jiguang.sdk:jcore:4.0.0'  // 此处以JCore 4.0.0 版本为例。
+        implementation 'cn.jiguang.sdk:jpush:4.9.0'
+        implementation 'cn.jiguang.sdk:jcore:4.1.0'
     }
 
     //apply plugin: 'com.google.gms.google-services'
