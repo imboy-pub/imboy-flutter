@@ -17,7 +17,7 @@ buildscript {
         }
         maven {
             allowInsecureProtocol = true
-            url 'https://maven.aliyun.com/repository/google-plugin'
+            url 'https://maven.aliyun.com/repository/gradle-plugin'
         }
         maven {
             allowInsecureProtocol = true
@@ -37,11 +37,11 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.android.tools.build:gradle:7.1.2'
-        // fcm
-        //classpath 'com.google.gms:google-services:4.3.10'
+        classpath 'com.android.tools.build:gradle:7.2.1'
         // hms
-        //classpath 'com.huawei.agconnect:agcp:1.4.1.300'
+        classpath 'com.huawei.agconnect:agcp:1.6.0.300'
+        // fcm
+        classpath 'com.google.gms:google-services:4.3.10'
     }
 }
 
@@ -63,7 +63,7 @@ allprojects {
         }
         maven {
             allowInsecureProtocol = true
-            url 'https://maven.aliyun.com/repository/google-plugin'
+            url 'https://maven.aliyun.com/repository/gradle-plugin'
         }
         maven {
             allowInsecureProtocol = true

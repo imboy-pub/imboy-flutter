@@ -127,7 +127,7 @@ dependencies:
       ref: master
   niku: ^2.3.3
   # 二维码扫描
-  mobile_scanner: ^3.0.0
+  mobile_scanner: ^3.1.0
   # mobile_scanner:
   #  git:
   #    url: https://gitee.com/imboy-tripartite-deps/mobile_scanner.git
@@ -178,6 +178,7 @@ dependencies:
   r_upgrade: ^0.4.2
   jpush_flutter: ^2.4.2
   flex_color_scheme: ^7.0.0-dev.3
+  uni_links: ^0.5.1
   #jpush_flutter:
   #  git:
   #    url: git://github.com/jpush/jpush-flutter-plugin.git

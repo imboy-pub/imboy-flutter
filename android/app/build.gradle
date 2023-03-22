@@ -66,14 +66,18 @@ android {
         // 高德 end
 
         // https://docs.jiguang.cn/jpush/client/Android/android_guide
-        // implementation 'cn.jiguang.sdk:jpush:4.8.5'  // 此处以JPush 4.8.5 版本为例。
-        // implementation 'cn.jiguang.sdk:jcore:4.0.0'  // 此处以JCore 4.0.0 版本为例。
         implementation 'cn.jiguang.sdk:jpush:4.9.0'
         implementation 'cn.jiguang.sdk:jcore:4.1.0'
+        // 接入 FCM 厂商
+        implementation 'com.google.firebase:firebase-messaging:23.0.5'
+        // 接入华为厂商
+        implementation 'com.huawei.hms:push:6.3.0.304'
+        implementation 'com.huawei.agconnect:agconnect-core:1.5.2.300'
+        implementation 'cn.jiguang.sdk.plugin:huawei:4.8.5'// 极光厂商插件版本与接入 JPush 版本保持一致，下同
     }
 
-    //apply plugin: 'com.google.gms.google-services'
-    //apply plugin: 'com.huawei.agconnect'
+    apply plugin: 'com.google.gms.google-services'
+    apply plugin: 'com.huawei.agconnect'
 
     buildTypes {
         release {

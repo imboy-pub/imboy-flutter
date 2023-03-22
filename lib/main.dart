@@ -40,7 +40,7 @@ void run() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await init();
-
+  await initJPush();
   if (kDebugMode) {
     run();
   } else {

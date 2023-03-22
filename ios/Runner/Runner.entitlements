@@ -32,5 +32,9 @@
 	<true/>
 	<key>com.apple.security.print</key>
 	<true/>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:imboy.pub</string>
+	</array>
 </dict>
 </plist>

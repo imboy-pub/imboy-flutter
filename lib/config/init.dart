@@ -100,42 +100,6 @@ Future<void> init() async {
 
   await initIceServers();
 
-  push.addEventHandler(
-    // 接收通知回调方法。
-    onReceiveNotification: (Map<String, dynamic> message) async {
-      debugPrint("push onReceiveNotification: $message");
-      // Map<dynamic, dynamic> extra = message['extras'];
-      // String androidExtra = extra['cn.jpush.android.EXTRA'] ?? '';
-      // Map<String, dynamic> extra2 = jsonDecode(androidExtra);
-    },
-
-    // 点击通知回调方法。
-    onOpenNotification: (Map<String, dynamic> message) async {
-      // debugPrint("push onOpenNotification: $message");
-      Map<dynamic, dynamic> extra = message['extras'];
-      String androidExtra = extra['cn.jpush.android.EXTRA'] ?? '';
-      Map<String, dynamic> extra2 = jsonDecode(androidExtra);
-
-      String peerId = extra2['peerId'] ?? '';
-      String type = extra2['type'].toString().toLowerCase();
-      if (type == 'c2c' || type == 'c2g') {
-        toChatPage(peerId, type);
-      }
-    },
-    // 接收自定义消息回调方法。
-    onReceiveMessage: (Map<String, dynamic> message) async {
-      debugPrint("push onReceiveMessage: $message");
-    },
-  );
-  // https://github.com/jpush/jpush-flutter-plugin/blob/master/documents/APIs.md
-  // addEventHandler 方法建议放到 setup 之前，其他方法需要在 setup 方法之后调用
-  push.setup(
-    appKey: JPUSH_APPKEY,
-    channel: "theChannel", //
-    production: false,
-    debug: kDebugMode ? true : false, // 设置是否打印 debug 日志
-  );
-
   WidgetsBinding.instance.addObserver(
     LifecycleEventHandler(
       resumeCallBack: () async {
@@ -164,4 +128,51 @@ Future<void> init() async {
     }
   });
   // debugPrint(">>> on currentTimeMillis init ${ntpOffset}");
+}
+
+Future<void> initJPush() async {
+  push.addEventHandler(
+    // 接收通知回调方法。
+    onReceiveNotification: (Map<String, dynamic> message) async {
+      debugPrint("push onReceiveNotification: $message");
+      // Map<dynamic, dynamic> extra = message['extras'];
+      // String androidExtra = extra['cn.jpush.android.EXTRA'] ?? '';
+      // Map<String, dynamic> extra2 = jsonDecode(androidExtra);
+    },
+
+    // 点击通知回调方法。
+    onOpenNotification: (Map<String, dynamic> message) async {
+      // debugPrint("push onOpenNotification: $message");
+      Map<dynamic, dynamic> extra = message['extras'];
+      String androidExtra = extra['cn.jpush.android.EXTRA'] ?? '';
+      Map<String, dynamic> extra2 = jsonDecode(androidExtra);
+
+      String type = extra2['type'] ?? '';
+      String msgType = extra2['msgType'] ?? '';
+      String peerId = extra2['peerId'] ?? '';
+      type = type.toLowerCase();
+      msgType = msgType.toLowerCase();
+      if (type == 'c2c' || type == 'c2g') {
+        toChatPage(peerId, type);
+      }
+    },
+    // 接收自定义消息回调方法。
+    onReceiveMessage: (Map<String, dynamic> message) async {
+      debugPrint("push onReceiveMessage: $message");
+    },
+  );
+  // https://docs.jiguang.cn/jpush/practice/compliance
+  // push.setAuth(enable: false); // 后续初始化过程将被拦截
+
+  // 调整点二：隐私政策授权获取成功后调用
+  // push.setAuth(enable: true); //如初始化被拦截过，将重试初始化过程
+
+  // https://github.com/jpush/jpush-flutter-plugin/blob/master/documents/APIs.md
+  // addEventHandler 方法建议放到 setup 之前，其他方法需要在 setup 方法之后调用
+  push.setup(
+    appKey: JPUSH_APPKEY,
+    channel: "theChannel", //
+    production: false,
+    debug: kDebugMode ? true : false, // 设置是否打印 debug 日志
+  );
 }

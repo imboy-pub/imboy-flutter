@@ -109,5 +109,20 @@
 	<false/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+ 	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<!-- [ANY_URL_NAME] -->
+			<string>imboy.pub</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<!-- [YOUR_SCHEME] -->
+				<string>imboy</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
