@@ -105,11 +105,11 @@ class NewFriendPage extends StatelessWidget {
 
                             if (model.status ==
                                 NewFriendStatus.waiting_for_validation.index) {
-                              DateTime dt =
-                                  Jiffy.unixFromMillisecondsSinceEpoch(
-                                          model.createTime)
-                                      .dateTime;
-                              int diff = Jiffy().diff(dt, Units.DAY) as int;
+                              Jiffy dt = Jiffy.parseFromMillisecondsSinceEpoch(
+                                model.createTime,
+                              );
+                              int diff =
+                                  Jiffy.now().diff(dt, unit: Unit.day) as int;
                               if (diff > 7) {
                                 model.status = NewFriendStatus.expired.index;
                               }

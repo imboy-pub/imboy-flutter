@@ -29,7 +29,7 @@ void run() async {
   String? local = Intl.shortLocale(ui.window.locale.toString());
   debugPrint(">>> on main $local");
   // zh_Hans_CN ui.window.locale.toString();
-  await Jiffy.locale(local);
+  await Jiffy.setLocale(local);
   // 强制竖屏 DeviceOrientation.portraitUp
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {

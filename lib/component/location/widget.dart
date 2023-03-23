@@ -45,15 +45,7 @@ class MapLocationPicker extends StatefulWidget {
 class _MapLocationPickerState extends State<MapLocationPicker>
     with SingleTickerProviderStateMixin, _BLoCMixin, _AnimationMixin {
   double _currentZoom = 15.0;
-  final AMapApiKey amapApiKeys = AMapApiKey(
-    androidKey: AMAP_ANDROID_KEY,
-    iosKey: AMAP_IOS_KEY,
-  );
-  final AMapPrivacyStatement aMapPrivacyStatement = const AMapPrivacyStatement(
-    hasContains: true,
-    hasShow: true,
-    hasAgree: true,
-  );
+
   AMapController? _controller;
   final PanelController _panelController = PanelController();
   FocusNode focusNode = FocusNode();
@@ -520,7 +512,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       10,
       page,
     );
-    debugPrint("amap_search ${response.toString()}");
+    debugPrint("> on amap_search ${response.toString()}");
     List poiList = [];
     String status = response.data["status"] ?? 0;
     if (response.statusCode == 200 && status == "1") {

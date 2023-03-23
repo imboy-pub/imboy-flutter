@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:fl_amap/fl_amap.dart' as flmap;
+import 'package:fl_amap/fl_amap.dart' as amap;
 
 import 'package:imboy/component/location/index.dart';
 import 'package:imboy/store/model/people_model.dart';
@@ -21,7 +21,7 @@ class PeopleNearbyLogic extends GetxController {
 
   Future<void> init() async {
     DateTime s = DateTime.now();
-    flmap.AMapLocation? l = await getLocation(false);
+    amap.AMapLocation? l = await getLocation(false);
 
     DateTime end = DateTime.now();
     debugPrint(
@@ -33,12 +33,13 @@ class PeopleNearbyLogic extends GetxController {
 
   Future<void> peopleNearby() async {
     if (state.longitude.isEmpty) {
-      flmap.AMapLocation? l = await getLocation(false);
+      amap.AMapLocation? l = await getLocation(false);
       state.longitude.value = '${l?.latLng?.longitude}';
       state.latitude.value = '${l?.latLng?.latitude}';
     }
     if (state.longitude.value.isEmpty || state.longitude.value == "null") {
-      EasyLoading.showInfo("${'无法获取经纬度'.tr}\n${'或者'.tr}\n${'您还没有打开位置信息服务'.tr}");
+      EasyLoading.showInfo(
+          "${'无法获取经纬度'.tr}\n${'您还没有打开位置信息服务'.tr}\n${'或者'.tr} ${'您还没有授权获取经纬度'.tr}");
       return;
     }
     // debugPrint("PeopleNearbyLogic peopleNearby ${state.longitude.value.isEmpty} = ${state.longitude.value} ");

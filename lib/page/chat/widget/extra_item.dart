@@ -4,7 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:fl_amap/fl_amap.dart' as flmap;
+import 'package:fl_amap/fl_amap.dart' as amap;
 import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/location/index.dart';
 import 'package:imboy/component/location/widget.dart';
@@ -160,7 +160,7 @@ class _ExtraItemsState extends State<ExtraItems> {
                 title: "位置".tr,
                 image: const Icon(Icons.location_on, size: iconSize),
                 onPressed: () async {
-                  flmap.AMapLocation? location = await getLocation(true);
+                  amap.AMapLocation? location = await getLocation(true);
                   debugPrint("getLocation ${location?.toMap()}");
                   if (location != null && location.latLng != null) {
                     // ignore: use_build_context_synchronously

@@ -48,21 +48,20 @@ android {
             // 还可以添加 'x86', 'x86_64', 'mips', 'mips64'
         }
         manifestPlaceholders = [
-            JPUSH_PKGNAME : applicationId,
-            JPUSH_APPKEY : jPushAppKey, //JPush 上注册的包名对应的 Appkey.
-            JPUSH_CHANNEL : "developer-default", //暂时填写默认值即可.
+                JPUSH_PKGNAME : applicationId,
+                JPUSH_APPKEY : jPushAppKey, //JPush 上注册的包名对应的 Appkey.
+                JPUSH_CHANNEL : "developer-default", //暂时填写默认值即可.
         ]
     }
     dependencies {
         implementation "androidx.multidex:multidex:2.0.1"
         // 高德
         //定位功能
-        implementation "com.amap.api:location:latest.integration"
-        //3D地图
-        // implementation "com.amap.api:map3d:latest.integration"
-        implementation "com.amap.api:3dmap:8.1.0"
+        implementation "com.amap.api:location:6.2.0"
+        //3D地图 高于 3dmap:9.2.1 版本会和 location 有兼容性问题
+        implementation "com.amap.api:3dmap:9.2.1"
         //搜索功能
-        implementation "com.amap.api:search:latest.integration"
+        implementation "com.amap.api:search:9.5.0"
         // 高德 end
 
         // https://docs.jiguang.cn/jpush/client/Android/android_guide
@@ -79,11 +78,34 @@ android {
     apply plugin: 'com.google.gms.google-services'
     apply plugin: 'com.huawei.agconnect'
 
+    /*
+    signingConfigs {
+        release {
+            v1SigningEnabled true
+            v2SigningEnabled true
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+
+        debug {//debug版签名配置
+            v1SigningEnabled true
+            v2SigningEnabled true
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+    */
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
+            minifyEnabled false//删除无用代码
+            shrinkResources false//删除无用资源
         }
     }
     compileOptions {

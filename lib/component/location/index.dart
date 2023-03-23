@@ -3,14 +3,14 @@ import 'dart:math' as math;
 import 'package:amap_flutter_base/amap_flutter_base.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:fl_amap/fl_amap.dart' as flmap;
+import 'package:fl_amap/fl_amap.dart' as amap;
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/permission.dart';
 import 'package:imboy/config/const.dart';
 
 ///  直接获取定位
 ///  @param needsAddress 是否需要详细地址信息 默认false
-Future<flmap.AMapLocation?> getLocation([bool needsAddress = false]) async {
+Future<amap.AMapLocation?> getLocation([bool needsAddress = false]) async {
   // 检查网络状态
   var res = await Connectivity().checkConnectivity();
   if (res == ConnectivityResult.none) {
@@ -20,19 +20,19 @@ Future<flmap.AMapLocation?> getLocation([bool needsAddress = false]) async {
   if (serviceStatusIsEnabled == false) {
     return null;
   }
-  await flmap.setAMapKey(
+  await amap.setAMapKey(
     iosKey: AMAP_IOS_KEY,
     androidKey: AMAP_ANDROID_KEY,
   );
 
   /// 初始化AMap
-  await flmap.FlAMapLocation().initialize(flmap.AMapLocationOption(
+  await amap.FlAMapLocation().initialize(amap.AMapLocationOption(
     gpsFirst: true,
-    locationMode: flmap.AMapLocationMode.batterySaving,
+    locationMode: amap.AMapLocationMode.batterySaving,
     desiredAccuracy:
-        flmap.CLLocationAccuracy.kCLLocationAccuracyNearestTenMeters,
+        amap.CLLocationAccuracy.kCLLocationAccuracyNearestTenMeters,
   ));
-  return flmap.FlAMapLocation().getLocation(needsAddress);
+  return amap.FlAMapLocation().getLocation(needsAddress);
 }
 
 class AMapPosition {
@@ -161,7 +161,7 @@ class LocationHelper {
     }
   }
 
-  ///高德定位搜索https://restapi.amap.com/v5/place/text?parameters
+  /// 高德定位搜索https://restapi.amap.com/v5/place/text?parameters
   /// https://lbs.amap.com/api/webservice/guide/api/search
   static Future<Response> getAmapPoi(
     String location,
@@ -169,14 +169,18 @@ class LocationHelper {
     int page,
     int size,
   ) async {
-    return await Dio()
-        .get("https://restapi.amap.com/v5/place/around", queryParameters: {
+    Map<String, dynamic> queryParameters = {
       "key": AMAP_WEBS_KEY,
       "location": location,
       "types": types,
       "page_size": page.toString(),
       "page_num": size.toString()
-    });
+    };
+    debugPrint("amapapi_getAmapPoi ${queryParameters.toString()}");
+    return await Dio().get(
+      "https://restapi.amap.com/v5/place/around",
+      queryParameters: queryParameters,
+    );
   }
 
   static Future<Response> getMapByKeyword(
@@ -187,16 +191,21 @@ class LocationHelper {
     int page,
     int size,
   ) async {
-    return await Dio()
-        .get("https://restapi.amap.com/v5/place/text", queryParameters: {
+    Map<String, dynamic> queryParameters = {
       "key": AMAP_WEBS_KEY,
       "keywords": keywords,
       "types": types,
       "region": region,
-      "citylimit": cityLimit.toString(),
+      "city_limit": cityLimit.toString(),
       "page_size": page.toString(),
       "page_num": size.toString()
-    });
+    };
+    debugPrint("amapapi_getMapByKeyword ${queryParameters.toString()}");
+    // https://lbs.amap.com/api/webservice/guide/api/newpoisearch
+    return await Dio().get(
+      "https://restapi.amap.com/v5/place/text",
+      queryParameters: queryParameters,
+    );
   }
 }
 

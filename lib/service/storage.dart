@@ -68,7 +68,7 @@ class StorageService extends GetxService {
           lookUpAddress: 'time5.cloud.tencent.com',
         );
         // debugPrint(">>> on currentTimeMillis offset2 ${offset}");
-        String dt = Jiffy().format('y-MM-dd HH:mm:ss');
+        String dt = Jiffy.now().format(pattern: 'y-MM-dd HH:mm:ss');
         val = '$dt$offset';
         // debugPrint(">>> on currentTimeMillis val2 ${val}");
         _prefs.setString(key, val);
@@ -76,7 +76,10 @@ class StorageService extends GetxService {
       } catch (e) {}
     } else {
       // 2022-01-23 00:30:35 字符串的长度刚好19位
-      offset = Jiffy().diff(val.substring(0, 19), Units.SECOND) as int;
+      offset = Jiffy.now().diff(
+        Jiffy.parse(val.substring(0, 19)),
+        unit: Unit.second,
+      ) as int;
       if (offset > 3600) {
         await _prefs.remove(key);
         return ntpOffset();

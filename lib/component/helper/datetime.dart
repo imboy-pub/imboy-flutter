@@ -3,29 +3,36 @@ import 'package:jiffy/jiffy.dart';
 
 class DateTimeHelper {
   static String customDateHeader(DateTime dt) {
-    int diff = Jiffy().diff(dt, Units.DAY) as int;
+    int diff = Jiffy.now().diff(
+      Jiffy.parseFromDateTime(dt),
+      unit: Unit.day,
+    ) as int;
     if (diff > 6) {
       // 2022-01-22 11:58
-      return Jiffy(dt).format('y-MM-dd HH:mm');
+      return Jiffy.parseFromDateTime(dt).format(pattern: 'y-MM-dd HH:mm');
     } else if (diff > 2) {
       // 星期二 09:18
-      return Jiffy(dt).format('EEEE HH:mm');
+      return Jiffy.parseFromDateTime(dt).format(pattern: 'EEEE HH:mm');
     } else {
-      return Jiffy(dt).startOf(Units.MINUTE).fromNow();
+      return Jiffy.parseFromDateTime(dt).startOf(Unit.minute).fromNow();
     }
   }
 
   static String lastConversationFmt(int lasttime) {
-    DateTime dt = Jiffy.unixFromMillisecondsSinceEpoch(lasttime).dateTime;
-    int diff = Jiffy().diff(dt, Units.DAY) as int;
+    // DateTime dt = Jiffy.unixFromMillisecondsSinceEpoch(lasttime).dateTime;
+    DateTime dt = Jiffy.parseFromMillisecondsSinceEpoch(lasttime).dateTime;
+    int diff = Jiffy.now().diff(
+      Jiffy.parseFromDateTime(dt),
+      unit: Unit.day,
+    ) as int;
     if (diff > 6) {
       // 2022-01-22
-      return Jiffy(dt).format('y-MM-dd');
+      return Jiffy.parseFromDateTime(dt).format(pattern: 'y-MM-dd');
     } else if (diff > 2) {
       // 星期二 09:18
-      return Jiffy(dt).format('EEEE HH:mm');
+      return Jiffy.parseFromDateTime(dt).format(pattern: 'EEEE HH:mm');
     } else {
-      return Jiffy(dt).startOf(Units.MINUTE).fromNow();
+      return Jiffy.parseFromDateTime(dt).startOf(Unit.minute).fromNow();
     }
   }
 

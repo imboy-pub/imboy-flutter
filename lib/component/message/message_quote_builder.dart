@@ -95,9 +95,9 @@ class QuoteMessageBuilder extends StatelessWidget {
                 Expanded(
                   flex: 1,
                   child: Text(
-                    Jiffy.unixFromMillisecondsSinceEpoch(
+                    Jiffy.parseFromMillisecondsSinceEpoch(
                       message.metadata?['quote_msg']['createdAt'],
-                    ).format('y-MM-dd\nHH:mm:ss'),
+                    ).format(pattern: 'y-MM-dd\nHH:mm:ss'),
                     style: const TextStyle(
                       color: AppColors.LabelTextColor,
                       fontSize: 11.0,
