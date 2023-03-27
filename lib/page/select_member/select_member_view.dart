@@ -9,7 +9,6 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/common_button.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:lpinyin/lpinyin.dart';
@@ -169,6 +168,7 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
     return Scaffold(
       appBar: PageAppBar(
         title: '选择联系人'.tr,
+        /*
         rightDMActions: <Widget>[
           ComMomButton(
             margin: const EdgeInsets.symmetric(
@@ -183,6 +183,7 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
             text: '确定'.tr,
           ),
         ],
+        */
       ),
       backgroundColor: Colors.white,
       body: AzListView(

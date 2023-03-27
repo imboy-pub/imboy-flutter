@@ -5,7 +5,7 @@ import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/store/model/message_model.dart';
 
 class MessageRepo {
-  static String tablename = 'message';
+  static String tableName = 'message';
 
   static String id = 'id';
 
@@ -26,7 +26,7 @@ class MessageRepo {
   // 插入一条数据
   Future<MessageModel> insert(MessageModel msg) async {
     int? count = await _db.count(
-      MessageRepo.tablename,
+      MessageRepo.tableName,
       where: "id=?",
       whereArgs: [MessageRepo.id],
     );
@@ -44,7 +44,7 @@ class MessageRepo {
         MessageRepo.status: msg.status,
       };
       debugPrint(">>> on MessgeMode/insert $insert");
-      await _db.insert(MessageRepo.tablename, insert);
+      await _db.insert(MessageRepo.tableName, insert);
     } else {
       debugPrint(">>> on MessgeMode/insert count $count : $insert");
     }
@@ -54,7 +54,7 @@ class MessageRepo {
   // 更新信息
   Future<int> update(Map<String, dynamic> data) async {
     return await _db.update(
-      MessageRepo.tablename,
+      MessageRepo.tableName,
       data,
       where: '${MessageRepo.id} = ?',
       whereArgs: [data['id']],
@@ -65,7 +65,7 @@ class MessageRepo {
   Future<int?> save(MessageModel obj) async {
     String where = '${MessageRepo.id} = ?';
     int? count = await _db.count(
-      MessageRepo.tablename,
+      MessageRepo.tableName,
       where: where,
       whereArgs: [obj.id],
     );
@@ -84,7 +84,7 @@ class MessageRepo {
     int size,
   ) async {
     List<Map<String, dynamic>> maps = await _db.query(
-      MessageRepo.tablename,
+      MessageRepo.tableName,
       columns: [
         MessageRepo.id,
         MessageRepo.type,
@@ -119,7 +119,7 @@ class MessageRepo {
   //
   Future<MessageModel?> find(String id) async {
     List<Map<String, dynamic>> maps = await _db.query(
-      MessageRepo.tablename,
+      MessageRepo.tableName,
       columns: [
         MessageRepo.id,
         MessageRepo.type,
@@ -143,7 +143,7 @@ class MessageRepo {
   // 根据ID删除信息
   Future<int> delete(String id) async {
     return await _db.delete(
-      MessageRepo.tablename,
+      MessageRepo.tableName,
       where: '${MessageRepo.id} = ?',
       whereArgs: [id],
     );
@@ -152,7 +152,7 @@ class MessageRepo {
   // 根据UID删除信息
   Future<int> deleteForUid(String uid) async {
     return await _db.delete(
-      MessageRepo.tablename,
+      MessageRepo.tableName,
       where: '${MessageRepo.from} = ? or ${MessageRepo.to} = ?',
       whereArgs: [uid, uid],
     );

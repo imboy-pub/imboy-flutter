@@ -6,6 +6,7 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'scanner_logic.dart';
@@ -109,7 +110,7 @@ class _ScannerPageState extends State<ScannerPage>
                           sign: payload['sign'] ?? '',
                           region: payload['region'] ?? '',
                           gender: payload['gender'] ?? 0,
-                          isFriend: payload['isfriend'] ?? false,
+                          isFriend: payload[ContactRepo.isFriend] ?? false,
                         ),
                       );
                     } else if (result == 'user_not_exist') {

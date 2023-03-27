@@ -22,7 +22,7 @@ class ContactLogic extends GetxController {
     var repo = ContactRepo();
     List<dynamic> dataMap = await (ContactProvider()).listFriend();
     for (var json in dataMap) {
-      json["isfriend"] = 1;
+      json[ContactRepo.isFriend] = 1;
       ContactModel model = ContactModel.fromJson(json);
       contact.insert(0, model);
       repo.save(json);
@@ -135,9 +135,9 @@ class ContactLogic extends GetxController {
       'remark': data['remark'] ?? '',
       'region': data['region'],
       'source': data['source'] ?? "",
-      'isfrom': data['isfrom'] ?? 0,
+      ContactRepo.isFrom: data[ContactRepo.isFriend] ?? 0,
       'sign': data['sign'],
-      'isfriend': 1,
+      ContactRepo.isFriend: 1,
     };
     contactList.add(ContactModel.fromJson(json));
     repo.save(json);

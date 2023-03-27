@@ -82,6 +82,7 @@ class ExtraItems extends StatefulWidget {
     this.handleFileSelection,
     this.handlePickerSelection,
     this.handleLocationSelection,
+    this.handleVisitCardSelection,
     required this.options,
   }) : super(key: key);
   final Map options;
@@ -90,6 +91,7 @@ class ExtraItems extends StatefulWidget {
   final void Function()? handlePickerSelection;
   final void Function(String, Uint8List, String, String, String, String)?
       handleLocationSelection;
+  final void Function()? handleVisitCardSelection;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -136,27 +138,6 @@ class _ExtraItemsState extends State<ExtraItems> {
                 },
               ),
               ExtraItem(
-                title: "语音通话".tr,
-                image: const Icon(Icons.phone, size: iconSize),
-                onPressed: () {
-                  openCallScreen(
-                    UserModel.fromJson({
-                      "uid": widget.options["to"],
-                      "nickname": widget.options["title"],
-                      "avatar": widget.options["avatar"],
-                      "sign": widget.options["sign"],
-                    }),
-                    {
-                      'media': 'audio',
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
-          n.Row(
-            [
-              ExtraItem(
                 title: "位置".tr,
                 image: const Icon(Icons.location_on, size: iconSize),
                 onPressed: () async {
@@ -201,19 +182,36 @@ class _ExtraItemsState extends State<ExtraItems> {
                   }
                 },
               ),
+            ],
+          ),
+          n.Row(
+            [
               ExtraItem(
-                title: "收藏".tr,
-                image: const Icon(Icons.collections_bookmark, size: iconSize),
-                onPressed: null,
+                title: "语音通话".tr,
+                image: const Icon(Icons.phone, size: iconSize),
+                onPressed: () {
+                  openCallScreen(
+                    UserModel.fromJson({
+                      "uid": widget.options["to"],
+                      "nickname": widget.options["title"],
+                      "avatar": widget.options["avatar"],
+                      "sign": widget.options["sign"],
+                    }),
+                    {
+                      'media': 'audio',
+                    },
+                  );
+                },
               ),
-              ExtraItem(
-                title: "文件".tr,
-                image: const Icon(Icons.file_copy, size: iconSize),
-                onPressed: widget.handleFileSelection,
-              ),
+              const SizedBox(width: 86, height: 56,),
               ExtraItem(
                 title: "个人名片".tr, // visit card
                 image: const Icon(Icons.person, size: iconSize),
+                onPressed: widget.handleVisitCardSelection,
+              ),
+              ExtraItem(
+                title: "收藏".tr,
+                image: const Icon(Icons.collections_bookmark, size: iconSize),
                 onPressed: null,
               ),
             ],
@@ -224,11 +222,16 @@ class _ExtraItemsState extends State<ExtraItems> {
         [
           n.Row([
             ExtraItem(
-              title: "语音输入".tr,
-              image: const Icon(Icons.keyboard_voice, size: iconSize),
-              onPressed: null,
+              title: "文件".tr,
+              image: const Icon(Icons.file_copy, size: iconSize),
+              onPressed: widget.handleFileSelection,
             ),
             /**
+                ExtraItem(
+                title: "语音输入".tr,
+                image: const Icon(Icons.keyboard_voice, size: iconSize),
+                onPressed: null,
+                ),
                 ExtraItem(
                 title: "卡券".tr,
                 image: const AssetImage('assets/images/chat/extra_wallet.png'),

@@ -23,7 +23,7 @@ class ContactItem extends ISuspensionBean {
   final String? namePinyin;
   final Color? bgColor;
   final IconData? iconData;
-  final String? firstletter;
+  final String? firstLetter;
 
   //
 
@@ -41,7 +41,7 @@ class ContactItem extends ISuspensionBean {
     this.namePinyin,
     this.bgColor,
     this.iconData,
-    this.firstletter,
+    this.firstLetter,
   });
 
   @override

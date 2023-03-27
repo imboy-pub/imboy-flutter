@@ -4,12 +4,15 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/message/message_image_builder.dart';
 import 'package:imboy/page/chat/send_to/send_to_view.dart';
 import 'package:imboy/service/websocket.dart';
+import 'package:imboy/store/model/contact_model.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:mime/mime.dart';
 import 'package:niku/namespace.dart' as n;
@@ -51,6 +54,7 @@ import 'widget/chat_input.dart';
 // ignore: must_be_immutable
 import 'widget/extra_item.dart';
 import 'widget/quote_tips.dart';
+import 'widget/select_friend.dart';
 
 // ignore: must_be_immutable
 class ChatPage extends StatefulWidget {
@@ -358,6 +362,49 @@ class ChatPageState extends State<ChatPage> {
       assets = List<AssetEntity>.from(result);
       if (mounted) {
         setState(() {});
+      }
+    }
+  }
+
+  /// 发送个人名片
+  Future<void> _handleVisitCardSelection() async {
+    Map<String, String> peer = {
+      'peerId': widget.peerId,
+      'avatar': widget.peerAvatar,
+      'title': widget.peerTitle,
+    };
+
+    ContactModel? c1 = await Navigator.push(
+      context,
+      CupertinoPageRoute(
+        // “右滑返回上一页”功能
+        builder: (_) => SelectFriendPage(
+          peer: peer,
+        ),
+      ),
+    );
+    debugPrint("handleVisitCardSelection ${c1?.toJson().toString()}");
+    if (c1 != null) {
+      Map<String, dynamic> metadata = {
+        'custom_type': 'visit_card',
+        'uid': c1.uid,
+        'title': c1.title,
+        'avatar': c1.avatar,
+      };
+      debugPrint("> location metadata: ${metadata.toString()}");
+      final message = types.CustomMessage(
+        author: logic.currentUser,
+        createdAt: DateTimeHelper.currentTimeMillis(),
+        id: Xid().toString(),
+        remoteId: widget.peerId,
+        status: types.Status.sending,
+        metadata: metadata,
+      );
+      bool res = await _addMessage(message);
+      if (res) {
+        EasyLoading.showSuccess('发送成功'.tr);
+      } else {
+        EasyLoading.showError('发送失败'.tr);
       }
     }
   }
@@ -912,6 +959,8 @@ class ChatPageState extends State<ChatPage> {
                     handlePickerSelection: _handlePickerSelection,
                     // 位置消息
                     handleLocationSelection: _handleLocationSelection,
+                    // 个人名片
+                    handleVisitCardSelection: _handleVisitCardSelection,
                     options: {
                       "to": widget.peerId,
                       "title": widget.peerTitle,

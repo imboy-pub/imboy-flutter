@@ -131,9 +131,12 @@ class MessageModel {
       return types.MessageType.custom;
     } else if (payload!['msg_type'] == 'location') {
       return types.MessageType.custom;
+    } else if (payload!['msg_type'] == 'visit_card') {
+      return types.MessageType.custom;
     } else if (payload!['msg_type'] == 'revoked') {
       return types.MessageType.custom;
     }
+
     return types.MessageType.unsupported;
   }
 
@@ -249,33 +252,7 @@ class MessageModel {
         remoteId: toId,
         metadata: payload,
       );
-    } else if (payload!['custom_type'] == 'location') {
-      message = types.CustomMessage(
-        author: types.User(
-          id: fromId!,
-          // firstName: "",
-          // imageUrl: "",
-        ),
-        id: id!,
-        createdAt: createdAt,
-        remoteId: toId,
-        status: typesStatus,
-        metadata: payload,
-      );
-    } else if (payload!['custom_type'] == 'video') {
-      message = types.CustomMessage(
-        author: types.User(
-          id: fromId!,
-          // firstName: "",
-          // imageUrl: "",
-        ),
-        id: id!,
-        createdAt: createdAt,
-        remoteId: toId,
-        status: typesStatus,
-        metadata: payload,
-      );
-    } else if (payload!['custom_type'] == 'audio') {
+    } else if (payload!['msg_type'] == 'custom') {
       message = types.CustomMessage(
         author: types.User(
           id: fromId!,

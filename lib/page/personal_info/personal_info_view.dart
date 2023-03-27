@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:extended_text/extended_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -69,15 +70,20 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   void cropImage(XFile xfile) async {
     Get.back();
     File originalImage = File(xfile.path);
+
     String url = await Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => CropImageRoute(
-                  originalImage,
-                  "avatar",
-                  filename: UserRepoLocal.to.current.uid,
-                )));
-    debugPrint(">>> cropImage url $url;");
+      context,
+      CupertinoPageRoute(
+        // “右滑返回上一页”功能
+        builder: (_) => CropImageRoute(
+          originalImage,
+          "avatar",
+          filename: UserRepoLocal.to.current.uid,
+        ),
+      ),
+    );
+
+    debugPrint("> cropImage url $url;");
     if (url.isNotEmpty) {
       bool ok = await logic.changeInfo({"field": "avatar", "value": url});
       if (ok) {

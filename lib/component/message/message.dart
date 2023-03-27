@@ -22,6 +22,7 @@ import 'message_location_builder.dart';
 import 'message_quote_builder.dart';
 import 'message_revoked_builder.dart';
 import 'message_video_builder.dart';
+import 'message_visit_card_builder.dart';
 
 enum CustomMessageType {
   file,
@@ -76,6 +77,11 @@ class CustomMessageBuilder extends StatelessWidget {
           message: message,
           user: InheritedUser.of(context).user,
         );
+      } else if (customType == 'visit_card') {
+        w = VisitCardMessageBuilder(
+          message: message,
+          user: InheritedUser.of(context).user,
+        );
       } else if (customType == 'location') {
         w = LocationMessageBuilder(
           message: message,
@@ -110,7 +116,7 @@ Widget messageMsgWidget(types.Message msg) {
         color: AppColors.MainTextColor,
         fontSize: 13.0,
       ),
-      maxLines: 2,
+      maxLines: 4,
       overflow: TextOverflow.ellipsis,
     );
   } else if (msg is types.FileMessage) {

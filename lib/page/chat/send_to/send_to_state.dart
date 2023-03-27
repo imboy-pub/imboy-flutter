@@ -6,9 +6,11 @@ class SendToState {
     ///Initialize variables
   }
 
-//  多选
+  //  多选
   RxBool multipleChoice = false.obs;
 
   // 会话列表
   RxList<ConversationModel> conversations = RxList<ConversationModel>([]);
+
+  RxList<dynamic> selects = RxList<dynamic>([]);
 }

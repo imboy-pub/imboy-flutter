@@ -1,11 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/helper/list.dart';
 import 'package:imboy/component/message/message.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -26,6 +28,8 @@ class SendToPage extends StatelessWidget {
 
   final state = Get.find<SendToLogic>().state;
 
+  final int _itemHeight = 60;
+
   void initData() async {
     await logic.conversationsList();
   }
@@ -33,21 +37,71 @@ class SendToPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     initData();
+    var leading = Obx(() {
+      Widget btn;
+      if (state.multipleChoice.isTrue) {
+        btn = InkWell(
+          onTap: () {
+            state.multipleChoice.value = !state.multipleChoice.value;
+            state.selects.value = [];
+            for (var element in state.conversations) {
+              element.selected.value = false;
+            }
+          },
+          child: Text('取消'.tr),
+        );
+      } else {
+        btn = InkWell(
+          onTap: () {
+            Get.back();
+          },
+          child: Text('关闭'.tr),
+        );
+      }
+      return n.Padding(
+        top: 14,
+        left: 16,
+        child: btn,
+      );
+    });
     var topRightWidget = [
       InkWell(
-        child: n.Padding(
-          top: 14,
-          right: 10,
-          child: Text('多选'.tr),
+        onTap: () {
+          if (state.multipleChoice.isTrue) {
+            if (state.selects.isEmpty) {
+              EasyLoading.showInfo('请选择'.tr);
+              return;
+            }
+            separatelySendToDialog(state.selects, 2);
+          } else {
+            state.multipleChoice.value = !state.multipleChoice.value;
+          }
+        },
+        child: Obx(
+          () {
+            String suffix = '';
+            if (state.selects.isNotEmpty) {
+              suffix = '(${state.selects.length})';
+            }
+            return n.Padding(
+              top: 14,
+              left: 10,
+              right: 10,
+              child: state.multipleChoice.isTrue
+                  ? Text("${'完成'.tr}$suffix")
+                  : Text('多选'.tr),
+            );
+          },
         ),
-        onTap: () {},
       )
     ];
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PageAppBar(
+      appBar: NavAppBar(
+        leading: leading,
         title: '转发给'.tr,
         rightDMActions: topRightWidget,
+        automaticallyImplyLeading: true,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
       floatingActionButton: searchBoxBuild(context),
@@ -95,7 +149,16 @@ class SendToPage extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: conversationBuild(),
+                  child: n.Padding(
+                    left: 16,
+                    child: Obx(
+                      () => n.ListView(
+                        itemCount: state.conversations.length,
+                        children:
+                            state.conversations.map(_buildListItem).toList(),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -149,7 +212,77 @@ class SendToPage extends StatelessWidget {
     );
   }
 
-  void sendToDialog(ConversationModel conversation, int callbackTime) {
+  /// 分别发送给
+  void separatelySendToDialog(List items, int callbackTime) {
+    List towD = listTo2D(items, 5);
+    Get.defaultDialog(
+      title: '分别发送给'.tr,
+      radius: 6,
+      cancel: TextButton(
+        onPressed: () {
+          Get.back();
+        },
+        child: Text(
+          '取消'.tr,
+          textAlign: TextAlign.center,
+        ),
+      ),
+      confirm: TextButton(
+        onPressed: () async {
+          for (var item in state.selects) {
+            await logic.sendMsg(item, msg);
+          }
+          EasyLoading.showSuccess('发送成功'.tr);
+          Future.delayed(const Duration(milliseconds: 1600), () {
+            Get.close(callbackTime);
+          });
+          // if (res) {
+          //   EasyLoading.showSuccess('发送成功'.tr);
+          //   Future.delayed(const Duration(milliseconds: 1600), () {
+          //     Get.close(callbackTime);
+          //   });
+          // } else {
+          //   EasyLoading.showError('发送失败'.tr);
+          // }
+        },
+        child: Text(
+          '发送'.tr,
+          textAlign: TextAlign.center,
+        ),
+      ),
+      content: SizedBox(
+        height: 128.0 * towD.length,
+        child: n.Column([
+          Expanded(
+            child: n.Padding(
+              left: 4,
+              child: n.Column(
+                towD.map<Widget>((row4) {
+                  return n.Row(row4.map<Widget>(((item) {
+                    return n.Padding(
+                      right: 6,
+                      top: 6,
+                      child: Avatar(
+                        imgUri: item.avatar,
+                        onTap: () {},
+                      ),
+                    );
+                  })).toList());
+                  // ..mainAxisAlignment = MainAxisAlignment.center;
+                }).toList(),
+              ),
+            ),
+          ),
+          const Divider(),
+          Expanded(
+            child: messageMsgWidget(msg),
+          ),
+        ]),
+      ),
+    );
+  }
+
+  void sendToDialog(ConversationModel model, int callbackTime) {
     Get.defaultDialog(
       title: '发送给'.tr,
       radius: 6,
@@ -164,7 +297,7 @@ class SendToPage extends StatelessWidget {
       ),
       confirm: TextButton(
         onPressed: () async {
-          bool res = await logic.sendMsg(conversation, msg);
+          bool res = await logic.sendMsg(model, msg);
           if (res) {
             EasyLoading.showSuccess('发送成功'.tr);
             Future.delayed(const Duration(milliseconds: 1600), () {
@@ -184,7 +317,7 @@ class SendToPage extends StatelessWidget {
         child: n.Column([
           n.Row([
             Avatar(
-              imgUri: conversation.avatar,
+              imgUri: model.avatar,
               onTap: () {},
             ),
             Expanded(
@@ -192,7 +325,7 @@ class SendToPage extends StatelessWidget {
                 left: 10,
                 child: Text(
                   // 会话对象标题
-                  conversation.title,
+                  model.title,
                   style: const TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.normal,
@@ -212,51 +345,74 @@ class SendToPage extends StatelessWidget {
     );
   }
 
-  Widget conversationBuild() {
-    return SingleChildScrollView(
-      child: Obx(() {
-        return state.conversations.isEmpty
-            ? NoDataView(text: '无会话消息'.tr)
-            : ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: state.conversations.length,
-                itemBuilder: (BuildContext context, int index) {
-                  ConversationModel conversation = state.conversations[index];
-                  return InkWell(
-                    onTap: () {},
-                    onTapDown: (TapDownDetails details) {},
-                    onLongPress: () {},
-                    child: state.multipleChoice.isTrue
-                        ? const SizedBox.shrink()
-                        : n.ListTile(
-                            // selected: true,
-                            onTap: () {
-                              sendToDialog(conversation, 2);
-                            },
-                            leading: Avatar(
-                              imgUri: conversation.avatar,
-                              onTap: () {},
-                            ),
-                            title: n.Row([
-                              Expanded(
-                                child: Text(
-                                  // 会话对象标题
-                                  conversation.title,
-                                  style: const TextStyle(
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                  maxLines: 6,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              )
-                            ]),
-                          ),
-                  );
-                },
-              );
-      }),
+  Widget _buildListItem(ConversationModel model) {
+    // String susTag = model.getSuspensionTag();
+    return n.Column(
+      [
+        // Offstage(
+        //   offstage: model.isSelect != true,
+        //   child: _buildSusWidget(susTag),
+        // ),
+        SizedBox(
+          height: _itemHeight.toDouble(),
+          child: InkWell(
+            onTap: () {
+              // debugPrint(" item_onTap multipleChoice ${state.multipleChoice}");
+              if (state.multipleChoice.isTrue) {
+                // debugPrint(" item_onTap ${model.isSelect}");
+                model.selected.value = !model.selected.value;
+                if (model.selected.isTrue) {
+                  state.selects.insert(0, model);
+                } else {
+                  state.selects.remove(model);
+                }
+                // setState(() {});
+              } else {
+                sendToDialog(model, 2);
+              }
+            },
+            child: n.Row(
+              [
+                if (state.multipleChoice.isTrue)
+                  n.Padding(
+                    right: 8,
+                    child: Icon(
+                      model.selected.isTrue
+                          ? CupertinoIcons.check_mark_circled_solid
+                          : CupertinoIcons.check_mark_circled,
+                      color: model.selected.isTrue ? Colors.green : Colors.grey,
+                    ),
+                  ),
+                Avatar(
+                  imgUri: model.avatar,
+                  width: 49,
+                  height: 49,
+                ),
+                const Space(),
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.only(right: 30),
+                    height: _itemHeight.toDouble(),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: AppColors.LineColor,
+                          width: 0.2,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      model.title,
+                      style: const TextStyle(fontSize: 14.0),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
+      ],
     );
   }
 }
@@ -286,7 +442,7 @@ class SearchBarDelegate extends SearchDelegate {
         curve: Curves.easeInOutCubic,
         child: IconButton(
           tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-          icon: const Icon(Icons.clear),
+          icon: const Center(child: Icon(Icons.clear)),
           onPressed: () => query = '',
         ),
       ),

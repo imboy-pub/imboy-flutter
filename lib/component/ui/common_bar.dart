@@ -4,18 +4,22 @@ import 'package:imboy/config/const.dart';
 class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
   const NavAppBar({
     Key? key,
+    this.leading,
     this.title = '',
     this.titleWidget,
     this.rightDMActions,
     this.backgroundColor = AppColors.AppBarColor,
     this.mainColor = Colors.black,
+    this.automaticallyImplyLeading = false,
   }) : super(key: key);
 
+  final Widget? leading;
   final String? title;
   final Widget? titleWidget;
   final List<Widget>? rightDMActions;
   final Color? backgroundColor;
   final Color? mainColor;
+  final bool automaticallyImplyLeading;
 
   @override
   Size get preferredSize => const Size(100, 50);
@@ -23,6 +27,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      leading: leading,
       title: titleWidget ??
           Text(
             title!,
@@ -32,7 +37,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-      automaticallyImplyLeading: false,
+      automaticallyImplyLeading: automaticallyImplyLeading,
       backgroundColor: backgroundColor,
       foregroundColor: mainColor,
       elevation: 0.0,
@@ -43,8 +48,10 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
+
   const PageAppBar({
     Key? key,
+    this.leading,
     this.title = '',
     this.titleWidget,
     this.rightDMActions,
@@ -52,6 +59,7 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.mainColor = Colors.black,
   }) : super(key: key);
 
+  final Widget? leading;
   final String? title;
   final Widget? titleWidget;
   final List<Widget>? rightDMActions;
@@ -64,6 +72,7 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      leading: leading,
       title: titleWidget ??
           Text(
             title!,

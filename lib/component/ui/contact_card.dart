@@ -58,7 +58,7 @@ class ContactCard extends StatelessWidget {
               fontSize: 18.0,
               fontWeight: FontWeight.w600,
             ),
-            maxLines: 4,
+            maxLines: 6,
             overflow: TextOverflow.ellipsis,
           )),
           const Space(width: mainSpace / 3),

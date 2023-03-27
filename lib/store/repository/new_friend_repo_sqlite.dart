@@ -6,7 +6,7 @@ import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class NewFriendRepo {
-  static String tablename = 'new_friend';
+  static String tableName = 'new_friend';
 
   static String uid = 'uid'; // 当前用户ID
   static String from = 'fromid'; // 发送中ID
@@ -42,13 +42,13 @@ class NewFriendRepo {
     };
     debugPrint(">>> on NewFriendRepo/insert/1 $insert");
 
-    await _db.insert(NewFriendRepo.tablename, insert);
+    await _db.insert(NewFriendRepo.tableName, insert);
     return obj;
   }
 
   Future<List<NewFriendModel>> listNewFriend(String uid, int limit) async {
     List<Map<String, dynamic>> maps = await _db.query(
-      NewFriendRepo.tablename,
+      NewFriendRepo.tableName,
       columns: [
         NewFriendRepo.uid,
         NewFriendRepo.from,
@@ -81,7 +81,7 @@ class NewFriendRepo {
   //
   Future<NewFriendModel?> findByFromTo(String from, String to) async {
     List<Map<String, dynamic>> maps = await _db.query(
-      NewFriendRepo.tablename,
+      NewFriendRepo.tableName,
       columns: [
         NewFriendRepo.uid,
         NewFriendRepo.from,
@@ -106,7 +106,7 @@ class NewFriendRepo {
   // 根据ID删除信息
   Future<int> delete(String from, String to) async {
     return await _db.delete(
-      NewFriendRepo.tablename,
+      NewFriendRepo.tableName,
       where: '${NewFriendRepo.from} = ? and ${NewFriendRepo.to} = ?',
       whereArgs: [from, to],
     );
@@ -114,7 +114,7 @@ class NewFriendRepo {
 
   Future<int> deleteForUid(String uid) async {
     return await _db.delete(
-      NewFriendRepo.tablename,
+      NewFriendRepo.tableName,
       where: '${NewFriendRepo.from} = ? or ${NewFriendRepo.to} = ?',
       whereArgs: [uid, uid],
     );
@@ -152,7 +152,7 @@ class NewFriendRepo {
     if (strNoEmpty(from) && strNoEmpty(to)) {
       data[NewFriendRepo.updateTime] = DateTimeHelper.currentTimeMillis();
       return await _db.update(
-        NewFriendRepo.tablename,
+        NewFriendRepo.tableName,
         data,
         where: '${NewFriendRepo.from} = ? and ${NewFriendRepo.to} = ?',
         whereArgs: [from, to],
@@ -176,7 +176,7 @@ class NewFriendRepo {
 
   Future<int?> countStatus(int status, String to) async {
     return await _db.count(
-      NewFriendRepo.tablename,
+      NewFriendRepo.tableName,
       where: '${NewFriendRepo.status} = ? and ${NewFriendRepo.to} = ?',
       whereArgs: [status, to],
     );

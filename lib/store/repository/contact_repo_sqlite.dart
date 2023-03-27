@@ -5,7 +5,7 @@ import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/store/model/contact_model.dart';
 
 class ContactRepo {
-  static String tablename = 'contact';
+  static String tableName = 'contact';
 
   static String uid = 'uid';
   static String nickname = 'nickname';
@@ -18,10 +18,10 @@ class ContactRepo {
   static String sign = 'sign';
   static String source = 'source';
   static String updateTime = "update_time";
-  static String isfriend = 'isfriend';
+  static String isFriend = 'is_friend';
 
-  //isfrom 好友关系发起人
-  static String isfrom = 'isfrom';
+  //isFrom 好友关系发起人
+  static String isFrom = 'is_from';
 
   final Sqlite _db = Sqlite.instance;
 
@@ -30,7 +30,7 @@ class ContactRepo {
     int limit = 1000,
   }) async {
     List<Map<String, dynamic>> maps = await _db.query(
-      ContactRepo.tablename,
+      ContactRepo.tableName,
       columns: [
         ContactRepo.uid,
         ContactRepo.nickname,
@@ -42,10 +42,10 @@ class ContactRepo {
         ContactRepo.sign,
         ContactRepo.source,
         ContactRepo.gender,
-        ContactRepo.isfriend,
-        ContactRepo.isfrom,
+        ContactRepo.isFriend,
+        ContactRepo.isFrom,
       ],
-      where: '${ContactRepo.isfriend}=? and ('
+      where: '${ContactRepo.isFriend}=? and ('
           '${ContactRepo.nickname} like "%$kwd%" or ${ContactRepo.remark} like "%$kwd%"'
           ')',
       whereArgs: [1],
@@ -80,12 +80,12 @@ class ContactRepo {
       // 单位毫秒，13位时间戳  1561021145560
       ContactRepo.updateTime:
           obj.updateTime ?? DateTime.now().millisecondsSinceEpoch,
-      ContactRepo.isfriend: obj.isfriend,
-      ContactRepo.isfrom: obj.isfrom,
+      ContactRepo.isFriend: obj.isFriend,
+      ContactRepo.isFrom: obj.isFrom,
     };
     debugPrint(">>> on ContactRepo/insert/1 $insert");
 
-    await _db.insert(ContactRepo.tablename, insert);
+    await _db.insert(ContactRepo.tableName, insert);
     return obj;
   }
 
@@ -102,13 +102,13 @@ class ContactRepo {
       ContactRepo.sign,
       ContactRepo.source,
       ContactRepo.gender,
-      ContactRepo.isfriend,
-      ContactRepo.isfrom,
+      ContactRepo.isFriend,
+      ContactRepo.isFrom,
     ];
     List<Map<String, dynamic>> maps = await _db.query(
-      ContactRepo.tablename,
+      ContactRepo.tableName,
       columns: columns,
-      where: '${ContactRepo.isfriend}=?',
+      where: '${ContactRepo.isFriend}=?',
       whereArgs: [1],
       orderBy: "update_time desc",
       limit: 10000,
@@ -129,13 +129,13 @@ class ContactRepo {
       ContactRepo.sign,
       ContactRepo.source,
       ContactRepo.gender,
-      ContactRepo.isfriend,
-      ContactRepo.isfrom,
+      ContactRepo.isFriend,
+      ContactRepo.isFrom,
     ];
     List<Map<String, dynamic>> maps = await _db.query(
-      ContactRepo.tablename,
+      ContactRepo.tableName,
       columns: columns,
-      where: '${ContactRepo.isfriend}=?',
+      where: '${ContactRepo.isFriend}=?',
       whereArgs: [1],
       orderBy: "update_time desc",
       limit: 10000,
@@ -155,7 +155,7 @@ class ContactRepo {
   //
   Future<ContactModel?> findByUid(String uid) async {
     List<Map<String, dynamic>> maps = await _db.query(
-      ContactRepo.tablename,
+      ContactRepo.tableName,
       columns: [
         ContactRepo.uid,
         ContactRepo.nickname,
@@ -168,8 +168,8 @@ class ContactRepo {
         ContactRepo.source,
         ContactRepo.gender,
         ContactRepo.updateTime,
-        ContactRepo.isfriend,
-        ContactRepo.isfrom,
+        ContactRepo.isFriend,
+        ContactRepo.isFrom,
       ],
       where: '${ContactRepo.uid} = ?',
       whereArgs: [uid],
@@ -183,7 +183,7 @@ class ContactRepo {
   // 根据ID删除信息
   Future<int> delete(String id) async {
     return await _db.delete(
-      ContactRepo.tablename,
+      ContactRepo.tableName,
       where: '${ContactRepo.uid} = ?',
       whereArgs: [id],
     );
@@ -224,11 +224,11 @@ class ContactRepo {
 
     debugPrint(">>> on ContactRepo/update/1 data: ${data.toString()}");
     if (strNoEmpty(uid)) {
-      data[ContactRepo.isfrom] = json["isfrom"] ?? 0;
-      data[ContactRepo.isfriend] = json["isfriend"] ?? 0;
+      data[ContactRepo.isFrom] = json[ContactRepo.isFrom] ?? 0;
+      data[ContactRepo.isFriend] = json[ContactRepo.isFriend] ?? 0;
       data[ContactRepo.updateTime] = DateTimeHelper.currentTimeMillis();
       return await _db.update(
-        ContactRepo.tablename,
+        ContactRepo.tableName,
         data,
         where: '${ContactRepo.uid} = ?',
         whereArgs: [uid],
@@ -250,7 +250,7 @@ class ContactRepo {
 
   Future<int> deleteForUid(String uid) async {
     return await _db.delete(
-      ContactRepo.tablename,
+      ContactRepo.tableName,
       where: '${ContactRepo.uid} = ?',
       whereArgs: [uid],
     );

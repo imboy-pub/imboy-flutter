@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/ui/common_button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart';
 
@@ -56,19 +55,19 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
 
   @override
   Widget build(BuildContext context) {
-    var rWidget = ComMomButton(
-      text: '确定',
-      style: const TextStyle(color: Colors.white),
-      width: 45.0,
-      margin: const EdgeInsets.all(10.0),
-      radius: 4.0,
-      onTap: () => onChange(),
-    );
+    // var rWidget = ComMomButton(
+    //   text: '确定',
+    //   style: const TextStyle(color: Colors.white),
+    //   width: 45.0,
+    //   margin: const EdgeInsets.all(10.0),
+    //   radius: 4.0,
+    //   onTap: () => onChange(),
+    // );
 
     return Scaffold(
-      appBar: PageAppBar(
+      appBar: const PageAppBar(
         title: '群公告',
-        rightDMActions: <Widget>[rWidget],
+        // rightDMActions: <Widget>[rWidget],
       ),
       body: TextField(
         decoration: const InputDecoration(

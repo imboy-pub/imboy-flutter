@@ -75,7 +75,9 @@ class UserRepoLocal extends GetxController {
     //   debugPrint("push registrationId $rid");
     // });
     // 设置别名，极光后台可以通过别名来推送，一个 App 应用只有一个别名，一般用来存储用户 id。
-    await push.setAlias(payload['uid']);
+    if (Platform.isAndroid) {
+      await push.setAlias(payload['uid']);
+    }
     return true;
   }
 

@@ -29,7 +29,7 @@ dependencies:
   #  git:
   #    url: https://gitee.com/imboy-tripartite-deps/flutter_wechat_camera_picker.git
   #    ref: leeyi
-  wechat_assets_picker: ^8.4.0
+  wechat_assets_picker: ^8.4.1
   # 一组基于 PointyCastle 的高级 API，用于双向加密。 RSA AES
   encrypt: ^5.0.1
   # 在纯 Dart 中实现的一组加密函数。  SHA-* MD5 HMAC
@@ -127,7 +127,7 @@ dependencies:
       ref: master
   niku: ^2.3.3
   # 二维码扫描
-  mobile_scanner: ^3.1.0
+  mobile_scanner: ^3.1.1
   # mobile_scanner:
   #  git:
   #    url: https://gitee.com/imboy-tripartite-deps/mobile_scanner.git
@@ -160,7 +160,6 @@ dependencies:
   flutter_blurhash: ^0.7.0
   clock: ^1.1.1
   flutter_markdown: ^0.6.14
-  flutter_webrtc: ^0.9.24
   http: ^0.13.5
   # 下载更新
   flutter_downloader: ^1.10.2
@@ -191,11 +190,11 @@ dependencies:
   #  git:
   #    url: git://github.com/jpush/jpush-flutter-plugin.git
   #    ref: master
-
-  #  flutter_webrtc:
-  #    git:
-  #      url: https://gitee.com/imboy-tripartite-deps/flutter-webrtc.git
-  #      ref: main
+  flutter_webrtc: ^0.9.24
+  #flutter_webrtc:
+  #  git:
+  #    url: https://gitee.com/imboy-tripartite-deps/flutter-webrtc.git
+  #    ref: main
   # sip_ua: ^0.5.1
   # sip_ua:
   #   git:

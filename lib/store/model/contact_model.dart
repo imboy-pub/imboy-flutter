@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
 class ContactModel extends ISuspensionBean {
   ContactModel({
@@ -19,13 +20,14 @@ class ContactModel extends ISuspensionBean {
     this.sign = "",
     this.source = "",
     this.updateTime,
-    this.isfriend = 1,
-    this.isfrom = 0,
+    this.isFriend = 1,
+    // isFrom 好友关系发起人
+    this.isFrom = 0,
     this.nameIndex = "",
     this.namePinyin,
     this.bgColor,
     this.iconData,
-    this.firstletter,
+    this.firstLetter,
     this.onPressed,
     this.onLongPressed,
   });
@@ -41,14 +43,16 @@ class ContactModel extends ISuspensionBean {
   final String sign;
   final String source;
   final int? updateTime;
-  int isfriend;
-  int isfrom;
+  int isFriend;
+  // isFrom 好友关系发起人
+  int isFrom;
 
   String nameIndex;
   String? namePinyin;
   Color? bgColor;
   Widget? iconData;
-  String? firstletter;
+  String? firstLetter;
+  bool selected = false;
 
   final VoidCallback? onPressed;
   final VoidCallback? onLongPressed;
@@ -59,12 +63,14 @@ class ContactModel extends ISuspensionBean {
     // 通过QQ好友添加
     // 通过群聊添加
     switch (source.toLowerCase()) {
+      case 'visit_card':
+        sourceTr = '个人名片'.tr;
+        break;
       case 'qrcode':
         // sourceTr = 'source_qrcode'.tr;
         sourceTr = '通过扫一扫添加'.tr;
         break;
       case 'people_nearby':
-        // sourceTr = 'source_qrcode'.tr;
         sourceTr = '附近的人'.tr;
         break;
     }
@@ -96,8 +102,8 @@ class ContactModel extends ISuspensionBean {
       sign: json["sign"].toString(),
       // 单位毫秒，13位时间戳  1561021145560
       updateTime: json["update_time"] ?? DateTime.now().millisecondsSinceEpoch,
-      isfriend: json["isfriend"] ?? 0,
-      isfrom: json["isfrom"] ?? 0,
+      isFriend: json[ContactRepo.isFriend] ?? 0,
+      isFrom: json[ContactRepo.isFrom] ?? 0,
     );
   }
 
@@ -113,10 +119,10 @@ class ContactModel extends ISuspensionBean {
         'sign': sign,
         'source': source,
         'update_time': updateTime,
-        'isfriend': isfriend,
-        'isfrom': isfrom,
+        ContactRepo.isFriend: isFriend,
+        ContactRepo.isFrom: isFrom,
         //
-        'firstletter': firstletter,
+        'firstLetter': firstLetter,
         'nameIndex': nameIndex,
         'namePinyin': namePinyin
       };

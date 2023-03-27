@@ -138,7 +138,7 @@ class ConversationItem extends StatelessWidget {
                   // 最近会话时间
                   Text(
                     DateTimeHelper.lastConversationFmt(
-                      model.lasttime ?? 0,
+                      model.lastTime ?? 0,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

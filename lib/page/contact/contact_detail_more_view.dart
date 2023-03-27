@@ -29,7 +29,7 @@ class ContactDetailMorePage extends StatelessWidget {
     if (model != null) {
       sign.value = model.sign;
       source.value = model.sourceTr;
-      sourcePrefix.value = model.isfrom == 1 ? "" : "对方".tr;
+      sourcePrefix.value = model.isFrom == 1 ? "" : "对方".tr;
     }
   }
 

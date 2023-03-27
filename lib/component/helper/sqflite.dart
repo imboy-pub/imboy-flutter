@@ -39,9 +39,10 @@ class Sqlite {
 
   Future<Database> initDatabase(String dbName) async {
     String path = join(await getDatabasesPath(), dbName);
+    debugPrint("> on open db path {$path}");
     // // 当[readOnly](默认为false)为true时，其他参数均为忽略，数据库按原样打开
     // bool isexits = await databaseExists(path);
-    // debugPrint(">>> on open db readOnly: ${isexits}, path {$path}");
+    // debugPrint("> on open db readOnly: ${isexits}, path {$path}");
     // Delete the database
     // await deleteDatabase(path);
     // if
@@ -59,12 +60,12 @@ class Sqlite {
     //注意： 创建多张表，需要执行多次 await db.execute 代码
     //      也就是一条SQL语句一个 db.execute
 
-    // await db.execute("DROP TABLE IF EXISTS ${ContactRepo.tablename};");
-    // await db.execute("DROP TABLE IF EXISTS ${MessageRepo.tablename};");
-    // await db.execute("DROP TABLE IF EXISTS ${PersonRepo.tablename};");
+    // await db.execute("DROP TABLE IF EXISTS ${ContactRepo.tableName};");
+    // await db.execute("DROP TABLE IF EXISTS ${MessageRepo.tableName};");
+    // await db.execute("DROP TABLE IF EXISTS ${PersonRepo.tableName};");
 
     String contatsSql = '''
-      CREATE TABLE IF NOT EXISTS ${ContactRepo.tablename} (
+      CREATE TABLE IF NOT EXISTS ${ContactRepo.tableName} (
         ${ContactRepo.uid} varchar(40) NOT NULL,
         ${ContactRepo.nickname} varchar(40) NOT NULL DEFAULT '',
         ${ContactRepo.avatar} varchar(255) NOT NULL DEFAULT '',
@@ -76,16 +77,16 @@ class Sqlite {
         ${ContactRepo.sign} varchar(255) NOT NULL DEFAULT '',
         ${ContactRepo.source} varchar(40) NOT NULL DEFAULT '',
         ${ContactRepo.updateTime} int(16) NOT NULL DEFAULT 0,
-        ${ContactRepo.isfriend} int(4) NOT NULL DEFAULT 0,
-        ${ContactRepo.isfrom} int(4) NOT NULL DEFAULT 0,
+        ${ContactRepo.isFriend} int(4) NOT NULL DEFAULT 0,
+        ${ContactRepo.isFrom} int(4) NOT NULL DEFAULT 0,
         PRIMARY KEY("uid")
         );
       ''';
-    debugPrint(">>> on _onCreate \n$contatsSql\n");
+    debugPrint("> on _onCreate \n$contatsSql\n");
     await db.execute(contatsSql);
 
     String conversationSql = '''
-      CREATE TABLE IF NOT EXISTS ${ConversationRepo.tablename} (
+      CREATE TABLE IF NOT EXISTS ${ConversationRepo.tableName} (
         `${ConversationRepo.id}` INTEGER,
         `${ConversationRepo.peerId}` varchar(40) NOT NULL,
         `${ConversationRepo.avatar}` varchar(255) NOT NULL DEFAULT '',
@@ -97,17 +98,17 @@ class Sqlite {
         `${ConversationRepo.type}` varchar(40) NOT NULL,
         `${ConversationRepo.msgtype}` varchar(40) NOT NULL,
         `${ConversationRepo.isShow}` int NOT NULL DEFAULT 0,
-        `${ConversationRepo.lasttime}` int DEFAULT 0,
+        `${ConversationRepo.lastTime}` int DEFAULT 0,
         `${ConversationRepo.lastMsgId}` varchar(40) NOT NULL,
         `${ConversationRepo.lastMsgStatus}` int DEFAULT 0,
         PRIMARY KEY(${ConversationRepo.id})
         );
       ''';
-    debugPrint(">>> on _onCreate \n$conversationSql\n");
+    debugPrint("> on _onCreate \n$conversationSql\n");
     await db.execute(conversationSql);
 
     String messageSql = '''
-      CREATE TABLE IF NOT EXISTS ${MessageRepo.tablename} (
+      CREATE TABLE IF NOT EXISTS ${MessageRepo.tableName} (
         autoid INTEGER,
         ${MessageRepo.id} varchar(40) NOT NULL,
         ${MessageRepo.type} VARCHAR (20),
@@ -121,13 +122,13 @@ class Sqlite {
         PRIMARY KEY(autoid)
         );
       ''';
-    debugPrint(">>>>> on _onCreate messageSql \n$messageSql\n");
+    debugPrint(">>> on _onCreate messageSql \n$messageSql\n");
     await db.execute(messageSql);
     await db.execute(
-        "CREATE UNIQUE INDEX IF NOT EXISTS uk_Msgid ON ${MessageRepo.tablename} (${MessageRepo.id});");
+        "CREATE UNIQUE INDEX IF NOT EXISTS uk_Msgid ON ${MessageRepo.tableName} (${MessageRepo.id});");
 
     String addFriendSql = '''
-      CREATE TABLE IF NOT EXISTS ${NewFriendRepo.tablename} (
+      CREATE TABLE IF NOT EXISTS ${NewFriendRepo.tableName} (
         autoid INTEGER,
         ${NewFriendRepo.uid} varchar(40) NOT NULL,
         ${NewFriendRepo.from} varchar(40) NOT NULL,
@@ -146,7 +147,7 @@ class Sqlite {
         )
         );
       ''';
-    debugPrint(">>> on _onCreate \n$addFriendSql\n");
+    debugPrint("> on _onCreate \n$addFriendSql\n");
     await db.execute(addFriendSql);
   }
 

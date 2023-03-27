@@ -84,11 +84,11 @@ class ConversationLogic extends GetxController {
     Database db = await Sqlite.instance.database;
     return await db.transaction((txn) async {
       await txn.execute(
-        "DELETE FROM ${MessageRepo.tablename} WHERE ${MessageRepo.conversationId}=?",
+        "DELETE FROM ${MessageRepo.tableName} WHERE ${MessageRepo.conversationId}=?",
         [conversationId],
       );
       await txn.execute(
-        "DELETE FROM ${ConversationRepo.tablename} WHERE id=?",
+        "DELETE FROM ${ConversationRepo.tableName} WHERE id=?",
         [conversationId],
       );
       return true;
@@ -99,7 +99,7 @@ class ConversationLogic extends GetxController {
   hideConversation(int conversationId) async {
     Database db = await Sqlite.instance.database;
     await db.update(
-      ConversationRepo.tablename,
+      ConversationRepo.tableName,
       {ConversationRepo.isShow: 0},
       where: "id=?",
       whereArgs: [conversationId],
@@ -110,7 +110,7 @@ class ConversationLogic extends GetxController {
   markAs(int conversationId, int num) async {
     Database db = await Sqlite.instance.database;
     await db.update(
-      ConversationRepo.tablename,
+      ConversationRepo.tableName,
       {ConversationRepo.unreadNum: num},
       where: "id=?",
       whereArgs: [conversationId],
@@ -124,7 +124,7 @@ class ConversationLogic extends GetxController {
     String where = "last_msg_id=?";
     List<String> whereArgs = [msgId];
     await db.update(
-      ConversationRepo.tablename,
+      ConversationRepo.tableName,
       {ConversationRepo.lastMsgStatus: status},
       where: where,
       whereArgs: whereArgs,

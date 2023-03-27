@@ -10,7 +10,7 @@ class ConversationModel {
   String subtitle;
   String region;
   String sign;
-  final int? lasttime;
+  final int? lastTime;
   String lastMsgId;
 
   // lastMsgStatus 10 发送中 sending;  11 已发送 send;
@@ -24,6 +24,8 @@ class ConversationModel {
   String msgtype;
   final int? isShow;
 
+  RxBool selected = false.obs;
+
   ConversationModel({
     required this.id,
     required this.peerId,
@@ -34,7 +36,7 @@ class ConversationModel {
     required this.msgtype,
     this.region = '',
     this.sign = '',
-    this.lasttime,
+    this.lastTime,
     this.lastMsgId = '',
     this.lastMsgStatus,
     required this.unreadNum,
@@ -56,7 +58,10 @@ class ConversationModel {
       str = '语音消息'.tr;
     } else if (msgtype == 'video') {
       str = '视频'.tr;
-    } else if (msgtype == "location") {
+    } else if (msgtype == 'visit_card') {
+      str = '个人名片'.tr;
+      return "[$str]$subtitle";
+    } else if (msgtype == 'location') {
       str = '位置'.tr;
       return "[$str]$subtitle";
     } else if (msgtype == 'peer_revoked') {
@@ -78,12 +83,12 @@ class ConversationModel {
       region: json['region'].toString(),
       sign: json['sign'].toString(),
       subtitle: json['subtitle'] ?? '',
-      lasttime: json['lasttime'] ?? 0,
+      lastTime: json[ConversationRepo.lastTime] ?? 0,
       lastMsgId: json['last_msg_id'] ?? '',
       lastMsgStatus: json['last_msg_status'] ?? 11,
       unreadNum: json['unread_num'] ?? 0,
       type: json['type'].toString(),
-      msgtype: json['msgtype'].toString(),
+      msgtype: json[ConversationRepo.msgtype].toString(),
       isShow: json['is_show'] ?? 1,
     );
   }
@@ -96,7 +101,7 @@ class ConversationModel {
         ConversationRepo.region: region,
         ConversationRepo.sign: sign,
         ConversationRepo.subtitle: subtitle,
-        ConversationRepo.lasttime: lasttime,
+        ConversationRepo.lastTime: lastTime,
         ConversationRepo.lastMsgId: lastMsgId,
         ConversationRepo.lastMsgStatus: lastMsgStatus,
         ConversationRepo.unreadNum: unreadNum,

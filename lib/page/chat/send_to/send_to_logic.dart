@@ -15,7 +15,7 @@ import 'send_to_state.dart';
 class SendToLogic extends GetxController {
   final SendToState state = SendToState();
 
-  final chatLogic = Get.put(ChatLogic());
+  final ChatLogic chatLogic = Get.find();
 
   /// 最近聊天
   Future<void> conversationsList() async {

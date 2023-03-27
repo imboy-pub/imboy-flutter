@@ -209,7 +209,7 @@ class MessageService extends GetxService {
       type: data['type'],
       msgtype: msgtype,
       lastMsgId: data['id'],
-      lasttime: data['created_at'],
+      lastTime: data['created_at'],
       unreadNum: 1,
       isShow: 1,
       id: 0,

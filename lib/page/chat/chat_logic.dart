@@ -152,7 +152,9 @@ class ChatLogic extends GetxController {
       subtitle = message.text;
     } else if (customType == "quote") {
       subtitle = message.metadata?['quote_text'] ?? '';
-    } else if (customType == "location") {
+    } else if (customType == 'visit_card') {
+      subtitle = message.metadata?['title'] ?? '';
+    } else if (customType == 'location') {
       subtitle = message.metadata?['title'] ?? '';
     }
 
@@ -166,7 +168,7 @@ class ChatLogic extends GetxController {
       // C2C or GROUP
       msgtype: msgType,
       lastMsgId: message.id,
-      lasttime: createdAt,
+      lastTime: createdAt,
       lastMsgStatus: 10,
       // astMsgStatus 10 发送中 sending;  11 已发送 send;
       unreadNum: 0,
@@ -188,7 +190,7 @@ class ChatLogic extends GetxController {
     Database db = await Sqlite.instance.database;
     return await db.transaction((txn) async {
       await txn.execute(
-        "DELETE FROM ${MessageRepo.tablename} WHERE ${MessageRepo.id}=?",
+        "DELETE FROM ${MessageRepo.tableName} WHERE ${MessageRepo.id}=?",
         [id],
       );
       debugPrint('> on removeMessage : $id ;');
@@ -222,7 +224,7 @@ class ChatLogic extends GetxController {
     cobj.unreadNum = newUnreadNum > 0 ? newUnreadNum : 0;
     bool res = await db.transaction((txn) async {
       db.update(
-        ConversationRepo.tablename,
+        ConversationRepo.tableName,
         {
           ConversationRepo.unreadNum: cobj.unreadNum,
         },
@@ -231,7 +233,7 @@ class ChatLogic extends GetxController {
       );
       for (var id in msgIds) {
         db.update(
-          MessageRepo.tablename,
+          MessageRepo.tableName,
           {
             MessageRepo.status: MessageStatus.seen,
           },
