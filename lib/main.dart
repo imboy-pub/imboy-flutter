@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,7 +13,6 @@ import 'package:imboy/page/pages.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 // ignore: depend_on_referenced_packages
-import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -25,11 +22,7 @@ import 'config/theme.dart';
 import 'page/passport/passport_view.dart';
 
 void run() async {
-  // 要读取系统语言，可以使用window.locale
-  String? local = Intl.shortLocale(ui.window.locale.toString());
-  debugPrint(">>> on main $local");
-  // zh_Hans_CN ui.window.locale.toString();
-  await Jiffy.setLocale(local);
+  await Jiffy.setLocale(sysLang('jiffy'));
   // 强制竖屏 DeviceOrientation.portraitUp
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {

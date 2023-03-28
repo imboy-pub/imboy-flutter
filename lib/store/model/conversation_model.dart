@@ -21,7 +21,7 @@ class ConversationModel {
   final String type;
 
   //
-  String msgtype;
+  String msgType;
   final int? isShow;
 
   RxBool selected = false.obs;
@@ -33,7 +33,7 @@ class ConversationModel {
     required this.title,
     required this.subtitle,
     required this.type,
-    required this.msgtype,
+    required this.msgType,
     this.region = '',
     this.sign = '',
     this.lastTime,
@@ -46,29 +46,29 @@ class ConversationModel {
   /// 会话内容计算
   String get content {
     String str = '未知消息'.tr;
-    if (msgtype == "text") {
+    if (msgType == "text") {
       return subtitle;
-    } else if (msgtype == 'quote') {
+    } else if (msgType == 'quote') {
       return subtitle;
-    } else if (msgtype == 'image') {
+    } else if (msgType == 'image') {
       str = '图片'.tr;
-    } else if (msgtype == 'file') {
+    } else if (msgType == 'file') {
       str = '文件'.tr;
-    } else if (msgtype == 'audio') {
+    } else if (msgType == 'audio') {
       str = '语音消息'.tr;
-    } else if (msgtype == 'video') {
+    } else if (msgType == 'video') {
       str = '视频'.tr;
-    } else if (msgtype == 'visit_card') {
+    } else if (msgType == 'visit_card') {
       str = '个人名片'.tr;
       return "[$str]$subtitle";
-    } else if (msgtype == 'location') {
+    } else if (msgType == 'location') {
       str = '位置'.tr;
       return "[$str]$subtitle";
-    } else if (msgtype == 'peer_revoked') {
+    } else if (msgType == 'peer_revoked') {
       return '"$title"${'撤回了一条消息'.tr}';
-    } else if (msgtype == 'my_revoked') {
+    } else if (msgType == 'my_revoked') {
       return '你撤回了一条消息'.tr;
-    } else if (msgtype == "custom") {
+    } else if (msgType == "custom") {
       str = subtitle;
     } else {}
     return "[$str]";
@@ -88,7 +88,7 @@ class ConversationModel {
       lastMsgStatus: json['last_msg_status'] ?? 11,
       unreadNum: json['unread_num'] ?? 0,
       type: json['type'].toString(),
-      msgtype: json[ConversationRepo.msgtype].toString(),
+      msgType: json[ConversationRepo.msgType].toString(),
       isShow: json['is_show'] ?? 1,
     );
   }
@@ -106,7 +106,7 @@ class ConversationModel {
         ConversationRepo.lastMsgStatus: lastMsgStatus,
         ConversationRepo.unreadNum: unreadNum,
         ConversationRepo.type: type,
-        ConversationRepo.msgtype: msgtype,
+        ConversationRepo.msgType: msgType,
         ConversationRepo.isShow: isShow,
       };
 }

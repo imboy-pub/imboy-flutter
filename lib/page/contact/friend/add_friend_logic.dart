@@ -25,11 +25,11 @@ class AddFriendLogic extends GetxController {
   RxBool donotlookhim = false.obs;
 
   void setRole(String role) {
-    // debugPrint(">>> on AddFriendLogic/setRole1 ${this.role.value} = ${role}");
+    // debugPrint("> on AddFriendLogic/setRole1 ${this.role.value} = ${role}");
     this.role.value = role;
     update([this.role]);
 
-    // debugPrint(">>> on AddFriendLogic/setRole2 ${this.role.value} = ${role}");
+    // debugPrint("> on AddFriendLogic/setRole2 ${this.role.value} = ${role}");
   }
 
   /// 申请成为好友
@@ -61,8 +61,8 @@ class AddFriendLogic extends GetxController {
     if (resp.ok) {
       Map<String, dynamic> saveData = {
         "uid": UserRepoLocal.to.currentUid,
-        "from": UserRepoLocal.to.currentUid,
-        "to": to,
+        NewFriendRepo.from: UserRepoLocal.to.currentUid,
+        NewFriendRepo.to: to,
         "nickname": nickname,
         "avatar": avatar,
         "msg": payload["from"]["msg"] ?? "",
@@ -70,7 +70,7 @@ class AddFriendLogic extends GetxController {
         "status": NewFriendStatus.waiting_for_validation.index,
         "create_time": createdAt,
       };
-      // debugPrint(">>> on receivedAddFriend ${saveData.toString()}");
+      // debugPrint("> on receivedAddFriend ${saveData.toString()}");
       (NewFriendRepo()).save(saveData);
       EasyLoading.showSuccess("已发送".tr);
       Get.close(2);

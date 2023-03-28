@@ -9,8 +9,8 @@ class NewFriendRepo {
   static String tableName = 'new_friend';
 
   static String uid = 'uid'; // 当前用户ID
-  static String from = 'fromid'; // 发送中ID
-  static String to = 'toid'; // 接收者ID
+  static String from = 'from_id'; // 发送中ID
+  static String to = 'to_id'; // 接收者ID
   static String nickname = 'nickname';
   static String avatar = 'avatar';
   static String msg = 'msg';
@@ -40,7 +40,7 @@ class NewFriendRepo {
           obj.updateTime ?? DateTime.now().millisecondsSinceEpoch,
       NewFriendRepo.createTime: DateTime.now().millisecondsSinceEpoch,
     };
-    debugPrint(">>> on NewFriendRepo/insert/1 $insert");
+    debugPrint("> on NewFriendRepo/insert/1 $insert");
 
     await _db.insert(NewFriendRepo.tableName, insert);
     return obj;
@@ -66,7 +66,7 @@ class NewFriendRepo {
       orderBy: "create_time desc",
       limit: limit,
     );
-    // debugPrint(">>> on findFriend ${maps.length}, ${maps.toList().toString()}");
+    // debugPrint("> on findFriend ${maps.length}, ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }
@@ -163,10 +163,10 @@ class NewFriendRepo {
   }
 
   void save(Map<String, dynamic> json) async {
-    String from = json["from"] ?? "";
-    String to = json["to"] ?? "";
+    String from = json[NewFriendRepo.from] ?? "";
+    String to = json[NewFriendRepo.to] ?? "";
     NewFriendModel? old = await findByFromTo(from, to);
-    // debugPrint(">>> on new_friend save: ${old.toString()}");
+    // debugPrint("> on new_friend save: ${old.toString()}");
     if (old != null || old is NewFriendModel) {
       await update(json);
     } else {

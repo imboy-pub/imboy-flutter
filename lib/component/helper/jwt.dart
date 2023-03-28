@@ -8,7 +8,7 @@ bool tokenExpired(String token) {
     var jwt = JsonWebToken.unverified(token);
     // 极端情况下扣除2秒
     int ts = DateTimeHelper.currentTimeMillis() - 2000;
-    // debugPrint(">>> on jwt claims ${jwt.claims}, ${ts > jwt.claims['exp']}");
+    // debugPrint("> on jwt claims ${jwt.claims}, ${ts > jwt.claims['exp']}");
     return ts > jwt.claims['exp'] ? true : false;
   } on Exception catch (e) {
     // 任意一个异常

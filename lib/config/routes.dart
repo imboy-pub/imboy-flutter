@@ -23,14 +23,14 @@ class RouteObservers<R extends Route<dynamic>> extends RouteObserver<R> {
     if (name.isNotEmpty) {
       AppPages.history.add(name);
     }
-    debugPrint('>>>>> on didPush ${AppPages.history}');
+    debugPrint('> on didPush ${AppPages.history}');
   }
 
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
     AppPages.history.remove(route.settings.name);
-    debugPrint('>>>>> on didPop ${AppPages.history}');
+    debugPrint('> on didPop ${AppPages.history}');
   }
 
   @override
@@ -49,14 +49,14 @@ class RouteObservers<R extends Route<dynamic>> extends RouteObserver<R> {
         }
       }
     }
-    debugPrint('>>>>> on didReplace ${AppPages.history}');
+    debugPrint('> on didReplace ${AppPages.history}');
   }
 
   @override
   void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didRemove(route, previousRoute);
     AppPages.history.remove(route.settings.name);
-    debugPrint('>>>>> on didRemove ${AppPages.history}');
+    debugPrint('> on didRemove ${AppPages.history}');
   }
 
   @override
@@ -64,13 +64,13 @@ class RouteObservers<R extends Route<dynamic>> extends RouteObserver<R> {
     Route<dynamic> route,
     Route<dynamic>? previousRoute,
   ) {
-    debugPrint('>>>>> on didStartUserGesture ${AppPages.history}');
+    debugPrint('> on didStartUserGesture ${AppPages.history}');
     super.didStartUserGesture(route, previousRoute);
   }
 
   @override
   void didStopUserGesture() {
-    debugPrint('>>>>> on didStopUserGesture ${AppPages.history}');
+    debugPrint('> on didStopUserGesture ${AppPages.history}');
     super.didStopUserGesture();
   }
 }

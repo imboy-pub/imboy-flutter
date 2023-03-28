@@ -42,7 +42,8 @@ class ContactCard extends StatelessWidget {
       fontSize: 14,
       color: AppColors.MainTextColor,
     );
-    String title = remark ?? '';
+
+    String? title = (remark == null || remark == 'null') ? '' : remark;
     if (strEmpty(title)) {
       title = nickname!;
       nickname = '';
@@ -52,7 +53,7 @@ class ContactCard extends StatelessWidget {
         [
           Expanded(
               child: Text(
-            title,
+            title ?? '',
             style: const TextStyle(
               color: Colors.black,
               fontSize: 18.0,
@@ -78,7 +79,7 @@ class ContactCard extends StatelessWidget {
         child: Text("账号：".tr + account!, style: labelStyle),
       ));
     }
-    if (strNoEmpty(region)) {
+    if (strNoEmpty(region) && region != 'null') {
       items.add(
         Text("地区：".tr + region, style: labelStyle),
       );

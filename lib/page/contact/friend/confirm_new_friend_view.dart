@@ -67,7 +67,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                 "donotlookhim": logic.donotlookhim.isTrue,
                 "donotlethimlook": logic.donotlethimlook.isTrue,
               };
-              debugPrint(">>> on payload $p2");
+              debugPrint("> on payload $p2");
               await logic.confirm(from, to, p2);
             },
             style: ButtonStyle(
@@ -108,7 +108,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                     controller: _remarkController,
                     minLines: 1,
                     maxLines: 1,
-                    maxLength: null,
+                    maxLength: 80,
                     contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                   ),
                   Padding(
@@ -161,7 +161,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                             logic.visibilityLook = true.obs;
                             logic.update([logic.visibilityLook]);
                             debugPrint(
-                                "on >>> logic.visibilityLook1 ${logic.visibilityLook}");
+                                "> on logic.visibilityLook1 ${logic.visibilityLook}");
                           },
                         ),
                         IMBoyRadioListTile(
@@ -182,9 +182,9 @@ class ConfirmNewFriendPage extends StatelessWidget {
                             logic.donotlookhim = false.obs;
                             logic.update();
                             debugPrint(
-                                "on >>> logic.visibilityLook2 ${logic.visibilityLook}");
+                                "> on logic.visibilityLook2 ${logic.visibilityLook}");
                             debugPrint(
-                                "on >>> logic.donotlethimlook3 ${logic.donotlethimlook}");
+                                "> on logic.donotlethimlook3 ${logic.donotlethimlook}");
                           },
                         ),
                       ],

@@ -59,12 +59,12 @@ class PassportLogic extends GetxController {
 
   Future<Map<String, dynamic>> encryptPassword(String password) async {
     IMBoyHttpResponse resp1 = await HttpClient.client.get("/init");
-    debugPrint(">>> on init ${resp1.toString()}");
+    debugPrint("> on init ${resp1.toString()}");
     if (!resp1.ok) {
       return {"error": "网络故障或服务故障"};
     }
-    // debugPrint(">>> on ${resp1.payload.toString()}");
-    // debugPrint(">>> on ${resp1.toString()}");
+    // debugPrint("> on ${resp1.payload.toString()}");
+    // debugPrint("> on ${resp1.toString()}");
     String pubKey = resp1.payload['login_rsa_pub_key'] as String;
     final rsaEncrypt = resp1.payload['login_pwd_rsa_encrypt'];
     if (rsaEncrypt == "1") {
@@ -104,7 +104,7 @@ class PassportLogic extends GetxController {
         postData["dname"] = dinfo["deviceName"];
         postData["dvsn"] = dinfo["deviceVersion"];
       }
-      debugPrint(">>> on doLogin postData: ${postData.toString()}");
+      debugPrint("> on doLogin postData: ${postData.toString()}");
       IMBoyHttpResponse resp2 = await HttpClient.client.post(
         API.login,
         data: postData,
@@ -128,7 +128,7 @@ class PassportLogic extends GetxController {
   /// 用户注册
   Future<String?> signupUser(SignupData data) {
     // return null;
-    debugPrint(">>> on signupUser data: ${data.name}, ${data.password}");
+    debugPrint("> on signupUser data: ${data.name}, ${data.password}");
     return doSendEmail(data.name ?? '');
   }
 
@@ -163,7 +163,7 @@ class PassportLogic extends GetxController {
 
   /// 重新发送验证码
   Future<String?>? onResendCode(SignupData data) {
-    debugPrint(">>> on onResendCode data: ${data.name}, ${data.password}");
+    debugPrint("> on onResendCode data: ${data.name}, ${data.password}");
     // 验证码已发送
     return doSendEmail(data.name ?? '');
   }
@@ -193,7 +193,7 @@ class PassportLogic extends GetxController {
 
   // 找回密码，获取Email验证码功能
   Future<String?> onRecoverPassword(String name) {
-    debugPrint('>>> on onRecoverPassword Name: $name');
+    debugPrint('> on onRecoverPassword Name: $name');
     // 验证码已发送
     return doSendEmail(name);
     // return 'User not exists';

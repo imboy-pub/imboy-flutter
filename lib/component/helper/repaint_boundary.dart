@@ -21,7 +21,7 @@ class RepaintBoundaryHelper {
     ByteData? byteData = await image.toByteData(format: ImageByteFormat.png);
 
     bool permition = await Permission.storage.isGranted;
-    // debugPrint(">>> on storage permition $permition; filename $filename");
+    // debugPrint("> on storage permition $permition; filename $filename");
     if (permition) {
       Uint8List images = byteData!.buffer.asUint8List();
       await ImageGallerySaver.saveImage(

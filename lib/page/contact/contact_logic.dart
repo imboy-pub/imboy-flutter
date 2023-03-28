@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_view.dart';
-import 'package:imboy/page/contact/contact_detail_view.dart';
+import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -77,7 +77,10 @@ class ContactLogic extends GetxController {
             () {
               if (model.uid != null) {
                 Get.to(
-                  ContactDetailPage(id: model.uid!),
+                  PeopleInfoPage(
+                    id: model.uid!,
+                    sence: '',
+                  ),
                   transition: Transition.rightToLeft,
                   popGesture: true, // 右滑，返回上一页
                 );

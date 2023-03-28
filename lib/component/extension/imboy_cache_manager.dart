@@ -7,7 +7,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'mime_converter.dart';
 
 class IMBoyCacheManager extends CacheManager {
-  static const key = 'imboyCacheKey';
+  static const key = 'imboy_cache_key';
 
   static final IMBoyCacheManager _instance = IMBoyCacheManager._();
 

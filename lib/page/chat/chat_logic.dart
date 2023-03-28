@@ -166,7 +166,7 @@ class ChatLogic extends GetxController {
       subtitle: subtitle,
       type: type,
       // C2C or GROUP
-      msgtype: msgType,
+      msgType: msgType,
       lastMsgId: message.id,
       lastTime: createdAt,
       lastMsgStatus: 10,

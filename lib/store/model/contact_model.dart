@@ -7,6 +7,32 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
+String getSourceTr(String source) {
+  debugPrint("getSourceTr $source");
+  String sourceTr = "";
+  // 通过QQ好友添加
+  // 通过群聊添加
+  switch (source.toLowerCase()) {
+    case 'visit_card':
+      sourceTr = '个人名片'.tr;
+      break;
+    case 'qrcode':
+      // sourceTr = 'source_qrcode'.tr;
+      sourceTr = '通过扫一扫添加'.tr;
+      break;
+    case 'people_nearby':
+      sourceTr = '附近的人'.tr;
+      break;
+    case 'null':
+      sourceTr = '';
+      break;
+    default:
+      sourceTr = source;
+      break;
+  }
+  return sourceTr;
+}
+
 class ContactModel extends ISuspensionBean {
   ContactModel({
     this.uid,
@@ -41,7 +67,7 @@ class ContactModel extends ISuspensionBean {
   final String remark;
   final String region;
   final String sign;
-  final String source;
+  final String source; // visit_card | qrcode | people_nearby
   final int? updateTime;
   int isFriend;
   // isFrom 好友关系发起人
@@ -59,22 +85,7 @@ class ContactModel extends ISuspensionBean {
 
   /// 联系人来源描述
   String get sourceTr {
-    String sourceTr = "";
-    // 通过QQ好友添加
-    // 通过群聊添加
-    switch (source.toLowerCase()) {
-      case 'visit_card':
-        sourceTr = '个人名片'.tr;
-        break;
-      case 'qrcode':
-        // sourceTr = 'source_qrcode'.tr;
-        sourceTr = '通过扫一扫添加'.tr;
-        break;
-      case 'people_nearby':
-        sourceTr = '附近的人'.tr;
-        break;
-    }
-    return sourceTr;
+    return getSourceTr(source);
   }
 
   /// 联系人title显示规则： remark > nickname > account
@@ -101,7 +112,8 @@ class ContactModel extends ISuspensionBean {
       source: json["source"].toString(),
       sign: json["sign"].toString(),
       // 单位毫秒，13位时间戳  1561021145560
-      updateTime: json["update_time"] ?? DateTime.now().millisecondsSinceEpoch,
+      updateTime:
+          json[ContactRepo.updateTime] ?? DateTime.now().millisecondsSinceEpoch,
       isFriend: json[ContactRepo.isFriend] ?? 0,
       isFrom: json[ContactRepo.isFrom] ?? 0,
     );
@@ -118,7 +130,7 @@ class ContactModel extends ISuspensionBean {
         'region': region,
         'sign': sign,
         'source': source,
-        'update_time': updateTime,
+        ContactRepo.updateTime: updateTime,
         ContactRepo.isFriend: isFriend,
         ContactRepo.isFrom: isFrom,
         //

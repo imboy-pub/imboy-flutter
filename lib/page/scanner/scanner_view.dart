@@ -6,11 +6,10 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/page/single/people_info.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'scanner_logic.dart';
-import 'scanner_result_view.dart';
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({Key? key}) : super(key: key);
@@ -98,20 +97,13 @@ class _ScannerPageState extends State<ScannerPage>
                       return;
                     }
                     Map payload = resp.payload;
-                    // debugPrint(">>> on qrcode: ${payload.toString()}");
+                    // debugPrint("> on qrcode: ${payload.toString()}");
                     String result = payload['result'] ?? '';
-                    if (result == '') {
+                    if (result == '' && payload['id'] != null) {
                       Get.off(
-                        ScannerResultPage(
-                          id: payload['id'] ?? '',
-                          remark: payload['remark'] ?? '',
-                          nickname: payload['nickname'] ?? '',
-                          avatar: payload['avatar'] ?? defAvatar,
-                          sign: payload['sign'] ?? '',
-                          region: payload['region'] ?? '',
-                          gender: payload['gender'] ?? 0,
-                          isFriend: payload[ContactRepo.isFriend] ?? false,
-                        ),
+                        PeopleInfoPage(id: payload['id'], sence: 'qrcode'),
+                        transition: Transition.rightToLeft,
+                        popGesture: true, // 右滑，返回上一页
                       );
                     } else if (result == 'user_not_exist') {
                       // EasyLoading.showToast("用户不存在".tr);
@@ -233,7 +225,7 @@ class _ScannerPageState extends State<ScannerPage>
                             return;
                           }
                           bool res = await controller.analyzeImage(image.path);
-                          debugPrint(">>> on barcode $res ${image.path}");
+                          debugPrint("> on barcode $res ${image.path}");
                           if (res) {
                             if (!mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(

@@ -4,7 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/page/scanner/scanner_result_view.dart';
+import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -176,15 +176,9 @@ class PeopleNearbyPage extends StatelessWidget {
                                       '${model.distince} ${model.distinceUnit}'),
                                   onTap: () {
                                     Get.to(
-                                      ScannerResultPage(
+                                      PeopleInfoPage(
                                         id: model.id,
-                                        // remark: model.payload['remark'] ?? '',
-                                        nickname: model.nickname,
-                                        avatar: model.avatar,
-                                        sign: model.sign,
-                                        region: model.region,
-                                        gender: model.gender,
-                                        isFriend: model.isFriend,
+                                        sence: 'people_nearby',
                                       ),
                                       transition: Transition.rightToLeft,
                                       popGesture: true, // 右滑，返回上一页

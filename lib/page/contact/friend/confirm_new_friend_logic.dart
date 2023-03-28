@@ -30,10 +30,10 @@ class ConfirmNewFriendLogic extends GetxController {
   final BottomNavigationLogic bnlogic = Get.find();
 
   void setRole(String role) {
-    // debugPrint(">>> on ConfirmNewFriendLogic/setRole1 ${this.role.value} = ${role}");
+    // debugPrint("> on ConfirmNewFriendLogic/setRole1 ${this.role.value} = ${role}");
     this.role.value = role;
     update([this.role]);
-    // debugPrint(">>> on ConfirmNewFriendLogic/setRole2 ${this.role.value} = ${role}");
+    // debugPrint("> on ConfirmNewFriendLogic/setRole2 ${this.role.value} = ${role}");
   }
 
   /// 确认申请成为好友
@@ -67,7 +67,7 @@ class ConfirmNewFriendLogic extends GetxController {
       ctlogic.receivedConfirFriend(resp.payload);
       Future.delayed(const Duration(seconds: 1), () {
         // 重新计算"新的好友提醒计数器"
-        debugPrint(">>> on countNewFriendRemindCounter $from");
+        debugPrint("> on countNewFriendRemindCounter $from");
         bnlogic.newFriendRemindCounter.remove(from);
         bnlogic.update([bnlogic.newFriendRemindCounter]);
       });

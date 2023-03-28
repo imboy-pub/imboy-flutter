@@ -19,7 +19,7 @@ class LocationProvider extends HttpClient {
       'longitude': longitude,
       'latitude': latitude,
     });
-    debugPrint(">>> on Provider/peopleNearby resp: ${resp.payload.toString()}");
+    debugPrint("> on Provider/peopleNearby resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }
@@ -44,7 +44,7 @@ class LocationProvider extends HttpClient {
   /// 让自己不可见
   Future<bool> makeMyselfUnvisible() async {
     IMBoyHttpResponse resp = await post(API.makeMyselfUnvisible);
-    debugPrint(">>> on Provider/makeMyselfUnvisible resp: ${resp.payload}");
+    debugPrint("> on Provider/makeMyselfUnvisible resp: ${resp.payload}");
     return resp.ok ? true : false;
   }
 }

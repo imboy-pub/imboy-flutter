@@ -16,12 +16,14 @@ class AddFriendPage extends StatelessWidget {
   String remark;
   String avatar;
   String regin;
+  String source;
 
   AddFriendPage(
     this.uid,
     this.remark,
     this.avatar,
     this.regin, {
+    required this.source,
     Key? key,
   }) : super(key: key);
 
@@ -58,7 +60,7 @@ class AddFriendPage extends StatelessWidget {
             onPressed: () async {
               Map<String, dynamic> payload = {
                 "from": {
-                  "source": "qrcode",
+                  "source": source,
                   "msg": _msgController.text,
                   "remark": _remarkController.text,
                   "avatar": UserRepoLocal.to.current.avatar,
@@ -117,7 +119,7 @@ class AddFriendPage extends StatelessWidget {
                     controller: _remarkController,
                     minLines: 1,
                     maxLines: 1,
-                    maxLength: 40,
+                    maxLength: 80,
                     contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                   ),
                   Text('标签'.tr),
@@ -164,7 +166,7 @@ class AddFriendPage extends StatelessWidget {
                             logic.visibilityLook = true.obs;
                             logic.update([logic.visibilityLook]);
                             debugPrint(
-                                "on >>> logic.visibilityLook1 ${logic.visibilityLook}");
+                                "> on logic.visibilityLook1 ${logic.visibilityLook}");
                           },
                         ),
                         IMBoyRadioListTile(
@@ -185,9 +187,9 @@ class AddFriendPage extends StatelessWidget {
                             logic.donotlookhim = false.obs;
                             logic.update();
                             debugPrint(
-                                "on >>> logic.visibilityLook2 ${logic.visibilityLook}");
+                                "> on logic.visibilityLook2 ${logic.visibilityLook}");
                             debugPrint(
-                                "on >>> logic.donotlethimlook3 ${logic.donotlethimlook}");
+                                "> on logic.donotlethimlook3 ${logic.donotlethimlook}");
                           },
                         ),
                       ],

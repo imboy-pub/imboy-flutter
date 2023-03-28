@@ -12,7 +12,7 @@ class ConversationRepo {
   static String subtitle = 'subtitle';
   static String region = 'region';
   static String sign = 'sign';
-  static String lastTime = 'lasttime';
+  static String lastTime = 'last_time';
   static String lastMsgId = 'last_msg_id';
   static String lastMsgStatus = 'last_msg_status';
   static String unreadNum = 'unread_num';
@@ -20,8 +20,8 @@ class ConversationRepo {
   // 等价与 msg type: C2C C2G 等等，根据type显示item
   static String type = 'type';
 
-  // msgtype 定义见 ConversationModel/content 的定义
-  static String msgtype = 'msgtype';
+  // msgType 定义见 ConversationModel/content 的定义
+  static String msgType = 'msg_type';
   static String isShow = "is_show";
 
   final Sqlite _db = Sqlite.instance;
@@ -39,7 +39,7 @@ class ConversationRepo {
       ConversationRepo.lastMsgStatus: obj.lastMsgStatus ?? 11,
       ConversationRepo.unreadNum: obj.unreadNum > 0 ? obj.unreadNum : 0,
       ConversationRepo.type: obj.type,
-      ConversationRepo.msgtype: obj.msgtype,
+      ConversationRepo.msgType: obj.msgType,
       ConversationRepo.isShow: obj.isShow,
     };
     int lastInsertId = await _db.insert(ConversationRepo.tableName, insert);
@@ -117,7 +117,7 @@ class ConversationRepo {
         ConversationRepo.lastMsgStatus,
         ConversationRepo.unreadNum,
         ConversationRepo.type,
-        ConversationRepo.msgtype,
+        ConversationRepo.msgType,
       ],
       where: where,
       whereArgs: whereArgs,
@@ -152,7 +152,7 @@ class ConversationRepo {
         ConversationRepo.lastMsgStatus,
         ConversationRepo.unreadNum,
         ConversationRepo.type,
-        ConversationRepo.msgtype,
+        ConversationRepo.msgType,
       ],
       where: '${ConversationRepo.isShow} = ?',
       whereArgs: [1],
@@ -186,7 +186,7 @@ class ConversationRepo {
         ConversationRepo.lastMsgStatus,
         ConversationRepo.unreadNum,
         ConversationRepo.type,
-        ConversationRepo.msgtype,
+        ConversationRepo.msgType,
       ],
       where: 'id=?',
       whereArgs: [id],
@@ -214,7 +214,7 @@ class ConversationRepo {
         ConversationRepo.lastTime,
         ConversationRepo.lastMsgId,
         ConversationRepo.lastMsgStatus,
-        ConversationRepo.msgtype,
+        ConversationRepo.msgType,
         ConversationRepo.unreadNum,
       ],
       where: '${ConversationRepo.peerId} = ?',

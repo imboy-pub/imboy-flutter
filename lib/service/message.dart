@@ -22,7 +22,6 @@ import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
-import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -143,7 +142,7 @@ class MessageService extends GetxService {
           WSService.to.closeSocket();
           UserRepoLocal.to.logout();
           Get.off(() => PassportPage(), arguments: {
-            "msgtype": "logged_another_device",
+            "msgType": "logged_another_device",
             "server_ts": serverTs,
             "dname": payload['dname'] ?? '', // 设备名称
           });
@@ -180,25 +179,23 @@ class MessageService extends GetxService {
 
   /// 收到C2C消息
   Future<void> receiveC2CMessage(data) async {
-    var msgtype = data['payload']['msg_type'] ?? '';
+    var msgType = data['payload']['msg_type'] ?? '';
     var subtitle = data['payload']['text'] ?? '';
     debugPrint("> rtc msgs c2c receiveMessage $data");
     int now = DateTimeHelper.currentTimeMillis();
     debugPrint("> rtc msgs c2c now: $now elapsed: ${now - data['created_at']}");
 
     ContactModel? ct = await ContactRepo().findByUid(data['from']);
-    // 如果没有联系人，同步去取
-    ct ??= await (ContactProvider()).syncByUid(data['from']);
-    String avatar = ct.avatar;
+    String avatar = ct!.avatar;
     String title = ct.nickname;
 
-    if (msgtype == 'custom') {
-      msgtype = data['payload']['custom_type'] ?? '';
+    if (msgType == 'custom') {
+      msgType = data['payload']['custom_type'] ?? '';
       subtitle = '';
     }
-    if (msgtype == 'quote') {
+    if (msgType == 'quote') {
       subtitle = data['payload']['quote_text'] ?? '';
-    } else if (msgtype == 'location') {
+    } else if (msgType == 'location') {
       subtitle = data['payload']['title'] ?? '';
     }
     ConversationModel conversationObj = ConversationModel(
@@ -207,7 +204,7 @@ class MessageService extends GetxService {
       title: title,
       subtitle: subtitle,
       type: data['type'],
-      msgtype: msgtype,
+      msgType: msgType,
       lastMsgId: data['id'],
       lastTime: data['created_at'],
       unreadNum: 1,
@@ -292,7 +289,7 @@ class MessageService extends GetxService {
       'payload': json.encode({
         "msg_type": "custom",
         "custom_type": "revoked",
-        "peer_name": contact?.nickname
+        "peer_name": contact!.nickname
       }),
     });
     // msg = null 的时候数据已经被删除了
@@ -332,10 +329,10 @@ class MessageService extends GetxService {
       return;
     }
     conversation.subtitle = '';
-    conversation.msgtype =
+    conversation.msgType =
         msgType; //peerId == UserRepoLocal.to.currentUid ? 'peer_revoked' : 'my_revoked';
     int res2 = await repo.updateByPeerId(peerId, {
-      'msgtype': conversation.msgtype,
+      'msgType': conversation.msgType,
       'subtitle': '',
     });
     if (res2 > 0) {

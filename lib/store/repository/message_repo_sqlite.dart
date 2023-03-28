@@ -32,7 +32,7 @@ class MessageRepo {
     );
     if (count == 0) {
       Map<String, dynamic> insert = {
-        'autoid': null,
+        'auto_id': null,
         MessageRepo.id: msg.id,
         MessageRepo.type: msg.type,
         MessageRepo.from: msg.fromId,
@@ -43,10 +43,10 @@ class MessageRepo {
         MessageRepo.conversationId: msg.conversationId,
         MessageRepo.status: msg.status,
       };
-      debugPrint(">>> on MessgeMode/insert $insert");
+      debugPrint("> on MessgeMode/insert $insert");
       await _db.insert(MessageRepo.tableName, insert);
     } else {
-      debugPrint(">>> on MessgeMode/insert count $count : $insert");
+      debugPrint("> on MessgeMode/insert count $count : $insert");
     }
     return msg;
   }
@@ -74,7 +74,7 @@ class MessageRepo {
     } else {
       await update(obj.toJson());
     }
-    debugPrint(">>>>> on MessageRepo/save count:$count; id: $obj.id");
+    debugPrint("> on MessageRepo/save count:$count; id: $obj.id");
     return count;
   }
 

@@ -251,7 +251,7 @@ class ChatPageState extends State<ChatPage> {
       });
       return true;
     } catch (e) {
-      //
+      debugPrint("_addMessage $e");
     }
     return false;
     // _msgService.update();
@@ -282,7 +282,7 @@ class ChatPageState extends State<ChatPage> {
         // 上传现有的附件，是不需要清理临时文件的
         _addMessage(message);
       }, (DioError error) {
-        debugPrint(">>> on upload ${error.toString()}");
+        debugPrint("> on upload ${error.toString()}");
       });
     }
   }
@@ -344,7 +344,7 @@ class ChatPageState extends State<ChatPage> {
           _addMessage(message);
         }
       }, (DioError error) {
-        debugPrint(">>> on upload error ${error.toString()}");
+        debugPrint("> on upload error ${error.toString()}");
       });
       if (mounted) {
         setState(() {});
@@ -388,7 +388,7 @@ class ChatPageState extends State<ChatPage> {
       Map<String, dynamic> metadata = {
         'custom_type': 'visit_card',
         'uid': c1.uid,
-        'title': c1.title,
+        'title': c1.nickname,
         'avatar': c1.avatar,
       };
       debugPrint("> location metadata: ${metadata.toString()}");
@@ -448,7 +448,7 @@ class ChatPageState extends State<ChatPage> {
       // 上传成功，删除本地临时文件
       file.deleteSync();
     }, (DioError error) {
-      debugPrint(">>> on upload ${error.toString()}");
+      debugPrint("> on upload ${error.toString()}");
     }, name: id);
   }
 
@@ -463,8 +463,8 @@ class ChatPageState extends State<ChatPage> {
           double w = getx.Get.width;
           imgUrl += "&width=${w.toInt()}";
 
-          debugPrint(">>> on upload imgUrl $imgUrl");
-          debugPrint(">>> on upload $resp.toString()");
+          debugPrint("> on upload imgUrl $imgUrl");
+          debugPrint("> on upload $resp.toString()");
 
           final message = types.ImageMessage(
             author: logic.currentUser,
@@ -486,7 +486,7 @@ class ChatPageState extends State<ChatPage> {
             'thumb': (resp['thumb'] as EntityImage).toJson(),
             'video': (resp['video'] as EntityVideo).toJson(),
           };
-          debugPrint(">>> on upload metadata: ${metadata.toString()}");
+          debugPrint("> on upload metadata: ${metadata.toString()}");
           final message = types.CustomMessage(
             author: logic.currentUser,
             createdAt: DateTimeHelper.currentTimeMillis(),
@@ -501,7 +501,7 @@ class ChatPageState extends State<ChatPage> {
           assets.indexWhere((element) => element.id == entity.id),
         );
       }, (DioError error) {
-        debugPrint(">>> on upload ${error.toString()}");
+        debugPrint("> on upload ${error.toString()}");
       });
     }
   }
@@ -538,7 +538,7 @@ class ChatPageState extends State<ChatPage> {
       obj.file.delete(recursive: true);
       _addMessage(message);
     }, (DioError error) {
-      debugPrint(">>> on upload ${error.toString()}");
+      debugPrint("> on upload ${error.toString()}");
     }, process: false);
   }
 
@@ -776,7 +776,7 @@ class ChatPageState extends State<ChatPage> {
     double l = offset.dx / 2 - renderBox.size.width / 2 + 75.0;
     double r = renderBox.size.width / 2 - 75.0;
     double dx = message.author.id == UserRepoLocal.to.currentUid ? r : l;
-    debugPrint(">>> on chat _handleMessageTap "
+    debugPrint("> on chat _handleMessageTap "
         "dx:${offset.dx},dy:${offset.dy},"
         "w:${renderBox.size.width},h:${renderBox.size.height}");
     menu.show(
@@ -924,7 +924,7 @@ class ChatPageState extends State<ChatPage> {
               hideBackgroundOnEmojiMessages: false,
               theme: const ImboyChatTheme(),
               // onTextFieldTap: () {
-              // debugPrint(">>> on chatinput onTextFieldTap");
+              // debugPrint("> on chatinput onTextFieldTap");
               // },
               slidableMessageBuilder: (types.Message msg, Widget msgWidget) {
                 return GestureDetector(
@@ -989,7 +989,7 @@ class ChatPageState extends State<ChatPage> {
                 images: galleryLogic.gallery.value,
                 pageController: galleryLogic.galleryPageController!,
                 onClosePressed: () {
-                  debugPrint(">>> on onClosePressed ");
+                  debugPrint("> on onClosePressed ");
                   galleryLogic.onCloseGalleryPressed();
                   setState(() {
                     _showAppBar = true;

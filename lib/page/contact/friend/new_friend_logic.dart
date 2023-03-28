@@ -14,7 +14,7 @@ class NewFriendLogic extends GetxController {
   FocusNode searchF = FocusNode();
   TextEditingController searchC = TextEditingController();
 
-  final BottomNavigationLogic bnlogic = Get.find();
+  final BottomNavigationLogic bottomLogic = Get.find<BottomNavigationLogic>();
 
   RxList<dynamic> items = [].obs;
 
@@ -54,11 +54,11 @@ class NewFriendLogic extends GetxController {
       "create_time":
           data["created_at"] ?? DateTime.now().millisecondsSinceEpoch,
     };
-    // debugPrint(">>> on receivedAddFriend ${saveData.toString()}");
+    // debugPrint("> on receivedAddFriend ${saveData.toString()}");
     (NewFriendRepo()).save(saveData);
     replaceItems(NewFriendModel.fromJson(saveData));
-    bnlogic.newFriendRemindCounter.add(from);
-    bnlogic.update([bnlogic.newFriendRemindCounter]);
+    bottomLogic.newFriendRemindCounter.add(from);
+    bottomLogic.update([bottomLogic.newFriendRemindCounter]);
     WSService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
   }
 

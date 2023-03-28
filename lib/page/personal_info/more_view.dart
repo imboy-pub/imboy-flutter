@@ -23,7 +23,7 @@ class MoreView extends StatelessWidget {
     // ignore: prefer_function_declarations_over_variables
     Function deleteFirst = (String val) {
       List items = val.split(" ");
-      // debugPrint(">>> on deleteFirst ${items.length} ${items.toString()}");
+      // debugPrint("> on deleteFirst ${items.length} ${items.toString()}");
       if (items.length < 3) {
         return val;
       }

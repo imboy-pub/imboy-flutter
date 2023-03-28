@@ -2042,10 +2042,11 @@ packages:
   voice_message_package:
     dependency: "direct main"
     description:
-      path: "plugin/voice_message_package"
-      relative: true
-    source: path
-    version: "1.0.0"
+      name: voice_message_package
+      sha256: "0e559b06d191836ed1c0234b086a51ef813bbbd2cb6c20ccd3ac80ee979e7fa9"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.41"
   wakelock:
     dependency: transitive
     description:

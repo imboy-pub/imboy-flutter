@@ -26,8 +26,8 @@ imboy 的Flutter项目
 ## 功能树
 
 * 大概的大大小小功能实现情况：
-    * TODO 47
-    * OK 78
+    * TODO 48
+    * OK 79
 
 [查看](./doc/feature_0.1.0_tree.md)
 
@@ -41,21 +41,6 @@ imboy 的Flutter项目
 * 语音消息播放之后红点需要取消（已解决）
 * 一对一视频通话偶尔有问题，需要进一步优化
 * 消息"长按事件"不够灵活
-
-## flutter_dotenv
-
-https://pub.flutter-io.cn/packages/flutter_dotenv
-```
-cd imboy-flutter
-cp -f assets/example.env assets/.env
-// 手动修改相应的配置
-
-```
-
-## flutter_native_splash
-```
-flutter pub run flutter_native_splash:create
-```
 
 ## 多语言
 https://github.com/jonataslaw/get_cli/tree/master/translations
@@ -72,49 +57,7 @@ get generate locales assets/locales on lib/component/locales
 ```
 
 ## 开发环境遇到的一些问题
-
-### Mac本下Android项目获取调试版SHA1和发布版SHA1
-```
-keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
-
-keytool -list -v -keystore ~/.android/debug.keystore
-```
-输入密钥库口令 android 回车键，就可以看到调试版SHA1啦！
-
-### 临时解决 CocoaPods not installed. Skipping pod install
-
-https://github.com/flutter/flutter/issues/97251
-```
-open /Applications/Android\ Studio\ 4.2\ Preview.app
-```
-
-### flutter项目报错：Error: Entrypoint isn‘t within the current project
-https://blog.csdn.net/lifengli123/article/details/129009577
-
-Error: Entrypoint isn't within the current project
-
-网上看到很多中解决办法，但是我都试了都不行；然后换了一种搜索方式搜到一篇[文章](https://stackoverflow.com/questions/57154394/webstorm-has-marked-all-files-in-a-directory-as-non-project-files)
-
-大概是我不小心把lib文件加标记成了no project了，然后试着删掉 idea android ios dart_tool文件夹，重启as，右键项目文件夹，选择 Mark Directory as 选择 Sources Root
-
-### 解决  flutter doctor --android-licenses 报错
-https://gist.github.com/tommysdk/35053b71293d1a28d5f207ebb5abbf93
-
-in ~/.config/fish/config.fish
-```
-set -x JAVA_HOME (/usr/libexec/java_home -v 19)
-```
-java -version
-
-### 各个 Android Gradle 插件版本所需的 Gradle 版本
-
-https://developer.android.google.cn/studio/releases/gradle-plugin?hl=zh-cn
-
-Preferences -> Build -> Build Tools -> Gradle -> Gradle JDK
-
-```
-./gradlew wrapper
-```
+参考 [FAQ](./doc/FAQ.md)
 
 ## Dart 在线运行环境
 * https://www.nhooo.com/tool/dart/
@@ -203,6 +146,21 @@ arch -x86_64 pod update
 arch -x86_64 pod update flutter_webrtc
 
 cd ios && rm -rf Pods && pod cache clean --all && pod install && cd ..
+```
+
+### deps flutter_dotenv
+
+https://pub.flutter-io.cn/packages/flutter_dotenv
+```
+cd imboy-flutter
+cp -f assets/example.env assets/.env
+// 手动修改相应的配置
+
+```
+
+### deps flutter_native_splash
+```
+flutter pub run flutter_native_splash:create
 ```
 
 ### deps flutter_sound_install

@@ -95,7 +95,7 @@ class MessageModel {
     data[MessageRepo.serverTs] = serverTs ?? 0;
     data[MessageRepo.conversationId] = conversationId;
 
-    debugPrint(">>>>> on MessageModel toMap $data");
+    debugPrint("> on MessageModel toMap $data");
     return data;
   }
 

@@ -50,7 +50,6 @@ class Sqlite {
       path,
       version: _dbVersion,
       readOnly: false,
-      // onCreate: isexits ? null : _onCreate,
       onCreate: _onCreate,
     );
   }
@@ -61,10 +60,11 @@ class Sqlite {
     //      也就是一条SQL语句一个 db.execute
 
     // await db.execute("DROP TABLE IF EXISTS ${ContactRepo.tableName};");
+    // await db.execute("DROP TABLE IF EXISTS ${ConversationRepo.tableName};");
     // await db.execute("DROP TABLE IF EXISTS ${MessageRepo.tableName};");
-    // await db.execute("DROP TABLE IF EXISTS ${PersonRepo.tableName};");
+    // await db.execute("DROP TABLE IF EXISTS ${NewFriendRepo.tableName};");
 
-    String contatsSql = '''
+    String contactSql = '''
       CREATE TABLE IF NOT EXISTS ${ContactRepo.tableName} (
         ${ContactRepo.uid} varchar(40) NOT NULL,
         ${ContactRepo.nickname} varchar(40) NOT NULL DEFAULT '',
@@ -82,8 +82,8 @@ class Sqlite {
         PRIMARY KEY("uid")
         );
       ''';
-    debugPrint("> on _onCreate \n$contatsSql\n");
-    await db.execute(contatsSql);
+    debugPrint("> on _onCreate \n$contactSql\n");
+    await db.execute(contactSql);
 
     String conversationSql = '''
       CREATE TABLE IF NOT EXISTS ${ConversationRepo.tableName} (
@@ -96,7 +96,7 @@ class Sqlite {
         `${ConversationRepo.sign}` varchar(255) DEFAULT '',
         `${ConversationRepo.unreadNum}` int NOT NULL DEFAULT 0,
         `${ConversationRepo.type}` varchar(40) NOT NULL,
-        `${ConversationRepo.msgtype}` varchar(40) NOT NULL,
+        `${ConversationRepo.msgType}` varchar(40) NOT NULL,
         `${ConversationRepo.isShow}` int NOT NULL DEFAULT 0,
         `${ConversationRepo.lastTime}` int DEFAULT 0,
         `${ConversationRepo.lastMsgId}` varchar(40) NOT NULL,
@@ -109,7 +109,7 @@ class Sqlite {
 
     String messageSql = '''
       CREATE TABLE IF NOT EXISTS ${MessageRepo.tableName} (
-        autoid INTEGER,
+        auto_id INTEGER,
         ${MessageRepo.id} varchar(40) NOT NULL,
         ${MessageRepo.type} VARCHAR (20),
         ${MessageRepo.from} VARCHAR (80),
@@ -119,17 +119,17 @@ class Sqlite {
         ${MessageRepo.serverTs} INTERGER,
         ${MessageRepo.conversationId} int DEFAULT 0,
         ${MessageRepo.status} INTERGER,
-        PRIMARY KEY(autoid)
+        PRIMARY KEY(auto_id)
         );
       ''';
-    debugPrint(">>> on _onCreate messageSql \n$messageSql\n");
+    debugPrint("> on _onCreate messageSql \n$messageSql\n");
     await db.execute(messageSql);
     await db.execute(
         "CREATE UNIQUE INDEX IF NOT EXISTS uk_Msgid ON ${MessageRepo.tableName} (${MessageRepo.id});");
 
-    String addFriendSql = '''
+    String newFriendSql = '''
       CREATE TABLE IF NOT EXISTS ${NewFriendRepo.tableName} (
-        autoid INTEGER,
+        auto_id INTEGER,
         ${NewFriendRepo.uid} varchar(40) NOT NULL,
         ${NewFriendRepo.from} varchar(40) NOT NULL,
         ${NewFriendRepo.to} varchar(40) NOT NULL,
@@ -140,15 +140,15 @@ class Sqlite {
         ${NewFriendRepo.payload} text DEFAULT '',
         ${NewFriendRepo.updateTime} int(16) NOT NULL DEFAULT 0,
         ${NewFriendRepo.createTime} int(16) NOT NULL DEFAULT 0,
-        PRIMARY KEY("autoid"),
+        PRIMARY KEY("auto_id"),
         CONSTRAINT uk_FromTo UNIQUE (
             ${NewFriendRepo.from},
             ${NewFriendRepo.to}
         )
         );
       ''';
-    debugPrint("> on _onCreate \n$addFriendSql\n");
-    await db.execute(addFriendSql);
+    debugPrint("> on _onCreate \n$newFriendSql\n");
+    await db.execute(newFriendSql);
   }
 
   Future<int> insert(String table, Map<String, dynamic> data) async {

@@ -8,7 +8,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/search_bar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
-import 'package:imboy/page/scanner/scanner_result_view.dart';
+import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:jiffy/jiffy.dart';
@@ -102,7 +102,7 @@ class NewFriendPage extends StatelessWidget {
                                 const Icon(Icons.turn_slight_right),
                               );
                             }
-
+                            // model.status 0 待验证  1 已添加  2 已过期
                             if (model.status ==
                                 NewFriendStatus.waiting_for_validation.index) {
                               Jiffy dt = Jiffy.parseFromMillisecondsSinceEpoch(
@@ -208,17 +208,9 @@ class NewFriendPage extends StatelessWidget {
                                   ),
                                   onTap: () {
                                     Get.to(
-                                      ScannerResultPage(
-                                        id: model.to,
-                                        // remark: model.payload['remark'] ?? '',
-                                        nickname: model.nickname,
-                                        avatar: model.avatar ?? defAvatar,
-                                        sign: '',
-                                        region: '',
-                                        gender: 0,
-                                        // status 0 待验证  1 已添加  2 已过期
-                                        isFriend:
-                                            model.status == 1 ? true : false,
+                                      PeopleInfoPage(
+                                        id: UserRepoLocal.to.currentUid == model.to ? model.from : model.to,
+                                        sence: model.source,
                                       ),
                                       transition: Transition.rightToLeft,
                                       popGesture: true, // 右滑，返回上一页

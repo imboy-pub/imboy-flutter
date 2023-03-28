@@ -28,8 +28,8 @@ class BottomNavigationLogic extends GetxController {
       limit: 1000,
     );
     debugPrint(
-        ">>> on countNewFriendRemindCounter1 ${newFriendRemindCounter.toString()}");
-    debugPrint(">>> on countNewFriendRemindCounter2 ${items.toString()}");
+        "> on countNewFriendRemindCounter1 ${newFriendRemindCounter.toString()}");
+    debugPrint("> on countNewFriendRemindCounter2 ${items.toString()}");
     newFriendRemindCounter = <String>{}.obs;
     if (items.isNotEmpty) {
       for (Map<String, dynamic> e in items) {
@@ -39,7 +39,7 @@ class BottomNavigationLogic extends GetxController {
     }
     update([newFriendRemindCounter]);
     debugPrint(
-        ">>> on countNewFriendRemindCounter3 ${newFriendRemindCounter.toString()}");
+        "> on countNewFriendRemindCounter3 ${newFriendRemindCounter.toString()}");
   }
 
   //改变底部导航栏索引

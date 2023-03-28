@@ -203,7 +203,7 @@ class _ExtraItemsState extends State<ExtraItems> {
                   );
                 },
               ),
-              const SizedBox(width: 86, height: 56,),
+              // const SizedBox(width: 86, height: 56,),
               ExtraItem(
                 title: "个人名片".tr, // visit card
                 image: const Icon(Icons.person, size: iconSize),

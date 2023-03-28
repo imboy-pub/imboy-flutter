@@ -9,7 +9,7 @@ import 'dart:async';
 //         //秒数+1，因为一秒回调一次R
 //         counter.start += 1;
 //       });
-//       debugPrint(">>> on counter/startTimer ${counter.initial}");
+//       debugPrint("> on counter/startTimer ${counter.initial}");
 //     });
 ///
 ///  不要忘记了在 dispose 的时候 关闭计时器

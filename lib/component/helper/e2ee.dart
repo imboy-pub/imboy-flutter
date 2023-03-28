@@ -54,7 +54,7 @@
 // // Generating keyPair using the function defined in above steps
 // // final keyPair = generateKeys();
 // Future<JsonWebKeyPair> generateKeys() async {
-//   debugPrint(">>> on e2ee ${EllipticCurve.p256.toString()}");
+//   debugPrint("> on e2ee ${EllipticCurve.p256.toString()}");
 //   final keyPair = await EcdhPrivateKey.generateKey(EllipticCurve.p256);
 //   final publicKeyJwk = await keyPair.publicKey.exportJsonWebKey();
 //   final privateKeyJwk = await keyPair.privateKey.exportJsonWebKey();

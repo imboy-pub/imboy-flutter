@@ -115,9 +115,9 @@ class _CropImageRouteState extends State<CropImageRoute> {
           scale: widget.imageScale,
         );
         // var opt1 = await ImageCrop.getImageOptions(file: sample);
-        // debugPrint(">>> on _crop opt1 ${opt1}");
+        // debugPrint("> on _crop opt1 ${opt1}");
         // var opt2 = await ImageCrop.getImageOptions(file: croppedFile);
-        // debugPrint(">>> on _crop opt2 ${opt2}");
+        // debugPrint("> on _crop opt2 ${opt2}");
         upload(croppedFile);
         Future.delayed(const Duration(milliseconds: 200)).then((value) {
           sample.delete();
@@ -135,10 +135,10 @@ class _CropImageRouteState extends State<CropImageRoute> {
       Map<String, dynamic> resp,
       String uri,
     ) async {
-      // debugPrint(">>> on upload resp ${resp.toString()}");
+      // debugPrint("> on upload resp ${resp.toString()}");
       Navigator.pop(context, uri); //这里的url在上一页调用的result可以拿到
     }, (DioError error) {
-      debugPrint(">>> on upload ${error.toString()}");
+      debugPrint("> on upload ${error.toString()}");
     }, name: widget.filename);
   }
 }

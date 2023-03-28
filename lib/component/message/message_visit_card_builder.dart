@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/page/contact/contact_detail_view.dart';
+import 'package:imboy/page/single/people_info.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:imboy/config/const.dart';
 
@@ -27,7 +27,7 @@ class VisitCardMessageBuilder extends StatelessWidget {
       // color: userIsAuthor
       //     ? AppColors.ChatSendMessageBgColor
       //     : AppColors.ChatReceivedMessageBodyBgColor,
-      color:AppColors.ChatReceivedMessageBodyBgColor,
+      color: AppColors.ChatReceivedMessageBodyBgColor,
       nip: userIsAuthor ? BubbleNip.rightBottom : BubbleNip.leftBottom,
       // style: const BubbleStyle(nipWidth: 16),
       nipRadius: 4,
@@ -42,7 +42,8 @@ class VisitCardMessageBuilder extends StatelessWidget {
               child: InkWell(
                 onTap: () {
                   Get.to(
-                    ContactDetailPage(id: message.metadata?['uid']),
+                    PeopleInfoPage(
+                        id: message.metadata?['uid'], sence: 'visit_card'),
                     transition: Transition.rightToLeft,
                     popGesture: true, // 右滑，返回上一页
                   );
@@ -56,19 +57,19 @@ class VisitCardMessageBuilder extends StatelessWidget {
                     ),
                     Expanded(
                       child: Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                        message.metadata?['title'],
-                        // '大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发',
-                        textAlign: TextAlign.left,
-                        style: const TextStyle(
-                          color: AppColors.MainTextColor,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14.0,
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      )),
+                          alignment: Alignment.center,
+                          child: Text(
+                            message.metadata?['title'],
+                            // '大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发',
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(
+                              color: AppColors.MainTextColor,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14.0,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          )),
                     ),
                   ],
                   // 内容文本左对齐

@@ -58,7 +58,7 @@ class StorageService extends GetxService {
   Future<int> ntpOffset() async {
     String key = "ntp_offset";
     String? val = _prefs.getString(key);
-    // debugPrint(">>> on currentTimeMillis val1 ${val}");
+    // debugPrint("> on currentTimeMillis val1 ${val}");
     // val = null;
     int offset = 0;
     if (val == null) {
@@ -67,10 +67,10 @@ class StorageService extends GetxService {
           localTime: DateTime.now(),
           lookUpAddress: 'time5.cloud.tencent.com',
         );
-        // debugPrint(">>> on currentTimeMillis offset2 ${offset}");
+        // debugPrint("> on currentTimeMillis offset2 ${offset}");
         String dt = Jiffy.now().format(pattern: 'y-MM-dd HH:mm:ss');
         val = '$dt$offset';
-        // debugPrint(">>> on currentTimeMillis val2 ${val}");
+        // debugPrint("> on currentTimeMillis val2 ${val}");
         _prefs.setString(key, val);
         // ignore: empty_catches
       } catch (e) {}

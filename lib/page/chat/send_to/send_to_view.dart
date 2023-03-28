@@ -512,7 +512,7 @@ class SearchBarDelegate extends SearchDelegate {
                             title: contacts[i].title,
                             subtitle: '',
                             type: 'C2C',
-                            msgtype: 'text',
+                            msgType: 'text',
                             unreadNum: 0,
                           ),
                         );

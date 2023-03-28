@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
+import 'package:imboy/page/single/people_info.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:popup_menu/popup_menu.dart' as popupmenu;
 import 'package:imboy/component/helper/func.dart';
@@ -13,7 +14,6 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat_view.dart';
-import 'package:imboy/page/contact/contact_detail_view.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/page/uqrcode/uqrcode_view.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -324,9 +324,7 @@ class _ConversationPageState extends State<ConversationPage> {
                               remindCounter: remindNum,
                               onTapAvatar: () {
                                 Get.to(
-                                  ContactDetailPage(
-                                    id: model.peerId,
-                                  ),
+                                  PeopleInfoPage(id: model.peerId, sence: ''),
                                   transition: Transition.rightToLeft,
                                   popGesture: true, // 右滑，返回上一页
                                 );

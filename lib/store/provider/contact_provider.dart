@@ -14,7 +14,7 @@ class ContactProvider extends HttpClient {
         contentType: "application/x-www-form-urlencoded",
       ),
     );
-    // debugPrint(">>> on Provider/listFriend resp: ${resp.payload.toString()}");
+    // debugPrint("> on Provider/listFriend resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return [];
     }
@@ -31,7 +31,7 @@ class ContactProvider extends HttpClient {
       ),
     );
     ContactModel? ct;
-    debugPrint(">>> on Provider/syncByUid resp: ${resp.payload.toString()}");
+    debugPrint("> on Provider/syncByUid resp: ${resp.payload.toString()}");
     if (resp.ok) {
       (ContactRepo()).save(resp.payload);
       ct = ContactModel.fromJson(resp.payload);
@@ -46,7 +46,7 @@ class ContactProvider extends HttpClient {
       data: {"uid": uid},
     );
     debugPrint(
-        ">>> on deleteContact resp: ${resp.ok}, ${resp.payload.toString()}");
+        "> on deleteContact resp: ${resp.ok}, ${resp.payload.toString()}");
     return resp.ok;
   }
 }

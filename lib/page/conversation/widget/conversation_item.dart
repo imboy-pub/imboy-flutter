@@ -42,7 +42,7 @@ class ConversationItem extends StatelessWidget {
         ),
       );
     }
-    // debugPrint(">>> on imgUri ${imgUri!}");
+    // debugPrint("> on imgUri ${imgUri!}");
     return Container(
       padding: const EdgeInsets.only(left: 10.0, right: 10),
       color: Colors.white,

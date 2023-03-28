@@ -3,6 +3,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/provider/contact_provider.dart';
 
 class ContactRepo {
   static String tableName = 'contact';
@@ -83,7 +84,7 @@ class ContactRepo {
       ContactRepo.isFriend: obj.isFriend,
       ContactRepo.isFrom: obj.isFrom,
     };
-    debugPrint(">>> on ContactRepo/insert/1 $insert");
+    debugPrint("> on ContactRepo/insert/1 $insert");
 
     await _db.insert(ContactRepo.tableName, insert);
     return obj;
@@ -153,7 +154,7 @@ class ContactRepo {
   }
 
   //
-  Future<ContactModel?> findByUid(String uid) async {
+  Future<ContactModel?> findByUid(String uid, {bool autoFetch = true}) async {
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tableName,
       columns: [
@@ -177,7 +178,12 @@ class ContactRepo {
     if (maps.isNotEmpty) {
       return ContactModel.fromJson(maps.first);
     }
-    return null;
+    if (autoFetch) {
+      // 如果没有联系人，同步去取
+      return await (ContactProvider()).syncByUid(uid);
+    } else {
+      return null;
+    }
   }
 
   // 根据ID删除信息
@@ -222,7 +228,7 @@ class ContactRepo {
       data[ContactRepo.gender] = json["gender"];
     }
 
-    debugPrint(">>> on ContactRepo/update/1 data: ${data.toString()}");
+    debugPrint("> on ContactRepo/update/1 data: ${data.toString()}");
     if (strNoEmpty(uid)) {
       data[ContactRepo.isFrom] = json[ContactRepo.isFrom] ?? 0;
       data[ContactRepo.isFriend] = json[ContactRepo.isFriend] ?? 0;
@@ -240,8 +246,8 @@ class ContactRepo {
 
   void save(Map<String, dynamic> json) async {
     String uid = json["id"] ?? (json["uid"] ?? "");
-    ContactModel? old = await findByUid(uid);
-    if (old != null || old is ContactModel) {
+    ContactModel? old = await findByUid(uid, autoFetch: false);
+    if (old is ContactModel) {
       await update(json);
     } else {
       await insert(ContactModel.fromJson(json));

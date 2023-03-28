@@ -61,7 +61,7 @@ class ConversationLogic extends GetxController {
 
   // 聊天消息提醒计数器
   int get chatMsgRemindCounter {
-    // debugPrint(">>> on count chatMsgRemindCounter");
+    // debugPrint("> on count chatMsgRemindCounter");
     int c = 0;
     conversationRemind.forEach((key, value) {
       c += value;

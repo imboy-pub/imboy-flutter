@@ -8,6 +8,7 @@ class NewFriendModel {
     required this.to,
     required this.from,
     required this.nickname,
+    required this.source,
     this.avatar,
     this.status = 0,
     this.updateTime,
@@ -20,8 +21,8 @@ class NewFriendModel {
   final String from; // 发送中ID
   final String to; // 接收者ID
   final String nickname; // 昵称
+  final String source;
   final String? avatar; // 用户头像
-
   // 0 待验证  1 已添加  2 已过期
   int status; //
   String msg;
@@ -36,9 +37,10 @@ class NewFriendModel {
   factory NewFriendModel.fromJson(Map<String, dynamic> json) {
     var status = json["status"] ?? 0;
     return NewFriendModel(
+      source: json["source"] ?? '',
       uid: json["uid"],
-      from: json["from"] ?? json["fromid"],
-      to: json["to"] ?? json["toid"],
+      from: json[NewFriendRepo.from] ?? json['from'],
+      to: json[NewFriendRepo.to] ?? json['to'],
       nickname: json["nickname"].toString(),
       avatar: json["avatar"].toString(),
       status: status is String ? int.parse(status) : status,

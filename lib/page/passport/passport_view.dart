@@ -150,7 +150,7 @@ class PassportPage extends StatelessWidget {
           // 确认找回密码
           onConfirmRecover: logic.onConfirmRecover,
           onSubmitAnimationCompleted: () {
-            // debugPrint(">>> on login onSubmitAnimationCompleted");
+            // debugPrint("> on login onSubmitAnimationCompleted");
             Get.off(() => BottomNavigationPage());
           },
           onRecoverPassword: logic.onRecoverPassword,

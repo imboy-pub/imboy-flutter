@@ -39,7 +39,7 @@ IMBoyHttpResponse handleResponse(Response? response,
 
 IMBoyHttpResponse handleException(Exception exception) {
   var parseException = _parseException(exception);
-  debugPrint(">>> on handleException: ${parseException.message.toString()}");
+  debugPrint("> on handleException: ${parseException.message.toString()}");
   return IMBoyHttpResponse.failureFromError(parseException);
 }
 

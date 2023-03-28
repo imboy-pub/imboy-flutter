@@ -27,7 +27,7 @@ class UserRepoLocal extends GetxController {
   // 令牌 token
   String get accessToken => StorageService.to.getString(Keys.tokenKey);
 
-  String get refreshtoken => StorageService.to.getString(Keys.refreshtokenKey);
+  String get refreshToken => StorageService.to.getString(Keys.refreshtokenKey);
 
   String get currentUid => StorageService.to.getString(Keys.currentUid);
 
@@ -96,7 +96,7 @@ class UserRepoLocal extends GetxController {
   /// 刷新token
   Future<String> refreshAccessToken() async {
     String newToken = await (UserProvider()).refreshAccessToken(
-      UserRepoLocal.to.refreshtoken,
+      UserRepoLocal.to.refreshToken,
     );
     if (strNoEmpty(newToken)) {
       await StorageService.to.setString(Keys.tokenKey, newToken);
@@ -107,7 +107,7 @@ class UserRepoLocal extends GetxController {
 
   @override
   void dispose() {
-    debugPrint(">>> on user UserRepoSP disponse");
+    debugPrint("> on user UserRepoSP disponse");
     super.dispose();
   }
 }

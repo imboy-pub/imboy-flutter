@@ -63,7 +63,7 @@ Future<void> init() async {
   io.HttpOverrides.global = GlobalHttpOverrides();
 
   await dotenv.load(fileName: "assets/.env"); //
-  // debugPrint(">>> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
+  // debugPrint("> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
 
   // 放在 UserRepoLocal 前面
   await getx.Get.putAsync<StorageService>(() => StorageService().init());
@@ -106,14 +106,14 @@ Future<void> init() async {
         // app 恢复
         // 统计新申请好友数量
         bnLogic.countNewFriendRemindCounter();
-        debugPrint(">>> on LifecycleEventHandler resumeCallBack");
+        debugPrint("> on LifecycleEventHandler resumeCallBack");
         ntpOffset = await StorageService.to.ntpOffset();
         // 检查WS链接状态
         WSService.to.openSocket();
       },
       suspendingCallBack: () async {
         // app 挂起
-        debugPrint(">>> on LifecycleEventHandler suspendingCallBack");
+        debugPrint("> on LifecycleEventHandler suspendingCallBack");
       },
       pausedCallBack: () async {
         // 已暂停的
@@ -127,7 +127,7 @@ Future<void> init() async {
       WSService.to.openSocket();
     }
   });
-  // debugPrint(">>> on currentTimeMillis init ${ntpOffset}");
+  // debugPrint("> on currentTimeMillis init ${ntpOffset}");
 }
 
 Future<void> initJPush() async {

@@ -78,7 +78,7 @@ class AttachmentProvider {
       String url = resp["data"]["url"] + "?s=$UPLOAD_SENCE&a=$authToken&v=$v";
       callback(resp, url);
     }).catchError((e) {
-      debugPrint(">>> on upload err ${e.toString()}");
+      debugPrint("> on upload err ${e.toString()}");
       errorCallback(e);
     });
   }
@@ -133,7 +133,7 @@ class AttachmentProvider {
 
     String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
     bool uploadOriginalImage = false;
-    debugPrint(">>> on uploadOriginalImage: $uploadOriginalImage");
+    debugPrint("> on uploadOriginalImage: $uploadOriginalImage");
     String name = "${Xid().toString()}.$ext";
     if (entity.type == AssetType.video) {
       String? thumbUri;
@@ -144,7 +144,7 @@ class AttachmentProvider {
         quality: quality, // default(100)
         position: -1, // default(-1)
       );
-      debugPrint(">>> on upload video ${thumbnailFile.path}");
+      debugPrint("> on upload video ${thumbnailFile.path}");
       String thumbPath = thumbnailFile.path;
       var thumbName =
           thumbPath.substring(thumbPath.lastIndexOf("/") + 1, thumbPath.length);
@@ -249,7 +249,7 @@ class AttachmentProvider {
           await _upload(prefix, data, callback, errorCallback);
         }
       }).catchError((e) {
-        debugPrint(">>> on preUpload catchError ${e.toString()}");
+        debugPrint("> on preUpload catchError ${e.toString()}");
         errorCallback(e);
       });
     } else if (entity.type == AssetType.image && uploadOriginalImage == true) {
@@ -274,7 +274,7 @@ class AttachmentProvider {
           await _upload(prefix, data, callback, errorCallback);
         }
       }).catchError((e) {
-        debugPrint(">>> on preUpload catchError ${e.toString()}");
+        debugPrint("> on preUpload catchError ${e.toString()}");
         errorCallback(e);
       });
     }

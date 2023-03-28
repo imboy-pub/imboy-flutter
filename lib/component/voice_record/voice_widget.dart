@@ -90,7 +90,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   void initState() {
     super.initState();
     openTheRecorder();
-    debugPrint(">>> on chat _VoiceWidgetState initState");
+    debugPrint("> on chat _VoiceWidgetState initState");
   }
 
   ///显示录音悬浮布局
@@ -145,7 +145,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     ///显示录音悬浮布局
     buildOverLayView(ctx);
 
-    debugPrint(">>> on record showVoiceView");
+    debugPrint("> on record showVoiceView");
     recorderStart(ctx);
   }
 
@@ -262,7 +262,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   // -------  Here is the code to playback  -----------------------
   /// 开始录音
   void recorderStart(BuildContext ctx) async {
-    debugPrint(">>> on record start");
+    debugPrint("> on record start");
     try {
       var status = await Permission.microphone.request();
       if (status != PermissionStatus.granted) {
@@ -345,10 +345,10 @@ class _VoiceWidgetState extends State<VoiceWidget> {
             overlayEntry!.markNeedsBuild();
           }
           // debugPrint(
-          //     ">>> on record 振幅大小   " + voiceData.toString() + "  " + voiceIco);
+          //     "> on record 振幅大小   " + voiceData.toString() + "  " + voiceIco);
           setState(() {
             recorderTxt = txt.substring(0, 9);
-            // debugPrint(">>> on record 当前振幅：$dbLevel");
+            // debugPrint("> on record 当前振幅：$dbLevel");
             dbLevel = dbLevel;
             voiceIco = voiceIco;
           });

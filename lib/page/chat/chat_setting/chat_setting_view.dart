@@ -11,7 +11,6 @@ import 'package:imboy/page/search/search_view.dart';
 
 import 'chat_setting_logic.dart';
 import 'chat_setting_state.dart';
-import 'widget/chat_member.dart';
 
 // ignore: must_be_immutable
 class ChatSettingPage extends StatefulWidget {
@@ -61,7 +60,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
     ];
 
     return [
-      ChatMember(options: widget.options!),
+      // ChatMember(options: widget.options!),
       LabelRow(
         label: '查找聊天记录'.tr,
         margin: const EdgeInsets.only(top: 10.0),

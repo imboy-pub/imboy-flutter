@@ -10,7 +10,7 @@ class ImboyInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     debugPrint(
-        '>>> on ImboyInterceptor/REQUEST[${options.method}] => PATH: ${options.path}');
+        '> on ImboyInterceptor/REQUEST[${options.method}] => PATH: ${options.path}');
     options.headers['Accept'] = Headers.jsonContentType;
     options.headers['device-type'] = Platform.operatingSystem;
     options.headers['device-type-vsn'] = Platform.operatingSystemVersion;

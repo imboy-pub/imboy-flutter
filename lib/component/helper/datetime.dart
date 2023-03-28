@@ -41,10 +41,10 @@ class DateTimeHelper {
     DateTime myTime;
     DateTime ntpTime;
     myTime = DateTime.now();
-    // debugPrint(">>> on currentTimeMillis _myTime ${_myTime.toString()}");
+    // debugPrint("> on currentTimeMillis _myTime ${_myTime.toString()}");
     // ntpOffset 是一个全局变量
     ntpTime = myTime.add(Duration(milliseconds: ntpOffset));
-    // debugPrint(">>> on currentTimeMillis ntpTime ${ntpTime.toString()}");
+    // debugPrint("> on currentTimeMillis ntpTime ${ntpTime.toString()}");
     return ntpTime.millisecondsSinceEpoch;
   }
 }
