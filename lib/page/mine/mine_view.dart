@@ -343,7 +343,7 @@ class MinePage extends StatelessWidget {
                 onPressed: () async {
                   bool result = await UserRepoLocal.to.logout();
                   if (result) {
-                    Get.off(() => PassportPage());
+                    Get.offAll(() => PassportPage());
                   }
                 },
               ),

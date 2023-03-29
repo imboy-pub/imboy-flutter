@@ -185,9 +185,9 @@ class PeopleInfoPage extends StatelessWidget {
                       openCallScreen(
                         UserModel.fromJson({
                           "uid": id,
-                          "nickname": nickname,
-                          "avatar": avatar,
-                          "sign": sign,
+                          "nickname": nickname.value,
+                          "avatar": avatar.value,
+                          "sign": sign.value,
                         }),
                         {
                           'media': 'audio',
@@ -205,9 +205,9 @@ class PeopleInfoPage extends StatelessWidget {
                           openCallScreen(
                             UserModel.fromJson({
                               "uid": id,
-                              "nickname": nickname,
-                              "avatar": avatar,
-                              "sign": sign,
+                              "nickname": nickname.value,
+                              "avatar": avatar.value,
+                              "sign": sign.value,
                             }),
                             {},
                           );

@@ -1,7 +1,13 @@
 
 ### Flutter apk最简单的瘦身方式
-* https://juejin.cn/post/6844904186446872584
-* https://segmentfault.com/a/1190000023163171
+* Flutter apk最简单的瘦身方式  https://juejin.cn/post/6844904186446872584
+* Flutter Notes｜Flutter-Apk 大小优化探索  https://segmentfault.com/a/1190000023163171
+* 贝壳 Flutter 瘦身实践  https://xie.infoq.cn/article/f66dc029f4279cf755a29de0f   
+* Flutter-Apk 大小优化探索  https://cloud.tencent.com/developer/article/1661684
+* Flutter包大小治理上的探索与实践  https://tech.meituan.com/2020/09/18/flutter-in-meituan.html
+
+
+下面这个 需要把 ./android/app/build.gradle ndk 去掉才不会保存
 ```
 flutter build apk --obfuscate --split-debug-info=debugInfo  --target-platform android-arm,android-arm64,android-x64 --split-per-abi
 
@@ -11,6 +17,19 @@ Running Gradle task 'assembleRelease'...                            8.4s
 ✓  Built build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk (49.7MB).
 ✓  Built build/app/outputs/flutter-apk/app-arm64-v8a-release.apk (59.4MB).
 ✓  Built build/app/outputs/flutter-apk/app-x86_64-release.apk (62.8MB).
+
+```
+
+```
+flutter build apk --analyze-size --target-platform=android-arm64
+
+
+💪 Building with sound null safety 💪
+
+Running Gradle task 'assembleRelease'...                           57.1s
+✓  Built build/app/outputs/flutter-apk/app-release.apk (130.9MB).
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+app-release.apk (total compressed)                                        131 MB
 
 ```
 

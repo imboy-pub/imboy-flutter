@@ -134,7 +134,7 @@ class ContactLogic extends GetxController {
       'nickname': data['nickname'],
       'avatar': data['avatar'],
       'gender': data['gender'],
-      'status': data['status'],
+      // 'status': data['status'],
       'remark': data['remark'] ?? '',
       'region': data['region'],
       'source': data['source'] ?? "",
