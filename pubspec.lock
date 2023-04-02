@@ -41,14 +41,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "5.9.0"
-  animate_do:
-    dependency: "direct main"
-    description:
-      name: animate_do
-      sha256: "9aeacc1a7238f971c039bdf45d13c628be554a242e0251c4ddda09d19a1a923f"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.0.2"
   another_flushbar:
     dependency: transitive
     description:
@@ -663,6 +655,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_animate:
+    dependency: "direct main"
+    description:
+      name: flutter_animate
+      sha256: f611a67082d4c5ff9b8b7737ec7e675a22af70a94c8c3c22109f14b078d4d2bf
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.1.1+1"
   flutter_app_badger:
     dependency: "direct main"
     description:

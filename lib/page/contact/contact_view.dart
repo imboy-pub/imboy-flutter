@@ -43,7 +43,7 @@ class ContactPage extends StatelessWidget {
         ),
         onPressed: () {
           Get.to(
-            const PeopleNearbyPage(),
+            PeopleNearbyPage(),
             transition: Transition.rightToLeft,
             popGesture: true, // 右滑，返回上一页
           );

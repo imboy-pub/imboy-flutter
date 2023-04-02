@@ -1,5 +1,5 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
@@ -13,13 +13,26 @@ import 'package:imboy/component/ui/common_bar.dart';
 
 import 'people_nearby_logic.dart';
 
+// ignore: must_be_immutable
 class PeopleNearbyPage extends StatelessWidget {
-  const PeopleNearbyPage({super.key});
+  PeopleNearbyPage({super.key});
+
+  ValueAdapter adapter = ValueAdapter(0.0, animated: true);
+  bool changedAdapter = true;
+
+  rotateCompass() {
+    adapter.value = changedAdapter ? 1.0 : 0.0;
+    changedAdapter = !changedAdapter;
+  }
 
   @override
   Widget build(BuildContext context) {
     final logic = Get.put(PeopleNearbyLogic());
     final state = Get.find<PeopleNearbyLogic>().state;
+
+    Future.delayed(const Duration(milliseconds: 200), () {
+      rotateCompass();
+    });
 
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
@@ -31,21 +44,16 @@ class PeopleNearbyPage extends StatelessWidget {
               [
                 InkWell(
                   onTap: () {
+                    rotateCompass();
                     logic.peopleNearby();
                   },
-                  child: Roulette(
-                    spins: 1,
-                    infinite: false,
-                    controller: (AnimationController c) {
-                      return c;
-                    },
-                    manualTrigger: true,
-                    child: const Icon(
-                      Icons.explore,
-                      size: 80,
-                      color: Colors.lightBlue,
-                    ),
-                  ),
+                  child: const Icon(
+                    Icons.explore,
+                    size: 80,
+                    color: Colors.lightBlue,
+                  )
+                      .animate(adapter: adapter)
+                      .rotate(duration: const Duration(milliseconds: 200)),
                 )
               ],
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -56,7 +64,7 @@ class PeopleNearbyPage extends StatelessWidget {
                   '和附近的人交换联系方式，结交新朋友。'.tr,
                   style: const TextStyle(
                     color: AppColors.TipColor,
-                    fontSize: 12,
+                    fontSize: 15,
                   ),
                 )
               ],

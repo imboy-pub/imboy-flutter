@@ -177,7 +177,7 @@ dependencies:
   amap_flutter_base: ^3.0.0
   flutter_svg: ^2.0.4
   # 动画效果
-  animate_do: ^3.0.2
+  flutter_animate: ^4.1.1+1
   # dart 对象比较
   equatable: ^2.0.5
   # Flutter应用升级/ Flutter App Upgrade /Flutter App Update/Flutter Update / 下载插件（有提示栏进度），支持全量升级、热更新和增量升级
