@@ -23,7 +23,7 @@ enum SocketStatus {
 class WSService extends GetxService {
   static WSService get to => Get.find();
 
-  Iterable<String> subprotocol = ['text', 'sip'];
+  Iterable<String> protocols = ['text', 'sip'];
   String pingMsg = 'ping';
 
   IOWebSocketChannel? _webSocketChannel; // WebSocket
@@ -99,48 +99,53 @@ class WSService extends GetxService {
     } else {
       closeSocket();
     }
-    String token = UserRepoLocal.to.accessToken;
-    if (tokenExpired(token)) {
-      debugPrint('> ws openSocket tokenExpired true');
-      token = await UserRepoLocal.to.refreshAccessToken();
-    }
-    Map<String, dynamic> headers = await defaultHeaders();
-    headers[Keys.tokenKey] = token;
-    if (subprotocol.isEmpty) {
-      _webSocketChannel = IOWebSocketChannel.connect(
-        WS_URL,
-        headers: headers,
-      );
-    } else {
-      _webSocketChannel = IOWebSocketChannel.connect(
-        WS_URL,
-        headers: headers,
-        protocols: subprotocol,
-      );
-    }
-    // 连接成功，返回WebSocket实例
-    _socketStatus = SocketStatus.SocketStatusConnected;
-    // 连接成功，重置重连计数器
-    _reconnectTimes = 0;
-    if (_reconnectTimer != null) {
-      _reconnectTimer!.cancel();
+    try {
+      String token = UserRepoLocal.to.accessToken;
+      if (tokenExpired(token)) {
+        debugPrint('> ws openSocket tokenExpired true');
+        token = await UserRepoLocal.to.refreshAccessToken();
+      }
+      Map<String, dynamic> headers = await defaultHeaders();
+      headers[Keys.tokenKey] = token;
+      if (protocols.isEmpty) {
+        _webSocketChannel = IOWebSocketChannel.connect(
+          WS_URL,
+          // pingInterval: Duration(milliseconds: _heartTimes),
+          headers: headers,
+        );
+      } else {
+        _webSocketChannel = IOWebSocketChannel.connect(
+          WS_URL,
+          headers: headers,
+          // pingInterval: Duration(milliseconds: _heartTimes),
+          protocols: protocols,
+        );
+      }
+      // 连接成功，返回WebSocket实例
+      _socketStatus = SocketStatus.SocketStatusConnected;
+      // 连接成功，重置重连计数器
+      _reconnectTimes = 0;
+      _reconnectTimer?.cancel();
       _reconnectTimer = null;
-    }
 
-    debugPrint('> ws openSocket onOpen');
-    // onOpen onMessage onError onClose
-    onOpen();
-    // 接收消息
-    _webSocketChannel!.stream.listen(
-      //监听服务器消息 onMessage
-      (data) => webSocketOnMessage(data),
-      //连接错误时调用 onError
-      onError: _webSocketOnError,
-      //关闭时调用 onClose
-      onDone: _webSocketOnDone,
-      //设置错误时取消订阅
-      cancelOnError: true,
-    );
+      debugPrint('> ws openSocket onOpen');
+      // onOpen onMessage onError onClose
+      onOpen();
+      // 接收消息
+      _webSocketChannel!.stream.listen(
+        //监听服务器消息 onMessage
+        (data) => webSocketOnMessage(data),
+        //连接错误时调用 onError
+        onError: _webSocketOnError,
+        //关闭时调用 onClose
+        onDone: _webSocketOnDone,
+        //设置错误时取消订阅
+        cancelOnError: true,
+      );
+      // } on PlatformException catch (exception) {
+    } catch (exception) {
+      debugPrint("ws error ${exception.toString()}");
+    }
   }
 
   /// WebSocket接收消息回调
@@ -192,18 +197,12 @@ class WSService extends GetxService {
   /// 销毁心跳
   void destroyHeartBeat() {
     debugPrint('> ws destroyHeartBeat');
-    if (_heartBeat != null) {
-      _heartBeat!.cancel();
-      _heartBeat = null;
-    }
+    _heartBeat?.cancel();
   }
 
   void destroyReconnectTimer() {
-    if (_reconnectTimer != null) {
-      debugPrint('> ws destroyReconnectTimer 重连次数超过最大次数 $_reconnectTimes');
-      _reconnectTimer!.cancel();
-      _reconnectTimer = null;
-    }
+    debugPrint('> ws destroyReconnectTimer 重连次数超过最大次数 $_reconnectTimes');
+    _reconnectTimer?.cancel();
   }
 
   /// 关闭WebSocket

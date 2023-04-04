@@ -10,6 +10,7 @@ import 'package:get/get.dart' as getx;
 import 'package:get/get.dart';
 import 'package:imboy/component/controller.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/webrtc/session.dart';
 import 'package:jpush_flutter/jpush_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:map_launcher/map_launcher.dart';
@@ -53,6 +54,8 @@ Map<String, dynamic>? iceConfiguration;
 /// The global [EventBus] object.
 EventBus eventBus = EventBus();
 GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+Map<String, WebRTCSession> webRTCSessions = {};
 
 List<AvailableMap> availableMaps = [];
 

@@ -29,9 +29,9 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 class MessageService extends GetxService {
   static MessageService get to => Get.find();
-  final ContactLogic ctlogic = Get.find();
-  final NewFriendLogic nflogic = Get.find();
-  final ConversationLogic cvlogic = Get.find();
+  final ContactLogic contactLogic = Get.find();
+  final NewFriendLogic newFriendLogic = Get.find();
+  final ConversationLogic conversationLogic = Get.find();
 
   @override
   void onInit() {
@@ -40,16 +40,17 @@ class MessageService extends GetxService {
       String type = data['type'] ?? 'error';
       type = type.toUpperCase();
       debugPrint(
-          "> rtc msgs listen: $type , $p2pCallScreenOn, ${DateTime.now()} $data");
+          "> rtc msg listen: $type , $p2pCallScreenOn, ${DateTime.now()} $data");
       if (data.containsKey('ts')) {
         int now = DateTimeHelper.currentTimeMillis();
-        debugPrint("> rtc msgs now: $now elapsed: ${now - data['ts']}");
+        debugPrint("> rtc msg now: $now elapsed: ${now - data['ts']}");
       }
       if (type.startsWith('WEBRTC_')) {
         // 确认消息
         String did = await DeviceExt.did;
-        debugPrint("> rtc msgs CLIENT_ACK,WEBRTC,${data['id']},$did");
+        debugPrint("> rtc msg CLIENT_ACK,WEBRTC,${data['id']},$did");
         WSService.to.sendMessage("CLIENT_ACK,WEBRTC,${data['id']},$did");
+
         if (p2pCallScreenOn == false && type == 'WEBRTC_OFFER') {
           String peerId = data['from'];
           ContactModel? obj = await ContactRepo().findByUid(peerId);
@@ -65,12 +66,19 @@ class MessageService extends GetxService {
             );
           }
         } else {
-          eventBus.fire(WebRTCSignalingModel(
+          WebRTCSignalingModel msgModel = WebRTCSignalingModel(
             type: data['type'],
             from: data['from'],
             to: data['to'],
             payload: data['payload'],
-          ));
+          );
+          if (msgModel.webrtctype == 'busy' || msgModel.webrtctype == 'bye') {
+            if (Get.isDialogOpen != null && Get.isDialogOpen == true) {
+              Get.close(0);
+            }
+            p2pCallScreenOn = false;
+          }
+          eventBus.fire(msgModel);
         }
       } else {
         switch (type) {
@@ -122,13 +130,13 @@ class MessageService extends GetxService {
     String msgType = payload['msg_type'] ?? '';
     switch (msgType.toString().toLowerCase()) {
       case "apply_friend": // 添加好友申请
-        nflogic.receivedAddFriend(data);
+        newFriendLogic.receivedAddFriend(data);
         break;
       case "apply_friend_confirm": // 添加好友申请确认
         // 接受消息人（to）新增联系人
-        ctlogic.receivedConfirFriend(payload);
+        contactLogic.receivedConfirFriend(payload);
         // 修正好友申请状态
-        nflogic.receivedConfirFriend(true, data);
+        newFriendLogic.receivedConfirFriend(true, data);
         break;
       case "isnotfriend":
         // String msgId = payload['content'] ?? '';
@@ -162,7 +170,7 @@ class MessageService extends GetxService {
     }
     // 确认消息
     String did = await DeviceExt.did;
-    debugPrint("> rtc msgs CLIENT_ACK,S2C,${data['id']},$did");
+    debugPrint("> rtc msg CLIENT_ACK,S2C,${data['id']},$did");
     WSService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
   }
 
@@ -181,9 +189,9 @@ class MessageService extends GetxService {
   Future<void> receiveC2CMessage(data) async {
     var msgType = data['payload']['msg_type'] ?? '';
     var subtitle = data['payload']['text'] ?? '';
-    debugPrint("> rtc msgs c2c receiveMessage $data");
+    debugPrint("> rtc msg c2c receiveMessage $data");
     int now = DateTimeHelper.currentTimeMillis();
-    debugPrint("> rtc msgs c2c now: $now elapsed: ${now - data['created_at']}");
+    debugPrint("> rtc msg c2c now: $now elapsed: ${now - data['created_at']}");
 
     ContactModel? ct = await ContactRepo().findByUid(data['from']);
     String avatar = ct!.avatar;
@@ -227,7 +235,7 @@ class MessageService extends GetxService {
     int? exited = await (MessageRepo()).save(msg);
     // 确认消息
     String did = await DeviceExt.did;
-    debugPrint("> rtc msgs CLIENT_ACK,C2C,${data['id']},$did");
+    debugPrint("> rtc msg CLIENT_ACK,C2C,${data['id']},$did");
     WSService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$did");
     if (exited != null && exited > 0) {
       return;
@@ -235,7 +243,7 @@ class MessageService extends GetxService {
 
     eventBus.fire(conversationObj);
     // 收到一个消息，步增会话消息 1
-    cvlogic.increaseConversationRemind(data['from'], 1);
+    conversationLogic.increaseConversationRemind(data['from'], 1);
     types.Message tMsg = msg.toTypeMessage();
 
     if (tMsg is types.ImageMessage) {
@@ -251,7 +259,7 @@ class MessageService extends GetxService {
 
   /// 收到C2C服务端确认消息
   Future<void> receiveC2CServerAckMessage(Map data) async {
-    debugPrint("> rtc msgs S_RECEIVED: msg:$data");
+    debugPrint("> rtc msg S_RECEIVED: msg:$data");
     MessageRepo repo = MessageRepo();
     String id = data['id'];
     int res = await repo.update({
@@ -259,7 +267,7 @@ class MessageService extends GetxService {
       'status': MessageStatus.send,
     });
     MessageModel? msg = await repo.find(id);
-    debugPrint("> rtc msgs S_RECEIVED:$res");
+    debugPrint("> rtc msg S_RECEIVED:$res");
     // 更新会话状态
     List<ConversationModel> items =
         await ConversationLogic().updateLastMsgStatus(
@@ -269,7 +277,7 @@ class MessageService extends GetxService {
     if (items.isNotEmpty) {
       for (var cobj in items) {
         // 更新会话
-        cvlogic.replace(cobj);
+        conversationLogic.replace(cobj);
         eventBus.fire(cobj);
       }
     }

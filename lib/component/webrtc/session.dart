@@ -20,7 +20,9 @@ class WebRTCSession {
   RTCPeerConnection? pc;
   RTCDataChannel? dc;
 
-//
-// @override
-// List<Object?> get props => [pid, sid, pc, dc, remoteCandidates];
+  List<RTCIceCandidate> remoteCandidates = [];
+
+  //
+  // @override
+  // List<Object?> get props => [pid, sid, pc, dc, remoteCandidates];
 }
