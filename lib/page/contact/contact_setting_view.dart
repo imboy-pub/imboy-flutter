@@ -1,29 +1,45 @@
 import 'package:extended_text/extended_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
-import 'package:imboy/page/friend_circle/friend_circle_view.dart';
+import 'package:imboy/page/chat/chat_logic.dart';
+import 'package:imboy/page/chat/widget/select_friend.dart';
+import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
+// ignore: depend_on_referenced_packages
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:xid/xid.dart';
 
 // ignore: must_be_immutable
 class ContactSettingPage extends StatelessWidget {
-  final String id; // 用户ID
+  final String peerId; // 用户ID
+  final String peerAvatar;
+  final String peerTitle;
+  final String peerNickname;
+  final String peerSign;
   final String remark;
 
   ContactSettingPage({
     Key? key,
-    required this.id,
+    required this.peerId,
+    required this.peerAvatar,
+    required this.peerNickname,
+    required this.peerTitle,
+    required this.peerSign,
     required this.remark,
   }) : super(key: key);
 
@@ -58,11 +74,59 @@ class ContactSettingPage extends StatelessWidget {
             LabelRow(
               label: '把他推荐给朋友'.tr,
               isLine: false,
-              onPressed: () => Get.to(
-                const FriendCirclePage(),
-                transition: Transition.rightToLeft,
-                popGesture: true, // 右滑，返回上一页
-              ),
+              onPressed: () async {
+                Map<String, String> peer = {
+                  'peerId': peerId,
+                  'avatar': peerAvatar,
+                  'title': peerTitle,
+                  'nickname': peerNickname,
+                };
+
+                ContactModel? c1 = await Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                    // “右滑返回上一页”功能
+                    builder: (_) => SelectFriendPage(
+                      peer: peer,
+                      peerIsReciver: true,
+                    ),
+                  ),
+                );
+                debugPrint(
+                    "handleVisitCardSelection ${c1?.toJson().toString()}");
+                if (c1 != null) {
+                  Map<String, dynamic> metadata = {
+                    'custom_type': 'visit_card',
+                    'uid': peerId,
+                    'title': peerTitle,
+                    'avatar': peerAvatar,
+                  };
+                  debugPrint("> location metadata: ${metadata.toString()}");
+                  final message = types.CustomMessage(
+                    author: types.User(
+                      id: UserRepoLocal.to.currentUid,
+                      firstName: UserRepoLocal.to.current.nickname,
+                      imageUrl: UserRepoLocal.to.current.avatar,
+                    ),
+                    createdAt: DateTimeHelper.currentTimeMillis(),
+                    id: Xid().toString(),
+                    remoteId: c1.uid,
+                    status: types.Status.sending,
+                    metadata: metadata,
+                  );
+                  final logic2 = Get.put(ChatLogic());
+                  await logic2.addMessage(
+                    UserRepoLocal.to.currentUid,
+                    c1.uid!,
+                    c1.avatar,
+                    c1.title,
+                    'C2C',
+                    message,
+                  );
+
+                  EasyLoading.showSuccess('发送成功'.tr);
+                }
+              },
             ),
             const Space(),
             Container(
@@ -134,7 +198,7 @@ class ContactSettingPage extends StatelessWidget {
                         Center(
                           child: TextButton(
                             onPressed: () async {
-                              bool res = await logic.deleteContact(id);
+                              bool res = await logic.deleteContact(peerId);
                               if (res) {
                                 EasyLoading.showSuccess("操作成功");
                                 Get.close(3);

@@ -17,7 +17,13 @@ import 'package:lpinyin/lpinyin.dart';
 class SelectFriendPage extends StatefulWidget {
   final Map<String, String> peer;
 
-  const SelectFriendPage({Key? key, required this.peer}) : super(key: key);
+  final bool peerIsReciver;
+
+  const SelectFriendPage({
+    Key? key,
+    required this.peer,
+    this.peerIsReciver = false,
+  }) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
@@ -30,7 +36,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
 
   RxList<ContactModel> contactList = RxList<ContactModel>();
 
-  final ChatLogic chatLogic = Get.find();
+  final ChatLogic chatLogic = Get.put(ChatLogic());
 
   @override
   void initState() {
@@ -116,31 +122,54 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
       content: SizedBox(
         height: 164,
         child: n.Column([
-          n.Row([
-            Avatar(
-              imgUri: widget.peer['avatar']!,
-              onTap: () {},
-            ),
-            Expanded(
-              child: n.Padding(
-                left: 10,
-                child: Text(
-                  widget.peer['title']!,
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.normal,
+          widget.peerIsReciver
+              ? n.Row([
+                  Avatar(
+                    imgUri: model.avatar,
+                    onTap: () {},
                   ),
-                  maxLines: 6,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-          ]),
+                  Expanded(
+                    child: n.Padding(
+                      left: 10,
+                      child: Text(
+                        model.title,
+                        style: const TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        maxLines: 6,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ])
+              : n.Row([
+                  Avatar(
+                    imgUri: widget.peer['avatar']!,
+                    onTap: () {},
+                  ),
+                  Expanded(
+                    child: n.Padding(
+                      left: 10,
+                      child: Text(
+                        widget.peer['title']!,
+                        style: const TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        maxLines: 6,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ]),
           const Divider(),
           Expanded(
             child: Text(
               // visit_card
-              "[${'个人名片'.tr}]${model.nickname}",
+              widget.peerIsReciver
+                  ? "[${'个人名片'.tr}]${widget.peer['nickname']}"
+                  : "[${'个人名片'.tr}]${model.nickname}",
               style: const TextStyle(color: AppColors.TipColor),
             ),
           ),
@@ -311,6 +340,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
 
   @override
   void dispose() {
+    Get.delete<ChatLogic>();
     super.dispose();
   }
 }

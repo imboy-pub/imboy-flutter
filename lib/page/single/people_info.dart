@@ -70,7 +70,11 @@ class PeopleInfoPage extends StatelessWidget {
           onPressed: () {
             Get.to(
               ContactSettingPage(
-                id: id,
+                peerId: id,
+                peerAvatar: avatar.value,
+                peerNickname: nickname.value,
+                peerTitle: title.value,
+                peerSign: sign.value,
                 remark: remark.value,
               ),
               transition: Transition.rightToLeft,
@@ -96,7 +100,8 @@ class PeopleInfoPage extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Obx(
-          () => n.Column([
+          () => n.Column(
+            [
               ContactCard(
                 id: id,
                 remark: remark.value,
@@ -258,7 +263,8 @@ class PeopleInfoMorePage extends StatelessWidget {
     sign.value = model!.sign;
     source.value = model.sourceTr;
     sourcePrefix.value = model.isFrom == 1 ? "" : "对方".tr;
-    debugPrint("PeopleInfoMorePage initData $source, $sourcePrefix , sign $sign");
+    debugPrint(
+        "PeopleInfoMorePage initData $source, $sourcePrefix , sign $sign");
   }
 
   @override
