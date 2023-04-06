@@ -1,8 +1,10 @@
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ConversationLogic extends GetxController {
@@ -56,7 +58,7 @@ class ConversationLogic extends GetxController {
     if (conversationRemind.containsKey(key)) {
       val = conversationRemind[key]! - val;
     }
-    setConversationRemind(key, val);
+    setConversationRemind(key, val > 0 ? val : 0);
   }
 
   // 聊天消息提醒计数器
@@ -121,7 +123,7 @@ class ConversationLogic extends GetxController {
   Future<List<ConversationModel>> updateLastMsgStatus(
       String msgId, int status) async {
     Database db = await Sqlite.instance.database;
-    String where = "last_msg_id=?";
+    String where = "${ConversationRepo.lastMsgId}=?";
     List<String> whereArgs = [msgId];
     await db.update(
       ConversationRepo.tableName,
@@ -162,6 +164,21 @@ class ConversationLogic extends GetxController {
       'msgtype': '',
       'is_show': 0,
     }));
+  }
+
+  // 重新计算会话消息提醒数量
+  recalculateConversationRemind(String peerId) async {
+    int? count = await Sqlite.instance.count(
+      MessageRepo.tableName,
+      where:
+          "${MessageRepo.status} = ? and ${MessageRepo.from} = ? and ${MessageRepo.from} <> ?",
+      whereArgs: [MessageStatus.delivered, peerId, UserRepoLocal.to.currentUid],
+    );
+    // debugPrint("recalculateConversationRemind $count, $peerId");
+    // String sql = Sqlite.instance
+    if (count != null) {
+      setConversationRemind(peerId, count);
+    }
   }
   /**
    * 是否当前会话的最后一条消息

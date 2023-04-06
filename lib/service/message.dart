@@ -230,7 +230,7 @@ class MessageService extends GetxService {
       createdAt: data['created_at'],
       serverTs: data['server_ts'],
       conversationId: conversationObj.id,
-      status: MessageStatus.delivered,
+      status: MessageStatus.delivered, // 未读 已投递
     );
     int? exited = await (MessageRepo()).save(msg);
     // 确认消息

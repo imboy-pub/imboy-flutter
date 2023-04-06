@@ -205,18 +205,25 @@ class ChatPageState extends State<ChatPage> {
           galleryLogic.pushToGallery(msg.id, msg.uri);
         }
         //enum Status { delivered, error, seen, sending, sent }
+        debugPrint(
+            "_handleEndReached conversation ${UserRepoLocal.to.currentUid},${msg.author.id}; ${types.Status.seen} , ${msg.status}");
         if (msg.author.id != UserRepoLocal.to.currentUid &&
             msg.status != types.Status.seen) {
           msgIds.add(msg.id);
         }
-      }
-      ConversationModel? cobj = msgIds.isNotEmpty
-          ? await logic.markAsRead(widget.conversationId, msgIds)
-          : null;
-      if (cobj != null) {
-        conversationLogic.decreaseConversationRemind(
-            widget.peerId, msgIds.length);
-        conversationLogic.replace(cobj);
+      } // end for items
+      if (msgIds.isNotEmpty) {
+        ConversationModel? conversation = await logic.markAsRead(
+          widget.conversationId,
+          msgIds,
+        );
+        debugPrint(
+            "_handleEndReached conversation ${msgIds.length} ${conversation?.toJson().toString()}");
+        if (conversation != null) {
+          conversationLogic.decreaseConversationRemind(
+              widget.peerId, msgIds.length);
+          conversationLogic.replace(conversation);
+        }
       }
 
       setState(() {

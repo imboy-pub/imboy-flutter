@@ -75,7 +75,6 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   int _count = 0;
   OverlayEntry? overlayEntry;
 
-  /////
   final FlutterSoundRecorder recorderModule = FlutterSoundRecorder();
   String recorderTxt = '00:00.000';
 

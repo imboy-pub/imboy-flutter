@@ -212,6 +212,7 @@ class Sqlite {
     if (strNoEmpty(where)) {
       sql += " WHERE $where";
     }
+    // debugPrint('sqlite count $sql');
     Database db = await instance.database;
     int? res = Sqflite.firstIntValue(await db.rawQuery(
       sql,

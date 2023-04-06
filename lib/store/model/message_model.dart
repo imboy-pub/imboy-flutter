@@ -48,7 +48,7 @@ class MessageModel {
 
   // enum Status { delivered, error, seen, sending, sent }
   // types.Status status;
-  // 10 发送中 sending;  11 已发送 send; 20 未读 delivered;  21 已读 seen; 41 错误（发送失败） error;
+  // 10 发送中 sending;  11 已发送 send; 20 (未读 已投递) delivered;  21 已读 seen; 41 错误（发送失败） error;
   int? status;
 
   MessageModel(
@@ -102,6 +102,7 @@ class MessageModel {
   /// 10 发送中 sending;  11 已发送 send;
   /// 20 未读 delivered;  21 已读 seen;
   /// 41 错误（发送失败） error;
+  ///  types.Status { delivered, error, seen, sending, sent }
   types.Status get typesStatus {
     if (status == MessageStatus.sending) {
       return types.Status.sending;

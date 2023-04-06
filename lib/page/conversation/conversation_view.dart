@@ -69,14 +69,10 @@ class _ConversationPageState extends State<ConversationPage> {
     if (logic.conversations.isEmpty) {
       await logic.conversationsList();
     }
+
     // 设置消息提醒数量
     for (ConversationModel obj in logic.conversations) {
-      if (obj.unreadNum > 0) {
-        logic.setConversationRemind(
-          obj.peerId,
-          obj.unreadNum,
-        );
-      }
+      logic.recalculateConversationRemind(obj.peerId);
     }
   }
 

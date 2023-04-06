@@ -211,24 +211,26 @@ class ChatLogic extends GetxController {
     return WSService.to.sendMessage(json.encode(msg));
   }
 
+  /// 标记为已读
   Future<ConversationModel?> markAsRead(
     int conversationId,
     List<String> msgIds,
   ) async {
     Database db = await Sqlite.instance.database;
-    ConversationModel? cobj = await ConversationRepo().findById(conversationId);
-    if (cobj == null) {
+    ConversationModel? conversation =
+        await ConversationRepo().findById(conversationId);
+    if (conversation == null) {
       return null;
     }
-    int newUnreadNum = cobj.unreadNum - msgIds.length;
-    cobj.unreadNum = newUnreadNum > 0 ? newUnreadNum : 0;
+    int newUnreadNum = conversation.unreadNum - msgIds.length;
+    conversation.unreadNum = newUnreadNum > 0 ? newUnreadNum : 0;
     bool res = await db.transaction((txn) async {
       db.update(
         ConversationRepo.tableName,
         {
-          ConversationRepo.unreadNum: cobj.unreadNum,
+          ConversationRepo.unreadNum: conversation.unreadNum,
         },
-        where: "id=?",
+        where: "${ConversationRepo.id}=?",
         whereArgs: [conversationId],
       );
       for (var id in msgIds) {
@@ -237,7 +239,7 @@ class ChatLogic extends GetxController {
           {
             MessageRepo.status: MessageStatus.seen,
           },
-          where: "id=?",
+          where: "${MessageRepo.id}=?",
           whereArgs: [id],
         );
       }
@@ -245,7 +247,7 @@ class ChatLogic extends GetxController {
       return true;
     });
     if (res) {
-      return cobj;
+      return conversation;
     } else {
       return null;
     }
