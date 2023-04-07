@@ -31,9 +31,10 @@ class LocationMessageBuilder extends StatelessWidget {
 
     String thumb = message.metadata?['thumb'];
     return Bubble(
-      color: userIsAuthor
-          ? AppColors.ChatSendMessageBgColor
-          : AppColors.ChatReceivedMessageBodyBgColor,
+      // color: userIsAuthor
+      //     ? AppColors.ChatSendMessageBgColor
+      //     : AppColors.ChatReceivedMessageBodyBgColor,
+      color: AppColors.ChatReceivedMessageBodyBgColor,
       nip: userIsAuthor ? BubbleNip.rightBottom : BubbleNip.leftBottom,
       // style: const BubbleStyle(nipWidth: 16),
       nipRadius: 4,

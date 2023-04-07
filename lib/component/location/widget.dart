@@ -531,16 +531,16 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       // longitude 经度坐标 -180,180
       // latitude '纬度坐标 -90,90
       poiInfoList.add(AMapPosition(
-        id: e["id"],
-        name: e["name"],
+        id: e['id'],
+        name: e['name'],
         latLng: LatLng(
           double.parse(e['location'].toString().split(",")[1]), // latitude
           double.parse(e['location'].toString().split(",")[0]), // longitude
         ),
-        address: e["address"],
-        // pcode: e["pcode"],
-        adCode: e["adcode"],
-        distance: e["distance"],
+        address: e['address'] ?? '',
+        // pcode: e['pcode'],
+        adCode: e['adcode'] ?? '',
+        distance: e['distance'] ?? '',
       ));
     }
     if (!more) {
@@ -582,16 +582,16 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       // longitude 经度坐标 -180,180
       // latitude '纬度坐标 -90,90
       poiInfoList.add(AMapPosition(
-        id: e["id"],
-        name: e["name"],
+        id: e['id'],
+        name: e['name'],
         latLng: LatLng(
           double.parse(e['location'].toString().split(",")[1]), // latitude
           double.parse(e['location'].toString().split(",")[0]), // longitude
         ),
-        address: e["address"],
-        // pcode: e["pcode"],
-        adCode: e["adCode"],
-        distance: e["distance"],
+        address: e['address'] ?? '',
+        // pcode: e['pcode'],
+        adCode: e['adcode'] ?? '',
+        distance: e['distance'] ?? '',
       ));
     }
     if (!more) {
