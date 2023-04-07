@@ -4,9 +4,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:fl_amap/fl_amap.dart' as amap;
+import 'package:imboy/component/location/amap_helper.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:imboy/component/location/index.dart';
 import 'package:imboy/component/location/widget.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/const.dart';
@@ -141,20 +140,17 @@ class _ExtraItemsState extends State<ExtraItems> {
                 title: "位置".tr,
                 image: const Icon(Icons.location_on, size: iconSize),
                 onPressed: () async {
-                  amap.AMapLocation? location = await getLocation(true);
-                  debugPrint("getLocation ${location?.toMap()}");
-                  if (location != null && location.latLng != null) {
+                  AMapPosition? l = await AMapHelper().startLocation();
+                  debugPrint("getLocation ${l?.latLng.toJson().toString()}");
+                  if (l != null) {
                     // ignore: use_build_context_synchronously
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => MapLocationPicker(arguments: {
-                          "lat": double.parse(
-                              location.latLng!.latitude.toString()),
-                          "lng": double.parse(
-                              location.latLng!.longitude.toString()),
-                          "citycode": LocationHelper.getCityNameByGaoDe(
-                              location.adCode!),
+                          "lat": double.parse(l.latLng.latitude.toString()),
+                          "lng": double.parse(l.latLng.longitude.toString()),
+                          "citycode": AMapApi.getCityNameByGaoDe(l.adCode),
                           "isMapImage": true
                         }),
                       ),

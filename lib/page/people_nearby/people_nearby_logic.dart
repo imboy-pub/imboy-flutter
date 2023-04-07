@@ -1,9 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:fl_amap/fl_amap.dart' as amap;
+import 'package:imboy/component/location/amap_helper.dart';
 
-import 'package:imboy/component/location/index.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/provider/location_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -21,21 +20,23 @@ class PeopleNearbyLogic extends GetxController {
 
   Future<void> init() async {
     DateTime s = DateTime.now();
-    amap.AMapLocation? l = await getLocation(false);
-
+    AMapPosition? l = await AMapHelper().startLocation();
     DateTime end = DateTime.now();
     debugPrint(
         "PeopleNearbyLogic init peopleNearbyVisible ${state.peopleNearbyVisible} diff ${end.difference(s)}");
-    state.longitude.value = '${l?.latLng?.longitude}';
-    state.latitude.value = '${l?.latLng?.latitude}';
+    state.longitude.value = '${l?.latLng.longitude}';
+    state.latitude.value = '${l?.latLng.latitude}';
     peopleNearby();
+    DateTime end2 = DateTime.now();
+    debugPrint(
+        "PeopleNearbyLogic init peopleNearbyVisible diff2 ${end2.difference(s)}");
   }
 
   Future<void> peopleNearby() async {
     if (state.longitude.isEmpty) {
-      amap.AMapLocation? l = await getLocation(false);
-      state.longitude.value = '${l?.latLng?.longitude}';
-      state.latitude.value = '${l?.latLng?.latitude}';
+      AMapPosition? l = await AMapHelper().startLocation();
+      state.longitude.value = '${l?.latLng.longitude}';
+      state.latitude.value = '${l?.latLng.latitude}';
     }
     if (state.longitude.value.isEmpty || state.longitude.value == "null") {
       EasyLoading.showInfo(

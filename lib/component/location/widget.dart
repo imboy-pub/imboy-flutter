@@ -5,19 +5,21 @@ import 'package:amap_flutter_map/amap_flutter_map.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/location/index.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:imboy/config/const.dart';
+
+import 'amap_helper.dart';
 
 class SearchBarStyle {
   final Color backgroundColor;
   final EdgeInsetsGeometry padding;
   final BorderRadius borderRadius;
 
-  const SearchBarStyle(
-      {this.backgroundColor = const Color.fromRGBO(142, 142, 147, .15),
-      this.padding = const EdgeInsets.all(5.0),
-      this.borderRadius = const BorderRadius.all(Radius.circular(5.0))});
+  const SearchBarStyle({
+    this.backgroundColor = const Color.fromRGBO(142, 142, 147, .15),
+    this.padding = const EdgeInsets.all(5.0),
+    this.borderRadius = const BorderRadius.all(Radius.circular(5.0)),
+  });
 }
 
 // ignore: must_be_immutable
@@ -234,10 +236,10 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                 "image": null,
                                 "address": _sendMsg!.address,
                                 "title": _sendMsg!.name,
-                                "latitude": _sendMsg!.latLng!.latitude,
-                                "longitude": _sendMsg!.latLng!.longitude,
-                                "provinceCode": _sendMsg!.pcode,
-                                "adCode": _sendMsg!.adcode
+                                "latitude": _sendMsg!.latLng.latitude,
+                                "longitude": _sendMsg!.latLng.longitude,
+                                // "provinceCode": _sendMsg!.pcode,
+                                "adCode": _sendMsg!.adCode
                               };
                             }
                             debugPrint("sendLocation ${map.toString()}");
@@ -245,8 +247,8 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                               final Marker marker = Marker(
                                 anchor: const Offset(0.5, 1),
                                 position: LatLng(
-                                  _sendMsg!.latLng!.latitude,
-                                  _sendMsg!.latLng!.longitude,
+                                  _sendMsg!.latLng.latitude,
+                                  _sendMsg!.latLng.longitude,
                                 ),
                                 // icon: BitmapDescriptor.fromIconPath(
                                 //     'assets/images/location_on.png'),
@@ -380,7 +382,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                   setState(() {
                                     _selindex = index;
                                     _sendMsg = data[index];
-                                    _changeCameraPosition(data[index].latLng!);
+                                    _changeCameraPosition(data[index].latLng);
                                   });
                                 },
                                 child: ListTile(
@@ -506,29 +508,38 @@ class _MapLocationPickerState extends State<MapLocationPicker>
   }
 
   Future<void> _search(LatLng location, {bool more = false}) async {
-    var response = await LocationHelper.getAmapPoi(
+    var response = await AMapApi.getAmapPoi(
       "${location.latitude},${location.longitude}",
       searchtype,
       10,
       page,
     );
     debugPrint("> on amap_search ${response.toString()}");
+    // on amap_search {"count":"10","infocode":"10000","pois":[
+    // {"parent":"",
+    // "address":"宝田一路与臣田三路交叉口东南100米","distance":"22","pcode":"440000","adcode":"440306","pname":"广东省","cityname":"深圳市",
+    // "type":"餐饮服务;快餐厅;快餐厅","typecode":"050300","adname":"宝安区","citycode":"0755","name":"影朵自选快餐",
+    // "location":"113.876030,22.591599","id":"B0ID7UCWEP"},
+
     List poiList = [];
     String status = response.data["status"] ?? 0;
     if (response.statusCode == 200 && status == "1") {
       poiList = response.data["pois"];
     }
     for (var e in poiList) {
-      List<double> tem = [];
-      tem.add(double.parse(e['location'].toString().split(",")[1]));
-      tem.add(double.parse(e['location'].toString().split(",")[0]));
+      // e['location'] "116.310905,39.992806",
+      // longitude 经度坐标 -180,180
+      // latitude '纬度坐标 -90,90
       poiInfoList.add(AMapPosition(
         id: e["id"],
         name: e["name"],
-        latlng: tem,
+        latLng: LatLng(
+          double.parse(e['location'].toString().split(",")[1]), // latitude
+          double.parse(e['location'].toString().split(",")[0]), // longitude
+        ),
         address: e["address"],
-        pcode: e["pcode"],
-        adcode: e["adcode"],
+        // pcode: e["pcode"],
+        adCode: e["adcode"],
         distance: e["distance"],
       ));
     }
@@ -552,7 +563,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       _selindex = -1;
     }
 
-    var response = await LocationHelper.getMapByKeyword(
+    var response = await AMapApi.getMapByKeyword(
       keyword,
       searchtype,
       widget.citycode,
@@ -567,16 +578,19 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       poiList = response.data["pois"];
     }
     for (var e in poiList) {
-      List<double> tem = [];
-      tem.add(double.parse(e['location'].toString().split(",")[1]));
-      tem.add(double.parse(e['location'].toString().split(",")[0]));
+      // e['location'] "116.310905,39.992806",
+      // longitude 经度坐标 -180,180
+      // latitude '纬度坐标 -90,90
       poiInfoList.add(AMapPosition(
         id: e["id"],
         name: e["name"],
-        latlng: tem,
+        latLng: LatLng(
+          double.parse(e['location'].toString().split(",")[1]), // latitude
+          double.parse(e['location'].toString().split(",")[0]), // longitude
+        ),
         address: e["address"],
-        pcode: e["pcode"],
-        adcode: e["adcode"],
+        // pcode: e["pcode"],
+        adCode: e["adCode"],
         distance: e["distance"],
       ));
     }

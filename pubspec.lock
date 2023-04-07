@@ -626,14 +626,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.0"
-  fl_amap:
-    dependency: "direct main"
-    description:
-      name: fl_amap
-      sha256: c11f52c7b28a0f1463e8c46c06c151af2f2a7600c92fc930ef03b86c15aea3e9
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.5.1"
   flex_color_scheme:
     dependency: "direct main"
     description:

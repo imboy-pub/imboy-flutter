@@ -10,6 +10,7 @@ import 'package:get/get.dart' as getx;
 import 'package:get/get.dart';
 import 'package:imboy/component/controller.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:jpush_flutter/jpush_flutter.dart';
 import 'package:logger/logger.dart';
@@ -100,6 +101,7 @@ Future<void> init() async {
   // getx.Get.lazyPut(() => DeviceExt());
 
   ntpOffset = await StorageService.to.ntpOffset();
+  AMapHelper.setApiKey();
 
   await initIceServers();
 
