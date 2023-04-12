@@ -11,7 +11,7 @@ import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact/contact_setting_view.dart';
-import 'package:imboy/page/contact/friend/add_friend_view.dart';
+import 'package:imboy/page/friend/apply_friend_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -44,8 +44,8 @@ class PeopleInfoPage extends StatelessWidget {
 
   Future<void> initData() async {
     ContactModel? ct = await ContactRepo().findByUid(id);
-    debugPrint("> on cdv initData $id");
-    debugPrint("> on cdv initData ${ct?.toJson().toString()}");
+    // debugPrint("> on cdv initData $id");
+    // debugPrint("> on cdv initData ${ct?.toJson().toString()}");
     title.value = ct!.title;
     nickname.value = ct.nickname;
     avatar.value = ct.avatar;
@@ -224,7 +224,7 @@ class PeopleInfoPage extends StatelessWidget {
                       child: ButtonRow(
                         text: '添加到通讯录'.tr,
                         onPressed: () => Get.to(
-                          AddFriendPage(
+                          ApplyFriendPage(
                             id,
                             nickname.value,
                             avatar.value,

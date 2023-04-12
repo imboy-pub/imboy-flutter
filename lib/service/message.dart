@@ -14,7 +14,7 @@ import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/contact/contact_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
-import 'package:imboy/page/contact/friend/new_friend_logic.dart';
+import 'package:imboy/page/friend/new_friend_logic.dart';
 import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -129,10 +129,10 @@ class MessageService extends GetxService {
     }
     String msgType = payload['msg_type'] ?? '';
     switch (msgType.toString().toLowerCase()) {
-      case "apply_friend": // 添加好友申请
+      case "apply_friend": // 添加朋友申请
         newFriendLogic.receivedAddFriend(data);
         break;
-      case "apply_friend_confirm": // 添加好友申请确认
+      case "apply_friend_confirm": // 添加朋友申请确认
         // 接受消息人（to）新增联系人
         contactLogic.receivedConfirFriend(payload);
         // 修正好友申请状态

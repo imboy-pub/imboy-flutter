@@ -26,8 +26,8 @@ imboy 的Flutter项目
 ## 功能树
 
 * 大概的大大小小功能实现情况：
-    * TODO 45
-    * OK 82
+    * TODO 51
+    * OK 86
 
 [查看](./doc/feature_0.1.0_tree.md)
 
@@ -39,7 +39,7 @@ imboy 的Flutter项目
     * https://github.com/fluttercandies/flutter_wechat_camera_picker/issues/12
 * use-flutter-cache-manager-with-video-player 如何边下载、边缓存、边播放 https://stackoverflow.com/questions/68249750/use-flutter-cache-manager-with-video-player
 * 语音消息播放之后红点需要取消（已解决）
-* 一对一视频通话偶尔有问题，需要进一步优化
+* 一对一视频通话偶尔有问题，需要进一步优化（以优化，可以进一步调整体验）
 * 消息"长按事件"不够灵活
 
 ## 多语言

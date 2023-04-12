@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/ui/icon_text.dart';
 import 'package:imboy/component/ui/radio_list_title.dart';
 import 'package:imboy/component/ui/title_text_field.dart';
-import 'package:imboy/config/const.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
 
-import 'add_friend_logic.dart';
+import 'apply_friend_logic.dart';
 
 // ignore: must_be_immutable
-class AddFriendPage extends StatelessWidget {
+class ApplyFriendPage extends StatelessWidget {
   String uid;
   String remark;
   String avatar;
   String regin;
   String source;
 
-  AddFriendPage(
+  ApplyFriendPage(
     this.uid,
     this.remark,
     this.avatar,
@@ -27,7 +28,7 @@ class AddFriendPage extends StatelessWidget {
     Key? key,
   }) : super(key: key);
 
-  final AddFriendLogic logic = Get.put(AddFriendLogic());
+  final ApplyFriendLogic logic = Get.put(ApplyFriendLogic());
 
   final TextEditingController _msgController = TextEditingController();
   final TextEditingController _remarkController = TextEditingController();

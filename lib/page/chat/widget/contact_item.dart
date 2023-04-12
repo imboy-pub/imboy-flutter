@@ -52,7 +52,7 @@ class ContactItem extends ISuspensionBean {
 }
 //
 // class ContactItemState extends State<ContactItem> {
-//   // ‘添加好友’ 横纵间距
+//   // ‘添加朋友’ 横纵间距
 //   static const double MARGIN_VERTICAL = 6.0;
 //   static const double MARGIN_HORIZONTAL = 16.0;
 //

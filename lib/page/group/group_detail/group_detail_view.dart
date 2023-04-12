@@ -13,11 +13,11 @@ import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/page/group_bill_board/group_bill_board_view.dart';
-import 'package:imboy/page/group_member/group_member_view.dart';
-import 'package:imboy/page/group_member_detail/group_member_detail_view.dart';
-import 'package:imboy/page/group_remark/group_remark_view.dart';
-import 'package:imboy/page/select_member/select_member_view.dart';
+import 'package:imboy/page/group/group_bill_board/group_bill_board_view.dart';
+import 'package:imboy/page/group/group_member/group_member_view.dart';
+import 'package:imboy/page/group/group_member_detail/group_member_detail_view.dart';
+import 'package:imboy/page/group/group_remark/group_remark_view.dart';
+import 'package:imboy/page/group/select_member/select_member_view.dart';
 import 'package:imboy/store/model/group_model.dart';
 
 import 'group_detail_logic.dart';

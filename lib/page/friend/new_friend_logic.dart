@@ -22,7 +22,7 @@ class NewFriendLogic extends GetxController {
     return await (NewFriendRepo()).listNewFriend(uid, 10000);
   }
 
-  /// 收到添加好友
+  /// 收到添加朋友
   /// Received add a friend
   Future<void> receivedAddFriend(Map data) async {
     String did = await DeviceExt.did;
@@ -62,7 +62,7 @@ class NewFriendLogic extends GetxController {
     WSService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
   }
 
-  /// 确认添加好友，对端消息通知
+  /// 确认添加朋友，对端消息通知
   Future<void> receivedConfirFriend(bool ack, Map data) async {
     String did = await DeviceExt.did;
     debugPrint("CLIENT_ACK,S2C,${data['id']},$did  data:${data.toString()}");

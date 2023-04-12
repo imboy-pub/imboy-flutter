@@ -14,6 +14,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:niku/namespace.dart' as n;
 
+import 'add_friend_view.dart';
 import 'confirm_new_friend_view.dart';
 import 'new_friend_logic.dart';
 
@@ -43,7 +44,13 @@ class NewFriendPage extends StatelessWidget {
         title: '新的朋友'.tr,
         rightDMActions: [
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              Get.to(
+                AddFriendPage(),
+                transition: Transition.rightToLeft,
+                popGesture: true, // 右滑，返回上一页
+              );
+            },
             child: Text(
               '添加朋友'.tr,
             ),
@@ -57,13 +64,11 @@ class NewFriendPage extends StatelessWidget {
           color: AppColors.ChatBg,
           child: n.Column(
             [
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 8,
-                  top: 10,
-                  right: 8,
-                  bottom: 10,
-                ),
+              n.Padding(
+                left: 8,
+                top: 10,
+                right: 8,
+                bottom: 10,
                 child: SearchBar(
                   text: '微信号/手机号',
                   isBorder: true,
@@ -73,19 +78,19 @@ class NewFriendPage extends StatelessWidget {
                   },
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: LabelRow(
-                  headW: const Padding(
-                    padding: EdgeInsets.only(right: 15.0),
-                    child: Icon(
-                      Icons.phone,
-                      color: AppColors.primaryElement,
-                    ),
-                  ),
-                  label: '添加手机联系人'.tr,
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.only(bottom: 20),
+              //   child: LabelRow(
+              //     headW: const Padding(
+              //       padding: EdgeInsets.only(right: 15.0),
+              //       child: Icon(
+              //         Icons.phone,
+              //         color: AppColors.primaryElement,
+              //       ),
+              //     ),
+              //     label: '添加手机联系人'.tr,
+              //   ),
+              // ),
               // Spacer(),
               Expanded(
                 child: SlidableAutoCloseBehavior(child: Obx(() {
@@ -209,7 +214,10 @@ class NewFriendPage extends StatelessWidget {
                                   onTap: () {
                                     Get.to(
                                       PeopleInfoPage(
-                                        id: UserRepoLocal.to.currentUid == model.to ? model.from : model.to,
+                                        id: UserRepoLocal.to.currentUid ==
+                                                model.to
+                                            ? model.from
+                                            : model.to,
                                         sence: model.source,
                                       ),
                                       transition: Transition.rightToLeft,

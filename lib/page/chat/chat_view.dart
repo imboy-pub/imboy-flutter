@@ -41,7 +41,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/chat/chat_setting/chat_setting_view.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
-import 'package:imboy/page/group_detail/group_detail_view.dart';
+import 'package:imboy/page/group/group_detail/group_detail_view.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';

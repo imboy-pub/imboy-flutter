@@ -2,9 +2,7 @@ import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
-import 'package:imboy/component/ui/button.dart';
-import 'package:imboy/page/passport/passport_view.dart';
-import 'package:imboy/page/single/about_imboy.dart';
+import 'package:imboy/page/mine/setting/setting_view.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/list_tile_view.dart';
@@ -18,66 +16,6 @@ import 'mine_logic.dart';
 class MinePage extends StatelessWidget {
   final MineLogic logic = Get.put(MineLogic());
 
-  /*
-  List data = [
-    // {
-    //   'label': '钱包',
-    //   'icon': Icon(Icons.account_balance_wallet),
-    //   'vertical': 10.0,
-    //   'border':
-    //       Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
-    // },
-    {
-      'label': '朋友圈',
-    //   'icon': Icon(Icons.account_balance_wallet),
-      'icon': 'assets/images/mine/ic_social_circle.png',
-      'vertical': 0.0,
-      'border': const Border(
-        bottom: BorderSide(
-          color: AppColors.LineColor,
-          width: 0.2,
-        ),
-      ),
-    },
-    {
-      'label': '收藏',
-      'icon': 'assets/images/mine/ic_collections.png',
-      'vertical': 0.0,
-      // 'border': const Border(
-      //   bottom: BorderSide(
-      //     color: AppColors.LineColor,
-      //     width: 0.2,
-      //   ),
-      // ),
-    },
-    // {
-    //   'label': '相册',
-    //   'icon': Icon(Icons.photo_library),
-    //   'vertical': 0.0,
-    //   'border':
-    //       Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
-    // },
-    // {
-    //   'label': '卡片',
-    //   'icon': 'assets/images/mine/ic_card_package.png',
-    //   'vertical': 0.0,
-    //   'border':
-    //       Border(bottom: BorderSide(color: AppColors.LineColor, width: 0.2)),
-    // },
-    // {'label': '表情', 'icon': 'assets/images/mine/ic_emoji.png', 'vertical': 0.0},
-    {
-      'label': '设置',
-      'icon': 'assets/images/mine/ic_setting.png',
-      'vertical': 10.0,
-      // 'border': const Border(
-      //   bottom: BorderSide(
-      //     color: AppColors.LineColor,
-      //     width: 0.2,
-      //   ),
-      // ),
-    },
-  ];
-  */
   MinePage({Key? key}) : super(key: key);
 
   Widget buildContent(item) {
@@ -121,7 +59,8 @@ class MinePage extends StatelessWidget {
                     padding: const EdgeInsets.all(0.0),
                     child: Container(
                       color: Colors.white,
-                      height: 400,
+                      // 显示地区需要360的高度
+                      height: 360,
                       padding: const EdgeInsets.only(
                         left: 8.0,
                         right: 12.0,
@@ -167,7 +106,7 @@ class MinePage extends StatelessWidget {
                                   const EdgeInsets.only(left: 10.0, top: 10.0),
                               width: 200.0,
                               child: n.Column(
-                                <Widget>[
+                                [
                                   ExtendedText(
                                     controller.current.nickname,
                                     style: const TextStyle(
@@ -230,6 +169,7 @@ class MinePage extends StatelessWidget {
               ListTileView(
                 title: '我的收藏'.tr,
                 titleStyle: const TextStyle(fontSize: 15.0),
+                margin: const EdgeInsets.only(top: 8),
                 padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
                 border: const Border(
                   bottom: BorderSide(
@@ -258,7 +198,7 @@ class MinePage extends StatelessWidget {
                 horizontal: 15.0,
               ),
               ListTileView(
-                title: '储存空间'.tr,
+                title: '存储空间和数据'.tr,
                 titleStyle: const TextStyle(fontSize: 15.0),
                 padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
                 border: const Border(
@@ -273,7 +213,7 @@ class MinePage extends StatelessWidget {
                 horizontal: 15.0,
               ),
               ListTileView(
-                title: '消息通知'.tr,
+                title: '黑名单'.tr,
                 titleStyle: const TextStyle(fontSize: 15.0),
                 margin: const EdgeInsets.only(top: 8),
                 padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
@@ -283,33 +223,9 @@ class MinePage extends StatelessWidget {
                     width: 0.2,
                   ),
                 ),
-                onPressed: () {},
-                width: 25.0,
-                fit: BoxFit.cover,
-                horizontal: 15.0,
-              ),
-              ListTileView(
-                title: '帮助与反馈',
-                titleStyle: const TextStyle(fontSize: 15.0),
-                padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
-                onPressed: () {},
-                width: 25.0,
-                fit: BoxFit.cover,
-                horizontal: 15.0,
-                border: const Border(
-                  bottom: BorderSide(
-                    color: AppColors.LineColor,
-                    width: 0.2,
-                  ),
-                ),
-              ),
-              ListTileView(
-                title: '关于IMBoy'.tr,
-                titleStyle: const TextStyle(fontSize: 15.0),
-                padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
                 onPressed: () {
                   Get.to(
-                    AboutIMBoyPage(),
+                    () => const SettingPage(),
                     transition: Transition.rightToLeft,
                     popGesture: true, // 右滑，返回上一页
                   );
@@ -318,34 +234,48 @@ class MinePage extends StatelessWidget {
                 fit: BoxFit.cover,
                 horizontal: 15.0,
               ),
-              ButtonRow(
-                margin: const EdgeInsets.only(
-                  top: 10.0,
+              ListTileView(
+                title: '告诉朋友'.tr,
+                titleStyle: const TextStyle(fontSize: 15.0),
+                padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
+                border: const Border(
+                  bottom: BorderSide(
+                    color: AppColors.LineColor,
+                    width: 0.2,
+                  ),
                 ),
-                text: '切换账号'.tr,
-                style: const TextStyle(
-                  color: AppColors.ButtonTextColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-                isBorder: false,
-                onPressed: () async {},
-              ),
-              ButtonRow(
-                margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                text: '退出登录'.tr,
-                style: const TextStyle(
-                  color: AppColors.ButtonTextColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-                isBorder: false,
-                onPressed: () async {
-                  bool result = await UserRepoLocal.to.logout();
-                  if (result) {
-                    Get.offAll(() => PassportPage());
-                  }
+                onPressed: () {
+                  Get.to(
+                    () => const SettingPage(),
+                    transition: Transition.rightToLeft,
+                    popGesture: true, // 右滑，返回上一页
+                  );
                 },
+                width: 25.0,
+                fit: BoxFit.cover,
+                horizontal: 15.0,
+              ),
+              ListTileView(
+                title: '设置'.tr,
+                titleStyle: const TextStyle(fontSize: 15.0),
+                margin: const EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
+                border: const Border(
+                  bottom: BorderSide(
+                    color: AppColors.LineColor,
+                    width: 0.2,
+                  ),
+                ),
+                onPressed: () {
+                  Get.to(
+                    () => const SettingPage(),
+                    transition: Transition.rightToLeft,
+                    popGesture: true, // 右滑，返回上一页
+                  );
+                },
+                width: 25.0,
+                fit: BoxFit.cover,
+                horizontal: 15.0,
               ),
             ]),
           ],

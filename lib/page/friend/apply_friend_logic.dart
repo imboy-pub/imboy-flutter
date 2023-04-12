@@ -11,7 +11,7 @@ import 'package:imboy/config/enum.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
-class AddFriendLogic extends GetxController {
+class ApplyFriendLogic extends GetxController {
   // 聊天、朋友圈、运动数据等
   // role 可能的值 all justchat
   RxString role = "all".obs;
@@ -25,11 +25,11 @@ class AddFriendLogic extends GetxController {
   RxBool donotlookhim = false.obs;
 
   void setRole(String role) {
-    // debugPrint("> on AddFriendLogic/setRole1 ${this.role.value} = ${role}");
+    // debugPrint("> on ApplyFriendLogic/setRole1 ${this.role.value} = ${role}");
     this.role.value = role;
     update([this.role]);
 
-    // debugPrint("> on AddFriendLogic/setRole2 ${this.role.value} = ${role}");
+    // debugPrint("> on ApplyFriendLogic/setRole2 ${this.role.value} = ${role}");
   }
 
   /// 申请成为好友

@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/list_tile_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/passport/passport_view.dart';
+import 'package:imboy/page/single/about_imboy.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -171,7 +172,14 @@ class _SettingPageState extends State<SettingPage> {
             title: '关于IMBoy',
             titleStyle: const TextStyle(fontSize: 15.0),
             padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
-            onPressed: () {},
+            onPressed: () {
+
+              Get.to(() =>
+                AboutIMBoyPage(),
+                transition: Transition.rightToLeft,
+                popGesture: true, // 右滑，返回上一页
+              );
+            },
             width: 25.0,
             fit: BoxFit.cover,
             horizontal: 15.0,

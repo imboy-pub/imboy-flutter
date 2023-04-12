@@ -7,7 +7,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/page/select_member/select_member_view.dart';
+import 'package:imboy/page/group/select_member/select_member_view.dart';
 import 'package:imboy/store/model/group_model.dart';
 
 import 'group_member_logic.dart';

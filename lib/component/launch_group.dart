@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/group_select/group_select_view.dart';
+import 'package:imboy/page/group/group_select/group_select_view.dart';
 
 class LaunchGroupItem extends StatelessWidget {
   final String item;

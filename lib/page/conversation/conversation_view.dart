@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
+import 'package:imboy/page/friend/add_friend_view.dart';
 import 'package:imboy/page/single/people_info.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:popup_menu/popup_menu.dart' as popupmenu;
@@ -79,15 +80,21 @@ class _ConversationPageState extends State<ConversationPage> {
   void topRightMenu(popupmenu.MenuItemProvider item) {
     popupmenu.MenuItem it = item as popupmenu.MenuItem;
     String action = it.userInfo as String;
-    if (action == 'scanqrcode') {
+    if (action == 'scanner') {
       Get.to(
         const ScannerPage(),
         transition: Transition.rightToLeft,
         popGesture: true, // 右滑，返回上一页
       );
-    } else if (action == 'myqrcode') {
+    } else if (action == 'my_qrcode') {
       Get.to(
         UqrcodePage(),
+        transition: Transition.rightToLeft,
+        popGesture: true, // 右滑，返回上一页
+      );
+    } else if (action == 'add_friend') {
+      Get.to(
+        AddFriendPage(),
         transition: Transition.rightToLeft,
         popGesture: true, // 右滑，返回上一页
       );
@@ -124,7 +131,8 @@ class _ConversationPageState extends State<ConversationPage> {
                     // userInfo: message,
                   ),
                   popupmenu.MenuItem(
-                    title: '添加好友'.tr,
+                    title: '添加朋友'.tr,
+                    userInfo: 'add_friend',
                     textAlign: TextAlign.center,
                     textStyle: const TextStyle(
                       fontSize: 14.0,
@@ -138,7 +146,7 @@ class _ConversationPageState extends State<ConversationPage> {
                   ),
                   popupmenu.MenuItem(
                     title: '我的二维码'.tr,
-                    userInfo: 'myqrcode',
+                    userInfo: 'my_qrcode',
                     textAlign: TextAlign.center,
                     textStyle: const TextStyle(
                       fontSize: 14.0,
@@ -152,7 +160,7 @@ class _ConversationPageState extends State<ConversationPage> {
                   ),
                   popupmenu.MenuItem(
                     title: '扫一扫'.tr,
-                    userInfo: 'scanqrcode',
+                    userInfo: 'scanner',
                     textAlign: TextAlign.center,
                     textStyle: const TextStyle(
                       fontSize: 14.0,
