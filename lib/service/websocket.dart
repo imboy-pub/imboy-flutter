@@ -24,11 +24,11 @@ class WSService extends GetxService {
   static WSService get to => Get.find();
 
   Iterable<String> protocols = ['text', 'sip'];
-  String pingMsg = 'ping';
+  // String pingMsg = 'ping';
 
   IOWebSocketChannel? _webSocketChannel; // WebSocket
   SocketStatus? _socketStatus; // socket状态
-  Timer? _heartBeat; // 心跳定时器
+  // Timer? _heartBeat; // 心跳定时器 使用 IOWebSocketChannel 的心跳机制
   // _heartTimes 必须比 服务端 idle_timeout 小一些
   final int _heartTimes = 50000; // 心跳间隔(毫秒)
   final int _reconnectCount = 10; // 重连次数，默认10次
@@ -43,9 +43,8 @@ class WSService extends GetxService {
   void onInit() {
     super.onInit();
     if (_socketStatus != SocketStatus.SocketStatusConnected) {
-      // closeSocket();
       initWebSocket(onOpen: () {
-        initHeartBeat();
+        // initHeartBeat();
       }, onMessage: (event) {
         // change(data);
         if (event == "pong" || event == "pong2") {
@@ -110,14 +109,14 @@ class WSService extends GetxService {
       if (protocols.isEmpty) {
         _webSocketChannel = IOWebSocketChannel.connect(
           WS_URL,
-          // pingInterval: Duration(milliseconds: _heartTimes),
+          pingInterval: Duration(milliseconds: _heartTimes),
           headers: headers,
         );
       } else {
         _webSocketChannel = IOWebSocketChannel.connect(
           WS_URL,
           headers: headers,
-          // pingInterval: Duration(milliseconds: _heartTimes),
+          pingInterval: Duration(milliseconds: _heartTimes),
           protocols: protocols,
         );
       }
@@ -150,6 +149,7 @@ class WSService extends GetxService {
 
   /// WebSocket接收消息回调
   webSocketOnMessage(data) {
+    // debugPrint("> ws webSocketOnMessage $data ;");
     onMessage(data);
   }
 
@@ -161,7 +161,9 @@ class WSService extends GetxService {
     if (_webSocketChannel != null) {
       if (_webSocketChannel!.closeCode != null) {
         debugPrint(
-            '> ws _webSocketOnDone closeCode: ${_webSocketChannel!.closeCode}, closeReason: ${_webSocketChannel!.closeReason.toString()}');
+            '> ws _webSocketOnDone closeCode: ${_webSocketChannel!.closeCode}');
+        debugPrint(
+            '> ws _webSocketOnDone closeReason: ${_webSocketChannel!.closeReason.toString()}');
       }
     }
     _socketStatus = SocketStatus.SocketStatusClosed;
@@ -177,6 +179,7 @@ class WSService extends GetxService {
     closeSocket();
   }
 
+  /*
   /// 初始化心跳
   void initHeartBeat() {
     debugPrint('> ws initHeartBeat');
@@ -199,6 +202,7 @@ class WSService extends GetxService {
     debugPrint('> ws destroyHeartBeat');
     _heartBeat?.cancel();
   }
+  */
 
   void destroyReconnectTimer() {
     debugPrint('> ws destroyReconnectTimer 重连次数超过最大次数 $_reconnectTimes');
@@ -208,11 +212,11 @@ class WSService extends GetxService {
   /// 关闭WebSocket
   void closeSocket() {
     debugPrint('> ws closeSocket');
-    destroyHeartBeat();
+    // destroyHeartBeat();
     destroyReconnectTimer();
     if (_webSocketChannel != null) {
       debugPrint('> ws WebSocket连接关闭');
-      _webSocketChannel!.sink.close();
+      _webSocketChannel?.sink.close();
       _socketStatus = SocketStatus.SocketStatusClosed;
       _webSocketChannel = null;
     }
