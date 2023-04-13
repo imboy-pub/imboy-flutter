@@ -38,10 +38,6 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.android.tools.build:gradle:7.2.1'
-        // hms
-        classpath 'com.huawei.agconnect:agcp:1.6.0.300'
-        // fcm need add file: ./android/app/google-services.json
-        classpath 'com.google.gms:google-services:4.3.10'
     }
 }
 

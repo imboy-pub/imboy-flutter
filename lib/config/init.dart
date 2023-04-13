@@ -1,18 +1,14 @@
-import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart' as getx;
 import 'package:get/get.dart';
 import 'package:imboy/component/controller.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/webrtc/session.dart';
-import 'package:jpush_flutter/jpush_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:sqflite/sqflite.dart';
@@ -60,7 +56,7 @@ Map<String, WebRTCSession> webRTCSessions = {};
 
 List<AvailableMap> availableMaps = [];
 
-JPush push = JPush();
+// JPush push = JPush();
 
 Future<void> init() async {
   // 解决使用自签证书报错问题
@@ -135,6 +131,7 @@ Future<void> init() async {
   // debugPrint("> on currentTimeMillis init ${ntpOffset}");
 }
 
+/*
 Future<void> initJPush() async {
   push.addEventHandler(
     // 接收通知回调方法。
@@ -181,3 +178,4 @@ Future<void> initJPush() async {
     debug: kDebugMode ? true : false, // 设置是否打印 debug 日志
   );
 }
+*/

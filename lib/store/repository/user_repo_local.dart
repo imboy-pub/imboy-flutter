@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/user_model.dart';
@@ -75,9 +74,11 @@ class UserRepoLocal extends GetxController {
     //   debugPrint("push registrationId $rid");
     // });
     // 设置别名，极光后台可以通过别名来推送，一个 App 应用只有一个别名，一般用来存储用户 id。
+    /*
     if (Platform.isAndroid) {
       await push.setAlias(payload['uid']);
     }
+    */
     return true;
   }
 

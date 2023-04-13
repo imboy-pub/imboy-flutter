@@ -65,7 +65,7 @@ dependencies:
   webview_flutter: ^4.0.7
   image_picker: ^0.8.7+2
   mime: ^1.0.4
-  file_picker: ^5.2.8
+  file_picker: ^5.2.9
   #open_file: ^3.2.1
   open_file:
     git:
@@ -180,11 +180,6 @@ dependencies:
   amap_flutter_base: ^3.0.0
   amap_flutter_location: ^3.0.0
   amap_flutter_map: ^3.0.0
-  jpush_flutter: ^2.4.2
-  #jpush_flutter:
-  #  git:
-  #    url: git://github.com/jpush/jpush-flutter-plugin.git
-  #    ref: master
 
   # 还没有直接应用的库
   # 图像占位符的紧凑表示

@@ -21,11 +21,6 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
-def jPushAppKey = localProperties.getProperty('jpush.appKey')
-if (jPushAppKey == null) {
-    throw new FileNotFoundException("jPushAppKey not found. Define location with jpush.appKey in the local.properties file.")
-}
-
 apply plugin: 'com.android.application'
 
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
@@ -41,17 +36,6 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
-
-        ndk {
-            //选择要添加的对应 cpu 类型的 .so 库。
-            abiFilters 'armeabi', 'armeabi-v7a', 'x86', 'x86_64', 'mips', 'mips64', 'arm64-v8a'
-            // 还可以添加 'x86', 'x86_64', 'mips', 'mips64'
-        }
-        manifestPlaceholders = [
-                JPUSH_PKGNAME : applicationId,
-                JPUSH_APPKEY : jPushAppKey, //JPush 上注册的包名对应的 Appkey.
-                JPUSH_CHANNEL : "developer-default", //暂时填写默认值即可.
-        ]
     }
     dependencies {
         implementation "androidx.multidex:multidex:2.0.1"
@@ -63,20 +47,7 @@ android {
         //搜索功能
         implementation "com.amap.api:search:9.5.0"
         // 高德 end
-
-        // https://docs.jiguang.cn/jpush/client/Android/android_guide
-        implementation 'cn.jiguang.sdk:jpush:4.9.0'
-        implementation 'cn.jiguang.sdk:jcore:4.1.0'
-        // 接入 FCM 厂商
-        implementation 'com.google.firebase:firebase-messaging:23.0.5'
-        // 接入华为厂商
-        implementation 'com.huawei.hms:push:6.3.0.304'
-        implementation 'com.huawei.agconnect:agconnect-core:1.5.2.300'
-        implementation 'cn.jiguang.sdk.plugin:huawei:4.8.5'// 极光厂商插件版本与接入 JPush 版本保持一致，下同
     }
-
-    apply plugin: 'com.google.gms.google-services'
-    apply plugin: 'com.huawei.agconnect'
 
     /*
     signingConfigs {

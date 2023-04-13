@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+
 import 'package:imboy/component/controller.dart';
 import 'package:imboy/component/helper/log.dart';
 import 'package:imboy/component/locales/locales.g.dart';
@@ -33,7 +34,7 @@ void run() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await init();
-  await initJPush();
+  // await initJPush();
   if (kDebugMode) {
     run();
   } else {

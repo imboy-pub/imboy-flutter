@@ -614,10 +614,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: dd328189f2f4ccea042bb5b382d5e981691cc74b5a3429b9317bff2b19704489
+      sha256: dcde5ad1a0cebcf3715ea3f24d0db1888bf77027a26c77d7779e8ef63b8ade62
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "5.2.8"
+    version: "5.2.9"
   fixnum:
     dependency: transitive
     description:
@@ -1056,14 +1056,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.3.3"
-  jpush_flutter:
-    dependency: "direct main"
-    description:
-      name: jpush_flutter
-      sha256: "4bf4607bad2f26a5be49c41f0457e2ddce4fc763fd69a85a12b8688ca5612d97"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.4.2"
   js:
     dependency: transitive
     description:
