@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -122,7 +120,7 @@ class _ConversationPageState extends State<ConversationPage> {
                     textAlign: TextAlign.center,
                     textStyle: const TextStyle(
                       color: Color(0xffc5c5c5),
-                      fontSize: 14.0,
+                      fontSize: 13.0,
                     ),
                     image: const Icon(
                       Icons.chat_bubble_outlined,
@@ -135,7 +133,7 @@ class _ConversationPageState extends State<ConversationPage> {
                     userInfo: 'add_friend',
                     textAlign: TextAlign.center,
                     textStyle: const TextStyle(
-                      fontSize: 14.0,
+                      fontSize: 13.0,
                       color: Colors.white,
                     ),
                     image: const Icon(
@@ -149,7 +147,7 @@ class _ConversationPageState extends State<ConversationPage> {
                     userInfo: 'my_qrcode',
                     textAlign: TextAlign.center,
                     textStyle: const TextStyle(
-                      fontSize: 14.0,
+                      fontSize: 13.0,
                       color: Colors.white,
                     ),
                     image: const Icon(
@@ -163,7 +161,7 @@ class _ConversationPageState extends State<ConversationPage> {
                     userInfo: 'scanner',
                     textAlign: TextAlign.center,
                     textStyle: const TextStyle(
-                      fontSize: 14.0,
+                      fontSize: 13.0,
                       color: Colors.white,
                     ),
                     image: const Icon(
@@ -178,9 +176,9 @@ class _ConversationPageState extends State<ConversationPage> {
                   context: context,
                   config: const popupmenu.MenuConfig(
                     type: popupmenu.MenuType.list,
-                    itemWidth: 124,
-                    itemHeight: 38,
-                    arrowHeight: 8,
+                    itemWidth: 114,
+                    itemHeight: 44,
+                    arrowHeight: 6,
                     backgroundColor: AppColors.ItemBgColor,
                     highlightColor: AppColors.ItemOnColor,
                     lineColor: Color.fromRGBO(255, 255, 255, 1),
@@ -189,17 +187,12 @@ class _ConversationPageState extends State<ConversationPage> {
                   // stateChanged: stateChanged,
                   // onDismiss: onDismiss,
                 );
-                double rtop = 0;
-                if (Platform.isIOS) {
-                  rtop = -24;
-                }
+                double top = -4;
+                double left = Get.width - 78;
+                double width = 110;
+                double height = 64;
                 menu.show(
-                  rect: Rect.fromLTWH(
-                    Get.width - 78,
-                    rtop,
-                    110,
-                    64,
-                  ),
+                  rect: Rect.fromLTWH(left, top, width, height),
                 );
               },
             ),

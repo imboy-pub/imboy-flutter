@@ -53,11 +53,7 @@ class ChatLogic extends GetxController {
     List<types.Message> messages = [];
     // 重发在发送中状态的消息
     for (MessageModel obj in items) {
-      debugPrint(
-          "> on msg check status ${obj.status}, ${obj.status == MessageStatus.sending}");
       if (obj.status == MessageStatus.sending) {
-        debugPrint(
-            "> on msg check sending ${obj.status}, ${obj.status == MessageStatus.sending}");
         sendWsMsg(obj);
       }
       messages.insert(0, obj.toTypeMessage());

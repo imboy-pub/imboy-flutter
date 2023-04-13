@@ -49,8 +49,8 @@ class PeopleNearbyPage extends StatelessWidget {
                   },
                   child: const Icon(
                     Icons.explore,
-                    size: 80,
                     color: Colors.lightBlue,
+                    size: 80,
                   )
                       .animate(adapter: adapter)
                       .rotate(duration: const Duration(milliseconds: 200)),
@@ -61,7 +61,7 @@ class PeopleNearbyPage extends StatelessWidget {
             n.Row(
               [
                 Text(
-                  '和附近的人交换联系方式，结交新朋友。'.tr,
+                  '和附近的人交换联系方式，结交新朋友'.tr,
                   style: const TextStyle(
                     color: AppColors.TipColor,
                     fontSize: 15,

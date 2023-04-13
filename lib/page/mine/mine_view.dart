@@ -2,10 +2,10 @@ import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
+import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/page/mine/setting/setting_view.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/list_tile_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/personal_info/personal_info_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -17,25 +17,6 @@ class MinePage extends StatelessWidget {
   final MineLogic logic = Get.put(MineLogic());
 
   MinePage({Key? key}) : super(key: key);
-
-  Widget buildContent(item) {
-    return ListTileView(
-      border: item['border'],
-      title: item['label'],
-      titleStyle: const TextStyle(
-        fontSize: 15.0,
-        color: AppColors.MainTextColor,
-      ),
-      isLabel: false,
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
-      icon: item['icon'],
-      margin: EdgeInsets.symmetric(vertical: item['vertical']),
-      onPressed: () => logic.action(item['label']),
-      width: 25.0,
-      fit: BoxFit.cover,
-      horizontal: 15.0,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -148,12 +129,6 @@ class MinePage extends StatelessWidget {
                               margin: const EdgeInsets.only(right: 10.0),
                               child: const Icon(Icons.qr_code_2),
                             ),
-                            const SizedBox(
-                              width: 16.0,
-                              child: Icon(
-                                Icons.navigate_next,
-                              ),
-                            ),
                           ],
                           // mainAxisAlignment: MainAxisAlignment.end,
                         ),
@@ -163,121 +138,119 @@ class MinePage extends StatelessWidget {
                 ),
               ),
             ),
-            // n.Column(
-            // data.map(buildContent).toList(),
-            n.Column([
-              ListTileView(
-                title: '我的收藏'.tr,
-                titleStyle: const TextStyle(fontSize: 15.0),
-                margin: const EdgeInsets.only(top: 8),
-                padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
-                border: const Border(
-                  bottom: BorderSide(
-                    color: AppColors.LineColor,
-                    width: 0.2,
+            const HorizontalLine(height: 8),
+            Container(
+              color: Colors.white,
+              child: n.Column([
+                n.ListTile(
+                  leading: const Icon(
+                    Icons.collections_bookmark,
+                    color: Colors.blue,
+                    size: 22,
                   ),
-                ),
-                onPressed: () {},
-                width: 25.0,
-                fit: BoxFit.cover,
-                horizontal: 15.0,
-              ),
-              ListTileView(
-                title: '设备列表'.tr,
-                titleStyle: const TextStyle(fontSize: 15.0),
-                padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
-                border: const Border(
-                  bottom: BorderSide(
-                    color: AppColors.LineColor,
-                    width: 0.2,
+                  title: Transform(
+                    transform: Matrix4.translationValues(-22, -2.0, 0.0),
+                    child: Text('我的收藏'.tr),
                   ),
-                ),
-                onPressed: () {},
-                width: 25.0,
-                fit: BoxFit.cover,
-                horizontal: 15.0,
-              ),
-              ListTileView(
-                title: '存储空间和数据'.tr,
-                titleStyle: const TextStyle(fontSize: 15.0),
-                padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
-                border: const Border(
-                  bottom: BorderSide(
-                    color: AppColors.LineColor,
-                    width: 0.2,
+                  trailing: Icon(
+                    Icons.navigate_next,
+                    color: AppColors.MainTextColor.withOpacity(0.5),
                   ),
+                  onTap: () {},
                 ),
-                onPressed: () {},
-                width: 25.0,
-                fit: BoxFit.cover,
-                horizontal: 15.0,
-              ),
-              ListTileView(
-                title: '黑名单'.tr,
-                titleStyle: const TextStyle(fontSize: 15.0),
-                margin: const EdgeInsets.only(top: 8),
-                padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
-                border: const Border(
-                  bottom: BorderSide(
-                    color: AppColors.LineColor,
-                    width: 0.2,
+                n.Padding(left: 48, child: const Divider()),
+                n.ListTile(
+                  leading: const Icon(
+                    Icons.devices,
+                    color: Colors.green,
+                    size: 22,
                   ),
-                ),
-                onPressed: () {
-                  Get.to(
-                    () => const SettingPage(),
-                    transition: Transition.rightToLeft,
-                    popGesture: true, // 右滑，返回上一页
-                  );
-                },
-                width: 25.0,
-                fit: BoxFit.cover,
-                horizontal: 15.0,
-              ),
-              ListTileView(
-                title: '告诉朋友'.tr,
-                titleStyle: const TextStyle(fontSize: 15.0),
-                padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
-                border: const Border(
-                  bottom: BorderSide(
-                    color: AppColors.LineColor,
-                    width: 0.2,
+                  title: Transform(
+                    transform: Matrix4.translationValues(-22, -2.0, 0.0),
+                    child: Text('设备列表'.tr),
                   ),
-                ),
-                onPressed: () {
-                  Get.to(
-                    () => const SettingPage(),
-                    transition: Transition.rightToLeft,
-                    popGesture: true, // 右滑，返回上一页
-                  );
-                },
-                width: 25.0,
-                fit: BoxFit.cover,
-                horizontal: 15.0,
-              ),
-              ListTileView(
-                title: '设置'.tr,
-                titleStyle: const TextStyle(fontSize: 15.0),
-                margin: const EdgeInsets.only(top: 8),
-                padding: const EdgeInsets.fromLTRB(15, 15, 8, 4),
-                border: const Border(
-                  bottom: BorderSide(
-                    color: AppColors.LineColor,
-                    width: 0.2,
+                  trailing: Icon(
+                    Icons.navigate_next,
+                    color: AppColors.MainTextColor.withOpacity(0.5),
                   ),
+                  onTap: () {},
                 ),
-                onPressed: () {
-                  Get.to(
-                    () => const SettingPage(),
-                    transition: Transition.rightToLeft,
-                    popGesture: true, // 右滑，返回上一页
-                  );
-                },
-                width: 25.0,
-                fit: BoxFit.cover,
-                horizontal: 15.0,
-              ),
-            ]),
+                n.Padding(left: 48, child: const Divider()),
+                n.ListTile(
+                  leading: const Icon(
+                    Icons.restore_page,
+                    color: Colors.indigo,
+                    size: 22,
+                  ),
+                  title: Transform(
+                    transform: Matrix4.translationValues(-22, -2.0, 0.0),
+                    child: Text('存储空间和数据'.tr),
+                  ),
+                  trailing: Icon(
+                    Icons.navigate_next,
+                    color: AppColors.MainTextColor.withOpacity(0.5),
+                  ),
+                  onTap: () {},
+                ),
+                n.Padding(left: 48, child: const Divider()),
+                n.ListTile(
+                  leading: const Icon(
+                    Icons.speaker_notes_off,
+                    color: Colors.grey,
+                    size: 22,
+                  ),
+                  title: Transform(
+                    transform: Matrix4.translationValues(-22, -2.0, 0.0),
+                    child: Text('黑名单'.tr),
+                  ),
+                  trailing: Icon(
+                    Icons.navigate_next,
+                    color: AppColors.MainTextColor.withOpacity(0.5),
+                  ),
+                  onTap: () {},
+                ),
+                // n.ListTile(
+                //   leading: const Icon(
+                //     Icons.speaker_notes_off,
+                //     color: Colors.grey,
+                //     size: 22,
+                //   ),
+                //   title: Text('告诉朋友'.tr),
+                //   trailing: Icon(
+                //     Icons.navigate_next,
+                //     color: AppColors.MainTextColor.withOpacity(0.5),
+                //   ),
+                //   onTap: () {},
+                // ),
+                // n.Padding(
+                //   child: const Divider(height: 8),
+                // ),
+                const HorizontalLine(height: 8),
+                n.ListTile(
+                  leading: const Icon(
+                    Icons.settings,
+                    color: Colors.grey,
+                    size: 22,
+                  ),
+                  title: Transform(
+                    transform: Matrix4.translationValues(-22, -2.0, 0.0),
+                    child: Text('设置'.tr),
+                  ),
+                  trailing: Icon(
+                    Icons.navigate_next,
+                    color: AppColors.MainTextColor.withOpacity(0.5),
+                  ),
+                  onTap: () {
+                    Get.to(
+                      () => const SettingPage(),
+                      transition: Transition.rightToLeft,
+                      popGesture: true, // 右滑，返回上一页
+                    );
+                  },
+                ),
+                const HorizontalLine(height: 8),
+              ]),
+            ),
           ],
         ),
       ),

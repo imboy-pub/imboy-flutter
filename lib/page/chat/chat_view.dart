@@ -195,7 +195,7 @@ class ChatPageState extends State<ChatPage> {
     List<types.Message>? items = await logic.getMessages(
       widget.peerId,
       _page,
-      10,
+      16,
     );
     List<String> msgIds = [];
     if (items != null && items.isNotEmpty) {
@@ -205,8 +205,6 @@ class ChatPageState extends State<ChatPage> {
           galleryLogic.pushToGallery(msg.id, msg.uri);
         }
         //enum Status { delivered, error, seen, sending, sent }
-        debugPrint(
-            "_handleEndReached conversation ${UserRepoLocal.to.currentUid},${msg.author.id}; ${types.Status.seen} , ${msg.status}");
         if (msg.author.id != UserRepoLocal.to.currentUid &&
             msg.status != types.Status.seen) {
           msgIds.add(msg.id);
@@ -898,7 +896,7 @@ class ChatPageState extends State<ChatPage> {
                 );
               },
               scrollController: logic.state.scrollController,
-              onEndReachedThreshold: 0.8,
+              onEndReachedThreshold: 0.9,
               // 300000 = 5分钟 默认 900000 = 15 分钟
               dateHeaderThreshold: 300000,
               customDateHeaderText: (DateTime dt) =>
