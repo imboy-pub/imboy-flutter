@@ -18,9 +18,9 @@ class DateTimeHelper {
     }
   }
 
-  static String lastConversationFmt(int lasttime) {
-    // DateTime dt = Jiffy.unixFromMillisecondsSinceEpoch(lasttime).dateTime;
-    DateTime dt = Jiffy.parseFromMillisecondsSinceEpoch(lasttime).dateTime;
+  static String lastConversationFmt(int lastTime) {
+    // DateTime dt = Jiffy.unixFromMillisecondsSinceEpoch(lastTime).dateTime;
+    DateTime dt = Jiffy.parseFromMillisecondsSinceEpoch(lastTime).dateTime;
     int diff = Jiffy.now().diff(
       Jiffy.parseFromDateTime(dt),
       unit: Unit.day,

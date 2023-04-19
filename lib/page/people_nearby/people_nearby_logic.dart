@@ -57,11 +57,12 @@ class PeopleNearbyLogic extends GetxController {
     if (payload == null) {
       return;
     }
-    List<Map<String, dynamic>> li =
-        await ContactRepo().selectFriend(columns: [ContactRepo.uid]);
+    List<Map<String, dynamic>> li = await ContactRepo().selectFriend(
+      columns: [ContactRepo.peerId],
+    );
     List<String> friendUidList = [];
     for (var f in li) {
-      friendUidList.add(f[ContactRepo.uid]);
+      friendUidList.add(f[ContactRepo.peerId]);
     }
     // debugPrint(" on selectFrien2 ${friendUidList.toString()}");
 

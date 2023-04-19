@@ -20,7 +20,7 @@ import 'package:xid/xid.dart';
 initIceServers() async {
   debugPrint(
       "> rtc initIceServers iceConfiguration == null: ${iceConfiguration == null}");
-  if (iceConfiguration == null) {
+  if (iceConfiguration == null && UserRepoLocal.to.isLogin) {
     try {
       var turnCredential = await UserProvider().turnCredential();
       debugPrint("getIceServers _turnCredential ${turnCredential.toString()}");

@@ -174,11 +174,15 @@ class API {
   static const getcode = '/passport/getcode';
   static const findpassword = '/passport/findpassword';
 
-  static const addfriend = '/friend/add';
-  static const confirmfriend = '/friend/confirm';
+  static const addFriend = '/friend/add';
+  static const confirmFriend = '/friend/confirm';
   static const deleteFriend = '/friend/delete';
   static const friendList = '/friend/list';
   static const conversationList = '/conversation/mine';
+
+  static const denylistAdd = '/friend/denylist/add';
+  static const denylistRemove = '/friend/denylist/remove';
+  static const denylistPage = '/friend/denylist/page';
 
   static const userShow = '/user/show';
   static const turnCredential = '/user/credential';

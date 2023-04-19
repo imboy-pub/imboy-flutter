@@ -392,7 +392,7 @@ class ChatPageState extends State<ChatPage> {
     if (c1 != null) {
       Map<String, dynamic> metadata = {
         'custom_type': 'visit_card',
-        'uid': c1.uid,
+        'uid': c1.peerId,
         'title': c1.nickname,
         'avatar': c1.avatar,
       };

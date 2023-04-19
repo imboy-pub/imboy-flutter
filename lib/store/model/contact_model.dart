@@ -4,6 +4,7 @@ import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
@@ -35,7 +36,7 @@ String getSourceTr(String source) {
 
 class ContactModel extends ISuspensionBean {
   ContactModel({
-    this.uid,
+    required this.peerId,
     required this.nickname,
     this.account = "",
     this.avatar = "",
@@ -58,9 +59,9 @@ class ContactModel extends ISuspensionBean {
     this.onLongPressed,
   });
 
-  final String? uid; // 用户ID
-  final String account; // 用户ID
-  final String nickname; // 备注 or 昵称
+  final String peerId; // 联系人用户ID
+  final String account; // 联系人用户账号
+  final String nickname; // 联系人用户 备注 or 昵称
   final String avatar; // 用户头像
   int gender; // 1 男  2 女  3 保密  0 未知
   final String? status; // offline | online |
@@ -101,7 +102,7 @@ class ContactModel extends ISuspensionBean {
 
   factory ContactModel.fromJson(Map<String, dynamic> json) {
     return ContactModel(
-      uid: json["id"] ?? (json["uid"] ?? ""),
+      peerId: json["id"] ?? (json[ContactRepo.peerId] ?? ""),
       account: json["account"].toString(),
       nickname: json["nickname"].toString(),
       avatar: json["avatar"].toString(),
@@ -113,14 +114,14 @@ class ContactModel extends ISuspensionBean {
       sign: json["sign"].toString(),
       // 单位毫秒，13位时间戳  1561021145560
       updateTime:
-          json[ContactRepo.updateTime] ?? DateTime.now().millisecondsSinceEpoch,
+          json[ContactRepo.updateTime] ?? DateTimeHelper.currentTimeMillis(),
       isFriend: json[ContactRepo.isFriend] ?? 0,
       isFrom: json[ContactRepo.isFrom] ?? 0,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': uid,
+        ContactRepo.peerId: peerId,
         'account': account,
         'nickname': nickname,
         'avatar': avatar,

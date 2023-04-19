@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 class ConversationRepo {
   static String tableName = 'conversation';
 
   static String id = 'id';
+  static String userId = 'user_id';
   static String peerId = 'peer_id';
   static String avatar = 'avatar';
   static String title = 'title';
@@ -29,12 +31,13 @@ class ConversationRepo {
   // 插入一条数据
   Future<int> insert(ConversationModel obj) async {
     Map<String, dynamic> insert = {
+      ConversationRepo.userId: UserRepoLocal.to.currentUid,
       ConversationRepo.peerId: obj.peerId,
       ConversationRepo.avatar: obj.avatar,
       ConversationRepo.title: obj.title,
       ConversationRepo.subtitle: obj.subtitle,
       // 单位毫秒，13位时间戳  1561021145560
-      ConversationRepo.lastTime: obj.lastTime ?? DateTime.now().millisecond,
+      ConversationRepo.lastTime: obj.lastTime,
       ConversationRepo.lastMsgId: obj.lastMsgId,
       ConversationRepo.lastMsgStatus: obj.lastMsgStatus ?? 11,
       ConversationRepo.unreadNum: obj.unreadNum > 0 ? obj.unreadNum : 0,
@@ -61,19 +64,19 @@ class ConversationRepo {
     return await _db.update(
       ConversationRepo.tableName,
       data,
-      where: '${ConversationRepo.peerId} = ?',
-      whereArgs: [peerId],
+      where:
+          '${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',
+      whereArgs: [UserRepoLocal.to.currentUid, peerId],
     );
   }
 
   // 存在就更新，不存在就插入
   Future<ConversationModel> save(ConversationModel obj) async {
-    String where = '${ConversationRepo.peerId} = ?';
     ConversationModel? oldObj = await findByPeerId(obj.peerId);
     int unreadNumOld = oldObj == null ? 0 : oldObj.unreadNum;
+    obj.isShow = oldObj?.isShow ?? 1;
     obj.unreadNum = obj.unreadNum + unreadNumOld;
     if (oldObj == null) {
-      obj.id = (await maxId()) + 1;
       await insert(obj);
     } else {
       await updateByPeerId(obj.peerId, obj.toJson());
@@ -82,22 +85,15 @@ class ConversationRepo {
       int? id = await _db.pluck(
         ConversationRepo.id,
         ConversationRepo.tableName,
-        where: where,
-        whereArgs: [obj.peerId],
+        where:
+            '${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',
+        whereArgs: [UserRepoLocal.to.currentUid, obj.peerId],
       );
       if (id != null) {
         obj.id = id;
       }
     }
     return obj;
-  }
-
-  Future<int> maxId() async {
-    int? id = await _db.pluck(
-      "max(${ConversationRepo.id}) as maxId",
-      ConversationRepo.tableName,
-    );
-    return id ?? 0;
   }
 
   //
@@ -136,7 +132,10 @@ class ConversationRepo {
   }
 
   //
-  Future<List<ConversationModel>> list({limit = 2000}) async {
+  Future<List<ConversationModel>> list({
+    limit = 2000,
+    offset = 0,
+  }) async {
     List<Map<String, dynamic>> items = await _db.query(
       ConversationRepo.tableName,
       columns: [
@@ -154,8 +153,11 @@ class ConversationRepo {
         ConversationRepo.type,
         ConversationRepo.msgType,
       ],
-      where: '${ConversationRepo.isShow} = ?',
-      whereArgs: [1],
+      where:
+          '${ConversationRepo.userId} = ? and ${ConversationRepo.isShow} = ? and ${ConversationRepo.lastTime} > 0',
+      whereArgs: [UserRepoLocal.to.currentUid, 1],
+      limit: limit,
+      offset: offset,
       orderBy: "${ConversationRepo.lastTime} DESC",
     );
     debugPrint(
@@ -217,8 +219,9 @@ class ConversationRepo {
         ConversationRepo.msgType,
         ConversationRepo.unreadNum,
       ],
-      where: '${ConversationRepo.peerId} = ?',
-      whereArgs: [peerId],
+      where:
+          '${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',
+      whereArgs: [UserRepoLocal.to.currentUid, peerId],
     );
     if (maps.isNotEmpty) {
       return ConversationModel.fromJson(maps.first);
@@ -230,8 +233,9 @@ class ConversationRepo {
   Future<int> delete(String peerId) async {
     return await _db.delete(
       ConversationRepo.tableName,
-      where: '${ConversationRepo.peerId} = ?',
-      whereArgs: [peerId],
+      where:
+          '${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',
+      whereArgs: [UserRepoLocal.to.currentUid, peerId],
     );
   }
 

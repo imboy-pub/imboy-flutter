@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 
 class NewFriendModel {
@@ -37,17 +38,18 @@ class NewFriendModel {
   factory NewFriendModel.fromJson(Map<String, dynamic> json) {
     var status = json["status"] ?? 0;
     return NewFriendModel(
-      source: json["source"] ?? '',
-      uid: json["uid"],
+      source: json[NewFriendRepo.source] ?? '',
+      uid: json[NewFriendRepo.uid],
       from: json[NewFriendRepo.from] ?? json['from'],
       to: json[NewFriendRepo.to] ?? json['to'],
-      nickname: json["nickname"].toString(),
-      avatar: json["avatar"].toString(),
+      nickname: json[NewFriendRepo.nickname].toString(),
+      avatar: json[NewFriendRepo.nickname].toString(),
       status: status is String ? int.parse(status) : status,
-      msg: json["msg"].toString(),
+      msg: json[NewFriendRepo.msg].toString(),
       // 单位毫秒，13位时间戳  1561021145560
-      updateTime: json["update_time"] ?? DateTime.now().millisecondsSinceEpoch,
-      createTime: json["create_time"],
+      updateTime:
+          json[NewFriendRepo.updateTime] ?? DateTimeHelper.currentTimeMillis(),
+      createTime: json[NewFriendRepo.createTime],
       payload: json["payload"],
     );
   }

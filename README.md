@@ -66,6 +66,13 @@ get generate locales assets/locales on lib/component/locales
 ## 目录规范与命名
 
 * 新增 ./lib/page/single/ 目录，所有的 "类单页面" 都放到该目录
+* 避免 master/slave 等术语
+
+Old | New | 说明
+---|---|---
+master | main | 主要的
+slave | subordinate | 从属的
+blacklist | denylist | 拒绝名单
 
 ```
 Lib
@@ -73,9 +80,9 @@ Lib
 ├──page 落地页
 │   ├──single 所有的 "类单页面" 都放到该目录
 │   └──login 页面落地页文件夹
-│        ├──login_binding.dart => class LoginBinding
+│        ├──login_binding.dart => class LoginBinding 可省略
 │        ├──login_logic.dart => class LoginLogic
-│        ├──login_state.dart => class LoginState
+│        ├──login_state.dart => class LoginState 可省略
 │        └──login_view.dart => class LoginPage 后缀为page为落地页 唯一入口
 ├──component 通用组件
 │        ├──extension

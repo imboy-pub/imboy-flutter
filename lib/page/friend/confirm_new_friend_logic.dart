@@ -25,9 +25,9 @@ class ConfirmNewFriendLogic extends GetxController {
   // 不看他（她）
   RxBool donotlookhim = false.obs;
 
-  final ContactLogic ctlogic = Get.find();
-  final NewFriendLogic nflogic = Get.find();
-  final BottomNavigationLogic bnlogic = Get.find();
+  final ContactLogic contactLogic = Get.find();
+  final NewFriendLogic newFriendLogic = Get.find();
+  final BottomNavigationLogic bottomNavigationLogic = Get.find();
 
   void setRole(String role) {
     // debugPrint("> on ConfirmNewFriendLogic/setRole1 ${this.role.value} = ${role}");
@@ -50,7 +50,7 @@ class ConfirmNewFriendLogic extends GetxController {
       status: '正在发送...'.tr,
     );
     IMBoyHttpResponse resp = await HttpClient.client.post(
-      "$API_BASE_URL${API.confirmfriend}",
+      "$API_BASE_URL${API.confirmFriend}",
       data: msg,
       options: Options(
         contentType: "application/x-www-form-urlencoded",
@@ -59,17 +59,19 @@ class ConfirmNewFriendLogic extends GetxController {
     if (resp.ok) {
       EasyLoading.showSuccess("已发送".tr);
       // 修正好友申请状态
-      nflogic.receivedConfirFriend(false, {
+      newFriendLogic.receivedConfirFriend(false, {
         "from": to,
         "to": from,
       });
       // 存储好友信息
-      ctlogic.receivedConfirFriend(resp.payload);
+      contactLogic.receivedConfirmFriend(resp.payload);
       Future.delayed(const Duration(seconds: 1), () {
         // 重新计算"新的好友提醒计数器"
         debugPrint("> on countNewFriendRemindCounter $from");
-        bnlogic.newFriendRemindCounter.remove(from);
-        bnlogic.update([bnlogic.newFriendRemindCounter]);
+        bottomNavigationLogic.newFriendRemindCounter.remove(from);
+        bottomNavigationLogic.update([
+          bottomNavigationLogic.newFriendRemindCounter,
+        ]);
       });
 
       Get.close(1);

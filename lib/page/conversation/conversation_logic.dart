@@ -123,8 +123,12 @@ class ConversationLogic extends GetxController {
   Future<List<ConversationModel>> updateLastMsgStatus(
       String msgId, int status) async {
     Database db = await Sqlite.instance.database;
-    String where = "${ConversationRepo.lastMsgId}=?";
-    List<String> whereArgs = [msgId];
+    String where =
+        "${ConversationRepo.userId}=? and ${ConversationRepo.lastMsgId}=?";
+    List<String> whereArgs = [
+      UserRepoLocal.to.currentUid,
+      msgId,
+    ];
     await db.update(
       ConversationRepo.tableName,
       {ConversationRepo.lastMsgStatus: status},
@@ -151,18 +155,18 @@ class ConversationLogic extends GetxController {
     }
 
     return await (ConversationRepo()).insert(ConversationModel.fromJson({
-      'peer_id': peerId,
-      'avatar': avatar,
-      'title': title,
-      'subtitle': '',
+      ConversationRepo.peerId: peerId,
+      ConversationRepo.avatar: avatar,
+      ConversationRepo.title: title,
+      ConversationRepo.subtitle: '',
       // 单位毫秒，13位时间戳  1561021145560
-      'lasttime': DateTime.now().millisecond,
-      'last_msg_id': '',
-      'last_msg_status': 1,
-      'unread_num': 0,
-      'type': type,
-      'msgtype': '',
-      'is_show': 0,
+      ConversationRepo.lastTime: 0,
+      ConversationRepo.lastMsgId: '',
+      ConversationRepo.lastMsgStatus: 1,
+      ConversationRepo.unreadNum: 0,
+      ConversationRepo.type: type,
+      ConversationRepo.msgType: '',
+      ConversationRepo.isShow: 0,
     }));
   }
 

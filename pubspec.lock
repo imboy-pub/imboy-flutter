@@ -166,10 +166,10 @@ packages:
     dependency: "direct main"
     description:
       name: badges
-      sha256: "183514a2d7716297abd19d19ebe8bf667fb89c5739eaec58c6210f3631444206"
+      sha256: "6e7f3ec561ec08f47f912cfe349d4a1707afdc8dda271e17b046aa6d42c89e77"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.1.0"
+    version: "3.1.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -510,10 +510,10 @@ packages:
     dependency: "direct main"
     description:
       name: easy_refresh
-      sha256: "4bf1e3bea60ca21ece286fcde16cdd64bdb7383b4901422a683404f77708c644"
+      sha256: f0da0a5be882aa85b7b0ea63193fadcd4466ff26d32c1edb936c5c33bcd45706
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.3.1"
+    version: "3.3.1+1"
   emoji_picker_flutter:
     dependency: "direct main"
     description:
@@ -802,10 +802,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_slidable
-      sha256: "6c68e1fad129b4b807b2218ef4cf7f7f6f61c5ec8861c990dc2278d9d03cb09f"
+      sha256: cc4231579e3eae41ae166660df717f4bad1359c87f4a4322ad8ba1befeb3d2be
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.0"
+    version: "3.0.0"
   flutter_sound:
     dependency: "direct main"
     description:
@@ -860,10 +860,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_webrtc
-      sha256: f8904369f3ad57945a797481bf079c281f4944ad4635e9d412529141d81c9c76
+      sha256: d68be9b5dda75ff3a29d11241b4396f375a94690b671315b3a65f6b221e460c4
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.25"
+    version: "0.9.26"
   font_awesome_flutter:
     dependency: transitive
     description:
@@ -988,10 +988,10 @@ packages:
     dependency: "direct main"
     description:
       name: image_picker
-      sha256: "8b0efbf350ba4f2be1531d629396a994983d0c02f4a82a128aed84d954b90cfa"
+      sha256: f202f5d730eb8219e35e80c4461fb3a779940ad30ce8fde1586df756e3af25e6
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.8.7+2"
+    version: "0.8.7+3"
   image_picker_android:
     dependency: transitive
     description:
@@ -2016,7 +2016,7 @@ packages:
     source: hosted
     version: "1.0.41"
   wakelock:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: wakelock
       sha256: "769ecf42eb2d07128407b50cb93d7c10bd2ee48f0276ef0119db1d25cc2f87db"
@@ -2075,18 +2075,18 @@ packages:
     dependency: transitive
     description:
       name: webrtc_interface
-      sha256: "5fdd616bc2937194402298f3024e81c74f68f44f6d73de31aaea69ee7d156b12"
+      sha256: "0ac4693f921c81005edefd2f43b9fe84b0ed54481474fe1ee16b789b0c84a77c"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.12"
+    version: "1.0.13"
   webview_flutter:
     dependency: "direct main"
     description:
       name: webview_flutter
-      sha256: "47663d51a9061451aa3880a214ee9a65dcbb933b77bc44388e194279ab3ccaf6"
+      sha256: cbfdd39a8e7124c28a5472ee2d82c55fd823277b1f0690c5f7f83aaf6d61704a
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.0.7"
+    version: "4.1.0"
   webview_flutter_android:
     dependency: transitive
     description:

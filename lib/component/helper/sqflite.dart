@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/store/repository/denylist_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
@@ -25,7 +25,7 @@ class Sqlite {
     if (_db != null) {
       return _db!;
     }
-    String dbName = "${UserRepoLocal.to.currentUid}imboy.db";
+    String dbName = "imboy.db";
     debugPrint("> on Sqlite.database $dbName");
     _db = await initDatabase(dbName);
     return _db!;
@@ -66,7 +66,9 @@ class Sqlite {
 
     String contactSql = '''
       CREATE TABLE IF NOT EXISTS ${ContactRepo.tableName} (
-        ${ContactRepo.uid} varchar(40) NOT NULL,
+        auto_id INTEGER,
+        ${ContactRepo.userId} varchar(40) NOT NULL,
+        ${ContactRepo.peerId} varchar(40) NOT NULL,
         ${ContactRepo.nickname} varchar(40) NOT NULL DEFAULT '',
         ${ContactRepo.avatar} varchar(255) NOT NULL DEFAULT '',
         ${ContactRepo.gender} int(4) NOT NULL DEFAULT 0,
@@ -79,15 +81,42 @@ class Sqlite {
         ${ContactRepo.updateTime} int(16) NOT NULL DEFAULT 0,
         ${ContactRepo.isFriend} int(4) NOT NULL DEFAULT 0,
         ${ContactRepo.isFrom} int(4) NOT NULL DEFAULT 0,
-        PRIMARY KEY("uid")
+        PRIMARY KEY("auto_id"),
+        CONSTRAINT uk_FromTo UNIQUE (
+            ${ContactRepo.userId},
+            ${ContactRepo.peerId}
+        )
         );
       ''';
     debugPrint("> on _onCreate \n$contactSql\n");
     await db.execute(contactSql);
+    await db.execute('''
+          CREATE INDEX IF NOT EXISTS i_UserId_IsFriend_UpdateTime
+          ON ${ContactRepo.tableName} 
+          (${ContactRepo.userId}, ${ContactRepo.isFriend}, ${ContactRepo.updateTime});
+        ''');
+
+    await db.execute('''
+          CREATE INDEX IF NOT EXISTS i_Nickname
+          ON ${ContactRepo.tableName} 
+          (${ContactRepo.nickname});
+        ''');
+    await db.execute('''
+          CREATE INDEX IF NOT EXISTS i_Remark
+          ON ${ContactRepo.tableName} 
+          (${ContactRepo.remark});
+        ''');
+
+    // TODO leeyi 2023-04-19
+    // https://www.wangfenjin.com/posts/simple-tokenizer/
+    // await db.execute('''
+    //       CREATE VIRTUAL TABLE t1 USING fts5(x, tokenize = "simple");
+    //     ''');
 
     String conversationSql = '''
       CREATE TABLE IF NOT EXISTS ${ConversationRepo.tableName} (
         `${ConversationRepo.id}` INTEGER,
+        `${ConversationRepo.userId}` varchar(40) NOT NULL,
         `${ConversationRepo.peerId}` varchar(40) NOT NULL,
         `${ConversationRepo.avatar}` varchar(255) NOT NULL DEFAULT '',
         `${ConversationRepo.title}` varchar(40) NOT NULL DEFAULT '',
@@ -101,11 +130,20 @@ class Sqlite {
         `${ConversationRepo.lastTime}` int DEFAULT 0,
         `${ConversationRepo.lastMsgId}` varchar(40) NOT NULL,
         `${ConversationRepo.lastMsgStatus}` int DEFAULT 0,
-        PRIMARY KEY(${ConversationRepo.id})
+        PRIMARY KEY(${ConversationRepo.id}),
+        CONSTRAINT uk_FromTo UNIQUE (
+            ${ConversationRepo.userId},
+            ${ConversationRepo.peerId}
+        )
         );
       ''';
-    debugPrint("> on _onCreate \n$conversationSql\n");
+    // debugPrint("> on _onCreate \n$conversationSql\n");
     await db.execute(conversationSql);
+    await db.execute('''
+          CREATE INDEX IF NOT EXISTS i_UserId_IsShow_LastTime
+          ON ${ConversationRepo.tableName} 
+          (${ConversationRepo.userId},${ConversationRepo.isShow}, ${ConversationRepo.lastTime});
+        ''');
 
     String messageSql = '''
       CREATE TABLE IF NOT EXISTS ${MessageRepo.tableName} (
@@ -119,13 +157,29 @@ class Sqlite {
         ${MessageRepo.serverTs} INTERGER,
         ${MessageRepo.conversationId} int DEFAULT 0,
         ${MessageRepo.status} INTERGER,
-        PRIMARY KEY(auto_id)
+        PRIMARY KEY(auto_id),
+        CONSTRAINT uk_MsgId UNIQUE (
+            ${MessageRepo.id}
+        )
         );
       ''';
     debugPrint("> on _onCreate messageSql \n$messageSql\n");
     await db.execute(messageSql);
-    await db.execute(
-        "CREATE UNIQUE INDEX IF NOT EXISTS uk_Msgid ON ${MessageRepo.tableName} (${MessageRepo.id});");
+    await db.execute('''
+          CREATE INDEX IF NOT EXISTS i_ConversationId_CreatedAt 
+          ON ${MessageRepo.tableName} 
+          (${MessageRepo.conversationId}, ${MessageRepo.createdAt});
+        ''');
+    await db.execute('''
+          CREATE INDEX IF NOT EXISTS i_FromUid 
+          ON ${MessageRepo.tableName} 
+          (${MessageRepo.from});
+        ''');
+    await db.execute('''
+          CREATE INDEX IF NOT EXISTS i_ToUid 
+          ON ${MessageRepo.tableName} 
+          (${MessageRepo.to});
+        ''');
 
     String newFriendSql = '''
       CREATE TABLE IF NOT EXISTS ${NewFriendRepo.tableName} (
@@ -149,11 +203,39 @@ class Sqlite {
       ''';
     debugPrint("> on _onCreate \n$newFriendSql\n");
     await db.execute(newFriendSql);
+
+    String denylistSql = '''
+      CREATE TABLE IF NOT EXISTS ${DenylistRepo.tableName} (
+        auto_id INTEGER,
+        ${DenylistRepo.uid} varchar(40) NOT NULL,
+        ${DenylistRepo.deniedUid} varchar(40) NOT NULL,
+        ${DenylistRepo.nickname} varchar(40) NOT NULL DEFAULT '',
+        ${DenylistRepo.avatar} varchar(255) NOT NULL DEFAULT '',
+        ${DenylistRepo.gender} int(4) NOT NULL DEFAULT 0,
+        ${DenylistRepo.account} varchar(40) NOT NULL DEFAULT '',
+        ${DenylistRepo.region} varchar(80) DEFAULT '',
+        ${DenylistRepo.sign} varchar(255) NOT NULL DEFAULT '',
+        ${DenylistRepo.source} varchar(40) NOT NULL DEFAULT '',
+        ${DenylistRepo.remark} varchar(255) DEFAULT '',
+        ${DenylistRepo.createdAt} int(16) NOT NULL DEFAULT 0,
+        PRIMARY KEY("auto_id"),
+        CONSTRAINT i_Uid_DeniedUid UNIQUE (
+            ${DenylistRepo.uid},
+            ${DenylistRepo.deniedUid}
+        )
+        );
+      ''';
+    debugPrint("> on _onCreate \n$denylistSql\n");
+    await db.execute(denylistSql);
   }
 
   Future<int> insert(String table, Map<String, dynamic> data) async {
     Database db = await instance.database;
-    int lastInsertId = await db.insert(table, data);
+    int lastInsertId = await db.insert(
+      table,
+      data,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
     return lastInsertId;
   }
 

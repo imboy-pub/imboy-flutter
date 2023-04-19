@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/indicator_page_view.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
@@ -527,5 +526,13 @@ class GroupItem extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class MyBehavior extends ScrollBehavior {
+  @override
+  Widget buildOverscrollIndicator(
+      BuildContext context, Widget child, ScrollableDetails details) {
+    return child;
   }
 }

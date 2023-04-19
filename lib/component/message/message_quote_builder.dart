@@ -131,6 +131,7 @@ class QuoteMessageBuilder extends StatelessWidget {
                 child: messageMsgWidget(quoteMsg),
               ),
             ])
+              // 内容居中
               ..mainAxisAlignment = MainAxisAlignment.center,
           ),
         ]),

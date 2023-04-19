@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/extension/device_ext.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/service/websocket.dart';
@@ -51,8 +52,7 @@ class NewFriendLogic extends GetxController {
       "msg": payload["from"]["msg"] ?? "",
       "payload": json.encode(payload),
       "status": NewFriendStatus.waiting_for_validation.index,
-      "create_time":
-          data["created_at"] ?? DateTime.now().millisecondsSinceEpoch,
+      "create_time": DateTimeHelper.currentTimeMillis(),
     };
     // debugPrint("> on receivedAddFriend ${saveData.toString()}");
     (NewFriendRepo()).save(saveData);

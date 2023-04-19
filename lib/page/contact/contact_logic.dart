@@ -1,15 +1,137 @@
+import 'package:azlistview/azlistview.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:badges/badges.dart' as badges;
+
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/page/chat/chat_view.dart';
+import 'package:imboy/page/friend/new_friend_view.dart';
+import 'package:imboy/page/people_nearby/people_nearby_view.dart';
 import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:lpinyin/lpinyin.dart';
 
 class ContactLogic extends GetxController {
   RxList<ContactModel> contactList = RxList<ContactModel>();
+
+  void handleList(List<ContactModel> list) {
+    for (int i = 0; i < list.length; i++) {
+      String pinyin = PinyinHelper.getPinyinE(list[i].title);
+      String tag = pinyin.substring(0, 1).toUpperCase();
+      list[i].namePinyin = pinyin;
+      if (RegExp("[A-Z]").hasMatch(tag)) {
+        list[i].nameIndex = tag;
+      } else {
+        list[i].nameIndex = "#";
+      }
+    }
+    // A-Z sort.
+    SuspensionUtil.sortListBySuspensionTag(list);
+
+    // show sus tag.
+    SuspensionUtil.setShowSuspensionStatus(list);
+    final List<ContactModel> topList = [
+      ContactModel(
+        peerId: "people_nearby",
+        nickname: '找附近的人'.tr,
+        nameIndex: '↑',
+        bgColor: Colors.blueAccent,
+        iconData: const Center(
+          child: Icon(
+            Icons.person_pin_circle,
+            size: 24,
+            color: Colors.white,
+          ),
+        ),
+        onPressed: () {
+          Get.to(
+            PeopleNearbyPage(),
+            transition: Transition.rightToLeft,
+            popGesture: true, // 右滑，返回上一页
+          );
+        },
+      ),
+      ContactModel(
+        peerId: "new_friend",
+        nickname: '新的朋友'.tr,
+        nameIndex: '↑',
+        bgColor: Colors.orange,
+        iconData: Obx(() => badges.Badge(
+              showBadge: Get.find<BottomNavigationLogic>()
+                  .newFriendRemindCounter
+                  .isNotEmpty,
+              // shape: badges.BadgeShape.square,
+              // borderRadius: BorderRadius.circular(10),
+              position: badges.BadgePosition.topStart(top: 0, start: 128),
+              // padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+              badgeContent: Container(
+                color: Colors.red,
+                alignment: Alignment.center,
+                child: Text(
+                  Get.find<BottomNavigationLogic>()
+                      .newFriendRemindCounter
+                      .length
+                      .toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 8,
+                  ),
+                ),
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.person_add,
+                  size: 24,
+                ),
+              ),
+            )),
+        onPressed: () {
+          Get.to(
+            NewFriendPage(),
+            transition: Transition.rightToLeft,
+            popGesture: true, // 右滑，返回上一页
+          );
+        },
+      ),
+      ContactModel(
+        peerId: 'group',
+        nickname: '群聊'.tr,
+        nameIndex: '↑',
+        bgColor: Colors.green,
+        iconData: const Icon(
+          Icons.people,
+          size: 24,
+          color: Colors.white,
+        ),
+      ),
+      /*
+      ContactModel(
+        nickname: '标签'.tr,
+        nameIndex: '↑',
+        bgColor: Colors.blue,
+        iconData: const Icon(
+          Icons.local_offer,
+          color: Colors.white,
+          size: 20,
+        ),
+      ),
+      ContactModel(
+          nickname: '公众号',
+          nameIndex: '↑',
+          bgColor: Colors.blueAccent,
+          iconData: Icons.person,
+      ),
+      */
+    ];
+    // add topList.
+    list.insertAll(0, topList);
+    //
+    contactList.value = list;
+  }
 
   listFriend(bool onRefresh) async {
     List<ContactModel> contact = [];
@@ -23,9 +145,12 @@ class ContactLogic extends GetxController {
     List<dynamic> dataMap = await (ContactProvider()).listFriend();
     for (var json in dataMap) {
       json[ContactRepo.isFriend] = 1;
-      ContactModel model = ContactModel.fromJson(json);
-      contact.insert(0, model);
-      repo.save(json);
+      // checkIsFriend = true 的时候，保留旧的 isFriend 值
+      ContactModel model = await repo.save(json, checkIsFriend: true);
+      // debugPrint("> on findFriend item ${model.toJson().toString()} ");
+      if (model.isFriend == 1) {
+        contact.insert(0, model);
+      }
     }
     return contact;
   }
@@ -75,32 +200,28 @@ class ContactLogic extends GetxController {
         ),
         onTap: model.onPressed ??
             () {
-              if (model.uid != null) {
-                Get.to(
-                  PeopleInfoPage(
-                    id: model.uid!,
-                    sence: '',
-                  ),
-                  transition: Transition.rightToLeft,
-                  popGesture: true, // 右滑，返回上一页
-                );
-              }
+              Get.to(
+                PeopleInfoPage(
+                  id: model.peerId,
+                  sence: '', // TODO 2023-04-19 09:40:05 leeyi
+                ),
+                transition: Transition.rightToLeft,
+                popGesture: true, // 右滑，返回上一页
+              );
             },
         onLongPress: model.onLongPressed ??
             () {
-              if (model.uid != null) {
-                Get.to(
-                  ChatPage(
-                    peerId: model.uid!,
-                    peerTitle: model.title,
-                    peerAvatar: model.avatar,
-                    peerSign: model.sign,
-                    type: 'C2C',
-                  ),
-                  transition: Transition.rightToLeft,
-                  popGesture: true, // 右滑，返回上一页
-                );
-              }
+              Get.to(
+                ChatPage(
+                  peerId: model.peerId,
+                  peerTitle: model.title,
+                  peerAvatar: model.avatar,
+                  peerSign: model.sign,
+                  type: 'C2C',
+                ),
+                transition: Transition.rightToLeft,
+                popGesture: true, // 右滑，返回上一页
+              );
             },
       ),
     );
@@ -125,7 +246,7 @@ class ContactLogic extends GetxController {
   }
 
   /// 接受消息人（to）新增联系人
-  void receivedConfirFriend(Map data) {
+  void receivedConfirmFriend(Map data) {
     var repo = ContactRepo();
     Map<String, dynamic> json = {
       // From 的个人信息

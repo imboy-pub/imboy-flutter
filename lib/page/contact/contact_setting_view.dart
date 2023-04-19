@@ -12,45 +12,57 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/chat/chat_logic.dart';
 import 'package:imboy/page/chat/widget/select_friend.dart';
+import 'package:imboy/page/friend/denylist_logic.dart';
+import 'package:imboy/page/mine/setting/friends_permissions_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
-import 'package:imboy/store/provider/contact_provider.dart';
-import 'package:imboy/store/repository/contact_repo_sqlite.dart';
-import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
-import 'package:imboy/store/repository/message_repo_sqlite.dart';
-import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
+import 'package:imboy/store/model/denylist_model.dart';
+
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:xid/xid.dart';
 
+import 'contact_setting_logic.dart';
+
 // ignore: must_be_immutable
 class ContactSettingPage extends StatelessWidget {
   final String peerId; // 用户ID
+  final String peerAccount;
   final String peerAvatar;
   final String peerTitle;
   final String peerNickname;
+  final int peerGender;
   final String peerSign;
-  final String remark;
+  final String peerRegion;
+  final String peerSource;
+  final String peerRemark;
 
   ContactSettingPage({
     Key? key,
     required this.peerId,
+    required this.peerAccount,
     required this.peerAvatar,
     required this.peerNickname,
+    required this.peerGender,
     required this.peerTitle,
     required this.peerSign,
-    required this.remark,
+    required this.peerRegion,
+    required this.peerSource,
+    required this.peerRemark,
   }) : super(key: key);
 
   final logic = Get.put(ContactSettingLogic());
+  final denylistLogic = Get.put(DenylistLogic());
+  RxBool inDenylist = false.obs;
 
-  Future<void> initData() async {}
+  Future<void> initData() async {
+    inDenylist.value = await denylistLogic.inDenylist(peerId);
+  }
 
   @override
   Widget build(BuildContext context) {
     initData();
-
     return Scaffold(
       backgroundColor: AppColors.ChatBg,
       appBar: PageAppBar(
@@ -68,11 +80,18 @@ class ContactSettingPage extends StatelessWidget {
             ),
             LabelRow(
               label: '朋友权限'.tr,
-              onPressed: () => EasyLoading.showToast('敬请期待'),
+              onPressed: () {
+                Get.to(
+                  () => FriendsPermissionsPage(),
+                  transition: Transition.rightToLeft,
+                  popGesture: true, // 右滑，返回上一页
+                );
+              },
             ),
             const Space(),
             LabelRow(
               label: '把他推荐给朋友'.tr,
+              // isLine: false,
               isLine: false,
               onPressed: () async {
                 Map<String, String> peer = {
@@ -110,14 +129,14 @@ class ContactSettingPage extends StatelessWidget {
                     ),
                     createdAt: DateTimeHelper.currentTimeMillis(),
                     id: Xid().toString(),
-                    remoteId: c1.uid,
+                    remoteId: c1.peerId,
                     status: types.Status.sending,
                     metadata: metadata,
                   );
                   final logic2 = Get.put(ChatLogic());
                   await logic2.addMessage(
                     UserRepoLocal.to.currentUid,
-                    c1.uid!,
+                    c1.peerId,
                     c1.avatar,
                     c1.title,
                     'C2C',
@@ -145,18 +164,43 @@ class ContactSettingPage extends StatelessWidget {
                     bottom: BorderSide(color: AppColors.LineColor, width: 0.2),
                   ),
                 ),
-                child: SwitchListTile(
-                  title: Text('加入黑名单'.tr),
-                  value: false,
-                  contentPadding: const EdgeInsets.only(
-                    left: 0,
-                    top: 0.0,
-                    bottom: 0.0,
-                    right: 0.0,
-                  ),
-                  activeColor: AppColors.primaryElement,
-                  onChanged: (val) {},
-                ),
+                child: Obx(() => SwitchListTile(
+                      title: Text('加入黑名单'.tr),
+                      // value: false,
+                      value: inDenylist.isTrue,
+                      contentPadding: const EdgeInsets.only(
+                        left: 0,
+                        top: 0.0,
+                        bottom: 0.0,
+                        right: 0.0,
+                      ),
+                      activeColor: AppColors.primaryElement,
+                      onChanged: (val) async {
+                        debugPrint("addDenylist val $val, $inDenylist");
+
+                        bool res;
+                        if (inDenylist.isTrue) {
+                          res = await denylistLogic.removeDenylist(peerId);
+                        } else {
+                          DenylistModel model = DenylistModel(
+                            deniedUid: peerId,
+                            nickname: peerNickname,
+                            account: peerAccount,
+                            remark: peerRemark,
+                            sign: peerSign,
+                            source: peerSource,
+                            avatar: peerAvatar,
+                            region: peerRegion,
+                            gender: peerGender,
+                            createdAt: DateTimeHelper.currentTimeMillis(),
+                          );
+                          res = await denylistLogic.addDenylist(model);
+                        }
+                        if (res) {
+                          inDenylist.value = val;
+                        }
+                      },
+                    )),
               ),
             ),
             LabelRow(
@@ -185,7 +229,7 @@ class ContactSettingPage extends StatelessWidget {
                             bottom: 10,
                           ),
                           child: ExtendedText(
-                            '将联系人"$remark"删除，同时删除与该联系人的聊天记录'.tr,
+                            '将联系人"$peerRemark"删除，同时删除与该联系人的聊天记录'.tr,
                             style: const TextStyle(
                               color: AppColors.MainTextColor,
                               fontSize: 14.0,
@@ -259,19 +303,5 @@ class ContactSettingPage extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class ContactSettingLogic extends GetxController {
-  /// 将联系人"$remark"删除，同时删除与该联系人的聊天记录
-  Future<bool> deleteContact(String uid) async {
-    bool res = await (ContactProvider()).deleteContact(uid);
-    if (res) {
-      await MessageRepo().deleteForUid(uid);
-      await ConversationRepo().delete(uid);
-      await NewFriendRepo().deleteForUid(uid);
-      await ContactRepo().deleteForUid(uid);
-    }
-    return res;
   }
 }

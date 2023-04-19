@@ -16,14 +16,14 @@ class ApplyFriendPage extends StatelessWidget {
   String uid;
   String remark;
   String avatar;
-  String regin;
+  String region;
   String source;
 
   ApplyFriendPage(
     this.uid,
     this.remark,
     this.avatar,
-    this.regin, {
+    this.region, {
     required this.source,
     Key? key,
   }) : super(key: key);

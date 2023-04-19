@@ -44,16 +44,16 @@ class PassportPage extends StatelessWidget {
       userHint = 'hint_login_account'.tr;
     }
     var args = Get.arguments;
-    String msgtype = "";
+    String msgType = "";
     if (args is Map<String, dynamic>) {
-      msgtype = args["msgtype"] ?? "";
+      msgType = args["msg_type"] ?? "";
     }
-    if (msgtype == "logged_another_device" && args is Map<String, dynamic>) {
-      String dname = args['dname'] ?? '';
-      if (dname == "") {
-        dname = "其他";
+    if (msgType == "logged_another_device" && args is Map<String, dynamic>) {
+      String deviceName = args['dname'] ?? '';
+      if (deviceName == "") {
+        deviceName = "其他";
       } else {
-        dname = "[$dname]";
+        deviceName = "[$deviceName]";
       }
       int mts = args['server_ts'] ?? DateTimeHelper.currentTimeMillis;
       String hm =
@@ -62,7 +62,8 @@ class PassportPage extends StatelessWidget {
       Future.delayed(const Duration(milliseconds: 500), () {
         Get.defaultDialog(
           title: 'Alert'.tr,
-          content: Text('info_logged_in_on_another_device'.trArgs([hm, dname])),
+          content:
+              Text('info_logged_in_on_another_device'.trArgs([hm, deviceName])),
           barrierDismissible: false,
           confirm: TextButton(
             onPressed: () {

@@ -57,7 +57,7 @@ class MessageService extends GetxService {
           if (obj != null) {
             incomingCallScreen(
               UserModel.fromJson({
-                "uid": obj.uid!,
+                "uid": obj.peerId,
                 "nickname": obj.title,
                 "avatar": obj.avatar,
                 "sign": obj.sign,
@@ -127,6 +127,7 @@ class MessageService extends GetxService {
     if (payload is String) {
       payload = json.decode(payload);
     }
+    String msgId = payload['id'] ?? '';
     String msgType = payload['msg_type'] ?? '';
     switch (msgType.toString().toLowerCase()) {
       case "apply_friend": // 添加朋友申请
@@ -134,11 +135,16 @@ class MessageService extends GetxService {
         break;
       case "apply_friend_confirm": // 添加朋友申请确认
         // 接受消息人（to）新增联系人
-        contactLogic.receivedConfirFriend(payload);
+        contactLogic.receivedConfirmFriend(payload);
         // 修正好友申请状态
         newFriendLogic.receivedConfirFriend(true, data);
         break;
-      case "isnotfriend":
+      case "in_denylist":
+        // 对方将我加入黑名单后： 消息已发出，但被对方拒收了。
+        // String msgId = payload['content'] ?? '';
+        // TODO
+        break;
+      case "not_a_friend":
         // String msgId = payload['content'] ?? '';
         // TODO
         break;
@@ -150,7 +156,7 @@ class MessageService extends GetxService {
           WSService.to.closeSocket();
           UserRepoLocal.to.logout();
           Get.off(() => PassportPage(), arguments: {
-            "msgType": "logged_another_device",
+            "msg_type": "logged_another_device",
             "server_ts": serverTs,
             "dname": payload['dname'] ?? '', // 设备名称
           });
@@ -216,7 +222,6 @@ class MessageService extends GetxService {
       lastMsgId: data['id'],
       lastTime: data['created_at'],
       unreadNum: 1,
-      isShow: 1,
       id: 0,
     );
     conversationObj = await (ConversationRepo()).save(conversationObj);

@@ -5,12 +5,12 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 class ConversationModel {
   int id;
   final String peerId;
-  final String avatar;
-  final String title;
+  String avatar;
+  String title;
   String subtitle;
   String region;
   String sign;
-  final int? lastTime;
+  int lastTime;
   String lastMsgId;
 
   // lastMsgStatus 10 发送中 sending;  11 已发送 send;
@@ -22,7 +22,7 @@ class ConversationModel {
 
   //
   String msgType;
-  final int? isShow;
+  int isShow;
 
   RxBool selected = false.obs;
 
@@ -36,11 +36,11 @@ class ConversationModel {
     required this.msgType,
     this.region = '',
     this.sign = '',
-    this.lastTime,
+    this.lastTime = 0,
     this.lastMsgId = '',
     this.lastMsgStatus,
     required this.unreadNum,
-    this.isShow,
+    this.isShow = 1,
   });
 
   /// 会话内容计算

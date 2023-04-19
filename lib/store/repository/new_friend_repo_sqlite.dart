@@ -21,6 +21,7 @@ class NewFriendRepo {
   static String payload = 'payload';
   static String updateTime = "update_time";
   static String createTime = "create_time";
+  static String source = "source";
 
   final Sqlite _db = Sqlite.instance;
 
@@ -37,8 +38,8 @@ class NewFriendRepo {
       NewFriendRepo.payload: obj.payload,
       // 单位毫秒，13位时间戳  1561021145560
       NewFriendRepo.updateTime:
-          obj.updateTime ?? DateTime.now().millisecondsSinceEpoch,
-      NewFriendRepo.createTime: DateTime.now().millisecondsSinceEpoch,
+          obj.updateTime ?? DateTimeHelper.currentTimeMillis(),
+      NewFriendRepo.createTime: DateTimeHelper.currentTimeMillis(),
     };
     debugPrint("> on NewFriendRepo/insert/1 $insert");
 

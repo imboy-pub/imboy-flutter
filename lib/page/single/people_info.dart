@@ -12,6 +12,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact/contact_setting_view.dart';
 import 'package:imboy/page/friend/apply_friend_view.dart';
+import 'package:imboy/page/mine/setting/friends_permissions_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -72,10 +73,14 @@ class PeopleInfoPage extends StatelessWidget {
               ContactSettingPage(
                 peerId: id,
                 peerAvatar: avatar.value,
+                peerAccount: account.value,
                 peerNickname: nickname.value,
+                peerGender: gender.value,
                 peerTitle: title.value,
                 peerSign: sign.value,
-                remark: remark.value,
+                peerRegion: region.value,
+                peerSource: source.value,
+                peerRemark: remark.value,
               ),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
@@ -91,6 +96,10 @@ class PeopleInfoPage extends StatelessWidget {
         ),
       )
     ];
+    bool showApplyFriendBtn = !isSelf;
+    if (sence == 'denylist') {
+      showApplyFriendBtn = false;
+    }
     return Scaffold(
       backgroundColor: AppColors.ChatBg,
       appBar: PageAppBar(
@@ -126,15 +135,21 @@ class PeopleInfoPage extends StatelessWidget {
                   onPressed: () => EasyLoading.showToast('敬请期待'),
                 ),
               ),
-              /*
               Visibility(
                 visible: !isSelf,
                 child: LabelRow(
                   label: '朋友权限'.tr,
-                  onPressed: () => EasyLoading.showToast('敬请期待'),
+                  onPressed: () {
+                    Get.to(
+                      () => FriendsPermissionsPage(),
+                      transition: Transition.rightToLeft,
+                      popGesture: true, // 右滑，返回上一页
+                    );
+                  },
                 ),
               ),
               const Space(),
+              /*
               LabelRow(
                 label: '朋友圈'.tr,
                 isLine: true,
@@ -145,7 +160,7 @@ class PeopleInfoPage extends StatelessWidget {
                 ),
               ),
               */
-              if (isFriend.value == 1)
+              if (isFriend.value == 1 || sence == 'denylist')
                 LabelRow(
                   label: '更多信息'.tr,
                   isLine: false,
@@ -158,7 +173,7 @@ class PeopleInfoPage extends StatelessWidget {
                   ),
                 ),
               const Space(),
-              isFriend.value == 1
+              isFriend.value == 1 || sence == 'denylist'
                   ? Visibility(
                       visible: !isSelf,
                       child: ButtonRow(
@@ -220,7 +235,7 @@ class PeopleInfoPage extends StatelessWidget {
                       ),
                     )
                   : Visibility(
-                      visible: !isSelf,
+                      visible: showApplyFriendBtn,
                       child: ButtonRow(
                         text: '添加到通讯录'.tr,
                         onPressed: () => Get.to(
@@ -229,13 +244,24 @@ class PeopleInfoPage extends StatelessWidget {
                             nickname.value,
                             avatar.value,
                             region.value,
-                            source: sence,
+                            source: source.value,
                           ),
                           transition: Transition.rightToLeft,
                           popGesture: true, // 右滑，返回上一页
                         ),
                       ),
                     ),
+              if (sence == 'denylist')
+                n.Padding(
+                  top: 20,
+                  child: n.Row([
+                    const Icon(Icons.warning_amber_rounded, color: Colors.red),
+                    const Space(width: 4),
+                    Text('已添加至黑名单，你将不再收到对方的消息'.tr),
+                  ])
+                    // 内容居中
+                    ..mainAxisAlignment = MainAxisAlignment.center,
+                ),
             ],
           ),
         ),

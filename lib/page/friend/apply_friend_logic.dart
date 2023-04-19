@@ -47,12 +47,8 @@ class ApplyFriendLogic extends GetxController {
       status: '正在发送...'.tr,
     );
 
-    // Future.delayed(Duration(milliseconds: 800), () {
-    //   EasyLoading.showSuccess("已发送".tr);
-    //   Get.close(1);
-    // });
     IMBoyHttpResponse resp = await HttpClient.client.post(
-      "$API_BASE_URL${API.addfriend}",
+      "$API_BASE_URL${API.addFriend}",
       data: msg,
       options: Options(
         contentType: "application/x-www-form-urlencoded",

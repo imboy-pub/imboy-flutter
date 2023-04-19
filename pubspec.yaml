@@ -62,8 +62,8 @@ dependencies:
   # 视频播放器
   video_player: ^2.6.1
   chewie: ^1.4.0
-  webview_flutter: ^4.0.7
-  image_picker: ^0.8.7+2
+  webview_flutter: ^4.1.0
+  image_picker: ^0.8.7+3
   mime: ^1.0.4
   file_picker: ^5.2.9
   #open_file: ^3.2.1
@@ -75,14 +75,14 @@ dependencies:
   connectivity_plus: ^3.0.4
   flutter_screenutil: ^5.7.0
   # 页面刷新
-  easy_refresh: ^3.3.1
+  easy_refresh: ^3.3.1+1
   package_info_plus: ^3.1.0
   device_info_plus: ^8.2.0
   event_bus: ^2.0.0
   # https://github.com/letsar/flutter_slidable
-  flutter_slidable: ^2.0.0
+  flutter_slidable: ^3.0.0
   # 消息提醒的红点效果
-  badges: ^3.1.0
+  badges: ^3.1.1
   # 聊天气泡
   bubble: ^1.2.1
   # 全球唯一 ID 生成器
@@ -154,7 +154,7 @@ dependencies:
   # 语音消息播放器
   voice_message_package: ^1.0.41
   # 一对一音视频通话等
-  flutter_webrtc: ^0.9.25
+  flutter_webrtc: ^0.9.26
   # 可滚动小部件的固定/可变行高提供了滚动到索引的机制
   scroll_to_index: ^3.0.1
   # 封装了基本的图形样式，矩形、圆角矩形、圆形、椭圆形，以及自定义虚线框
@@ -182,6 +182,8 @@ dependencies:
   amap_flutter_map: ^3.0.0
 
   # 还没有直接应用的库
+  # Flutter 插件，可让您在 Android、iOS、macOS、Windows 和 Web 上保持设备屏幕处于唤醒状态。
+  wakelock: ^0.6.2
   # 图像占位符的紧凑表示
   flutter_blurhash: ^0.7.0
   # Flutter应用升级/ Flutter App Upgrade /Flutter App Update/Flutter Update / 下载插件（有提示栏进度），支持全量升级、热更新和增量升级

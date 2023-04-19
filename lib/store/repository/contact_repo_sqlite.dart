@@ -4,12 +4,14 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 class ContactRepo {
   static String tableName = 'contact';
 
-  static String uid = 'uid';
-  static String nickname = 'nickname';
+  static String userId = 'user_id'; // 联系人所属用户ID
+  static String peerId = 'peer_id'; // 联系人用户ID
+  static String nickname = 'nickname'; // 联系人昵称
   static String avatar = 'avatar';
   static String gender = 'gender';
   static String account = 'account';
@@ -33,7 +35,7 @@ class ContactRepo {
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tableName,
       columns: [
-        ContactRepo.uid,
+        ContactRepo.peerId,
         ContactRepo.nickname,
         ContactRepo.avatar,
         ContactRepo.account,
@@ -46,10 +48,10 @@ class ContactRepo {
         ContactRepo.isFriend,
         ContactRepo.isFrom,
       ],
-      where: '${ContactRepo.isFriend}=? and ('
+      where: '${ContactRepo.userId} = ? and ${ContactRepo.isFriend} = ? and ('
           '${ContactRepo.nickname} like "%$kwd%" or ${ContactRepo.remark} like "%$kwd%"'
           ')',
-      whereArgs: [1],
+      whereArgs: [UserRepoLocal.to.currentUid, 1],
       orderBy: "update_time desc",
       limit: limit,
     );
@@ -68,7 +70,8 @@ class ContactRepo {
   // 插入一条数据
   Future<ContactModel> insert(ContactModel obj) async {
     Map<String, dynamic> insert = {
-      ContactRepo.uid: obj.uid,
+      ContactRepo.userId: UserRepoLocal.to.currentUid,
+      ContactRepo.peerId: obj.peerId,
       ContactRepo.nickname: obj.nickname,
       ContactRepo.avatar: obj.avatar,
       ContactRepo.account: obj.account,
@@ -80,20 +83,23 @@ class ContactRepo {
       ContactRepo.source: obj.source,
       // 单位毫秒，13位时间戳  1561021145560
       ContactRepo.updateTime:
-          obj.updateTime ?? DateTime.now().millisecondsSinceEpoch,
+          obj.updateTime ?? DateTimeHelper.currentTimeMillis(),
       ContactRepo.isFriend: obj.isFriend,
       ContactRepo.isFrom: obj.isFrom,
     };
-    debugPrint("> on ContactRepo/insert/1 $insert");
+    // debugPrint("> on ContactRepo/insert/1 $insert");
 
     await _db.insert(ContactRepo.tableName, insert);
     return obj;
   }
 
-  Future<List<Map<String, dynamic>>> selectFriend(
-      {List<String>? columns}) async {
+  Future<List<Map<String, dynamic>>> selectFriend({
+    List<String>? columns,
+    int limit = 10000,
+    int offset = 0,
+  }) async {
     columns ??= [
-      ContactRepo.uid,
+      ContactRepo.peerId,
       ContactRepo.nickname,
       ContactRepo.avatar,
       ContactRepo.account,
@@ -109,18 +115,23 @@ class ContactRepo {
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tableName,
       columns: columns,
-      where: '${ContactRepo.isFriend}=?',
-      whereArgs: [1],
-      orderBy: "update_time desc",
-      limit: 10000,
+      where: '${ContactRepo.userId} = ? and ${ContactRepo.isFriend} = ?',
+      whereArgs: [UserRepoLocal.to.currentUid, 1],
+      orderBy: "${ContactRepo.updateTime} desc",
+      limit: limit,
+      offset: offset,
     );
     debugPrint("> on selectFriend ${maps.length}, ${maps.toList().toString()}");
     return maps;
   }
 
-  Future<List<ContactModel>> findFriend({List<String>? columns}) async {
+  Future<List<ContactModel>> findFriend({
+    List<String>? columns,
+    int limit = 10000,
+    int offset = 0,
+  }) async {
     columns ??= [
-      ContactRepo.uid,
+      ContactRepo.peerId,
       ContactRepo.nickname,
       ContactRepo.avatar,
       ContactRepo.account,
@@ -136,12 +147,13 @@ class ContactRepo {
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tableName,
       columns: columns,
-      where: '${ContactRepo.isFriend}=?',
-      whereArgs: [1],
-      orderBy: "update_time desc",
-      limit: 10000,
+      where: '${ContactRepo.userId} = ? and ${ContactRepo.isFriend} = ?',
+      whereArgs: [UserRepoLocal.to.currentUid, 1],
+      orderBy: "${ContactRepo.nickname} asc",
+      limit: limit,
+      offset: offset,
     );
-    // debugPrint("> on findFriend ${maps.length}, ${maps.toList().toString()}");
+    // debugPrint("> on findFriend2 ${maps.length}, ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }
@@ -158,7 +170,7 @@ class ContactRepo {
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tableName,
       columns: [
-        ContactRepo.uid,
+        ContactRepo.peerId,
         ContactRepo.nickname,
         ContactRepo.avatar,
         ContactRepo.account,
@@ -172,8 +184,8 @@ class ContactRepo {
         ContactRepo.isFriend,
         ContactRepo.isFrom,
       ],
-      where: '${ContactRepo.uid} = ?',
-      whereArgs: [uid],
+      where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
+      whereArgs: [UserRepoLocal.to.currentUid, uid],
     );
     if (maps.isNotEmpty) {
       return ContactModel.fromJson(maps.first);
@@ -187,31 +199,28 @@ class ContactRepo {
   }
 
   // 根据ID删除信息
-  Future<int> delete(String id) async {
+  Future<int> delete(String uid) async {
     return await _db.delete(
       ContactRepo.tableName,
-      where: '${ContactRepo.uid} = ?',
-      whereArgs: [id],
+      where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
+      whereArgs: [UserRepoLocal.to.currentUid, uid],
     );
   }
 
   // 更新信息
   Future<int> update(Map<String, dynamic> json) async {
-    String uid = json["id"] ?? (json["uid"] ?? "");
+    String uid = json["id"] ?? (json[ContactRepo.peerId] ?? "");
     Map<String, Object?> data = {};
-    if (strNoEmpty(json["account"])) {
-      data[ContactRepo.account] = json["account"];
+    if (strNoEmpty(json[ContactRepo.account])) {
+      data[ContactRepo.account] = json[ContactRepo.account];
     }
     if (strNoEmpty(json["nickname"])) {
       data[ContactRepo.nickname] = json["nickname"];
     }
-    if (strNoEmpty(json["avatar"] ?? "")) {
+    if (strNoEmpty(json["avatar"])) {
       data[ContactRepo.avatar] = json["avatar"];
     }
 
-    if (strNoEmpty(json["status"].toString())) {
-      data[ContactRepo.status] = json["status"].toString();
-    }
     if (strNoEmpty(json["remark"])) {
       data[ContactRepo.remark] = json["remark"];
     }
@@ -224,41 +233,60 @@ class ContactRepo {
     if (strNoEmpty(json["source"])) {
       data[ContactRepo.source] = json["source"];
     }
-    if (json["gender"] > 0) {
-      data[ContactRepo.gender] = json["gender"];
-    }
 
-    debugPrint("> on ContactRepo/update/1 data: ${data.toString()}");
+    if (json.containsKey(ContactRepo.status)) {
+      data[ContactRepo.status] = json[ContactRepo.status];
+    }
+    if (json.containsKey(ContactRepo.gender)) {
+      data[ContactRepo.gender] = json[ContactRepo.gender];
+    }
+    if (json.containsKey(ContactRepo.isFrom)) {
+      data[ContactRepo.isFrom] = json[ContactRepo.isFrom];
+    }
+    if (json.containsKey(ContactRepo.isFriend)) {
+      data[ContactRepo.isFriend] = json[ContactRepo.isFriend];
+    }
+    // debugPrint("> on ContactRepo/update/1 data: ${data.toString()}");
     if (strNoEmpty(uid)) {
-      data[ContactRepo.isFrom] = json[ContactRepo.isFrom] ?? 0;
-      data[ContactRepo.isFriend] = json[ContactRepo.isFriend] ?? 0;
       data[ContactRepo.updateTime] = DateTimeHelper.currentTimeMillis();
       return await _db.update(
         ContactRepo.tableName,
         data,
-        where: '${ContactRepo.uid} = ?',
-        whereArgs: [uid],
+        where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
+        whereArgs: [UserRepoLocal.to.currentUid, uid],
       );
     } else {
       return 0;
     }
   }
 
-  void save(Map<String, dynamic> json) async {
-    String uid = json["id"] ?? (json["uid"] ?? "");
+  /// checkIsFriend = true 的时候，保留旧的 isFriend 值
+  Future<ContactModel> save(
+    Map<String, dynamic> json, {
+    checkIsFriend = false,
+  }) async {
+    // debugPrint("contact_repo_save $checkIsFriend, ${json.toString()}");
+    // json["id"] 兼容 api响应的数据
+    String uid = json["id"] ?? (json[ContactRepo.peerId] ?? "");
     ContactModel? old = await findByUid(uid, autoFetch: false);
     if (old is ContactModel) {
+      if (checkIsFriend) {
+        json[ContactRepo.isFriend] = old.isFriend;
+      }
       await update(json);
+      return old;
     } else {
-      await insert(ContactModel.fromJson(json));
+      ContactModel model = ContactModel.fromJson(json);
+      await insert(model);
+      return model;
     }
   }
 
   Future<int> deleteForUid(String uid) async {
     return await _db.delete(
       ContactRepo.tableName,
-      where: '${ContactRepo.uid} = ?',
-      whereArgs: [uid],
+      where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
+      whereArgs: [UserRepoLocal.to.currentUid, uid],
     );
   }
 // 记得及时关闭数据库，防止内存泄漏

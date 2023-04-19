@@ -16,6 +16,9 @@ class BottomNavigationLogic extends GetxController {
 
   /// 重新计算 新的好友提醒计数器
   Future<void> countNewFriendRemindCounter() async {
+    if (UserRepoLocal.to.isLogin == false) {
+      return;
+    }
     List<Map<String, dynamic>> items = await Sqlite.instance.query(
       NewFriendRepo.tableName,
       columns: [

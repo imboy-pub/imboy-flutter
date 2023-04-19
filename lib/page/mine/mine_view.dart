@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/line.dart';
+import 'package:imboy/page/friend/denylist_view.dart';
 import 'package:imboy/page/mine/setting/setting_view.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/helper/func.dart';
@@ -207,7 +208,13 @@ class MinePage extends StatelessWidget {
                     Icons.navigate_next,
                     color: AppColors.MainTextColor.withOpacity(0.5),
                   ),
-                  onTap: () {},
+                  onTap: () {
+                    Get.to(
+                      () => DenylistPage(),
+                      transition: Transition.rightToLeft,
+                      popGesture: true, // 右滑，返回上一页
+                    );
+                  },
                 ),
                 // n.ListTile(
                 //   leading: const Icon(
