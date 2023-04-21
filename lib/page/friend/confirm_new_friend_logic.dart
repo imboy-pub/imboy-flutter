@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -38,7 +37,10 @@ class ConfirmNewFriendLogic extends GetxController {
 
   /// 确认申请成为好友
   Future<void> confirm(
-      String from, String to, Map<String, dynamic> payload) async {
+    String from,
+    String to,
+    Map<String, dynamic> payload,
+  ) async {
     payload["msg_type"] = "apply_friend_confirm";
     Map<String, dynamic> msg = {
       "from": from,
@@ -59,7 +61,7 @@ class ConfirmNewFriendLogic extends GetxController {
     if (resp.ok) {
       EasyLoading.showSuccess("已发送".tr);
       // 修正好友申请状态
-      newFriendLogic.receivedConfirFriend(false, {
+      newFriendLogic.receivedConfirmFriend(false, {
         "from": to,
         "to": from,
       });
@@ -67,13 +69,12 @@ class ConfirmNewFriendLogic extends GetxController {
       contactLogic.receivedConfirmFriend(resp.payload);
       Future.delayed(const Duration(seconds: 1), () {
         // 重新计算"新的好友提醒计数器"
-        debugPrint("> on countNewFriendRemindCounter $from");
+        // debugPrint("> on countNewFriendRemindCounter $from");
         bottomNavigationLogic.newFriendRemindCounter.remove(from);
         bottomNavigationLogic.update([
           bottomNavigationLogic.newFriendRemindCounter,
         ]);
       });
-
       Get.close(1);
     } else {
       EasyLoading.showError("网络故障，请重试！".tr);

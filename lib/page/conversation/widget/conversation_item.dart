@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/model/message_model.dart';
 import 'package:niku/namespace.dart' as n;
 
 // ignore: must_be_immutable
@@ -29,7 +30,7 @@ class ConversationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var icon = <Widget>[];
-    if (model.lastMsgStatus == 10) {
+    if (model.lastMsgStatus == MessageStatus.sending) {
       icon.add(
         const Padding(
           padding: EdgeInsets.only(right: 4),

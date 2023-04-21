@@ -7,8 +7,10 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -111,6 +113,12 @@ class ChatLogic extends GetxController {
       payload = message.metadata ?? {};
       payload['msg_type'] = 'custom';
     }
+
+    // 处理系统提示信息
+    String sysPrompt = message.metadata?['sys_prompt'] ?? '';
+    if (strNoEmpty(sysPrompt)) {
+      payload['sys_prompt'] = sysPrompt;
+    }
     debugPrint("> on addMessage getMsgFromTMsg 2 ${payload.toString()}");
     MessageModel obj = MessageModel(
       message.id,
@@ -174,7 +182,7 @@ class ChatLogic extends GetxController {
     // 保存会话
     conversation = await (ConversationRepo()).save(conversation);
     MessageModel obj = getMsgFromTMsg(type, conversation.id, message);
-    debugPrint("> on addMessage before insert MessageRepo");
+    // debugPrint("> on addMessage before insert MessageRepo");
     await (MessageRepo()).insert(obj);
     debugPrint("> on addMessage after insert MessageRepo");
     eventBus.fire(conversation);
@@ -247,5 +255,41 @@ class ChatLogic extends GetxController {
     } else {
       return null;
     }
+  }
+
+  /// 处理系统提示信息
+  /// sysPrompt in metadata is sys_prompt
+  String praseSysPrompt(String sysPrompt) {
+    if (sysPrompt == 'in_denylist') {
+      sysPrompt = '消息已发出，但被对方拒收了。'.tr;
+    } else if (sysPrompt == 'not_a_friend') {
+      sysPrompt = '对方开启了好友验证，你还不是他（她）好友。请先发送好友验证请求，对方验证通过后，才能聊天。'.tr;
+    }
+    return sysPrompt;
+  }
+
+  void setSysPrompt(String msgId, String sysPrompt) async {
+    var repo = MessageRepo();
+    MessageModel? msg = await repo.find(msgId);
+    Map<String, dynamic> payload = msg!.payload ?? {};
+    payload['msg_type'] = payload['msg_type'].toString();
+    payload['sys_prompt'] = sysPrompt;
+    await repo.update({
+      'id': msgId,
+      MessageRepo.status: MessageStatus.error,
+      MessageRepo.payload: payload,
+    });
+    msg.status = MessageStatus.error;
+    msg.payload = payload;
+    eventBus.fire([msg.toTypeMessage()]);
+
+    // 更新会话状态
+    Get.find<ConversationLogic>().updateConversationByMsgId(
+      msgId,
+      {
+        ConversationRepo.payload: {'sys_prompt': sysPrompt},
+        ConversationRepo.lastMsgStatus: MessageStatus.send,
+      },
+    );
   }
 }

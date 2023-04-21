@@ -33,8 +33,12 @@ class ApplyFriendLogic extends GetxController {
   }
 
   /// 申请成为好友
-  Future<void> apply(String to, String nickname, String avatar,
-      Map<String, dynamic> payload) async {
+  Future<void> apply({
+    required String to,
+    required String nickname,
+    required String avatar,
+    required Map<String, dynamic> payload,
+  }) async {
     payload["msg_type"] = "apply_friend";
     int createdAt = DateTimeHelper.currentTimeMillis();
     Map<String, dynamic> msg = {

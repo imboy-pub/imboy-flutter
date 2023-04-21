@@ -64,15 +64,27 @@ class ApplyFriendPage extends StatelessWidget {
                   "source": source,
                   "msg": _msgController.text,
                   "remark": _remarkController.text,
-                  "avatar": UserRepoLocal.to.current.avatar,
+                  "account": UserRepoLocal.to.current.account,
                   "nickname": UserRepoLocal.to.current.nickname,
+                  "avatar": UserRepoLocal.to.current.avatar,
+                  "sign": UserRepoLocal.to.current.sign,
+                  "gender": UserRepoLocal.to.current.gender,
+                  "region": UserRepoLocal.to.current.region,
+
                   "role": logic.role.value, // role 可能的值 all justchat
+                  // donotlookhim 前后端约定的名称，请不要随意修改
                   "donotlookhim": logic.donotlookhim.isTrue,
+                  // donotlethimlook 前后端约定的名称，请不要随意修改
                   "donotlethimlook": logic.donotlethimlook.isTrue,
                 },
                 "to": {}
               };
-              await logic.apply(uid, remark, avatar, payload);
+              await logic.apply(
+                to: uid,
+                nickname: remark,
+                avatar: avatar,
+                payload: payload,
+              );
             },
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(

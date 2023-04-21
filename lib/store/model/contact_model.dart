@@ -50,6 +50,7 @@ class ContactModel extends ISuspensionBean {
     this.isFriend = 1,
     // isFrom 好友关系发起人
     this.isFrom = 0,
+    this.categoryId = 0,
     this.nameIndex = "",
     this.namePinyin,
     this.bgColor,
@@ -73,6 +74,7 @@ class ContactModel extends ISuspensionBean {
   int isFriend;
   // isFrom 好友关系发起人
   int isFrom;
+  int categoryId;
 
   String nameIndex;
   String? namePinyin;
@@ -101,6 +103,8 @@ class ContactModel extends ISuspensionBean {
   }
 
   factory ContactModel.fromJson(Map<String, dynamic> json) {
+    var isFrom = json[ContactRepo.isFrom] ?? 0;
+
     return ContactModel(
       peerId: json["id"] ?? (json[ContactRepo.peerId] ?? ""),
       account: json["account"].toString(),
@@ -116,7 +120,8 @@ class ContactModel extends ISuspensionBean {
       updateTime:
           json[ContactRepo.updateTime] ?? DateTimeHelper.currentTimeMillis(),
       isFriend: json[ContactRepo.isFriend] ?? 0,
-      isFrom: json[ContactRepo.isFrom] ?? 0,
+      categoryId: json[ContactRepo.categoryId] ?? 0,
+      isFrom: int.tryParse('$isFrom') ?? 0,
     );
   }
 
@@ -134,6 +139,7 @@ class ContactModel extends ISuspensionBean {
         ContactRepo.updateTime: updateTime,
         ContactRepo.isFriend: isFriend,
         ContactRepo.isFrom: isFrom,
+        ContactRepo.categoryId: categoryId,
         //
         'firstLetter': firstLetter,
         'nameIndex': nameIndex,

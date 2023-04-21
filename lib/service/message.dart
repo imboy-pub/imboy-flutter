@@ -12,6 +12,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/page/chat/chat_logic.dart';
 import 'package:imboy/page/contact/contact_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/friend/new_friend_logic.dart';
@@ -123,32 +124,76 @@ class MessageService extends GetxService {
   }
 
   Future<void> switchS2C(Map data) async {
+    debugPrint("switchS2C ${data.toString()}");
     var payload = data['payload'] ?? {};
     if (payload is String) {
       payload = json.decode(payload);
     }
-    String msgId = payload['id'] ?? '';
+    String msgId = data['id'] ?? '';
     String msgType = payload['msg_type'] ?? '';
     switch (msgType.toString().toLowerCase()) {
-      case "apply_friend": // 添加朋友申请
+      case 'apply_friend': // 添加朋友申请
         newFriendLogic.receivedAddFriend(data);
         break;
-      case "apply_friend_confirm": // 添加朋友申请确认
+      case 'apply_friend_confirm': // 添加朋友申请确认
         // 接受消息人（to）新增联系人
-        contactLogic.receivedConfirmFriend(payload);
+        /*
+             {
+                "id": "afc_jp24wa_pjyv83",
+                "type": "S2C",
+                "from": "pjyv83",
+                "to": "jp24wa",
+                "payload": {
+                    "from": {
+                        "source": "people_nearby",
+                        "msg": "我是 leeyi109",
+                        "remark": "leeyi10000",
+                        "avatar": "http://a.imboy.pub/avatar/jp24wa.jpg?s=dev&a=2d098a62371bef21&v=175730",
+                        "nickname": "leeyi109",
+                        "role": "all",
+                        "donotlookhim": false,
+                        "donotlethimlook": false
+                    },
+                    "to": {
+                        "remark": "leeyi109",
+                        "avatar": "http://a.imboy.pub/avatar/0_pjyv83.jpg?s=dev&a=6273f2e63037bbaa&v=660682",
+                        "nickname": "leeyi10000",
+                        "role": "all",
+                        "donotlookhim": false,
+                        "donotlethimlook": false
+                    },
+                    "msg_type": "apply_friend_confirm"
+                },
+                "server_ts": "1681980840528"
+            }
+        */
+
+        Map<String, dynamic> json = {
+          // From 的个人信息
+          'id': data['from'],
+          'account': payload['from']['account'],
+          'nickname': payload['from']['nickname'],
+          'avatar': payload['from']['avatar'],
+          'sign': payload['from']['sign'],
+          'gender': payload['from']['gender'],
+          'remark': payload['from']['remark'] ?? '',
+          'region': payload['from']['region'],
+          'source': payload['from']['source'],
+        };
+        contactLogic.receivedConfirmFriend(json);
         // 修正好友申请状态
-        newFriendLogic.receivedConfirFriend(true, data);
+        newFriendLogic.receivedConfirmFriend(true, data);
         break;
-      case "in_denylist":
+      case 'in_denylist':
         // 对方将我加入黑名单后： 消息已发出，但被对方拒收了。
         // String msgId = payload['content'] ?? '';
-        // TODO
+        Get.find<ChatLogic>().setSysPrompt(msgId, 'in_denylist');
         break;
-      case "not_a_friend":
+      case 'not_a_friend':
         // String msgId = payload['content'] ?? '';
-        // TODO
+        Get.find<ChatLogic>().setSysPrompt(msgId, 'not_a_friend');
         break;
-      case "logged_another_device": // 在其他设备登录了
+      case 'logged_another_device': // 在其他设备登录了
         String currentId = await DeviceExt.did;
         String did = payload['did'] ?? '';
         if (did != currentId) {
@@ -163,13 +208,13 @@ class MessageService extends GetxService {
         }
 
         break;
-      case "online": // 好友上线提醒
+      case 'online': // 好友上线提醒
         // TODO
         break;
-      case "offline": // 好友下线提醒
+      case 'offline': // 好友下线提醒
         // TODO
         break;
-      case "hide": // 好友hide提醒
+      case 'hide': // 好友hide提醒
         // TODO
         // String uid = data['from'] ?? '';
         break;
@@ -271,24 +316,16 @@ class MessageService extends GetxService {
       'id': id,
       'status': MessageStatus.send,
     });
+    // debugPrint("> rtc msg S_RECEIVED:$res");
     MessageModel? msg = await repo.find(id);
-    debugPrint("> rtc msg S_RECEIVED:$res");
-    // 更新会话状态
-    List<ConversationModel> items =
-        await ConversationLogic().updateLastMsgStatus(
-      id,
-      MessageStatus.send,
-    );
-    if (items.isNotEmpty) {
-      for (var cobj in items) {
-        // 更新会话
-        conversationLogic.replace(cobj);
-        eventBus.fire(cobj);
-      }
-    }
     if (res > 0 && msg != null) {
       eventBus.fire([msg.toTypeMessage()]);
     }
+    // 更新会话状态
+    conversationLogic.updateConversationByMsgId(
+      id,
+      {ConversationRepo.lastMsgStatus: MessageStatus.send},
+    );
   }
 
   /// 收到C2C撤回消息

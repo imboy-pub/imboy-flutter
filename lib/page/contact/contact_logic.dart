@@ -144,10 +144,8 @@ class ContactLogic extends GetxController {
     var repo = ContactRepo();
     List<dynamic> dataMap = await (ContactProvider()).listFriend();
     for (var json in dataMap) {
-      json[ContactRepo.isFriend] = 1;
-      // checkIsFriend = true 的时候，保留旧的 isFriend 值
-      ContactModel model = await repo.save(json, checkIsFriend: true);
-      // debugPrint("> on findFriend item ${model.toJson().toString()} ");
+      ContactModel model = await repo.save(json);
+      // debugPrint("> on findFriend2 item ${model.toJson().toString()} ");
       if (model.isFriend == 1) {
         contact.insert(0, model);
       }
@@ -173,7 +171,7 @@ class ContactLogic extends GetxController {
     if (model.avatar.isNotEmpty) {
       avatar = dynamicAvatar(model.avatar);
     }
-
+    // debugPrint("getChatItem ${model.toJson().toString()}");
     return Container(
       margin: const EdgeInsets.only(top: 6, left: 10, right: 20),
       width: Get.width,
@@ -192,7 +190,9 @@ class ContactLogic extends GetxController {
             color: model.bgColor ?? defHeaderBgColor,
             image: avatar,
           ),
-          child: model.iconData,
+          child: model.avatar.isNotEmpty
+              ? null
+              : (model.iconData ?? defAvatarIcon),
         ),
         contentPadding: const EdgeInsets.only(left: 0),
         title: Text(
@@ -203,7 +203,7 @@ class ContactLogic extends GetxController {
               Get.to(
                 PeopleInfoPage(
                   id: model.peerId,
-                  sence: '', // TODO 2023-04-19 09:40:05 leeyi
+                  sence: 'contact_page', // TODO 2023-04-19 09:40:05 leeyi
                 ),
                 transition: Transition.rightToLeft,
                 popGesture: true, // 右滑，返回上一页
@@ -247,20 +247,20 @@ class ContactLogic extends GetxController {
 
   /// 接受消息人（to）新增联系人
   void receivedConfirmFriend(Map data) {
+    debugPrint("receivedConfirmFriend ${data.toString()}");
     var repo = ContactRepo();
     Map<String, dynamic> json = {
       // From 的个人信息
-      'uid': data['id'],
+      ContactRepo.peerId: data['id'],
       'account': data['account'],
       'nickname': data['nickname'],
       'avatar': data['avatar'],
+      'sign': data['sign'],
       'gender': data['gender'],
-      // 'status': data['status'],
       'remark': data['remark'] ?? '',
       'region': data['region'],
-      'source': data['source'] ?? "",
-      ContactRepo.isFrom: data[ContactRepo.isFriend] ?? 0,
-      'sign': data['sign'],
+      'source': data['source'],
+      ContactRepo.isFrom: 1,
       ContactRepo.isFriend: 1,
     };
     contactList.add(ContactModel.fromJson(json));

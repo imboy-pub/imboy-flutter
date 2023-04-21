@@ -81,6 +81,7 @@ class Sqlite {
         ${ContactRepo.updateTime} int(16) NOT NULL DEFAULT 0,
         ${ContactRepo.isFriend} int(4) NOT NULL DEFAULT 0,
         ${ContactRepo.isFrom} int(4) NOT NULL DEFAULT 0,
+        ${ContactRepo.categoryId} int(20) NOT NULL DEFAULT 0,
         PRIMARY KEY("auto_id"),
         CONSTRAINT uk_FromTo UNIQUE (
             ${ContactRepo.userId},
@@ -94,6 +95,11 @@ class Sqlite {
           CREATE INDEX IF NOT EXISTS i_UserId_IsFriend_UpdateTime
           ON ${ContactRepo.tableName} 
           (${ContactRepo.userId}, ${ContactRepo.isFriend}, ${ContactRepo.updateTime});
+        ''');
+    await db.execute('''
+          CREATE INDEX IF NOT EXISTS i_UserId_CategoryId
+          ON ${ContactRepo.tableName} 
+          (${ContactRepo.userId}, ${ContactRepo.categoryId});
         ''');
 
     await db.execute('''
@@ -130,6 +136,7 @@ class Sqlite {
         `${ConversationRepo.lastTime}` int DEFAULT 0,
         `${ConversationRepo.lastMsgId}` varchar(40) NOT NULL,
         `${ConversationRepo.lastMsgStatus}` int DEFAULT 0,
+        `${ConversationRepo.payload}` TEXT,
         PRIMARY KEY(${ConversationRepo.id}),
         CONSTRAINT uk_FromTo UNIQUE (
             ${ConversationRepo.userId},

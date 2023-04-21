@@ -43,7 +43,7 @@ class NewFriendModel {
       from: json[NewFriendRepo.from] ?? json['from'],
       to: json[NewFriendRepo.to] ?? json['to'],
       nickname: json[NewFriendRepo.nickname].toString(),
-      avatar: json[NewFriendRepo.nickname].toString(),
+      avatar: json[NewFriendRepo.avatar].toString(),
       status: status is String ? int.parse(status) : status,
       msg: json[NewFriendRepo.msg].toString(),
       // 单位毫秒，13位时间戳  1561021145560

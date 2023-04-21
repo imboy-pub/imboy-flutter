@@ -53,6 +53,10 @@ class MessageRepo {
 
   // 更新信息
   Future<int> update(Map<String, dynamic> data) async {
+    if (data.containsKey(MessageRepo.payload) &&
+        data[MessageRepo.payload] is Map<String, dynamic>) {
+      data[MessageRepo.payload] = jsonEncode(data[MessageRepo.payload]);
+    }
     return await _db.update(
       MessageRepo.tableName,
       data,
@@ -63,10 +67,9 @@ class MessageRepo {
 
   // 存在就更新，不存在就插入
   Future<int?> save(MessageModel obj) async {
-    String where = '${MessageRepo.id} = ?';
     int? count = await _db.count(
       MessageRepo.tableName,
-      where: where,
+      where: '${MessageRepo.id} = ?',
       whereArgs: [obj.id],
     );
     if (count == null || count == 0) {
@@ -74,7 +77,7 @@ class MessageRepo {
     } else {
       await update(obj.toJson());
     }
-    debugPrint("> on MessageRepo/save count:$count; id: $obj.id");
+    // debugPrint("> on MessageRepo/save count:$count; id: $obj.id");
     return count;
   }
 
@@ -103,7 +106,7 @@ class MessageRepo {
       limit: size,
     );
     // debugPrint(
-    //     "> on findByConversation : $conversationId, $page, ${maps.length}; ${maps.toString()}");
+    //     "> on findByConversation  $conversationId, $page, ${maps.length}; ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }

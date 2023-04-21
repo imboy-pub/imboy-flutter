@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/page/chat/chat_logic.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 
 class ConversationModel {
@@ -13,11 +17,14 @@ class ConversationModel {
   int lastTime;
   String lastMsgId;
 
+  // 消息原数据
+  Map<String, dynamic>? payload;
+
   // lastMsgStatus 10 发送中 sending;  11 已发送 send;
   final int? lastMsgStatus;
   int unreadNum;
 
-  // 等价与 msg type: C2C C2G S2C 等等，根据type显示item
+  // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
   final String type;
 
   //
@@ -41,10 +48,19 @@ class ConversationModel {
     this.lastMsgStatus,
     required this.unreadNum,
     this.isShow = 1,
+    this.payload, // 消息原数据
   });
 
   /// 会话内容计算
   String get content {
+    // debugPrint("ConversationModel_content ${payload.toString()}");
+    // 处理系统提示信息
+    String sysPrompt = ChatLogic().praseSysPrompt(
+      payload?['sys_prompt'] ?? '',
+    );
+    if (strNoEmpty(sysPrompt)) {
+      return sysPrompt;
+    }
     String str = '未知消息'.tr;
     if (msgType == "text") {
       return subtitle;
@@ -75,6 +91,10 @@ class ConversationModel {
   }
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
+    var payload = json[ConversationRepo.payload];
+    if (payload is String) {
+      payload = jsonDecode(payload);
+    }
     return ConversationModel(
       id: json['id'] ?? 0,
       peerId: json['peer_id'],
@@ -90,6 +110,7 @@ class ConversationModel {
       type: json['type'].toString(),
       msgType: json[ConversationRepo.msgType].toString(),
       isShow: json['is_show'] ?? 1,
+      payload: payload,
     );
   }
 
@@ -108,5 +129,6 @@ class ConversationModel {
         ConversationRepo.type: type,
         ConversationRepo.msgType: msgType,
         ConversationRepo.isShow: isShow,
+        ConversationRepo.payload: payload,
       };
 }

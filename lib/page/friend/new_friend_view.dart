@@ -98,6 +98,8 @@ class NewFriendPage extends StatelessWidget {
                       : ListView.builder(
                           itemBuilder: (BuildContext context, int index) {
                             NewFriendModel model = logic.items[index];
+                            debugPrint(
+                                "NewFriendModel model ${model.toJson().toString()}");
                             List<Widget> rightWidget = [];
                             bool fromSelf =
                                 model.from == UserRepoLocal.to.currentUid;

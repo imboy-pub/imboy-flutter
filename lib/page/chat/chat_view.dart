@@ -1,14 +1,16 @@
-import 'dart:async';
 import 'dart:io';
+import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:extended_text/extended_text.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/message/message_image_builder.dart';
 import 'package:imboy/page/chat/send_to/send_to_view.dart';
 import 'package:imboy/service/websocket.dart';
@@ -215,8 +217,8 @@ class ChatPageState extends State<ChatPage> {
           widget.conversationId,
           msgIds,
         );
-        debugPrint(
-            "_handleEndReached conversation ${msgIds.length} ${conversation?.toJson().toString()}");
+        // debugPrint(
+        //     "_handleEndReached conversation ${msgIds.length} ${conversation?.toJson().toString()}");
         if (conversation != null) {
           conversationLogic.decreaseConversationRemind(
               widget.peerId, msgIds.length);
@@ -932,6 +934,11 @@ class ChatPageState extends State<ChatPage> {
               // debugPrint("> on chatinput onTextFieldTap");
               // },
               slidableMessageBuilder: (types.Message msg, Widget msgWidget) {
+                // String sysPrompt = "消息已发出，但被对方拒收了。";
+                // 处理系统提示信息
+                String sysPrompt = logic.praseSysPrompt(
+                  msg.metadata?['sys_prompt'] ?? '',
+                );
                 return GestureDetector(
                   onLongPress: () {
                     debugPrint("> on GestureDetector");
@@ -940,7 +947,30 @@ class ChatPageState extends State<ChatPage> {
                   onPanEnd: (DragEndDetails details) {
                     updateQuoteMessage(msg);
                   },
-                  child: msgWidget,
+                  child: n.Column([
+                    msgWidget,
+                    if (strNoEmpty(sysPrompt))
+                      n.Row([
+                        // row > expand > column > text 换行有效
+                        Expanded(
+                            child: n.Column([
+                          n.Padding(
+                            left: 20,
+                            right: 10,
+                            bottom: 16,
+                            child: Text(
+                              sysPrompt,
+                              style: const TextStyle(color: AppColors.TipColor),
+                              maxLines: 4,
+                              softWrap: true,
+                              overflow: TextOverflow.fade,
+                            ),
+                          ),
+                        ])),
+                      ])
+                        // 内容居中
+                        ..mainAxisAlignment = MainAxisAlignment.spaceBetween
+                  ]),
                 );
               },
               customBottomWidget: ChatInput(

@@ -49,9 +49,12 @@ class ImageView extends StatelessWidget {
       );
     } else {
       image = Container(
+        width: width,
+        height: height,
         decoration: BoxDecoration(
+          shape: BoxShape.rectangle,
+          borderRadius: BorderRadius.circular(4.0),
           color: Colors.black26.withOpacity(0.1),
-          border: Border.all(color: Colors.black.withOpacity(0.2), width: 0.3),
         ),
         child: defAvatarIcon,
       );

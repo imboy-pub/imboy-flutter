@@ -68,7 +68,7 @@ class MessageModel {
     if (data['payload'] == null || data['payload'] == "") {
       payload = <String, dynamic>{};
     } else if (data['payload'] is String) {
-      payload = json.decode(data['payload']);
+      payload = jsonDecode("${data['payload']}");
     } else if (data['payload'] is Map<String, dynamic>) {
       payload = data['payload'];
     }
@@ -77,7 +77,7 @@ class MessageModel {
     status = data[MessageRepo.status];
     fromId = data[MessageRepo.from] ?? '';
     toId = data[MessageRepo.to];
-    createdAt = data[MessageRepo.createdAt];
+    createdAt = data[MessageRepo.createdAt] ?? 0;
     serverTs = data[MessageRepo.serverTs] ?? 0;
     //
     conversationId = data[MessageRepo.conversationId];
@@ -178,8 +178,8 @@ class MessageModel {
   }
 
   types.Message toTypeMessage() {
+    String sysPrompt = payload?['sys_prompt'] ?? '';
     types.Message? message;
-
     // enum MessageType { custom, file, image, text, unsupported }
     if (payload!['msg_type'] == 'text') {
       message = types.TextMessage(
@@ -191,8 +191,9 @@ class MessageModel {
         createdAt: createdAt,
         id: id!,
         remoteId: toId,
-        text: payload!['text'],
+        text: payload?['text'],
         status: typesStatus,
+        metadata: {'sys_prompt': sysPrompt},
       );
     } else if (payload!['msg_type'] == 'image') {
       message = types.ImageMessage(
@@ -210,6 +211,7 @@ class MessageModel {
         width: payload!['width'],
         height: payload!['height'],
         status: typesStatus,
+        metadata: {'sys_prompt': sysPrompt},
       );
     } else if (payload!['msg_type'] == 'file') {
       message = types.FileMessage(
@@ -225,6 +227,7 @@ class MessageModel {
         size: payload!['size'],
         uri: payload!['uri'],
         status: typesStatus,
+        metadata: {'sys_prompt': sysPrompt},
       );
     } else if (payload!['custom_type'] == 'revoked' ||
         payload!['custom_type'] == 'peer_revoked' ||
@@ -267,6 +270,7 @@ class MessageModel {
         metadata: payload,
       );
     }
+
     if (message == null) {
       debugPrint("> on toTypeMessage md ${toJson().toString()}");
     }

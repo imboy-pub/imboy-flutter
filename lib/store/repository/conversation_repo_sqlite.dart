@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -18,6 +20,7 @@ class ConversationRepo {
   static String lastMsgId = 'last_msg_id';
   static String lastMsgStatus = 'last_msg_status';
   static String unreadNum = 'unread_num';
+  static String payload = 'payload';
 
   // 等价与 msg type: C2C C2G 等等，根据type显示item
   static String type = 'type';
@@ -44,12 +47,18 @@ class ConversationRepo {
       ConversationRepo.type: obj.type,
       ConversationRepo.msgType: obj.msgType,
       ConversationRepo.isShow: obj.isShow,
+      ConversationRepo.payload: jsonEncode(obj.payload)
     };
     int lastInsertId = await _db.insert(ConversationRepo.tableName, insert);
     return lastInsertId;
   }
 
   Future<int> updateById(int id, Map<String, dynamic> data) async {
+    if (data.containsKey(ConversationRepo.payload) &&
+        data[ConversationRepo.payload] is Map<String, dynamic>) {
+      data[ConversationRepo.payload] =
+          jsonEncode(data[ConversationRepo.payload]);
+    }
     return await _db.update(
       ConversationRepo.tableName,
       data,
@@ -61,6 +70,11 @@ class ConversationRepo {
   // 更新信息
   Future<int> updateByPeerId(String peerId, Map<String, dynamic> data) async {
     data.remove(ConversationRepo.id);
+    if (data.containsKey(ConversationRepo.payload) &&
+        data[ConversationRepo.payload] is Map<String, dynamic>) {
+      data[ConversationRepo.payload] =
+          jsonEncode(data[ConversationRepo.payload]);
+    }
     return await _db.update(
       ConversationRepo.tableName,
       data,
@@ -114,6 +128,7 @@ class ConversationRepo {
         ConversationRepo.unreadNum,
         ConversationRepo.type,
         ConversationRepo.msgType,
+        ConversationRepo.payload,
       ],
       where: where,
       whereArgs: whereArgs,
@@ -152,6 +167,7 @@ class ConversationRepo {
         ConversationRepo.unreadNum,
         ConversationRepo.type,
         ConversationRepo.msgType,
+        ConversationRepo.payload,
       ],
       where:
           '${ConversationRepo.userId} = ? and ${ConversationRepo.isShow} = ? and ${ConversationRepo.lastTime} > 0',
@@ -189,6 +205,7 @@ class ConversationRepo {
         ConversationRepo.unreadNum,
         ConversationRepo.type,
         ConversationRepo.msgType,
+        ConversationRepo.payload
       ],
       where: 'id=?',
       whereArgs: [id],
@@ -218,6 +235,7 @@ class ConversationRepo {
         ConversationRepo.lastMsgStatus,
         ConversationRepo.msgType,
         ConversationRepo.unreadNum,
+        ConversationRepo.payload,
       ],
       where:
           '${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',

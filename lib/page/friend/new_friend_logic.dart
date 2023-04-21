@@ -45,14 +45,14 @@ class NewFriendLogic extends GetxController {
     }
     Map<String, dynamic> saveData = {
       "uid": uid,
-      "from": from,
-      "to": to,
-      "nickname": payload["from"]["nickname"] ?? "",
-      "avatar": payload["from"]["avatar"] ?? "",
-      "msg": payload["from"]["msg"] ?? "",
-      "payload": json.encode(payload),
-      "status": NewFriendStatus.waiting_for_validation.index,
-      "create_time": DateTimeHelper.currentTimeMillis(),
+      NewFriendRepo.from: from,
+      NewFriendRepo.to: to,
+      NewFriendRepo.nickname: payload["from"]["nickname"] ?? "",
+      NewFriendRepo.avatar: payload["from"]["avatar"] ?? "",
+      NewFriendRepo.msg: payload["from"]["msg"] ?? "",
+      NewFriendRepo.payload: json.encode(payload),
+      NewFriendRepo.status: NewFriendStatus.waiting_for_validation.index,
+      NewFriendRepo.createTime: DateTimeHelper.currentTimeMillis(),
     };
     // debugPrint("> on receivedAddFriend ${saveData.toString()}");
     (NewFriendRepo()).save(saveData);
@@ -63,11 +63,11 @@ class NewFriendLogic extends GetxController {
   }
 
   /// 确认添加朋友，对端消息通知
-  Future<void> receivedConfirFriend(bool ack, Map data) async {
+  Future<void> receivedConfirmFriend(bool ack, Map data) async {
     String did = await DeviceExt.did;
     debugPrint("CLIENT_ACK,S2C,${data['id']},$did  data:${data.toString()}");
-    String from = data["from"] ?? "";
-    String to = data["to"] ?? "";
+    String from = data["from"];
+    String to = data["to"];
     NewFriendRepo repo = NewFriendRepo();
     // 服务端对调了 from to，离线消息需要对调
     NewFriendModel? obj = await repo.findByFromTo(to, from);

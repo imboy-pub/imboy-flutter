@@ -67,7 +67,7 @@ class NewFriendRepo {
       orderBy: "create_time desc",
       limit: limit,
     );
-    // debugPrint("> on findFriend ${maps.length}, ${maps.toList().toString()}");
+    debugPrint("> on findFriend ${maps.length}, ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }
@@ -123,31 +123,33 @@ class NewFriendRepo {
 
   // 更新信息
   Future<int> update(Map<String, dynamic> json) async {
-    String from = json["from"];
-    String to = json["to"];
+    String from = json[NewFriendRepo.from] ?? json['from'];
+    String to = json[NewFriendRepo.to] ?? json['to'];
     Map<String, Object?> data = {};
-    if (strNoEmpty(json["msg"])) {
-      data[NewFriendRepo.msg] = json["msg"];
+    if (strNoEmpty(json[NewFriendRepo.msg])) {
+      data[NewFriendRepo.msg] = json[NewFriendRepo.msg];
     }
-    if (strNoEmpty(json["nickname"])) {
-      data[NewFriendRepo.nickname] = json["nickname"];
+    if (strNoEmpty(json[NewFriendRepo.nickname])) {
+      data[NewFriendRepo.nickname] = json[NewFriendRepo.nickname];
     }
-    if (strNoEmpty(json["avatar"] ?? "")) {
+    if (strNoEmpty(json["avatar"])) {
       data[NewFriendRepo.avatar] = json["avatar"];
     }
 
-    if (json["status"] >= 0) {
+    if (json[NewFriendRepo.status] >= 0) {
       data[NewFriendRepo.status] = json["status"];
     }
     if (strNoEmpty(json["payload"])) {
       data[NewFriendRepo.payload] = json["payload"];
     }
 
-    if (json["update_time"] != null && json["update_time"] >= 0) {
-      data[NewFriendRepo.updateTime] = json["update_time"];
+    if (json[NewFriendRepo.updateTime] != null &&
+        json[NewFriendRepo.updateTime] >= 0) {
+      data[NewFriendRepo.updateTime] = json[NewFriendRepo.updateTime];
     }
-    if (json["create_time"] != null && json["create_time"] >= 0) {
-      data[NewFriendRepo.createTime] = json["create_time"];
+    if (json[NewFriendRepo.createTime] != null &&
+        json[NewFriendRepo.createTime] >= 0) {
+      data[NewFriendRepo.createTime] = json[NewFriendRepo.createTime];
     }
 
     if (strNoEmpty(from) && strNoEmpty(to)) {
@@ -164,8 +166,8 @@ class NewFriendRepo {
   }
 
   void save(Map<String, dynamic> json) async {
-    String from = json[NewFriendRepo.from] ?? "";
-    String to = json[NewFriendRepo.to] ?? "";
+    String from = json[NewFriendRepo.from] ?? json['from'];
+    String to = json[NewFriendRepo.to] ?? json['to'];
     NewFriendModel? old = await findByFromTo(from, to);
     // debugPrint("> on new_friend save: ${old.toString()}");
     if (old != null || old is NewFriendModel) {

@@ -22,8 +22,9 @@ class ContactRepo {
   static String source = 'source';
   static String updateTime = "update_time";
   static String isFriend = 'is_friend';
+  static String categoryId = 'category_id';
 
-  //isFrom 好友关系发起人
+  //isFrom 好友关系发起人 1 是  0 否
   static String isFrom = 'is_from';
 
   final Sqlite _db = Sqlite.instance;
@@ -31,6 +32,7 @@ class ContactRepo {
   Future<List<ContactModel>> search({
     required String kwd,
     int limit = 1000,
+    int offset = 0,
   }) async {
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tableName,
@@ -47,6 +49,7 @@ class ContactRepo {
         ContactRepo.gender,
         ContactRepo.isFriend,
         ContactRepo.isFrom,
+        ContactRepo.categoryId,
       ],
       where: '${ContactRepo.userId} = ? and ${ContactRepo.isFriend} = ? and ('
           '${ContactRepo.nickname} like "%$kwd%" or ${ContactRepo.remark} like "%$kwd%"'
@@ -54,6 +57,7 @@ class ContactRepo {
       whereArgs: [UserRepoLocal.to.currentUid, 1],
       orderBy: "update_time desc",
       limit: limit,
+      offset: offset,
     );
     debugPrint("> on search ${maps.length}, ${maps.toList().toString()}");
     if (maps.isEmpty) {
@@ -86,6 +90,7 @@ class ContactRepo {
           obj.updateTime ?? DateTimeHelper.currentTimeMillis(),
       ContactRepo.isFriend: obj.isFriend,
       ContactRepo.isFrom: obj.isFrom,
+      ContactRepo.categoryId: obj.categoryId,
     };
     // debugPrint("> on ContactRepo/insert/1 $insert");
 
@@ -111,6 +116,7 @@ class ContactRepo {
       ContactRepo.gender,
       ContactRepo.isFriend,
       ContactRepo.isFrom,
+      ContactRepo.categoryId,
     ];
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tableName,
@@ -143,6 +149,7 @@ class ContactRepo {
       ContactRepo.gender,
       ContactRepo.isFriend,
       ContactRepo.isFrom,
+      ContactRepo.categoryId,
     ];
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tableName,
@@ -153,7 +160,7 @@ class ContactRepo {
       limit: limit,
       offset: offset,
     );
-    // debugPrint("> on findFriend2 ${maps.length}, ${maps.toList().toString()}");
+    debugPrint("> on findFriend ${maps.length}, ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }
@@ -183,6 +190,7 @@ class ContactRepo {
         ContactRepo.updateTime,
         ContactRepo.isFriend,
         ContactRepo.isFrom,
+        ContactRepo.categoryId,
       ],
       where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
       whereArgs: [UserRepoLocal.to.currentUid, uid],
@@ -246,6 +254,9 @@ class ContactRepo {
     if (json.containsKey(ContactRepo.isFriend)) {
       data[ContactRepo.isFriend] = json[ContactRepo.isFriend];
     }
+    if (json.containsKey(ContactRepo.categoryId)) {
+      data[ContactRepo.categoryId] = json[ContactRepo.categoryId];
+    }
     // debugPrint("> on ContactRepo/update/1 data: ${data.toString()}");
     if (strNoEmpty(uid)) {
       data[ContactRepo.updateTime] = DateTimeHelper.currentTimeMillis();
@@ -261,18 +272,12 @@ class ContactRepo {
   }
 
   /// checkIsFriend = true 的时候，保留旧的 isFriend 值
-  Future<ContactModel> save(
-    Map<String, dynamic> json, {
-    checkIsFriend = false,
-  }) async {
+  Future<ContactModel> save(Map<String, dynamic> json) async {
     // debugPrint("contact_repo_save $checkIsFriend, ${json.toString()}");
-    // json["id"] 兼容 api响应的数据
-    String uid = json["id"] ?? (json[ContactRepo.peerId] ?? "");
+    // json['id'] 兼容 api响应的数据
+    String uid = json['id'] ?? (json[ContactRepo.peerId] ?? "");
     ContactModel? old = await findByUid(uid, autoFetch: false);
     if (old is ContactModel) {
-      if (checkIsFriend) {
-        json[ContactRepo.isFriend] = old.isFriend;
-      }
       await update(json);
       return old;
     } else {

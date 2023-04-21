@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 const appVsn = "1.0.0";
-Icon defAvatarIcon = const Icon(Icons.account_circle);
+
+Icon defAvatarIcon = const Icon(Icons.account_circle, size: 40);
 
 const String defGroupAvatar =
     'http://www.flutterj.com/content/uploadfile/zidingyi/g.png';

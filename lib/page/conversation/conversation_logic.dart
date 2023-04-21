@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/sqflite.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
@@ -29,15 +32,15 @@ class ConversationLogic extends GetxController {
   }
 
   // 更新会话
-  replace(ConversationModel cobj) {
+  replace(ConversationModel model) {
     // 第一次会话的时候 i 为 -1
     final i = conversations
-        .indexWhere((ConversationModel item) => (item).peerId == cobj.peerId);
+        .indexWhere((ConversationModel item) => (item).peerId == model.peerId);
     if (i > -1) {
       int i2 = i > 0 ? i : 0;
-      conversations[i2] = cobj;
+      conversations[i2] = model;
     } else {
-      conversations.add(cobj);
+      conversations.add(model);
     }
     update([conversations]);
   }
@@ -120,8 +123,13 @@ class ConversationLogic extends GetxController {
   }
 
   /// 按消息ID来更新会话最后一消息的状态
-  Future<List<ConversationModel>> updateLastMsgStatus(
-      String msgId, int status) async {
+  Future<List<ConversationModel>> updateLastMsg(
+      String msgId, Map<String, dynamic> data) async {
+    if (data.containsKey(ConversationRepo.payload) &&
+        data[ConversationRepo.payload] is Map<String, dynamic>) {
+      data[ConversationRepo.payload] =
+          jsonEncode(data[ConversationRepo.payload]);
+    }
     Database db = await Sqlite.instance.database;
     String where =
         "${ConversationRepo.userId}=? and ${ConversationRepo.lastMsgId}=?";
@@ -131,7 +139,7 @@ class ConversationLogic extends GetxController {
     ];
     await db.update(
       ConversationRepo.tableName,
-      {ConversationRepo.lastMsgStatus: status},
+      data,
       where: where,
       whereArgs: whereArgs,
     );
@@ -167,6 +175,7 @@ class ConversationLogic extends GetxController {
       ConversationRepo.type: type,
       ConversationRepo.msgType: '',
       ConversationRepo.isShow: 0,
+      ConversationRepo.payload: {},
     }));
   }
 
@@ -188,4 +197,16 @@ class ConversationLogic extends GetxController {
    * 是否当前会话的最后一条消息
    */
   // Future<bool> isLastMsg(String msgId) async {}
+
+  /// 更新会话状态
+  updateConversationByMsgId(String msgId, Map<String, dynamic> data) async {
+    List<ConversationModel> items = await updateLastMsg(msgId, data);
+    if (items.isNotEmpty) {
+      for (var item in items) {
+        // 更新会话
+        replace(item);
+        eventBus.fire(item);
+      }
+    }
+  }
 }
