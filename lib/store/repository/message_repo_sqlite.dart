@@ -153,11 +153,19 @@ class MessageRepo {
   }
 
   // 根据UID删除信息
-  Future<int> deleteForUid(String uid) async {
+  Future<int> deleteByUid(String uid) async {
     return await _db.delete(
       MessageRepo.tableName,
       where: '${MessageRepo.from} = ? or ${MessageRepo.to} = ?',
       whereArgs: [uid, uid],
+    );
+  }
+
+  Future<int> deleteByConversationId(int id) async {
+    return await _db.delete(
+      MessageRepo.tableName,
+      where: '${MessageRepo.conversationId} = ?',
+      whereArgs: [id],
     );
   }
 // 记得及时关闭数据库，防止内存泄漏

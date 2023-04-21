@@ -127,7 +127,7 @@ class ContactRepo {
       limit: limit,
       offset: offset,
     );
-    debugPrint("> on selectFriend ${maps.length}, ${maps.toList().toString()}");
+    // debugPrint("> on selectFriend ${maps.length}, ${maps.toList().toString()}");
     return maps;
   }
 
@@ -287,7 +287,7 @@ class ContactRepo {
     }
   }
 
-  Future<int> deleteForUid(String uid) async {
+  Future<int> deleteByUid(String uid) async {
     return await _db.delete(
       ContactRepo.tableName,
       where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',

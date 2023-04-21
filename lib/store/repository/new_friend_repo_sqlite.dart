@@ -113,7 +113,7 @@ class NewFriendRepo {
     );
   }
 
-  Future<int> deleteForUid(String uid) async {
+  Future<int> deleteByUid(String uid) async {
     return await _db.delete(
       NewFriendRepo.tableName,
       where: '${NewFriendRepo.from} = ? or ${NewFriendRepo.to} = ?',

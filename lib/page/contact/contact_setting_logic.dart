@@ -10,10 +10,10 @@ class ContactSettingLogic extends GetxController {
   Future<bool> deleteContact(String uid) async {
     bool res = await (ContactProvider()).deleteContact(uid);
     if (res) {
-      await MessageRepo().deleteForUid(uid);
+      await MessageRepo().deleteByUid(uid);
       await ConversationRepo().delete(uid);
-      await NewFriendRepo().deleteForUid(uid);
-      await ContactRepo().deleteForUid(uid);
+      await NewFriendRepo().deleteByUid(uid);
+      await ContactRepo().deleteByUid(uid);
     }
     return res;
   }

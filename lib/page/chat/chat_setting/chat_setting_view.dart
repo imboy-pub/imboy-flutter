@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_background/chat_background_view.dart';
+import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/search/search_view.dart';
 
 import 'chat_setting_logic.dart';
@@ -28,6 +29,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
   final logic = Get.put(ChatSettingLogic());
   final ChatSettingState state = Get.find<ChatSettingLogic>().state;
 
+  bool backDoRefresh = false;
   bool isRemind = false;
   bool isTop = false;
   bool isDoNotDisturb = true;
@@ -97,9 +99,19 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
             textCancel: "  ${'取消'.tr}  ",
             textConfirm: "  ${'清空'.tr}  ",
             confirmTextColor: AppColors.primaryElementText,
-            onConfirm: () {
+            onConfirm: () async {
+              bool res = await logic.cleanMessageByPeerId(widget.peerId);
               Get.back();
-              EasyLoading.showSuccess('操作成功'.tr);
+              if (res) {
+                backDoRefresh = true;
+                // 刷新会话列表
+                await Get.find<ConversationLogic>().hideConversation(widget.peerId);
+                // 刷新会话列表
+                await Get.find<ConversationLogic>().conversationsList();
+                EasyLoading.showSuccess('操作成功'.tr);
+              } else {
+                EasyLoading.showError('操作失败'.tr);
+              }
             },
           );
         },
@@ -135,7 +147,14 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.ChatBg,
-      appBar: PageAppBar(title: '聊天设置'.tr),
+      appBar: PageAppBar(
+        leading: BackButton(
+          onPressed: () {
+            Get.back(result: backDoRefresh);
+          },
+        ),
+        title: '聊天设置'.tr,
+      ),
       body: SingleChildScrollView(
         child: Column(children: body()),
       ),

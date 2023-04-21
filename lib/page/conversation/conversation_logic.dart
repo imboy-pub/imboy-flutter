@@ -101,14 +101,8 @@ class ConversationLogic extends GetxController {
   }
 
   /// 不显示（在会话列表）
-  hideConversation(int conversationId) async {
-    Database db = await Sqlite.instance.database;
-    await db.update(
-      ConversationRepo.tableName,
-      {ConversationRepo.isShow: 0},
-      where: "id=?",
-      whereArgs: [conversationId],
-    );
+  Future<void> hideConversation(String peerId) async {
+    await ConversationRepo().updateByPeerId(peerId, {ConversationRepo.isShow: 0});
   }
 
   /// 标记为未读 / 已读

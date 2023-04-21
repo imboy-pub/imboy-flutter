@@ -3,7 +3,6 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:extended_text/extended_text.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -185,6 +184,7 @@ class ChatPageState extends State<ChatPage> {
     if (!mounted) {
       return;
     }
+
     if (widget.conversationId == 0) {
       widget.conversationId = await conversationLogic.createConversationId(
         widget.peerId,
@@ -199,6 +199,7 @@ class ChatPageState extends State<ChatPage> {
       _page,
       16,
     );
+    // debugPrint("ChatSettingPage then 2 ${items?.length};");
     List<String> msgIds = [];
     if (items != null && items.isNotEmpty) {
       // 消除消息提醒
@@ -233,7 +234,12 @@ class ChatPageState extends State<ChatPage> {
         ];
         _page = _page + 1;
       });
+    } else {
+      setState(() {
+        logic.state.messages = [];
+      });
     }
+    // debugPrint("ChatSettingPage then 3 ${logic.state.messages.length}");
   }
 
   Future<bool> _addMessage(types.Message message) async {
@@ -859,7 +865,13 @@ class ChatPageState extends State<ChatPage> {
                 }),
           transition: Transition.rightToLeft,
           popGesture: true, // 右滑，返回上一页
-        ),
+        )?.then((value) {
+          debugPrint("ChatSettingPage then $value, $mounted");
+          if (value != null && value) {
+            _page = 1;
+            _handleEndReached();
+          }
+        }),
       )
     ];
     return Scaffold(
@@ -936,7 +948,7 @@ class ChatPageState extends State<ChatPage> {
               slidableMessageBuilder: (types.Message msg, Widget msgWidget) {
                 // String sysPrompt = "消息已发出，但被对方拒收了。";
                 // 处理系统提示信息
-                String sysPrompt = logic.praseSysPrompt(
+                String sysPrompt = logic.parseSysPrompt(
                   msg.metadata?['sys_prompt'] ?? '',
                 );
                 return GestureDetector(

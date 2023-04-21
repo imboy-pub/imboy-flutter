@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/chat/chat_logic.dart';
@@ -55,7 +54,7 @@ class ConversationModel {
   String get content {
     // debugPrint("ConversationModel_content ${payload.toString()}");
     // 处理系统提示信息
-    String sysPrompt = ChatLogic().praseSysPrompt(
+    String sysPrompt = ChatLogic().parseSysPrompt(
       payload?['sys_prompt'] ?? '',
     );
     if (strNoEmpty(sysPrompt)) {

@@ -285,7 +285,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                   backgroundColor: Colors.amber,
                                   onPressed: (_) async {
                                     await logic
-                                        .hideConversation(conversationId);
+                                        .hideConversation(model.peerId);
                                     logic.update([
                                       logic.conversations.removeAt(index),
                                       logic.conversationRemind[model.peerId] =

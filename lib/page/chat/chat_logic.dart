@@ -259,7 +259,7 @@ class ChatLogic extends GetxController {
 
   /// 处理系统提示信息
   /// sysPrompt in metadata is sys_prompt
-  String praseSysPrompt(String sysPrompt) {
+  String parseSysPrompt(String sysPrompt) {
     if (sysPrompt == 'in_denylist') {
       sysPrompt = '消息已发出，但被对方拒收了。'.tr;
     } else if (sysPrompt == 'not_a_friend') {
