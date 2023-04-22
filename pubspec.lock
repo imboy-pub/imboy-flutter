@@ -614,10 +614,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: dcde5ad1a0cebcf3715ea3f24d0db1888bf77027a26c77d7779e8ef63b8ade62
+      sha256: b85eb92b175767fdaa0c543bf3b0d1f610fe966412ea72845fe5ba7801e763ff
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "5.2.9"
+    version: "5.2.10"
   fixnum:
     dependency: transitive
     description:
@@ -988,10 +988,10 @@ packages:
     dependency: "direct main"
     description:
       name: image_picker
-      sha256: f202f5d730eb8219e35e80c4461fb3a779940ad30ce8fde1586df756e3af25e6
+      sha256: "3da954c3b8906d82ecb50fd5e2b5401758f06d5678904eed6cbc06172283a263"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.8.7+3"
+    version: "0.8.7+4"
   image_picker_android:
     dependency: transitive
     description:
@@ -1707,10 +1707,10 @@ packages:
     dependency: "direct main"
     description:
       name: sqflite
-      sha256: "500d6fec583d2c021f2d25a056d96654f910662c64f836cd2063167b8f1fa758"
+      sha256: e7dfb6482d5d02b661d0b2399efa72b98909e5aa7b8336e1fb37e226264ade00
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.2.6"
+    version: "2.2.7"
   sqflite_common:
     dependency: transitive
     description:
@@ -2083,10 +2083,10 @@ packages:
     dependency: "direct main"
     description:
       name: webview_flutter
-      sha256: cbfdd39a8e7124c28a5472ee2d82c55fd823277b1f0690c5f7f83aaf6d61704a
+      sha256: "1a37bdbaaf5fbe09ad8579ab09ecfd473284ce482f900b5aea27cf834386a567"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.1.0"
+    version: "4.2.0"
   webview_flutter_android:
     dependency: transitive
     description:
@@ -2099,10 +2099,10 @@ packages:
     dependency: transitive
     description:
       name: webview_flutter_platform_interface
-      sha256: "1939c39e2150fb4d30fd3cc59a891a49fed9935db53007df633ed83581b6117b"
+      sha256: "78715dc442b7849dbde74e92bb67de1cecf5addf95531c5fb474e72f5fe9a507"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.1.0"
+    version: "2.3.0"
   webview_flutter_wkwebview:
     dependency: transitive
     description:

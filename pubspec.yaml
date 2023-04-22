@@ -62,10 +62,10 @@ dependencies:
   # 视频播放器
   video_player: ^2.6.1
   chewie: ^1.4.0
-  webview_flutter: ^4.1.0
-  image_picker: ^0.8.7+3
+  webview_flutter: ^4.2.0
+  image_picker: ^0.8.7+4
   mime: ^1.0.4
-  file_picker: ^5.2.9
+  file_picker: ^5.2.10
   #open_file: ^3.2.1
   open_file:
     git:
@@ -142,7 +142,7 @@ dependencies:
   # 将图像保存到图库的 flutter 插件
   image_gallery_saver: ^1.7.1
   # SQLite 的 Flutter 插件，一个独立的、高可靠性的嵌入式 SQL 数据库引擎。
-  sqflite: ^2.2.6
+  sqflite: ^2.2.7
   # 一个跨平台插件，用于显示和安排 Flutter 应用程序的本地通知，并能够针对每个平台进行自定义。
   flutter_local_notifications: 13.0.0
   #桌面图标提醒

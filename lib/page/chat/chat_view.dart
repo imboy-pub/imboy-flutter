@@ -234,7 +234,7 @@ class ChatPageState extends State<ChatPage> {
         ];
         _page = _page + 1;
       });
-    } else {
+    } else if (_page == 1) {
       setState(() {
         logic.state.messages = [];
       });
