@@ -7,6 +7,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 // enum MsgType { custom, file, image, text, unsupported }
 
@@ -149,9 +150,33 @@ class MessageModel {
     } else if (message.type == types.MessageType.file) {
       return 'file';
     } else if (message.type == types.MessageType.custom) {
-      return message.metadata?['custom_type'] ?? 'unsupported';
+      String msgType = message.metadata?['custom_type'] ?? 'unsupported';
+      if (msgType == 'revoked') {
+        return UserRepoLocal.to.currentUid == message.author.id
+            ? 'my_revoked'
+            : 'peer_revoked';
+      }
+      return msgType;
     }
     return 'unsupported';
+  }
+
+  static String conversationSubtitle(types.Message message) {
+    String subtitle = '';
+    String customType = '';
+    if (message is types.CustomMessage) {
+      customType = message.metadata?['custom_type'] ?? '';
+    }
+    if (message is types.TextMessage) {
+      subtitle = message.text;
+    } else if (customType == "quote") {
+      subtitle = message.metadata?['quote_text'] ?? '';
+    } else if (customType == 'visit_card') {
+      subtitle = message.metadata?['title'] ?? '';
+    } else if (customType == 'location') {
+      subtitle = message.metadata?['title'] ?? '';
+    }
+    return subtitle;
   }
 
   int toStatus(types.Status status) {

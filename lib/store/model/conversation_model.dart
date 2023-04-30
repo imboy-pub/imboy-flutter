@@ -9,7 +9,7 @@ class ConversationModel {
   int id;
   final String peerId;
   String avatar;
-  String title;
+  String title; // peerTitle
   String subtitle;
   String region;
   String sign;

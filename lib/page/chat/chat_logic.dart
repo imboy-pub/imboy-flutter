@@ -144,23 +144,9 @@ class ChatLogic extends GetxController {
     String type, // C2C or GROUP
     types.Message message,
   ) async {
-    String subtitle = '';
+    String subtitle = MessageModel.conversationSubtitle(message);
     String msgType = MessageModel.conversationMsgType(message);
     int createdAt = DateTimeHelper.currentTimeMillis();
-
-    String customType = '';
-    if (message is types.CustomMessage) {
-      customType = message.metadata?['custom_type'] ?? '';
-    }
-    if (message is types.TextMessage) {
-      subtitle = message.text;
-    } else if (customType == "quote") {
-      subtitle = message.metadata?['quote_text'] ?? '';
-    } else if (customType == 'visit_card') {
-      subtitle = message.metadata?['title'] ?? '';
-    } else if (customType == 'location') {
-      subtitle = message.metadata?['title'] ?? '';
-    }
 
     // message.status = types.Status.sent;
     ConversationModel conversation = ConversationModel(
@@ -190,16 +176,41 @@ class ChatLogic extends GetxController {
     sendWsMsg(obj);
   }
 
-  Future<bool> removeMessage(String id) async {
-    Database db = await Sqlite.instance.database;
-    return await db.transaction((txn) async {
-      await txn.execute(
-        "DELETE FROM ${MessageRepo.tableName} WHERE ${MessageRepo.id}=?",
-        [id],
+  Future<bool> removeMessage(String msgId) async {
+    // 因为消息ID是全局唯一的，所以可以根据消息ID获取会话ID
+    int? conversationId = await Sqlite.instance.pluck(
+      ConversationRepo.id,
+      ConversationRepo.tableName,
+      where: '${ConversationRepo.lastMsgId} = ?',
+      whereArgs: [msgId],
+    );
+    MessageModel? lastMsg;
+    if (conversationId != null && conversationId > 0) {
+      List<MessageModel> items = await MessageRepo().findByConversation(
+        conversationId,
+        2,
+        1,
       );
-      debugPrint('> on removeMessage : $id ;');
-      return true;
-    });
+      lastMsg = items[0];
+    }
+    debugPrint(
+        "removeMessage $msgId; $conversationId, lastMsg: ${lastMsg?.toJson()} ;");
+    await MessageRepo().delete(msgId);
+    if (lastMsg != null) {
+      types.Message msg2 = lastMsg.toTypeMessage();
+      ConversationRepo repo = ConversationRepo();
+      debugPrint(
+          "removeMessage msgType: ${MessageModel.conversationMsgType(msg2)}, subtitle: ${MessageModel.conversationSubtitle(msg2)} ;");
+      await repo.updateById(conversationId!, {
+        ConversationRepo.lastMsgId: lastMsg.id,
+        ConversationRepo.lastMsgStatus: lastMsg.status,
+        ConversationRepo.msgType: MessageModel.conversationMsgType(msg2),
+        ConversationRepo.subtitle: MessageModel.conversationSubtitle(msg2),
+      });
+      ConversationModel? conversation = await repo.findById(conversationId);
+      eventBus.fire(conversation!);
+    }
+    return true;
   }
 
   /// 撤回消息

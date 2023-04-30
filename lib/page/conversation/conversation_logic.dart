@@ -31,8 +31,8 @@ class ConversationLogic extends GetxController {
     update([conversationRemind]);
   }
 
-  // 更新会话
-  replace(ConversationModel model) {
+  /// 更新会话
+  replace(ConversationModel model) async {
     // 第一次会话的时候 i 为 -1
     final i = conversations
         .indexWhere((ConversationModel item) => (item).peerId == model.peerId);
@@ -45,7 +45,7 @@ class ConversationLogic extends GetxController {
     update([conversations]);
   }
 
-  // 步增会话提醒
+  /// 步增会话提醒
   increaseConversationRemind(String key, int val) {
     if (!conversationRemind.containsKey(key) ||
         conversationRemind[key] == null ||
@@ -80,8 +80,14 @@ class ConversationLogic extends GetxController {
     super.onReady();
   }
 
+  /// 获取会话类别
   Future<void> conversationsList() async {
     conversations.value = await (ConversationRepo()).list();
+  }
+
+  /// 会话列表按最近会话时间倒序排序
+  Future<void> sortConversationsList() async {
+    conversations.sort(((a, b) => b.lastTime.compareTo(a.lastTime)));
   }
 
   /// 移除会话
@@ -102,7 +108,8 @@ class ConversationLogic extends GetxController {
 
   /// 不显示（在会话列表）
   Future<void> hideConversation(String peerId) async {
-    await ConversationRepo().updateByPeerId(peerId, {ConversationRepo.isShow: 0});
+    await ConversationRepo()
+        .updateByPeerId(peerId, {ConversationRepo.isShow: 0});
   }
 
   /// 标记为未读 / 已读

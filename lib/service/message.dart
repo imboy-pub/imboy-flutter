@@ -280,6 +280,7 @@ class MessageService extends GetxService {
     } else if (msgType == 'location') {
       subtitle = data['payload']['title'] ?? '';
     }
+
     ConversationModel conversationObj = ConversationModel(
       peerId: data['from'],
       avatar: avatar,
@@ -288,7 +289,7 @@ class MessageService extends GetxService {
       type: data['type'],
       msgType: msgType,
       lastMsgId: data['id'],
-      lastTime: data['created_at'],
+      lastTime: DateTimeHelper.currentTimeMillis(),
       unreadNum: 1,
       id: 0,
     );
@@ -401,13 +402,14 @@ class MessageService extends GetxService {
     if (conversation.lastMsgId != msg.id) {
       return;
     }
+    //msgType = peerId == UserRepoLocal.to.currentUid ? 'peer_revoked' : 'my_revoked';
+    conversation.msgType = msgType;
     conversation.subtitle = '';
-    conversation.msgType =
-        msgType; //peerId == UserRepoLocal.to.currentUid ? 'peer_revoked' : 'my_revoked';
     int res2 = await repo.updateByPeerId(peerId, {
-      'msgType': conversation.msgType,
-      'subtitle': '',
+      ConversationRepo.msgType: conversation.msgType,
+      ConversationRepo.subtitle: '',
     });
+
     if (res2 > 0) {
       eventBus.fire(conversation);
     }

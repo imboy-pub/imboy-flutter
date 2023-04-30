@@ -62,7 +62,9 @@ class _ConversationPageState extends State<ConversationPage> {
     // 监听会话消息
     eventBus.on<ConversationModel>().listen((e) async {
       // 更新会话
-      logic.replace(e);
+      await logic.replace(e);
+      // 重新排序会话列表
+      await logic.sortConversationsList();
     });
     // 加载会话记录
     if (logic.conversations.isEmpty) {
@@ -75,6 +77,7 @@ class _ConversationPageState extends State<ConversationPage> {
     }
   }
 
+  /// 右上角按钮点击时间
   void topRightMenu(popupmenu.MenuItemProvider item) {
     popupmenu.MenuItem it = item as popupmenu.MenuItem;
     String action = it.userInfo as String;
