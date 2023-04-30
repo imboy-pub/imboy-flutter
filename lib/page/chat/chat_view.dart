@@ -105,10 +105,6 @@ class ChatPageState extends State<ChatPage> {
     //监听Widget是否绘制完毕
     super.initState();
 
-    if (!mounted) {
-      return;
-    }
-
     // 检查WS链接状态
     WSService.to.openSocket();
     initData();
@@ -138,12 +134,18 @@ class ChatPageState extends State<ChatPage> {
     });
 
     // 接收到新的消息订阅
-    eventBus.on<types.Message>().listen((types.Message e) async {
-      if (mounted && e.author.id == widget.peerId) {
+    eventBus.on<types.Message>().listen((types.Message msg) async {
+      final index =
+          logic.state.messages.indexWhere((element) => element.id == msg.id);
+      if (index == -1 && msg.author.id == widget.peerId) {
+        if (msg is types.ImageMessage) {
+          galleryLogic.pushToGallery(msg.id, msg.uri);
+        }
+
         conversationLogic.decreaseConversationRemind(widget.peerId, 1);
         if (mounted) {
           setState(() {
-            logic.state.messages.insert(0, e);
+            logic.state.messages.insert(0, msg);
           });
         }
       }
@@ -153,14 +155,11 @@ class ChatPageState extends State<ChatPage> {
     eventBus.on<List<types.Message>>().listen((e) async {
       types.Message msg = e.first;
 
-      if (msg is types.ImageMessage) {
-        galleryLogic.pushToGallery(msg.id, msg.uri);
-      }
-
       final index =
           logic.state.messages.indexWhere((element) => element.id == msg.id);
       if (index > -1) {
         logic.state.messages.setRange(index, index + 1, e);
+
         if (mounted) {
           setState(() {
             logic.state.messages;

@@ -89,7 +89,7 @@ class HttpClient {
       _dio.options.baseUrl = API_BASE_URL;
     }
     String tk = UserRepoLocal.to.accessToken;
-    bool notRTK = !_dio.options.headers.containsKey(Keys.refreshtokenKey);
+    bool notRTK = !_dio.options.headers.containsKey(Keys.refreshTokenKey);
     if (strNoEmpty(tk) && notRTK) {
       _dio.options.headers[Keys.tokenKey] = tk;
     }

@@ -174,7 +174,7 @@ class PassportLogic extends GetxController {
     }
 
     IMBoyHttpResponse resp2 = await HttpClient.client.post(
-      API.getcode,
+      API.getCode,
       data: {
         "account": email,
         "type": "email",
@@ -217,7 +217,7 @@ class PassportLogic extends GetxController {
         "rsa_encrypt": result['rsa_encrypt'],
       };
       IMBoyHttpResponse resp2 = await HttpClient.client.post(
-        API.findpassword,
+        API.findPassword,
         data: postData,
         options: Options(
           contentType: "application/x-www-form-urlencoded",

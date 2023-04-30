@@ -56,7 +56,7 @@ class Keys {
 
   // 与服务端约定的Key
   static const tokenKey = 'authorization';
-  static const refreshtokenKey = 'imboy-refreshtoken';
+  static const refreshTokenKey = 'imboy-refreshtoken';
 
   static String lastLoginAccount = 'lastLoginAccount';
 }
@@ -169,11 +169,11 @@ class Constants {
 
 class API {
   static const init = '/init';
-  static const refreshtoken = '/refreshtoken';
+  static const refreshToken = '/refreshtoken';
   static const login = '/passport/login';
   static const signup = '/passport/signup';
-  static const getcode = '/passport/getcode';
-  static const findpassword = '/passport/findpassword';
+  static const getCode = '/passport/getcode';
+  static const findPassword = '/passport/findpassword';
 
   static const addFriend = '/friend/add';
   static const confirmFriend = '/friend/confirm';
@@ -189,10 +189,14 @@ class API {
   static const turnCredential = '/user/credential';
   static const userUpdate = '/user/update';
 
+  static const userDevicePage = '/user_device/page';
+  static const userDeviceChangeName = '/user_device/change_name';
+  static const userDeviceDelete = '/user_device/delete';
+
   // 附近的人
   static const peopleNearby = '/location/peopleNearby';
   static const makeMyselfVisible = '/location/makeMyselfVisible';
-  static const makeMyselfUnvisible = '/location/makeMyselfUnvisible';
+  static const makeMyselfUnVisible = '/location/makeMyselfUnvisible';
 
   static const avatarUrl = 'http://www.lorempixel.com/200/200/';
   static const cat = 'https://api.thecatapi.com/v1/images/search';

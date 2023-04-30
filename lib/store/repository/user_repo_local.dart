@@ -26,7 +26,7 @@ class UserRepoLocal extends GetxController {
   // 令牌 token
   String get accessToken => StorageService.to.getString(Keys.tokenKey);
 
-  String get refreshToken => StorageService.to.getString(Keys.refreshtokenKey);
+  String get refreshToken => StorageService.to.getString(Keys.refreshTokenKey);
 
   String get currentUid => StorageService.to.getString(Keys.currentUid);
 
@@ -59,8 +59,10 @@ class UserRepoLocal extends GetxController {
 
   Future<bool> loginAfter(Map<String, dynamic> payload) async {
     await StorageService.to.setString(Keys.tokenKey, payload['token']);
-    await StorageService.to
-        .setString(Keys.refreshtokenKey, payload['refreshtoken']);
+    await StorageService.to.setString(
+      Keys.refreshTokenKey,
+      payload['refreshtoken'],
+    );
     await StorageService.to.setString(Keys.currentUid, payload['uid']);
     await StorageService.to.setMap(Keys.currentUser, payload);
     Sqlite.instance.database;

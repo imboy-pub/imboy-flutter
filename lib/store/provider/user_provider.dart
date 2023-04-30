@@ -22,8 +22,8 @@ class UserProvider extends HttpClient {
     return resp.payload;
   }
 
-  Future<String> refreshAccessToken(String refreshtoken) async {
-    if (strEmpty(refreshtoken)) {
+  Future<String> refreshAccessToken(String refreshToken) async {
+    if (strEmpty(refreshToken)) {
       Get.to(PassportPage());
     }
     var connectivityResult = await (Connectivity().checkConnectivity());
@@ -31,11 +31,11 @@ class UserProvider extends HttpClient {
       return "";
     }
     IMBoyHttpResponse resp = await post(
-      API.refreshtoken,
+      API.refreshToken,
       options: Options(
         contentType: "application/x-www-form-urlencoded",
         headers: {
-          Keys.refreshtokenKey: refreshtoken,
+          Keys.refreshTokenKey: refreshToken,
         },
       ),
     );

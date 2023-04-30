@@ -67,7 +67,7 @@ class DenylistLogic extends GetxController {
       // checkIsFriend = true 的时候，保留旧的 isFriend 值
       DenylistModel model = DenylistModel.fromJson(json);
       await repo.insert(model);
-      list.insert(0, model);
+      list.add(model);
     }
     return list;
   }

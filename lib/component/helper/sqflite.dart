@@ -5,6 +5,7 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/denylist_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_device_repo_sqlite.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
@@ -51,7 +52,19 @@ class Sqlite {
       version: _dbVersion,
       readOnly: false,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
+      onDowngrade: _onDowngrade,
     );
+  }
+
+  Future _onUpgrade(Database db, int oldVsn, int newVsn) async {
+    debugPrint("sqlite_onUpgrade oldVsn: $oldVsn, newVsn: $newVsn");
+    //  TODO leeyi 2023-04-28
+  }
+
+  Future _onDowngrade(Database db, int oldVsn, int newVsn) async {
+    debugPrint("sqlite_onDowngrade oldVsn: $oldVsn, newVsn: $newVsn");
+    //  TODO leeyi 2023-04-28
   }
 
   // SQL code to create the database table
@@ -234,6 +247,25 @@ class Sqlite {
       ''';
     debugPrint("> on _onCreate \n$denylistSql\n");
     await db.execute(denylistSql);
+
+    String userDeviceSql = '''
+      CREATE TABLE IF NOT EXISTS ${UserDeviceRepo.tableName} (
+        auto_id INTEGER,
+        ${UserDeviceRepo.userId} varchar(40) NOT NULL,
+        ${UserDeviceRepo.deviceId} varchar(80) NOT NULL DEFAULT '',
+        ${UserDeviceRepo.deviceName} varchar(255) NOT NULL DEFAULT '',
+        ${UserDeviceRepo.deviceType} varchar(40) NOT NULL DEFAULT '',
+        ${UserDeviceRepo.lastActiveAt} int(16) NOT NULL DEFAULT 0,
+        ${UserDeviceRepo.deviceVsn} varchar(255) DEFAULT '',
+        PRIMARY KEY("auto_id"),
+        CONSTRAINT i_Uid_DeviceId UNIQUE (
+            ${UserDeviceRepo.userId},
+            ${UserDeviceRepo.deviceId}
+        )
+        );
+      ''';
+    debugPrint("> on _onCreate \n$userDeviceSql\n");
+    await db.execute(userDeviceSql);
   }
 
   Future<int> insert(String table, Map<String, dynamic> data) async {

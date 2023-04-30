@@ -8,7 +8,7 @@ class DeviceExt extends DeviceInfoPlugin {
   static DeviceExt get to => Get.find();
 
   static Future<String> get did async {
-    Map<String, dynamic>? info = await to.detail;
+    final Map<String, dynamic>? info = await to.detail;
     return info!["did"];
   }
 
@@ -27,8 +27,6 @@ class DeviceExt extends DeviceInfoPlugin {
           'version.incremental': data.version.incremental,
           'version.codename': data.version.codename,
           'version.baseOS': data.version.baseOS,
-        }),
-        "more": json.encode({
           'board': data.board,
           'bootloader': data.bootloader,
           'brand': data.brand,
@@ -66,8 +64,8 @@ class DeviceExt extends DeviceInfoPlugin {
         "cos": "ios",
         "did": data.identifierForVendor,
         "deviceName": data.name,
-        "deviceVersion": data.systemVersion,
-        "more": json.encode({
+        "deviceVersion": json.encode({
+          'systemVersion': data.systemVersion,
           'model': data.model,
           'localizedModel': data.localizedModel,
           'identifierForVendor': data.identifierForVendor,
@@ -82,15 +80,14 @@ class DeviceExt extends DeviceInfoPlugin {
     } else if (Platform.isMacOS) {
       var data = await macOsInfo;
       return {
-        "cos": "macOs",
+        "cos": "macos",
         "did": data.systemGUID,
         "deviceName": data.model,
-        "deviceVersion": data.kernelVersion,
-        "more": json.encode({
+        "deviceVersion": json.encode({
+          'kernelVersion': data.kernelVersion,
           'computerName': data.computerName,
           'hostName': data.hostName,
           'arch': data.arch,
-          'kernelVersion': data.kernelVersion,
           'osRelease': data.osRelease,
           'activeCPUs': data.activeCPUs,
           'memorySize': data.memorySize,
@@ -104,8 +101,8 @@ class DeviceExt extends DeviceInfoPlugin {
         "cos": "linux",
         "did": data.id,
         "deviceName": data.name,
-        "deviceVersion": data.version,
-        "more": json.encode({
+        "deviceVersion": json.encode({
+          'version': data.version,
           'idLike': data.idLike,
           'versionCodename': data.versionCodename,
           'versionId': data.versionId,
@@ -116,7 +113,41 @@ class DeviceExt extends DeviceInfoPlugin {
           'machineId': data.machineId,
         }),
       };
+    } else if (Platform.isWindows) {
+      var data = await windowsInfo;
+      return {
+        "cos": "windows",
+        "did": data.deviceId,
+        "deviceName": data.productName,
+        "deviceVersion": json.encode({
+          'computerName': data.computerName,
+          'numberOfCores': data.numberOfCores,
+          'systemMemoryInMegabytes': data.systemMemoryInMegabytes,
+          'userName': data.userName,
+          'majorVersion': data.majorVersion,
+          'minorVersion': data.minorVersion,
+          'buildNumber': data.buildNumber,
+          'platformId': data.platformId,
+          'csdVersion': data.csdVersion,
+          'servicePackMajor': data.servicePackMajor,
+          'servicePackMinor': data.servicePackMinor,
+          'suitMask': data.suitMask,
+          'productType': data.productType,
+          'reserved': data.reserved,
+          'buildLab': data.buildLab,
+          'buildLabEx': data.buildLabEx,
+          'digitalProductId': data.digitalProductId,
+          'displayVersion': data.displayVersion,
+          'editionId': data.editionId,
+          'installDate': data.installDate,
+          'productId': data.productId,
+          'productName': data.productName,
+          'registeredOwner': data.registeredOwner,
+          'releaseId': data.releaseId,
+          'deviceId': data.deviceId,
+        }),
+      };
     }
-    return null;
+    return {};
   }
 }

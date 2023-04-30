@@ -95,6 +95,22 @@ class MessageService extends GetxService {
           case 'C2C_REVOKE_ACK': // 对端撤回消息ACK
             await receiveC2CRevokeAckMessage(type, data);
             break;
+          // case 'C2G':
+          //  TODO leeyi 2023-04-28
+          //   await receiveC2GMessage(data);
+          //   break;
+          // case 'C2G_SERVER_ACK': // C2G 服务端消息确认
+          //  TODO leeyi 2023-04-28
+          //   await receiveC2GServerAckMessage(data);
+          //   break;
+          // case 'C2G_REVOKE': // 对端撤回消息
+          //  TODO leeyi 2023-04-28
+          //   await receiveC2GRevokeMessage(data);
+          //   break;
+          // case 'C2G_REVOKE_ACK': // 对端撤回消息ACK
+          //  TODO leeyi 2023-04-28
+          //   await receiveC2GRevokeAckMessage(type, data);
+          //   break;
           case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
             break;
           case 'ERROR': //
@@ -111,9 +127,16 @@ class MessageService extends GetxService {
   Future<void> switchError(Map data) async {
     var code = data['code'] ?? '';
     // * Msg2.code = 1 无需弹窗错误，可以记录日志后直接忽略错误 Msg2.payload 可能为空，不需要处理
-    // * Msg2.code = 2 带title弹窗，Msg2.payload 不能为空 必须包含title content字段
-    // * Msg2.code = 3 无title弹窗，Msg2.payload 不能为空 必须包含 content字段
+    // * Msg2.code = 2 带title弹窗，Msg2.payload 不能为空 必须包含 title content 字段
+    // * Msg2.code = 3 无title弹窗，Msg2.payload 不能为空 必须包含 content 字段
     switch (code.toString()) {
+      // case '2':
+      //   String title = data['payload']['title'] ?? '';
+      //   String content = data['payload']['content'] ?? '';
+      //   break;
+      // case '3':
+      //   String content = data['payload']['content'] ?? '';
+      //   break;
       case '705': // token无效、刷新token
         // TODO
         break;
