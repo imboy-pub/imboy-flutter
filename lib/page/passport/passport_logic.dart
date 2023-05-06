@@ -69,8 +69,8 @@ class PassportLogic extends GetxController {
     final rsaEncrypt = resp1.payload['login_pwd_rsa_encrypt'];
     if (rsaEncrypt == "1") {
       dynamic publicKey = RSAKeyParser().parse(pubKey);
-      final encrypter = Encrypter(RSA(publicKey: publicKey));
-      final encrypted = encrypter.encrypt(password);
+      final encryptor = Encrypter(RSA(publicKey: publicKey));
+      final encrypted = encryptor.encrypt(password);
       password = encrypted.base64.toString();
     }
     return {

@@ -8,14 +8,14 @@ class PeopleModel {
   int gender;
   String region;
   String sign;
-  double distince;
-  String distinceUnit;
+  double distance;
+  String distanceUnit;
   bool isFriend;
 
   PeopleModel({
     required this.id,
-    this.distince = -1,
-    this.distinceUnit = "m",
+    this.distance = -1,
+    this.distanceUnit = "m",
     required this.account,
     this.nickname = "",
     this.avatar = defAvatar,
@@ -27,6 +27,7 @@ class PeopleModel {
 
   factory PeopleModel.fromJson(Map<String, dynamic> json) {
     var g = json["gender"] ?? 0;
+    var dist = json["distance"] ?? 0.0;
     return PeopleModel(
       id: json["id"],
       account: json["account"] ?? '',
@@ -35,8 +36,8 @@ class PeopleModel {
       gender: g is String ? int.parse(g) : g,
       region: json["region"] ?? '',
       sign: json["sign"] ?? '',
-      distince: double.parse(json["distince"]),
-      distinceUnit: json["unit"] ?? "m",
+      distance: dist is double ? dist : double.parse(dist.toString()),
+      distanceUnit: json["unit"] ?? "m",
     );
   }
 
@@ -49,8 +50,8 @@ class PeopleModel {
     data["gender"] = gender;
     data["region"] = region;
     data["sign"] = sign;
-    data["distince"] = "$distince";
-    data["unit"] = distinceUnit;
+    data["distance"] = "$distance";
+    data["unit"] = distanceUnit;
     return data;
   }
 }

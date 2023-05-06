@@ -249,7 +249,8 @@ class ContactRepo {
       data[ContactRepo.gender] = json[ContactRepo.gender];
     }
     if (json.containsKey(ContactRepo.isFrom)) {
-      data[ContactRepo.isFrom] = json[ContactRepo.isFrom];
+      var isFrom = json[ContactRepo.isFrom] ?? 0;
+      data[ContactRepo.isFrom] = int.tryParse('$isFrom') ?? 0;
     }
     if (json.containsKey(ContactRepo.isFriend)) {
       data[ContactRepo.isFriend] = json[ContactRepo.isFriend];
