@@ -1,4 +1,3 @@
-import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
@@ -90,7 +89,7 @@ class MinePage extends StatelessWidget {
                               width: 200.0,
                               child: n.Column(
                                 [
-                                  ExtendedText(
+                                  Text(
                                     controller.current.nickname,
                                     style: const TextStyle(
                                       color: Colors.black,

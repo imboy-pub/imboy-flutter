@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common.dart';
-import 'package:imboy/component/ui/search_bar.dart';
+// import 'package:imboy/component/ui/search_bar.dart';
 import 'package:imboy/page/people_nearby/people_nearby_view.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/page/uqrcode/uqrcode_view.dart';
@@ -42,8 +42,8 @@ class AddFriendPage extends StatelessWidget {
                   right: 8,
                   bottom: 10,
                   child: SearchBar(
-                    text: '微信号/手机号',
-                    isBorder: true,
+                    hintText: '微信号/手机号',
+                    // isBorder: true,
                     onTap: () {
                       isSearch = true;
                       Get.find<NewFriendLogic>().searchF.requestFocus();

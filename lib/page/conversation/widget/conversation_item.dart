@@ -1,5 +1,4 @@
 import 'package:badges/badges.dart' as badges;
-import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -107,7 +106,7 @@ class ConversationItem extends StatelessWidget {
                           n.Column(icon),
                           // 会话对象子标题
                           Expanded(
-                            child: ExtendedText(
+                            child: Text(
                               model.content,
                               style: const TextStyle(
                                 color: AppColors.MainTextColor,
@@ -115,16 +114,6 @@ class ConversationItem extends StatelessWidget {
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              overflowWidget: TextOverflowWidget(
-                                position: TextOverflowPosition.end,
-                                align: TextOverflowAlign.left,
-                                child: n.Row(
-                                  const [
-                                    Text('...'),
-                                  ],
-                                  mainAxisSize: MainAxisSize.min,
-                                ),
-                              ),
                             ),
                           ),
                         ],

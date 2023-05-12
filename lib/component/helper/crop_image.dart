@@ -101,6 +101,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
     if (area == null) {
       //裁剪结果为空
     }
+
     final scale = cropKey.currentState?.scale;
 
     await ImageCrop.requestPermissions().then((value) async {

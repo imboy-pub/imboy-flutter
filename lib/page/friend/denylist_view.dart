@@ -11,7 +11,6 @@ import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/helper/assets.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
-import 'package:imboy/component/ui/search_bar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/contact/contact_logic.dart';
 import 'package:imboy/store/model/denylist_model.dart';
@@ -58,8 +57,8 @@ class DenylistPage extends StatelessWidget {
                 right: 8,
                 bottom: 10,
                 child: SearchBar(
-                  text: '搜索'.tr,
-                  isBorder: true,
+                  hintText: '搜索'.tr,
+                  // isBorder: true,
                   onTap: () {
                     showSearch(
                       context: context,

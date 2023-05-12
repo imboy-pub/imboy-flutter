@@ -1,4 +1,3 @@
-import 'package:extended_text/extended_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -228,7 +227,7 @@ class ContactSettingPage extends StatelessWidget {
                             right: 15,
                             bottom: 10,
                           ),
-                          child: ExtendedText(
+                          child: Text(
                             '将联系人"$peerRemark"删除，同时删除与该联系人的聊天记录'.tr,
                             style: const TextStyle(
                               color: AppColors.MainTextColor,

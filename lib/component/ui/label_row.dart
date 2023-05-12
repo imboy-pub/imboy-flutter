@@ -1,4 +1,3 @@
-import 'package:extended_text/extended_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:niku/namespace.dart' as n;
@@ -68,7 +67,7 @@ class LabelRow extends StatelessWidget {
                 ),
               ),
               value != null
-                  ? ExtendedText(
+                  ? Text(
                       value!,
                       style: TextStyle(
                         color: AppColors.MainTextColor.withOpacity(0.7),

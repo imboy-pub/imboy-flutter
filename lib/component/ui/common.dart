@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
@@ -18,6 +17,3 @@ class Space extends StatelessWidget {
   }
 }
 
-double topBarHeight(BuildContext context) {
-  return kToolbarHeight + MediaQueryData.fromWindow(window).padding.top;
-}

@@ -11,14 +11,13 @@ import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:logger/logger.dart';
 import 'package:map_launcher/map_launcher.dart';
-import 'package:sqflite/sqflite.dart';
 
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_config.dart';
 import 'package:imboy/component/http/http_interceptor.dart';
-import 'package:imboy/component/observder/lifecycle.dart';
+import 'package:imboy/component/observer/lifecycle.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
@@ -71,7 +70,6 @@ Future<void> init() async {
   getx.Get.put(DeviceExt());
   getx.Get.put(UserRepoLocal(), permanent: true);
   getx.Get.lazyPut(() => ThemeController());
-  Sqflite.setDebugModeOn();
 
   // Get.put<AuthController>(AuthController());
   HttpConfig dioConfig = HttpConfig(

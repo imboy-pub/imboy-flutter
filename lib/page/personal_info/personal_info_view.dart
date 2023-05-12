@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:extended_text/extended_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -211,7 +210,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           isRight: true,
           rightW: SizedBox(
             width: Get.width - 100,
-            child: ExtendedText(
+            child: Text(
               UserRepoLocal.to.current.nickname,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

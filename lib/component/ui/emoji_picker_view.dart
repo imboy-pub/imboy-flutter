@@ -113,10 +113,7 @@ class _EmojiPickerViewState extends State<EmojiPickerView>
                       _buildPage(emojiSize, widget.state.categoryEmoji[index]),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: const [],
-              ),
+
             ],
           ),
         );

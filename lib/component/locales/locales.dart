@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:get/get.dart';
 import 'package:imboy/component/locales/locales.g.dart';
 
@@ -21,7 +19,7 @@ zh-Hans-SG，华语区，han汉字, s简体，SG新加坡语使用。
 链接：https://www.zhihu.com/question/21980689/answer/2643674176
 */
 String sysLang(String pkg) {
-  String? local = ui.window.locale.toString();
+  String? local = Get.locale!.toLanguageTag();
   // debugPrint("> on main $local");
   // zh_Hans_CN ui.window.locale.toString();
   if (pkg == 'jiffy') {
@@ -29,7 +27,7 @@ String sysLang(String pkg) {
     // 'zh_cn': ZhCnLocale(),
     // 'zh_hk': ZhHkLocale(),
     // 'zh_tw': ZhTwLocale(),
-    if (local == 'zh_Hans_CN' || local == 'zh-Hans-SG') {
+    if (local == 'zh_Hans_CN' || local == 'zh-Hans-SG' || local == 'zh-Hans-CN') {
       return 'zh_cn';
     } else if (local == 'zh-Hant-HK') {
       return 'zh_hk';

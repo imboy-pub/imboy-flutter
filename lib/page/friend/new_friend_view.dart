@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
-import 'package:imboy/component/ui/search_bar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/page/single/people_info.dart';
@@ -69,8 +68,8 @@ class NewFriendPage extends StatelessWidget {
                 right: 8,
                 bottom: 10,
                 child: SearchBar(
-                  text: '微信号/手机号',
-                  isBorder: true,
+                  hintText: '微信号/手机号',
+                  // isBorder: true,
                   onTap: () {
                     isSearch = true;
                     logic.searchF.requestFocus();

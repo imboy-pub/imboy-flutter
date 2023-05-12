@@ -58,6 +58,7 @@ class UqrcodePage extends StatelessWidget {
                             String filename =
                                 "${UserRepoLocal.to.currentUid}_qrcode.png";
                             RepaintBoundaryHelper().savePhoto(
+                              context,
                               globalKey,
                               filename,
                             );

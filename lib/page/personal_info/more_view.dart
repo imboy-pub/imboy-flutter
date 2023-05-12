@@ -1,4 +1,3 @@
-import 'package:extended_text/extended_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -115,7 +114,7 @@ class MoreView extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 0, 0),
                     child: Obx(
-                      () => ExtendedText(
+                      () => Text(
                         logic.sign.value == "" ? "未填写" : logic.sign.value,
                         style: const TextStyle(
                           color: AppColors.MainTextColor,
@@ -126,16 +125,6 @@ class MoreView extends StatelessWidget {
                         textAlign: logic.sign.value == ""
                             ? TextAlign.right
                             : TextAlign.left,
-                        overflowWidget: TextOverflowWidget(
-                          position: TextOverflowPosition.end,
-                          align: TextOverflowAlign.right,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: const <Widget>[
-                              Text('...'),
-                            ],
-                          ),
-                        ),
                       ),
                     ),
                   ),
