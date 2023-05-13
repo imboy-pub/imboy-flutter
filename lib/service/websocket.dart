@@ -167,7 +167,10 @@ class WSService extends GetxService {
       }
     }
     _socketStatus = SocketStatus.SocketStatusClosed;
-    _reconnect();
+    // 延时1.5s执行 _reconnect
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      _reconnect();
+    });
   }
 
   /// WebSocket连接错误回调
