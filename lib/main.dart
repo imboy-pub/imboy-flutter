@@ -65,6 +65,8 @@ class IMBoyApp extends StatelessWidget {
       designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
+      // fix https://github.com/flutter/flutter/issues/126585
+      useInheritedMediaQuery: true,
       builder: (_, child) => GetMaterialApp(
         navigatorKey: navigatorKey,
         title: 'IMBoy',
