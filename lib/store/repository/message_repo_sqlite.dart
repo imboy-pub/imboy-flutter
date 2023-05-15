@@ -61,7 +61,7 @@ class MessageRepo {
       MessageRepo.tableName,
       data,
       where: '${MessageRepo.id} = ?',
-      whereArgs: [data['id']],
+      whereArgs: [data[MessageRepo.id]],
     );
   }
 

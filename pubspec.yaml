@@ -23,7 +23,12 @@ dependencies:
   dio: ^5.1.1
   #json序列化和反序列化用的
   json_annotation: ^4.8.1
-  permission_handler: ^10.2.0
+  #permission_handler: ^10.2.0
+  permission_handler:
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/flutter-permission-handler.git
+      path: permission_handler
+      ref: leeyi
   camera: ^0.10.5
   wechat_camera_picker: ^3.7.0
   wechat_assets_picker: ^8.4.2

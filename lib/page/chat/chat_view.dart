@@ -115,7 +115,9 @@ class ChatPageState extends State<ChatPage> {
   /// 初始化一些数据
   Future<void> initData() async {
     if (availableMaps.isEmpty) {
-      availableMaps = await MapLauncher.installedMaps;
+      try {
+        availableMaps = await MapLauncher.installedMaps;
+      } catch (e) {}
     }
     // 检查网络状态
     var res = await Connectivity().checkConnectivity();
@@ -150,13 +152,15 @@ class ChatPageState extends State<ChatPage> {
         }
       }
     });
-
+    debugPrint("> rtc msg S_RECEIVED listen list");
     // 消息状态更新订阅
     eventBus.on<List<types.Message>>().listen((e) async {
       types.Message msg = e.first;
 
       final index =
           logic.state.messages.indexWhere((element) => element.id == msg.id);
+      debugPrint(
+          "> rtc msg S_RECEIVED $index, $mounted, ${msg.toJson().toString()}");
       if (index > -1) {
         logic.state.messages.setRange(index, index + 1, e);
 

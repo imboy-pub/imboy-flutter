@@ -59,10 +59,6 @@ get generate locales assets/locales on lib/component/locales
 ## 开发环境遇到的一些问题
 参考 [FAQ](./doc/FAQ.md)
 
-## Dart 在线运行环境
-* https://www.nhooo.com/tool/dart/
-
-
 ## 目录规范与命名
 
 * 新增 ./lib/page/single/ 目录，所有的 "类单页面" 都放到该目录
@@ -131,6 +127,12 @@ cd flutter_chat_ui && git fetch origin leeyi && git checkout -f leeyi
 ```
 
 参考 https://juejin.cn/post/6844903920322478093
+
+## macos
+```
+open macos/Runner.xcworkspace
+
+```
 
 ## 分析工具
 
