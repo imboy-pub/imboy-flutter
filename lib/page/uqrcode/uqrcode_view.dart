@@ -153,7 +153,7 @@ class UqrcodePage extends StatelessWidget {
                   ),
                   Expanded(
                     child: Center(
-                      child: QrImage(
+                      child: QrImageView(
                         data: qrdata,
                         version: QrVersions.auto,
                         errorCorrectionLevel: QrErrorCorrectLevel.H,
@@ -177,8 +177,8 @@ class UqrcodePage extends StatelessWidget {
                         embeddedImage: cachedImageProvider(
                             UserRepoLocal.to.current.avatar),
                         // embeddedImage: AssetImage('assets/images/logo.png'),
-                        embeddedImageStyle: QrEmbeddedImageStyle(
-                          size: const Size.square(64),
+                        embeddedImageStyle: const QrEmbeddedImageStyle(
+                          size: Size.square(64),
                           // color: Colors.pink,
                         ),
                       ),

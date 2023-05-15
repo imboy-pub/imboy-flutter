@@ -141,7 +141,7 @@ dependencies:
   #    url: https://gitee.com/imboy-tripartite-deps/mobile_scanner.git
   #    ref: master
   # 二维码生成
-  qr_flutter: ^4.0.0
+  qr_flutter: ^4.1.0
   #打开url 拨打电话 发短信
   url_launcher: ^6.1.10
   # 将图像保存到图库的 flutter 插件
@@ -155,7 +155,7 @@ dependencies:
   # 录音
   flutter_sound: ^9.2.13
   flutter_sound_platform_interface: ^9.2.13
-  audio_session: ^0.1.13
+  audio_session: ^0.1.14
   # 语音消息播放器
   voice_message_package: ^1.0.41
   # 一对一音视频通话等
@@ -194,7 +194,7 @@ dependencies:
   # Flutter应用升级/ Flutter App Upgrade /Flutter App Update/Flutter Update / 下载插件（有提示栏进度），支持全量升级、热更新和增量升级
   r_upgrade: ^0.4.2
   # 下载更新
-  flutter_downloader: ^1.10.2
+  flutter_downloader: ^1.10.3
   # 通过注释 Dart 类自动生成与 JSON 相互转换的代码。
   json_serializable: ^6.6.2
   # 外部打开app识别uri
