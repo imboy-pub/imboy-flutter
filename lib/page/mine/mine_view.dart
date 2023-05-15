@@ -175,8 +175,8 @@ class MinePage extends StatelessWidget {
                     color: AppColors.MainTextColor.withOpacity(0.5),
                   ),
                   onTap: () {
-                    Get.to(()=>
-                      () => UserDevicePage(),
+                    Get.to(
+                      ()=> UserDevicePage(),
                       transition: Transition.rightToLeft,
                       popGesture: true, // 右滑，返回上一页
                     );
@@ -215,7 +215,7 @@ class MinePage extends StatelessWidget {
                     color: AppColors.MainTextColor.withOpacity(0.5),
                   ),
                   onTap: () {
-                    Get.to(()=>
+                    Get.to(
                       () => DenylistPage(),
                       transition: Transition.rightToLeft,
                       popGesture: true, // 右滑，返回上一页
@@ -254,7 +254,7 @@ class MinePage extends StatelessWidget {
                     color: AppColors.MainTextColor.withOpacity(0.5),
                   ),
                   onTap: () {
-                    Get.to(()=>
+                    Get.to(
                       () => const SettingPage(),
                       transition: Transition.rightToLeft,
                       popGesture: true, // 右滑，返回上一页
