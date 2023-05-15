@@ -41,7 +41,7 @@ class VisitCardMessageBuilder extends StatelessWidget {
               flex: 3,
               child: InkWell(
                 onTap: () {
-                  Get.to(
+                  Get.to(()=>
                     PeopleInfoPage(
                         id: message.metadata?['uid'], sence: 'visit_card'),
                     transition: Transition.rightToLeft,

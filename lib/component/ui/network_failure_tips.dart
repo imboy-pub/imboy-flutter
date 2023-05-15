@@ -21,7 +21,7 @@ class NetworkFailureTips extends StatelessWidget {
         // splashColor 是点击后不松手的扩散效果
         splashColor: const Color.fromRGBO(247, 226, 230, 1),
         onPressed: () {
-          getx.Get.to(
+          getx.Get.to(()=>
             const NetworkFailureGuidancePage(),
             transition: Transition.rightToLeft,
             popGesture: true, // 右滑，返回上一页

@@ -156,15 +156,15 @@ class ContactItem extends ISuspensionBean {
 //           return;
 //         }
 //         if (widget.title == '新的朋友') {
-//           Get.to(() => NewFriendPage());
+//           Get.to(()=> NewFriendPage());
 //         } else if (widget.title == '群聊') {
-//           Get.to(() => GroupListPage());
+//           Get.to(()=> GroupListPage());
 //           // } else if (widget.title == '标签') {
-//           //   Get.to(() => AllLabelPage());
+//           //   Get.to(()=> AllLabelPage());
 //           // } else if (widget.title == '公众号') {
-//           //   Get.to(() => PublicPage());
+//           //   Get.to(()=> PublicPage());
 //         } else {
-//           Get.to(() => ContactDetailPage(
+//           Get.to(()=> ContactDetailPage(
 //             id: widget.identifier,
 //             avatar: widget.avatar,
 //             nickname: widget.title,

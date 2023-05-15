@@ -69,7 +69,7 @@ class UqrcodePage extends StatelessWidget {
                         child: TextButton(
                           onPressed: () {
                             Get.back();
-                            Get.to(
+                            Get.to(()=>
                               const ScannerPage(),
                               transition: Transition.rightToLeft,
                               popGesture: true, // 右滑，返回上一页

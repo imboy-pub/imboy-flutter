@@ -117,7 +117,9 @@ class ChatPageState extends State<ChatPage> {
     if (availableMaps.isEmpty) {
       try {
         availableMaps = await MapLauncher.installedMaps;
-      } catch (e) {}
+      } catch (e) {
+        //
+      }
     }
     // 检查网络状态
     var res = await Connectivity().checkConnectivity();
@@ -157,13 +159,17 @@ class ChatPageState extends State<ChatPage> {
     eventBus.on<List<types.Message>>().listen((e) async {
       types.Message msg = e.first;
 
-      final index =
-          logic.state.messages.indexWhere((element) => element.id == msg.id);
-      debugPrint(
-          "> rtc msg S_RECEIVED $index, $mounted, ${msg.toJson().toString()}");
+      final index = logic.state.messages.indexWhere(
+          (element) => element.id == msg.id
+      );
+      // debugPrint(
+      //     "> rtc msg S_RECEIVED $index, $mounted, ${msg.toJson().toString()}");
       if (index > -1) {
-        logic.state.messages.setRange(index, index + 1, e);
-
+        logic.state.messages.setRange(
+          index,
+          index + 1,
+          e
+        );
         if (mounted) {
           setState(() {
             logic.state.messages;
@@ -855,7 +861,7 @@ class ChatPageState extends State<ChatPage> {
             // size: 40,
           ),
         ),
-        onTap: () => getx.Get.to(
+        onTap: () => getx.Get.to(()=>
           widget.type == 'GROUP'
               ? GroupDetailPage(
                   widget.peerId,

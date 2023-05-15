@@ -243,7 +243,7 @@ void toChatPage(String peerId, String type) async {
       "toChatPage peerId $peerId, type $type, ${peer?.title} peer ${peer?.toJson().toString()}");
   if (peer != null && peer.title != '') {
     debugPrint("toChatPage peerId $peerId, type $type, ${peer.title}");
-    Get.to(
+    Get.to(()=>
       ChatPage(
         peerId: peerId,
         type: type,

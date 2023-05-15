@@ -22,13 +22,13 @@ class PersonalInfoLogic extends GetxController {
 
   labelOnPressed(String label) {
     if (label == "more") {
-      Get.to(
+      Get.to(()=>
         const MoreView(),
         transition: Transition.rightToLeft,
         popGesture: true, // 右滑，返回上一页
       );
     } else if (label == "user_qrcode") {
-      Get.to(
+      Get.to(()=>
         UqrcodePage(),
         transition: Transition.rightToLeft,
         popGesture: true, // 右滑，返回上一页

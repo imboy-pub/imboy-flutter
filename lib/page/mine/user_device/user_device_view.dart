@@ -43,7 +43,7 @@ class UserDevicePage extends StatelessWidget {
         // rightDMActions: [
         //   TextButton(
         //     onPressed: () {
-        //       // Get.to(
+        //       // Get.to(()=>
         //       //   AddFriendPage(),
         //       //   transition: Transition.rightToLeft,
         //       //   popGesture: true, // 右滑，返回上一页
@@ -168,7 +168,7 @@ class UserDevicePage extends StatelessWidget {
                                 color: AppColors.MainTextColor.withOpacity(0.5),
                               ),
                               onTap: () {
-                                Get.to(
+                                Get.to(()=>
                                   UserDeviceDetailPage(
                                     model: model,
                                   ),

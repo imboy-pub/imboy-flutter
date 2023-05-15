@@ -67,7 +67,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
         label: '查找聊天记录'.tr,
         margin: const EdgeInsets.only(top: 10.0),
         onPressed: () {
-          Get.to(
+          Get.to(()=>
             const SearchPage(),
             transition: Transition.rightToLeft,
             popGesture: true, // 右滑，返回上一页
@@ -81,7 +81,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
         label: '设置当前聊天背景'.tr,
         margin: const EdgeInsets.only(top: 10.0),
         onPressed: () {
-          Get.to(
+          Get.to(()=>
             const ChatBackgroundPage(),
             transition: Transition.rightToLeft,
             popGesture: true, // 右滑，返回上一页
@@ -120,7 +120,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
           label: '投诉'.tr,
           margin: const EdgeInsets.only(top: 10.0),
           onPressed: () {
-            Get.to(
+            Get.to(()=>
               WebViewPage(CONST_HELP_URL, '投诉'.tr),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页

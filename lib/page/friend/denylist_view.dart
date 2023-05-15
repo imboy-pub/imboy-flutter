@@ -75,7 +75,7 @@ class DenylistPage extends StatelessWidget {
                           // debugPrint(
                           //     "> on search value ${value is DenylistModel}, ${value.toString()}");
                           if (value is DenylistModel) {
-                            Get.to(
+                            Get.to(()=>
                               PeopleInfoPage(
                                 id: value.deniedUid,
                                 sence: 'denylist',
@@ -107,7 +107,7 @@ class DenylistPage extends StatelessWidget {
                               title: Text(model.nickname),
                               // subtitle: Text('${model.remark}'),
                               onTap: () {
-                                Get.to(
+                                Get.to(()=>
                                   PeopleInfoPage(
                                     id: model.deniedUid,
                                     sence: 'denylist',

@@ -33,7 +33,7 @@ class VideoMessageBuilder extends StatelessWidget {
       // style: const BubbleStyle(nipWidth: 16),
       child: InkWell(
         onTap: () {
-          Get.to(
+          Get.to(()=>
             ChatVideoPage(url: message.metadata!['video']['uri']),
             transition: Transition.rightToLeft,
             popGesture: true, // 右滑，返回上一页

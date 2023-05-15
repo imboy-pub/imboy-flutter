@@ -82,19 +82,19 @@ class _ConversationPageState extends State<ConversationPage> {
     popupmenu.MenuItem it = item as popupmenu.MenuItem;
     String action = it.userInfo as String;
     if (action == 'scanner') {
-      Get.to(
+      Get.to(()=>
         const ScannerPage(),
         transition: Transition.rightToLeft,
         popGesture: true, // 右滑，返回上一页
       );
     } else if (action == 'my_qrcode') {
-      Get.to(
+      Get.to(()=>
         UqrcodePage(),
         transition: Transition.rightToLeft,
         popGesture: true, // 右滑，返回上一页
       );
     } else if (action == 'add_friend') {
-      Get.to(
+      Get.to(()=>
         AddFriendPage(),
         transition: Transition.rightToLeft,
         popGesture: true, // 右滑，返回上一页
@@ -232,7 +232,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                 : 0.obs;
                         return InkWell(
                           onTap: () {
-                            Get.to(
+                            Get.to(()=>
                               ChatPage(
                                 conversationId: model.id,
                                 peerId: model.peerId,
@@ -322,7 +322,7 @@ class _ConversationPageState extends State<ConversationPage> {
                               model: model,
                               remindCounter: remindNum,
                               onTapAvatar: () {
-                                Get.to(
+                                Get.to(()=>
                                   PeopleInfoPage(id: model.peerId, sence: ''),
                                   transition: Transition.rightToLeft,
                                   popGesture: true, // 右滑，返回上一页

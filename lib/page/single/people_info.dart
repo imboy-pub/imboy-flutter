@@ -69,7 +69,7 @@ class PeopleInfoPage extends StatelessWidget {
         width: 60,
         child: TextButton(
           onPressed: () {
-            Get.to(
+            Get.to(()=>
               ContactSettingPage(
                 peerId: id,
                 peerAvatar: avatar.value,
@@ -140,7 +140,7 @@ class PeopleInfoPage extends StatelessWidget {
                 child: LabelRow(
                   label: '朋友权限'.tr,
                   onPressed: () {
-                    Get.to(
+                    Get.to(()=>
                       () => FriendsPermissionsPage(),
                       transition: Transition.rightToLeft,
                       popGesture: true, // 右滑，返回上一页
@@ -153,7 +153,7 @@ class PeopleInfoPage extends StatelessWidget {
               LabelRow(
                 label: '朋友圈'.tr,
                 isLine: true,
-                onPressed: () => Get.to(
+                onPressed: () => Get.to(()=>
                   const FriendCirclePage(),
                   transition: Transition.rightToLeft,
                   popGesture: true, // 右滑，返回上一页
@@ -164,7 +164,7 @@ class PeopleInfoPage extends StatelessWidget {
                 LabelRow(
                   label: '更多信息'.tr,
                   isLine: false,
-                  onPressed: () => Get.to(
+                  onPressed: () => Get.to(()=>
                     PeopleInfoMorePage(
                       id: id,
                     ),
@@ -181,7 +181,7 @@ class PeopleInfoPage extends StatelessWidget {
                           text: '发消息',
                           isBorder: true,
                           onPressed: () {
-                            Get.to(
+                            Get.to(()=>
                               ChatPage(
                                 peerId: id,
                                 peerTitle: nickname.value,
@@ -238,7 +238,7 @@ class PeopleInfoPage extends StatelessWidget {
                       visible: showApplyFriendBtn,
                       child: ButtonRow(
                         text: '添加到通讯录'.tr,
-                        onPressed: () => Get.to(
+                        onPressed: () => Get.to(()=>
                           ApplyFriendPage(
                             id,
                             nickname.value,
@@ -315,7 +315,7 @@ class PeopleInfoMorePage extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
                 margin: const EdgeInsets.only(bottom: 10.0),
 
-                // onPressed: () => Get.to(() => const FriendCirclePage()),
+                // onPressed: () => Get.to(()=> const FriendCirclePage()),
               ),
               Visibility(
                 visible: strNoEmpty(sign.value),
@@ -335,7 +335,7 @@ class PeopleInfoMorePage extends StatelessWidget {
                   isLine: true,
                   isRight: false,
                   isSpacer: false,
-                  // onPressed: () => Get.to(() => const FriendCirclePage()),
+                  // onPressed: () => Get.to(()=> const FriendCirclePage()),
                 ),
               ),
               if (source.isNotEmpty)

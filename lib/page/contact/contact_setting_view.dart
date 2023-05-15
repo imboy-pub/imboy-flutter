@@ -80,7 +80,7 @@ class ContactSettingPage extends StatelessWidget {
             LabelRow(
               label: '朋友权限'.tr,
               onPressed: () {
-                Get.to(
+                Get.to(()=>
                   () => FriendsPermissionsPage(),
                   transition: Transition.rightToLeft,
                   popGesture: true, // 右滑，返回上一页
@@ -245,7 +245,7 @@ class ContactSettingPage extends StatelessWidget {
                               if (res) {
                                 EasyLoading.showSuccess("操作成功");
                                 Get.close(3);
-                                Get.to(
+                                Get.to(()=>
                                   BottomNavigationPage(),
                                   arguments: {'index': 1},
                                   transition: Transition.rightToLeft,

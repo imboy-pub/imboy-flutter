@@ -43,7 +43,7 @@ class NewFriendPage extends StatelessWidget {
         rightDMActions: [
           TextButton(
             onPressed: () {
-              Get.to(
+              Get.to(()=>
                 AddFriendPage(),
                 transition: Transition.rightToLeft,
                 popGesture: true, // 右滑，返回上一页
@@ -131,7 +131,7 @@ class NewFriendPage extends StatelessWidget {
                                 NewFriendStatus.waiting_for_validation.index) {
                               rightWidget.add(TextButton(
                                 onPressed: () {
-                                  Get.to(
+                                  Get.to(()=>
                                     ConfirmNewFriendPage(
                                       to: model.to,
                                       from: model.from,
@@ -212,7 +212,7 @@ class NewFriendPage extends StatelessWidget {
                                     ),
                                   ),
                                   onTap: () {
-                                    Get.to(
+                                    Get.to(()=>
                                       PeopleInfoPage(
                                         id: UserRepoLocal.to.currentUid ==
                                                 model.to

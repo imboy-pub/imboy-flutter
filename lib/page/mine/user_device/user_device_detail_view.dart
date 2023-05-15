@@ -64,7 +64,7 @@ class UserDeviceDetailPage extends StatelessWidget {
                       )),
                 ),
                 onPressed: () {
-                  Get.to(
+                  Get.to(()=>
                     ChangeNamePage(
                         title: '设置设备名'.tr,
                         value: model.deviceName,

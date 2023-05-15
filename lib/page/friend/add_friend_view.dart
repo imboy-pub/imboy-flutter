@@ -58,7 +58,7 @@ class AddFriendPage extends StatelessWidget {
                       const Space(),
                       InkWell(
                         onTap: () {
-                          Get.to(
+                          Get.to(()=>
                             UqrcodePage(),
                             transition: Transition.rightToLeft,
                             popGesture: true, // 右滑，返回上一页
@@ -100,7 +100,7 @@ class AddFriendPage extends StatelessWidget {
                         color: AppColors.MainTextColor.withOpacity(0.5),
                       ),
                       onTap: () {
-                        Get.to(
+                        Get.to(()=>
                           PeopleNearbyPage(),
                           transition: Transition.rightToLeft,
                           popGesture: true, // 右滑，返回上一页
@@ -133,7 +133,7 @@ class AddFriendPage extends StatelessWidget {
                         color: AppColors.MainTextColor.withOpacity(0.5),
                       ),
                       onTap: () {
-                        Get.to(
+                        Get.to(()=>
                           PeopleNearbyPage(),
                           transition: Transition.rightToLeft,
                           popGesture: true, // 右滑，返回上一页
@@ -166,7 +166,7 @@ class AddFriendPage extends StatelessWidget {
                         color: AppColors.MainTextColor.withOpacity(0.5),
                       ),
                       onTap: () {
-                        Get.to(
+                        Get.to(()=>
                           const ScannerPage(),
                           transition: Transition.rightToLeft,
                           popGesture: true, // 右滑，返回上一页

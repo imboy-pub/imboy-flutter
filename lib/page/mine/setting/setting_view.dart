@@ -58,7 +58,7 @@ class _SettingPageState extends State<SettingPage> {
                   color: AppColors.MainTextColor.withOpacity(0.5),
                 ),
                 onTap: () {
-                  Get.to(
+                  Get.to(()=>
                     () => FriendsPermissionsPage(),
                     transition: Transition.rightToLeft,
                     popGesture: true, // 右滑，返回上一页
@@ -73,7 +73,7 @@ class _SettingPageState extends State<SettingPage> {
                   color: AppColors.MainTextColor.withOpacity(0.5),
                 ),
                 onTap: () {
-                  Get.to(
+                  Get.to(()=>
                     () => AboutIMBoyPage(),
                     transition: Transition.rightToLeft,
                     popGesture: true, // 右滑，返回上一页

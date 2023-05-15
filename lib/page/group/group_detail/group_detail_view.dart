@@ -109,7 +109,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             width: 48.0,
           ),
         ),
-        onTap: () => Get.to(
+        onTap: () => Get.to(()=>
           const SelectMemberPage(),
           transition: Transition.rightToLeft,
           popGesture: true, // 右滑，返回上一页
@@ -127,7 +127,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         return SizedBox(
           width: (Get.width - 60) / 5,
           child: TextButton(
-            onPressed: () => Get.to(() => GroupMemberDetailPage(uId!)),
+            onPressed: () => Get.to(()=> GroupMemberDetailPage(uId!)),
             child: Column(
               children: <Widget>[
                 ClipRRect(
@@ -197,7 +197,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   '查看全部群成员'.tr,
                   style: const TextStyle(fontSize: 14.0, color: Colors.black54),
                 ),
-                onPressed: () => Get.to(() => GroupMemberPage(widget.peer!)),
+                onPressed: () => Get.to(()=> GroupMemberPage(widget.peer!)),
               ),
             ),
             const SizedBox(height: 10.0),
@@ -328,10 +328,10 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
   handle(String title) {
     switch (title) {
       case '备注':
-        Get.to(() => GroupDetailPage(widget.peer));
+        Get.to(()=> GroupDetailPage(widget.peer));
         break;
       case '群聊名称':
-        Get.to(
+        Get.to(()=>
           () => GroupRemarkPage(
             groupInfoType: GroupInfoType.name,
             text: groupName!,
@@ -344,10 +344,10 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         });
         break;
       case '群二维码':
-        // Get.to(() => QrCodePage());
+        // Get.to(()=> QrCodePage());
         break;
       case '群公告':
-        Get.to(
+        Get.to(()=>
           () => GroupBillBoardPage(
             dataGroup![0]['groupOwner'],
             groupNotification!,
@@ -361,7 +361,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         });
         break;
       // case '查找聊天记录':
-      //   Get.to((() => SearchPage());
+      //   Get.to(()=>(() => SearchPage());
       //   break;
       case '消息免打扰':
         _dnd = !_dnd;
@@ -375,7 +375,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
       case '设置当前聊天背景':
         break;
       case '我在群里的昵称':
-        Get.to(
+        Get.to(()=>
           () => GroupRemarkPage(
             groupInfoType: GroupInfoType.cardName,
             text: cardName,
@@ -387,7 +387,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         });
         break;
       case '投诉':
-        Get.to(
+        Get.to(()=>
           WebViewPage(CONST_HELP_URL, '投诉'),
           transition: Transition.rightToLeft,
           popGesture: true, // 右滑，返回上一页

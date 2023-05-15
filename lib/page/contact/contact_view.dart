@@ -38,7 +38,7 @@ class ContactPage extends StatelessWidget {
         rightDMActions: <Widget>[
           InkWell(
             onTap: () {
-              Get.to(
+              Get.to(()=>
                 const SearchPage(),
                 transition: Transition.rightToLeft,
                 popGesture: true, // 右滑，返回上一页

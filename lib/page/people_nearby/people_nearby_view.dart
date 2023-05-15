@@ -183,7 +183,7 @@ class PeopleNearbyPage extends StatelessWidget {
                                   subtitle: Text(
                                       '${model.distance.toStringAsFixed(3)} ${model.distanceUnit}'),
                                   onTap: () {
-                                    Get.to(
+                                    Get.to(()=>
                                       PeopleInfoPage(
                                         id: model.id,
                                         sence: 'people_nearby',

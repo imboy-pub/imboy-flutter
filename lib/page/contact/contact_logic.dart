@@ -48,7 +48,7 @@ class ContactLogic extends GetxController {
           ),
         ),
         onPressed: () {
-          Get.to(
+          Get.to(()=>
             PeopleNearbyPage(),
             transition: Transition.rightToLeft,
             popGesture: true, // 右滑，返回上一页
@@ -90,7 +90,7 @@ class ContactLogic extends GetxController {
               ),
             )),
         onPressed: () {
-          Get.to(
+          Get.to(()=>
             NewFriendPage(),
             transition: Transition.rightToLeft,
             popGesture: true, // 右滑，返回上一页
@@ -200,7 +200,7 @@ class ContactLogic extends GetxController {
         ),
         onTap: model.onPressed ??
             () {
-              Get.to(
+              Get.to(()=>
                 PeopleInfoPage(
                   id: model.peerId,
                   sence: 'contact_page', // TODO 2023-04-19 09:40:05 leeyi
@@ -211,7 +211,7 @@ class ContactLogic extends GetxController {
             },
         onLongPress: model.onLongPressed ??
             () {
-              Get.to(
+              Get.to(()=>
                 ChatPage(
                   peerId: model.peerId,
                   peerTitle: model.title,
