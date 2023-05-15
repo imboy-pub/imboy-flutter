@@ -90,7 +90,7 @@ class _ScannerPageState extends State<ScannerPage>
                     barcodeStr = barcodes.barcodes.last.rawValue;
                   });
                   if (isUrl(barcodeStr!) &&
-                      barcodeStr!.endsWith(uqrcodeDataSuffix)) {
+                      barcodeStr!.endsWith(userQrcodeDataSuffix)) {
                     IMBoyHttpResponse resp =
                         await HttpClient.client.get(barcodeStr!);
                     if (!resp.ok) {

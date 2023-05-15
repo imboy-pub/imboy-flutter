@@ -135,11 +135,11 @@ dependencies:
       ref: master
   niku: ^2.3.3
   # 二维码扫描
-  mobile_scanner: ^3.2.0
-  # mobile_scanner:
-  #  git:
-  #    url: https://gitee.com/imboy-tripartite-deps/mobile_scanner.git
-  #    ref: master
+  #mobile_scanner: ^3.2.0
+  mobile_scanner:
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/mobile_scanner.git
+      ref: master
   # 二维码生成
   qr_flutter: ^4.1.0
   #打开url 拨打电话 发短信

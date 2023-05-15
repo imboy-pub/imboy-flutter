@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-const appVsn = "1.0.0";
+const appVsn = "0.1.0";
 
 Icon defAvatarIcon = const Icon(Icons.account_circle, size: 40);
 
@@ -17,7 +17,7 @@ const defAvatar = 'assets/images/3.0x/def_avatar.png';
 const CONST_HELP_URL =
     'https://kf.qq.com/touch/product/wechat_app.html?scene_id=kf338';
 
-String uqrcodeDataSuffix = "s=uqrcode";
+String userQrcodeDataSuffix = "s=uqrcode";
 
 const RECORD_LOG = true;
 

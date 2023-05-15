@@ -1172,11 +1172,12 @@ packages:
   mobile_scanner:
     dependency: "direct main"
     description:
-      name: mobile_scanner
-      sha256: da55204e5439bc8dc058df56231a7a1d513c6ec9cbad84492f56d493382d296f
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.2.0"
+      path: "."
+      ref: master
+      resolved-ref: "38b405790dce3e69ab5b8a539de940df0b0c9b94"
+      url: "https://gitee.com/imboy-tripartite-deps/mobile_scanner.git"
+    source: git
+    version: "3.2.1"
   nested:
     dependency: transitive
     description:
