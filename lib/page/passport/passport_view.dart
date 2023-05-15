@@ -92,13 +92,13 @@ class PassportPage extends StatelessWidget {
           //背景Colors.transparent 透明
           color: Colors.transparent,
           image: DecorationImage(
-            image: AssetImage("assets/images/splash_bg.png"),
+            image: AssetImage("assets/images/3.0x/splash_bg.png"),
             fit: BoxFit.cover,
           ),
         ),
         child: FlutterLogin(
           title: 'IMBoy',
-          logo: const AssetImage('assets/images/logo.png'),
+          logo: const AssetImage('assets/images/3.0x/logo.png'),
           userType: userType,
           messages: LoginMessages(
             // button

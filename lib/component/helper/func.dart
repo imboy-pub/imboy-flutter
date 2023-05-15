@@ -185,13 +185,16 @@ String generateMD5(String data) {
 }
 
 ImageProvider cachedImageProvider(String? url, {int w = 400}) {
-  if (strEmpty(url) || url == defAvatar) {
+  if (strEmpty(url)) {
+    return const AssetImage(defAvatar);
+  }
+  if (url!.contains("def_avatar.png", 0)) {
     return const AssetImage(defAvatar);
   }
 
   return CachedNetworkImageProvider(
-    w > 0 ? "$url&width=$w" : url!,
-    cacheKey: generateMD5(url!),
+    w > 0 ? "$url&width=$w" : url,
+    cacheKey: generateMD5(url),
   );
 }
 

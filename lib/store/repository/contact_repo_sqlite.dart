@@ -217,34 +217,33 @@ class ContactRepo {
 
   // 更新信息
   Future<int> update(Map<String, dynamic> json) async {
-    String uid = json["id"] ?? (json[ContactRepo.peerId] ?? "");
+    String peerId = json["id"] ?? (json[ContactRepo.peerId] ?? "");
+
     Map<String, Object?> data = {};
     if (strNoEmpty(json[ContactRepo.account])) {
       data[ContactRepo.account] = json[ContactRepo.account];
     }
-    if (strNoEmpty(json["nickname"])) {
-      data[ContactRepo.nickname] = json["nickname"];
+    if (strNoEmpty(json[ContactRepo.nickname])) {
+      data[ContactRepo.nickname] = json[ContactRepo.nickname];
     }
-    if (strNoEmpty(json["avatar"])) {
-      data[ContactRepo.avatar] = json["avatar"];
-    }
-
-    if (strNoEmpty(json["remark"])) {
-      data[ContactRepo.remark] = json["remark"];
-    }
-    if (strNoEmpty(json["region"])) {
-      data[ContactRepo.region] = json["region"];
-    }
-    if (strNoEmpty(json["sign"])) {
-      data[ContactRepo.sign] = json["sign"];
-    }
-    if (strNoEmpty(json["source"])) {
-      data[ContactRepo.source] = json["source"];
+    if (strNoEmpty(json[ContactRepo.avatar])) {
+      data[ContactRepo.avatar] = json[ContactRepo.avatar];
     }
 
-    if (json.containsKey(ContactRepo.status)) {
-      data[ContactRepo.status] = json[ContactRepo.status];
+    if (strNoEmpty(json[ContactRepo.remark])) {
+      data[ContactRepo.remark] = json[ContactRepo.remark];
     }
+    if (strNoEmpty(json[ContactRepo.region])) {
+      data[ContactRepo.region] = json[ContactRepo.region];
+    }
+    if (strNoEmpty(json[ContactRepo.sign])) {
+      data[ContactRepo.sign] = json[ContactRepo.sign];
+    }
+    if (strNoEmpty(json[ContactRepo.source])) {
+      data[ContactRepo.source] = json[ContactRepo.source];
+    }
+
+
     if (json.containsKey(ContactRepo.gender)) {
       data[ContactRepo.gender] = json[ContactRepo.gender];
     }
@@ -253,19 +252,21 @@ class ContactRepo {
       data[ContactRepo.isFrom] = int.tryParse('$isFrom') ?? 0;
     }
     if (json.containsKey(ContactRepo.isFriend)) {
-      data[ContactRepo.isFriend] = json[ContactRepo.isFriend];
+      var isFriend = json[ContactRepo.isFriend] ?? 0;
+      data[ContactRepo.isFriend] = int.tryParse('$isFriend') ?? 0;
     }
     if (json.containsKey(ContactRepo.categoryId)) {
-      data[ContactRepo.categoryId] = json[ContactRepo.categoryId];
+      var categoryId = json[ContactRepo.categoryId] ?? 0;
+      data[ContactRepo.categoryId] = int.tryParse('$categoryId') ?? 0;
     }
     // debugPrint("> on ContactRepo/update/1 data: ${data.toString()}");
-    if (strNoEmpty(uid)) {
+    if (strNoEmpty(peerId)) {
       data[ContactRepo.updateTime] = DateTimeHelper.currentTimeMillis();
       return await _db.update(
         ContactRepo.tableName,
         data,
         where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
-        whereArgs: [UserRepoLocal.to.currentUid, uid],
+        whereArgs: [UserRepoLocal.to.currentUid, peerId],
       );
     } else {
       return 0;

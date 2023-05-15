@@ -12,7 +12,7 @@ const String defGroupAvatar =
 
 const contactAssets = 'assets/images/contact/';
 
-const defAvatar = 'assets/images/def_avatar.png';
+const defAvatar = 'assets/images/3.0x/def_avatar.png';
 
 const CONST_HELP_URL =
     'https://kf.qq.com/touch/product/wechat_app.html?scene_id=kf338';
