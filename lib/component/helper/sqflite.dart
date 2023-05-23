@@ -6,6 +6,7 @@ import 'package:imboy/store/repository/denylist_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_device_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
@@ -26,7 +27,7 @@ class Sqlite {
     if (_db != null) {
       return _db!;
     }
-    String dbName = "imboy.db";
+    String dbName = "imboy_${UserRepoLocal.to.currentUid}.db";
     debugPrint("> on Sqlite.database $dbName");
     _db = await initDatabase(dbName);
     return _db!;

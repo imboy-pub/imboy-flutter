@@ -278,10 +278,10 @@ packages:
     dependency: "direct main"
     description:
       name: camera
-      sha256: "309b823e61f15ff6b5b2e4c0ff2e1512ea661cad5355f71fc581e510ae5b26bb"
+      sha256: "42b9cade168e57e298fbb1e5d73e8f501548933529899311020ec4c071d48856"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.10.5"
+    version: "0.10.5+1"
   camera_android:
     dependency: transitive
     description:
@@ -374,10 +374,10 @@ packages:
     dependency: "direct main"
     description:
       name: connectivity_plus
-      sha256: "45262924896ff72a8cd92b722bb7e3d5020f9e0724531a3e10e22ddae2005991"
+      sha256: "8599ae9edca5ff96163fca3e36f8e481ea917d1e71cdad912c084b5579913f34"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.0.0"
+    version: "4.0.1"
   connectivity_plus_platform_interface:
     dependency: transitive
     description:
@@ -510,10 +510,10 @@ packages:
     dependency: "direct main"
     description:
       name: easy_refresh
-      sha256: "6f4d222355a8294a72d600bcd7551e0559b6d96a98e8977c69796e0fb2f9e5ef"
+      sha256: "77b025ea49f27b5ebc5eef40a6678be52564c293bd97ce91a4088d6646478329"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.3.1+2"
+    version: "3.3.2+1"
   emoji_picker_flutter:
     dependency: "direct main"
     description:
@@ -666,10 +666,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_downloader
-      sha256: ff5cb37482329018ba313f44cfa60aa68a779a70ecaa731a40d931d73b49acf2
+      sha256: "79e05335471e23593f2e22483d2c909a03f19000293cbc7f39c8c2fd4d5d9c3d"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.10.3"
+    version: "1.10.4"
   flutter_easyloading:
     dependency: "direct main"
     description:
@@ -706,10 +706,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_local_notifications
-      sha256: ee6ee56855aa920899b68586b538474d086c149932220b47b92502cbfb5ba5e5
+      sha256: "12f8abacca8bf29c042ec50c554f967da4c6f88ec99fc215e0325e5b43a25188"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "14.0.0+2"
+    version: "14.1.0"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
@@ -746,10 +746,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_native_splash
-      sha256: af665ef80a213a9ed502845a3d7a61b9acca4100ee7e9f067a7440bc3acd6730
+      sha256: "02df24aec455c26428dadc637f20d4c548bda23ee2179479a8e8c39f1ecb75b3"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.2.19"
+    version: "2.3.0"
   flutter_parsed_text:
     dependency: transitive
     description:
@@ -770,10 +770,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_screenutil
-      sha256: "63c84d7da6b5f0733f86b01e3d20db2baadbf0fc9b43e5967c2cfb84dfa1e998"
+      sha256: b3e155ee4f2cf5b21a2e15182d1c49c848147ed47f62083fc9a9beccb85f59f9
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "5.8.1"
+    version: "5.8.2"
   flutter_slidable:
     dependency: "direct main"
     description:
@@ -818,10 +818,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_svg
-      sha256: f991fdb1533c3caeee0cdc14b04f50f0c3916f0dbcbc05237ccbe4e3c6b93f3f
+      sha256: "6ff8c902c8056af9736de2689f63f81c42e2d642b9f4c79dbf8790ae48b63012"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.5"
+    version: "2.0.6"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -836,10 +836,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_webrtc
-      sha256: "25df2c05e937548d95181228c58070cb2a20a48c5465efdc27f53c547f66d3c1"
+      sha256: "02625651b6b46be39ba1ff26219de704012df571305aef3c7cdafb94f7c50dc6"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.29+hotfix.1"
+    version: "0.9.31"
   font_awesome_flutter:
     dependency: transitive
     description:
@@ -1053,10 +1053,10 @@ packages:
     dependency: "direct main"
     description:
       name: json_serializable
-      sha256: "43793352f90efa5d8b251893a63d767b2f7c833120e3cc02adad55eefec04dc7"
+      sha256: "61a60716544392a82726dd0fa1dd6f5f1fd32aec66422b6e229e7b90d52325c4"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.6.2"
+    version: "6.7.0"
   just_audio:
     dependency: transitive
     description:
@@ -1556,18 +1556,18 @@ packages:
     dependency: transitive
     description:
       name: sentry
-      sha256: "1c5498c8d1754dbf4fa51ca14d31c8c34ea0a0f897ff666ecd516dbd588dad6a"
+      sha256: "01f8fc950b6a5f3daf8c2d2b0ae5c38812e63d703c19c56cb68524c0597660bc"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "7.5.2"
+    version: "7.6.1"
   sentry_flutter:
     dependency: "direct main"
     description:
       name: sentry_flutter
-      sha256: "67a3c20cc72681ab5c3ece993290a5780e10816ff1da1ddb59ac33136fc58a3d"
+      sha256: "9583ebcdbbba6907e555a8eeaf42380021baff57db1e399a3a31e80ce1f1cbe5"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "7.5.2"
+    version: "7.6.1"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -1689,10 +1689,10 @@ packages:
     dependency: "direct main"
     description:
       name: sqflite
-      sha256: "3a82c9a216b46b88617e3714dd74227eaca20c501c4abcc213e56db26b9caa00"
+      sha256: b4d6710e1200e96845747e37338ea8a819a12b51689a3bcf31eff0003b37a0b9
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.2.8+2"
+    version: "2.2.8+4"
   sqflite_common:
     dependency: transitive
     description:
@@ -1905,26 +1905,26 @@ packages:
     dependency: transitive
     description:
       name: vector_graphics
-      sha256: "59a230f8bf37dd8b077335d1d64d895bccef0fb14f50730e3d79e8990bf3ed2b"
+      sha256: b96f10cbdfcbd03a65758633a43e7d04574438f059b1043104b5d61b23d38a4f
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.1.5+1"
+    version: "1.1.6"
   vector_graphics_codec:
     dependency: transitive
     description:
       name: vector_graphics_codec
-      sha256: "40781fe91c6d10a617c0289f7ec16cdb2d85a7f3654af2778c6d0adbf3bf45a3"
+      sha256: "57a8e6e24662a3bdfe3b3d61257db91768700c0b8f844e235877b56480f31c69"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.1.5+1"
+    version: "1.1.6"
   vector_graphics_compiler:
     dependency: transitive
     description:
       name: vector_graphics_compiler
-      sha256: "6ca1298b70edcc3486fdb14032f1a186a593f1b5f6b5e82fb10febddcb1c61bb"
+      sha256: "7430f5d834d0db4560d7b19863362cd892f1e52b43838553a3c5cdfc9ab28e5b"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.1.5+1"
+    version: "1.1.6"
   vector_math:
     dependency: transitive
     description:

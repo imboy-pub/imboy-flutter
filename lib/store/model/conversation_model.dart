@@ -109,7 +109,7 @@ class ConversationModel {
       type: json['type'].toString(),
       msgType: json[ConversationRepo.msgType].toString(),
       isShow: json['is_show'] ?? 1,
-      payload: payload,
+      payload: payload != null ? Map<String, dynamic>.from(payload) : null,
     );
   }
 

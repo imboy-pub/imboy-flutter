@@ -208,7 +208,6 @@ class WSService extends GetxService {
   */
 
   void destroyReconnectTimer() {
-    debugPrint('> ws destroyReconnectTimer 重连次数超过最大次数 $_reconnectTimes');
     _reconnectTimer?.cancel();
   }
 
