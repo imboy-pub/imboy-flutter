@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/assets.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/message/message_image_builder.dart';
 import 'package:imboy/page/chat/send_to/send_to_view.dart';
@@ -159,17 +160,12 @@ class ChatPageState extends State<ChatPage> {
     eventBus.on<List<types.Message>>().listen((e) async {
       types.Message msg = e.first;
 
-      final index = logic.state.messages.indexWhere(
-          (element) => element.id == msg.id
-      );
+      final index =
+          logic.state.messages.indexWhere((element) => element.id == msg.id);
       // debugPrint(
       //     "> rtc msg S_RECEIVED $index, $mounted, ${msg.toJson().toString()}");
       if (index > -1) {
-        logic.state.messages.setRange(
-          index,
-          index + 1,
-          e
-        );
+        logic.state.messages.setRange(index, index + 1, e);
         if (mounted) {
           setState(() {
             logic.state.messages;
@@ -735,7 +731,7 @@ class ChatPageState extends State<ChatPage> {
         //   color: Colors.white,
         // ),
         image: Image.asset(
-          'assets/images/chat/reply_to.png',
+          Assets.getImgPath('chat/reply_to'),
           // size: 16,
           color: const Color(0xffc5c5c5),
           // package: 'flutter_plugin_record',
@@ -861,8 +857,8 @@ class ChatPageState extends State<ChatPage> {
             // size: 40,
           ),
         ),
-        onTap: () => getx.Get.to(()=>
-          widget.type == 'GROUP'
+        onTap: () => getx.Get.to(
+          () => widget.type == 'GROUP'
               ? GroupDetailPage(
                   widget.peerId,
                   callBack: (v) {},
