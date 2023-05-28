@@ -643,17 +643,17 @@ packages:
     dependency: transitive
     description:
       name: flutter_chat_types
-      sha256: "34d1d61e46d5ca15f3b46e72d0a9ac98da72edc5eb5bf644a26e27351c9e15ba"
+      sha256: "462779d31392018e451b06c4bd6efdd3335a120c546461beb5060a3158f1f9fc"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.6.0"
+    version: "3.6.1"
   flutter_chat_ui:
     dependency: "direct main"
     description:
       path: "plugin/flutter_chat_ui"
       relative: true
     source: path
-    version: "1.6.6"
+    version: "1.6.8"
   flutter_dotenv:
     dependency: "direct main"
     description:
@@ -682,18 +682,18 @@ packages:
     dependency: transitive
     description:
       name: flutter_link_previewer
-      sha256: d495edef667d4b5db37fb6f31571406c137161a8399dd44a5de4ce2a7c7ba529
+      sha256: a14e9fbd12028554e817bfc511e5a859ffdc730bb89b71b0e5bdec3fc8a0e86d
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.2.0"
+    version: "3.2.1"
   flutter_linkify:
     dependency: transitive
     description:
       name: flutter_linkify
-      sha256: c89fe74de985ec22f23d3538d2249add085a4f37ac1c29fd79e1a207efb81d63
+      sha256: "74669e06a8f358fee4512b4320c0b80e51cffc496607931de68d28f099254073"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "5.0.2"
+    version: "6.0.0"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -1085,10 +1085,10 @@ packages:
     dependency: transitive
     description:
       name: linkify
-      sha256: bdfbdafec6cdc9cd0ebb333a868cafc046714ad508e48be8095208c54691d959
+      sha256: "4139ea77f4651ab9c315b577da2dd108d9aa0bd84b5d03d33323f1970c645832"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.1.0"
+    version: "5.0.0"
   lints:
     dependency: transitive
     description:
@@ -1985,10 +1985,10 @@ packages:
     dependency: transitive
     description:
       name: visibility_detector
-      sha256: "15c54a459ec2c17b4705450483f3d5a2858e733aee893dcee9d75fd04814940d"
+      sha256: dd5cc11e13494f432d15939c3aa8ae76844c42b723398643ce9addb88a5ed420
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.3.3"
+    version: "0.4.0+2"
   voice_message_package:
     dependency: "direct main"
     description:
