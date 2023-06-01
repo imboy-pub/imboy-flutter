@@ -16,6 +16,8 @@ import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
+import 'assets.dart';
+
 // This alphabet uses `A-Za-z0-9_-` symbols. The genetic algorithm helped
 // optimize the gzip compression for this alphabet.
 const _alphabet =
@@ -191,7 +193,7 @@ ImageProvider cachedImageProvider(String? url, {int w = 400}) {
   if (url!.contains("def_avatar.png", 0)) {
     return const AssetImage(defAvatar);
   }
-
+  url = Assets.viewUrl(url);
   return CachedNetworkImageProvider(
     w > 0 ? "$url&width=$w" : url,
     cacheKey: generateMD5(url),
@@ -243,8 +245,8 @@ void toChatPage(String peerId, String type) async {
       "toChatPage peerId $peerId, type $type, ${peer?.title} peer ${peer?.toJson().toString()}");
   if (peer != null && peer.title != '') {
     debugPrint("toChatPage peerId $peerId, type $type, ${peer.title}");
-    Get.to(()=>
-      ChatPage(
+    Get.to(
+      () => ChatPage(
         peerId: peerId,
         type: type,
         peerTitle: peer.title,

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'dart:typed_data';
 
 // ignore: depend_on_referenced_packages
@@ -10,8 +9,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart' as getx;
+import 'package:imboy/component/helper/assets.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
@@ -33,19 +32,19 @@ class AttachmentProvider {
     if (prefix == "avatar") {
       savePath = "/$prefix/";
     }
-    String v = (Random()).nextInt(999999).toString();
-    String authToken = generateMD5(UP_AUTH_KEY + v).substring(8, 24);
 
+    Map<String, dynamic> authData = Assets.authData();
     // data = {'file':MultipartFile.fromFile(path, filename: name)};
     data['output'] = 'json2';
     data['path'] = savePath;
     data['scene'] = UPLOAD_SENCE;
-    data['s'] = UPLOAD_SENCE;
-    data['v'] = v;
-    data['a'] = authToken;
-    debugPrint("> on upload param ${data.toString()}");
-    debugPrint("> on upload param ${(data['file'] as MultipartFile).filename}");
-    FormData formdata = FormData.fromMap(data);
+
+    data['v'] = authData['v'];
+    data['a'] = authData['a'];
+    data['s'] = authData['s'];
+    // debugPrint("> on upload param ${data.toString()}");
+    // debugPrint("> on upload param ${(data['file'] as MultipartFile).filename}");
+    FormData formData = FormData.fromMap(data);
 
     var options = BaseOptions(
       baseUrl: UPLOAD_BASE_URL,
@@ -56,7 +55,7 @@ class AttachmentProvider {
     );
     await Dio(options).post(
       "$UPLOAD_BASE_URL/upload",
-      data: formdata,
+      data: formData,
       onSendProgress: (int sent, int total) {
         // debugPrint('> on upload $sent / $total');
         if (process) {
@@ -72,11 +71,9 @@ class AttachmentProvider {
         }
       },
     ).then((response) {
-      debugPrint("> on upload response ${response.toString()}");
+      // debugPrint("> on upload response ${response.toString()}");
       Map<String, dynamic> resp = json.decode(response.data);
-
-      String url = resp["data"]["url"] + "?s=$UPLOAD_SENCE&a=$authToken&v=$v";
-      callback(resp, url);
+      callback(resp, Assets.viewUrl(resp['data']['url']));
     }).catchError((e) {
       debugPrint("> on upload err ${e.toString()}");
       errorCallback(e);
@@ -88,17 +85,16 @@ class AttachmentProvider {
     int ts = DateTimeHelper.currentTimeMillis();
     DateTime dt = DateTime.fromMillisecondsSinceEpoch(ts);
     String savePath = "/$prefix/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";
-    String v = (Random()).nextInt(999999).toString();
-    String authToken = generateMD5(UP_AUTH_KEY + v).substring(8, 24);
 
+    Map<String, dynamic> authData = Assets.authData();
     // data = {'file':MultipartFile.fromFile(path, filename: name)};
     data['md5'] = data['md5'];
     data['output'] = 'json2';
     data['path'] = savePath;
     data['scene'] = UPLOAD_SENCE;
-    data['s'] = UPLOAD_SENCE;
-    data['v'] = v;
-    data['a'] = authToken;
+    data['s'] = authData['s'];
+    data['v'] = authData['v'];
+    data['a'] = authData['a'];
     var options = BaseOptions(
       baseUrl: UPLOAD_BASE_URL,
       contentType: 'application/x-www-form-urlencoded',
@@ -133,7 +129,7 @@ class AttachmentProvider {
 
     String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
     bool uploadOriginalImage = false;
-    debugPrint("> on uploadOriginalImage: $uploadOriginalImage");
+    // debugPrint("> on uploadOriginalImage: $uploadOriginalImage");
     String name = "${Xid().toString()}.$ext";
     if (entity.type == AssetType.video) {
       String? thumbUri;
@@ -144,7 +140,7 @@ class AttachmentProvider {
         quality: quality, // default(100)
         position: -1, // default(-1)
       );
-      debugPrint("> on upload video ${thumbnailFile.path}");
+      // debugPrint("> on upload video ${thumbnailFile.path}");
       String thumbPath = thumbnailFile.path;
       var thumbName =
           thumbPath.substring(thumbPath.lastIndexOf("/") + 1, thumbPath.length);
@@ -162,17 +158,14 @@ class AttachmentProvider {
         deleteOrigin: true,
       );
       File videoFile = mediaInfo!.file!;
-      Map<String, dynamic> predata = {
+      Map<String, dynamic> preData = {
         'md5': sha1.convert(videoFile.readAsBytesSync()),
       };
-      await preUpload(prefix, predata).then((response) async {
+      await preUpload(prefix, preData).then((response) async {
         Map<String, dynamic> responseData = json.decode(response.data);
         String status = responseData['status'] ?? '';
         if (status == 'ok') {
-          String v = (Random()).nextInt(999999).toString();
-          String authToken = generateMD5(UP_AUTH_KEY + v).substring(8, 24);
-          videoUri = responseData["data"]["url"] +
-              "?s=$UPLOAD_SENCE&a=$authToken&v=$v";
+          videoUri = Assets.viewUrl(responseData['data']['url']);
         } else {
           Map<String, dynamic> data = {
             'file':
@@ -229,18 +222,14 @@ class AttachmentProvider {
         ),
         quality: quality,
       );
-      Map<String, dynamic> predata = {
+      Map<String, dynamic> preData = {
         'md5': sha1.convert(thumbData!),
       };
-      await preUpload(prefix, predata).then((response) async {
+      await preUpload(prefix, preData).then((response) async {
         Map<String, dynamic> responseData = json.decode(response.data);
         String status = responseData['status'] ?? '';
         if (status == 'ok') {
-          String v = (Random()).nextInt(999999).toString();
-          String authToken = generateMD5(UP_AUTH_KEY + v).substring(8, 24);
-          String url = responseData["data"]["url"] +
-              "?s=$UPLOAD_SENCE&a=$authToken&v=$v";
-          callback(responseData, url);
+          callback(responseData, Assets.viewUrl(responseData['data']['url']));
         } else {
           Map<String, dynamic> data = {
             'file': MultipartFile.fromBytes(thumbData, filename: name),
@@ -255,18 +244,14 @@ class AttachmentProvider {
     } else if (entity.type == AssetType.image && uploadOriginalImage == true) {
       // 不压缩上传
       final Uint8List? thumbData = await entity.originBytes;
-      Map<String, dynamic> predata = {
+      Map<String, dynamic> preData = {
         'md5': sha1.convert(thumbData!),
       };
-      await preUpload(prefix, predata).then((response) async {
+      await preUpload(prefix, preData).then((response) async {
         Map<String, dynamic> responseData = json.decode(response.data);
         String status = responseData['status'] ?? '';
         if (status == 'ok') {
-          String v = (Random()).nextInt(999999).toString();
-          String authToken = generateMD5(UP_AUTH_KEY + v).substring(8, 24);
-          String url = responseData["data"]["url"] +
-              "?s=$UPLOAD_SENCE&a=$authToken&v=$v";
-          callback(responseData, url);
+          callback(responseData, Assets.viewUrl(responseData['data']['url']));
         } else {
           Map<String, dynamic> data = {
             'file': await MultipartFile.fromFile(path, filename: name),
@@ -301,7 +286,7 @@ class AttachmentProvider {
     Map<String, dynamic> data = {
       'file': await MultipartFile.fromFile(path, filename: name),
     };
-    debugPrint("> on uploadFile path $path, name: $name, ext: $ext");
+    // debugPrint("> on uploadFile path $path, name: $name, ext: $ext");
     await _upload(prefix, data, callback, errorCallback, process: process);
   }
 }

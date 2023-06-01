@@ -47,4 +47,9 @@ class DateTimeHelper {
     // debugPrint("> on currentTimeMillis ntpTime ${ntpTime.toString()}");
     return ntpTime.millisecondsSinceEpoch;
   }
+
+  /// 当前时间的秒时间戳
+  static int currentTimeSecond() {
+    return currentTimeMillis() ~/ 1000;
+  }
 }
