@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/page/single/chat_video.dart';
 
 class VideoMessageBuilder extends StatelessWidget {
@@ -33,8 +34,8 @@ class VideoMessageBuilder extends StatelessWidget {
       // style: const BubbleStyle(nipWidth: 16),
       child: InkWell(
         onTap: () {
-          Get.to(()=>
-            ChatVideoPage(url: message.metadata!['video']['uri']),
+          Get.to(
+            () => ChatVideoPage(url: message.metadata!['video']['uri']),
             transition: Transition.rightToLeft,
             popGesture: true, // 右滑，返回上一页
           );
@@ -47,6 +48,7 @@ class VideoMessageBuilder extends StatelessWidget {
               progressIndicatorBuilder: (context, url, downloadProgress) =>
                   CircularProgressIndicator(value: downloadProgress.progress),
               errorWidget: (context, url, error) => const Icon(Icons.error),
+              cacheManager: cacheManager,
               //cancelToken: cancellationToken,
             ),
             const Positioned.fill(

@@ -59,7 +59,7 @@ class NewFriendLogic extends GetxController {
     replaceItems(NewFriendModel.fromJson(saveData));
     bottomLogic.newFriendRemindCounter.add(from);
     bottomLogic.update([bottomLogic.newFriendRemindCounter]);
-    WSService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
+    WebSocketService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
   }
 
   /// 确认添加朋友，对端消息通知
@@ -82,7 +82,7 @@ class NewFriendLogic extends GetxController {
       replaceItems(obj);
     }
     if (ack) {
-      WSService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
+      WebSocketService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
     }
   }
 

@@ -186,21 +186,28 @@ String generateMD5(String data) {
   return hex.encode(digest.bytes);
 }
 
-ImageProvider cachedImageProvider(String? url, {int w = 400}) {
+///
+/// w < 0 不要缓存大文件，以节省设备存储空间
+ImageProvider cachedImageProvider(String? url, {double w = 400}) {
   if (strEmpty(url)) {
     return const AssetImage(defAvatar);
   }
   if (url!.contains("def_avatar.png", 0)) {
     return const AssetImage(defAvatar);
   }
-  url = Assets.viewUrl(url);
+  // 不要缓存大文件，以节省设备存储空间
+  if (w < 0) {
+    return CachedNetworkImageProvider(url);
+  }
+  Uri u = Assets.viewUrl(url);
+  String k = "${u.scheme}://${u.host}:${u.port}${u.path}";
   return CachedNetworkImageProvider(
-    w > 0 ? "$url&width=$w" : url,
-    cacheKey: generateMD5(url),
+    w > 0 ? "${u.toString()}&width=$w" : u.toString(),
+    cacheKey: generateMD5(k),
   );
 }
 
-DecorationImage dynamicAvatar(String? avatar, {int w = 400}) {
+DecorationImage dynamicAvatar(String? avatar, {double w = 400}) {
   return DecorationImage(
     image: cachedImageProvider(avatar, w: w),
     fit: BoxFit.cover,

@@ -74,7 +74,7 @@ class P2pCallScreenLogic {
   Future<void> signalingConnect() async {
     debugPrint("> rtc logic signalingConnect ${DateTime.now()}");
     // 检查WS链接状态
-    WSService.to.openSocket();
+    WebSocketService.to.openSocket();
     makingOffer = false;
   }
 

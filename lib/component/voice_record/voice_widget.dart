@@ -68,7 +68,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
 
   Duration recordingDuration = const Duration();
   final List<double> waveform = [];
-  late String recordingMimeType;
+  String recordingMimeType = 'audio/aac';
   late Codec recordCodec;
 
   Timer? _timer;

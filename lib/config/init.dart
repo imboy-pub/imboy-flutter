@@ -87,9 +87,6 @@ Future<void> init() async {
   getx.Get.lazyPut(() => NewFriendLogic());
   getx.Get.lazyPut(() => ConversationLogic());
 
-  // 初始化 WebSocket 链接
-  // getx.Get.put(WebSocket());
-  getx.Get.put(WSService());
   // MessageService 不能用 lazyPut
   getx.Get.put(MessageService());
   // getx.Get.lazyPut(() => DeviceExt());
@@ -97,6 +94,8 @@ Future<void> init() async {
   ntpOffset = await StorageService.to.ntpOffset();
   AMapHelper.setApiKey();
 
+  // 初始化 WebSocket 链接
+  await WebSocketService.to.init();
   await initIceServers();
 
   WidgetsBinding.instance.addObserver(
@@ -108,7 +107,7 @@ Future<void> init() async {
         debugPrint("> on LifecycleEventHandler resumeCallBack");
         ntpOffset = await StorageService.to.ntpOffset();
         // 检查WS链接状态
-        WSService.to.openSocket();
+        WebSocketService.to.openSocket();
       },
       suspendingCallBack: () async {
         // app 挂起
@@ -123,7 +122,7 @@ Future<void> init() async {
   Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
     if (r != ConnectivityResult.none) {
       // 检查WS链接状态
-      WSService.to.openSocket();
+      WebSocketService.to.openSocket();
     }
   });
   // debugPrint("> on currentTimeMillis init ${ntpOffset}");

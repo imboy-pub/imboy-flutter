@@ -49,7 +49,7 @@ class BottomNavigationLogic extends GetxController {
   //改变底部导航栏索引
   void changeBottomBarIndex(int index) {
     // 检查WS链接状态
-    WSService.to.openSocket();
+    WebSocketService.to.openSocket();
     update([
       state.bottombarIndex.value = index,
     ]);

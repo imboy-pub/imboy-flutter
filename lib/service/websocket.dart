@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:get/get.dart';
 import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
@@ -20,8 +19,15 @@ enum SocketStatus {
   SocketStatusClosed, // 连接关闭
 }
 
-class WSService extends GetxService {
-  static WSService get to => Get.find();
+class WebSocketService {
+  WebSocketService._();
+  static WebSocketService get to => _getInstance();
+  static WebSocketService? _instance;
+
+  static WebSocketService _getInstance() {
+    _instance ??= WebSocketService._();
+    return _instance!;
+  }
 
   Iterable<String> protocols = ['text', 'sip'];
   // String pingMsg = 'ping';
@@ -39,9 +45,7 @@ class WSService extends GetxService {
   late Function onMessage; // 接收消息回调重连定时器
   late Function onError; // 连接错误回调
 
-  @override
-  void onInit() {
-    super.onInit();
+  Future<void> init() async {
     if (_socketStatus != SocketStatus.SocketStatusConnected) {
       initWebSocket(onOpen: () {
         // initHeartBeat();
@@ -56,12 +60,6 @@ class WSService extends GetxService {
         debugPrint("> ws onError ${e.runtimeType} | ${e.toString()};");
       });
     }
-  }
-
-  @override
-  void onClose() {
-    closeSocket();
-    super.onClose();
   }
 
   /// 初始化WebSocket
@@ -93,10 +91,8 @@ class WSService extends GetxService {
     }
     // 链接状态正常，不需要任何处理
     if (_socketStatus == SocketStatus.SocketStatusConnected) {
-      // debugPrint('> ws openSocket _socketStatus: $_socketStatus;');
+      debugPrint('> ws openSocket _socketStatus: $_socketStatus;');
       return;
-    } else {
-      closeSocket();
     }
     try {
       String token = UserRepoLocal.to.accessToken;
@@ -143,7 +139,7 @@ class WSService extends GetxService {
       );
       // } on PlatformException catch (exception) {
     } catch (exception) {
-      debugPrint("ws error ${exception.toString()}");
+      debugPrint("> ws error ${exception.toString()}");
     }
   }
 
@@ -222,6 +218,7 @@ class WSService extends GetxService {
       _socketStatus = SocketStatus.SocketStatusClosed;
       _webSocketChannel = null;
     }
+    _instance = null;
   }
 
   /// 发送WebSocket消息

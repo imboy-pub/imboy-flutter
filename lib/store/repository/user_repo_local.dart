@@ -68,7 +68,7 @@ class UserRepoLocal extends GetxController {
     Sqlite.instance.database;
     // 初始化 WebSocket 链接
     // 检查WS链接状
-    WSService.to.openSocket();
+    WebSocketService.to.openSocket();
 
     // https://github.com/jpush/jpush-flutter-plugin/blob/master/documents/APIs.md
     // 获取 registrationId，这个 JPush 运行通过 registrationId 来进行推送.
@@ -85,13 +85,13 @@ class UserRepoLocal extends GetxController {
   }
 
   Future<bool> logout() async {
-    WSService.to.sendMessage("logout");
+    WebSocketService.to.sendMessage("logout");
     sleep(const Duration(seconds: 1));
     await StorageService.to.remove(Keys.tokenKey);
     await StorageService.to.remove(Keys.currentUid);
     await StorageService.to.remove(Keys.currentUser);
 
-    WSService.to.closeSocket();
+    WebSocketService.to.closeSocket();
     Sqlite.instance.close();
     return true;
   }

@@ -50,7 +50,7 @@ class MessageService extends GetxService {
         // 确认消息
         String did = await DeviceExt.did;
         debugPrint("> rtc msg CLIENT_ACK,WEBRTC,${data['id']},$did");
-        WSService.to.sendMessage("CLIENT_ACK,WEBRTC,${data['id']},$did");
+        WebSocketService.to.sendMessage("CLIENT_ACK,WEBRTC,${data['id']},$did");
 
         if (p2pCallScreenOn == false && type == 'WEBRTC_OFFER') {
           String peerId = data['from'];
@@ -221,7 +221,7 @@ class MessageService extends GetxService {
         String did = payload['did'] ?? '';
         if (did != currentId) {
           int serverTs = data['server_ts'] ?? 0;
-          WSService.to.closeSocket();
+          WebSocketService.to.closeSocket();
           UserRepoLocal.to.logout();
           Get.off(() => PassportPage(), arguments: {
             "msg_type": "logged_another_device",
@@ -245,7 +245,7 @@ class MessageService extends GetxService {
     // 确认消息
     String did = await DeviceExt.did;
     debugPrint("> rtc msg CLIENT_ACK,S2C,${data['id']},$did");
-    WSService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
+    WebSocketService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
   }
 
   /// Called before [onDelete] method. [onClose] might be used to
@@ -310,7 +310,7 @@ class MessageService extends GetxService {
     // 确认消息
     String did = await DeviceExt.did;
     debugPrint("> rtc msg CLIENT_ACK,C2C,${data['id']},$did");
-    WSService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$did");
+    WebSocketService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$did");
     if (exited != null && exited > 0) {
       return;
     }
@@ -380,7 +380,7 @@ class MessageService extends GetxService {
       'from': data["to"],
       'to': data["from"],
     };
-    WSService.to.sendMessage(json.encode(msg2));
+    WebSocketService.to.sendMessage(json.encode(msg2));
   }
 
   /// 撤回消息修正相应会话记录
@@ -437,7 +437,7 @@ class MessageService extends GetxService {
     eventBus.fire([msg.toTypeMessage()]);
     // 确认消息
     String did = await DeviceExt.did;
-    WSService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$did");
+    WebSocketService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$did");
     changeConversation(msg, 'my_revoked');
   }
 }

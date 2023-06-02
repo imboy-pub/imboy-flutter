@@ -1,5 +1,3 @@
-// ignore: depend_on_referenced_packages
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -120,9 +118,9 @@ class IMBoyImageGalleryOptions {
 
 /// 单击图片的时候放到显示图片的效果
 void zoomInPhotoView(String thumb) async {
-  ImageProvider thumbProvider = CachedNetworkImageProvider(
+  ImageProvider thumbProvider = cachedImageProvider(
     thumb,
-    cacheKey: generateMD5(thumb),
+    w: Get.width,
   );
   // 检查网络状态
   var res = await Connectivity().checkConnectivity();
@@ -131,10 +129,10 @@ void zoomInPhotoView(String thumb) async {
   if (res != ConnectivityResult.none && width.isNotEmpty) {
     int w = int.parse(width) * 2;
     thumb = thumb.replaceAll('&width=$width', '&width=$w');
-    thumbProvider = CachedNetworkImageProvider(
+    thumbProvider = cachedImageProvider(
       thumb,
       // 不要缓存大文件，以节省设备存储空间
-      // cacheKey: generateMD5(thumb),
+      w: -1,
     );
   }
   Get.bottomSheet(

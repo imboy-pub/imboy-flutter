@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 // ignore: depend_on_referenced_packages
@@ -140,10 +139,7 @@ Widget messageMsgWidget(types.Message msg) {
     msgWidget = Image(
       width: Get.width * 0.618,
       fit: BoxFit.cover,
-      image: CachedNetworkImageProvider(
-        thumb,
-        cacheKey: generateMD5(thumb),
-      ),
+      image: cachedImageProvider(thumb, w: Get.width),
     );
   }
   String customType = msg.metadata?['custom_type'] ?? '';

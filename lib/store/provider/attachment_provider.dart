@@ -73,7 +73,7 @@ class AttachmentProvider {
     ).then((response) {
       // debugPrint("> on upload response ${response.toString()}");
       Map<String, dynamic> resp = json.decode(response.data);
-      callback(resp, Assets.viewUrl(resp['data']['url']));
+      callback(resp, Assets.viewUrl(resp['data']['url']).toString());
     }).catchError((e) {
       debugPrint("> on upload err ${e.toString()}");
       errorCallback(e);
@@ -165,7 +165,7 @@ class AttachmentProvider {
         Map<String, dynamic> responseData = json.decode(response.data);
         String status = responseData['status'] ?? '';
         if (status == 'ok') {
-          videoUri = Assets.viewUrl(responseData['data']['url']);
+          videoUri = Assets.viewUrl(responseData['data']['url']).toString();
         } else {
           Map<String, dynamic> data = {
             'file':
@@ -229,7 +229,7 @@ class AttachmentProvider {
         Map<String, dynamic> responseData = json.decode(response.data);
         String status = responseData['status'] ?? '';
         if (status == 'ok') {
-          callback(responseData, Assets.viewUrl(responseData['data']['url']));
+          callback(responseData, Assets.viewUrl(responseData['data']['url']).toString());
         } else {
           Map<String, dynamic> data = {
             'file': MultipartFile.fromBytes(thumbData, filename: name),
@@ -251,7 +251,7 @@ class AttachmentProvider {
         Map<String, dynamic> responseData = json.decode(response.data);
         String status = responseData['status'] ?? '';
         if (status == 'ok') {
-          callback(responseData, Assets.viewUrl(responseData['data']['url']));
+          callback(responseData, Assets.viewUrl(responseData['data']['url']).toString());
         } else {
           Map<String, dynamic> data = {
             'file': await MultipartFile.fromFile(path, filename: name),

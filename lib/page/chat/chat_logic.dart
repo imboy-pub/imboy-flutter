@@ -75,7 +75,7 @@ class ChatLogic extends GetxController {
         'created_at': obj.createdAt,
       };
       debugPrint("> on msg check sending ${msg.toString()}");
-      return WSService.to.sendMessage(json.encode(msg));
+      return WebSocketService.to.sendMessage(json.encode(msg));
     }
     return true;
   }
@@ -223,7 +223,7 @@ class ChatLogic extends GetxController {
       'to': obj.remoteId,
     };
 
-    return WSService.to.sendMessage(json.encode(msg));
+    return WebSocketService.to.sendMessage(json.encode(msg));
   }
 
   /// 标记为已读

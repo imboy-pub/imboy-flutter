@@ -1,5 +1,4 @@
 import 'package:bubble/bubble.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 // ignore: depend_on_referenced_packages
@@ -132,9 +131,9 @@ class LocationMessageBuilder extends StatelessWidget {
                 child: Image(
                   width: Get.width,
                   fit: BoxFit.cover,
-                  image: CachedNetworkImageProvider(
+                  image: cachedImageProvider(
                     thumb,
-                    cacheKey: generateMD5(thumb),
+                    w: Get.width,
                   ),
                 ),
               ),

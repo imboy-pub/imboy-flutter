@@ -107,7 +107,7 @@ class ChatPageState extends State<ChatPage> {
     super.initState();
 
     // 检查WS链接状态
-    WSService.to.openSocket();
+    WebSocketService.to.openSocket();
     initData();
     unawaited(_handleEndReached());
     // 异步检查是否有离线数据 TODO leeyi 2023-01-29 16:43:47

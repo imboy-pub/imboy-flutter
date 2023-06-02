@@ -62,7 +62,7 @@ sendWebRTCMsg(String event, Map payload, {String? to, String? debug}) {
   request["payload"] = payload;
   debugPrint(
       '> rtc _send $event, debug $debug, ${DateTime.now()} ${request.toString()}');
-  WSService.to.sendMessage(json.encode(request));
+  WebSocketService.to.sendMessage(json.encode(request));
 }
 
 /// 排线两端，使得两端sessionId一致

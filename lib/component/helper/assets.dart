@@ -22,13 +22,13 @@ class Assets {
 
   /// 获取URL地址的 v 参数，和当前时间做比较，再决定是否重新生成授权令牌
   /// Assets.viewUrl
-  static String viewUrl(String url) {
+  static Uri viewUrl(String url) {
     Uri u = Uri.parse(url);
     int v = int.parse("${u.queryParameters['v'] ?? 0}");
     int now = DateTimeHelper.currentTimeSecond();
     int diff = 259200; // 3day
     if (v > 0 && now < (v + diff)) {
-      return url;
+      return u;
     }
     Map<String, dynamic> data = authData();
     Map<String, String> q = Map<String, String>.from(u.queryParameters)
@@ -43,6 +43,6 @@ class Assets {
       path: u.path,
       port: u.port,
       queryParameters: q,
-    ).toString();
+    );
   }
 }

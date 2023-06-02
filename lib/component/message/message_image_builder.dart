@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 // ignore: depend_on_referenced_packages
@@ -14,6 +13,7 @@ import 'package:flutter_chat_ui/src/widgets/state/inherited_chat_theme.dart'
 // ignore: implementation_imports
 import 'package:flutter_chat_ui/src/widgets/state/inherited_user.dart'
     show InheritedUser;
+import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 
 /// A class that represents image message widget. Supports different
@@ -24,13 +24,9 @@ class ImageMessageBuilder extends StatefulWidget {
   /// Creates an image message widget based on [types.ImageMessage].
   const ImageMessageBuilder({
     super.key,
-    this.imageHeaders,
     required this.message,
     required this.messageWidth,
   });
-
-  /// See [Chat.imageHeaders].
-  final Map<String, String>? imageHeaders;
 
   /// [types.ImageMessage].
   final types.ImageMessage message;
@@ -52,11 +48,7 @@ class _ImageMessageState extends State<ImageMessageBuilder> {
   void initState() {
     super.initState();
 
-    _image = CachedNetworkImageProvider(
-      widget.message.uri,
-      cacheKey: generateMD5(widget.message.uri),
-      headers: widget.imageHeaders,
-    );
+    _image = cachedImageProvider(widget.message.uri, w: Get.width);
     _size = Size(widget.message.width ?? 0, widget.message.height ?? 0);
   }
 
