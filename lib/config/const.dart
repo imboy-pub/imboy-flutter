@@ -24,6 +24,10 @@ const RECORD_LOG = true;
 String SENTRY_DSN = dotenv.get('SENTRY_DSN');
 // 附件上传认证密钥
 String UP_AUTH_KEY = dotenv.get('UP_AUTH_KEY');
+// 用于服务端和APP交互数据对称加密的密钥 16 字符 或者32 位字符串， 需要和服务端一致
+String SOLIDIFIED_KEY = dotenv.get('SOLIDIFIED_KEY');
+// IV 必须都为128比特，也就是16字节，需要和服务端一致
+String SOLIDIFIED_KEY_IV = dotenv.get('SOLIDIFIED_KEY_IV');
 
 // 高德地图 key
 String AMAP_WEBS_KEY = dotenv.get('AMAP_WEBS_KEY');

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
+import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/image_view.dart';
 import 'package:imboy/config/const.dart';
@@ -111,11 +112,10 @@ class ContactCard extends StatelessWidget {
               padding: const EdgeInsets.only(
                 top: 4.0,
               ),
-              child: ImageView(
-                img: avatar!,
+              child: Avatar(
+                imgUri: avatar!,
                 width: 55,
                 height: 55,
-                fit: BoxFit.cover,
               ),
             ),
             onTap: () {

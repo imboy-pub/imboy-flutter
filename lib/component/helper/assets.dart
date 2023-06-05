@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:imboy/config/const.dart';
 
 import 'datetime.dart';
@@ -23,10 +24,17 @@ class Assets {
   /// 获取URL地址的 v 参数，和当前时间做比较，再决定是否重新生成授权令牌
   /// Assets.viewUrl
   static Uri viewUrl(String url) {
+    int now = DateTimeHelper.currentTimeSecond();
+    int diff = 3600; // 1hour
+
+    Map<String, dynamic> cache = {};
+    // 从服务器去授权码，缓存，服务器设定的缓存时间，
+    // 判断有授权码，直接设置响应；
+    // 否则，通过aes加密方式想服务器请求授权令牌，并且缓存之
+
     Uri u = Uri.parse(url);
     int v = int.parse("${u.queryParameters['v'] ?? 0}");
-    int now = DateTimeHelper.currentTimeSecond();
-    int diff = 259200; // 3day
+    debugPrint("> viewUrl $v if ${v > 0 && now < (v + diff)} | $url ");
     if (v > 0 && now < (v + diff)) {
       return u;
     }
@@ -37,6 +45,13 @@ class Assets {
         'a': data['a'],
         'v': data['v'].toString(),
       });
+    debugPrint("viewUrl 2 ${Uri(
+      scheme: u.scheme,
+      host: u.host,
+      path: u.path,
+      port: u.port,
+      queryParameters: q,
+    ).toString()}");
     return Uri(
       scheme: u.scheme,
       host: u.host,

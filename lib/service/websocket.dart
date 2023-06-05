@@ -139,6 +139,7 @@ class WebSocketService {
       );
       // } on PlatformException catch (exception) {
     } catch (exception) {
+      _socketStatus = SocketStatus.SocketStatusFailed;
       debugPrint("> ws error ${exception.toString()}");
     }
   }
