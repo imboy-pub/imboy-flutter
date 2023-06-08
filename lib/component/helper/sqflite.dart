@@ -5,6 +5,7 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/denylist_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_collect_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_device_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -267,6 +268,27 @@ class Sqlite {
       ''';
     debugPrint("> on _onCreate \n$userDeviceSql\n");
     await db.execute(userDeviceSql);
+
+    String userCollectSql = '''
+      CREATE TABLE IF NOT EXISTS ${UserCollectRepo.tableName} (
+        auto_id INTEGER,
+        ${UserCollectRepo.userId} varchar(40) NOT NULL,
+        ${UserCollectRepo.kind} int(16) NOT NULL DEFAULT '',
+        ${UserCollectRepo.kindId} varchar(40) NOT NULL DEFAULT '',
+        ${UserCollectRepo.source} varchar(255) NOT NULL DEFAULT '',
+        ${UserCollectRepo.remark} varchar(255) NOT NULL DEFAULT '',
+        ${UserCollectRepo.updatedAt} int(16) NOT NULL DEFAULT 0,
+        ${UserCollectRepo.createdAt} int(16) NOT NULL DEFAULT 0,
+        ${UserCollectRepo.info} text DEFAULT '',
+        PRIMARY KEY("auto_id"),
+        CONSTRAINT i_Uid_KindId UNIQUE (
+            ${UserCollectRepo.userId},
+            ${UserCollectRepo.kindId}
+        )
+        );
+      ''';
+    debugPrint("> on _onCreate \n$userCollectSql\n");
+    await db.execute(userCollectSql);
   }
 
   Future<int> insert(String table, Map<String, dynamic> data) async {

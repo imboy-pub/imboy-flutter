@@ -11,6 +11,7 @@ import 'package:imboy/page/personal_info/personal_info_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'mine_logic.dart';
+import 'user_collect/user_collect_view.dart';
 import 'user_device/user_device_view.dart';
 
 // ignore: must_be_immutable
@@ -29,8 +30,8 @@ class MinePage extends StatelessWidget {
             GetBuilder<UserRepoLocal>(
               builder: (controller) => InkWell(
                 onTap: () {
-                  Get.to(()=>
-                    const PersonalInfoPage(),
+                  Get.to(
+                    () => const PersonalInfoPage(),
                     transition: Transition.rightToLeft,
                     popGesture: true, // 右滑，返回上一页
                   );
@@ -157,7 +158,13 @@ class MinePage extends StatelessWidget {
                     Icons.navigate_next,
                     color: AppColors.MainTextColor.withOpacity(0.5),
                   ),
-                  onTap: () {},
+                  onTap: () {
+                    Get.to(
+                      () => UserCollectPage(),
+                      transition: Transition.rightToLeft,
+                      popGesture: true, // 右滑，返回上一页
+                    );
+                  },
                 ),
                 n.Padding(left: 48, child: const Divider()),
                 n.ListTile(
@@ -176,7 +183,7 @@ class MinePage extends StatelessWidget {
                   ),
                   onTap: () {
                     Get.to(
-                      ()=> UserDevicePage(),
+                      () => UserDevicePage(),
                       transition: Transition.rightToLeft,
                       popGesture: true, // 右滑，返回上一页
                     );
