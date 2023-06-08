@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/message/message.dart';
 import 'package:imboy/page/chat/chat_logic.dart';
+import 'package:imboy/service/assets.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -114,10 +115,13 @@ class QuoteMessageBuilder extends StatelessWidget {
               if (quoteMsg is types.TextMessage) {
                 showTextMessage(quoteMsg.text);
               } else if (quoteMsg is types.ImageMessage) {
-                String thumb = quoteMsg.uri;
-                zoomInPhotoView(thumb);
+                final String uri =
+                    AssetsService.viewUrl(quoteMsg.uri).toString();
+                zoomInPhotoView(uri);
               } else if (quoteMsg is types.FileMessage) {
-                confirmOpenFile(quoteMsg.uri);
+                final String uri =
+                    AssetsService.viewUrl(quoteMsg.uri).toString();
+                confirmOpenFile(uri);
               } else if (quoteMsg is types.CustomMessage) {
                 String txt = quoteMsg.metadata?['quote_text'] ?? '';
                 if (txt.isNotEmpty) {
@@ -126,8 +130,7 @@ class QuoteMessageBuilder extends StatelessWidget {
               }
             },
             child: n.Row([
-              SizedBox(
-                width: Get.width * 0.618,
+              Flexible(
                 child: messageMsgWidget(quoteMsg),
               ),
             ])

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/file.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
-import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/encrypter.dart';
 import 'package:video_player/video_player.dart';
 
 class ChatVideoPage extends StatefulWidget {
@@ -35,7 +35,7 @@ class _ChatVideoPageState extends State<ChatVideoPage> {
   Future<void> initializePlayer() async {
     File? tmpF = await IMBoyCacheManager().getSingleFile(
       widget.url,
-      key: generateMD5(widget.url),
+      key: EncrypterService.md5(widget.url),
     );
     _videoPlayerController = VideoPlayerController.file(tmpF);
     await Future.wait([

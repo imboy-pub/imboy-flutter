@@ -91,7 +91,7 @@ class WebSocketService {
     }
     // 链接状态正常，不需要任何处理
     if (_socketStatus == SocketStatus.SocketStatusConnected) {
-      debugPrint('> ws openSocket _socketStatus: $_socketStatus;');
+      // debugPrint('> ws openSocket _socketStatus: $_socketStatus;');
       return;
     }
     try {
@@ -137,7 +137,6 @@ class WebSocketService {
         //设置错误时取消订阅
         cancelOnError: true,
       );
-      // } on PlatformException catch (exception) {
     } catch (exception) {
       _socketStatus = SocketStatus.SocketStatusFailed;
       debugPrint("> ws error ${exception.toString()}");

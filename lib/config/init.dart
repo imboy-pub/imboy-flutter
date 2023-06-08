@@ -107,7 +107,7 @@ Future<void> init() async {
         debugPrint("> on LifecycleEventHandler resumeCallBack");
         ntpOffset = await StorageService.to.ntpOffset();
         // 检查WS链接状态
-        WebSocketService.to.openSocket();
+        WebSocketService.to.init();
       },
       suspendingCallBack: () async {
         // app 挂起
@@ -122,7 +122,7 @@ Future<void> init() async {
   Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
     if (r != ConnectivityResult.none) {
       // 检查WS链接状态
-      WebSocketService.to.openSocket();
+      WebSocketService.to.init();
     }
   });
   // debugPrint("> on currentTimeMillis init ${ntpOffset}");

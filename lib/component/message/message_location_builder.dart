@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/service/assets.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -126,6 +127,7 @@ class LocationMessageBuilder extends StatelessWidget {
               flex: 2,
               child: InkWell(
                 onTap: () async {
+                  thumb = AssetsService.viewUrl(thumb).toString();
                   zoomInPhotoView(thumb);
                 },
                 child: Image(

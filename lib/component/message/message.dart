@@ -11,6 +11,7 @@ import 'package:flutter_chat_ui/src/widgets/state/inherited_user.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:imboy/config/const.dart';
@@ -221,7 +222,7 @@ void confirmOpenFile(String uri) {
     onConfirm: () async {
       File? tmpF = await IMBoyCacheManager().getSingleFile(
         uri,
-        key: generateMD5(uri),
+        key: EncrypterService.md5(uri),
       );
       Get.back();
       await OpenFile.open(tmpF.path);

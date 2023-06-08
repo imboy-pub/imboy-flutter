@@ -4,7 +4,6 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
-import 'package:imboy/component/ui/image_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:niku/namespace.dart' as n;
 

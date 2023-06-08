@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter/foundation.dart';
@@ -10,6 +12,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -58,16 +61,26 @@ class PassportLogic extends GetxController {
   }
 
   Future<Map<String, dynamic>> encryptPassword(String password) async {
-    IMBoyHttpResponse resp1 = await HttpClient.client.get("/init");
+    IMBoyHttpResponse resp1 = await HttpClient.client.get(API.initConfig);
     debugPrint("> on init ${resp1.toString()}");
     if (!resp1.ok) {
       return {"error": "网络故障或服务故障"};
     }
+    String encrypted = resp1.payload['res'] ?? '';
+    if (encrypted.isEmpty) {
+      return {"error": "服务故障协议有误"};
+    }
+
+    Map<String, dynamic> payload = jsonDecode(EncrypterService.aesDecrypt(
+      encrypted,
+      SOLIDIFIED_KEY,
+      SOLIDIFIED_KEY_IV,
+    ));
     // debugPrint("> on ${resp1.payload.toString()}");
     // debugPrint("> on ${resp1.toString()}");
-    String pubKey = resp1.payload['login_rsa_pub_key'] as String;
-    final rsaEncrypt = resp1.payload['login_pwd_rsa_encrypt'];
+    final rsaEncrypt = payload['login_pwd_rsa_encrypt'].toString();
     if (rsaEncrypt == "1") {
+      String pubKey = payload['login_rsa_pub_key'].toString();
       dynamic publicKey = RSAKeyParser().parse(pubKey);
       final encryptor = Encrypter(RSA(publicKey: publicKey));
       final encrypted = encryptor.encrypt(password);

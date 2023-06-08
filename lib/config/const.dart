@@ -172,12 +172,13 @@ class Constants {
 }
 
 class API {
-  static const init = '/init';
+  static const initConfig = '/init';
   static const refreshToken = '/refreshtoken';
   static const login = '/passport/login';
   static const signup = '/passport/signup';
   static const getCode = '/passport/getcode';
   static const findPassword = '/passport/findpassword';
+  static const assetsToken = '/auth/get_token';
 
   static const addFriend = '/friend/add';
   static const confirmFriend = '/friend/confirm';

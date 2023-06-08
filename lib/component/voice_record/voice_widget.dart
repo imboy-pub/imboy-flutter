@@ -306,7 +306,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         setState(() {
           pos = e.duration.inMilliseconds;
         });
-        debugPrint("> on record listen pos: $pos, dbLevel: ${e.decibels};");
+        // debugPrint("> on record listen pos: $pos, dbLevel: ${e.decibels};");
         if (e.decibels != null) {
           recordingDuration = e.duration;
           dbLevel = e.decibels as double;
@@ -322,20 +322,23 @@ class _VoiceWidgetState extends State<VoiceWidget> {
             hideVoiceView(ctx);
           }
 
-          double voiceData = ((dbLevel * 100.0).floor()) / 10000;
+          double voiceData = ((dbLevel * 100.0).floor()) / 3500;
+          // debugPrint("> on voiceData $voiceData;");
           if (voiceData > 0 && voiceData < 0.1) {
-            voiceIco = "assets/images/chat/voice_volume_2.png";
+            voiceIco = "assets/images/chat/voice_volume_1.png";
           } else if (voiceData > 0.2 && voiceData < 0.3) {
-            voiceIco = "assets/images/chat/voice_volume_3.png";
+            voiceIco = "assets/images/chat/voice_volume_2.png";
           } else if (voiceData > 0.3 && voiceData < 0.4) {
-            voiceIco = "assets/images/chat/voice_volume_4.png";
+            voiceIco = "assets/images/chat/voice_volume_3.png";
           } else if (voiceData > 0.4 && voiceData < 0.5) {
-            voiceIco = "assets/images/chat/voice_volume_5.png";
+            voiceIco = "assets/images/chat/voice_volume_4.png";
           } else if (voiceData > 0.5 && voiceData < 0.6) {
-            voiceIco = "assets/images/chat/voice_volume_6.png";
+            voiceIco = "assets/images/chat/voice_volume_5.png";
           } else if (voiceData > 0.6 && voiceData < 0.7) {
-            voiceIco = "assets/images/chat/voice_volume_7.png";
+            voiceIco = "assets/images/chat/voice_volume_6.png";
           } else if (voiceData > 0.7 && voiceData < 1) {
+            voiceIco = "assets/images/chat/voice_volume_7.png";
+          } else if (voiceData > 1) {
             voiceIco = "assets/images/chat/voice_volume_7.png";
           } else {
             voiceIco = "assets/images/chat/voice_volume_1.png";

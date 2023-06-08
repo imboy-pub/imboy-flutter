@@ -9,9 +9,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart' as getx;
-import 'package:imboy/component/helper/assets.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
 import 'package:video_compress/video_compress.dart';
@@ -33,7 +33,7 @@ class AttachmentProvider {
       savePath = "/$prefix/";
     }
 
-    Map<String, dynamic> authData = Assets.authData();
+    Map<String, dynamic> authData = AssetsService.authData();
     // data = {'file':MultipartFile.fromFile(path, filename: name)};
     data['output'] = 'json2';
     data['path'] = savePath;
@@ -73,7 +73,7 @@ class AttachmentProvider {
     ).then((response) {
       // debugPrint("> on upload response ${response.toString()}");
       Map<String, dynamic> resp = json.decode(response.data);
-      callback(resp, Assets.viewUrl(resp['data']['url']).toString());
+      callback(resp, AssetsService.viewUrl(resp['data']['url']).toString());
     }).catchError((e) {
       debugPrint("> on upload err ${e.toString()}");
       errorCallback(e);
@@ -86,7 +86,7 @@ class AttachmentProvider {
     DateTime dt = DateTime.fromMillisecondsSinceEpoch(ts);
     String savePath = "/$prefix/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";
 
-    Map<String, dynamic> authData = Assets.authData();
+    Map<String, dynamic> authData = AssetsService.authData();
     // data = {'file':MultipartFile.fromFile(path, filename: name)};
     data['md5'] = data['md5'];
     data['output'] = 'json2';
@@ -165,7 +165,8 @@ class AttachmentProvider {
         Map<String, dynamic> responseData = json.decode(response.data);
         String status = responseData['status'] ?? '';
         if (status == 'ok') {
-          videoUri = Assets.viewUrl(responseData['data']['url']).toString();
+          videoUri =
+              AssetsService.viewUrl(responseData['data']['url']).toString();
         } else {
           Map<String, dynamic> data = {
             'file':
@@ -229,7 +230,8 @@ class AttachmentProvider {
         Map<String, dynamic> responseData = json.decode(response.data);
         String status = responseData['status'] ?? '';
         if (status == 'ok') {
-          callback(responseData, Assets.viewUrl(responseData['data']['url']).toString());
+          callback(responseData,
+              AssetsService.viewUrl(responseData['data']['url']).toString());
         } else {
           Map<String, dynamic> data = {
             'file': MultipartFile.fromBytes(thumbData, filename: name),
@@ -251,7 +253,8 @@ class AttachmentProvider {
         Map<String, dynamic> responseData = json.decode(response.data);
         String status = responseData['status'] ?? '';
         if (status == 'ok') {
-          callback(responseData, Assets.viewUrl(responseData['data']['url']).toString());
+          callback(responseData,
+              AssetsService.viewUrl(responseData['data']['url']).toString());
         } else {
           Map<String, dynamic> data = {
             'file': await MultipartFile.fromFile(path, filename: name),

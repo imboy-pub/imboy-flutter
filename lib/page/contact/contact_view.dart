@@ -3,8 +3,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/service/assets.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:imboy/component/helper/assets.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/search/search_view.dart';
@@ -38,8 +38,8 @@ class ContactPage extends StatelessWidget {
         rightDMActions: <Widget>[
           InkWell(
             onTap: () {
-              Get.to(()=>
-                const SearchPage(),
+              Get.to(
+                () => const SearchPage(),
                 transition: Transition.rightToLeft,
                 popGesture: true, // 右滑，返回上一页
               );
@@ -110,7 +110,8 @@ class ContactPage extends StatelessWidget {
                       indexHintDecoration: BoxDecoration(
                         image: DecorationImage(
                           image: AssetImage(
-                            Assets.getImgPath('ic_index_bar_bubble_gray'),
+                            AssetsService.getImgPath(
+                                'ic_index_bar_bubble_gray'),
                           ),
                           fit: BoxFit.contain,
                         ),

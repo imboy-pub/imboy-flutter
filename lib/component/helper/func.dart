@@ -1,22 +1,16 @@
-import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
 
-// ignore: depend_on_referenced_packages
-import 'package:convert/convert.dart';
-
-// ignore: depend_on_referenced_packages
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_binding.dart';
 import 'package:imboy/page/chat/chat_view.dart';
+import 'package:imboy/service/assets.dart';
+import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
-
-import 'assets.dart';
 
 // This alphabet uses `A-Za-z0-9_-` symbols. The genetic algorithm helped
 // optimize the gzip compression for this alphabet.
@@ -177,18 +171,9 @@ String removeDot(v) {
   return vStr;
 }
 
-// md5 加密
-String generateMD5(String data) {
-  // var content = Utf8Encoder().convert(data);
-  // var digest = md5.convert(content);
-  var digest = md5.convert(utf8.encode(data));
-  // 这里其实就是 digest.toString()
-  return hex.encode(digest.bytes);
-}
-
 ///
 /// w < 0 不要缓存大文件，以节省设备存储空间
-ImageProvider cachedImageProvider(String? url, {double w = 400}) {
+ImageProvider<Object> cachedImageProvider(String? url, {double w = 400}) {
   if (strEmpty(url)) {
     return const AssetImage(defAvatar);
   }
@@ -199,11 +184,11 @@ ImageProvider cachedImageProvider(String? url, {double w = 400}) {
   if (w < 0) {
     return CachedNetworkImageProvider(url);
   }
-  Uri u = Assets.viewUrl(url);
+  Uri u = AssetsService.viewUrl(url);
   String k = "${u.scheme}://${u.host}:${u.port}${u.path}";
   return CachedNetworkImageProvider(
     w > 0 ? "${u.toString()}&width=$w" : u.toString(),
-    cacheKey: generateMD5(k),
+    cacheKey: EncrypterService.md5(k),
   );
 }
 

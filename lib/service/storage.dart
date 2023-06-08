@@ -64,7 +64,7 @@ class StorageService extends GetxService {
     if (val == null) {
       try {
         offset = await NTP.getNtpOffset(
-          localTime: DateTime.now(),
+          localTime: Jiffy.now().dateTime,
           lookUpAddress: 'time5.cloud.tencent.com',
         );
         // debugPrint("> on currentTimeMillis offset2 ${offset}");

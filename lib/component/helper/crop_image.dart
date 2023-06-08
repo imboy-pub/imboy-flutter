@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_crop/image_crop.dart';
@@ -138,7 +137,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
     ) async {
       // debugPrint("> on upload resp ${resp.toString()}");
       Navigator.pop(context, uri); //这里的url在上一页调用的result可以拿到
-    }, (DioError error) {
+    }, (Error error) {
       debugPrint("> on upload ${error.toString()}");
     }, name: widget.filename);
   }

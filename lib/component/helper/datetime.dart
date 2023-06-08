@@ -40,7 +40,7 @@ class DateTimeHelper {
   static int currentTimeMillis() {
     DateTime myTime;
     DateTime ntpTime;
-    myTime = DateTime.now();
+    myTime = Jiffy.now().dateTime;
     // debugPrint("> on currentTimeMillis _myTime ${_myTime.toString()}");
     // ntpOffset 是一个全局变量
     ntpTime = myTime.add(Duration(milliseconds: ntpOffset));

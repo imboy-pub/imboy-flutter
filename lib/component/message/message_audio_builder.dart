@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:voice_message_package/voice_message_package.dart';
 
@@ -51,7 +51,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
     bool userIsAuthor = widget.user.id == widget.message.author.id;
     Future<File> tmpF = IMBoyCacheManager().getSingleFile(
       widget.message.metadata!['uri'],
-      key: generateMD5(widget.message.metadata!['uri']),
+      key: EncrypterService.md5(widget.message.metadata!['uri']),
     );
 
     Duration d = Duration(

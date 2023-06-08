@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/service/assets.dart';
 
 class ImageView extends StatelessWidget {
   final String img;
@@ -27,7 +28,7 @@ class ImageView extends StatelessWidget {
     Widget image;
     if (isNetWorkImg(img)) {
       image = CachedNetworkImage(
-        imageUrl: img,
+        imageUrl: AssetsService.viewUrl(img).toString(),
         width: width,
         height: height,
         fit: fit,

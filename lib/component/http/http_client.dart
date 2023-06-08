@@ -2,13 +2,15 @@ import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
+// ignore: implementation_imports
+import 'package:dio/src/adapters/io_adapter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart' as getx;
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'http_config.dart';
@@ -17,11 +19,13 @@ import 'http_response.dart';
 import 'http_transformer.dart';
 
 Future<Map<String, dynamic>> defaultHeaders() async {
+  String did = await DeviceExt.did;
   return {
     'vsn': appVsn,
-    'did': await DeviceExt.did,
+    'did': did,
     'cos': Platform.operatingSystem,
     'cosv': Platform.operatingSystemVersion,
+    'sign': EncrypterService.sha256("$did|$appVsn", SOLIDIFIED_KEY)
   };
 }
 

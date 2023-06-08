@@ -4,7 +4,7 @@ import 'package:flutter_cache_manager/file.dart';
 import 'package:http/http.dart' as http;
 import 'package:clock/clock.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:imboy/component/helper/assets.dart';
+import 'package:imboy/service/assets.dart';
 import 'mime_converter.dart';
 
 class IMBoyCacheManager extends CacheManager {
@@ -23,7 +23,7 @@ class IMBoyCacheManager extends CacheManager {
     String? ext,
     Map<String, String>? headers,
   }) async {
-    Uri u = Assets.viewUrl(url);
+    Uri u = AssetsService.viewUrl(url);
     key ??= "${u.scheme}://${u.host}:${u.port}${u.path}";
 
     final cacheFile = await getFileFromCache(key);

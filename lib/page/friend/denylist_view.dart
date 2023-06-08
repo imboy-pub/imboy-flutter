@@ -5,10 +5,10 @@ import 'package:get/get.dart';
 import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/page/single/people_info.dart';
+import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/repository/denylist_repo_sqlite.dart';
 import 'package:niku/namespace.dart' as n;
 
-import 'package:imboy/component/helper/assets.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
@@ -75,8 +75,8 @@ class DenylistPage extends StatelessWidget {
                           // debugPrint(
                           //     "> on search value ${value is DenylistModel}, ${value.toString()}");
                           if (value is DenylistModel) {
-                            Get.to(()=>
-                              PeopleInfoPage(
+                            Get.to(
+                              () => PeopleInfoPage(
                                 id: value.deniedUid,
                                 sence: 'denylist',
                               ),
@@ -107,8 +107,8 @@ class DenylistPage extends StatelessWidget {
                               title: Text(model.nickname),
                               // subtitle: Text('${model.remark}'),
                               onTap: () {
-                                Get.to(()=>
-                                  PeopleInfoPage(
+                                Get.to(
+                                  () => PeopleInfoPage(
                                     id: model.deniedUid,
                                     sence: 'denylist',
                                   ),
@@ -148,7 +148,8 @@ class DenylistPage extends StatelessWidget {
                             indexHintDecoration: BoxDecoration(
                               image: DecorationImage(
                                 image: AssetImage(
-                                  Assets.getImgPath('ic_index_bar_bubble_gray'),
+                                  AssetsService.getImgPath(
+                                      'ic_index_bar_bubble_gray'),
                                 ),
                                 fit: BoxFit.contain,
                               ),

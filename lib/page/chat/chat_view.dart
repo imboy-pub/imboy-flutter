@@ -2,17 +2,16 @@ import 'dart:io';
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/assets.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/message/message_image_builder.dart';
 import 'package:imboy/page/chat/send_to/send_to_view.dart';
+import 'package:imboy/service/assets.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:map_launcher/map_launcher.dart';
@@ -107,7 +106,7 @@ class ChatPageState extends State<ChatPage> {
     super.initState();
 
     // 检查WS链接状态
-    WebSocketService.to.openSocket();
+    WebSocketService.to.init();
     initData();
     unawaited(_handleEndReached());
     // 异步检查是否有离线数据 TODO leeyi 2023-01-29 16:43:47
@@ -299,7 +298,7 @@ class ChatPageState extends State<ChatPage> {
         );
         // 上传现有的附件，是不需要清理临时文件的
         _addMessage(message);
-      }, (DioError error) {
+      }, (Error error) {
         debugPrint("> on upload ${error.toString()}");
       });
     }
@@ -361,7 +360,7 @@ class ChatPageState extends State<ChatPage> {
           );
           _addMessage(message);
         }
-      }, (DioError error) {
+      }, (Error error) {
         debugPrint("> on upload error ${error.toString()}");
       });
       if (mounted) {
@@ -465,7 +464,7 @@ class ChatPageState extends State<ChatPage> {
       _addMessage(message);
       // 上传成功，删除本地临时文件
       file.deleteSync();
-    }, (DioError error) {
+    }, (Error error) {
       debugPrint("> on upload ${error.toString()}");
     }, name: id);
   }
@@ -518,7 +517,7 @@ class ChatPageState extends State<ChatPage> {
         assets.removeAt(
           assets.indexWhere((element) => element.id == entity.id),
         );
-      }, (DioError error) {
+      }, (Error error) {
         debugPrint("> on upload ${error.toString()}");
       });
     }
@@ -555,7 +554,7 @@ class ChatPageState extends State<ChatPage> {
 
       obj.file.delete(recursive: true);
       _addMessage(message);
-    }, (DioError error) {
+    }, (Error error) {
       debugPrint("> on upload ${error.toString()}");
     }, process: false);
   }
@@ -731,7 +730,7 @@ class ChatPageState extends State<ChatPage> {
         //   color: Colors.white,
         // ),
         image: Image.asset(
-          Assets.getImgPath('chat/reply_to'),
+          AssetsService.getImgPath('chat/reply_to'),
           // size: 16,
           color: const Color(0xffc5c5c5),
           // package: 'flutter_plugin_record',
