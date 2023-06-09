@@ -16,7 +16,6 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 // ignore: depend_on_referenced_packages
 import 'package:jiffy/jiffy.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-
 import 'component/locales/locales.dart';
 import 'config/init.dart';
 import 'config/theme.dart';

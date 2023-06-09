@@ -94,8 +94,8 @@ Future<void> init() async {
   ntpOffset = await StorageService.to.ntpOffset();
   AMapHelper.setApiKey();
 
-  // 初始化 WebSocket 链接
-  await WebSocketService.to.init();
+  // 初始化单例 WebSocketService
+  WebSocketService.to;
   await initIceServers();
 
   WidgetsBinding.instance.addObserver(
@@ -107,7 +107,7 @@ Future<void> init() async {
         debugPrint("> on LifecycleEventHandler resumeCallBack");
         ntpOffset = await StorageService.to.ntpOffset();
         // 检查WS链接状态
-        WebSocketService.to.init();
+        WebSocketService.to;
       },
       suspendingCallBack: () async {
         // app 挂起

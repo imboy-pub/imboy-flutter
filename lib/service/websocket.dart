@@ -26,6 +26,9 @@ class WebSocketService {
 
   static WebSocketService _getInstance() {
     _instance ??= WebSocketService._();
+    if (_instance != null) {
+      _instance!.init();
+    }
     return _instance!;
   }
 
@@ -45,7 +48,8 @@ class WebSocketService {
   late Function onMessage; // 接收消息回调重连定时器
   late Function onError; // 连接错误回调
 
-  Future<void> init() async {
+  /// 在
+  void init() {
     if (_socketStatus != SocketStatus.SocketStatusConnected) {
       initWebSocket(onOpen: () {
         // initHeartBeat();
@@ -82,7 +86,7 @@ class WebSocketService {
       debugPrint('> ws openSocket 网络连接异常ws');
       return;
     }
-    if (!UserRepoLocal.to.isLogin) {
+    if (UserRepoLocal.to.isLogin == false) {
       debugPrint('> ws openSocket is not login');
       return;
     }
