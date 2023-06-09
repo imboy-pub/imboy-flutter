@@ -53,6 +53,19 @@ class UserCollectRepo {
     return items;
   }
 
+  Future<UserCollectModel> save(Map<String, dynamic> json) async {
+    String kid = json[UserCollectRepo.kindId];
+    UserCollectModel? old = await findByKindId(kid);
+    if (old is UserCollectModel) {
+      await update(kid, json);
+      return old;
+    } else {
+      UserCollectModel model = UserCollectModel.fromJson(json);
+      await insert(model);
+      return model;
+    }
+  }
+
   // 插入一条数据
   Future<UserCollectModel> insert(UserCollectModel obj) async {
     Map<String, dynamic> insert = {
@@ -65,7 +78,7 @@ class UserCollectRepo {
       UserCollectRepo.createdAt: obj.createdAt,
       UserCollectRepo.info: obj.info,
     };
-    debugPrint("> on UserCollectRepo/insert/1 $insert");
+    debugPrint("UserCollectRepo_insert/1 $insert");
 
     await _db.insert(UserCollectRepo.tableName, insert);
     return obj;
@@ -86,10 +99,12 @@ class UserCollectRepo {
     if (strNoEmpty(json[UserCollectRepo.remark])) {
       data[UserCollectRepo.remark] = json[UserCollectRepo.remark];
     }
-
-    int createdAt = json[UserCollectRepo.createdAt] ?? 0;
-    if (createdAt > 0) {
-      data[UserCollectRepo.createdAt] = createdAt;
+    if (strNoEmpty(json[UserCollectRepo.source])) {
+      data[UserCollectRepo.source] = json[UserCollectRepo.source];
+    }
+    int updatedAt = json[UserCollectRepo.updatedAt] ?? 0;
+    if (updatedAt > 0) {
+      data[UserCollectRepo.updatedAt] = updatedAt;
     }
 
     if (strNoEmpty(kid)) {
@@ -138,6 +153,20 @@ class UserCollectRepo {
       items.add(UserCollectModel.fromJson(maps[i]));
     }
     return items;
+  }
+
+  Future<UserCollectModel?> findByKindId(String kindId) async {
+    List<Map<String, dynamic>> maps = await _db.query(
+      UserCollectRepo.tableName,
+      columns: [],
+      where: '${UserCollectRepo.userId} = ? and ${UserCollectRepo.kindId} = ?',
+      whereArgs: [UserRepoLocal.to.currentUid, kindId],
+    );
+    if (maps.isNotEmpty) {
+      return UserCollectModel.fromJson(maps.first);
+    } else {
+      return null;
+    }
   }
 
 // 记得及时关闭数据库，防止内存泄漏

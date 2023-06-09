@@ -36,9 +36,9 @@ class UserCollectModel {
       userId: json['user_id'],
       kind: json['kind'],
       kindId: json['kind_id'],
-      source: json['source'],
-      remark: json['remark'],
-      updatedAt: json['updated_at'],
+      source: json['source'] ?? '',
+      remark: json['remark'] ?? '',
+      updatedAt: json['updated_at'] ?? 0,
       createdAt: json['created_at'],
       info: info1,
     );

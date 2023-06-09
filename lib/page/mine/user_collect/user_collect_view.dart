@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/search.dart';
-import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
@@ -38,7 +38,7 @@ class UserCollectPage extends StatelessWidget {
         child: Container(
           width: Get.width,
           height: Get.height,
-          color: AppColors.primaryBackground,
+          color: AppColors.ChatBg,
           child: n.Column(
             [
               n.Padding(
@@ -86,23 +86,86 @@ class UserCollectPage extends StatelessWidget {
                       ? NoDataView(text: '暂无数据'.tr)
                       : n.Padding(
                           top: 16,
-                          child: ListView(
-                            children: <Widget>[
-                              for (int i = 0; i < state.items.length; i++)
-                                n.ListTile(
-                                  // selected: true,
-                                  onTap: () {
-                                    // onTapForItem(state.items[i]);
-                                  },
-                                  leading: Avatar(
-                                    imgUri: state.items[i].avatar,
-                                    onTap: () {},
+                          left: 10,
+                          right: 10,
+                          child: ListView.builder(
+                            itemCount: state.items.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              UserCollectModel obj = state.items[index];
+                              Widget body = const Spacer();
+                              String type =
+                                  obj.info['payload']['msg_type'] ?? '';
+                              if (type == 'text') {
+                                body = Expanded(
+                                  child: Text(
+                                    obj.info['payload']['text'] ?? '',
+                                    style: const TextStyle(
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                    maxLines: 8,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  title: n.Row([
-                                    Expanded(
-                                      child: Text(
+                                );
+                              }
+                              return Slidable(
+                                key: ValueKey(obj.kindId),
+                                groupTag: '0',
+                                closeOnScroll: true,
+                                endActionPane: ActionPane(
+                                  extentRatio: 0.5,
+                                  motion: const StretchMotion(),
+                                  children: [
+                                    // SlidableAction(
+                                    //   key: ValueKey("hide_$index"),
+                                    //   flex: 2,
+                                    //   backgroundColor: Colors.amber,
+                                    //   onPressed: (_) async {
+                                    //     // await logic
+                                    //     //     .hideConversation(model.peerId);
+                                    //     // logic.update([
+                                    //     //   logic.conversations.removeAt(index),
+                                    //     //   logic.conversationRemind[
+                                    //     //       model.peerId] = 0,
+                                    //     //   logic.chatMsgRemindCounter,
+                                    //     // ]);
+                                    //   },
+                                    //   label: "".tr,
+                                    //   spacing: 1,
+                                    // ),
+                                    SlidableAction(
+                                      key: ValueKey("delete_$index"),
+                                      flex: 1,
+                                      backgroundColor: Colors.red,
+                                      // foregroundColor: Colors.white,
+                                      onPressed: (_) async {
+                                        // await logic.removeConversation(
+                                        //     conversationId);
+                                        // logic.update([
+                                        //   logic.conversations.removeAt(index),
+                                        //   logic.conversationRemind[
+                                        //       model.peerId] = 0,
+                                        //   logic.chatMsgRemindCounter,
+                                        // ]);
+                                      },
+                                      label: "删除".tr,
+                                      spacing: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: n.Column([
+                                    n.Row([body]),
+                                    n.Row(const [SizedBox(height: 16)]),
+                                    n.Row([
+                                      Text(
                                         // 会话对象标题
-                                        state.items[i].title,
+                                        obj.source,
                                         style: const TextStyle(
                                           fontSize: 16.0,
                                           fontWeight: FontWeight.normal,
@@ -110,10 +173,24 @@ class UserCollectPage extends StatelessWidget {
                                         maxLines: 6,
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                    )
+                                      const Expanded(child: SizedBox()),
+                                      Text(
+                                        DateTimeHelper.lastTimeFmt(
+                                            obj.createdAt),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          color: AppColors.MainTextColor,
+                                          fontSize: 14.0,
+                                        ),
+                                      ),
+                                    ])
+                                      ..mainAxisAlignment =
+                                          MainAxisAlignment.spaceBetween,
                                   ]),
                                 ),
-                            ],
+                              );
+                            },
                           ),
                         );
                 })),

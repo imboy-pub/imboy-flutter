@@ -8,7 +8,6 @@ import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_collect_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_device_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -16,7 +15,7 @@ import 'package:sqflite/sqflite.dart';
 /// 参考 https://www.javacodegeeks.com/2020/06/using-sqlite-in-flutter-tutorial.html
 /// Sqlite 只负责维护表结构
 class Sqlite {
-  static const _dbVersion = 1;
+  static const _dbVersion = 2;
 
   Sqlite._privateConstructor();
 
@@ -62,6 +61,27 @@ class Sqlite {
   Future _onUpgrade(Database db, int oldVsn, int newVsn) async {
     debugPrint("sqlite_onUpgrade oldVsn: $oldVsn, newVsn: $newVsn");
     //  TODO leeyi 2023-04-28
+
+    String userCollectSql = '''
+      CREATE TABLE IF NOT EXISTS ${UserCollectRepo.tableName} (
+        auto_id INTEGER,
+        ${UserCollectRepo.userId} varchar(40) NOT NULL,
+        ${UserCollectRepo.kind} int(16) NOT NULL DEFAULT '',
+        ${UserCollectRepo.kindId} varchar(40) NOT NULL DEFAULT '',
+        ${UserCollectRepo.source} varchar(255) NOT NULL DEFAULT '',
+        ${UserCollectRepo.remark} varchar(255) NOT NULL DEFAULT '',
+        ${UserCollectRepo.updatedAt} int(16) NOT NULL DEFAULT 0,
+        ${UserCollectRepo.createdAt} int(16) NOT NULL DEFAULT 0,
+        ${UserCollectRepo.info} text DEFAULT '',
+        PRIMARY KEY("auto_id"),
+        CONSTRAINT i_Uid_KindId UNIQUE (
+            ${UserCollectRepo.userId},
+            ${UserCollectRepo.kindId}
+        )
+        );
+      ''';
+    debugPrint("> on _onCreate \n$userCollectSql\n");
+    await db.execute(userCollectSql);
   }
 
   Future _onDowngrade(Database db, int oldVsn, int newVsn) async {
@@ -268,27 +288,6 @@ class Sqlite {
       ''';
     debugPrint("> on _onCreate \n$userDeviceSql\n");
     await db.execute(userDeviceSql);
-
-    String userCollectSql = '''
-      CREATE TABLE IF NOT EXISTS ${UserCollectRepo.tableName} (
-        auto_id INTEGER,
-        ${UserCollectRepo.userId} varchar(40) NOT NULL,
-        ${UserCollectRepo.kind} int(16) NOT NULL DEFAULT '',
-        ${UserCollectRepo.kindId} varchar(40) NOT NULL DEFAULT '',
-        ${UserCollectRepo.source} varchar(255) NOT NULL DEFAULT '',
-        ${UserCollectRepo.remark} varchar(255) NOT NULL DEFAULT '',
-        ${UserCollectRepo.updatedAt} int(16) NOT NULL DEFAULT 0,
-        ${UserCollectRepo.createdAt} int(16) NOT NULL DEFAULT 0,
-        ${UserCollectRepo.info} text DEFAULT '',
-        PRIMARY KEY("auto_id"),
-        CONSTRAINT i_Uid_KindId UNIQUE (
-            ${UserCollectRepo.userId},
-            ${UserCollectRepo.kindId}
-        )
-        );
-      ''';
-    debugPrint("> on _onCreate \n$userCollectSql\n");
-    await db.execute(userCollectSql);
   }
 
   Future<int> insert(String table, Map<String, dynamic> data) async {
