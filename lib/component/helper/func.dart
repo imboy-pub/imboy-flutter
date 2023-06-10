@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
@@ -180,11 +179,11 @@ ImageProvider<Object> cachedImageProvider(String? url, {double w = 400}) {
   if (url!.contains("def_avatar.png", 0)) {
     return const AssetImage(defAvatar);
   }
+  Uri u = AssetsService.viewUrl(url);
   // 不要缓存大文件，以节省设备存储空间
   if (w < 0) {
-    return CachedNetworkImageProvider(url);
+    return CachedNetworkImageProvider(u.toString());
   }
-  Uri u = AssetsService.viewUrl(url);
   String k = "${u.scheme}://${u.host}:${u.port}${u.path}";
   return CachedNetworkImageProvider(
     w > 0 ? "${u.toString()}&width=$w" : u.toString(),

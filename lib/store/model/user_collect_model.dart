@@ -2,6 +2,7 @@ import 'dart:convert';
 
 class UserCollectModel {
   String userId;
+  // Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息
   int kind;
   String kindId;
   String source;
@@ -23,24 +24,24 @@ class UserCollectModel {
     required this.info,
   });
 
-  factory UserCollectModel.fromJson(Map<String, dynamic> json) {
-    var info1 = json['info'] ?? '{}';
+  factory UserCollectModel.fromJson(Map<String, dynamic> data) {
+    var info1 = data['info'] ?? {};
     try {
       if (info1 is String) {
-        info1 = jsonDecode(info1);
+        info1 = json.decode(info1);
       }
     } catch (e) {
       info1 = {};
     }
     return UserCollectModel(
-      userId: json['user_id'],
-      kind: json['kind'],
-      kindId: json['kind_id'],
-      source: json['source'] ?? '',
-      remark: json['remark'] ?? '',
-      updatedAt: json['updated_at'] ?? 0,
-      createdAt: json['created_at'],
-      info: info1,
+      userId: data['user_id'],
+      kind: data['kind'],
+      kindId: data['kind_id'],
+      source: data['source'] ?? '',
+      remark: data['remark'] ?? '',
+      updatedAt: data['updated_at'] ?? 0,
+      createdAt: data['created_at'],
+      info: Map<String, dynamic>.from(info1),
     );
   }
 

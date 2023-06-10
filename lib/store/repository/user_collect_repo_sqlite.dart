@@ -1,6 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/helper/sqflite.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -8,6 +10,7 @@ class UserCollectRepo {
   static String tableName = 'user_collect';
 
   static String userId = 'user_id'; //
+  // Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息
   static String kind = 'kind'; //
   static String kindId = 'kind_id'; //
   static String source = 'source'; //
@@ -17,7 +20,7 @@ class UserCollectRepo {
   static String createdAt = 'created_at';
   static String info = 'info';
 
-  final Sqlite _db = Sqlite.instance;
+  final SqliteService _db = SqliteService.to;
 
   Future<List<UserCollectModel>> page({
     int limit = 1000,
@@ -26,7 +29,7 @@ class UserCollectRepo {
     List<Map<String, dynamic>> maps = await _db.query(
       UserCollectRepo.tableName,
       columns: [
-        // UserCollectRepo.userId,
+        UserCollectRepo.userId,
         UserCollectRepo.kind,
         UserCollectRepo.kindId,
         UserCollectRepo.source,
@@ -41,7 +44,8 @@ class UserCollectRepo {
       limit: limit,
       offset: offset,
     );
-    debugPrint("> on page ${maps.length}, ${maps.toList().toString()}");
+    debugPrint("user_collect_repo_page ${maps.length}");
+    debugPrint("user_collect_repo_page ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }
@@ -76,7 +80,7 @@ class UserCollectRepo {
       UserCollectRepo.remark: obj.remark,
       UserCollectRepo.updatedAt: obj.updatedAt,
       UserCollectRepo.createdAt: obj.createdAt,
-      UserCollectRepo.info: obj.info,
+      UserCollectRepo.info: jsonEncode(obj.info),
     };
     debugPrint("UserCollectRepo_insert/1 $insert");
 
@@ -102,6 +106,13 @@ class UserCollectRepo {
     if (strNoEmpty(json[UserCollectRepo.source])) {
       data[UserCollectRepo.source] = json[UserCollectRepo.source];
     }
+    var info = json[UserCollectRepo.info] ?? {};
+    if (info is String && strNoEmpty(info)) {
+      data[UserCollectRepo.info] = info;
+    } else if (mapNoEmpty(info)) {
+      data[UserCollectRepo.info] = jsonEncode(info);
+    }
+
     int updatedAt = json[UserCollectRepo.updatedAt] ?? 0;
     if (updatedAt > 0) {
       data[UserCollectRepo.updatedAt] = updatedAt;

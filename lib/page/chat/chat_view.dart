@@ -1,39 +1,24 @@
-import 'dart:io';
 import 'dart:async';
+import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:get/get.dart';
-import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/message/message_image_builder.dart';
-import 'package:imboy/page/chat/send_to/send_to_view.dart';
-import 'package:imboy/service/assets.dart';
-import 'package:imboy/service/websocket.dart';
-import 'package:imboy/store/model/contact_model.dart';
-import 'package:map_launcher/map_launcher.dart';
-import 'package:mime/mime.dart';
-import 'package:niku/namespace.dart' as n;
-import 'package:path_provider/path_provider.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:wechat_camera_picker/wechat_camera_picker.dart';
-import 'package:xid/xid.dart';
-
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart';
 import 'package:get/get.dart' as getx;
-import 'package:open_file/open_file.dart';
-import 'package:popup_menu/popup_menu.dart' as popupmenu;
-
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/picker_method.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
 import 'package:imboy/component/message/message.dart';
+import 'package:imboy/component/message/message_image_builder.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/voice_record/voice_widget.dart';
@@ -41,17 +26,29 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/chat/chat_setting/chat_setting_view.dart';
+import 'package:imboy/page/chat/send_to/send_to_view.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/group/group_detail/group_detail_view.dart';
+import 'package:imboy/service/assets.dart';
+import 'package:imboy/service/websocket.dart';
+import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
 import 'package:imboy/store/provider/attachment_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:map_launcher/map_launcher.dart';
+import 'package:mime/mime.dart';
+import 'package:niku/namespace.dart' as n;
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:popup_menu/popup_menu.dart' as popupmenu;
+import 'package:wechat_camera_picker/wechat_camera_picker.dart';
+import 'package:xid/xid.dart';
 
 import 'chat_logic.dart';
 import 'widget/chat_input.dart';
-
 // ignore: must_be_immutable
 import 'widget/extra_item.dart';
 import 'widget/quote_tips.dart';

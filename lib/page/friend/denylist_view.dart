@@ -4,16 +4,15 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/page/single/people_info.dart';
-import 'package:imboy/service/assets.dart';
-import 'package:imboy/store/repository/denylist_repo_sqlite.dart';
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/contact/contact_logic.dart';
+import 'package:imboy/page/single/people_info.dart';
+import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/denylist_model.dart';
+import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'denylist_logic.dart';
 
@@ -69,7 +68,7 @@ class DenylistPage extends StatelessWidget {
                         doSearch: ((query) {
                           // debugPrint(
                           //     "> on search doSearch ${query.toString()}");
-                          return DenylistRepo().search(kwd: query);
+                          return UserDenylistRepo().search(kwd: query);
                         }),
                         onTapForItem: (value) {
                           // debugPrint(

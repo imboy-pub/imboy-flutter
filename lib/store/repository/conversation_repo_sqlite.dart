@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:imboy/component/helper/sqflite.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -29,7 +29,7 @@ class ConversationRepo {
   static String msgType = 'msg_type';
   static String isShow = "is_show";
 
-  final Sqlite _db = Sqlite.instance;
+  final SqliteService _db = SqliteService.to;
 
   // 插入一条数据
   Future<int> insert(ConversationModel obj) async {

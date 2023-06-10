@@ -1,9 +1,21 @@
+import 'dart:io';
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/config/const.dart';
+import 'package:mime/mime.dart';
 
 import 'encrypter.dart';
 
 class AssetsService {
+  static Future<String?> mimeType(File file) async {
+    String? mimeType = lookupMimeType(file.path);
+    if (mimeType == null) {
+      var dataHeader = await file.readAsBytes();
+      mimeType = lookupMimeType(file.path, headerBytes: dataHeader);
+    }
+    return mimeType;
+  }
+
   static String getImgPath(String name, {String format = 'png'}) {
     return 'assets/images/$name.$format';
   }

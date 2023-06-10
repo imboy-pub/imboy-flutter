@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/sqflite.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -19,7 +19,7 @@ class BottomNavigationLogic extends GetxController {
     if (UserRepoLocal.to.isLogin == false) {
       return;
     }
-    List<Map<String, dynamic>> items = await Sqlite.instance.query(
+    List<Map<String, dynamic>> items = await SqliteService.to.query(
       NewFriendRepo.tableName,
       columns: [
         NewFriendRepo.from,

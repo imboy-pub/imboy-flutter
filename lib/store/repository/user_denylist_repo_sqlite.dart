@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/helper/sqflite.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/denylist_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
-class DenylistRepo {
+class UserDenylistRepo {
   static String tableName = 'user_denylist';
 
   static String uid = 'user_id'; // 记录所属用户D I
@@ -20,29 +20,29 @@ class DenylistRepo {
   static String remark = 'remark';
   static String createdAt = "created_at";
 
-  final Sqlite _db = Sqlite.instance;
+  final SqliteService _db = SqliteService.to;
 
   Future<List<DenylistModel>> page({
     int limit = 1000,
     int offset = 0,
   }) async {
     List<Map<String, dynamic>> maps = await _db.query(
-      DenylistRepo.tableName,
+      UserDenylistRepo.tableName,
       columns: [
-        DenylistRepo.deniedUid,
-        DenylistRepo.nickname,
-        DenylistRepo.avatar,
-        DenylistRepo.account,
-        DenylistRepo.remark,
-        DenylistRepo.region,
-        DenylistRepo.sign,
-        DenylistRepo.source,
-        DenylistRepo.gender,
-        DenylistRepo.createdAt,
+        UserDenylistRepo.deniedUid,
+        UserDenylistRepo.nickname,
+        UserDenylistRepo.avatar,
+        UserDenylistRepo.account,
+        UserDenylistRepo.remark,
+        UserDenylistRepo.region,
+        UserDenylistRepo.sign,
+        UserDenylistRepo.source,
+        UserDenylistRepo.gender,
+        UserDenylistRepo.createdAt,
       ],
-      where: '${DenylistRepo.uid}=?',
+      where: '${UserDenylistRepo.uid}=?',
       whereArgs: [UserRepoLocal.to.currentUid],
-      orderBy: "${DenylistRepo.createdAt} desc",
+      orderBy: "${UserDenylistRepo.createdAt} desc",
       limit: limit,
       offset: offset,
     );
@@ -63,24 +63,24 @@ class DenylistRepo {
     int limit = 1000,
   }) async {
     List<Map<String, dynamic>> maps = await _db.query(
-      DenylistRepo.tableName,
+      UserDenylistRepo.tableName,
       columns: [
-        DenylistRepo.deniedUid,
-        DenylistRepo.nickname,
-        DenylistRepo.avatar,
-        DenylistRepo.account,
-        DenylistRepo.remark,
-        DenylistRepo.region,
-        DenylistRepo.sign,
-        DenylistRepo.source,
-        DenylistRepo.gender,
-        DenylistRepo.createdAt,
+        UserDenylistRepo.deniedUid,
+        UserDenylistRepo.nickname,
+        UserDenylistRepo.avatar,
+        UserDenylistRepo.account,
+        UserDenylistRepo.remark,
+        UserDenylistRepo.region,
+        UserDenylistRepo.sign,
+        UserDenylistRepo.source,
+        UserDenylistRepo.gender,
+        UserDenylistRepo.createdAt,
       ],
-      where: '${DenylistRepo.uid}=? and ('
-          '${DenylistRepo.nickname} like "%$kwd%" or ${DenylistRepo.remark} like "%$kwd%"'
+      where: '${UserDenylistRepo.uid}=? and ('
+          '${UserDenylistRepo.nickname} like "%$kwd%" or ${UserDenylistRepo.remark} like "%$kwd%"'
           ')',
       whereArgs: [UserRepoLocal.to.currentUid],
-      orderBy: "${DenylistRepo.createdAt} desc",
+      orderBy: "${UserDenylistRepo.createdAt} desc",
       limit: limit,
     );
     debugPrint("> on search ${maps.length}, ${maps.toList().toString()}");
@@ -98,30 +98,30 @@ class DenylistRepo {
   // 插入一条数据
   Future<DenylistModel> insert(DenylistModel obj) async {
     Map<String, dynamic> insert = {
-      DenylistRepo.uid: UserRepoLocal.to.currentUid,
-      DenylistRepo.deniedUid: obj.deniedUid,
-      DenylistRepo.nickname: obj.nickname,
-      DenylistRepo.avatar: obj.avatar,
-      DenylistRepo.account: obj.account,
-      DenylistRepo.remark: obj.remark,
-      DenylistRepo.gender: obj.gender,
-      DenylistRepo.region: obj.region,
-      DenylistRepo.sign: obj.sign,
-      DenylistRepo.source: obj.source,
+      UserDenylistRepo.uid: UserRepoLocal.to.currentUid,
+      UserDenylistRepo.deniedUid: obj.deniedUid,
+      UserDenylistRepo.nickname: obj.nickname,
+      UserDenylistRepo.avatar: obj.avatar,
+      UserDenylistRepo.account: obj.account,
+      UserDenylistRepo.remark: obj.remark,
+      UserDenylistRepo.gender: obj.gender,
+      UserDenylistRepo.region: obj.region,
+      UserDenylistRepo.sign: obj.sign,
+      UserDenylistRepo.source: obj.source,
       // 单位毫秒，13位时间戳  1561021145560
-      DenylistRepo.createdAt:
+      UserDenylistRepo.createdAt:
           obj.createdAt ?? DateTimeHelper.currentTimeMillis(),
     };
-    debugPrint("> on DenylistRepo/insert/1 $insert");
+    debugPrint("> on UserDenylistRepo/insert/1 $insert");
 
-    await _db.insert(DenylistRepo.tableName, insert);
+    await _db.insert(UserDenylistRepo.tableName, insert);
     return obj;
   }
 
   Future<int> count() async {
     int? count = await _db.count(
-      DenylistRepo.tableName,
-      where: '${DenylistRepo.uid} = ?',
+      UserDenylistRepo.tableName,
+      where: '${UserDenylistRepo.uid} = ?',
       whereArgs: [UserRepoLocal.to.currentUid],
     );
     return count ?? 0;
@@ -129,8 +129,9 @@ class DenylistRepo {
 
   Future<int> inDenylist(String uid) async {
     int? count = await _db.count(
-      DenylistRepo.tableName,
-      where: '${DenylistRepo.uid} = ? and ${DenylistRepo.deniedUid} = ?',
+      UserDenylistRepo.tableName,
+      where:
+          '${UserDenylistRepo.uid} = ? and ${UserDenylistRepo.deniedUid} = ?',
       whereArgs: [UserRepoLocal.to.currentUid, uid],
     );
     return count ?? 0;
@@ -139,20 +140,21 @@ class DenylistRepo {
   //
   Future<DenylistModel?> findByDeniedUid(String uid) async {
     List<Map<String, dynamic>> maps = await _db.query(
-      DenylistRepo.tableName,
+      UserDenylistRepo.tableName,
       columns: [
-        DenylistRepo.deniedUid,
-        DenylistRepo.nickname,
-        DenylistRepo.avatar,
-        DenylistRepo.account,
-        DenylistRepo.remark,
-        DenylistRepo.region,
-        DenylistRepo.sign,
-        DenylistRepo.source,
-        DenylistRepo.gender,
-        DenylistRepo.createdAt,
+        UserDenylistRepo.deniedUid,
+        UserDenylistRepo.nickname,
+        UserDenylistRepo.avatar,
+        UserDenylistRepo.account,
+        UserDenylistRepo.remark,
+        UserDenylistRepo.region,
+        UserDenylistRepo.sign,
+        UserDenylistRepo.source,
+        UserDenylistRepo.gender,
+        UserDenylistRepo.createdAt,
       ],
-      where: '${DenylistRepo.uid} = ? and ${DenylistRepo.deniedUid} = ?',
+      where:
+          '${UserDenylistRepo.uid} = ? and ${UserDenylistRepo.deniedUid} = ?',
       whereArgs: [UserRepoLocal.to.currentUid, uid],
     );
     if (maps.isNotEmpty) {
@@ -164,49 +166,51 @@ class DenylistRepo {
   // 根据ID删除信息
   Future<int> delete(String id) async {
     return await _db.delete(
-      DenylistRepo.tableName,
-      where: '${DenylistRepo.uid} = ? and ${DenylistRepo.deniedUid} = ?',
+      UserDenylistRepo.tableName,
+      where:
+          '${UserDenylistRepo.uid} = ? and ${UserDenylistRepo.deniedUid} = ?',
       whereArgs: [UserRepoLocal.to.currentUid, id],
     );
   }
 
   // 更新信息
   Future<int> update(Map<String, dynamic> json) async {
-    String uid = json["id"] ?? (json[DenylistRepo.deniedUid] ?? "");
+    String uid = json["id"] ?? (json[UserDenylistRepo.deniedUid] ?? "");
     Map<String, Object?> data = {};
     if (strNoEmpty(json["account"])) {
-      data[DenylistRepo.account] = json["account"];
+      data[UserDenylistRepo.account] = json["account"];
     }
     if (strNoEmpty(json["nickname"])) {
-      data[DenylistRepo.nickname] = json["nickname"];
+      data[UserDenylistRepo.nickname] = json["nickname"];
     }
     if (strNoEmpty(json["avatar"] ?? "")) {
-      data[DenylistRepo.avatar] = json["avatar"];
+      data[UserDenylistRepo.avatar] = json["avatar"];
     }
 
     if (strNoEmpty(json["remark"])) {
-      data[DenylistRepo.remark] = json["remark"];
+      data[UserDenylistRepo.remark] = json["remark"];
     }
     if (strNoEmpty(json["region"])) {
-      data[DenylistRepo.region] = json["region"];
+      data[UserDenylistRepo.region] = json["region"];
     }
     if (strNoEmpty(json["sign"])) {
-      data[DenylistRepo.sign] = json["sign"];
+      data[UserDenylistRepo.sign] = json["sign"];
     }
     if (strNoEmpty(json["source"])) {
-      data[DenylistRepo.source] = json["source"];
+      data[UserDenylistRepo.source] = json["source"];
     }
     if (json["gender"] > 0) {
-      data[DenylistRepo.gender] = json["gender"];
+      data[UserDenylistRepo.gender] = json["gender"];
     }
 
-    debugPrint("> on DenylistRepo/update/1 data: ${data.toString()}");
+    debugPrint("> on UserDenylistRepo/update/1 data: ${data.toString()}");
     if (strNoEmpty(uid)) {
-      data[DenylistRepo.createdAt] = DateTimeHelper.currentTimeMillis();
+      data[UserDenylistRepo.createdAt] = DateTimeHelper.currentTimeMillis();
       return await _db.update(
-        DenylistRepo.tableName,
+        UserDenylistRepo.tableName,
         data,
-        where: '${DenylistRepo.uid} = ? and ${DenylistRepo.deniedUid} = ?',
+        where:
+            '${UserDenylistRepo.uid} = ? and ${UserDenylistRepo.deniedUid} = ?',
         whereArgs: [UserRepoLocal.to.currentUid, uid],
       );
     } else {
@@ -215,7 +219,7 @@ class DenylistRepo {
   }
 
   void save(Map<String, dynamic> json) async {
-    String uid = json["id"] ?? (json[DenylistRepo.deniedUid] ?? "");
+    String uid = json["id"] ?? (json[UserDenylistRepo.deniedUid] ?? "");
     DenylistModel? old = await findByDeniedUid(uid);
     if (old is DenylistModel) {
       await update(json);
@@ -226,8 +230,9 @@ class DenylistRepo {
 
   Future<int> deleteForUid(String uid) async {
     return await _db.delete(
-      DenylistRepo.tableName,
-      where: '${DenylistRepo.uid} = ? and ${DenylistRepo.deniedUid} = ?',
+      UserDenylistRepo.tableName,
+      where:
+          '${UserDenylistRepo.uid} = ? and ${UserDenylistRepo.deniedUid} = ?',
       whereArgs: [UserRepoLocal.to.currentUid, uid],
     );
   }

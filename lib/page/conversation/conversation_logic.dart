@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
@@ -92,7 +92,7 @@ class ConversationLogic extends GetxController {
 
   /// 移除会话
   Future<bool> removeConversation(int conversationId) async {
-    Database db = await Sqlite.instance.database;
+    Database db = await SqliteService.to.db;
     return await db.transaction((txn) async {
       await txn.execute(
         "DELETE FROM ${MessageRepo.tableName} WHERE ${MessageRepo.conversationId}=?",
@@ -114,7 +114,7 @@ class ConversationLogic extends GetxController {
 
   /// 标记为未读 / 已读
   markAs(int conversationId, int num) async {
-    Database db = await Sqlite.instance.database;
+    Database db = await SqliteService.to.db;
     await db.update(
       ConversationRepo.tableName,
       {ConversationRepo.unreadNum: num},
@@ -131,7 +131,7 @@ class ConversationLogic extends GetxController {
       data[ConversationRepo.payload] =
           jsonEncode(data[ConversationRepo.payload]);
     }
-    Database db = await Sqlite.instance.database;
+    Database db = await SqliteService.to.db;
     String where =
         "${ConversationRepo.userId}=? and ${ConversationRepo.lastMsgId}=?";
     List<String> whereArgs = [
@@ -182,7 +182,7 @@ class ConversationLogic extends GetxController {
 
   // 重新计算会话消息提醒数量
   recalculateConversationRemind(String peerId) async {
-    int? count = await Sqlite.instance.count(
+    int? count = await SqliteService.to.count(
       MessageRepo.tableName,
       where:
           "${MessageRepo.status} = ? and ${MessageRepo.from} = ? and ${MessageRepo.from} <> ?",

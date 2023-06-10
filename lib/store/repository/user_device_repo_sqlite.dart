@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/helper/sqflite.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/user_device_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -16,7 +16,7 @@ class UserDeviceRepo {
   static String lastActiveAt = 'last_active_at';
   static String deviceVsn = 'device_vsn';
 
-  final Sqlite _db = Sqlite.instance;
+  final SqliteService _db = SqliteService.to;
 
   Future<List<UserDeviceModel>> page({
     int limit = 1000,

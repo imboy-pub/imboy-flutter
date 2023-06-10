@@ -1,16 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-
+import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
-import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/helper/sqflite.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -178,7 +177,7 @@ class ChatLogic extends GetxController {
 
   Future<bool> removeMessage(String msgId) async {
     // 因为消息ID是全局唯一的，所以可以根据消息ID获取会话ID
-    int? conversationId = await Sqlite.instance.pluck(
+    int? conversationId = await SqliteService.to.pluck(
       ConversationRepo.id,
       ConversationRepo.tableName,
       where: '${ConversationRepo.lastMsgId} = ?',
@@ -231,7 +230,7 @@ class ChatLogic extends GetxController {
     int conversationId,
     List<String> msgIds,
   ) async {
-    Database db = await Sqlite.instance.database;
+    Database db = await SqliteService.to.db;
     ConversationModel? conversation =
         await ConversationRepo().findById(conversationId);
     if (conversation == null) {

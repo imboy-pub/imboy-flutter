@@ -1,4 +1,6 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -17,13 +19,31 @@ class UserCollectPage extends StatelessWidget {
   UserCollectPage({super.key});
 
   int page = 1;
-  int size = 20;
+  int size = 10;
   final logic = Get.put(UserCollectLogic());
   final state = Get.find<UserCollectLogic>().state;
+  ScrollController controller = ScrollController();
 
   void initData() async {
+    page = 1;
     var list = await logic.page(page: page, size: size);
-    state.items.value = list;
+    if (list.isNotEmpty) {
+      state.items.addAll(list);
+      page += 1;
+    }
+    controller.addListener(() async {
+      double pixels = controller.position.pixels;
+      double maxScrollExtent = controller.position.maxScrollExtent;
+      // debugPrint("RefreshIndicator_collect_ $pixels; $maxScrollExtent; ");
+      // 滑动到底部，执行加载更多操作
+      if (pixels == maxScrollExtent) {
+        var list = await logic.page(page: page, size: size);
+        if (list.isNotEmpty) {
+          state.items.addAll(list);
+          page = page + 1;
+        }
+      }
+    });
   }
 
   @override
@@ -34,7 +54,16 @@ class UserCollectPage extends StatelessWidget {
       appBar: PageAppBar(
         title: '我的收藏'.tr,
       ),
-      body: SingleChildScrollView(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          // 检查网络状态
+          var res = await Connectivity().checkConnectivity();
+          if (res == ConnectivityResult.none) {
+            String msg = 'tip_connect_desc'.tr;
+            EasyLoading.showInfo(' $msg        ');
+            return;
+          }
+        },
         child: Container(
           width: Get.width,
           height: Get.height,
@@ -89,25 +118,12 @@ class UserCollectPage extends StatelessWidget {
                           left: 10,
                           right: 10,
                           child: ListView.builder(
+                            controller: controller,
+                            physics: const AlwaysScrollableScrollPhysics(),
                             itemCount: state.items.length,
                             itemBuilder: (BuildContext context, int index) {
                               UserCollectModel obj = state.items[index];
-                              Widget body = const Spacer();
-                              String type =
-                                  obj.info['payload']['msg_type'] ?? '';
-                              if (type == 'text') {
-                                body = Expanded(
-                                  child: Text(
-                                    obj.info['payload']['text'] ?? '',
-                                    style: const TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                    maxLines: 8,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                );
-                              }
+                              Widget body = logic.itemBody(obj);
                               return Slidable(
                                 key: ValueKey(obj.kindId),
                                 groupTag: '0',
@@ -136,7 +152,7 @@ class UserCollectPage extends StatelessWidget {
                                     SlidableAction(
                                       key: ValueKey("delete_$index"),
                                       flex: 1,
-                                      backgroundColor: Colors.red,
+                                      backgroundColor: AppColors.ChatBg,
                                       // foregroundColor: Colors.white,
                                       onPressed: (_) async {
                                         // await logic.removeConversation(
@@ -148,46 +164,53 @@ class UserCollectPage extends StatelessWidget {
                                         //   logic.chatMsgRemindCounter,
                                         // ]);
                                       },
+                                      icon: Icons.delete_forever_sharp,
                                       label: "删除".tr,
                                       spacing: 1,
                                     ),
                                   ],
                                 ),
                                 child: Container(
+                                  margin:
+                                      const EdgeInsets.fromLTRB(0, 0, 0, 16),
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: n.Column([
-                                    n.Row([body]),
-                                    n.Row(const [SizedBox(height: 16)]),
-                                    n.Row([
-                                      Text(
-                                        // 会话对象标题
-                                        obj.source,
-                                        style: const TextStyle(
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.normal,
+                                  child: InkWell(
+                                    onTap: () {
+                                      // 收藏详情
+                                    },
+                                    child: n.Column([
+                                      body,
+                                      n.Row(const [SizedBox(height: 16)]),
+                                      n.Row([
+                                        Text(
+                                          obj.source,
+                                          maxLines: 6,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: AppColors.MainTextColor,
+                                            fontSize: 14.0,
+                                          ),
                                         ),
-                                        maxLines: 6,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const Expanded(child: SizedBox()),
-                                      Text(
-                                        DateTimeHelper.lastTimeFmt(
-                                            obj.createdAt),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          color: AppColors.MainTextColor,
-                                          fontSize: 14.0,
+                                        const Expanded(child: SizedBox()),
+                                        Text(
+                                          DateTimeHelper.lastTimeFmt(
+                                              obj.createdAt),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: AppColors.MainTextColor,
+                                            fontSize: 14.0,
+                                          ),
                                         ),
-                                      ),
-                                    ])
-                                      ..mainAxisAlignment =
-                                          MainAxisAlignment.spaceBetween,
-                                  ]),
+                                      ])
+                                        ..mainAxisAlignment =
+                                            MainAxisAlignment.spaceBetween,
+                                    ]),
+                                  ),
                                 ),
                               );
                             },

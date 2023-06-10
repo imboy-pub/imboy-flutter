@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/helper/sqflite.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -23,7 +23,7 @@ class NewFriendRepo {
   static String createTime = "create_time";
   static String source = "source";
 
-  final Sqlite _db = Sqlite.instance;
+  final SqliteService _db = SqliteService.to;
 
   // 插入一条数据
   Future<NewFriendModel> insert(NewFriendModel obj) async {

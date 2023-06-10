@@ -9,7 +9,7 @@ import 'package:imboy/store/model/denylist_model.dart';
 import 'package:imboy/store/provider/denylist_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
-import 'package:imboy/store/repository/denylist_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:lpinyin/lpinyin.dart';
 
@@ -48,7 +48,7 @@ class DenylistLogic extends GetxController {
     List<DenylistModel> list = [];
     page = page > 1 ? page : 1;
     int offset = (page - 1) * size;
-    var repo = DenylistRepo();
+    var repo = UserDenylistRepo();
     if (onRefresh == false) {
       list = await repo.page(limit: size, offset: offset);
     }
@@ -73,13 +73,13 @@ class DenylistLogic extends GetxController {
   }
 
   Future<bool> inDenylist(String uid) async {
-    int count = await (DenylistRepo().inDenylist(uid));
+    int count = await (UserDenylistRepo().inDenylist(uid));
     return count > 0 ? true : false;
   }
 
   Future<bool> removeDenylist(String peerId) async {
     DenylistProvider api = DenylistProvider();
-    DenylistRepo repo = DenylistRepo();
+    UserDenylistRepo repo = UserDenylistRepo();
     bool res = await api.remove(deniedUserUid: peerId);
     if (res) {
       await repo.deleteForUid(peerId);
@@ -100,7 +100,7 @@ class DenylistLogic extends GetxController {
 
   Future<bool> addDenylist(DenylistModel model) async {
     DenylistProvider api = DenylistProvider();
-    DenylistRepo repo = DenylistRepo();
+    UserDenylistRepo repo = UserDenylistRepo();
 
     Map? payload = await api.add(deniedUserUid: model.deniedUid);
     bool res = payload == null ? false : true;

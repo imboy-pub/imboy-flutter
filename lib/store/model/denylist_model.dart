@@ -4,10 +4,9 @@ import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/datetime.dart';
-
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/store/repository/denylist_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
 
 import 'contact_model.dart';
 
@@ -73,32 +72,32 @@ class DenylistModel extends ISuspensionBean {
   }
 
   factory DenylistModel.fromJson(Map<String, dynamic> json) {
-    String avatar = json[DenylistRepo.avatar] ?? '';
+    String avatar = json[UserDenylistRepo.avatar] ?? '';
     if (strEmpty(avatar)) {
       avatar = defAvatar;
     }
     return DenylistModel(
-      deniedUid: json["id"] ?? (json[DenylistRepo.deniedUid] ?? ""),
-      account: json[DenylistRepo.account].toString(),
-      nickname: json[DenylistRepo.nickname].toString(),
+      deniedUid: json["id"] ?? (json[UserDenylistRepo.deniedUid] ?? ""),
+      account: json[UserDenylistRepo.account].toString(),
+      nickname: json[UserDenylistRepo.nickname].toString(),
       avatar: avatar,
-      remark: json[DenylistRepo.remark].toString(),
+      remark: json[UserDenylistRepo.remark].toString(),
 
-      sign: json[DenylistRepo.sign].toString(),
+      sign: json[UserDenylistRepo.sign].toString(),
       // 单位毫秒，13位时间戳  1561021145560
-      createdAt:
-          json[DenylistRepo.createdAt] ?? DateTimeHelper.currentTimeMillis(),
+      createdAt: json[UserDenylistRepo.createdAt] ??
+          DateTimeHelper.currentTimeMillis(),
 
-      gender: json[DenylistRepo.gender] ?? 0,
-      region: json[DenylistRepo.region].toString(),
+      gender: json[UserDenylistRepo.gender] ?? 0,
+      region: json[UserDenylistRepo.region].toString(),
 
-      source: json[DenylistRepo.source].toString(),
+      source: json[UserDenylistRepo.source].toString(),
     );
   }
 
   Map<String, dynamic> toJson() => {
         'id': deniedUid,
-        DenylistRepo.deniedUid: deniedUid,
+        UserDenylistRepo.deniedUid: deniedUid,
         'account': account,
         'nickname': nickname,
         'avatar': avatar,
@@ -107,7 +106,7 @@ class DenylistModel extends ISuspensionBean {
         'region': region,
         'sign': sign,
         'source': source,
-        DenylistRepo.createdAt: createdAt,
+        UserDenylistRepo.createdAt: createdAt,
         //
         'firstLetter': firstLetter,
         'nameIndex': nameIndex,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/helper/sqflite.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -27,7 +27,7 @@ class ContactRepo {
   //isFrom 好友关系发起人 1 是  0 否
   static String isFrom = 'is_from';
 
-  final Sqlite _db = Sqlite.instance;
+  final SqliteService _db = SqliteService.to;
 
   Future<List<ContactModel>> search({
     required String kwd,
@@ -242,7 +242,6 @@ class ContactRepo {
     if (strNoEmpty(json[ContactRepo.source])) {
       data[ContactRepo.source] = json[ContactRepo.source];
     }
-
 
     if (json.containsKey(ContactRepo.gender)) {
       data[ContactRepo.gender] = json[ContactRepo.gender];
