@@ -25,6 +25,9 @@ class UserCollectRepo {
   Future<List<UserCollectModel>> page({
     int limit = 1000,
     int offset = 0,
+    String? where,
+    List<Object?>? whereArgs,
+    String? orderBy,
   }) async {
     List<Map<String, dynamic>> maps = await _db.query(
       UserCollectRepo.tableName,
@@ -38,9 +41,9 @@ class UserCollectRepo {
         UserCollectRepo.createdAt,
         UserCollectRepo.info,
       ],
-      where: '${UserCollectRepo.userId}=?',
-      whereArgs: [UserRepoLocal.to.currentUid],
-      orderBy: "${UserCollectRepo.createdAt} desc",
+      where: where,
+      whereArgs: whereArgs,
+      orderBy: orderBy ?? "${UserCollectRepo.createdAt} desc",
       limit: limit,
       offset: offset,
     );

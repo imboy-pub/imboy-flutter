@@ -1,22 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart';
 import 'package:imboy/component/helper/list.dart';
 import 'package:imboy/component/message/message.dart';
 import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
+import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:get/get.dart';
-import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
 
 import 'send_to_logic.dart';
 
@@ -183,7 +182,7 @@ class SendToPage extends StatelessWidget {
         onTap: () {
           showSearch(
             context: context,
-            delegate: LocalSearchBarDelegate(
+            delegate: SearchBarDelegate(
               doSearch: ((query) {
                 return ContactRepo().search(kwd: query);
               }),

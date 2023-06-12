@@ -4,14 +4,9 @@ import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 
 class UserCollectProvider extends HttpClient {
-  Future<Map<String, dynamic>?> page({
-    int page = 1,
-    int size = 10,
-  }) async {
-    IMBoyHttpResponse resp = await get(API.userCollectPage, queryParameters: {
-      'page': page,
-      'size': size,
-    });
+  Future<Map<String, dynamic>?> page(Map<String, dynamic> args) async {
+    IMBoyHttpResponse resp =
+        await get(API.userCollectPage, queryParameters: args);
     debugPrint("UserCollectProvider_page resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;

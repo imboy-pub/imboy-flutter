@@ -20,7 +20,7 @@ dependencies:
   # getx 状态管理框架
   get: ^4.6.5
   # 网络请求框架
-  dio: ^5.2.0+1
+  dio: ^5.2.1
   #json序列化和反序列化用的
   json_annotation: ^4.8.1
   permission_handler: ^10.3.0

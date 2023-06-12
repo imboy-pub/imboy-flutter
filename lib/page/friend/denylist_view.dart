@@ -47,7 +47,7 @@ class DenylistPage extends StatelessWidget {
         child: Container(
           width: Get.width,
           height: Get.height,
-          color: AppColors.primaryBackground,
+          color: AppColors.ChatBg,
           child: n.Column(
             [
               n.Padding(
@@ -55,111 +55,106 @@ class DenylistPage extends StatelessWidget {
                 top: 10,
                 right: 8,
                 bottom: 10,
-                child: SearchBar(
+                child: searchBar(
+                  context,
+                  searchLabel: '搜索'.tr,
                   hintText: '搜索'.tr,
-                  // isBorder: true,
-                  onTap: () {
-                    showSearch(
-                      context: context,
-                      // useRootNavigator: true,
-                      delegate: LocalSearchBarDelegate(
-                        searchLabel: '搜索'.tr,
-                        queryTips: '通过好友昵称、备注搜索好友'.tr,
-                        doSearch: ((query) {
-                          // debugPrint(
-                          //     "> on search doSearch ${query.toString()}");
-                          return UserDenylistRepo().search(kwd: query);
-                        }),
-                        onTapForItem: (value) {
-                          // debugPrint(
-                          //     "> on search value ${value is DenylistModel}, ${value.toString()}");
-                          if (value is DenylistModel) {
-                            Get.to(
-                              () => PeopleInfoPage(
-                                id: value.deniedUid,
-                                sence: 'denylist',
-                              ),
-                              transition: Transition.rightToLeft,
-                              popGesture: true, // 右滑，返回上一页
-                            );
-                          }
-                        },
-                      ),
-                    );
+                  queryTips: '通过好友昵称、备注搜索好友'.tr,
+                  doSearch: ((query) {
+                    // debugPrint(
+                    //     "> on search doSearch ${query.toString()}");
+                    return UserDenylistRepo().search(kwd: query);
+                  }),
+                  onTapForItem: (value) {
+                    // debugPrint(
+                    //     "> on search value ${value is DenylistModel}, ${value.toString()}");
+                    if (value is DenylistModel) {
+                      Get.to(
+                        () => PeopleInfoPage(
+                          id: value.deniedUid,
+                          sence: 'denylist',
+                        ),
+                        transition: Transition.rightToLeft,
+                        popGesture: true, // 右滑，返回上一页
+                      );
+                    }
                   },
                 ),
               ),
               Expanded(
-                child: SlidableAutoCloseBehavior(child: Obx(() {
-                  return logic.items.isEmpty
-                      ? NoDataView(text: '暂无数据'.tr)
-                      : AzListView(
-                          data: logic.items,
-                          itemCount: logic.items.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            DenylistModel model = logic.items[index];
-                            // debugPrint(
-                            //     "model.avatar ${model.avatar.toString()}: ${model.toJson().toString()}");
-                            return ListTile(
-                              leading: Avatar(imgUri: model.avatar),
-                              contentPadding: const EdgeInsets.only(left: 10),
-                              title: Text(model.nickname),
-                              // subtitle: Text('${model.remark}'),
-                              onTap: () {
-                                Get.to(
-                                  () => PeopleInfoPage(
-                                    id: model.deniedUid,
-                                    sence: 'denylist',
-                                  ),
-                                  transition: Transition.rightToLeft,
-                                  popGesture: true, // 右滑，返回上一页
-                                );
-                              },
-                            );
-                          },
-                          // 解决联系人数据量少的情况下无法刷新的问题
-                          // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          susItemBuilder: (BuildContext context, int index) {
-                            DenylistModel model = logic.items[index];
-                            if ('↑' == model.getSuspensionTag()) {
-                              return Container();
-                            }
-                            return Get.find<ContactLogic>().getSusItem(
-                              context,
-                              model.getSuspensionTag(),
-                            );
-                          },
-                          indexBarData: const ['↑', ...kIndexBarData],
-                          indexBarOptions: IndexBarOptions(
-                            needRebuild: true,
-                            ignoreDragCancel: true,
-                            downTextStyle: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.white,
-                            ),
-                            downItemDecoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.green,
-                            ),
-                            indexHintWidth: 128 / 2,
-                            indexHintHeight: 128 / 2,
-                            indexHintDecoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: AssetImage(
-                                  AssetsService.getImgPath(
-                                      'ic_index_bar_bubble_gray'),
-                                ),
-                                fit: BoxFit.contain,
+                child: Container(
+                  color: Colors.white,
+                  child: SlidableAutoCloseBehavior(child: Obx(() {
+                    return logic.items.isEmpty
+                        ? NoDataView(text: '暂无数据'.tr)
+                        : AzListView(
+                            data: logic.items,
+                            itemCount: logic.items.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              DenylistModel model = logic.items[index];
+                              // debugPrint(
+                              //     "model.avatar ${model.avatar.toString()}: ${model.toJson().toString()}");
+                              return ListTile(
+                                leading: Avatar(imgUri: model.avatar),
+                                contentPadding: const EdgeInsets.only(left: 10),
+                                title: Text(model.nickname),
+                                // subtitle: Text('${model.remark}'),
+                                onTap: () {
+                                  Get.to(
+                                    () => PeopleInfoPage(
+                                      id: model.deniedUid,
+                                      sence: 'denylist',
+                                    ),
+                                    transition: Transition.rightToLeft,
+                                    popGesture: true, // 右滑，返回上一页
+                                  );
+                                },
+                              );
+                            },
+                            // 解决联系人数据量少的情况下无法刷新的问题
+                            // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            susItemBuilder: (BuildContext context, int index) {
+                              DenylistModel model = logic.items[index];
+                              if ('↑' == model.getSuspensionTag()) {
+                                return Container();
+                              }
+                              return Get.find<ContactLogic>().getSusItem(
+                                context,
+                                model.getSuspensionTag(),
+                              );
+                            },
+                            indexBarData: const ['↑', ...kIndexBarData],
+                            indexBarOptions: IndexBarOptions(
+                              needRebuild: true,
+                              ignoreDragCancel: true,
+                              downTextStyle: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.white,
                               ),
+                              downItemDecoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.green,
+                              ),
+                              indexHintWidth: 128 / 2,
+                              indexHintHeight: 128 / 2,
+                              indexHintDecoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: AssetImage(
+                                    AssetsService.getImgPath(
+                                        'ic_index_bar_bubble_gray'),
+                                  ),
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                              indexHintAlignment: Alignment.centerRight,
+                              indexHintChildAlignment:
+                                  const Alignment(-0.25, 0.0),
+                              indexHintOffset: const Offset(-20, 0),
                             ),
-                            indexHintAlignment: Alignment.centerRight,
-                            indexHintChildAlignment:
-                                const Alignment(-0.25, 0.0),
-                            indexHintOffset: const Offset(-20, 0),
-                          ),
-                        );
-                })),
+                          );
+                  })),
+                ),
               ),
             ],
             mainAxisSize: MainAxisSize.min,

@@ -15,7 +15,8 @@ import 'user_collect_state.dart';
 class UserCollectLogic extends GetxController {
   final UserCollectState state = UserCollectState();
 
-  Future<List<UserCollectModel>> page({int page = 1, int size = 10}) async {
+  Future<List<UserCollectModel>> page(
+      {int page = 1, int size = 10, String? kind}) async {
     List<UserCollectModel> list = [];
     page = page > 1 ? page : 1;
     int offset = (page - 1) * size;
@@ -24,15 +25,45 @@ class UserCollectLogic extends GetxController {
     // 检查网络状态
     var res = await Connectivity().checkConnectivity();
     if (res == ConnectivityResult.none) {
-      list = await repo.page(limit: size, offset: offset);
+      String where = '${UserCollectRepo.userId}=?';
+      List<Object?> whereArgs = [UserRepoLocal.to.currentUid];
+      String? orderBy;
+      if (kind == state.recentUse) {
+        orderBy = "${UserCollectRepo.updatedAt} desc";
+        where = "$where and ${UserCollectRepo.updatedAt} > 0";
+      } else if (int.tryParse(kind!) != null) {
+        where = "$where and ${UserCollectRepo.kind}=?";
+        whereArgs.add(kind);
+      }
+      list = await repo.page(
+        limit: size,
+        offset: offset,
+        where: where,
+        whereArgs: whereArgs,
+        orderBy: orderBy,
+      );
     }
     if (list.isNotEmpty) {
       return list;
     }
-    Map<String, dynamic>? payload = await UserCollectProvider().page(
-      page: page,
-      size: size,
-    );
+
+    // if (kind == state.recentUse) {
+    //   orderBy = "${UserCollectRepo.updatedAt} desc";
+    //   where = "$where and ${UserCollectRepo.updatedAt} > 0";
+    // } else if (int.tryParse(kind!) != null) {
+    //   where = "$where and ${UserCollectRepo.kind}=?";
+    //   whereArgs.add(kind);
+    // }
+    Map<String, dynamic> args = {
+      'page': page,
+      'size': size,
+    };
+    if (kind == state.recentUse) {
+      args['order'] = state.recentUse;
+    } else if (int.tryParse(kind!) != null) {
+      args['kind'] = kind;
+    }
+    Map<String, dynamic>? payload = await UserCollectProvider().page(args);
     if (payload == null) {
       return [];
     }
@@ -264,5 +295,47 @@ class UserCollectLogic extends GetxController {
       ]);
     }
     return body;
+  }
+
+  Future<void> searchByKind(
+    String kind,
+    String kindTips,
+    Function callback,
+  ) async {
+    state.page = 1;
+    state.kind = kind;
+    var list = await page(page: state.page, size: state.size, kind: kind);
+    if (list.isNotEmpty) {
+      state.items.value = list;
+      state.page += 1;
+    }
+    state.searchLeading = n.Row([
+      const Icon(Icons.grid_view),
+      const SizedBox(width: 8),
+      ElevatedButton(
+        onPressed: () {
+          // debugPrint("state.searchLeading ${state.searchLeading.toString()}");
+          state.searchLeading = null;
+          callback();
+        },
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.resolveWith<Color>(
+            (Set<MaterialState> states) {
+              if (states.contains(MaterialState.pressed)) {
+                return Colors.white.withOpacity(0.75);
+              }
+              // Use the component's default.
+              return AppColors.ChatBg;
+            },
+          ),
+        ),
+        child: n.Row([
+          Text(kindTips, style: const TextStyle(color: AppColors.ItemOnColor)),
+          const SizedBox(width: 12),
+          Icon(Icons.close,
+              size: 16, color: AppColors.ItemOnColor.withOpacity(0.7)),
+        ]),
+      )
+    ]).obs;
   }
 }

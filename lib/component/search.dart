@@ -1,12 +1,49 @@
 import 'package:flutter/material.dart';
-
-import 'package:niku/namespace.dart' as n;
 import 'package:get/get.dart';
-
 // ignore: depend_on_referenced_packages
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/config/const.dart';
+import 'package:niku/namespace.dart' as n;
 
-class LocalSearchBarDelegate extends SearchDelegate {
+Widget searchBar(
+  BuildContext context, {
+  String? hintText,
+  String? queryTips,
+  String? searchLabel,
+  Widget? leading,
+  required Null Function(dynamic value) onTapForItem,
+  required Future<List<dynamic>> Function(dynamic query) doSearch,
+}) {
+  return SearchBar(
+    leading: leading ?? const Icon(Icons.search),
+    hintText: hintText,
+    // 取消阴影效果
+    elevation: MaterialStateProperty.all(0),
+    // 圆角效果
+    shape: MaterialStateProperty.all(const RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+    )),
+    hintStyle: MaterialStateProperty.all(TextStyle(
+      fontSize: 16,
+      color: AppColors.LineColor.withOpacity(0.7),
+    )),
+
+    onTap: () {
+      showSearch(
+        context: context,
+        // useRootNavigator: true,
+        delegate: SearchBarDelegate(
+          searchLabel: searchLabel,
+          queryTips: queryTips,
+          doSearch: doSearch,
+          onTapForItem: onTapForItem,
+        ),
+      );
+    },
+  );
+}
+
+class SearchBarDelegate extends SearchDelegate {
   /// This text will be shown in the [AppBar] when
   /// current query is empty.
   final String? searchLabel;
@@ -18,7 +55,7 @@ class LocalSearchBarDelegate extends SearchDelegate {
   /// Clicking on a search result item is the trigger method
   final void Function(dynamic arg1) onTapForItem;
 
-  LocalSearchBarDelegate({
+  SearchBarDelegate({
     required this.onTapForItem,
     required this.doSearch,
     this.searchLabel,

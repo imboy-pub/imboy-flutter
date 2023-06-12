@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -43,8 +44,8 @@ class NewFriendPage extends StatelessWidget {
         rightDMActions: [
           TextButton(
             onPressed: () {
-              Get.to(()=>
-                AddFriendPage(),
+              Get.to(
+                () => AddFriendPage(),
                 transition: Transition.rightToLeft,
                 popGesture: true, // 右滑，返回上一页
               );
@@ -67,13 +68,36 @@ class NewFriendPage extends StatelessWidget {
                 top: 10,
                 right: 8,
                 bottom: 10,
-                child: SearchBar(
+                child: searchBar(
+                  context,
                   hintText: '微信号/手机号',
-                  // isBorder: true,
-                  onTap: () {
-                    isSearch = true;
-                    logic.searchF.requestFocus();
+                  queryTips: '',
+
+                  doSearch: ((query) async {
+                    // debugPrint(
+                    //     "> on search doSearch ${query.toString()}");
+                    // return logic.search(kwd: query);
+                    return [];
+                  }),
+                  onTapForItem: (value) {
+                    // debugPrint(
+                    //     "> on search value ${value is UserCollectModel}, ${value.toString()}");
+                    if (true) {
+                      // Get.to(
+                      //   () => PeopleInfoPage(
+                      //     id: value.deniedUid,
+                      //     sence: 'denylist',
+                      //   ),
+                      //   transition: Transition.rightToLeft,
+                      //   popGesture: true, // 右滑，返回上一页
+                      // );
+                    }
                   },
+                  // isBorder: true,
+                  // onTap: () {
+                  //   isSearch = true;
+                  //   logic.searchF.requestFocus();
+                  // },
                 ),
               ),
               // Padding(
@@ -131,8 +155,8 @@ class NewFriendPage extends StatelessWidget {
                                 NewFriendStatus.waiting_for_validation.index) {
                               rightWidget.add(TextButton(
                                 onPressed: () {
-                                  Get.to(()=>
-                                    ConfirmNewFriendPage(
+                                  Get.to(
+                                    () => ConfirmNewFriendPage(
                                       to: model.to,
                                       from: model.from,
                                       msg: model.msg,
@@ -212,8 +236,8 @@ class NewFriendPage extends StatelessWidget {
                                     ),
                                   ),
                                   onTap: () {
-                                    Get.to(()=>
-                                      PeopleInfoPage(
+                                    Get.to(
+                                      () => PeopleInfoPage(
                                         id: UserRepoLocal.to.currentUid ==
                                                 model.to
                                             ? model.from
