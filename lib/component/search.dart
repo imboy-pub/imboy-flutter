@@ -11,11 +11,31 @@ Widget searchBar(
   String? queryTips,
   String? searchLabel,
   Widget? leading,
-  required Null Function(dynamic value) onTapForItem,
+
+  /// A list of Widgets to display in a row after the text field.
+  ///
+  /// Typically these actions can represent additional modes of searching
+  /// (like voice search), an avatar, a separate high-level action (such as
+  /// current location) or an overflow menu. There should not be more than
+  /// two trailing actions.
+  final Iterable<Widget>? trailing,
+
+  /// Controls the text being edited in the search bar's text field.
+  ///
+  /// If null, this widget will create its own [TextEditingController].
+  final TextEditingController? controller,
+
+  /// {@macro flutter.widgets.Focus.focusNode}
+  final FocusNode? focusNode,
+
+  /// Invoked upon user input.
+  final ValueChanged<String>? onChanged,
+  final Null Function(dynamic value)? onTapForItem,
   required Future<List<dynamic>> Function(dynamic query) doSearch,
 }) {
   return SearchBar(
     leading: leading ?? const Icon(Icons.search),
+    trailing: trailing,
     hintText: hintText,
     // 取消阴影效果
     elevation: MaterialStateProperty.all(0),
@@ -28,18 +48,23 @@ Widget searchBar(
       color: AppColors.LineColor.withOpacity(0.7),
     )),
 
-    onTap: () {
-      showSearch(
-        context: context,
-        // useRootNavigator: true,
-        delegate: SearchBarDelegate(
-          searchLabel: searchLabel,
-          queryTips: queryTips,
-          doSearch: doSearch,
-          onTapForItem: onTapForItem,
-        ),
-      );
-    },
+    controller: controller,
+    focusNode: focusNode,
+    onChanged: onChanged,
+    onTap: onTapForItem == null
+        ? null
+        : () {
+            showSearch(
+              context: context,
+              // useRootNavigator: true,
+              delegate: SearchBarDelegate(
+                searchLabel: searchLabel,
+                queryTips: queryTips,
+                doSearch: doSearch,
+                onTapForItem: onTapForItem,
+              ),
+            );
+          },
   );
 }
 

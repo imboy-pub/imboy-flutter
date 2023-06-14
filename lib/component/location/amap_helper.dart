@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:amap_flutter_base/amap_flutter_base.dart';
 import 'package:amap_flutter_location/amap_flutter_location.dart';
@@ -29,7 +30,9 @@ class AMapHelper {
   /// AMapHelper.setApiKey()
   /// 设置Android和iOS的apikey
   static void setApiKey() {
-    AMapFlutterLocation.setApiKey(AMAP_ANDROID_KEY, AMAP_IOS_KEY);
+    if (Platform.isAndroid || Platform.isIOS) {
+      AMapFlutterLocation.setApiKey(AMAP_ANDROID_KEY, AMAP_IOS_KEY);
+    }
   }
 
   // 私有构造函数

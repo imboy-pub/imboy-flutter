@@ -134,41 +134,6 @@ class UserCollectRepo {
     }
   }
 
-  Future<List<UserCollectModel>> search({
-    required String kwd,
-    int limit = 1000,
-  }) async {
-    List<Map<String, dynamic>> maps = await _db.query(
-      UserCollectRepo.tableName,
-      columns: [
-        // UserCollectRepo.userId,
-        UserCollectRepo.kind,
-        UserCollectRepo.kindId,
-        UserCollectRepo.source,
-        UserCollectRepo.remark,
-        UserCollectRepo.updatedAt,
-        UserCollectRepo.createdAt,
-        UserCollectRepo.info,
-      ],
-      where: '${UserCollectRepo.userId}=? and ('
-          '${UserCollectRepo.source} like "%$kwd%" or ${UserCollectRepo.remark} like "%$kwd%"'
-          ')',
-      whereArgs: [UserRepoLocal.to.currentUid],
-      orderBy: "${UserCollectRepo.createdAt} desc",
-      limit: limit,
-    );
-    debugPrint("> on search ${maps.length}, ${maps.toList().toString()}");
-    if (maps.isEmpty) {
-      return [];
-    }
-
-    List<UserCollectModel> items = [];
-    for (int i = 0; i < maps.length; i++) {
-      items.add(UserCollectModel.fromJson(maps[i]));
-    }
-    return items;
-  }
-
   Future<UserCollectModel?> findByKindId(String kindId) async {
     List<Map<String, dynamic>> maps = await _db.query(
       UserCollectRepo.tableName,

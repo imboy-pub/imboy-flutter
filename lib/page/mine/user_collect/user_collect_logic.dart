@@ -16,12 +16,13 @@ class UserCollectLogic extends GetxController {
   final UserCollectState state = UserCollectState();
 
   Future<List<UserCollectModel>> page(
-      {int page = 1, int size = 10, String? kind}) async {
+      {int page = 1, int size = 10, String? kind, String? kwd}) async {
     List<UserCollectModel> list = [];
     page = page > 1 ? page : 1;
     int offset = (page - 1) * size;
     var repo = UserCollectRepo();
 
+    // TODO kwd search 2023-06-14 23:33:09
     // 检查网络状态
     var res = await Connectivity().checkConnectivity();
     if (res == ConnectivityResult.none) {
@@ -35,6 +36,15 @@ class UserCollectLogic extends GetxController {
         where = "$where and ${UserCollectRepo.kind}=?";
         whereArgs.add(kind);
       }
+      if (strNoEmpty(kwd)) {
+        // where: '${UserCollectRepo.userId}=? and ('
+        //     '${UserCollectRepo.source} like "%$kwd%" or ${UserCollectRepo.remark} like "%$kwd%"'
+        //     ')',
+        // whereArgs: [UserRepoLocal.to.currentUid],
+        // orderBy: "${UserCollectRepo.createdAt} desc",
+        where =
+            "$where and (${UserCollectRepo.source} like \"%$kwd%\" or ${UserCollectRepo.remark} like \"%$kwd%\" or ${UserCollectRepo.info} like \"%$kwd%\")";
+      }
       list = await repo.page(
         limit: size,
         offset: offset,
@@ -43,17 +53,11 @@ class UserCollectLogic extends GetxController {
         orderBy: orderBy,
       );
     }
+    debugPrint("user_collect_s ${list.length}");
     if (list.isNotEmpty) {
       return list;
     }
 
-    // if (kind == state.recentUse) {
-    //   orderBy = "${UserCollectRepo.updatedAt} desc";
-    //   where = "$where and ${UserCollectRepo.updatedAt} > 0";
-    // } else if (int.tryParse(kind!) != null) {
-    //   where = "$where and ${UserCollectRepo.kind}=?";
-    //   whereArgs.add(kind);
-    // }
     Map<String, dynamic> args = {
       'page': page,
       'size': size,
@@ -62,6 +66,9 @@ class UserCollectLogic extends GetxController {
       args['order'] = state.recentUse;
     } else if (int.tryParse(kind!) != null) {
       args['kind'] = kind;
+    }
+    if (strNoEmpty(kwd)) {
+      args['kwd'] = kwd;
     }
     Map<String, dynamic>? payload = await UserCollectProvider().page(args);
     if (payload == null) {
@@ -76,7 +83,8 @@ class UserCollectLogic extends GetxController {
     return list;
   }
 
-  Widget itemBody(UserCollectModel obj) {
+  /// 显示分类标签
+  Widget buildItemBody(UserCollectModel obj) {
     Widget body = const Spacer();
     // String type =
     //     obj.info['payload']['msg_type'] ?? '';
@@ -297,6 +305,7 @@ class UserCollectLogic extends GetxController {
     return body;
   }
 
+  /// 点击分类标签，按分类搜索
   Future<void> searchByKind(
     String kind,
     String kindTips,
@@ -306,16 +315,38 @@ class UserCollectLogic extends GetxController {
     state.kind = kind;
     var list = await page(page: state.page, size: state.size, kind: kind);
     if (list.isNotEmpty) {
-      state.items.value = list;
       state.page += 1;
     }
+    state.items.value = list;
+
+    state.searchTrailing = [
+      InkWell(
+          onTap: () {
+            if (state.kwd.value.isEmpty) {
+              return;
+            }
+            doSearch(state.kwd.value);
+          },
+          child: const Icon(Icons.search)),
+    ].map((e) => e).obs;
+
     state.searchLeading = n.Row([
-      const Icon(Icons.grid_view),
+      Icon(
+        Icons.grid_view,
+        size: 18,
+        color: AppColors.MainTextColor.withOpacity(0.8),
+      ),
       const SizedBox(width: 8),
       ElevatedButton(
         onPressed: () {
           // debugPrint("state.searchLeading ${state.searchLeading.toString()}");
           state.searchLeading = null;
+          state.searchTrailing = null;
+          state.kwd = ''.obs;
+          state.searchController.text = "";
+          state.kindActive.value = !state.kindActive.value;
+          state.kindActive.value = !state.kindActive.value;
+          state.kind = 'all';
           callback();
         },
         style: ButtonStyle(
@@ -332,10 +363,30 @@ class UserCollectLogic extends GetxController {
         child: n.Row([
           Text(kindTips, style: const TextStyle(color: AppColors.ItemOnColor)),
           const SizedBox(width: 12),
-          Icon(Icons.close,
-              size: 16, color: AppColors.ItemOnColor.withOpacity(0.7)),
+          Icon(
+            Icons.close,
+            size: 16,
+            color: AppColors.ItemOnColor.withOpacity(0.7),
+          ),
         ]),
       )
     ]).obs;
+  }
+
+  Future<List<dynamic>> doSearch(query) async {
+    debugPrint("user_collect_s_doSearch ${query.toString()}");
+
+    state.page = 1;
+    var list = await page(
+      page: state.page,
+      size: state.size,
+      kind: state.kind,
+      kwd: query.toString(),
+    );
+    if (list.isNotEmpty) {
+      state.page += 1;
+    }
+    state.items.value = list;
+    return list;
   }
 }

@@ -9,7 +9,6 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
-import 'package:imboy/store/repository/user_collect_repo_sqlite.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'user_collect_logic.dart';
@@ -17,8 +16,6 @@ import 'user_collect_logic.dart';
 // ignore: must_be_immutable
 class UserCollectPage extends StatelessWidget {
   UserCollectPage({super.key});
-
-  RxBool kindActive = false.obs;
 
   final logic = Get.put(UserCollectLogic());
   final state = Get.find<UserCollectLogic>().state;
@@ -81,29 +78,38 @@ class UserCollectPage extends StatelessWidget {
                     bottom: 10,
                     child: searchBar(
                       context,
-                      leading: state.searchLeading?.value,
+                      leading: state.searchLeading?.value ??
+                          InkWell(
+                            onTap: () {
+                              logic.doSearch(state.kwd);
+                            },
+                            child: const Icon(Icons.search),
+                          ),
+                      trailing: state.searchTrailing?.value,
+                      controller: state.searchController,
                       searchLabel: '搜索'.tr,
                       hintText: '搜索'.tr,
                       queryTips: '收藏人名、群名、标签等'.tr,
-                      doSearch: ((query) {
-                        // debugPrint(
-                        //     "> on search doSearch ${query.toString()}");
-                        return UserCollectRepo().search(kwd: query);
+                      onChanged: ((query) {
+                        state.kwd = query.obs;
+                        debugPrint(
+                            "user_collect_s_onChanged ${query.toString()}");
                       }),
-                      onTapForItem: (value) {
-                        // debugPrint(
-                        //     "> on search value ${value is UserCollectModel}, ${value.toString()}");
-                        if (value is UserCollectModel) {
-                          // Get.to(
-                          //   () => PeopleInfoPage(
-                          //     id: value.deniedUid,
-                          //     sence: 'denylist',
-                          //   ),
-                          //   transition: Transition.rightToLeft,
-                          //   popGesture: true, // 右滑，返回上一页
-                          // );
-                        }
-                      },
+                      doSearch: logic.doSearch,
+                      // onTapForItem: (value) {
+                      //   debugPrint(
+                      //       "user_collect_s_onTapForItem value ${value is UserCollectModel}, ${value.toString()}");
+                      //   if (value is UserCollectModel) {
+                      //     // Get.to(
+                      //     //   () => PeopleInfoPage(
+                      //     //     id: value.deniedUid,
+                      //     //     sence: 'denylist',
+                      //     //   ),
+                      //     //   transition: Transition.rightToLeft,
+                      //     //   popGesture: true, // 右滑，返回上一页
+                      //     // );
+                      //   }
+                      // },
                     ),
                   ),
                   _buildKindList(),
@@ -123,7 +129,7 @@ class UserCollectPage extends StatelessWidget {
                                   itemBuilder:
                                       (BuildContext context, int index) {
                                     UserCollectModel obj = state.items[index];
-                                    Widget body = logic.itemBody(obj);
+                                    Widget body = logic.buildItemBody(obj);
                                     return Slidable(
                                       key: ValueKey(obj.kindId),
                                       groupTag: '0',
@@ -199,7 +205,8 @@ class UserCollectPage extends StatelessWidget {
                                               ),
                                               const Expanded(child: SizedBox()),
                                               Text(
-                                                state.kind == state.recentUse
+                                                state.kind == state.recentUse &&
+                                                        obj.updatedAt > 0
                                                     ? DateTimeHelper
                                                         .lastTimeFmt(
                                                             obj.updatedAt)
@@ -237,22 +244,24 @@ class UserCollectPage extends StatelessWidget {
   Widget _buildKindList() {
     // 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息
     Map<String, String> kindMap = {
-      'recent_use': '最近使用',
-      '1': '文本',
-      '2': '图片',
-      '3': '语音',
-      '4': '视频',
-      '5': '文件',
-      '6': '位置消息',
+      state.recentUse: '最近使用'.tr,
+      '1': '文本'.tr,
+      '2': '图片'.tr,
+      '3': '语音'.tr,
+      '4': '视频'.tr,
+      '5': '文件'.tr,
+      '6': '位置消息'.tr,
+      'all': '所有'.tr,
     };
+
     List<Widget> items = [];
     kindMap.forEach((key, value) {
       items.add(ElevatedButton(
         onPressed: () {
           debugPrint("searchLeading ${state.searchLeading.toString()}");
-          kindActive.value = !kindActive.value;
-          logic.searchByKind("$key", value, () {
-            kindActive.value = !kindActive.value;
+          state.kindActive.value = !state.kindActive.value;
+          logic.searchByKind(key, value, () {
+            state.kindActive.value = !state.kindActive.value;
           });
         },
         style: ButtonStyle(
@@ -273,249 +282,122 @@ class UserCollectPage extends StatelessWidget {
       ));
     });
     return Container(
-        padding: const EdgeInsets.only(left: 8, right: 8.0),
+        padding: const EdgeInsets.only(left: 8, right: 16.0),
         color: AppColors.ChatBg,
-        child: n.Column(
-          [
-            ExpansionPanelList(
-              expandIconColor: AppColors.ChatBg,
-              expansionCallback: (panelIndex, isExpanded) {
-                kindActive.value = !kindActive.value;
-                debugPrint("kindActive $kindActive");
-
-                // setState(() {});
+        child: ExpansionPanelList(
+          expandIconColor: AppColors.ChatBg,
+          expansionCallback: (panelIndex, isExpanded) {
+            state.kindActive.value = !state.kindActive.value;
+            debugPrint("state.kindActive $state.kindActive");
+          },
+          children: <ExpansionPanel>[
+            ExpansionPanel(
+              backgroundColor: AppColors.ChatBg,
+              headerBuilder: (context, isExpanded) {
+                if (isExpanded) {
+                  return n.Row([
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.grid_view,
+                      size: 18,
+                      color: AppColors.MainTextColor.withOpacity(0.8),
+                    ),
+                    const SizedBox(width: 10),
+                    Text('类型'.tr),
+                  ]);
+                } else {
+                  return n.Wrap([
+                    InkWell(
+                      onTap: () {
+                        state.kindActive.value = !state.kindActive.value;
+                        state.kindActive.value = !state.kindActive.value;
+                        logic.searchByKind(state.recentUse, '最近使用'.tr, () {
+                          // state.kindActive.value = !state.kindActive.value;
+                        });
+                      },
+                      child: n.Padding(
+                        top: 16,
+                        bottom: 16,
+                        left: 8,
+                        right: 8,
+                        child: Text('最近使用'.tr),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        state.kindActive.value = !state.kindActive.value;
+                        state.kindActive.value = !state.kindActive.value;
+                        logic.searchByKind('1', '文本'.tr, () {
+                          // state.kindActive.value = !state.kindActive.value;
+                        });
+                      },
+                      child: n.Padding(
+                        top: 16,
+                        bottom: 16,
+                        left: 8,
+                        right: 8,
+                        child: Text(" ${'文本'.tr} "),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        state.kindActive.value = !state.kindActive.value;
+                        state.kindActive.value = !state.kindActive.value;
+                        logic.searchByKind('2', '图片'.tr, () {
+                          // state.kindActive.value = !state.kindActive.value;
+                        });
+                      },
+                      child: n.Padding(
+                        top: 16,
+                        bottom: 16,
+                        left: 8,
+                        right: 8,
+                        child: Text(" ${'图片'.tr} "),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        state.kindActive.value = !state.kindActive.value;
+                        state.kindActive.value = !state.kindActive.value;
+                        logic.searchByKind('4', '视频'.tr, () {
+                          //
+                        });
+                      },
+                      child: n.Padding(
+                        top: 16,
+                        bottom: 16,
+                        left: 8,
+                        right: 8,
+                        child: Text(" ${'视频'.tr} "),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        state.kindActive.value = !state.kindActive.value;
+                        state.kindActive.value = !state.kindActive.value;
+                        logic.searchByKind('5', '文件'.tr, () {
+                          // state.kindActive.value = !state.kindActive.value;
+                        });
+                      },
+                      child: n.Padding(
+                        top: 16,
+                        bottom: 16,
+                        left: 8,
+                        right: 8,
+                        child: Text(" ${'文件'.tr} "),
+                      ),
+                    ),
+                  ]);
+                }
               },
-              children: <ExpansionPanel>[
-                ExpansionPanel(
-                  backgroundColor: AppColors.ChatBg,
-                  headerBuilder: (context, isExpanded) {
-                    if (isExpanded) {
-                      return n.Row([
-                        const SizedBox(width: 10),
-                        Icon(
-                          Icons.grid_view,
-                          size: 18,
-                          color: AppColors.MainTextColor.withOpacity(0.7),
-                        ),
-                        const SizedBox(width: 10),
-                        Text('类型'.tr),
-                      ]);
-                    } else {
-                      return n.Row([
-                        const SizedBox(
-                          width: 10,
-                          height: 40,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            kindActive.value = !kindActive.value;
-                            kindActive.value = !kindActive.value;
-                            logic.searchByKind(state.recentUse, '最近使用'.tr, () {
-                              kindActive.value = !kindActive.value;
-                            });
-                          },
-                          child: Text('最近使用'.tr),
-                        ),
-                        const SizedBox(width: 40),
-                        InkWell(
-                          onTap: () {
-                            kindActive.value = !kindActive.value;
-                            kindActive.value = !kindActive.value;
-                            logic.searchByKind('1', '文本'.tr, () {
-                              kindActive.value = !kindActive.value;
-                            });
-                          },
-                          child: Text("  ${'文本'.tr}  "),
-                        ),
-                        const SizedBox(width: 40),
-                        InkWell(
-                          onTap: () {
-                            kindActive.value = !kindActive.value;
-                            kindActive.value = !kindActive.value;
-                            logic.searchByKind('2', '图片'.tr, () {
-                              kindActive.value = !kindActive.value;
-                            });
-                          },
-                          child: Text("  ${'图片'.tr}  "),
-                        ),
-                        const SizedBox(width: 40),
-                        InkWell(
-                          onTap: () {
-                            kindActive.value = !kindActive.value;
-                            kindActive.value = !kindActive.value;
-                            logic.searchByKind('4', '视频'.tr, () {
-                              kindActive.value = !kindActive.value;
-                            });
-                          },
-                          child: Text("  ${'视频'.tr}  "),
-                        ),
-                        const SizedBox(width: 40),
-                        InkWell(
-                          onTap: () {
-                            kindActive.value = !kindActive.value;
-                            kindActive.value = !kindActive.value;
-                            logic.searchByKind('5', '文件'.tr, () {
-                              kindActive.value = !kindActive.value;
-                            });
-                          },
-                          child: Text("  ${'文件'.tr}  "),
-                        ),
-                      ]);
-                    }
-                  },
-                  body: Wrap(
-                    alignment: WrapAlignment.spaceBetween,
-                    spacing: 14,
-                    children: items,
-                    // children: [
-                    //   ElevatedButton(
-                    //       onPressed: () {},
-                    //       style: ButtonStyle(
-                    //           backgroundColor: MaterialStateProperty.all(
-                    //               Colors.white.withOpacity(0.95))
-                    //           // backgroundColor:
-                    //           //     MaterialStateProperty.resolveWith<Color>(
-                    //           //   (Set<MaterialState> states) {
-                    //           //     if (states.contains(MaterialState.pressed))
-                    //           //       return Colors.red;
-                    //           //
-                    //           //     // Use the component's default.
-                    //           //     return Colors.white.withOpacity(0.7);
-                    //           //   },
-                    //           // ),
-                    //           ),
-                    //       child: Text(
-                    //         "Football",
-                    //         style: TextStyle(color: AppColors.MainTextColor),
-                    //       )),
-                    //   ElevatedButton(
-                    //       onPressed: () {},
-                    //       style: ButtonStyle(
-                    //           backgroundColor: MaterialStateProperty.all(
-                    //               Colors.white.withOpacity(0.95))
-                    //           // backgroundColor:
-                    //           //     MaterialStateProperty.resolveWith<Color>(
-                    //           //   (Set<MaterialState> states) {
-                    //           //     if (states.contains(MaterialState.pressed))
-                    //           //       return Colors.red;
-                    //           //
-                    //           //     // Use the component's default.
-                    //           //     return Colors.white.withOpacity(0.7);
-                    //           //   },
-                    //           // ),
-                    //           ),
-                    //       child: Text(
-                    //         "Tennis",
-                    //         style: TextStyle(color: AppColors.MainTextColor),
-                    //       )),
-                    //   ElevatedButton(
-                    //       onPressed: () {},
-                    //       style: ButtonStyle(
-                    //           backgroundColor: MaterialStateProperty.all(
-                    //               Colors.white.withOpacity(0.95))
-                    //           // backgroundColor:
-                    //           //     MaterialStateProperty.resolveWith<Color>(
-                    //           //   (Set<MaterialState> states) {
-                    //           //     if (states.contains(MaterialState.pressed))
-                    //           //       return Colors.red;
-                    //           //
-                    //           //     // Use the component's default.
-                    //           //     return Colors.white.withOpacity(0.7);
-                    //           //   },
-                    //           // ),
-                    //           ),
-                    //       child: Text(
-                    //         "Fencing",
-                    //         style: TextStyle(color: AppColors.MainTextColor),
-                    //       )),
-                    //   ElevatedButton(
-                    //       onPressed: () {},
-                    //       style: ButtonStyle(
-                    //           backgroundColor: MaterialStateProperty.all(
-                    //               Colors.white.withOpacity(0.95))
-                    //           // backgroundColor:
-                    //           //     MaterialStateProperty.resolveWith<Color>(
-                    //           //   (Set<MaterialState> states) {
-                    //           //     if (states.contains(MaterialState.pressed))
-                    //           //       return Colors.red;
-                    //           //
-                    //           //     // Use the component's default.
-                    //           //     return Colors.white.withOpacity(0.7);
-                    //           //   },
-                    //           // ),
-                    //           ),
-                    //       child: Text(
-                    //         "Swimming",
-                    //         style: TextStyle(color: AppColors.MainTextColor),
-                    //       )),
-                    //   ElevatedButton(
-                    //       onPressed: () {},
-                    //       style: ButtonStyle(
-                    //           backgroundColor: MaterialStateProperty.all(
-                    //               Colors.white.withOpacity(0.95))
-                    //           // backgroundColor:
-                    //           //     MaterialStateProperty.resolveWith<Color>(
-                    //           //   (Set<MaterialState> states) {
-                    //           //     if (states.contains(MaterialState.pressed))
-                    //           //       return Colors.red;
-                    //           //
-                    //           //     // Use the component's default.
-                    //           //     return Colors.white.withOpacity(0.7);
-                    //           //   },
-                    //           // ),
-                    //           ),
-                    //       child: Text(
-                    //         "Hockey",
-                    //         style: TextStyle(color: AppColors.MainTextColor),
-                    //       )),
-                    //   ElevatedButton(
-                    //       onPressed: () {},
-                    //       style: ButtonStyle(
-                    //           backgroundColor: MaterialStateProperty.all(
-                    //               Colors.white.withOpacity(0.95))
-                    //           // backgroundColor:
-                    //           //     MaterialStateProperty.resolveWith<Color>(
-                    //           //   (Set<MaterialState> states) {
-                    //           //     if (states.contains(MaterialState.pressed))
-                    //           //       return Colors.red;
-                    //           //
-                    //           //     // Use the component's default.
-                    //           //     return Colors.white.withOpacity(0.7);
-                    //           //   },
-                    //           // ),
-                    //           ),
-                    //       child: Text(
-                    //         "Karate",
-                    //         style: TextStyle(color: AppColors.MainTextColor),
-                    //       )),
-                    //   ElevatedButton(
-                    //       onPressed: () {},
-                    //       style: ButtonStyle(
-                    //           backgroundColor: MaterialStateProperty.all(
-                    //               Colors.white.withOpacity(0.95))
-                    //           // backgroundColor:
-                    //           //     MaterialStateProperty.resolveWith<Color>(
-                    //           //   (Set<MaterialState> states) {
-                    //           //     if (states.contains(MaterialState.pressed))
-                    //           //       return Colors.red;
-                    //           //
-                    //           //     // Use the component's default.
-                    //           //     return Colors.white.withOpacity(0.7);
-                    //           //   },
-                    //           // ),
-                    //           ),
-                    //       child: Text(
-                    //         "Karate",
-                    //         style: TextStyle(color: AppColors.MainTextColor),
-                    //       )),
-                    // ],
-                  ),
-                  isExpanded: kindActive.value,
-                  canTapOnHeader: true,
-                )
-              ],
-            ),
-            // for (int i = 0; i < items.length; i++) items[i]
+              body: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                spacing: 12,
+                children: items,
+              ),
+              isExpanded: state.kindActive.value,
+              canTapOnHeader: true,
+            )
           ],
         ));
   }

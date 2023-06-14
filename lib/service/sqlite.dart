@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/repository/sqlite_ddl.dart';
@@ -42,17 +44,67 @@ class SqliteService {
     // debugPrint("> on open db readOnly: ${isexits}, path {$path}");
     // Delete the database
     // await deleteDatabase(path);
-    // if
+    // final dbFactory = createDatabaseFactoryFfi(ffiInit: () {
+    //   open.overrideForAll(sqlcipherOpen);
+    // });
+    // return await dbFactory.openDatabase(
+    //   path,
+    //   options: OpenDatabaseOptions(
+    //     version: _dbVersion,
+    //     readOnly: false,
+    //     onConfigure: _onConfigure,
+    //     onCreate: _onCreate,
+    //     onUpgrade: _onUpgrade,
+    //     onDowngrade: _onDowngrade,
+    //   ),
+    // );
+
     return await openDatabase(
       path,
       version: _dbVersion,
       readOnly: false,
+      onConfigure: _onConfigure,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
       onDowngrade: _onDowngrade,
     );
   }
 
+  /// 打开数据库时调用的第一个回调函数。
+  /// 它允许您执行数据库初始化，例如启用外键或预写日志
+  Future<FutureOr<void>> _onConfigure(Database db) async {
+    debugPrint("SqliteService_onConfigure ${db.toString()}");
+    // https://github.com/tekartik/sqflite/blob/master/sqflite_common_ffi/doc/encryption_support.md
+    // This is the part where we pass the "password"
+    // await db.rawQuery("PRAGMA KEY='$SOLIDIFIED_KEY}'");
+    //注意： 创建多张表，需要执行多次 await db.execute 代码
+    //      也就是一条SQL语句一个 db.execute
+
+    // await db.execute("DROP TABLE IF EXISTS ${ContactRepo.tableName};");
+    // await db.execute("DROP TABLE IF EXISTS ${ConversationRepo.tableName};");
+    // await db.execute("DROP TABLE IF EXISTS ${MessageRepo.tableName};");
+    // await db.execute("DROP TABLE IF EXISTS ${NewFriendRepo.tableName};");
+    // TODO leeyi 2023-04-19
+    // https://www.wangfenjin.com/posts/simple-tokenizer/
+    // await db.execute('''
+    //       CREATE VIRTUAL TABLE t1 USING fts5(x, tokenize = "simple");
+    //     ''');
+  }
+
+  /// 如果在调用之前数据库不存在，则调用[onCreate]
+  Future _onCreate(Database db, int version) async {
+    debugPrint("SqliteService_onDowngrade version: $version");
+    await SqliteDdl.contact(db);
+    await SqliteDdl.conversation(db);
+    await SqliteDdl.message(db);
+    await SqliteDdl.newFriend(db);
+    await SqliteDdl.userDenylist(db);
+    await SqliteDdl.userDevice(db);
+    await SqliteDdl.userCollect(db);
+  }
+
+  /// 数据库已经存在，且[version]高于上一个数据库
+  ///数据库版本
   Future _onUpgrade(Database db, int oldVsn, int newVsn) async {
     debugPrint("SqliteService_onUpgrade oldVsn: $oldVsn, newVsn: $newVsn");
     if (oldVsn == 1 && newVsn == 2) {
@@ -67,30 +119,6 @@ class SqliteService {
     if (oldVsn == 2 && newVsn == 1) {
       await db.execute("DROP TABLE IF EXISTS ${UserCollectRepo.tableName};");
     } else if (oldVsn == 2) {}
-  }
-
-  // SQL code to create the database table
-  Future _onCreate(Database db, int version) async {
-    debugPrint("SqliteService_onDowngrade version: $version");
-    //注意： 创建多张表，需要执行多次 await db.execute 代码
-    //      也就是一条SQL语句一个 db.execute
-
-    // await db.execute("DROP TABLE IF EXISTS ${ContactRepo.tableName};");
-    // await db.execute("DROP TABLE IF EXISTS ${ConversationRepo.tableName};");
-    // await db.execute("DROP TABLE IF EXISTS ${MessageRepo.tableName};");
-    // await db.execute("DROP TABLE IF EXISTS ${NewFriendRepo.tableName};");
-    // TODO leeyi 2023-04-19
-    // https://www.wangfenjin.com/posts/simple-tokenizer/
-    // await db.execute('''
-    //       CREATE VIRTUAL TABLE t1 USING fts5(x, tokenize = "simple");
-    //     ''');
-    await SqliteDdl.contact(db);
-    await SqliteDdl.conversation(db);
-    await SqliteDdl.message(db);
-    await SqliteDdl.newFriend(db);
-    await SqliteDdl.userDenylist(db);
-    await SqliteDdl.userDevice(db);
-    await SqliteDdl.userCollect(db);
   }
 
   Future<int> insert(String table, Map<String, dynamic> data) async {
