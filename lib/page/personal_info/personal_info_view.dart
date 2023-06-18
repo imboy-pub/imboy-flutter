@@ -9,6 +9,7 @@ import 'package:imboy/component/helper/crop_image.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
+import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -145,7 +146,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           onPressed: () => Get.bottomSheet(
             SizedBox(
               width: Get.width,
-              height: Get.height * 0.25,
+              height: 168,
               child: Wrap(
                 children: <Widget>[
                   Center(
@@ -162,6 +163,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                       ),
                     ),
                   ),
+                  const Divider(),
                   Center(
                     child: TextButton(
                       onPressed: () => fromGallery(),
@@ -176,7 +178,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                       ),
                     ),
                   ),
-                  const Divider(),
+                  const HorizontalLine(height: 6),
                   Center(
                     child: TextButton(
                       onPressed: () => Get.back(),

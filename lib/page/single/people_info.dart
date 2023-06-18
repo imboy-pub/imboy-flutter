@@ -87,6 +87,7 @@ class PeopleInfoPage extends StatelessWidget {
             );
           },
           child: n.Padding(
+            left: 10,
             right: 10,
             child: const Icon(
               Icons.more_horiz,

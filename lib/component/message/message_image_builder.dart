@@ -26,8 +26,10 @@ class ImageMessageBuilder extends StatefulWidget {
     super.key,
     required this.message,
     required this.messageWidth,
+    this.user,
   });
 
+  final types.User? user;
   /// [types.ImageMessage].
   final types.ImageMessage message;
 
@@ -68,7 +70,7 @@ class _ImageMessageState extends State<ImageMessageBuilder> {
 
   @override
   Widget build(BuildContext context) {
-    final user = InheritedUser.of(context).user;
+    final user = widget.user ?? InheritedUser.of(context).user;
 
     if (_size.aspectRatio == 0) {
       return Container(

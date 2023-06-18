@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/service/assets.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -20,8 +19,12 @@ class LocationMessageBuilder extends StatelessWidget {
     Key? key,
     required this.user,
     required this.message,
+    this.width,
+    this.height,
   }) : super(key: key);
 
+  final double? width;
+  final double? height;
   final types.User user;
   final types.CustomMessage message;
 
@@ -40,8 +43,8 @@ class LocationMessageBuilder extends StatelessWidget {
       nipRadius: 4,
       alignment: userIsAuthor ? Alignment.centerRight : Alignment.centerLeft,
       child: SizedBox(
-        width: Get.width * 0.618,
-        height: 240,
+        width: width ?? Get.width * 0.618,
+        height: height ?? 240,
         child: n.Column(
           [
             InkWell(
@@ -127,7 +130,6 @@ class LocationMessageBuilder extends StatelessWidget {
               flex: 2,
               child: InkWell(
                 onTap: () async {
-                  thumb = AssetsService.viewUrl(thumb).toString();
                   zoomInPhotoView(thumb);
                 },
                 child: Image(

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/repaint_boundary.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:niku/namespace.dart' as n;
+import 'package:qr_flutter/qr_flutter.dart';
 
 class UqrcodePage extends StatelessWidget {
   final GlobalKey globalKey = GlobalKey();
@@ -29,7 +30,8 @@ class UqrcodePage extends StatelessWidget {
         rightDMActions: <Widget>[
           InkWell(
             child: n.Padding(
-              left: 20, right: 10,
+              left: 20,
+              right: 10,
               child: const Text(
                 "...",
                 style: TextStyle(
@@ -41,8 +43,9 @@ class UqrcodePage extends StatelessWidget {
               Get.bottomSheet(
                 SizedBox(
                   width: Get.width,
-                  height: Get.height * 0.25,
-                  child: n.Wrap([
+                  height: 172,
+                  child: n.Wrap(
+                    [
                       Center(
                         child: TextButton(
                           child: Text(
@@ -65,12 +68,13 @@ class UqrcodePage extends StatelessWidget {
                           },
                         ),
                       ),
+                      const Divider(),
                       Center(
                         child: TextButton(
                           onPressed: () {
                             Get.back();
-                            Get.to(()=>
-                              const ScannerPage(),
+                            Get.to(
+                              () => const ScannerPage(),
                               transition: Transition.rightToLeft,
                               popGesture: true, // 右滑，返回上一页
                             );
@@ -86,7 +90,7 @@ class UqrcodePage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const Divider(),
+                      const HorizontalLine(height: 6),
                       Center(
                         child: TextButton(
                           onPressed: () => Get.back(),
@@ -132,7 +136,8 @@ class UqrcodePage extends StatelessWidget {
               width: Get.width,
               height: Get.height * 0.65 + 20,
               color: Colors.white,
-              child: n.Column([
+              child: n.Column(
+                [
                   ListTile(
                     leading: Container(
                       width: 64,

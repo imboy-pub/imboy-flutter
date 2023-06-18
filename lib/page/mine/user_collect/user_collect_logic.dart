@@ -1,9 +1,16 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+
+// ignore: depend_on_referenced_packages
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show formatBytes;
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/image_gallery/image_gallery.dart';
+import 'package:imboy/component/message/message_audio_builder.dart';
+import 'package:imboy/component/message/message_location_builder.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
 import 'package:imboy/store/provider/user_collect_provider.dart';
 import 'package:imboy/store/repository/user_collect_repo_sqlite.dart';
@@ -37,13 +44,8 @@ class UserCollectLogic extends GetxController {
         whereArgs.add(kind);
       }
       if (strNoEmpty(kwd)) {
-        // where: '${UserCollectRepo.userId}=? and ('
-        //     '${UserCollectRepo.source} like "%$kwd%" or ${UserCollectRepo.remark} like "%$kwd%"'
-        //     ')',
-        // whereArgs: [UserRepoLocal.to.currentUid],
-        // orderBy: "${UserCollectRepo.createdAt} desc",
         where =
-            "$where and (${UserCollectRepo.source} like \"%$kwd%\" or ${UserCollectRepo.remark} like \"%$kwd%\" or ${UserCollectRepo.info} like \"%$kwd%\")";
+            "$where and (${UserCollectRepo.source} like '%$kwd%' or ${UserCollectRepo.remark} like '%$kwd%' or ${UserCollectRepo.info} like '%$kwd%')";
       }
       list = await repo.page(
         limit: size,
@@ -84,7 +86,8 @@ class UserCollectLogic extends GetxController {
   }
 
   /// 显示分类标签
-  Widget buildItemBody(UserCollectModel obj) {
+  /// scene page | detail
+  Widget buildItemBody(UserCollectModel obj, String scene) {
     Widget body = const Spacer();
     // String type =
     //     obj.info['payload']['msg_type'] ?? '';
@@ -98,7 +101,7 @@ class UserCollectLogic extends GetxController {
               fontSize: 16.0,
               fontWeight: FontWeight.normal,
             ),
-            maxLines: 8,
+            maxLines: scene == 'page' ? 4 : 16,
             overflow: TextOverflow.ellipsis,
           ),
         )
@@ -106,77 +109,83 @@ class UserCollectLogic extends GetxController {
     } else if (obj.kind == 2) {
       String uri = obj.info['payload']['uri'] ?? '';
       body = n.Row([
-        Image(
-          width: Get.width * 0.5,
-          height: 120,
-          fit: BoxFit.cover,
-          image: cachedImageProvider(
-            uri,
-            w: Get.width * 0.5,
-          ),
-        )
-        // n.Column([]),
-        // n.Column([]),
+        scene == 'page'
+            ? Image(
+                width: Get.width * 0.5,
+                height: 120,
+                fit: BoxFit.cover,
+                image: cachedImageProvider(
+                  uri,
+                  w: Get.width,
+                ),
+              )
+            : InkWell(
+                onTap: () async {
+                  zoomInPhotoView(uri);
+                },
+                child: Image(
+                  // detail 里面减去左右 padding 和
+                  width: Get.width - 20,
+                  height: Get.height - 128,
+                  fit: BoxFit.cover,
+                  image: cachedImageProvider(
+                    uri,
+                    w: Get.width,
+                  ),
+                ),
+              )
       ]);
     } else if (obj.kind == 3) {
       int durationMS = obj.info['payload']['duration_ms'] ?? 0;
       // row > expand > column > text 换行有效
-      body = n.Row([
-        Expanded(
-            flex: 9,
-            child: n.Column(
-              [
-                Text(
-                  durationMS > 0 ? "${durationMS / 1000} ''" : '',
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.normal,
+      body = scene == 'page'
+          ? n.Row([
+              Expanded(
+                  flex: 9,
+                  child: n.Column(
+                    [
+                      Text(
+                        durationMS > 0 ? "${durationMS / 1000} ''" : '',
+                        style: const TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    // 内容文本左对齐
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                  )),
+              // const Expanded(child: SizedBox()),
+              Expanded(
+                  flex: 1,
+                  child: n.Column(const [
+                    Icon(
+                      Icons.graphic_eq,
+                      size: 28,
+                    ),
+                  ])),
+            ])
+          : n.Row([
+              Expanded(
+                flex: 1,
+                child: AudioMessageBuilder(
+                  user: types.User(
+                    id: UserRepoLocal.to.currentUid,
+                    firstName: UserRepoLocal.to.current.nickname,
+                    imageUrl: UserRepoLocal.to.current.avatar,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  message: MessageModel.fromJson(obj.info).toTypeMessage()
+                      as types.CustomMessage,
                 ),
-              ],
-              // 内容文本左对齐
-              crossAxisAlignment: CrossAxisAlignment.start,
-            )),
-        // const Expanded(child: SizedBox()),
-        Expanded(
-            flex: 1,
-            child: n.Column(const [
-              Icon(
-                Icons.record_voice_over_outlined,
-                size: 28,
               ),
-            ])),
-      ]);
+            ])
+        // 内容居中
+        ..mainAxisAlignment = MainAxisAlignment.spaceBetween;
     } else if (obj.kind == 4) {
       String uri = obj.info['payload']['thumb']['uri'] ?? '';
       // debugPrint("item_4_uri $uri");
-      body = n.Row([
-        Image(
-          width: Get.width * 0.5,
-          height: 120,
-          fit: BoxFit.cover,
-          image: cachedImageProvider(
-            uri,
-            w: Get.width * 0.5,
-          ),
-        ),
-        const Positioned.fill(
-          child: SizedBox(
-            height: 100,
-            child: Center(
-              child: Icon(
-                Icons.video_library,
-                color: Colors.white,
-                size: 40,
-              ),
-            ),
-          ),
-        ),
-        // n.Column([]),
-        // n.Column([]),
-      ]);
       body = n.Row([
         Stack(
           alignment: Alignment.centerRight,
@@ -219,88 +228,144 @@ class UserCollectLogic extends GetxController {
       //     size: 40,
       //   );
       // }
-      body = n.Row([
-        n.Column(
-          [
-            n.Row([
-              Text(
-                obj.info['payload']['name'] ?? '',
-                style: const TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.normal,
+      body = scene == 'page'
+          ? n.Row([
+              n.Column(
+                [
+                  n.Row([
+                    Text(
+                      obj.info['payload']['name'] ?? '',
+                      style: const TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.normal,
+                      ),
+                      maxLines: 8,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ]),
+                ],
+                // 内容文本左对齐
+                crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+              const Expanded(child: SizedBox()),
+              n.Column([
+                n.Row([
+                  Text(
+                    "$mimeType  ${formatBytes(obj.info['payload']['size'] ?? '')}",
+                    style: const TextStyle(
+                      color: AppColors.MainTextColor,
+                      fontSize: 14.0,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  )
+                ]),
+                // fileIcon,
+              ]),
+            ])
+          : n.Column([
+              n.Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, [
+                Text(
+                  obj.info['payload']['name'] ?? '',
+                  style: const TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  maxLines: 8,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
                 ),
-                maxLines: 8,
-                overflow: TextOverflow.ellipsis,
+              ]),
+              n.Padding(
+                top: 20,
+                bottom: 20,
+                child: n.Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, [
+                  Text(
+                    "${'文件大小'.tr}: ${formatBytes(obj.info['payload']['size'] ?? '')}",
+                    style: const TextStyle(
+                      fontSize: 14.0,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ]),
               ),
-            ]),
-          ],
-          // 内容文本左对齐
-          crossAxisAlignment: CrossAxisAlignment.start,
-        ),
-        const Expanded(child: SizedBox()),
-        n.Column([
-          n.Row([
-            Text(
-              "$mimeType  ${formatBytes(obj.info['payload']['size'] ?? '')}",
-              style: const TextStyle(
-                color: AppColors.MainTextColor,
-                fontSize: 14.0,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            )
-          ]),
-          // fileIcon,
-        ]),
-      ]);
+              n.Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, [
+                Text(
+                  mimeType,
+                  style: const TextStyle(
+                    color: AppColors.MainTextColor,
+                    fontSize: 14.0,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ]),
+            ]);
     } else if (obj.kind == 6) {
       String title = obj.info['payload']['title'] ?? '';
       String address = obj.info['payload']['address'] ?? '';
 
       // row > expand > column > text 换行有效
-      body = n.Row([
-        Expanded(
-          flex: 9,
-          child: n.Column(
-            [
-              Text(
-                title,
-                // "宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼(…",
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.normal,
+      body = scene == 'page'
+          ? n.Row([
+              Expanded(
+                flex: 9,
+                child: n.Column(
+                  [
+                    Text(
+                      title,
+                      // "宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼(…",
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    Text(
+                      address,
+                      // "宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼(…",
+                      maxLines: 4,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.MainTextColor,
+                        fontSize: 14.0,
+                      ),
+                    ),
+                  ],
+                  // 内容文本左对齐
+                  crossAxisAlignment: CrossAxisAlignment.start,
                 ),
               ),
-              const SizedBox(
-                height: 8,
-              ),
-              Text(
-                address,
-                // "宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼(…",
-                maxLines: 4,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.MainTextColor,
-                  fontSize: 14.0,
-                ),
-              ),
-            ],
-            // 内容文本左对齐
-            crossAxisAlignment: CrossAxisAlignment.start,
-          ),
-        ),
-        // const Expanded(flex: 1, child: SizedBox()),
-        Expanded(
-            flex: 1,
-            child: n.Column(const [
-              Icon(
-                Icons.location_on_outlined,
-                size: 28,
-              ),
-            ])),
-      ]);
+              // const Expanded(flex: 1, child: SizedBox()),
+              Expanded(
+                  flex: 1,
+                  child: n.Column(const [
+                    Icon(
+                      Icons.location_on_outlined,
+                      size: 28,
+                    ),
+                  ])),
+            ])
+          : n.Row([
+              Expanded(
+                  flex: 1,
+                  child: LocationMessageBuilder(
+                    width: Get.width - 20,
+                    height: Get.height - 160,
+                    user: types.User(
+                      id: UserRepoLocal.to.currentUid,
+                      firstName: UserRepoLocal.to.current.nickname,
+                      imageUrl: UserRepoLocal.to.current.avatar,
+                    ),
+                    message: MessageModel.fromJson(obj.info).toTypeMessage()
+                        as types.CustomMessage,
+                  ))
+            ]);
     }
     return body;
   }
@@ -388,5 +453,10 @@ class UserCollectLogic extends GetxController {
     }
     state.items.value = list;
     return list;
+  }
+
+  /// 删除收藏
+  Future<bool> remove(UserCollectModel obj) async {
+    return await UserCollectProvider().remove(kindId: obj.kindId);
   }
 }

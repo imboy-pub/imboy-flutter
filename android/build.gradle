@@ -1,8 +1,8 @@
 buildscript {
     ext.kotlin_version = '1.7.22'
     repositories {
-        // google()
-        // jcenter()
+         google()
+         jcenter()
         maven {
             allowInsecureProtocol = true
             url 'https://maven.aliyun.com/repository/public'
@@ -43,8 +43,8 @@ buildscript {
 
 allprojects {
     repositories {
-        // google()
-        // jcenter()
+         google()
+         jcenter()
         maven {
             allowInsecureProtocol = true
             url 'https://maven.aliyun.com/repository/public'

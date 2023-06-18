@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
@@ -49,6 +50,7 @@ import 'package:xid/xid.dart';
 
 import 'chat_logic.dart';
 import 'widget/chat_input.dart';
+
 // ignore: must_be_immutable
 import 'widget/extra_item.dart';
 import 'widget/quote_tips.dart';
@@ -845,14 +847,6 @@ class ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     var topRightWidget = [
       InkWell(
-        // child: const Image(image: AssetImage('assets/images/right_more.png')),
-        child: n.Padding(
-          right: 10,
-          child: const Icon(
-            Icons.more_horiz,
-            // size: 40,
-          ),
-        ),
         onTap: () => getx.Get.to(
           () => widget.type == 'GROUP'
               ? GroupDetailPage(
@@ -873,6 +867,15 @@ class ChatPageState extends State<ChatPage> {
             _handleEndReached();
           }
         }),
+        // 三点更多 more icon
+        child: n.Padding(
+          left: 10,
+          right: 10,
+          child: const Icon(
+            Icons.more_horiz,
+            // size: 40,
+          ),
+        ),
       )
     ];
     return Scaffold(

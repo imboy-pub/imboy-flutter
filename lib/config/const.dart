@@ -198,9 +198,10 @@ class API {
   static const userDeviceChangeName = '/user_device/change_name';
   static const userDeviceDelete = '/user_device/delete';
 
-  static const userCollectPage = '/collect/page';
-  static const userCollectAdd = '/collect/add';
-  static const userCollectRemove = '/collect/remove';
+  static const userCollectPage = '/user_collect/page';
+  static const userCollectAdd = '/user_collect/add';
+  static const userCollectRemove = '/user_collect/remove';
+  static const userCollectChange = '/user_collect/change';
 
   // 附近的人
   static const peopleNearby = '/location/peopleNearby';

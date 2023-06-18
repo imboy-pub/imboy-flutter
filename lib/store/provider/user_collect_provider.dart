@@ -14,6 +14,17 @@ class UserCollectProvider extends HttpClient {
     return resp.payload;
   }
 
+  /// 删除收藏
+  Future<bool> remove({
+    required String kindId,
+  }) async {
+    IMBoyHttpResponse resp = await post(API.userCollectRemove, data: {
+      'kind_id': kindId,
+    });
+    debugPrint("> on Provider/deleteDevice resp: ${resp.payload}");
+    return resp.ok ? true : false;
+  }
+
   /// 修改设备名称
   Future<bool> changeName({
     required String deviceId,
@@ -24,17 +35,6 @@ class UserCollectProvider extends HttpClient {
       "name": name,
     });
     debugPrint("> on Provider/changeName resp: ${resp.toString()}");
-    return resp.ok ? true : false;
-  }
-
-  /// 删除设备
-  Future<bool> deleteDevice({
-    required String deviceId,
-  }) async {
-    IMBoyHttpResponse resp = await post(API.userDeviceDelete, data: {
-      "did": deviceId,
-    });
-    debugPrint("> on Provider/deleteDevice resp: ${resp.payload}");
     return resp.ok ? true : false;
   }
 }

@@ -65,23 +65,27 @@ class MessageModel {
     required this.conversationId,
   });
 
-  MessageModel.fromJson(Map<String, dynamic> data) {
+  factory MessageModel.fromJson(Map<String, dynamic> data) {
+    Map<String, dynamic>? p;
     if (data['payload'] == null || data['payload'] == "") {
-      payload = <String, dynamic>{};
+      p = <String, dynamic>{};
     } else if (data['payload'] is String) {
-      payload = jsonDecode("${data['payload']}");
+      p = jsonDecode("${data['payload']}");
     } else if (data['payload'] is Map<String, dynamic>) {
-      payload = data['payload'];
+      p = data['payload'];
     }
-    id = data[MessageRepo.id];
-    type = data[MessageRepo.type];
-    status = data[MessageRepo.status];
-    fromId = data[MessageRepo.from] ?? '';
-    toId = data[MessageRepo.to];
-    createdAt = data[MessageRepo.createdAt] ?? 0;
-    serverTs = data[MessageRepo.serverTs] ?? 0;
-    //
-    conversationId = data[MessageRepo.conversationId];
+
+    return MessageModel(
+      data[MessageRepo.id],
+      type: data[MessageRepo.type],
+      status: data[MessageRepo.status],
+      fromId: data[MessageRepo.from] ?? '',
+      toId: data[MessageRepo.to],
+      payload: p,
+      createdAt: data[MessageRepo.createdAt] ?? 0,
+      serverTs: data[MessageRepo.serverTs] ?? 0,
+      conversationId: data[MessageRepo.conversationId],
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -96,7 +100,7 @@ class MessageModel {
     data[MessageRepo.serverTs] = serverTs ?? 0;
     data[MessageRepo.conversationId] = conversationId;
 
-    debugPrint("> on MessageModel toMap $data");
+    // debugPrint("> on MessageModel toMap $data");
     return data;
   }
 
@@ -233,8 +237,8 @@ class MessageModel {
         name: payload!['name'],
         size: payload!['size'],
         uri: payload!['uri'],
-        width: payload!['width'],
-        height: payload!['height'],
+        width: payload!['width'] / 1.0,
+        height: payload!['height'] / 1.0,
         status: typesStatus,
         metadata: {'sys_prompt': sysPrompt},
       );

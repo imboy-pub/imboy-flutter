@@ -8,9 +8,11 @@ import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/single/chat_video.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
 import 'package:niku/namespace.dart' as n;
 
+import 'user_collect_detail_view.dart';
 import 'user_collect_logic.dart';
 
 // ignore: must_be_immutable
@@ -96,20 +98,6 @@ class UserCollectPage extends StatelessWidget {
                             "user_collect_s_onChanged ${query.toString()}");
                       }),
                       doSearch: logic.doSearch,
-                      // onTapForItem: (value) {
-                      //   debugPrint(
-                      //       "user_collect_s_onTapForItem value ${value is UserCollectModel}, ${value.toString()}");
-                      //   if (value is UserCollectModel) {
-                      //     // Get.to(
-                      //     //   () => PeopleInfoPage(
-                      //     //     id: value.deniedUid,
-                      //     //     sence: 'denylist',
-                      //     //   ),
-                      //     //   transition: Transition.rightToLeft,
-                      //     //   popGesture: true, // 右滑，返回上一页
-                      //     // );
-                      //   }
-                      // },
                     ),
                   ),
                   _buildKindList(),
@@ -129,7 +117,6 @@ class UserCollectPage extends StatelessWidget {
                                   itemBuilder:
                                       (BuildContext context, int index) {
                                     UserCollectModel obj = state.items[index];
-                                    Widget body = logic.buildItemBody(obj);
                                     return Slidable(
                                       key: ValueKey(obj.kindId),
                                       groupTag: '0',
@@ -161,14 +148,13 @@ class UserCollectPage extends StatelessWidget {
                                             backgroundColor: AppColors.ChatBg,
                                             // foregroundColor: Colors.white,
                                             onPressed: (_) async {
-                                              // await logic.removeConversation(
-                                              //     conversationId);
-                                              // logic.update([
-                                              //   logic.conversations.removeAt(index),
-                                              //   logic.conversationRemind[
-                                              //       model.peerId] = 0,
-                                              //   logic.chatMsgRemindCounter,
-                                              // ]);
+                                              bool res = await logic.remove(obj);
+                                              debugPrint(
+                                                  "user_collect_remove $res; i $index");
+                                              if (res) {
+                                                state.items.removeAt(index);
+                                                // logic.update(state.items);
+                                              }
                                             },
                                             icon: Icons.delete_forever_sharp,
                                             label: "删除".tr,
@@ -187,10 +173,31 @@ class UserCollectPage extends StatelessWidget {
                                         ),
                                         child: InkWell(
                                           onTap: () {
-                                            // 收藏详情
+                                            if (obj.kind == 4) {
+                                              String uri = obj.info['payload']
+                                                      ['thumb']['uri'] ??
+                                                  '';
+                                              Get.to(
+                                                () => ChatVideoPage(url: uri),
+                                                transition:
+                                                    Transition.rightToLeft,
+                                                popGesture: true, // 右滑，返回上一页
+                                              );
+                                            } else {
+                                              // 收藏详情
+                                              Get.to(
+                                                () => UserCollectDetailPage(
+                                                  obj: obj,
+                                                  pageIndex: index,
+                                                ),
+                                                transition:
+                                                    Transition.rightToLeft,
+                                                popGesture: true, // 右滑，返回上一页
+                                              );
+                                            }
                                           },
                                           child: n.Column([
-                                            body,
+                                            logic.buildItemBody(obj, 'page'),
                                             n.Row(const [SizedBox(height: 16)]),
                                             n.Row([
                                               Text(

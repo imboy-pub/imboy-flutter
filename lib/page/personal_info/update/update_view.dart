@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -57,9 +59,12 @@ class UpdatePage extends StatelessWidget {
       logic.valueOnChange(true);
       body = genderField();
     }
+    double top = 0;
+    if (Platform.isAndroid || Platform.isIOS || Platform.isFuchsia) {
+      top = 22;
+    }
     return Container(
-      // top 22 in Android
-      padding: const EdgeInsets.only(top: 22),
+      padding: EdgeInsets.only(top: top),
       color: AppColors.AppBarColor,
       width: Get.width,
       height: Get.height,

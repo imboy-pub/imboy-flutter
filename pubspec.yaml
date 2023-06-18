@@ -67,7 +67,7 @@ dependencies:
       ref: leeyi
   # 视频播放器
   webview_flutter: ^4.2.2
-  image_picker: ^0.8.8
+  image_picker: ^0.8.9
   mime: ^1.0.4
   open_file: ^3.3.2
   #open_file:
