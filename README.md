@@ -26,8 +26,8 @@ imboy 的Flutter项目
 ## 功能树
 
 * 大概的大大小小功能实现情况：
-    * TODO 46
-    * OK 91
+    * TODO 44
+    * OK 98
 
 [查看](./doc/feature_0.1.0_tree.md)
 

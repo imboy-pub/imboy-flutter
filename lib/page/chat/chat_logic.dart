@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
@@ -9,6 +9,8 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
+import 'package:imboy/page/mine/user_collect/user_collect_logic.dart';
+import 'package:imboy/service/assets.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -16,6 +18,7 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:popup_menu/popup_menu.dart' as popupmenu;
 import 'package:sqflite/sqflite.dart';
 
 import 'chat_state.dart';
@@ -85,7 +88,7 @@ class ChatLogic extends GetxController {
     types.Message message,
   ) {
     Map<String, dynamic> payload = {};
-    debugPrint("> on addMessage getMsgFromTMsg 2");
+    // debugPrint("> on addMessage getMsgFromTMsg 2");
     if (message is types.TextMessage) {
       payload = {
         "msg_type": "text",
@@ -301,5 +304,127 @@ class ChatLogic extends GetxController {
         ConversationRepo.lastMsgStatus: MessageStatus.send,
       },
     );
+  }
+
+  List<popupmenu.MenuItemProvider> getPopupMenuItems(types.Message message) {
+    List<popupmenu.MenuItemProvider> items = [
+      // MenuItem(
+      //   title: '多选'.tr,
+      //   userInfo: {"id":"multiselect", "msg":message},
+      //   textAlign: TextAlign.center,
+      //   textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+      //   image: Icon(
+      //     Icons.add_road,
+      //     size: 16,
+      //     color: Color(0xffc5c5c5),
+      //   ),
+      // ),
+    ];
+    bool canCopy = false;
+    String customType = message.metadata?['custom_type'] ?? '';
+    if (message.type == types.MessageType.text) {
+      canCopy = true;
+    } else if (customType == 'quote') {
+      canCopy = true;
+    }
+    if (canCopy) {
+      items.add(popupmenu.MenuItem(
+        title: '复制',
+        userInfo: {"id": "copy", "msg": message},
+        textAlign: TextAlign.center,
+        textStyle: const TextStyle(
+          color: Color(0xffc5c5c5),
+          fontSize: 10.0,
+        ),
+        image: const Icon(
+          Icons.copy,
+          size: 16,
+          color: Color(0xffc5c5c5),
+        ),
+      ));
+    }
+
+    bool canCollect = UserCollectLogic.getCollectKind(message) > 0 ? true : false;
+    if (canCollect) {
+      items.add(popupmenu.MenuItem(
+        title: '收藏'.tr,
+        userInfo: {"id": "collect", "msg": message},
+        textAlign: TextAlign.center,
+        textStyle: const TextStyle(
+          color: Color(0xffc5c5c5),
+          fontSize: 10.0,
+        ),
+        image: const Icon(
+          Icons.collections_bookmark,
+          size: 16,
+          color: Color(0xffc5c5c5),
+        ),
+      ));
+    }
+
+    //
+    bool isRevoked = (message is types.CustomMessage) && customType == 'revoked'
+        ? true
+        : false;
+    if (!isRevoked) {
+      items.add(popupmenu.MenuItem(
+        title: '转发'.tr,
+        userInfo: {"id": "transpond", "msg": message},
+        textAlign: TextAlign.center,
+        textStyle: const TextStyle(
+          fontSize: 10.0,
+          color: Color(0xffc5c5c5),
+        ),
+        // image: const Icon(
+        //   Icons.fork_right_rounded,
+        //   color: Colors.white,
+        // ),
+        image: Image.asset(
+          AssetsService.getImgPath('chat/reply_to'),
+          // size: 16,
+          color: const Color(0xffc5c5c5),
+          // package: 'flutter_plugin_record',
+        ),
+      ));
+      items.add(popupmenu.MenuItem(
+        title: '引用'.tr,
+        userInfo: {"id": "quote", "msg": message},
+        textAlign: TextAlign.center,
+        textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+        image: const Icon(
+          Icons.format_quote,
+          size: 16,
+          color: Color(0xffc5c5c5),
+        ),
+      ));
+    }
+    if (message.author.id == UserRepoLocal.to.currentUid &&
+        isRevoked == false) {
+      items.add(
+        popupmenu.MenuItem(
+          title: '撤回',
+          userInfo: {"id": "revoke", "msg": message},
+          textAlign: TextAlign.center,
+          textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+          image: const Icon(
+            Icons.layers_clear_rounded,
+            size: 16,
+            color: Color(0xffc5c5c5),
+          ),
+        ),
+      );
+    }
+    items.add(popupmenu.MenuItem(
+      title: '删除',
+      userInfo: {"id": "delete", "msg": message},
+      textAlign: TextAlign.center,
+      textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+      image: const Icon(
+        Icons.remove_circle_outline_rounded,
+        size: 16,
+        color: Color(0xffc5c5c5),
+      ),
+    ));
+    return items;
   }
 }

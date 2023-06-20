@@ -197,6 +197,7 @@ class API {
   static const userDevicePage = '/user_device/page';
   static const userDeviceChangeName = '/user_device/change_name';
   static const userDeviceDelete = '/user_device/delete';
+  static const userDeviceAdd = '/user_device/add';
 
   static const userCollectPage = '/user_collect/page';
   static const userCollectAdd = '/user_collect/add';

@@ -28,7 +28,7 @@ class VisitCardMessageBuilder extends StatelessWidget {
       //     ? AppColors.ChatSendMessageBgColor
       //     : AppColors.ChatReceivedMessageBodyBgColor,
       color: AppColors.ChatReceivedMessageBodyBgColor,
-      nip: userIsAuthor ? BubbleNip.rightBottom : BubbleNip.leftBottom,
+      nip:  userIsAuthor ? BubbleNip.rightBottom : BubbleNip.leftBottom,
       // style: const BubbleStyle(nipWidth: 16),
       nipRadius: 4,
       alignment: userIsAuthor ? Alignment.centerRight : Alignment.centerLeft,
@@ -43,7 +43,7 @@ class VisitCardMessageBuilder extends StatelessWidget {
                 onTap: () {
                   Get.to(()=>
                     PeopleInfoPage(
-                        id: message.metadata?['uid'], sence: 'visit_card'),
+                        id: message.metadata?['uid'], scene: 'visit_card'),
                     transition: Transition.rightToLeft,
                     popGesture: true, // 右滑，返回上一页
                   );

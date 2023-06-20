@@ -8,7 +8,6 @@ import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/single/chat_video.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -31,6 +30,9 @@ class UserCollectPage extends StatelessWidget {
       state.items.addAll(list);
       state.page += 1;
     }
+
+    state.tagItems.value = await logic.tagItems();
+
     controller.addListener(() async {
       double pixels = controller.position.pixels;
       double maxScrollExtent = controller.position.maxScrollExtent;
@@ -125,30 +127,14 @@ class UserCollectPage extends StatelessWidget {
                                         extentRatio: 0.5,
                                         motion: const StretchMotion(),
                                         children: [
-                                          // SlidableAction(
-                                          //   key: ValueKey("hide_$index"),
-                                          //   flex: 2,
-                                          //   backgroundColor: Colors.amber,
-                                          //   onPressed: (_) async {
-                                          //     // await logic
-                                          //     //     .hideConversation(model.peerId);
-                                          //     // logic.update([
-                                          //     //   logic.conversations.removeAt(index),
-                                          //     //   logic.conversationRemind[
-                                          //     //       model.peerId] = 0,
-                                          //     //   logic.chatMsgRemindCounter,
-                                          //     // ]);
-                                          //   },
-                                          //   label: "".tr,
-                                          //   spacing: 1,
-                                          // ),
                                           SlidableAction(
                                             key: ValueKey("delete_$index"),
                                             flex: 1,
                                             backgroundColor: AppColors.ChatBg,
                                             // foregroundColor: Colors.white,
                                             onPressed: (_) async {
-                                              bool res = await logic.remove(obj);
+                                              bool res =
+                                                  await logic.remove(obj);
                                               debugPrint(
                                                   "user_collect_remove $res; i $index");
                                               if (res) {
@@ -173,28 +159,16 @@ class UserCollectPage extends StatelessWidget {
                                         ),
                                         child: InkWell(
                                           onTap: () {
-                                            if (obj.kind == 4) {
-                                              String uri = obj.info['payload']
-                                                      ['thumb']['uri'] ??
-                                                  '';
-                                              Get.to(
-                                                () => ChatVideoPage(url: uri),
-                                                transition:
-                                                    Transition.rightToLeft,
-                                                popGesture: true, // 右滑，返回上一页
-                                              );
-                                            } else {
-                                              // 收藏详情
-                                              Get.to(
-                                                () => UserCollectDetailPage(
-                                                  obj: obj,
-                                                  pageIndex: index,
-                                                ),
-                                                transition:
-                                                    Transition.rightToLeft,
-                                                popGesture: true, // 右滑，返回上一页
-                                              );
-                                            }
+                                            // 收藏详情
+                                            Get.to(
+                                              () => UserCollectDetailPage(
+                                                obj: obj,
+                                                pageIndex: index,
+                                              ),
+                                              transition:
+                                                  Transition.rightToLeft,
+                                              popGesture: true, // 右滑，返回上一页
+                                            );
                                           },
                                           child: n.Column([
                                             logic.buildItemBody(obj, 'page'),
@@ -249,18 +223,18 @@ class UserCollectPage extends StatelessWidget {
   }
 
   Widget _buildKindList() {
-    // 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息
+    //  Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息  7 个人名片
     Map<String, String> kindMap = {
       state.recentUse: '最近使用'.tr,
       '1': '文本'.tr,
       '2': '图片'.tr,
-      '3': '语音'.tr,
+      '7': '个人名片'.tr,
       '4': '视频'.tr,
       '5': '文件'.tr,
       '6': '位置消息'.tr,
+      '3': '语音'.tr,
       'all': '所有'.tr,
     };
-
     List<Widget> items = [];
     kindMap.forEach((key, value) {
       items.add(ElevatedButton(
@@ -283,7 +257,7 @@ class UserCollectPage extends StatelessWidget {
           ),
         ),
         child: Text(
-          "  $value  ",
+          value,
           style: const TextStyle(color: AppColors.MainTextColor),
         ),
       ));
@@ -397,10 +371,44 @@ class UserCollectPage extends StatelessWidget {
                   ]);
                 }
               },
-              body: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                spacing: 12,
-                children: items,
+              body: n.Column(
+                [
+                  n.Padding(
+                    left: 8,
+                    bottom: 10,
+                    child: Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      spacing: 8,
+                      children: items,
+                    ),
+                  ),
+                  if (state.tagItems.value.isNotEmpty)
+                    n.Padding(
+                      top: 16,
+                      child: n.Row([
+                        const SizedBox(width: 8),
+                        Icon(
+                          Icons.sell_outlined,
+                          size: 18,
+                          color: AppColors.MainTextColor.withOpacity(0.8),
+                        ),
+                        const SizedBox(width: 10),
+                        Text('标签'.tr),
+                      ]),
+                    ),
+                  if (state.tagItems.value.isNotEmpty)
+                    n.Padding(
+                      left: 8,
+                      bottom: 12,
+                      child: Obx(() => Wrap(
+                            alignment: WrapAlignment.spaceBetween,
+                            spacing: 8,
+                            children: state.tagItems.value,
+                          )),
+                    )
+                ],
+                // 内容文本左对齐
+                crossAxisAlignment: CrossAxisAlignment.start,
               ),
               isExpanded: state.kindActive.value,
               canTapOnHeader: true,

@@ -10,7 +10,7 @@ class UserCollectRepo {
   static String tableName = 'user_collect';
 
   static String userId = 'user_id'; //
-  // Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息
+  // Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息  7 个人名片
   static String kind = 'kind'; //
   static String kindId = 'kind_id'; //
   static String source = 'source'; //
@@ -147,6 +147,7 @@ class UserCollectRepo {
       return null;
     }
   }
+
 
 // 记得及时关闭数据库，防止内存泄漏
 // close() async {

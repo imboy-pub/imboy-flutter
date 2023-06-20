@@ -5,6 +5,7 @@ class UserCollectState {
   RxBool kindActive = false.obs;
 
   RxList items = [].obs;
+  Rx<List<Widget>> tagItems = Rx([]);
 
   int page = 1;
   int size = 10;

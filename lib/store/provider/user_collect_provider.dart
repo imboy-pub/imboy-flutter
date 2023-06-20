@@ -25,16 +25,27 @@ class UserCollectProvider extends HttpClient {
     return resp.ok ? true : false;
   }
 
-  /// 修改设备名称
-  Future<bool> changeName({
-    required String deviceId,
-    required String name,
+  ///
+  Future<bool> change({
+    required String action,
+    required String kindId,
   }) async {
-    IMBoyHttpResponse resp = await post(API.userDeviceChangeName, data: {
-      "did": deviceId,
-      "name": name,
+    IMBoyHttpResponse resp = await post(API.userCollectChange, data: {
+      'action': action,
+      'kind_id': kindId,
     });
-    debugPrint("> on Provider/changeName resp: ${resp.toString()}");
+    debugPrint("> on Provider/send_to_view callback resp: ${resp.payload.toString()}");
+    return resp.ok ? true : false;
+  }
+
+  Future<bool> add(int kind, String kindId, String source, Map<String, dynamic> info) async {
+    IMBoyHttpResponse resp = await post(API.userCollectAdd, data: {
+      'kind': kind,
+      'kind_id': kindId,
+      'source': source,
+      'info': info,
+    });
+    debugPrint("> on Provider/userDeviceAdd resp: ${resp.toString()}");
     return resp.ok ? true : false;
   }
 }

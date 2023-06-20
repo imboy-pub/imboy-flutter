@@ -186,7 +186,7 @@ class PeopleNearbyPage extends StatelessWidget {
                                     Get.to(()=>
                                       PeopleInfoPage(
                                         id: model.id,
-                                        sence: 'people_nearby',
+                                        scene: 'people_nearby',
                                       ),
                                       transition: Transition.rightToLeft,
                                       popGesture: true, // 右滑，返回上一页

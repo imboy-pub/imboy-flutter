@@ -15,8 +15,6 @@ import 'send_to_state.dart';
 class SendToLogic extends GetxController {
   final SendToState state = SendToState();
 
-  final ChatLogic chatLogic = Get.find();
-
   /// 最近聊天
   Future<void> conversationsList() async {
     state.conversations.value = await (ConversationRepo()).list(limit: 100);
@@ -30,7 +28,11 @@ class SendToLogic extends GetxController {
     try {
       types.Message msg2 = msg.copyWith(
         id: Xid().toString(),
-        author: chatLogic.currentUser,
+        author: types.User(
+          id: UserRepoLocal.to.currentUid,
+          firstName: UserRepoLocal.to.current.nickname,
+          imageUrl: UserRepoLocal.to.current.avatar,
+        ),
         status: types.Status.sending,
         createdAt: DateTimeHelper.currentTimeMillis(),
         metadata: msg.metadata,
@@ -38,7 +40,7 @@ class SendToLogic extends GetxController {
         roomId: msg.roomId,
         showStatus: msg.showStatus,
       );
-      await chatLogic.addMessage(
+      await ChatLogic().addMessage(
         UserRepoLocal.to.currentUid,
         conversation.peerId,
         conversation.avatar,

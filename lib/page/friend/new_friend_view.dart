@@ -242,7 +242,7 @@ class NewFriendPage extends StatelessWidget {
                                                 model.to
                                             ? model.from
                                             : model.to,
-                                        sence: model.source,
+                                        scene: model.source,
                                       ),
                                       transition: Transition.rightToLeft,
                                       popGesture: true, // 右滑，返回上一页

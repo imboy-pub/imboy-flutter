@@ -22,7 +22,7 @@ import 'package:niku/namespace.dart' as n;
 // ignore: must_be_immutable
 class PeopleInfoPage extends StatelessWidget {
   final String id; // 用户ID
-  final String sence;
+  final String scene;
 
   // late Rx<ContactModel> people;
   RxString nickname = "".obs;
@@ -40,7 +40,7 @@ class PeopleInfoPage extends StatelessWidget {
   PeopleInfoPage({
     Key? key,
     required this.id,
-    required this.sence,
+    required this.scene,
   }) : super(key: key);
 
   Future<void> initData() async {
@@ -98,7 +98,7 @@ class PeopleInfoPage extends StatelessWidget {
       )
     ];
     bool showApplyFriendBtn = !isSelf;
-    if (sence == 'denylist') {
+    if (scene == 'denylist') {
       showApplyFriendBtn = false;
     }
     return Scaffold(
@@ -161,7 +161,7 @@ class PeopleInfoPage extends StatelessWidget {
                 ),
               ),
               */
-              if (isFriend.value == 1 || sence == 'denylist')
+              if (isFriend.value == 1 || scene == 'denylist')
                 LabelRow(
                   label: '更多信息'.tr,
                   isLine: false,
@@ -174,7 +174,7 @@ class PeopleInfoPage extends StatelessWidget {
                   ),
                 ),
               const Space(),
-              isFriend.value == 1 || sence == 'denylist'
+              isFriend.value == 1 || scene == 'denylist'
                   ? Visibility(
                       visible: !isSelf,
                       child: ButtonRow(
@@ -252,7 +252,7 @@ class PeopleInfoPage extends StatelessWidget {
                         ),
                       ),
                     ),
-              if (sence == 'denylist')
+              if (scene == 'denylist')
                 n.Padding(
                   top: 20,
                   child: n.Row([

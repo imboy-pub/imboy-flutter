@@ -30,6 +30,7 @@ import 'package:imboy/page/chat/chat_setting/chat_setting_view.dart';
 import 'package:imboy/page/chat/send_to/send_to_view.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/group/group_detail/group_detail_view.dart';
+import 'package:imboy/page/mine/user_collect/user_collect_logic.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -659,128 +660,15 @@ class ChatPageState extends State<ChatPage> {
 
   void _onMessageLongPress(BuildContext c1, types.Message message) async {
     if (message is types.FileMessage) {
-      await OpenFile.open(message.uri);
+      await OpenFile.open(AssetsService.viewUrl(message.uri).toString());
     }
-    List<popupmenu.MenuItemProvider> items = [
-      // MenuItem(
-      //   title: '收藏'.tr,
-      //   userInfo: {"id":"", "msg":message},
-      //   textAlign: TextAlign.center,
-      //   textStyle: TextStyle(
-      //     color: Color(0xffc5c5c5),
-      //     fontSize: 10.0,
-      //   ),
-      //   image: Icon(
-      //     Icons.collections_bookmark,
-      //     size: 16,
-      //     color: Color(0xffc5c5c5),
-      //   ),
-      // ),
-      // MenuItem(
-      //   title: '多选'.tr,
-      //   userInfo: {"id":"multiselect", "msg":message},
-      //   textAlign: TextAlign.center,
-      //   textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-      //   image: Icon(
-      //     Icons.add_road,
-      //     size: 16,
-      //     color: Color(0xffc5c5c5),
-      //   ),
-      // ),
-    ];
-    bool canCopy = false;
-    String customType = message.metadata?['custom_type'] ?? '';
-    if (message.type == types.MessageType.text) {
-      canCopy = true;
-    } else if (customType == 'quote') {
-      canCopy = true;
-    }
-    if (canCopy) {
-      items.add(popupmenu.MenuItem(
-        title: '复制',
-        userInfo: {"id": "copy", "msg": message},
-        textAlign: TextAlign.center,
-        textStyle: const TextStyle(
-          color: Color(0xffc5c5c5),
-          fontSize: 10.0,
-        ),
-        image: const Icon(
-          Icons.copy,
-          size: 16,
-          color: Color(0xffc5c5c5),
-        ),
-      ));
-    }
-    //
-    bool isRevoked = (message is types.CustomMessage) && customType == 'revoked'
-        ? true
-        : false;
-    if (!isRevoked) {
-      items.add(popupmenu.MenuItem(
-        title: '转发'.tr,
-        userInfo: {"id": "transpond", "msg": message},
-        textAlign: TextAlign.center,
-        textStyle: const TextStyle(
-          fontSize: 10.0,
-          color: Color(0xffc5c5c5),
-        ),
-        // image: const Icon(
-        //   Icons.fork_right_rounded,
-        //   color: Colors.white,
-        // ),
-        image: Image.asset(
-          AssetsService.getImgPath('chat/reply_to'),
-          // size: 16,
-          color: const Color(0xffc5c5c5),
-          // package: 'flutter_plugin_record',
-        ),
-      ));
-      items.add(popupmenu.MenuItem(
-        title: '引用'.tr,
-        userInfo: {"id": "quote", "msg": message},
-        textAlign: TextAlign.center,
-        textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-        image: const Icon(
-          Icons.format_quote,
-          size: 16,
-          color: Color(0xffc5c5c5),
-        ),
-      ));
-    }
-    if (message.author.id == UserRepoLocal.to.currentUid &&
-        isRevoked == false) {
-      items.add(
-        popupmenu.MenuItem(
-          title: '撤回',
-          userInfo: {"id": "revoke", "msg": message},
-          textAlign: TextAlign.center,
-          textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-          image: const Icon(
-            Icons.layers_clear_rounded,
-            size: 16,
-            color: Color(0xffc5c5c5),
-          ),
-        ),
-      );
-    }
-    items.add(popupmenu.MenuItem(
-      title: '删除',
-      userInfo: {"id": "delete", "msg": message},
-      textAlign: TextAlign.center,
-      textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-      image: const Icon(
-        Icons.remove_circle_outline_rounded,
-        size: 16,
-        color: Color(0xffc5c5c5),
-      ),
-    ));
 
     // ignore: use_build_context_synchronously
     popupmenu.PopupMenu menu = popupmenu.PopupMenu(
       // backgroundColor: Colors.teal,
       // lineColor: Colors.tealAccent,
       // maxColumn: 2,
-      items: items,
+      items: logic.getPopupMenuItems(message),
       context: c1,
       onClickMenu: onClickMenu,
       // stateChanged: stateChanged,
@@ -823,6 +711,14 @@ class ChatPageState extends State<ChatPage> {
     } else if (itemId == "copy" && msg is types.TextMessage) {
       // 复制消息
       Clipboard.setData(ClipboardData(text: msg.text));
+    } else if (itemId == "collect") {
+      // 添加收藏
+      bool res = await UserCollectLogic().add(msg);
+      if (res) {
+        EasyLoading.showSuccess('已收藏'.tr);
+      } else {
+        EasyLoading.showError('操作失败，请稍后重试'.tr);
+      }
     } else if (itemId == "revoke") {
       // 撤回消息
       await logic.revokeMessage(msg);

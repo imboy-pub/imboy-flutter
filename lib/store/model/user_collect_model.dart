@@ -2,7 +2,7 @@ import 'dart:convert';
 
 class UserCollectModel {
   String userId;
-  // Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息
+  // Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息  7 个人名片
   int kind;
   String kindId;
   String source;

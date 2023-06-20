@@ -72,7 +72,7 @@ class DenylistPage extends StatelessWidget {
                       Get.to(
                         () => PeopleInfoPage(
                           id: value.deniedUid,
-                          sence: 'denylist',
+                          scene: 'denylist',
                         ),
                         transition: Transition.rightToLeft,
                         popGesture: true, // 右滑，返回上一页
@@ -103,7 +103,7 @@ class DenylistPage extends StatelessWidget {
                                   Get.to(
                                     () => PeopleInfoPage(
                                       id: model.deniedUid,
-                                      sence: 'denylist',
+                                      scene: 'denylist',
                                     ),
                                     transition: Transition.rightToLeft,
                                     popGesture: true, // 右滑，返回上一页

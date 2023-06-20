@@ -323,7 +323,7 @@ class _ConversationPageState extends State<ConversationPage> {
                               remindCounter: remindNum,
                               onTapAvatar: () {
                                 Get.to(()=>
-                                  PeopleInfoPage(id: model.peerId, sence: ''),
+                                  PeopleInfoPage(id: model.peerId, scene: ''),
                                   transition: Transition.rightToLeft,
                                   popGesture: true, // 右滑，返回上一页
                                 );

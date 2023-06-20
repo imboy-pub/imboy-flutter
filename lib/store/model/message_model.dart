@@ -75,16 +75,16 @@ class MessageModel {
       p = data['payload'];
     }
 
-    return MessageModel(
+    return  MessageModel(
       data[MessageRepo.id],
       type: data[MessageRepo.type],
-      status: data[MessageRepo.status],
+      status: int.parse('${data[MessageRepo.status] ?? 0}'),
       fromId: data[MessageRepo.from] ?? '',
       toId: data[MessageRepo.to],
       payload: p,
-      createdAt: data[MessageRepo.createdAt] ?? 0,
-      serverTs: data[MessageRepo.serverTs] ?? 0,
-      conversationId: data[MessageRepo.conversationId],
+      createdAt: int.parse('${data[MessageRepo.createdAt] ?? 0}'),
+      serverTs: int.parse('${data[MessageRepo.serverTs] ?? 0}'),
+      conversationId: int.parse('${data[MessageRepo.conversationId] ?? 0}'),
     );
   }
 

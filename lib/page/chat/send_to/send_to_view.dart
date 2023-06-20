@@ -22,8 +22,8 @@ import 'send_to_logic.dart';
 /// 发送给 页面
 class SendToPage extends StatelessWidget {
   final types.Message msg;
-
-  SendToPage({super.key, required this.msg});
+  final Function()? callback;
+  SendToPage({super.key, required this.msg, this.callback});
 
   final logic = Get.put(SendToLogic());
 
@@ -261,6 +261,10 @@ class SendToPage extends StatelessWidget {
             await logic.sendMsg(item, msg);
           }
           EasyLoading.showSuccess('发送成功'.tr);
+          debugPrint("send_to_view callback before ${callback.toString()};");
+          if (callback != null) {
+            callback!();
+          }
           Future.delayed(const Duration(milliseconds: 1600), () {
             Get.close(callbackTime);
           });
@@ -328,6 +332,10 @@ class SendToPage extends StatelessWidget {
           bool res = await logic.sendMsg(model, msg);
           if (res) {
             EasyLoading.showSuccess('发送成功'.tr);
+            debugPrint("send_to_view callback before 2 ${callback.toString()};");
+            if (callback != null) {
+              callback!();
+            }
             Future.delayed(const Duration(milliseconds: 1600), () {
               Get.close(callbackTime);
             });

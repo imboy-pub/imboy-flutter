@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 
@@ -5,14 +7,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show formatBytes;
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/message/message_audio_builder.dart';
 import 'package:imboy/component/message/message_location_builder.dart';
+import 'package:imboy/component/message/message_visit_card_builder.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/single/chat_video.dart';
+import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
 import 'package:imboy/store/provider/user_collect_provider.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_collect_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
@@ -96,7 +104,7 @@ class UserCollectLogic extends GetxController {
       body = n.Row([
         Expanded(
           child: Text(
-            obj.info['payload']['text'] ?? '',
+            obj.info['text'] ?? (obj.info['payload']['text'] ?? ''),
             style: const TextStyle(
               fontSize: 16.0,
               fontWeight: FontWeight.normal,
@@ -126,7 +134,6 @@ class UserCollectLogic extends GetxController {
                 child: Image(
                   // detail 里面减去左右 padding 和
                   width: Get.width - 20,
-                  height: Get.height - 128,
                   fit: BoxFit.cover,
                   image: cachedImageProvider(
                     uri,
@@ -168,8 +175,8 @@ class UserCollectLogic extends GetxController {
                   ])),
             ])
           : n.Row([
-              Expanded(
-                flex: 1,
+              SizedBox(
+                height: 80,
                 child: AudioMessageBuilder(
                   user: types.User(
                     id: UserRepoLocal.to.currentUid,
@@ -191,22 +198,32 @@ class UserCollectLogic extends GetxController {
           alignment: Alignment.centerRight,
           children: <Widget>[
             Image(
-              width: Get.width * 0.5,
-              height: 120,
+              width: scene == 'page' ? Get.width * 0.5 : Get.width - 20,
+              height: scene == 'page' ? 120 : Get.height * 0.618,
               fit: BoxFit.cover,
               image: cachedImageProvider(
                 uri,
                 w: Get.width * 0.5,
               ),
             ),
-            const Positioned.fill(
-              child: SizedBox(
-                height: 100,
-                child: Center(
-                  child: Icon(
-                    Icons.video_library,
-                    color: Colors.white,
-                    size: 40,
+            Positioned.fill(
+              child: InkWell(
+                onTap: () {
+                  String uri = obj.info['payload']['thumb']['uri'] ?? '';
+                  Get.to(
+                    () => ChatVideoPage(url: uri),
+                    transition: Transition.rightToLeft,
+                    popGesture: true, // 右滑，返回上一页
+                  );
+                },
+                child: const SizedBox(
+                  height: 100,
+                  child: Center(
+                    child: Icon(
+                      Icons.video_library,
+                      color: Colors.white,
+                      size: 40,
+                    ),
                   ),
                 ),
               ),
@@ -366,6 +383,23 @@ class UserCollectLogic extends GetxController {
                         as types.CustomMessage,
                   ))
             ]);
+    } else if (obj.kind == 7) {
+      // row > expand > column > text 换行有效
+      body = n.Row([
+        Expanded(
+            flex: 1,
+            child: VisitCardMessageBuilder(
+              // width: Get.width - 20,
+              // height: Get.height - 160,
+              user: types.User(
+                id: UserRepoLocal.to.currentUid,
+                firstName: UserRepoLocal.to.current.nickname,
+                imageUrl: UserRepoLocal.to.current.avatar,
+              ),
+              message: MessageModel.fromJson(obj.info).toTypeMessage()
+                  as types.CustomMessage,
+            ))
+      ]);
     }
     return body;
   }
@@ -457,6 +491,128 @@ class UserCollectLogic extends GetxController {
 
   /// 删除收藏
   Future<bool> remove(UserCollectModel obj) async {
-    return await UserCollectProvider().remove(kindId: obj.kindId);
+    bool res = await UserCollectProvider().remove(kindId: obj.kindId);
+    if (res) {
+      int res2 = await UserCollectRepo().delete(obj.kindId);
+      res = res2 > 0 ? true : false;
+    }
+    return res;
+  }
+
+  /// Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息  7 个人名片
+  static int getCollectKind(types.Message message) {
+    String customType = message.metadata?['custom_type'] ?? '';
+    if (message.type == types.MessageType.text) {
+      return 1;
+    } else if (message.type == types.MessageType.image) {
+      return 2;
+    } else if (customType == 'audio') {
+      return 3;
+    } else if (customType == 'video') {
+      return 4;
+    } else if (message.type == types.MessageType.file) {
+      return 5;
+    } else if (customType == 'location') {
+      return 6;
+    } else if (customType == 'visit_card') {
+      return 7;
+    }
+
+    return 0;
+  }
+
+  /// 收藏的信息来源，消息发布中的昵称或者备注
+  Future<String> getCollectSource(String authorId) async {
+    ContactModel? obj =
+        await ContactRepo().findByUid(authorId, autoFetch: true);
+    debugPrint(
+        "userCollectLogic/getCollectSource ${obj?.title}; ${obj?.toJson().toString()} ;");
+    if (obj == null) {
+      return '';
+    }
+    return obj.title;
+  }
+
+  /// 添加收藏
+  Future<bool> add(types.Message message) async {
+    int kind = getCollectKind(message);
+    String source = await getCollectSource(message.author.id);
+    MessageModel? msg2 = await MessageRepo().find(message.id);
+    if (msg2 == null) {
+      return false;
+    }
+    Map<String, dynamic> info = msg2.toJson();
+    var payload = info['payload'];
+    if (payload is String) {
+      info['payload'] = jsonDecode(payload);
+    }
+    bool res = await UserCollectProvider().add(
+      kind,
+      message.id,
+      source,
+      info,
+    );
+    debugPrint(
+        "userCollectLogic/add $kind, $source, info ${info.toString()} ;");
+    if (res) {
+      await UserCollectRepo().save({
+        UserCollectRepo.createdAt: DateTimeHelper.currentTimeMillis(),
+        UserCollectRepo.userId: UserRepoLocal.to.currentUid,
+        UserCollectRepo.kind: kind,
+        UserCollectRepo.kindId: message.id,
+        UserCollectRepo.source: source,
+        UserCollectRepo.info: info
+      });
+      // res = res2 > 0 ? true : false;
+    }
+    return res;
+  }
+
+  /// 转发收藏回调
+  Future<bool> change(String kindId) async {
+    bool res = await UserCollectProvider().change(
+      action: 'transpond_callback',
+      kindId: kindId,
+    );
+
+    debugPrint("send_to_view callback after $res");
+    if (res) {
+      await UserCollectRepo().save({
+        UserCollectRepo.updatedAt: DateTimeHelper.currentTimeMillis(),
+        UserCollectRepo.userId: UserRepoLocal.to.currentUid,
+        UserCollectRepo.kindId: kindId
+      });
+      // res = res2 > 0 ? true : false;
+    }
+    return res;
+  }
+
+  Future<List<Widget>> tagItems() async {
+    List<Widget> items = [];
+    // items.add(ElevatedButton(
+    //   onPressed: () {
+    //     debugPrint("searchLeading ${state.searchLeading.toString()}");
+    //     state.kindActive.value = !state.kindActive.value;
+    //     // logic.searchByKind(key, value, () {
+    //     //   state.kindActive.value = !state.kindActive.value;
+    //     // });
+    //   },
+    //   style: ButtonStyle(
+    //     backgroundColor: MaterialStateProperty.resolveWith<Color>(
+    //           (Set<MaterialState> states) {
+    //         if (states.contains(MaterialState.pressed)) {
+    //           return Colors.white.withOpacity(0.75);
+    //         }
+    //         // Use the component's default.
+    //         return Colors.white.withOpacity(0.95);
+    //       },
+    //     ),
+    //   ),
+    //   child: const Text(
+    //     "  资料  ",
+    //     style: TextStyle(color: AppColors.MainTextColor),
+    //   ),
+    // ));
+    return items;
   }
 }

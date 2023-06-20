@@ -93,7 +93,7 @@ class ContactModel extends ISuspensionBean {
 
   /// 联系人title显示规则： remark > nickname > account
   String get title {
-    if (strNoEmpty(remark)) {
+    if (strNoEmpty(remark) && remark != 'null') {
       return remark;
     } else if (strNoEmpty(nickname)) {
       return nickname;

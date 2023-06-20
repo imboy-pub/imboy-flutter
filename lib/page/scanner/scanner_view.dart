@@ -101,7 +101,7 @@ class _ScannerPageState extends State<ScannerPage>
                     String result = payload['result'] ?? '';
                     if (result == '' && payload['id'] != null) {
                       Get.off(
-                        PeopleInfoPage(id: payload['id'], sence: 'qrcode'),
+                        PeopleInfoPage(id: payload['id'], scene: 'qrcode'),
                         transition: Transition.rightToLeft,
                         popGesture: true, // 右滑，返回上一页
                       );
