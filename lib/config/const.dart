@@ -184,6 +184,8 @@ class API {
   static const confirmFriend = '/friend/confirm';
   static const deleteFriend = '/friend/delete';
   static const friendList = '/friend/list';
+  static const friendChangeRemark = '/friend/change_remark';
+
   static const conversationList = '/conversation/mine';
 
   static const denylistAdd = '/friend/denylist/add';

@@ -18,11 +18,13 @@ import 'package:imboy/store/model/denylist_model.dart';
 
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
+
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:xid/xid.dart';
 
 import 'contact_setting_logic.dart';
+import 'contact_setting_tag_view.dart';
 
 // ignore: must_be_immutable
 class ContactSettingPage extends StatelessWidget {
@@ -36,6 +38,7 @@ class ContactSettingPage extends StatelessWidget {
   final String peerRegion;
   final String peerSource;
   final String peerRemark;
+  final String peerTag;
 
   ContactSettingPage({
     Key? key,
@@ -49,14 +52,14 @@ class ContactSettingPage extends StatelessWidget {
     required this.peerRegion,
     required this.peerSource,
     required this.peerRemark,
+    required this.peerTag,
   }) : super(key: key);
 
   final logic = Get.put(ContactSettingLogic());
-  final denylistLogic = Get.put(DenylistLogic());
   RxBool inDenylist = false.obs;
 
   Future<void> initData() async {
-    inDenylist.value = await denylistLogic.inDenylist(peerId);
+    inDenylist.value = await DenylistLogic.inDenylist(peerId);
   }
 
   @override
@@ -74,7 +77,23 @@ class ContactSettingPage extends StatelessWidget {
               label: '设置备注和标签'.tr,
               isLine: true,
               onPressed: () {
-                //
+                Get.to(
+                  () => ContactSettingTagPage(
+                    peerId: peerId,
+                    peerAvatar: peerAvatar,
+                    peerAccount: peerAccount,
+                    peerNickname: peerNickname,
+                    peerGender: peerGender,
+                    peerTitle: peerTitle,
+                    peerSign: peerSign,
+                    peerRegion: peerRegion,
+                    peerSource: peerSource,
+                    peerRemark: peerRemark,
+                    peerTag: 'peerTag',
+                  ),
+                  transition: Transition.rightToLeft,
+                  popGesture: true, // 右滑，返回上一页
+                );
               },
             ),
             LabelRow(
@@ -179,7 +198,7 @@ class ContactSettingPage extends StatelessWidget {
 
                         bool res;
                         if (inDenylist.isTrue) {
-                          res = await denylistLogic.removeDenylist(peerId);
+                          res = await DenylistLogic().removeDenylist(peerId);
                         } else {
                           DenylistModel model = DenylistModel(
                             deniedUid: peerId,
@@ -193,7 +212,7 @@ class ContactSettingPage extends StatelessWidget {
                             gender: peerGender,
                             createdAt: DateTimeHelper.currentTimeMillis(),
                           );
-                          res = await denylistLogic.addDenylist(model);
+                          res = await DenylistLogic().addDenylist(model);
                         }
                         if (res) {
                           inDenylist.value = val;
@@ -245,8 +264,8 @@ class ContactSettingPage extends StatelessWidget {
                               if (res) {
                                 EasyLoading.showSuccess("操作成功");
                                 Get.close(3);
-                                Get.to(()=>
-                                  BottomNavigationPage(),
+                                Get.to(
+                                  () => BottomNavigationPage(),
                                   arguments: {'index': 1},
                                   transition: Transition.rightToLeft,
                                   popGesture: true, // 右滑，返回上一页

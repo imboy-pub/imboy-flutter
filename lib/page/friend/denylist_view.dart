@@ -31,7 +31,7 @@ class DenylistPage extends StatelessWidget {
 
   /// 加载好友申请数据
   void initData() async {
-    var list = await logic.page(page: page, size: size);
+    var list = await DenylistLogic.page(page: page, size: size);
     logic.handleList(list);
   }
 

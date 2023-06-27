@@ -17,6 +17,8 @@ class ContactRepo {
   static String account = 'account';
   static String status = 'status';
   static String remark = 'remark';
+  // 朋友标签，半角逗号分割，单个表情不超过14字符
+  static String tag = 'tag';
   static String region = 'region';
   static String sign = 'sign';
   static String source = 'source';
@@ -43,6 +45,7 @@ class ContactRepo {
         ContactRepo.account,
         ContactRepo.status,
         ContactRepo.remark,
+        ContactRepo.tag,
         ContactRepo.region,
         ContactRepo.sign,
         ContactRepo.source,
@@ -52,7 +55,7 @@ class ContactRepo {
         ContactRepo.categoryId,
       ],
       where: '${ContactRepo.userId} = ? and ${ContactRepo.isFriend} = ? and ('
-          '${ContactRepo.nickname} like "%$kwd%" or ${ContactRepo.remark} like "%$kwd%"'
+          '${ContactRepo.nickname} like "%$kwd%" or ${ContactRepo.remark} like "%$kwd%" or ${ContactRepo.tag} like "%$kwd%"'
           ')',
       whereArgs: [UserRepoLocal.to.currentUid, 1],
       orderBy: "update_time desc",
@@ -81,6 +84,7 @@ class ContactRepo {
       ContactRepo.account: obj.account,
       ContactRepo.status: obj.status,
       ContactRepo.remark: obj.remark,
+      ContactRepo.tag: obj.tag,
       ContactRepo.gender: obj.gender,
       ContactRepo.region: obj.region,
       ContactRepo.sign: obj.sign,
@@ -110,6 +114,7 @@ class ContactRepo {
       ContactRepo.account,
       ContactRepo.status,
       ContactRepo.remark,
+      ContactRepo.tag,
       ContactRepo.region,
       ContactRepo.sign,
       ContactRepo.source,
@@ -143,6 +148,7 @@ class ContactRepo {
       ContactRepo.account,
       ContactRepo.status,
       ContactRepo.remark,
+      ContactRepo.tag,
       ContactRepo.region,
       ContactRepo.sign,
       ContactRepo.source,
@@ -183,6 +189,7 @@ class ContactRepo {
         ContactRepo.account,
         ContactRepo.status,
         ContactRepo.remark,
+        ContactRepo.tag,
         ContactRepo.region,
         ContactRepo.sign,
         ContactRepo.source,
@@ -232,6 +239,9 @@ class ContactRepo {
 
     if (strNoEmpty(json[ContactRepo.remark])) {
       data[ContactRepo.remark] = json[ContactRepo.remark];
+    }
+    if (strNoEmpty(json[ContactRepo.tag])) {
+      data[ContactRepo.tag] = json[ContactRepo.tag];
     }
     if (strNoEmpty(json[ContactRepo.region])) {
       data[ContactRepo.region] = json[ContactRepo.region];

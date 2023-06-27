@@ -43,7 +43,7 @@ class DenylistLogic extends GetxController {
     items.value = list;
   }
 
-  Future<List<DenylistModel>> page(
+  static Future<List<DenylistModel>> page(
       {int page = 1, int size = 10, bool onRefresh = false}) async {
     List<DenylistModel> list = [];
     page = page > 1 ? page : 1;
@@ -72,7 +72,7 @@ class DenylistLogic extends GetxController {
     return list;
   }
 
-  Future<bool> inDenylist(String uid) async {
+  static Future<bool> inDenylist(String uid) async {
     int count = await (UserDenylistRepo().inDenylist(uid));
     return count > 0 ? true : false;
   }

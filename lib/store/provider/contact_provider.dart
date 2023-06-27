@@ -40,10 +40,24 @@ class ContactProvider extends HttpClient {
   }
 
   /// 删除联系人
+  Future<bool> changeRemark(String uid, String remark) async {
+    IMBoyHttpResponse resp = await post(
+      API.friendChangeRemark,
+      data: {
+        'uid': uid,
+        'remark': remark,
+      },
+    );
+    debugPrint(
+        "> on deleteContact resp: ${resp.ok}, ${resp.payload.toString()}");
+    return resp.ok;
+  }
+
+  /// 删除联系人
   Future<bool> deleteContact(String uid) async {
     IMBoyHttpResponse resp = await post(
       API.deleteFriend,
-      data: {"uid": uid},
+      data: {'uid': uid},
     );
     debugPrint(
         "> on deleteContact resp: ${resp.ok}, ${resp.payload.toString()}");

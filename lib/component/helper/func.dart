@@ -28,7 +28,7 @@ String randomId({int size = 21}) {
 
 ///验证网页URl
 bool isUrl(String value) {
-  RegExp url = RegExp(r"^((https|http|ftp|rtsp|mms)?:\/\/)\S+");
+  RegExp url = RegExp(r"^((https|http|ftp|rtsp|mms)?://)\S+");
   return url.hasMatch(value);
 }
 

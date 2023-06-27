@@ -24,6 +24,7 @@ class SqliteDdl {
         ${ContactRepo.account} varchar(40) NOT NULL DEFAULT '',
         ${ContactRepo.status} varchar(20) NOT NULL DEFAULT '',
         ${ContactRepo.remark} varchar(255) DEFAULT '',
+        ${ContactRepo.tag} varchar(800) DEFAULT '',
         ${ContactRepo.region} varchar(80) DEFAULT '',
         ${ContactRepo.sign} varchar(255) NOT NULL DEFAULT '',
         ${ContactRepo.source} varchar(40) NOT NULL DEFAULT '',
@@ -60,6 +61,11 @@ class SqliteDdl {
           CREATE INDEX IF NOT EXISTS i_Remark
           ON ${ContactRepo.tableName} 
           (${ContactRepo.remark});
+        ''');
+    await db.execute('''
+          CREATE INDEX IF NOT EXISTS i_Tag
+          ON ${ContactRepo.tableName} 
+          (${ContactRepo.tag});
         ''');
   }
 
@@ -223,7 +229,7 @@ class SqliteDdl {
         ${UserCollectRepo.kindId} varchar(40) NOT NULL DEFAULT '',
         ${UserCollectRepo.source} varchar(255) NOT NULL DEFAULT '',
         ${UserCollectRepo.remark} varchar(255) NOT NULL DEFAULT '',
-        ${UserCollectRepo.updatedAt} int(16) NOT NULL DEFAULT 0,
+        ${UserCollectRepo.tag} varchar(800) NOT NULL DEFAULT '',
         ${UserCollectRepo.createdAt} int(16) NOT NULL DEFAULT 0,
         ${UserCollectRepo.info} text DEFAULT '',
         PRIMARY KEY("auto_id"),
@@ -235,5 +241,35 @@ class SqliteDdl {
       ''';
     debugPrint("> on _onCreate \n$userCollectSql\n");
     await db.execute(userCollectSql);
+    //
+    await db.execute('''
+          CREATE INDEX IF NOT EXISTS i_Source
+          ON ${UserCollectRepo.tableName} 
+          (${UserCollectRepo.source});
+        ''');
+    await db.execute('''
+          CREATE INDEX IF NOT EXISTS i_Remark
+          ON ${UserCollectRepo.tableName} 
+          (${UserCollectRepo.remark});
+        ''');
+    await db.execute('''
+          CREATE INDEX IF NOT EXISTS i_Tag
+          ON ${UserCollectRepo.tableName} 
+          (${UserCollectRepo.tag});
+        ''');
+  }
+
+
+  static Future onUpgrade(Database db, int oldVsn, int newVsn) async {
+    if (oldVsn == 1 && newVsn == 2) {
+      await SqliteDdl.userCollect(db);
+    } else if (oldVsn == 2 && newVsn == 3) {
+      await db.execute('''ALTER TABLE ${UserCollectRepo.tableName} 
+          ADD COLUMN ${UserCollectRepo.tag} varchar(800) NOT NULL DEFAULT '';
+        ''');
+      await db.execute('''ALTER TABLE ${ContactRepo.tableName} 
+          ADD COLUMN ${ContactRepo.tag} varchar(800) NOT NULL DEFAULT '';
+        ''');
+    }
   }
 }

@@ -15,6 +15,8 @@ class UserCollectRepo {
   static String kindId = 'kind_id'; //
   static String source = 'source'; //
   static String remark = 'remark';
+  // 多个tag 用半角逗号分隔，单个tag不超过14字符
+  static String tag = 'tag';
 
   static String updatedAt = 'updated_at';
   static String createdAt = 'created_at';
@@ -39,6 +41,7 @@ class UserCollectRepo {
         UserCollectRepo.remark,
         UserCollectRepo.updatedAt,
         UserCollectRepo.createdAt,
+        UserCollectRepo.tag,
         UserCollectRepo.info,
       ],
       where: where,
@@ -47,8 +50,8 @@ class UserCollectRepo {
       limit: limit,
       offset: offset,
     );
-    debugPrint("user_collect_repo_page ${maps.length}");
-    debugPrint("user_collect_repo_page ${maps.toList().toString()}");
+    // debugPrint("user_collect_repo_page ${maps.length}");
+    // debugPrint("user_collect_repo_page ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }

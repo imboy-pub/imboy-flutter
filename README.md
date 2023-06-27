@@ -31,6 +31,11 @@ imboy 的Flutter项目
 
 [查看](./doc/feature_0.1.0_tree.md)
 
+## Version 0.1.0
+力求基于“语义化版本控制的规范”([语义化版本 2.0.0](https://semver.org/lang/zh-CN/))实施版本管理.
+
+Strive to implement version management based on "Specification for Semantic version Control"([Semantic Versioning 2.0.0](https://semver.org/)).
+
 ## 已知待修复待完善的功能
 * 聊天界面表情符弹框没法像键盘一样"点击页面其他空白处收缩回去" （已解决）
 * 拍摄视频、上传视频功能（体验不是很好，一分半的视频大小为11M，有待优化）filesize":11649618,"width":640,"height":360,"duration":86876.0

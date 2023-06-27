@@ -143,7 +143,7 @@ class WebSocketService {
       );
     } catch (exception) {
       _socketStatus = SocketStatus.SocketStatusFailed;
-      debugPrint("> ws error ${exception.toString()}");
+      debugPrint("> openSocket error ${exception.toString()}");
     }
   }
 
@@ -235,7 +235,7 @@ class WebSocketService {
       result = true;
     } else {
       debugPrint(
-          '> ws error _socketStatus ${_socketStatus.toString()} $message ${DateTime.now()}');
+          '> sendMessage error _socketStatus ${_socketStatus.toString()} $message ${DateTime.now()}');
     }
     return result;
   }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/button.dart';
@@ -10,6 +9,7 @@ import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat_view.dart';
+import 'package:imboy/page/contact/contact_setting_tag_view.dart';
 import 'package:imboy/page/contact/contact_setting_view.dart';
 import 'package:imboy/page/friend/apply_friend_view.dart';
 import 'package:imboy/page/mine/setting/friends_permissions_view.dart';
@@ -34,6 +34,7 @@ class PeopleInfoPage extends StatelessWidget {
   RxString title = "".obs;
   RxInt gender = 0.obs;
   RxString remark = "".obs;
+  RxString tag = "".obs;
   RxInt isFriend = 1.obs;
   RxInt isFrom = 0.obs;
 
@@ -56,8 +57,10 @@ class PeopleInfoPage extends StatelessWidget {
     source.value = ct.source;
     gender.value = ct.gender;
     remark.value = ct.remark;
+    tag.value = ct.tag;
     isFriend.value = ct.isFriend;
     isFrom.value = ct.isFrom;
+    tag.value = '技术,网管';
   }
 
   @override
@@ -69,8 +72,8 @@ class PeopleInfoPage extends StatelessWidget {
         width: 60,
         child: TextButton(
           onPressed: () {
-            Get.to(()=>
-              ContactSettingPage(
+            Get.to(
+              () => ContactSettingPage(
                 peerId: id,
                 peerAvatar: avatar.value,
                 peerAccount: account.value,
@@ -81,6 +84,7 @@ class PeopleInfoPage extends StatelessWidget {
                 peerRegion: region.value,
                 peerSource: source.value,
                 peerRemark: remark.value,
+                peerTag: tag.value,
               ),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
@@ -131,9 +135,48 @@ class PeopleInfoPage extends StatelessWidget {
               Visibility(
                 visible: !isSelf,
                 child: LabelRow(
-                  label: '备注和标签'.tr,
+                  label: tag.value.isEmpty ? '备注和标签'.tr : '标签'.tr,
+                  labelWidth: 40,
+                  // rightW: tag.value.isEmpty ? null : Expanded(child: Text(tag.value)),
+                  // rValue: tag.value.isEmpty ? null : tag.value,
                   isLine: true,
-                  onPressed: () => EasyLoading.showToast('敬请期待'),
+                  rightW: SizedBox(
+                    width: Get.width - 140,
+                    child: Text(
+                      tag.value,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.left,
+                      style: const TextStyle(
+                        fontSize: 17.0,
+                        color: AppColors.MainTextColor,
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    Get.to(
+                      () => ContactSettingTagPage(
+                        peerId: id,
+                        peerAvatar: avatar.value,
+                        peerAccount: account.value,
+                        peerNickname: nickname.value,
+                        peerGender: gender.value,
+                        peerTitle: title.value,
+                        peerSign: sign.value,
+                        peerRegion: region.value,
+                        peerSource: source.value,
+                        peerRemark: remark.value,
+                        peerTag: tag.value,
+                      ),
+                      transition: Transition.rightToLeft,
+                      popGesture: true, // 右滑，返回上一页
+                    )?.then((value) {
+                      debugPrint("PeopleInfoPage_ContactSettingTagPage_back then $value");
+                      if (value != null && value is String && value.isNotEmpty) {
+                        remark.value = value.toString();
+                      }
+                    });
+                  },
                 ),
               ),
               Visibility(
@@ -165,8 +208,8 @@ class PeopleInfoPage extends StatelessWidget {
                 LabelRow(
                   label: '更多信息'.tr,
                   isLine: false,
-                  onPressed: () => Get.to(()=>
-                    PeopleInfoMorePage(
+                  onPressed: () => Get.to(
+                    () => PeopleInfoMorePage(
                       id: id,
                     ),
                     transition: Transition.rightToLeft,
@@ -182,8 +225,8 @@ class PeopleInfoPage extends StatelessWidget {
                           text: '发消息',
                           isBorder: true,
                           onPressed: () {
-                            Get.to(()=>
-                              ChatPage(
+                            Get.to(
+                              () => ChatPage(
                                 peerId: id,
                                 peerTitle: nickname.value,
                                 peerAvatar: avatar.value,
@@ -239,8 +282,8 @@ class PeopleInfoPage extends StatelessWidget {
                       visible: showApplyFriendBtn,
                       child: ButtonRow(
                         text: '添加到通讯录'.tr,
-                        onPressed: () => Get.to(()=>
-                          ApplyFriendPage(
+                        onPressed: () => Get.to(
+                          () => ApplyFriendPage(
                             id,
                             nickname.value,
                             avatar.value,

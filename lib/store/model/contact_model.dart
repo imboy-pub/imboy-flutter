@@ -43,6 +43,7 @@ class ContactModel extends ISuspensionBean {
     this.gender = 0,
     this.status,
     this.remark = "",
+    this.tag = "",
     this.region = "",
     this.sign = "",
     this.source = "",
@@ -67,6 +68,8 @@ class ContactModel extends ISuspensionBean {
   int gender; // 1 男  2 女  3 保密  0 未知
   final String? status; // offline | online |
   final String remark;
+  // 朋友标签，半角逗号分割，单个表情不超过14字符
+  final String tag;
   final String region;
   final String sign;
   final String source; // visit_card | qrcode | people_nearby
@@ -113,6 +116,7 @@ class ContactModel extends ISuspensionBean {
       gender: json["gender"] ?? 0,
       status: json["status"] ?? '',
       remark: json["remark"].toString(),
+      tag: json["tag"] ?? '',
       region: json["region"].toString(),
       source: json["source"].toString(),
       sign: json["sign"].toString(),
