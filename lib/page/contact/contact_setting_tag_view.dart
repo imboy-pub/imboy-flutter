@@ -166,8 +166,7 @@ class ContactSettingTagPage extends StatelessWidget {
                     FocusScope.of(Get.context!).requestFocus();
                     if (value == '' || peerRemark == value) {
                       logic.valueOnChange(false);
-                    } else {
-                    }
+                    } else {}
                   },
                   //style: ,
                   onChanged: (value) {
@@ -210,8 +209,8 @@ class ContactSettingTagPage extends StatelessWidget {
                   highlightColor: AppColors.primaryBackground,
                   onTap: () {
                     Get.to(
-                          // () => TagAddPage(peerId:peerId, peerTag:peerTag),
-                          () => TagAddPage(peerId:peerId, peerTag:'标签1, 标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,ABCD'),
+                      () => TagAddPage(peerId: peerId, peerTag: peerTag),
+                      // () => TagAddPage(peerId:peerId, peerTag:'标签1, 标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,ABCD'),
                       transition: Transition.rightToLeft,
                       popGesture: true, // 右滑，返回上一页
                     );

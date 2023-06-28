@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show formatBytes;
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
@@ -14,7 +17,7 @@ import 'package:imboy/component/message/message_audio_builder.dart';
 import 'package:imboy/component/message/message_location_builder.dart';
 import 'package:imboy/component/message/message_visit_card_builder.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/single/chat_video.dart';
+import 'package:imboy/page/single/video_viewer.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
@@ -23,7 +26,6 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_collect_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'user_collect_state.dart';
 
@@ -209,12 +211,19 @@ class UserCollectLogic extends GetxController {
             Positioned.fill(
               child: InkWell(
                 onTap: () {
-                  String uri = obj.info['payload']['thumb']['uri'] ?? '';
-                  Get.to(
-                    () => ChatVideoPage(url: uri),
-                    transition: Transition.rightToLeft,
-                    popGesture: true, // 右滑，返回上一页
-                  );
+                  final String uri = obj.info['payload']['video']['uri'] ?? '';
+                  final String thumb =
+                      obj.info['payload']['thumb']['uri'] ?? '';
+                  // debugPrint("chat_video_user_collect_detail_view $uri; ${obj.info['payload']['video'].toString()}");
+                  if (uri.isEmpty) {
+                    EasyLoading.showError('收藏的视频消息格式有误，找不到 video uri');
+                  } else {
+                    Get.to(
+                      () => VideoViewerPage(url: uri, thumb: thumb),
+                      transition: Transition.rightToLeft,
+                      popGesture: true, // 右滑，返回上一页
+                    );
+                  }
                 },
                 child: const SizedBox(
                   height: 100,

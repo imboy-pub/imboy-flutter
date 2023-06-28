@@ -27,9 +27,10 @@ class TagAddPage extends StatelessWidget {
         .where((o) => o.trim().isNotEmpty)
         .toList();
     state.tagsController.addListener(() {
-      bool diff = listDiff(state.tagItems.value.toList(), state.tagsController.getTags);
-      debugPrint("tag_add_view_tagsController_addListener $diff tagItems ${state.tagItems.value.toList().toString()}");
-      debugPrint("tag_add_view_tagsController_addListener $diff getTags ${state.tagsController.getTags.toString()}");
+      bool diff = listDiff(state.tagItems.toList(), state.tagsController.getTags);
+      // state.tagsController.setError = '';
+      // debugPrint("tag_add_view_tagsController_addListener $diff tagItems ${state.tagItems.value.toList().toString()}");
+      // debugPrint("tag_add_view_tagsController_addListener $diff getTags ${state.tagsController.getTags.toString()}");
       logic.valueOnChange(diff);
     });
     return Scaffold(
@@ -51,7 +52,9 @@ class TagAddPage extends StatelessWidget {
             Obx(
               () => ElevatedButton(
                 onPressed: () async {
-                  // String trimmedText = logic.remarkTextController.text.trim();
+                  Set<String>? arr = state.tagsController.getTags?.toSet();
+                  // state.tagsController.getTags = arr?.toList();
+                  debugPrint("submit_tag ${arr?.length} ${arr.toString()}");
                   // if (trimmedText == '') {
                   //   logic.valueOnChange(false);
                   // } else {
@@ -173,6 +176,10 @@ class TagAddPage extends StatelessWidget {
                       if (tag.length > 14) {
                         // 最最最最最最最最最最最最最最1
                         return '最多14个字'.tr;
+                      }
+                      if (state.tagsController.getTags != null && state.tagsController.getTags!.contains(tag)) {
+                        // return 'you already entered that';
+                        return '你已经输入过了'.tr;
                       }
                       return null;
                     },

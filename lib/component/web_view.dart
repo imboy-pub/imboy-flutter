@@ -72,7 +72,7 @@ class WebViewPageState extends State<WebViewPage> {
           },
         ),
       )
-      ..addJavaScriptChannel('imboy_jsbridge', // 与h5 端的一致 不然收不到消息
+      ..addJavaScriptChannel('imboyJSBridge', // 与h5 端的一致 不然收不到消息
           onMessageReceived: (JavaScriptMessage message) {})
       ..loadRequest(Uri.parse(widget.url));
   }
@@ -80,7 +80,7 @@ class WebViewPageState extends State<WebViewPage> {
   @override
   void dispose() {
     EasyLoading.dismiss();
-    widget._controller!.removeJavaScriptChannel('imboy_jsbridge');
+    widget._controller!.removeJavaScriptChannel('imboyJSBridge');
     widget._controller!.clearLocalStorage();
     widget._controller = null;
     super.dispose();

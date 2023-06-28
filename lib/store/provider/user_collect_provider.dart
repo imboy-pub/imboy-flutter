@@ -1,4 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
@@ -34,18 +37,31 @@ class UserCollectProvider extends HttpClient {
       'action': action,
       'kind_id': kindId,
     });
-    debugPrint("> on Provider/send_to_view callback resp: ${resp.payload.toString()}");
+    debugPrint(
+        "> on Provider/send_to_view callback resp: ${resp.payload.toString()}");
     return resp.ok ? true : false;
   }
 
-  Future<bool> add(int kind, String kindId, String source, Map<String, dynamic> info) async {
-    IMBoyHttpResponse resp = await post(API.userCollectAdd, data: {
-      'kind': kind,
-      'kind_id': kindId,
-      'source': source,
-      'info': info,
-    });
-    debugPrint("> on Provider/userDeviceAdd resp: ${resp.toString()}");
+  /// Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息  7 个人名片
+  Future<bool> add(
+      int kind, String kindId, String source, Map<String, dynamic> info) async {
+    if (kind > 0) {
+      EasyLoading.show(status: '收藏附件比较耗时，请耐心等待！'.tr);
+    }
+    IMBoyHttpResponse resp = await post(API.userCollectAdd,
+        data: {
+          'kind': kind,
+          'kind_id': kindId,
+          'source': source,
+          'info': info,
+        },
+        options: Options(
+          sendTimeout: const Duration(minutes: 5),
+          receiveTimeout: const Duration(minutes: 5),
+        ));
+    debugPrint(
+        "> on Provider/userDeviceAdd resp: ${resp.error}; ${resp.payload.toString()}");
+    EasyLoading.dismiss();
     return resp.ok ? true : false;
   }
 }

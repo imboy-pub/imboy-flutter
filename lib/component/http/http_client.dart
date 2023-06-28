@@ -155,8 +155,10 @@ class HttpClient {
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
+      debugPrint("http_post response ${response.toString()}");
       return handleResponse(response, httpTransformer: httpTransformer);
     } on Exception catch (e) {
+      debugPrint("http_post e ${e.toString()}");
       return handleException(e);
     }
   }

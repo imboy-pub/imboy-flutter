@@ -154,7 +154,7 @@ class AttachmentProvider {
 
       MediaInfo? mediaInfo = await VideoCompress.compressVideo(
         path,
-        quality: VideoQuality.LowQuality,
+        quality: VideoQuality.Res640x480Quality,
         deleteOrigin: true,
       );
       File videoFile = mediaInfo!.file!;
