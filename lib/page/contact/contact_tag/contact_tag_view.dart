@@ -2,23 +2,23 @@ import 'package:fluent_ui/fluent_ui.dart' as fl;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 
-import 'group_list_logic.dart';
+import 'contact_tag_logic.dart';
 
-class GroupListPage extends StatelessWidget {
+class ContactTagPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final logic = Get.put(GroupListLogic());
-    final state = Get.find<GroupListLogic>().state;
+    final logic = Get.put(ContactTagLogic());
+    final state = Get.find<ContactTagLogic>().state;
+
 
     return Scaffold(
       backgroundColor: AppColors.ChatBg,
       // backgroundColor: Colors.white,
       appBar: PageAppBar(
-        title: '群聊'.tr,
+        title: "联系人标签".tr,
       ),
       body: fl.FluentTheme(
         data: fl.FluentThemeData(),

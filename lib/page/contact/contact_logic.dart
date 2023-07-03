@@ -1,13 +1,14 @@
 import 'package:azlistview/azlistview.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:badges/badges.dart' as badges;
-
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/page/chat/chat_view.dart';
+import 'package:imboy/page/contact/contact_tag/contact_tag_view.dart';
 import 'package:imboy/page/friend/new_friend_view.dart';
+import 'package:imboy/page/group/group_list/group_list_view.dart';
 import 'package:imboy/page/people_nearby/people_nearby_view.dart';
 import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -39,7 +40,7 @@ class ContactLogic extends GetxController {
         peerId: "people_nearby",
         nickname: '找附近的人'.tr,
         nameIndex: '↑',
-        bgColor: Colors.blueAccent,
+        bgColor: Colors.orange,
         iconData: const Center(
           child: Icon(
             Icons.person_pin_circle,
@@ -48,8 +49,8 @@ class ContactLogic extends GetxController {
           ),
         ),
         onPressed: () {
-          Get.to(()=>
-            PeopleNearbyPage(),
+          Get.to(
+            () => PeopleNearbyPage(),
             transition: Transition.rightToLeft,
             popGesture: true, // 右滑，返回上一页
           );
@@ -90,8 +91,8 @@ class ContactLogic extends GetxController {
               ),
             )),
         onPressed: () {
-          Get.to(()=>
-            NewFriendPage(),
+          Get.to(
+            () => NewFriendPage(),
             transition: Transition.rightToLeft,
             popGesture: true, // 右滑，返回上一页
           );
@@ -107,18 +108,36 @@ class ContactLogic extends GetxController {
           size: 24,
           color: Colors.white,
         ),
+        onPressed: () {
+          Get.to(
+            () => GroupListPage(),
+            transition: Transition.rightToLeft,
+            popGesture: true, // 右滑，返回上一页
+          );
+        },
       ),
-      /*
       ContactModel(
+        peerId: 'tag',
         nickname: '标签'.tr,
         nameIndex: '↑',
         bgColor: Colors.blue,
-        iconData: const Icon(
-          Icons.local_offer,
-          color: Colors.white,
-          size: 20,
+        iconData: Transform.scale(
+          scaleX: -1,
+          child: const Icon(
+            Icons.local_offer,
+            color: Colors.white,
+            size: 24,
+          ),
         ),
+        onPressed: () {
+          Get.to(
+            () => ContactTagPage(),
+            transition: Transition.rightToLeft,
+            popGesture: true, // 右滑，返回上一页
+          );
+        },
       ),
+      /*
       ContactModel(
           nickname: '公众号',
           nameIndex: '↑',
@@ -200,8 +219,8 @@ class ContactLogic extends GetxController {
         ),
         onTap: model.onPressed ??
             () {
-              Get.to(()=>
-                PeopleInfoPage(
+              Get.to(
+                () => PeopleInfoPage(
                   id: model.peerId,
                   scene: 'contact_page', // TODO 2023-04-19 09:40:05 leeyi
                 ),
@@ -211,8 +230,8 @@ class ContactLogic extends GetxController {
             },
         onLongPress: model.onLongPressed ??
             () {
-              Get.to(()=>
-                ChatPage(
+              Get.to(
+                () => ChatPage(
                   peerId: model.peerId,
                   peerTitle: model.title,
                   peerAvatar: model.avatar,

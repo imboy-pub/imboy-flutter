@@ -1,14 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
-
-// ignore: depend_on_referenced_packages
-import 'package:jiffy/jiffy.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:get/get.dart';
 import 'package:imboy/component/controller.dart';
 import 'package:imboy/component/helper/log.dart';
 import 'package:imboy/component/locales/locales.g.dart';
@@ -16,6 +11,10 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/pages.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+
+// ignore: depend_on_referenced_packages
+import 'package:jiffy/jiffy.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'component/locales/locales.dart';
 import 'config/init.dart';
@@ -97,6 +96,7 @@ class IMBoyApp extends StatelessWidget {
               ? Brightness.light
               : Brightness.dark,
           primarySwatch: createMaterialColor(const Color(0xFF223344)),
+          // useMaterial3: true, // 设置为 true 影响到 其他样式，例如我的页面的样式
         ),
         enableLog: true,
         logWriterCallback: Logger.write,

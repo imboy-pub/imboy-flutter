@@ -240,8 +240,9 @@ class ContactRepo {
     if (strNoEmpty(json[ContactRepo.remark])) {
       data[ContactRepo.remark] = json[ContactRepo.remark];
     }
-    if (strNoEmpty(json[ContactRepo.tag])) {
-      data[ContactRepo.tag] = json[ContactRepo.tag];
+    String? tag = json[ContactRepo.tag];
+    if (tag != null) {
+      data[ContactRepo.tag] = tag;
     }
     if (strNoEmpty(json[ContactRepo.region])) {
       data[ContactRepo.region] = json[ContactRepo.region];

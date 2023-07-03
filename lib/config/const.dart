@@ -205,7 +205,11 @@ class API {
   static const userCollectAdd = '/user_collect/add';
   static const userCollectRemove = '/user_collect/remove';
   static const userCollectChange = '/user_collect/change';
+
+  static const userTagPage = '/user_tag/page';
   static const userTagAdd = '/user_tag/add';
+  static const userTagDelete = '/user_tag/delete';
+
   // 附近的人
   static const peopleNearby = '/location/peopleNearby';
   static const makeMyselfVisible = '/location/makeMyselfVisible';

@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:imboy/config/const.dart';
 
 ///
 class TagItem extends StatelessWidget {
   final String tag;
   final Function(String tag) onTagDelete;
 
+  final Color backgroundColor;
+  final Color selectedBackgroundColor;
+
   const TagItem({
     Key? key,
     required this.tag,
     required this.onTagDelete,
+    this.backgroundColor = const Color(0xfff8f8f8),
+    this.selectedBackgroundColor = const Color(0xFF649BEC),
   }) : super(key: key);
 
   @override
@@ -19,7 +23,7 @@ class TagItem extends StatelessWidget {
         borderRadius: const BorderRadius.all(
           Radius.circular(20.0),
         ),
-        color: AppColors.primaryElement.withOpacity(0.2),
+        color: selectedBackgroundColor,
       ),
       margin: const EdgeInsets.only(right: 10.0),
       padding: const EdgeInsets.symmetric(
@@ -32,9 +36,9 @@ class TagItem extends StatelessWidget {
           InkWell(
             child: Text(
               tag,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
-                color: AppColors.primaryElement,
+                color: backgroundColor,
               ),
             ),
             onTap: () {
@@ -43,10 +47,10 @@ class TagItem extends StatelessWidget {
           ),
           const SizedBox(width: 4.0),
           InkWell(
-            child: const Icon(
+            child: Icon(
               Icons.cancel,
               size: 14.0,
-              color: AppColors.primaryElement,
+              color: backgroundColor,
             ),
             onTap: () {
               onTagDelete(tag);

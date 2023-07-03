@@ -89,7 +89,7 @@ class ContactSettingPage extends StatelessWidget {
                     peerRegion: peerRegion,
                     peerSource: peerSource,
                     peerRemark: peerRemark,
-                    peerTag: 'peerTag',
+                    peerTag: peerTag.obs,
                   ),
                   transition: Transition.rightToLeft,
                   popGesture: true, // 右滑，返回上一页

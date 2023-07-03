@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/line.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/page/friend/denylist_view.dart';
 import 'package:imboy/page/mine/setting/setting_view.dart';
-import 'package:niku/namespace.dart' as n;
-import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/page/personal_info/personal_info_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'mine_logic.dart';
 import 'user_collect/user_collect_view.dart';
@@ -151,7 +151,7 @@ class MinePage extends StatelessWidget {
                     size: 22,
                   ),
                   title: Transform(
-                    transform: Matrix4.translationValues(-22, -2.0, 0.0),
+                    transform: Matrix4.translationValues(-22, 0.0, 0.0),
                     child: Text('我的收藏'.tr),
                   ),
                   trailing: Icon(
@@ -174,7 +174,7 @@ class MinePage extends StatelessWidget {
                     size: 22,
                   ),
                   title: Transform(
-                    transform: Matrix4.translationValues(-22, -2.0, 0.0),
+                    transform: Matrix4.translationValues(-22, 0.0, 0.0),
                     child: Text('设备列表'.tr),
                   ),
                   trailing: Icon(
@@ -197,7 +197,7 @@ class MinePage extends StatelessWidget {
                     size: 22,
                   ),
                   title: Transform(
-                    transform: Matrix4.translationValues(-22, -2.0, 0.0),
+                    transform: Matrix4.translationValues(-22, 0.0, 0.0),
                     child: Text('存储空间和数据'.tr),
                   ),
                   trailing: Icon(
@@ -214,7 +214,7 @@ class MinePage extends StatelessWidget {
                     size: 22,
                   ),
                   title: Transform(
-                    transform: Matrix4.translationValues(-22, -2.0, 0.0),
+                    transform: Matrix4.translationValues(-22, 0.0, 0.0),
                     child: Text('黑名单'.tr),
                   ),
                   trailing: Icon(
@@ -253,7 +253,7 @@ class MinePage extends StatelessWidget {
                     size: 22,
                   ),
                   title: Transform(
-                    transform: Matrix4.translationValues(-22, -2.0, 0.0),
+                    transform: Matrix4.translationValues(-22, 0.0, 0.0),
                     child: Text('设置'.tr),
                   ),
                   trailing: Icon(

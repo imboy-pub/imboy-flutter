@@ -8,26 +8,38 @@ class UserTagProvider extends HttpClient {
     int page = 1,
     int size = 10,
   }) async {
-    IMBoyHttpResponse resp = await get(API.userDevicePage, queryParameters: {
+    IMBoyHttpResponse resp = await get(API.userTagPage, queryParameters: {
       'page': page,
       'size': size,
     });
-    debugPrint("> on Provider/denylistPage resp: ${resp.payload.toString()}");
+    debugPrint("> on UserTagProvider/page resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }
     return resp.payload;
   }
 
-  /// 探究标签
+  /// 添加标签、移除标签功能
+  /// tag 为空表示移除表情
   Future<bool> add({
+    required String peerId,
     required List<String> tag,
   }) async {
     IMBoyHttpResponse resp = await post(API.userTagAdd, data: {
       "scene": "friend",
+      "objectId": peerId,
       "tag": tag,
     });
-    debugPrint("> on Provider/changeName resp: ${resp.toString()}");
+    debugPrint("> on UserTagProvider/add resp: ${resp.toString()}");
+    return resp.ok ? true : false;
+  }
+
+  Future<bool> deleteTag(String tag) async {
+    IMBoyHttpResponse resp = await post(API.userTagDelete, data: {
+      "scene": "friend",
+      "tag": tag,
+    });
+    debugPrint("> on UserTagProvider/delete resp: ${resp.toString()}");
     return resp.ok ? true : false;
   }
 }

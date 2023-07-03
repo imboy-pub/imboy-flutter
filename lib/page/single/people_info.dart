@@ -60,7 +60,7 @@ class PeopleInfoPage extends StatelessWidget {
     tag.value = ct.tag;
     isFriend.value = ct.isFriend;
     isFrom.value = ct.isFrom;
-    tag.value = '技术,网管';
+    tag.value = ct.tag;
   }
 
   @override
@@ -136,7 +136,7 @@ class PeopleInfoPage extends StatelessWidget {
                 visible: !isSelf,
                 child: LabelRow(
                   label: tag.value.isEmpty ? '备注和标签'.tr : '标签'.tr,
-                  labelWidth: 40,
+                  labelWidth: tag.value.isEmpty ? 96 : 40,
                   // rightW: tag.value.isEmpty ? null : Expanded(child: Text(tag.value)),
                   // rValue: tag.value.isEmpty ? null : tag.value,
                   isLine: true,
@@ -166,7 +166,7 @@ class PeopleInfoPage extends StatelessWidget {
                         peerRegion: region.value,
                         peerSource: source.value,
                         peerRemark: remark.value,
-                        peerTag: tag.value,
+                        peerTag: tag,
                       ),
                       transition: Transition.rightToLeft,
                       popGesture: true, // 右滑，返回上一页

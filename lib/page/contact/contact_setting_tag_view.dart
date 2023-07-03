@@ -21,7 +21,7 @@ class ContactSettingTagPage extends StatelessWidget {
   final String peerRegion;
   final String peerSource;
   final String peerRemark;
-  String peerTag;
+  Rx<String> peerTag;
 
   ContactSettingTagPage({
     Key? key,
@@ -186,37 +186,46 @@ class ContactSettingTagPage extends StatelessWidget {
                 height: 20,
               ),
               //
-              fl.InfoLabel(
-                label: '标签'.tr,
-                labelStyle: TextStyle(
-                  fontSize: 14.0,
-                  color: Colors.black.withOpacity(0.8),
-                ),
-                child: fl.TextBox(
-                  placeholder: peerTag.isEmpty ? '添加标签'.tr : peerTag,
-                  placeholderStyle: const TextStyle(
-                    fontSize: 14.0,
-                    color: Colors.black,
-                  ),
-                  readOnly: true,
-                  expands: false,
-                  suffix: const fl.Icon(fl.FluentIcons.chevron_right),
-                  padding: const EdgeInsets.only(
-                    top: 14,
-                    bottom: 14.0,
-                    left: 12,
-                  ),
-                  highlightColor: AppColors.primaryBackground,
-                  onTap: () {
-                    Get.to(
-                      () => TagAddPage(peerId: peerId, peerTag: peerTag),
-                      // () => TagAddPage(peerId:peerId, peerTag:'标签1, 标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,ABCD'),
-                      transition: Transition.rightToLeft,
-                      popGesture: true, // 右滑，返回上一页
-                    );
-                  },
-                ),
-              )
+              Obx(() => fl.InfoLabel(
+                    label: '标签'.tr,
+                    labelStyle: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.black.withOpacity(0.8),
+                    ),
+                    child: fl.TextBox(
+                      placeholder: peerTag.isEmpty ? '添加标签'.tr : peerTag.value,
+                      placeholderStyle: const TextStyle(
+                        fontSize: 14.0,
+                        color: Colors.black,
+                      ),
+                      readOnly: true,
+                      expands: false,
+                      suffix: const fl.Icon(fl.FluentIcons.chevron_right),
+                      padding: const EdgeInsets.only(
+                        top: 14,
+                        bottom: 14.0,
+                        left: 12,
+                      ),
+                      highlightColor: AppColors.primaryBackground,
+                      minLines: 1,
+                      maxLines: 8,
+                      onTap: () {
+                        Get.to(
+                          () => TagAddPage(
+                              peerId: peerId, peerTag: peerTag.value),
+                          // () => TagAddPage(peerId:peerId, peerTag:'标签1, 标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,ABCD'),
+                          transition: Transition.rightToLeft,
+                          popGesture: true, // 右滑，返回上一页
+                        )?.then((value) {
+                          debugPrint(
+                              "ContactSettingTagPage_TagAddPage_back then $value");
+                          if (value != null && value is String) {
+                            peerTag.value = value.toString();
+                          }
+                        });
+                      },
+                    ),
+                  )),
             ],
             // 内容文本左对齐
             crossAxisAlignment: CrossAxisAlignment.start,
