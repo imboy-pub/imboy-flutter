@@ -7,11 +7,14 @@ class UserTagProvider extends HttpClient {
   Future<Map<String, dynamic>?> page({
     int page = 1,
     int size = 10,
+    String scene = '',
   }) async {
     IMBoyHttpResponse resp = await get(API.userTagPage, queryParameters: {
       'page': page,
       'size': size,
+      'scene': scene,
     });
+
     debugPrint("> on UserTagProvider/page resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
@@ -30,7 +33,7 @@ class UserTagProvider extends HttpClient {
       "objectId": peerId,
       "tag": tag,
     });
-    debugPrint("> on UserTagProvider/add resp: ${resp.toString()}");
+    debugPrint("UserTagProvider/add resp: ${resp.toString()}");
     return resp.ok ? true : false;
   }
 
@@ -39,7 +42,7 @@ class UserTagProvider extends HttpClient {
       "scene": "friend",
       "tag": tag,
     });
-    debugPrint("> on UserTagProvider/delete resp: ${resp.toString()}");
+    debugPrint("UserTagProvider/delete resp: ${resp.toString()}");
     return resp.ok ? true : false;
   }
 }

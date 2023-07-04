@@ -61,7 +61,7 @@ Future<void> init() async {
   // 解决使用自签证书报错问题
   io.HttpOverrides.global = GlobalHttpOverrides();
 
-  await dotenv.load(fileName: "assets/.env"); //
+  await dotenv.load(fileName: ".env"); //
   // debugPrint("> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
 
   // 放在 UserRepoLocal 前面

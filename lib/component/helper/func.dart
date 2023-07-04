@@ -11,6 +11,9 @@ import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
+iPrint(String str) {
+  return debugPrint("iPrint $str");
+}
 // This alphabet uses `A-Za-z0-9_-` symbols. The genetic algorithm helped
 // optimize the gzip compression for this alphabet.
 const _alphabet =

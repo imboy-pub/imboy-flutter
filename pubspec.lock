@@ -629,9 +629,11 @@ packages:
   filter_list:
     dependency: "direct main"
     description:
-      path: "plugin/flutter_plugin_filter_list"
-      relative: true
-    source: path
+      path: "."
+      ref: leeyi
+      resolved-ref: "360a545706555c015d718d424deb805897013194"
+      url: "https://gitee.com/imboy-tripartite-deps/flutter_plugin_filter_list.git"
+    source: git
     version: "1.0.2"
   fixnum:
     dependency: transitive
@@ -682,10 +684,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_cache_manager
-      sha256: "32cd900555219333326a2d0653aaaf8671264c29befa65bbd9856d204a4c9fb3"
+      sha256: "8207f27539deb83732fdda03e259349046a39a4c767269285f449ade355d54ba"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.3.0"
+    version: "3.3.1"
   flutter_chat_types:
     dependency: transitive
     description:
@@ -745,10 +747,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_local_notifications
-      sha256: "812791d43ccfc1b443a0d39fa02a206fc228c597e28ff9337e09e3ca8d370391"
+      sha256: "0b4b849ae9c0e564cd749b74e31e134bdbb009bea2458e093926864e11a8613f"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "14.1.1"
+    version: "15.0.0"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
@@ -993,10 +995,10 @@ packages:
     dependency: "direct main"
     description:
       name: image_gallery_saver
-      sha256: "467de169167b5c4e1ddde65395e4653c336a82f760b6700ea295085b7f2dd248"
+      sha256: "0aba74216a4d9b0561510cb968015d56b701ba1bd94aace26aacdd8ae5761816"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.2"
+    version: "2.0.3"
   image_picker:
     dependency: "direct main"
     description:
@@ -1249,10 +1251,10 @@ packages:
     dependency: "direct main"
     description:
       name: niku
-      sha256: e4d2259642a953e19703905727efbf0efbe5c27edd499e9c469c452c3301434d
+      sha256: "3211415c1943ef27e0803d37fde23e1b841f9fed344c65d13f295d3dd84718d5"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.3.3"
+    version: "2.4.1"
   nm:
     dependency: transitive
     description:
@@ -1381,14 +1383,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.7"
-  pedantic:
-    dependency: transitive
-    description:
-      name: pedantic
-      sha256: "67fc27ed9639506c856c840ccce7594d0bdcd91bc8d53d6e52359449a1d50602"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.11.1"
   percent_indicator:
     dependency: "direct main"
     description:
@@ -2068,13 +2062,13 @@ packages:
     source: hosted
     version: "2.3.1"
   webview_flutter_wkwebview:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: webview_flutter_wkwebview
-      sha256: ecc9e9ea15216afc5ba3b1f14aa19414ceba526e57b19cebd970bfa91a0f4058
+      sha256: "7ae75a1a76b9463ae9278de7759ead68aa0eeb70f8d0175e3f9a6c43e911fe76"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.5.0"
+    version: "3.6.1"
   wechat_assets_picker:
     dependency: "direct main"
     description:

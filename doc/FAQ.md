@@ -88,3 +88,10 @@ Preferences -> Build -> Build Tools -> Gradle -> Gradle JDK
 ```
 ./gradlew wrapper
 ```
+
+### The code signature version is no longer supported.
+
+解决方法
+TARGETS -> General -> Frameworks,Libraries,and EmbeddedContent -> 将Embed and Sign 设置为 Do Not Embed。
+
+https://blog.csdn.net/LIUXIAOXIAOBO/article/details/126799270

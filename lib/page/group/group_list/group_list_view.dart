@@ -9,6 +9,9 @@ import 'package:imboy/config/const.dart';
 import 'group_list_logic.dart';
 
 class GroupListPage extends StatelessWidget {
+
+  const GroupListPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     final logic = Get.put(GroupListLogic());

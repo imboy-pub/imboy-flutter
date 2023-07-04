@@ -8,6 +8,9 @@ import 'package:imboy/config/const.dart';
 import 'contact_tag_logic.dart';
 
 class ContactTagPage extends StatelessWidget {
+
+  const ContactTagPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     final logic = Get.put(ContactTagLogic());

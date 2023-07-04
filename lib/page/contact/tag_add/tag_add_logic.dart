@@ -28,4 +28,25 @@ class TagAddLogic extends GetxController {
     }
     return res;
   }
+
+  Future<void> getRecentTagItems(String peerId) async {
+    // String k = "recent_tag_$peerId";
+    Map<String, dynamic>? resp = await UserTagProvider().page(scene:'friend',size: 100);
+    List<dynamic> items = resp?['list']??[];
+
+    List<String> res = [];
+    for (var item in items) {
+      String tag = item['name'] ?? '';
+      if (tag.isNotEmpty && !res.contains(tag)) {
+        res.add(tag);
+      }
+    }
+    for (var item in state.tagItems) {
+      if (!res.contains(item)) {
+        res.add(item);
+      }
+    }
+    state.recentTagItems.value = res;
+    state.loaded.value = true;
+  }
 }

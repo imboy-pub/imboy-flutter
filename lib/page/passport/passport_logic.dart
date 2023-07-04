@@ -62,7 +62,7 @@ class PassportLogic extends GetxController {
 
   Future<Map<String, dynamic>> encryptPassword(String password) async {
     IMBoyHttpResponse resp1 = await HttpClient.client.get(API.initConfig);
-    debugPrint("> on init ${resp1.toString()}");
+    // debugPrint("> on init ${resp1.payload.toString()}");
     if (!resp1.ok) {
       return {"error": "网络故障或服务故障"};
     }
@@ -76,8 +76,8 @@ class PassportLogic extends GetxController {
       SOLIDIFIED_KEY,
       SOLIDIFIED_KEY_IV,
     ));
-    // debugPrint("> on ${resp1.payload.toString()}");
-    // debugPrint("> on ${resp1.toString()}");
+    // debugPrint("login_pwd_rsa_encrypt ${resp1.payload.toString()}");
+    // debugPrint("login_pwd_rsa_encrypt ${payload.toString()}");
     final rsaEncrypt = payload['login_pwd_rsa_encrypt'].toString();
     if (rsaEncrypt == "1") {
       String pubKey = payload['login_rsa_pub_key'].toString();

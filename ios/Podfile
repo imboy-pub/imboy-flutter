@@ -2,6 +2,10 @@
 # platform :ios, '11.0'
 platform :ios, '11.0'
 
+# rm -rf Podfile.lock pods .symlink Runner.xcworkspace && flutter clean && flutter pub get && pod install --repo-update
+# source 'https://github.com/CocoaPods/Specs.git'
+source 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
+
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 

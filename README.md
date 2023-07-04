@@ -76,6 +76,7 @@ slave | subordinate | 从属的
 blacklist | denylist | 拒绝名单
 
 ```
+.env
 Lib
 │
 ├──page 落地页
@@ -113,6 +114,12 @@ Lib
      └──  页面映射配置、observe 方法导出
 
 ```
+## init
+```
+cd imboyflutter
+cp assets/example.env ./.env
+```
+
 
 ## plugin
 
