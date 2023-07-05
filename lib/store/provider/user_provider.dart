@@ -40,6 +40,7 @@ class UserProvider extends HttpClient {
       ),
     );
     if (!resp.ok) {
+      Get.offAll(() => PassportPage());
       return "";
     }
     return resp.payload["token"];
