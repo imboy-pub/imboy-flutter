@@ -209,6 +209,11 @@ class API {
   static const userTagPage = '/user_tag/page';
   static const userTagAdd = '/user_tag/add';
   static const userTagDelete = '/user_tag/delete';
+  static const userTagChangeName = '/user_tag/change_name';
+
+  static const userTagRelationPage = '/user_tag_relation/page';
+  static const userTagRelationAdd = '/user_tag_relation/add';
+  static const userTagRelationSet = '/user_tag_relation/set';
 
   // 附近的人
   static const peopleNearby = '/location/peopleNearby';

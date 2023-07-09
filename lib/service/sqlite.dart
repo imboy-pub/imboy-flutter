@@ -12,7 +12,7 @@ import 'package:sqflite/sqflite.dart';
 /// 参考 https://www.javacodegeeks.com/2020/06/using-sqlite-in-flutter-tutorial.html
 /// Sqlite 只负责维护表结构
 class SqliteService {
-  static const _dbVersion = 3;
+  static const _dbVersion = 4;
 
   SqliteService._privateConstructor();
 
@@ -80,6 +80,7 @@ class SqliteService {
     //注意： 创建多张表，需要执行多次 await db.execute 代码
     //      也就是一条SQL语句一个 db.execute
 
+    await SqliteDdl.userTag(db);
     // await db.execute("DROP TABLE IF EXISTS ${ContactRepo.tableName};");
     // await db.execute("DROP TABLE IF EXISTS ${ConversationRepo.tableName};");
     // await db.execute("DROP TABLE IF EXISTS ${MessageRepo.tableName};");
@@ -101,13 +102,18 @@ class SqliteService {
     await SqliteDdl.userDenylist(db);
     await SqliteDdl.userDevice(db);
     await SqliteDdl.userCollect(db);
+    await SqliteDdl.userTag(db);
   }
 
   /// 数据库已经存在，且[version]高于上一个数据库
   ///数据库版本
   Future _onUpgrade(Database db, int oldVsn, int newVsn) async {
-    debugPrint("SqliteService_onUpgrade oldVsn: $oldVsn, newVsn: $newVsn");
-    await SqliteDdl.onUpgrade(db, oldVsn, newVsn);
+    iPrint("SqliteService_onUpgrade oldVsn: $oldVsn, newVsn: $newVsn");
+    try {
+      await SqliteDdl.onUpgrade(db, oldVsn, newVsn);
+    } catch (e) {
+      iPrint("SqliteService_onUpgrade error: $e");
+    }
   }
 
 

@@ -1,4 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/store/repository/user_tag_relation_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_tag_repo_sqlite.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'contact_repo_sqlite.dart';
@@ -230,6 +232,7 @@ class SqliteDdl {
         ${UserCollectRepo.source} varchar(255) NOT NULL DEFAULT '',
         ${UserCollectRepo.remark} varchar(255) NOT NULL DEFAULT '',
         ${UserCollectRepo.tag} varchar(800) NOT NULL DEFAULT '',
+        ${UserCollectRepo.updatedAt} int(16) NOT NULL DEFAULT 0,
         ${UserCollectRepo.createdAt} int(16) NOT NULL DEFAULT 0,
         ${UserCollectRepo.info} text DEFAULT '',
         PRIMARY KEY("auto_id"),
@@ -259,6 +262,50 @@ class SqliteDdl {
         ''');
   }
 
+  /// 用户标签 DDL 语句
+  static userTag(Database db) async {
+    String userTagSql = '''
+      CREATE TABLE IF NOT EXISTS ${UserTagRepo.tableName} (
+        auto_id INTEGER,
+        ${UserTagRepo.userId} varchar(40) NOT NULL,
+        ${UserTagRepo.tagId} int(16) NOT NULL DEFAULT '',
+        ${UserTagRepo.scene} int(8) NOT NULL DEFAULT '',
+        ${UserTagRepo.name} varchar(255) NOT NULL DEFAULT '',
+        ${UserTagRepo.subtitle} varchar(800) NOT NULL DEFAULT '',
+        ${UserTagRepo.refererTime} int(16) NOT NULL DEFAULT 0,
+        ${UserTagRepo.updatedAt} int(16) NOT NULL DEFAULT 0,
+        ${UserTagRepo.createdAt} int(16) NOT NULL DEFAULT 0,
+        PRIMARY KEY("auto_id"),
+        CONSTRAINT i_Uid_Scene_Name UNIQUE (
+            ${UserTagRepo.userId},
+            ${UserTagRepo.scene},
+            ${UserTagRepo.name}
+        )
+        );
+      ''';
+    debugPrint("> on _onCreate \n$userTagSql\n");
+    await db.execute(userTagSql);
+
+    String userTagRelationSql = '''
+      CREATE TABLE IF NOT EXISTS ${UserTagRelationRepo.tableName} (
+        auto_id INTEGER,
+        ${UserTagRelationRepo.userId} varchar(40) NOT NULL,
+        ${UserTagRelationRepo.tagId} int(16) NOT NULL DEFAULT '',
+        ${UserTagRelationRepo.scene} int(8) NOT NULL DEFAULT '',
+        ${UserTagRelationRepo.objectId} varchar(40) NOT NULL DEFAULT '',
+        ${UserTagRelationRepo.createdAt} int(16) NOT NULL DEFAULT 0,
+        PRIMARY KEY("auto_id"),
+        CONSTRAINT uk_user_tag_Scene_UserId_ObjectId_TagId UNIQUE (
+            ${UserTagRelationRepo.scene},
+            ${UserTagRelationRepo.userId},
+            ${UserTagRelationRepo.objectId},
+            ${UserTagRelationRepo.tagId}
+        )
+        );
+      ''';
+    debugPrint("> on _onCreate \n$userTagRelationSql\n");
+    await db.execute(userTagRelationSql);
+  }
 
   static Future onUpgrade(Database db, int oldVsn, int newVsn) async {
     if (oldVsn == 1 && newVsn == 2) {
@@ -270,6 +317,9 @@ class SqliteDdl {
       await db.execute('''ALTER TABLE ${ContactRepo.tableName} 
           ADD COLUMN ${ContactRepo.tag} varchar(800) NOT NULL DEFAULT '';
         ''');
+    }
+    if (newVsn == 4) {
+      await SqliteDdl.userTag(db);
     }
   }
 }

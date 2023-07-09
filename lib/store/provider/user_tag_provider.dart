@@ -8,11 +8,13 @@ class UserTagProvider extends HttpClient {
     int page = 1,
     int size = 10,
     String scene = '',
+    String kwd = '',
   }) async {
     IMBoyHttpResponse resp = await get(API.userTagPage, queryParameters: {
       'page': page,
       'size': size,
       'scene': scene,
+      'kwd': kwd,
     });
 
     debugPrint("> on UserTagProvider/page resp: ${resp.payload.toString()}");
@@ -28,7 +30,7 @@ class UserTagProvider extends HttpClient {
     required String peerId,
     required List<String> tag,
   }) async {
-    IMBoyHttpResponse resp = await post(API.userTagAdd, data: {
+    IMBoyHttpResponse resp = await post(API.userTagRelationAdd, data: {
       "scene": "friend",
       "objectId": peerId,
       "tag": tag,
