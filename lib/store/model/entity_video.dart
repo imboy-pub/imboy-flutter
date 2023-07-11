@@ -13,6 +13,7 @@ class EntityVideo {
   EntityVideo({
     required this.name,
     required this.uri,
+    // unit Bytes
     this.filesize = 0,
     this.width = 0,
     this.height = 0,

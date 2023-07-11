@@ -1,8 +1,11 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:imboy/store/provider/user_tag_provider.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_collect_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/repository/user_tag_relation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_tag_repo_sqlite.dart';
@@ -90,4 +93,41 @@ class ContactTagLogic extends GetxController {
     return list;
   }
 
+  Future<bool> deleteTag({
+    required String scene,
+    required int tagId,
+    required String tagName,
+  }) async {
+    // 检查网络状态
+    var res = await Connectivity().checkConnectivity();
+    if (res == ConnectivityResult.none) {
+      return false;
+    }
+    bool res2 = await UserTagProvider().deleteTag(
+      scene: scene,
+      tagName: tagName,
+    );
+    if (res2 == false) {
+      return false;
+    }
+    await UserTagRepo().update({
+      UserTagRepo.tagId: tagId,
+      UserTagRepo.name: tagName,
+    });
+    return true;
+  }
+
+  Future<int?> replaceObjectTag({required String scene, required String oldName, required String newName}) async {
+    if (newName.isNotEmpty && newName.endsWith(',') == false) {
+      newName = "$newName,";
+    }
+    if (scene == 'friend') {
+      String sql = "UPDATE ${ContactRepo.tableName} SET ${ContactRepo.tag} = REPLACE(${ContactRepo.tag}, '$oldName,', '$newName') WHERE 1 = 1;";
+      return await SqliteService.to.execute(sql);
+    } else if (scene == 'collect') {
+      String sql = "UPDATE ${UserCollectRepo.tableName} SET ${UserCollectRepo.tag} = REPLACE(${UserCollectRepo.tag}, '${oldName},', '${newName},') WHERE 1 = 1;";
+      return await SqliteService.to.execute(sql);
+    }
+
+  }
 }

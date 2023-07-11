@@ -195,6 +195,7 @@ class AttachmentProvider {
       EntityVideo video = EntityVideo(
         name: name,
         uri: videoUri!,
+        // unit Bytes
         filesize: mediaInfo.filesize,
         duration: mediaInfo.duration,
         author: mediaInfo.author,

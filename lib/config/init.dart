@@ -75,7 +75,7 @@ Future<void> init() async {
   HttpConfig dioConfig = HttpConfig(
     baseUrl: API_BASE_URL,
     // proxy: '192.168.100.19:8888',
-    interceptors: [ImboyInterceptor()],
+    interceptors: [IMBoyInterceptor()],
   );
 
   getx.Get.put(HttpClient(dioConfig: dioConfig));

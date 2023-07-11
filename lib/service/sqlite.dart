@@ -80,7 +80,7 @@ class SqliteService {
     //注意： 创建多张表，需要执行多次 await db.execute 代码
     //      也就是一条SQL语句一个 db.execute
 
-    await SqliteDdl.userTag(db);
+    // await SqliteDdl.userTag(db);
     // await db.execute("DROP TABLE IF EXISTS ${ContactRepo.tableName};");
     // await db.execute("DROP TABLE IF EXISTS ${ConversationRepo.tableName};");
     // await db.execute("DROP TABLE IF EXISTS ${MessageRepo.tableName};");
@@ -150,6 +150,16 @@ class SqliteService {
       where: where,
       whereArgs: whereArgs,
       conflictAlgorithm: conflictAlgorithm,
+    );
+    return res;
+  }
+
+  /// See [Database.rawUpdate]
+  Future<int> execute(String sql, [List<Object?>? arguments])  async {
+    Database db = await to.db;
+    var res = await db.rawUpdate(
+      sql,
+      arguments,
     );
     return res;
   }

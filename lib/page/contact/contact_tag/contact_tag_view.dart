@@ -4,21 +4,25 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/search.dart';
+import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/page/contact/contact_tag_detail/contact_tag_detail_view.dart';
+import 'package:imboy/page/user_tag/user_tag_update/user_tag_update_view.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
 
 import 'contact_tag_logic.dart';
 
 // ignore: must_be_immutable
 class ContactTagPage extends StatelessWidget {
-  ContactTagPage({super.key});
 
   final logic = Get.put(ContactTagLogic());
   final state = Get.find<ContactTagLogic>().state;
   ScrollController controller = ScrollController();
+
+  ContactTagPage({super.key});
 
   void initData() async {
     state.page = 1;
@@ -82,14 +86,18 @@ class ContactTagPage extends StatelessWidget {
                           },
                           child: const Icon(Icons.search),
                         ),
-                    trailing: state.kwd.isEmpty ? null : [InkWell(
-                      onTap: () {
-                        state.kwd.value = '';
-                        state.searchController.text = '';
-                        logic.doSearch(state.kwd.value);
-                      },
-                      child: const Icon(Icons.close),
-                    )],
+                    trailing: state.kwd.isEmpty
+                        ? null
+                        : [
+                            InkWell(
+                              onTap: () {
+                                state.kwd.value = '';
+                                state.searchController.text = '';
+                                logic.doSearch(state.kwd.value);
+                              },
+                              child: const Icon(Icons.close),
+                            )
+                          ],
                     controller: state.searchController,
                     searchLabel: '搜索'.tr,
                     hintText: '搜索'.tr,
@@ -121,23 +129,22 @@ class ContactTagPage extends StatelessWidget {
                                     groupTag: '0',
                                     closeOnScroll: true,
                                     endActionPane: ActionPane(
-                                      // extentRatio: 0.5,
+                                      extentRatio: 0.75,
                                       motion: const StretchMotion(),
                                       children: [
                                         SlidableAction(
                                           key: ValueKey("change_name_$index"),
-                                          flex: 1,
+                                          flex: 2,
                                           backgroundColor: Colors.black87,
                                           // foregroundColor: Colors.white,
                                           onPressed: (_) async {
-                                            // bool res =
-                                            // await logic.remove(obj);
-                                            // debugPrint(
-                                            //     "user_collect_remove $res; i $index");
-                                            // if (res) {
-                                            //   state.items.removeAt(index);
-                                            //   // logic.update(state.items);
-                                            // }
+                                            Get.bottomSheet(
+                                              n.Padding(
+                                                // top: 80,
+                                                child: UserTagUpdatePage(
+                                                    tag: obj, scene: 'friend',),
+                                              ),
+                                            );
                                           },
                                           // icon: Icons.delete_forever_sharp,
                                           label: "修改名称".tr,
@@ -149,14 +156,106 @@ class ContactTagPage extends StatelessWidget {
                                           backgroundColor: Colors.red,
                                           // foregroundColor: Colors.white,
                                           onPressed: (_) async {
-                                            // bool res =
-                                            // await logic.remove(obj);
-                                            // debugPrint(
-                                            //     "user_collect_remove $res; i $index");
-                                            // if (res) {
-                                            //   state.items.removeAt(index);
-                                            //   // logic.update(state.items);
-                                            // }
+                                            Get.bottomSheet(
+                                              SizedBox(
+                                                width: Get.width,
+                                                height: 172,
+                                                child: n.Wrap(
+                                                  [
+                                                    Center(
+                                                      child: n.Padding(
+                                                        top: 16,
+                                                        bottom: 16,
+                                                        child: Text(
+                                                          '删除标签后，标签中的联系人不会被删除'
+                                                              .tr,
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style:
+                                                              const TextStyle(
+                                                            // color: Colors.white,
+                                                            fontSize: 16.0,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const Divider(),
+                                                    Center(
+                                                      child: TextButton(
+                                                        onPressed: () async {
+                                                          const String scene = 'friend';
+                                                          bool res = await logic.deleteTag(
+                                                              tagId: obj.tagId, tagName: obj.name, scene: scene);
+                                                          if (res) {
+                                                            Get.find<ContactTagLogic>().replaceObjectTag(scene: scene, oldName:obj.name, newName: '');
+
+                                                            final index = state
+                                                                .items
+                                                                .indexWhere((e) => e.tagId == obj.tagId);
+                                                            if (index > -1) {
+                                                              state
+                                                                  .items.removeAt(index);
+                                                            }
+                                                            Get.close(1);
+                                                            EasyLoading.showSuccess('操作成功'.tr);
+                                                          } else {
+                                                            EasyLoading.showError('操作失败'.tr);
+                                                          }
+                                                        },
+                                                        child: Text(
+                                                          '删除'.tr,
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.red,
+                                                            fontSize: 16.0,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const HorizontalLine(
+                                                        height: 6),
+                                                    Center(
+                                                      child: TextButton(
+                                                        onPressed: () =>
+                                                            Get.back(),
+                                                        child: Text(
+                                                          'button_cancel'.tr,
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style:
+                                                              const TextStyle(
+                                                            // color: Colors.white,
+                                                            fontSize: 16.0,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                              backgroundColor: Colors.white,
+                                              //改变shape这里即可
+                                              shape:
+                                                  const RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.only(
+                                                  topLeft:
+                                                      Radius.circular(20.0),
+                                                  topRight:
+                                                      Radius.circular(20.0),
+                                                ),
+                                              ),
+                                            );
                                           },
                                           // icon: Icons.delete_forever_sharp,
                                           label: "删除".tr,
@@ -178,16 +277,12 @@ class ContactTagPage extends StatelessWidget {
                                       // ),
                                       child: InkWell(
                                         onTap: () {
-                                          // 收藏详情
-                                          // Get.to(
-                                          //       () => UserCollectDetailPage(
-                                          //     obj: obj,
-                                          //     pageIndex: index,
-                                          //   ),
-                                          //   transition:
-                                          //   Transition.rightToLeft,
-                                          //   popGesture: true, // 右滑，返回上一页
-                                          // );
+                                          // Tag详情
+                                          Get.to(
+                                            () => ContactTagDetailPage(tag: obj),
+                                            transition: Transition.rightToLeft,
+                                            popGesture: true, // 右滑，返回上一页
+                                          );
                                         },
                                         child: n.Column([
                                           // logic.buildItemBody(obj, 'page'),

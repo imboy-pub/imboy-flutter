@@ -44,8 +44,20 @@ class UserCollectProvider extends HttpClient {
 
   /// Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息  7 个人名片
   Future<bool> add(
-      int kind, String kindId, String source, Map<String, dynamic> info) async {
-    if (kind > 0) {
+    int kind,
+    String kindId,
+    String source,
+    Map<String, dynamic> info,
+  ) async {
+    // debugPrint("> on Provider/userDeviceAdd info: ${info.toString()}");
+    int fileSize = 0;
+    if (kind == 4) {
+      fileSize = info['payload']['video']['filesize'] ?? 0;
+    } else {
+      fileSize = info['payload']['size'] ?? 0;
+    }
+
+    if (fileSize > 200000) {
       EasyLoading.show(status: '收藏附件比较耗时，请耐心等待！'.tr);
     }
     IMBoyHttpResponse resp = await post(API.userCollectAdd,
@@ -56,8 +68,8 @@ class UserCollectProvider extends HttpClient {
           'info': info,
         },
         options: Options(
-          sendTimeout: const Duration(minutes: 5),
-          receiveTimeout: const Duration(minutes: 5),
+          sendTimeout: const Duration(minutes: 50),
+          receiveTimeout: const Duration(minutes: 50),
         ));
     debugPrint(
         "> on Provider/userDeviceAdd resp: ${resp.error}; ${resp.payload.toString()}");

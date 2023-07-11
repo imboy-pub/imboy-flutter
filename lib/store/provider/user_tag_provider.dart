@@ -39,12 +39,42 @@ class UserTagProvider extends HttpClient {
     return resp.ok ? true : false;
   }
 
-  Future<bool> deleteTag(String tag) async {
+  Future<bool> changeName({required String scene, required int tagId, required String tagName}) async {
+    IMBoyHttpResponse resp = await post(API.userTagChangeName, data: {
+      "scene": scene,
+      "tagId": tagId,
+      "tagName": tagName,
+    });
+    debugPrint("UserTagProvider/changeName resp: ${resp.toString()}");
+    return resp.ok ? true : false;
+  }
+
+  Future<bool> deleteTag({required String scene, required String tagName}) async {
     IMBoyHttpResponse resp = await post(API.userTagDelete, data: {
-      "scene": "friend",
-      "tag": tag,
+      "scene": scene,
+      "tag": tagName,
     });
     debugPrint("UserTagProvider/delete resp: ${resp.toString()}");
     return resp.ok ? true : false;
+  }
+
+  Future<Map<String, dynamic>?> pageRelation({
+    int page = 1,
+    int size = 10,
+    String scene = '',
+    String kwd = '',
+  }) async {
+    IMBoyHttpResponse resp = await get(API.userTagRelationPage, queryParameters: {
+      'page': page,
+      'size': size,
+      'scene': scene,
+      'kwd': kwd,
+    });
+
+    debugPrint("> on UserTagProvider/page resp: ${resp.payload.toString()}");
+    if (!resp.ok) {
+      return null;
+    }
+    return resp.payload;
   }
 }

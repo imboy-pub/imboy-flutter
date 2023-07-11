@@ -143,7 +143,7 @@ class PeopleInfoPage extends StatelessWidget {
                   rightW: SizedBox(
                     width: Get.width - 140,
                     child: Text(
-                      tag.value,
+                      (tag.value.endsWith(',') ? tag.value.substring(0, tag.value.length - 1) : tag.value),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.left,

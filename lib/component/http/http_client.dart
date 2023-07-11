@@ -2,8 +2,9 @@ import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+
 // ignore: implementation_imports
-import 'package:dio/src/adapters/io_adapter.dart';
+import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart' as getx;
 import 'package:imboy/component/extension/device_ext.dart';
@@ -62,12 +63,12 @@ class HttpClient {
     if (dioConfig?.interceptors?.isNotEmpty ?? false) {
       _dio.interceptors.addAll(dioConfig!.interceptors!);
     }
-    _dio.httpClientAdapter = IOHttpClientAdapter()
-      ..onHttpClientCreate = (client) {
-        client.badCertificateCallback =
-            (X509Certificate cert, String host, int port) => true;
-        return client;
-      };
+    _dio.httpClientAdapter = Http2Adapter(
+      ConnectionManager(
+        idleTimeout: const Duration(seconds: 10),
+        onClientCreate: (_, config) => config.onBadCertificate = (_) => true,
+      ),
+    );
 
     if (dioConfig?.proxy?.isNotEmpty ?? false) {
       setProxy(dioConfig!.proxy!);
@@ -75,17 +76,15 @@ class HttpClient {
   }
 
   setProxy(String proxy) {
-    _dio.httpClientAdapter = IOHttpClientAdapter()
-      ..onHttpClientCreate = (client) {
-        // config the http client
-        client.findProxy = (uri) {
-          // proxy all request to localhost:8888
-          return "PROXY $proxy";
-        };
-        return null;
-        // you can also create a HttpClient to dio
-        // return HttpClient();
-      };
+    _dio.httpClientAdapter = Http2Adapter(
+      ConnectionManager(
+        idleTimeout: const Duration(seconds: 10),
+        onClientCreate: (_, config) {
+          config.onBadCertificate = (_) => true;
+          config.proxy = Uri.parse(proxy);
+        },
+      ),
+    );
   }
 
   Future<void> _setDefaultConfig() async {
@@ -145,7 +144,7 @@ class HttpClient {
       return handleException(NetworkException());
     }
     try {
-      _setDefaultConfig();
+      await _setDefaultConfig();
       var response = await _dio.post(
         uri,
         data: data,
@@ -174,7 +173,7 @@ class HttpClient {
     HttpTransformer? httpTransformer,
   }) async {
     try {
-      _setDefaultConfig();
+      await _setDefaultConfig();
       var response = await _dio.patch(
         uri,
         data: data,
@@ -199,7 +198,7 @@ class HttpClient {
     HttpTransformer? httpTransformer,
   }) async {
     try {
-      _setDefaultConfig();
+      await _setDefaultConfig();
       var response = await _dio.delete(
         uri,
         data: data,
@@ -222,7 +221,7 @@ class HttpClient {
     HttpTransformer? httpTransformer,
   }) async {
     try {
-      _setDefaultConfig();
+      await _setDefaultConfig();
       var response = await _dio.put(
         uri,
         data: data,
@@ -249,7 +248,7 @@ class HttpClient {
     HttpTransformer? httpTransformer,
   }) async {
     try {
-      _setDefaultConfig();
+      await _setDefaultConfig();
       var response = await _dio.download(
         urlPath,
         savePath,

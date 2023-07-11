@@ -38,6 +38,8 @@ class UserTagRelationRepo {
     );
   }
 
+  save(json) {}
+
 // 记得及时关闭数据库，防止内存泄漏
 // close() async {
 //   await _db.close();

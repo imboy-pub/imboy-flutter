@@ -110,7 +110,7 @@ class ContactLogic extends GetxController {
         ),
         onPressed: () {
           Get.to(
-            () => GroupListPage(),
+            () => const GroupListPage(),
             transition: Transition.rightToLeft,
             popGesture: true, // 右滑，返回上一页
           );

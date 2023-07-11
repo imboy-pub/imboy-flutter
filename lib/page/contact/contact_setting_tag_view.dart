@@ -4,10 +4,10 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/user_tag/user_tag_view.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'contact_setting_tag_logic.dart';
-import 'tag_add/tag_add_view.dart';
 
 // ignore: must_be_immutable
 class ContactSettingTagPage extends StatelessWidget {
@@ -193,7 +193,7 @@ class ContactSettingTagPage extends StatelessWidget {
                       color: Colors.black.withOpacity(0.8),
                     ),
                     child: fl.TextBox(
-                      placeholder: peerTag.isEmpty ? '添加标签'.tr : peerTag.value,
+                      placeholder: peerTag.isEmpty ? '添加标签'.tr : (peerTag.value.endsWith(',') ? peerTag.value.substring(0, peerTag.value.length - 1) : peerTag.value),
                       placeholderStyle: const TextStyle(
                         fontSize: 14.0,
                         color: Colors.black,
@@ -211,7 +211,7 @@ class ContactSettingTagPage extends StatelessWidget {
                       maxLines: 8,
                       onTap: () {
                         Get.to(
-                          () => TagAddPage(
+                          () => UserTagPage(
                               peerId: peerId, peerTag: peerTag.value),
                           // () => TagAddPage(peerId:peerId, peerTag:'标签1, 标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,ABCD'),
                           transition: Transition.rightToLeft,

@@ -48,6 +48,8 @@ class WebSocketService {
   late Function onMessage; // 接收消息回调重连定时器
   late Function onError; // 连接错误回调
 
+  bool get isConnected => _webSocketChannel != null && _webSocketChannel?.sink != null;
+
   /// 在
   void init() {
     if (_socketStatus != SocketStatus.SocketStatusConnected) {
@@ -90,11 +92,9 @@ class WebSocketService {
       debugPrint('> ws openSocket is not login');
       return;
     }
-    if (_webSocketChannel == null) {
-      _socketStatus = SocketStatus.SocketStatusFailed;
-    }
+
     // 链接状态正常，不需要任何处理
-    if (_socketStatus == SocketStatus.SocketStatusConnected) {
+    if (isConnected) {
       // debugPrint('> ws openSocket _socketStatus: $_socketStatus;');
       return;
     }
@@ -176,6 +176,7 @@ class WebSocketService {
   /// WebSocket连接错误回调
   _webSocketOnError(e) {
     debugPrint('> ws _webSocketOnError ${_webSocketOnError.toString()}');
+    debugPrint('> ws _webSocketOnError ${e.toString()}');
     WebSocketChannelException ex = e;
     _socketStatus = SocketStatus.SocketStatusFailed;
     onError(ex.message);
@@ -219,8 +220,8 @@ class WebSocketService {
     if (_webSocketChannel != null) {
       debugPrint('> ws WebSocket连接关闭');
       _webSocketChannel?.sink.close();
-      _socketStatus = SocketStatus.SocketStatusClosed;
       _webSocketChannel = null;
+      _socketStatus = SocketStatus.SocketStatusClosed;
     }
     _instance = null;
   }
@@ -229,7 +230,7 @@ class WebSocketService {
   bool sendMessage(String message) {
     bool result = false;
     openSocket();
-    if (_socketStatus == SocketStatus.SocketStatusConnected) {
+    if (isConnected) {
       // debugPrint('> ws sendMsg $message');
       _webSocketChannel!.sink.add(message);
       result = true;
