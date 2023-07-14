@@ -2,27 +2,28 @@ import 'package:azlistview/azlistview.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:niku/namespace.dart' as n;
+import 'package:lpinyin/lpinyin.dart';
+
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/page/chat/chat_logic.dart';
 import 'package:imboy/page/contact/contact_logic.dart';
 import 'package:imboy/service/assets.dart';
-import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/contact_model.dart';
-import 'package:lpinyin/lpinyin.dart';
 
+// ignore: must_be_immutable
 class SelectFriendPage extends StatefulWidget {
   final Map<String, String> peer;
 
-  final bool peerIsReciver;
+  final bool peerIsReceiver;
 
   const SelectFriendPage({
     Key? key,
     required this.peer,
-    this.peerIsReciver = false,
+    this.peerIsReceiver = false,
   }) : super(key: key);
 
   @override
@@ -36,7 +37,8 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
 
   RxList<ContactModel> contactList = RxList<ContactModel>();
 
-  final ChatLogic chatLogic = Get.put(ChatLogic());
+  // ignore: prefer_collection_literals
+  RxSet currIndexBarData = Set().obs;
 
   @override
   void initState() {
@@ -62,10 +64,13 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
       list[i].namePinyin = pinyin;
       if (RegExp("[A-Z]").hasMatch(tag)) {
         list[i].nameIndex = tag;
+        currIndexBarData.add(tag);
       } else {
         list[i].nameIndex = "#";
       }
     }
+    currIndexBarData.add('#');
+
     // A-Z sort.
     SuspensionUtil.sortListBySuspensionTag(contactList);
 
@@ -122,7 +127,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
       content: SizedBox(
         height: 164,
         child: n.Column([
-          widget.peerIsReciver
+          widget.peerIsReceiver
               ? n.Row([
                   Avatar(
                     imgUri: model.avatar,
@@ -167,7 +172,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
           Expanded(
             child: Text(
               // visit_card
-              widget.peerIsReciver
+              widget.peerIsReceiver
                   ? "[${'个人名片'.tr}]${widget.peer['nickname']}"
                   : "[${'个人名片'.tr}]${model.nickname}",
               style: const TextStyle(color: AppColors.TipColor),
@@ -304,7 +309,10 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
                   return Get.find<ContactLogic>()
                       .getSusItem(context, model.getSuspensionTag());
                 },
-                indexBarData: const ['↑', ...kIndexBarData],
+                // indexBarData: const ['↑', ...kIndexBarData],
+                indexBarData: contactList.isNotEmpty
+                    ? ['↑', ...currIndexBarData.toList()]
+                    : [],
                 indexBarOptions: IndexBarOptions(
                   needRebuild: true,
                   ignoreDragCancel: true,
@@ -340,7 +348,6 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
 
   @override
   void dispose() {
-    Get.delete<ChatLogic>();
     super.dispose();
   }
 }

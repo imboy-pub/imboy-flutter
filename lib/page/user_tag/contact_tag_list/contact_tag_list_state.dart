@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-class ContactTagState {
+class ContactTagListState {
 
   RxList items = [].obs;
 
@@ -14,7 +14,7 @@ class ContactTagState {
 
   TextEditingController searchController = TextEditingController();
 
-  ContactTagState() {
+  ContactTagListState() {
     ///Initialize variables
   }
 }

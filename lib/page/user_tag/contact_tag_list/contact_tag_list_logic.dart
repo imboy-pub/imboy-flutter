@@ -10,10 +10,10 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/repository/user_tag_relation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_tag_repo_sqlite.dart';
 
-import 'contact_tag_state.dart';
+import 'contact_tag_list_state.dart';
 
-class ContactTagLogic extends GetxController {
-  final ContactTagState state = ContactTagState();
+class ContactTagListLogic extends GetxController {
+  final ContactTagListState state = ContactTagListState();
 
   Future<List<UserTagModel>> page(
       {int page = 1, int size = 10, String? kind, String? kwd}) async {
@@ -128,6 +128,15 @@ class ContactTagLogic extends GetxController {
       String sql = "UPDATE ${UserCollectRepo.tableName} SET ${UserCollectRepo.tag} = REPLACE(${UserCollectRepo.tag}, '${oldName},', '${newName},') WHERE 1 = 1;";
       return await SqliteService.to.execute(sql);
     }
+    return null;
+  }
 
+  Future<int?> replaceTagSubtitle({required UserTagModel tag, required String oldName, required String newName}) async {
+    if (newName.isNotEmpty && newName.endsWith(',') == false) {
+      newName = "$newName,";
+    }
+    String old = '${tag.subtitle},';
+    String sql = "UPDATE ${UserTagRepo.tableName} SET ${UserTagRepo.subtitle} = REPLACE('$old}', '$oldName,', '$newName') WHERE ${UserTagRepo.userId} = '${UserRepoLocal.to.currentUid}' and ${UserTagRepo.tagId} = ${tag.tagId};";
+    return await SqliteService.to.execute(sql);
   }
 }

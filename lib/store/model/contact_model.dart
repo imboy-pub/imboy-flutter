@@ -84,7 +84,8 @@ class ContactModel extends ISuspensionBean {
   Color? bgColor;
   Widget? iconData;
   String? firstLetter;
-  bool selected = false;
+
+  RxBool selected = false.obs;
 
   final VoidCallback? onPressed;
   final VoidCallback? onLongPressed;

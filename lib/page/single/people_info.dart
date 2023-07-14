@@ -48,19 +48,21 @@ class PeopleInfoPage extends StatelessWidget {
     ContactModel? ct = await ContactRepo().findByUid(id);
     // debugPrint("> on cdv initData $id");
     // debugPrint("> on cdv initData ${ct?.toJson().toString()}");
-    title.value = ct!.title;
-    nickname.value = ct.nickname;
-    avatar.value = ct.avatar;
-    account.value = ct.account;
-    region.value = ct.region;
-    sign.value = ct.sign;
-    source.value = ct.source;
-    gender.value = ct.gender;
-    remark.value = ct.remark;
-    tag.value = ct.tag;
-    isFriend.value = ct.isFriend;
-    isFrom.value = ct.isFrom;
-    tag.value = ct.tag;
+    if (ct != null) {
+      title.value = ct.title;
+      nickname.value = ct.nickname;
+      avatar.value = ct.avatar;
+      account.value = ct.account;
+      region.value = ct.region;
+      sign.value = ct.sign;
+      source.value = ct.source;
+      gender.value = ct.gender;
+      remark.value = ct.remark;
+      tag.value = ct.tag;
+      isFriend.value = ct.isFriend;
+      isFrom.value = ct.isFrom;
+      tag.value = ct.tag;
+    }
   }
 
   @override

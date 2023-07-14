@@ -2,9 +2,10 @@ import 'package:fluent_ui/fluent_ui.dart' as fl;
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/user_tag/user_tag_view.dart';
+import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'contact_setting_tag_logic.dart';
@@ -193,7 +194,12 @@ class ContactSettingTagPage extends StatelessWidget {
                       color: Colors.black.withOpacity(0.8),
                     ),
                     child: fl.TextBox(
-                      placeholder: peerTag.isEmpty ? '添加标签'.tr : (peerTag.value.endsWith(',') ? peerTag.value.substring(0, peerTag.value.length - 1) : peerTag.value),
+                      placeholder: peerTag.isEmpty
+                          ? '添加标签'.tr
+                          : (peerTag.value.endsWith(',')
+                              ? peerTag.value
+                                  .substring(0, peerTag.value.length - 1)
+                              : peerTag.value),
                       placeholderStyle: const TextStyle(
                         fontSize: 14.0,
                         color: Colors.black,
@@ -211,14 +217,15 @@ class ContactSettingTagPage extends StatelessWidget {
                       maxLines: 8,
                       onTap: () {
                         Get.to(
-                          () => UserTagPage(
-                              peerId: peerId, peerTag: peerTag.value),
+                          () => UserTagRelationPage(
+                            peerId: peerId,
+                            peerTag: peerTag.value,
+                          ),
                           // () => TagAddPage(peerId:peerId, peerTag:'标签1, 标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,ABCD'),
                           transition: Transition.rightToLeft,
                           popGesture: true, // 右滑，返回上一页
                         )?.then((value) {
-                          debugPrint(
-                              "ContactSettingTagPage_TagAddPage_back then $value");
+                          iPrint("ContactSettingTagPage_TagAddPage_back then $value");
                           if (value != null && value is String) {
                             peerTag.value = value.toString();
                           }

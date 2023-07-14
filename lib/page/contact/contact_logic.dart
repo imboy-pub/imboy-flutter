@@ -6,11 +6,11 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/page/chat/chat_view.dart';
-import 'package:imboy/page/contact/contact_tag/contact_tag_view.dart';
 import 'package:imboy/page/friend/new_friend_view.dart';
 import 'package:imboy/page/group/group_list/group_list_view.dart';
 import 'package:imboy/page/people_nearby/people_nearby_view.dart';
 import 'package:imboy/page/single/people_info.dart';
+import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -19,6 +19,9 @@ import 'package:lpinyin/lpinyin.dart';
 class ContactLogic extends GetxController {
   RxList<ContactModel> contactList = RxList<ContactModel>();
 
+  // ignore: prefer_collection_literals
+  RxSet currIndexBarData = Set().obs;
+
   void handleList(List<ContactModel> list) {
     for (int i = 0; i < list.length; i++) {
       String pinyin = PinyinHelper.getPinyinE(list[i].title);
@@ -26,15 +29,19 @@ class ContactLogic extends GetxController {
       list[i].namePinyin = pinyin;
       if (RegExp("[A-Z]").hasMatch(tag)) {
         list[i].nameIndex = tag;
+        currIndexBarData.add(tag);
       } else {
-        list[i].nameIndex = "#";
+        list[i].nameIndex = '#';
       }
     }
+    currIndexBarData.add('#');
+
     // A-Z sort.
     SuspensionUtil.sortListBySuspensionTag(list);
 
     // show sus tag.
     SuspensionUtil.setShowSuspensionStatus(list);
+
     final List<ContactModel> topList = [
       ContactModel(
         peerId: "people_nearby",
@@ -131,7 +138,7 @@ class ContactLogic extends GetxController {
         ),
         onPressed: () {
           Get.to(
-            () => ContactTagPage(),
+            () => ContactTagListPage(),
             transition: Transition.rightToLeft,
             popGesture: true, // 右滑，返回上一页
           );
@@ -148,6 +155,7 @@ class ContactLogic extends GetxController {
     ];
     // add topList.
     list.insertAll(0, topList);
+
     //
     contactList.value = list;
   }

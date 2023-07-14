@@ -14,17 +14,17 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/tag.dart';
 import 'package:imboy/config/const.dart';
 
-import 'user_tag_logic.dart';
+import 'user_tag_relation_logic.dart';
 
 // ignore: must_be_immutable
-class UserTagPage extends StatelessWidget {
+class UserTagRelationPage extends StatelessWidget {
   final String peerId; // 用户ID
 
   String peerTag;
   final Color tagBackgroundColor;
   final Color tagSelectedBackgroundColor;
 
-  UserTagPage({
+  UserTagRelationPage({
     super.key,
     required this.peerId,
     required this.peerTag,
@@ -32,8 +32,8 @@ class UserTagPage extends StatelessWidget {
     this.tagSelectedBackgroundColor = const Color(0xFF649BEC),
   });
 
-  final logic = Get.put(TagAddLogic());
-  final state = Get.find<TagAddLogic>().state;
+  final logic = Get.put(UserTagRelationLogic());
+  final state = Get.find<UserTagRelationLogic>().state;
 
   Future<void> initData() async {
     state.tagItems.value =
@@ -324,7 +324,8 @@ class UserTagPage extends StatelessWidget {
               state.tagController.removeTag = item;
               state.tagItems.value = state.tagController.getTags!;
             }
-            // state.tagController.notifyListeners();
+            // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+            state.tagController.notifyListeners();
             // debugPrint("tag_add_page_onSelected $selected, $item");
           },
         )

@@ -22,6 +22,9 @@ class DenylistLogic extends GetxController {
 
   RxList<DenylistModel> items = RxList<DenylistModel>();
 
+  // ignore: prefer_collection_literals
+  RxSet currIndexBarData = Set().obs;
+
   void handleList(List<DenylistModel> list) {
     for (int i = 0; i < list.length; i++) {
       String pinyin = PinyinHelper.getPinyinE(list[i].title);
@@ -29,10 +32,13 @@ class DenylistLogic extends GetxController {
       list[i].namePinyin = pinyin;
       if (RegExp("[A-Z]").hasMatch(tag)) {
         list[i].nameIndex = tag;
+        currIndexBarData.add(tag);
       } else {
         list[i].nameIndex = "#";
       }
     }
+    currIndexBarData.add('#');
+
     // A-Z sort.
     SuspensionUtil.sortListBySuspensionTag(list);
 

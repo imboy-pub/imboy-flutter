@@ -3,13 +3,12 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/search/search_view.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'contact_logic.dart';
 
@@ -92,7 +91,10 @@ class ContactPage extends StatelessWidget {
                       return logic.getSusItem(
                           context, model.getSuspensionTag());
                     },
-                    indexBarData: const ['↑', ...kIndexBarData],
+                    // indexBarData: const ['↑', ...kIndexBarData],
+                    indexBarData: logic.contactList.isNotEmpty
+                        ? ['↑', ...logic.currIndexBarData.toList()]
+                        : [],
                     indexBarOptions: IndexBarOptions(
                       needRebuild: true,
                       ignoreDragCancel: true,

@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 // ignore: implementation_imports
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart' as getx;
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -140,7 +141,7 @@ class HttpClient {
   }) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
-      // getx.Get.snackbar("Tips", "网络连接异常get");
+      EasyLoading.showError('网络连接异常'.tr);
       return handleException(NetworkException());
     }
     try {
@@ -172,6 +173,11 @@ class HttpClient {
     ProgressCallback? onReceiveProgress,
     HttpTransformer? httpTransformer,
   }) async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      EasyLoading.showError('网络连接异常'.tr);
+      return handleException(NetworkException());
+    }
     try {
       await _setDefaultConfig();
       var response = await _dio.patch(
@@ -197,6 +203,11 @@ class HttpClient {
     CancelToken? cancelToken,
     HttpTransformer? httpTransformer,
   }) async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      EasyLoading.showError('网络连接异常'.tr);
+      return handleException(NetworkException());
+    }
     try {
       await _setDefaultConfig();
       var response = await _dio.delete(
@@ -220,6 +231,11 @@ class HttpClient {
     CancelToken? cancelToken,
     HttpTransformer? httpTransformer,
   }) async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      EasyLoading.showError('网络连接异常'.tr);
+      return handleException(NetworkException());
+    }
     try {
       await _setDefaultConfig();
       var response = await _dio.put(

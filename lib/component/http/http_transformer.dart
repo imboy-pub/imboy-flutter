@@ -16,7 +16,7 @@ class DefaultHttpTransformer extends HttpTransformer {
       return IMBoyHttpResponse.success(response.data["payload"]);
     } else {
       return IMBoyHttpResponse.failure(
-          errorMsg: response.data["msg"], errorCode: response.data["code"]);
+          errMsg: response.data["msg"], errCode: response.data["code"]);
     }
   }
 

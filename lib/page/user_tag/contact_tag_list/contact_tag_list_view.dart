@@ -8,21 +8,20 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/contact/contact_tag_detail/contact_tag_detail_view.dart';
-import 'package:imboy/page/user_tag/user_tag_update/user_tag_update_view.dart';
+import 'package:imboy/page/user_tag/contact_tag_detail/contact_tag_detail_view.dart';
+import 'package:imboy/page/user_tag/user_tag_save/user_tag_save_view.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:niku/namespace.dart' as n;
 
-import 'contact_tag_logic.dart';
+import 'contact_tag_list_logic.dart';
 
 // ignore: must_be_immutable
-class ContactTagPage extends StatelessWidget {
-
-  final logic = Get.put(ContactTagLogic());
-  final state = Get.find<ContactTagLogic>().state;
+class ContactTagListPage extends StatelessWidget {
+  final logic = Get.put(ContactTagListLogic());
+  final state = Get.find<ContactTagListLogic>().state;
   ScrollController controller = ScrollController();
 
-  ContactTagPage({super.key});
+  ContactTagListPage({super.key});
 
   void initData() async {
     state.page = 1;
@@ -58,6 +57,26 @@ class ContactTagPage extends StatelessWidget {
       backgroundColor: AppColors.ChatBg,
       appBar: PageAppBar(
         title: '联系人标签'.tr,
+        rightDMActions: <Widget>[
+          InkWell(
+            child: const SizedBox(
+              width: 46.0,
+              child: Icon(
+                Icons.add,
+                color: Colors.black54,
+              ),
+            ),
+            onTap: () {
+              // Get.close(0);
+              Get.bottomSheet(
+                n.Padding(
+                  // top: 80,
+                  child: UserTagSavePage(scene: 'friend'),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: RefreshIndicator(
         // color: Colors.white,
@@ -141,8 +160,10 @@ class ContactTagPage extends StatelessWidget {
                                             Get.bottomSheet(
                                               n.Padding(
                                                 // top: 80,
-                                                child: UserTagUpdatePage(
-                                                    tag: obj, scene: 'friend',),
+                                                child: UserTagSavePage(
+                                                  tag: obj,
+                                                  scene: 'friend',
+                                                ),
                                               ),
                                             );
                                           },
@@ -186,23 +207,44 @@ class ContactTagPage extends StatelessWidget {
                                                     Center(
                                                       child: TextButton(
                                                         onPressed: () async {
-                                                          const String scene = 'friend';
-                                                          bool res = await logic.deleteTag(
-                                                              tagId: obj.tagId, tagName: obj.name, scene: scene);
+                                                          const String scene =
+                                                              'friend';
+                                                          bool res = await logic
+                                                              .deleteTag(
+                                                                  tagId:
+                                                                      obj.tagId,
+                                                                  tagName:
+                                                                      obj.name,
+                                                                  scene: scene);
                                                           if (res) {
-                                                            Get.find<ContactTagLogic>().replaceObjectTag(scene: scene, oldName:obj.name, newName: '');
+                                                            Get.find<
+                                                                    ContactTagListLogic>()
+                                                                .replaceObjectTag(
+                                                                    scene:
+                                                                        scene,
+                                                                    oldName: obj
+                                                                        .name,
+                                                                    newName:
+                                                                        '');
 
                                                             final index = state
                                                                 .items
-                                                                .indexWhere((e) => e.tagId == obj.tagId);
+                                                                .indexWhere((e) =>
+                                                                    e.tagId ==
+                                                                    obj.tagId);
                                                             if (index > -1) {
-                                                              state
-                                                                  .items.removeAt(index);
+                                                              state.items
+                                                                  .removeAt(
+                                                                      index);
                                                             }
                                                             Get.close(1);
-                                                            EasyLoading.showSuccess('操作成功'.tr);
+                                                            EasyLoading
+                                                                .showSuccess(
+                                                                    '操作成功'.tr);
                                                           } else {
-                                                            EasyLoading.showError('操作失败'.tr);
+                                                            EasyLoading
+                                                                .showError(
+                                                                    '操作失败'.tr);
                                                           }
                                                         },
                                                         child: Text(
@@ -279,7 +321,8 @@ class ContactTagPage extends StatelessWidget {
                                         onTap: () {
                                           // Tag详情
                                           Get.to(
-                                            () => ContactTagDetailPage(tag: obj),
+                                            () =>
+                                                ContactTagDetailPage(tag: obj),
                                             transition: Transition.rightToLeft,
                                             popGesture: true, // 右滑，返回上一页
                                           );
@@ -302,15 +345,19 @@ class ContactTagPage extends StatelessWidget {
                                             ),
                                           ]),
                                           n.Row([
-                                            Text(
-                                              obj.subtitle,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: const TextStyle(
-                                                color: AppColors.MainTextColor,
-                                                fontSize: 14.0,
-                                              ),
-                                            ),
+                                            Expanded(
+                                                flex: 1,
+                                                child: Text(
+                                                  obj.subtitle,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                    color:
+                                                        AppColors.MainTextColor,
+                                                    fontSize: 14.0,
+                                                  ),
+                                                )),
                                           ]),
                                         ]),
                                       ),

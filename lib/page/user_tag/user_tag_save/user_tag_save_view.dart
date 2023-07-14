@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/contact/contact_tag/contact_tag_logic.dart';
-import 'package:imboy/page/contact/contact_tag_detail/contact_tag_detail_logic.dart';
+import 'package:imboy/page/user_tag/contact_tag_detail/contact_tag_detail_logic.dart';
+import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_logic.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
-import 'user_tag_update_logic.dart';
+import 'user_tag_save_logic.dart';
 
 // ignore: must_be_immutable
-class UserTagUpdatePage extends StatelessWidget {
-  UserTagModel tag;
+class UserTagSavePage extends StatelessWidget {
+  UserTagModel? tag;
   final String scene;
 
-  UserTagUpdatePage({
+  UserTagSavePage({
     super.key,
-    required this.tag,
+    this.tag,
     required this.scene,
   });
 
@@ -25,7 +27,7 @@ class UserTagUpdatePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final logic = Get.put(UserTagUpdateLogic());
     final state = Get.find<UserTagUpdateLogic>().state;
-    state.textController.text = tag.name;
+    state.textController.text = tag?.name ?? '';
 
     return Scaffold(
         // 输入框(TextField)被键盘遮挡解决方案
@@ -37,7 +39,7 @@ class UserTagUpdatePage extends StatelessWidget {
             },
             child: const Icon(Icons.close),
           ),
-          title: '更改标签名称'.tr,
+          title: tag == null ? '新建标签'.tr : '更改标签名称'.tr,
           // rightDMActions: [],
         ),
         body: SizedBox(
@@ -95,10 +97,13 @@ class UserTagUpdatePage extends StatelessWidget {
                     },
                     //style: ,
                     onChanged: (val) {
-                      if (tag.name == val) {
+                      if (tag?.name == val) {
                         state.valueChanged.value = false;
                       } else {
                         state.valueChanged.value = true;
+                      }
+                      if (val.isEmpty) {
+                        state.valueChanged.value = false;
                       }
                     },
                     onSaved: (value) {},
@@ -114,26 +119,49 @@ class UserTagUpdatePage extends StatelessWidget {
                         String trimmedText = state.textController.text.trim();
                         if (trimmedText == '') {
                           state.valueChanged.value = false;
+                        } else if (tag == null) {
+                          int tagId = await logic.addTag(
+                            scene: scene,
+                            tagName: trimmedText,
+                          );
+                          if (tagId > 0) {
+                            tag = UserTagModel(
+                              userId: UserRepoLocal.to.currentUid,
+                              tagId: tagId,
+                              scene: 2,
+                              name: trimmedText,
+                              subtitle: '',
+                              refererTime: 0,
+                              updatedAt: 0,
+                              createdAt: DateTimeHelper.currentTimeMillis(),
+                            );
+                            Get.find<ContactTagListLogic>()
+                                .state
+                                .items.insert(0, tag);
+                            Get.back();
+                          } else {
+
+                          }
                         } else {
                           debugPrint("submit_trimmedText $trimmedText");
                           bool res = await logic.changeName(
                             scene: scene,
-                            tagId: tag.tagId,
+                            tagId: tag?.tagId ?? 0,
                             tagName: trimmedText,
                           );
                           if (res) {
                             Get.back();
-                            Get.find<ContactTagLogic>().replaceObjectTag(
+                            Get.find<ContactTagListLogic>().replaceObjectTag(
                                 scene: scene,
-                                oldName: tag.name,
+                                oldName: tag?.name ?? '',
                                 newName: trimmedText);
-                            final index = Get.find<ContactTagLogic>()
+                            final index = Get.find<ContactTagListLogic>()
                                 .state
                                 .items
-                                .indexWhere((e) => e.tagId == tag.tagId);
+                                .indexWhere((e) => e.tagId == tag?.tagId);
                             if (index > -1) {
-                              tag.name = trimmedText;
-                              Get.find<ContactTagLogic>()
+                              tag?.name = trimmedText;
+                              Get.find<ContactTagListLogic>()
                                   .state
                                   .items
                                   .setRange(index, index + 1, [tag]);
@@ -147,8 +175,6 @@ class UserTagUpdatePage extends StatelessWidget {
                               //
                             }
                             EasyLoading.showSuccess('操作成功'.tr);
-                          } else {
-                            EasyLoading.showError('操作失败'.tr);
                           }
                         }
                       },

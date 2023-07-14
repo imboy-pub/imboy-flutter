@@ -20,7 +20,7 @@ IMBoyHttpResponse handleResponse(Response? response,
 
   // token失效
   if (_isTokenTimeout(response.statusCode)) {
-    return IMBoyHttpResponse.failureFromError(UnauthorisedException(
+    return IMBoyHttpResponse.failureFromError(error: UnauthorisedException(
       message: "没有权限",
       code: response.statusCode,
     ));
@@ -31,8 +31,8 @@ IMBoyHttpResponse handleResponse(Response? response,
   } else {
     // 接口调用失败
     return IMBoyHttpResponse.failure(
-      errorMsg: response.statusMessage,
-      errorCode: response.statusCode,
+      errMsg: response.statusMessage,
+      errCode: response.statusCode,
     );
   }
 }
@@ -40,7 +40,7 @@ IMBoyHttpResponse handleResponse(Response? response,
 IMBoyHttpResponse handleException(Exception exception) {
   var parseException = _parseException(exception);
   debugPrint("> on handleException: ${parseException.message.toString()}");
-  return IMBoyHttpResponse.failureFromError(parseException);
+  return IMBoyHttpResponse.failureFromError(error: parseException);
 }
 
 /// 鉴权失败

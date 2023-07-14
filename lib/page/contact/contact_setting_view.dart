@@ -125,7 +125,7 @@ class ContactSettingPage extends StatelessWidget {
                     // “右滑返回上一页”功能
                     builder: (_) => SelectFriendPage(
                       peer: peer,
-                      peerIsReciver: true,
+                      peerIsReceiver: true,
                     ),
                   ),
                 );

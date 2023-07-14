@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 
-class UserTagState {
+class UserTagRelationState {
 
   RxBool loaded = false.obs;
 
