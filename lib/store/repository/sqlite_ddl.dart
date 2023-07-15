@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:imboy/store/repository/user_tag_relation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_tag_repo_sqlite.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -26,7 +25,7 @@ class SqliteDdl {
         ${ContactRepo.account} varchar(40) NOT NULL DEFAULT '',
         ${ContactRepo.status} varchar(20) NOT NULL DEFAULT '',
         ${ContactRepo.remark} varchar(255) DEFAULT '',
-        ${ContactRepo.tag} varchar(800) DEFAULT '',
+        ${ContactRepo.tag} varchar(1600) DEFAULT '',
         ${ContactRepo.region} varchar(80) DEFAULT '',
         ${ContactRepo.sign} varchar(255) NOT NULL DEFAULT '',
         ${ContactRepo.source} varchar(40) NOT NULL DEFAULT '',
@@ -231,7 +230,7 @@ class SqliteDdl {
         ${UserCollectRepo.kindId} varchar(40) NOT NULL DEFAULT '',
         ${UserCollectRepo.source} varchar(255) NOT NULL DEFAULT '',
         ${UserCollectRepo.remark} varchar(255) NOT NULL DEFAULT '',
-        ${UserCollectRepo.tag} varchar(800) NOT NULL DEFAULT '',
+        ${UserCollectRepo.tag} varchar(1600) NOT NULL DEFAULT '',
         ${UserCollectRepo.updatedAt} int(16) NOT NULL DEFAULT 0,
         ${UserCollectRepo.createdAt} int(16) NOT NULL DEFAULT 0,
         ${UserCollectRepo.info} text DEFAULT '',
@@ -286,25 +285,25 @@ class SqliteDdl {
     debugPrint("> on _onCreate \n$userTagSql\n");
     await db.execute(userTagSql);
 
-    String userTagRelationSql = '''
-      CREATE TABLE IF NOT EXISTS ${UserTagRelationRepo.tableName} (
-        auto_id INTEGER,
-        ${UserTagRelationRepo.userId} varchar(40) NOT NULL,
-        ${UserTagRelationRepo.tagId} int(16) NOT NULL DEFAULT '',
-        ${UserTagRelationRepo.scene} int(8) NOT NULL DEFAULT '',
-        ${UserTagRelationRepo.objectId} varchar(40) NOT NULL DEFAULT '',
-        ${UserTagRelationRepo.createdAt} int(16) NOT NULL DEFAULT 0,
-        PRIMARY KEY("auto_id"),
-        CONSTRAINT uk_user_tag_Scene_UserId_ObjectId_TagId UNIQUE (
-            ${UserTagRelationRepo.scene},
-            ${UserTagRelationRepo.userId},
-            ${UserTagRelationRepo.objectId},
-            ${UserTagRelationRepo.tagId}
-        )
-        );
-      ''';
-    debugPrint("> on _onCreate \n$userTagRelationSql\n");
-    await db.execute(userTagRelationSql);
+    // String userTagRelationSql = '''
+    //   CREATE TABLE IF NOT EXISTS ${UserTagRelationRepo.tableName} (
+    //     auto_id INTEGER,
+    //     ${UserTagRelationRepo.userId} varchar(40) NOT NULL,
+    //     ${UserTagRelationRepo.tagId} int(16) NOT NULL DEFAULT '',
+    //     ${UserTagRelationRepo.scene} int(8) NOT NULL DEFAULT '',
+    //     ${UserTagRelationRepo.objectId} varchar(40) NOT NULL DEFAULT '',
+    //     ${UserTagRelationRepo.createdAt} int(16) NOT NULL DEFAULT 0,
+    //     PRIMARY KEY("auto_id"),
+    //     CONSTRAINT uk_user_tag_Scene_UserId_ObjectId_TagId UNIQUE (
+    //         ${UserTagRelationRepo.scene},
+    //         ${UserTagRelationRepo.userId},
+    //         ${UserTagRelationRepo.objectId},
+    //         ${UserTagRelationRepo.tagId}
+    //     )
+    //     );
+    //   ''';
+    // debugPrint("> on _onCreate \n$userTagRelationSql\n");
+    // await db.execute(userTagRelationSql);
   }
 
   static Future onUpgrade(Database db, int oldVsn, int newVsn) async {

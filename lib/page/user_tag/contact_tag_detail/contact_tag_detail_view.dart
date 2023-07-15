@@ -289,7 +289,7 @@ class ContactTagDetailPage extends StatelessWidget {
                 // queryTips: '收藏人名、群名、标签等'.tr,
                 onChanged: ((query) {
                   state.kwd.value = query;
-                  debugPrint("contact_tag_view_onChanged ${query.toString()}");
+                  // debugPrint("contact_tag_view_onChanged ${query.toString()}");
                   logic.doSearch(
                       onRefresh: false,
                       query: state.kwd.value,
@@ -695,15 +695,19 @@ class SelectFriendPage extends StatelessWidget {
                 onPressed: () async {
                   const String scene = 'friend';
                   bool res = await Get.find<ContactTagDetailLogic>().setObject(
-                      scene: scene,
-                      tagId: tag.tagId,
-                      tagName: tag.name,
-                      selectedContact: selectedContact);
-                  // setObject
+                    scene: scene,
+                    tagId: tag.tagId,
+                    tagName: tag.name,
+                    selectedContact: selectedContact,
+                    tagContactList: tagContactList,
+                  );
                   if (res) {
+                    tag.refererTime = selectedContact.length;
+                    Get.find<ContactTagListLogic>().updateTag(tag);
                     Get.find<ContactTagDetailLogic>().state.contactList.value =
                         selectedContact;
-                    // TODO 2023-07-14 19:00:17 同步数据状态
+                    Get.find<ContactTagDetailLogic>().state.refererTime.value =
+                        selectedContact.length;
                     Get.close(1);
                     EasyLoading.showSuccess('操作成功'.tr);
                   } else {

@@ -1,5 +1,7 @@
 import 'package:azlistview/azlistview.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/contact/contact_logic.dart';
+import 'package:imboy/store/repository/user_tag_repo_sqlite.dart';
 import 'package:lpinyin/lpinyin.dart';
 
 import 'package:imboy/component/helper/func.dart';
@@ -93,19 +95,24 @@ class ContactTagDetailLogic extends GetxController {
       required String tagName,
       required String scene}) async {
     // return true;
-    bool res = await (UserTagProvider())
-        .removeRelation(tagId: tagId, scene: scene, objectId: objectId);
+    bool res = await (UserTagProvider()).removeRelation(
+      tagId: tagId,
+      scene: scene,
+      objectId: objectId,
+    );
     if (res) {
-      ContactRepo().remoteTag(peerId: objectId, tagName: tagName);
+      ContactRepo().removeTag(peerId: objectId, tagName: tagName);
     }
     return res;
   }
 
-  Future<bool> setObject(
-      {required String scene,
-      required int tagId,
-      required String tagName,
-      required RxList<ContactModel> selectedContact}) async {
+  Future<bool> setObject({
+    required String scene,
+    required int tagId,
+    required String tagName,
+    required RxList<ContactModel> selectedContact, // 标签重新选择的联系人列表
+    required List<ContactModel> tagContactList, // 标签之前选择的联系人列表
+  }) async {
     List<String> objectIds = [];
     for (var e in selectedContact) {
       objectIds.add(e.peerId);
@@ -116,9 +123,40 @@ class ContactTagDetailLogic extends GetxController {
       scene: scene,
       objectIds: objectIds,
     );
-    // if (res) {
-    //   ContactRepo().remoteTag(peerId: objectId, tagName: tagName);
-    // }
+    if (res) {
+      await UserTagRepo().update({
+        UserTagRepo.tagId: tagId,
+        UserTagRepo.refererTime: selectedContact.length,
+      });
+      List<String> oldObjectIds = [];
+      // 处理处理移除情况
+      for (var e in tagContactList) {
+        oldObjectIds.add(e.peerId);
+        if (!objectIds.contains(e.peerId)) {
+          ContactRepo().removeTag(peerId: e.peerId, tagName: tagName);
+          e.tag = e.tag.replaceAll("$tagName,", '');
+          replaceContactList(e);
+        }
+      }
+
+      // 新增的情况
+      for (var e in selectedContact) {
+        if (!oldObjectIds.contains(e.peerId)) {
+          ContactRepo().addTag(peerId: e.peerId, tagName: tagName);
+          e.tag = "$tagName,${e.tag}";
+          replaceContactList(e);
+        }
+      }
+    }
     return res;
+  }
+
+  replaceContactList(ContactModel e) {
+    final index = Get.find<ContactLogic>()
+        .contactList
+        .indexWhere((e2) => e2.peerId == e.peerId);
+    if (index > -1) {
+      Get.find<ContactLogic>().contactList.replaceRange(index, index + 1, [e]);
+    }
   }
 }

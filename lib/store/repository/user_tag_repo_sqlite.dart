@@ -21,6 +21,9 @@ class UserTagRepo {
   Future<List<UserTagModel>> page({
     int limit = 1000,
     int offset = 0,
+    String where = "",
+    List<Object?>? whereArgs,
+    String? orderBy,
   }) async {
     List<Map<String, dynamic>> maps = await _db.query(
       UserTagRepo.tableName,
@@ -34,13 +37,14 @@ class UserTagRepo {
         UserTagRepo.updatedAt,
         UserTagRepo.createdAt,
       ],
-      where: '${UserTagRepo.userId}=?',
-      whereArgs: [UserRepoLocal.to.currentUid],
-      orderBy: "${UserTagRepo.updatedAt} desc",
+      where: where,
+      whereArgs: whereArgs,
+      orderBy: orderBy,
       limit: limit,
       offset: offset,
     );
-    debugPrint("> on page ${maps.length}, ${maps.toList().toString()}");
+    debugPrint(
+        "UserTagRepo_page repo ${maps.length} $where, ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }
@@ -64,8 +68,7 @@ class UserTagRepo {
       UserTagRepo.updatedAt: obj.updatedAt,
       UserTagRepo.createdAt: obj.createdAt,
     };
-    debugPrint("> on UserTagRepo/insert/1 $insert");
-
+    debugPrint("UserTagRepo/insert/1 $insert");
     await _db.insert(UserTagRepo.tableName, insert);
     return obj;
   }
@@ -100,12 +103,12 @@ class UserTagRepo {
       data[UserTagRepo.updatedAt] = updatedAt;
     }
     int tagId = json[UserTagRepo.tagId] ?? (json['id'] ?? 0);
+    iPrint("UserTagRepo_update ${data.toString()};");
     if (tagId > 0) {
       return await _db.update(
         UserTagRepo.tableName,
         data,
-        where:
-        '${UserTagRepo.userId} = ? and ${UserTagRepo.tagId} = ?',
+        where: '${UserTagRepo.userId} = ? and ${UserTagRepo.tagId} = ?',
         whereArgs: [UserRepoLocal.to.currentUid, tagId],
       );
     } else {
@@ -115,7 +118,9 @@ class UserTagRepo {
 
   Future<UserTagModel> save(Map<String, dynamic> json) async {
     int tagId = json[UserTagRepo.tagId] ?? (json['id'] ?? 0);
+    // iPrint("UserTagRepo_save $tagId");
     UserTagModel? old = await findByTagId(tagId);
+    iPrint("UserTagRepo_save $tagId, ${old?.toMap().toString()};");
     if (old == null) {
       UserTagModel model = UserTagModel.fromJson(json);
       await insert(model);
@@ -139,6 +144,7 @@ class UserTagRepo {
       return null;
     }
   }
+
 // 记得及时关闭数据库，防止内存泄漏
 // close() async {
 //   await _db.close();

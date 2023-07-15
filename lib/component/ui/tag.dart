@@ -7,6 +7,7 @@ class TagItem extends StatelessWidget {
 
   final Color backgroundColor;
   final Color selectedBackgroundColor;
+  final Color tagSelectedColor;
 
   const TagItem({
     Key? key,
@@ -14,6 +15,7 @@ class TagItem extends StatelessWidget {
     required this.onTagDelete,
     this.backgroundColor = const Color(0xfff8f8f8),
     this.selectedBackgroundColor = const Color(0xFF649BEC),
+    this.tagSelectedColor = const Color(0xFF649BEC),
   }) : super(key: key);
 
   @override
@@ -25,20 +27,21 @@ class TagItem extends StatelessWidget {
         ),
         color: selectedBackgroundColor,
       ),
-      margin: const EdgeInsets.only(right: 10.0),
+      margin: const EdgeInsets.only(right: 10.0, top: 6, bottom: 6),
       padding: const EdgeInsets.symmetric(
         horizontal: 10.0,
         vertical: 4.0,
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           InkWell(
             child: Text(
               tag,
               style: TextStyle(
                 fontSize: 18,
-                color: backgroundColor,
+                color: tagSelectedColor,
               ),
             ),
             onTap: () {
@@ -50,7 +53,7 @@ class TagItem extends StatelessWidget {
             child: Icon(
               Icons.cancel,
               size: 14.0,
-              color: backgroundColor,
+              color: tagSelectedColor,
             ),
             onTap: () {
               onTagDelete(tag);

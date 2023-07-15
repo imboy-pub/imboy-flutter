@@ -287,6 +287,7 @@ class ContactLogic extends GetxController {
       'remark': data['remark'] ?? '',
       'region': data['region'],
       'source': data['source'],
+      ContactRepo.tag: data[ContactRepo.tag] ?? '',
       ContactRepo.isFrom: 1,
       ContactRepo.isFriend: 1,
     };

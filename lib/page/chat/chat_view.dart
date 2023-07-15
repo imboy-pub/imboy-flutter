@@ -139,8 +139,7 @@ class ChatPageState extends State<ChatPage> {
 
     // 接收到新的消息订阅
     eventBus.on<types.Message>().listen((types.Message msg) async {
-      final index =
-          logic.state.messages.indexWhere((element) => element.id == msg.id);
+      final index = logic.state.messages.indexWhere((e) => e.id == msg.id);
       if (index == -1 && msg.author.id == widget.peerId) {
         if (msg is types.ImageMessage) {
           galleryLogic.pushToGallery(msg.id, msg.uri);

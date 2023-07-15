@@ -261,6 +261,10 @@ class ContactRepo {
       data[ContactRepo.source] = json[ContactRepo.source];
     }
 
+    if (strNoEmpty(json[ContactRepo.tag])) {
+      data[ContactRepo.tag] = json[ContactRepo.tag];
+    }
+
     if (json.containsKey(ContactRepo.gender)) {
       data[ContactRepo.gender] = json[ContactRepo.gender];
     }
@@ -314,11 +318,21 @@ class ContactRepo {
     );
   }
 
-  Future<int> remoteTag({required String peerId, required String tagName}) async {
-    String sql = "UPDATE ${ContactRepo.tableName} SET ${ContactRepo.tag} = REPLACE(${ContactRepo.tag}, '$tagName,', '') WHERE ${ContactRepo.userId} = '${UserRepoLocal.to.currentUid}' and ${ContactRepo.peerId} = '$peerId';";
-    iPrint("remoteTag $sql");
+  Future<int> removeTag(
+      {required String peerId, required String tagName}) async {
+    String sql =
+        "UPDATE ${ContactRepo.tableName} SET ${ContactRepo.tag} = REPLACE(${ContactRepo.tag}, '$tagName,', '') WHERE ${ContactRepo.userId} = '${UserRepoLocal.to.currentUid}' and ${ContactRepo.peerId} = '$peerId';";
+    // iPrint("remoteTag $sql");
     return await SqliteService.to.execute(sql);
   }
+
+  Future<int> addTag({required String peerId, required String tagName}) async {
+    String sql =
+        "UPDATE ${ContactRepo.tableName} SET ${ContactRepo.tag} = '$tagName,' || ${ContactRepo.tag} WHERE ${ContactRepo.userId} = '${UserRepoLocal.to.currentUid}' and ${ContactRepo.peerId} = '$peerId';";
+    // iPrint("addTag $sql");
+    return await SqliteService.to.execute(sql);
+  }
+
 // 记得及时关闭数据库，防止内存泄漏
 // close() async {
 //   await _db.close();

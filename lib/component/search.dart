@@ -31,7 +31,7 @@ Widget searchBar(
   /// Invoked upon user input.
   final ValueChanged<String>? onChanged,
   final Null Function(dynamic value)? onTapForItem,
-  required Future<List<dynamic>> Function(dynamic query) doSearch,
+  Future<List<dynamic>> Function(dynamic query)? doSearch,
 }) {
   return SearchBar(
     leading: leading ?? const Icon(Icons.search),
@@ -74,7 +74,7 @@ class SearchBarDelegate extends SearchDelegate {
   final String? searchLabel;
   final String? queryTips;
 
-  final Future<dynamic> Function(dynamic arg1) doSearch;
+  final Future<dynamic> Function(dynamic arg1)? doSearch;
 
   /// 点击搜索结果项是触发的方法
   /// Clicking on a search result item is the trigger method
@@ -82,7 +82,7 @@ class SearchBarDelegate extends SearchDelegate {
 
   SearchBarDelegate({
     required this.onTapForItem,
-    required this.doSearch,
+    this.doSearch,
     this.searchLabel,
     this.queryTips,
   }) : super(
@@ -127,8 +127,10 @@ class SearchBarDelegate extends SearchDelegate {
     if (query.isEmpty) {
       return [];
     }
-    final data = doSearch(query);
-    return data;
+    if (doSearch == null) {
+      return [];
+    }
+    return doSearch!(query);
   }
 
   @override
