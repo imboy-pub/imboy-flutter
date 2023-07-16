@@ -52,8 +52,8 @@ class UserCollectLogic extends GetxController {
       List<Object?> whereArgs = [UserRepoLocal.to.currentUid];
       String? orderBy;
       if (kind == state.recentUse) {
-        orderBy = "${UserCollectRepo.updatedAt} desc";
-        where = "$where and ${UserCollectRepo.updatedAt} > 0";
+        orderBy = "${UserCollectRepo.updatedAt} desc, auto_id desc";
+        where = "$where and ${UserCollectRepo.updatedAt} >= 0";
       } else if (kind != null && int.tryParse(kind) != null) {
         where = "$where and ${UserCollectRepo.kind}=?";
         whereArgs.add(kind);
@@ -108,18 +108,20 @@ class UserCollectLogic extends GetxController {
     // Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息
     if (obj.kind == 1) {
       body = n.Row([
-        Expanded(
-          child: Text(
+          Expanded(
+              child: Text(
             obj.info['text'] ?? (obj.info['payload']['text'] ?? ''),
             style: const TextStyle(
               fontSize: 16.0,
               fontWeight: FontWeight.normal,
             ),
-            maxLines: scene == 'page' ? 4 : 16,
+            maxLines: scene == 'page' ? 4 : 160,
             overflow: TextOverflow.ellipsis,
-          ),
-        )
-      ]);
+          ))
+        ],
+        // 内容文本左对齐
+        crossAxisAlignment: CrossAxisAlignment.start,
+      );
     } else if (obj.kind == 2) {
       String uri = obj.info['payload']['uri'] ?? '';
       body = n.Row([
@@ -398,23 +400,32 @@ class UserCollectLogic extends GetxController {
             ]);
     } else if (obj.kind == 7) {
       // row > expand > column > text 换行有效
-      body = n.Row([
-        Expanded(
-            flex: 1,
-            child: VisitCardMessageBuilder(
-              // width: Get.width - 20,
-              // height: Get.height - 160,
-              user: types.User(
-                id: UserRepoLocal.to.currentUid,
-                firstName: UserRepoLocal.to.current.nickname,
-                imageUrl: UserRepoLocal.to.current.avatar,
-              ),
-              message: MessageModel.fromJson(obj.info).toTypeMessage()
-                  as types.CustomMessage,
-            ))
-      ]);
+      body = n.Row(
+        [
+          Expanded(
+              child: VisitCardMessageBuilder(
+            // width: Get.width - 20,
+            // height: Get.height - 160,
+            user: types.User(
+              id: UserRepoLocal.to.currentUid,
+              firstName: UserRepoLocal.to.current.nickname,
+              imageUrl: UserRepoLocal.to.current.avatar,
+            ),
+            message: MessageModel.fromJson(obj.info).toTypeMessage()
+                as types.CustomMessage,
+          ))
+        ],
+        // 内容文本左对齐
+        crossAxisAlignment: CrossAxisAlignment.start,
+      );
     }
-    return body;
+    return scene == 'detail'
+        ? SizedBox(
+            width: Get.width - 8,
+            height: Get.height - 120,
+            child: SingleChildScrollView(child: body),
+          )
+        : body;
   }
 
   /// 点击分类标签，按Tag搜索

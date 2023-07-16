@@ -197,16 +197,11 @@ class UserCollectDetailPage extends StatelessWidget {
             ])
               // 内容居中
               ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
-            obj.kind == 2
-                ? Expanded(
-                    child: n.Padding(
-                        top: 10,
-                        bottom: 10,
-                        child: logic.buildItemBody(obj, 'detail')))
-                : n.Padding(
+            Expanded(
+                child: n.Padding(
                     top: 10,
                     bottom: 10,
-                    child: logic.buildItemBody(obj, 'detail')),
+                    child: logic.buildItemBody(obj, 'detail'))),
             n.Row([
               const Expanded(
                   child: HorizontalLine(

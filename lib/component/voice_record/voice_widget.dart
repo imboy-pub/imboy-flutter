@@ -88,7 +88,11 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   @override
   void initState() {
     super.initState();
-    openTheRecorder();
+    try {
+      openTheRecorder();
+    } catch (e) {
+      //
+    }
     debugPrint("> on chat _VoiceWidgetState initState");
   }
 

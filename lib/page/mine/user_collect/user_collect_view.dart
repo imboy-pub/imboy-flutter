@@ -154,6 +154,7 @@ class UserCollectPage extends StatelessWidget {
                         state.kwd = query.obs;
                         debugPrint(
                             "user_collect_s_onChanged ${query.toString()}");
+                        logic.doSearch(state.kwd);
                       }),
                       doSearch: logic.doSearch,
                     ),
@@ -459,7 +460,7 @@ class UserCollectPage extends StatelessWidget {
                         state.kindActive.value = !state.kindActive.value;
                         state.kindActive.value = !state.kindActive.value;
                         logic.searchByKind(state.recentUse, '最近使用'.tr, () {
-                          // state.kindActive.value = !state.kindActive.value;
+                          state.kindActive.value = !state.kindActive.value;
                         });
                       },
                       child: n.Padding(
