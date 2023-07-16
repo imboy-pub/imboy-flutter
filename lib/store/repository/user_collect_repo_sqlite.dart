@@ -15,6 +15,7 @@ class UserCollectRepo {
   static String kindId = 'kind_id'; //
   static String source = 'source'; //
   static String remark = 'remark';
+
   // 多个tag 用半角逗号分隔，单个tag不超过14字符
   static String tag = 'tag';
 
@@ -78,12 +79,17 @@ class UserCollectRepo {
 
   // 插入一条数据
   Future<UserCollectModel> insert(UserCollectModel obj) async {
+    String tag = obj.tag;
+    if (!tag.endsWith(',')) {
+      tag = "$tag,";
+    }
     Map<String, dynamic> insert = {
       UserCollectRepo.userId: UserRepoLocal.to.currentUid,
       UserCollectRepo.kind: obj.kind,
       UserCollectRepo.kindId: obj.kindId,
       UserCollectRepo.source: obj.source,
       UserCollectRepo.remark: obj.remark,
+      UserCollectRepo.tag: tag,
       UserCollectRepo.updatedAt: obj.updatedAt,
       UserCollectRepo.createdAt: obj.createdAt,
       UserCollectRepo.info: jsonEncode(obj.info),
@@ -108,6 +114,13 @@ class UserCollectRepo {
     Map<String, Object?> data = {};
     if (strNoEmpty(json[UserCollectRepo.remark])) {
       data[UserCollectRepo.remark] = json[UserCollectRepo.remark];
+    }
+    String? tag = json[UserCollectRepo.tag];
+    if (tag != null) {
+      if (!tag.endsWith(',')) {
+        tag = "$tag,";
+      }
+      data[UserCollectRepo.tag] = tag;
     }
     if (strNoEmpty(json[UserCollectRepo.source])) {
       data[UserCollectRepo.source] = json[UserCollectRepo.source];
@@ -150,7 +163,6 @@ class UserCollectRepo {
       return null;
     }
   }
-
 
 // 记得及时关闭数据库，防止内存泄漏
 // close() async {

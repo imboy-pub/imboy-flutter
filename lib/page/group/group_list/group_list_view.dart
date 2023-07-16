@@ -6,16 +6,15 @@ import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 
-import 'group_list_logic.dart';
+// import 'group_list_logic.dart';
 
 class GroupListPage extends StatelessWidget {
-
   const GroupListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final logic = Get.put(GroupListLogic());
-    final state = Get.find<GroupListLogic>().state;
+    // final logic = Get.put(GroupListLogic());
+    // final state = Get.find<GroupListLogic>().state;
 
     return Scaffold(
       backgroundColor: AppColors.ChatBg,
@@ -30,7 +29,7 @@ class GroupListPage extends StatelessWidget {
           top: 12,
           right: 12,
           child: n.Column(
-            [],
+            const [],
             // 内容文本左对齐
             crossAxisAlignment: CrossAxisAlignment.start,
           ),

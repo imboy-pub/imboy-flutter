@@ -220,12 +220,14 @@ class ContactSettingTagPage extends StatelessWidget {
                           () => UserTagRelationPage(
                             peerId: peerId,
                             peerTag: peerTag.value,
+                            scene: 'friend',
                           ),
                           // () => TagAddPage(peerId:peerId, peerTag:'标签1, 标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,ABCD'),
                           transition: Transition.rightToLeft,
                           popGesture: true, // 右滑，返回上一页
                         )?.then((value) {
-                          iPrint("ContactSettingTagPage_TagAddPage_back then $value");
+                          iPrint(
+                              "ContactSettingTagPage_TagAddPage_back then $value");
                           if (value != null && value is String) {
                             peerTag.value = value.toString();
                           }

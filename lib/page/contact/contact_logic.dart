@@ -128,6 +128,7 @@ class ContactLogic extends GetxController {
         nickname: '标签'.tr,
         nameIndex: '↑',
         bgColor: Colors.blue,
+        // icon 翻转
         iconData: Transform.scale(
           scaleX: -1,
           child: const Icon(

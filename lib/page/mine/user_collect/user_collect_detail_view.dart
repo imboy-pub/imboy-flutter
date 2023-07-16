@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/page/chat/send_to/send_to_view.dart';
+import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'user_collect_logic.dart';
 
@@ -15,10 +17,14 @@ class UserCollectDetailPage extends StatelessWidget {
   int pageIndex;
   UserCollectModel obj;
 
-  UserCollectDetailPage(
-      {super.key, required this.obj, required this.pageIndex});
+  UserCollectDetailPage({
+    super.key,
+    required this.obj,
+    required this.pageIndex,
+  });
 
-  final logic = Get.put(UserCollectLogic());
+  // final logic = Get.put(UserCollectLogic());
+  final logic = Get.find<UserCollectLogic>();
 
   @override
   Widget build(BuildContext context) {
@@ -65,28 +71,42 @@ class UserCollectDetailPage extends StatelessWidget {
                           },
                         ),
                       ),
-                      // const Divider(),
-                      // Center(
-                      //   child: TextButton(
-                      //     onPressed: () {
-                      //       // Get.back();
-                      //       // Get.to(()=>
-                      //       // const ScannerPage(),
-                      //       //   transition: Transition.rightToLeft,
-                      //       //   popGesture: true, // 右滑，返回上一页
-                      //       // );
-                      //     },
-                      //     child: Text(
-                      //       '编辑标签'.tr,
-                      //       textAlign: TextAlign.center,
-                      //       style: const TextStyle(
-                      //         // color: Colors.white,
-                      //         fontSize: 16.0,
-                      //         fontWeight: FontWeight.normal,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
+                      const Divider(),
+                      Center(
+                        child: TextButton(
+                          onPressed: () {
+                            Get.to(
+                              () => UserTagRelationPage(
+                                peerId: obj.kindId,
+                                // peerTag: peerTag.value,
+                                peerTag: obj.tag,
+                                scene: 'collect',
+                                title: '编辑标签'.tr,
+                              ),
+                              // () => TagAddPage(peerId:peerId, peerTag:'标签1, 标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,ABCD'),
+                              transition: Transition.rightToLeft,
+                              popGesture: true, // 右滑，返回上一页
+                            )?.then((value) {
+                              // iPrint(
+                              //     "UserCollectDetailPage_TagAddPage_back then $value");
+                              if (value != null && value is String) {
+                                obj.tag = value.toString();
+                                logic.updateItem(obj);
+                                Get.back();
+                              }
+                            });
+                          },
+                          child: Text(
+                            '编辑标签'.tr,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              // color: Colors.white,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ),
                       const Divider(),
                       Center(
                         child: TextButton(

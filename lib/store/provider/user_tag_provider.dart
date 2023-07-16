@@ -29,12 +29,13 @@ class UserTagProvider extends HttpClient {
   /// 添加标签、移除标签功能
   /// tag 为空表示移除表情
   Future<bool> relationAdd({
-    required String peerId,
+    required String objectId,
     required List<String> tag,
+    required String scene,
   }) async {
     IMBoyHttpResponse resp = await post(API.userTagRelationAdd, data: {
-      "scene": "friend",
-      "objectId": peerId,
+      "scene": scene,
+      "objectId": objectId,
       "tag": tag,
     });
     debugPrint("UserTagProvider/add resp: ${resp.toString()}");

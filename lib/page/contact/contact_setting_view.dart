@@ -12,7 +12,6 @@ import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/chat/chat_logic.dart';
 import 'package:imboy/page/chat/widget/select_friend.dart';
 import 'package:imboy/page/friend/denylist_logic.dart';
-import 'package:imboy/page/mine/setting/friends_permissions_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/denylist_model.dart';
 
@@ -96,16 +95,16 @@ class ContactSettingPage extends StatelessWidget {
                 );
               },
             ),
-            LabelRow(
-              label: '朋友权限'.tr,
-              onPressed: () {
-                Get.to(
-                  () => FriendsPermissionsPage(),
-                  transition: Transition.rightToLeft,
-                  popGesture: true, // 右滑，返回上一页
-                );
-              },
-            ),
+            // LabelRow(
+            //   label: '朋友权限'.tr,
+            //   onPressed: () {
+            //     Get.to(
+            //       () => FriendsPermissionsPage(),
+            //       transition: Transition.rightToLeft,
+            //       popGesture: true, // 右滑，返回上一页
+            //     );
+            //   },
+            // ),
             const Space(),
             LabelRow(
               label: '把他推荐给朋友'.tr,

@@ -49,21 +49,25 @@ class SendToPage extends StatelessWidget {
               element.selected.value = false;
             }
           },
-          child: Text('取消'.tr),
+          child: n.Padding(
+            top: 14,
+            left: 16,
+            child: Text('取消'.tr),
+          ),
         );
       } else {
         btn = InkWell(
           onTap: () {
             Get.back();
           },
-          child: Text('关闭'.tr),
+          child: n.Padding(
+            top: 14,
+            left: 16,
+            child: Text('关闭'.tr),
+          ),
         );
       }
-      return n.Padding(
-        top: 14,
-        left: 16,
-        child: btn,
-      );
+      return btn;
     });
     var topRightWidget = [
       InkWell(
@@ -332,7 +336,8 @@ class SendToPage extends StatelessWidget {
           bool res = await logic.sendMsg(model, msg);
           if (res) {
             EasyLoading.showSuccess('发送成功'.tr);
-            debugPrint("send_to_view callback before 2 ${callback.toString()};");
+            debugPrint(
+                "send_to_view callback before 2 ${callback.toString()};");
             if (callback != null) {
               callback!();
             }

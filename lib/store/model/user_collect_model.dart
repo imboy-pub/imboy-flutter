@@ -7,6 +7,8 @@ class UserCollectModel {
   String kindId;
   String source;
   String remark;
+  // 朋友标签，半角逗号分割，单个表情不超过14字符
+  String tag;
 
   int updatedAt;
   int createdAt;
@@ -19,6 +21,7 @@ class UserCollectModel {
     required this.kindId,
     required this.source,
     required this.remark,
+    required this.tag,
     required this.updatedAt,
     required this.createdAt,
     required this.info,
@@ -39,6 +42,7 @@ class UserCollectModel {
       kindId: data['kind_id'],
       source: data['source'] ?? '',
       remark: data['remark'] ?? '',
+      tag: data['tag'] ?? '',
       updatedAt: data['updated_at'] ?? 0,
       createdAt: data['created_at'],
       info: Map<String, dynamic>.from(info1),
@@ -52,6 +56,7 @@ class UserCollectModel {
     data['kind_id'] = kindId;
     data['source'] = source;
     data['remark'] = remark;
+    data['tag'] = tag;
     data['updated_at'] = updatedAt;
     data['created_at'] = createdAt;
     data['info'] = info;

@@ -3,13 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'user_collect_detail_view.dart';
 import 'user_collect_logic.dart';
@@ -24,10 +27,13 @@ class UserCollectPage extends StatelessWidget {
 
   void initData() async {
     state.page = 1;
-    var list =
-        await logic.page(page: state.page, size: state.size, kind: state.kind);
+    var list = await logic.page(
+      page: state.page,
+      size: state.size,
+      kind: state.kind,
+    );
     if (list.isNotEmpty) {
-      state.items.addAll(list);
+      state.items.value = list;
       state.page += 1;
     }
 
@@ -51,6 +57,47 @@ class UserCollectPage extends StatelessWidget {
     });
   }
 
+  Widget buildItemTag(String tagStr) {
+    List<Widget> items = [];
+    List<String> tagList =
+        tagStr.split(',').where((o) => o.trim().isNotEmpty).toList();
+    for (String tag in tagList) {
+      items.add(// icon 翻转
+          n.Padding(
+        // left: 10,
+        top: 2,
+        right: 8,
+        child: InkWell(
+          onTap: () {
+            // state.kindActive.value = !state.kindActive.value;
+            logic.searchByTag(tag, tag, () {
+              state.kindActive.value = !state.kindActive.value;
+            });
+          },
+          child: n.Row(
+            [
+              Transform.scale(
+                scaleX: -1,
+                child: Icon(
+                  Icons.local_offer,
+                  size: 12,
+                  color: AppColors.MainTextColor.withOpacity(0.8),
+                ),
+              ),
+              Text(
+                ' $tag',
+                style: const TextStyle(fontSize: 12),
+              ),
+            ],
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+          ),
+        ),
+      ));
+    }
+    return n.Wrap(items);
+  }
+
   @override
   Widget build(BuildContext context) {
     initData();
@@ -68,6 +115,15 @@ class UserCollectPage extends StatelessWidget {
             EasyLoading.showInfo(' $msg        ');
             return;
           }
+          state.page = 1;
+          var list = await logic.page(
+            page: state.page,
+            size: state.size * 200,
+            kwd: state.kwd.value,
+            onRefresh: true,
+          );
+          state.items.value = list;
+          state.page += 1;
         },
         child: Container(
           width: Get.width,
@@ -128,21 +184,130 @@ class UserCollectPage extends StatelessWidget {
                                         motion: const StretchMotion(),
                                         children: [
                                           SlidableAction(
+                                            key: ValueKey("tag_$index"),
+                                            flex: 1,
+                                            backgroundColor: AppColors.ChatBg,
+                                            // foregroundColor: Colors.white,
+                                            onPressed: (_) async {
+                                              Get.to(
+                                                () => UserTagRelationPage(
+                                                  peerId: obj.kindId,
+                                                  // peerTag: peerTag.value,
+                                                  peerTag: obj.tag,
+                                                  scene: 'collect',
+                                                  title: '编辑标签'.tr,
+                                                ),
+                                                // () => TagAddPage(peerId:peerId, peerTag:'标签1, 标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,ABCD'),
+                                                transition:
+                                                    Transition.rightToLeft,
+                                                popGesture: true, // 右滑，返回上一页
+                                              )?.then((value) {
+                                                // iPrint(
+                                                //     "UserCollectListPage_TagAddPage_back then $value");
+                                                if (value != null &&
+                                                    value is String) {
+                                                  obj.tag = value.toString();
+                                                  logic.updateItem(obj);
+                                                }
+                                              });
+                                            },
+                                            icon: Icons.local_offer,
+                                            foregroundColor: Colors.green,
+                                            label: "标签".tr,
+                                            spacing: 1,
+                                          ),
+                                          SlidableAction(
                                             key: ValueKey("delete_$index"),
                                             flex: 1,
                                             backgroundColor: AppColors.ChatBg,
                                             // foregroundColor: Colors.white,
                                             onPressed: (_) async {
-                                              bool res =
-                                                  await logic.remove(obj);
-                                              debugPrint(
-                                                  "user_collect_remove $res; i $index");
-                                              if (res) {
-                                                state.items.removeAt(index);
-                                                // logic.update(state.items);
-                                              }
+                                              Get.bottomSheet(
+                                                SizedBox(
+                                                  width: Get.width,
+                                                  height: 106,
+                                                  child: n.Wrap(
+                                                    [
+                                                      Center(
+                                                        child: TextButton(
+                                                          onPressed: () async {
+                                                            bool res =
+                                                                await logic
+                                                                    .remove(
+                                                                        obj);
+                                                            debugPrint(
+                                                                "user_collect_remove $res; i $index");
+                                                            if (res) {
+                                                              state.items
+                                                                  .removeAt(
+                                                                      index);
+                                                              Get.close(1);
+                                                              EasyLoading
+                                                                  .showSuccess(
+                                                                      '操作成功'
+                                                                          .tr);
+                                                            } else {
+                                                              EasyLoading
+                                                                  .showError(
+                                                                      '操作失败'
+                                                                          .tr);
+                                                            }
+                                                          },
+                                                          child: Text(
+                                                            '删除无法找回，确认删除？'.tr,
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style:
+                                                                const TextStyle(
+                                                              color: Colors.red,
+                                                              fontSize: 16.0,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .normal,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      const HorizontalLine(
+                                                          height: 6),
+                                                      Center(
+                                                        child: TextButton(
+                                                          onPressed: () =>
+                                                              Get.back(),
+                                                          child: Text(
+                                                            'button_cancel'.tr,
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style:
+                                                                const TextStyle(
+                                                              // color: Colors.white,
+                                                              fontSize: 16.0,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .normal,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                                backgroundColor: Colors.white,
+                                                //改变shape这里即可
+                                                shape:
+                                                    const RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                    topLeft:
+                                                        Radius.circular(20.0),
+                                                    topRight:
+                                                        Radius.circular(20.0),
+                                                  ),
+                                                ),
+                                              );
                                             },
                                             icon: Icons.delete_forever_sharp,
+                                            foregroundColor: Colors.red,
                                             label: "删除".tr,
                                             spacing: 1,
                                           ),
@@ -206,6 +371,7 @@ class UserCollectPage extends StatelessWidget {
                                               ..mainAxisAlignment =
                                                   MainAxisAlignment
                                                       .spaceBetween,
+                                            buildItemTag(obj.tag),
                                           ]),
                                         ),
                                       ),

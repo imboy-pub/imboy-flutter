@@ -12,7 +12,6 @@ import 'package:imboy/page/chat/chat_view.dart';
 import 'package:imboy/page/contact/contact_setting_tag_view.dart';
 import 'package:imboy/page/contact/contact_setting_view.dart';
 import 'package:imboy/page/friend/apply_friend_view.dart';
-import 'package:imboy/page/mine/setting/friends_permissions_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -145,7 +144,9 @@ class PeopleInfoPage extends StatelessWidget {
                   rightW: SizedBox(
                     width: Get.width - 140,
                     child: Text(
-                      (tag.value.endsWith(',') ? tag.value.substring(0, tag.value.length - 1) : tag.value),
+                      (tag.value.endsWith(',')
+                          ? tag.value.substring(0, tag.value.length - 1)
+                          : tag.value),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.left,
@@ -173,14 +174,18 @@ class PeopleInfoPage extends StatelessWidget {
                       transition: Transition.rightToLeft,
                       popGesture: true, // 右滑，返回上一页
                     )?.then((value) {
-                      debugPrint("PeopleInfoPage_ContactSettingTagPage_back then $value");
-                      if (value != null && value is String && value.isNotEmpty) {
+                      debugPrint(
+                          "PeopleInfoPage_ContactSettingTagPage_back then $value");
+                      if (value != null &&
+                          value is String &&
+                          value.isNotEmpty) {
                         remark.value = value.toString();
                       }
                     });
                   },
                 ),
               ),
+              /*
               Visibility(
                 visible: !isSelf,
                 child: LabelRow(
@@ -195,7 +200,6 @@ class PeopleInfoPage extends StatelessWidget {
                 ),
               ),
               const Space(),
-              /*
               LabelRow(
                 label: '朋友圈'.tr,
                 isLine: true,

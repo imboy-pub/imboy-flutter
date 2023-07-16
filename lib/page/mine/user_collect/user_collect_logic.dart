@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 
 // ignore: depend_on_referenced_packages
@@ -8,6 +7,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show formatBytes;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_logic.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/datetime.dart';
@@ -32,42 +32,46 @@ import 'user_collect_state.dart';
 class UserCollectLogic extends GetxController {
   final UserCollectState state = UserCollectState();
 
-  Future<List<UserCollectModel>> page(
-      {int page = 1, int size = 10, String? kind, String? kwd}) async {
+  Future<List<UserCollectModel>> page({
+    int page = 1,
+    int size = 10,
+    String? kind,
+    String? tag,
+    String? kwd,
+    bool onRefresh = false,
+  }) async {
     List<UserCollectModel> list = [];
-    page = page > 1 ? page : 1;
-    int offset = (page - 1) * size;
+
     var repo = UserCollectRepo();
 
-    // TODO kwd search 2023-06-14 23:33:09
-    // 检查网络状态
-    var res = await Connectivity().checkConnectivity();
-    if (res == ConnectivityResult.none) {
+    if (onRefresh == false) {
+      page = page > 1 ? page : 1;
+      int offset = (page - 1) * size;
+
       String where = '${UserCollectRepo.userId}=?';
       List<Object?> whereArgs = [UserRepoLocal.to.currentUid];
       String? orderBy;
       if (kind == state.recentUse) {
         orderBy = "${UserCollectRepo.updatedAt} desc";
         where = "$where and ${UserCollectRepo.updatedAt} > 0";
-      } else if (int.tryParse(kind!) != null) {
+      } else if (kind != null && int.tryParse(kind) != null) {
         where = "$where and ${UserCollectRepo.kind}=?";
         whereArgs.add(kind);
       }
+      if (tag != null) {
+        where = "$where and ${UserCollectRepo.tag} like '%$tag,%'";
+      }
       if (strNoEmpty(kwd)) {
         where =
-            "$where and (${UserCollectRepo.source} like '%$kwd%' or ${UserCollectRepo.remark} like '%$kwd%' or ${UserCollectRepo.info} like '%$kwd%')";
+            "$where and (${UserCollectRepo.source} like '%$kwd%' or ${UserCollectRepo.remark} like '%$kwd%' or ${UserCollectRepo.tag} like '%$kwd%')";
       }
-      list = await repo.page(
+      return await repo.page(
         limit: size,
         offset: offset,
         where: where,
         whereArgs: whereArgs,
         orderBy: orderBy,
       );
-    }
-    debugPrint("user_collect_s ${list.length}");
-    if (list.isNotEmpty) {
-      return list;
     }
 
     Map<String, dynamic> args = {
@@ -76,7 +80,7 @@ class UserCollectLogic extends GetxController {
     };
     if (kind == state.recentUse) {
       args['order'] = state.recentUse;
-    } else if (int.tryParse(kind!) != null) {
+    } else if (kind != null && int.tryParse(kind) != null) {
       args['kind'] = kind;
     }
     if (strNoEmpty(kwd)) {
@@ -413,6 +417,79 @@ class UserCollectLogic extends GetxController {
     return body;
   }
 
+  /// 点击分类标签，按Tag搜索
+  Future<void> searchByTag(
+    String tag,
+    String kindTips,
+    Function callback,
+  ) async {
+    state.page = 1;
+    var list = await page(page: state.page, size: state.size, tag: tag);
+    if (list.isNotEmpty) {
+      state.page += 1;
+    }
+    state.items.value = list;
+
+    state.searchTrailing = [
+      InkWell(
+          onTap: () {
+            if (state.kwd.value.isEmpty) {
+              return;
+            }
+            doSearch(state.kwd.value);
+          },
+          child: const Icon(Icons.search)),
+    ].map((e) => e).obs;
+
+    state.searchLeading = n.Row([
+      ElevatedButton(
+        onPressed: () {
+          // debugPrint("state.searchLeading ${state.searchLeading.toString()}");
+          state.searchLeading = null;
+          state.searchTrailing = null;
+          state.kwd = ''.obs;
+          state.searchController.text = "";
+          state.kindActive.value = !state.kindActive.value;
+          state.kindActive.value = !state.kindActive.value;
+          state.kind = 'all';
+          callback();
+        },
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.resolveWith<Color>(
+            (Set<MaterialState> states) {
+              if (states.contains(MaterialState.pressed)) {
+                return Colors.white.withOpacity(0.75);
+              }
+              // Use the component's default.
+              return AppColors.ChatBg;
+            },
+          ),
+        ),
+        child: n.Row([
+          // icon 翻转
+          n.Padding(
+            right: 8,
+            child: Transform.scale(
+              scaleX: -1,
+              child: Icon(
+                Icons.local_offer,
+                size: 18,
+                color: AppColors.MainTextColor.withOpacity(0.8),
+              ),
+            ),
+          ),
+          Text(kindTips, style: const TextStyle(color: AppColors.ItemOnColor)),
+          const SizedBox(width: 12),
+          Icon(
+            Icons.close,
+            size: 16,
+            color: AppColors.ItemOnColor.withOpacity(0.7),
+          ),
+        ]),
+      )
+    ]).obs;
+  }
+
   /// 点击分类标签，按分类搜索
   Future<void> searchByKind(
     String kind,
@@ -439,12 +516,6 @@ class UserCollectLogic extends GetxController {
     ].map((e) => e).obs;
 
     state.searchLeading = n.Row([
-      Icon(
-        Icons.grid_view,
-        size: 18,
-        color: AppColors.MainTextColor.withOpacity(0.8),
-      ),
-      const SizedBox(width: 8),
       ElevatedButton(
         onPressed: () {
           // debugPrint("state.searchLeading ${state.searchLeading.toString()}");
@@ -469,6 +540,17 @@ class UserCollectLogic extends GetxController {
           ),
         ),
         child: n.Row([
+          n.Padding(
+            right: 8,
+            child: Transform.scale(
+              scaleX: -1,
+              child: Icon(
+                Icons.grid_view,
+                size: 18,
+                color: AppColors.MainTextColor.withOpacity(0.8),
+              ),
+            ),
+          ),
           Text(kindTips, style: const TextStyle(color: AppColors.ItemOnColor)),
           const SizedBox(width: 12),
           Icon(
@@ -597,31 +679,47 @@ class UserCollectLogic extends GetxController {
   }
 
   Future<List<Widget>> tagItems() async {
-    List<Widget> items = [];
-    // items.add(ElevatedButton(
-    //   onPressed: () {
-    //     debugPrint("searchLeading ${state.searchLeading.toString()}");
-    //     state.kindActive.value = !state.kindActive.value;
-    //     // logic.searchByKind(key, value, () {
-    //     //   state.kindActive.value = !state.kindActive.value;
-    //     // });
-    //   },
-    //   style: ButtonStyle(
-    //     backgroundColor: MaterialStateProperty.resolveWith<Color>(
-    //           (Set<MaterialState> states) {
-    //         if (states.contains(MaterialState.pressed)) {
-    //           return Colors.white.withOpacity(0.75);
-    //         }
-    //         // Use the component's default.
-    //         return Colors.white.withOpacity(0.95);
-    //       },
-    //     ),
-    //   ),
-    //   child: const Text(
-    //     "  资料  ",
-    //     style: TextStyle(color: AppColors.MainTextColor),
-    //   ),
-    // ));
-    return items;
+    String scene = 'collect';
+    List<Widget> widgetList = [];
+    List<String> items = await UserTagRelationLogic().getRecentTagItems(scene);
+
+    for (String tag in items) {
+      widgetList.add(ElevatedButton(
+        onPressed: () {
+          debugPrint("searchLeading ${state.searchLeading.toString()}");
+          state.kindActive.value = !state.kindActive.value;
+          searchByTag(tag, tag, () {
+            state.kindActive.value = !state.kindActive.value;
+          });
+        },
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.resolveWith<Color>(
+            (Set<MaterialState> states) {
+              if (states.contains(MaterialState.pressed)) {
+                return Colors.white.withOpacity(0.75);
+              }
+              // Use the component's default.
+              return Colors.white.withOpacity(0.95);
+            },
+          ),
+        ),
+        child: n.Padding(
+          left: 2,
+          right: 2,
+          child: Text(
+            tag,
+            style: const TextStyle(color: AppColors.MainTextColor),
+          ),
+        ),
+      ));
+    }
+    return widgetList;
+  }
+
+  void updateItem(UserCollectModel item) {
+    final index = state.items.indexWhere((e) => e.kindId == item.kindId);
+    if (index > -1) {
+      state.items.setRange(index, index + 1, [item]);
+    }
   }
 }

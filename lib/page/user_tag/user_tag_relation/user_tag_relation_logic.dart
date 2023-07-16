@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import 'package:imboy/store/provider/user_tag_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_collect_repo_sqlite.dart';
 
 import 'user_tag_relation_state.dart';
 
@@ -17,37 +18,42 @@ class UserTagRelationLogic extends GetxController {
     update([valueChanged]);
   }
 
-  Future<bool> add(String peerId, List<String> tag) async {
-    bool res = await UserTagProvider().relationAdd(peerId: peerId, tag:tag);
-    debugPrint("tag_add_logic/add $peerId, tag ${tag.toString()} ;");
+  Future<bool> add(String scene, String objectId, List<String> tag) async {
+    bool res = await UserTagProvider()
+        .relationAdd(scene: scene, objectId: objectId, tag: tag);
+    debugPrint("tag_add_logic/add $objectId, tag ${tag.toString()} ;");
     if (res) {
-      await ContactRepo().update({
-        ContactRepo.peerId: peerId,
-        ContactRepo.tag: tag.join(','),
-      });
+      if (scene == 'friend') {
+        await ContactRepo().update({
+          ContactRepo.peerId: objectId,
+          ContactRepo.tag: tag.join(','),
+        });
+      } else if (scene == 'collect') {
+        await UserCollectRepo().update(objectId, {
+          UserCollectRepo.kindId: objectId,
+          UserCollectRepo.tag: tag.join(','),
+        });
+      }
       // res = res2 > 0 ? true : false;
     }
     return res;
   }
 
-  Future<void> getRecentTagItems(String peerId) async {
-    // String k = "recent_tag_$peerId";
-    Map<String, dynamic>? resp = await UserTagProvider().page(scene:'friend',size: 100);
-    List<dynamic> items = resp?['list']??[];
+  Future<List<String>> getRecentTagItems(String scene) async {
+    Map<String, dynamic>? resp = await UserTagProvider().page(
+      scene: scene,
+      size: 100,
+    );
+    List<dynamic> items = resp?['list'] ?? [];
 
     List<String> res = [];
     for (var item in items) {
       String tag = item['name'] ?? '';
+      // 去除重复和空白字符串
       if (tag.isNotEmpty && !res.contains(tag)) {
         res.add(tag);
       }
     }
-    for (var item in state.tagItems) {
-      if (!res.contains(item)) {
-        res.add(item);
-      }
-    }
-    state.recentTagItems.value = res;
-    state.loaded.value = true;
+    return res;
   }
 }

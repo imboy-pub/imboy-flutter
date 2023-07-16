@@ -7,13 +7,14 @@ import 'package:filter_list/src/state/filter_state.dart';
 import 'package:filter_list/src/state/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+// ignore: implementation_imports
+import 'package:textfield_tags/textfield_tags.dart';
+
 import 'package:imboy/component/helper/list.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/tag.dart';
 import 'package:imboy/config/const.dart';
-
-// ignore: implementation_imports
-import 'package:textfield_tags/textfield_tags.dart';
 
 import 'user_tag_relation_logic.dart';
 
@@ -21,8 +22,10 @@ import 'user_tag_relation_logic.dart';
 class UserTagRelationPage extends StatelessWidget {
   final String peerId; // 用户ID
 
-  String peerTag;
+  String? title;
+  final String scene;
 
+  String peerTag;
   final Color tagBackgroundColor;
   final Color tagSelectedBackgroundColor;
   final Color tagColor;
@@ -32,6 +35,8 @@ class UserTagRelationPage extends StatelessWidget {
     super.key,
     required this.peerId,
     required this.peerTag,
+    required this.scene,
+    this.title,
     this.tagBackgroundColor = const Color(0xFFE5E5E5),
     this.tagSelectedBackgroundColor = const Color(0xFFE7F9EE),
     this.tagColor = const Color(0xFF7A7A7A),
@@ -45,7 +50,15 @@ class UserTagRelationPage extends StatelessWidget {
     state.tagItems.value =
         peerTag.split(',').where((o) => o.trim().isNotEmpty).toList();
 
-    logic.getRecentTagItems(peerId);
+    List<String> res = await logic.getRecentTagItems(scene);
+    // 当前 tag合并到 recentTagItems
+    for (var item in state.tagItems) {
+      if (!res.contains(item)) { // 排重
+        res.add(item);
+      }
+    }
+    state.recentTagItems.value = res;
+    state.loaded.value = true;
 
     state.tagController.addListener(() {
       bool diff =
@@ -66,7 +79,7 @@ class UserTagRelationPage extends StatelessWidget {
       backgroundColor: AppColors.ChatBg,
       // backgroundColor: Colors.white,
       appBar: PageAppBar(
-        title: '添加标签'.tr,
+        title: title ?? '添加标签'.tr,
       ),
       body: SizedBox(
         height: Get.height - 40,
@@ -85,10 +98,12 @@ class UserTagRelationPage extends StatelessWidget {
                   // textSeparators: const [','],
                   letterCase: LetterCase.normal,
                   validator: (String tag) {
-                    bool diff =
-                        listDiff(state.tagItems, state.tagController.getTags);
-                    debugPrint(
-                        "tag_add_view_validator diff $diff, $tag, len:${tag.length}");
+                    bool diff = listDiff(
+                      state.tagItems,
+                      state.tagController.getTags,
+                    );
+                    // debugPrint(
+                    //     "tag_add_view_validator diff $diff, $tag, len:${tag.length}");
                     logic.valueOnChange(diff);
                     if (tag.length > 14) {
                       // 最最最最最最最最最最最最最最1
@@ -218,7 +233,7 @@ class UserTagRelationPage extends StatelessWidget {
                       state.tagController.getTags?.toSet().toList();
                   // state.tagController.getTags = tag?.toList();
                   // debugPrint("submit_tag ${tag?.length} ${tag.toString()}, ");
-                  bool res = await logic.add(peerId, tag ?? []);
+                  bool res = await logic.add(scene, peerId, tag ?? []);
                   if (res) {
                     // EasyLoading.showSuccess('操作成功'.tr);
                     Get.back(result: tag!.join(','));

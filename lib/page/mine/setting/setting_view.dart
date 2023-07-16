@@ -8,7 +8,6 @@ import 'package:imboy/page/single/about_imboy.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
-import 'friends_permissions_view.dart';
 import 'setting_logic.dart';
 
 class SettingPage extends StatefulWidget {
@@ -50,21 +49,21 @@ class _SettingPageState extends State<SettingPage> {
                   color: AppColors.MainTextColor.withOpacity(0.5),
                 ),
               ),
-              n.Padding(left: 18, child: const Divider()),
-              n.ListTile(
-                title: Text('朋友权限'.tr),
-                trailing: Icon(
-                  Icons.navigate_next,
-                  color: AppColors.MainTextColor.withOpacity(0.5),
-                ),
-                onTap: () {
-                  Get.to(
-                    () => FriendsPermissionsPage(),
-                    transition: Transition.rightToLeft,
-                    popGesture: true, // 右滑，返回上一页
-                  );
-                },
-              ),
+              // n.Padding(left: 18, child: const Divider()),
+              // n.ListTile(
+              //   title: Text('朋友权限'.tr),
+              //   trailing: Icon(
+              //     Icons.navigate_next,
+              //     color: AppColors.MainTextColor.withOpacity(0.5),
+              //   ),
+              //   onTap: () {
+              //     Get.to(
+              //       () => FriendsPermissionsPage(),
+              //       transition: Transition.rightToLeft,
+              //       popGesture: true, // 右滑，返回上一页
+              //     );
+              //   },
+              // ),
               n.Padding(left: 18, child: const Divider()),
               n.ListTile(
                 title: Text('关于IMBoy'.tr),

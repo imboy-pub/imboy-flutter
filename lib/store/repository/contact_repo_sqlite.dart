@@ -261,10 +261,6 @@ class ContactRepo {
       data[ContactRepo.source] = json[ContactRepo.source];
     }
 
-    if (strNoEmpty(json[ContactRepo.tag])) {
-      data[ContactRepo.tag] = json[ContactRepo.tag];
-    }
-
     if (json.containsKey(ContactRepo.gender)) {
       data[ContactRepo.gender] = json[ContactRepo.gender];
     }
