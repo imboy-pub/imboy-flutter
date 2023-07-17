@@ -68,7 +68,7 @@ class UserRepoLocal extends GetxController {
     SqliteService.to.db;
     // 初始化 WebSocket 链接
     // 检查WS链接状
-    WebSocketService.to.init();
+    WebSocketService.to;
 
     // https://github.com/jpush/jpush-flutter-plugin/blob/master/documents/APIs.md
     // 获取 registrationId，这个 JPush 运行通过 registrationId 来进行推送.

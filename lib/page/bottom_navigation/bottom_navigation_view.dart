@@ -5,6 +5,7 @@ import 'package:imboy/page/contact/contact_view.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/conversation/conversation_view.dart';
 import 'package:imboy/page/mine/mine_view.dart';
+import 'package:imboy/service/websocket.dart';
 
 import 'bottom_navigation_logic.dart';
 import 'bottom_navigation_state.dart';
@@ -118,9 +119,18 @@ class BottomNavigationPage extends StatelessWidget {
               label: 'title_contact'.tr,
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.person),
+              icon: badges.Badge(
+                showBadge: true,
+                position: badges.BadgePosition.topStart(top: 36, start: 40),
+                badgeStyle: badges.BadgeStyle(
+                  badgeColor: WebSocketService.to.isConnected
+                      ? Colors.green
+                      : Colors.red,
+                ),
+                child: const Icon(Icons.person),
+              ),
               label: 'title_mine'.tr,
-            )
+            ),
           ],
         ),
       ),

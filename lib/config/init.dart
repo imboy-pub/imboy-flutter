@@ -95,7 +95,7 @@ Future<void> init() async {
   AMapHelper.setApiKey();
 
   // 初始化单例 WebSocketService
-  WebSocketService.to;
+  // WebSocketService.to.init();
   await initIceServers();
 
   WidgetsBinding.instance.addObserver(
@@ -122,7 +122,7 @@ Future<void> init() async {
   Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
     if (r != ConnectivityResult.none) {
       // 检查WS链接状态
-      WebSocketService.to.init();
+      WebSocketService.to.openSocket();
     }
   });
   // debugPrint("> on currentTimeMillis init ${ntpOffset}");

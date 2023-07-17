@@ -170,7 +170,7 @@ class ContactRepo {
       limit: limit,
       offset: offset,
     );
-    debugPrint("> on findFriend ${maps.length}, ${maps.toList().toString()}");
+    // debugPrint("> on findFriend ${maps.length}, ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }

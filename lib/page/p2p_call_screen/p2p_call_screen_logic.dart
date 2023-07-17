@@ -6,7 +6,6 @@ import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -73,8 +72,6 @@ class P2pCallScreenLogic {
 
   Future<void> signalingConnect() async {
     debugPrint("> rtc logic signalingConnect ${DateTime.now()}");
-    // 检查WS链接状态
-    WebSocketService.to.init();
     makingOffer = false;
   }
 

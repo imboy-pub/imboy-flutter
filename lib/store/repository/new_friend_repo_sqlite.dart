@@ -67,7 +67,7 @@ class NewFriendRepo {
       orderBy: "create_time desc",
       limit: limit,
     );
-    debugPrint("> on findFriend ${maps.length}, ${maps.toList().toString()}");
+    // debugPrint("> on findFriend ${maps.length}, ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }

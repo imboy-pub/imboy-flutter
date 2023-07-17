@@ -710,7 +710,7 @@ packages:
       path: "plugin/flutter_chat_ui"
       relative: true
     source: path
-    version: "1.6.8"
+    version: "1.6.9"
   flutter_dotenv:
     dependency: "direct main"
     description:

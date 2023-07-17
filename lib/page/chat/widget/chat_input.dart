@@ -16,7 +16,6 @@ import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/ui/emoji_picker_view.dart';
 import 'package:imboy/component/ui/image_button.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/message_model.dart';
 
 /// 部分代码来自该项目，感谢作者 CaiJingLong https://github.com/CaiJingLong/flutter_like_wechat_input
@@ -189,8 +188,6 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       if (res) {
         _textController.clear();
       } else {
-        // 检查WS链接状态
-        WebSocketService.to.init();
         // 网络原因，发送失败
       }
     }
