@@ -378,14 +378,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.2.4"
-  context_menus:
-    dependency: "direct main"
-    description:
-      name: context_menus
-      sha256: "25313f2a17dc936f541f8012761648cb58d936c5d6f6bf7282f137a4b9dedddb"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.2"
   convert:
     dependency: transitive
     description:
@@ -494,18 +486,18 @@ packages:
     dependency: "direct main"
     description:
       name: dio
-      sha256: a9d76e72985d7087eb7c5e7903224ae52b337131518d127c554b9405936752b8
+      sha256: "3866d67f93523161b643187af65f5ac08bc991a5bcdaf41a2d587fe4ccb49993"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "5.2.1+1"
+    version: "5.3.0"
   dio_http2_adapter:
     dependency: "direct main"
     description:
       name: dio_http2_adapter
-      sha256: a18145a44fd4ceb9c057b46409f608effcc9e28fd2e99c478307b995eac29259
+      sha256: ada89ff1ea108c191188e5112b1ae87f12f5995f8cbf50afe87a736e36f1a5af
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.3.0"
+    version: "2.3.1"
   dotted_border:
     dependency: "direct main"
     description:
@@ -651,14 +643,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.0"
-  fluent_ui:
-    dependency: "direct main"
-    description:
-      name: fluent_ui
-      sha256: be237134ab215d4a1591307f6286f4aa53ed5a492c2ee56be5d86be344fd16db
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "4.7.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -775,11 +759,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "7.0.0+1"
-  flutter_localizations:
-    dependency: transitive
-    description: flutter
-    source: sdk
-    version: "0.0.0"
   flutter_login:
     dependency: "direct main"
     description:
@@ -1255,14 +1234,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.2.0"
-  math_expressions:
-    dependency: transitive
-    description:
-      name: math_expressions
-      sha256: "3576593617c3870d75728a751f6ec6e606706d44e363f088ac394b5a28a98064"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.4.0"
   meta:
     dependency: transitive
     description:
@@ -1551,6 +1522,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.5.1"
+  popover:
+    dependency: "direct main"
+    description:
+      name: popover
+      sha256: "59f4a55ebb484d012c8aaa273ad58eee571945231b71fb938c5a69f63b5a94d4"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.2.8+2"
   popup_menu:
     dependency: "direct main"
     description:
@@ -1632,14 +1611,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.27.7"
-  scroll_pos:
-    dependency: transitive
-    description:
-      name: scroll_pos
-      sha256: "4246bff3afc779d87cdf650a67d42d67ae71b23ff020d14592e6b89e28a7f9cc"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.4.0"
   scroll_to_index:
     dependency: "direct main"
     description:
@@ -1656,6 +1627,22 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.3.8"
+  sensors_plus:
+    dependency: "direct main"
+    description:
+      name: sensors_plus
+      sha256: "10d3aa4071121d06351e9ba555cc25e83273314a3faab1cee12f9d886eff7426"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.2"
+  sensors_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: sensors_plus_platform_interface
+      sha256: "95f0cc08791b8bf0c41c5fa99c84be2a7d5bf60a811ddc17e1438b1e68caf0d3"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.3"
   sentry:
     dependency: transitive
     description:

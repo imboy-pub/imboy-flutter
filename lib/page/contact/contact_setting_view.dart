@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common.dart';
@@ -16,7 +18,6 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/denylist_model.dart';
 
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
 
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -220,12 +221,12 @@ class ContactSettingPage extends StatelessWidget {
                     )),
               ),
             ),
-            LabelRow(
-              label: '投诉'.tr,
-              isLine: false,
-              onPressed: () {},
-            ),
-            const Space(),
+            // LabelRow(
+            //   label: '投诉'.tr,
+            //   isLine: false,
+            //   onPressed: () {},
+            // ),
+            // const Space(),
             ButtonRow(
               margin: const EdgeInsets.only(top: 10.0),
               text: '删除',
@@ -236,8 +237,8 @@ class ContactSettingPage extends StatelessWidget {
                   SizedBox(
                     width: Get.width,
                     height: Get.height * 0.25,
-                    child: Wrap(
-                      children: <Widget>[
+                    child: n.Wrap(
+                      [
                         Padding(
                           padding: const EdgeInsets.only(
                             top: 10,

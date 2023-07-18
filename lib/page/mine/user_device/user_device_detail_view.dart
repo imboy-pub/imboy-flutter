@@ -64,8 +64,8 @@ class UserDeviceDetailPage extends StatelessWidget {
                       )),
                 ),
                 onPressed: () {
-                  Get.to(()=>
-                    ChangeNamePage(
+                  Get.to(
+                    () => ChangeNamePage(
                         title: '设置设备名'.tr,
                         value: model.deviceName,
                         field: 'input',
@@ -146,27 +146,38 @@ class UserDeviceDetailPage extends StatelessWidget {
                 isBorder: false,
                 onPressed: () async {
                   String tips = '删除后，下次在该设备登录时需要进行安全验证。'.tr;
-                  Get.defaultDialog(
-                    title: 'Alert'.tr,
-                    content: Text(tips),
-                    textCancel: "  ${'取消'.tr}  ",
-                    textConfirm: "  ${'删除'.tr}  ",
-                    confirmTextColor: AppColors.primaryElementText,
-                    onConfirm: () async {
-                      bool res = await logic.deleteDevice(
-                        model.deviceId,
-                      );
-                      Get.close(2);
-                      if (res) {
-                        state.deviceList.removeAt(
-                          state.deviceList
-                              .indexWhere((e) => e.deviceId == model.deviceId),
-                        );
-                        EasyLoading.showSuccess('操作成功'.tr);
-                      } else {
-                        EasyLoading.showError('操作失败'.tr);
-                      }
-                    },
+                  final alert = n.Alert()
+                    ..content = SizedBox(
+                      height: 40,
+                      child: Center(child: Text(tips)),
+                    )
+                    ..actions = [
+                      n.Button('取消'.tr.n)
+                        ..onPressed = () {
+                          Get.close(1);
+                        },
+                      n.Button('删除'.tr.n)
+                        ..onPressed = () async {
+                          bool res = await logic.deleteDevice(
+                            model.deviceId,
+                          );
+                          Get.close(2);
+                          if (res) {
+                            state.deviceList.removeAt(
+                              state.deviceList.indexWhere(
+                                  (e) => e.deviceId == model.deviceId),
+                            );
+                            EasyLoading.showSuccess('操作成功'.tr);
+                          } else {
+                            EasyLoading.showError('操作失败'.tr);
+                          }
+                        },
+                    ];
+
+                  n.showDialog(
+                    context: Get.context!,
+                    builder: (context) => alert,
+                    barrierDismissible: true,
                   );
                 },
               ),

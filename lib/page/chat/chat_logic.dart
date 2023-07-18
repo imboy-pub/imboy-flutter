@@ -44,7 +44,7 @@ class ChatLogic extends GetxController {
   ) async {
     // final response = await rootBundle.loadString('assets/data/messages.json');
     ConversationModel? obj = await ConversationRepo().findByPeerId(peerId);
-    debugPrint("> on getMessages $peerId obj: ${obj?.toJson().toString()}");
+    // debugPrint("> on getMessages $peerId obj: ${obj?.toJson().toString()}");
     if (obj == null) {
       return [];
     }
@@ -344,7 +344,8 @@ class ChatLogic extends GetxController {
       ));
     }
 
-    bool canCollect = UserCollectLogic.getCollectKind(message) > 0 ? true : false;
+    bool canCollect =
+        UserCollectLogic.getCollectKind(message) > 0 ? true : false;
     if (canCollect) {
       items.add(popupmenu.MenuItem(
         title: '收藏'.tr,

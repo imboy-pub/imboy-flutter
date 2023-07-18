@@ -5,6 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -109,8 +111,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             width: 48.0,
           ),
         ),
-        onTap: () => Get.to(()=>
-          const SelectMemberPage(),
+        onTap: () => Get.to(
+          () => const SelectMemberPage(),
           transition: Transition.rightToLeft,
           popGesture: true, // 右滑，返回上一页
         ),
@@ -127,7 +129,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         return SizedBox(
           width: (Get.width - 60) / 5,
           child: TextButton(
-            onPressed: () => Get.to(()=> GroupMemberDetailPage(uId!)),
+            onPressed: () => Get.to(() => GroupMemberDetailPage(uId!)),
             child: Column(
               children: <Widget>[
                 ClipRRect(
@@ -197,7 +199,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   '查看全部群成员'.tr,
                   style: const TextStyle(fontSize: 14.0, color: Colors.black54),
                 ),
-                onPressed: () => Get.to(()=> GroupMemberPage(widget.peer!)),
+                onPressed: () => Get.to(() => GroupMemberPage(widget.peer!)),
               ),
             ),
             const SizedBox(height: 10.0),
@@ -328,15 +330,15 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
   handle(String title) {
     switch (title) {
       case '备注':
-        Get.to(()=> GroupDetailPage(widget.peer));
+        Get.to(() => GroupDetailPage(widget.peer));
         break;
       case '群聊名称':
-        Get.to(()=>
-          () => GroupRemarkPage(
-            groupInfoType: GroupInfoType.name,
-            text: groupName!,
-            groupId: widget.peer,
-          ),
+        Get.to(
+          () => () => GroupRemarkPage(
+                groupInfoType: GroupInfoType.name,
+                text: groupName!,
+                groupId: widget.peer,
+              ),
         )!
             .then((data) {
           groupName = data ?? groupName;
@@ -347,14 +349,14 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         // Get.to(()=> QrCodePage());
         break;
       case '群公告':
-        Get.to(()=>
-          () => GroupBillBoardPage(
-            dataGroup![0]['groupOwner'],
-            groupNotification!,
-            groupId: widget.peer!,
-            time: time!,
-            callback: (timeData) => time = timeData,
-          ),
+        Get.to(
+          () => () => GroupBillBoardPage(
+                dataGroup![0]['groupOwner'],
+                groupNotification!,
+                groupId: widget.peer!,
+                time: time!,
+                callback: (timeData) => time = timeData,
+              ),
         )!
             .then((data) {
           groupNotification = data ?? groupNotification;
@@ -375,36 +377,59 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
       case '设置当前聊天背景':
         break;
       case '我在群里的昵称':
-        Get.to(()=>
-          () => GroupRemarkPage(
-            groupInfoType: GroupInfoType.cardName,
-            text: cardName,
-            groupId: widget.peer,
-          ),
+        Get.to(
+          () => () => GroupRemarkPage(
+                groupInfoType: GroupInfoType.cardName,
+                text: cardName,
+                groupId: widget.peer,
+              ),
         )!
             .then((data) {
           cardName = data ?? cardName;
         });
         break;
       case '投诉':
-        Get.to(()=>
-          WebViewPage(CONST_HELP_URL, '投诉'),
+        Get.to(
+          () => WebViewPage(CONST_HELP_URL, '投诉'),
           transition: Transition.rightToLeft,
           popGesture: true, // 右滑，返回上一页
         );
         break;
       case '清空聊天记录':
         String tips = '确定删除群的聊天记录吗？'.tr;
-        Get.defaultDialog(
-          title: 'Alert'.tr,
-          content: Text(tips),
-          textCancel: "  ${'取消'.tr}  ",
-          textConfirm: "  ${'清空'.tr}  ",
-          confirmTextColor: AppColors.primaryElementText,
-          onConfirm: () {
-            Get.back();
-            EasyLoading.showSuccess('操作成功'.tr);
-          },
+        final alert = n.Alert()
+          // ..title = Text("Session Expired")
+          ..content = SizedBox(
+            height: 40,
+            child: Center(child: Text(tips)),
+          )
+          ..actions = [
+            n.Button('取消'.tr.n)
+              ..onPressed = () {
+                Get.close(1);
+              },
+            n.Button('确定'.tr.n)
+              ..onPressed = () async {
+                // bool res = await logic.cleanMessageByPeerId(widget.peerId);
+                // Get.back();
+                // if (res) {
+                //   backDoRefresh = true;
+                //   // 刷新会话列表
+                //   await Get.find<ConversationLogic>()
+                //       .hideConversation(widget.peerId);
+                //   // 刷新会话列表
+                //   await Get.find<ConversationLogic>().conversationsList();
+                EasyLoading.showSuccess('操作成功'.tr);
+                // } else {
+                //   EasyLoading.showError('操作失败'.tr);
+                // }
+              },
+          ];
+
+        n.showDialog(
+          context: Get.context!,
+          builder: (context) => alert,
+          barrierDismissible: true,
         );
         break;
     }

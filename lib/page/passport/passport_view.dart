@@ -2,9 +2,11 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -60,20 +62,27 @@ class PassportPage extends StatelessWidget {
           Jiffy.parseFromMillisecondsSinceEpoch(mts).format(pattern: "H:m");
       // "logged_in_on_another_device":"你的账号于%s在%s设备上登录了",
       Future.delayed(const Duration(milliseconds: 500), () {
-        Get.defaultDialog(
-          title: 'Alert'.tr,
-          content:
-              Text('info_logged_in_on_another_device'.trArgs([hm, deviceName])),
-          barrierDismissible: false,
-          confirm: TextButton(
-            onPressed: () {
-              Get.back();
-            },
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(Colors.white70),
+        final alert = n.Alert()
+          // ..title = Text("Session Expired")
+          ..content = SizedBox(
+            height: 40,
+            child: Center(
+              child: Text(
+                'info_logged_in_on_another_device'.trArgs([hm, deviceName]),
+              ),
             ),
-            child: Text('button_confirm'.tr),
-          ),
+          )
+          ..actions = [
+            n.Button('确定'.tr.n)
+              ..onPressed = () {
+                Get.back();
+              },
+          ];
+
+        n.showDialog(
+          context: Get.context!,
+          builder: (context) => alert,
+          barrierDismissible: false,
         );
       });
     }

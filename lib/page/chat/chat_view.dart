@@ -150,7 +150,7 @@ class ChatPageState extends State<ChatPage> {
         }
       }
     });
-    debugPrint("> rtc msg S_RECEIVED listen list");
+    // debugPrint("> rtc msg S_RECEIVED listen list");
     // 消息状态更新订阅
     eventBus.on<List<types.Message>>().listen((e) async {
       types.Message msg = e.first;
@@ -790,6 +790,21 @@ class ChatPageState extends State<ChatPage> {
             Chat(
               user: logic.currentUser,
               messages: logic.state.messages,
+              textMessageBuilder: (
+                types.TextMessage message, {
+                required int messageWidth,
+                required bool showName,
+              }) {
+                return IgnorePointer(
+                  child: TextMessage(
+                    emojiEnlargementBehavior: EmojiEnlargementBehavior.multi,
+                    hideBackgroundOnEmojiMessages: true,
+                    message: message,
+                    showName: showName,
+                    usePreviewData: true,
+                  ),
+                );
+              },
               imageMessageBuilder: (types.ImageMessage message,
                   {required int messageWidth}) {
                 return ImageMessageBuilder(

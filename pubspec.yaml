@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.1.8
+version: 0.1.9
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -20,8 +20,8 @@ dependencies:
   # getx 状态管理框架
   get: ^4.6.5
   # 网络请求框架
-  dio: ^5.2.1+1
-  dio_http2_adapter: ^2.3.0
+  dio: ^5.3.0
+  dio_http2_adapter: ^2.3.1
   #json序列化和反序列化用的
   json_annotation: ^4.8.1
   permission_handler: ^10.4.3
@@ -76,6 +76,8 @@ dependencies:
   #    ref: master
   # 是否联网及网络类型
   connectivity_plus: ^4.0.1
+  # 用于访问加速度计、陀螺仪和磁力计传感器的 Flutter 插件。
+  sensors_plus: ^3.0.2
   flutter_screenutil: ^5.8.4
   # 页面刷新
   easy_refresh: ^3.3.2+1
@@ -124,13 +126,14 @@ dependencies:
     git:
       url: https://gitee.com/imboy-tripartite-deps/image_crop.git
       ref: leeyi
-  # 右键菜单功能 TODO replace popup_menu
-  context_menus: ^1.0.2
+  # Flutter 的弹出窗口。弹出窗口是一种瞬态视图，当您点击某个控件或某个区域时，它会出现在屏幕上其他内容的上方。
+  popover: ^0.2.8+2
   # popup_menu: ^1.0.5
   popup_menu:
     git:
       url: https://gitee.com/imboy-tripartite-deps/popup_menu.git
       ref: master
+  # 从实用程序 Widget 和带有点级联的扩展中构建 Flutter UI。流畅地开发，没有头痛和嵌套地狱。
   niku: ^2.4.2
   # 二维码扫描
   mobile_scanner: ^3.3.0
@@ -187,7 +190,6 @@ dependencies:
   # 用于查找设备上安装的可用地图并使用标记启动它们或显示方向。
   map_launcher: ^2.5.0+1
   video_player: ^2.7.0
-  fluent_ui: ^4.7.0
   # 标签编辑框
   textfield_tags: ^2.0.2
   #filter_list: ^1.0.2

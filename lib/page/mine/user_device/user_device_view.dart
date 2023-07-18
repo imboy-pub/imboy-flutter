@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
 import 'package:flutter_slidable/flutter_slidable.dart';
-
+import 'package:get/get.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/common.dart';
-import 'package:imboy/store/model/user_device_model.dart';
-
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/store/model/user_device_model.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'user_device_detail_view.dart';
 import 'user_device_logic.dart';
@@ -109,28 +107,41 @@ class UserDevicePage extends StatelessWidget {
                                   // foregroundColor: Colors.white,
                                   onPressed: (_) async {
                                     String tips = '删除后，下次在该设备登录时需要进行安全验证。'.tr;
-                                    Get.defaultDialog(
-                                      title: 'Alert'.tr,
-                                      content: Text(tips),
-                                      textCancel: "  ${'取消'.tr}  ",
-                                      textConfirm: "  ${'删除'.tr}  ",
-                                      confirmTextColor:
-                                          AppColors.primaryElementText,
-                                      onConfirm: () async {
-                                        bool res = await logic.deleteDevice(
-                                          model.deviceId,
-                                        );
-                                        Get.back();
-                                        if (res) {
-                                          state.deviceList.removeAt(
-                                            state.deviceList.indexWhere((e) =>
-                                                e.deviceId == model.deviceId),
-                                          );
-                                          EasyLoading.showSuccess('操作成功'.tr);
-                                        } else {
-                                          EasyLoading.showError('操作失败'.tr);
-                                        }
-                                      },
+                                    final alert = n.Alert()
+                                      ..content = SizedBox(
+                                        height: 40,
+                                        child: Center(child: Text(tips)),
+                                      )
+                                      ..actions = [
+                                        n.Button('取消'.tr.n)
+                                          ..onPressed = () {
+                                            Get.close(1);
+                                          },
+                                        n.Button('删除'.tr.n)
+                                          ..onPressed = () async {
+                                            bool res = await logic.deleteDevice(
+                                              model.deviceId,
+                                            );
+                                            Get.close(2);
+                                            if (res) {
+                                              state.deviceList.removeAt(
+                                                state.deviceList.indexWhere(
+                                                    (e) =>
+                                                        e.deviceId ==
+                                                        model.deviceId),
+                                              );
+                                              EasyLoading.showSuccess(
+                                                  '操作成功'.tr);
+                                            } else {
+                                              EasyLoading.showError('操作失败'.tr);
+                                            }
+                                          },
+                                      ];
+
+                                    n.showDialog(
+                                      context: Get.context!,
+                                      builder: (context) => alert,
+                                      barrierDismissible: true,
                                     );
                                   },
                                   label: "删除".tr,
@@ -168,8 +179,8 @@ class UserDevicePage extends StatelessWidget {
                                 color: AppColors.MainTextColor.withOpacity(0.5),
                               ),
                               onTap: () {
-                                Get.to(()=>
-                                  UserDeviceDetailPage(
+                                Get.to(
+                                  () => UserDeviceDetailPage(
                                     model: model,
                                   ),
                                   transition: Transition.rightToLeft,

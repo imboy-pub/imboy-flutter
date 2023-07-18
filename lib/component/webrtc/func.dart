@@ -113,7 +113,6 @@ Future<void> incomingCallScreen(
 
   sendWebRTCMsg('ringing', {}, to: peer.uid);
   Get.defaultDialog(
-    //title: 'Alert'.tr,
     title: '',
     backgroundColor: Colors.black54,
     titlePadding: const EdgeInsets.all(0),

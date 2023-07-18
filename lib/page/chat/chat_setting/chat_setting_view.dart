@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
@@ -93,27 +94,39 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
         margin: const EdgeInsets.only(top: 10.0),
         onPressed: () {
           String tips = '确定删除聊天记录吗？'.tr;
-          Get.defaultDialog(
-            title: 'Alert'.tr,
-            content: Text(tips),
-            textCancel: "  ${'取消'.tr}  ",
-            textConfirm: "  ${'清空'.tr}  ",
-            confirmTextColor: AppColors.primaryElementText,
-            onConfirm: () async {
-              bool res = await logic.cleanMessageByPeerId(widget.peerId);
-              Get.back();
-              if (res) {
-                backDoRefresh = true;
-                // 刷新会话列表
-                await Get.find<ConversationLogic>()
-                    .hideConversation(widget.peerId);
-                // 刷新会话列表
-                await Get.find<ConversationLogic>().conversationsList();
-                EasyLoading.showSuccess('操作成功'.tr);
-              } else {
-                EasyLoading.showError('操作失败'.tr);
-              }
-            },
+          final alert = n.Alert()
+            // ..title = Text("Session Expired")
+            ..content = SizedBox(
+              height: 40,
+              child: Center(child: Text(tips)),
+            )
+            ..actions = [
+              n.Button('取消'.tr.n)
+                ..onPressed = () {
+                  Get.close(1);
+                },
+              n.Button('确定'.tr.n)
+                ..onPressed = () async {
+                  bool res = await logic.cleanMessageByPeerId(widget.peerId);
+                  Get.back();
+                  if (res) {
+                    backDoRefresh = true;
+                    // 刷新会话列表
+                    await Get.find<ConversationLogic>()
+                        .hideConversation(widget.peerId);
+                    // 刷新会话列表
+                    await Get.find<ConversationLogic>().conversationsList();
+                    EasyLoading.showSuccess('操作成功'.tr);
+                  } else {
+                    EasyLoading.showError('操作失败'.tr);
+                  }
+                },
+            ];
+
+          n.showDialog(
+            context: Get.context!,
+            builder: (context) => alert,
+            barrierDismissible: true,
           );
         },
       ),

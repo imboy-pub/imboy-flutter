@@ -1,4 +1,3 @@
-import 'package:fluent_ui/fluent_ui.dart' as fl;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:niku/namespace.dart' as n;
@@ -22,17 +21,14 @@ class GroupListPage extends StatelessWidget {
       appBar: PageAppBar(
         title: '群聊'.tr,
       ),
-      body: fl.FluentTheme(
-        data: fl.FluentThemeData(),
-        child: n.Padding(
-          left: 12,
-          top: 12,
-          right: 12,
-          child: n.Column(
-            const [],
-            // 内容文本左对齐
-            crossAxisAlignment: CrossAxisAlignment.start,
-          ),
+      body: n.Padding(
+        left: 12,
+        top: 12,
+        right: 12,
+        child: n.Column(
+          const [],
+          // 内容文本左对齐
+          crossAxisAlignment: CrossAxisAlignment.start,
         ),
       ),
     );
