@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
 
 import 'contact_model.dart';
@@ -73,9 +73,6 @@ class DenylistModel extends ISuspensionBean {
 
   factory DenylistModel.fromJson(Map<String, dynamic> json) {
     String avatar = json[UserDenylistRepo.avatar] ?? '';
-    if (strEmpty(avatar)) {
-      avatar = defAvatar;
-    }
     return DenylistModel(
       deniedUid: json["id"] ?? (json[UserDenylistRepo.deniedUid] ?? ""),
       account: json[UserDenylistRepo.account].toString(),

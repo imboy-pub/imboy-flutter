@@ -2,8 +2,8 @@ import 'dart:math' as math;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/icon_image_provider.dart';
 
-import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat/chat_binding.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/service/assets.dart';
@@ -65,15 +65,15 @@ bool isAliPayName(String value) {
 }
 
 bool strEmpty(String? val) {
-  return !strNoEmpty(val);
+  if (val == null) {
+    return true;
+  }
+  return val.trim().isEmpty;
 }
 
 /// 字符串不为空
-bool strNoEmpty(String? value) {
-  if (value == null) {
-    return false;
-  }
-  return value.trim().isNotEmpty;
+bool strNoEmpty(String? val) {
+  return !strEmpty(val);
 }
 
 /// 字符串不为空
@@ -116,7 +116,7 @@ bool isAssetsImg(String? img) {
   return img.startsWith('asset') || img.startsWith('assets');
 }
 
-double getMemoryImageCashe() {
+double getMemoryImageCache() {
   return PaintingBinding.instance.imageCache.maximumSize / 1000;
 }
 
@@ -176,13 +176,11 @@ String removeDot(v) {
 
 ///
 /// w < 0 不要缓存大文件，以节省设备存储空间
-ImageProvider<Object> cachedImageProvider(String? url, {double w = 400}) {
-  if (strEmpty(url)) {
-    return const AssetImage(defAvatar);
+ImageProvider<Object> cachedImageProvider(String url, {double w = 400}) {
+  if (url.contains("def_avatar.png", 0)) {
+    return IconImageProvider(Icons.person);
   }
-  if (url!.contains("def_avatar.png", 0)) {
-    return const AssetImage(defAvatar);
-  }
+
   Uri u = AssetsService.viewUrl(url);
   // 不要缓存大文件，以节省设备存储空间
   if (w < 0) {
@@ -196,13 +194,20 @@ ImageProvider<Object> cachedImageProvider(String? url, {double w = 400}) {
 }
 
 DecorationImage dynamicAvatar(String? avatar, {double w = 400}) {
+  // iPrint("dynamicAvatar $avatar; w $w");
+  if (strEmpty(avatar)) {
+    return DecorationImage(
+      image: IconImageProvider(Icons.person, size: w.toInt()),
+      fit: BoxFit.cover,
+    );
+  }
   return DecorationImage(
-    image: cachedImageProvider(avatar, w: w),
+    image: cachedImageProvider(avatar!, w: w),
     fit: BoxFit.cover,
   );
 }
 
-dynamic genderIcon(int gender) {
+Widget genderIcon(int gender) {
   Widget icon;
   if (gender == 1) {
     icon = const Icon(

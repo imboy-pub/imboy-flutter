@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:get/get.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 
@@ -14,6 +15,9 @@ class UserTagRelationState {
   RxList<String> recentTagItems = <String>[
     // "标签1", "aaaa", "标签2滴答滴答滴答滴答","ddd", "标签3端订单","标签3", "标签4","标签5", "标签6","标签7", "标签8","标签9", "标签10",
   ].obs;
+
+  Timer? inputTimer;
+  String lastInputTag = '';
 
   // ignore: non_constant_identifier_names
   TagAddState() {

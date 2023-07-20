@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/assets.dart';
 
@@ -57,7 +57,7 @@ class ImageView extends StatelessWidget {
           borderRadius: BorderRadius.circular(4.0),
           color: Colors.black26.withOpacity(0.1),
         ),
-        child: defAvatarIcon,
+        child: Text('no_data'.tr),
       );
     }
     if (isRadius) {

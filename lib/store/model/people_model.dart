@@ -1,5 +1,3 @@
-import 'package:imboy/config/const.dart';
-
 class PeopleModel {
   String id;
   String account;
@@ -15,13 +13,13 @@ class PeopleModel {
   PeopleModel({
     required this.id,
     this.distance = -1,
-    this.distanceUnit = "m",
+    this.distanceUnit = 'm',
     required this.account,
-    this.nickname = "",
-    this.avatar = defAvatar,
-    this.sign = "",
+    this.nickname = '',
+    this.avatar = '',
+    this.sign = '',
     this.gender = 0,
-    this.region = "",
+    this.region = '',
     this.isFriend = false,
   });
 

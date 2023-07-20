@@ -106,10 +106,10 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                 ),
                 child: Row(
                   children: <Widget>[
-                    Image.network(
-                      defGroupAvatar,
-                      width: 48,
-                    ),
+                    // Image.network(
+                    //   defGroupAvatar,
+                    //   width: 48,
+                    // ),
                     const Space(),
                     Expanded(
                       child: TextField(

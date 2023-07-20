@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:imboy/config/const.dart';
 
 class UserSettingModel {
   // 附近的人可见
@@ -42,12 +41,12 @@ class UserModel {
   UserModel({
     required this.uid,
     required this.account,
-    this.nickname = "",
-    this.avatar = defAvatar,
+    this.nickname = '',
+    this.avatar = '',
     this.gender = 0,
     this.region = "",
     this.role,
-    this.sign = "",
+    this.sign = '',
     this.setting,
   });
 

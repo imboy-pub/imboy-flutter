@@ -3,16 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-const appVsn = "0.1.0";
-
-Icon defAvatarIcon = const Icon(Icons.account_circle, size: 40);
-
-const String defGroupAvatar =
-    'http://www.flutterj.com/content/uploadfile/zidingyi/g.png';
-
 const contactAssets = 'assets/images/contact/';
-
-const defAvatar = 'assets/images/3.0x/def_avatar.png';
 
 const CONST_HELP_URL =
     'https://kf.qq.com/touch/product/wechat_app.html?scene_id=kf338';
@@ -227,5 +218,4 @@ class API {
   static const upImg = "http://111.230.251.115/oldchen/fUser/oneDaySuggestion";
   static const update = 'http://www.flutterj.com/api/update.json';
   static const uploadImg = 'http://www.flutterj.com/upload/avatar';
-
 }

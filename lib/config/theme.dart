@@ -4,11 +4,11 @@ import 'package:flutter_login/flutter_login.dart';
 import 'package:imboy/config/const.dart';
 
 @immutable
-class ImboyChatTheme extends ChatTheme {
+class IMBoyChatTheme extends ChatTheme {
   /// Creates a default chat theme. Use this constructor if you want to
   /// override only a couple of properties, otherwise create a new class
   /// which extends [ChatTheme]
-  const ImboyChatTheme({
+  const IMBoyChatTheme({
     Widget? attachmentButtonIcon,
     Color backgroundColor = AppColors.ChatBg,
     TextStyle dateDividerTextStyle = const TextStyle(

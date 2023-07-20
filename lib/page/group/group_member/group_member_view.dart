@@ -1,11 +1,9 @@
 import 'dart:convert';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/group/select_member/select_member_view.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -41,7 +39,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
 
   handle(String uId) {
     if (!strNoEmpty(uId)) {
-      Get.to(()=>const SelectMemberPage());
+      Get.to(() => const SelectMemberPage());
 //      routePush(CreateGroupChat(
 //        'invite',
 //        groupId: widget.groupId,
@@ -98,15 +96,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
               children: <Widget>[
                 ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(5)),
-                  child: !strNoEmpty(uFace)
-                      ? defAvatarIcon
-                      : CachedNetworkImage(
-                          imageUrl: uFace!,
-                          height: 48.0,
-                          width: 48.0,
-                          cacheManager: cacheManager,
-                          fit: BoxFit.cover,
-                        ),
+                  child: Avatar(imgUri: uFace ?? '', width: 48),
                 ),
                 const SizedBox(height: 2),
                 Container(

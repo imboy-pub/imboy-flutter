@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:filter_list/filter_list.dart';
 
 // ignore: implementation_imports
@@ -53,7 +55,8 @@ class UserTagRelationPage extends StatelessWidget {
     List<String> res = await logic.getRecentTagItems(scene);
     // 当前 tag合并到 recentTagItems
     for (var item in state.tagItems) {
-      if (!res.contains(item)) { // 排重
+      if (!res.contains(item)) {
+        // 排重
         res.add(item);
       }
     }
@@ -69,6 +72,127 @@ class UserTagRelationPage extends StatelessWidget {
         state.tagController.setError = '需要确认提交，该操作才生效'.tr;
       }
     });
+  }
+
+  Widget _buildHeader() {
+    return TextFieldTags(
+      // key: Key('TextFieldTags'),
+      // textEditingController: ,
+      // focusNode: tfn,
+      textfieldTagsController: state.tagController,
+      initialTags: state.tagItems,
+      textSeparators: const [' ', ','],
+      // textSeparators: const [','],
+      letterCase: LetterCase.normal,
+      validator: (String tag) {
+        bool diff = listDiff(
+          state.tagItems,
+          state.tagController.getTags,
+        );
+        debugPrint(
+            "tag_add_view_validator diff $diff, $tag, len:${tag.length}");
+        logic.valueOnChange(diff);
+        if (tag.length > 14) {
+          // 最最最最最最最最最最最最最最1
+          return '最多14个字'.tr;
+        }
+        if (state.tagController.getTags != null &&
+            state.tagController.getTags!.contains(tag)) {
+          // return 'you already entered that';
+          return '你已经输入过了'.tr;
+        }
+        return null;
+      },
+
+      inputfieldBuilder:
+          (context, tecController, fn, error, onChanged, onSubmitted) {
+        return ((context, scController, tags, onTagDelete) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: TextField(
+              // keyboardType: TextInputType.multiline,
+              // minLines: 1,
+              // maxLines: null,
+              controller: tecController,
+              // focusNode: fn,
+              decoration: InputDecoration(
+                border: UnderlineInputBorder(
+                  borderSide:
+                      BorderSide(color: tagSelectedBackgroundColor, width: 1.0),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide:
+                      BorderSide(color: tagSelectedBackgroundColor, width: 1.0),
+                ),
+                // helperText: '全部标签'.tr,
+                helperStyle: TextStyle(
+                  color: tagSelectedBackgroundColor,
+                ),
+                hintText: state.tagController.hasTags ? '' : '选择或输入标签'.tr,
+                errorText: error,
+                prefixIconConstraints:
+                    BoxConstraints(maxWidth: state.distanceToField * 1.0),
+                prefixIcon: tags.isEmpty
+                    ? null
+                    : SingleChildScrollView(
+                        controller: scController,
+                        scrollDirection: Axis.vertical,
+                        child: Wrap(
+                          // runSpacing: 7.0,
+                          children: (tags.map((String tag) {
+                            return TagItem(
+                              tag: tag,
+                              onTagDelete: (String tag) {
+                                onTagDelete(tag);
+                                final state2 =
+                                    StateProvider.of<FilterState<String>>(
+                                        context,
+                                        rebuildOnChange: true);
+                                state2.removeSelectedItem(tag);
+                              },
+                              backgroundColor: tagBackgroundColor,
+                              tagSelectedColor: tagSelectedColor,
+                              selectedBackgroundColor:
+                                  tagSelectedBackgroundColor,
+                            );
+                          }).toList()),
+                        )),
+              ),
+              onChanged: (String tag) {
+                debugPrint("input_onChanged $tag");
+                logic.state.inputTimer?.cancel();
+                logic.state.inputTimer = null;
+                logic.state.lastInputTag = tag;
+
+                logic.state.inputTimer =
+                    Timer.periodic(const Duration(seconds: 2), (timer) {
+                  onSubmitted!(logic.state.lastInputTag);
+                  logic.state.lastInputTag = '';
+                  logic.state.inputTimer?.cancel();
+                  logic.state.inputTimer = null;
+                });
+              },
+              onSubmitted: (String tag) {
+                if (tag.isEmpty) {
+                  return;
+                }
+                debugPrint("input_onSubmitted $tag");
+                final state2 = StateProvider.of<FilterState<String>>(context);
+                state2.addSelectedItem(tag);
+                if (state2.items != null &&
+                    state2.items!.contains(tag) == false) {
+                  List<String>? items = state2.items;
+                  items?.add(tag);
+                  state2.items = items;
+                }
+                state.tagController.addTag = tag;
+                // onSubmitted!(tag);
+              },
+            ),
+          );
+        });
+      },
+    );
   }
 
   @override
@@ -88,115 +212,7 @@ class UserTagRelationPage extends StatelessWidget {
                 resetButtonText: '置空'.tr,
                 applyButtonText: '确认'.tr,
                 // hideHeader: true,
-                header: TextFieldTags(
-                  // key: Key('TextFieldTags'),
-                  // textEditingController: ,
-                  // focusNode: tfn,
-                  textfieldTagsController: state.tagController,
-                  initialTags: state.tagItems,
-                  textSeparators: const [' ', ','],
-                  // textSeparators: const [','],
-                  letterCase: LetterCase.normal,
-                  validator: (String tag) {
-                    bool diff = listDiff(
-                      state.tagItems,
-                      state.tagController.getTags,
-                    );
-                    // debugPrint(
-                    //     "tag_add_view_validator diff $diff, $tag, len:${tag.length}");
-                    logic.valueOnChange(diff);
-                    if (tag.length > 14) {
-                      // 最最最最最最最最最最最最最最1
-                      return '最多14个字'.tr;
-                    }
-                    if (state.tagController.getTags != null &&
-                        state.tagController.getTags!.contains(tag)) {
-                      // return 'you already entered that';
-                      return '你已经输入过了'.tr;
-                    }
-                    return null;
-                  },
-
-                  inputfieldBuilder: (context, tecController, fn, error,
-                      onChanged, onSubmitted) {
-                    return ((context, scController, tags, onTagDelete) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: TextField(
-                          // keyboardType: TextInputType.multiline,
-                          // minLines: 1,
-                          // maxLines: null,
-                          controller: tecController,
-                          // focusNode: fn,
-                          decoration: InputDecoration(
-                            border: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: tagSelectedBackgroundColor,
-                                  width: 1.0),
-                            ),
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: tagSelectedBackgroundColor,
-                                  width: 1.0),
-                            ),
-                            // helperText: '全部标签'.tr,
-                            helperStyle: TextStyle(
-                              color: tagSelectedBackgroundColor,
-                            ),
-                            hintText:
-                                state.tagController.hasTags ? '' : '选择或输入标签'.tr,
-                            errorText: error,
-                            prefixIconConstraints: BoxConstraints(
-                                maxWidth: state.distanceToField * 1.0),
-                            prefixIcon: tags.isEmpty
-                                ? null
-                                : SingleChildScrollView(
-                                    controller: scController,
-                                    scrollDirection: Axis.vertical,
-                                    child: Wrap(
-                                      // runSpacing: 7.0,
-                                      children: (tags.map((String tag) {
-                                        return TagItem(
-                                          tag: tag,
-                                          onTagDelete: (String tag) {
-                                            onTagDelete(tag);
-                                            final state2 = StateProvider.of<
-                                                    FilterState<String>>(
-                                                context,
-                                                rebuildOnChange: true);
-                                            state2.removeSelectedItem(tag);
-                                          },
-                                          backgroundColor: tagBackgroundColor,
-                                          tagSelectedColor: tagSelectedColor,
-                                          selectedBackgroundColor:
-                                              tagSelectedBackgroundColor,
-                                        );
-                                      }).toList()),
-                                    )),
-                          ),
-                          onChanged: (String tag) {},
-                          onSubmitted: (String tag) {
-                            if (tag.isEmpty) {
-                              return;
-                            }
-                            debugPrint("input_onSubmitted $tag");
-                            final state2 =
-                                StateProvider.of<FilterState<String>>(context);
-                            state2.addSelectedItem(tag);
-                            if (state2.items != null &&
-                                state2.items!.contains(tag) == false) {
-                              List<String>? items = state2.items;
-                              items?.add(tag);
-                              state2.items = items;
-                            }
-                            state.tagController.addTag = tag;
-                            // onSubmitted!(tag);
-                          },
-                        ),
-                      );
-                    });
-                  },
-                ),
+                header: _buildHeader(),
                 enableOnlySingleSelection: false,
                 listData: state.recentTagItems,
                 selectedListData: state.tagItems,

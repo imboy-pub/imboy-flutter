@@ -850,7 +850,7 @@ class ChatPageState extends State<ChatPage> {
               onMessageStatusTap: _onMessageStatusTap,
               onMessageStatusLongPress: _onMessageStatusTap,
               hideBackgroundOnEmojiMessages: false,
-              theme: const ImboyChatTheme(),
+              theme: const IMBoyChatTheme(),
               // onTextFieldTap: () {
               // debugPrint("> on chatinput onTextFieldTap");
               // },

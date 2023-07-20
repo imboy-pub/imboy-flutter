@@ -2,16 +2,20 @@ import 'package:azlistview/azlistview.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/page/friend/new_friend/new_friend_view.dart';
+import 'package:imboy/page/chat/chat/chat_view.dart';
+import 'package:imboy/page/single/people_info.dart';
 import 'package:lpinyin/lpinyin.dart';
+import 'package:niku/namespace.dart' as n;
+
+import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/common.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/page/friend/new_friend/new_friend_view.dart';
 
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
-import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/page/group/group_list/group_list_view.dart';
 import 'package:imboy/page/people_nearby/people_nearby_view.dart';
-import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
@@ -188,7 +192,36 @@ class ContactLogic extends GetxController {
     double susHeight = 40,
     Color? defHeaderBgColor,
   }) {
-    return getChatItem(context, model, defHeaderBgColor: defHeaderBgColor);
+    return InkWell(
+      onTap: model.onPressed ??
+          () {
+            Get.to(
+              () => PeopleInfoPage(
+                id: model.peerId,
+                scene: 'contact_page', // TODO 2023-04-19 09:40:05 leeyi
+              ),
+              transition: Transition.rightToLeft,
+              popGesture: true, // 右滑，返回上一页
+            );
+          },
+      onLongPress: model.onLongPressed ??
+          () {
+            if (model.iconData == null) {
+              Get.to(
+                () => ChatPage(
+                  peerId: model.peerId,
+                  peerTitle: model.title,
+                  peerAvatar: model.avatar,
+                  peerSign: model.sign,
+                  type: 'C2C',
+                ),
+                transition: Transition.rightToLeft,
+                popGesture: true, // 右滑，返回上一页
+              );
+            }
+          },
+      child: getChatItem(context, model, defHeaderBgColor: defHeaderBgColor),
+    );
   }
 
   Widget getChatItem(
@@ -202,57 +235,68 @@ class ContactLogic extends GetxController {
     }
     // debugPrint("getChatItem ${model.toJson().toString()}");
     return Container(
-      margin: const EdgeInsets.only(top: 6, left: 10, right: 20),
-      width: Get.width,
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: AppColors.LineColor, width: 0.2),
+      padding: const EdgeInsets.only(top: 6, left: 8.0, bottom: 6),
+      color: Colors.white,
+      child: n.Row([
+        n.Padding(
+          right: 2,
+          child: model.iconData == null
+              ? Avatar(
+                  imgUri: model.avatar,
+                  width: 49,
+                  height: 49,
+                )
+              : Container(
+                  width: 49,
+                  height: 49,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(4.0),
+                    color: model.bgColor ?? defHeaderBgColor,
+                    image: avatar,
+                  ),
+                  child: model.iconData,
+                ),
         ),
-      ),
-      child: ListTile(
-        leading: Container(
-          width: 49,
-          height: 49,
-          decoration: BoxDecoration(
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(4.0),
-            color: model.bgColor ?? defHeaderBgColor,
-            image: avatar,
+        Container(
+          padding: const EdgeInsets.only(right: 0, top: 10.0, bottom: 12.0),
+          width: Get.width - 60,
+          decoration: const BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: AppColors.LineColor, width: 0.3),
+            ),
           ),
-          child: model.avatar.isNotEmpty
-              ? null
-              : (model.iconData ?? defAvatarIcon),
-        ),
-        contentPadding: const EdgeInsets.only(left: 0),
-        title: Text(
-          model.title,
-        ),
-        onTap: model.onPressed ??
-            () {
-              Get.to(
-                () => PeopleInfoPage(
-                  id: model.peerId,
-                  scene: 'contact_page', // TODO 2023-04-19 09:40:05 leeyi
+          child: n.Row([
+            const Space(width: 6),
+            Expanded(
+              child: Text(
+                model.title,
+                style: const TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.normal,
                 ),
-                transition: Transition.rightToLeft,
-                popGesture: true, // 右滑，返回上一页
-              );
-            },
-        onLongPress: model.onLongPressed ??
-            () {
-              Get.to(
-                () => ChatPage(
-                  peerId: model.peerId,
-                  peerTitle: model.title,
-                  peerAvatar: model.avatar,
-                  peerSign: model.sign,
-                  type: 'C2C',
-                ),
-                transition: Transition.rightToLeft,
-                popGesture: true, // 右滑，返回上一页
-              );
-            },
-      ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            // Space(width: mainSpace),
+            // n.Column([
+            //   // 最近会话时间
+            //   Text(
+            //     DateTimeHelper.lastTimeFmt(model.lastTime),
+            //     maxLines: 1,
+            //     overflow: TextOverflow.ellipsis,
+            //     style: const TextStyle(
+            //       color: AppColors.MainTextColor,
+            //       fontSize: 14.0,
+            //     ),
+            //   ),
+            //   const Icon(Icons.flag, color: Colors.transparent),
+            // ])
+          ]),
+        )
+      ])
+        ..crossAxisAlignment = CrossAxisAlignment.center,
     );
   }
 

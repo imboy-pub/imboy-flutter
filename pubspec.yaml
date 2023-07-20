@@ -22,6 +22,23 @@ dependencies:
   # 网络请求框架
   dio: ^5.3.0
   dio_http2_adapter: ^2.3.1
+  web_socket_channel: ^2.4.0
+  event_bus: ^2.0.0
+
+  # 一组基于 PointyCastle 的高级 API，用于双向加密。 RSA AES
+  encrypt: ^5.0.1
+  # 在纯 Dart 中实现的一组加密函数。  SHA-* MD5 HMAC
+  # crypto: ^3.0.2
+  # Flutter 开发者的密码学：加密、数字签名、密钥协议等。
+  # AES, Chacha20, ED25519, X25519, and more. Web Crypto support.
+  # https://github.com/dint-dev/cryptography
+  # cryptography: ^2.0.5
+  # cryptography_flutter: ^2.0.2
+  # e2ee
+  #webcrypto: ^0.5.2
+  # jwt 插件
+  jose: ^0.3.3
+
   #json序列化和反序列化用的
   json_annotation: ^4.8.1
   permission_handler: ^10.4.3
@@ -36,26 +53,22 @@ dependencies:
   camera: ^0.10.5+2
   wechat_camera_picker: ^3.8.0
   wechat_assets_picker: ^8.5.0
-  # 一组基于 PointyCastle 的高级 API，用于双向加密。 RSA AES
-  encrypt: ^5.0.1
-  # 在纯 Dart 中实现的一组加密函数。  SHA-* MD5 HMAC
-  # crypto: ^3.0.2
-  # Flutter 开发者的密码学：加密、数字签名、密钥协议等。
-  # AES, Chacha20, ED25519, X25519, and more. Web Crypto support.
-  # https://github.com/dint-dev/cryptography
-  # cryptography: ^2.0.5
-  # cryptography_flutter: ^2.0.2
-  # e2ee
-  #webcrypto: ^0.5.2
-  web_socket_channel: ^2.4.0
-  # jwt 插件
-  jose: ^0.3.3
-
   # 缓存
   shared_preferences: ^2.2.0
   # flutter_secure_storage: ^7.0.1
   cached_network_image: ^3.2.3
   flutter_cache_manager: ^3.3.0
+  # 在运行时从文件加载环境变量.env
+  flutter_dotenv: ^5.1.0
+  # 照片管理器
+  photo_manager: ^2.6.0
+  # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
+  video_compress: ^3.1.2
+  # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
+  path_provider: ^2.0.15
+  image_picker: ^1.0.1
+  file_picker: ^5.3.2
+  open_file: ^3.3.2
 
   logger: ^1.4.0
   sentry_flutter: ^7.8.0
@@ -67,13 +80,8 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/azlistview.git
       ref: leeyi
   webview_flutter: ^4.2.2
-  image_picker: ^1.0.1
   mime: ^1.0.4
-  open_file: ^3.3.2
-  #open_file:
-  #  git:
-  #    url: https://gitee.com/mirrors_crazecoder/open_file.git
-  #    ref: master
+
   # 是否联网及网络类型
   connectivity_plus: ^4.0.1
   # 用于访问加速度计、陀螺仪和磁力计传感器的 Flutter 插件。
@@ -81,7 +89,6 @@ dependencies:
   flutter_screenutil: ^5.8.4
   # 页面刷新
   easy_refresh: ^3.3.2+1
-  event_bus: ^2.0.0
   # https://github.com/letsar/flutter_slidable
   flutter_slidable: ^3.0.0
   # 消息提醒的红点效果
@@ -100,14 +107,6 @@ dependencies:
   emoji_picker_flutter: ^1.6.1
   # 轮播滑块小部件
   carousel_slider: ^4.2.1
-  # 在运行时从文件加载环境变量.env
-  flutter_dotenv: ^5.1.0
-  # 照片管理器
-  photo_manager: ^2.6.0
-  # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
-  video_compress: ^3.1.2
-  # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
-  path_provider: ^2.0.15
   # 具有登录/注册功能的登录小部件，有助于加快开发速度
   flutter_login: ^4.1.1
   # 进度条
@@ -171,11 +170,7 @@ dependencies:
   clock: ^1.1.1
   # 用于 HTTP 请求的可组合、多平台、基于Future的 API。
   http: ^1.1.0
-  #device_info_plus: ^8.2.2
   device_info_plus: ^9.0.2
-  #file_picker: ^5.2.10
-  file_picker: ^5.3.2
-  #package_info_plus: ^3.1.2
   package_info_plus: ^4.0.2
   # Flutter 的 Markdown 渲染器
   flutter_markdown: ^0.6.16
@@ -246,7 +241,6 @@ flutter:
   assets:
     - .env
     - assets/data/region.json
-    - assets/images/def_avatar.png
     - assets/images/splash_bg.png
     - assets/images/logo.png
     - assets/images/ic_index_bar_bubble_gray.png
@@ -260,10 +254,3 @@ flutter:
     - assets/images/chat/voice_volume_7.png
 
     - assets/images/conversation/sending.png
-    - assets/images/ic_no_data.webp
-
-    - assets/images/mine/ic_card_package.png
-    - assets/images/mine/ic_emoji.png
-    - assets/images/mine/ic_pay.png
-    - assets/images/mine/ic_setting.png
-    - assets/images/mine/ic_collections.png

@@ -204,31 +204,6 @@ class WebSocketService {
     closeSocket(false);
   }
 
-  /*
-  /// 初始化心跳
-  void initHeartBeat() {
-    debugPrint('> ws initHeartBeat');
-    destroyHeartBeat();
-    _heartBeat = Timer.periodic(
-      Duration(milliseconds: _heartTimes),
-      (timer) {
-        sentHeart();
-      },
-    );
-  }
-
-  /// 心跳
-  void sentHeart() {
-    sendMessage(pingMsg);
-  }
-
-  /// 销毁心跳
-  void destroyHeartBeat() {
-    debugPrint('> ws destroyHeartBeat');
-    _heartBeat?.cancel();
-  }
-  */
-
   void destroyReconnectTimer() {
     _reconnectTimer?.cancel();
   }
@@ -273,6 +248,7 @@ class WebSocketService {
       openSocket();
     } else if (_reconnectTimes < _reconnectCount) {
       _reconnectTimes += 1;
+      _reconnectTimer?.cancel();
       _reconnectTimer = Timer.periodic(
         Duration(milliseconds: _heartTimes),
         (timer) {

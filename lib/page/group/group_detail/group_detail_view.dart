@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/avatar.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/func.dart';
@@ -134,15 +134,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               children: <Widget>[
                 ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(5)),
-                  child: !strNoEmpty(uFace)
-                      ? defAvatarIcon
-                      : CachedNetworkImage(
-                          imageUrl: uFace,
-                          height: 48.0,
-                          width: 48.0,
-                          cacheManager: cacheManager,
-                          fit: BoxFit.cover,
-                        ),
+                  child: Avatar(imgUri: uFace, width: 48),
                 ),
                 const SizedBox(height: 2),
                 Container(

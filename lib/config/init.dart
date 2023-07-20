@@ -28,6 +28,7 @@ import 'package:imboy/service/message.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 // ignore: prefer_generic_function_type_aliases
 typedef Callback(data);
@@ -57,10 +58,15 @@ List<AvailableMap> availableMaps = [];
 
 // JPush push = JPush();
 
+String appVsn = '';
+
 Future<void> init() async {
   // 解决使用自签证书报错问题
   io.HttpOverrides.global = GlobalHttpOverrides();
 
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  appVsn = packageInfo.version;
+  debugPrint("packageInfo ${packageInfo.toString()}");
   await dotenv.load(fileName: ".env"); //
   // debugPrint("> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
 
