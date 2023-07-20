@@ -147,11 +147,7 @@ class ContactSettingTagPage extends StatelessWidget {
           Obx(() => n.TextFormField(
                 labelText: '标签'.tr,
                 controller: TextEditingController()
-                  ..text = peerTag.isEmpty
-                      ? '添加标签'.tr
-                      : (peerTag.value.endsWith(',')
-                          ? peerTag.value.substring(0, peerTag.value.length - 1)
-                          : peerTag.value),
+                  ..text = peerTag.isEmpty ? '添加标签'.tr : peerTag.value,
                 readOnly: true,
                 minLines: 1,
                 maxLines: 8,

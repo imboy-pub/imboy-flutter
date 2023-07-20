@@ -9,11 +9,12 @@ import 'package:get/get.dart';
 import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:logger/logger.dart';
 import 'package:map_launcher/map_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:imboy/component/controller.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/webrtc/session.dart';
-import 'package:imboy/page/friend/new_friend/new_friend_logic.dart';
+import 'package:imboy/page/contact/new_friend/new_friend_logic.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -28,7 +29,6 @@ import 'package:imboy/service/message.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 // ignore: prefer_generic_function_type_aliases
 typedef Callback(data);

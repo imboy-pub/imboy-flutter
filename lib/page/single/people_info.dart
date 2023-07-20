@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/page/friend/apply_friend/apply_friend_view.dart';
 import 'package:niku/namespace.dart' as n;
 
+import 'package:imboy/page/contact/apply_friend/apply_friend_view.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common.dart';
@@ -22,7 +22,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 // ignore: must_be_immutable
 class PeopleInfoPage extends StatelessWidget {
   final String id; // 用户ID
-  final String scene;
+  final String scene; // denylist or other value
 
   // late Rx<ContactModel> people;
   RxString nickname = "".obs;

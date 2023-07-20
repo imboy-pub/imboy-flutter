@@ -1,6 +1,6 @@
-
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+
 import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
@@ -36,5 +36,4 @@ class ContactSettingTagPageLogic extends GetxController {
     }
     return res;
   }
-
 }

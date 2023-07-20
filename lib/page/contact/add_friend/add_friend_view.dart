@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_view.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/search.dart';
@@ -7,7 +8,7 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 // import 'package:imboy/component/ui/search_bar.dart';
-import 'package:imboy/page/people_nearby/people_nearby_view.dart';
+import 'package:imboy/page/contact/people_nearby/people_nearby_view.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/page/uqrcode/uqrcode_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -120,8 +121,8 @@ class AddFriendPage extends StatelessWidget {
                     ),
                     n.ListTile(
                       leading: const Icon(
-                        Icons.group_add,
-                        color: Colors.green,
+                        Icons.group,
+                        color: Colors.purple,
                         size: 40,
                       ),
                       title: Transform(
@@ -175,6 +176,39 @@ class AddFriendPage extends StatelessWidget {
                       onTap: () {
                         Get.to(
                           () => const ScannerPage(),
+                          transition: Transition.rightToLeft,
+                          popGesture: true, // 右滑，返回上一页
+                        );
+                      },
+                    ),
+                    n.Padding(
+                      left: 72,
+                      child: const Divider(),
+                    ),
+                    n.ListTile(
+                      leading: const Icon(
+                        Icons.person,
+                        color: Colors.lightGreen,
+                        size: 40,
+                      ),
+                      title: Transform(
+                        transform: Matrix4.translationValues(0, 0.0, 0.0),
+                        child: Text('新注册的朋友'.tr),
+                      ),
+                      subtitle: Text(
+                        '最近新注册的并且允许被搜索到的朋友'.tr,
+                        style: const TextStyle(
+                          color: AppColors.TipColor,
+                          fontSize: 12,
+                        ),
+                      ),
+                      trailing: Icon(
+                        Icons.navigate_next,
+                        color: AppColors.MainTextColor.withOpacity(0.5),
+                      ),
+                      onTap: () {
+                        Get.to(
+                          () => RecentlyRegisteredUserPage(),
                           transition: Transition.rightToLeft,
                           popGesture: true, // 右滑，返回上一页
                         );

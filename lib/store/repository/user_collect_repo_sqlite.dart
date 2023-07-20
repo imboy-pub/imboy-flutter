@@ -80,9 +80,11 @@ class UserCollectRepo {
   // 插入一条数据
   Future<UserCollectModel> insert(UserCollectModel obj) async {
     String tag = obj.tag;
-    if (!tag.endsWith(',')) {
+    if (tag.isNotEmpty && !tag.endsWith(',')) {
       tag = "$tag,";
     }
+    tag = tag.replaceAll(',,', ',');
+
     Map<String, dynamic> insert = {
       UserCollectRepo.userId: UserRepoLocal.to.currentUid,
       UserCollectRepo.kind: obj.kind,
@@ -117,9 +119,10 @@ class UserCollectRepo {
     }
     String? tag = json[UserCollectRepo.tag];
     if (tag != null) {
-      if (!tag.endsWith(',')) {
+      if (tag.isNotEmpty && !tag.endsWith(',')) {
         tag = "$tag,";
       }
+      tag = tag.replaceAll(',,', ',');
       data[UserCollectRepo.tag] = tag;
     }
     if (strNoEmpty(json[UserCollectRepo.source])) {

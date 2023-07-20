@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,7 +14,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
-import 'package:imboy/page/friend/new_friend/new_friend_logic.dart';
+import 'package:imboy/page/contact/new_friend/new_friend_logic.dart';
 import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';

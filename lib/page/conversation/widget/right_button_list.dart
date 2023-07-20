@@ -5,7 +5,7 @@ import 'package:popover/popover.dart';
 
 import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/page/uqrcode/uqrcode_view.dart';
-import 'package:imboy/page/friend/add_friend/add_friend_view.dart';
+import 'package:imboy/page/contact/add_friend/add_friend_view.dart';
 
 class RightButton extends StatelessWidget {
   const RightButton({Key? key}) : super(key: key);

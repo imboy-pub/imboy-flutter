@@ -10,12 +10,11 @@ import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/friend/new_friend/new_friend_view.dart';
-
+import 'package:imboy/page/contact/new_friend/new_friend_view.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/page/group/group_list/group_list_view.dart';
-import 'package:imboy/page/people_nearby/people_nearby_view.dart';
+import 'package:imboy/page/contact/people_nearby/people_nearby_view.dart';
 import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';

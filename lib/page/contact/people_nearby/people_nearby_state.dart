@@ -6,9 +6,9 @@ class PeopleNearbyState {
   int page = 1;
   int size = 20;
   int limit = 90;
+  RxList peopleList = [].obs;
 
   RxBool peopleNearbyVisible = false.obs;
-  RxList peopleList = [].obs;
 
   RxString longitude = "".obs; // 经度
   RxString latitude = "".obs; // 维度

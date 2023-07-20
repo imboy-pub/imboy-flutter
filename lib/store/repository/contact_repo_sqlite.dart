@@ -77,9 +77,11 @@ class ContactRepo {
   // 插入一条数据
   Future<ContactModel> insert(ContactModel obj) async {
     String tag = obj.tag;
-    if (!tag.endsWith(',')) {
+    if (tag.isNotEmpty && !tag.endsWith(',')) {
       tag = "$tag,";
     }
+    tag = tag.replaceAll(',,', ',');
+
     Map<String, dynamic> insert = {
       ContactRepo.userId: UserRepoLocal.to.currentUid,
       ContactRepo.peerId: obj.peerId,
@@ -246,9 +248,10 @@ class ContactRepo {
     }
     String? tag = json[ContactRepo.tag];
     if (tag != null) {
-      if (!tag.endsWith(',')) {
+      if (tag.isNotEmpty && !tag.endsWith(',')) {
         tag = "$tag,";
       }
+      tag = tag.replaceAll(',,', ',');
       data[ContactRepo.tag] = tag;
     }
     if (strNoEmpty(json[ContactRepo.region])) {

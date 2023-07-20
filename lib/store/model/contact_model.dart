@@ -72,7 +72,10 @@ class ContactModel extends ISuspensionBean {
   String tag;
   final String region;
   final String sign;
-  final String source; // visit_card | qrcode | people_nearby
+  // source 可能的值
+  // visit_card | qrcode | people_nearby
+  // recently_user
+  final String source;
   final int? updateTime;
   int isFriend;
   // isFrom 好友关系发起人
@@ -108,6 +111,9 @@ class ContactModel extends ISuspensionBean {
 
   factory ContactModel.fromJson(Map<String, dynamic> json) {
     var isFrom = json[ContactRepo.isFrom] ?? 0;
+    String tag = json[ContactRepo.tag] ?? '';
+    tag = tag.replaceAll(',,', ',');
+    tag = tag.endsWith(',') ? tag.substring(0, tag.length - 1) : tag;
 
     return ContactModel(
       peerId: json["id"] ?? (json[ContactRepo.peerId] ?? ""),
@@ -117,7 +123,7 @@ class ContactModel extends ISuspensionBean {
       gender: json["gender"] ?? 0,
       status: json["status"] ?? '',
       remark: json["remark"].toString(),
-      tag: json[ContactRepo.tag] ?? '',
+      tag: tag,
       region: json["region"].toString(),
       source: json["source"].toString(),
       sign: json["sign"].toString(),
