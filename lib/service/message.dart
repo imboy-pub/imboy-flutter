@@ -4,18 +4,18 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/page/chat/chat_logic.dart';
-import 'package:imboy/page/contact/contact_logic.dart';
+import 'package:imboy/page/chat/chat/chat_logic.dart';
+import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
-import 'package:imboy/page/friend/new_friend_logic.dart';
+import 'package:imboy/page/friend/new_friend/new_friend_logic.dart';
 import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';

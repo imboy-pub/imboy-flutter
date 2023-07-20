@@ -16,7 +16,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'personal_info_logic.dart';
 import 'personal_info_state.dart';
-import 'update/update_view.dart';
+import '../update/update_view.dart';
 
 class PersonalInfoPage extends StatefulWidget {
   const PersonalInfoPage({Key? key}) : super(key: key);

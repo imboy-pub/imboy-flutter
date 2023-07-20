@@ -235,9 +235,13 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   /// https://github.com/Canardoux/flutter_sound/issues/868
   Future<void> openTheRecorder() async {
     if (!kIsWeb) {
-      var status = await Permission.microphone.request();
-      if (status != PermissionStatus.granted) {
-        throw RecordingPermissionException('Microphone permission not granted');
+      try {
+        var status = await Permission.microphone.request();
+        if (status != PermissionStatus.granted) {
+          // throw RecordingPermissionException('Microphone permission not granted');
+        }
+      } catch (e) {
+        //
       }
     }
     session ??= await AudioSession.instance;

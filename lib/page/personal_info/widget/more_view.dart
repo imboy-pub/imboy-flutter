@@ -6,8 +6,8 @@ import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
-import 'personal_info_logic.dart';
-import 'update/update_view.dart';
+import '../personal_info/personal_info_logic.dart';
+import '../update/update_view.dart';
 
 class MoreView extends StatelessWidget {
   const MoreView({Key? key}) : super(key: key);

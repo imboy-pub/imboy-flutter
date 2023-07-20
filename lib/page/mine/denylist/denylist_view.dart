@@ -9,7 +9,7 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/contact/contact_logic.dart';
+import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/denylist_model.dart';

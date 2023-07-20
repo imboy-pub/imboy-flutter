@@ -1,8 +1,9 @@
 import 'package:get/get.dart';
+
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/personal_info/more_view.dart';
+import 'package:imboy/page/personal_info/widget/more_view.dart';
 import 'package:imboy/page/uqrcode/uqrcode_view.dart';
 
 import 'personal_info_state.dart';
@@ -22,14 +23,14 @@ class PersonalInfoLogic extends GetxController {
 
   labelOnPressed(String label) {
     if (label == "more") {
-      Get.to(()=>
-        const MoreView(),
+      Get.to(
+        () => const MoreView(),
         transition: Transition.rightToLeft,
         popGesture: true, // 右滑，返回上一页
       );
     } else if (label == "user_qrcode") {
-      Get.to(()=>
-        UqrcodePage(),
+      Get.to(
+        () => UqrcodePage(),
         transition: Transition.rightToLeft,
         popGesture: true, // 右滑，返回上一页
       );

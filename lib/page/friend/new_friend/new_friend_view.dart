@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:jiffy/jiffy.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -10,11 +13,9 @@ import 'package:imboy/config/enum.dart';
 import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:jiffy/jiffy.dart';
-import 'package:niku/namespace.dart' as n;
 
-import 'add_friend_view.dart';
-import 'confirm_new_friend_view.dart';
+import '../add_friend/add_friend_view.dart';
+import '../confirm_new_friend/confirm_new_friend_view.dart';
 import 'new_friend_logic.dart';
 
 // ignore: must_be_immutable

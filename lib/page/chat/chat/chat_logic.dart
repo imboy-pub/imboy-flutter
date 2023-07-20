@@ -10,7 +10,6 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_logic.dart';
-import 'package:imboy/service/assets.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -376,15 +375,9 @@ class ChatLogic extends GetxController {
           fontSize: 10.0,
           color: Color(0xffc5c5c5),
         ),
-        // image: const Icon(
-        //   Icons.fork_right_rounded,
-        //   color: Colors.white,
-        // ),
-        image: Image.asset(
-          AssetsService.getImgPath('chat/reply_to'),
-          // size: 16,
-          color: const Color(0xffc5c5c5),
-          // package: 'flutter_plugin_record',
+        image: const Icon(
+          Icons.moving,
+          color: Color(0xffc5c5c5),
         ),
       ));
       items.add(popupmenu.MenuItem(

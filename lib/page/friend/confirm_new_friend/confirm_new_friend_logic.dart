@@ -3,13 +3,14 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
-import 'package:imboy/page/contact/contact_logic.dart';
 
-import 'new_friend_logic.dart';
+import '../../contact/contact/contact_logic.dart';
+import '../new_friend/new_friend_logic.dart';
 
 class ConfirmNewFriendLogic extends GetxController {
   // 聊天、朋友圈、运动数据等

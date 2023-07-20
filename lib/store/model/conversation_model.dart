@@ -1,8 +1,8 @@
 import 'dart:convert';
-
 import 'package:get/get.dart';
+
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/page/chat/chat_logic.dart';
+import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 
 class ConversationModel {

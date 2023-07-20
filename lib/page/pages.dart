@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/middleware/router_auth.dart';
 import 'package:imboy/page/passport/passport_view.dart';
 
-import 'contact/contact_view.dart';
-import 'mine/mine_binding.dart';
-import 'mine/mine_view.dart';
+import 'contact/contact/contact_view.dart';
+import 'mine/mine/mine_binding.dart';
+import 'mine/mine/mine_view.dart';
 import 'welcome/welcome_binding.dart';
 import 'welcome/welcome_view.dart';
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/friend/apply_friend/apply_friend_view.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/func.dart';
@@ -10,10 +11,9 @@ import 'package:imboy/component/ui/contact_card.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/chat/chat_view.dart';
-import 'package:imboy/page/contact/contact_setting_tag_view.dart';
-import 'package:imboy/page/contact/contact_setting_view.dart';
-import 'package:imboy/page/friend/apply_friend_view.dart';
+import 'package:imboy/page/chat/chat/chat_view.dart';
+import 'package:imboy/page/contact/contact_setting_tag/contact_setting_tag_view.dart';
+import 'package:imboy/page/contact/contact_setting/contact_setting_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';

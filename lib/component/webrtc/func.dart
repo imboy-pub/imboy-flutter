@@ -3,18 +3,19 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_view.dart';
+import 'package:niku/namespace.dart' as n;
+import 'package:xid/xid.dart';
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/page/p2p_call_screen/p2p_call_screen_view.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
-import 'package:xid/xid.dart';
 
 /// 初始化 ice 配置信息
 initIceServers() async {

@@ -14,7 +14,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/contact/contact_logic.dart';
+import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_logic.dart';
 import 'package:imboy/page/user_tag/user_tag_save/user_tag_save_view.dart';
 import 'package:imboy/service/assets.dart';

@@ -258,7 +258,6 @@ flutter:
     - assets/images/chat/voice_volume_5.png
     - assets/images/chat/voice_volume_6.png
     - assets/images/chat/voice_volume_7.png
-    - assets/images/chat/reply_to.png
 
     - assets/images/conversation/sending.png
     - assets/images/ic_no_data.webp

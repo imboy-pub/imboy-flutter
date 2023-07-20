@@ -48,13 +48,11 @@ import 'package:imboy/store/model/entity_video.dart';
 import 'package:imboy/store/provider/attachment_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
+import '../widget/chat_input.dart';
+import '../widget/extra_item.dart';
+import '../widget/quote_tips.dart';
+import '../widget/select_friend.dart';
 import 'chat_logic.dart';
-import 'widget/chat_input.dart';
-
-// ignore: must_be_immutable
-import 'widget/extra_item.dart';
-import 'widget/quote_tips.dart';
-import 'widget/select_friend.dart';
 
 // ignore: must_be_immutable
 class ChatPage extends StatefulWidget {

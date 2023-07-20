@@ -2,15 +2,15 @@ import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/image_gallery/image_gallery.dart';
-import 'package:imboy/component/message/message.dart';
-import 'package:imboy/page/chat/chat_logic.dart';
-import 'package:imboy/service/assets.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:niku/namespace.dart' as n;
-
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+
+import 'package:imboy/component/image_gallery/image_gallery.dart';
+import 'package:imboy/component/message/message.dart';
+import 'package:imboy/page/chat/chat/chat_logic.dart';
+import 'package:imboy/service/assets.dart';
 import 'package:imboy/config/const.dart';
 
 // ignore: must_be_immutable

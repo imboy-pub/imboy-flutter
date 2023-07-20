@@ -9,7 +9,7 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:xid/xid.dart';
 
-import '../chat_logic.dart';
+import '../chat/chat_logic.dart';
 import 'send_to_state.dart';
 
 class SendToLogic extends GetxController {

@@ -1,11 +1,11 @@
 import 'dart:math' as math;
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/chat/chat_binding.dart';
-import 'package:imboy/page/chat/chat_view.dart';
+import 'package:imboy/page/chat/chat/chat_binding.dart';
+import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -14,6 +14,7 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 iPrint(String str) {
   return debugPrint("iPrint $str");
 }
+
 // This alphabet uses `A-Za-z0-9_-` symbols. The genetic algorithm helped
 // optimize the gzip compression for this alphabet.
 const _alphabet =

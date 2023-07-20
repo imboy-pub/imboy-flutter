@@ -9,7 +9,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/page/chat/chat_view.dart';
+import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/page/single/people_info.dart';
 

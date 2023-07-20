@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/friend/denylist_view.dart';
 import 'package:imboy/page/mine/setting/setting_view.dart';
-import 'package:imboy/page/personal_info/personal_info_view.dart';
+import 'package:imboy/page/personal_info/personal_info/personal_info_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
 
+import '../denylist/denylist_view.dart';
+import '../user_collect/user_collect_view.dart';
+import '../user_device/user_device_view.dart';
 import 'mine_logic.dart';
-import 'user_collect/user_collect_view.dart';
-import 'user_device/user_device_view.dart';
 
 // ignore: must_be_immutable
 class MinePage extends StatelessWidget {
