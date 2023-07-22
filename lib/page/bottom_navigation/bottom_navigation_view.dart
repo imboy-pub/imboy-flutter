@@ -39,7 +39,7 @@ class BottomNavigationPage extends StatelessWidget {
   Widget build(BuildContext context) {
     var args = Get.arguments;
     if (args is Map<String, dynamic>) {
-      state.bottombarIndex.value = args["index"] ?? state.bottombarIndex.value;
+      state.bottombarIndex.value = args['index'] ?? state.bottombarIndex.value;
     }
 
     return Scaffold(

@@ -8,8 +8,11 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
-String getSourceTr(String source) {
+String getSourceTr(String? source) {
   debugPrint("getSourceTr $source");
+  if (source == null) {
+    return '';
+  }
   String sourceTr = "";
   // 通过QQ好友添加
   // 通过群聊添加
@@ -28,7 +31,7 @@ String getSourceTr(String source) {
       sourceTr = '';
       break;
     default:
-      sourceTr = source;
+      sourceTr = source.toString();
       break;
   }
   return sourceTr;

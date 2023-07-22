@@ -187,6 +187,9 @@ class API {
   static const turnCredential = '/user/credential';
   static const userUpdate = '/user/update';
 
+  static const ftsRecentlyUser = '/fts/recently_user';
+  static const ftsUserSearch = '/fts/user_search';
+
   static const userDevicePage = '/user_device/page';
   static const userDeviceChangeName = '/user_device/change_name';
   static const userDeviceDelete = '/user_device/delete';

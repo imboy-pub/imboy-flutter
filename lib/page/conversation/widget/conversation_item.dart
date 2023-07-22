@@ -44,7 +44,7 @@ class ConversationItem extends StatelessWidget {
     }
     // debugPrint("> on imgUri ${imgUri!}");
     return Container(
-      padding: const EdgeInsets.only(left: 8.0),
+      padding: const EdgeInsets.only(left: 10.0, top: 2),
       color: Colors.white,
       child: n.Row([
         Obx(
@@ -58,10 +58,7 @@ class ConversationItem extends StatelessWidget {
             // animationType: badges.BadgeAnimationType.scale,
             badgeContent: Text(
               remindCounter.toString(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 8,
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 8),
             ),
             // 会话头像
             child: Avatar(
@@ -71,11 +68,17 @@ class ConversationItem extends StatelessWidget {
           ),
         ),
         Container(
-          padding: const EdgeInsets.only(right: 0, top: 10.0, bottom: 12.0),
-          width: Get.width - 69,
+          margin: const EdgeInsets.only(left: 8),
+          padding: const EdgeInsets.only(
+            left: 0,
+            right: 0,
+            top: 10.0,
+            bottom: 10,
+          ),
+          width: Get.width - 78,
           decoration: const BoxDecoration(
             border: Border(
-              top: BorderSide(color: AppColors.LineColor, width: 0.2),
+              bottom: BorderSide(color: AppColors.LineColor, width: 0.25),
             ),
           ),
           child: n.Row([

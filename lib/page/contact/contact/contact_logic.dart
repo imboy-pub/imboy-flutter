@@ -8,7 +8,6 @@ import 'package:lpinyin/lpinyin.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/contact/new_friend/new_friend_view.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -234,7 +233,7 @@ class ContactLogic extends GetxController {
     }
     // debugPrint("getChatItem ${model.toJson().toString()}");
     return Container(
-      padding: const EdgeInsets.only(top: 6, left: 8.0, bottom: 6),
+      padding: const EdgeInsets.only(top: 10, left: 10.0, bottom: 6),
       color: Colors.white,
       child: n.Row([
         n.Padding(
@@ -258,15 +257,20 @@ class ContactLogic extends GetxController {
                 ),
         ),
         Container(
-          padding: const EdgeInsets.only(right: 0, top: 10.0, bottom: 12.0),
-          width: Get.width - 60,
+          margin: const EdgeInsets.only(left: 8),
+          padding: const EdgeInsets.only(
+            left: 0,
+            right: 0,
+            top: 10.0,
+            bottom: 10.0,
+          ),
+          width: Get.width - 78,
           decoration: const BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: AppColors.LineColor, width: 0.3),
+              bottom: BorderSide(color: AppColors.LineColor, width: 0.25),
             ),
           ),
           child: n.Row([
-            const Space(width: 6),
             Expanded(
               child: Text(
                 model.title,

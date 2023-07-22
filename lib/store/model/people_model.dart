@@ -8,7 +8,8 @@ class PeopleModel {
   String sign;
   double distance;
   String distanceUnit;
-  bool isFriend;
+  bool? isFriend;
+  String remark;
 
   PeopleModel({
     required this.id,
@@ -20,7 +21,8 @@ class PeopleModel {
     this.sign = '',
     this.gender = 0,
     this.region = '',
-    this.isFriend = false,
+    this.isFriend,
+    this.remark = '',
   });
 
   factory PeopleModel.fromJson(Map<String, dynamic> json) {
@@ -36,6 +38,8 @@ class PeopleModel {
       sign: json["sign"] ?? '',
       distance: dist is double ? dist : double.parse(dist.toString()),
       distanceUnit: json["unit"] ?? "m",
+      isFriend: json['is_friend'],
+      remark: json['remark'] ?? '',
     );
   }
 
@@ -50,6 +54,8 @@ class PeopleModel {
     data["sign"] = sign;
     data["distance"] = "$distance";
     data["unit"] = distanceUnit;
+    data['is_friend'] = isFriend;
+    data['remark'] = remark;
     return data;
   }
 }

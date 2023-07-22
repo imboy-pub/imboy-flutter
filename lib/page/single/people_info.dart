@@ -139,7 +139,6 @@ class PeopleInfoPage extends StatelessWidget {
                 child: LabelRow(
                   label: tag.value.isEmpty ? '备注和标签'.tr : '标签'.tr,
                   labelWidth: tag.value.isEmpty ? 96 : 40,
-                  // rightW: tag.value.isEmpty ? null : Expanded(child: Text(tag.value)),
                   // rValue: tag.value.isEmpty ? null : tag.value,
                   isLine: true,
                   rightW: SizedBox(
@@ -373,26 +372,33 @@ class PeopleInfoMorePage extends StatelessWidget {
                 child: LabelRow(
                   label: '个性签名'.tr,
                   // rValue: sign,
-                  rightW: Expanded(
-                      child: Padding(
-                    padding: const EdgeInsets.only(left: 24),
-                    child: Text(
-                      sign.value,
-                      style: TextStyle(
+                  rightW: SizedBox(
+                    width: Get.width - 100,
+                    child: n.Row([
+                      const SizedBox(width: 20),
+                      // use Expanded only within a Column, Row or Flex
+                      Expanded(
+                          child: Text(
+                        sign.value,
+                        maxLines: 8,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
                           color: AppColors.MainTextColor.withOpacity(0.7),
-                          fontWeight: FontWeight.w400),
-                    ),
-                  )),
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ))
+                    ]),
+                  ),
                   isLine: true,
                   isRight: false,
                   isSpacer: false,
                   // onPressed: () => Get.to(()=> const FriendCirclePage()),
                 ),
               ),
-              if (source.isNotEmpty)
+              if (source.value.isNotEmpty)
                 LabelRow(
                   label: '来源'.tr,
-                  rValue: '$sourcePrefix $source',
+                  rValue: '$sourcePrefix ${source.value}',
                   // rValue: getSourceTr(source.value),
                   isLine: false,
                   isRight: false,

@@ -48,4 +48,22 @@ class UserProvider extends HttpClient {
     }
     return resp.payload["token"];
   }
+
+  Future<Map<String, dynamic>?> ftsRecentlyUser({
+    int page = 1,
+    int size = 10,
+    String keyword = '',
+  }) async {
+    IMBoyHttpResponse resp = await get(API.ftsRecentlyUser, queryParameters: {
+      'page': page,
+      'size': size,
+      'keyword': keyword,
+    });
+
+    iPrint("> on UserTagProvider/page resp: ${resp.payload.toString()}");
+    if (!resp.ok) {
+      return null;
+    }
+    return resp.payload;
+  }
 }

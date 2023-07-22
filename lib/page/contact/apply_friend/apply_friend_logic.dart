@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -24,6 +23,8 @@ class ApplyFriendLogic extends GetxController {
 
   // 不看他（她）
   RxBool donotlookhim = false.obs;
+
+  Rx<String> peerTag = ''.obs;
 
   void setRole(String role) {
     // debugPrint("> on ApplyFriendLogic/setRole1 ${this.role.value} = ${role}");

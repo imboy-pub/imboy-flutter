@@ -1,15 +1,11 @@
 import 'dart:async';
-
 import 'package:filter_list/filter_list.dart';
-
 // ignore: implementation_imports
 import 'package:filter_list/src/state/filter_state.dart';
-
 // ignore: implementation_imports
 import 'package:filter_list/src/state/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 // ignore: implementation_imports
 import 'package:textfield_tags/textfield_tags.dart';
 
@@ -176,7 +172,7 @@ class UserTagRelationPage extends StatelessWidget {
                 if (tag.isEmpty) {
                   return;
                 }
-                debugPrint("input_onSubmitted $tag");
+                // debugPrint("input_onSubmitted $tag");
                 final state2 = StateProvider.of<FilterState<String>>(context);
                 state2.addSelectedItem(tag);
                 if (state2.items != null &&

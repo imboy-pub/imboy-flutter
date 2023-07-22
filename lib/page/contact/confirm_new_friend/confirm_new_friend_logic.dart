@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -24,6 +23,8 @@ class ConfirmNewFriendLogic extends GetxController {
 
   // 不看他（她）
   RxBool donotlookhim = false.obs;
+
+  Rx<String> peerTag = ''.obs;
 
   final ContactLogic contactLogic = Get.find();
   final NewFriendLogic newFriendLogic = Get.find();

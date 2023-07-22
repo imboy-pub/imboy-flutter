@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_view.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:popover/popover.dart';
 
@@ -31,7 +32,7 @@ class RightButton extends StatelessWidget {
           // barrierDismissible: false,
           // shadow: const [BoxShadow(color: Colors.white, blurRadius: 5)],
           width: 128,
-          height: 180,
+          height: 230,
           arrowHeight: 6,
           arrowWidth: 20,
           arrowDxOffset: 0,
@@ -81,7 +82,7 @@ class RightButtonList extends StatelessWidget {
             )..apply = ItemTitleStyle.style,
           ]),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         InkWell(
           onTap: () {
             Get.close(1);
@@ -104,7 +105,30 @@ class RightButtonList extends StatelessWidget {
             )..apply = ItemTitleStyle.style,
           ]),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
+        InkWell(
+          onTap: () {
+            Get.close(1);
+            Get.to(
+              () => RecentlyRegisteredUserPage(),
+              transition: Transition.rightToLeft,
+              popGesture: true, // 右滑，返回上一页
+            );
+          },
+          child: n.Row([
+            n.Padding(
+              left: 12,
+              right: 8,
+              child: n.Icon(Icons.person)
+                ..size = 18
+                ..color = Colors.white.withOpacity(0.9),
+            ),
+            n.Text(
+              '新注册的朋友'.tr,
+            )..apply = ItemTitleStyle.style,
+          ]),
+        ),
+        const SizedBox(height: 20),
         InkWell(
           onTap: () {
             Get.close(1);
@@ -127,7 +151,7 @@ class RightButtonList extends StatelessWidget {
             )..apply = ItemTitleStyle.style,
           ]),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         InkWell(
           onTap: () {
             Get.close(1);

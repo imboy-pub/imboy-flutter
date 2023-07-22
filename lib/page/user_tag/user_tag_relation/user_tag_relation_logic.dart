@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import 'package:imboy/store/provider/user_tag_provider.dart';
@@ -20,9 +19,12 @@ class UserTagRelationLogic extends GetxController {
   }
 
   Future<bool> add(String scene, String objectId, List<String> tag) async {
-    bool res = await UserTagProvider()
-        .relationAdd(scene: scene, objectId: objectId, tag: tag);
-    debugPrint("tag_add_logic/add $objectId, tag ${tag.toString()} ;");
+    bool res = await UserTagProvider().relationAdd(
+      scene: scene,
+      objectId: objectId,
+      tag: tag,
+    );
+    // debugPrint("tag_add_logic/add $objectId, tag ${tag.toString()} ;");
     if (res) {
       if (scene == 'friend') {
         await ContactRepo().update({

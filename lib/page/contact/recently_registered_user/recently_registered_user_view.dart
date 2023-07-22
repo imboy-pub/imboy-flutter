@@ -15,59 +15,101 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
   RecentlyRegisteredUserPage({super.key});
 
   final logic = Get.put(RecentlyRegisteredUserLogic());
-  final state = Get.find<RecentlyRegisteredUserLogic>().state;
+  final state = Get
+      .find<RecentlyRegisteredUserLogic>()
+      .state;
+
+  void initData() async {
+    state.page = 1;
+    var list = await logic.page(
+      page: state.page,
+      size: state.size,
+      kwd: state.kwd.value,
+    );
+    if (list.isNotEmpty) {
+      state.peopleList.value = list;
+      state.page += 1;
+    }
+
+    /*
+    controller.addListener(() async {
+      double pixels = controller.position.pixels;
+      double maxScrollExtent = controller.position.maxScrollExtent;
+      // debugPrint("RefreshIndicator_collect_ $pixels; $maxScrollExtent; ");
+      // 滑动到底部，执行加载更多操作
+      if (pixels == maxScrollExtent) {
+        var list = await logic.page(
+          page: state.page,
+          size: state.size,
+          kwd: state.kwd.value,
+        );
+        if (list.isNotEmpty) {
+          state.items.addAll(list);
+          state.page = state.page + 1;
+        } else {
+          EasyLoading.showToast('没有更多数据了'.tr);
+        }
+      }
+    });
+    */
+  }
 
   @override
   Widget build(BuildContext context) {
+    initData();
     return Scaffold(
       backgroundColor: AppColors.BgColor,
       appBar: PageAppBar(title: '新注册的朋友'.tr),
       body: SlidableAutoCloseBehavior(
-          child: n.Column(
-        [
-          Expanded(
-            child: n.Padding(
-              left: 10,
-              right: 10,
-              child: Obx(() {
-                return ListView.builder(
-                  itemCount: state.peopleList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    PeopleModel model = state.peopleList[index];
-                    return n.Column([
-                      const Divider(
-                        height: 8.0,
-                        indent: 0.0,
-                        color: Colors.black26,
-                      ),
-                      ListTile(
-                        leading: Avatar(imgUri: model.avatar),
-                        contentPadding: const EdgeInsets.only(left: 0),
-                        title: Text(model.nickname),
-                        subtitle: Text(
-                            '${model.distance.toStringAsFixed(3)} ${model.distanceUnit}'),
-                        onTap: () {
-                          Get.to(
-                            () => PeopleInfoPage(
-                              id: model.id,
-                              scene: 'recently_user',
-                            ),
-                            transition: Transition.rightToLeft,
-                            popGesture: true, // 右滑，返回上一页
-                          );
-                        },
-                      )
-                    ]);
-                  },
-                );
-              }),
+          child: n.Column([
+            Expanded(
+              child: n.Padding(
+                left: 10,
+                right: 10,
+                child: Obx(() =>
+                    ListView.builder(
+                      itemCount: state.peopleList.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        PeopleModel model = state.peopleList[index];
+                        return n.Column([
+                          if (index > 0) const Divider(
+                            height: 8.0,
+                            indent: 0.0,
+                            color: Colors.black26,
+                          ),
+                          ListTile(
+                            leading: Avatar(imgUri: model.avatar),
+                            contentPadding: const EdgeInsets.only(left: 0),
+                            title: Text(model.nickname),
+                            subtitle: n.Row([
+                              Expanded(
+                                  child: Text(
+                                    model.sign,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ))
+                            ]),
+                            onTap: () {
+                              Get.to(
+                                    () =>
+                                    PeopleInfoPage(
+                                      id: model.id,
+                                      scene: 'recently_user',
+                                    ),
+                                transition: Transition.rightToLeft,
+                                popGesture: true, // 右滑，返回上一页
+                              );
+                            },
+                          )
+                        ]);
+                      },
+                    )),
+              ),
             ),
-          ),
-        ],
-        mainAxisSize: MainAxisSize.min,
-      )
-          // ..useParent((v) => v..bg = AppColors.AppBarColor),
-          ),
+          ])
+            .. mainAxisSize = MainAxisSize.min
+        // ..useParent((v) => v..bg = AppColors.AppBarColor),
+      ),
     );
   }
 }

@@ -47,6 +47,9 @@ class ContactSettingTagPage extends StatelessWidget {
       logic.valueOnChange(false);
     });
     logic.remarkTextController.text = peerRemark;
+    if (peerRemark == 'null') {
+      logic.remarkTextController.text = '';
+    }
 
     return Scaffold(
       appBar: PageAppBar(

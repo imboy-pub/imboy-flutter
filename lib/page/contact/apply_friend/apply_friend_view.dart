@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/config/const.dart';
@@ -60,6 +61,7 @@ class ApplyFriendPage extends StatelessWidget {
           child: ElevatedButton(
             onPressed: () async {
               Map<String, dynamic> payload = {
+                "peerTag": logic.peerTag.value,
                 "from": {
                   "source": source,
                   "msg": _msgController.text,
@@ -76,6 +78,7 @@ class ApplyFriendPage extends StatelessWidget {
                   "donotlookhim": logic.donotlookhim.isTrue,
                   // donotlethimlook 前后端约定的名称，请不要随意修改
                   "donotlethimlook": logic.donotlethimlook.isTrue,
+                  "tag": "${logic.peerTag.value},",
                 },
                 "to": {}
               };
@@ -110,15 +113,11 @@ class ApplyFriendPage extends StatelessWidget {
           width: Get.width,
           height: Get.height,
           color: AppColors.BgColor,
-          child: Padding(
-            padding: const EdgeInsets.only(
-              left: 30,
-              top: 10,
-              right: 30,
-            ),
-            child: Obx(
-              () => n.Column(
-                [
+          child: n.Padding(
+            left: 30,
+            top: 10,
+            right: 30,
+            child: Obx(() => n.Column([
                   TitleTextField(
                     title: '发送添加朋友申请'.tr,
                     controller: _msgController,
@@ -136,19 +135,36 @@ class ApplyFriendPage extends StatelessWidget {
                     contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                   ),
                   Text('标签'.tr),
-                  IconTextView(
-                    leftText: '添加标签'.tr,
-                    paddingLeft: 10,
-                    onPressed: () {
-                      Get.snackbar('Tips', '功能在开发者，请稍等');
-                    },
-                    decoration: ShapeDecoration(
-                      color: const Color.fromARGB(255, 247, 247, 247),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadiusDirectional.circular(5),
-                      ),
-                    ),
-                  ),
+                  Obx(() => IconTextView(
+                        // leftText: '添加标签'.tr,
+                        leftText: logic.peerTag.isEmpty
+                            ? '添加标签'.tr
+                            : logic.peerTag.value,
+                        paddingLeft: 10,
+                        onPressed: () {
+                          Get.to(
+                            () => UserTagRelationPage(
+                              peerId: uid,
+                              peerTag: logic.peerTag.isEmpty
+                                  ? ''
+                                  : logic.peerTag.value,
+                              scene: 'friend',
+                            ),
+                            transition: Transition.rightToLeft,
+                            popGesture: true, // 右滑，返回上一页
+                          )?.then((value) {
+                            if (value != null && value is String) {
+                              logic.peerTag.value = value.toString();
+                            }
+                          });
+                        },
+                        decoration: ShapeDecoration(
+                          color: const Color.fromARGB(255, 247, 247, 247),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadiusDirectional.circular(5),
+                          ),
+                        ),
+                      )),
                   Padding(
                     padding: const EdgeInsets.only(
                       top: 14,
@@ -252,11 +268,9 @@ class ApplyFriendPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                ],
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-              ),
-            ),
+                ])
+                  ..crossAxisAlignment = CrossAxisAlignment.start
+                  ..mainAxisSize = MainAxisSize.min),
           ),
         ),
       ),

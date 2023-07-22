@@ -43,7 +43,7 @@ dependencies:
   json_annotation: ^4.8.1
   permission_handler: ^10.4.3
   permission_handler_apple: ^9.1.4
-  permission_handler_android: ^10.3.2
+  permission_handler_android: ^10.3.3
   #any permission_handler:
   #  git:
   #    url: https://gitee.com/imboy-tripartite-deps/flutter-permission-handler.git

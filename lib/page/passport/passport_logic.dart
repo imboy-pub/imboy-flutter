@@ -199,7 +199,7 @@ class PassportLogic extends GetxController {
     if (resp2.ok) {
       return null;
     } else {
-      _error = resp2.error!.message;
+      _error = resp2.error?.message ?? 'error';
       return _error;
     }
   }

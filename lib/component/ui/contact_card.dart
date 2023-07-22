@@ -65,7 +65,7 @@ class ContactCard extends StatelessWidget {
           )),
           const Space(width: mainSpace / 3),
           genderIcon(gender),
-        ],
+        ]
       ),
     ];
     if (strNoEmpty(nickname)) {

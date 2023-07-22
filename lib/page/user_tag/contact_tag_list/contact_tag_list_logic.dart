@@ -31,23 +31,12 @@ class ContactTagListLogic extends GetxController {
     // 标签应用场景 1  用户收藏记录标签  2 用户朋友标签
     String scene = 'friend';
     if (onRefresh == false) {
-      String where = "${UserTagRepo.userId} = ? and ${UserTagRepo.scene} = 2";
-      List<Object?> whereArgs = [UserRepoLocal.to.currentUid];
-      String? orderBy;
-      if (strNoEmpty(kwd)) {
-        // where =
-        //     "$where and (${UserTagRepo.name} like '%$kwd%' or ${UserTagRepo.subtitle} like '%$kwd%')";
-        where = "$where and ${UserTagRepo.name} like '%$kwd%'";
+      list = await _pageOnLocal(repo, size, offset, kwd);
+      iPrint("UserTagRepo_page logic ${list.length}");
+      // 第一页为空的时候继续往下走
+      if (!(page == 1 && list.isEmpty)) {
+        return list;
       }
-      list = await repo.page(
-        limit: size,
-        offset: offset,
-        where: where,
-        whereArgs: whereArgs,
-        orderBy: orderBy,
-      );
-      iPrint("UserTagRepo_page logic ${list.length} ; where $where");
-      return list;
     }
 
     // 检查网络状态
@@ -77,6 +66,29 @@ class ContactTagListLogic extends GetxController {
       list.add(model);
     }
     return list;
+  }
+
+  Future<List<UserTagModel>> _pageOnLocal(
+    UserTagRepo repo,
+    int size,
+    int offset,
+    String? kwd,
+  ) async {
+    String where = "${UserTagRepo.userId} = ? and ${UserTagRepo.scene} = 2";
+    List<Object?> whereArgs = [UserRepoLocal.to.currentUid];
+    String? orderBy;
+    if (strNoEmpty(kwd)) {
+      // where =
+      //     "$where and (${UserTagRepo.name} like '%$kwd%' or ${UserTagRepo.subtitle} like '%$kwd%')";
+      where = "$where and ${UserTagRepo.name} like '%$kwd%'";
+    }
+    return await repo.page(
+      limit: size,
+      offset: offset,
+      where: where,
+      whereArgs: whereArgs,
+      orderBy: orderBy,
+    );
   }
 
   Future<List<dynamic>> doSearch(query) async {
