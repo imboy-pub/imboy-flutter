@@ -61,7 +61,6 @@ class ApplyFriendPage extends StatelessWidget {
           child: ElevatedButton(
             onPressed: () async {
               Map<String, dynamic> payload = {
-                "peerTag": logic.peerTag.value,
                 "from": {
                   "source": source,
                   "msg": _msgController.text,

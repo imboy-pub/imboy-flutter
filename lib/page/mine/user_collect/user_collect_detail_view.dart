@@ -78,12 +78,10 @@ class UserCollectDetailPage extends StatelessWidget {
                             Get.to(
                               () => UserTagRelationPage(
                                 peerId: obj.kindId,
-                                // peerTag: peerTag.value,
                                 peerTag: obj.tag,
                                 scene: 'collect',
                                 title: '编辑标签'.tr,
                               ),
-                              // () => TagAddPage(peerId:peerId, peerTag:'标签1, 标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,ABCD'),
                               transition: Transition.rightToLeft,
                               popGesture: true, // 右滑，返回上一页
                             )?.then((value) {

@@ -6,6 +6,7 @@ import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/user_device_model.dart';
 import 'package:niku/namespace.dart' as n;
@@ -85,7 +86,7 @@ class UserDevicePage extends StatelessWidget {
                   left: 15,
                   right: 10,
                   child: Obx(() {
-                    return ListView.builder(
+                    return state.deviceList.isEmpty ? NoDataView(text: '暂无数据'.tr) : ListView.builder(
                       itemCount: state.deviceList.length,
                       itemBuilder: (BuildContext context, int index) {
                         UserDeviceModel model = state.deviceList[index];
