@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/provider/user_provider.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
 import 'recently_registered_user_state.dart';
 
@@ -37,9 +38,18 @@ class RecentlyRegisteredUserLogic extends GetxController {
     if (payload == null) {
       return [];
     }
-
+    ContactRepo repo = ContactRepo();
     for (var json in payload['list']) {
       PeopleModel model = PeopleModel.fromJson(json);
+      repo.update({
+        'id': json['id'],
+        ContactRepo.isFriend: json['is_friend'],
+        ContactRepo.nickname: json['nickname'],
+        ContactRepo.avatar: json['avatar'],
+        ContactRepo.sign: json['sign'],
+        ContactRepo.gender: json['gender'],
+        ContactRepo.region: json['region'],
+      });
       list.add(model);
     }
     return list;

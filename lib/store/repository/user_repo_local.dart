@@ -1,14 +1,10 @@
 import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/user_model.dart';
-import 'package:imboy/store/provider/user_provider.dart';
 
 class UserRepoLocal extends GetxController {
   static UserRepoLocal get to => Get.find();
@@ -94,23 +90,5 @@ class UserRepoLocal extends GetxController {
     WebSocketService.to.closeSocket();
     SqliteService.to.close();
     return true;
-  }
-
-  /// 刷新token
-  Future<String> refreshAccessToken() async {
-    String newToken = await (UserProvider()).refreshAccessToken(
-      UserRepoLocal.to.refreshToken,
-    );
-    if (strNoEmpty(newToken)) {
-      await StorageService.to.setString(Keys.tokenKey, newToken);
-    }
-    await Future.delayed(const Duration(seconds: 1));
-    return newToken;
-  }
-
-  @override
-  void dispose() {
-    debugPrint("> on user UserRepoSP disponse");
-    super.dispose();
   }
 }

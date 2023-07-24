@@ -1,9 +1,7 @@
 // 成功回调
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'http_exceptions.dart';
 import 'http_response.dart';
@@ -86,7 +84,6 @@ HttpException _parseException(Exception error) {
               return UnauthorisedException(
                   message: "不支持HTTP协议请求", code: errCode);
             case 706: // token无效
-              UserRepoLocal.to.refreshAccessToken();
               return BadServiceException(message: "token无效", code: errCode);
             // Get.off(LoginPage());
             default:

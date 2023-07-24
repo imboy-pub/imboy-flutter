@@ -57,6 +57,7 @@ class MinePage extends StatelessWidget {
                       n.Row([
                         Container(
                           margin: const EdgeInsets.only(top: 32.0),
+                          // color: Colors.red,
                           width: 180.0,
                           height: 180.0,
                           child: ClipRRect(
@@ -65,7 +66,7 @@ class MinePage extends StatelessWidget {
                             child: InkWell(
                               onTap: () {
                                 if (c.current.avatar.isEmpty) {
-                                  EasyLoading.showInfo('没有头像'.tr);
+                                  EasyLoading.showInfo('请进入【个人信息页面】设置头像'.tr);
                                 } else {
                                   zoomInPhotoView(c.current.avatar);
                                 }

@@ -37,7 +37,7 @@ dependencies:
   # e2ee
   #webcrypto: ^0.5.2
   # jwt 插件
-  jose: ^0.3.3
+  jose: ^0.3.4
 
   #json序列化和反序列化用的
   json_annotation: ^4.8.1
@@ -52,7 +52,7 @@ dependencies:
       #ref: master
   camera: ^0.10.5+2
   wechat_camera_picker: ^3.8.0
-  wechat_assets_picker: ^8.5.0
+  wechat_assets_picker: ^8.6.0
   # 缓存
   shared_preferences: ^2.2.0
   # flutter_secure_storage: ^7.0.1
@@ -67,7 +67,7 @@ dependencies:
   # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
   path_provider: ^2.0.15
   image_picker: ^1.0.1
-  file_picker: ^5.3.2
+  file_picker: ^5.3.3
   open_file: ^3.3.2
 
   logger: ^1.4.0

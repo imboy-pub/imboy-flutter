@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:imboy/store/provider/user_provider.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -120,7 +121,7 @@ class WebSocketService {
       String token = UserRepoLocal.to.accessToken;
       if (tokenExpired(token)) {
         debugPrint('> ws openSocket tokenExpired true');
-        token = await UserRepoLocal.to.refreshAccessToken();
+        token = await (UserProvider()).refreshAccessTokenApi(UserRepoLocal.to.refreshToken);
       }
       Map<String, dynamic> headers = await defaultHeaders();
       headers[Keys.tokenKey] = token;

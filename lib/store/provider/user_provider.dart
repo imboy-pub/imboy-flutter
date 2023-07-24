@@ -7,6 +7,7 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/passport/passport_view.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 
 class UserProvider extends HttpClient {
@@ -24,13 +25,9 @@ class UserProvider extends HttpClient {
     return resp.payload;
   }
 
-  Future<String> refreshAccessToken(String refreshToken) async {
+  Future<String> refreshAccessTokenApi(String refreshToken) async {
     if (strEmpty(refreshToken)) {
       Get.to(() => PassportPage());
-    }
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
-      return "";
     }
     IMBoyHttpResponse resp = await post(
       API.refreshToken,
@@ -41,12 +38,14 @@ class UserProvider extends HttpClient {
         },
       ),
     );
-    if (!resp.ok) {
+    String newToken = resp.payload['token']?? '';
+    if (strEmpty(newToken)) {
       WebSocketService.to.closeSocket(true);
       Get.offAll(() => PassportPage());
       return "";
     }
-    return resp.payload["token"];
+    await StorageService.to.setString(Keys.tokenKey, newToken);
+    return newToken;
   }
 
   Future<Map<String, dynamic>?> ftsRecentlyUser({
