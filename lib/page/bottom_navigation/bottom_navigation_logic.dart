@@ -51,7 +51,7 @@ class BottomNavigationLogic extends GetxController {
     // 检查WS链接状态
     WebSocketService.to;
     update([
-      state.bottombarIndex.value = index,
+      state.bottomBarIndex.value = index,
     ]);
   }
 }

@@ -27,19 +27,20 @@ class BottomNavigationPage extends StatelessWidget {
     MinePage(),
   ];
 
-  /// PageView 控制器 , 用于控制 PageView
-  PageController pageController = PageController(
-    /// 初始索引值
-    initialPage: 0,
-  );
-
   BottomNavigationPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    /// PageView 控制器 , 用于控制 PageView
+    PageController pageController = PageController(
+      /// 初始索引值
+      initialPage: state.bottomBarIndex.value,
+    );
+
     var args = Get.arguments;
     if (args is Map<String, dynamic>) {
-      state.bottombarIndex.value = args['index'] ?? state.bottombarIndex.value;
+      state.bottomBarIndex.value = args['index'] ?? state.bottomBarIndex.value;
+      pageController.jumpToPage(state.bottomBarIndex.value);
     }
 
     return Scaffold(
@@ -55,7 +56,7 @@ class BottomNavigationPage extends StatelessWidget {
       bottomNavigationBar: Obx(
         () => BottomNavigationBar(
           // 当前菜单下标
-          currentIndex: state.bottombarIndex.value,
+          currentIndex: state.bottomBarIndex.value,
           // 点击事件,获取当前点击的标签下标
           onTap: (int index) {
             logic.changeBottomBarIndex(index);
