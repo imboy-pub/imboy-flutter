@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/counter.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/dragable.dart';
@@ -13,7 +15,6 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
 // import 'package:permission_handler/permission_handler.dart';
 
 import 'p2p_call_screen_logic.dart';
@@ -57,6 +58,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
 
   bool switchRenderer = true;
   bool showTool = true;
+
   // 最小化的
   bool minimized = false;
   bool connected = false;
@@ -275,20 +277,18 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
 
   Widget _buildPeerInfo() {
     return Center(
-      child: Padding(
-        padding: EdgeInsets.only(top: Get.height * 0.3),
+      child: n.Padding(
+        top: Get.height * 0.3,
         child: n.Column([
           Avatar(
             imgUri: widget.peer.avatar,
             width: 80,
             height: 80,
           ),
-          Padding(
-            padding: const EdgeInsets.only(
-              top: 12,
-              left: 12,
-              right: 12,
-            ),
+          n.Padding(
+            top: 12,
+            left: 12,
+            right: 12,
             child: Text(
               widget.peer.nickname,
               style: const TextStyle(
@@ -308,73 +308,69 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       width: 200.0,
       height: 180.0,
       child: n.Column([
-        n.Row(
-          [
-            // 麦克风
+        n.Row([
+          // 麦克风
+          FloatingActionButton(
+            heroTag: "microphone",
+            tooltip: "microphone".tr,
+            onPressed: () {
+              var res = logic?.turnMicrophone();
+              if (res != null) {
+                setState(() {
+                  microphoneOff = res;
+                });
+              }
+            },
+            child: microphoneOff
+                ? const Icon(Icons.mic_off)
+                : const Icon(Icons.mic),
+          ),
+          if (media == 'audio')
             FloatingActionButton(
-              heroTag: "microphone",
-              tooltip: "microphone".tr,
-              onPressed: () {
-                var res = logic?.turnMicrophone();
-                if (res != null) {
-                  setState(() {
-                    microphoneOff = res;
-                  });
-                }
-              },
-              child: microphoneOff
-                  ? const Icon(Icons.mic_off)
-                  : const Icon(Icons.mic),
+              heroTag: "hangup",
+              tooltip: 'hangup'.tr,
+              onPressed: _hangUp,
+              backgroundColor: Colors.pink,
+              child: const Icon(Icons.call_end),
             ),
-            if (media == 'audio')
-              FloatingActionButton(
+          // 扬声器开关
+          FloatingActionButton(
+            heroTag: "loudspeaker",
+            tooltip: "loudspeaker".tr,
+            onPressed: () {
+              setState(() {
+                speakerOn != speakerOn;
+                logic?.switchSpeaker(speakerOn);
+              });
+            },
+            // child: const Icon(Icons.volume_up),
+            child: speakerOn
+                ? const Icon(Icons.volume_up)
+                : const Icon(Icons.volume_off),
+          ),
+          if (media == 'video')
+            FloatingActionButton(
+              heroTag: "switch_camera",
+              onPressed: logic?.switchCamera,
+              child: const Icon(Icons.switch_camera),
+            ),
+        ])
+          ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+        if (media == 'video')
+          n.Row([
+            n.Padding(
+              left: 72,
+              top: 20,
+              child: FloatingActionButton(
                 heroTag: "hangup",
                 tooltip: 'hangup'.tr,
                 onPressed: _hangUp,
                 backgroundColor: Colors.pink,
                 child: const Icon(Icons.call_end),
               ),
-            // 扬声器开关
-            FloatingActionButton(
-              heroTag: "loudspeaker",
-              tooltip: "loudspeaker".tr,
-              onPressed: () {
-                setState(() {
-                  speakerOn != speakerOn;
-                  logic?.switchSpeaker(speakerOn);
-                });
-              },
-              // child: const Icon(Icons.volume_up),
-              child: speakerOn
-                  ? const Icon(Icons.volume_up)
-                  : const Icon(Icons.volume_off),
             ),
-            if (media == 'video')
-              FloatingActionButton(
-                heroTag: "switch_camera",
-                onPressed: logic?.switchCamera,
-                child: const Icon(Icons.switch_camera),
-              ),
-          ],
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        ),
-        if (media == 'video')
-          n.Row(
-            [
-              n.Padding(
-                left: 72,
-                top: 20,
-                child: FloatingActionButton(
-                  heroTag: "hangup",
-                  tooltip: 'hangup'.tr,
-                  onPressed: _hangUp,
-                  backgroundColor: Colors.pink,
-                  child: const Icon(Icons.call_end),
-                ),
-              ),
-            ],
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          ),
+          ])
+            ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
       ]),
     );
   }

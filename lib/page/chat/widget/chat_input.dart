@@ -1,18 +1,16 @@
 import 'dart:async';
-
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
-
 // ignore: implementation_imports
 import 'package:flutter_chat_ui/src/widgets/state/inherited_chat_theme.dart'
     show InheritedChatTheme;
 import 'package:get/get.dart';
 import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/ui/emoji_picker_view.dart';
 import 'package:imboy/component/ui/image_button.dart';
 import 'package:imboy/config/init.dart';

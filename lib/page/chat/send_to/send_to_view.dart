@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/list.dart';
 import 'package:imboy/component/message/message.dart';
 import 'package:imboy/component/search.dart';
@@ -15,7 +18,6 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'send_to_logic.dart';
 
@@ -23,6 +25,7 @@ import 'send_to_logic.dart';
 class SendToPage extends StatelessWidget {
   final types.Message msg;
   final Function()? callback;
+
   SendToPage({super.key, required this.msg, this.callback});
 
   final logic = Get.put(SendToLogic());
@@ -146,27 +149,25 @@ class SendToPage extends StatelessWidget {
             // height: 460,
             // color: AppColors.ChatBg,
             // color: Colors.red,
-            child: n.Column(
-              [
-                ListTile(
-                  title: Text(
-                    '最近聊天'.tr,
-                  ),
+            child: n.Column([
+              ListTile(
+                title: Text(
+                  '最近聊天'.tr,
                 ),
-                Expanded(
-                  child: n.Padding(
-                    left: 16,
-                    child: Obx(
-                      () => n.ListView(
-                        itemCount: state.conversations.length,
-                        children:
-                            state.conversations.map(_buildListItem).toList(),
-                      ),
+              ),
+              Expanded(
+                child: n.Padding(
+                  left: 16,
+                  child: Obx(
+                    () => n.ListView(
+                      itemCount: state.conversations.length,
+                      children:
+                          state.conversations.map(_buildListItem).toList(),
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ]),
           ),
         ),
       ]),
@@ -388,72 +389,68 @@ class SendToPage extends StatelessWidget {
 
   Widget _buildListItem(ConversationModel model) {
     // String susTag = model.getSuspensionTag();
-    return n.Column(
-      [
-        // Offstage(
-        //   offstage: model.isSelect != true,
-        //   child: _buildSusWidget(susTag),
-        // ),
-        SizedBox(
-          height: _itemHeight.toDouble(),
-          child: InkWell(
-            onTap: () {
-              // debugPrint(" item_onTap multipleChoice ${state.multipleChoice}");
-              if (state.multipleChoice.isTrue) {
-                // debugPrint(" item_onTap ${model.isSelect}");
-                model.selected.value = !model.selected.value;
-                if (model.selected.isTrue) {
-                  state.selects.insert(0, model);
-                } else {
-                  state.selects.remove(model);
-                }
-                // setState(() {});
+    return n.Column([
+      // Offstage(
+      //   offstage: model.isSelect != true,
+      //   child: _buildSusWidget(susTag),
+      // ),
+      SizedBox(
+        height: _itemHeight.toDouble(),
+        child: InkWell(
+          onTap: () {
+            // debugPrint(" item_onTap multipleChoice ${state.multipleChoice}");
+            if (state.multipleChoice.isTrue) {
+              // debugPrint(" item_onTap ${model.isSelect}");
+              model.selected.value = !model.selected.value;
+              if (model.selected.isTrue) {
+                state.selects.insert(0, model);
               } else {
-                sendToDialog(model, 2);
+                state.selects.remove(model);
               }
-            },
-            child: n.Row(
-              [
-                if (state.multipleChoice.isTrue)
-                  n.Padding(
-                    right: 8,
-                    child: Icon(
-                      model.selected.isTrue
-                          ? CupertinoIcons.check_mark_circled_solid
-                          : CupertinoIcons.check_mark_circled,
-                      color: model.selected.isTrue ? Colors.green : Colors.grey,
-                    ),
-                  ),
-                Avatar(
-                  imgUri: model.avatar,
-                  width: 49,
-                  height: 49,
+              // setState(() {});
+            } else {
+              sendToDialog(model, 2);
+            }
+          },
+          child: n.Row([
+            if (state.multipleChoice.isTrue)
+              n.Padding(
+                right: 8,
+                child: Icon(
+                  model.selected.isTrue
+                      ? CupertinoIcons.check_mark_circled_solid
+                      : CupertinoIcons.check_mark_circled,
+                  color: model.selected.isTrue ? Colors.green : Colors.grey,
                 ),
-                const Space(),
-                Expanded(
-                  child: Container(
-                    alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.only(right: 30),
-                    height: _itemHeight.toDouble(),
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                          color: AppColors.LineColor,
-                          width: 0.2,
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      model.title,
-                      style: const TextStyle(fontSize: 14.0),
-                    ),
-                  ),
-                ),
-              ],
+              ),
+            Avatar(
+              imgUri: model.avatar,
+              width: 49,
+              height: 49,
             ),
-          ),
-        )
-      ],
-    );
+            const Space(),
+            Expanded(
+              child: Container(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(right: 30),
+                height: _itemHeight.toDouble(),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      color: AppColors.LineColor,
+                      width: 0.2,
+                    ),
+                  ),
+                ),
+                child: Text(
+                  model.title,
+                  style: const TextStyle(fontSize: 14.0),
+                ),
+              ),
+            ),
+          ]),
+        ),
+      )
+    ]);
   }
 }

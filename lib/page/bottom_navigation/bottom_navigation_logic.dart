@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
@@ -31,9 +32,9 @@ class BottomNavigationLogic extends GetxController {
       orderBy: "create_time desc",
       limit: 1000,
     );
-    debugPrint(
-        "> on countNewFriendRemindCounter1 ${newFriendRemindCounter.toString()}");
-    debugPrint("> on countNewFriendRemindCounter2 ${items.toString()}");
+    // debugPrint(
+    //     "> on countNewFriendRemindCounter1 ${newFriendRemindCounter.toString()}");
+    // debugPrint("> on countNewFriendRemindCounter2 ${items.toString()}");
     newFriendRemindCounter = <String>{}.obs;
     if (items.isNotEmpty) {
       for (Map<String, dynamic> e in items) {
@@ -42,8 +43,8 @@ class BottomNavigationLogic extends GetxController {
       }
     }
     update([newFriendRemindCounter]);
-    debugPrint(
-        "> on countNewFriendRemindCounter3 ${newFriendRemindCounter.toString()}");
+    // debugPrint(
+    //     "> on countNewFriendRemindCounter3 ${newFriendRemindCounter.toString()}");
   }
 
   //改变底部导航栏索引

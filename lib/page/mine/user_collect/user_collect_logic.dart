@@ -65,13 +65,19 @@ class UserCollectLogic extends GetxController {
         where =
             "$where and (${UserCollectRepo.source} like '%$kwd%' or ${UserCollectRepo.remark} like '%$kwd%' or ${UserCollectRepo.tag} like '%$kwd%')";
       }
-      return await repo.page(
+
+      List<UserCollectModel> list = await repo.page(
         limit: size,
         offset: offset,
         where: where,
         whereArgs: whereArgs,
         orderBy: orderBy,
       );
+      if (page == 1 && list.isEmpty) {
+        // 第1页没有查到数据的时候到服务端去查询
+      } else {
+        return list;
+      }
     }
 
     Map<String, dynamic> args = {
@@ -107,7 +113,8 @@ class UserCollectLogic extends GetxController {
     //     obj.info['payload']['msg_type'] ?? '';
     // Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息
     if (obj.kind == 1) {
-      body = n.Row([
+      body = n.Row(
+        [
           Expanded(
               child: Text(
             obj.info['text'] ?? (obj.info['payload']['text'] ?? ''),

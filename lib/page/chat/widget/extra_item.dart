@@ -1,11 +1,11 @@
 import 'dart:typed_data';
-
+import 'package:niku/namespace.dart' as n;
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+
 import 'package:imboy/component/location/amap_helper.dart';
-import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/location/widget.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/const.dart';

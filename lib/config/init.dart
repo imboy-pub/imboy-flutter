@@ -5,12 +5,13 @@ import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart' as getx;
-import 'package:get/get.dart';
-import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:logger/logger.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import 'package:imboy/component/helper/jwt.dart';
+import 'package:imboy/page/contact/contact/contact_logic.dart';
+import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/component/controller.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/webrtc/session.dart';
@@ -108,6 +109,11 @@ Future<void> init() async {
     LifecycleEventHandler(
       resumeCallBack: () async {
         // app 恢复
+        String token = UserRepoLocal.to.accessToken;
+        if (tokenExpired(token)) {
+          debugPrint('LifecycleEventHandler tokenExpired true');
+          await (UserProvider()).refreshAccessTokenApi(UserRepoLocal.to.refreshToken);
+        }
         // 统计新申请好友数量
         bnLogic.countNewFriendRemindCounter();
         debugPrint("> on LifecycleEventHandler resumeCallBack");

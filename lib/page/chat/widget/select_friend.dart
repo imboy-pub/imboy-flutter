@@ -52,8 +52,8 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
   void loadData() async {
     // 加载联系人列表
     contactList.value = await Get.find<ContactLogic>().listFriend(false);
-    debugPrint(
-        "_handleVisitCardSelection contactList ${contactList.toString()}");
+    // debugPrint(
+    //     "_handleVisitCardSelection contactList ${contactList.toString()}");
     _handleList(contactList);
   }
 
@@ -186,61 +186,59 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
 
   Widget _buildListItem(ContactModel model) {
     // String susTag = model.getSuspensionTag();
-    return n.Column(
-      [
-        // Offstage(
-        //   offstage: model.selected != true,
-        //   child: _buildSusWidget(susTag),
-        // ),
-        SizedBox(
-          height: _itemHeight.toDouble(),
-          child: InkWell(
-            onTap: () {
-              sendToDialog(model);
-              // model.selected = !model.selected;
-              // if (model.selected) {
-              //   selects.insert(0, model);
-              // } else {
-              //   selects.remove(model);
-              // }
-              // setState(() {});
-            },
-            child: n.Row(
-              [
-                n.Padding(
-                  left: 16,
-                  child: Avatar(
-                    imgUri: model.avatar,
-                    width: 49,
-                    height: 49,
-                  ),
+    return n.Column([
+      // Offstage(
+      //   offstage: model.selected != true,
+      //   child: _buildSusWidget(susTag),
+      // ),
+      SizedBox(
+        height: _itemHeight.toDouble(),
+        child: InkWell(
+          onTap: () {
+            sendToDialog(model);
+            // model.selected = !model.selected;
+            // if (model.selected) {
+            //   selects.insert(0, model);
+            // } else {
+            //   selects.remove(model);
+            // }
+            // setState(() {});
+          },
+          child: n.Row(
+            [
+              n.Padding(
+                left: 16,
+                child: Avatar(
+                  imgUri: model.avatar,
+                  width: 49,
+                  height: 49,
                 ),
-                const Space(),
-                Expanded(
-                  child: Container(
-                    alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.only(right: 30),
-                    height: _itemHeight.toDouble(),
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                          color: AppColors.LineColor,
-                          width: 0.2,
-                        ),
+              ),
+              const Space(),
+              Expanded(
+                child: Container(
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.only(right: 30),
+                  height: _itemHeight.toDouble(),
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                        color: AppColors.LineColor,
+                        width: 0.2,
                       ),
                     ),
-                    child: Text(
-                      model.title,
-                      style: const TextStyle(fontSize: 14.0),
-                    ),
+                  ),
+                  child: Text(
+                    model.title,
+                    style: const TextStyle(fontSize: 14.0),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        )
-      ],
-    );
+        ),
+      )
+    ]);
   }
 
   @override
@@ -273,75 +271,73 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
       ),
       backgroundColor: Colors.white,
       body: Obx(
-        () => n.Stack(
-          [
-            RefreshIndicator(
-              onRefresh: () async {
-                debugPrint(">>> contact onRefresh");
-                // 检查网络状态
-                var res = await Connectivity().checkConnectivity();
-                if (res == ConnectivityResult.none) {
-                  String msg = 'tip_connect_desc'.tr;
-                  EasyLoading.showInfo(' $msg        ');
-                  return;
+        () => n.Stack([
+          RefreshIndicator(
+            onRefresh: () async {
+              debugPrint(">>> contact onRefresh");
+              // 检查网络状态
+              var res = await Connectivity().checkConnectivity();
+              if (res == ConnectivityResult.none) {
+                String msg = 'tip_connect_desc'.tr;
+                EasyLoading.showInfo(' $msg        ');
+                return;
+              }
+              List<ContactModel> contact =
+                  await Get.find<ContactLogic>().listFriend(true);
+              if (contact.isNotEmpty) {
+                contactList.value = contact;
+                // contactIsEmpty.value = contactList.isEmpty;
+                _handleList(contactList);
+              }
+            },
+            child: AzListView(
+              data: contactList,
+              itemCount: contactList.length,
+              itemBuilder: (context, i) => _buildListItem(contactList[i]),
+              // 解决联系人数据量少的情况下无法刷新的问题
+              // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
+              physics: const AlwaysScrollableScrollPhysics(),
+              susItemBuilder: (BuildContext context, int index) {
+                ContactModel model = contactList[index];
+                if ('↑' == model.getSuspensionTag()) {
+                  return Container();
                 }
-                List<ContactModel> contact =
-                    await Get.find<ContactLogic>().listFriend(true);
-                if (contact.isNotEmpty) {
-                  contactList.value = contact;
-                  // contactIsEmpty.value = contactList.isEmpty;
-                  _handleList(contactList);
-                }
-              },
-              child: AzListView(
-                data: contactList,
-                itemCount: contactList.length,
-                itemBuilder: (context, i) => _buildListItem(contactList[i]),
-                // 解决联系人数据量少的情况下无法刷新的问题
-                // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
-                physics: const AlwaysScrollableScrollPhysics(),
-                susItemBuilder: (BuildContext context, int index) {
-                  ContactModel model = contactList[index];
-                  if ('↑' == model.getSuspensionTag()) {
-                    return Container();
-                  }
 
-                  return Get.find<ContactLogic>()
-                      .getSusItem(context, model.getSuspensionTag());
-                },
-                // indexBarData: const ['↑', ...kIndexBarData],
-                indexBarData: contactList.isNotEmpty
-                    ? ['↑', ...currIndexBarData.toList()]
-                    : [],
-                indexBarOptions: IndexBarOptions(
-                  needRebuild: true,
-                  ignoreDragCancel: true,
-                  downTextStyle: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.white,
-                  ),
-                  downItemDecoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.green,
-                  ),
-                  indexHintWidth: 128 / 2,
-                  indexHintHeight: 128 / 2,
-                  indexHintDecoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage(
-                        AssetsService.getImgPath('ic_index_bar_bubble_gray'),
-                      ),
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  indexHintAlignment: Alignment.centerRight,
-                  indexHintChildAlignment: const Alignment(-0.25, 0.0),
-                  indexHintOffset: const Offset(-20, 0),
+                return Get.find<ContactLogic>()
+                    .getSusItem(context, model.getSuspensionTag());
+              },
+              // indexBarData: const ['↑', ...kIndexBarData],
+              indexBarData: contactList.isNotEmpty
+                  ? ['↑', ...currIndexBarData.toList()]
+                  : [],
+              indexBarOptions: IndexBarOptions(
+                needRebuild: true,
+                ignoreDragCancel: true,
+                downTextStyle: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.white,
                 ),
+                downItemDecoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green,
+                ),
+                indexHintWidth: 128 / 2,
+                indexHintHeight: 128 / 2,
+                indexHintDecoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(
+                      AssetsService.getImgPath('ic_index_bar_bubble_gray'),
+                    ),
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                indexHintAlignment: Alignment.centerRight,
+                indexHintChildAlignment: const Alignment(-0.25, 0.0),
+                indexHintOffset: const Offset(-20, 0),
               ),
-            )
-          ],
-        ),
+            ),
+          )
+        ]),
       ),
     );
   }
