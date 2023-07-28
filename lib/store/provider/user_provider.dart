@@ -25,9 +25,11 @@ class UserProvider extends HttpClient {
     return resp.payload;
   }
 
-  Future<String> refreshAccessTokenApi(String refreshToken) async {
+  Future<String> refreshAccessTokenApi(String refreshToken,
+      {bool checkNewToken = true}) async {
     if (strEmpty(refreshToken)) {
-      Get.to(() => PassportPage());
+      Get.offAll(() => PassportPage());
+      return "";
     }
     IMBoyHttpResponse resp = await post(
       API.refreshToken,
@@ -35,11 +37,12 @@ class UserProvider extends HttpClient {
         contentType: "application/x-www-form-urlencoded",
         headers: {
           Keys.refreshTokenKey: refreshToken,
+          'sign': '',
         },
       ),
     );
-    String newToken = resp.payload['token']?? '';
-    if (strEmpty(newToken)) {
+    String newToken = resp.payload['token'] ?? '';
+    if (checkNewToken && strEmpty(newToken)) {
       WebSocketService.to.closeSocket(true);
       Get.offAll(() => PassportPage());
       return "";

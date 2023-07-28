@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-
+import 'package:get/get.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
@@ -13,8 +14,8 @@ import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/contact/contact/contact_logic.dart';
-import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/contact/new_friend/new_friend_logic.dart';
+import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -22,6 +23,7 @@ import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
+import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -140,7 +142,8 @@ class MessageService extends GetxService {
         // TODO
         break;
       case '706': // 需要重新登录
-        Get.off(() => PassportPage());
+        WebSocketService.to.closeSocket(true);
+        Get.offAll(() => PassportPage());
         break;
     }
   }
@@ -153,6 +156,8 @@ class MessageService extends GetxService {
     }
     String msgId = data['id'] ?? '';
     String msgType = payload['msg_type'] ?? '';
+    String currentDID = await DeviceExt.did;
+    bool autoAck = true;
     switch (msgType.toString().toLowerCase()) {
       case 'apply_friend': // 添加朋友申请
         newFriendLogic.receivedAddFriend(data);
@@ -199,6 +204,7 @@ class MessageService extends GetxService {
           'sign': payload['from']['sign'],
           'gender': payload['from']['gender'],
           'remark': payload['from']['remark'] ?? '',
+          ContactRepo.tag: payload['from'][ContactRepo.tag] ?? '',
           'region': payload['from']['region'],
           'source': payload['from']['source'],
         };
@@ -216,9 +222,8 @@ class MessageService extends GetxService {
         Get.find<ChatLogic>().setSysPrompt(msgId, 'not_a_friend');
         break;
       case 'logged_another_device': // 在其他设备登录了
-        String currentId = await DeviceExt.did;
         String did = payload['did'] ?? '';
-        if (did != currentId) {
+        if (did != currentDID) {
           int serverTs = data['server_ts'] ?? 0;
           WebSocketService.to.closeSocket();
           UserRepoLocal.to.logout();
@@ -228,7 +233,16 @@ class MessageService extends GetxService {
             "dname": payload['dname'] ?? '', // 设备名称
           });
         }
-
+        break;
+      case 'please_refresh_token': // 服务端通知客户端刷新token
+        String tk = await (UserProvider()).refreshAccessTokenApi(
+            UserRepoLocal.to.refreshToken,
+            checkNewToken: false);
+        autoAck = false;
+        if (tk.isNotEmpty) {
+          debugPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$currentDID,$autoAck");
+          WebSocketService.to.sendMessage("CLIENT_ACK,S2C,$msgId,$currentDID");
+        }
         break;
       case 'online': // 好友上线提醒
         // TODO
@@ -242,9 +256,10 @@ class MessageService extends GetxService {
         break;
     }
     // 确认消息
-    String did = await DeviceExt.did;
-    debugPrint("> rtc msg CLIENT_ACK,S2C,${data['id']},$did");
-    WebSocketService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
+    if (autoAck) {
+      debugPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$currentDID");
+      WebSocketService.to.sendMessage("CLIENT_ACK,S2C,$msgId,$currentDID");
+    }
   }
 
   /// Called before [onDelete] method. [onClose] might be used to

@@ -1,9 +1,9 @@
 import 'dart:io';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'package:image_picker/image_picker.dart';
 import 'package:imboy/component/helper/crop_image.dart';
@@ -41,6 +41,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       Get.snackbar("提示", "网络连接异常");
       return;
     }
+
     await ImagePicker()
         .pickImage(source: ImageSource.camera)
         .then((avatarFile) {
@@ -68,9 +69,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     });
   }
 
-  void cropImage(XFile xfile) async {
+  void cropImage(XFile x) async {
     Get.back();
-    File originalImage = File(xfile.path);
+    File originalImage = File(x.path);
 
     String url = await Navigator.push(
       context,
@@ -131,7 +132,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(title: '个人信息'.tr),
       body: SingleChildScrollView(
-          child: Column(children: [
+          child: n.Column([
         LabelRow(
           label: '头像'.tr,
           isLine: true,
@@ -148,54 +149,52 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             SizedBox(
               width: Get.width,
               height: 168,
-              child: Wrap(
-                children: <Widget>[
-                  Center(
-                    child: TextButton(
-                      onPressed: () => fromCamera(),
-                      child: Text(
-                        'button_taking_pictures'.tr,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          // color: Colors.white,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.normal,
-                        ),
+              child: n.Wrap([
+                Center(
+                  child: TextButton(
+                    onPressed: () => fromCamera(),
+                    child: Text(
+                      'button_taking_pictures'.tr,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        // color: Colors.white,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.normal,
                       ),
                     ),
                   ),
-                  const Divider(),
-                  Center(
-                    child: TextButton(
-                      onPressed: () => fromGallery(),
-                      child: Text(
-                        '从相册选择'.tr,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          // color: Colors.white,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.normal,
-                        ),
+                ),
+                const Divider(),
+                Center(
+                  child: TextButton(
+                    onPressed: () => fromGallery(),
+                    child: Text(
+                      '从相册选择'.tr,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        // color: Colors.white,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.normal,
                       ),
                     ),
                   ),
-                  const HorizontalLine(height: 6),
-                  Center(
-                    child: TextButton(
-                      onPressed: () => Get.back(),
-                      child: Text(
-                        'button_cancel'.tr,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          // color: Colors.white,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.normal,
-                        ),
+                ),
+                const HorizontalLine(height: 6),
+                Center(
+                  child: TextButton(
+                    onPressed: () => Get.back(),
+                    child: Text(
+                      'button_cancel'.tr,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        // color: Colors.white,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.normal,
                       ),
                     ),
-                  )
-                ],
-              ),
+                  ),
+                )
+              ]),
             ),
             backgroundColor: Colors.white,
             //改变shape这里即可
@@ -248,8 +247,8 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             enableDrag: false,
           ),
         ),
-        Column(
-          children: data
+        n.Column(
+          data
               .map((item) => buildContent(item, UserRepoLocal.to.current))
               .toList(),
         ),

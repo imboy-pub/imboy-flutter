@@ -112,7 +112,9 @@ Future<void> init() async {
         String token = UserRepoLocal.to.accessToken;
         if (tokenExpired(token)) {
           debugPrint('LifecycleEventHandler tokenExpired true');
-          await (UserProvider()).refreshAccessTokenApi(UserRepoLocal.to.refreshToken);
+          await (UserProvider()).refreshAccessTokenApi(
+            UserRepoLocal.to.refreshToken,
+          );
         }
         // 统计新申请好友数量
         bnLogic.countNewFriendRemindCounter();

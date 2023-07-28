@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.1.9
+version: 0.1.11
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -44,6 +44,7 @@ dependencies:
   permission_handler: ^10.4.3
   permission_handler_apple: ^9.1.4
   permission_handler_android: ^10.3.3
+  permission_handler_platform_interface: ^3.11.3
   #any permission_handler:
   #  git:
   #    url: https://gitee.com/imboy-tripartite-deps/flutter-permission-handler.git
@@ -52,7 +53,7 @@ dependencies:
       #ref: master
   camera: ^0.10.5+2
   wechat_camera_picker: ^3.8.0
-  wechat_assets_picker: ^8.6.0
+  wechat_assets_picker: ^8.6.1
   # 缓存
   shared_preferences: ^2.2.0
   # flutter_secure_storage: ^7.0.1
@@ -61,17 +62,19 @@ dependencies:
   # 在运行时从文件加载环境变量.env
   flutter_dotenv: ^5.1.0
   # 照片管理器
-  photo_manager: ^2.6.0
+  photo_manager: ^2.7.0
   # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
   video_compress: ^3.1.2
   # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
   path_provider: ^2.0.15
   image_picker: ^1.0.1
+  image_picker_macos: ^0.2.1
+  image_picker_platform_interface: ^2.9.0
   file_picker: ^5.3.3
   open_file: ^3.3.2
 
-  logger: ^1.4.0
-  sentry_flutter: ^7.8.0
+  logger: ^2.0.1
+  sentry_flutter: ^7.9.0
   photo_view: ^0.14.0
   lpinyin: ^2.0.3
   #azlistview: ^2.0.0
@@ -147,7 +150,7 @@ dependencies:
   # 将图像保存到图库的 flutter 插件
   image_gallery_saver: ^2.0.2
   # SQLite 的 Flutter 插件，一个独立的、高可靠性的嵌入式 SQL 数据库引擎。
-  sqflite: ^2.2.8+4
+  sqflite: ^2.3.0
   #sqlite3: ^1.11.2
   #sqflite_common_ffi: ^2.2.5
   # 一个跨平台插件，用于显示和安排 Flutter 应用程序的本地通知，并能够针对每个平台进行自定义。
@@ -179,7 +182,7 @@ dependencies:
   # 用于 Flutter 的 SVG 渲染和小部件库，允许绘制和显示可缩放矢量图形 1.1 文件。
   flutter_svg: ^2.0.7
   # 动画效果
-  flutter_animate: ^4.2.0
+  flutter_animate: ^4.2.0+1
   # dart 对象比较
   equatable: ^2.0.5
   # 用于查找设备上安装的可用地图并使用标记启动它们或显示方向。
@@ -219,6 +222,7 @@ dependencies:
 
 dependency_overrides:
   http: ^1.1.0
+  logger: ^2.0.1
   #webview_flutter_wkwebview: '3.5.0'
 
 dev_dependencies:
