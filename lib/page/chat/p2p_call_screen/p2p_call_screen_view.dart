@@ -339,7 +339,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
             tooltip: "loudspeaker".tr,
             onPressed: () {
               setState(() {
-                speakerOn != speakerOn;
+                speakerOn = !speakerOn;
                 logic?.switchSpeaker(speakerOn);
               });
             },
