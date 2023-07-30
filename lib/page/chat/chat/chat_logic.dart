@@ -64,7 +64,7 @@ class ChatLogic extends GetxController {
     return messages;
   }
 
-  bool sendWsMsg(MessageModel obj) {
+  Future<bool> sendWsMsg(MessageModel obj) async {
     if (obj.status == MessageStatus.sending) {
       Map<String, dynamic> msg = {
         'ts': DateTimeHelper.currentTimeMillis(),
@@ -76,7 +76,7 @@ class ChatLogic extends GetxController {
         'created_at': obj.createdAt,
       };
       debugPrint("> on msg check sending ${msg.toString()}");
-      return WebSocketService.to.sendMessage(json.encode(msg));
+      return await WebSocketService.to.sendMessage(json.encode(msg));
     }
     return true;
   }

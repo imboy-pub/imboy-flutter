@@ -100,7 +100,7 @@ class WebSocketService {
   }
 
   /// 开启WebSocket连接
-  void openSocket() async {
+  Future<void> openSocket() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       debugPrint('> ws openSocket 网络连接异常ws');
@@ -234,18 +234,24 @@ class WebSocketService {
   }
 
   /// 发送WebSocket消息
-  bool sendMessage(String message) {
+  Future<bool> sendMessage(String msg) async {
     bool result = false;
-    openSocket();
-    if (isConnected) {
-      // debugPrint('> ws sendMsg $message');
-      _webSocketChannel!.sink.add(message);
-      // waitMsg = true;
-    } else {
-      debugPrint(
-          '> sendMessage error _socketStatus ${_socketStatus.toString()} $message ${DateTime.now()}');
+    if (isConnected == false) {
+      await openSocket();
+    }
+    // debugPrint('> ws sendMsg $msg');
+    try {
+      result = _send(msg);
+    } catch (e) {
+      await openSocket();
+      result = _send(msg);
     }
     return result;
+  }
+
+  bool _send(String msg) {
+    _webSocketChannel!.sink.add(msg);
+    return true;
   }
 
   /// 重连机制
