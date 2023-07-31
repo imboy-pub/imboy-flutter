@@ -60,21 +60,26 @@ List<AvailableMap> availableMaps = [];
 // JPush push = JPush();
 
 String appVsn = '';
-
+String appVsnXY = '';
+String deviceId = '';
 Future<void> init() async {
   // 解决使用自签证书报错问题
   io.HttpOverrides.global = GlobalHttpOverrides();
+  // Get.put(DeviceExt()); 需要放到靠前
+  getx.Get.put(DeviceExt());
 
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
   appVsn = packageInfo.version;
+  List<String> li = appVsn.split(RegExp(r"(\.)"));
+  appVsnXY = '${li[0]}.${li[1]}';
   debugPrint("packageInfo ${packageInfo.toString()}");
+  deviceId = await DeviceExt.did;
   await dotenv.load(fileName: ".env"); //
   // debugPrint("> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
 
   // 放在 UserRepoLocal 前面
   await getx.Get.putAsync<StorageService>(() => StorageService().init());
-  // Get.put(DeviceExt()); 需要放到靠前
-  getx.Get.put(DeviceExt());
+
   getx.Get.put(UserRepoLocal(), permanent: true);
   getx.Get.lazyPut(() => ThemeController());
 

@@ -1,19 +1,18 @@
 import 'dart:io';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
-
 // ignore: implementation_imports
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart' as getx;
-import 'package:imboy/component/extension/device_ext.dart';
+
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/encrypter.dart';
+import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'http_config.dart';
@@ -22,13 +21,14 @@ import 'http_response.dart';
 import 'http_transformer.dart';
 
 Future<Map<String, dynamic>> defaultHeaders() async {
-  String did = await DeviceExt.did;
   return {
     'vsn': appVsn,
-    'did': did,
+    'did': deviceId,
     'cos': Platform.operatingSystem,
     'cosv': Platform.operatingSystemVersion,
-    'sign': EncrypterService.sha256("$did|$appVsn", SOLIDIFIED_KEY)
+    'method': 'sha512',
+    // appVsnXY = "$X.$Y";
+    'sign': EncrypterService.sha512("$deviceId|$appVsnXY", SOLIDIFIED_KEY)
   };
 }
 
@@ -99,6 +99,7 @@ class HttpClient {
       _dio.options.headers[Keys.tokenKey] = tk;
     }
     Map<String, dynamic> headers = await defaultHeaders();
+    iPrint("_setDefaultConfig headers: ${headers.toString()}");
     _dio.options.headers.addAll(headers);
   }
 
@@ -123,7 +124,26 @@ class HttpClient {
         cancelToken: cancelToken,
         onReceiveProgress: onReceiveProgress,
       );
-      return handleResponse(response, httpTransformer: httpTransformer);
+      IMBoyHttpResponse resp = handleResponse(
+        response,
+        httpTransformer: httpTransformer,
+      );
+      if (resp.code == 705) {
+        String tk = await (UserProvider()).refreshAccessTokenApi(
+            UserRepoLocal.to.refreshToken,
+            checkNewToken: false);
+        if (tk.isNotEmpty) {
+          var response = await _dio.get(
+            uri,
+            queryParameters: queryParameters,
+            options: options,
+            cancelToken: cancelToken,
+            onReceiveProgress: onReceiveProgress,
+          );
+          resp = handleResponse(response, httpTransformer: httpTransformer);
+        }
+      }
+      return resp;
     } on Exception catch (e) {
       debugPrint("> on Exception: $e");
       return handleException(e);
@@ -157,9 +177,83 @@ class HttpClient {
         onReceiveProgress: onReceiveProgress,
       );
       // debugPrint("http_post response ${response.toString()}");
-      return handleResponse(response, httpTransformer: httpTransformer);
+      IMBoyHttpResponse resp = handleResponse(
+        response,
+        httpTransformer: httpTransformer,
+      );
+      if (resp.code == 705) {
+        String tk = await (UserProvider()).refreshAccessTokenApi(
+            UserRepoLocal.to.refreshToken,
+            checkNewToken: false);
+        if (tk.isNotEmpty) {
+          var response = await _dio.post(
+            uri,
+            data: data,
+            queryParameters: queryParameters,
+            options: options,
+            cancelToken: cancelToken,
+            onSendProgress: onSendProgress,
+            onReceiveProgress: onReceiveProgress,
+          );
+          resp = handleResponse(
+            response,
+            httpTransformer: httpTransformer,
+          );
+        }
+      }
+      return resp;
     } on Exception catch (e) {
       debugPrint("http_post e ${e.toString()}");
+      return handleException(e);
+    }
+  }
+
+  Future<IMBoyHttpResponse> delete(
+    String uri, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    HttpTransformer? httpTransformer,
+  }) async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      EasyLoading.showError('网络连接异常'.tr);
+      return handleException(NetworkException());
+    }
+    try {
+      await _setDefaultConfig();
+      var response = await _dio.delete(
+        uri,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+      );
+      IMBoyHttpResponse resp = handleResponse(
+        response,
+        httpTransformer: httpTransformer,
+      );
+      if (resp.code == 705) {
+        String tk = await (UserProvider()).refreshAccessTokenApi(
+            UserRepoLocal.to.refreshToken,
+            checkNewToken: false);
+        if (tk.isNotEmpty) {
+          var response = await _dio.delete(
+            uri,
+            data: data,
+            queryParameters: queryParameters,
+            options: options,
+            cancelToken: cancelToken,
+          );
+          resp = handleResponse(
+            response,
+            httpTransformer: httpTransformer,
+          );
+        }
+      }
+      return resp;
+    } on Exception catch (e) {
       return handleException(e);
     }
   }
@@ -189,34 +283,6 @@ class HttpClient {
         cancelToken: cancelToken,
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
-      );
-      return handleResponse(response, httpTransformer: httpTransformer);
-    } on Exception catch (e) {
-      return handleException(e);
-    }
-  }
-
-  Future<IMBoyHttpResponse> delete(
-    String uri, {
-    data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-    HttpTransformer? httpTransformer,
-  }) async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
-      EasyLoading.showError('网络连接异常'.tr);
-      return handleException(NetworkException());
-    }
-    try {
-      await _setDefaultConfig();
-      var response = await _dio.delete(
-        uri,
-        data: data,
-        queryParameters: queryParameters,
-        options: options,
-        cancelToken: cancelToken,
       );
       return handleResponse(response, httpTransformer: httpTransformer);
     } on Exception catch (e) {

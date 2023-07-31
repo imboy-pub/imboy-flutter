@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart' as getx;
 
 import 'http_exceptions.dart';
 import 'http_response.dart';
@@ -16,21 +17,15 @@ IMBoyHttpResponse handleResponse(Response? response,
     return IMBoyHttpResponse.failureFromError();
   }
 
-  // token失效
-  if (_isTokenTimeout(response.statusCode)) {
-    return IMBoyHttpResponse.failureFromError(error: UnauthorisedException(
-      message: "没有权限",
-      code: response.statusCode,
-    ));
-  }
   // 接口调用成功
   if (_isRequestSuccess(response.statusCode)) {
     return httpTransformer.parse(response);
   } else {
     // 接口调用失败
     return IMBoyHttpResponse.failure(
-      errMsg: response.statusMessage,
-      errCode: response.statusCode,
+      errMsg: response.data['msg'],
+      errCode: response.data['code'],
+      payload: response.data['payload'],
     );
   }
 }
@@ -39,11 +34,6 @@ IMBoyHttpResponse handleException(Exception exception) {
   var parseException = _parseException(exception);
   debugPrint("> on handleException: ${parseException.message.toString()}");
   return IMBoyHttpResponse.failureFromError(error: parseException);
-}
-
-/// 鉴权失败
-bool _isTokenTimeout(int? code) {
-  return code == 401;
 }
 
 /// 请求成功
@@ -65,27 +55,24 @@ HttpException _parseException(Exception error) {
           int? errCode = error.response?.statusCode;
           switch (errCode) {
             case 400:
-              return BadRequestException(message: "请求语法错误", code: errCode);
+              return BadRequestException(message: '请求语法错误'.tr, code: errCode);
             case 401:
-              return UnauthorisedException(message: "没有权限", code: errCode);
+              return UnauthorisedException(message: '没有权限'.tr, code: errCode);
             case 403:
-              return BadRequestException(message: "服务器拒绝执行", code: errCode);
+              return BadRequestException(message: '服务器拒绝执行'.tr, code: errCode);
             case 404:
-              return BadRequestException(message: "无法连接服务器", code: errCode);
+              return BadRequestException(message: '无法连接服务器'.tr, code: errCode);
             case 405:
-              return BadRequestException(message: "请求方法被禁止", code: errCode);
+              return BadRequestException(message: '请求方法被禁止'.tr, code: errCode);
             case 500:
-              return BadServiceException(message: "服务器内部错误", code: errCode);
+              return BadServiceException(message: '服务器内部错误'.tr, code: errCode);
             case 502:
-              return BadServiceException(message: "无效的请求", code: errCode);
+              return BadServiceException(message: '无效的请求'.tr, code: errCode);
             case 503:
-              return BadServiceException(message: "服务器挂了", code: errCode);
+              return BadServiceException(message: '服务器挂了'.tr, code: errCode);
             case 505:
               return UnauthorisedException(
-                  message: "不支持HTTP协议请求", code: errCode);
-            case 706: // token无效
-              return BadServiceException(message: "token无效", code: errCode);
-            // Get.off(LoginPage());
+                  message: '不支持HTTP协议请求'.tr, code: errCode);
             default:
               return UnknownException(error.message);
           }

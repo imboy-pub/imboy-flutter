@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
-import 'package:imboy/component/extension/device_ext.dart';
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
 import 'package:imboy/component/webrtc/func.dart';
@@ -49,9 +47,9 @@ class MessageService extends GetxService {
       }
       if (type.startsWith('WEBRTC_')) {
         // 确认消息
-        String did = await DeviceExt.did;
-        debugPrint("> rtc msg CLIENT_ACK,WEBRTC,${data['id']},$did");
-        WebSocketService.to.sendMessage("CLIENT_ACK,WEBRTC,${data['id']},$did");
+        debugPrint("> rtc msg CLIENT_ACK,WEBRTC,${data['id']},$deviceId");
+        WebSocketService.to
+            .sendMessage("CLIENT_ACK,WEBRTC,${data['id']},$deviceId");
 
         if (p2pCallScreenOn == false && type == 'WEBRTC_OFFER') {
           String peerId = data['from'];
@@ -138,9 +136,6 @@ class MessageService extends GetxService {
       // case '3':
       //   String content = data['payload']['content'] ?? '';
       //   break;
-      case '705': // token无效、刷新token
-        // TODO
-        break;
       case '706': // 需要重新登录
         WebSocketService.to.closeSocket(true);
         Get.offAll(() => PassportPage());
@@ -156,7 +151,6 @@ class MessageService extends GetxService {
     }
     String msgId = data['id'] ?? '';
     String msgType = payload['msg_type'] ?? '';
-    String currentDID = await DeviceExt.did;
     bool autoAck = true;
     switch (msgType.toString().toLowerCase()) {
       case 'apply_friend': // 添加朋友申请
@@ -223,7 +217,7 @@ class MessageService extends GetxService {
         break;
       case 'logged_another_device': // 在其他设备登录了
         String did = payload['did'] ?? '';
-        if (did != currentDID) {
+        if (did != deviceId) {
           int serverTs = data['server_ts'] ?? 0;
           WebSocketService.to.closeSocket();
           UserRepoLocal.to.logout();
@@ -240,8 +234,8 @@ class MessageService extends GetxService {
             checkNewToken: false);
         autoAck = false;
         if (tk.isNotEmpty) {
-          debugPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$currentDID,$autoAck");
-          WebSocketService.to.sendMessage("CLIENT_ACK,S2C,$msgId,$currentDID");
+          debugPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId,$autoAck");
+          WebSocketService.to.sendMessage("CLIENT_ACK,S2C,$msgId,$deviceId");
         }
         break;
       case 'online': // 好友上线提醒
@@ -257,8 +251,8 @@ class MessageService extends GetxService {
     }
     // 确认消息
     if (autoAck) {
-      debugPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$currentDID");
-      WebSocketService.to.sendMessage("CLIENT_ACK,S2C,$msgId,$currentDID");
+      debugPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId");
+      WebSocketService.to.sendMessage("CLIENT_ACK,S2C,$msgId,$deviceId");
     }
   }
 
@@ -322,9 +316,8 @@ class MessageService extends GetxService {
     );
     int? exited = await (MessageRepo()).save(msg);
     // 确认消息
-    String did = await DeviceExt.did;
-    debugPrint("> rtc msg CLIENT_ACK,C2C,${data['id']},$did");
-    WebSocketService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$did");
+    debugPrint("> rtc msg CLIENT_ACK,C2C,${data['id']},$deviceId");
+    WebSocketService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$deviceId");
     if (exited != null && exited > 0) {
       return;
     }
@@ -450,8 +443,7 @@ class MessageService extends GetxService {
 
     eventBus.fire([msg.toTypeMessage()]);
     // 确认消息
-    String did = await DeviceExt.did;
-    WebSocketService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$did");
+    WebSocketService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$deviceId");
     changeConversation(msg, 'my_revoked');
   }
 }

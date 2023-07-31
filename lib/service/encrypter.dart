@@ -2,7 +2,6 @@ import 'package:encrypt/encrypt.dart';
 import 'dart:convert';
 // ignore: depend_on_referenced_packages
 import 'package:convert/convert.dart';
-
 // ignore: depend_on_referenced_packages
 import 'package:crypto/crypto.dart' as crypto;
 
@@ -28,8 +27,17 @@ class EncrypterService {
   /// EncrypterService.sha256
   static String sha256(String str, String k) {
     List<int> messageBytes = utf8.encode(str);
-    List<int> key = base64.decode(k);
+    List<int> key = utf8.encode(k);
     crypto.Hmac hMac = crypto.Hmac(crypto.sha256, key);
+    crypto.Digest digest = hMac.convert(messageBytes);
+    return base64.encode(digest.bytes);
+  }
+
+  /// EncrypterService.sha512
+  static String sha512(String str, String k) {
+    List<int> messageBytes = utf8.encode(str);
+    List<int> key = utf8.encode(k);
+    crypto.Hmac hMac = crypto.Hmac(crypto.sha512, key);
     crypto.Digest digest = hMac.convert(messageBytes);
     return base64.encode(digest.bytes);
   }

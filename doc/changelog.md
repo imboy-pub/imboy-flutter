@@ -1,4 +1,10 @@
 
+# 0.1.12
+* 新增全局变量 appVsnXY 和 deviceId ，替换相关代码；
+* 新增 EncrypterService.sha512/2 方法，修正 EncrypterService.sha256/2 方法；
+* 调整 API sign 参数刷分，新增默认header method 制定签名算法
+* http_client 的 get post delete 3 个方法新增 检查状态码为 705 的情况，遇到705，刷新token后重新请求一次； 
+
 # 0.1.11
 * 实现“服务端通知客户端刷新token”功能；
 * 升级几个依赖包，其他一些语法调整

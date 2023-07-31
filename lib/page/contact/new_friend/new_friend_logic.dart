@@ -1,11 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/config/enum.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
@@ -27,8 +26,7 @@ class NewFriendLogic extends GetxController {
   /// 收到添加朋友
   /// Received add a friend
   Future<void> receivedAddFriend(Map data) async {
-    String did = await DeviceExt.did;
-    debugPrint("CLIENT_ACK,S2C,${data['id']},$did");
+    debugPrint("CLIENT_ACK,S2C,${data['id']},$deviceId");
     // {id: af_7b4v1b_kybqdp, type: S2C,
     // from: 7b4v1b,
     // to: kybqdp,
@@ -60,13 +58,13 @@ class NewFriendLogic extends GetxController {
     replaceItems(NewFriendModel.fromJson(saveData));
     bottomLogic.newFriendRemindCounter.add(from);
     bottomLogic.update([bottomLogic.newFriendRemindCounter]);
-    WebSocketService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
+    WebSocketService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$deviceId");
   }
 
   /// 确认添加朋友，对端消息通知
   Future<void> receivedConfirmFriend(bool ack, Map data) async {
-    String did = await DeviceExt.did;
-    debugPrint("CLIENT_ACK,S2C,${data['id']},$did  data:${data.toString()}");
+    debugPrint(
+        "CLIENT_ACK,S2C,${data['id']},$deviceId  data:${data.toString()}");
     String from = data["from"];
     String to = data["to"];
     NewFriendRepo repo = NewFriendRepo();
@@ -83,7 +81,7 @@ class NewFriendLogic extends GetxController {
       replaceItems(obj);
     }
     if (ack) {
-      WebSocketService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$did");
+      WebSocketService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$deviceId");
     }
   }
 
