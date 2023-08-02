@@ -6,7 +6,9 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/page/passport/passport_view.dart';
+import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 
@@ -37,7 +39,8 @@ class UserProvider extends HttpClient {
         contentType: "application/x-www-form-urlencoded",
         headers: {
           Keys.refreshTokenKey: refreshToken,
-          'sign': '',
+          'method': 'sha512',
+          'sign': EncrypterService.sha512("$deviceId|$appVsnXY", SOLIDIFIED_KEY)
         },
       ),
     );

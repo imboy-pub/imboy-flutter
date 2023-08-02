@@ -1,6 +1,6 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -10,7 +10,11 @@ import 'package:permission_handler/permission_handler.dart';
 
 class RepaintBoundaryHelper {
   //保存到相册
-  void savePhoto(BuildContext context, GlobalKey boundaryKey, String filename) async {
+  void savePhoto(
+    BuildContext context,
+    GlobalKey boundaryKey,
+    String filename,
+  ) async {
     RenderRepaintBoundary? boundary = boundaryKey.currentContext!
         .findRenderObject() as RenderRepaintBoundary?;
 
@@ -19,7 +23,10 @@ class RepaintBoundaryHelper {
     // 将image转化成byte
     ByteData? byteData = await image.toByteData(format: ImageByteFormat.png);
 
-    bool permission = await Permission.storage.isGranted;
+    bool permission = true;
+    if (Platform.isIOS || Platform.isAndroid) {
+      permission = await Permission.storage.isGranted;
+    }
     if (permission) {
       Uint8List images = byteData!.buffer.asUint8List();
       await ImageGallerySaver.saveImage(

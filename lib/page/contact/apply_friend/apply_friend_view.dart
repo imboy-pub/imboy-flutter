@@ -77,14 +77,14 @@ class ApplyFriendPage extends StatelessWidget {
                   "donotlookhim": logic.donotlookhim.isTrue,
                   // donotlethimlook 前后端约定的名称，请不要随意修改
                   "donotlethimlook": logic.donotlethimlook.isTrue,
-                  "tag": "${logic.peerTag.value},",
+                  "tag": logic.peerTag.isEmpty ? '' : "${logic.peerTag.value},",
                 },
                 "to": {}
               };
               await logic.apply(
                 to: uid,
-                nickname: remark,
-                avatar: avatar,
+                peerNickname: remark,
+                peerAvatar: avatar,
                 payload: payload,
               );
             },

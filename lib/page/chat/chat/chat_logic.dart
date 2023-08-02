@@ -1,10 +1,13 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
+import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
+import 'package:popup_menu/popup_menu.dart' as popupmenu;
+import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:sqflite/sqflite.dart';
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
@@ -17,8 +20,6 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:popup_menu/popup_menu.dart' as popupmenu;
-import 'package:sqflite/sqflite.dart';
 
 import 'chat_state.dart';
 
@@ -34,6 +35,11 @@ class ChatLogic extends GetxController {
       firstName: UserRepoLocal.to.current.nickname,
       imageUrl: UserRepoLocal.to.current.avatar,
     );
+  }
+
+  void initState() {
+    state.messages = [];
+    state.scrollController = AutoScrollController();
   }
 
   Future<List<types.Message>?> getMessages(
@@ -57,11 +63,15 @@ class ChatLogic extends GetxController {
     // 重发在发送中状态的消息
     for (MessageModel obj in items) {
       if (obj.status == MessageStatus.sending) {
-        sendWsMsg(obj);
+        await sendWsMsg(obj);
       }
       messages.insert(0, obj.toTypeMessage());
     }
     return messages;
+  }
+
+  updateMsg(types.Message msg) {
+
   }
 
   Future<bool> sendWsMsg(MessageModel obj) async {
@@ -75,7 +85,7 @@ class ChatLogic extends GetxController {
         'payload': obj.payload,
         'created_at': obj.createdAt,
       };
-      debugPrint("> on msg check sending ${msg.toString()}");
+      // debugPrint("> on msg check sending ${msg.toString()}");
       return await WebSocketService.to.sendMessage(json.encode(msg));
     }
     return true;
@@ -171,45 +181,55 @@ class ChatLogic extends GetxController {
     MessageModel obj = getMsgFromTMsg(type, conversation.id, message);
     // debugPrint("> on addMessage before insert MessageRepo");
     await (MessageRepo()).insert(obj);
-    debugPrint("> on addMessage after insert MessageRepo");
+    // debugPrint("> on addMessage after insert MessageRepo");
     eventBus.fire(conversation);
     // send to server
     sendWsMsg(obj);
+    if (message is types.ImageMessage) {
+      Get.find<ImageGalleryLogic>().pushToLast(
+        message.id,
+        message.uri,
+      );
+    }
   }
 
-  Future<bool> removeMessage(String msgId) async {
-    // 因为消息ID是全局唯一的，所以可以根据消息ID获取会话ID
-    int? conversationId = await SqliteService.to.pluck(
-      ConversationRepo.id,
-      ConversationRepo.tableName,
-      where: '${ConversationRepo.lastMsgId} = ?',
-      whereArgs: [msgId],
-    );
+  Future<bool> removeMessage(int conversationId, types.Message msg) async {
     MessageModel? lastMsg;
-    if (conversationId != null && conversationId > 0) {
+    if (conversationId > 0) {
       List<MessageModel> items = await MessageRepo().findByConversation(
         conversationId,
         2,
         1,
       );
-      lastMsg = items[0];
+      lastMsg = items.isEmpty ? null : items[0];
     }
     debugPrint(
-        "removeMessage $msgId; $conversationId, lastMsg: ${lastMsg?.toJson()} ;");
-    await MessageRepo().delete(msgId);
-    if (lastMsg != null) {
+        "removeMessage ${msg.id}; $conversationId, lastMsg: ${lastMsg?.toJson()} ;");
+    await MessageRepo().delete(msg.id);
+    ConversationRepo repo = ConversationRepo();
+    if (lastMsg == null) {
+      await repo.updateById(conversationId, {
+        ConversationRepo.lastMsgId: '',
+        ConversationRepo.lastMsgStatus: 0,
+        ConversationRepo.msgType: 'empty',
+        ConversationRepo.lastTime: 0,
+        ConversationRepo.subtitle: '',
+      });
+    } else {
       types.Message msg2 = lastMsg.toTypeMessage();
-      ConversationRepo repo = ConversationRepo();
-      debugPrint(
-          "removeMessage msgType: ${MessageModel.conversationMsgType(msg2)}, subtitle: ${MessageModel.conversationSubtitle(msg2)} ;");
-      await repo.updateById(conversationId!, {
+      await repo.updateById(conversationId, {
         ConversationRepo.lastMsgId: lastMsg.id,
         ConversationRepo.lastMsgStatus: lastMsg.status,
         ConversationRepo.msgType: MessageModel.conversationMsgType(msg2),
         ConversationRepo.subtitle: MessageModel.conversationSubtitle(msg2),
       });
-      ConversationModel? conversation = await repo.findById(conversationId);
-      eventBus.fire(conversation!);
+    }
+    ConversationModel? conversation = await repo.findById(conversationId);
+    if (conversation != null) {
+      eventBus.fire(conversation);
+    }
+    if (msg is types.ImageMessage) {
+      Get.find<ImageGalleryLogic>().remoteFromGallery(msg.id);
     }
     return true;
   }
@@ -293,6 +313,7 @@ class ChatLogic extends GetxController {
     });
     msg.status = MessageStatus.error;
     msg.payload = payload;
+    // 更新会话里面的消息列表的特定消息状态
     eventBus.fire([msg.toTypeMessage()]);
 
     // 更新会话状态
@@ -366,6 +387,9 @@ class ChatLogic extends GetxController {
     bool isRevoked = (message is types.CustomMessage) && customType == 'revoked'
         ? true
         : false;
+    if (customType == 'webrtc_audio' || customType == 'webrtc_video') {
+      isRevoked = true;
+    }
     if (!isRevoked) {
       items.add(popupmenu.MenuItem(
         title: '转发'.tr,

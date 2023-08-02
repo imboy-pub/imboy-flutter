@@ -61,13 +61,16 @@ class ConfirmNewFriendPage extends StatelessWidget {
             onPressed: () async {
               Map<String, dynamic> p2 = json.decode(payload);
               p2['to'] = {
-                "remark": _remarkController.text,
-                "avatar": UserRepoLocal.to.current.avatar,
+                "remark": _remarkController.text, // 给对端的备注
+                "account": UserRepoLocal.to.current.account,
                 "nickname": UserRepoLocal.to.current.nickname,
+                "avatar": UserRepoLocal.to.current.avatar,
+                "sign": UserRepoLocal.to.current.sign,
+                "gender": UserRepoLocal.to.current.gender,
                 "role": logic.role.value, // role 可能的值 all justchat
                 "donotlookhim": logic.donotlookhim.isTrue,
                 "donotlethimlook": logic.donotlethimlook.isTrue,
-                "tag": "${logic.peerTag.value},",
+                "tag": logic.peerTag.isEmpty ? '' : "${logic.peerTag.value},",
               };
               debugPrint("> on payload $p2");
               await logic.confirm(from, to, p2);

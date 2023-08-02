@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/page/single/about_imboy.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -66,7 +67,12 @@ class _SettingPageState extends State<SettingPage> {
               // ),
               n.Padding(left: 18, child: const Divider()),
               n.ListTile(
-                title: Text('关于IMBoy'.tr),
+                title: n.Row([
+                  Text('关于IMBoy'.tr),
+                  Text("${'版本'.tr} $appVsn"),
+                ])
+                  // 两端对齐
+                  ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
                 trailing: Icon(
                   Icons.navigate_next,
                   color: AppColors.MainTextColor.withOpacity(0.5),

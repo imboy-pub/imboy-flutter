@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -22,6 +21,7 @@ import 'message_quote_builder.dart';
 import 'message_revoked_builder.dart';
 import 'message_video_builder.dart';
 import 'message_visit_card_builder.dart';
+import 'message_webrtc_builder.dart';
 
 enum CustomMessageType {
   file,
@@ -58,6 +58,11 @@ class CustomMessageBuilder extends StatelessWidget {
       String customType = message.metadata?['custom_type'] ?? '';
       if (customType == 'revoked') {
         w = RevokedMessageBuilder(
+          message: message,
+          user: InheritedUser.of(context).user,
+        );
+      } else if (customType == 'webrtc_audio' || customType == 'webrtc_video') { // 音频消息 || 视频消息
+        w = WebRTCMessageBuilder(
           message: message,
           user: InheritedUser.of(context).user,
         );

@@ -63,6 +63,25 @@ class PeopleInfoPage extends StatelessWidget {
       isFrom.value = ct.isFrom;
       tag.value = ct.tag;
     }
+    if (isFriend.value != 1) {
+      if (scene == 'qrcode') {
+        source.value = 'qrcode';
+      } else if (scene == 'visit_card') {
+        source.value = 'visit_card';
+      } else if (scene == 'people_nearby') {
+        source.value = 'people_nearby';
+      } else if (scene == 'recently_user') {
+        source.value = 'recently_user';
+      } else if (scene == 'contact_page' || scene == 'denylist') {
+        source.value = '';
+        // } else if (scene == '') {
+        // } else if (scene == '') {
+        // } else if (scene == '') {
+        // } else if (scene == '') {
+      } else if (scene == '') {
+        source.value = 'qrcode';
+      }
+    }
   }
 
   @override

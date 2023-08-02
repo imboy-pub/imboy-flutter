@@ -1,10 +1,10 @@
 import 'dart:io' as io;
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart' as getx;
+import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:logger/logger.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -72,7 +72,7 @@ Future<void> init() async {
   appVsn = packageInfo.version;
   List<String> li = appVsn.split(RegExp(r"(\.)"));
   appVsnXY = '${li[0]}.${li[1]}';
-  debugPrint("packageInfo ${packageInfo.toString()}");
+  debugPrint("packageInfo appVsnXY $appVsnXY ${packageInfo.toString()}");
   deviceId = await DeviceExt.did;
   await dotenv.load(fileName: ".env"); //
   // debugPrint("> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
@@ -99,6 +99,8 @@ Future<void> init() async {
   getx.Get.lazyPut(() => NewFriendLogic());
   getx.Get.lazyPut(() => ConversationLogic());
 
+  // ChatLogic 不能用 lazyPut
+  getx.Get.put(ChatLogic());
   // MessageService 不能用 lazyPut
   getx.Get.put(MessageService());
   // getx.Get.lazyPut(() => DeviceExt());

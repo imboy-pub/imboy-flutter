@@ -189,17 +189,17 @@ class MessageService extends GetxService {
             }
         */
 
+        // 对端 的个人信息
         Map<String, dynamic> json = {
-          // From 的个人信息
-          'id': data['from'],
-          'account': payload['from']['account'],
-          'nickname': payload['from']['nickname'],
-          'avatar': payload['from']['avatar'],
-          'sign': payload['from']['sign'],
-          'gender': payload['from']['gender'],
-          'remark': payload['from']['remark'] ?? '',
-          ContactRepo.tag: payload['from'][ContactRepo.tag] ?? '',
-          'region': payload['from']['region'],
+          'id': data['from'], // 服务端对调了 from to，离线消息需要对调
+          'account': payload['to']['account'],
+          'nickname': payload['to']['nickname'],
+          'avatar': payload['to']['avatar'],
+          'sign': payload['to']['sign'],
+          'gender': payload['to']['gender'],
+          ContactRepo.tag: payload['to'][ContactRepo.tag] ?? '',
+          'region': payload['to']['region'],
+          'remark': payload['from']['remark'] ?? '', // from 给对方的备注
           'source': payload['from']['source'],
         };
         contactLogic.receivedConfirmFriend(json);
@@ -350,6 +350,7 @@ class MessageService extends GetxService {
     // debugPrint("> rtc msg S_RECEIVED:$res");
     MessageModel? msg = await repo.find(id);
     if (res > 0 && msg != null) {
+      // 更新会话里面的消息列表的特定消息状态
       eventBus.fire([msg.toTypeMessage()]);
     }
     // 更新会话状态
@@ -376,6 +377,7 @@ class MessageService extends GetxService {
     // msg = null 的时候数据已经被删除了
     MessageModel? msg = await repo.find(id);
     if (msg != null) {
+      // 更新会话里面的消息列表的特定消息状态
       eventBus.fire([msg.toTypeMessage()]);
       changeConversation(msg, 'peer_revoked');
     }
@@ -440,7 +442,7 @@ class MessageService extends GetxService {
       'status': MessageStatus.send,
       'payload': json.encode(msg.payload),
     });
-
+    // 更新会话里面的消息列表的特定消息状态
     eventBus.fire([msg.toTypeMessage()]);
     // 确认消息
     WebSocketService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$deviceId");

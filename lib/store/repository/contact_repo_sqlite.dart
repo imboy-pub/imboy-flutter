@@ -298,6 +298,9 @@ class ContactRepo {
     // debugPrint("contact_repo_save $checkIsFriend, ${json.toString()}");
     // json['id'] 兼容 api响应的数据
     String uid = json['id'] ?? (json[ContactRepo.peerId] ?? "");
+    if (uid == UserRepoLocal.to.currentUid) {
+      throw Exception('Add yourself as a friend');
+    }
     ContactModel? old = await findByUid(uid, autoFetch: false);
     if (old is ContactModel) {
       await update(json);

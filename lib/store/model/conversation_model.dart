@@ -54,14 +54,14 @@ class ConversationModel {
   String get content {
     // debugPrint("ConversationModel_content ${payload.toString()}");
     // 处理系统提示信息
-    String sysPrompt = ChatLogic().parseSysPrompt(
+    String sysPrompt = Get.find<ChatLogic>().parseSysPrompt(
       payload?['sys_prompt'] ?? '',
     );
     if (strNoEmpty(sysPrompt)) {
       return sysPrompt;
     }
     String str = '未知消息'.tr;
-    if (msgType == "text") {
+    if (msgType == 'text') {
       return subtitle;
     } else if (msgType == 'quote') {
       return subtitle;
@@ -73,6 +73,10 @@ class ConversationModel {
       str = '语音消息'.tr;
     } else if (msgType == 'video') {
       str = '视频'.tr;
+    } else if (msgType == 'webrtc_audio') {
+      str = '语音通话'.tr;
+    } else if (msgType == 'webrtc_video') {
+      str = '视频通话'.tr;
     } else if (msgType == 'visit_card') {
       str = '个人名片'.tr;
       return "[$str]$subtitle";
@@ -83,8 +87,10 @@ class ConversationModel {
       return '"$title"${'撤回了一条消息'.tr}';
     } else if (msgType == 'my_revoked') {
       return '你撤回了一条消息'.tr;
-    } else if (msgType == "custom") {
+    } else if (msgType == 'custom') {
       str = subtitle;
+    } else if (msgType == 'empty') {
+      return '';
     } else {}
     return "[$str]";
   }

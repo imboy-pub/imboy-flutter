@@ -1,21 +1,19 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:audio_session/audio_session.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/func.dart';
-
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart' show DateFormat;
-
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import 'package:imboy/component/helper/func.dart';
 
 import 'custom_overlay.dart';
 

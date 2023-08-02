@@ -27,7 +27,7 @@ class NewFriendLogic extends GetxController {
   /// Received add a friend
   Future<void> receivedAddFriend(Map data) async {
     debugPrint("CLIENT_ACK,S2C,${data['id']},$deviceId");
-    // {id: af_7b4v1b_kybqdp, type: S2C,
+    // {id: afc_7b4v1b_kybqdp, type: S2C,
     // from: 7b4v1b,
     // to: kybqdp,
     // payload: {"from":{"source":"qrcode","msg":"我是 nick leeyi👍🏻👍🏻就","remark":"leeyi101","role":"all","donotlookhim":false,"donotlethimlook":true},"to":{},
@@ -53,7 +53,7 @@ class NewFriendLogic extends GetxController {
       NewFriendRepo.status: NewFriendStatus.waiting_for_validation.index,
       NewFriendRepo.createTime: DateTimeHelper.currentTimeMillis(),
     };
-    // debugPrint("> on receivedAddFriend ${saveData.toString()}");
+    debugPrint("> on receivedAddFriend ${saveData.toString()}");
     (NewFriendRepo()).save(saveData);
     replaceItems(NewFriendModel.fromJson(saveData));
     bottomLogic.newFriendRemindCounter.add(from);

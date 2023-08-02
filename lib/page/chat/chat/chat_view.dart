@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,7 +14,6 @@ import 'package:photo_view/photo_view.dart';
 import 'package:popup_menu/popup_menu.dart' as popupmenu;
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:xid/xid.dart';
-
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
@@ -81,9 +79,9 @@ class ChatPageState extends State<ChatPage> {
   // 网络状态描述
   getx.RxBool connected = true.obs;
 
-  final logic = getx.Get.put(ChatLogic());
   final galleryLogic = getx.Get.put(ImageGalleryLogic());
-  final conversationLogic = getx.Get.put(ConversationLogic());
+  final ChatLogic logic = getx.Get.find();
+  final ConversationLogic conversationLogic = getx.Get.find();
 
   bool _showAppBar = true;
 
@@ -99,9 +97,10 @@ class ChatPageState extends State<ChatPage> {
 
   @override
   void initState() {
+    // 初始化的时候置空数据，放在该位置（initData之前），不会出现闪屏
+    logic.initState();
     //监听Widget是否绘制完毕
     super.initState();
-
     initData();
     unawaited(_handleEndReached());
     // 异步检查是否有离线数据 TODO leeyi 2023-01-29 16:43:47
@@ -134,12 +133,11 @@ class ChatPageState extends State<ChatPage> {
 
     // 接收到新的消息订阅
     eventBus.on<types.Message>().listen((types.Message msg) async {
-      final index = logic.state.messages.indexWhere((e) => e.id == msg.id);
-      if (index == -1 && msg.author.id == widget.peerId) {
+      final i = logic.state.messages.indexWhere((e) => e.id == msg.id);
+      if (i == -1 && msg.author.id == widget.peerId) {
         if (msg is types.ImageMessage) {
-          galleryLogic.pushToGallery(msg.id, msg.uri);
+          galleryLogic.pushToLast(msg.id, msg.uri);
         }
-
         conversationLogic.decreaseConversationRemind(widget.peerId, 1);
         if (mounted) {
           setState(() {
@@ -153,12 +151,9 @@ class ChatPageState extends State<ChatPage> {
     eventBus.on<List<types.Message>>().listen((e) async {
       types.Message msg = e.first;
 
-      final index =
-          logic.state.messages.indexWhere((element) => element.id == msg.id);
-      // debugPrint(
-      //     "> rtc msg S_RECEIVED $index, $mounted, ${msg.toJson().toString()}");
-      if (index > -1) {
-        logic.state.messages.setRange(index, index + 1, e);
+      final i = logic.state.messages.indexWhere((e) => e.id == msg.id);
+      if (i > -1) {
+        logic.state.messages.setRange(i, i + 1, e);
         if (mounted) {
           setState(() {
             logic.state.messages;
@@ -170,7 +165,7 @@ class ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
-    getx.Get.delete<ChatLogic>();
+    // getx.Get.delete<ChatLogic>();
     getx.Get.delete<ImageGalleryLogic>();
 
     super.dispose();
@@ -394,7 +389,7 @@ class ChatPageState extends State<ChatPage> {
         ),
       ),
     );
-    debugPrint("handleVisitCardSelection ${c1?.toJson().toString()}");
+    // debugPrint("handleVisitCardSelection ${c1?.toJson().toString()}");
     if (c1 != null) {
       Map<String, dynamic> metadata = {
         'custom_type': 'visit_card',
@@ -576,8 +571,7 @@ class ChatPageState extends State<ChatPage> {
     types.TextMessage message,
     types.PreviewData previewData,
   ) {
-    final index =
-        logic.state.messages.indexWhere((element) => element.id == message.id);
+    final index = logic.state.messages.indexWhere((e) => e.id == message.id);
     final updatedMessage =
         (logic.state.messages[index] as types.TextMessage).copyWith(
       previewData: previewData,
@@ -694,7 +688,7 @@ class ChatPageState extends State<ChatPage> {
     debugPrint("> on onClickMenu $itemId, ${msg.id}");
     if (itemId == "delete") {
       // 删除消息
-      bool res = await logic.removeMessage(msg.id);
+      bool res = await logic.removeMessage(widget.conversationId, msg);
       if (res) {
         final index =
             logic.state.messages.indexWhere((element) => element.id == msg.id);
@@ -782,7 +776,8 @@ class ChatPageState extends State<ChatPage> {
               ? const SizedBox.shrink()
               : NetworkFailureTips();
         }),
-        Expanded(child: n.Stack([
+        Expanded(
+            child: n.Stack([
           Chat(
             user: logic.currentUser,
             messages: logic.state.messages,

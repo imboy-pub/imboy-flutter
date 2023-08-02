@@ -27,6 +27,9 @@ String getSourceTr(String? source) {
     case 'people_nearby':
       sourceTr = '附近的人'.tr;
       break;
+    case 'recently_user':
+      sourceTr = '新注册的朋友'.tr;
+      break;
     case 'null':
       sourceTr = '';
       break;

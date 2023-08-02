@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/encrypter.dart';

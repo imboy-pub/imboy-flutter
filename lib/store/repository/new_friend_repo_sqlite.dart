@@ -132,15 +132,15 @@ class NewFriendRepo {
     if (strNoEmpty(json[NewFriendRepo.nickname])) {
       data[NewFriendRepo.nickname] = json[NewFriendRepo.nickname];
     }
-    if (strNoEmpty(json["avatar"])) {
-      data[NewFriendRepo.avatar] = json["avatar"];
+    if (strNoEmpty(json[NewFriendRepo.avatar])) {
+      data[NewFriendRepo.avatar] = json[NewFriendRepo.avatar];
     }
 
     if (json[NewFriendRepo.status] >= 0) {
       data[NewFriendRepo.status] = json["status"];
     }
-    if (strNoEmpty(json["payload"])) {
-      data[NewFriendRepo.payload] = json["payload"];
+    if (strNoEmpty(json[NewFriendRepo.payload])) {
+      data[NewFriendRepo.payload] = json[NewFriendRepo.payload];
     }
 
     if (json[NewFriendRepo.updateTime] != null &&

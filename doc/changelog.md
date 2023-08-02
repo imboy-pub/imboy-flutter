@@ -1,3 +1,10 @@
+# 0.1.13
+* 修复"删除只有一条消息的会话里面的消息报错"的问题，并且如果删除是图片消息一并移除对应会话的 gallery
+* 修复添加好友昵称、头像弄反的问题；
+* 修复扫码添加好友 source 信息丢失问题；
+* 关于IMBoy 后面显示版本号；
+* 刷新token请求添加两个header参数（method sign）；
+* Flutter中滑动出现_positions.isNotEmpty异常解决办法；
 
 # 0.1.12
 * 新增全局变量 appVsnXY 和 deviceId ，替换相关代码；

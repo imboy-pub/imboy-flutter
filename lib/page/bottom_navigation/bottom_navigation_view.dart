@@ -40,7 +40,12 @@ class BottomNavigationPage extends StatelessWidget {
     var args = Get.arguments;
     if (args is Map<String, dynamic>) {
       state.bottomBarIndex.value = args['index'] ?? state.bottomBarIndex.value;
-      pageController.jumpToPage(state.bottomBarIndex.value);
+      // Flutter中滑动出现_positions.isNotEmpty异常解决办法  https://www.jianshu.com/p/d5a99c68e295
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (pageController.hasClients) {
+          pageController.jumpToPage(state.bottomBarIndex.value);
+        }
+      });
     }
 
     return Scaffold(

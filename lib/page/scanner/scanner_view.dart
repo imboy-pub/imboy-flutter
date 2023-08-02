@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/single/people_info.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'scanner_logic.dart';
 
@@ -47,210 +49,208 @@ class _ScannerPageState extends State<ScannerPage>
       backgroundColor: Colors.black,
       body: Builder(
         builder: (context) {
-          return Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 0,
-                  top: 20,
-                ),
-                child: MaterialButton(
-                  minWidth: 20,
-                  height: 18,
-                  onPressed: () {
-                    Get.back();
-                  },
-                  color: Colors.white,
-                  textColor: Colors.black54,
-                  shape: const CircleBorder(),
-                  child: const Icon(Icons.arrow_left, size: 16),
-                ),
+          return n.Stack([
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 0,
+                top: 20,
               ),
-              MobileScanner(
-                fit: BoxFit.contain,
-                scanWindow: scanWindow,
-                controller: controller,
-                onScannerStarted: (arguments) {
-                  debugPrint(
-                      "> scanner onScannerStarted ${arguments.toString()}");
-                  setState(() {
-                    this.arguments = arguments;
-                  });
+              child: MaterialButton(
+                minWidth: 20,
+                height: 18,
+                onPressed: () {
+                  Get.back();
                 },
-                onDetect: (BarcodeCapture barcodes) async {
-                  debugPrint("> scanner onDetect ${barcodes.barcodes.length}");
-                  capture = barcodes;
-                  setState(() => barcode = barcodes.barcodes.first);
-                  // return;
-                  if (barcodeStr == barcodes.barcodes.last.rawValue) {
+                color: Colors.white,
+                textColor: Colors.black54,
+                shape: const CircleBorder(),
+                child: const Icon(Icons.arrow_left, size: 16),
+              ),
+            ),
+            MobileScanner(
+              fit: BoxFit.contain,
+              scanWindow: scanWindow,
+              controller: controller,
+              onScannerStarted: (arguments) {
+                debugPrint(
+                    "> scanner onScannerStarted ${arguments.toString()}");
+                setState(() {
+                  this.arguments = arguments;
+                });
+              },
+              onDetect: (BarcodeCapture barcodes) async {
+                debugPrint("> scanner onDetect ${barcodes.barcodes.length}");
+                capture = barcodes;
+                setState(() => barcode = barcodes.barcodes.first);
+                // return;
+                if (barcodeStr == barcodes.barcodes.last.rawValue) {
+                  return;
+                }
+                // New barcode found !!
+                setState(() {
+                  barcodeStr = barcodes.barcodes.last.rawValue;
+                });
+                if (isUrl(barcodeStr!) &&
+                    barcodeStr!.endsWith(userQrcodeDataSuffix)) {
+                  IMBoyHttpResponse resp =
+                      await HttpClient.client.get(barcodeStr!);
+                  if (!resp.ok) {
                     return;
                   }
-                  // New barcode found !!
-                  setState(() {
-                    barcodeStr = barcodes.barcodes.last.rawValue;
-                  });
-                  if (isUrl(barcodeStr!) &&
-                      barcodeStr!.endsWith(userQrcodeDataSuffix)) {
-                    IMBoyHttpResponse resp =
-                        await HttpClient.client.get(barcodeStr!);
-                    if (!resp.ok) {
-                      return;
-                    }
-                    Map payload = resp.payload;
-                    // debugPrint("> on qrcode: ${payload.toString()}");
-                    String result = payload['result'] ?? '';
-                    if (result == '' && payload['id'] != null) {
-                      Get.off(
-                        PeopleInfoPage(id: payload['id'], scene: 'qrcode'),
-                        transition: Transition.rightToLeft,
-                        popGesture: true, // 右滑，返回上一页
-                      );
-                    } else if (result == 'user_not_exist') {
-                      // EasyLoading.showToast("用户不存在".tr);
-                      await logic.showResult("用户不存在".tr);
-                    } else if (result == 'user_is_disabled_or_deleted') {
-                      // EasyLoading.showToast("用户被禁用或已删除".tr);
-                      await logic.showResult("用户被禁用或已删除".tr);
-                    }
-                  } else if (isUrl(barcodeStr!)) {
-                    Get.off(WebViewPage(
-                      barcodeStr!,
-                      '',
-                      errorCallback: (String url) {
-                        logic.showResult("无法打开网页： $url");
-                      },
-                    ));
-                  } else {
-                    logic.showResult(barcodeStr!);
+                  Map payload = resp.payload;
+                  // debugPrint("> on qrcode: ${payload.toString()}");
+                  String result = payload['result'] ?? '';
+                  if (result == '' && payload['id'] != null) {
+                    Get.off(
+                      PeopleInfoPage(id: payload['id'], scene: 'qrcode'),
+                      transition: Transition.rightToLeft,
+                      popGesture: true, // 右滑，返回上一页
+                    );
+                  } else if (result == 'user_not_exist') {
+                    // EasyLoading.showToast("用户不存在".tr);
+                    await logic.showResult("用户不存在".tr);
+                  } else if (result == 'user_is_disabled_or_deleted') {
+                    // EasyLoading.showToast("用户被禁用或已删除".tr);
+                    await logic.showResult("用户被禁用或已删除".tr);
                   }
-                },
-              ),
-              CustomPaint(
-                painter: ScannerOverlay(scanWindow),
-              ),
-              Align(
+                } else if (isUrl(barcodeStr!)) {
+                  Get.off(WebViewPage(
+                    barcodeStr!,
+                    '',
+                    errorCallback: (String url) {
+                      logic.showResult("无法打开网页： $url");
+                    },
+                  ));
+                } else {
+                  logic.showResult(barcodeStr!);
+                }
+              },
+            ),
+            CustomPaint(
+              painter: ScannerOverlay(scanWindow),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
                 alignment: Alignment.bottomCenter,
-                child: Container(
-                  alignment: Alignment.bottomCenter,
-                  height: 100,
-                  color: Colors.black.withOpacity(0.4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconButton(
-                        color: Colors.white,
-                        icon: ValueListenableBuilder(
-                          valueListenable: controller.torchState,
-                          builder: (context, state, child) {
-                            switch (state) {
-                              case TorchState.off:
-                                return const Icon(
-                                  Icons.flash_off,
-                                  color: Colors.grey,
-                                );
-                              case TorchState.on:
-                                return const Icon(
-                                  Icons.flash_on,
-                                  color: Colors.yellow,
-                                );
-                              default:
-                                return const Icon(
-                                  Icons.flash_off,
-                                  color: Colors.grey,
-                                );
-                            }
-                          },
-                        ),
-                        iconSize: 32.0,
-                        onPressed: () => controller.toggleTorch(),
+                height: 100,
+                color: Colors.black.withOpacity(0.4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    IconButton(
+                      color: Colors.white,
+                      icon: ValueListenableBuilder(
+                        valueListenable: controller.torchState,
+                        builder: (context, state, child) {
+                          switch (state) {
+                            case TorchState.off:
+                              return const Icon(
+                                Icons.flash_off,
+                                color: Colors.grey,
+                              );
+                            case TorchState.on:
+                              return const Icon(
+                                Icons.flash_on,
+                                color: Colors.yellow,
+                              );
+                            default:
+                              return const Icon(
+                                Icons.flash_off,
+                                color: Colors.grey,
+                              );
+                          }
+                        },
                       ),
-                      IconButton(
-                        color: Colors.white,
-                        icon: isStarted
-                            ? const Icon(Icons.stop)
-                            : const Icon(Icons.play_arrow),
-                        iconSize: 32.0,
-                        onPressed: () => setState(() {
-                          isStarted ? controller.stop() : controller.start();
-                          isStarted = !isStarted;
-                        }),
-                      ),
-                      Center(
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width - 200,
-                          height: 20,
-                          child: FittedBox(
-                            child: Text(
-                              // barcode ?? '扫一扫'.tr,
-                              '扫一扫'.tr,
-                              // overflow: TextOverflow.fade,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                // fontSize: 24,
-                              ),
+                      iconSize: 32.0,
+                      onPressed: () => controller.toggleTorch(),
+                    ),
+                    IconButton(
+                      color: Colors.white,
+                      icon: isStarted
+                          ? const Icon(Icons.stop)
+                          : const Icon(Icons.play_arrow),
+                      iconSize: 32.0,
+                      onPressed: () => setState(() {
+                        isStarted ? controller.stop() : controller.start();
+                        isStarted = !isStarted;
+                      }),
+                    ),
+                    Center(
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width - 200,
+                        height: 20,
+                        child: FittedBox(
+                          child: Text(
+                            // barcode ?? '扫一扫'.tr,
+                            '扫一扫'.tr,
+                            // overflow: TextOverflow.fade,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              // fontSize: 24,
                             ),
                           ),
                         ),
                       ),
-                      IconButton(
-                        color: Colors.white,
-                        icon: ValueListenableBuilder(
-                          valueListenable: controller.cameraFacingState,
-                          builder: (context, state, child) {
-                            switch (state) {
-                              case CameraFacing.front:
-                                return const Icon(Icons.camera_front);
-                              case CameraFacing.back:
-                                return const Icon(Icons.camera_rear);
-                              default:
-                                return const Icon(Icons.camera_front);
-                            }
-                          },
-                        ),
-                        iconSize: 32.0,
-                        onPressed: () => controller.switchCamera(),
-                      ),
-                      IconButton(
-                        color: Colors.white,
-                        icon: const Icon(Icons.image),
-                        iconSize: 32.0,
-                        onPressed: () async {
-                          isStarted = true;
-                          final ImagePicker picker = ImagePicker();
-                          // Pick an image
-                          final XFile? image = await picker.pickImage(
-                            source: ImageSource.gallery,
-                          );
-                          if (image == null) {
-                            return;
-                          }
-                          bool res = await controller.analyzeImage(image.path);
-                          debugPrint("> on barcode $res ${image.path}");
-                          if (res) {
-                            if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Barcode found!'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          } else {
-                            if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('No barcode found!'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
+                    ),
+                    IconButton(
+                      color: Colors.white,
+                      icon: ValueListenableBuilder(
+                        valueListenable: controller.cameraFacingState,
+                        builder: (context, state, child) {
+                          switch (state) {
+                            case CameraFacing.front:
+                              return const Icon(Icons.camera_front);
+                            case CameraFacing.back:
+                              return const Icon(Icons.camera_rear);
+                            default:
+                              return const Icon(Icons.camera_front);
                           }
                         },
                       ),
-                    ],
-                  ),
+                      iconSize: 32.0,
+                      onPressed: () => controller.switchCamera(),
+                    ),
+                    IconButton(
+                      color: Colors.white,
+                      icon: const Icon(Icons.image),
+                      iconSize: 32.0,
+                      onPressed: () async {
+                        isStarted = true;
+                        final ImagePicker picker = ImagePicker();
+                        // Pick an image
+                        final XFile? image = await picker.pickImage(
+                          source: ImageSource.gallery,
+                        );
+                        if (image == null) {
+                          return;
+                        }
+                        bool res = await controller.analyzeImage(image.path);
+                        debugPrint("> on barcode $res ${image.path}");
+                        if (res) {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Barcode found!'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        } else {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('No barcode found!'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ),
-            ],
-          );
+            ),
+          ]);
         },
       ),
     );

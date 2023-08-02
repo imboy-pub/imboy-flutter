@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:niku/namespace.dart' as n;
-
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';

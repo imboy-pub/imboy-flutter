@@ -196,7 +196,7 @@ class ContactLogic extends GetxController {
             Get.to(
               () => PeopleInfoPage(
                 id: model.peerId,
-                scene: 'contact_page', // TODO 2023-04-19 09:40:05 leeyi
+                scene: 'contact_page',
               ),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
@@ -326,7 +326,6 @@ class ContactLogic extends GetxController {
     debugPrint("receivedConfirmFriend ${data.toString()}");
     var repo = ContactRepo();
     Map<String, dynamic> json = {
-      // From 的个人信息
       ContactRepo.peerId: data['id'],
       'account': data['account'],
       'nickname': data['nickname'],

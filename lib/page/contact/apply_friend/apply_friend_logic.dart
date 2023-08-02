@@ -37,8 +37,8 @@ class ApplyFriendLogic extends GetxController {
   /// 申请成为好友
   Future<void> apply({
     required String to,
-    required String nickname,
-    required String avatar,
+    required String peerNickname,
+    required String peerAvatar,
     required Map<String, dynamic> payload,
   }) async {
     payload["msg_type"] = "apply_friend";
@@ -65,8 +65,8 @@ class ApplyFriendLogic extends GetxController {
         "uid": UserRepoLocal.to.currentUid,
         NewFriendRepo.from: UserRepoLocal.to.currentUid,
         NewFriendRepo.to: to,
-        "nickname": nickname,
-        "avatar": avatar,
+        "nickname": peerNickname,
+        "avatar": peerAvatar,
         "msg": payload["from"]["msg"] ?? "",
         "payload": json.encode(payload),
         "status": NewFriendStatus.waiting_for_validation.index,

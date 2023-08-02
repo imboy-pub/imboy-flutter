@@ -2,11 +2,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart' as getx;
+
 import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class P2pCallScreenLogic {
@@ -633,6 +636,28 @@ class P2pCallScreenLogic {
       var muted = !cameraOff.value;
       cameraOff.value = muted;
       _localStream!.getVideoTracks()[0].enabled = !muted;
+    }
+  }
+
+  Future<void> changeMessageState(String msgId, int state, int endAt) async {
+    MessageRepo repo = MessageRepo();
+    MessageModel? msg = await repo.find(msgId);
+    if (msg ==null) {
+      return;
+    }
+    Map<String, dynamic> payload = msg.payload!;
+    payload['end_at'] = endAt;
+    payload['state'] = state;
+    int res = await repo.update({
+      MessageRepo.id: msgId,
+      MessageRepo.payload: payload,
+      // MessageRepo.id: msgId,
+      // MessageRepo.id: msgId,
+    });
+    if (res > 0) {
+      msg.payload = payload;
+      // 更新会话里面的消息列表的特定消息状态
+      eventBus.fire([msg.toTypeMessage()]);
     }
   }
 }

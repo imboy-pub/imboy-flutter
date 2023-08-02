@@ -1,10 +1,15 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:niku/namespace.dart' as n;
+import 'package:xid/xid.dart';
+// ignore: depend_on_referenced_packages
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
+import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/component/helper/counter.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/dragable.dart';
@@ -46,6 +51,8 @@ class P2pCallScreenPage extends StatefulWidget {
 }
 
 class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
+  final String msgId = Xid().toString();
+
   final double localWidth = 114.0;
   final double localHeight = 72.0;
   String media = "";
@@ -74,6 +81,8 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
   RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
 
   Timer? answerTimer;
+
+  final ChatLogic chatLogic = Get.find();
 
   @override
   void initState() {
@@ -146,6 +155,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
             stateTips = '等待对方接受邀请...'.tr;
           });
           answerTimer = Timer(const Duration(seconds: 60), () {
+            logic?.changeMessageState(msgId, 2, 0);
             if (!mounted) {
               return;
             }
@@ -167,6 +177,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
           answerTimer?.cancel();
           break;
         case WebRTCCallState.CallStateBye:
+          logic?.changeMessageState(msgId, 3, DateTimeHelper.currentTimeMillis());
           setState(() {
             counter.cleanUp();
             stateTips = '对方已挂断'.tr;
@@ -177,6 +188,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
 
           break;
         case WebRTCCallState.CallStateBusy:
+          logic?.changeMessageState(msgId, 2, 0);
           setState(() {
             stateTips = '对方正忙，请稍后重试'.tr;
           });
@@ -238,11 +250,12 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
 
     debugPrint("> rtc view widget.caller ${widget.caller} ${DateTime.now()}");
     // createSession 一定要放在 绑定时间的后面
+
     if (widget.caller) {
       // 发起通话
       await logic?.invitePeer(
         widget.peer.uid,
-        widget.option['media'] ?? 'video',
+        media,
       );
     } else {
       await logic?.onMessageP2P(
@@ -254,6 +267,36 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         ),
       );
     }
+
+    if (media == 'video' || media == 'audio') {
+      // addMessage();
+    }
+  }
+
+  void addMessage() {
+    int now = DateTimeHelper.currentTimeMillis();
+    final msg = types.CustomMessage(
+      author: chatLogic.currentUser,
+      createdAt: now,
+      id: msgId,
+      remoteId: widget.peer.uid,
+      status: types.Status.sending,
+      metadata: {
+        'custom_type': media == 'video' ? 'webrtc_video' : 'webrtc_audio',
+        'media': media,
+        'start_at': now,
+        'end_at': 0,
+        'state': 0,
+      },
+    );
+    chatLogic.addMessage(
+      UserRepoLocal.to.currentUid,
+      widget.peer.uid,
+      widget.peer.avatar,
+      widget.peer.nickname,
+      'C2C',
+      msg,
+    );
   }
 
   /// WebRTCCallState.CallStateConnected 的时候触发
@@ -276,6 +319,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
   }
 
   Widget _buildPeerInfo() {
+    iPrint('_buildPeerInfo media $media');
     return Center(
       child: n.Padding(
         top: Get.height * 0.3,
@@ -491,6 +535,11 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     debugPrint("> rtc hangUp 1");
     if (sendBye) {
       logic?.sendBye();
+    }
+    if (connected) {
+      logic?.changeMessageState(msgId, 1, DateTimeHelper.currentTimeMillis());
+    } else {
+      logic?.changeMessageState(msgId, 4, 0);
     }
     logic?.cleanUpP2P();
     await disposeRenderer();

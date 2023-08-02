@@ -27,7 +27,6 @@ Future<Map<String, dynamic>> defaultHeaders() async {
     'cos': Platform.operatingSystem,
     'cosv': Platform.operatingSystemVersion,
     'method': 'sha512',
-    // appVsnXY = "$X.$Y";
     'sign': EncrypterService.sha512("$deviceId|$appVsnXY", SOLIDIFIED_KEY)
   };
 }
