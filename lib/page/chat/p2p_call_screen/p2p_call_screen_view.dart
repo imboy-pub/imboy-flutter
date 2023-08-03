@@ -5,11 +5,8 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:xid/xid.dart';
-// ignore: depend_on_referenced_packages
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/component/helper/counter.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/dragable.dart';
@@ -51,7 +48,7 @@ class P2pCallScreenPage extends StatefulWidget {
 }
 
 class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
-  final String msgId = Xid().toString();
+  String msgId = '';
 
   final double localWidth = 114.0;
   final double localHeight = 72.0;
@@ -82,12 +79,11 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
 
   Timer? answerTimer;
 
-  final ChatLogic chatLogic = Get.find();
-
   @override
   void initState() {
     //监听Widget是否绘制完毕
     super.initState();
+    msgId = Xid().toString();
     counter.cleanUp();
     if (!mounted) {
       return;
@@ -97,6 +93,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
 
   @override
   Future<void> dispose() async {
+    msgId = '';
     super.dispose();
     await logic?.cleanUpP2P();
     await subscription?.cancel();
@@ -130,6 +127,10 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       media: media,
     )..signalingConnect();
 
+    if (media == 'video' || media == 'audio') {
+      // 需要放在前面，避免更新的时候插入没有成功，导致消息状态异常
+      await logic?.addLocalMsg(widget.caller, msgId, widget.peer);
+    }
     switchRenderer = widget.caller ? false : true;
 
     logic!.onSignalingStateChange = (RTCSignalingState state) {
@@ -155,45 +156,47 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
             stateTips = '等待对方接受邀请...'.tr;
           });
           answerTimer = Timer(const Duration(seconds: 60), () {
-            logic?.changeMessageState(msgId, 2, 0);
-            if (!mounted) {
-              return;
+            if (mounted) {
+              setState(() {
+                stateTips = '对方无应答...'.tr;
+              });
             }
-            setState(() {
-              stateTips = '对方无应答...'.tr;
-            });
             Future.delayed(const Duration(seconds: 2), () {
-              _hangUp(sendBye: false);
+              _hangUp(sendBye: false, state: 2);
             });
           });
           break;
         case WebRTCCallState.CallStateRinging:
           // 呼入= Ringing
-          if (widget.caller) {
+          if (widget.caller && mounted) {
             setState(() {
               stateTips = '已响铃...'.tr;
             });
           }
-          answerTimer?.cancel();
           break;
         case WebRTCCallState.CallStateBye:
-          logic?.changeMessageState(msgId, 3, DateTimeHelper.currentTimeMillis());
           setState(() {
             counter.cleanUp();
             stateTips = '对方已挂断'.tr;
           });
+
           Future.delayed(const Duration(seconds: 2), () {
-            _hangUp(sendBye: false);
+            _hangUp(
+              sendBye: false,
+              state: connected ? 1 : 3,
+              endAt: DateTimeHelper.currentTimeMillis() - 2000,
+            );
           });
 
           break;
         case WebRTCCallState.CallStateBusy:
-          logic?.changeMessageState(msgId, 2, 0);
-          setState(() {
-            stateTips = '对方正忙，请稍后重试'.tr;
-          });
+          if (mounted) {
+            setState(() {
+              stateTips = '对方正忙，请稍后重试'.tr;
+            });
+          }
           Future.delayed(const Duration(seconds: 2), () {
-            _hangUp(sendBye: false);
+            _hangUp(sendBye: false, state: 2);
           });
           break;
         case WebRTCCallState.CallStateConnected:
@@ -267,36 +270,6 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         ),
       );
     }
-
-    if (media == 'video' || media == 'audio') {
-      // addMessage();
-    }
-  }
-
-  void addMessage() {
-    int now = DateTimeHelper.currentTimeMillis();
-    final msg = types.CustomMessage(
-      author: chatLogic.currentUser,
-      createdAt: now,
-      id: msgId,
-      remoteId: widget.peer.uid,
-      status: types.Status.sending,
-      metadata: {
-        'custom_type': media == 'video' ? 'webrtc_video' : 'webrtc_audio',
-        'media': media,
-        'start_at': now,
-        'end_at': 0,
-        'state': 0,
-      },
-    );
-    chatLogic.addMessage(
-      UserRepoLocal.to.currentUid,
-      widget.peer.uid,
-      widget.peer.avatar,
-      widget.peer.nickname,
-      'C2C',
-      msg,
-    );
   }
 
   /// WebRTCCallState.CallStateConnected 的时候触发
@@ -307,7 +280,12 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       localX = Get.width - 90;
       localY = 30;
     });
-    debugPrint("> rtc CallStateConnected view $connected ;");
+    debugPrint("> rtc CallStateConnected view $connected ; msgId $msgId;");
+    logic?.changeMessageState(
+      msgId,
+      1,
+      startAt: DateTimeHelper.currentTimeMillis(),
+    );
     counter.start((Timer tm) {
       setState(() {
         // 秒数+1，因为一秒回调一次
@@ -373,7 +351,12 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
             FloatingActionButton(
               heroTag: "hangup",
               tooltip: 'hangup'.tr,
-              onPressed: _hangUp,
+              onPressed: () {
+                _hangUp(
+                  state: connected ? 1 : 4,
+                  endAt: DateTimeHelper.currentTimeMillis(),
+                );
+              },
               backgroundColor: Colors.pink,
               child: const Icon(Icons.call_end),
             ),
@@ -408,7 +391,12 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
               child: FloatingActionButton(
                 heroTag: "hangup",
                 tooltip: 'hangup'.tr,
-                onPressed: _hangUp,
+                onPressed: () {
+                  _hangUp(
+                    state: connected ? 1 : 4,
+                    endAt: DateTimeHelper.currentTimeMillis(),
+                  );
+                },
                 backgroundColor: Colors.pink,
                 child: const Icon(Icons.call_end),
               ),
@@ -531,16 +519,23 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     });
   }
 
-  Future<void> _hangUp({bool sendBye = true}) async {
+  Future<void> _hangUp({
+    bool sendBye = true,
+    int state = 4, // state = 4 已取消
+    int startAt = -1,
+    int endAt = -1,
+  }) async {
     debugPrint("> rtc hangUp 1");
     if (sendBye) {
       logic?.sendBye();
     }
-    if (connected) {
-      logic?.changeMessageState(msgId, 1, DateTimeHelper.currentTimeMillis());
-    } else {
-      logic?.changeMessageState(msgId, 4, 0);
-    }
+
+    logic?.changeMessageState(
+      msgId,
+      state,
+      startAt: startAt,
+      endAt: endAt,
+    );
     logic?.cleanUpP2P();
     await disposeRenderer();
     widget.closePage?.call();

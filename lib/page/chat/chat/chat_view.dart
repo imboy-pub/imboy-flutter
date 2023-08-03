@@ -108,6 +108,7 @@ class ChatPageState extends State<ChatPage> {
 
   /// 初始化一些数据
   Future<void> initData() async {
+    _page = 1;
     if (availableMaps.isEmpty) {
       try {
         availableMaps = await MapLauncher.installedMaps;
@@ -134,7 +135,8 @@ class ChatPageState extends State<ChatPage> {
     // 接收到新的消息订阅
     eventBus.on<types.Message>().listen((types.Message msg) async {
       final i = logic.state.messages.indexWhere((e) => e.id == msg.id);
-      if (i == -1 && msg.author.id == widget.peerId) {
+      iPrint("changeMessageState 4 ${msg.id}; i $i;");
+      if (i == -1) {
         if (msg is types.ImageMessage) {
           galleryLogic.pushToLast(msg.id, msg.uri);
         }
@@ -174,10 +176,6 @@ class ChatPageState extends State<ChatPage> {
   /// 用于分页(无限滚动)。当用户滚动时调用
   /// 到列表的最后(减去[onEndReachedThreshold])。
   Future<void> _handleEndReached() async {
-    if (!mounted) {
-      return;
-    }
-
     if (widget.conversationId == 0) {
       widget.conversationId = await conversationLogic.createConversationId(
         widget.peerId,
@@ -220,14 +218,16 @@ class ChatPageState extends State<ChatPage> {
         }
       }
 
-      setState(() {
-        logic.state.messages = [
-          ...logic.state.messages,
-          ...items,
-        ];
-        _page = _page + 1;
-      });
-    } else if (_page == 1) {
+      if (mounted) {
+        setState(() {
+          logic.state.messages = [
+            ...logic.state.messages,
+            ...items,
+          ];
+          _page = _page + 1;
+        });
+      }
+    } else if (_page == 1 && mounted) {
       setState(() {
         logic.state.messages = [];
       });

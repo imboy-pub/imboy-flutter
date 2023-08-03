@@ -62,16 +62,13 @@ class ChatLogic extends GetxController {
     List<types.Message> messages = [];
     // 重发在发送中状态的消息
     for (MessageModel obj in items) {
+      debugPrint("> on getMessages $peerId obj: ${obj.toJson().toString()}");
       if (obj.status == MessageStatus.sending) {
         await sendWsMsg(obj);
       }
       messages.insert(0, obj.toTypeMessage());
     }
     return messages;
-  }
-
-  updateMsg(types.Message msg) {
-
   }
 
   Future<bool> sendWsMsg(MessageModel obj) async {
@@ -153,12 +150,15 @@ class ChatLogic extends GetxController {
     String? avatar,
     String title,
     String type, // C2C or GROUP
-    types.Message message,
-  ) async {
+    types.Message message, {
+    bool sendToServer = true,
+  }) async {
     String subtitle = MessageModel.conversationSubtitle(message);
     String msgType = MessageModel.conversationMsgType(message);
     int createdAt = DateTimeHelper.currentTimeMillis();
-
+    if (toId == UserRepoLocal.to.currentUid) {
+      throw Exception('not send message to myself');
+    }
     // message.status = types.Status.sent;
     ConversationModel conversation = ConversationModel(
       peerId: toId,
@@ -170,8 +170,8 @@ class ChatLogic extends GetxController {
       msgType: msgType,
       lastMsgId: message.id,
       lastTime: createdAt,
-      lastMsgStatus: 10,
-      // astMsgStatus 10 发送中 sending;  11 已发送 send;
+      // lastMsgStatus 10 发送中 sending;  11 已发送 send;
+      lastMsgStatus: sendToServer ? 10 : 11,
       unreadNum: 0,
       isShow: 1,
       id: 0,
@@ -184,7 +184,9 @@ class ChatLogic extends GetxController {
     // debugPrint("> on addMessage after insert MessageRepo");
     eventBus.fire(conversation);
     // send to server
-    sendWsMsg(obj);
+    if (sendToServer) {
+      sendWsMsg(obj);
+    }
     if (message is types.ImageMessage) {
       Get.find<ImageGalleryLogic>().pushToLast(
         message.id,

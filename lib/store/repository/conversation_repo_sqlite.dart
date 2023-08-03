@@ -4,6 +4,8 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
+import '../../component/helper/func.dart';
+
 class ConversationRepo {
   static String tableName = 'conversation';
 
@@ -175,8 +177,8 @@ class ConversationRepo {
       offset: offset,
       orderBy: "${ConversationRepo.lastTime} DESC",
     );
-    // debugPrint(
-    //     "> on ConversationRepo/all ${items.length} items ${items.toString()}");
+    iPrint(
+        "> on ConversationRepo/all ${items.length} items ${items.toString()}");
     if (items.isEmpty) {
       return [];
     }

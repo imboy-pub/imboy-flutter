@@ -1,5 +1,6 @@
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart' show DateFormat;
 // ignore: depend_on_referenced_packages
@@ -81,40 +82,36 @@ class WebRTCMessageBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool userIsAuthor = user.id == message.author.id;
-    String peerId = userIsAuthor ? message.remoteId! : user.id;
+    bool userIsAuthor = UserRepoLocal.to.currentUid == message.author.id;
+    String peerId = userIsAuthor ? message.remoteId! : message.author.id;
     int state = message.metadata?['state'] ?? 0;
     String media = message.metadata?['media'] ?? 'audio';
     String customType = message.metadata?['custom_type'] ?? '';
     int startAt = message.metadata?['start_at'] ?? 0;
     int endAt = message.metadata?['end_at'] ?? 0;
     String callCuration = '';
-    if (endAt > startAt) {
+    if (startAt > 0 && endAt > startAt) {
       DateTime date = DateTime.fromMillisecondsSinceEpoch(
         endAt - startAt,
         isUtc: true,
       );
       callCuration = DateFormat('mm:ss.SSS').format(date);
+      // callCuration = DateFormat('mm:ss').format(date);
     }
     String title = '';
     if (state == 0) {
       title = '';
     } else if (state == 1) {
+      // 已连接
     } else if (state == 2) {
       title = '未应答'.tr;
     } else if (state == 3) {
       title = '对方已挂断'.tr;
     } else if (state == 4) {
       title = '已取消'.tr;
-    } else if (state == 5) {
-    } else if (state == 6) {
-    } else if (state == 7) {
-    } else if (state == 8) {
-    } else if (state == 9) {
-    } else if (state == 10) {
-    }
+    } else if (state == 5) {}
 
-    if (callCuration.isNotEmpty) {
+    if (title.isEmpty && callCuration.isNotEmpty) {
       title = "${'通话时长'.tr} $callCuration";
     }
 
