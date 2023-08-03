@@ -2,6 +2,7 @@
 # 0.1.14
 * 添加 WebRTCMessageBuilder ，实现"语音通话"、"视频通话"消息记录；
 * 修复语音通话无法达到 WebRTCCallState.CallStateConnected 状态问题；
+* 修复"新注册的朋友"列表，nickname 为空就显示 account ;
 * 更新两个依赖；
 
 # 0.1.13

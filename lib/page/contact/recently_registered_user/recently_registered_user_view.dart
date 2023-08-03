@@ -80,7 +80,7 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
                           ListTile(
                             leading: Avatar(imgUri: model.avatar),
                             contentPadding: const EdgeInsets.only(left: 0),
-                            title: Text(model.nickname),
+                            title: Text(model.nickname.isEmpty ? model.account : model.nickname),
                             subtitle: n.Row([
                               Expanded(
                                   child: Text(
