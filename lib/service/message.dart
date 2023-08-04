@@ -49,8 +49,11 @@ class MessageService extends GetxService {
         iPrint("> rtc msg CLIENT_ACK,WEBRTC,${data['id']},$deviceId");
         WebSocketService.to
             .sendMessage("CLIENT_ACK,WEBRTC,${data['id']},$deviceId");
-        String msgId = Xid().toString();
-        webrtcMsgIdLi.add(msgId);
+        String msgId = '';
+        if (type == 'WEBRTC_OFFER' || type == 'WEBRTC_BUSY' || type == 'WEBRTC_BYE') {
+          msgId = Xid().toString();
+          webrtcMsgIdLi.add(msgId);
+        }
         if (p2pCallScreenOn == false && type == 'WEBRTC_OFFER') {
           String peerId = data['from'];
           ContactModel? obj = await ContactRepo().findByUid(peerId);
@@ -75,7 +78,6 @@ class MessageService extends GetxService {
           );
           if (msgModel.webrtctype == 'busy' || msgModel.webrtctype == 'bye') {
             for (var id in webrtcMsgIdLi) {
-              // changeLocalMsgState(id, msgModel.webrtctype == 'busy' ? 4 : 3);
               changeLocalMsgState(id, 4);
             }
             if (Get.isDialogOpen != null && Get.isDialogOpen == true) {
