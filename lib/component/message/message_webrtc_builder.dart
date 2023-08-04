@@ -43,8 +43,8 @@ class WebRTCMessageBuilder extends StatelessWidget {
           ),
         ),
         customType == 'webrtc_video'
-            ? const Icon(Icons.video_camera_back_outlined)
-            : const Icon(Icons.phone),
+            ? const Icon(Icons.videocam)
+            : const Icon(Icons.call_end),
       ])
         ..mainAxisSize = MainAxisSize.min
         // 内容文本左对齐
@@ -54,7 +54,7 @@ class WebRTCMessageBuilder extends StatelessWidget {
       row = n.Row([
         customType == 'webrtc_video'
             ? const Icon(Icons.videocam)
-            : const Icon(Icons.phone),
+            : const Icon(Icons.call_end),
         n.Padding(
           top: 2,
           left: 4,
