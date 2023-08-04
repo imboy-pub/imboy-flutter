@@ -2,20 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart' as getx;
-// ignore: depend_on_referenced_packages
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/helper/func.dart';
 
 import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/page/chat/chat/chat_logic.dart';
-import 'package:imboy/store/model/message_model.dart';
-import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
-import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class P2pCallScreenLogic {
@@ -642,105 +634,6 @@ class P2pCallScreenLogic {
       var muted = !cameraOff.value;
       cameraOff.value = muted;
       _localStream!.getVideoTracks()[0].enabled = !muted;
-    }
-  }
-
-  Future<void> addLocalMsg(bool caller, String msgId, UserModel peer) async {
-    iPrint(
-        "changeMessageState 0 $msgId, peer.uid ${peer.uid == UserRepoLocal.to.currentUid};");
-    if (msgId.isEmpty) {
-      return;
-    }
-    if (peer.uid == UserRepoLocal.to.currentUid) {
-      throw Exception('not send message to myself');
-    }
-    types.CustomMessage  msg;
-    if (caller) {
-      msg = types.CustomMessage(
-        author: types.User(
-          id: UserRepoLocal.to.currentUid,
-          firstName: UserRepoLocal.to.current.nickname,
-          imageUrl: UserRepoLocal.to.current.avatar,
-        ),
-        createdAt: DateTimeHelper.currentTimeMillis(),
-        id: msgId,
-        remoteId: peer.uid,
-        status: types.Status.delivered,
-        metadata: {
-          'custom_type': media == 'video' ? 'webrtc_video' : 'webrtc_audio',
-          'media': media,
-          'start_at': 0,
-          'end_at': 0,
-          'state': 0,
-        },
-      );
-    } else {
-      msg = types.CustomMessage(
-        author: types.User(
-          id: peer.uid,
-          firstName: peer.nickname,
-          imageUrl: peer.avatar,
-        ),
-        createdAt: DateTimeHelper.currentTimeMillis(),
-        id: msgId,
-        remoteId: UserRepoLocal.to.currentUid,
-        status: types.Status.delivered,
-        metadata: {
-          'custom_type': media == 'video' ? 'webrtc_video' : 'webrtc_audio',
-          'media': media,
-          'start_at': 0,
-          'end_at': 0,
-          'state': 0,
-        },
-      );
-    }
-    await getx.Get.find<ChatLogic>().addMessage(
-      UserRepoLocal.to.currentUid,
-      peer.uid,
-      peer.avatar,
-      peer.nickname,
-      'C2C',
-      msg,
-      sendToServer: false,
-    );
-  }
-
-  Future<void> changeMessageState(
-    String msgId,
-    int state, {
-    int startAt = -1,
-    int endAt = -1,
-  }) async {
-    iPrint(
-        "changeMessageState state $state, $msgId, startAt $startAt, endAt $endAt;");
-    MessageRepo repo = MessageRepo();
-    MessageModel? msg = await repo.find(msgId);
-    iPrint("changeMessageState 2 $msgId, ${msg?.payload?.toString()};");
-    if (msg == null) {
-      return;
-    }
-    Map<String, dynamic> payload = msg.payload!;
-    payload['state'] = state;
-    if (startAt > -1 && payload['start_at'] == 0) {
-      payload['start_at'] = startAt;
-    }
-    if (endAt > -1) {
-      payload['end_at'] = endAt;
-    }
-    iPrint("changeMessageState 3 $msgId, ${payload.toString()};");
-    int res = await repo.update({
-      MessageRepo.id: msgId,
-      MessageRepo.payload: payload,
-    });
-    if (res > 0) {
-      msg.payload = payload;
-      types.Message msg2 = msg.toTypeMessage();
-      // 更新会话里面的消息列表的特定消息状态
-      eventBus.fire([msg2]);
-      // 通话完成，加入到消息列表
-      if (endAt > -1) {
-        eventBus.fire(msg2);
-      }
     }
   }
 }

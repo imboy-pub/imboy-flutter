@@ -15,7 +15,6 @@ import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/page/contact/contact_setting_tag/contact_setting_tag_view.dart';
 import 'package:imboy/page/contact/contact_setting/contact_setting_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
-import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -272,8 +271,8 @@ class PeopleInfoPage extends StatelessWidget {
                     isBorder: true,
                     onPressed: () {
                       openCallScreen(
-                        UserModel.fromJson({
-                          "uid": id,
+                        ContactModel.fromJson({
+                          "id": id,
                           "nickname": nickname.value,
                           "avatar": avatar.value,
                           "sign": sign.value,
@@ -292,8 +291,8 @@ class PeopleInfoPage extends StatelessWidget {
                         text: '视频通话'.tr,
                         onPressed: () {
                           openCallScreen(
-                            UserModel.fromJson({
-                              "uid": id,
+                            ContactModel.fromJson({
+                              "id": id,
                               "nickname": nickname.value,
                               "avatar": avatar.value,
                               "sign": sign.value,

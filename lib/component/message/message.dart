@@ -7,9 +7,9 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_chat_ui/src/widgets/state/inherited_user.dart';
 import 'package:get/get.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:imboy/config/const.dart';
 import 'package:open_file/open_file.dart';
 
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/encrypter.dart';
@@ -61,7 +61,8 @@ class CustomMessageBuilder extends StatelessWidget {
           message: message,
           user: InheritedUser.of(context).user,
         );
-      } else if (customType == 'webrtc_audio' || customType == 'webrtc_video') { // 音频消息 || 视频消息
+      } else if (customType == 'webrtc_audio' || customType == 'webrtc_video') {
+        // 音频消息 || 视频消息
         w = WebRTCMessageBuilder(
           message: message,
           user: InheritedUser.of(context).user,

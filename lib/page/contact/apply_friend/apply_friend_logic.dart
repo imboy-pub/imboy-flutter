@@ -70,7 +70,7 @@ class ApplyFriendLogic extends GetxController {
         "msg": payload["from"]["msg"] ?? "",
         "payload": json.encode(payload),
         "status": NewFriendStatus.waiting_for_validation.index,
-        "create_time": createdAt,
+        NewFriendRepo.createAt: createdAt,
       };
       // debugPrint("> on receivedAddFriend ${saveData.toString()}");
       (NewFriendRepo()).save(saveData);

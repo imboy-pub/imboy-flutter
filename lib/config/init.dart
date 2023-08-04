@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' as io;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:event_bus/event_bus.dart';
@@ -51,6 +52,8 @@ Map<String, dynamic>? iceConfiguration;
 
 /// The global [EventBus] object.
 EventBus eventBus = EventBus();
+// 全局timer
+Timer? gTimer;
 GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Map<String, WebRTCSession> webRTCSessions = {};

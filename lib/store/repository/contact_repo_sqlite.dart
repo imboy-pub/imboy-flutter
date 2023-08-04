@@ -22,7 +22,7 @@ class ContactRepo {
   static String region = 'region';
   static String sign = 'sign';
   static String source = 'source';
-  static String updateTime = "update_time";
+  static String updateAt = "update_at";
   static String isFriend = 'is_friend';
   static String categoryId = 'category_id';
 
@@ -52,13 +52,14 @@ class ContactRepo {
         ContactRepo.gender,
         ContactRepo.isFriend,
         ContactRepo.isFrom,
+        ContactRepo.updateAt,
         ContactRepo.categoryId,
       ],
       where: '${ContactRepo.userId} = ? and ${ContactRepo.isFriend} = ? and ('
           '${ContactRepo.nickname} like "%$kwd%" or ${ContactRepo.remark} like "%$kwd%" or ${ContactRepo.tag} like "%$kwd%"'
           ')',
       whereArgs: [UserRepoLocal.to.currentUid, 1],
-      orderBy: "update_time desc",
+      orderBy: "${ContactRepo.updateAt} desc",
       limit: limit,
       offset: offset,
     );
@@ -96,8 +97,7 @@ class ContactRepo {
       ContactRepo.sign: obj.sign,
       ContactRepo.source: obj.source,
       // 单位毫秒，13位时间戳  1561021145560
-      ContactRepo.updateTime:
-          obj.updateTime ?? DateTimeHelper.currentTimeMillis(),
+      ContactRepo.updateAt: obj.updateAt ?? DateTimeHelper.currentTimeMillis(),
       ContactRepo.isFriend: obj.isFriend,
       ContactRepo.isFrom: obj.isFrom,
       ContactRepo.categoryId: obj.categoryId,
@@ -134,7 +134,7 @@ class ContactRepo {
       columns: columns,
       where: '${ContactRepo.userId} = ? and ${ContactRepo.isFriend} = ?',
       whereArgs: [UserRepoLocal.to.currentUid, 1],
-      orderBy: "${ContactRepo.updateTime} desc",
+      orderBy: "${ContactRepo.updateAt} desc",
       limit: limit,
       offset: offset,
     );
@@ -200,7 +200,7 @@ class ContactRepo {
         ContactRepo.sign,
         ContactRepo.source,
         ContactRepo.gender,
-        ContactRepo.updateTime,
+        ContactRepo.updateAt,
         ContactRepo.isFriend,
         ContactRepo.isFrom,
         ContactRepo.categoryId,
@@ -281,7 +281,7 @@ class ContactRepo {
     }
     // debugPrint("> on ContactRepo/update/1 data: ${data.toString()}");
     if (strNoEmpty(peerId)) {
-      data[ContactRepo.updateTime] = DateTimeHelper.currentTimeMillis();
+      data[ContactRepo.updateAt] = DateTimeHelper.currentTimeMillis();
       return await _db.update(
         ContactRepo.tableName,
         data,

@@ -53,11 +53,12 @@ class ContactModel extends ISuspensionBean {
     this.region = "",
     this.sign = "",
     this.source = "",
-    this.updateTime,
+    this.updateAt,
     this.isFriend = 1,
     // isFrom 好友关系发起人
     this.isFrom = 0,
     this.categoryId = 0,
+    //
     this.nameIndex = "",
     this.namePinyin,
     this.bgColor,
@@ -82,7 +83,7 @@ class ContactModel extends ISuspensionBean {
   // visit_card | qrcode | people_nearby
   // recently_user
   final String source;
-  final int? updateTime;
+  final int? updateAt;
   int isFriend;
   // isFrom 好友关系发起人
   int isFrom;
@@ -121,8 +122,12 @@ class ContactModel extends ISuspensionBean {
     tag = tag.replaceAll(',,', ',');
     tag = tag.endsWith(',') ? tag.substring(0, tag.length - 1) : tag;
 
+    String peerId = json['id'] ?? (json[ContactRepo.peerId] ?? '');
+    if (peerId.isEmpty) {
+      throw Exception('ContactModel peerId is empty');
+    }
     return ContactModel(
-      peerId: json["id"] ?? (json[ContactRepo.peerId] ?? ""),
+      peerId: peerId,
       account: json["account"].toString(),
       nickname: json["nickname"].toString(),
       avatar: json["avatar"].toString(),
@@ -134,8 +139,8 @@ class ContactModel extends ISuspensionBean {
       source: json["source"].toString(),
       sign: json["sign"].toString(),
       // 单位毫秒，13位时间戳  1561021145560
-      updateTime:
-          json[ContactRepo.updateTime] ?? DateTimeHelper.currentTimeMillis(),
+      updateAt:
+          json[ContactRepo.updateAt] ?? DateTimeHelper.currentTimeMillis(),
       isFriend: json[ContactRepo.isFriend] ?? 0,
       categoryId: json[ContactRepo.categoryId] ?? 0,
       isFrom: int.tryParse('$isFrom') ?? 0,
@@ -154,7 +159,7 @@ class ContactModel extends ISuspensionBean {
         'sign': sign,
         'source': source,
         ContactRepo.tag: tag,
-        ContactRepo.updateTime: updateTime,
+        ContactRepo.updateAt: updateAt,
         ContactRepo.isFriend: isFriend,
         ContactRepo.isFrom: isFrom,
         ContactRepo.categoryId: categoryId,

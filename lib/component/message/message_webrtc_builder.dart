@@ -1,6 +1,5 @@
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart' show DateFormat;
 // ignore: depend_on_referenced_packages
@@ -8,10 +7,10 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:niku/namespace.dart' as n;
 import 'package:get/get.dart';
 
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/contact_model.dart';
-import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
 class WebRTCMessageBuilder extends StatelessWidget {
@@ -54,7 +53,7 @@ class WebRTCMessageBuilder extends StatelessWidget {
     } else {
       row = n.Row([
         customType == 'webrtc_video'
-            ? const Icon(Icons.video_camera_back_outlined)
+            ? const Icon(Icons.videocam)
             : const Icon(Icons.phone),
         n.Padding(
           top: 2,
@@ -104,17 +103,21 @@ class WebRTCMessageBuilder extends StatelessWidget {
     } else if (state == 1) {
       // 已连接
     } else if (state == 2) {
-      title = '未应答'.tr;
+      title = '未应答'.tr; // 发送者收到未应答
     } else if (state == 3) {
       title = '对方已挂断'.tr;
     } else if (state == 4) {
       title = '已取消'.tr;
-    } else if (state == 5) {}
+    } else if (state == 5) {
+      title = '未应答'.tr; // 接收人未应答
+    }
 
     if (title.isEmpty && callCuration.isNotEmpty) {
       title = "${'通话时长'.tr} $callCuration";
     }
-
+    if (title.isEmpty) {
+      return const SizedBox.shrink();
+    }
     return Bubble(
       color: userIsAuthor
           ? AppColors.ChatSendMessageBgColor
@@ -126,15 +129,15 @@ class WebRTCMessageBuilder extends StatelessWidget {
       alignment: userIsAuthor ? Alignment.centerRight : Alignment.centerLeft,
       child: InkWell(
         onTap: () async {
-          ContactModel? c = await ContactRepo().findByUid(peerId);
-          UserModel peer = UserModel(
-            uid: peerId,
-            account: c!.account,
-            nickname: c.nickname,
-            avatar: c.avatar,
-          );
+          ContactModel? peer = await ContactRepo().findByUid(peerId);
+          // UserModel peer = UserModel(
+          //   uid: peerId,
+          //   account: c!.account,
+          //   nickname: c.nickname,
+          //   avatar: c.avatar,
+          // );
           openCallScreen(
-            peer,
+            peer!,
             // session: s,
             {
               'media': media,

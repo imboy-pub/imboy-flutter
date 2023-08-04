@@ -29,7 +29,7 @@ class SqliteDdl {
         ${ContactRepo.region} varchar(80) DEFAULT '',
         ${ContactRepo.sign} varchar(255) NOT NULL DEFAULT '',
         ${ContactRepo.source} varchar(40) NOT NULL DEFAULT '',
-        ${ContactRepo.updateTime} int(16) NOT NULL DEFAULT 0,
+        ${ContactRepo.updateAt} int(16) NOT NULL DEFAULT 0,
         ${ContactRepo.isFriend} int(4) NOT NULL DEFAULT 0,
         ${ContactRepo.isFrom} int(4) NOT NULL DEFAULT 0,
         ${ContactRepo.categoryId} int(20) NOT NULL DEFAULT 0,
@@ -45,7 +45,7 @@ class SqliteDdl {
     await db.execute('''
           CREATE INDEX IF NOT EXISTS i_UserId_IsFriend_UpdateTime
           ON ${ContactRepo.tableName} 
-          (${ContactRepo.userId}, ${ContactRepo.isFriend}, ${ContactRepo.updateTime});
+          (${ContactRepo.userId}, ${ContactRepo.isFriend}, ${ContactRepo.updateAt});
         ''');
     await db.execute('''
           CREATE INDEX IF NOT EXISTS i_UserId_CategoryId
@@ -158,8 +158,8 @@ class SqliteDdl {
         ${NewFriendRepo.msg} varchar(255) NOT NULL DEFAULT '',
         ${NewFriendRepo.status} varchar(20) NOT NULL DEFAULT '',
         ${NewFriendRepo.payload} text DEFAULT '',
-        ${NewFriendRepo.updateTime} int(16) NOT NULL DEFAULT 0,
-        ${NewFriendRepo.createTime} int(16) NOT NULL DEFAULT 0,
+        ${NewFriendRepo.updateAt} int(16) NOT NULL DEFAULT 0,
+        ${NewFriendRepo.createAt} int(16) NOT NULL DEFAULT 0,
         PRIMARY KEY("auto_id"),
         CONSTRAINT uk_FromTo UNIQUE (
             ${NewFriendRepo.from},

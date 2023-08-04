@@ -1,4 +1,10 @@
 
+# 0.1.15
+* P2P会话  peer 参数类型从 UserModel 修改为 ContactModel；
+* 更新会话的时候重新计算会话消息提醒数量；
+* 修正音视频通话接收端没有接听消息，也在会话列表中写入"已取消"消息；
+* 其他变量命名风格等一些细节调整（sqlite DDL语句有变化，需要卸载APP重新安装）；
+
 # 0.1.14
 * 添加 WebRTCMessageBuilder ，实现"语音通话"、"视频通话"消息记录；
 * 修复语音通话无法达到 WebRTCCallState.CallStateConnected 状态问题；

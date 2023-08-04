@@ -12,7 +12,7 @@ import 'package:sqflite/sqflite.dart';
 /// 参考 https://www.javacodegeeks.com/2020/06/using-sqlite-in-flutter-tutorial.html
 /// Sqlite 只负责维护表结构
 class SqliteService {
-  static const _dbVersion = 4;
+  static const _dbVersion = 5;
 
   SqliteService._privateConstructor();
 
@@ -24,7 +24,7 @@ class SqliteService {
     if (_db != null) {
       return _db!;
     }
-    String dbName = "imboy_${UserRepoLocal.to.currentUid}.db";
+    String dbName = "imboy_${UserRepoLocal.to.currentUid}_$_dbVersion.db";
     debugPrint("> on Sqlite.database $dbName");
     _db = await initDatabase(dbName);
     return _db!;

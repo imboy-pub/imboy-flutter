@@ -47,7 +47,7 @@ class ContactLogic extends GetxController {
 
     final List<ContactModel> topList = [
       ContactModel(
-        peerId: "people_nearby",
+        peerId: 'people_nearby',
         nickname: '找附近的人'.tr,
         nameIndex: '↑',
         bgColor: Colors.orange,
@@ -67,7 +67,7 @@ class ContactLogic extends GetxController {
         },
       ),
       ContactModel(
-        peerId: "new_friend",
+        peerId: 'new_friend',
         nickname: '新的朋友'.tr,
         nameIndex: '↑',
         bgColor: Colors.orange,
@@ -148,14 +148,6 @@ class ContactLogic extends GetxController {
           );
         },
       ),
-      /*
-      ContactModel(
-          nickname: '公众号',
-          nameIndex: '↑',
-          bgColor: Colors.blueAccent,
-          iconData: Icons.person,
-      ),
-      */
     ];
     // add topList.
     list.insertAll(0, topList);

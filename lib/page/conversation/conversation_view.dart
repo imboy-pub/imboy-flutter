@@ -70,6 +70,7 @@ class _ConversationPageState extends State<ConversationPage> {
 
     // 设置消息提醒数量
     for (ConversationModel obj in logic.conversations) {
+      // 重新计算会话消息提醒数量
       logic.recalculateConversationRemind(obj.peerId);
     }
   }

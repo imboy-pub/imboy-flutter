@@ -95,6 +95,9 @@ class ChatPageState extends State<ChatPage> {
 
   types.Message? quoteMessage;
 
+  // ignore: prefer_typing_uninitialized_variables
+  late var currentUser;
+
   @override
   void initState() {
     // 初始化的时候置空数据，放在该位置（initData之前），不会出现闪屏
@@ -108,6 +111,12 @@ class ChatPageState extends State<ChatPage> {
 
   /// 初始化一些数据
   Future<void> initData() async {
+    currentUser = types.User(
+      id: UserRepoLocal.to.currentUid,
+      firstName: UserRepoLocal.to.current.nickname,
+      imageUrl: UserRepoLocal.to.current.avatar,
+    );
+
     _page = 1;
     if (availableMaps.isEmpty) {
       try {
@@ -213,7 +222,9 @@ class ChatPageState extends State<ChatPage> {
         //     "_handleEndReached conversation ${msgIds.length} ${conversation?.toJson().toString()}");
         if (conversation != null) {
           conversationLogic.decreaseConversationRemind(
-              widget.peerId, msgIds.length);
+            widget.peerId,
+            msgIds.length,
+          );
           conversationLogic.replace(conversation);
         }
       }
@@ -276,7 +287,7 @@ class ChatPageState extends State<ChatPage> {
       ) async {
         final message = types.FileMessage(
           id: Xid().toString(),
-          author: logic.currentUser,
+          author: currentUser,
           createdAt: DateTimeHelper.currentTimeMillis(),
           mimeType: lookupMimeType(result.files.single.path!),
           name: result.files.single.name,
@@ -320,7 +331,7 @@ class ChatPageState extends State<ChatPage> {
 
         if (entity.type == AssetType.image) {
           final message = types.ImageMessage(
-            author: logic.currentUser,
+            author: currentUser,
             createdAt: DateTimeHelper.currentTimeMillis(),
             id: Xid().toString(),
             name: await entity.titleAsync,
@@ -340,7 +351,7 @@ class ChatPageState extends State<ChatPage> {
           };
           debugPrint("> on upload metadata: ${metadata.toString()}");
           final message = types.CustomMessage(
-            author: logic.currentUser,
+            author: currentUser,
             createdAt: DateTimeHelper.currentTimeMillis(),
             id: Xid().toString(),
             remoteId: widget.peerId,
@@ -399,7 +410,7 @@ class ChatPageState extends State<ChatPage> {
       };
       debugPrint("> location metadata: ${metadata.toString()}");
       final message = types.CustomMessage(
-        author: logic.currentUser,
+        author: currentUser,
         createdAt: DateTimeHelper.currentTimeMillis(),
         id: Xid().toString(),
         remoteId: widget.peerId,
@@ -443,7 +454,7 @@ class ChatPageState extends State<ChatPage> {
       };
       debugPrint("> location metadata: ${metadata.toString()}");
       final message = types.CustomMessage(
-        author: logic.currentUser,
+        author: currentUser,
         createdAt: DateTimeHelper.currentTimeMillis(),
         id: Xid().toString(),
         remoteId: widget.peerId,
@@ -473,7 +484,7 @@ class ChatPageState extends State<ChatPage> {
           debugPrint("> on upload $resp.toString()");
 
           final message = types.ImageMessage(
-            author: logic.currentUser,
+            author: currentUser,
             createdAt: DateTimeHelper.currentTimeMillis(),
             id: Xid().toString(),
             name: await entity.titleAsync,
@@ -494,7 +505,7 @@ class ChatPageState extends State<ChatPage> {
           };
           debugPrint("> on upload metadata: ${metadata.toString()}");
           final message = types.CustomMessage(
-            author: logic.currentUser,
+            author: currentUser,
             createdAt: DateTimeHelper.currentTimeMillis(),
             id: Xid().toString(),
             remoteId: widget.peerId,
@@ -533,7 +544,7 @@ class ChatPageState extends State<ChatPage> {
       };
       debugPrint("> on upload metadata: ${metadata.toString()}");
       final message = types.CustomMessage(
-        author: logic.currentUser,
+        author: currentUser,
         createdAt: DateTimeHelper.currentTimeMillis(),
         id: Xid().toString(),
         remoteId: widget.peerId,
@@ -592,7 +603,7 @@ class ChatPageState extends State<ChatPage> {
   Future<bool> _handleSendPressed(types.PartialText msg) async {
     if (quoteMessage == null) {
       final textMessage = types.TextMessage(
-        author: logic.currentUser,
+        author: currentUser,
         createdAt: DateTimeHelper.currentTimeMillis(),
         id: Xid().toString(),
         text: msg.text,
@@ -612,7 +623,7 @@ class ChatPageState extends State<ChatPage> {
       };
       debugPrint("> on upload metadata: ${metadata.toString()}");
       final message = types.CustomMessage(
-        author: logic.currentUser,
+        author: currentUser,
         createdAt: DateTimeHelper.currentTimeMillis(),
         id: Xid().toString(),
         remoteId: widget.peerId,
@@ -779,7 +790,7 @@ class ChatPageState extends State<ChatPage> {
         Expanded(
             child: n.Stack([
           Chat(
-            user: logic.currentUser,
+            user: currentUser,
             messages: logic.state.messages,
             textMessageBuilder: (
               types.TextMessage message, {

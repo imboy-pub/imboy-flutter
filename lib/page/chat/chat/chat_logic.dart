@@ -26,16 +26,7 @@ import 'chat_state.dart';
 class ChatLogic extends GetxController {
   final state = ChatState();
 
-  // ignore: prefer_typing_uninitialized_variables
-  late var currentUser;
-
-  ChatLogic() {
-    currentUser = types.User(
-      id: UserRepoLocal.to.currentUid,
-      firstName: UserRepoLocal.to.current.nickname,
-      imageUrl: UserRepoLocal.to.current.avatar,
-    );
-  }
+  ChatLogic();
 
   void initState() {
     state.messages = [];
@@ -196,6 +187,12 @@ class ChatLogic extends GetxController {
   }
 
   Future<bool> removeMessage(int conversationId, types.Message msg) async {
+    if (conversationId == 0) {
+      ConversationModel? cm = await ConversationRepo().findByPeerId(
+        msg.remoteId ?? '',
+      );
+      conversationId = cm == null ? 0 : cm.id;
+    }
     MessageModel? lastMsg;
     if (conversationId > 0) {
       List<MessageModel> items = await MessageRepo().findByConversation(

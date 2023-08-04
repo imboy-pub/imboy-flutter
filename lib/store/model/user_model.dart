@@ -64,7 +64,7 @@ class UserModel {
   factory UserModel.fromJson(Map<String, dynamic> json) {
     var g = json["gender"] ?? 0;
     return UserModel(
-      uid: json["uid"],
+      uid: json["uid"] ?? json["id"],
       account: json["account"] ?? '',
       nickname: json["nickname"],
       avatar: json["avatar"] ?? '',

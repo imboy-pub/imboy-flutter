@@ -32,16 +32,18 @@ class ConversationLogic extends GetxController {
   }
 
   /// 更新会话
-  replace(ConversationModel model) async {
+  replace(ConversationModel obj) async {
     // 第一次会话的时候 i 为 -1
     final i = conversations
-        .indexWhere((ConversationModel item) => (item).peerId == model.peerId);
+        .indexWhere((ConversationModel item) => (item).peerId == obj.peerId);
     if (i > -1) {
       int i2 = i > 0 ? i : 0;
-      conversations[i2] = model;
+      conversations[i2] = obj;
     } else {
-      conversations.add(model);
+      conversations.add(obj);
     }
+    // 重新计算会话消息提醒数量
+    recalculateConversationRemind(obj.peerId);
     update([conversations]);
   }
 

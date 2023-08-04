@@ -2,10 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/message.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:xid/xid.dart';
 
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/counter.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -14,7 +16,6 @@ import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 // import 'package:permission_handler/permission_handler.dart';
@@ -23,7 +24,7 @@ import 'p2p_call_screen_logic.dart';
 
 // ignore: must_be_immutable
 class P2pCallScreenPage extends StatefulWidget {
-  final UserModel peer;
+  final ContactModel peer;
   WebRTCSession session;
   final Map<String, dynamic> option;
 
@@ -83,7 +84,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
   void initState() {
     //监听Widget是否绘制完毕
     super.initState();
-    msgId = Xid().toString();
+    msgId = widget.option['msgId'] ?? Xid().toString();
     counter.cleanUp();
     if (!mounted) {
       return;
@@ -127,9 +128,14 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       media: media,
     )..signalingConnect();
 
-    if (media == 'video' || media == 'audio') {
+    if (widget.caller && (media == 'video' || media == 'audio')) {
       // 需要放在前面，避免更新的时候插入没有成功，导致消息状态异常
-      await logic?.addLocalMsg(widget.caller, msgId, widget.peer);
+      await MessageService.to.addLocalMsg(
+        media: media,
+        caller: widget.caller,
+        msgId: msgId,
+        peer: widget.peer,
+      );
     }
     switchRenderer = widget.caller ? false : true;
 
@@ -257,14 +263,14 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     if (widget.caller) {
       // 发起通话
       await logic?.invitePeer(
-        widget.peer.uid,
+        widget.peer.peerId,
         media,
       );
     } else {
       await logic?.onMessageP2P(
         WebRTCSignalingModel(
           type: 'WEBRTC_OFFER',
-          from: widget.peer.uid,
+          from: widget.peer.peerId,
           to: UserRepoLocal.to.currentUid,
           payload: widget.option,
         ),
@@ -281,7 +287,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       localY = 30;
     });
     debugPrint("> rtc CallStateConnected view $connected ; msgId $msgId;");
-    logic?.changeMessageState(
+    MessageService.to.changeLocalMsgState(
       msgId,
       1,
       startAt: DateTimeHelper.currentTimeMillis(),
@@ -530,7 +536,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       logic?.sendBye();
     }
 
-    logic?.changeMessageState(
+    MessageService.to.changeLocalMsgState(
       msgId,
       state,
       startAt: startAt,

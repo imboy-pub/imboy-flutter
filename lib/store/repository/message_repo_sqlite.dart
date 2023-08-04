@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 class MessageRepo {
   static String tableName = 'message';
@@ -167,6 +168,31 @@ class MessageRepo {
       where: '${MessageRepo.conversationId} = ?',
       whereArgs: [id],
     );
+  }
+
+  Future<MessageModel?> lastMsg() async {
+    List<Map<String, dynamic>> maps = await _db.query(
+      MessageRepo.tableName,
+      columns: [
+        MessageRepo.id,
+        MessageRepo.type,
+        MessageRepo.from,
+        MessageRepo.to,
+        MessageRepo.payload,
+        MessageRepo.createdAt,
+        MessageRepo.serverTs,
+        MessageRepo.conversationId,
+        MessageRepo.status,
+      ],
+      where: '${MessageRepo.from} = ?',
+      whereArgs: [UserRepoLocal.to.currentUid],
+      orderBy: "${MessageRepo.createdAt} desc",
+      limit: 1,
+    );
+    if (maps.isNotEmpty) {
+      return MessageModel.fromJson(maps.first);
+    }
+    return null;
   }
 // 记得及时关闭数据库，防止内存泄漏
 // close() async {

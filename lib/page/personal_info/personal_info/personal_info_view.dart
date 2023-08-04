@@ -4,15 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:niku/namespace.dart' as n;
-
 import 'package:image_picker/image_picker.dart';
+
 import 'package:imboy/component/helper/crop_image.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'personal_info_logic.dart';
@@ -100,7 +99,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     }
   }
 
-  Widget buildContent(item, UserModel user) {
+  Widget buildContent(item) {
     return LabelRow(
       label: item['title'],
       rValue: item['value'],
@@ -248,9 +247,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           ),
         ),
         n.Column(
-          data
-              .map((item) => buildContent(item, UserRepoLocal.to.current))
-              .toList(),
+          data.map((item) => buildContent(item)).toList(),
         ),
       ])),
     );

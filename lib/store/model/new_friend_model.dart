@@ -12,8 +12,8 @@ class NewFriendModel {
     required this.source,
     this.avatar,
     this.status = 0,
-    this.updateTime,
-    required this.createTime,
+    this.updateAt,
+    required this.createAt,
     this.msg = '',
     required this.payload,
   });
@@ -27,8 +27,8 @@ class NewFriendModel {
   // 0 待验证  1 已添加  2 已过期
   int status; //
   String msg;
-  final int? updateTime;
-  final int createTime;
+  final int? updateAt;
+  final int createAt;
   final String payload;
 
   String get uk {
@@ -47,9 +47,9 @@ class NewFriendModel {
       status: status is String ? int.parse(status) : status,
       msg: json[NewFriendRepo.msg].toString(),
       // 单位毫秒，13位时间戳  1561021145560
-      updateTime:
-          json[NewFriendRepo.updateTime] ?? DateTimeHelper.currentTimeMillis(),
-      createTime: json[NewFriendRepo.createTime],
+      updateAt:
+          json[NewFriendRepo.updateAt] ?? DateTimeHelper.currentTimeMillis(),
+      createAt: json[NewFriendRepo.createAt],
       payload: json["payload"],
     );
   }
@@ -62,8 +62,8 @@ class NewFriendModel {
         NewFriendRepo.avatar: avatar,
         NewFriendRepo.status: status,
         NewFriendRepo.msg: msg,
-        NewFriendRepo.updateTime: updateTime,
-        NewFriendRepo.createTime: createTime,
+        NewFriendRepo.updateAt: updateAt,
+        NewFriendRepo.createAt: createAt,
         NewFriendRepo.payload: payload,
       };
 

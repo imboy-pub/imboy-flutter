@@ -1,19 +1,20 @@
+import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
-import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_view.dart';
+import 'package:imboy/service/message.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:xid/xid.dart';
 
+import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_view.dart';
+import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/websocket.dart';
-import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -101,18 +102,39 @@ Future<void> receiveCandidate(String peerId, Map<String, dynamic> data) async {
 
 /// 音视频会话弹窗
 Future<void> incomingCallScreen(
-  UserModel peer,
+  String msgId,
+  ContactModel peer,
   Map<String, dynamic> option,
 ) async {
   if (p2pCallScreenOn == true) {
     return;
   }
   p2pCallScreenOn = true;
-  String sid = sessionId(peer.uid);
+  String sid = sessionId(peer.peerId);
   var s = webRTCSessions[sid];
-  s ??= WebRTCSession(pid: peer.uid, sid: sid);
+  s ??= WebRTCSession(pid: peer.peerId, sid: sid);
+  option['msgId'] = msgId;
+  await MessageService.to.addLocalMsg(
+    media: option['media'],
+    caller: false,
+    msgId: msgId,
+    peer: peer,
+  );
 
-  sendWebRTCMsg('ringing', {}, to: peer.uid);
+  gTimer = Timer(const Duration(seconds: 60), () {
+    MessageService.to.changeLocalMsgState(
+        msgId,
+        5
+    );
+    if (Get.isDialogOpen != null && Get.isDialogOpen == true) {
+      Get.close(0);
+    }
+    gTimer?.cancel();
+    gTimer = null;
+    p2pCallScreenOn = false;
+  });
+
+  sendWebRTCMsg('ringing', {}, to: peer.peerId);
   Get.defaultDialog(
     title: '',
     backgroundColor: Colors.black54,
@@ -148,7 +170,7 @@ Future<void> incomingCallScreen(
               n.Padding(
                 top: 10,
                 child: Text(
-                  "Incoming ${option['media']} call",
+                  "Incoming ${option['media']} call".tr,
                   style: const TextStyle(
                     color: Colors.white60,
                     fontSize: 12,
@@ -168,7 +190,13 @@ Future<void> incomingCallScreen(
                 heroTag: "RejectCall",
                 backgroundColor: Colors.red,
                 onPressed: () {
-                  sendWebRTCMsg('busy', {}, to: peer.uid);
+                  MessageService.to.changeLocalMsgState(
+                    msgId,
+                    5,
+                  );
+                  gTimer?.cancel();
+                  gTimer = null;
+                  sendWebRTCMsg('busy', {}, to: peer.peerId);
                   p2pCallScreenOn = false;
                   Get.close(0);
                 },
@@ -184,7 +212,10 @@ Future<void> incomingCallScreen(
                 heroTag: "AcceptCall",
                 backgroundColor: Colors.green,
                 onPressed: () {
+                  gTimer?.cancel();
+                  gTimer = null;
                   Get.close(0);
+                  option['msgId'] = msgId;
                   openCallScreen(peer, session: s, option, caller: false);
                 },
                 child: option['media'] == 'video'
@@ -197,18 +228,11 @@ Future<void> incomingCallScreen(
           ..mainAxisSize = MainAxisSize.min
           ..crossAxisAlignment = CrossAxisAlignment.start),
   );
-
-  Future.delayed(const Duration(seconds: 60), () {
-    if (Get.isDialogOpen != null && Get.isDialogOpen == true) {
-      Get.close(0);
-    }
-    p2pCallScreenOn = false;
-  });
 }
 
 /// 调起
 void openCallScreen(
-  UserModel peer,
+  ContactModel peer,
   Map<String, dynamic> option, {
   WebRTCSession? session,
   //  默认是主叫者
@@ -220,8 +244,8 @@ void openCallScreen(
   initIceServers();
   p2pCallScreenOn = true;
 
-  String sid = sessionId(peer.uid);
-  session ??= WebRTCSession(pid: peer.uid, sid: sid);
+  String sid = sessionId(peer.peerId);
+  session ??= WebRTCSession(pid: peer.peerId, sid: sid);
   webRTCSessions[sid] = session;
   p2pEntry = OverlayEntry(builder: (context) {
     return P2pCallScreenPage(

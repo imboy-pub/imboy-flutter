@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
+import 'package:xid/xid.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
@@ -19,45 +18,47 @@ import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
-import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/component/helper/func.dart';
 
 class MessageService extends GetxService {
   static MessageService get to => Get.find();
   final ContactLogic contactLogic = Get.find();
   final NewFriendLogic newFriendLogic = Get.find();
   final ConversationLogic conversationLogic = Get.find();
-
+  List<String> webrtcMsgIdLi = [];
   @override
   void onInit() {
     super.onInit();
     eventBus.on<Map>().listen((Map data) async {
       String type = data['type'] ?? 'error';
       type = type.toUpperCase();
-      debugPrint(
+      iPrint(
           "> rtc msg listen: $type , $p2pCallScreenOn, ${DateTime.now()} $data");
       if (data.containsKey('ts')) {
         int now = DateTimeHelper.currentTimeMillis();
-        debugPrint("> rtc msg now: $now elapsed: ${now - data['ts']}");
+        iPrint("> rtc msg now: $now elapsed: ${now - data['ts']}");
       }
       if (type.startsWith('WEBRTC_')) {
         // 确认消息
-        debugPrint("> rtc msg CLIENT_ACK,WEBRTC,${data['id']},$deviceId");
+        iPrint("> rtc msg CLIENT_ACK,WEBRTC,${data['id']},$deviceId");
         WebSocketService.to
             .sendMessage("CLIENT_ACK,WEBRTC,${data['id']},$deviceId");
-
+        String msgId = Xid().toString();
+        webrtcMsgIdLi.add(msgId);
         if (p2pCallScreenOn == false && type == 'WEBRTC_OFFER') {
           String peerId = data['from'];
           ContactModel? obj = await ContactRepo().findByUid(peerId);
           if (obj != null) {
-            incomingCallScreen(
-              UserModel.fromJson({
-                "uid": obj.peerId,
+            await incomingCallScreen(
+              msgId,
+              ContactModel.fromJson({
+                "id": obj.peerId,
                 "nickname": obj.title,
                 "avatar": obj.avatar,
                 "sign": obj.sign,
@@ -73,9 +74,15 @@ class MessageService extends GetxService {
             payload: data['payload'],
           );
           if (msgModel.webrtctype == 'busy' || msgModel.webrtctype == 'bye') {
+            for (var id in webrtcMsgIdLi) {
+              // changeLocalMsgState(id, msgModel.webrtctype == 'busy' ? 4 : 3);
+              changeLocalMsgState(id, 4);
+            }
             if (Get.isDialogOpen != null && Get.isDialogOpen == true) {
               Get.close(0);
             }
+            gTimer?.cancel();
+            gTimer = null;
             p2pCallScreenOn = false;
           }
           eventBus.fire(msgModel);
@@ -144,7 +151,7 @@ class MessageService extends GetxService {
   }
 
   Future<void> switchS2C(Map data) async {
-    debugPrint("switchS2C ${data.toString()}");
+    iPrint("switchS2C ${data.toString()}");
     var payload = data['payload'] ?? {};
     if (payload is String) {
       payload = json.decode(payload);
@@ -234,7 +241,7 @@ class MessageService extends GetxService {
             checkNewToken: false);
         autoAck = false;
         if (tk.isNotEmpty) {
-          debugPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId,$autoAck");
+          iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId,$autoAck");
           WebSocketService.to.sendMessage("CLIENT_ACK,S2C,$msgId,$deviceId");
         }
         break;
@@ -251,7 +258,7 @@ class MessageService extends GetxService {
     }
     // 确认消息
     if (autoAck) {
-      debugPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId");
+      iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId");
       WebSocketService.to.sendMessage("CLIENT_ACK,S2C,$msgId,$deviceId");
     }
   }
@@ -271,9 +278,9 @@ class MessageService extends GetxService {
   Future<void> receiveC2CMessage(data) async {
     var msgType = data['payload']['msg_type'] ?? '';
     var subtitle = data['payload']['text'] ?? '';
-    debugPrint("> rtc msg c2c receiveMessage $data");
+    iPrint("> rtc msg c2c receiveMessage $data");
     int now = DateTimeHelper.currentTimeMillis();
-    debugPrint("> rtc msg c2c now: $now elapsed: ${now - data['created_at']}");
+    iPrint("> rtc msg c2c now: $now elapsed: ${now - data['created_at']}");
 
     ContactModel? ct = await ContactRepo().findByUid(data['from']);
     String avatar = ct!.avatar;
@@ -289,7 +296,7 @@ class MessageService extends GetxService {
       subtitle = data['payload']['title'] ?? '';
     }
 
-    ConversationModel conversationObj = ConversationModel(
+    ConversationModel conversation = ConversationModel(
       peerId: data['from'],
       avatar: avatar,
       title: title,
@@ -301,7 +308,7 @@ class MessageService extends GetxService {
       unreadNum: 1,
       id: 0,
     );
-    conversationObj = await (ConversationRepo()).save(conversationObj);
+    conversation = await (ConversationRepo()).save(conversation);
 
     MessageModel msg = MessageModel(
       data['id'],
@@ -311,18 +318,18 @@ class MessageService extends GetxService {
       payload: data['payload'],
       createdAt: data['created_at'],
       serverTs: data['server_ts'],
-      conversationId: conversationObj.id,
+      conversationId: conversation.id,
       status: MessageStatus.delivered, // 未读 已投递
     );
     int? exited = await (MessageRepo()).save(msg);
     // 确认消息
-    debugPrint("> rtc msg CLIENT_ACK,C2C,${data['id']},$deviceId");
+    iPrint("> rtc msg CLIENT_ACK,C2C,${data['id']},$deviceId");
     WebSocketService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$deviceId");
     if (exited != null && exited > 0) {
       return;
     }
 
-    eventBus.fire(conversationObj);
+    eventBus.fire(conversation);
     // 收到一个消息，步增会话消息 1
     conversationLogic.increaseConversationRemind(data['from'], 1);
     types.Message tMsg = msg.toTypeMessage();
@@ -340,14 +347,14 @@ class MessageService extends GetxService {
 
   /// 收到C2C服务端确认消息
   Future<void> receiveC2CServerAckMessage(Map data) async {
-    debugPrint("> rtc msg S_RECEIVED: msg:$data");
+    iPrint("> rtc msg S_RECEIVED: msg:$data");
     MessageRepo repo = MessageRepo();
     String id = data['id'];
     int res = await repo.update({
       'id': id,
       'status': MessageStatus.send,
     });
-    // debugPrint("> rtc msg S_RECEIVED:$res");
+    // iPrint("> rtc msg S_RECEIVED:$res");
     MessageModel? msg = await repo.find(id);
     if (res > 0 && msg != null) {
       // 更新会话里面的消息列表的特定消息状态
@@ -447,5 +454,134 @@ class MessageService extends GetxService {
     // 确认消息
     WebSocketService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$deviceId");
     changeConversation(msg, 'my_revoked');
+  }
+
+  Future<void> addLocalMsg({
+    required String media,
+    required bool caller,
+    required String msgId,
+    required ContactModel peer,
+  }) async {
+    iPrint(
+        "changeLocalMsgState 0 $msgId, ${peer.peerId == UserRepoLocal.to.currentUid}; peer.peerId ${peer.toJson().toString()} ;");
+    if (msgId.isEmpty) {
+      return;
+    }
+    if (peer.peerId == UserRepoLocal.to.currentUid) {
+      throw Exception('not send message to myself');
+    }
+    types.CustomMessage msg;
+    if (caller) {
+      msg = types.CustomMessage(
+        author: types.User(
+          id: UserRepoLocal.to.currentUid,
+          firstName: UserRepoLocal.to.current.nickname,
+          imageUrl: UserRepoLocal.to.current.avatar,
+        ),
+        createdAt: DateTimeHelper.currentTimeMillis(),
+        id: msgId,
+        remoteId: peer.peerId,
+        status: types.Status.delivered,
+        metadata: {
+          'custom_type': media == 'video' ? 'webrtc_video' : 'webrtc_audio',
+          'media': media,
+          'start_at': 0,
+          'end_at': 0,
+          'state': 0,
+        },
+      );
+    } else {
+      msg = types.CustomMessage(
+        author: types.User(
+          id: peer.peerId,
+          firstName: peer.nickname,
+          imageUrl: peer.avatar,
+        ),
+        createdAt: DateTimeHelper.currentTimeMillis(),
+        id: msgId,
+        remoteId: UserRepoLocal.to.currentUid,
+        status: types.Status.delivered,
+        metadata: {
+          'custom_type': media == 'video' ? 'webrtc_video' : 'webrtc_audio',
+          'media': media,
+          'start_at': 0,
+          'end_at': 0,
+          'state': 0,
+        },
+      );
+    }
+    await Get.find<ChatLogic>().addMessage(
+      UserRepoLocal.to.currentUid,
+      peer.peerId,
+      peer.avatar,
+      peer.nickname,
+      'C2C',
+      msg,
+      sendToServer: false,
+    );
+  }
+
+  Future<void> changeLocalMsgState(
+    String msgId,
+    int state, {
+    int startAt = -1,
+    int endAt = -1,
+  }) async {
+    iPrint(
+        "changeLocalMsgState state $state, $msgId, startAt $startAt, endAt $endAt;");
+    MessageRepo repo = MessageRepo();
+    MessageModel? msg = await repo.find(msgId);
+    iPrint("changeLocalMsgState 2 $msgId, ${msg?.payload?.toString()}; webrtcMsgIdLi ${webrtcMsgIdLi.toString()}");
+    if (msg == null) {
+      return;
+    }
+    webrtcMsgIdLi = [];
+    String customType = msg.payload?['custom_type'] ?? '';
+    if (customType != 'webrtc_video' && customType != 'webrtc_audio') {
+      return;
+    }
+    Map<String, dynamic> payload = msg.payload ?? {};
+    payload['state'] = state;
+    if (startAt > -1 && payload['start_at'] == 0) {
+      payload['start_at'] = startAt;
+    }
+    if (endAt > -1) {
+      payload['end_at'] = endAt;
+    }
+    iPrint("changeLocalMsgState 3 $msgId, ${payload.toString()};");
+    int res = await repo.update({
+      MessageRepo.id: msgId,
+      MessageRepo.payload: payload,
+    });
+    if (res > 0) {
+      msg.payload = payload;
+      types.Message msg2 = msg.toTypeMessage();
+      // 更新会话里面的消息列表的特定消息状态
+      eventBus.fire([msg2]);
+      // 通话完成，加入到消息列表
+      if (endAt > -1 || state > 0) {
+        eventBus.fire(msg2);
+      }
+    }
+  }
+
+  Future<void> cleanInvalidLocalMsg({
+    required String msgId,
+    types.Message? message,
+  }) async {
+    if (msgId.isEmpty) {
+      MessageModel? m = await MessageRepo().lastMsg();
+      message = m?.toTypeMessage();
+    }
+    if (message == null) {
+      MessageModel? m = await MessageRepo().find(msgId);
+      message = m?.toTypeMessage();
+    }
+    int startAt = message?.metadata?['start_at'] ?? 0;
+    int endAt = message?.metadata?['end_at'] ?? 0;
+    int state = message?.metadata?['state'] ?? 0;
+    if (state == 0 && startAt == 0 && endAt == 0 && message != null) {
+      Get.find<ChatLogic>().removeMessage(0, message);
+    }
   }
 }
