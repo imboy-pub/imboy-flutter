@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
@@ -30,9 +31,9 @@ class BottomNavigationLogic extends GetxController {
       orderBy: "${NewFriendRepo.createAt} desc",
       limit: 1000,
     );
-    // debugPrint(
+    // iPrint(
     //     "> on countNewFriendRemindCounter1 ${newFriendRemindCounter.toString()}");
-    // debugPrint("> on countNewFriendRemindCounter2 ${items.toString()}");
+    // iPrint("> on countNewFriendRemindCounter2 ${items.toString()}");
     newFriendRemindCounter = <String>{}.obs;
     if (items.isNotEmpty) {
       for (Map<String, dynamic> e in items) {
@@ -41,16 +42,15 @@ class BottomNavigationLogic extends GetxController {
       }
     }
     update([newFriendRemindCounter]);
-    // debugPrint(
+    // iPrint(
     //     "> on countNewFriendRemindCounter3 ${newFriendRemindCounter.toString()}");
   }
 
   //改变底部导航栏索引
   void changeBottomBarIndex(int index) {
     // 检查WS链接状态
-    WebSocketService.to;
-    update([
-      state.bottomBarIndex.value = index,
-    ]);
+    WebSocketService.to.openSocket();
+    state.bottomBarIndex.value = index;
+    iPrint("changeBottomBarIndex index $index");
   }
 }

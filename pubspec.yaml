@@ -51,7 +51,7 @@ dependencies:
   #    path: permission_handler
   #    tag: permission_handler_android_v10.2.1
       #ref: master
-  camera: ^0.10.5+2
+  camera: ^0.10.5+3
   wechat_camera_picker: ^3.8.0
   wechat_assets_picker: ^8.6.1
   # 缓存
@@ -62,11 +62,11 @@ dependencies:
   # 在运行时从文件加载环境变量.env
   flutter_dotenv: ^5.1.0
   # 照片管理器
-  photo_manager: ^2.7.0
+  photo_manager: ^2.7.1
   # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
   video_compress: ^3.1.2
   # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
-  path_provider: ^2.0.15
+  path_provider: ^2.1.0
   image_picker: ^1.0.1
   image_picker_macos: ^0.2.1
   image_picker_platform_interface: ^2.9.0
@@ -138,7 +138,7 @@ dependencies:
   # 从实用程序 Widget 和带有点级联的扩展中构建 Flutter UI。流畅地开发，没有头痛和嵌套地狱。
   niku: ^2.4.2
   # 二维码扫描
-  mobile_scanner: ^3.3.0
+  mobile_scanner: ^3.4.1
   #  mobile_scanner:
   #    git:
   #      url: https://gitee.com/imboy-tripartite-deps/mobile_scanner.git
@@ -164,7 +164,7 @@ dependencies:
   # 语音消息播放器
   voice_message_package: ^1.0.41
   # 一对一音视频通话等
-  flutter_webrtc: 0.9.36
+  flutter_webrtc: 0.9.37
   # 可滚动小部件的固定/可变行高提供了滚动到索引的机制
   scroll_to_index: ^3.0.1
   # 封装了基本的图形样式，矩形、圆角矩形、圆形、椭圆形，以及自定义虚线框
@@ -176,7 +176,7 @@ dependencies:
   device_info_plus: ^9.0.2
   package_info_plus: ^4.0.2
   # Flutter 的 Markdown 渲染器
-  flutter_markdown: ^0.6.16
+  flutter_markdown: ^0.6.17+1
   # 滑动吸顶
   sliding_up_panel: ^2.0.0+1
   # 用于 Flutter 的 SVG 渲染和小部件库，允许绘制和显示可缩放矢量图形 1.1 文件。
@@ -187,7 +187,10 @@ dependencies:
   equatable: ^2.0.5
   # 用于查找设备上安装的可用地图并使用标记启动它们或显示方向。
   map_launcher: ^2.5.0+1
+  # 视频播放器插件
   video_player: ^2.7.0
+  # video_player的插件，支持所有桌面/移动平台。硬件解码器，最佳渲染。通过 FFmpeg 支持大多数格式
+  fvp: ^0.0.9
   # 标签编辑框
   textfield_tags: ^2.0.2
   #filter_list: ^1.0.2
@@ -203,11 +206,17 @@ dependencies:
   amap_flutter_base: ^3.0.0
   amap_flutter_location: ^3.0.0
   amap_flutter_map: ^3.0.0
-
+  # Flutter 插件，可让您在 Android、iOS、macOS、Windows 和 Web 上保持设备屏幕处于唤醒状态。
+  wakelock: ^0.4.0
+  # 通过 RTMP 用于相机和麦克风流媒体库的 Flutter 插件。
+  # haishin_kit: ^0.11.1
+  # https://pub-web.flutter-io.cn/packages/rtmp_broadcaster
+  #rtmp_broadcaster:
+  #  git:
+  #    url: https://github.com/emiliodallatorre/flutter_rtmp_publisher.git
+  #    ref: master
 
   # 还没有直接应用的库
-  # Flutter 插件，可让您在 Android、iOS、macOS、Windows 和 Web 上保持设备屏幕处于唤醒状态。
-  #wakelock: ^0.6.2
   # 图像占位符的紧凑表示
   #flutter_blurhash: ^0.7.0
   # Flutter应用升级/ Flutter App Upgrade /Flutter App Update/Flutter Update / 下载插件（有提示栏进度），支持全量升级、热更新和增量升级

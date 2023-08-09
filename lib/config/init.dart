@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:fvp/fvp.dart';
 import 'package:get/get.dart' as getx;
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:logger/logger.dart';
@@ -114,6 +115,8 @@ Future<void> init() async {
   // 初始化单例 WebSocketService
   // WebSocketService.to.init();
   await initIceServers();
+
+  MdkVideoPlayer.registerWith();
 
   WidgetsBinding.instance.addObserver(
     LifecycleEventHandler(

@@ -113,7 +113,7 @@ class WebSocketService {
 
     // 链接状态正常，不需要任何处理
     if (isConnected) {
-      // debugPrint('> ws openSocket _socketStatus: $_socketStatus;');
+      debugPrint('> ws openSocket _socketStatus: $_socketStatus;');
       return;
     }
 
@@ -127,7 +127,7 @@ class WebSocketService {
         pingInterval: Duration(milliseconds: _heartTimes),
         protocols: protocols,
       );
-
+      // _webSocketChannel.innerWebSocket;
       // 连接成功，返回WebSocket实例
       _socketStatus = SocketStatus.SocketStatusConnected;
 
@@ -272,6 +272,7 @@ class WebSocketService {
         },
       );
     } else {
+      closeSocket();
       return;
     }
   }
