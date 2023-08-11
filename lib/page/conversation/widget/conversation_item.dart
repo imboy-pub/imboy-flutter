@@ -102,23 +102,21 @@ class ConversationItem extends StatelessWidget {
                   ]),
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: n.Row(
-                      [
-                        n.Column(icon),
-                        // 会话对象子标题
-                        Expanded(
-                          child: Text(
-                            model.content,
-                            style: const TextStyle(
-                              color: AppColors.MainTextColor,
-                              fontSize: 14.0,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                    child: n.Row([
+                      n.Column(icon),
+                      // 会话对象子标题
+                      Expanded(
+                        child: Text(
+                          model.content,
+                          style: const TextStyle(
+                            color: AppColors.MainTextColor,
+                            fontSize: 14.0,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                    ),
+                      ),
+                    ]),
                   ),
                 ],
               )..crossAxisAlignment = CrossAxisAlignment.start,

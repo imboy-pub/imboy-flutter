@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/passport/passport_view.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -56,6 +57,8 @@ class WebSocketService {
 
   bool get isConnected =>
       _webSocketChannel != null && _webSocketChannel?.sink != null;
+
+  int lastConnectedAt = 0;
 
   /// 在
   void _init() {
@@ -110,7 +113,10 @@ class WebSocketService {
       debugPrint('> ws openSocket is not login');
       return;
     }
-
+    int now = DateTimeHelper.currentTimeMillis();
+    if ((now - lastConnectedAt) > 3600000) {
+      closeSocket(false);
+    }
     // 链接状态正常，不需要任何处理
     if (isConnected) {
       debugPrint('> ws openSocket _socketStatus: $_socketStatus;');
@@ -150,6 +156,7 @@ class WebSocketService {
         //设置错误时取消订阅
         cancelOnError: true,
       );
+      lastConnectedAt = DateTimeHelper.currentTimeMillis();
     } catch (exception) {
       closeSocket(false);
       _socketStatus = SocketStatus.SocketStatusFailed;
