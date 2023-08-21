@@ -181,7 +181,7 @@ cp -f assets/example.env assets/.env
 
 ### deps flutter_native_splash
 ```
-flutter pub run flutter_native_splash:create
+dart run flutter_native_splash:create
 ```
 
 ### deps flutter_sound_install
