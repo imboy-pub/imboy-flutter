@@ -116,7 +116,7 @@ Future<void> init() async {
   // WebSocketService.to.init();
   await initIceServers();
 
-  MdkVideoPlayer.registerWith();
+  registerWith();
 
   WidgetsBinding.instance.addObserver(
     LifecycleEventHandler(

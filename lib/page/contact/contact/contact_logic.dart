@@ -167,12 +167,10 @@ class ContactLogic extends GetxController {
     var repo = ContactRepo();
     List<dynamic> dataMap = await (ContactProvider()).listFriend();
     for (var json in dataMap) {
-      ContactModel model = await repo.save(json);
       // debugPrint("> on findFriend2 item ${model.toJson().toString()} ");
-      if (model.isFriend == 1) {
-        contact.insert(0, model);
-      }
+      await repo.save(json);
     }
+    contact = await (ContactRepo()).findFriend();
     return contact;
   }
 

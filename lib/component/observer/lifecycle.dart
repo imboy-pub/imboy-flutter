@@ -27,6 +27,9 @@ class LifecycleEventHandler extends WidgetsBindingObserver {
       case AppLifecycleState.detached: // 分离的
         await suspendingCallBack();
         break;
+      case AppLifecycleState.hidden: //
+        // await suspendingCallBack();
+        break;
     }
   }
 }

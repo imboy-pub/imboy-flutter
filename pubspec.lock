@@ -286,10 +286,10 @@ packages:
     dependency: transitive
     description:
       name: camera_android
-      sha256: "61d62676708f187fb89fb14b371f87470343ba3cb26d08fc358e4f8a18e13150"
+      sha256: ffbcf60f107776e0bfda7ed787e7ae6ec7f4cb962598973756daa2ad70d8f191
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.10.8+6"
+    version: "0.10.8+7"
   camera_avfoundation:
     dependency: transitive
     description:
@@ -893,10 +893,10 @@ packages:
     dependency: "direct main"
     description:
       name: fvp
-      sha256: "42bb5692dd19c1b2990ece58ad035479bcc4ba61630d93756807570618480f6e"
+      sha256: "38847f14988faed2a48d8fe5abd759d0cb1d30eb88bfb144f59c8f078d342030"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.1.0"
+    version: "0.2.1"
   get:
     dependency: "direct main"
     description:

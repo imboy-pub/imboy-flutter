@@ -249,10 +249,17 @@ class PeopleInfoPage extends StatelessWidget {
                           text: '发消息',
                           isBorder: true,
                           onPressed: () {
+                            String peerTitle = remark.value;
+                            if (peerTitle.isEmpty) {
+                              peerTitle = nickname.value;
+                            }
+                            if (peerTitle.isEmpty) {
+                              peerTitle = account.value;
+                            }
                             Get.to(
                               () => ChatPage(
                                 peerId: id,
-                                peerTitle: nickname.value,
+                                peerTitle: peerTitle,
                                 peerAvatar: avatar.value,
                                 peerSign: sign.value,
                                 type: 'C2C',
