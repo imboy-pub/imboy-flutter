@@ -50,7 +50,9 @@ class MessageService extends GetxService {
         WebSocketService.to
             .sendMessage("CLIENT_ACK,WEBRTC,${data['id']},$deviceId");
         String msgId = '';
-        if (type == 'WEBRTC_OFFER' || type == 'WEBRTC_BUSY' || type == 'WEBRTC_BYE') {
+        if (type == 'WEBRTC_OFFER' ||
+            type == 'WEBRTC_BUSY' ||
+            type == 'WEBRTC_BYE') {
           msgId = Xid().toString();
           webrtcMsgIdLi.add(msgId);
         }
@@ -286,8 +288,7 @@ class MessageService extends GetxService {
 
     ContactModel? ct = await ContactRepo().findByUid(data['from']);
     String avatar = ct!.avatar;
-    String title = ct.nickname;
-
+    String title = ct.title;
     if (msgType == 'custom') {
       msgType = data['payload']['custom_type'] ?? '';
       subtitle = '';
@@ -533,7 +534,8 @@ class MessageService extends GetxService {
         "changeLocalMsgState state $state, $msgId, startAt $startAt, endAt $endAt;");
     MessageRepo repo = MessageRepo();
     MessageModel? msg = await repo.find(msgId);
-    iPrint("changeLocalMsgState 2 $msgId, ${msg?.payload?.toString()}; webrtcMsgIdLi ${webrtcMsgIdLi.toString()}");
+    iPrint(
+        "changeLocalMsgState 2 $msgId, ${msg?.payload?.toString()}; webrtcMsgIdLi ${webrtcMsgIdLi.toString()}");
     if (msg == null) {
       return;
     }

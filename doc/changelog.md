@@ -1,5 +1,5 @@
 # 0.1.16
-* 修复 peerTitle 为空的问题；
+* 修复 peerTitle 为空的问题、修复收到消息会话 title 为空的问题；
 * 修复下拉刷新联系人列表，联系人排序跳动的问题; 
 * 修复循环refreshToken问题；
 * 升级flutter 到 stable, 3.13.0 , 设置 ext.kotlin_version = '1.8.20' , 升级其他几个依赖; dart run flutter_native_splash:create
