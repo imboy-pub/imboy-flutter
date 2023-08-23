@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fvp/fvp.dart';
 import 'package:get/get.dart' as getx;
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:logger/logger.dart';
 import 'package:map_launcher/map_launcher.dart';
@@ -76,10 +77,11 @@ Future<void> init() async {
   appVsn = packageInfo.version;
   List<String> li = appVsn.split(RegExp(r"(\.)"));
   appVsnXY = '${li[0]}.${li[1]}';
-  debugPrint("packageInfo appVsnXY $appVsnXY ${packageInfo.toString()}");
+  iPrint("packageInfo appVsnXY $appVsnXY ${packageInfo.toString()}");
   deviceId = await DeviceExt.did;
+  iPrint("init deviceId $deviceId");
   await dotenv.load(fileName: ".env"); //
-  // debugPrint("> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
+  // iPrint("> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
 
   // 放在 UserRepoLocal 前面
   await getx.Get.putAsync<StorageService>(() => StorageService().init());
@@ -124,21 +126,21 @@ Future<void> init() async {
         // app 恢复
         String token = UserRepoLocal.to.accessToken;
         if (tokenExpired(token)) {
-          debugPrint('LifecycleEventHandler tokenExpired true');
+          iPrint('LifecycleEventHandler tokenExpired true');
           await (UserProvider()).refreshAccessTokenApi(
             UserRepoLocal.to.refreshToken,
           );
         }
         // 统计新申请好友数量
         bnLogic.countNewFriendRemindCounter();
-        debugPrint("> on LifecycleEventHandler resumeCallBack");
+        iPrint("> on LifecycleEventHandler resumeCallBack");
         ntpOffset = await StorageService.to.ntpOffset();
         // 检查WS链接状态
         WebSocketService.to;
       },
       suspendingCallBack: () async {
         // app 挂起
-        debugPrint("> on LifecycleEventHandler suspendingCallBack");
+        iPrint("> on LifecycleEventHandler suspendingCallBack");
       },
       pausedCallBack: () async {
         // 已暂停的
@@ -152,7 +154,7 @@ Future<void> init() async {
       WebSocketService.to.openSocket();
     }
   });
-  // debugPrint("> on currentTimeMillis init ${ntpOffset}");
+  // iPrint("> on currentTimeMillis init ${ntpOffset}");
 }
 
 /*
@@ -160,7 +162,7 @@ Future<void> initJPush() async {
   push.addEventHandler(
     // 接收通知回调方法。
     onReceiveNotification: (Map<String, dynamic> message) async {
-      debugPrint("push onReceiveNotification: $message");
+      iPrint("push onReceiveNotification: $message");
       // Map<dynamic, dynamic> extra = message['extras'];
       // String androidExtra = extra['cn.jpush.android.EXTRA'] ?? '';
       // Map<String, dynamic> extra2 = jsonDecode(androidExtra);
@@ -168,7 +170,7 @@ Future<void> initJPush() async {
 
     // 点击通知回调方法。
     onOpenNotification: (Map<String, dynamic> message) async {
-      // debugPrint("push onOpenNotification: $message");
+      // iPrint("push onOpenNotification: $message");
       Map<dynamic, dynamic> extra = message['extras'];
       String androidExtra = extra['cn.jpush.android.EXTRA'] ?? '';
       Map<String, dynamic> extra2 = jsonDecode(androidExtra);
@@ -184,7 +186,7 @@ Future<void> initJPush() async {
     },
     // 接收自定义消息回调方法。
     onReceiveMessage: (Map<String, dynamic> message) async {
-      debugPrint("push onReceiveMessage: $message");
+      iPrint("push onReceiveMessage: $message");
     },
   );
   // https://docs.jiguang.cn/jpush/practice/compliance

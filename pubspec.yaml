@@ -82,7 +82,7 @@ dependencies:
     git:
       url: https://gitee.com/imboy-tripartite-deps/azlistview.git
       ref: leeyi
-  webview_flutter: ^4.2.2
+  webview_flutter: ^4.2.3
   mime: ^1.0.4
 
   # 是否联网及网络类型
@@ -173,8 +173,8 @@ dependencies:
   clock: ^1.1.1
   # 用于 HTTP 请求的可组合、多平台、基于Future的 API。
   http: ^1.1.0
-  device_info_plus: ^9.0.2
-  package_info_plus: ^4.0.2
+  device_info_plus: ^9.0.3
+  package_info_plus: ^4.1.0
   # Flutter 的 Markdown 渲染器
   flutter_markdown: ^0.6.17+1
   # 滑动吸顶

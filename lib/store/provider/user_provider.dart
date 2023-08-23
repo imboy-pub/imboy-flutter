@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_parse.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
@@ -33,7 +34,8 @@ class UserProvider extends HttpClient {
       Get.offAll(() => PassportPage());
       return "";
     }
-    IMBoyHttpResponse resp = await post(
+
+    var response = await Dio(BaseOptions(baseUrl: API_BASE_URL)).post(
       API.refreshToken,
       options: Options(
         contentType: "application/x-www-form-urlencoded",
@@ -44,7 +46,11 @@ class UserProvider extends HttpClient {
         },
       ),
     );
-    String newToken = resp.payload['token'] ?? '';
+    IMBoyHttpResponse resp = handleResponse(response);
+    if (resp.code == 705 || resp.code == 706) {
+      checkNewToken = true;
+    }
+    String newToken = resp.payload?['token'] ?? '';
     if (checkNewToken && strEmpty(newToken)) {
       WebSocketService.to.closeSocket(true);
       Get.offAll(() => PassportPage());

@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get/get.dart';
+
+import 'package:imboy/component/helper/func.dart';
 
 class DeviceExt extends DeviceInfoPlugin {
   static DeviceExt get to => Get.find();
@@ -15,6 +16,7 @@ class DeviceExt extends DeviceInfoPlugin {
   Future<Map<String, dynamic>?> get detail async {
     if (Platform.isAndroid) {
       var data = await androidInfo;
+      iPrint("DeviceExt/detail ${data.id}, ${data.toString()}");
       return {
         "cos": "android",
         "did": data.id,
