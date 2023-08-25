@@ -190,7 +190,7 @@ dependencies:
   # 视频播放器插件
   video_player: ^2.7.0
   # video_player的插件，支持所有桌面/移动平台。硬件解码器，最佳渲染。通过 FFmpeg 支持大多数格式
-  fvp: ^0.2.1
+  fvp: ^0.3.0
   # 标签编辑框
   textfield_tags: ^2.0.2
   #filter_list: ^1.0.2
@@ -209,7 +209,7 @@ dependencies:
   # Flutter 插件，可让您在 Android、iOS、macOS、Windows 和 Web 上保持设备屏幕处于唤醒状态。
   wakelock: ^0.4.0
   # 通过 RTMP 用于相机和麦克风流媒体库的 Flutter 插件。
-  # haishin_kit: ^0.11.1
+  haishin_kit: ^0.11.1
   # https://pub-web.flutter-io.cn/packages/rtmp_broadcaster
   #rtmp_broadcaster:
   #  git:

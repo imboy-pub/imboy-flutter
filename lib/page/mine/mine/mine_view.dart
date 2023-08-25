@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/live_room/live_room_list/live_room_list_view.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/func.dart';
@@ -43,7 +44,7 @@ class MinePage extends StatelessWidget {
                   child: Container(
                     color: Colors.white,
                     // 显示地区需要360的高度
-                    height: 360,
+                    height: c.current.region.isEmpty ? 320 : 360,
                     padding: const EdgeInsets.only(
                       left: 16.0,
                       right: 12.0,
@@ -141,6 +142,29 @@ class MinePage extends StatelessWidget {
             padding: const EdgeInsets.only(left: 0),
             color: Colors.white,
             child: n.Column([
+              n.ListTile(
+                leading: const Icon(
+                  Icons.video_library,
+                  color: Colors.deepPurple,
+                  size: 22,
+                ),
+                title: Transform(
+                  transform: Matrix4.translationValues(-30, 0.0, 0.0),
+                  child: Text('我的直播'.tr),
+                ),
+                trailing: Icon(
+                  Icons.navigate_next,
+                  color: AppColors.MainTextColor.withOpacity(0.5),
+                ),
+                onTap: () {
+                  Get.to(
+                    () => LiveRoomListPage(),
+                    transition: Transition.rightToLeft,
+                    popGesture: true, // 右滑，返回上一页
+                  );
+                },
+              ),
+              n.Padding(left: 40, child: const Divider()),
               n.ListTile(
                 leading: const Icon(
                   Icons.collections_bookmark,
