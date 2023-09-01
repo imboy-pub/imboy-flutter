@@ -41,11 +41,15 @@ class UserProvider extends HttpClient {
         contentType: "application/x-www-form-urlencoded",
         headers: {
           Keys.refreshTokenKey: refreshToken,
+          'vsn': appVsn,
+          'did': deviceId,
           'method': 'sha512',
           'sign': EncrypterService.sha512("$deviceId|$appVsnXY", SOLIDIFIED_KEY)
         },
       ),
     );
+    // iPrint("refreshAccessTokenApi ${response.toString()}");
+    // iPrint("refreshAccessTokenApi refreshToken $refreshToken");
     IMBoyHttpResponse resp = handleResponse(response);
     if (resp.code == 705 || resp.code == 706) {
       checkNewToken = true;

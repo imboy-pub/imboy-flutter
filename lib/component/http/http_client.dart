@@ -22,10 +22,10 @@ import 'http_transformer.dart';
 
 Future<Map<String, dynamic>> defaultHeaders() async {
   return {
-    'vsn': appVsn,
-    'did': deviceId,
     'cos': Platform.operatingSystem,
     'cosv': Platform.operatingSystemVersion,
+    'vsn': appVsn,
+    'did': deviceId,
     'method': 'sha512',
     'sign': EncrypterService.sha512("$deviceId|$appVsnXY", SOLIDIFIED_KEY)
   };
