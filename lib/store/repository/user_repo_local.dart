@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -82,7 +81,6 @@ class UserRepoLocal extends GetxController {
 
   Future<bool> logout() async {
     WebSocketService.to.sendMessage("logout");
-    sleep(const Duration(seconds: 1));
     await StorageService.to.remove(Keys.tokenKey);
     await StorageService.to.remove(Keys.currentUid);
     await StorageService.to.remove(Keys.currentUser);

@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/passport/passport_view.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -172,7 +173,7 @@ class WebSocketService {
   }
 
   /// WebSocket关闭连接回调
-  _webSocketOnDone() {
+  _webSocketOnDone() async {
     // https://developer.mozilla.org/zh-CN/docs/Web/API/CloseEvent
     // closeCode 1000 正常关闭; 无论为何目的而创建, 该链接都已成功完成任务.
     debugPrint('> ws _webSocketOnDone');
@@ -196,6 +197,7 @@ class WebSocketService {
 
         if (closeCode == 4006) {
           closeSocket(true);
+          await StorageService.to.remove(Keys.tokenKey);
           Get.offAll(() => PassportPage());
         } else {
           if (closeCode > 1000) {

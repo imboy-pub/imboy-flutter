@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.1.17
+version: 0.1.18
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -18,7 +18,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.5
   # getx 状态管理框架
-  get: ^4.6.5
+  get: ^4.6.6
   # 网络请求框架
   dio: ^5.3.2
   dio_http2_adapter: ^2.3.1+1
@@ -41,10 +41,10 @@ dependencies:
 
   #json序列化和反序列化用的
   json_annotation: ^4.8.1
-  permission_handler: ^10.4.3
+  permission_handler: ^10.4.5
   permission_handler_apple: ^9.1.4
-  permission_handler_android: ^10.3.4
-  permission_handler_platform_interface: ^3.11.3
+  permission_handler_android: ^10.3.6
+  permission_handler_platform_interface: ^3.11.5
   #any permission_handler:
   #  git:
   #    url: https://gitee.com/imboy-tripartite-deps/flutter-permission-handler.git
@@ -188,9 +188,9 @@ dependencies:
   # 用于查找设备上安装的可用地图并使用标记启动它们或显示方向。
   map_launcher: ^2.5.0+1
   # 视频播放器插件
-  video_player: ^2.7.0
+  video_player: ^2.7.1
   # video_player的插件，支持所有桌面/移动平台。硬件解码器，最佳渲染。通过 FFmpeg 支持大多数格式
-  fvp: ^0.4.0
+  fvp: ^0.5.0
   # 标签编辑框
   textfield_tags: ^2.0.2
   #filter_list: ^1.0.2
@@ -210,7 +210,8 @@ dependencies:
   # wakelock: ^0.6.2
   wakelock: ^0.4.0
   # 通过 RTMP 用于相机和麦克风流媒体库的 Flutter 插件。
-  # haishin_kit: ^0.11.1
+  haishin_kit: ^0.11.1
+  flutter_whip: ^0.5.5
   # https://pub-web.flutter-io.cn/packages/rtmp_broadcaster
   #rtmp_broadcaster:
   #  git:

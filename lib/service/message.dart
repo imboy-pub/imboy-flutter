@@ -240,14 +240,11 @@ class MessageService extends GetxService {
         }
         break;
       case 'please_refresh_token': // 服务端通知客户端刷新token
-        String tk = await (UserProvider()).refreshAccessTokenApi(
+        iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId,$autoAck");
+        WebSocketService.to.sendMessage("CLIENT_ACK,S2C,$msgId,$deviceId");
+        await (UserProvider()).refreshAccessTokenApi(
             UserRepoLocal.to.refreshToken,
-            checkNewToken: false);
-        autoAck = false;
-        if (tk.isNotEmpty) {
-          iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId,$autoAck");
-          WebSocketService.to.sendMessage("CLIENT_ACK,S2C,$msgId,$deviceId");
-        }
+            checkNewToken: true);
         break;
       case 'online': // 好友上线提醒
         // TODO
