@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/page/single/about_imboy.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'setting_logic.dart';
 
@@ -112,6 +114,7 @@ class _SettingPageState extends State<SettingPage> {
             onPressed: () async {
               bool result = await UserRepoLocal.to.logout();
               if (result) {
+                await StorageService.to.remove(Keys.tokenKey);
                 Get.offAll(() => PassportPage());
               }
             },

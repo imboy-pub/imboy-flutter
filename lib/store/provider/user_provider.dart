@@ -12,6 +12,7 @@ import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 class UserProvider extends HttpClient {
   Future<Map<String, dynamic>> turnCredential() async {
@@ -31,6 +32,7 @@ class UserProvider extends HttpClient {
   Future<String> refreshAccessTokenApi(String refreshToken,
       {bool checkNewToken = true}) async {
     if (strEmpty(refreshToken)) {
+      await StorageService.to.remove(Keys.tokenKey);
       Get.offAll(() => PassportPage());
       return "";
     }
@@ -55,7 +57,8 @@ class UserProvider extends HttpClient {
       checkNewToken = true;
     }
     String newToken = resp.payload?['token'] ?? '';
-    if (checkNewToken && strEmpty(newToken)) {
+    if (checkNewToken && strEmpty(newToken) && UserRepoLocal.to.isLogin) {
+      await StorageService.to.remove(Keys.tokenKey);
       WebSocketService.to.closeSocket(true);
       Get.offAll(() => PassportPage());
       return "";
