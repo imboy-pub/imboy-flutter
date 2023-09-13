@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/config/init.dart';
-import 'package:imboy/page/live_room/live_room/live_room_view.dart';
+import 'package:imboy/page/live_room/publisher/publisher_view.dart';
+import 'package:imboy/page/live_room/subscriber/subscriber_view.dart';
 import 'package:imboy/store/model/live_room_model.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -61,7 +59,7 @@ class LiveRoomListPage extends StatelessWidget {
                       : ListView.builder(
                           itemCount: state.items.length,
                           itemBuilder: (BuildContext context, int index) {
-                            LiveRoomModel model = state.items[index];
+                            // LiveRoomModel model = state.items[index];
                             return n.Column([
                               ListTile(
                                 contentPadding: const EdgeInsets.only(left: 0),
@@ -70,7 +68,7 @@ class LiveRoomListPage extends StatelessWidget {
                                   const Space(width: 10),
                                 ]),
                                 subtitle: n.Row([
-                                  Text('subtitle直播'.tr),
+                                  Text('PublisherPage'.tr),
                                 ]),
                                 trailing: Icon(
                                   Icons.navigate_next,
@@ -79,12 +77,51 @@ class LiveRoomListPage extends StatelessWidget {
                                 ),
                                 onTap: () {
                                   Get.to(
-                                    () => LiveRoomPage(
-                                      room: model,
-                                    ),
+                                    () => const PublisherPage(),
                                     transition: Transition.rightToLeft,
                                     popGesture: true, // 右滑，返回上一页
                                   );
+                                  // Get.to(
+                                  //   () => LiveRoomPage(
+                                  //     room: model,
+                                  //   ),
+                                  //   transition: Transition.rightToLeft,
+                                  //   popGesture: true, // 右滑，返回上一页
+                                  // );
+                                },
+                              ),
+                              const Divider(
+                                height: 8.0,
+                                indent: 0.0,
+                                color: Colors.black26,
+                              ),
+                              ListTile(
+                                contentPadding: const EdgeInsets.only(left: 0),
+                                title: n.Row([
+                                  Text('直播'.tr),
+                                  const Space(width: 10),
+                                ]),
+                                subtitle: n.Row([
+                                  Text('Subscriber'.tr),
+                                ]),
+                                trailing: Icon(
+                                  Icons.navigate_next,
+                                  color:
+                                      AppColors.MainTextColor.withOpacity(0.5),
+                                ),
+                                onTap: () {
+                                  Get.to(
+                                    () => const SubscriberPage(),
+                                    transition: Transition.rightToLeft,
+                                    popGesture: true, // 右滑，返回上一页
+                                  );
+                                  // Get.to(
+                                  //   () => LiveRoomPage(
+                                  //     room: model,
+                                  //   ),
+                                  //   transition: Transition.rightToLeft,
+                                  //   popGesture: true, // 右滑，返回上一页
+                                  // );
                                 },
                               ),
                               const Divider(

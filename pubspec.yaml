@@ -16,7 +16,7 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.5
+  cupertino_icons: ^1.0.6
   # getx 状态管理框架
   get: ^4.6.6
   # 网络请求框架
@@ -41,9 +41,9 @@ dependencies:
 
   #json序列化和反序列化用的
   json_annotation: ^4.8.1
-  permission_handler: ^10.4.5
+  permission_handler: ^11.0.0
   permission_handler_apple: ^9.1.4
-  permission_handler_android: ^10.3.6
+  permission_handler_android: ^11.0.0
   permission_handler_platform_interface: ^3.11.5
   #any permission_handler:
   #  git:
@@ -52,8 +52,8 @@ dependencies:
   #    tag: permission_handler_android_v10.2.1
       #ref: master
   camera: ^0.10.5+4
-  wechat_camera_picker: ^4.0.1
-  wechat_assets_picker: ^8.7.0
+  wechat_camera_picker: ^4.0.2
+  wechat_assets_picker: ^8.7.1
   # 缓存
   shared_preferences: ^2.2.1
   # flutter_secure_storage: ^7.0.1
@@ -73,7 +73,7 @@ dependencies:
   file_picker: ^5.5.0
   open_file: ^3.3.2
 
-  logger: ^2.0.1
+  logger: ^2.0.2
   sentry_flutter: ^7.9.0
   photo_view: ^0.14.0
   lpinyin: ^2.0.3
@@ -82,7 +82,7 @@ dependencies:
     git:
       url: https://gitee.com/imboy-tripartite-deps/azlistview.git
       ref: leeyi
-  webview_flutter: ^4.2.3
+  webview_flutter: ^4.2.4
   mime: ^1.0.4
 
   # 是否联网及网络类型
@@ -190,7 +190,8 @@ dependencies:
   # 视频播放器插件
   video_player: ^2.7.1
   # video_player的插件，支持所有桌面/移动平台。硬件解码器，最佳渲染。通过 FFmpeg 支持大多数格式
-  fvp: ^0.5.0
+  #fvp: ^0.5.0
+  fvp: ^0.7.0
   # 标签编辑框
   textfield_tags: ^2.0.2
   #filter_list: ^1.0.2
@@ -233,7 +234,7 @@ dependencies:
 
 dependency_overrides:
   http: ^1.1.0
-  logger: ^2.0.1
+  logger: ^2.0.2
   #webview_flutter_wkwebview: '3.5.0'
 
 dev_dependencies:
