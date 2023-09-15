@@ -164,7 +164,7 @@ dependencies:
   # 语音消息播放器
   voice_message_package: ^1.0.41
   # 一对一音视频通话等
-  flutter_webrtc: 0.9.41
+  flutter_webrtc: ^0.9.42+hotfix.1
   # 可滚动小部件的固定/可变行高提供了滚动到索引的机制
   scroll_to_index: ^3.0.1
   # 封装了基本的图形样式，矩形、圆角矩形、圆形、椭圆形，以及自定义虚线框
