@@ -18,6 +18,7 @@ Running Gradle task 'assembleRelease'...                            8.4s
 ✓  Built build/app/outputs/flutter-apk/app-arm64-v8a-release.apk (59.4MB).
 ✓  Built build/app/outputs/flutter-apk/app-x86_64-release.apk (62.8MB).
 
+mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk ~/Downloads/
 ```
 
 ```

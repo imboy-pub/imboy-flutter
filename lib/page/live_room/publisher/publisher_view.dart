@@ -40,8 +40,11 @@ class _PublisherPageState extends State<PublisherPage> {
   void _loadSettings() async {
     _preferences = await SharedPreferences.getInstance();
     setState(() {
+      // _serverController.text = _preferences.getString('pushServer') ??
+      //     'https://192.168.0.144:9800/whip/publish/a1234/1';
+
       _serverController.text = _preferences.getString('pushServer') ??
-          'https://192.168.0.144:9800/whip/publish/a1234/1';
+          'http://192.168.0.144:9010/whip/publish/live/stream1';
     });
   }
 
@@ -105,7 +108,7 @@ class _PublisherPageState extends State<PublisherPage> {
         'mandatory': {
           'minWidth': '1280',
           'minHeight': '720',
-          'minFrameRate': '60',
+          'minFrameRate': '30',
         },
         'facingMode': 'user',
         'optional': [],
