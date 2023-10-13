@@ -1,5 +1,5 @@
 class EntityVideo {
-  final String name, uri;
+  final String md5, name, uri;
   final int width, height;
 
   /// bytes
@@ -11,6 +11,7 @@ class EntityVideo {
   double? duration;
 
   EntityVideo({
+    required this.md5,
     required this.name,
     required this.uri,
     // unit Bytes
@@ -23,6 +24,7 @@ class EntityVideo {
 
   factory EntityVideo.fromJson(Map<String, dynamic> json) {
     return EntityVideo(
+      md5: json["md5"],
       name: json["name"],
       uri: json["uri"],
       filesize: json["filesize"]?.toInt(),
@@ -35,6 +37,7 @@ class EntityVideo {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data["md5"] = md5;
     data["name"] = name;
     data["uri"] = uri;
     data["filesize"] = filesize;

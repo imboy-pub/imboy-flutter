@@ -46,6 +46,7 @@ class AttachmentProvider {
     // debugPrint("> on upload param ${(data['file'] as MultipartFile).filename}");
     FormData formData = FormData.fromMap(data);
 
+    debugPrint("> on upload UPLOAD_BASE_URL $UPLOAD_BASE_URL");
     var options = BaseOptions(
       baseUrl: UPLOAD_BASE_URL,
       contentType: 'application/x-www-form-urlencoded',
@@ -71,7 +72,7 @@ class AttachmentProvider {
         }
       },
     ).then((response) {
-      // debugPrint("> on upload response ${response.toString()}");
+      debugPrint("> on upload response ${response.toString()}");
       Map<String, dynamic> resp = json.decode(response.data);
       callback(resp, AssetsService.viewUrl(resp['data']['url']).toString());
     }).catchError((e) {
@@ -158,8 +159,9 @@ class AttachmentProvider {
         deleteOrigin: true,
       );
       File videoFile = mediaInfo!.file!;
+      String md5 = sha1.convert(videoFile.readAsBytesSync()).toString();
       Map<String, dynamic> preData = {
-        'md5': sha1.convert(videoFile.readAsBytesSync()),
+        'md5': md5,
       };
       await preUpload(prefix, preData).then((response) async {
         Map<String, dynamic> responseData = json.decode(response.data);
@@ -186,6 +188,7 @@ class AttachmentProvider {
         errorCallback(e);
       });
       EntityImage thumb = EntityImage(
+        md5: md5,
         name: thumbName,
         uri: thumbUri!,
         size: (await thumbnailFile.readAsBytes()).length,
@@ -193,6 +196,7 @@ class AttachmentProvider {
         height: height,
       );
       EntityVideo video = EntityVideo(
+        md5: md5,
         name: name,
         uri: videoUri!,
         // unit Bytes

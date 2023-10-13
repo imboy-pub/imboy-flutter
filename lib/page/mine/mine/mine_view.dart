@@ -142,6 +142,7 @@ class MinePage extends StatelessWidget {
             padding: const EdgeInsets.only(left: 0),
             color: Colors.white,
             child: n.Column([
+              /*
               n.ListTile(
                 leading: const Icon(
                   Icons.video_library,
@@ -165,6 +166,7 @@ class MinePage extends StatelessWidget {
                 },
               ),
               n.Padding(left: 40, child: const Divider()),
+              */
               n.ListTile(
                 leading: const Icon(
                   Icons.collections_bookmark,
@@ -210,6 +212,7 @@ class MinePage extends StatelessWidget {
                   );
                 },
               ),
+              /*
               n.Padding(left: 40, child: const Divider()),
               n.ListTile(
                 leading: const Icon(
@@ -227,6 +230,7 @@ class MinePage extends StatelessWidget {
                 ),
                 onTap: () {},
               ),
+              */
               n.Padding(left: 40, child: const Divider()),
               n.ListTile(
                 leading: const Icon(

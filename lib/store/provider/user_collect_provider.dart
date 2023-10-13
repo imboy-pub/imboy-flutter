@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:get/get.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
@@ -50,16 +49,6 @@ class UserCollectProvider extends HttpClient {
     Map<String, dynamic> info,
   ) async {
     // debugPrint("> on Provider/userDeviceAdd info: ${info.toString()}");
-    int fileSize = 0;
-    if (kind == 4) {
-      fileSize = info['payload']['video']['filesize'] ?? 0;
-    } else {
-      fileSize = info['payload']['size'] ?? 0;
-    }
-
-    if (fileSize > 200000) {
-      EasyLoading.show(status: '收藏附件比较耗时，请耐心等待！'.tr);
-    }
     IMBoyHttpResponse resp = await post(API.userCollectAdd,
         data: {
           'kind': kind,

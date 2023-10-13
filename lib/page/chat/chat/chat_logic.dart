@@ -99,6 +99,7 @@ class ChatLogic extends GetxController {
         "uri": message.uri,
         "width": message.width,
         "height": message.height,
+        "md5": message.metadata?['md5'],
       };
     } else if (message is types.FileMessage) {
       payload = {
@@ -107,6 +108,7 @@ class ChatLogic extends GetxController {
         "size": message.size,
         "uri": message.uri,
         "mimeType": message.mimeType,
+        "md5": message.metadata?['md5'],
       };
     } else if (message is types.CustomMessage) {
       payload = message.metadata ?? {};

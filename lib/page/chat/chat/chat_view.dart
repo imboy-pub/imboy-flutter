@@ -286,16 +286,18 @@ class ChatPageState extends State<ChatPage> {
         String uri,
       ) async {
         final message = types.FileMessage(
-          id: Xid().toString(),
-          author: currentUser,
-          createdAt: DateTimeHelper.currentTimeMillis(),
-          mimeType: lookupMimeType(result.files.single.path!),
-          name: result.files.single.name,
-          size: result.files.single.size,
-          uri: uri,
-          remoteId: widget.peerId,
-          status: types.Status.sending,
-        );
+            id: Xid().toString(),
+            author: currentUser,
+            createdAt: DateTimeHelper.currentTimeMillis(),
+            mimeType: lookupMimeType(result.files.single.path!),
+            name: result.files.single.name,
+            size: result.files.single.size,
+            uri: uri,
+            remoteId: widget.peerId,
+            status: types.Status.sending,
+            metadata: {
+              'md5': resp['data']['md5'].toString(),
+            });
         // 上传现有的附件，是不需要清理临时文件的
         _addMessage(message);
       }, (Error error) {
@@ -331,17 +333,19 @@ class ChatPageState extends State<ChatPage> {
 
         if (entity.type == AssetType.image) {
           final message = types.ImageMessage(
-            author: currentUser,
-            createdAt: DateTimeHelper.currentTimeMillis(),
-            id: Xid().toString(),
-            name: await entity.titleAsync,
-            height: entity.height * 1.0,
-            width: entity.width * 1.0,
-            size: resp["data"]["size"],
-            uri: imgUrl,
-            remoteId: widget.peerId,
-            status: types.Status.sending,
-          );
+              author: currentUser,
+              createdAt: DateTimeHelper.currentTimeMillis(),
+              id: Xid().toString(),
+              name: await entity.titleAsync,
+              height: entity.height * 1.0,
+              width: entity.width * 1.0,
+              size: resp["data"]["size"],
+              uri: imgUrl,
+              remoteId: widget.peerId,
+              status: types.Status.sending,
+              metadata: {
+                'md5': resp['data']['md5'].toString(),
+              });
           _addMessage(message);
         } else if (entity.type == AssetType.video) {
           Map<String, dynamic> metadata = {
@@ -451,7 +455,9 @@ class ChatPageState extends State<ChatPage> {
         'latitude': latitude,
         'longitude': longitude,
         'thumb': imgUrl,
+        'md5': resp['data']['md5'].toString(),
       };
+
       debugPrint("> location metadata: ${metadata.toString()}");
       final message = types.CustomMessage(
         author: currentUser,
@@ -484,17 +490,19 @@ class ChatPageState extends State<ChatPage> {
           debugPrint("> on upload $resp.toString()");
 
           final message = types.ImageMessage(
-            author: currentUser,
-            createdAt: DateTimeHelper.currentTimeMillis(),
-            id: Xid().toString(),
-            name: await entity.titleAsync,
-            height: entity.height * 1.0,
-            width: entity.width * 1.0,
-            size: resp["data"]["size"],
-            uri: imgUrl,
-            remoteId: widget.peerId,
-            status: types.Status.sending,
-          );
+              author: currentUser,
+              createdAt: DateTimeHelper.currentTimeMillis(),
+              id: Xid().toString(),
+              name: await entity.titleAsync,
+              height: entity.height * 1.0,
+              width: entity.width * 1.0,
+              size: resp["data"]["size"],
+              uri: imgUrl,
+              remoteId: widget.peerId,
+              status: types.Status.sending,
+              metadata: {
+                'md5': resp['data']['md5'].toString(),
+              });
 
           _addMessage(message);
         } else if (entity.type == AssetType.video) {
@@ -541,6 +549,7 @@ class ChatPageState extends State<ChatPage> {
         'duration_ms': obj.duration.inMilliseconds,
         'waveform': waveform,
         'mime_type': obj.mimeType,
+        'md5': resp['data']['md5'].toString(),
       };
       debugPrint("> on upload metadata: ${metadata.toString()}");
       final message = types.CustomMessage(
