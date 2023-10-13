@@ -455,6 +455,7 @@ class ChatPageState extends State<ChatPage> {
         'latitude': latitude,
         'longitude': longitude,
         'thumb': imgUrl,
+        'size': resp['data']['size'],
         'md5': resp['data']['md5'].toString(),
       };
 

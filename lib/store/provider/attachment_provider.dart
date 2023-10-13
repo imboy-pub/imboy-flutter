@@ -145,6 +145,8 @@ class AttachmentProvider {
       String thumbPath = thumbnailFile.path;
       var thumbName =
           thumbPath.substring(thumbPath.lastIndexOf("/") + 1, thumbPath.length);
+
+      String thumbMd5 = sha1.convert(thumbnailFile.readAsBytesSync()).toString();
       Map<String, dynamic> data = {
         'file': await MultipartFile.fromFile(thumbPath, filename: thumbName),
       };
@@ -159,9 +161,9 @@ class AttachmentProvider {
         deleteOrigin: true,
       );
       File videoFile = mediaInfo!.file!;
-      String md5 = sha1.convert(videoFile.readAsBytesSync()).toString();
+      String videoMd5 = sha1.convert(videoFile.readAsBytesSync()).toString();
       Map<String, dynamic> preData = {
-        'md5': md5,
+        'md5': videoMd5,
       };
       await preUpload(prefix, preData).then((response) async {
         Map<String, dynamic> responseData = json.decode(response.data);
@@ -188,7 +190,7 @@ class AttachmentProvider {
         errorCallback(e);
       });
       EntityImage thumb = EntityImage(
-        md5: md5,
+        md5: thumbMd5,
         name: thumbName,
         uri: thumbUri!,
         size: (await thumbnailFile.readAsBytes()).length,
@@ -196,7 +198,7 @@ class AttachmentProvider {
         height: height,
       );
       EntityVideo video = EntityVideo(
-        md5: md5,
+        md5: videoMd5,
         name: name,
         uri: videoUri!,
         // unit Bytes
