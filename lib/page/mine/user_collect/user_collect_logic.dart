@@ -282,14 +282,8 @@ class UserCollectLogic extends GetxController {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ]),
-                ],
-                // 内容文本左对齐
-                crossAxisAlignment: CrossAxisAlignment.start,
-              ),
-              const Expanded(child: SizedBox()),
-              n.Column([
-                n.Row([
-                  Text(
+                  n.Row([
+                    Text(
                     "$mimeType  ${formatBytes(obj.info['payload']['size'] ?? '')}",
                     style: const TextStyle(
                       color: AppColors.MainTextColor,
@@ -298,9 +292,11 @@ class UserCollectLogic extends GetxController {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   )
-                ]),
-                // fileIcon,
-              ]),
+                  ]),
+                ],
+                // 内容文本左对齐
+                crossAxisAlignment: CrossAxisAlignment.start,
+              ),
             ])
           : n.Column([
               n.Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, [

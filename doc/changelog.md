@@ -1,5 +1,7 @@
 # 0.1.19
 * 附件消息（图片、文件、语音消息、视频等）携带filemd5值；
+* 我的收藏列表，样式小调整；
+* EntityVideo.filesize 属性修改为 EntityVideo.size；
 * 升级一些flutter三方依赖；
 
 # 0.1.18

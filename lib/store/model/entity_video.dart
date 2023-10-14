@@ -3,7 +3,7 @@ class EntityVideo {
   final int width, height;
 
   /// bytes
-  int? filesize; // filesize
+  int? size; // filesize
 
   String? author;
 
@@ -15,7 +15,7 @@ class EntityVideo {
     required this.name,
     required this.uri,
     // unit Bytes
-    this.filesize = 0,
+    this.size = 0,
     this.width = 0,
     this.height = 0,
     this.author = '',
@@ -27,7 +27,7 @@ class EntityVideo {
       md5: json["md5"],
       name: json["name"],
       uri: json["uri"],
-      filesize: json["filesize"]?.toInt(),
+      size: json["size"]?.toInt(),
       width: json["width"]?.toInt(),
       height: json["height"]?.toInt(),
       duration: double.tryParse('${json['duration']}'),
@@ -40,7 +40,7 @@ class EntityVideo {
     data["md5"] = md5;
     data["name"] = name;
     data["uri"] = uri;
-    data["filesize"] = filesize;
+    data["size"] = size;
     data["width"] = width;
     data["height"] = height;
     data["duration"] = duration;

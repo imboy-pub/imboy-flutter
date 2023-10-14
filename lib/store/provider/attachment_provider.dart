@@ -202,7 +202,7 @@ class AttachmentProvider {
         name: name,
         uri: videoUri!,
         // unit Bytes
-        filesize: mediaInfo.filesize,
+        size: mediaInfo.filesize,
         duration: mediaInfo.duration,
         author: mediaInfo.author,
         width: mediaInfo.width!,
