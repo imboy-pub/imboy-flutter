@@ -16,11 +16,11 @@ enum BubbleDirection { left, right }
 // ignore: must_be_immutable
 class AudioMessageBuilder extends StatefulWidget {
   AudioMessageBuilder({
-    Key? key,
+    super.key,
     required this.user,
     required this.message,
     this.onPlay,
-  }) : super(key: key);
+  });
 
   final types.User user;
 

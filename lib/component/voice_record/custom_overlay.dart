@@ -7,7 +7,7 @@ class CustomOverlay extends StatelessWidget {
   final double height;
 
   const CustomOverlay({
-    Key? key,
+    super.key,
     this.icon,
     this.decoration = const BoxDecoration(
       color: Color(0xff77797A),
@@ -15,7 +15,7 @@ class CustomOverlay extends StatelessWidget {
     ),
     this.width = 160,
     this.height = 160,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

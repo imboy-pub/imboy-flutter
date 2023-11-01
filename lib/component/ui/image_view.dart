@@ -15,13 +15,13 @@ class ImageView extends StatelessWidget {
   final bool isRadius;
 
   const ImageView({
-    Key? key,
+    super.key,
     required this.img,
     this.height,
     this.width,
     this.fit,
     this.isRadius = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

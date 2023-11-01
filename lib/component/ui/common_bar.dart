@@ -3,7 +3,7 @@ import 'package:imboy/config/const.dart';
 
 class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
   const NavAppBar({
-    Key? key,
+    super.key,
     this.leading,
     this.title = '',
     this.titleWidget,
@@ -11,7 +11,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.backgroundColor = AppColors.AppBarColor,
     this.mainColor = Colors.black,
     this.automaticallyImplyLeading = false,
-  }) : super(key: key);
+  });
 
   final Widget? leading;
   final String? title;
@@ -50,14 +50,14 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
 class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   const PageAppBar({
-    Key? key,
+    super.key,
     this.leading,
     this.title = '',
     this.titleWidget,
     this.rightDMActions,
     this.backgroundColor = AppColors.AppBarColor,
     this.mainColor = Colors.black,
-  }) : super(key: key);
+  });
 
   final Widget? leading;
   final String? title;

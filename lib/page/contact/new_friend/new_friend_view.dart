@@ -26,7 +26,7 @@ class NewFriendPage extends StatelessWidget {
   bool showBtn = false;
   bool isResult = false;
 
-  NewFriendPage({Key? key}) : super(key: key);
+  NewFriendPage({super.key});
 
   /// 加载好友申请数据
   void initData() async {

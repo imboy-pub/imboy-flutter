@@ -10,7 +10,7 @@ class ButtonRow extends StatelessWidget {
   final double lineWidth;
 
   const ButtonRow({
-    Key? key,
+    super.key,
     this.margin,
     this.text,
     this.style = const TextStyle(
@@ -20,7 +20,7 @@ class ButtonRow extends StatelessWidget {
     this.onPressed,
     this.isBorder = false,
     this.lineWidth = mainLineWidth,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

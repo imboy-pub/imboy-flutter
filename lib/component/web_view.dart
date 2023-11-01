@@ -14,9 +14,9 @@ class WebViewPage extends StatefulWidget {
   WebViewPage(
     this.url,
     this.title, {
-    Key? key,
+    super.key,
     this.errorCallback,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => WebViewPageState();

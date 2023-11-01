@@ -14,13 +14,13 @@ class ChangeNamePage extends StatelessWidget {
   final String field;
 
   ChangeNamePage({
-    Key? key,
+    super.key,
     this.title = "",
     required this.callback,
     this.value = "",
     this.field = "",
     // this.padding = const EdgeInsets.only(top: 15.0, bottom: 15.0, right: 5.0),
-  }) : super(key: key);
+  });
 
   final logic = Get.put(UserDeviceLogic());
 

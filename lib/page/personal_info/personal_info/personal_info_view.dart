@@ -19,7 +19,7 @@ import 'personal_info_state.dart';
 import '../update/update_view.dart';
 
 class PersonalInfoPage extends StatefulWidget {
-  const PersonalInfoPage({Key? key}) : super(key: key);
+  const PersonalInfoPage({super.key});
 
   @override
   // ignore: library_private_types_in_public_api

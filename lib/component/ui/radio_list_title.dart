@@ -23,7 +23,7 @@ class IMBoyRadioListTile<T> extends StatelessWidget {
   ///   selected.
   /// * [onChanged] is called when the user selects this radio button.
   const IMBoyRadioListTile({
-    Key? key,
+    super.key,
     required this.value,
     required this.groupValue,
     required this.onChanged,
@@ -44,7 +44,7 @@ class IMBoyRadioListTile<T> extends StatelessWidget {
     this.visualDensity,
     this.focusNode,
     this.enableFeedback,
-  }) : super(key: key);
+  });
 
   /// The value represented by this radio button.
   final T value;

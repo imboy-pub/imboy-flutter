@@ -42,9 +42,9 @@ enum CustomMessageType {
 class CustomMessageBuilder extends StatelessWidget {
   /// Creates a text message widget from a [types.TextMessage] class
   const CustomMessageBuilder({
-    Key? key,
+    super.key,
     required this.message,
-  }) : super(key: key);
+  });
 
   /// [types.TextMessage]
   final types.CustomMessage message;

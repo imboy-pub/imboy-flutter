@@ -23,7 +23,7 @@ class ContactCard extends StatelessWidget {
   final EdgeInsets? padding;
 
   ContactCard({
-    Key? key,
+    super.key,
     required this.id,
     this.nickname,
     required this.avatar, // 头像
@@ -34,8 +34,7 @@ class ContactCard extends StatelessWidget {
     this.isBorder = false,
     this.lineWidth = mainLineWidth,
     this.padding,
-  })  : assert(id != null),
-        super(key: key);
+  }) : assert(id != null);
 
   @override
   Widget build(BuildContext context) {
@@ -50,23 +49,21 @@ class ContactCard extends StatelessWidget {
       nickname = '';
     }
     List<Widget> items = <Widget>[
-      n.Row(
-        [
-          Expanded(
-              child: Text(
-            title ?? '',
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 18.0,
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 6,
-            overflow: TextOverflow.ellipsis,
-          )),
-          const Space(width: mainSpace / 3),
-          genderIcon(gender),
-        ]
-      ),
+      n.Row([
+        Expanded(
+            child: Text(
+          title ?? '',
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 18.0,
+            fontWeight: FontWeight.w600,
+          ),
+          maxLines: 6,
+          overflow: TextOverflow.ellipsis,
+        )),
+        const Space(width: mainSpace / 3),
+        genderIcon(gender),
+      ]),
     ];
     if (strNoEmpty(nickname)) {
       items.add(Padding(

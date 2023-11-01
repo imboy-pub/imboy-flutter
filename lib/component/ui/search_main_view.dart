@@ -7,11 +7,11 @@ class SearchMainView extends StatelessWidget {
   final bool? isBorder;
 
   const SearchMainView({
-    Key? key,
+    super.key,
     this.onTap,
     this.text,
     this.isBorder = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

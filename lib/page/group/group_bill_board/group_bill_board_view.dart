@@ -13,9 +13,14 @@ class GroupBillBoardPage extends StatefulWidget {
   final String? time;
   final Callback? callback;
 
-  const GroupBillBoardPage(this.groupOwner, this.groupNotice,
-      {Key? key, this.groupId, this.time, this.callback})
-      : super(key: key);
+  const GroupBillBoardPage(
+    this.groupOwner,
+    this.groupNotice, {
+    super.key,
+    this.groupId,
+    this.time,
+    this.callback,
+  });
 
   @override
   // ignore: library_private_types_in_public_api

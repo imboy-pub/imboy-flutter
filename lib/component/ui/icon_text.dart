@@ -35,7 +35,7 @@ class IconTextView extends StatefulWidget {
   final double paddingLeft;
 
   const IconTextView({
-    Key? key,
+    super.key,
     this.leftIcon,
     this.leftIconAsset,
     this.leftText,
@@ -49,7 +49,7 @@ class IconTextView extends StatefulWidget {
     this.decoration,
     this.height = 48,
     this.paddingLeft = 10,
-  }) : super(key: key);
+  });
 
   @override
   // ignore: library_private_types_in_public_api

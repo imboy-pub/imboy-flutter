@@ -8,7 +8,7 @@ import 'search_logic.dart';
 import 'search_state.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({Key? key}) : super(key: key);
+  const SearchPage({super.key});
 
   @override
   // ignore: library_private_types_in_public_api

@@ -14,7 +14,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'setting_logic.dart';
 
 class SettingPage extends StatefulWidget {
-  const SettingPage({Key? key}) : super(key: key);
+  const SettingPage({super.key});
 
   @override
   // ignore: library_private_types_in_public_api

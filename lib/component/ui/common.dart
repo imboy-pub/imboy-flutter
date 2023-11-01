@@ -6,10 +6,10 @@ class Space extends StatelessWidget {
   final double height;
 
   const Space({
-    Key? key,
+    super.key,
     this.width = 10.0,
     this.height = 10.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

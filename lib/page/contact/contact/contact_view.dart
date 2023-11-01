@@ -19,7 +19,7 @@ class ContactPage extends StatelessWidget {
 
   final ContactLogic logic = Get.find();
 
-  ContactPage({Key? key}) : super(key: key);
+  ContactPage({super.key});
 
   void loadData() async {
     // 加载联系人列表
@@ -94,7 +94,7 @@ class ContactPage extends StatelessWidget {
                     },
                     // indexBarData: const ['↑', ...kIndexBarData],
                     indexBarData: logic.contactList.isNotEmpty
-                        ? ['↑', ...logic.currIndexBarData.toList()]
+                        ? ['↑', ...logic.currIndexBarData]
                         : [],
                     indexBarOptions: IndexBarOptions(
                       needRebuild: true,

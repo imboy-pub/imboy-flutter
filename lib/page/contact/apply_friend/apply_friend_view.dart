@@ -26,8 +26,8 @@ class ApplyFriendPage extends StatelessWidget {
     this.avatar,
     this.region, {
     required this.source,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final ApplyFriendLogic logic = Get.put(ApplyFriendLogic());
 

@@ -26,8 +26,8 @@ class LaunchGroupItem extends StatelessWidget {
         // padding: const EdgeInsets.symmetric(vertical: 15.0),
         onPressed: () {
           if (item == '选择一个群') {
-            Get.to(()=>
-              const GroupSelectPage(),
+            Get.to(
+              () => const GroupSelectPage(),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
             );
@@ -54,14 +54,14 @@ class LaunchSearch extends StatelessWidget {
   final GestureTapCallback? delOnTap;
 
   const LaunchSearch({
-    Key? key,
+    super.key,
     this.searchF,
     this.searchC,
     this.onChanged,
     this.onTap,
     this.onSubmitted,
     this.delOnTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

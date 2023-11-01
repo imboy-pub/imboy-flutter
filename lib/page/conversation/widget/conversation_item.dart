@@ -20,11 +20,11 @@ class ConversationItem extends StatelessWidget {
   RxInt remindCounter;
 
   ConversationItem({
-    Key? key,
+    super.key,
     required this.model,
     required this.onTapAvatar,
     required this.remindCounter,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

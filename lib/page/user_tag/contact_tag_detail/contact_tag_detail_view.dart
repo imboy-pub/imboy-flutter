@@ -461,7 +461,7 @@ class ContactTagDetailPage extends StatelessWidget {
                             .getSusItem(context, model.getSuspensionTag());
                       },
                       indexBarData: state.contactList.isNotEmpty
-                          ? ['↑', ...state.currIndexBarData.toList()]
+                          ? ['↑', ...state.currIndexBarData]
                           : [],
                       indexBarOptions: IndexBarOptions(
                         needRebuild: true,
@@ -555,10 +555,10 @@ class SelectFriendPage extends StatelessWidget {
   final List<ContactModel> tagContactList;
 
   SelectFriendPage({
-    Key? key,
+    super.key,
     required this.tag,
     required this.tagContactList,
-  }) : super(key: key);
+  });
 
   final int _itemHeight = 60;
 
@@ -784,9 +784,8 @@ class SelectFriendPage extends StatelessWidget {
                       .getSusItem(context, model.getSuspensionTag());
                 },
                 // indexBarData: const ['↑', ...kIndexBarData],
-                indexBarData: contactList.isNotEmpty
-                    ? ['↑', ...currIndexBarData.toList()]
-                    : [],
+                indexBarData:
+                    contactList.isNotEmpty ? ['↑', ...currIndexBarData] : [],
                 indexBarOptions: IndexBarOptions(
                   needRebuild: true,
                   ignoreDragCancel: true,

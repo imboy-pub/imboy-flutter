@@ -15,7 +15,7 @@ import 'select_member_logic.dart';
 import 'select_member_state.dart';
 
 class SelectMemberPage extends StatefulWidget {
-  const SelectMemberPage({Key? key}) : super(key: key);
+  const SelectMemberPage({super.key});
 
   @override
   // ignore: library_private_types_in_public_api

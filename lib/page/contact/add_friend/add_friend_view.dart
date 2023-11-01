@@ -21,7 +21,7 @@ class AddFriendPage extends StatelessWidget {
   bool isSearch = false;
   final AddFriendLogic logic = Get.put(AddFriendLogic());
 
-  AddFriendPage({Key? key}) : super(key: key);
+  AddFriendPage({super.key});
 
   @override
   Widget build(BuildContext context) {

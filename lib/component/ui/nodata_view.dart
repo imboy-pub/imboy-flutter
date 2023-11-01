@@ -6,10 +6,10 @@ class NoDataView extends StatelessWidget {
   final VoidCallback? onTop;
 
   const NoDataView({
-    Key? key,
+    super.key,
     required this.text,
     this.onTop,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

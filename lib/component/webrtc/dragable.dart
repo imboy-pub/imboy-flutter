@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class DragArea extends StatefulWidget {
   final Widget child;
 
-  const DragArea({Key? key, required this.child}) : super(key: key);
+  const DragArea({super.key, required this.child});
 
   @override
   // ignore: library_private_types_in_public_api

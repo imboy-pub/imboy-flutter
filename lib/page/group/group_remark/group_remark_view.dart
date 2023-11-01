@@ -16,11 +16,11 @@ class GroupRemarkPage extends StatefulWidget {
   final String? groupId;
 
   const GroupRemarkPage({
-    Key? key,
+    super.key,
     this.groupInfoType = GroupInfoType.remark,
     this.text = '',
     this.groupId,
-  }) : super(key: key);
+  });
 
   @override
   // ignore: library_private_types_in_public_api

@@ -9,7 +9,7 @@ import 'package:niku/namespace.dart' as n;
 class NetworkFailureTips extends StatelessWidget {
   Color? backgroundColor;
 
-  NetworkFailureTips({Key? key, this.backgroundColor}) : super(key: key);
+  NetworkFailureTips({super.key, this.backgroundColor});
 
   @override
   Widget build(BuildContext context) {

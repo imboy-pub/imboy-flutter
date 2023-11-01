@@ -9,7 +9,7 @@ class GroupMemberDetailPage extends StatefulWidget {
   // final bool isSelf;
   final String id;
 
-  const GroupMemberDetailPage(this.id, {Key? key}) : super(key: key);
+  const GroupMemberDetailPage(this.id, {super.key});
 
   @override
   // ignore: library_private_types_in_public_api

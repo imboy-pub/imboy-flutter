@@ -16,7 +16,7 @@ import 'passport_logic.dart';
 class PassportPage extends StatelessWidget {
   final PassportLogic logic = Get.put(PassportLogic());
 
-  PassportPage({Key? key}) : super(key: key);
+  PassportPage({super.key});
 
   @override
   Widget build(BuildContext context) {

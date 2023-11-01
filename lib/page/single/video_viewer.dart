@@ -13,10 +13,14 @@ import 'package:niku/namespace.dart' as n;
 import 'package:video_player/video_player.dart';
 
 class VideoViewerPage extends StatefulWidget {
-  const VideoViewerPage({Key? key, required this.url, required this.thumb})
-      : super(key: key);
   final String url;
   final String thumb;
+
+  const VideoViewerPage({
+    super.key,
+    required this.url,
+    required this.thumb,
+  });
 
   @override
   // ignore: library_private_types_in_public_api

@@ -13,13 +13,13 @@ import 'package:imboy/config/const.dart';
 
 class ExtraItem extends StatelessWidget {
   const ExtraItem({
-    Key? key,
+    super.key,
     required this.onPressed,
     required this.image,
     this.width,
     this.height,
     required this.title,
-  }) : super(key: key);
+  });
 
   final Widget image;
   final void Function()? onPressed;
@@ -74,14 +74,14 @@ class ExtraItem extends StatelessWidget {
 
 class ExtraItems extends StatefulWidget {
   const ExtraItems({
-    Key? key,
+    super.key,
     this.handleImageSelection,
     this.handleFileSelection,
     this.handlePickerSelection,
     this.handleLocationSelection,
     this.handleVisitCardSelection,
     required this.options,
-  }) : super(key: key);
+  });
   final Map options;
   final void Function()? handleImageSelection;
   final void Function()? handleFileSelection;

@@ -9,31 +9,32 @@ class IMBoyChatTheme extends ChatTheme {
   /// override only a couple of properties, otherwise create a new class
   /// which extends [ChatTheme]
   const IMBoyChatTheme({
-    Widget? attachmentButtonIcon,
-    Color backgroundColor = AppColors.ChatBg,
-    TextStyle dateDividerTextStyle = const TextStyle(
+    super.attachmentButtonIcon,
+    super.backgroundColor = AppColors.ChatBg,
+    super.dateDividerTextStyle = const TextStyle(
       color: neutral2,
       fontFamily: 'Avenir',
       fontSize: 12,
       fontWeight: FontWeight.w800,
       height: 1.333,
     ),
-    Widget? deliveredIcon,
-    Widget? documentIcon,
-    TextStyle emptyChatPlaceholderTextStyle = const TextStyle(
+    super.deliveredIcon,
+    super.documentIcon,
+    super.emptyChatPlaceholderTextStyle = const TextStyle(
       color: AppColors.MainTextColor,
       fontFamily: 'Avenir',
       fontSize: 18,
       fontWeight: FontWeight.w500,
       height: 2.0,
     ),
-    Color errorColor = error,
-    Widget? errorIcon,
-    Color inputBackgroundColor = AppColors.ChatInputBackgroundColor,
-    EdgeInsets inputPadding = EdgeInsets.zero,
-    Color inputTextColor = AppColors.MainTextColor,
-    Color? inputTextCursorColor,
-    InputDecoration inputTextDecoration = const InputDecoration(
+    super.errorColor = error,
+    super.errorIcon,
+    super.inputBackgroundColor = AppColors.ChatInputBackgroundColor,
+    super.inputSurfaceTintColor = AppColors.ChatInputBackgroundColor,
+    super.inputPadding = EdgeInsets.zero,
+    super.inputTextColor = AppColors.MainTextColor,
+    super.inputTextCursorColor,
+    super.inputTextDecoration = const InputDecoration(
       border: OutlineInputBorder(
         borderSide: BorderSide.none,
         borderRadius: BorderRadius.all(Radius.circular(2.0)),
@@ -43,102 +44,102 @@ class IMBoyChatTheme extends ChatTheme {
       filled: true,
       fillColor: AppColors.ChatInputFillGgColor,
     ),
-    double messageBorderRadius = 20,
-    double messageInsetsHorizontal = 16,
-    double messageInsetsVertical = 8,
-    TextStyle receivedMessageBodyTextStyle = const TextStyle(
+    super.messageBorderRadius = 20,
+    super.messageInsetsHorizontal = 16,
+    super.messageInsetsVertical = 8,
+    super.receivedMessageBodyTextStyle = const TextStyle(
       color: neutral0,
       fontFamily: 'Avenir',
       fontSize: 14,
       fontWeight: FontWeight.w500,
       height: 1.375,
     ),
-    TextStyle receivedMessageCaptionTextStyle = const TextStyle(
+    super.receivedMessageCaptionTextStyle = const TextStyle(
       color: neutral2,
       fontFamily: 'Avenir',
       fontSize: 14,
       fontWeight: FontWeight.w500,
       height: 1.333,
     ),
-    Color receivedMessageDocumentIconColor = primary,
-    TextStyle receivedMessageLinkDescriptionTextStyle = const TextStyle(
+    super.receivedMessageDocumentIconColor = primary,
+    super.receivedMessageLinkDescriptionTextStyle = const TextStyle(
       color: neutral0,
       fontFamily: 'Avenir',
       fontSize: 14,
       fontWeight: FontWeight.w400,
       height: 1.428,
     ),
-    TextStyle receivedMessageLinkTitleTextStyle = const TextStyle(
+    super.receivedMessageLinkTitleTextStyle = const TextStyle(
       color: neutral0,
       fontFamily: 'Avenir',
       fontSize: 14,
       fontWeight: FontWeight.w800,
       height: 1.375,
     ),
-    Widget? seenIcon,
-    Widget? sendButtonIcon,
-    Widget? sendingIcon,
-    Color secondaryColor = AppColors.ChatReceivedMessageBodyBgColor,
-    TextStyle inputTextStyle = const TextStyle(
+    super.seenIcon,
+    super.sendButtonIcon,
+    super.sendingIcon,
+    super.secondaryColor = AppColors.ChatReceivedMessageBodyBgColor,
+    super.inputTextStyle = const TextStyle(
       fontFamily: 'Avenir',
       fontSize: 16,
       height: 1.375,
       color: AppColors.ChatInputFillGgColor,
     ),
-    Color primaryColor = AppColors.ChatSendMessageBgColor,
-    TextStyle sentMessageBodyTextStyle = const TextStyle(
+    super.primaryColor = AppColors.ChatSendMessageBgColor,
+    super.sentMessageBodyTextStyle = const TextStyle(
       color: AppColors.ChatSentMessageBodyTextColor,
       fontFamily: 'Avenir',
       fontSize: 16,
       fontWeight: FontWeight.w500,
       height: 1.375,
     ),
-    TextStyle sentMessageCaptionTextStyle = const TextStyle(
+    super.sentMessageCaptionTextStyle = const TextStyle(
       color: neutral7WithOpacity,
       fontFamily: 'Avenir',
       fontSize: 12,
       fontWeight: FontWeight.w500,
       height: 1.375,
     ),
-    Color sentMessageDocumentIconColor = neutral7,
-    TextStyle sentMessageLinkDescriptionTextStyle = const TextStyle(
+    super.sentMessageDocumentIconColor = neutral7,
+    super.sentMessageLinkDescriptionTextStyle = const TextStyle(
       color: neutral7,
       fontFamily: 'Avenir',
       fontSize: 14,
       fontWeight: FontWeight.w400,
       height: 1.428,
     ),
-    TextStyle sentMessageLinkTitleTextStyle = const TextStyle(
+    super.sentMessageLinkTitleTextStyle = const TextStyle(
       color: neutral7,
       fontFamily: 'Avenir',
       fontSize: 16,
       fontWeight: FontWeight.w800,
       height: 1.375,
     ),
-    Color userAvatarImageBackgroundColor = Colors.transparent,
-    List<Color> userAvatarNameColors = colors,
-    TextStyle userAvatarTextStyle = const TextStyle(
+    super.userAvatarImageBackgroundColor = Colors.transparent,
+    super.userAvatarNameColors = colors,
+    super.userAvatarTextStyle = const TextStyle(
       color: neutral7,
       fontFamily: 'Avenir',
       fontSize: 12,
       fontWeight: FontWeight.w800,
       height: 1.333,
     ),
-    TextStyle userNameTextStyle = const TextStyle(
+    super.userNameTextStyle = const TextStyle(
       fontFamily: 'Avenir',
       fontSize: 12,
       fontWeight: FontWeight.w800,
       height: 1.333,
     ),
     //
-    EdgeInsets dateDividerMargin = const EdgeInsets.only(
+    super.dateDividerMargin = const EdgeInsets.only(
       bottom: 8,
       top: 12,
     ),
-    TextStyle receivedEmojiMessageTextStyle = const TextStyle(fontSize: 20),
-    TextStyle sentEmojiMessageTextStyle = const TextStyle(fontSize: 20),
-    EdgeInsets statusIconPadding = const EdgeInsets.symmetric(horizontal: 4),
-    TypingIndicatorTheme typingIndicatorTheme = const TypingIndicatorTheme(
+    super.receivedEmojiMessageTextStyle = const TextStyle(fontSize: 20),
+    super.sentEmojiMessageTextStyle = const TextStyle(fontSize: 20),
+    super.statusIconPadding = const EdgeInsets.symmetric(horizontal: 4),
+    super.typingIndicatorTheme = const TypingIndicatorTheme(
       animatedCirclesColor: neutral1,
       animatedCircleSize: 5.0,
       bubbleBorder: BorderRadius.all(Radius.circular(27.0)),
@@ -152,47 +153,9 @@ class IMBoyChatTheme extends ChatTheme {
       ),
     ),
   }) : super(
-          typingIndicatorTheme: typingIndicatorTheme,
           sendButtonMargin: null,
           attachmentButtonMargin: null,
-          attachmentButtonIcon: attachmentButtonIcon,
-          backgroundColor: backgroundColor,
-          dateDividerMargin: dateDividerMargin,
-          dateDividerTextStyle: dateDividerTextStyle,
-          deliveredIcon: deliveredIcon,
-          documentIcon: documentIcon,
-          emptyChatPlaceholderTextStyle: emptyChatPlaceholderTextStyle,
-          errorColor: errorColor,
-          errorIcon: errorIcon,
-          inputBackgroundColor: inputBackgroundColor,
-          inputPadding: inputPadding,
-          inputTextColor: inputTextColor,
-          inputTextCursorColor: inputTextCursorColor,
-          inputTextDecoration: inputTextDecoration,
-          inputTextStyle: inputTextStyle,
-          messageBorderRadius: messageBorderRadius,
-          messageInsetsHorizontal: messageInsetsHorizontal,
-          messageInsetsVertical: messageInsetsVertical,
-          primaryColor: primaryColor,
-          receivedEmojiMessageTextStyle: receivedEmojiMessageTextStyle,
-          receivedMessageBodyTextStyle: receivedMessageBodyTextStyle,
-          receivedMessageCaptionTextStyle: receivedMessageCaptionTextStyle,
-          receivedMessageDocumentIconColor: receivedMessageDocumentIconColor,
-          receivedMessageLinkDescriptionTextStyle:
-              receivedMessageLinkDescriptionTextStyle,
-          receivedMessageLinkTitleTextStyle: receivedMessageLinkTitleTextStyle,
-          secondaryColor: secondaryColor,
-          seenIcon: seenIcon,
-          sendButtonIcon: sendButtonIcon,
-          sendingIcon: sendingIcon,
-          sentEmojiMessageTextStyle: sentEmojiMessageTextStyle,
-          sentMessageBodyTextStyle: sentMessageBodyTextStyle,
-          sentMessageCaptionTextStyle: sentMessageCaptionTextStyle,
-          sentMessageDocumentIconColor: sentMessageDocumentIconColor,
-          sentMessageLinkDescriptionTextStyle:
-              sentMessageLinkDescriptionTextStyle,
-          sentMessageLinkTitleTextStyle: sentMessageLinkTitleTextStyle,
-          statusIconPadding: statusIconPadding,
+          inputElevation: 0,
           systemMessageTheme: const SystemMessageTheme(
             margin: EdgeInsets.only(
               bottom: 24,
@@ -207,10 +170,6 @@ class IMBoyChatTheme extends ChatTheme {
               height: 1.333,
             ),
           ),
-          userAvatarImageBackgroundColor: userAvatarImageBackgroundColor,
-          userAvatarNameColors: userAvatarNameColors,
-          userAvatarTextStyle: userAvatarTextStyle,
-          userNameTextStyle: userNameTextStyle,
           inputBorderRadius: const BorderRadius.vertical(
             top: Radius.circular(8),
           ),

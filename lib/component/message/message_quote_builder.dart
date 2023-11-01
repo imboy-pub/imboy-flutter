@@ -16,11 +16,11 @@ import 'package:imboy/config/const.dart';
 // ignore: must_be_immutable
 class QuoteMessageBuilder extends StatelessWidget {
   QuoteMessageBuilder({
-    Key? key,
+    super.key,
     // 当前登录用户
     required this.user,
     required this.message,
-  }) : super(key: key);
+  });
 
   final types.User user;
   final types.CustomMessage message;

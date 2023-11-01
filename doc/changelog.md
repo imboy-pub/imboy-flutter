@@ -2,7 +2,7 @@
 * 附件消息（图片、文件、语音消息、视频等）携带filemd5值；
 * 我的收藏列表，样式小调整；
 * EntityVideo.filesize 属性修改为 EntityVideo.size；
-* 升级一些flutter三方依赖；
+* 升级一些flutter三方依赖，一些dart代码语法调整；
 
 # 0.1.18
 * 解决 refreshAccessToken 过期后，登录页面被重复刷新的问题; 

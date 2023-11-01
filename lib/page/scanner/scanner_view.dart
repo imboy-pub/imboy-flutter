@@ -14,7 +14,7 @@ import 'package:imboy/page/single/people_info.dart';
 import 'scanner_logic.dart';
 
 class ScannerPage extends StatefulWidget {
-  const ScannerPage({Key? key}) : super(key: key);
+  const ScannerPage({super.key});
 
   @override
   // ignore: library_private_types_in_public_api

@@ -34,14 +34,14 @@ class P2pCallScreenPage extends StatefulWidget {
   final Function? closePage;
 
   P2pCallScreenPage({
-    Key? key,
+    super.key,
     required this.peer,
     required this.session,
     required this.option,
     // 主叫者，发起通话人
     this.caller = true,
     required this.closePage,
-  }) : super(key: key);
+  });
 
   @override
   // ignore: library_private_types_in_public_api

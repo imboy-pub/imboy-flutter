@@ -19,7 +19,7 @@ class ChatSettingPage extends StatefulWidget {
   final String peerId;
   Map<String, dynamic>? options;
 
-  ChatSettingPage(this.peerId, {Key? key, this.options}) : super(key: key);
+  ChatSettingPage(this.peerId, {super.key, this.options});
 
   @override
   // ignore: library_private_types_in_public_api

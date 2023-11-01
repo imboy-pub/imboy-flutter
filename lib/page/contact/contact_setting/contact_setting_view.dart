@@ -39,7 +39,7 @@ class ContactSettingPage extends StatelessWidget {
   final String peerTag;
 
   ContactSettingPage({
-    Key? key,
+    super.key,
     required this.peerId,
     required this.peerAccount,
     required this.peerAvatar,
@@ -51,7 +51,7 @@ class ContactSettingPage extends StatelessWidget {
     required this.peerSource,
     required this.peerRemark,
     required this.peerTag,
-  }) : super(key: key);
+  });
 
   final logic = Get.put(ContactSettingLogic());
   RxBool inDenylist = false.obs;

@@ -11,11 +11,11 @@ import 'package:imboy/config/const.dart';
 // ignore: must_be_immutable
 class QuoteTipsWidget extends StatelessWidget {
   const QuoteTipsWidget({
-    Key? key,
+    super.key,
     required this.title,
     required this.message,
     this.close,
-  }) : super(key: key);
+  });
   final String title;
 
   final types.Message? message;

@@ -10,7 +10,7 @@ import '../personal_info/personal_info_logic.dart';
 import '../update/update_view.dart';
 
 class MoreView extends StatelessWidget {
-  const MoreView({Key? key}) : super(key: key);
+  const MoreView({super.key});
 
   @override
   Widget build(BuildContext context) {

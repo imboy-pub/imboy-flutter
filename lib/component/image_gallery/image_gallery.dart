@@ -31,12 +31,12 @@ class PreviewImage extends Equatable {
 
 class IMBoyImageGallery extends StatelessWidget {
   const IMBoyImageGallery({
-    Key? key,
+    super.key,
     required this.images,
     required this.onClosePressed,
     this.options = const IMBoyImageGalleryOptions(),
     required this.pageController,
-  }) : super(key: key);
+  });
 
   /// Images to show in the gallery.
   final List<PreviewImage> images;

@@ -11,7 +11,7 @@ class GroupLaunchPage extends StatelessWidget {
   final GroupLaunchLogic logic = Get.put(GroupLaunchLogic());
   final GroupLaunchState state = Get.find<GroupLaunchLogic>().state;
 
-  GroupLaunchPage({Key? key}) : super(key: key);
+  GroupLaunchPage({super.key});
 
   @override
   Widget build(BuildContext context) {

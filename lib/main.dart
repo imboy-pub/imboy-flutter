@@ -49,7 +49,7 @@ void main() async {
 }
 
 class IMBoyApp extends StatelessWidget {
-  const IMBoyApp({Key? key}) : super(key: key);
+  const IMBoyApp({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 class ImageButton extends StatefulWidget {
   const ImageButton({
-    Key? key,
+    super.key,
     required this.onPressed,
     required this.image,
     this.width,
     this.height,
     this.title,
-  }) : super(key: key);
+  });
 
   final Widget image;
   final void Function()? onPressed;

@@ -11,11 +11,11 @@ import 'package:imboy/page/single/video_viewer.dart';
 
 class VideoMessageBuilder extends StatelessWidget {
   const VideoMessageBuilder({
-    Key? key,
+    super.key,
     // 当前登录用户
     required this.user,
     required this.message,
-  }) : super(key: key);
+  });
 
   final types.User user;
 

@@ -7,7 +7,7 @@ import 'chat_background_logic.dart';
 import 'chat_background_state.dart';
 
 class ChatBackgroundPage extends StatefulWidget {
-  const ChatBackgroundPage({Key? key}) : super(key: key);
+  const ChatBackgroundPage({super.key});
 
   @override
   // ignore: library_private_types_in_public_api

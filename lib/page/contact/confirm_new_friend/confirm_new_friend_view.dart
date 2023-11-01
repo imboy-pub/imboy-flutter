@@ -26,13 +26,13 @@ class ConfirmNewFriendPage extends StatelessWidget {
   String payload;
 
   ConfirmNewFriendPage({
-    Key? key,
+    super.key,
     required this.from,
     required this.to,
     required this.msg,
     required this.nickname,
     required this.payload,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

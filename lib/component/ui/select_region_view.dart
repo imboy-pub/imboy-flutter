@@ -131,12 +131,12 @@ class SelectRegionPage extends StatelessWidget {
   final Future<bool> Function(String) outCallback;
 
   SelectRegionPage({
-    Key? key,
+    super.key,
     required this.parent,
     required this.children,
     required this.callback,
     required this.outCallback,
-  }) : super(key: key);
+  });
 
   final logic = Get.put(SelectRegionLogic(), tag: "SelectRegionPage");
 

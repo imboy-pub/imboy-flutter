@@ -38,10 +38,10 @@ class PeopleInfoPage extends StatelessWidget {
   RxInt isFrom = 0.obs;
 
   PeopleInfoPage({
-    Key? key,
+    super.key,
     required this.id,
     required this.scene,
-  }) : super(key: key);
+  });
 
   Future<void> initData() async {
     ContactModel? ct = await ContactRepo().findByUid(id);
@@ -349,9 +349,9 @@ class PeopleInfoPage extends StatelessWidget {
 class PeopleInfoMorePage extends StatelessWidget {
   final String id; // 用户ID
   PeopleInfoMorePage({
-    Key? key,
+    super.key,
     required this.id,
-  }) : super(key: key);
+  });
 
   RxString sign = "".obs;
   RxString sourcePrefix = "".obs;

@@ -21,10 +21,10 @@ class SelectFriendPage extends StatefulWidget {
   final bool peerIsReceiver;
 
   const SelectFriendPage({
-    Key? key,
+    super.key,
     required this.peer,
     this.peerIsReceiver = false,
-  }) : super(key: key);
+  });
 
   @override
   // ignore: library_private_types_in_public_api
@@ -307,9 +307,8 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
                     .getSusItem(context, model.getSuspensionTag());
               },
               // indexBarData: const ['↑', ...kIndexBarData],
-              indexBarData: contactList.isNotEmpty
-                  ? ['↑', ...currIndexBarData.toList()]
-                  : [],
+              indexBarData:
+                  contactList.isNotEmpty ? ['↑', ...currIndexBarData] : [],
               indexBarOptions: IndexBarOptions(
                 needRebuild: true,
                 ignoreDragCancel: true,

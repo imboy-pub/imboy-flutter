@@ -16,12 +16,12 @@ import 'package:imboy/config/const.dart';
 
 class LocationMessageBuilder extends StatelessWidget {
   const LocationMessageBuilder({
-    Key? key,
+    super.key,
     required this.user,
     required this.message,
     this.width,
     this.height,
-  }) : super(key: key);
+  });
 
   final double? width;
   final double? height;

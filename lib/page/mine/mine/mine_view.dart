@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:imboy/page/live_room/live_room_list/live_room_list_view.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/func.dart';
@@ -21,7 +20,7 @@ import 'mine_logic.dart';
 class MinePage extends StatelessWidget {
   final MineLogic logic = Get.put(MineLogic());
 
-  MinePage({Key? key}) : super(key: key);
+  MinePage({super.key});
 
   @override
   Widget build(BuildContext context) {

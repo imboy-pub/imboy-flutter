@@ -19,7 +19,7 @@ class LabelRow extends StatelessWidget {
   final double? lineWidth;
 
   const LabelRow({
-    Key? key,
+    super.key,
     this.label,
     this.onPressed,
     this.value,
@@ -33,7 +33,7 @@ class LabelRow extends StatelessWidget {
     this.padding = const EdgeInsets.only(top: 15.0, bottom: 15.0, right: 5.0),
     this.headW,
     this.lineWidth = mainLineWidth,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -41,13 +41,13 @@ class VoiceWidget extends StatefulWidget {
 
   /// startRecord 开始录制回调  stopRecord回调
   const VoiceWidget({
-    Key? key,
+    super.key,
     this.startRecord,
     this.stopRecord,
     this.height,
     this.decoration,
     this.margin,
-  }) : super(key: key);
+  });
 
   @override
   // ignore: library_private_types_in_public_api

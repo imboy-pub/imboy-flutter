@@ -10,13 +10,13 @@ class TagItem extends StatelessWidget {
   final Color tagSelectedColor;
 
   const TagItem({
-    Key? key,
+    super.key,
     required this.tag,
     required this.onTagDelete,
     this.backgroundColor = const Color(0xfff8f8f8),
     this.selectedBackgroundColor = const Color(0xFF649BEC),
     this.tagSelectedColor = const Color(0xFF649BEC),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

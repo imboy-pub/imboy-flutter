@@ -3,13 +3,13 @@ import 'package:imboy/component/helper/func.dart';
 
 class Avatar extends StatelessWidget {
   const Avatar({
-    Key? key,
+    super.key,
     required this.imgUri,
     this.onTap,
     this.width,
     this.height,
     this.title,
-  }) : super(key: key);
+  });
 
   final String imgUri;
   final void Function()? onTap;

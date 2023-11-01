@@ -8,7 +8,7 @@ class HelpPage extends StatelessWidget {
   final HelpLogic logic = Get.put(HelpLogic());
   final HelpState state = Get.find<HelpLogic>().state;
 
-  HelpPage({Key? key}) : super(key: key);
+  HelpPage({super.key});
 
   @override
   Widget build(BuildContext context) {

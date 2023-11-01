@@ -27,7 +27,7 @@ class BottomNavigationPage extends StatelessWidget {
     MinePage(),
   ];
 
-  BottomNavigationPage({Key? key}) : super(key: key);
+  BottomNavigationPage({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -114,8 +114,9 @@ class AttachmentProvider {
     String prefix,
     AssetEntity entity,
     Function callback,
-    Function errorCallback,
-  ) async {
+    Function errorCallback, {
+    bool uploadOriginalImage = false,
+  }) async {
     int quality = 68;
     int width = 800;
     int height = 0;
@@ -129,7 +130,7 @@ class AttachmentProvider {
     String path = file!.path;
 
     String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
-    bool uploadOriginalImage = false;
+    // bool uploadOriginalImage = false;
     // debugPrint("> on uploadOriginalImage: $uploadOriginalImage");
     String name = "${Xid().toString()}.$ext";
     if (entity.type == AssetType.video) {
@@ -146,7 +147,8 @@ class AttachmentProvider {
       var thumbName =
           thumbPath.substring(thumbPath.lastIndexOf("/") + 1, thumbPath.length);
 
-      String thumbMd5 = sha1.convert(thumbnailFile.readAsBytesSync()).toString();
+      String thumbMd5 =
+          sha1.convert(thumbnailFile.readAsBytesSync()).toString();
       Map<String, dynamic> data = {
         'file': await MultipartFile.fromFile(thumbPath, filename: thumbName),
       };

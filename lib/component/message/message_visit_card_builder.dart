@@ -11,10 +11,10 @@ import 'package:imboy/config/const.dart';
 
 class VisitCardMessageBuilder extends StatelessWidget {
   const VisitCardMessageBuilder({
-    Key? key,
+    super.key,
     required this.user,
     required this.message,
-  }) : super(key: key);
+  });
 
   final types.User user;
   final types.CustomMessage message;

@@ -11,15 +11,11 @@ import 'package:get/get.dart';
 class EmojiPickerView extends EmojiPickerBuilder {
   /// Constructor
   EmojiPickerView(
-    Config config,
-    EmojiViewState state,
+    super.config,
+    super.state,
     this.handleSendPressed, {
-    Key? key,
-  }) : super(
-          config,
-          state,
-          key: key,
-        );
+    super.key,
+  });
 
   @override
   // ignore: library_private_types_in_public_api
@@ -113,7 +109,6 @@ class _EmojiPickerViewState extends State<EmojiPickerView>
                       _buildPage(emojiSize, widget.state.categoryEmoji[index]),
                 ),
               ),
-
             ],
           ),
         );

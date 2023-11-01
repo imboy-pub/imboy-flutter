@@ -46,7 +46,7 @@ double _softKeyHeight = 210;
 class ChatInput extends StatefulWidget {
   const ChatInput({
     // super.key,
-    Key? key,
+    super.key,
     this.isAttachmentUploading,
     this.onAttachmentPressed,
     required this.onSendPressed,
@@ -59,7 +59,7 @@ class ChatInput extends StatefulWidget {
     this.voiceWidget,
     this.quoteTipsWidget,
     // imboy add end
-  }) : super(key: key);
+  });
 
   /// Whether attachment is uploading. Will replace attachment button with a
   /// [CircularProgressIndicator]. Since we don't have libraries for

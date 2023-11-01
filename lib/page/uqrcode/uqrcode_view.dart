@@ -13,7 +13,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 class UqrcodePage extends StatelessWidget {
   final GlobalKey globalKey = GlobalKey();
 
-  UqrcodePage({Key? key}) : super(key: key);
+  UqrcodePage({super.key});
 
   @override
   Widget build(BuildContext context) {

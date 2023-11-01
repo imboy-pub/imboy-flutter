@@ -13,14 +13,14 @@ class TitleTextField extends StatelessWidget {
   final EdgeInsetsGeometry? contentPadding;
 
   TitleTextField({
-    Key? key,
+    super.key,
     required this.title,
     required this.controller,
     required this.minLines,
     required this.maxLines,
     this.maxLength,
     this.contentPadding,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

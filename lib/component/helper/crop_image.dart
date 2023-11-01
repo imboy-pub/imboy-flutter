@@ -10,10 +10,10 @@ class CropImageRoute extends StatefulWidget {
   CropImageRoute(
     this.image,
     this.prefix, {
-    Key? key,
+    super.key,
     this.imageScale = 1.0,
     this.filename = "",
-  }) : super(key: key);
+  });
   String prefix;
   String filename;
   File image; //原始图片路径

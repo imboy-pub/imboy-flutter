@@ -9,12 +9,12 @@ class MoreItemCard extends StatelessWidget {
   final double? keyboardHeight;
 
   const MoreItemCard({
-    Key? key,
+    super.key,
     this.name,
     this.icon,
     this.onPressed,
     this.keyboardHeight,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -22,13 +22,13 @@ class UpdatePage extends StatelessWidget {
   // final EdgeInsetsGeometry? padding;
 
   UpdatePage({
-    Key? key,
+    super.key,
     this.title = "",
     required this.callback,
     this.value = "",
     this.field = "",
     // this.padding = const EdgeInsets.only(top: 15.0, bottom: 15.0, right: 5.0),
-  }) : super(key: key);
+  });
 
   final logic = Get.put(UpdatePageLogic());
   final regionlogic = Get.put(SelectRegionLogic(), tag: "UpdatePage");

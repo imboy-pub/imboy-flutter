@@ -18,7 +18,7 @@ import 'widget/conversation_item.dart';
 import 'widget/right_button_list.dart';
 
 class ConversationPage extends StatefulWidget {
-  const ConversationPage({Key? key}) : super(key: key);
+  const ConversationPage({super.key});
 
   @override
   // ignore: library_private_types_in_public_api

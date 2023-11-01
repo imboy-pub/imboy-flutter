@@ -10,10 +10,10 @@ class FriendsPermissionsPage extends StatelessWidget {
   // final String remark;
 
   FriendsPermissionsPage({
-    Key? key,
+    super.key,
     // required this.id,
     // required this.remark,
-  }) : super(key: key);
+  });
 
   final logic = Get.put(SettingLogic());
 

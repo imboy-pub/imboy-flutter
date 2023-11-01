@@ -8,7 +8,7 @@ class LanguagePage extends StatelessWidget {
   final LanguageLogic logic = Get.put(LanguageLogic());
   final LanguageState state = Get.find<LanguageLogic>().state;
 
-  LanguagePage({Key? key}) : super(key: key);
+  LanguagePage({super.key});
 
   @override
   Widget build(BuildContext context) {

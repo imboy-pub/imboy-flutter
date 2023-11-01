@@ -28,7 +28,7 @@ class DenylistPage extends StatelessWidget {
   bool showBtn = false;
   bool isResult = false;
 
-  DenylistPage({Key? key}) : super(key: key);
+  DenylistPage({super.key});
 
   /// 加载好友申请数据
   void initData() async {
@@ -127,7 +127,7 @@ class DenylistPage extends StatelessWidget {
                             },
                             // indexBarData: const ['↑', ...kIndexBarData],
                             indexBarData: logic.items.isNotEmpty
-                                ? ['↑', ...logic.currIndexBarData.toList()]
+                                ? ['↑', ...logic.currIndexBarData]
                                 : [],
                             indexBarOptions: IndexBarOptions(
                               needRebuild: true,

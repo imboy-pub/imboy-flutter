@@ -62,14 +62,14 @@ class ChatPage extends StatefulWidget {
   final String type; // [C2C | GROUP]
 
   ChatPage({
-    Key? key,
+    super.key,
     this.conversationId = 0,
     required this.peerId,
     required this.peerTitle,
     required this.peerAvatar,
     required this.peerSign,
     this.type = 'C2C',
-  }) : super(key: key);
+  });
 
   @override
   ChatPageState createState() => ChatPageState();

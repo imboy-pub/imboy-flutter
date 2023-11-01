@@ -11,11 +11,11 @@ import 'package:imboy/store/model/message_model.dart';
 
 class RevokedMessageBuilder extends StatelessWidget {
   const RevokedMessageBuilder({
-    Key? key,
+    super.key,
     // 当前登录用户
     required this.user,
     required this.message,
-  }) : super(key: key);
+  });
 
   final types.User user;
   final types.CustomMessage message;

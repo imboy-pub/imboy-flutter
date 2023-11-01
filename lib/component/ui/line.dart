@@ -7,11 +7,11 @@ class HorizontalLine extends StatelessWidget {
   final double horizontal;
 
   const HorizontalLine({
-    Key? key,
+    super.key,
     this.height = 0.5,
     this.color = const Color(0xFFEEEEEE),
     this.horizontal = 0.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +31,12 @@ class VerticalLine extends StatelessWidget {
   final double vertical;
 
   const VerticalLine({
-    Key? key,
+    super.key,
     this.width = 1.0,
     this.height = 25,
     this.color = const Color.fromRGBO(209, 209, 209, 0.5),
     this.vertical = 0.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -6,7 +6,7 @@ import 'package:imboy/config/const.dart';
 import 'package:niku/namespace.dart' as n;
 
 class NetworkFailureGuidancePage extends StatelessWidget {
-  const NetworkFailureGuidancePage({Key? key}) : super(key: key);
+  const NetworkFailureGuidancePage({super.key});
 
   @override
   Widget build(BuildContext context) {

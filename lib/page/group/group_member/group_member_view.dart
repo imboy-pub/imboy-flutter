@@ -14,7 +14,7 @@ import 'group_member_state.dart';
 class GroupMemberPage extends StatefulWidget {
   final String groupId;
 
-  const GroupMemberPage(this.groupId, {Key? key}) : super(key: key);
+  const GroupMemberPage(this.groupId, {super.key});
 
   @override
   // ignore: library_private_types_in_public_api

@@ -28,7 +28,7 @@ class GroupDetailPage extends StatefulWidget {
   final String? peer;
   final Callback? callBack;
 
-  const GroupDetailPage(this.peer, {Key? key, this.callBack}) : super(key: key);
+  const GroupDetailPage(this.peer, {super.key, this.callBack});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -456,12 +456,12 @@ class GroupItem extends StatelessWidget {
   final Widget? right;
 
   const GroupItem({
-    Key? key,
+    super.key,
     this.detail,
     this.title,
     this.onPressed,
     this.right,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

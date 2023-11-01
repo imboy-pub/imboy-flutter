@@ -15,10 +15,10 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
 class WebRTCMessageBuilder extends StatelessWidget {
   const WebRTCMessageBuilder({
-    Key? key,
+    super.key,
     required this.user,
     required this.message,
-  }) : super(key: key);
+  });
 
   final types.User user;
   final types.CustomMessage message;

@@ -9,7 +9,7 @@ import 'package:imboy/page/uqrcode/uqrcode_view.dart';
 import 'package:imboy/page/contact/add_friend/add_friend_view.dart';
 
 class RightButton extends StatelessWidget {
-  const RightButton({Key? key}) : super(key: key);
+  const RightButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +51,7 @@ class ItemTitleStyle {
 }
 
 class RightButtonList extends StatelessWidget {
-  const RightButtonList({Key? key}) : super(key: key);
+  const RightButtonList({super.key});
   @override
   Widget build(BuildContext context) {
     return Container(
