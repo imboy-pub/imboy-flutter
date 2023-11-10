@@ -7,11 +7,11 @@ import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
-import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/single/people_info.dart';
 
 import 'scanner_logic.dart';
+import 'scanner_result_view.dart';
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({super.key});
@@ -33,7 +33,7 @@ class _ScannerPageState extends State<ScannerPage>
   );
   final logic = Get.put(ScannerLogic());
   bool isStarted = true;
-
+  bool attainableResult = true;
   Barcode? barcode;
   BarcodeCapture? capture;
   MobileScannerArguments? arguments;
@@ -79,19 +79,23 @@ class _ScannerPageState extends State<ScannerPage>
                 });
               },
               onDetect: (BarcodeCapture barcodes) async {
-                debugPrint("> scanner onDetect ${barcodes.barcodes.length}");
+                debugPrint(
+                    "> scanner onDetect ${barcodes.barcodes.length} $barcodeStr");
                 capture = barcodes;
                 setState(() => barcode = barcodes.barcodes.first);
-                // return;
-                if (barcodeStr == barcodes.barcodes.last.rawValue) {
+                if (attainableResult == false) {
                   return;
                 }
+                attainableResult = barcodeStr != null &&
+                        barcodeStr == barcodes.barcodes.last.rawValue
+                    ? false
+                    : true;
                 // New barcode found !!
                 setState(() {
                   barcodeStr = barcodes.barcodes.last.rawValue;
                 });
-                if (isUrl(barcodeStr!) &&
-                    barcodeStr!.endsWith(userQrcodeDataSuffix)) {
+                bool isUserQrcode = barcodeStr!.endsWith(userQrcodeDataSuffix);
+                if (isUrl(barcodeStr!) && isUserQrcode) {
                   IMBoyHttpResponse resp =
                       await HttpClient.client.get(barcodeStr!);
                   if (!resp.ok) {
@@ -108,21 +112,21 @@ class _ScannerPageState extends State<ScannerPage>
                     );
                   } else if (result == 'user_not_exist') {
                     // EasyLoading.showToast("用户不存在".tr);
-                    await logic.showResult("用户不存在".tr);
+                    await logic.showResult("用户不存在".tr, 2);
                   } else if (result == 'user_is_disabled_or_deleted') {
                     // EasyLoading.showToast("用户被禁用或已删除".tr);
-                    await logic.showResult("用户被禁用或已删除".tr);
+                    await logic.showResult("用户被禁用或已删除".tr, 2);
                   }
-                } else if (isUrl(barcodeStr!)) {
-                  Get.off(WebViewPage(
-                    barcodeStr!,
-                    '',
-                    errorCallback: (String url) {
-                      logic.showResult("无法打开网页： $url");
-                    },
-                  ));
                 } else {
-                  logic.showResult(barcodeStr!);
+                  Get.to(
+                    () => ScannerResultPage(
+                      scanResult: barcodeStr!,
+                    ),
+                    transition: Transition.rightToLeft,
+                    popGesture: true, // 右滑，返回上一页
+                  );
+                  attainableResult = true;
+                  // logic.showResult(barcodeStr!);
                 }
               },
             ),

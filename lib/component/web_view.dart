@@ -34,7 +34,7 @@ class WebViewPageState extends State<WebViewPage> {
         NavigationDelegate(
           onProgress: (int progress) {
             if (widget.title.isEmpty) {
-              EasyLoading.showProgress(progress / 100, status: "加载中...".tr);
+              EasyLoading.showProgress(progress / 100, status: "网页加载中...".tr);
             }
             debugPrint('> WebView is loading (progress : $progress%)');
           },
@@ -59,8 +59,9 @@ class WebViewPageState extends State<WebViewPage> {
             }
           },
           onWebResourceError: (WebResourceError error) {
+            EasyLoading.dismiss();
             if (widget.errorCallback != null) {
-              String msg = "${widget.url}; error: ${error.description}";
+              String msg = "\n${widget.url}\n\nerror: \n${error.description}";
               widget.errorCallback!(msg);
             }
           },

@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.1.19
+version: 0.1.20
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -12,7 +12,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -62,7 +61,7 @@ dependencies:
   # 在运行时从文件加载环境变量.env
   flutter_dotenv: ^5.1.0
   # 照片管理器
-  photo_manager: ^2.7.1
+  photo_manager: ^2.8.0
   # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
   video_compress: ^3.1.2
   # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
@@ -70,7 +69,7 @@ dependencies:
   image_picker: ^1.0.4
   image_picker_macos: ^0.2.1+1
   image_picker_platform_interface: ^2.9.1
-  file_picker: ^6.0.0
+  file_picker: ^6.1.1
   open_file: ^3.3.2
 
   logger: ^2.0.2+1
@@ -82,7 +81,7 @@ dependencies:
     git:
       url: https://gitee.com/imboy-tripartite-deps/azlistview.git
       ref: leeyi
-  webview_flutter: ^4.4.1
+  webview_flutter: ^4.4.2
   mime: ^1.0.4
 
   # 是否联网及网络类型
@@ -93,7 +92,7 @@ dependencies:
   # 页面刷新
   easy_refresh: ^3.3.2+2
   # https://github.com/letsar/flutter_slidable
-  flutter_slidable: ^3.0.0
+  flutter_slidable: ^3.0.1
   # 消息提醒的红点效果
   badges: ^3.1.2
   # 聊天气泡
@@ -180,7 +179,7 @@ dependencies:
   device_info_plus: ^9.1.0
   package_info_plus: ^5.0.0
   # Flutter 的 Markdown 渲染器
-  flutter_markdown: ^0.6.18
+  flutter_markdown: ^0.6.18+2
   # 滑动吸顶
   sliding_up_panel: ^2.0.0+1
   # 用于 Flutter 的 SVG 渲染和小部件库，允许绘制和显示可缩放矢量图形 1.1 文件。
@@ -246,7 +245,7 @@ dependency_overrides:
 
 dev_dependencies:
   build_runner: ^2.4.6
-  flutter_lints: ^3.0.0
+  flutter_lints: ^3.0.1
   flutter_test:
     sdk: flutter
 

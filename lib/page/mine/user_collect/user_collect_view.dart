@@ -3,7 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/message/message.dart';
+import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/store/model/message_model.dart';
 import 'package:niku/namespace.dart' as n;
+// ignore: depend_on_referenced_packages
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/search.dart';
@@ -19,18 +24,27 @@ import 'user_collect_logic.dart';
 
 // ignore: must_be_immutable
 class UserCollectPage extends StatelessWidget {
-  UserCollectPage({super.key});
+  final bool isSelect;
+  final Map<String, String> peer;
 
   final logic = Get.put(UserCollectLogic());
+
   final state = Get.find<UserCollectLogic>().state;
   ScrollController controller = ScrollController();
 
+  UserCollectPage({
+    super.key,
+    this.peer = const {},
+    this.isSelect = false,
+  });
+
   void initData() async {
     state.page = 1;
+    String? kind = isSelect ? state.recentUse : state.kind;
     var list = await logic.page(
       page: state.page,
       size: state.size,
-      kind: state.kind,
+      kind: kind,
     );
     if (list.isNotEmpty) {
       state.items.value = list;
@@ -98,13 +112,92 @@ class UserCollectPage extends StatelessWidget {
     return n.Wrap(items);
   }
 
+  Future<void> sendToDialog(BuildContext ctx, UserCollectModel model) async {
+    types.Message msg = MessageModel.fromJson(model.info).toTypeMessage();
+    Get.defaultDialog(
+      title: '发送给'.tr,
+      radius: 6,
+      cancel: TextButton(
+        onPressed: () {
+          Get.back();
+        },
+        child: Text(
+          '取消'.tr,
+          textAlign: TextAlign.center,
+        ),
+      ),
+      confirm: TextButton(
+        onPressed: () async {
+          // Navigator.pop(context, model); //这里的url在上一页调用的result可以拿到
+          var nav = Navigator.of(ctx);
+          nav.pop();
+          nav.pop(model);
+          // bool res = await sendToLogic.sendMsg(conversation!, msg);
+          // if (res) {
+          //   EasyLoading.showSuccess('发送成功'.tr);
+          //   logic.change(kindId);
+          //
+          //
+          //   // Future.delayed(const Duration(milliseconds: 1600), () {
+          //   //   Get.close(2);
+          //   // });
+          // } else {
+          //   EasyLoading.showError('发送失败'.tr);
+          // }
+        },
+        child: Text(
+          '发送'.tr,
+          textAlign: TextAlign.center,
+        ),
+      ),
+      content: SizedBox(
+        height: 200,
+        child: n.Column([
+          n.Row([
+            Avatar(
+              imgUri: peer['avatar']!,
+              onTap: () {},
+            ),
+            Expanded(
+              child: n.Padding(
+                left: 10,
+                child: Text(
+                  // 会话对象标题
+                  peer['title']!,
+                  style: const TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ]),
+          const Divider(),
+          Expanded(
+            child: Center(child: messageMsgWidget(msg)),
+          ),
+        ]),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
       backgroundColor: AppColors.ChatBg,
       appBar: PageAppBar(
-        title: '我的收藏'.tr,
+        leading: isSelect
+            ? InkWell(
+                onTap: () {
+                  Get.close(1);
+                },
+                child: const Icon(Icons.close),
+              )
+            : null,
+        title: isSelect ? '收藏'.tr : '我的收藏'.tr,
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -324,17 +417,22 @@ class UserCollectPage extends StatelessWidget {
                                               BorderRadius.circular(8),
                                         ),
                                         child: InkWell(
-                                          onTap: () {
-                                            // 收藏详情
-                                            Get.to(
-                                              () => UserCollectDetailPage(
-                                                obj: obj,
-                                                pageIndex: index,
-                                              ),
-                                              transition:
-                                                  Transition.rightToLeft,
-                                              popGesture: true, // 右滑，返回上一页
-                                            );
+                                          onTap: () async {
+                                            if (isSelect) {
+                                              // 转发消息
+                                              sendToDialog(context, obj);
+                                            } else {
+                                              // 收藏详情
+                                              Get.to(
+                                                () => UserCollectDetailPage(
+                                                  obj: obj,
+                                                  pageIndex: index,
+                                                ),
+                                                transition:
+                                                    Transition.rightToLeft,
+                                                popGesture: true, // 右滑，返回上一页
+                                              );
+                                            }
                                           },
                                           child: n.Column([
                                             logic.buildItemBody(obj, 'page'),

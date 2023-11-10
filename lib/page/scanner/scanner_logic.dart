@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ScannerLogic extends GetxController {
-  Future showResult(result) {
+  Future showResult(String txt, int closeTime) {
     return Get.bottomSheet(
       InkWell(
         onTap: () {
-          Get.close(2);
+          Get.close(closeTime);
         },
         child: Container(
           width: double.infinity,
@@ -18,7 +18,7 @@ class ScannerLogic extends GetxController {
           color: Colors.white,
           child: Center(
             child: Text(
-              result,
+              txt,
               textAlign: TextAlign.left,
               style: const TextStyle(
                 color: Colors.black,

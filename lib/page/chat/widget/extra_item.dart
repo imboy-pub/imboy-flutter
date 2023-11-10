@@ -80,6 +80,7 @@ class ExtraItems extends StatefulWidget {
     this.handlePickerSelection,
     this.handleLocationSelection,
     this.handleVisitCardSelection,
+    this.handleCollectSelection,
     required this.options,
   });
   final Map options;
@@ -89,6 +90,7 @@ class ExtraItems extends StatefulWidget {
   final void Function(String, Uint8List, String, String, String, String)?
       handleLocationSelection;
   final void Function()? handleVisitCardSelection;
+  final void Function()? handleCollectSelection;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -202,7 +204,7 @@ class _ExtraItemsState extends State<ExtraItems> {
           ExtraItem(
             title: "收藏".tr,
             image: const Icon(Icons.collections_bookmark, size: iconSize),
-            onPressed: null,
+            onPressed: widget.handleCollectSelection,
           ),
         ])
       ]),

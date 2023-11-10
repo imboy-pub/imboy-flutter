@@ -9,6 +9,7 @@ import 'package:imboy/page/chat/send_to/send_to_view.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
+import 'package:xid/xid.dart';
 
 import 'user_collect_logic.dart';
 
@@ -52,6 +53,7 @@ class UserCollectDetailPage extends StatelessWidget {
                             ),
                           ),
                           onPressed: () async {
+                            obj.info['id'] = Xid().toString();
                             Get.close(0);
                             // 转发消息
                             Get.bottomSheet(

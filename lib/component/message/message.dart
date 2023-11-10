@@ -125,19 +125,19 @@ Widget messageMsgWidget(types.Message msg) {
       overflow: TextOverflow.ellipsis,
     );
   } else if (msg is types.FileMessage) {
-    msgWidget = n.Row([
-      Text(
-        "[${'文件'.tr}] (${formatBytes(msg.size.truncate())})",
-        style: const TextStyle(color: AppColors.thirdElementText),
-      ),
-      const SizedBox(
-        height: 40,
-        width: 20,
-      ),
-      Text(
-        msg.name,
-        style: const TextStyle(color: AppColors.thirdElementText),
-      ),
+    msgWidget = n.Column([
+      n.Row([
+        Text(
+          "[${'文件'.tr}] (${formatBytes(msg.size.truncate())})",
+          style: const TextStyle(color: AppColors.thirdElementText),
+        )
+      ]),
+      n.Row([
+        Text(
+          msg.name,
+          style: const TextStyle(color: AppColors.thirdElementText),
+        )
+      ]),
     ])
       ..mainAxisAlignment = MainAxisAlignment.start;
   } else if (msg is types.ImageMessage) {

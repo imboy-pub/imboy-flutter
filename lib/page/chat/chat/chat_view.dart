@@ -5,6 +5,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:imboy/page/mine/user_collect/user_collect_view.dart';
+import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/user_collect_model.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:mime/mime.dart';
 import 'package:niku/namespace.dart' as n;
@@ -383,6 +387,46 @@ class ChatPageState extends State<ChatPage> {
       assets = List<AssetEntity>.from(result);
       if (mounted) {
         setState(() {});
+      }
+    }
+  }
+
+  /// 发送收藏消息
+  Future<void> _handleCollectSelection() async {
+    Map<String, String> peer = {
+      'peerId': widget.peerId,
+      'avatar': widget.peerAvatar,
+      'title': widget.peerTitle,
+    };
+
+    UserCollectModel? c1 = await Navigator.push(
+      context,
+      CupertinoPageRoute(
+        // “右滑返回上一页”功能
+        builder: (_) => UserCollectPage(
+          peer: peer,
+          isSelect: true,
+        ),
+      ),
+    );
+    debugPrint("_handleCollectSelection ${c1?.toMap().toString()}");
+    if (c1 != null) {
+      Map<String, dynamic> data = c1.info;
+      data[MessageRepo.id] = Xid().toString();
+      data[MessageRepo.from] = UserRepoLocal.to.currentUid;
+      data[MessageRepo.to] = widget.peerId;
+      data[MessageRepo.status] = 10;
+      data[MessageRepo.conversationId] = widget.conversationId;
+      data[MessageRepo.createdAt] = DateTimeHelper.currentTimeMillis();
+
+      types.Message msg = MessageModel.fromJson(data).toTypeMessage();
+
+      bool res = await _addMessage(msg);
+      if (res) {
+        getx.Get.find<UserCollectLogic>().change(c1.kindId);
+        EasyLoading.showSuccess('发送成功'.tr);
+      } else {
+        EasyLoading.showError('发送失败'.tr);
       }
     }
   }
@@ -931,6 +975,8 @@ class ChatPageState extends State<ChatPage> {
                   handleLocationSelection: _handleLocationSelection,
                   // 个人名片
                   handleVisitCardSelection: _handleVisitCardSelection,
+                  // 收藏
+                  handleCollectSelection: _handleCollectSelection,
                   options: {
                     "to": widget.peerId,
                     "title": widget.peerTitle,
