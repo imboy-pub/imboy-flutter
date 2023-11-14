@@ -47,9 +47,9 @@ class ScannerResultPage extends StatelessWidget {
                   heroTag: "copy",
                   tooltip: "copy".tr,
                   onPressed: () {
-                    // 复制
+                    // 已复制
                     Clipboard.setData(ClipboardData(text: scanResult));
-                    EasyLoading.showToast("${'copy'.tr}成功");
+                    EasyLoading.showToast("已复制".tr);
                   },
                   child: const Icon(Icons.copy_all),
                 ),

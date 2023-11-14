@@ -93,10 +93,10 @@ packages:
     dependency: "direct main"
     description:
       name: audio_session
-      sha256: "8a2bc5e30520e18f3fb0e366793d78057fb64cd5287862c76af0c8771f2a52ad"
+      sha256: "768eadc8174b366b8b1b0b75e0518eea2bbd463d47a7938c54a2a0e6aa06946d"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.1.16"
+    version: "0.1.17"
   audioplayers:
     dependency: transitive
     description:
@@ -502,10 +502,10 @@ packages:
     dependency: "direct main"
     description:
       name: easy_refresh
-      sha256: a889b9920acfdf00bf20a531067ccf465e30e084d7179d62777a0a4a811a5dee
+      sha256: a3b33b60a97e4931c3923e8b80e2f2869a080001c8742213d484c37db0d15164
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.3.2+2"
+    version: "3.3.2+4"
   emoji_picker_flutter:
     dependency: "direct main"
     description:
@@ -683,12 +683,11 @@ packages:
   flutter_chat_ui:
     dependency: "direct main"
     description:
-      path: "."
-      ref: leeyi
-      resolved-ref: "3739dadf16c234b264570fa0f64ca0c0937e109b"
-      url: "https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git"
-    source: git
-    version: "1.6.9"
+      name: flutter_chat_ui
+      sha256: "6a4712026429d3b28547bd3d147ded44f8dd53dacc1ff14113693d7b7dd14382"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.6.10"
   flutter_dotenv:
     dependency: "direct main"
     description:
@@ -1128,26 +1127,26 @@ packages:
     dependency: transitive
     description:
       name: just_audio
-      sha256: "5ed0cd723e17dfd8cd4b0253726221e67f6546841ea4553635cf895061fc335b"
+      sha256: b607cd1a43bac03d85c3aaee00448ff4a589ef2a77104e3d409889ff079bf823
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.35"
+    version: "0.9.36"
   just_audio_platform_interface:
     dependency: transitive
     description:
       name: just_audio_platform_interface
-      sha256: d8409da198bbc59426cd45d4c92fca522a2ec269b576ce29459d6d6fcaeb44df
+      sha256: c3dee0014248c97c91fe6299edb73dc4d6c6930a2f4f713579cd692d9e47f4a1
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.2.1"
+    version: "4.2.2"
   just_audio_web:
     dependency: transitive
     description:
       name: just_audio_web
-      sha256: ff62f733f437b25a0ff590f0e295fa5441dcb465f1edbdb33b3dea264705bc13
+      sha256: "134356b0fe3d898293102b33b5fd618831ffdc72bb7a1b726140abdf22772b70"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.4.8"
+    version: "0.4.9"
   libphonenumber_platform_interface:
     dependency: transitive
     description:
@@ -1480,10 +1479,10 @@ packages:
     dependency: "direct main"
     description:
       name: photo_manager
-      sha256: c1f21882f22c97cc85a8a67b08d7b979a03c9b7f18f940c10c6860b3a49581d3
+      sha256: "2d698826421ebd045ecc0df60422e9dd24bd22b178310b68444385f783735b55"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.8.0"
+    version: "2.8.1"
   photo_view:
     dependency: "direct main"
     description:

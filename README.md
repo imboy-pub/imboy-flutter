@@ -27,11 +27,11 @@ imboy 的Flutter项目
 
 * 大概的大大小小功能实现情况：
     * TODO 40
-    * OK 107
+    * OK 108
 
 [查看](./doc/feature_0.1.0_tree.md)
 
-## Version 0.1.0
+## Version
 力求基于“语义化版本控制的规范”([语义化版本 2.0.0](https://semver.org/lang/zh-CN/))实施版本管理.
 
 Strive to implement version management based on "Specification for Semantic version Control"([Semantic Versioning 2.0.0](https://semver.org/)).
@@ -45,7 +45,7 @@ Strive to implement version management based on "Specification for Semantic vers
 * use-flutter-cache-manager-with-video-player 如何边下载、边缓存、边播放 https://stackoverflow.com/questions/68249750/use-flutter-cache-manager-with-video-player
 * 语音消息播放之后红点需要取消（已解决）
 * 一对一视频通话偶尔有问题，需要进一步优化（以优化，可以进一步调整体验）
-* 消息"长按事件"不够灵活
+* 消息"长按事件"不够灵活（已解决）
 
 ## 多语言
 https://github.com/jonataslaw/get_cli/tree/master/translations
@@ -166,7 +166,7 @@ arch -x86_64 pod update
 
 arch -x86_64 pod update flutter_webrtc
 
-cd ios && rm -rf Pods && pod cache clean --all && pod install && cd ..
+cd ios && rm -rf Podfile.lock pods .symlink Runner.xcworkspace && pod install --repo-update && flutter clean && flutter pub get && pod update && cd ..
 ```
 
 ### deps flutter_dotenv

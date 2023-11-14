@@ -136,20 +136,25 @@ Future<void> init() async {
         iPrint("> on LifecycleEventHandler resumeCallBack");
         ntpOffset = await StorageService.to.ntpOffset();
         // 检查WS链接状态
-        WebSocketService.to;
+        WebSocketService.to.openSocket();
       },
       suspendingCallBack: () async {
         // app 挂起
         iPrint("> on LifecycleEventHandler suspendingCallBack");
       },
       pausedCallBack: () async {
+        iPrint("> on LifecycleEventHandler pausedCallBack");
         // 已暂停的
       },
     ),
   );
   // 监听网络状态
   Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
-    if (r != ConnectivityResult.none) {
+    iPrint("onConnectivityChanged ${r.toString()}");
+    if (r == ConnectivityResult.none) {
+      // 关闭网络的情况下，没有必要开启WS服务了
+      WebSocketService.to.closeSocket();
+    } else {
       // 检查WS链接状态
       WebSocketService.to.openSocket();
     }

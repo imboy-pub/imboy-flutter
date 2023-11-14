@@ -764,6 +764,7 @@ class ChatPageState extends State<ChatPage> {
     } else if (itemId == "copy" && msg is types.TextMessage) {
       // 复制消息
       Clipboard.setData(ClipboardData(text: msg.text));
+      EasyLoading.showToast("已复制".tr);
     } else if (itemId == "collect") {
       // 添加收藏
       bool res = await UserCollectLogic().add(msg);

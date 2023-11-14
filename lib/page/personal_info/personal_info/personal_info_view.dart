@@ -105,7 +105,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       rValue: item['value'],
       isLine:
           item['label'] == 'address' || item['label'] == 'more' ? false : true,
-      isRight: item['label'] == 'account' ? false : true,
+      isRight: item['isRight'] ?? true,
       margin: EdgeInsets.only(bottom: item['label'] == 'more' ? 10.0 : 0.0),
       rightW: item['label'] == 'user_qrcode'
           ? const Icon(Icons.qr_code_2)
@@ -120,13 +120,21 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       {
         'label': 'account',
         'title': '账号',
-        'value': UserRepoLocal.to.current.account
+        'value': UserRepoLocal.to.current.account,
+        'isRight': false
       },
       {'label': 'user_qrcode', 'title': '二维码名片'.tr, 'value': ''},
       {'label': 'more', 'title': '更多信息'.tr, 'value': ''},
       // {'label': 'address', 'title': '我的地址'.tr, 'value': ''},
     ];
-
+    // if (UserRepoLocal.to.current.email.isNotEmpty) {
+    data.insert(1, {
+      'label': 'user_email',
+      'title': '登录邮箱'.tr,
+      'value': UserRepoLocal.to.current.email,
+      'isRight': false
+    });
+    // }
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(title: '个人信息'.tr),

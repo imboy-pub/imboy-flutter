@@ -1,3 +1,10 @@
+# 0.1.21
+* 个人信息显示登录邮箱；
+* 可复制收藏的文本消息；
+* 关闭网络的情况下，关闭WebSocket服务；
+* ext.kotlin_version = '1.9.10'; dart run flutter_native_splash:create ;
+* 升级一些依赖
+
 # 0.1.20
 * 优化二维码扫描体验，新增copy扫描结果等功能；
 * 单聊发送"收藏"消息功能；

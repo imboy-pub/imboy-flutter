@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.1.20
+version: 0.1.21
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -61,7 +61,7 @@ dependencies:
   # 在运行时从文件加载环境变量.env
   flutter_dotenv: ^5.1.0
   # 照片管理器
-  photo_manager: ^2.8.0
+  photo_manager: ^2.8.1
   # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
   video_compress: ^3.1.2
   # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
@@ -90,7 +90,7 @@ dependencies:
   sensors_plus: ^3.1.0
   flutter_screenutil: ^5.9.0
   # 页面刷新
-  easy_refresh: ^3.3.2+2
+  easy_refresh: ^3.3.2+4
   # https://github.com/letsar/flutter_slidable
   flutter_slidable: ^3.0.1
   # 消息提醒的红点效果
@@ -117,12 +117,12 @@ dependencies:
   flutter_easyloading: ^3.0.5
   # 生成闪屏页
   flutter_native_splash: ^2.3.5
-  # flutter_chat_ui: ^1.6.9
-  flutter_chat_ui:
-    #path: plugin/flutter_chat_ui
-    git:
-      url: https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git
-      ref: leeyi
+  flutter_chat_ui: ^1.6.10
+  #flutter_chat_ui:
+  #  #path: plugin/flutter_chat_ui
+  #  git:
+  #    url: https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git
+  #    ref: leeyi
 
   # image_crop: ^0.4.1
   # image_crop:
@@ -163,7 +163,7 @@ dependencies:
   # 录音
   flutter_sound: ^9.2.13
   flutter_sound_platform_interface: ^9.2.13
-  audio_session: ^0.1.16
+  audio_session: ^0.1.17
   # 语音消息播放器
   voice_message_package: ^1.0.41
   # 一对一音视频通话等

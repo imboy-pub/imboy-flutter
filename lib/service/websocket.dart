@@ -200,7 +200,7 @@ class WebSocketService {
           await StorageService.to.remove(Keys.tokenKey);
           Get.offAll(() => PassportPage());
         } else {
-          if (closeCode > 1000) {
+          if (closeCode > 1001) {
             Future.delayed(const Duration(milliseconds: 1000), () {
               debugPrint(
                   '> ws _webSocketOnDone _reconnectTimes: $_reconnectTimes');

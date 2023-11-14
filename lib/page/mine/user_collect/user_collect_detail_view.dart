@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -27,6 +29,139 @@ class UserCollectDetailPage extends StatelessWidget {
   // final logic = Get.put(UserCollectLogic());
   final logic = Get.find<UserCollectLogic>();
 
+  Widget buildRightItems(BuildContext txt) {
+    List<Widget> rightItems = [
+      Center(
+        child: TextButton(
+          child: Text(
+            '转发给朋友'.tr,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              // color: Colors.white,
+              fontSize: 16.0,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+          onPressed: () async {
+            obj.info['id'] = Xid().toString();
+            Get.close(0);
+            // 转发消息
+            Get.bottomSheet(
+              n.Padding(
+                top: 24,
+                child: SendToPage(
+                    msg: MessageModel.fromJson(obj.info).toTypeMessage(),
+                    callback: () {
+                      logic.change(obj.kindId);
+                    }),
+              ),
+              // 是否支持全屏弹出，默认false
+              isScrollControlled: true,
+              // enableDrag: false,
+            );
+          },
+        ),
+      ),
+      const Divider(),
+      Center(
+        child: TextButton(
+          onPressed: () {
+            Get.to(
+              () => UserTagRelationPage(
+                peerId: obj.kindId,
+                peerTag: obj.tag,
+                scene: 'collect',
+                title: '编辑标签'.tr,
+              ),
+              transition: Transition.rightToLeft,
+              popGesture: true, // 右滑，返回上一页
+            )?.then((value) {
+              // iPrint(
+              //     "UserCollectDetailPage_TagAddPage_back then $value");
+              if (value != null && value is String) {
+                obj.tag = value.toString();
+                logic.updateItem(obj);
+                Get.back();
+              }
+            });
+          },
+          child: Text(
+            '编辑标签'.tr,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              // color: Colors.white,
+              fontSize: 16.0,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ),
+      ),
+      const Divider(),
+      Center(
+        child: TextButton(
+          onPressed: () async {
+            bool res = await logic.remove(obj);
+            if (res) {
+              Get.close(2);
+              logic.state.items.removeAt(pageIndex);
+            }
+          },
+          child: Text(
+            '删除'.tr,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.red,
+              fontSize: 16.0,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ),
+      ),
+      const HorizontalLine(height: 6),
+      Center(
+        child: TextButton(
+          onPressed: () => Get.back(),
+          child: Text(
+            'button_cancel'.tr,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              // color: Colors.white,
+              fontSize: 16.0,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ),
+      )
+    ];
+    if (obj.kind == 1) {
+      rightItems.insertAll(0, [
+        Center(
+          child: TextButton(
+            child: Text(
+              '复制文本'.tr,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                // color: Colors.white,
+                fontSize: 16.0,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            onPressed: () async {
+              // 复制消息
+              final String txt = obj.info['payload']['text'] ?? '';
+              if (txt.isNotEmpty) {
+                Clipboard.setData(ClipboardData(text: txt));
+                EasyLoading.showToast("已复制".tr);
+              }
+            },
+          ),
+        ),
+        const Divider(),
+      ]);
+    }
+    return n.Wrap(rightItems);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,113 +173,8 @@ class UserCollectDetailPage extends StatelessWidget {
               Get.bottomSheet(
                 SizedBox(
                   width: Get.width,
-                  height: 240,
-                  child: n.Wrap(
-                    [
-                      Center(
-                        child: TextButton(
-                          child: Text(
-                            '转发给朋友'.tr,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              // color: Colors.white,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          onPressed: () async {
-                            obj.info['id'] = Xid().toString();
-                            Get.close(0);
-                            // 转发消息
-                            Get.bottomSheet(
-                              n.Padding(
-                                top: 24,
-                                child: SendToPage(
-                                    msg: MessageModel.fromJson(obj.info)
-                                        .toTypeMessage(),
-                                    callback: () {
-                                      logic.change(obj.kindId);
-                                    }),
-                              ),
-                              // 是否支持全屏弹出，默认false
-                              isScrollControlled: true,
-                              // enableDrag: false,
-                            );
-                          },
-                        ),
-                      ),
-                      const Divider(),
-                      Center(
-                        child: TextButton(
-                          onPressed: () {
-                            Get.to(
-                              () => UserTagRelationPage(
-                                peerId: obj.kindId,
-                                peerTag: obj.tag,
-                                scene: 'collect',
-                                title: '编辑标签'.tr,
-                              ),
-                              transition: Transition.rightToLeft,
-                              popGesture: true, // 右滑，返回上一页
-                            )?.then((value) {
-                              // iPrint(
-                              //     "UserCollectDetailPage_TagAddPage_back then $value");
-                              if (value != null && value is String) {
-                                obj.tag = value.toString();
-                                logic.updateItem(obj);
-                                Get.back();
-                              }
-                            });
-                          },
-                          child: Text(
-                            '编辑标签'.tr,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              // color: Colors.white,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const Divider(),
-                      Center(
-                        child: TextButton(
-                          onPressed: () async {
-                            bool res = await logic.remove(obj);
-                            if (res) {
-                              Get.close(2);
-                              logic.state.items.removeAt(pageIndex);
-                            }
-                          },
-                          child: Text(
-                            '删除'.tr,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.red,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const HorizontalLine(height: 6),
-                      Center(
-                        child: TextButton(
-                          onPressed: () => Get.back(),
-                          child: Text(
-                            'button_cancel'.tr,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              // color: Colors.white,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
+                  height: 240 + (obj.kind == 1 ? 64 : 0),
+                  child: buildRightItems(context),
                 ),
                 backgroundColor: Colors.white,
                 //改变shape这里即可

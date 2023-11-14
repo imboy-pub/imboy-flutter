@@ -31,6 +31,7 @@ class UserModel {
   String uid;
   String account;
   String nickname;
+  String email;
   String avatar;
   int gender;
   String region;
@@ -41,6 +42,7 @@ class UserModel {
   UserModel({
     required this.uid,
     required this.account,
+    this.email = '',
     this.nickname = '',
     this.avatar = '',
     this.gender = 0,
@@ -66,6 +68,7 @@ class UserModel {
     return UserModel(
       uid: json["uid"] ?? json["id"],
       account: json["account"] ?? '',
+      email: json["email"] ?? '',
       nickname: json["nickname"],
       avatar: json["avatar"] ?? '',
       role: json["role"]?.toInt(),
@@ -80,6 +83,7 @@ class UserModel {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["uid"] = uid;
     data["nickname"] = nickname;
+    data["email"] = email;
     data["avatar"] = avatar;
     data["account"] = account;
     data["role"] = role;
