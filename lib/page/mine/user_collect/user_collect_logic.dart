@@ -284,14 +284,14 @@ class UserCollectLogic extends GetxController {
                   ]),
                   n.Row([
                     Text(
-                    "$mimeType  ${formatBytes(obj.info['payload']['size'] ?? '')}",
-                    style: const TextStyle(
-                      color: AppColors.MainTextColor,
-                      fontSize: 14.0,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  )
+                      "$mimeType  ${formatBytes(obj.info['payload']['size'] ?? '')}",
+                      style: const TextStyle(
+                        color: AppColors.MainTextColor,
+                        fontSize: 14.0,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    )
                   ]),
                 ],
                 // 内容文本左对齐
@@ -675,12 +675,12 @@ class UserCollectLogic extends GetxController {
 
   /// 转发收藏回调
   Future<bool> change(String kindId) async {
-    bool res = await UserCollectProvider().change(
-      action: 'transpond_callback',
-      kindId: kindId,
-    );
+    bool res = await UserCollectProvider().change({
+      'action': 'transpond_callback',
+      'kind_id': kindId,
+    });
 
-    debugPrint("send_to_view callback after $res");
+    // debugPrint("send_to_view callback after $res");
     if (res) {
       await UserCollectRepo().save({
         UserCollectRepo.updatedAt: DateTimeHelper.currentTimeMillis(),
@@ -688,6 +688,25 @@ class UserCollectLogic extends GetxController {
         UserCollectRepo.kindId: kindId
       });
       // res = res2 > 0 ? true : false;
+    }
+    return res;
+  }
+
+  /// 备注收藏
+  Future<bool> remark(String kindId, String remark) async {
+    bool res = await UserCollectProvider().change({
+      'action': 'remark',
+      'kind_id': kindId,
+      'remark': remark,
+    });
+    debugPrint("send_to_view callback after $res");
+    if (res) {
+      await UserCollectRepo().save({
+        UserCollectRepo.updatedAt: DateTimeHelper.currentTimeMillis(),
+        UserCollectRepo.userId: UserRepoLocal.to.currentUid,
+        UserCollectRepo.kindId: kindId,
+        UserCollectRepo.remark: remark,
+      });
     }
     return res;
   }

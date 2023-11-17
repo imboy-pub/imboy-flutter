@@ -214,46 +214,45 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           ),
         ),
         LabelRow(
-          label: '昵称'.tr,
-          isLine: true,
-          isRight: true,
-          rightW: SizedBox(
-            width: Get.width - 100,
-            child: Text(
-              UserRepoLocal.to.current.nickname,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                  color: AppColors.MainTextColor.withOpacity(0.7),
-                  fontWeight: FontWeight.w400),
+            label: '昵称'.tr,
+            isLine: true,
+            isRight: true,
+            rightW: SizedBox(
+              width: Get.width - 100,
+              child: Text(
+                UserRepoLocal.to.current.nickname,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.right,
+                style: TextStyle(
+                    color: AppColors.MainTextColor.withOpacity(0.7),
+                    fontWeight: FontWeight.w400),
+              ),
             ),
-          ),
-          onPressed: () => Get.bottomSheet(
-            UpdatePage(
-                title: '设置昵称'.tr,
-                value: UserRepoLocal.to.current.nickname,
-                field: 'input',
-                callback: (nickname) async {
-                  bool ok = await logic
-                      .changeInfo({"field": "nickname", "value": nickname});
-                  if (ok) {
-                    //url是图片上传后拿到的url
-                    setState(() {
-                      Map<String, dynamic> payload =
-                          UserRepoLocal.to.current.toMap();
-                      payload["nickname"] = nickname;
-                      UserRepoLocal.to.changeInfo(payload);
-                    });
-                  }
-                  return ok;
-                }),
-            backgroundColor: Colors.white,
-            // 是否支持全屏弹出，默认false
-            isScrollControlled: true,
-            enableDrag: false,
-          ),
-        ),
+            onPressed: () {
+              Get.to(
+                () => UpdatePage(
+                    title: '设置昵称'.tr,
+                    value: UserRepoLocal.to.current.nickname,
+                    field: 'input',
+                    callback: (nickname) async {
+                      bool ok = await logic
+                          .changeInfo({"field": "nickname", "value": nickname});
+                      if (ok) {
+                        //url是图片上传后拿到的url
+                        setState(() {
+                          Map<String, dynamic> payload =
+                              UserRepoLocal.to.current.toMap();
+                          payload["nickname"] = nickname;
+                          UserRepoLocal.to.changeInfo(payload);
+                        });
+                      }
+                      return ok;
+                    }),
+                transition: Transition.rightToLeft,
+                popGesture: true, // 右滑，返回上一页,
+              );
+            }),
         n.Column(
           data.map((item) => buildContent(item)).toList(),
         ),

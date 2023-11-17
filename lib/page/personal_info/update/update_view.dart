@@ -18,7 +18,7 @@ class UpdatePage extends StatelessWidget {
 
   String value;
   final String field;
-
+  final int maxLength;
   // final EdgeInsetsGeometry? padding;
 
   UpdatePage({
@@ -27,11 +27,12 @@ class UpdatePage extends StatelessWidget {
     required this.callback,
     this.value = "",
     this.field = "",
+    this.maxLength = 56,
     // this.padding = const EdgeInsets.only(top: 15.0, bottom: 15.0, right: 5.0),
   });
 
   final logic = Get.put(UpdatePageLogic());
-  final regionlogic = Get.put(SelectRegionLogic(), tag: "UpdatePage");
+  final regionLogic = Get.put(SelectRegionLogic(), tag: "UpdatePage");
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +51,7 @@ class UpdatePage extends StatelessWidget {
     } else if (field == "region") {
       logic.val.value = value;
       // 选择如果是顶级地区,选中之
-      regionlogic.regionSelectedTitle(logic.val.value);
+      regionLogic.regionSelectedTitle(logic.val.value);
       // 加载地区数据
       logic.loadData();
       body = regionField();
@@ -164,7 +165,6 @@ class UpdatePage extends StatelessWidget {
       controller: logic.textController,
       keyboardType: TextInputType.text,
       textCapitalization: TextCapitalization.words,
-      textInputAction: TextInputAction.none,
       decoration: InputDecoration(
           contentPadding: const EdgeInsets.fromLTRB(14, 0, 8, 0),
           filled: true,
@@ -226,7 +226,7 @@ class UpdatePage extends StatelessWidget {
       keyboardType: TextInputType.multiline,
       maxLines: 5,
       minLines: 3,
-      maxLength: 56,
+      maxLength: maxLength,
       textCapitalization: TextCapitalization.words,
       textInputAction: TextInputAction.newline,
       decoration: InputDecoration(
@@ -367,7 +367,7 @@ class UpdatePage extends StatelessWidget {
                   height: Get.height - 40,
                   child: ListView.builder(
                     itemBuilder: (BuildContext context, int index) {
-                      return regionlogic
+                      return regionLogic
                           .getListItem(context, "", logic.regionList[index],
                               (String p, String t) async {
                         logic.val.value = strEmpty(p) ? t : "$p $t";

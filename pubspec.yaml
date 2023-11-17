@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.1.21
+version: 0.1.22
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -41,7 +41,7 @@ dependencies:
   #json序列化和反序列化用的
   json_annotation: ^4.8.1
   permission_handler: ^11.0.1
-  permission_handler_apple: ^9.1.4
+  permission_handler_apple: ^9.2.0
   permission_handler_android: ^12.0.0
   permission_handler_platform_interface: ^4.0.2
   #any permission_handler:
@@ -51,8 +51,8 @@ dependencies:
   #    tag: permission_handler_android_v10.2.1
       #ref: master
   camera: ^0.10.5+5
-  wechat_camera_picker: ^4.0.2
-  wechat_assets_picker: ^8.7.1
+  wechat_camera_picker: ^4.1.1
+  wechat_assets_picker: ^8.8.0
   # 缓存
   shared_preferences: ^2.2.2
   # flutter_secure_storage: ^7.0.1
@@ -73,7 +73,7 @@ dependencies:
   open_file: ^3.3.2
 
   logger: ^2.0.2+1
-  sentry_flutter: ^7.12.0
+  sentry_flutter: ^7.13.1
   photo_view: ^0.14.0
   lpinyin: ^2.0.3
   #azlistview: ^2.0.0
@@ -163,7 +163,7 @@ dependencies:
   # 录音
   flutter_sound: ^9.2.13
   flutter_sound_platform_interface: ^9.2.13
-  audio_session: ^0.1.17
+  audio_session: ^0.1.18
   # 语音消息播放器
   voice_message_package: ^1.0.41
   # 一对一音视频通话等
@@ -194,7 +194,7 @@ dependencies:
   video_player: ^2.8.1
   # video_player的插件，支持所有桌面/移动平台。硬件解码器，最佳渲染。通过 FFmpeg 支持大多数格式
   #fvp: ^0.5.0
-  fvp: ^0.10.0
+  fvp: ^0.11.0
   # 标签编辑框
   textfield_tags: ^2.0.2
   #filter_list: ^1.0.2

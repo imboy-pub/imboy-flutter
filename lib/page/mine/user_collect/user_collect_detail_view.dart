@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/personal_info/update/update_view.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/datetime.dart';
@@ -28,6 +29,7 @@ class UserCollectDetailPage extends StatelessWidget {
 
   // final logic = Get.put(UserCollectLogic());
   final logic = Get.find<UserCollectLogic>();
+  RxString remark = "".obs;
 
   Widget buildRightItems(BuildContext txt) {
     List<Widget> rightItems = [
@@ -87,6 +89,48 @@ class UserCollectDetailPage extends StatelessWidget {
           },
           child: Text(
             '编辑标签'.tr,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              // color: Colors.white,
+              fontSize: 16.0,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ),
+      ),
+      const Divider(),
+      Center(
+        child: TextButton(
+          onPressed: () {
+            Get.to(
+              () => UpdatePage(
+                  title: '设置备注'.tr,
+                  value: obj.remark,
+                  field: 'text',
+                  maxLength: 100,
+                  callback: (remarkNew) async {
+                    bool ok = await logic.remark(obj.kindId, remarkNew);
+                    if (ok) {
+                      remark.value = remarkNew;
+                      obj.remark = remarkNew;
+                      Get.close(1);
+                    }
+                    return ok;
+                  }),
+              transition: Transition.rightToLeft,
+              popGesture: true, // 右滑，返回上一页
+            )?.then((value) {
+              // iPrint(
+              //     "UserCollectDetailPage_TagAddPage_back then $value");
+              if (value != null && value is String) {
+                obj.tag = value.toString();
+                logic.updateItem(obj);
+                Get.back();
+              }
+            });
+          },
+          child: Text(
+            '设置备注'.tr,
             textAlign: TextAlign.center,
             style: const TextStyle(
               // color: Colors.white,
@@ -164,6 +208,8 @@ class UserCollectDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    remark.value = obj.remark;
+
     return Scaffold(
       appBar: PageAppBar(
         title: '详情'.tr,
@@ -173,7 +219,7 @@ class UserCollectDetailPage extends StatelessWidget {
               Get.bottomSheet(
                 SizedBox(
                   width: Get.width,
-                  height: 240 + (obj.kind == 1 ? 64 : 0),
+                  height: 304 + (obj.kind == 1 ? 64 : 0),
                   child: buildRightItems(context),
                 ),
                 backgroundColor: Colors.white,
@@ -201,57 +247,86 @@ class UserCollectDetailPage extends StatelessWidget {
       body: Container(
         padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
         width: Get.width,
-        child: n.Column(
-          [
-            n.Row([
-              const Expanded(
-                  flex: 1,
-                  child: HorizontalLine(
-                    height: 1,
-                    color: Colors.black26,
-                  )),
-              Expanded(
+        child: n.Column([
+          n.Row([
+            const Expanded(
+                flex: 1,
+                child: HorizontalLine(
+                  height: 1,
+                  color: Colors.black26,
+                )),
+            Expanded(
                 flex: 2,
                 child: Text(
                   "${'来自'.tr} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAt)}",
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 12),
-                ),
-              ),
-              const Expanded(
-                  flex: 1,
-                  child: HorizontalLine(
-                    height: 1,
-                    color: Colors.black26,
-                  )),
-            ])
-              // 内容居中
-              ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
-            Expanded(
-                child: n.Padding(
+                )),
+            const Expanded(
+                flex: 1,
+                child: HorizontalLine(
+                  height: 1,
+                  color: Colors.black26,
+                )),
+          ])
+            // 内容居中
+            ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+          Obx(() => Opacity(
+              opacity: remark.value.isNotEmpty ? 1.0 : 0.0,
+              child: n.Column([
+                n.Row([
+                  Text(
+                    "${'备注'.tr}: ",
+                    textAlign: TextAlign.left,
+                    style: const TextStyle(fontSize: 16),
+                  )
+                ]),
+                n.Padding(
                     top: 10,
                     bottom: 10,
-                    child: logic.buildItemBody(obj, 'detail'))),
-            n.Row([
-              const Expanded(
-                  child: HorizontalLine(
-                height: 1,
-                color: Colors.black26,
-              )),
-              n.Padding(
-                left: 4,
-                right: 4,
-                child: const Icon(Icons.circle, size: 4),
-              ),
-              const Expanded(
-                  child: HorizontalLine(
-                height: 1,
-                color: Colors.black26,
-              )),
-            ])
-          ],
-          mainAxisSize: MainAxisSize.min,
-        ),
+                    child: n.Row([
+                      Expanded(
+                          flex: 2,
+                          child: Text(
+                            remark.value,
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(fontSize: 13),
+                          )),
+                    ])
+                      // 内容文本左对齐
+                      ..crossAxisAlignment = CrossAxisAlignment.start),
+                n.Row(const [
+                  Expanded(
+                      flex: 4,
+                      child: HorizontalLine(
+                        height: 1,
+                        color: Colors.black26,
+                      ))
+                ]),
+              ]))),
+          Expanded(
+              child: n.Padding(
+                  top: 10,
+                  bottom: 10,
+                  child: logic.buildItemBody(obj, 'detail'))),
+          n.Row([
+            const Expanded(
+                child: HorizontalLine(
+              height: 1,
+              color: Colors.black26,
+            )),
+            n.Padding(
+              left: 4,
+              right: 4,
+              child: const Icon(Icons.circle, size: 4),
+            ),
+            const Expanded(
+                child: HorizontalLine(
+              height: 1,
+              color: Colors.black26,
+            )),
+          ])
+        ], mainAxisSize: MainAxisSize.min),
       ),
     );
   }

@@ -28,16 +28,9 @@ class UserCollectProvider extends HttpClient {
   }
 
   ///
-  Future<bool> change({
-    required String action,
-    required String kindId,
-  }) async {
-    IMBoyHttpResponse resp = await post(API.userCollectChange, data: {
-      'action': action,
-      'kind_id': kindId,
-    });
-    debugPrint(
-        "> on Provider/send_to_view callback resp: ${resp.payload.toString()}");
+  Future<bool> change(Map<String, dynamic> data) async {
+    IMBoyHttpResponse resp = await post(API.userCollectChange, data: data);
+    // debugPrint("user_collect_provider/change resp: ${resp.payload.toString()}");
     return resp.ok ? true : false;
   }
 

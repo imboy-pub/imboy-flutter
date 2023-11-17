@@ -37,8 +37,9 @@ class MoreView extends StatelessWidget {
           isLine: true,
           isRight: true,
           rightW: Obx(() => Text(logic.genderTitle.value)),
-          onPressed: () => Get.bottomSheet(
-            UpdatePage(
+          onPressed: () {
+            Get.to(
+              () => UpdatePage(
                 title: '设置性别'.tr,
                 value: UserRepoLocal.to.current.gender.toString(),
                 field: 'gender',
@@ -57,19 +58,23 @@ class MoreView extends StatelessWidget {
                   }
                   return ok;
                 }),
-            backgroundColor: Colors.white,
-            // 是否支持全屏弹出，默认false
-            isScrollControlled: true,
-            enableDrag: false,
-          ),
+              transition: Transition.rightToLeft,
+              popGesture: true, // 右滑，返回上一页
+            )?.then((value) {
+              // iPrint(" then $value");
+              // if (value != null && value is String) {
+              // }
+            });
+          },
         ),
         LabelRow(
           label: '地区'.tr,
           isLine: true,
           isRight: true,
           rightW: Obx(() => Text(deleteFirst(logic.region.value))),
-          onPressed: () => Get.bottomSheet(
-            UpdatePage(
+          onPressed: () {
+            Get.to(
+              () => UpdatePage(
                 title: '设置地区'.tr,
                 value: logic.region.value,
                 field: 'region',
@@ -85,11 +90,14 @@ class MoreView extends StatelessWidget {
                   }
                   return ok;
                 }),
-            backgroundColor: Colors.white,
-            // 是否支持全屏弹出，默认false
-            isScrollControlled: true,
-            enableDrag: false,
-          ),
+              transition: Transition.rightToLeft,
+              popGesture: true, // 右滑，返回上一页
+            )?.then((value) {
+              // iPrint(" then $value");
+              // if (value != null && value is String) {
+              // }
+            });
+          },
         ),
         TextButton(
           style: TextButton.styleFrom(
@@ -136,28 +144,32 @@ class MoreView extends StatelessWidget {
               ],
             ),
           ),
-          onPressed: () => Get.bottomSheet(
-            UpdatePage(
-                title: '设置个性签名'.tr,
-                value: UserRepoLocal.to.current.sign,
-                field: 'text',
-                callback: (sign) async {
-                  bool ok =
-                      await logic.changeInfo({"field": "sign", "value": sign});
-                  if (ok) {
-                    Map<String, dynamic> payload =
-                        UserRepoLocal.to.current.toMap();
-                    payload["sign"] = sign;
-                    UserRepoLocal.to.changeInfo(payload);
-                    logic.sign.value = UserRepoLocal.to.current.sign;
-                  }
-                  return ok;
-                }),
-            backgroundColor: Colors.white,
-            // 是否支持全屏弹出，默认false
-            isScrollControlled: true,
-            enableDrag: false,
-          ),
+          onPressed: () {
+            Get.to(
+              () => UpdatePage(
+                  title: '设置个性签名'.tr,
+                  value: UserRepoLocal.to.current.sign,
+                  field: 'text',
+                  callback: (sign) async {
+                    bool ok = await logic
+                        .changeInfo({"field": "sign", "value": sign});
+                    if (ok) {
+                      Map<String, dynamic> payload =
+                          UserRepoLocal.to.current.toMap();
+                      payload["sign"] = sign;
+                      UserRepoLocal.to.changeInfo(payload);
+                      logic.sign.value = UserRepoLocal.to.current.sign;
+                    }
+                    return ok;
+                  }),
+              transition: Transition.rightToLeft,
+              popGesture: true, // 右滑，返回上一页
+            )?.then((value) {
+              // iPrint(" then $value");
+              // if (value != null && value is String) {
+              // }
+            });
+          },
         ),
       ]),
     );
