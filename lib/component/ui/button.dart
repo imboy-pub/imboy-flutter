@@ -29,9 +29,10 @@ class ButtonRow extends StatelessWidget {
       decoration: BoxDecoration(
         border: isBorder
             ? Border(
-                bottom:
-                    BorderSide(color: AppColors.LineColor, width: lineWidth),
-              )
+                bottom: BorderSide(
+                color: AppColors.LineColor,
+                width: lineWidth,
+              ))
             : null,
       ),
       child: TextButton(
@@ -39,6 +40,8 @@ class ButtonRow extends StatelessWidget {
           minimumSize: Size.zero,
           padding: EdgeInsets.zero,
           backgroundColor: Colors.white,
+          //取消圆角边框
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         ),
         autofocus: true,
         onPressed: onPressed ?? () {},

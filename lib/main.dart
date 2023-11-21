@@ -96,7 +96,7 @@ class IMBoyApp extends StatelessWidget {
               ? Brightness.light
               : Brightness.dark,
           primarySwatch: createMaterialColor(const Color(0xFF223344)),
-          // useMaterial3: true, // 设置为 true 影响到 其他样式，例如我的页面的样式
+          useMaterial3: true, // 设置为 true 影响到 其他样式，例如我的页面的样式
         ),
         enableLog: true,
         logWriterCallback: Logger.write,

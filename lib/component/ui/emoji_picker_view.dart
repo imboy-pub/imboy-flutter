@@ -173,7 +173,7 @@ class _EmojiPickerViewState extends State<EmojiPickerView>
           fit: BoxFit.fill,
           child: Text(
             emoji.emoji,
-            textScaleFactor: 1.0,
+            textScaler: const TextScaler.linear(1.0),
             style: TextStyle(
               fontSize: emojiSize,
               backgroundColor: Colors.transparent,

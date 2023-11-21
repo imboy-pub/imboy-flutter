@@ -149,7 +149,7 @@ class MinePage extends StatelessWidget {
                   size: 22,
                 ),
                 title: Transform(
-                  transform: Matrix4.translationValues(-30, 0.0, 0.0),
+                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
                   child: Text('我的直播'.tr),
                 ),
                 trailing: Icon(
@@ -173,7 +173,7 @@ class MinePage extends StatelessWidget {
                   size: 22,
                 ),
                 title: Transform(
-                  transform: Matrix4.translationValues(-30, 0.0, 0.0),
+                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
                   child: Text('我的收藏'.tr),
                 ),
                 trailing: Icon(
@@ -196,7 +196,7 @@ class MinePage extends StatelessWidget {
                   size: 22,
                 ),
                 title: Transform(
-                  transform: Matrix4.translationValues(-30, 0.0, 0.0),
+                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
                   child: Text('设备列表'.tr),
                 ),
                 trailing: Icon(
@@ -220,7 +220,7 @@ class MinePage extends StatelessWidget {
                   size: 22,
                 ),
                 title: Transform(
-                  transform: Matrix4.translationValues(-30, 0.0, 0.0),
+                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
                   child: Text('存储空间和数据'.tr),
                 ),
                 trailing: Icon(
@@ -238,7 +238,7 @@ class MinePage extends StatelessWidget {
                   size: 22,
                 ),
                 title: Transform(
-                  transform: Matrix4.translationValues(-30, 0.0, 0.0),
+                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
                   child: Text('黑名单'.tr),
                 ),
                 trailing: Icon(
@@ -277,7 +277,7 @@ class MinePage extends StatelessWidget {
                   size: 22,
                 ),
                 title: Transform(
-                  transform: Matrix4.translationValues(-30, 0.0, 0.0),
+                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
                   child: Text('设置'.tr),
                 ),
                 trailing: Icon(

@@ -51,10 +51,9 @@ class IMBoyImageGallery extends StatelessWidget {
   final PageController pageController;
 
   @override
-  Widget build(BuildContext context) => WillPopScope(
-        onWillPop: () async {
+  Widget build(BuildContext context) => PopScope(
+        onPopInvoked: (bool didPop) async {
           onClosePressed();
-          return false;
         },
         child: GestureDetector(
           onTap: () => onClosePressed(),

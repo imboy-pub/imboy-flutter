@@ -44,11 +44,13 @@ class LabelRow extends StatelessWidget {
           minimumSize: Size.zero,
           padding: EdgeInsets.zero,
           backgroundColor: Colors.white,
+          //取消圆角边框
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         ),
         onPressed: onPressed ?? () {},
         child: Container(
           padding: padding,
-          margin: const EdgeInsets.only(left: 15.0),
+          margin: const EdgeInsets.only(left: 15.0, top: 10),
           decoration: BoxDecoration(
             border: isLine!
                 ? Border(
@@ -56,7 +58,8 @@ class LabelRow extends StatelessWidget {
                         color: AppColors.LineColor, width: lineWidth!))
                 : null,
           ),
-          child: n.Row([
+          child: n.Row(
+            [
               if (headW != null) headW!,
               SizedBox(
                 width: labelWidth,

@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.1.22
+version: 0.1.23
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -61,7 +61,7 @@ dependencies:
   # 在运行时从文件加载环境变量.env
   flutter_dotenv: ^5.1.0
   # 照片管理器
-  photo_manager: ^2.8.1
+  photo_manager: 3.0.0-dev.2
   # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
   video_compress: ^3.1.2
   # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
@@ -139,7 +139,12 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/popup_menu.git
       ref: master
   # 从实用程序 Widget 和带有点级联的扩展中构建 Flutter UI。流畅地开发，没有头痛和嵌套地狱。
-  niku: ^2.4.2
+  # niku: ^2.4.2
+  niku:
+    #path: plugin/niku
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/niku.git
+      ref: main
   # 二维码扫描
   mobile_scanner: ^3.5.2
   #  mobile_scanner:
@@ -189,7 +194,7 @@ dependencies:
   # dart 对象比较
   equatable: ^2.0.5
   # 用于查找设备上安装的可用地图并使用标记启动它们或显示方向。
-  map_launcher: ^3.0.1
+  map_launcher: ^3.1.0
   # 视频播放器插件
   video_player: ^2.8.1
   # video_player的插件，支持所有桌面/移动平台。硬件解码器，最佳渲染。通过 FFmpeg 支持大多数格式

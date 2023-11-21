@@ -78,7 +78,7 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
       color: AppColors.AppBarColor,
       child: Text(
         susTag,
-        textScaleFactor: 1.2,
+        textScaler: const TextScaler.linear(1.2),
         style: const TextStyle(
           color: Color(0xff333333),
           fontSize: 12.0,
