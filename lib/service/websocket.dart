@@ -177,36 +177,35 @@ class WebSocketService {
     // https://developer.mozilla.org/zh-CN/docs/Web/API/CloseEvent
     // closeCode 1000 正常关闭; 无论为何目的而创建, 该链接都已成功完成任务.
     debugPrint('> ws _webSocketOnDone');
-    if (_webSocketChannel != null) {
-      if (_webSocketChannel!.closeCode != null) {
-        debugPrint(
-            '> ws _webSocketOnDone closeCode: ${_webSocketChannel!.closeCode}');
-        debugPrint(
-            '> ws _webSocketOnDone closeReason: ${_webSocketChannel!.closeReason.toString()}');
-        // 1000 CLOSE_NORMAL 正常关闭；无论为何目的而创建，该链接都已成功完成任务
-        // 1001 CLOSE_GOING_AWAY	终端离开，可能因为服务端错误，也可能因为浏览器正从打开连接的页面跳转离开
-        // 1002	CLOSE_PROTOCOL_ERROR	由于协议错误而中断连接。
-        // 1003	CLOSE_UNSUPPORTED	由于接收到不允许的数据类型而断开连接 (如仅接收文本数据的终端接收到了二进制数据).
-        // 1005	CLOSE_NO_STATUS	保留。 表示没有收到预期的状态码。
-        // 1007	Unsupported Data	由于收到了格式不符的数据而断开连接 (如文本消息中包含了非 UTF-8 数据).
-        // 1009	CLOSE_TOO_LARGE	由于收到过大的数据帧而断开连接。
-        // 4000–4999		可以由应用使用。
-        // 4006 通知客户端刷新token消息没有得到确认，系统主动关闭连接
-        int closeCode = _webSocketChannel?.closeCode ?? 0;
-        closeSocket(false);
 
-        if (closeCode == 4006) {
-          closeSocket(true);
-          await StorageService.to.remove(Keys.tokenKey);
-          Get.offAll(() => PassportPage());
-        } else {
-          if (closeCode > 1001) {
-            Future.delayed(const Duration(milliseconds: 1000), () {
-              debugPrint(
-                  '> ws _webSocketOnDone _reconnectTimes: $_reconnectTimes');
-              _reconnect();
-            });
-          }
+    if (_webSocketChannel != null && _webSocketChannel!.closeCode != null) {
+      debugPrint(
+          '> ws _webSocketOnDone closeCode: ${_webSocketChannel!.closeCode}');
+      debugPrint(
+          '> ws _webSocketOnDone closeReason: ${_webSocketChannel!.closeReason.toString()}');
+      // 1000 CLOSE_NORMAL 正常关闭；无论为何目的而创建，该链接都已成功完成任务
+      // 1001 CLOSE_GOING_AWAY	终端离开，可能因为服务端错误，也可能因为浏览器正从打开连接的页面跳转离开
+      // 1002	CLOSE_PROTOCOL_ERROR	由于协议错误而中断连接。
+      // 1003	CLOSE_UNSUPPORTED	由于接收到不允许的数据类型而断开连接 (如仅接收文本数据的终端接收到了二进制数据).
+      // 1005	CLOSE_NO_STATUS	保留。 表示没有收到预期的状态码。
+      // 1007	Unsupported Data	由于收到了格式不符的数据而断开连接 (如文本消息中包含了非 UTF-8 数据).
+      // 1009	CLOSE_TOO_LARGE	由于收到过大的数据帧而断开连接。
+      // 4000–4999		可以由应用使用。
+      // 4006 通知客户端刷新token消息没有得到确认，系统主动关闭连接
+      int closeCode = _webSocketChannel?.closeCode ?? 0;
+      closeSocket(false);
+
+      if (closeCode == 4006) {
+        closeSocket(true);
+        await StorageService.to.remove(Keys.tokenKey);
+        Get.offAll(() => PassportPage());
+      } else {
+        if (closeCode > 1001) {
+          Future.delayed(const Duration(milliseconds: 1000), () {
+            debugPrint(
+                '> ws _webSocketOnDone _reconnectTimes: $_reconnectTimes');
+            _reconnect();
+          });
         }
       }
     }

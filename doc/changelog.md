@@ -1,6 +1,7 @@
 # 0.1.23
 * 适配 Flutter 3.16；
-* useMaterial3: true，调整响应代码；
+* useMaterial3: true，调整相应代码；
+* 收藏详情UI优化等；
 * 升级一些依赖
 
 # 0.1.22

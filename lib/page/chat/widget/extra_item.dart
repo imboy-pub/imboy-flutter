@@ -153,7 +153,7 @@ class _ExtraItemsState extends State<ExtraItems> {
                     }),
                   ),
                 ).then((value) {
-                  debugPrint("getLocation MapLocationPicker_reslut $value");
+                  // debugPrint("getLocation MapLocationPicker_reslut $value");
                   if (value != null) {
                     if (value["image"] == null) {
                       EasyLoading.showError("获取地图失败,请重试".tr);

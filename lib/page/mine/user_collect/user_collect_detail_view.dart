@@ -271,8 +271,8 @@ class UserCollectDetailPage extends StatelessWidget {
           ])
             // 内容居中
             ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
-          Obx(() => Opacity(
-              opacity: remark.value.isNotEmpty ? 1.0 : 0.0,
+          Obx(() => Visibility(
+              visible: remark.value.isNotEmpty,
               child: n.Column([
                 n.Row([
                   Text(
