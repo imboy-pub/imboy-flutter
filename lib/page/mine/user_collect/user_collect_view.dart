@@ -320,71 +320,65 @@ class UserCollectPage extends StatelessWidget {
                                                 SizedBox(
                                                   width: Get.width,
                                                   height: 106,
-                                                  child: n.Wrap(
-                                                    [
-                                                      Center(
-                                                        child: TextButton(
-                                                          onPressed: () async {
-                                                            bool res =
-                                                                await logic
-                                                                    .remove(
-                                                                        obj);
-                                                            debugPrint(
-                                                                "user_collect_remove $res; i $index");
-                                                            if (res) {
-                                                              state.items
-                                                                  .removeAt(
-                                                                      index);
-                                                              Get.close(1);
-                                                              EasyLoading
-                                                                  .showSuccess(
-                                                                      '操作成功'
-                                                                          .tr);
-                                                            } else {
-                                                              EasyLoading
-                                                                  .showError(
-                                                                      '操作失败'
-                                                                          .tr);
-                                                            }
-                                                          },
-                                                          child: Text(
-                                                            '删除无法找回，确认删除？'.tr,
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                            style:
-                                                                const TextStyle(
-                                                              color: Colors.red,
-                                                              fontSize: 16.0,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .normal,
-                                                            ),
+                                                  child: n.Wrap([
+                                                    Center(
+                                                      child: TextButton(
+                                                        onPressed: () async {
+                                                          bool res = await logic
+                                                              .remove(obj);
+                                                          debugPrint(
+                                                              "user_collect_remove $res; i $index");
+                                                          if (res) {
+                                                            state.items
+                                                                .removeAt(
+                                                                    index);
+                                                            Get.close(1);
+                                                            EasyLoading
+                                                                .showSuccess(
+                                                                    '操作成功'.tr);
+                                                          } else {
+                                                            EasyLoading
+                                                                .showError(
+                                                                    '操作失败'.tr);
+                                                          }
+                                                        },
+                                                        child: Text(
+                                                          '删除无法找回，确认删除？'.tr,
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.red,
+                                                            fontSize: 16.0,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal,
                                                           ),
                                                         ),
                                                       ),
-                                                      const HorizontalLine(
-                                                          height: 6),
-                                                      Center(
-                                                        child: TextButton(
-                                                          onPressed: () =>
-                                                              Get.back(),
-                                                          child: Text(
-                                                            'button_cancel'.tr,
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                            style:
-                                                                const TextStyle(
-                                                              // color: Colors.white,
-                                                              fontSize: 16.0,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .normal,
-                                                            ),
+                                                    ),
+                                                    const HorizontalLine(
+                                                        height: 6),
+                                                    Center(
+                                                      child: TextButton(
+                                                        onPressed: () =>
+                                                            Get.back(),
+                                                        child: Text(
+                                                          'button_cancel'.tr,
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style:
+                                                              const TextStyle(
+                                                            // color: Colors.white,
+                                                            fontSize: 16.0,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal,
                                                           ),
                                                         ),
-                                                      )
-                                                    ],
-                                                  ),
+                                                      ),
+                                                    )
+                                                  ]),
                                                 ),
                                                 backgroundColor: Colors.white,
                                                 //改变shape这里即可

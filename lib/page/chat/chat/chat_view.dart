@@ -370,7 +370,7 @@ class ChatPageState extends State<ChatPage> {
         }
       }, (Error error) {
         debugPrint("> on upload error ${error.toString()}");
-      });
+      }, uploadOriginalImage: true);
       if (mounted) {
         setState(() {});
       }
@@ -572,7 +572,7 @@ class ChatPageState extends State<ChatPage> {
         );
       }, (Error error) {
         debugPrint("> on upload ${error.toString()}");
-      });
+      }, uploadOriginalImage: true);
     }
   }
 

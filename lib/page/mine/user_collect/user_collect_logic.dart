@@ -113,25 +113,23 @@ class UserCollectLogic extends GetxController {
     //     obj.info['payload']['msg_type'] ?? '';
     // Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息
     if (obj.kind == 1) {
-      body = n.Row(
-        [
-          Expanded(
-              child: Text(
-            obj.info['text'] ?? (obj.info['payload']['text'] ?? ''),
-            style: const TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.normal,
-            ),
-            maxLines: scene == 'page' ? 4 : 160,
-            overflow: TextOverflow.ellipsis,
-          ))
-        ],
+      body = n.Row([
+        Expanded(
+            child: Text(
+          obj.info['text'] ?? (obj.info['payload']['text'] ?? ''),
+          style: const TextStyle(
+            fontSize: 16.0,
+            fontWeight: FontWeight.normal,
+          ),
+          maxLines: scene == 'page' ? 4 : 160,
+          overflow: TextOverflow.ellipsis,
+        ))
+      ])
         // 内容文本左对齐
-        crossAxisAlignment: CrossAxisAlignment.start,
-      );
+        ..crossAxisAlignment = CrossAxisAlignment.start;
     } else if (obj.kind == 2) {
       String uri = obj.info['payload']['uri'] ?? '';
-      body = n.Row([
+      body = n.Column([
         scene == 'page'
             ? Image(
                 width: Get.width * 0.5,
@@ -155,8 +153,33 @@ class UserCollectLogic extends GetxController {
                     w: Get.width,
                   ),
                 ),
-              )
-      ]);
+              ),
+        n.Padding(
+          top: 10,
+          child: n.Row([
+            Text(
+              formatBytes(obj.info['payload']['size'] ?? ''),
+              style: const TextStyle(
+                color: AppColors.MainTextColor,
+                fontSize: 14.0,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              " ${obj.info['payload']['width']}X${obj.info['payload']['height']}",
+              style: const TextStyle(
+                color: AppColors.MainTextColor,
+                fontSize: 14.0,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            )
+          ]),
+        )
+      ])
+        // 内容文本左对齐
+        ..crossAxisAlignment = CrossAxisAlignment.start;
     } else if (obj.kind == 3) {
       int durationMS = obj.info['payload']['duration_ms'] ?? 0;
       // row > expand > column > text 换行有效
@@ -208,7 +231,7 @@ class UserCollectLogic extends GetxController {
     } else if (obj.kind == 4) {
       String uri = obj.info['payload']['thumb']['uri'] ?? '';
       // debugPrint("item_4_uri $uri");
-      body = n.Row([
+      body = n.Column([
         Stack(
           alignment: Alignment.centerRight,
           children: <Widget>[
@@ -251,8 +274,33 @@ class UserCollectLogic extends GetxController {
               ),
             ),
           ],
+        ),
+        n.Padding(
+          top: 10,
+          child: n.Row([
+            Text(
+              formatBytes(obj.info['payload']['video']['size'] ?? 0),
+              style: const TextStyle(
+                color: AppColors.MainTextColor,
+                fontSize: 14.0,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              " ${obj.info['payload']['video']['width']}X${obj.info['payload']['video']['height']}",
+              style: const TextStyle(
+                color: AppColors.MainTextColor,
+                fontSize: 14.0,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            )
+          ]),
         )
-      ]);
+      ])
+        // 内容文本左对齐
+        ..crossAxisAlignment = CrossAxisAlignment.start;
     } else if (obj.kind == 5) {
       // String uri = obj.info['payload']['uri'] ?? '';
       String mimeType =

@@ -43,8 +43,8 @@ class WebSocketService {
   SocketStatus? _socketStatus; // socket状态
   // Timer? _heartBeat; // 心跳定时器 使用 IOWebSocketChannel 的心跳机制
   // _heartTimes 必须比 服务端 idle_timeout 小一些
-  final int _heartTimes = 20000; // 心跳间隔(毫秒)
-  final int _reconnectCount = 10; // 重连次数，默认10次
+  final int _heartTimes = 100000; // 心跳间隔(毫秒)
+  final int _reconnectMax = 10; // 重连次数，默认10次
   int _reconnectTimes = 0; // 重连计数器
   Timer? _reconnectTimer; // 重连定时器
 
@@ -97,6 +97,9 @@ class WebSocketService {
     required Function onMessage,
     required Function onError,
   }) {
+    _reconnectTimes = 0;
+    _reconnectTimer?.cancel();
+    _reconnectTimer = null;
     this.onOpen = onOpen;
     this.onMessage = onMessage;
     this.onError = onError;
@@ -104,7 +107,7 @@ class WebSocketService {
   }
 
   /// 开启WebSocket连接
-  Future<void> openSocket() async {
+  Future<void> openSocket({bool fromReconnect = false}) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       debugPrint('> ws openSocket 网络连接异常ws');
@@ -139,9 +142,11 @@ class WebSocketService {
       _socketStatus = SocketStatus.SocketStatusConnected;
 
       // 连接成功，重置重连计数器
-      _reconnectTimes = 0;
       _reconnectTimer?.cancel();
       _reconnectTimer = null;
+      if (fromReconnect == false) {
+        _reconnectTimes = 0;
+      }
 
       debugPrint('> ws openSocket onOpen');
       // onOpen onMessage onError onClose
@@ -161,7 +166,6 @@ class WebSocketService {
     } catch (exception) {
       closeSocket(false);
       _socketStatus = SocketStatus.SocketStatusFailed;
-      _reconnectTimes += 1;
       debugPrint("> openSocket $WS_URL error ${exception.toString()}");
     }
   }
@@ -195,18 +199,17 @@ class WebSocketService {
       int closeCode = _webSocketChannel?.closeCode ?? 0;
       closeSocket(false);
 
-      if (closeCode == 4006) {
-        closeSocket(true);
-        await StorageService.to.remove(Keys.tokenKey);
-        Get.offAll(() => PassportPage());
-      } else {
-        if (closeCode > 1001) {
+      switch (closeCode) {
+        case 4006:
+          await StorageService.to.remove(Keys.tokenKey);
+          Get.offAll(() => PassportPage());
+          break;
+        default:
           Future.delayed(const Duration(milliseconds: 1000), () {
             debugPrint(
                 '> ws _webSocketOnDone _reconnectTimes: $_reconnectTimes');
             _reconnect();
           });
-        }
       }
     }
   }
@@ -264,19 +267,17 @@ class WebSocketService {
 
   /// 重连机制
   void _reconnect() {
+    debugPrint(
+        '> ws _reconnect _reconnectTimes $_reconnectTimes < $_reconnectMax ${DateTime.now()}');
     closeSocket(false);
-    if (_reconnectTimes == 0) {
-      _reconnectTimes += 1;
-
-      openSocket();
-    } else if (_reconnectTimes < _reconnectCount) {
+    if (_reconnectTimes < _reconnectMax) {
+      openSocket(fromReconnect: true);
       _reconnectTimes += 1;
       _reconnectTimer?.cancel();
       _reconnectTimer = Timer.periodic(
         Duration(milliseconds: _heartTimes),
         (timer) {
-          debugPrint('> ws _reconnect _reconnectTimes $_reconnectTimes');
-          openSocket();
+          openSocket(fromReconnect: true);
         },
       );
     } else {
