@@ -1,4 +1,6 @@
 # 0.1.23
+* 修复文本消息过长导致的“RenderFlex overflowed”错误
+* TextButton 取消圆角边框，设置 foregroundColor: AppColors.ItemOnColor
 * 不压缩聊天消息中上传的图片；
 * 收藏里面显示图片Size等信息；
 * WebSocket 心跳间隔时间到到100S;
@@ -10,8 +12,6 @@
 # 0.1.22
 * 新增设置收藏备注功能；
 * 优化个人信息里面->修改昵称、更多信息->性别、更多信息->地区、更多信息->个性签名 操作用户体验；
-* 修复文本消息过长导致的“RenderFlex overflowed”错误
-* TextButton 取消圆角边框，设置 foregroundColor: AppColors.ItemOnColor
 * 升级一些依赖
 
 # 0.1.21
