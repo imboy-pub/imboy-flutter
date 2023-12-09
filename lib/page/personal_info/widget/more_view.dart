@@ -40,24 +40,24 @@ class MoreView extends StatelessWidget {
           onPressed: () {
             Get.to(
               () => UpdatePage(
-                title: '设置性别'.tr,
-                value: UserRepoLocal.to.current.gender.toString(),
-                field: 'gender',
-                callback: (gender) async {
-                  bool ok = await logic.changeInfo({
-                    "field": "gender",
-                    "value": gender,
-                  });
-                  if (ok) {
-                    Map<String, dynamic> payload =
-                        UserRepoLocal.to.current.toMap();
-                    payload["gender"] = int.parse(gender);
-                    UserRepoLocal.to.changeInfo(payload);
-                    logic.genderTitle.value =
-                        UserRepoLocal.to.current.genderTitle;
-                  }
-                  return ok;
-                }),
+                  title: '设置性别'.tr,
+                  value: UserRepoLocal.to.current.gender.toString(),
+                  field: 'gender',
+                  callback: (gender) async {
+                    bool ok = await logic.changeInfo({
+                      "field": "gender",
+                      "value": gender,
+                    });
+                    if (ok) {
+                      Map<String, dynamic> payload =
+                          UserRepoLocal.to.current.toMap();
+                      payload["gender"] = int.parse(gender);
+                      UserRepoLocal.to.changeInfo(payload);
+                      logic.genderTitle.value =
+                          UserRepoLocal.to.current.genderTitle;
+                    }
+                    return ok;
+                  }),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
             )?.then((value) {
@@ -75,21 +75,21 @@ class MoreView extends StatelessWidget {
           onPressed: () {
             Get.to(
               () => UpdatePage(
-                title: '设置地区'.tr,
-                value: logic.region.value,
-                field: 'region',
-                callback: (region) async {
-                  bool ok = await logic
-                      .changeInfo({"field": "region", "value": region});
-                  if (ok) {
-                    Map<String, dynamic> payload =
-                        UserRepoLocal.to.current.toMap();
-                    payload["region"] = region;
-                    UserRepoLocal.to.changeInfo(payload);
-                    logic.region.value = region;
-                  }
-                  return ok;
-                }),
+                  title: '设置地区'.tr,
+                  value: logic.region.value,
+                  field: 'region',
+                  callback: (region) async {
+                    bool ok = await logic
+                        .changeInfo({"field": "region", "value": region});
+                    if (ok) {
+                      Map<String, dynamic> payload =
+                          UserRepoLocal.to.current.toMap();
+                      payload["region"] = region;
+                      UserRepoLocal.to.changeInfo(payload);
+                      logic.region.value = region;
+                    }
+                    return ok;
+                  }),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
             )?.then((value) {
@@ -103,7 +103,11 @@ class MoreView extends StatelessWidget {
           style: TextButton.styleFrom(
             minimumSize: Size.zero,
             padding: EdgeInsets.zero,
+            foregroundColor: AppColors.ItemOnColor,
             backgroundColor: Colors.white,
+            //取消圆角边框
+            shape:
+                const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
           ),
           child: Container(
             padding: const EdgeInsets.only(top: 15.0, bottom: 15.0, right: 5.0),

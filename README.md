@@ -69,11 +69,11 @@ get generate locales assets/locales on lib/component/locales
 * 新增 ./lib/page/single/ 目录，所有的 "类单页面" 都放到该目录
 * 避免 master/slave 等术语
 
-Old | New | 说明
----|---|---
-master | main | 主要的
-slave | subordinate | 从属的
-blacklist | denylist | 拒绝名单
+| Old       | New         | 说明   |
+|-----------|-------------|------|
+| master    | main        | 主要的  |
+| slave     | subordinate | 从属的  |
+| blacklist | denylist    | 拒绝名单 |
 
 ```
 .env

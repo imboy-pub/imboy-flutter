@@ -43,6 +43,7 @@ class LabelRow extends StatelessWidget {
         style: TextButton.styleFrom(
           minimumSize: Size.zero,
           padding: EdgeInsets.zero,
+          foregroundColor: AppColors.ItemOnColor,
           backgroundColor: Colors.white,
           //取消圆角边框
           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),

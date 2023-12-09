@@ -33,6 +33,7 @@ import 'package:imboy/service/message.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 // ignore: prefer_generic_function_type_aliases
 typedef Callback(data);
@@ -68,6 +69,7 @@ String appVsn = '';
 String appVsnXY = '';
 String deviceId = '';
 Future<void> init() async {
+  WakelockPlus.enable();
   // 解决使用自签证书报错问题
   io.HttpOverrides.global = GlobalHttpOverrides();
   // Get.put(DeviceExt()); 需要放到靠前

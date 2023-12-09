@@ -853,13 +853,16 @@ class ChatPageState extends State<ChatPage> {
               required bool showName,
             }) {
               return IgnorePointer(
-                child: TextMessage(
-                  emojiEnlargementBehavior: EmojiEnlargementBehavior.multi,
-                  hideBackgroundOnEmojiMessages: true,
-                  message: message,
-                  showName: showName,
-                  usePreviewData: true,
-                ),
+                child: n.Row([
+                  Expanded(
+                      child: TextMessage(
+                    emojiEnlargementBehavior: EmojiEnlargementBehavior.multi,
+                    hideBackgroundOnEmojiMessages: true,
+                    message: message,
+                    showName: showName,
+                    usePreviewData: true,
+                  ))
+                ]),
               );
             },
             imageMessageBuilder: (types.ImageMessage message,

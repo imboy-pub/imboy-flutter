@@ -40,6 +40,8 @@ class QuoteTipsWidget extends StatelessWidget {
       body = Text(
         (message as types.TextMessage).text,
         style: const TextStyle(color: AppColors.thirdElementText),
+        maxLines: 8,
+        overflow: TextOverflow.ellipsis,
       );
     } else if (message is types.ImageMessage) {
       body = ImageView(
