@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'contact_setting_tag_logic.dart';
 
@@ -122,6 +121,7 @@ class ContactSettingTagPage extends StatelessWidget {
             labelText: '备注'.tr,
             autofocus: true,
             showCursor: true,
+            style: n.TextStyle(color: AppColors.ItemOnColor),
             focusNode: logic.remarkFocusNode,
             controller: logic.remarkTextController,
             keyboardType: TextInputType.text,
@@ -151,6 +151,7 @@ class ContactSettingTagPage extends StatelessWidget {
                 labelText: '标签'.tr,
                 controller: TextEditingController()
                   ..text = peerTag.isEmpty ? '添加标签'.tr : peerTag.value,
+                style: n.TextStyle(color: AppColors.ItemOnColor),
                 readOnly: true,
                 minLines: 1,
                 maxLines: 8,

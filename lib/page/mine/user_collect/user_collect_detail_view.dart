@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:imboy/page/personal_info/update/update_view.dart';
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/send_to/send_to_view.dart';
+import 'package:imboy/page/personal_info/update/update_view.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
+import 'package:niku/namespace.dart' as n;
 import 'package:xid/xid.dart';
 
 import 'user_collect_logic.dart';
@@ -39,7 +39,7 @@ class UserCollectDetailPage extends StatelessWidget {
             '转发给朋友'.tr,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              // color: Colors.white,
+              color: AppColors.ItemOnColor,
               fontSize: 16.0,
               fontWeight: FontWeight.normal,
             ),
@@ -91,7 +91,7 @@ class UserCollectDetailPage extends StatelessWidget {
             '编辑标签'.tr,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              // color: Colors.white,
+              color: AppColors.ItemOnColor,
               fontSize: 16.0,
               fontWeight: FontWeight.normal,
             ),
@@ -133,7 +133,7 @@ class UserCollectDetailPage extends StatelessWidget {
             '设置备注'.tr,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              // color: Colors.white,
+              color: AppColors.ItemOnColor,
               fontSize: 16.0,
               fontWeight: FontWeight.normal,
             ),
@@ -169,7 +169,7 @@ class UserCollectDetailPage extends StatelessWidget {
             'button_cancel'.tr,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              // color: Colors.white,
+              color: AppColors.ItemOnColor,
               fontSize: 16.0,
               fontWeight: FontWeight.normal,
             ),
@@ -185,7 +185,7 @@ class UserCollectDetailPage extends StatelessWidget {
               '复制文本'.tr,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                // color: Colors.white,
+                color: AppColors.ItemOnColor,
                 fontSize: 16.0,
                 fontWeight: FontWeight.normal,
               ),

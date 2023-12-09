@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:imboy/store/model/contact_model.dart';
@@ -75,7 +74,7 @@ class MessageModel {
       p = data['payload'];
     }
 
-    return  MessageModel(
+    return MessageModel(
       data[MessageRepo.id],
       type: data[MessageRepo.type],
       status: int.parse('${data[MessageRepo.status] ?? 0}'),

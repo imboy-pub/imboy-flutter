@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:typed_data';
+
 import 'package:amap_flutter_base/amap_flutter_base.dart';
 import 'package:amap_flutter_map/amap_flutter_map.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:imboy/config/const.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import 'amap_helper.dart';
 

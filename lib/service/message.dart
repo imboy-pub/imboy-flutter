@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
-import 'package:xid/xid.dart';
-
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/init.dart';
@@ -24,7 +24,7 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/component/helper/func.dart';
+import 'package:xid/xid.dart';
 
 class MessageService extends GetxService {
   static MessageService get to => Get.find();
@@ -32,6 +32,7 @@ class MessageService extends GetxService {
   final NewFriendLogic newFriendLogic = Get.find();
   final ConversationLogic conversationLogic = Get.find();
   List<String> webrtcMsgIdLi = [];
+
   @override
   void onInit() {
     super.onInit();

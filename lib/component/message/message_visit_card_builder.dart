@@ -1,13 +1,12 @@
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
-import 'package:niku/namespace.dart' as n;
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
-
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/single/people_info.dart';
+import 'package:niku/namespace.dart' as n;
 
 class VisitCardMessageBuilder extends StatelessWidget {
   const VisitCardMessageBuilder({
@@ -28,7 +27,7 @@ class VisitCardMessageBuilder extends StatelessWidget {
       //     ? AppColors.ChatSendMessageBgColor
       //     : AppColors.ChatReceivedMessageBodyBgColor,
       color: AppColors.ChatReceivedMessageBodyBgColor,
-      nip:  userIsAuthor ? BubbleNip.rightBottom : BubbleNip.leftBottom,
+      nip: userIsAuthor ? BubbleNip.rightBottom : BubbleNip.leftBottom,
       // style: const BubbleStyle(nipWidth: 16),
       nipRadius: 4,
       alignment: userIsAuthor ? Alignment.centerRight : Alignment.centerLeft,
@@ -41,8 +40,8 @@ class VisitCardMessageBuilder extends StatelessWidget {
               flex: 3,
               child: InkWell(
                 onTap: () {
-                  Get.to(()=>
-                    PeopleInfoPage(
+                  Get.to(
+                    () => PeopleInfoPage(
                         id: message.metadata?['uid'], scene: 'visit_card'),
                     transition: Transition.rightToLeft,
                     popGesture: true, // 右滑，返回上一页

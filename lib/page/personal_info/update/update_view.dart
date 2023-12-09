@@ -19,6 +19,7 @@ class UpdatePage extends StatelessWidget {
   String value;
   final String field;
   final int maxLength;
+
   // final EdgeInsetsGeometry? padding;
 
   UpdatePage({

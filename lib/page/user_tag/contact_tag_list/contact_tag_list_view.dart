@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
@@ -12,6 +10,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/page/user_tag/contact_tag_detail/contact_tag_detail_view.dart';
 import 'package:imboy/page/user_tag/user_tag_save/user_tag_save_view.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'contact_tag_list_logic.dart';
 

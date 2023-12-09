@@ -1,5 +1,4 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
-
 // ignore: implementation_imports, unnecessary_import
 import 'package:emoji_picker_flutter/src/category_emoji.dart'
     show CategoryEmoji;

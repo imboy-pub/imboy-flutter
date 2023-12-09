@@ -1,7 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/provider/user_provider.dart';

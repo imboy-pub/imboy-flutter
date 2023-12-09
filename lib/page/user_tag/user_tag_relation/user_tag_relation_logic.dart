@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:get/get.dart';
 
+import 'package:get/get.dart';
 import 'package:imboy/store/provider/user_tag_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_collect_repo_sqlite.dart';

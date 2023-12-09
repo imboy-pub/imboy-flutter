@@ -2,11 +2,13 @@ import 'dart:convert';
 
 class UserCollectModel {
   String userId;
+
   // Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息  7 个人名片
   int kind;
   String kindId;
   String source;
   String remark;
+
   // 朋友标签，半角逗号分割，单个表情不超过14字符
   String tag;
 

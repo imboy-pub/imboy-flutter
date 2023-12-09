@@ -1,38 +1,38 @@
 import 'dart:async';
 import 'dart:io' as io;
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fvp/fvp.dart';
 import 'package:get/get.dart' as getx;
-import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/page/chat/chat/chat_logic.dart';
-import 'package:logger/logger.dart';
-import 'package:map_launcher/map_launcher.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-
-import 'package:imboy/component/helper/jwt.dart';
-import 'package:imboy/page/contact/contact/contact_logic.dart';
-import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/component/controller.dart';
-import 'package:imboy/component/location/amap_helper.dart';
-import 'package:imboy/component/webrtc/session.dart';
-import 'package:imboy/page/contact/new_friend/new_friend_logic.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_config.dart';
 import 'package:imboy/component/http/http_interceptor.dart';
+import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/observer/lifecycle.dart';
 import 'package:imboy/component/webrtc/func.dart';
+import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
+import 'package:imboy/page/chat/chat/chat_logic.dart';
+import 'package:imboy/page/contact/contact/contact_logic.dart';
+import 'package:imboy/page/contact/new_friend/new_friend_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
+import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:logger/logger.dart';
+import 'package:map_launcher/map_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 // ignore: prefer_generic_function_type_aliases
@@ -68,6 +68,7 @@ List<AvailableMap> availableMaps = [];
 String appVsn = '';
 String appVsnXY = '';
 String deviceId = '';
+
 Future<void> init() async {
   WakelockPlus.enable();
   // 解决使用自签证书报错问题

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class Space extends StatelessWidget {
@@ -16,4 +15,3 @@ class Space extends StatelessWidget {
     return SizedBox(width: width, height: height);
   }
 }
-

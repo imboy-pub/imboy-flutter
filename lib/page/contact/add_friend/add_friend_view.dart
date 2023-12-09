@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_view.dart';
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 // import 'package:imboy/component/ui/search_bar.dart';
 import 'package:imboy/page/contact/people_nearby/people_nearby_view.dart';
+import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_view.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/page/uqrcode/uqrcode_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:niku/namespace.dart' as n;
 
-import 'add_friend_logic.dart';
 import '../new_friend/new_friend_logic.dart';
+import 'add_friend_logic.dart';
 
 // ignore: must_be_immutable
 class AddFriendPage extends StatelessWidget {

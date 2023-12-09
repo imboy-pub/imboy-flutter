@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart' as getx;
 import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/single/network_failure_guidance.dart';
-import 'package:get/get.dart' as getx;
 import 'package:niku/namespace.dart' as n;
 
 // ignore: must_be_immutable
@@ -21,8 +21,8 @@ class NetworkFailureTips extends StatelessWidget {
         // splashColor 是点击后不松手的扩散效果
         splashColor: const Color.fromRGBO(247, 226, 230, 1),
         onPressed: () {
-          getx.Get.to(()=>
-            const NetworkFailureGuidancePage(),
+          getx.Get.to(
+            () => const NetworkFailureGuidancePage(),
             transition: Transition.rightToLeft,
             popGesture: true, // 右滑，返回上一页
           );

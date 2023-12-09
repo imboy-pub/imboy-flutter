@@ -48,7 +48,6 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
-
   const PageAppBar({
     super.key,
     this.leading,

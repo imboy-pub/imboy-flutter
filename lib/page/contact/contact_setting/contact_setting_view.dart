@@ -1,13 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:xid/xid.dart';
-
-import 'package:imboy/page/mine/denylist/denylist_logic.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common.dart';
@@ -17,12 +13,15 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/chat/widget/select_friend.dart';
+import 'package:imboy/page/mine/denylist/denylist_logic.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/denylist_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:niku/namespace.dart' as n;
+import 'package:xid/xid.dart';
 
-import 'contact_setting_logic.dart';
 import '../contact_setting_tag/contact_setting_tag_view.dart';
+import 'contact_setting_logic.dart';
 
 // ignore: must_be_immutable
 class ContactSettingPage extends StatelessWidget {
@@ -293,7 +292,7 @@ class ContactSettingPage extends StatelessWidget {
                               'button_cancel'.tr,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
-                                // color: Colors.white,
+                                color: AppColors.ItemOnColor,
                                 fontSize: 16.0,
                                 fontWeight: FontWeight.normal,
                               ),

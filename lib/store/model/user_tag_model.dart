@@ -1,4 +1,3 @@
-
 class UserTagModel {
   String userId;
   int tagId;

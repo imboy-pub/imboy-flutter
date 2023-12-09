@@ -4,12 +4,11 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:niku/namespace.dart' as n;
-
-import 'package:imboy/config/const.dart';
-import 'package:imboy/component/ui/common_bar.dart';
 
 import 'people_nearby_logic.dart';
 
@@ -145,7 +144,8 @@ class PeopleNearbyPage extends StatelessWidget {
                                 Obx(() => Text(
                                       state.peopleNearbyVisible.isFalse
                                           ? '让自己可见'.tr
-                                          : '让自己不可见'.tr, // Stop Showing Me
+                                          : '让自己不可见'.tr,
+                                      // Stop Showing Me
                                       style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
@@ -183,8 +183,8 @@ class PeopleNearbyPage extends StatelessWidget {
                                   subtitle: Text(
                                       '${model.distance.toStringAsFixed(3)} ${model.distanceUnit}'),
                                   onTap: () {
-                                    Get.to(()=>
-                                      PeopleInfoPage(
+                                    Get.to(
+                                      () => PeopleInfoPage(
                                         id: model.id,
                                         scene: 'people_nearby',
                                       ),

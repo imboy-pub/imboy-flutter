@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/contact/add_friend/add_friend_view.dart';
 import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_view.dart';
-import 'package:niku/namespace.dart' as n;
-import 'package:popover/popover.dart';
-
 import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/page/uqrcode/uqrcode_view.dart';
-import 'package:imboy/page/contact/add_friend/add_friend_view.dart';
+import 'package:niku/namespace.dart' as n;
+import 'package:popover/popover.dart';
 
 class RightButton extends StatelessWidget {
   const RightButton({super.key});
@@ -53,6 +52,7 @@ class ItemTitleStyle {
 
 class RightButtonList extends StatelessWidget {
   const RightButtonList({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(

@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/button.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/ui/line.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/user_device_model.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:niku/namespace.dart' as n;
-
-import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
 
 import 'change_name_view.dart';
 import 'user_device_logic.dart';
@@ -149,14 +148,22 @@ class UserDeviceDetailPage extends StatelessWidget {
                   final alert = n.Alert()
                     ..content = SizedBox(
                       height: 40,
-                      child: Center(child: Text(tips)),
+                      child: Center(
+                          child: Text(
+                        tips,
+                        style: const TextStyle(color: Colors.red),
+                      )),
                     )
                     ..actions = [
                       n.Button('取消'.tr.n)
+                        ..style = n.NikuButtonStyle(
+                            foregroundColor: AppColors.ItemOnColor)
                         ..onPressed = () {
                           Get.close(1);
                         },
                       n.Button('删除'.tr.n)
+                        ..style = n.NikuButtonStyle(
+                            foregroundColor: AppColors.ItemOnColor)
                         ..onPressed = () async {
                           bool res = await logic.deleteDevice(
                             model.deviceId,

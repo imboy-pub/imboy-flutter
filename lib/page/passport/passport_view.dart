@@ -2,14 +2,14 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:get/get.dart';
-import 'package:jiffy/jiffy.dart';
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:jiffy/jiffy.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'passport_logic.dart';
 
@@ -74,6 +74,8 @@ class PassportPage extends StatelessWidget {
           )
           ..actions = [
             n.Button('确定'.tr.n)
+              ..style =
+                  n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
               ..onPressed = () {
                 Get.back();
               },

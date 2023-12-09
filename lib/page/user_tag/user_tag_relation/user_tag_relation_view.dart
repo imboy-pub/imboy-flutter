@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:filter_list/filter_list.dart';
 // ignore: implementation_imports
 import 'package:filter_list/src/state/filter_state.dart';
@@ -6,13 +7,12 @@ import 'package:filter_list/src/state/filter_state.dart';
 import 'package:filter_list/src/state/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-// ignore: implementation_imports
-import 'package:textfield_tags/textfield_tags.dart';
-
 import 'package:imboy/component/helper/list.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/tag.dart';
 import 'package:imboy/config/const.dart';
+// ignore: implementation_imports
+import 'package:textfield_tags/textfield_tags.dart';
 
 import 'user_tag_relation_logic.dart';
 

@@ -5,10 +5,9 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:niku/namespace.dart' as n;
-
-import 'package:imboy/component/web_view.dart';
 
 import 'scanner_logic.dart';
 

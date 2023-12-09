@@ -2,17 +2,16 @@ import 'package:azlistview/azlistview.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:niku/namespace.dart' as n;
-import 'package:lpinyin/lpinyin.dart';
 import 'package:get/get.dart';
-
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/page/contact/contact/contact_logic.dart';
-import 'package:imboy/service/assets.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/contact/contact/contact_logic.dart';
+import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:lpinyin/lpinyin.dart';
+import 'package:niku/namespace.dart' as n;
 
 // ignore: must_be_immutable
 class SelectFriendPage extends StatefulWidget {

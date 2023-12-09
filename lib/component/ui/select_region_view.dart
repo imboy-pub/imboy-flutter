@@ -89,8 +89,8 @@ class SelectRegionLogic extends GetxController {
           onTap: () {
             selectedVal.value = strEmpty(parent) ? title : "$parent $title";
             if (isRight) {
-              Get.to(()=>
-                SelectRegionPage(
+              Get.to(
+                () => SelectRegionPage(
                   parent: selectedVal.value,
                   children: children,
                   callback: callback,

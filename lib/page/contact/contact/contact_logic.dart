@@ -2,22 +2,21 @@ import 'package:azlistview/azlistview.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/page/chat/chat/chat_view.dart';
-import 'package:imboy/page/single/people_info.dart';
-import 'package:lpinyin/lpinyin.dart';
-import 'package:niku/namespace.dart' as n;
-
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/contact/new_friend/new_friend_view.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
-import 'package:imboy/page/group/group_list/group_list_view.dart';
+import 'package:imboy/page/chat/chat/chat_view.dart';
+import 'package:imboy/page/contact/new_friend/new_friend_view.dart';
 import 'package:imboy/page/contact/people_nearby/people_nearby_view.dart';
+import 'package:imboy/page/group/group_list/group_list_view.dart';
+import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:lpinyin/lpinyin.dart';
+import 'package:niku/namespace.dart' as n;
 
 class ContactLogic extends GetxController {
   RxList<ContactModel> contactList = RxList<ContactModel>();

@@ -2,14 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/search/search_view.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'chat_setting_logic.dart';
 import 'chat_setting_state.dart';
@@ -98,14 +97,22 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
             // ..title = Text("Session Expired")
             ..content = SizedBox(
               height: 40,
-              child: Center(child: Text(tips)),
+              child: Center(
+                  child: Text(
+                tips,
+                style: const TextStyle(color: Colors.red),
+              )),
             )
             ..actions = [
               n.Button('取消'.tr.n)
+                ..style =
+                    n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
                 ..onPressed = () {
                   Get.close(1);
                 },
               n.Button('确定'.tr.n)
+                ..style =
+                    n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
                 ..onPressed = () async {
                   bool res = await logic.cleanMessageByPeerId(widget.peerId);
                   Get.back();

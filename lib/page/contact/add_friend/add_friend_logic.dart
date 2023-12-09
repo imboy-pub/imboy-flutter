@@ -1,5 +1,3 @@
 import 'package:get/get.dart';
 
-
-class AddFriendLogic extends GetxController {
-}
+class AddFriendLogic extends GetxController {}

@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 class ContactTagListState {
-
   RxList items = [].obs;
 
   int page = 1;

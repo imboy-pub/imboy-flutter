@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
-
 import 'package:niku/namespace.dart' as n;
 
 class NetworkFailureGuidancePage extends StatelessWidget {

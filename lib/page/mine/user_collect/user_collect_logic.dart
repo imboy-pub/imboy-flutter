@@ -1,15 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show formatBytes;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_logic.dart';
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
@@ -18,6 +14,7 @@ import 'package:imboy/component/message/message_location_builder.dart';
 import 'package:imboy/component/message/message_visit_card_builder.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/single/video_viewer.dart';
+import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_logic.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
@@ -26,6 +23,7 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_collect_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'user_collect_state.dart';
 

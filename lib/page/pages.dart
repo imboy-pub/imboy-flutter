@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/middleware/router_auth.dart';
 import 'package:imboy/page/passport/passport_view.dart';

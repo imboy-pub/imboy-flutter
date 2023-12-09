@@ -4,9 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
-import 'package:lpinyin/lpinyin.dart';
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
@@ -20,6 +17,8 @@ import 'package:imboy/page/user_tag/user_tag_save/user_tag_save_view.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
+import 'package:lpinyin/lpinyin.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'contact_tag_detail_logic.dart';
 

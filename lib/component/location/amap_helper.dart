@@ -203,6 +203,7 @@ class AMapPosition {
   String name = "";
   LatLng latLng;
   String address = "";
+
   // String pcode = "";
 
   // Android：定位类型为GPS时有可能返回空

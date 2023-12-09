@@ -196,6 +196,7 @@ class ConversationLogic extends GetxController {
       setConversationRemind(peerId, count);
     }
   }
+
   /**
    * 是否当前会话的最后一条消息
    */

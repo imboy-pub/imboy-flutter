@@ -2,8 +2,6 @@ import 'package:azlistview/azlistview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:lpinyin/lpinyin.dart';
-
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
@@ -13,6 +11,7 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:lpinyin/lpinyin.dart';
 
 class DenylistLogic extends GetxController {
   FocusNode searchF = FocusNode();

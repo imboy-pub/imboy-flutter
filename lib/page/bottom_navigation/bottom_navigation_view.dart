@@ -1,7 +1,6 @@
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'package:imboy/page/contact/contact/contact_view.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/conversation/conversation_view.dart';

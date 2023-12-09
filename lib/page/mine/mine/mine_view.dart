@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/line.dart';
@@ -10,6 +8,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/page/mine/setting/setting_view.dart';
 import 'package:imboy/page/personal_info/personal_info/personal_info_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:niku/namespace.dart' as n;
 
 import '../denylist/denylist_view.dart';
 import '../user_collect/user_collect_view.dart';

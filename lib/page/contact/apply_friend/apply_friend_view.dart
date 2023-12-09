@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
-import 'package:niku/namespace.dart' as n;
-
-import 'package:imboy/config/const.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/ui/icon_text.dart';
 import 'package:imboy/component/ui/radio_list_title.dart';
 import 'package:imboy/component/ui/title_text_field.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'apply_friend_logic.dart';
 

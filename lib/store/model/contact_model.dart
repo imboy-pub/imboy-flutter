@@ -75,16 +75,19 @@ class ContactModel extends ISuspensionBean {
   int gender; // 1 男  2 女  3 保密  0 未知
   final String? status; // offline | online |
   final String remark;
+
   // 朋友标签，半角逗号分割，单个表情不超过14字符
   String tag;
   final String region;
   final String sign;
+
   // source 可能的值
   // visit_card | qrcode | people_nearby
   // recently_user
   final String source;
   final int? updateAt;
   int isFriend;
+
   // isFrom 好友关系发起人
   int isFrom;
   int categoryId;

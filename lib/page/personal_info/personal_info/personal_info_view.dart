@@ -1,11 +1,10 @@
 import 'dart:io';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
 import 'package:image_picker/image_picker.dart';
-
 import 'package:imboy/component/helper/crop_image.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -13,10 +12,11 @@ import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:niku/namespace.dart' as n;
 
+import '../update/update_view.dart';
 import 'personal_info_logic.dart';
 import 'personal_info_state.dart';
-import '../update/update_view.dart';
 
 class PersonalInfoPage extends StatefulWidget {
   const PersonalInfoPage({super.key});

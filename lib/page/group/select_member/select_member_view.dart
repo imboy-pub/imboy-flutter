@@ -1,15 +1,15 @@
 import 'dart:convert';
-import 'package:lpinyin/lpinyin.dart';
+
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
+import 'package:lpinyin/lpinyin.dart';
 
 import 'select_member_logic.dart';
 import 'select_member_state.dart';

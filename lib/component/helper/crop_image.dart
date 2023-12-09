@@ -14,6 +14,7 @@ class CropImageRoute extends StatefulWidget {
     this.imageScale = 1.0,
     this.filename = "",
   });
+
   String prefix;
   String filename;
   File image; //原始图片路径

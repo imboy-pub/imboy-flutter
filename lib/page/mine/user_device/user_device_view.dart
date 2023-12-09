@@ -8,9 +8,8 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/store/model/user_device_model.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'user_device_detail_view.dart';
 import 'user_device_logic.dart';
@@ -116,6 +115,9 @@ class UserDevicePage extends StatelessWidget {
                                           )
                                           ..actions = [
                                             n.Button('取消'.tr.n)
+                                              ..style = n.NikuButtonStyle(
+                                                  foregroundColor:
+                                                      AppColors.ItemOnColor)
                                               ..onPressed = () {
                                                 Get.close(1);
                                               },

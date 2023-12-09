@@ -52,7 +52,7 @@ class UqrcodePage extends StatelessWidget {
                             '保存二维码'.tr,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              // color: Colors.white,
+                              color: AppColors.ItemOnColor,
                               fontSize: 16.0,
                               fontWeight: FontWeight.normal,
                             ),
@@ -83,7 +83,7 @@ class UqrcodePage extends StatelessWidget {
                             '扫描二维码'.tr,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              // color: Colors.white,
+                              color: AppColors.ItemOnColor,
                               fontSize: 16.0,
                               fontWeight: FontWeight.normal,
                             ),
@@ -98,7 +98,7 @@ class UqrcodePage extends StatelessWidget {
                             'button_cancel'.tr,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              // color: Colors.white,
+                              color: AppColors.ItemOnColor,
                               fontSize: 16.0,
                               fontWeight: FontWeight.normal,
                             ),

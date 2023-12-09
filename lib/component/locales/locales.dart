@@ -1,7 +1,7 @@
-import 'package:flutter/widgets.dart';
-import 'package:get/get.dart';
 import 'dart:io' show Platform;
 
+import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 import 'package:imboy/component/locales/locales.g.dart';
 
 class IMBoyTranslations extends Translations {

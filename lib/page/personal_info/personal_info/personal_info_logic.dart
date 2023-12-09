@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';

@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -6,14 +7,13 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 // ignore: implementation_imports
 import 'package:flutter_chat_ui/src/widgets/state/inherited_user.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
-import 'package:open_file/open_file.dart';
-
-import 'package:imboy/config/const.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:niku/namespace.dart' as n;
+import 'package:open_file/open_file.dart';
 
 import 'message_audio_builder.dart';
 import 'message_location_builder.dart';
@@ -227,10 +227,12 @@ void confirmOpenFile(String uri) {
     )
     ..actions = [
       n.Button('取消'.tr.n)
+        ..style = n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
         ..onPressed = () {
           Get.close(1);
         },
       n.Button('确定'.tr.n)
+        ..style = n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
         ..onPressed = () async {
           File? tmpF = await IMBoyCacheManager().getSingleFile(
             uri,

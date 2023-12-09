@@ -4,10 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-// ignore: depend_on_referenced_packages
-import 'package:jiffy/jiffy.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
-
 import 'package:imboy/component/controller.dart';
 import 'package:imboy/component/helper/log.dart';
 import 'package:imboy/component/locales/locales.g.dart';
@@ -15,6 +11,9 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/pages.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+// ignore: depend_on_referenced_packages
+import 'package:jiffy/jiffy.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'component/locales/locales.dart';
 import 'config/init.dart';

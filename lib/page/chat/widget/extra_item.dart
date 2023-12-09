@@ -1,15 +1,15 @@
 import 'dart:typed_data';
-import 'package:niku/namespace.dart' as n;
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-
-import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/location/widget.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/store/model/contact_model.dart';
+import 'package:niku/namespace.dart' as n;
 
 class ExtraItem extends StatelessWidget {
   const ExtraItem({
@@ -83,6 +83,7 @@ class ExtraItems extends StatefulWidget {
     this.handleCollectSelection,
     required this.options,
   });
+
   final Map options;
   final void Function()? handleImageSelection;
   final void Function()? handleFileSelection;
@@ -216,17 +217,17 @@ class _ExtraItemsState extends State<ExtraItems> {
             onPressed: widget.handleFileSelection,
           ),
           /**
-                ExtraItem(
-                title: "语音输入".tr,
-                image: const Icon(Icons.keyboard_voice, size: iconSize),
-                onPressed: null,
-                ),
-                ExtraItem(
-                title: "卡券".tr,
-                image: const AssetImage('assets/images/chat/extra_wallet.png'),
-                onPressed: null,
-                ),
-             */
+              ExtraItem(
+              title: "语音输入".tr,
+              image: const Icon(Icons.keyboard_voice, size: iconSize),
+              onPressed: null,
+              ),
+              ExtraItem(
+              title: "卡券".tr,
+              image: const AssetImage('assets/images/chat/extra_wallet.png'),
+              onPressed: null,
+              ),
+           */
         ])
       ]),
     ];

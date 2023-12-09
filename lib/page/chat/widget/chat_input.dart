@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,12 +10,11 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_chat_ui/src/widgets/state/inherited_chat_theme.dart'
     show InheritedChatTheme;
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/ui/emoji_picker_view.dart';
 import 'package:imboy/component/ui/image_button.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:niku/namespace.dart' as n;
 
 /// 部分代码来自该项目，感谢作者 CaiJingLong https://github.com/CaiJingLong/flutter_like_wechat_input
 enum InputType {

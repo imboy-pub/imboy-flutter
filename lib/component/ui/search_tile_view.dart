@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/config/const.dart';
 
 class SearchTileView extends StatelessWidget {
   final String? text;

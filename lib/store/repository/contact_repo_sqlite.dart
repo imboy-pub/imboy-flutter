@@ -17,6 +17,7 @@ class ContactRepo {
   static String account = 'account';
   static String status = 'status';
   static String remark = 'remark';
+
   // 朋友标签，半角逗号分割，单个表情不超过14字符
   static String tag = 'tag';
   static String region = 'region';

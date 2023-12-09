@@ -1,15 +1,12 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
-import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
-import 'package:popup_menu/popup_menu.dart' as popupmenu;
-import 'package:scroll_to_index/scroll_to_index.dart';
-import 'package:sqflite/sqflite.dart';
-
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_logic.dart';
@@ -20,6 +17,9 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:popup_menu/popup_menu.dart' as popupmenu;
+import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:sqflite/sqflite.dart';
 
 import 'chat_state.dart';
 

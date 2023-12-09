@@ -1,13 +1,12 @@
 import 'package:azlistview/azlistview.dart';
 import 'package:get/get.dart';
-import 'package:lpinyin/lpinyin.dart';
-
-import 'package:imboy/page/contact/contact/contact_logic.dart';
-import 'package:imboy/store/repository/user_tag_repo_sqlite.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/user_tag_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_tag_repo_sqlite.dart';
+import 'package:lpinyin/lpinyin.dart';
 
 import 'contact_tag_detail_state.dart';
 

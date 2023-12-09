@@ -1,9 +1,10 @@
-import 'package:encrypt/encrypt.dart';
 import 'dart:convert';
+
 // ignore: depend_on_referenced_packages
 import 'package:convert/convert.dart';
 // ignore: depend_on_referenced_packages
 import 'package:crypto/crypto.dart' as crypto;
+import 'package:encrypt/encrypt.dart';
 
 class EncrypterService {
   /// EncrypterService.aesEncrypt

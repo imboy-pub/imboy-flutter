@@ -116,7 +116,6 @@ class SqliteService {
     }
   }
 
-
   Future _onDowngrade(Database db, int oldVsn, int newVsn) async {
     debugPrint("SqliteService_onDowngrade oldVsn: $oldVsn, newVsn: $newVsn");
     // from 2 to 1
@@ -155,7 +154,7 @@ class SqliteService {
   }
 
   /// See [Database.rawUpdate]
-  Future<int> execute(String sql, [List<Object?>? arguments])  async {
+  Future<int> execute(String sql, [List<Object?>? arguments]) async {
     Database db = await to.db;
     var res = await db.rawUpdate(
       sql,

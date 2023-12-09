@@ -6,8 +6,8 @@ class MineLogic extends GetxController {
     switch (name) {
       case '设置':
         // logout(context);
-        Get.to(()=>
-          const SettingPage(),
+        Get.to(
+          () => const SettingPage(),
           transition: Transition.rightToLeft,
           popGesture: true, // 右滑，返回上一页
         );

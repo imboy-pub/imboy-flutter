@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/location/amap_helper.dart';
-
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/provider/location_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
