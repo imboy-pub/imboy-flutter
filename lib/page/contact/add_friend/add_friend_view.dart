@@ -4,6 +4,7 @@ import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
+
 // import 'package:imboy/component/ui/search_bar.dart';
 import 'package:imboy/page/contact/people_nearby/people_nearby_view.dart';
 import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_view.dart';

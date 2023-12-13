@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/passport/passport_view.dart';
-import 'package:imboy/page/single/about_imboy.dart';
+import 'package:imboy/page/single/markdown.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'setting_logic.dart';
 
@@ -45,11 +46,41 @@ class _SettingPageState extends State<SettingPage> {
               ),
               n.Padding(left: 18, child: const Divider()),
               n.ListTile(
-                title: Text('帮助与反馈'.tr),
+                title: Text('更新日志'.tr),
                 trailing: Icon(
                   Icons.navigate_next,
                   color: AppColors.MainTextColor.withOpacity(0.5),
                 ),
+                onTap: () {
+                  Get.to(
+                    () => MarkdownPage(
+                      title: '更新日志'.tr,
+                      url:
+                          "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
+                    ),
+                    transition: Transition.rightToLeft,
+                    popGesture: true, // 右滑，返回上一页
+                  );
+                },
+              ),
+              n.Padding(left: 18, child: const Divider()),
+              n.ListTile(
+                title: Text('帮助文档'.tr),
+                trailing: Icon(
+                  Icons.navigate_next,
+                  color: AppColors.MainTextColor.withOpacity(0.5),
+                ),
+                onTap: () {
+                  Get.to(
+                    () => MarkdownPage(
+                      title: '帮助文档'.tr,
+                      url:
+                          "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/help_document.md",
+                    ),
+                    transition: Transition.rightToLeft,
+                    popGesture: true, // 右滑，返回上一页
+                  );
+                },
               ),
               // n.Padding(left: 18, child: const Divider()),
               // n.ListTile(
@@ -80,7 +111,11 @@ class _SettingPageState extends State<SettingPage> {
                 ),
                 onTap: () {
                   Get.to(
-                    () => AboutIMBoyPage(),
+                    () => MarkdownPage(
+                      title: '关于IMBoy'.tr,
+                      url:
+                          "https://gitee.com/imboy-pub/imboy-flutter/raw/main/README.md",
+                    ),
                     transition: Transition.rightToLeft,
                     popGesture: true, // 右滑，返回上一页
                   );

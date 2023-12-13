@@ -11,9 +11,11 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/pages.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:jiffy/jiffy.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:feedback/feedback.dart';
 
 import 'component/locales/locales.dart';
 import 'config/init.dart';
@@ -25,7 +27,9 @@ void run() async {
   // 强制竖屏 DeviceOrientation.portraitUp
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
-    runApp(const IMBoyApp());
+    runApp(
+      const BetterFeedback(child: IMBoyApp()),
+    );
   });
 }
 

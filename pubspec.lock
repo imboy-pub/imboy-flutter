@@ -254,10 +254,10 @@ packages:
     dependency: transitive
     description:
       name: built_value
-      sha256: "69acb7007eb2a31dc901512bfe0f7b767168be34cb734835d54c070bfa74c1b2"
+      sha256: c9aabae0718ec394e5bc3c7272e6bb0dc0b32201a08fe185ec1d8401d3e39309
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "8.8.0"
+    version: "8.8.1"
   cached_network_image:
     dependency: "direct main"
     description:
@@ -286,26 +286,26 @@ packages:
     dependency: "direct main"
     description:
       name: camera
-      sha256: "71fb0e03618a8629a912bbf49bb664869bd16830c1d363b1096df99727b0bebb"
+      sha256: "7fa53bb1c2059e58bf86b7ab506e3b2a78e42f82d365b44b013239b975a166ef"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.10.5+6"
+    version: "0.10.5+7"
   camera_android:
     dependency: transitive
     description:
       name: camera_android
-      sha256: "58463140f1b39591b8e2155861b436abad4ceb48160058be8374164ff0309ef3"
+      sha256: "7215e38fa0be58cc3203a6e48de3636fb9b1bf93d6eeedf667f882d51b3a4bf3"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.10.8+13"
+    version: "0.10.8+15"
   camera_avfoundation:
     dependency: transitive
     description:
       name: camera_avfoundation
-      sha256: "3b6d9f550cfd658c71f34a99509528501e5e5d4fa79f11e3a4d6ef380d8e0254"
+      sha256: "3c8dd395f18722f01b5f325ddd7f5256e9bcdce538fb9243b378ba759df3283c"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.13+7"
+    version: "0.9.13+8"
   camera_platform_interface:
     dependency: transitive
     description:
@@ -578,6 +578,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.3.1"
+  feedback:
+    dependency: "direct main"
+    description:
+      name: feedback
+      sha256: "3cb138a56a3f3914dd38471479c351ce6df377abb29c5ebe4042be5481fee271"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.0"
   ffi:
     dependency: transitive
     description:
@@ -712,6 +720,46 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.0.5"
+  flutter_image_compress:
+    dependency: "direct main"
+    description:
+      name: flutter_image_compress
+      sha256: f159d2e8c4ed04b8e36994124fd4a5017a0f01e831ae3358c74095c340e9ae5e
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.1.0"
+  flutter_image_compress_common:
+    dependency: transitive
+    description:
+      name: flutter_image_compress_common
+      sha256: "7cad12802628706655920089cfe9ee1d1098300e7f39a079eb160458bbc47652"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.3"
+  flutter_image_compress_macos:
+    dependency: transitive
+    description:
+      name: flutter_image_compress_macos
+      sha256: fea1e3d71150d03373916b832c49b5c2f56c3e7e13da82a929274a2c6f88251e
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.1"
+  flutter_image_compress_platform_interface:
+    dependency: transitive
+    description:
+      name: flutter_image_compress_platform_interface
+      sha256: eb4f055138b29b04498ebcb6d569aaaee34b64d75fb74ea0d40f9790bf47ee9d
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.3"
+  flutter_image_compress_web:
+    dependency: transitive
+    description:
+      name: flutter_image_compress_web
+      sha256: da41cc3859f19d11c7d10be615f6a9dcf0907e7daffde7442bf4cc2486663660
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.3+2"
   flutter_link_previewer:
     dependency: transitive
     description:
@@ -760,6 +808,11 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "7.0.0+1"
+  flutter_localizations:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_login:
     dependency: "direct main"
     description:
@@ -910,10 +963,10 @@ packages:
     dependency: "direct main"
     description:
       name: fvp
-      sha256: c2b3d4be05a9185afb3e51920662ab6fd4f95898bc9d86777ecbc4b12bac7a47
+      sha256: "127a5db80742eb01d9ef69ab5bc6f74916aea8d0462ed438cff8f5b0603d58ec"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.11.0"
+    version: "0.12.0"
   get:
     dependency: "direct main"
     description:
@@ -1015,10 +1068,10 @@ packages:
     dependency: "direct main"
     description:
       name: image_picker
-      sha256: "7d7f2768df2a8b0a3cefa5ef4f84636121987d403130e70b17ef7e2cf650ba84"
+      sha256: fc712337719239b0b6e41316aa133350b078fa39b6cbd706b61f3fd421b03c77
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.4"
+    version: "1.0.5"
   image_picker_android:
     dependency: transitive
     description:
@@ -1496,10 +1549,10 @@ packages:
     dependency: "direct main"
     description:
       name: photo_manager
-      sha256: "742ffef549dca7206963942c78883bfbe6fe561ef06c6f3fde84527a5e285566"
+      sha256: "8cf79918f6de9843b394a1670fe1aec54ebcac852b4b4c9ef88211894547dc61"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.0.0-dev.4"
+    version: "3.0.0-dev.5"
   photo_manager_image_provider:
     dependency: transitive
     description:
@@ -1665,10 +1718,10 @@ packages:
     dependency: "direct main"
     description:
       name: sensors_plus
-      sha256: "09c82b0c08bca174d9bae87d82c686571bb48c567a60b1f15ad64bb63a08a51e"
+      sha256: "74decc6986ab112f6a532f3babac2417f2a6ce7e921906017aad24cb0e2d4016"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.0.1"
+    version: "4.0.1+1"
   sensors_plus_platform_interface:
     dependency: transitive
     description:

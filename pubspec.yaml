@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.1.23
+version: 0.1.24
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -63,7 +63,7 @@ dependencies:
   #    path: permission_handler
   #    tag: permission_handler_android_v10.2.1
       #ref: master
-  camera: ^0.10.5+6
+  camera: ^0.10.5+7
   #wechat_camera_picker: ^4.2.0-dev.3
   wechat_camera_picker: ^4.2.0-dev.1
   wechat_assets_picker: ^9.0.0-dev.2
@@ -76,12 +76,12 @@ dependencies:
   # 在运行时从文件加载环境变量.env
   flutter_dotenv: ^5.1.0
   # 照片管理器
-  photo_manager: 3.0.0-dev.4
+  photo_manager: 3.0.0-dev.5
   # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
   video_compress: ^3.1.2
   # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
   path_provider: ^2.1.1
-  image_picker: ^1.0.4
+  image_picker: ^1.0.5
   image_picker_macos: ^0.2.1+1
   image_picker_platform_interface: ^2.9.1
   file_picker: ^6.1.1
@@ -92,7 +92,7 @@ dependencies:
 
   # 用于访问加速度计、陀螺仪和磁力计传感器的 Flutter 插件。
   #sensors_plus: ^4.0.1
-  sensors_plus: ^4.0.1
+  sensors_plus: ^4.0.1+1
   flutter_screenutil: ^5.9.0
   # 页面刷新
   easy_refresh: ^3.3.2+4
@@ -123,6 +123,8 @@ dependencies:
   # 生成闪屏页
   flutter_native_splash: ^2.3.8
   flutter_chat_ui: ^1.6.10
+  feedback: ^3.0.0
+  flutter_image_compress: ^2.1.0
   #flutter_chat_ui:
   #  #path: plugin/flutter_chat_ui
   #  git:
@@ -201,7 +203,7 @@ dependencies:
   video_player: ^2.8.1
   # video_player的插件，支持所有桌面/移动平台。硬件解码器，最佳渲染。通过 FFmpeg 支持大多数格式
   #fvp: ^0.5.0
-  fvp: ^0.11.0
+  fvp: ^0.12.0
   # 标签编辑框
   textfield_tags: ^2.0.2
   #filter_list: ^1.0.2

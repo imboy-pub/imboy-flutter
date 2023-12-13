@@ -43,7 +43,7 @@ class AttachmentProvider {
     data['a'] = authData['a'];
     data['s'] = authData['s'];
     // debugPrint("> on upload param ${data.toString()}");
-    // debugPrint("> on upload param ${(data['file'] as MultipartFile).filename}");
+    debugPrint("> on upload param ${(data['file'] as MultipartFile).filename}");
     FormData formData = FormData.fromMap(data);
 
     debugPrint("> on upload UPLOAD_BASE_URL $UPLOAD_BASE_URL");
@@ -299,6 +299,20 @@ class AttachmentProvider {
       'file': await MultipartFile.fromFile(path, filename: name),
     };
     // debugPrint("> on uploadFile path $path, name: $name, ext: $ext");
+    await _upload(prefix, data, callback, errorCallback, process: process);
+  }
+
+  static Future<void> uploadBytes(
+      String prefix, Uint8List file, Function callback, Function errorCallback,
+      {String path = "", bool process = true}) async {
+    String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
+    ext = ext.isEmpty ? '.png' : ext;
+    String name = "${Xid().toString()}$ext";
+
+    Map<String, dynamic> data = {
+      'file': MultipartFile.fromBytes(file, filename: name),
+    };
+    debugPrint("> on uploadBytes name: $name, ext: $ext, ${data.toString()}");
     await _upload(prefix, data, callback, errorCallback, process: process);
   }
 }

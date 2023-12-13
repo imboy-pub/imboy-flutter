@@ -2,44 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/store/model/feedback_model.dart';
 import 'package:niku/namespace.dart' as n;
 
-import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/config/init.dart';
-import 'package:imboy/store/model/user_device_model.dart';
 
-import 'user_device_detail_view.dart';
-import 'user_device_logic.dart';
+import 'feedback_logic.dart';
 
-// ignore: must_be_immutable
-class UserDevicePage extends StatelessWidget {
-  int page = 1;
-  int size = 1000;
+class FeedbackDetailPage extends StatelessWidget {
+  final FeedbackModel model;
+  FeedbackDetailPage({super.key, required this.model});
 
-  final logic = Get.put(UserDeviceLogic());
-  final state = Get.find<UserDeviceLogic>().state;
-  RxString currentDid = "".obs;
+  final logic = Get.put(FeedbackLogic());
+  final state = Get.find<FeedbackLogic>().state;
 
-  UserDevicePage({super.key});
-
-  void initData() async {
-    currentDid.value = deviceId;
-    var list = await logic.page(page: page, size: size);
-    state.deviceList.value = list;
-  }
+  void initData() async {}
 
   @override
   Widget build(BuildContext context) {
-    //
     initData();
-    String tips = '你的帐号在以下设备中登录过，你可以删除设备，删除后在该设备登录时需进行安全验证。'.tr;
+
     return Scaffold(
       appBar: PageAppBar(
-        title: '登录设备管理'.tr,
+        title: '反馈建议明细'.tr,
         // rightDMActions: [
         //   TextButton(
         //     onPressed: () {
@@ -61,44 +48,24 @@ class UserDevicePage extends StatelessWidget {
           height: Get.height,
           color: AppColors.primaryBackground,
           child: n.Column([
-            n.Column([
-              Container(
-                width: Get.width,
-                color: AppColors.AppBarColor,
-                padding: const EdgeInsets.only(
-                  top: 10.0,
-                  left: 15,
-                  right: 10,
-                  bottom: 20,
-                ),
-                child: Text(
-                  tips,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              )
-            ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
             Expanded(
               child: n.Padding(
                 left: 15,
                 right: 10,
                 child: Obx(() {
-                  return state.deviceList.isEmpty
+                  return state.itemList.isEmpty
                       ? NoDataView(text: '暂无数据'.tr)
                       : ListView.builder(
-                          itemCount: state.deviceList.length,
+                          itemCount: state.itemList.length,
                           itemBuilder: (BuildContext context, int index) {
-                            UserDeviceModel model = state.deviceList[index];
+                            FeedbackModel model = state.itemList[index];
                             return n.Column([
                               Slidable(
-                                key: ValueKey(model.deviceId),
+                                key: ValueKey(model.feedbackId),
                                 groupTag: '0',
                                 closeOnScroll: true,
                                 endActionPane: ActionPane(
-                                  extentRatio:
-                                      currentDid.value == model.deviceId
-                                          ? 0.001
-                                          : 0.25,
+                                  extentRatio: 0.25,
                                   motion: const BehindMotion(),
                                   children: [
                                     SlidableAction(
@@ -124,17 +91,16 @@ class UserDevicePage extends StatelessWidget {
                                               },
                                             n.Button('删除'.tr.n)
                                               ..onPressed = () async {
-                                                bool res =
-                                                    await logic.deleteDevice(
-                                                  model.deviceId,
+                                                bool res = await logic.remove(
+                                                  model.feedbackId,
                                                 );
                                                 Get.close(2);
                                                 if (res) {
-                                                  state.deviceList.removeAt(
-                                                    state.deviceList.indexWhere(
+                                                  state.itemList.removeAt(
+                                                    state.itemList.indexWhere(
                                                         (e) =>
-                                                            e.deviceId ==
-                                                            model.deviceId),
+                                                            e.feedbackId ==
+                                                            model.feedbackId),
                                                   );
                                                   EasyLoading.showSuccess(
                                                       '操作成功'.tr);
@@ -160,26 +126,11 @@ class UserDevicePage extends StatelessWidget {
                                   contentPadding:
                                       const EdgeInsets.only(left: 0),
                                   title: n.Row([
-                                    Text(model.deviceName),
-                                    const Space(width: 10),
-                                    if (currentDid.value == model.deviceId)
-                                      Text(
-                                        '当前设备'.tr,
-                                        style: TextStyle(
-                                          color: AppColors.MainTextColor
-                                              .withOpacity(0.7),
-                                          fontSize: 14,
-                                        ),
-                                      ),
+                                    Text(model.title),
+                                    // const Space(width: 10),
                                   ]),
                                   subtitle: n.Row([
-                                    Text(model.online ? '在线'.tr : '离线'.tr),
-                                    const Space(width: 10),
-                                    if (model.lastActiveAt > 0)
-                                      Text(
-                                        DateTimeHelper.lastTimeFmt(
-                                            model.lastActiveAt),
-                                      ),
+                                    Text(model.body),
                                   ]),
                                   trailing: Icon(
                                     Icons.navigate_next,
@@ -188,7 +139,7 @@ class UserDevicePage extends StatelessWidget {
                                   ),
                                   onTap: () {
                                     Get.to(
-                                      () => UserDeviceDetailPage(
+                                      () => FeedbackDetailPage(
                                         model: model,
                                       ),
                                       transition: Transition.rightToLeft,

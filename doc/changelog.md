@@ -1,3 +1,11 @@
+# 0.1.24
+* 引入 feedback flutter_image_compress; 
+* 去除置里面的“帮助反馈”选项；
+* 设置页面新增“更新日志、帮助文档”两个页面；
+* 新增提交“反馈建议”功能；
+* 新增反馈建议列表；
+* 升级一些依赖
+
 # 0.1.23
 * 修复文本消息过长导致的“RenderFlex overflowed”错误
 * TextButton 取消圆角边框，设置 foregroundColor: AppColors.ItemOnColor

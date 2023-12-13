@@ -211,6 +211,11 @@ class API {
   static const userTagRelationSet = '/user_tag_relation/set';
   static const userTagRelationRemove = '/user_tag_relation/remove';
 
+  static const feedbackPage = '/feedback/page';
+  static const feedbackAdd = '/feedback/add';
+  static const feedbackRemove = '/feedback/remove';
+  static const feedbackChange = '/feedback/change';
+
   // 附近的人
   static const peopleNearby = '/location/peopleNearby';
   static const makeMyselfVisible = '/location/makeMyselfVisible';

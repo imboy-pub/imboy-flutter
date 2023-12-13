@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/config/const.dart';
