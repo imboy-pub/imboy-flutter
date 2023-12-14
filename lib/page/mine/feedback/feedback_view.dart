@@ -70,44 +70,46 @@ class FeedbackPage extends StatelessWidget {
                                       // foregroundColor: Colors.white,
                                       onPressed: (_) async {
                                         String tips = '确认删除吗？删除后不可恢复。'.tr;
-                                        final alert = n.Alert()
-                                          ..content = SizedBox(
-                                            height: 40,
-                                            child: Center(child: Text(tips)),
-                                          )
-                                          ..actions = [
-                                            n.Button('取消'.tr.n)
-                                              ..style = n.NikuButtonStyle(
-                                                  foregroundColor:
-                                                      AppColors.ItemOnColor)
-                                              ..onPressed = () {
-                                                Get.close(1);
-                                              },
-                                            n.Button('删除'.tr.n)
-                                              ..onPressed = () async {
-                                                bool res = await logic.remove(
-                                                  model.feedbackId,
-                                                );
-                                                Get.close(2);
-                                                if (res) {
-                                                  state.itemList.removeAt(
-                                                    state.itemList.indexWhere(
-                                                        (e) =>
-                                                            e.feedbackId ==
-                                                            model.feedbackId),
-                                                  );
-                                                  EasyLoading.showSuccess(
-                                                      '操作成功'.tr);
-                                                } else {
-                                                  EasyLoading.showError(
-                                                      '操作失败'.tr);
-                                                }
-                                              },
-                                          ];
 
                                         n.showDialog(
                                           context: Get.context!,
-                                          builder: (context) => alert,
+                                          builder: (context) => n.Alert()
+                                            ..content = SizedBox(
+                                              height: 40,
+                                              child: Center(child: Text(tips)),
+                                            )
+                                            ..actions = [
+                                              n.Button('取消'.tr.n)
+                                                ..style = n.NikuButtonStyle(
+                                                    foregroundColor:
+                                                        AppColors.ItemOnColor)
+                                                ..onPressed = () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              n.Button('删除'.tr.n)
+                                                ..style = n.NikuButtonStyle(
+                                                    foregroundColor:
+                                                        AppColors.ItemOnColor)
+                                                ..onPressed = () async {
+                                                  Navigator.of(context).pop();
+                                                  bool res = await logic.remove(
+                                                    model.feedbackId,
+                                                  );
+                                                  if (res) {
+                                                    state.itemList.removeAt(
+                                                      state.itemList.indexWhere(
+                                                          (e) =>
+                                                              e.feedbackId ==
+                                                              model.feedbackId),
+                                                    );
+                                                    EasyLoading.showSuccess(
+                                                        '操作成功'.tr);
+                                                  } else {
+                                                    EasyLoading.showError(
+                                                        '操作失败'.tr);
+                                                  }
+                                                },
+                                            ],
                                           barrierDismissible: true,
                                         );
                                       },

@@ -28,15 +28,14 @@ class FeedbackProvider extends HttpClient {
 
   /// 移除用户反馈
   Future<bool> remove({
-    required String userId,
+    required int feedbackId,
   }) async {
     IMBoyHttpResponse resp = await post(API.feedbackRemove, data: {
-      "user_id": userId,
+      "feedback_id": feedbackId,
     });
     debugPrint("> on Provider/feedbackRemove resp: ${resp.payload}");
     return resp.ok ? true : false;
   }
-
 
   /// 修改用户反馈
   Future<bool> change(Map<String, dynamic> data) async {

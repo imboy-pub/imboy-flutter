@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:get/get.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -36,9 +38,20 @@ class AudioMessageBuilder extends StatefulWidget {
 }
 
 class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
+  Rx<String> audioPath = "".obs;
+
+  Future<void> init() async {
+    File tmpF = await IMBoyCacheManager().getSingleFile(
+      widget.message.metadata!['uri'],
+      key: EncrypterService.md5(widget.message.metadata!['uri']),
+    );
+    audioPath.value = tmpF.path;
+  }
+
   @override
   void initState() {
     super.initState();
+    init();
   }
 
   @override
@@ -49,19 +62,57 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
   @override
   Widget build(BuildContext context) {
     bool userIsAuthor = widget.user.id == widget.message.author.id;
-    Future<File> tmpF = IMBoyCacheManager().getSingleFile(
-      widget.message.metadata!['uri'],
-      key: EncrypterService.md5(widget.message.metadata!['uri']),
-    );
 
     Duration d = Duration(
       milliseconds: widget.message.metadata!["duration_ms"],
     );
+    return Obx(
+      () => Row(
+        children: [
+          VoiceMessageView(
+              controller: VoiceController(
+                // audioSrc: widget.message.metadata!['uri'],
+                audioSrc: audioPath.value,
+                maxDuration: d,
+                isFile: true,
+                onComplete: () {
+                  iPrint('VoiceMessageView onComplete');
+                },
+                onPause: () {
+                  iPrint('VoiceMessageView onPause');
+                },
+                onPlaying: () {
+                  iPrint('VoiceMessageView onPlaying');
+                  if (widget.onPlay != null) widget.onPlay!();
+                  if (widget.message.metadata!['played'] != true) {
+                    setState(() {
+                      widget.message.metadata!['played'] = true;
+                    });
+                    Map<String, dynamic> data = {
+                      'id': widget.message.id,
+                      'payload': json.encode(widget.message.metadata),
+                    };
+                    (MessageRepo()).update(data);
+                  }
+                },
+              ),
+              innerPadding: 8,
+              cornerRadius: 20,
+              size: 28,
+              circlesColor: Colors.black38,
+              activeSliderColor: userIsAuthor
+                  ? AppColors.ChatSendMessageBgColor
+                  : AppColors.ChatSentMessageBodyTextColor),
+        ],
+      ),
+    );
+    /*
     return VoiceMessage(
       audioSrc: widget.message.metadata!['uri'],
       audioFile: tmpF,
       duration: d,
       showDuration: true,
+      noiseCount: 32,
       formatDuration: (Duration duration) {
         return duration.toString().substring(2, 11);
       },
@@ -87,5 +138,6 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
         }
       }, // Do something when voice played.
     );
+    */
   }
 }

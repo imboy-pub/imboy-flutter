@@ -92,10 +92,10 @@ dependencies:
 
   # 用于访问加速度计、陀螺仪和磁力计传感器的 Flutter 插件。
   #sensors_plus: ^4.0.1
-  sensors_plus: ^4.0.1+1
+  sensors_plus: ^4.0.2
   flutter_screenutil: ^5.9.0
   # 页面刷新
-  easy_refresh: ^3.3.2+4
+  easy_refresh: ^3.3.3+1
   # https://github.com/letsar/flutter_slidable
   flutter_slidable: ^3.0.1
   # 消息提醒的红点效果
@@ -103,7 +103,7 @@ dependencies:
   # 聊天气泡
   bubble: ^1.2.1
   # 全球唯一 ID 生成器
-  xid: ^1.0.12
+  xid: ^1.1.2
   # 一个能在 profile/debug 模式下，直观帮助我们评估页面流畅度的工具
   fps_monitor: ^2.0.0
   # 时间处理
@@ -173,8 +173,13 @@ dependencies:
   flutter_sound_platform_interface: ^9.2.13
   audio_session: ^0.1.18
   # 语音消息播放器
-  #voice_message_package: ^2.1.2
-  voice_message_package: 1.0.41
+  #voice_message_package: 1.0.41
+  voice_message_package: ^2.1.3
+#  voice_message_package:
+#    path: plugin/voice_message_package
+#    git:
+#      url: https://gitee.com/imboy-tripartite-deps/voice_message_player.git
+#      ref: main
   # 一对一音视频通话等
   flutter_webrtc: ^0.9.47
   # 可滚动小部件的固定/可变行高提供了滚动到索引的机制
@@ -246,7 +251,7 @@ dependencies:
 
 dependency_overrides:
   http: ^1.1.2
-  voice_message_package: 1.0.41
+  #voice_message_package: 1.0.41
   logger: ^2.0.2+1
   #webview_flutter_wkwebview: '3.5.0'
 

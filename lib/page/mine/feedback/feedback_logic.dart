@@ -39,5 +39,12 @@ class FeedbackLogic extends GetxController {
     return list;
   }
 
-  remove(int feedbackId) {}
+  Future<bool> remove(int feedbackId) async {
+    bool res = await FeedbackProvider().remove(feedbackId: feedbackId);
+    // if (res) {
+    //   int res2 = await UserCollectRepo().delete(obj.kindId);
+    //   res = res2 > 0 ? true : false;
+    // }
+    return res;
+  }
 }

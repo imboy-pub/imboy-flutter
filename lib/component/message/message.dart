@@ -100,6 +100,7 @@ class CustomMessageBuilder extends StatelessWidget {
     }
     return Container(
       color: AppColors.ChatBg,
+      width: Get.width * 0.618,
       child: w,
     );
   }
