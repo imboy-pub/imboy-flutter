@@ -2,12 +2,13 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/func.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:niku/namespace.dart' as n;
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+
+import 'package:imboy/component/helper/func.dart';
 
 /// A class that represents an image showed in a preview widget.
 @immutable
@@ -141,6 +142,53 @@ void zoomInPhotoView(String thumb) async {
       },
       child: PhotoView(
         imageProvider: thumbProvider,
+      ),
+    ),
+    // 是否支持全屏弹出，默认false
+    isScrollControlled: true,
+    enableDrag: false,
+  );
+}
+
+/// 显示多个图像并让用户在它们之间进行更改的效果
+void zoomInPhotoViewGallery(List items) async {
+  List galleryItems = [];
+  for (var e in items) {
+    galleryItems.add(cachedImageProvider(
+      e,
+      w: Get.width,
+    ));
+  }
+  Get.bottomSheet(
+    InkWell(
+      onTap: () {
+        Get.back();
+      },
+      child: PhotoViewGallery.builder(
+        scrollPhysics: const BouncingScrollPhysics(),
+        builder: (BuildContext context, int index) {
+          return PhotoViewGalleryPageOptions(
+            imageProvider: galleryItems[index],
+            initialScale: PhotoViewComputedScale.contained * 0.8,
+            // heroAttributes:
+            //     PhotoViewHeroAttributes(tag: galleryItems[index].toString()),
+          );
+        },
+        itemCount: galleryItems.length,
+        loadingBuilder: (context, event) => Center(
+          child: SizedBox(
+            width: 20.0,
+            height: 20.0,
+            child: CircularProgressIndicator(
+              value: event == null
+                  ? 0
+                  : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+            ),
+          ),
+        ),
+        // backgroundDecoration: widget.backgroundDecoration,
+        pageController: PageController(),
+        // onPageChanged: () {},
       ),
     ),
     // 是否支持全屏弹出，默认false

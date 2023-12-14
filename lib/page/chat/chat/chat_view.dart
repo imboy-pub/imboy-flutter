@@ -11,7 +11,18 @@ import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart' as getx;
+
+import 'package:map_launcher/map_launcher.dart';
+import 'package:mime/mime.dart';
+import 'package:niku/namespace.dart' as n;
+import 'package:open_file/open_file.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:popup_menu/popup_menu.dart' as popupmenu;
+import 'package:wechat_camera_picker/wechat_camera_picker.dart';
+import 'package:xid/xid.dart';
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/picker_method.dart';
@@ -41,15 +52,6 @@ import 'package:imboy/store/model/user_collect_model.dart';
 import 'package:imboy/store/provider/attachment_provider.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:map_launcher/map_launcher.dart';
-import 'package:mime/mime.dart';
-import 'package:niku/namespace.dart' as n;
-import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:popup_menu/popup_menu.dart' as popupmenu;
-import 'package:wechat_camera_picker/wechat_camera_picker.dart';
-import 'package:xid/xid.dart';
 
 import '../widget/chat_input.dart';
 import '../widget/extra_item.dart';
@@ -484,10 +486,22 @@ class ChatPageState extends State<ChatPage> {
     String latitude,
     String longitude,
   ) async {
-    final tempDir = await getTemporaryDirectory();
-    final file = await File('${tempDir.path}/$id.png').create();
-    file.writeAsBytesSync(imageBytes as List<int>);
-    AttachmentProvider.uploadFile("location", file, (
+    Uint8List result;
+    if (Platform.isAndroid || Platform.isIOS) {
+      // 压缩上传图片
+      result = await FlutterImageCompress.compressWithList(
+        imageBytes!,
+        minHeight: getx.Get.height.toInt(),
+        minWidth: getx.Get.width.toInt(),
+        quality: 60,
+      );
+    } else {
+      result = imageBytes!;
+    }
+    // final tempDir = await getTemporaryDirectory();
+    // final file = await File('${tempDir.path}/$id.png').create();
+    // file.writeAsBytesSync(imageBytes as List<int>);
+    AttachmentProvider.uploadBytes("location", result, (
       Map<String, dynamic> resp,
       String imgUrl,
     ) async {
@@ -515,10 +529,10 @@ class ChatPageState extends State<ChatPage> {
       );
       _addMessage(message);
       // 上传成功，删除本地临时文件
-      file.deleteSync();
+      // file.deleteSync();
     }, (Error error) {
       debugPrint("> on upload ${error.toString()}");
-    }, name: id);
+    }, process: false);
   }
 
   void _handleImageSelection() async {
