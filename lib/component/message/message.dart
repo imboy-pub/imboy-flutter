@@ -100,7 +100,7 @@ class CustomMessageBuilder extends StatelessWidget {
     }
     return Container(
       color: AppColors.ChatBg,
-      width: Get.width * 0.618,
+      width: Get.width * 0.85,
       child: w,
     );
   }
@@ -222,33 +222,31 @@ void showTextMessage(String text) {
 
 /// 确实是否打开文件
 void confirmOpenFile(String uri) {
-  final alert = n.Alert()
-    // ..title = Text("Session Expired")
-    ..content = SizedBox(
-      height: 40,
-      child: Center(child: Text('确定要打开文件吗？'.tr)),
-    )
-    ..actions = [
-      n.Button('取消'.tr.n)
-        ..style = n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
-        ..onPressed = () {
-          Get.close(1);
-        },
-      n.Button('确定'.tr.n)
-        ..style = n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
-        ..onPressed = () async {
-          File? tmpF = await IMBoyCacheManager().getSingleFile(
-            uri,
-            key: EncrypterService.md5(uri),
-          );
-          Get.back();
-          await OpenFile.open(tmpF.path);
-        },
-    ];
-
   n.showDialog(
     context: Get.context!,
-    builder: (context) => alert,
+    builder: (context) => n.Alert()
+      // ..title = Text("Session Expired")
+      ..content = SizedBox(
+        height: 40,
+        child: Center(child: Text('确定要打开文件吗？'.tr)),
+      )
+      ..actions = [
+        n.Button('取消'.tr.n)
+          ..style = n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
+          ..onPressed = () {
+            Navigator.of(context).pop();
+          },
+        n.Button('确定'.tr.n)
+          ..style = n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
+          ..onPressed = () async {
+            Navigator.of(context).pop();
+            File? tmpF = await IMBoyCacheManager().getSingleFile(
+              uri,
+              key: EncrypterService.md5(uri),
+            );
+            await OpenFile.open(tmpF.path);
+          },
+      ],
     barrierDismissible: true,
   );
 }

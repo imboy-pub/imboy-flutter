@@ -4,7 +4,7 @@ import 'package:imboy/config/const.dart';
 class ButtonRow extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
   final String? text;
-  final TextStyle style;
+  final TextStyle? style;
   final VoidCallback? onPressed;
   final bool isBorder;
   final double lineWidth;
@@ -37,6 +37,7 @@ class ButtonRow extends StatelessWidget {
       ),
       child: TextButton(
         style: TextButton.styleFrom(
+          foregroundColor: AppColors.primaryElement,
           minimumSize: Size.zero,
           padding: EdgeInsets.zero,
           backgroundColor: Colors.white,

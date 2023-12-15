@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:imboy/component/helper/func.dart';
 
 import 'http_response.dart';
 
@@ -10,6 +11,10 @@ abstract class HttpTransformer {
 class DefaultHttpTransformer extends HttpTransformer {
   @override
   IMBoyHttpResponse parse(Response response) {
+    iPrint("response.data_status: ${response.data.toString()};");
+    if (response.data is! Map) {
+      return IMBoyHttpResponse.failure();
+    }
     if (response.data["status"] == 100) {
       return IMBoyHttpResponse.success(response.data['payload']);
     } else if (response.data["code"] == 0) {

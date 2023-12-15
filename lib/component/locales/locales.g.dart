@@ -145,6 +145,8 @@ class LocaleKeys {
   static const sucess_navigation_added = 'sucess_navigation_added';
   static const sucess_file_created = 'sucess_file_created';
   static const sucess_route_created = 'sucess_route_created';
+  static const bugReport = 'bugReport';
+  static const featureRequest = 'featureRequest';
 }
 
 class Locales {
@@ -275,6 +277,8 @@ class Locales {
     'sucess_navigation_added': '%s navigation添加成功.',
     'sucess_file_created': '文件: %s 创建成功，路径: %s',
     'sucess_route_created': '%s route 创建成功.',
+    'bugReport': '错误报告',
+    'featureRequest': '功能要求',
   };
   static const en_US = {
     'button_cancel': 'Cancel',
@@ -421,5 +425,7 @@ class Locales {
     'sucess_navigation_added': '%s navigation added successfully.',
     'sucess_file_created': 'File: %s created successfully at path: %s',
     'sucess_route_created': '%s route created successfully.',
+    'bugReport': 'Bug report',
+    'featureRequest': 'Feature request',
   };
 }

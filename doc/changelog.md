@@ -1,3 +1,9 @@
+# 0.1.25
+* 引入 drag_ball，用户反馈新增 type rating 字段，调整提交用户反馈体验等；
+* 升级voice_message_package: ^2.1.4 调整 CustomMessageBuilder width Get.widht * 0.85
+* 修复 n.showDialog/3 点击取消无效的问题；
+* 其他代码格式调整；
+
 # 0.1.24
 * 引入 feedback flutter_image_compress; 
 * 去除置里面的“帮助反馈”选项；

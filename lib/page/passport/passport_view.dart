@@ -62,28 +62,26 @@ class PassportPage extends StatelessWidget {
           Jiffy.parseFromMillisecondsSinceEpoch(mts).format(pattern: "H:m");
       // "logged_in_on_another_device":"你的账号于%s在%s设备上登录了",
       Future.delayed(const Duration(milliseconds: 500), () {
-        final alert = n.Alert()
-          // ..title = Text("Session Expired")
-          ..content = SizedBox(
-            height: 40,
-            child: Center(
-              child: Text(
-                'info_logged_in_on_another_device'.trArgs([hm, deviceName]),
-              ),
-            ),
-          )
-          ..actions = [
-            n.Button('确定'.tr.n)
-              ..style =
-                  n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
-              ..onPressed = () {
-                Get.back();
-              },
-          ];
-
         n.showDialog(
           context: Get.context!,
-          builder: (context) => alert,
+          builder: (context) => n.Alert()
+            // ..title = Text("Session Expired")
+            ..content = SizedBox(
+              height: 40,
+              child: Center(
+                child: Text(
+                  'info_logged_in_on_another_device'.trArgs([hm, deviceName]),
+                ),
+              ),
+            )
+            ..actions = [
+              n.Button('确定'.tr.n)
+                ..style =
+                    n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
+                ..onPressed = () {
+                  Navigator.of(context).pop();
+                },
+            ],
           barrierDismissible: false,
         );
       });

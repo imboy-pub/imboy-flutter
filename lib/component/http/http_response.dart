@@ -20,7 +20,7 @@ class IMBoyHttpResponse {
 
   IMBoyHttpResponse.failure({String? errMsg, int? errCode, dynamic payload}) {
     error = BadRequestException(message: errMsg, code: errCode);
-    msg = errMsg ?? '';
+    msg = errMsg ?? 'unknown error';
     code = errCode ?? 1;
     payload = payload ?? {};
     ok = false;

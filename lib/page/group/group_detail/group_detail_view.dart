@@ -388,40 +388,39 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         break;
       case '清空聊天记录':
         String tips = '确定删除群的聊天记录吗？'.tr;
-        final alert = n.Alert()
-          // ..title = Text("Session Expired")
-          ..content = SizedBox(
-            height: 40,
-            child: Center(child: Text(tips)),
-          )
-          ..actions = [
-            n.Button('取消'.tr.n)
-              ..style =
-                  n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
-              ..onPressed = () {
-                Get.close(1);
-              },
-            n.Button('确定'.tr.n)
-              ..onPressed = () async {
-                // bool res = await logic.cleanMessageByPeerId(widget.peerId);
-                // Get.back();
-                // if (res) {
-                //   backDoRefresh = true;
-                //   // 刷新会话列表
-                //   await Get.find<ConversationLogic>()
-                //       .hideConversation(widget.peerId);
-                //   // 刷新会话列表
-                //   await Get.find<ConversationLogic>().conversationsList();
-                EasyLoading.showSuccess('操作成功'.tr);
-                // } else {
-                //   EasyLoading.showError('操作失败'.tr);
-                // }
-              },
-          ];
-
         n.showDialog(
           context: Get.context!,
-          builder: (context) => alert,
+          builder: (context) => n.Alert()
+            // ..title = Text("Session Expired")
+            ..content = SizedBox(
+              height: 40,
+              child: Center(child: Text(tips)),
+            )
+            ..actions = [
+              n.Button('取消'.tr.n)
+                ..style =
+                    n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
+                ..onPressed = () {
+                  Navigator.of(context).pop();
+                },
+              n.Button('确定'.tr.n)
+                ..onPressed = () async {
+                  Navigator.of(context).pop();
+                  // bool res = await logic.cleanMessageByPeerId(widget.peerId);
+                  // Get.back();
+                  // if (res) {
+                  //   backDoRefresh = true;
+                  //   // 刷新会话列表
+                  //   await Get.find<ConversationLogic>()
+                  //       .hideConversation(widget.peerId);
+                  //   // 刷新会话列表
+                  //   await Get.find<ConversationLogic>().conversationsList();
+                  EasyLoading.showSuccess('操作成功'.tr);
+                  // } else {
+                  //   EasyLoading.showError('操作失败'.tr);
+                  // }
+                },
+            ],
           barrierDismissible: true,
         );
         break;

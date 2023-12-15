@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:niku/namespace.dart' as n;
 import 'package:flutter/material.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
+
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
@@ -67,44 +69,42 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
       milliseconds: widget.message.metadata!["duration_ms"],
     );
     return Obx(
-      () => Row(
-        children: [
-          VoiceMessageView(
-              controller: VoiceController(
-                // audioSrc: widget.message.metadata!['uri'],
-                audioSrc: audioPath.value,
-                maxDuration: d,
-                isFile: true,
-                onComplete: () {
-                  iPrint('VoiceMessageView onComplete');
-                },
-                onPause: () {
-                  iPrint('VoiceMessageView onPause');
-                },
-                onPlaying: () {
-                  iPrint('VoiceMessageView onPlaying');
-                  if (widget.onPlay != null) widget.onPlay!();
-                  if (widget.message.metadata!['played'] != true) {
-                    setState(() {
-                      widget.message.metadata!['played'] = true;
-                    });
-                    Map<String, dynamic> data = {
-                      'id': widget.message.id,
-                      'payload': json.encode(widget.message.metadata),
-                    };
-                    (MessageRepo()).update(data);
-                  }
-                },
-              ),
-              innerPadding: 8,
-              cornerRadius: 20,
-              size: 28,
-              circlesColor: Colors.black38,
-              activeSliderColor: userIsAuthor
-                  ? AppColors.ChatSendMessageBgColor
-                  : AppColors.ChatSentMessageBodyTextColor),
-        ],
-      ),
+      () => n.Row([
+        VoiceMessageView(
+            controller: VoiceController(
+              // audioSrc: widget.message.metadata!['uri'],
+              audioSrc: audioPath.value,
+              maxDuration: d,
+              isFile: true,
+              onComplete: () {
+                iPrint('VoiceMessageView onComplete');
+              },
+              onPause: () {
+                iPrint('VoiceMessageView onPause');
+              },
+              onPlaying: () {
+                iPrint('VoiceMessageView onPlaying');
+                if (widget.onPlay != null) widget.onPlay!();
+                if (widget.message.metadata!['played'] != true) {
+                  setState(() {
+                    widget.message.metadata!['played'] = true;
+                  });
+                  Map<String, dynamic> data = {
+                    'id': widget.message.id,
+                    'payload': json.encode(widget.message.metadata),
+                  };
+                  (MessageRepo()).update(data);
+                }
+              },
+            ),
+            innerPadding: 4,
+            cornerRadius: 16,
+            size: 28,
+            circlesColor: Colors.black38,
+            activeSliderColor: userIsAuthor
+                ? AppColors.ChatSendMessageBgColor
+                : AppColors.ChatSentMessageBodyTextColor),
+      ]),
     );
     /*
     return VoiceMessage(

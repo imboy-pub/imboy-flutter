@@ -123,7 +123,7 @@ class FeedbackPage extends StatelessWidget {
                                       const EdgeInsets.only(left: 0),
                                   title: n.Row([
                                     Text(
-                                      '提交于'.tr,
+                                      '${model.type.tr} | 提交于'.tr,
                                       style: const TextStyle(
                                         color: AppColors.MainTextColor,
                                         fontSize: 14.0,

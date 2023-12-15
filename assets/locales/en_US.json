@@ -150,5 +150,7 @@
     "navigation_added": "%s navigation added successfully.",
     "file_created": "File: %s created successfully at path: %s",
     "route_created": "%s route created successfully."
-  }
+  },
+  "bugReport": "Bug report",
+  "featureRequest": "Feature request"
 }

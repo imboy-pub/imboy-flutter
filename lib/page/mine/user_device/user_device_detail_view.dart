@@ -145,45 +145,44 @@ class UserDeviceDetailPage extends StatelessWidget {
                 isBorder: false,
                 onPressed: () async {
                   String tips = '删除后，下次在该设备登录时需要进行安全验证。'.tr;
-                  final alert = n.Alert()
-                    ..content = SizedBox(
-                      height: 40,
-                      child: Center(
-                          child: Text(
-                        tips,
-                        style: const TextStyle(color: Colors.red),
-                      )),
-                    )
-                    ..actions = [
-                      n.Button('取消'.tr.n)
-                        ..style = n.NikuButtonStyle(
-                            foregroundColor: AppColors.ItemOnColor)
-                        ..onPressed = () {
-                          Get.close(1);
-                        },
-                      n.Button('删除'.tr.n)
-                        ..style = n.NikuButtonStyle(
-                            foregroundColor: AppColors.ItemOnColor)
-                        ..onPressed = () async {
-                          bool res = await logic.deleteDevice(
-                            model.deviceId,
-                          );
-                          Get.close(2);
-                          if (res) {
-                            state.deviceList.removeAt(
-                              state.deviceList.indexWhere(
-                                  (e) => e.deviceId == model.deviceId),
-                            );
-                            EasyLoading.showSuccess('操作成功'.tr);
-                          } else {
-                            EasyLoading.showError('操作失败'.tr);
-                          }
-                        },
-                    ];
-
                   n.showDialog(
                     context: Get.context!,
-                    builder: (context) => alert,
+                    builder: (context) => n.Alert()
+                      ..content = SizedBox(
+                        height: 40,
+                        child: Center(
+                            child: Text(
+                          tips,
+                          style: const TextStyle(color: Colors.red),
+                        )),
+                      )
+                      ..actions = [
+                        n.Button('取消'.tr.n)
+                          ..style = n.NikuButtonStyle(
+                              foregroundColor: AppColors.ItemOnColor)
+                          ..onPressed = () {
+                            Navigator.of(context).pop();
+                          },
+                        n.Button('删除'.tr.n)
+                          ..style = n.NikuButtonStyle(
+                              foregroundColor: AppColors.ItemOnColor)
+                          ..onPressed = () async {
+                            bool res = await logic.deleteDevice(
+                              model.deviceId,
+                            );
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop();
+                            if (res) {
+                              state.deviceList.removeAt(
+                                state.deviceList.indexWhere(
+                                    (e) => e.deviceId == model.deviceId),
+                              );
+                              EasyLoading.showSuccess('操作成功'.tr);
+                            } else {
+                              EasyLoading.showError('操作失败'.tr);
+                            }
+                          },
+                      ],
                     barrierDismissible: true,
                   );
                 },

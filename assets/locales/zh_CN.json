@@ -150,5 +150,7 @@
     "navigation_added": "%s navigation添加成功.",
     "file_created": "文件: %s 创建成功，路径: %s",
     "route_created": "%s route 创建成功."
-  }
+  },
+  "bugReport": "错误报告",
+  "featureRequest": "功能要求"
 }

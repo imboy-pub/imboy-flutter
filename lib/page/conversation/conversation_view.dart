@@ -137,7 +137,7 @@ class _ConversationPageState extends State<ConversationPage> {
                             key: ValueKey(model.id),
                             groupTag: '0',
                             closeOnScroll: true,
-                            endActionPane: ActionPane(
+                            startActionPane: ActionPane(
                               extentRatio: 0.75,
                               motion: const StretchMotion(),
                               children: [
@@ -204,13 +204,16 @@ class _ConversationPageState extends State<ConversationPage> {
                                 ),
                               ],
                             ),
+                            // endActionPane: null,
                             child: ConversationItem(
                               model: model,
                               remindCounter: remindNum,
                               onTapAvatar: () {
                                 Get.to(
                                   () => PeopleInfoPage(
-                                      id: model.peerId, scene: ''),
+                                    id: model.peerId,
+                                    scene: '',
+                                  ),
                                   transition: Transition.rightToLeft,
                                   popGesture: true, // 右滑，返回上一页
                                 );

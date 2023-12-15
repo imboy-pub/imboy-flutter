@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.1.24
+version: 0.1.25
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -174,7 +174,7 @@ dependencies:
   audio_session: ^0.1.18
   # 语音消息播放器
   #voice_message_package: 1.0.41
-  voice_message_package: ^2.1.3
+  voice_message_package: ^2.1.4
 #  voice_message_package:
 #    path: plugin/voice_message_package
 #    git:
@@ -230,6 +230,7 @@ dependencies:
   # 通过 RTMP 用于相机和麦克风流媒体库的 Flutter 插件。
   # haishin_kit: ^0.11.1
   flutter_whip: ^0.5.5
+  drag_ball: ^1.0.0
   # https://pub-web.flutter-io.cn/packages/rtmp_broadcaster
   #rtmp_broadcaster:
   #  git:

@@ -1,16 +1,10 @@
-import 'dart:io';
-
-import 'dart:typed_data';
-
+import 'package:drag_ball/drag_ball.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/page/mine/feedback/feedback_view.dart';
-import 'package:imboy/store/provider/attachment_provider.dart';
-import 'package:imboy/store/provider/feedback_provider.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:feedback/feedback.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
@@ -273,56 +267,19 @@ class MinePage extends StatelessWidget {
                   transform: Matrix4.translationValues(-10, 0.0, 0.0),
                   child: n.Row([
                     Text('反馈建议'.tr),
-                    const Expanded(child: SizedBox()),
-                    InkWell(
-                      child: Text(
-                        '提交反馈'.tr,
-                        style: const TextStyle(
-                          height: 2.8,
-                          // fontSize: 18,
-                          // backgroundColor: Colors.red,
-                        ),
-                      ),
-                      onTap: () {
-                        BetterFeedback.of(context)
-                            .show((UserFeedback feedback) async {
-                          // Uint8List feedbackScreenshot = feedback.screenshot
-
-                          Uint8List result;
-                          if (Platform.isAndroid || Platform.isIOS) {
-                            // 压缩上传图片
-                            result =
-                                await FlutterImageCompress.compressWithList(
-                              feedback.screenshot,
-                              minHeight: Get.height.toInt(),
-                              minWidth: Get.width.toInt(),
-                              quality: 60,
-                              // rotate: 90,
-                            );
-                          } else {
-                            result = feedback.screenshot;
-                          }
-                          await AttachmentProvider.uploadBytes(
-                              "feedback", result, (
-                            Map<String, dynamic> resp,
-                            String uri,
-                          ) async {
-                            FeedbackProvider p = FeedbackProvider();
-                            Map<String, dynamic> data = {
-                              'title': '',
-                              'description': feedback.text,
-                              'screenshot': [uri],
-                            };
-                            bool res = await p.add(data);
-                            if (res) {
-                              EasyLoading.showSuccess('操作成'.tr);
-                            } else {}
-                          }, (Error error) {
-                            debugPrint("> on upload ${error.toString()}");
-                          }, process: false);
-                        });
-                      },
-                    )
+                    // const Expanded(child: SizedBox()),
+                    // InkWell(
+                    //   child: Text(
+                    //     '提交反馈'.tr,
+                    //     style: const TextStyle(
+                    //       height: 2.8,
+                    //       // fontSize: 18,
+                    //       // backgroundColor: Colors.red,
+                    //     ),
+                    //   ),
+                    //   onTap: () {
+                    //   },
+                    // )
                   ]),
                 ),
                 trailing: Icon(

@@ -14,6 +14,7 @@ import 'feedback_logic.dart';
 
 class FeedbackDetailPage extends StatelessWidget {
   final FeedbackModel model;
+
   FeedbackDetailPage({super.key, required this.model});
 
   final logic = Get.put(FeedbackLogic());
@@ -56,6 +57,34 @@ class FeedbackDetailPage extends StatelessWidget {
               const Expanded(child: SizedBox()),
               Text(
                 model.statusDesc,
+                style: const TextStyle(
+                  color: AppColors.MainTextColor,
+                  fontSize: 14.0,
+                ),
+              ),
+            ]),
+            n.Row([
+              Text(
+                model.type.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppColors.MainTextColor,
+                  fontSize: 14.0,
+                ),
+              ),
+              const Expanded(child: SizedBox()),
+              if (model.rating.isNotEmpty)
+                IconButton(
+                  icon: Icon(
+                    model.ratingIcon,
+                    color: AppColors.secondaryElementText,
+                  ),
+                  iconSize: 32,
+                  onPressed: null,
+                ),
+              Text(
+                model.rating.tr,
                 style: const TextStyle(
                   color: AppColors.MainTextColor,
                   fontSize: 14.0,

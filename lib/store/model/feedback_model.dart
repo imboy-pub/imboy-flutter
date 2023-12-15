@@ -1,13 +1,17 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class FeedbackModel {
   int feedbackId;
+
   // String deviceId;
   // String clientOperatingSystem;
   // String clientOperatingSystemVsn;
   String appVsn;
+  String type;
+  String rating;
   String title;
   String body;
   List<dynamic> attach;
@@ -22,6 +26,8 @@ class FeedbackModel {
     // required this.clientOperatingSystem,
     // required this.clientOperatingSystemVsn,
     required this.appVsn,
+    required this.type,
+    required this.rating,
     required this.title,
     required this.body,
     required this.attach,
@@ -44,6 +50,8 @@ class FeedbackModel {
       // clientOperatingSystem: json['client_operating_system'],
       // clientOperatingSystemVsn: json['client_operating_system_vsn'],
       appVsn: json['app_vsn'],
+      type: json['type'],
+      rating: json['rating'],
       title: json['title'],
       body: json['body'],
       attach: json['attach'],
@@ -58,6 +66,8 @@ class FeedbackModel {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['feedback_id'] = feedbackId;
     data['app_vsn'] = appVsn;
+    data['type'] = type;
+    data['rating'] = rating;
     data['title'] = title;
     data['body'] = body;
     data['attach'] = attach;
@@ -79,5 +89,21 @@ class FeedbackModel {
     } else {
       return 'xx';
     }
+  }
+
+  get ratingIcon {
+    late IconData icon;
+    switch (rating) {
+      case 'bad':
+        icon = Icons.mood_bad; // 情绪不满的
+        break;
+      case 'neutral':
+        icon = Icons.sentiment_neutral; // 情绪中立的
+        break;
+      case 'good':
+        icon = Icons.mood; // 满意的
+        break;
+    }
+    return icon;
   }
 }
