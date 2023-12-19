@@ -16,6 +16,7 @@ dependencies:
   # Network
   dio: ^5.4.0 # 网络请求框架
   dio_http2_adapter: ^2.4.0
+  #web_socket_channel: ^2.4.1
   web_socket_channel: ^2.4.0
   url_launcher: ^6.2.2 # 打开url 拨打电话 发短信
   webview_flutter: ^4.4.2 # Show web page (CGU)
@@ -88,7 +89,7 @@ dependencies:
   open_file: ^3.3.2
 
   logger: ^2.0.2+1
-  sentry_flutter: ^7.13.1
+  sentry_flutter: ^7.14.0
 
   # 用于访问加速度计、陀螺仪和磁力计传感器的 Flutter 插件。
   #sensors_plus: ^4.0.1
@@ -230,7 +231,13 @@ dependencies:
   # 通过 RTMP 用于相机和麦克风流媒体库的 Flutter 插件。
   # haishin_kit: ^0.11.1
   flutter_whip: ^0.5.5
-  drag_ball: ^1.0.0
+  # 类似于 Iphone 上的 AssistiveTouch 的 Flutter 包。
+  drag_ball: ^2.0.0
+  # Flutter 包，用于在商店中有更新版本的应用程序时提示用户升级。
+  #upgrader: ^8.4.0
+  # Flutter应用升级/ Flutter App Upgrade /Flutter App Update/Flutter Update / 下载插件（有提示栏进度），支持全量升级、热更新和增量升级
+  r_upgrade: ^0.4.2
+
   # https://pub-web.flutter-io.cn/packages/rtmp_broadcaster
   #rtmp_broadcaster:
   #  git:
@@ -240,8 +247,6 @@ dependencies:
   # 还没有直接应用的库
   # 图像占位符的紧凑表示
   #flutter_blurhash: ^0.7.0
-  # Flutter应用升级/ Flutter App Upgrade /Flutter App Update/Flutter Update / 下载插件（有提示栏进度），支持全量升级、热更新和增量升级
-  #r_upgrade: ^0.4.2
   # 下载更新
   #flutter_downloader: ^1.10.4
   # 通过注释 Dart 类自动生成与 JSON 相互转换的代码。

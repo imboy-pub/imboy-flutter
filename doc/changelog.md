@@ -2,6 +2,7 @@
 * 引入 drag_ball，用户反馈新增 type rating 字段，调整提交用户反馈体验等；
 * 升级voice_message_package: ^2.1.4 调整 CustomMessageBuilder width Get.widht * 0.85
 * 修复 n.showDialog/3 点击取消无效的问题；
+* 登录或者注册的时候，提交表单之前经过，密码一次md5加密，保证调试代码的打印日志的时候也不泄露用户密码；
 * 其他代码格式调整；
 
 # 0.1.24

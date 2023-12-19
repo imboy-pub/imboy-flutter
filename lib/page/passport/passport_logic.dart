@@ -61,6 +61,7 @@ class PassportLogic extends GetxController {
   }
 
   Future<Map<String, dynamic>> encryptPassword(String password) async {
+    password = EncrypterService.md5(password);
     IMBoyHttpResponse resp1 = await HttpClient.client.get(API.initConfig);
     // debugPrint("> on init ${resp1.payload.toString()}");
     if (!resp1.ok) {
@@ -141,7 +142,7 @@ class PassportLogic extends GetxController {
   /// 用户注册
   Future<String?> signupUser(SignupData data) {
     // return null;
-    debugPrint("> on signupUser data: ${data.name}, ${data.password}");
+    // debugPrint("> on signupUser data: ${data.name}, ${data.password}");
     return doSendEmail(data.name ?? '');
   }
 
