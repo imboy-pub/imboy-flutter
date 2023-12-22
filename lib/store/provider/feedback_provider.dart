@@ -43,4 +43,22 @@ class FeedbackProvider extends HttpClient {
     debugPrint("> on Provider/feedbackRemove resp: ${resp.payload}");
     return resp.ok ? true : false;
   }
+
+  Future<Map<String, dynamic>?> pageReply(
+    int feedbackId, {
+    int page = 1,
+    int size = 10,
+  }) async {
+    IMBoyHttpResponse resp = await get(API.feedbackPageReply, queryParameters: {
+      'feedback_id': feedbackId,
+      'page': page,
+      'size': size,
+    });
+    debugPrint(
+        "> on Provider/feedbackPageReply resp: ${resp.payload.toString()}");
+    if (!resp.ok) {
+      return null;
+    }
+    return resp.payload;
+  }
 }

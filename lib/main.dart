@@ -148,8 +148,7 @@ class IMBoyApp extends StatelessWidget {
 
               Map<String, dynamic> data = {
                 'title': '',
-                'rating':
-                    rating.toString().split('.').last.replaceAll('_', ' '),
+                'rating': rating,
                 'type': type.toString().split('.').last.replaceAll('_', ' '),
                 'description': feedback.text,
                 'screenshot': [uri],

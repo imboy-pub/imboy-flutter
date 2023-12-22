@@ -3,7 +3,10 @@
 * 升级voice_message_package: ^2.1.4 调整 CustomMessageBuilder width Get.widht * 0.85
 * 修复 n.showDialog/3 点击取消无效的问题；
 * 登录或者注册的时候，提交表单之前经过，密码一次md5加密，保证调试代码的打印日志的时候也不泄露用户密码；
+* 引入 flutter_rating_bar，用户反馈评级使用五星评级;
+* 添加回复列表；
 * 其他代码格式调整；
+* 升级一些依赖
 
 # 0.1.24
 * 引入 feedback flutter_image_compress; 

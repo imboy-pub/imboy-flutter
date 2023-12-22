@@ -116,7 +116,7 @@ dependencies:
   # 轮播滑块小部件
   carousel_slider: ^4.2.1
   # 具有登录/注册功能的登录小部件，有助于加快开发速度
-  flutter_login: ^4.2.1
+  flutter_login: ^5.0.0
   # 进度条
   percent_indicator: ^4.2.3
   # 一个干净和轻量级的加载/吐司小部件
@@ -237,6 +237,7 @@ dependencies:
   #upgrader: ^8.4.0
   # Flutter应用升级/ Flutter App Upgrade /Flutter App Update/Flutter Update / 下载插件（有提示栏进度），支持全量升级、热更新和增量升级
   r_upgrade: ^0.4.2
+  flutter_rating_bar: ^4.0.1
 
   # https://pub-web.flutter-io.cn/packages/rtmp_broadcaster
   #rtmp_broadcaster:
@@ -257,6 +258,7 @@ dependencies:
 
 dependency_overrides:
   http: ^1.1.2
+  #jiffy: ^6.2.2
   #voice_message_package: 1.0.41
   logger: ^2.0.2+1
   #webview_flutter_wkwebview: '3.5.0'

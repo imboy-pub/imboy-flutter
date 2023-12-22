@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/feedback_builder.dart';
 
 class FeedbackModel {
   int feedbackId;
@@ -12,7 +12,6 @@ class FeedbackModel {
   String appVsn;
   String type;
   String rating;
-  String title;
   String body;
   List<dynamic> attach;
   int replyCount;
@@ -28,7 +27,6 @@ class FeedbackModel {
     required this.appVsn,
     required this.type,
     required this.rating,
-    required this.title,
     required this.body,
     required this.attach,
     required this.replyCount,
@@ -51,10 +49,9 @@ class FeedbackModel {
       // clientOperatingSystemVsn: json['client_operating_system_vsn'],
       appVsn: json['app_vsn'],
       type: json['type'],
-      rating: json['rating'],
-      title: json['title'],
+      rating: json['rating'].toString(),
       body: json['body'],
-      attach: json['attach'],
+      attach: json['attach'] ?? [],
       replyCount: json['reply_count'],
       status: json['status'],
       updatedAt: json['updated_at'],
@@ -68,7 +65,6 @@ class FeedbackModel {
     data['app_vsn'] = appVsn;
     data['type'] = type;
     data['rating'] = rating;
-    data['title'] = title;
     data['body'] = body;
     data['attach'] = attach;
     data['reply_count'] = replyCount;
@@ -87,23 +83,12 @@ class FeedbackModel {
     } else if (status == 3) {
       return '已完结'.tr;
     } else {
-      return 'xx';
+      return '';
     }
   }
 
-  get ratingIcon {
-    late IconData icon;
-    switch (rating) {
-      case 'bad':
-        icon = Icons.mood_bad; // 情绪不满的
-        break;
-      case 'neutral':
-        icon = Icons.sentiment_neutral; // 情绪中立的
-        break;
-      case 'good':
-        icon = Icons.mood; // 满意的
-        break;
-    }
-    return icon;
+  // 评级描述
+  get ratingDesc {
+    return IMBoyFeedback(rating: rating).ratingDesc;
   }
 }

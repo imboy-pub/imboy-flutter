@@ -769,10 +769,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_login
-      sha256: "97f27a52bd68038090bd79f22600ad9ae86158f1d55c47e3d0cef66b299579f3"
+      sha256: "1f7c46d0d76081cf4c5180e3a265b1f5b1d7e48c81859f58f03a8dcd27338b85"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.2.1"
+    version: "5.0.0"
   flutter_markdown:
     dependency: "direct main"
     description:
@@ -805,6 +805,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.17"
+  flutter_rating_bar:
+    dependency: "direct main"
+    description:
+      name: flutter_rating_bar
+      sha256: d2af03469eac832c591a1eba47c91ecc871fe5708e69967073c043b2d775ed93
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.0.1"
   flutter_screenutil:
     dependency: "direct main"
     description:

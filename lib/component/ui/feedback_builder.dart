@@ -1,6 +1,8 @@
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/config/const.dart';
@@ -11,17 +13,17 @@ class IMBoyFeedback {
   IMBoyFeedback({
     this.feedbackType,
     this.feedbackText = '',
-    this.rating,
+    this.rating = '3.0',
   });
 
   FeedbackType? feedbackType;
   String feedbackText;
-  FeedbackRating? rating;
+  String rating;
 
   @override
   String toString() {
     return {
-      if (rating != null) 'rating': rating.toString(),
+      'rating': rating,
       'feedback_type': feedbackType.toString(),
       'feedback_text': feedbackText,
     }.toString();
@@ -29,10 +31,25 @@ class IMBoyFeedback {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      if (rating != null) 'rating': rating.toString(),
+      'rating': rating,
       'feedback_type': feedbackType.toString(),
       'feedback_text': feedbackText,
     };
+  }
+
+  // 评级描述
+  get ratingDesc {
+    if (double.parse(rating) == 5.0) {
+      return '非常棒'.tr;
+    } else if (double.parse(rating) >= 4.0) {
+      return '很棒'.tr;
+    } else if (double.parse(rating) >= 3.0) {
+      return '还不错'.tr;
+    } else if (double.parse(rating) >= 2.0) {
+      return '需要继续加油'.tr;
+    } else {
+      return '太差了'.tr;
+    }
   }
 }
 
@@ -40,13 +57,6 @@ class IMBoyFeedback {
 enum FeedbackType {
   bugReport,
   featureRequest,
-}
-
-/// A user-provided sentiment rating.
-enum FeedbackRating {
-  bad,
-  neutral,
-  good,
 }
 
 /// A form that prompts the user for the type of feedback they want to give,
@@ -179,10 +189,37 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                   const SizedBox(height: 16),
                   // const Text('How does this make you feel?'),
                   Text('这让你感觉如何?'.tr),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: FeedbackRating.values.map(_ratingToIcon).toList(),
+                  n.Padding(
+                    top: 12,
+                    bottom: 12,
+                    child: n.Row([
+                      Text('评级'.tr),
+                      Text(': ${_feedback.rating}    '),
+                      Text(_feedback.ratingDesc),
+                    ])
+                      // 内容居中
+                      ..mainAxisAlignment = MainAxisAlignment.center,
                   ),
+                  n.Row([
+                    RatingBar.builder(
+                      initialRating: 3,
+                      minRating: 1,
+                      direction: Axis.horizontal,
+                      allowHalfRating: true,
+                      itemCount: 5,
+                      itemPadding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      itemBuilder: (context, _) => const Icon(
+                        Icons.star,
+                        color: Colors.amber,
+                      ),
+                      onRatingUpdate: (rating) {
+                        iPrint(rating.toString());
+                        setState(() => _feedback.rating = rating.toString());
+                      },
+                    ),
+                  ])
+                    // 内容居中
+                    ..mainAxisAlignment = MainAxisAlignment.center,
                 ],
               ),
             ],
@@ -215,28 +252,6 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
       onTap: () {
         focusNode.unfocus();
       },
-    );
-  }
-
-  Widget _ratingToIcon(FeedbackRating rating) {
-    final bool isSelected = _feedback.rating == rating;
-    late IconData icon;
-    switch (rating) {
-      case FeedbackRating.bad:
-        icon = Icons.mood_bad; // 情绪不满的
-        break;
-      case FeedbackRating.neutral:
-        icon = Icons.sentiment_neutral; // 情绪中立的
-        break;
-      case FeedbackRating.good:
-        icon = Icons.mood; // 满意的
-        break;
-    }
-    return IconButton(
-      color: isSelected ? AppColors.secondaryElementText : Colors.grey,
-      onPressed: () => setState(() => _feedback.rating = rating),
-      icon: Icon(icon),
-      iconSize: 36,
     );
   }
 }

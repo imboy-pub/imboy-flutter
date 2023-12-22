@@ -43,6 +43,17 @@ class _SettingPageState extends State<SettingPage> {
                   Icons.navigate_next,
                   color: AppColors.MainTextColor.withOpacity(0.5),
                 ),
+                onTap: () {
+                  // Get.to(
+                  //       () => MarkdownPage(
+                  //     title: '更新日志'.tr,
+                  //     url:
+                  //     "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
+                  //   ),
+                  //   transition: Transition.rightToLeft,
+                  //   popGesture: true, // 右滑，返回上一页
+                  // );
+                },
               ),
               n.Padding(left: 18, child: const Divider()),
               n.ListTile(
@@ -123,6 +134,7 @@ class _SettingPageState extends State<SettingPage> {
               ),
             ]),
           ),
+          /*
           ButtonRow(
             margin: const EdgeInsets.only(
               top: 10.0,
@@ -136,6 +148,7 @@ class _SettingPageState extends State<SettingPage> {
             isBorder: false,
             onPressed: () async {},
           ),
+          */
           ButtonRow(
             margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
             text: '退出登录'.tr,

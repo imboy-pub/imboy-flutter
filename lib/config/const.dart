@@ -215,6 +215,8 @@ class API {
   static const feedbackAdd = '/feedback/add';
   static const feedbackRemove = '/feedback/remove';
   static const feedbackChange = '/feedback/change';
+  static const feedbackPageReply = '/feedback/page_reply';
+  static const feedbackReply = '/feedback/reply';
 
   // 附近的人
   static const peopleNearby = '/location/peopleNearby';
