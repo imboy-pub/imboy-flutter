@@ -117,10 +117,6 @@ class IMBoyApp extends StatelessWidget {
             iPrint(
                 "BetterFeedback show extra ${feedback.extra.toString()} isLogin ${UserRepoLocal.to.isLogin}");
             // Uint8List feedbackScreenshot = feedback.screenshot
-            // if (UserRepoLocal.to.isLogin == false) {
-            //   EasyLoading.showError("需要登录才能提交反馈建议".tr);
-            //   return;
-            // }
             if (feedback.text.isEmpty) {
               EasyLoading.showError("反馈内容不能为空".tr);
               return;
@@ -207,6 +203,7 @@ class IMBoyApp extends StatelessWidget {
             builder: EasyLoading.init(),
             theme: ThemeData(
               platform: TargetPlatform.iOS,
+              // brightness: Get.find<ThemeController>().darkMode,
               brightness: Get.find<ThemeController>().darkMode == 0
                   ? Brightness.light
                   : Brightness.dark,

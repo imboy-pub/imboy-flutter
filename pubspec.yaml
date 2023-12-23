@@ -109,6 +109,7 @@ dependencies:
   fps_monitor: ^2.0.0
   # 时间处理
   jiffy: ^6.2.1
+  #jiffy: ^6.2.2
   # 用于校正本地系统与时钟源服务器之前的时间
   ntp: ^2.0.0
   # Flutter 的表情符号选择器
@@ -147,12 +148,12 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/popup_menu.git
       ref: master
   # 从实用程序 Widget 和带有点级联的扩展中构建 Flutter UI。流畅地开发，没有头痛和嵌套地狱。
-  # niku: ^2.4.2
-  niku:
-    #path: plugin/niku
-    git:
-      url: https://gitee.com/imboy-tripartite-deps/niku.git
-      ref: main
+  niku: ^2.4.3
+  #niku:
+    # path: plugin/niku
+    # git:
+    #   url: https://gitee.com/imboy-tripartite-deps/niku.git
+    #   ref: main
   # 二维码扫描
   mobile_scanner: ^3.5.5
   #  mobile_scanner:
@@ -234,9 +235,9 @@ dependencies:
   # 类似于 Iphone 上的 AssistiveTouch 的 Flutter 包。
   drag_ball: ^2.0.0
   # Flutter 包，用于在商店中有更新版本的应用程序时提示用户升级。
-  #upgrader: ^8.4.0
+  upgrader: ^8.4.0
   # Flutter应用升级/ Flutter App Upgrade /Flutter App Update/Flutter Update / 下载插件（有提示栏进度），支持全量升级、热更新和增量升级
-  r_upgrade: ^0.4.2
+  #r_upgrade: ^0.4.2
   flutter_rating_bar: ^4.0.1
 
   # https://pub-web.flutter-io.cn/packages/rtmp_broadcaster
@@ -257,8 +258,7 @@ dependencies:
   #huawei_account: ^6.1.0+304
 
 dependency_overrides:
-  http: ^1.1.2
-  #jiffy: ^6.2.2
+  #http: ^1.1.2
   #voice_message_package: 1.0.41
   logger: ^2.0.2+1
   #webview_flutter_wkwebview: '3.5.0'

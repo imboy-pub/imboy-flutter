@@ -167,11 +167,11 @@ class UserDeviceDetailPage extends StatelessWidget {
                           ..style = n.NikuButtonStyle(
                               foregroundColor: AppColors.ItemOnColor)
                           ..onPressed = () async {
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop();
                             bool res = await logic.deleteDevice(
                               model.deviceId,
                             );
-                            Navigator.of(context).pop();
-                            Navigator.of(context).pop();
                             if (res) {
                               state.deviceList.removeAt(
                                 state.deviceList.indexWhere(

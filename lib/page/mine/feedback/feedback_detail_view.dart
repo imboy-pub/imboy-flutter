@@ -27,6 +27,7 @@ class FeedbackDetailPage extends StatelessWidget {
   final state = Get.find<FeedbackLogic>().state;
 
   void initData() async {
+    state.pageReplyList.value = [];
     var list = await logic.pageReply(
       model.feedbackId,
       page: page,
