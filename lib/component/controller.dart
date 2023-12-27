@@ -14,6 +14,7 @@ class ThemeController extends GetxController {
   // ? Brightness.light
   //     : Brightness.dark
   var _darkMode = 0;
+
   get darkMode => _darkMode;
 
   void changeMode(value) {

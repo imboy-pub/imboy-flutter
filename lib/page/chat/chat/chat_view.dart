@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
@@ -11,9 +10,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart' as getx;
 
+import 'package:image/image.dart' as img;
 import 'package:map_launcher/map_launcher.dart';
 import 'package:mime/mime.dart';
 import 'package:niku/namespace.dart' as n;
@@ -486,21 +485,8 @@ class ChatPageState extends State<ChatPage> {
     String latitude,
     String longitude,
   ) async {
-    Uint8List result;
-    if (Platform.isAndroid || Platform.isIOS) {
-      // 压缩上传图片
-      result = await FlutterImageCompress.compressWithList(
-        imageBytes!,
-        minHeight: getx.Get.height.toInt(),
-        minWidth: getx.Get.width.toInt(),
-        quality: 60,
-      );
-    } else {
-      result = imageBytes!;
-    }
-    // final tempDir = await getTemporaryDirectory();
-    // final file = await File('${tempDir.path}/$id.png').create();
-    // file.writeAsBytesSync(imageBytes as List<int>);
+    img.Image image = img.decodeImage(imageBytes!)!;
+    final result = img.encodeJpg(image, quality: 65);
     AttachmentProvider.uploadBytes("location", result, (
       Map<String, dynamic> resp,
       String imgUrl,

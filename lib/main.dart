@@ -1,13 +1,12 @@
-import 'dart:io';
-
 import 'package:drag_ball/drag_ball.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:image/image.dart' as img;
+
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/feedback_builder.dart';
 
@@ -121,19 +120,10 @@ class IMBoyApp extends StatelessWidget {
               EasyLoading.showError("反馈内容不能为空".tr);
               return;
             }
-            Uint8List result;
-            if (Platform.isAndroid || Platform.isIOS) {
-              // 压缩上传图片
-              result = await FlutterImageCompress.compressWithList(
-                feedback.screenshot,
-                minHeight: Get.height.toInt(),
-                minWidth: Get.width.toInt(),
-                quality: 60,
-                // rotate: 90,
-              );
-            } else {
-              result = feedback.screenshot;
-            }
+
+            img.Image image = img.decodeImage(feedback.screenshot)!;
+            final result = img.encodeJpg(image, quality: 70);
+
             await AttachmentProvider.uploadBytes("feedback", result, (
               Map<String, dynamic> resp,
               String uri,
@@ -143,9 +133,9 @@ class IMBoyApp extends StatelessWidget {
               var rating = feedback.extra?['rating'] ?? '';
 
               Map<String, dynamic> data = {
-                'title': '',
                 'rating': rating,
                 'type': type.toString().split('.').last.replaceAll('_', ' '),
+                'title': '',
                 'description': feedback.text,
                 'screenshot': [uri],
               };

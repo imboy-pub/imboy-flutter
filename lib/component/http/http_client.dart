@@ -23,7 +23,7 @@ import 'http_transformer.dart';
 
 Future<Map<String, dynamic>> defaultHeaders() async {
   return {
-    'cos': Platform.operatingSystem,
+    'cos': Platform.operatingSystem, // device_type: iso android macos web
     'cosv': Platform.operatingSystemVersion,
     'vsn': appVsn,
     'did': deviceId,

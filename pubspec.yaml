@@ -126,7 +126,6 @@ dependencies:
   flutter_native_splash: ^2.3.8
   flutter_chat_ui: ^1.6.10
   feedback: ^3.0.0
-  flutter_image_compress: ^2.1.0
   #flutter_chat_ui:
   #  #path: plugin/flutter_chat_ui
   #  git:
@@ -136,6 +135,8 @@ dependencies:
   # image_crop: ^0.4.1
   # image_crop:
   #  path: plugin/image_crop
+  #
+  image: ^4.1.3
   image_crop:
     git:
       url: https://gitee.com/imboy-tripartite-deps/image_crop.git
