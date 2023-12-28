@@ -306,6 +306,17 @@ class SqliteDdl {
     // await db.execute(userTagRelationSql);
   }
 
+  static Future onCreate(Database db, int version) async {
+    await SqliteDdl.contact(db);
+    await SqliteDdl.conversation(db);
+    await SqliteDdl.message(db);
+    await SqliteDdl.newFriend(db);
+    await SqliteDdl.userDenylist(db);
+    await SqliteDdl.userDevice(db);
+    await SqliteDdl.userCollect(db);
+    await SqliteDdl.userTag(db);
+  }
+
   static Future onUpgrade(Database db, int oldVsn, int newVsn) async {
     if (oldVsn == 1 && newVsn == 2) {
       await SqliteDdl.userCollect(db);

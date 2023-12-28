@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/sqlite_ddl.dart';
 import 'package:imboy/store/repository/user_collect_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -39,27 +40,7 @@ class SqliteService {
 
   Future<Database> initDatabase(String dbName) async {
     String path = join(await getDatabasesPath(), dbName);
-    debugPrint("> on open db path {$path}");
-    // // 当[readOnly](默认为false)为true时，其他参数均为忽略，数据库按原样打开
-    // bool isexits = await databaseExists(path);
-    // debugPrint("> on open db readOnly: ${isexits}, path {$path}");
-    // Delete the database
-    // await deleteDatabase(path);
-    // final dbFactory = createDatabaseFactoryFfi(ffiInit: () {
-    //   open.overrideForAll(sqlcipherOpen);
-    // });
-    // return await dbFactory.openDatabase(
-    //   path,
-    //   options: OpenDatabaseOptions(
-    //     version: _dbVersion,
-    //     readOnly: false,
-    //     onConfigure: _onConfigure,
-    //     onCreate: _onCreate,
-    //     onUpgrade: _onUpgrade,
-    //     onDowngrade: _onDowngrade,
-    //   ),
-    // );
-
+    // debugPrint("> on open db path {$path}");
     return await openDatabase(
       path,
       version: _dbVersion,
@@ -75,6 +56,7 @@ class SqliteService {
   /// 它允许您执行数据库初始化，例如启用外键或预写日志
   Future<FutureOr<void>> _onConfigure(Database db) async {
     debugPrint("SqliteService_onConfigure ${db.toString()}");
+    // https://github.com/davidmartos96/sqflite_sqlcipher/blob/master/sqflite/README.md
     // https://github.com/tekartik/sqflite/blob/master/sqflite_common_ffi/doc/encryption_support.md
     // This is the part where we pass the "password"
     // await db.rawQuery("PRAGMA KEY='$SOLIDIFIED_KEY}'");
@@ -95,15 +77,12 @@ class SqliteService {
 
   /// 如果在调用之前数据库不存在，则调用[onCreate]
   Future _onCreate(Database db, int version) async {
-    debugPrint("SqliteService_onDowngrade version: $version");
-    await SqliteDdl.contact(db);
-    await SqliteDdl.conversation(db);
-    await SqliteDdl.message(db);
-    await SqliteDdl.newFriend(db);
-    await SqliteDdl.userDenylist(db);
-    await SqliteDdl.userDevice(db);
-    await SqliteDdl.userCollect(db);
-    await SqliteDdl.userTag(db);
+    iPrint("SqliteService_onCreate");
+    try {
+      await SqliteDdl.onCreate(db, version);
+    } catch (e) {
+      iPrint("SqliteService_onCreate error: $e");
+    }
   }
 
   /// 数据库已经存在，且[version]高于上一个数据库

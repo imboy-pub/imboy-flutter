@@ -305,7 +305,7 @@ class MessageService extends GetxService {
       type: data['type'],
       msgType: msgType,
       lastMsgId: data['id'],
-      lastTime: DateTimeHelper.currentTimeMillis(),
+      lastTime: data['created_at'] ?? DateTimeHelper.currentTimeMillis(),
       unreadNum: 1,
       id: 0,
     );

@@ -116,7 +116,7 @@ class AMapHelper {
 
   /// 开始定位
   Future<AMapPosition?> startLocation() async {
-    debugPrint("AMapHelper Start === ");
+    // debugPrint("AMapHelper Start === ");
     bool p = await requestLocationPermission();
     if (!p) {
       return null;
