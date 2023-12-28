@@ -14,11 +14,13 @@ class IMBoyFeedback {
     this.feedbackType,
     this.feedbackText = '',
     this.rating = '3.0',
+    this.contactDetail = '',
   });
 
   FeedbackType? feedbackType;
   String feedbackText;
   String rating;
+  String contactDetail;
 
   @override
   String toString() {
@@ -26,6 +28,7 @@ class IMBoyFeedback {
       'rating': rating,
       'feedback_type': feedbackType.toString(),
       'feedback_text': feedbackText,
+      'contact_detail': contactDetail,
     }.toString();
   }
 
@@ -34,6 +37,7 @@ class IMBoyFeedback {
       'rating': rating,
       'feedback_type': feedbackType.toString(),
       'feedback_text': feedbackText,
+      'contact_detail': contactDetail,
     };
   }
 
@@ -79,7 +83,8 @@ class IMBoyFeedbackForm extends StatefulWidget {
 
 class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
   final IMBoyFeedback _feedback = IMBoyFeedback();
-  final FocusNode focusNode = FocusNode();
+  final FocusNode descFocusNode = FocusNode();
+  final FocusNode contactFocusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -173,18 +178,58 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                         ),
                       ),
                     ),
-                    // focusNode: _inputFocusNode,
                     maxLength: 400,
                     maxLines: 16,
-                    minLines: 4,
+                    minLines: 6,
                     // 长按是否展示【剪切/复制/粘贴菜单LengthLimitingTextInputFormatter】
                     enableInteractiveSelection: true,
                     keyboardType: TextInputType.multiline,
                     textCapitalization: TextCapitalization.sentences,
                     textInputAction: TextInputAction.newline,
-                    focusNode: focusNode,
+                    focusNode: descFocusNode,
                     onChanged: (newFeedback) =>
                         _feedback.feedbackText = newFeedback,
+                  ),
+                  const SizedBox(height: 16),
+                  Text('你的联系方式'.tr),
+                  TextField(
+                    cursorColor: Colors.black54,
+                    decoration: const InputDecoration(
+                      labelText: "",
+                      labelStyle: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.MainTextColor,
+                      ),
+                      contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      fillColor: Color.fromARGB(255, 247, 247, 247),
+                      filled: true,
+                      enabledBorder: OutlineInputBorder(
+                        /*边角*/
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(5), //边角为5
+                        ),
+                        borderSide: BorderSide(
+                          color: Colors.white, //边线颜色为白色
+                          width: 1, //边线宽度为2
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.white, //边框颜色为白色
+                          width: 1, //宽度为5
+                        ),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(5), //边角为30
+                        ),
+                      ),
+                    ),
+                    // 长按是否展示【剪切/复制/粘贴菜单LengthLimitingTextInputFormatter】
+                    enableInteractiveSelection: true,
+                    keyboardType: TextInputType.multiline,
+                    textCapitalization: TextCapitalization.sentences,
+                    textInputAction: TextInputAction.newline,
+                    focusNode: contactFocusNode,
+                    onChanged: (val) => _feedback.contactDetail = val,
                   ),
                   const SizedBox(height: 16),
                   // const Text('How does this make you feel?'),
@@ -250,7 +295,8 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
         const SizedBox(height: 4),
       ]),
       onTap: () {
-        focusNode.unfocus();
+        descFocusNode.unfocus();
+        contactFocusNode.unfocus();
       },
     );
   }

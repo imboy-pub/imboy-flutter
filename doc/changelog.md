@@ -7,6 +7,7 @@
 * 添加回复列表；
 * 使用 image: ^4.1.3 替换 flutter_image_compress: ^2.1.0 做图片压缩；
 * 修复 conversation/lastTime 问题，取最近聊天消息的created_at；
+* 用户反馈新增联系方式字段；
 * 其他代码格式调整；
 * 升级一些依赖
 
