@@ -175,9 +175,9 @@ class API {
   static const getCode = '/passport/getcode';
   static const findPassword = '/passport/findpassword';
   static const assetsToken = '/auth/get_token';
-  static const appVersion = '/app/version';
-  static const sqliteUpgradeDdl = '/app/version/sqlite_upgrade_ddl';
-  static const sqliteDowngradeDdl = '/app/version/sqlite_downgrade_ddl';
+  static const appVersionCheck = '/app_version/check';
+  static const sqliteUpgradeDdl = '/app_version/upgrade_ddl';
+  static const sqliteDowngradeDdl = '/app_version/downgrade_ddl';
 
   static const addFriend = '/friend/add';
   static const confirmFriend = '/friend/confirm';

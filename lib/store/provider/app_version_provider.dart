@@ -5,7 +5,7 @@ import 'package:imboy/config/const.dart';
 
 class AppVersionProvider extends HttpClient {
   Future<Map<String, dynamic>> check(String vsn) async {
-    IMBoyHttpResponse resp = await get(API.appVersion, queryParameters: {
+    IMBoyHttpResponse resp = await get(API.appVersionCheck, queryParameters: {
       'vsn': vsn,
     });
     debugPrint("AppVersionProvider_check resp: ${resp.payload.toString()}");
