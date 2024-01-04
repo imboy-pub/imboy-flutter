@@ -11,6 +11,7 @@ import device_info_plus
 import emoji_picker_flutter
 import file_selector_macos
 import flutter_app_badger
+import flutter_inappwebview_macos
 import flutter_local_notifications
 import flutter_webrtc
 import fvp
@@ -34,6 +35,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   EmojiPickerFlutterPlugin.register(with: registry.registrar(forPlugin: "EmojiPickerFlutterPlugin"))
   FileSelectorPlugin.register(with: registry.registrar(forPlugin: "FileSelectorPlugin"))
   FlutterAppBadgerPlugin.register(with: registry.registrar(forPlugin: "FlutterAppBadgerPlugin"))
+  InAppWebViewFlutterPlugin.register(with: registry.registrar(forPlugin: "InAppWebViewFlutterPlugin"))
   FlutterLocalNotificationsPlugin.register(with: registry.registrar(forPlugin: "FlutterLocalNotificationsPlugin"))
   FlutterWebRTCPlugin.register(with: registry.registrar(forPlugin: "FlutterWebRTCPlugin"))
   FvpPlugin.register(with: registry.registrar(forPlugin: "FvpPlugin"))

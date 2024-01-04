@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:imboy/store/provider/app_version_provider.dart';
 
 const contactAssets = 'assets/images/contact/';
 
@@ -34,6 +35,10 @@ String TURN_URL = dotenv.get('TURN_URL');
 String API_BASE_URL = dotenv.get('API_BASE_URL');
 String UPLOAD_BASE_URL = dotenv.get('UPLOAD_BASE_URL');
 String UPLOAD_SENCE = dotenv.get('UPLOAD_SENCE');
+
+String IOS_APP_ID = dotenv.get('IOS_APP_ID');
+
+final AppVersionProvider vsnProvider = AppVersionProvider();
 
 class Keys {
   // 客服端Key
@@ -170,6 +175,9 @@ class API {
   static const getCode = '/passport/getcode';
   static const findPassword = '/passport/findpassword';
   static const assetsToken = '/auth/get_token';
+  static const appVersion = '/app/version';
+  static const sqliteUpgradeDdl = '/app/version/sqlite_upgrade_ddl';
+  static const sqliteDowngradeDdl = '/app/version/sqlite_downgrade_ddl';
 
   static const addFriend = '/friend/add';
   static const confirmFriend = '/friend/confirm';

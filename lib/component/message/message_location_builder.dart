@@ -13,6 +13,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:niku/namespace.dart' as n;
+import 'package:octo_image/octo_image.dart';
 
 class LocationMessageBuilder extends StatelessWidget {
   const LocationMessageBuilder({
@@ -132,13 +133,15 @@ class LocationMessageBuilder extends StatelessWidget {
                 onTap: () async {
                   zoomInPhotoView(thumb);
                 },
-                child: Image(
+                child: OctoImage(
                   width: Get.width,
                   fit: BoxFit.cover,
                   image: cachedImageProvider(
                     thumb,
                     w: Get.width,
                   ),
+                  errorBuilder: (context, error, stacktrace) =>
+                      const Icon(Icons.error),
                 ),
               ),
             ),

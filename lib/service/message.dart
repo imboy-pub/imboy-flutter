@@ -2,18 +2,21 @@ import 'dart:async';
 import 'dart:convert';
 
 // ignore: depend_on_referenced_packages
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
 import 'package:imboy/component/webrtc/func.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:imboy/page/contact/new_friend/new_friend_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/passport/passport_view.dart';
+import 'package:imboy/page/single/upgrade.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -246,6 +249,27 @@ class MessageService extends GetxService {
         await (UserProvider()).refreshAccessTokenApi(
             UserRepoLocal.to.refreshToken,
             checkNewToken: true);
+        break;
+      case 'app_upgrade':
+        final Map<String, dynamic> info = await vsnProvider.check(
+          appVsn,
+        );
+        final String downLoadUrl = info['download_url'] ?? '';
+        bool updatable = info['updatable'] ?? false;
+        updatable = downLoadUrl.isEmpty ? false : updatable;
+        if (updatable) {
+          await Navigator.of(Get.context!).push(
+            CupertinoPageRoute(
+              // “右滑返回上一页”功能
+              builder: (_) => UpgradePage(
+                version: info['vsn'],
+                downLoadUrl: downLoadUrl,
+                message: info['description'] ?? '',
+                isForce: 1 == (info['force_update'] ?? 2) ? true : false,
+              ),
+            ),
+          );
+        }
         break;
       case 'online': // 好友上线提醒
         // TODO

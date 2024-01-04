@@ -152,5 +152,6 @@
     "route_created": "%s route 创建成功."
   },
   "bugReport": "错误报告",
-  "featureRequest": "功能要求"
+  "featureRequest": "功能要求",
+  "ios_app_id_unknown": "AppStore未上架或AppID[%s]不存在"
 }

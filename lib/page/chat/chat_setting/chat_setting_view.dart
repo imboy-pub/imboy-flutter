@@ -4,7 +4,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
-import 'package:imboy/component/web_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/search/search_view.dart';
@@ -136,6 +135,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
           );
         },
       ),
+      /*
       LabelRow(
           label: '投诉'.tr,
           margin: const EdgeInsets.only(top: 10.0),
@@ -146,6 +146,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
               popGesture: true, // 右滑，返回上一页
             );
           }),
+      */
     ];
   }
 

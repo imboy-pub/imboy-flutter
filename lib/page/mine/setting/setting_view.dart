@@ -1,5 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/single/upgrade.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/button.dart';
@@ -121,9 +124,63 @@ class _SettingPageState extends State<SettingPage> {
                   color: AppColors.MainTextColor.withOpacity(0.5),
                 ),
                 onTap: () {
+                  final rightDMActions = [
+                    n.Padding(
+                      right: 10,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final navigator = Navigator.of(context);
+                          final Map<String, dynamic> info =
+                              await vsnProvider.check(
+                            appVsn,
+                          );
+                          final String downLoadUrl = info['download_url'] ?? '';
+                          bool updatable = info['updatable'] ?? false;
+                          updatable = downLoadUrl.isEmpty ? false : updatable;
+                          if (updatable) {
+                            await navigator.push(
+                              CupertinoPageRoute(
+                                // “右滑返回上一页”功能
+                                builder: (_) => UpgradePage(
+                                  version: info['vsn'],
+                                  downLoadUrl: downLoadUrl,
+                                  message: info['description'] ?? '',
+                                  isForce: 1 == (info['force_update'] ?? 2)
+                                      ? true
+                                      : false,
+                                ),
+                              ),
+                            );
+                          } else {
+                            EasyLoading.showInfo('未检测到新版本'.tr);
+                          }
+                        },
+                        // ignore: sort_child_properties_last
+                        child: Text(
+                          '检查更新'.tr,
+                          textAlign: TextAlign.center,
+                        ),
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                            AppColors.primaryElement,
+                          ),
+                          foregroundColor: MaterialStateProperty.all<Color>(
+                            Colors.white,
+                          ),
+                          minimumSize: MaterialStateProperty.all(
+                            const Size(80, 32),
+                          ),
+                          padding: MaterialStateProperty.all(
+                            EdgeInsets.zero,
+                          ),
+                        ),
+                      ),
+                    )
+                  ];
                   Get.to(
                     () => MarkdownPage(
                       title: '关于IMBoy'.tr,
+                      rightDMActions: rightDMActions,
                       url:
                           "https://gitee.com/imboy-pub/imboy-flutter/raw/main/README.md",
                     ),

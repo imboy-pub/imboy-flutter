@@ -1,3 +1,8 @@
+# 0.1.26
+* 引入 octo_image 库，聊天图片做相关调整；
+* 引入 r_upgrade 库，做Android IOS APP升级功能；
+* 其他一些细节调整，升级一些依赖；
+
 # 0.1.25
 * 引入 drag_ball，用户反馈新增 type rating 字段，调整提交用户反馈体验等；
 * 升级voice_message_package: ^2.1.4 调整 CustomMessageBuilder width Get.widht * 0.85

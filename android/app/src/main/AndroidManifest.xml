@@ -1,6 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="pub.imoby.apk">
+    <!--(如果需要上架到google store ,不能添加这个权限 , 也无法使用应用内更新功能)-->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!--(静默安装需要添加这个权限，并且需要系统应用-->
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES" tools:ignore="ProtectedPermissions"/>
     <!--允许访问网络，必选权限-->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />

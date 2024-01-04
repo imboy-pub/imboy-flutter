@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/user_tag_repo_sqlite.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -318,18 +319,30 @@ class SqliteDdl {
   }
 
   static Future onUpgrade(Database db, int oldVsn, int newVsn) async {
-    if (oldVsn == 1 && newVsn == 2) {
-      await SqliteDdl.userCollect(db);
-    } else if (oldVsn == 2 && newVsn == 3) {
-      await db.execute('''ALTER TABLE ${UserCollectRepo.tableName} 
-          ADD COLUMN ${UserCollectRepo.tag} varchar(800) NOT NULL DEFAULT '';
-        ''');
-      await db.execute('''ALTER TABLE ${ContactRepo.tableName} 
-          ADD COLUMN ${ContactRepo.tag} varchar(800) NOT NULL DEFAULT '';
-        ''');
+    final List<String> ddl = await vsnProvider.sqliteUpgradeDdl(
+      oldVsn,
+      newVsn,
+    );
+    if (ddl.isEmpty) {
+      return;
     }
-    if (newVsn == 4) {
-      await SqliteDdl.userTag(db);
+
+    for (var ddl1 in ddl) {
+      if (ddl1.isNotEmpty) await db.execute(ddl1);
+    }
+  }
+
+  static Future onDowngrade(Database db, int oldVsn, int newVsn) async {
+    final List<String> ddl = await vsnProvider.sqliteDowngradeDdl(
+      oldVsn,
+      newVsn,
+    );
+    if (ddl.isEmpty) {
+      return;
+    }
+
+    for (var ddl1 in ddl) {
+      if (ddl1.isNotEmpty) await db.execute(ddl1);
     }
   }
 }

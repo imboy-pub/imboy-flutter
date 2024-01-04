@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/sqlite_ddl.dart';
 import 'package:imboy/store/repository/user_collect_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -97,12 +96,12 @@ class SqliteService {
   }
 
   Future _onDowngrade(Database db, int oldVsn, int newVsn) async {
-    debugPrint("SqliteService_onDowngrade oldVsn: $oldVsn, newVsn: $newVsn");
-    // from 2 to 1
-    // [  +22 ms] flutter: SqliteService_onDowngrade oldVsn: 2, newVsn: 1
-    if (oldVsn == 2 && newVsn == 1) {
-      await db.execute("DROP TABLE IF EXISTS ${UserCollectRepo.tableName};");
-    } else if (oldVsn == 2) {}
+    iPrint("SqliteService_onDowngrade oldVsn: $oldVsn, newVsn: $newVsn");
+    try {
+      await SqliteDdl.onDowngrade(db, oldVsn, newVsn);
+    } catch (e) {
+      iPrint("SqliteService_onDowngrade error: $e");
+    }
   }
 
   Future<int> insert(String table, Map<String, dynamic> data) async {

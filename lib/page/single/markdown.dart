@@ -10,11 +10,17 @@ import 'package:imboy/service/encrypter.dart';
 
 // ignore: must_be_immutable
 class MarkdownPage extends StatelessWidget {
-  MarkdownPage({super.key, required this.title, required this.url});
+  MarkdownPage({
+    super.key,
+    required this.title,
+    required this.url,
+    this.rightDMActions,
+  });
 
   String title;
   String url;
   RxString content = "".obs;
+  final List<Widget>? rightDMActions;
 
   void initData() async {
     File tmpF = await IMBoyCacheManager().getSingleFile(
@@ -29,7 +35,10 @@ class MarkdownPage extends StatelessWidget {
     initData();
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(title: title),
+      appBar: PageAppBar(
+        title: title,
+        rightDMActions: rightDMActions,
+      ),
       body: Container(
           color: AppColors.primaryBackground,
           child: Obx(

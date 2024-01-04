@@ -796,7 +796,7 @@ class ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    var topRightWidget = [
+    final topRightWidget = [
       InkWell(
         onTap: () => getx.Get.to(
           () => widget.type == 'GROUP'
@@ -854,16 +854,19 @@ class ChatPageState extends State<ChatPage> {
               required bool showName,
             }) {
               return IgnorePointer(
-                child: n.Row([
-                  Expanded(
-                      child: TextMessage(
-                    emojiEnlargementBehavior: EmojiEnlargementBehavior.multi,
-                    hideBackgroundOnEmojiMessages: true,
-                    message: message,
-                    showName: showName,
-                    usePreviewData: true,
-                  ))
-                ]),
+                child: TextMessage(
+                  emojiEnlargementBehavior: EmojiEnlargementBehavior.multi,
+                  hideBackgroundOnEmojiMessages: false,
+                  message: message,
+                  showName: showName,
+                  usePreviewData: true,
+                  // nameBuilder: nameBuilder,
+                  onPreviewDataFetched: _handlePreviewDataFetched,
+                  // options: textMessageOptions,
+                  // showName: showName,
+                  // usePreviewData: usePreviewData,
+                  // userAgent: userAgent,
+                ),
               );
             },
             imageMessageBuilder: (types.ImageMessage message,

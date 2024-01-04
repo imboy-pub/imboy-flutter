@@ -15,6 +15,7 @@ import 'package:flutter_chat_ui/src/widgets/state/inherited_user.dart'
     show InheritedUser;
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:octo_image/octo_image.dart';
 
 /// A class that represents image message widget. Supports different
 /// aspect ratios, renders blurred image as a background which is visible
@@ -98,9 +99,12 @@ class _ImageMessageState extends State<ImageMessageBuilder> {
               width: 64,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15),
-                child: Image(
+                child: OctoImage(
+                  width: Get.width,
                   fit: BoxFit.cover,
                   image: _image!,
+                  errorBuilder: (context, error, stacktrace) =>
+                      const Icon(Icons.error),
                 ),
               ),
             ),

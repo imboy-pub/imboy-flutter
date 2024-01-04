@@ -152,5 +152,6 @@
     "route_created": "%s route created successfully."
   },
   "bugReport": "Bug report",
-  "featureRequest": "Feature request"
+  "featureRequest": "Feature request",
+  "ios_app_id_unknown": "The app Store is not listed or the ID[%s] does not exist"
 }

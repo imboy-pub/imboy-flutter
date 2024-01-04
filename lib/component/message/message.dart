@@ -15,6 +15,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
+import 'package:octo_image/octo_image.dart';
 import 'package:open_file/open_file.dart';
 
 import 'message_audio_builder.dart';
@@ -145,10 +146,14 @@ Widget messageMsgWidget(types.Message msg) {
       ..mainAxisAlignment = MainAxisAlignment.start;
   } else if (msg is types.ImageMessage) {
     String thumb = msg.uri;
-    msgWidget = Image(
+    msgWidget = OctoImage(
       width: Get.width * 0.618,
       fit: BoxFit.cover,
-      image: cachedImageProvider(thumb, w: Get.width),
+      image: cachedImageProvider(
+        thumb,
+        w: Get.width,
+      ),
+      errorBuilder: (context, error, stacktrace) => const Icon(Icons.error),
     );
   }
   String customType = msg.metadata?['custom_type'] ?? '';
