@@ -155,8 +155,8 @@ class ChatPageState extends State<ChatPage> {
         if (msg is types.ImageMessage) {
           galleryLogic.pushToLast(msg.id, msg.uri);
         }
-        conversationLogic.decreaseConversationRemind(widget.peerId, 1);
         if (mounted) {
+          conversationLogic.decreaseConversationRemind(widget.peerId, 1);
           setState(() {
             logic.state.messages.insert(0, msg);
           });

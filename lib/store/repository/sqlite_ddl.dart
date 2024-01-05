@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:imboy/config/const.dart';
+import 'package:imboy/store/provider/app_version_provider.dart';
 import 'package:imboy/store/repository/user_tag_repo_sqlite.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -319,7 +319,8 @@ class SqliteDdl {
   }
 
   static Future onUpgrade(Database db, int oldVsn, int newVsn) async {
-    final List<String> ddl = await vsnProvider.sqliteUpgradeDdl(
+    final AppVersionProvider p = AppVersionProvider();
+    final List<String> ddl = await p.sqliteUpgradeDdl(
       oldVsn,
       newVsn,
     );
@@ -333,7 +334,8 @@ class SqliteDdl {
   }
 
   static Future onDowngrade(Database db, int oldVsn, int newVsn) async {
-    final List<String> ddl = await vsnProvider.sqliteDowngradeDdl(
+    final AppVersionProvider p = AppVersionProvider();
+    final List<String> ddl = await p.sqliteDowngradeDdl(
       oldVsn,
       newVsn,
     );

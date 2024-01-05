@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:imboy/store/provider/app_version_provider.dart';
 
 const contactAssets = 'assets/images/contact/';
 
@@ -37,8 +36,6 @@ String UPLOAD_BASE_URL = dotenv.get('UPLOAD_BASE_URL');
 String UPLOAD_SENCE = dotenv.get('UPLOAD_SENCE');
 
 String IOS_APP_ID = dotenv.get('IOS_APP_ID');
-
-final AppVersionProvider vsnProvider = AppVersionProvider();
 
 class Keys {
   // 客服端Key

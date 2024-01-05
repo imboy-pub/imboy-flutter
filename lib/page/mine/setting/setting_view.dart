@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/page/single/upgrade.dart';
+import 'package:imboy/store/provider/app_version_provider.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/button.dart';
@@ -129,9 +130,9 @@ class _SettingPageState extends State<SettingPage> {
                       right: 10,
                       child: ElevatedButton(
                         onPressed: () async {
+                          final AppVersionProvider p = AppVersionProvider();
                           final navigator = Navigator.of(context);
-                          final Map<String, dynamic> info =
-                              await vsnProvider.check(
+                          final Map<String, dynamic> info = await p.check(
                             appVsn,
                           );
                           final String downLoadUrl = info['download_url'] ?? '';

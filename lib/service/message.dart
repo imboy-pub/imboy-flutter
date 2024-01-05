@@ -9,7 +9,6 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
 import 'package:imboy/component/webrtc/func.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/contact/contact/contact_logic.dart';
@@ -22,6 +21,7 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
+import 'package:imboy/store/provider/app_version_provider.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
@@ -251,7 +251,8 @@ class MessageService extends GetxService {
             checkNewToken: true);
         break;
       case 'app_upgrade':
-        final Map<String, dynamic> info = await vsnProvider.check(
+        final AppVersionProvider p = AppVersionProvider();
+        final Map<String, dynamic> info = await p.check(
           appVsn,
         );
         final String downLoadUrl = info['download_url'] ?? '';
