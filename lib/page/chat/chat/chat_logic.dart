@@ -121,7 +121,7 @@ class ChatLogic extends GetxController {
     if (strNoEmpty(sysPrompt)) {
       payload['sys_prompt'] = sysPrompt;
     }
-    debugPrint("> on addMessage getMsgFromTMsg 2 ${payload.toString()}");
+    // debugPrint("> on addMessage getMsgFromTMsg 2 ${payload.toString()}");
     MessageModel obj = MessageModel(
       message.id,
       type: type,
@@ -133,7 +133,7 @@ class ChatLogic extends GetxController {
       conversationId: conversationId,
       status: MessageStatus.sending,
     );
-    debugPrint("> on addMessage getMsgFromTMsg 3 ${message.status}");
+    // debugPrint("> on addMessage getMsgFromTMsg 3 ${message.status}");
     obj.status = obj.toStatus(message.status ?? types.Status.sending);
     return obj;
   }

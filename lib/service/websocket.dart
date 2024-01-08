@@ -2,9 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -73,7 +72,7 @@ class WebSocketService {
         // // _timerWait?
         // _timerWait?.cancel();
         // _timerWait = null;
-        debugPrint("initWebSocket_onMessage $event");
+        iPrint("initWebSocket_onMessage $event");
         // change(data);
         if (event == "pong" || event == "pong2") {
           return;
@@ -81,10 +80,10 @@ class WebSocketService {
         Map data = event is Map ? event : json.decode(event);
         eventBus.fire(data);
       }, onError: (e) {
-        debugPrint(
+        iPrint(
             "> ws onError ${e.runtimeType} | ${e.toString()};"); // 延时1s执行 _reconnect
         Future.delayed(const Duration(milliseconds: 1000), () {
-          debugPrint('> ws onError _reconnectTimes: $_reconnectTimes');
+          iPrint('> ws onError _reconnectTimes: $_reconnectTimes');
           _reconnect();
         });
       });
@@ -111,11 +110,11 @@ class WebSocketService {
   Future<void> openSocket({bool fromReconnect = false}) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
-      debugPrint('> ws openSocket 网络连接异常ws');
+      iPrint('> ws openSocket 网络连接异常ws');
       return;
     }
     if (UserRepoLocal.to.isLogin == false) {
-      debugPrint('> ws openSocket is not login');
+      iPrint('> ws openSocket is not login');
       return;
     }
     int now = DateTimeHelper.currentTimeMillis();
@@ -124,7 +123,7 @@ class WebSocketService {
     }
     // 链接状态正常，不需要任何处理
     if (isConnected) {
-      debugPrint('> ws openSocket _socketStatus: $_socketStatus;');
+      iPrint('> ws openSocket _socketStatus: $_socketStatus;');
       return;
     }
 
@@ -149,7 +148,7 @@ class WebSocketService {
         _reconnectTimes = 0;
       }
 
-      debugPrint('> ws openSocket onOpen');
+      iPrint('> ws openSocket onOpen');
       // onOpen onMessage onError onClose
       onOpen();
       // 接收消息
@@ -167,13 +166,13 @@ class WebSocketService {
     } catch (exception) {
       closeSocket(false);
       _socketStatus = SocketStatus.SocketStatusFailed;
-      debugPrint("> openSocket $WS_URL error ${exception.toString()}");
+      iPrint("> openSocket $WS_URL error ${exception.toString()}");
     }
   }
 
   /// WebSocket接收消息回调
   webSocketOnMessage(data) {
-    // debugPrint("> ws webSocketOnMessage $data ;");
+    // iPrint("> ws webSocketOnMessage $data ;");
     onMessage(data);
   }
 
@@ -181,12 +180,12 @@ class WebSocketService {
   _webSocketOnDone() async {
     // https://developer.mozilla.org/zh-CN/docs/Web/API/CloseEvent
     // closeCode 1000 正常关闭; 无论为何目的而创建, 该链接都已成功完成任务.
-    debugPrint('> ws _webSocketOnDone');
+    iPrint('> ws _webSocketOnDone');
 
     if (_webSocketChannel != null && _webSocketChannel!.closeCode != null) {
-      debugPrint(
+      iPrint(
           '> ws _webSocketOnDone closeCode: ${_webSocketChannel!.closeCode}');
-      debugPrint(
+      iPrint(
           '> ws _webSocketOnDone closeReason: ${_webSocketChannel!.closeReason.toString()}');
       // 1000 CLOSE_NORMAL 正常关闭；无论为何目的而创建，该链接都已成功完成任务
       // 1001 CLOSE_GOING_AWAY	终端离开，可能因为服务端错误，也可能因为浏览器正从打开连接的页面跳转离开
@@ -207,8 +206,7 @@ class WebSocketService {
           break;
         default:
           Future.delayed(const Duration(milliseconds: 1000), () {
-            debugPrint(
-                '> ws _webSocketOnDone _reconnectTimes: $_reconnectTimes');
+            iPrint('_webSocketOnDone _reconnectTimes: $_reconnectTimes');
             _reconnect();
           });
       }
@@ -217,8 +215,8 @@ class WebSocketService {
 
   /// WebSocket连接错误回调
   _webSocketOnError(e) {
-    debugPrint('> ws _webSocketOnError ${_webSocketOnError.toString()}');
-    debugPrint('> ws _webSocketOnError ${e.toString()}');
+    iPrint('> ws _webSocketOnError ${_webSocketOnError.toString()}');
+    iPrint('> ws _webSocketOnError ${e.toString()}');
     WebSocketChannelException ex = e;
     _socketStatus = SocketStatus.SocketStatusFailed;
     onError(ex.message);
@@ -231,11 +229,11 @@ class WebSocketService {
 
   /// 关闭WebSocket
   void closeSocket([bool nullInstance = true]) {
-    debugPrint('> ws closeSocket');
+    iPrint('> ws closeSocket');
     // destroyHeartBeat();
     destroyReconnectTimer();
     if (_webSocketChannel != null) {
-      debugPrint('> ws WebSocket连接关闭 $WS_URL');
+      iPrint('> ws WebSocket连接关闭 $WS_URL');
       _webSocketChannel?.sink.close();
       _webSocketChannel = null;
       _socketStatus = SocketStatus.SocketStatusClosed;
@@ -251,7 +249,7 @@ class WebSocketService {
     if (isConnected == false) {
       await openSocket();
     }
-    // debugPrint('> ws sendMsg $msg');
+    // iPrint('> ws sendMsg $msg');
     try {
       result = _send(msg);
     } catch (e) {
@@ -268,7 +266,7 @@ class WebSocketService {
 
   /// 重连机制
   void _reconnect() {
-    debugPrint(
+    iPrint(
         '> ws _reconnect _reconnectTimes $_reconnectTimes < $_reconnectMax ${DateTime.now()}');
     closeSocket(false);
     if (_reconnectTimes < _reconnectMax) {

@@ -94,6 +94,7 @@ class ChatPageState extends State<ChatPage> {
   String newGroupName = "";
 
   int _page = 1;
+  final int _size = 16;
 
   int get maxAssetsCount => 9;
 
@@ -203,38 +204,17 @@ class ChatPageState extends State<ChatPage> {
     List<types.Message>? items = await logic.getMessages(
       widget.peerId,
       _page,
-      16,
+      _size,
     );
     // debugPrint("ChatSettingPage then 2 ${items?.length};");
-    List<String> msgIds = [];
     if (items != null && items.isNotEmpty) {
-      // 消除消息提醒
       for (var msg in items) {
         if (msg is types.ImageMessage) {
           galleryLogic.pushToGallery(msg.id, msg.uri);
         }
-        //enum Status { delivered, error, seen, sending, sent }
-        if (msg.author.id != UserRepoLocal.to.currentUid &&
-            msg.status != types.Status.seen) {
-          msgIds.add(msg.id);
-        }
-      } // end for items
-      if (msgIds.isNotEmpty) {
-        ConversationModel? conversation = await logic.markAsRead(
-          widget.conversationId,
-          msgIds,
-        );
-        // debugPrint(
-        //     "_handleEndReached conversation ${msgIds.length} ${conversation?.toJson().toString()}");
-        if (conversation != null) {
-          conversationLogic.decreaseConversationRemind(
-            widget.peerId,
-            msgIds.length,
-          );
-          conversationLogic.replace(conversation);
-        }
       }
-
+      // 消除消息提醒
+      countConversationRemind(items);
       if (mounted) {
         setState(() {
           logic.state.messages = [
@@ -250,6 +230,31 @@ class ChatPageState extends State<ChatPage> {
       });
     }
     // debugPrint("ChatSettingPage then 3 ${logic.state.messages.length}");
+  }
+
+  /// 消除消息提醒
+  Future<void> countConversationRemind(List<types.Message> items) async {
+    List<String> msgIds = [];
+    for (var msg in items) {
+      //enum Status { delivered, error, seen, sending, sent }
+      if (msg.author.id != UserRepoLocal.to.currentUid &&
+          msg.status != types.Status.seen) {
+        msgIds.add(msg.id);
+      }
+    } // end for items
+    if (msgIds.isNotEmpty) {
+      ConversationModel? conversation = await logic.markAsRead(
+        widget.conversationId,
+        msgIds,
+      );
+      if (conversation != null) {
+        conversationLogic.decreaseConversationRemind(
+          widget.peerId,
+          msgIds.length,
+        );
+        conversationLogic.replace(conversation);
+      }
+    }
   }
 
   Future<bool> _addMessage(types.Message message) async {
@@ -477,14 +482,8 @@ class ChatPageState extends State<ChatPage> {
   }
 
   /// 发送位置消息
-  void _handleLocationSelection(
-    String id,
-    Uint8List? imageBytes,
-    String address,
-    String title,
-    String latitude,
-    String longitude,
-  ) async {
+  void _handleLocationSelection(String id, Uint8List? imageBytes,
+      String address, String title, String latitude, String longitude) async {
     img.Image image = img.decodeImage(imageBytes!)!;
     final result = img.encodeJpg(image, quality: 65);
     AttachmentProvider.uploadBytes("location", result, (
@@ -649,7 +648,7 @@ class ChatPageState extends State<ChatPage> {
   }
 
   Future<void> updateQuoteMessage(types.Message? msg) async {
-    debugPrint('> on updateQuoteMessage ${msg.toString()}');
+    // debugPrint('> on updateQuoteMessage ${msg.toString()}');
     setState(() {
       quoteMessage = msg;
     });
@@ -676,7 +675,7 @@ class ChatPageState extends State<ChatPage> {
         'quote_msg_author_name': quoteMsgAuthorName,
         'quote_text': msg.text,
       };
-      debugPrint("> on upload metadata: ${metadata.toString()}");
+      // debugPrint("> on upload metadata: ${metadata.toString()}");
       final message = types.CustomMessage(
         author: currentUser,
         createdAt: DateTimeHelper.currentTimeMillis(),
@@ -699,7 +698,7 @@ class ChatPageState extends State<ChatPage> {
       return;
     }
     int diff = DateTimeHelper.currentTimeMillis() - msg.createdAt!;
-    if (diff > 800) {
+    if (diff > 1000) {
       // 检查为发送消息
       logic.sendWsMsg(logic.getMsgFromTMsg(
         widget.type,
@@ -812,7 +811,7 @@ class ChatPageState extends State<ChatPage> {
           transition: getx.Transition.rightToLeft,
           popGesture: true, // 右滑，返回上一页
         )?.then((value) {
-          debugPrint("ChatSettingPage then $value, $mounted");
+          // debugPrint("ChatSettingPage then $value, $mounted");
           if (value != null && value) {
             _page = 1;
             _handleEndReached();
@@ -844,186 +843,188 @@ class ChatPageState extends State<ChatPage> {
               : NetworkFailureTips();
         }),
         Expanded(
-            child: n.Stack([
-          Chat(
-            user: currentUser,
-            messages: logic.state.messages,
-            textMessageBuilder: (
-              types.TextMessage message, {
-              required int messageWidth,
-              required bool showName,
-            }) {
-              return IgnorePointer(
-                child: TextMessage(
-                  emojiEnlargementBehavior: EmojiEnlargementBehavior.multi,
-                  hideBackgroundOnEmojiMessages: false,
+          child: n.Stack([
+            Chat(
+              user: currentUser,
+              messages: logic.state.messages,
+              textMessageBuilder: (
+                types.TextMessage message, {
+                required int messageWidth,
+                required bool showName,
+              }) {
+                return IgnorePointer(
+                  child: TextMessage(
+                    emojiEnlargementBehavior: EmojiEnlargementBehavior.multi,
+                    hideBackgroundOnEmojiMessages: false,
+                    message: message,
+                    showName: showName,
+                    usePreviewData: true,
+                    // nameBuilder: nameBuilder,
+                    onPreviewDataFetched: _handlePreviewDataFetched,
+                    // options: textMessageOptions,
+                    // showName: showName,
+                    // usePreviewData: usePreviewData,
+                    // userAgent: userAgent,
+                  ),
+                );
+              },
+              imageMessageBuilder: (types.ImageMessage message,
+                  {required int messageWidth}) {
+                return ImageMessageBuilder(
                   message: message,
-                  showName: showName,
-                  usePreviewData: true,
-                  // nameBuilder: nameBuilder,
-                  onPreviewDataFetched: _handlePreviewDataFetched,
-                  // options: textMessageOptions,
-                  // showName: showName,
-                  // usePreviewData: usePreviewData,
-                  // userAgent: userAgent,
-                ),
-              );
-            },
-            imageMessageBuilder: (types.ImageMessage message,
-                {required int messageWidth}) {
-              return ImageMessageBuilder(
-                message: message,
-                messageWidth: messageWidth,
-              );
-            },
-            // showUserAvatars: true,
-            // showUserNames: true,
-            customMessageBuilder: (types.CustomMessage msg,
-                {required int messageWidth}) {
-              return CustomMessageBuilder(
-                message: msg,
-              );
-            },
-            scrollController: logic.state.scrollController,
-            onEndReachedThreshold: 0.9,
-            // 300000 = 5分钟 默认 900000 = 15 分钟
-            dateHeaderThreshold: 300000,
-            customDateHeaderText: (DateTime dt) =>
-                DateTimeHelper.customDateHeader(dt),
-            onEndReached: _handleEndReached,
-            onBackgroundTap: () {
-              // 收起输聊天底部弹出框
-              AnimationController bottomHeightController = getx.Get.find();
-              bottomHeightController.animateBack(0);
-              setState(() {
-                quoteMessage = null;
-              });
-            },
-            onMessageTap: (BuildContext c1, types.Message message) async {
-              if (message is types.ImageMessage) {
-                galleryLogic.onImagePressed(message);
+                  messageWidth: messageWidth,
+                );
+              },
+              // showUserAvatars: true,
+              // showUserNames: true,
+              customMessageBuilder: (types.CustomMessage msg,
+                  {required int messageWidth}) {
+                return CustomMessageBuilder(
+                  message: msg,
+                );
+              },
+              scrollController: logic.state.scrollController,
+              onEndReachedThreshold: 0.9,
+              // 300000 = 5分钟 默认 900000 = 15 分钟
+              dateHeaderThreshold: 300000,
+              customDateHeaderText: (DateTime dt) =>
+                  DateTimeHelper.customDateHeader(dt),
+              onEndReached: _handleEndReached,
+              onBackgroundTap: () {
+                // 收起输聊天底部弹出框
+                AnimationController bottomHeightController = getx.Get.find();
+                bottomHeightController.animateBack(0);
                 setState(() {
-                  _showAppBar = false;
-                });
-              } else if (message is types.FileMessage) {
-                confirmOpenFile(message.uri);
-              }
-            },
-            onMessageLongPress: _onMessageLongPress,
-            onMessageDoubleTap: _onMessageDoubleTap,
-            onPreviewDataFetched: _handlePreviewDataFetched,
-            onSendPressed: _handleSendPressed,
-            onMessageStatusTap: _onMessageStatusTap,
-            onMessageStatusLongPress: _onMessageStatusTap,
-            hideBackgroundOnEmojiMessages: false,
-            theme: const IMBoyChatTheme(),
-            // onTextFieldTap: () {
-            // debugPrint("> on chatinput onTextFieldTap");
-            // },
-            slidableMessageBuilder: (types.Message msg, Widget msgWidget) {
-              // String sysPrompt = "消息已发出，但被对方拒收了。";
-              // 处理系统提示信息
-              String sysPrompt = logic.parseSysPrompt(
-                msg.metadata?['sys_prompt'] ?? '',
-              );
-              return GestureDetector(
-                onLongPress: () {
-                  debugPrint("> on GestureDetector");
-                  // _onMessageLongPress(getx.Get.context!, msg);
-                },
-                onPanEnd: (DragEndDetails details) {
-                  updateQuoteMessage(msg);
-                },
-                child: n.Column([
-                  msgWidget,
-                  if (strNoEmpty(sysPrompt))
-                    n.Row([
-                      // row > expand > column > text 换行有效
-                      Expanded(
-                          child: n.Column([
-                        n.Padding(
-                          left: 20,
-                          right: 10,
-                          bottom: 16,
-                          child: Text(
-                            sysPrompt,
-                            style: const TextStyle(color: AppColors.TipColor),
-                            maxLines: 4,
-                            softWrap: true,
-                            overflow: TextOverflow.fade,
-                          ),
-                        ),
-                      ])),
-                    ])
-                      // 内容居中
-                      ..mainAxisAlignment = MainAxisAlignment.spaceBetween
-                ]),
-              );
-            },
-            customBottomWidget: ChatInput(
-              // 发送触发事件
-              onSendPressed: _handleSendPressed,
-              sendButtonVisibilityMode: SendButtonVisibilityMode.editing,
-              // voiceWidget: VoiceRecord(),
-              voiceWidget: VoiceWidget(
-                startRecord: () {},
-                stopRecord: _handleVoiceSelection,
-                // 加入定制化Container的相关属性
-                height: 40.0,
-                margin: EdgeInsets.zero,
-              ),
-              extraWidget: ExtraItems(
-                  // 照片
-                  handleImageSelection: _handleImageSelection,
-                  // 文件
-                  handleFileSelection: _handleFileSelection,
-                  // 拍摄
-                  handlePickerSelection: _handlePickerSelection,
-                  // 位置消息
-                  handleLocationSelection: _handleLocationSelection,
-                  // 个人名片
-                  handleVisitCardSelection: _handleVisitCardSelection,
-                  // 收藏
-                  handleCollectSelection: _handleCollectSelection,
-                  options: {
-                    "to": widget.peerId,
-                    "title": widget.peerTitle,
-                    "avatar": widget.peerAvatar,
-                    "sign": widget.peerSign,
-                  }),
-              // 引用消息
-              quoteTipsWidget: QuoteTipsWidget(
-                title: (quoteMessage != null &&
-                        quoteMessage?.author.id == UserRepoLocal.to.currentUid)
-                    ? UserRepoLocal.to.current.nickname
-                    : widget.peerTitle,
-                message: quoteMessage,
-                close: () {
-                  updateQuoteMessage(null);
-                },
-              ),
-            ),
-            // 禁用 flutter_chat_ui 的相册
-            disableImageGallery: true,
-          ),
-          if (galleryLogic.isImageViewVisible.isTrue)
-            IMBoyImageGallery(
-              // ignore: invalid_use_of_protected_member
-              images: galleryLogic.gallery.value,
-              pageController: galleryLogic.galleryPageController!,
-              onClosePressed: () {
-                debugPrint("> on onClosePressed ");
-                galleryLogic.onCloseGalleryPressed();
-                setState(() {
-                  _showAppBar = true;
+                  quoteMessage = null;
                 });
               },
-              options: const IMBoyImageGalleryOptions(
-                maxScale: PhotoViewComputedScale.covered,
-                minScale: PhotoViewComputedScale.contained,
+              onMessageTap: (BuildContext c1, types.Message message) async {
+                if (message is types.ImageMessage) {
+                  galleryLogic.onImagePressed(message);
+                  setState(() {
+                    _showAppBar = false;
+                  });
+                } else if (message is types.FileMessage) {
+                  confirmOpenFile(message.uri);
+                }
+              },
+              onMessageLongPress: _onMessageLongPress,
+              onMessageDoubleTap: _onMessageDoubleTap,
+              onPreviewDataFetched: _handlePreviewDataFetched,
+              onSendPressed: _handleSendPressed,
+              onMessageStatusTap: _onMessageStatusTap,
+              onMessageStatusLongPress: _onMessageStatusTap,
+              hideBackgroundOnEmojiMessages: false,
+              theme: const IMBoyChatTheme(),
+              // onTextFieldTap: () {
+              // debugPrint("> on chatinput onTextFieldTap");
+              // },
+              slidableMessageBuilder: (types.Message msg, Widget msgWidget) {
+                // String sysPrompt = "消息已发出，但被对方拒收了。";
+                // 处理系统提示信息
+                String sysPrompt = logic.parseSysPrompt(
+                  msg.metadata?['sys_prompt'] ?? '',
+                );
+                return GestureDetector(
+                  onLongPress: () {
+                    debugPrint("> on GestureDetector");
+                    // _onMessageLongPress(getx.Get.context!, msg);
+                  },
+                  onPanEnd: (DragEndDetails details) {
+                    updateQuoteMessage(msg);
+                  },
+                  child: n.Column([
+                    msgWidget,
+                    if (strNoEmpty(sysPrompt))
+                      n.Row([
+                        // row > expand > column > text 换行有效
+                        Expanded(
+                            child: n.Column([
+                          n.Padding(
+                            left: 20,
+                            right: 10,
+                            bottom: 16,
+                            child: Text(
+                              sysPrompt,
+                              style: const TextStyle(color: AppColors.TipColor),
+                              maxLines: 4,
+                              softWrap: true,
+                              overflow: TextOverflow.fade,
+                            ),
+                          ),
+                        ])),
+                      ])
+                        // 内容居中
+                        ..mainAxisAlignment = MainAxisAlignment.spaceBetween
+                  ]),
+                );
+              },
+              customBottomWidget: ChatInput(
+                // 发送触发事件
+                onSendPressed: _handleSendPressed,
+                sendButtonVisibilityMode: SendButtonVisibilityMode.editing,
+                // voiceWidget: VoiceRecord(),
+                voiceWidget: VoiceWidget(
+                  startRecord: () {},
+                  stopRecord: _handleVoiceSelection,
+                  // 加入定制化Container的相关属性
+                  height: 40.0,
+                  margin: EdgeInsets.zero,
+                ),
+                extraWidget: ExtraItems(
+                    // 照片
+                    handleImageSelection: _handleImageSelection,
+                    // 文件
+                    handleFileSelection: _handleFileSelection,
+                    // 拍摄
+                    handlePickerSelection: _handlePickerSelection,
+                    // 位置消息
+                    handleLocationSelection: _handleLocationSelection,
+                    // 个人名片
+                    handleVisitCardSelection: _handleVisitCardSelection,
+                    // 收藏
+                    handleCollectSelection: _handleCollectSelection,
+                    options: {
+                      "to": widget.peerId,
+                      "title": widget.peerTitle,
+                      "avatar": widget.peerAvatar,
+                      "sign": widget.peerSign,
+                    }),
+                // 引用消息
+                quoteTipsWidget: QuoteTipsWidget(
+                  title: (quoteMessage != null &&
+                          quoteMessage?.author.id ==
+                              UserRepoLocal.to.currentUid)
+                      ? UserRepoLocal.to.current.nickname
+                      : widget.peerTitle,
+                  message: quoteMessage,
+                  close: () {
+                    updateQuoteMessage(null);
+                  },
+                ),
               ),
-            )
-        ]))
+              // 禁用 flutter_chat_ui 的相册
+              disableImageGallery: true,
+            ),
+            if (galleryLogic.isImageViewVisible.isTrue)
+              IMBoyImageGallery(
+                // ignore: invalid_use_of_protected_member
+                images: galleryLogic.gallery.value,
+                pageController: galleryLogic.galleryPageController!,
+                onClosePressed: () {
+                  debugPrint("> on onClosePressed ");
+                  galleryLogic.onCloseGalleryPressed();
+                  setState(() {
+                    _showAppBar = true;
+                  });
+                },
+                options: const IMBoyImageGalleryOptions(
+                  maxScale: PhotoViewComputedScale.covered,
+                  minScale: PhotoViewComputedScale.contained,
+                ),
+              )
+          ]),
+        )
       ]),
     );
   }

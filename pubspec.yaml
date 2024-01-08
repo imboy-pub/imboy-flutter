@@ -167,7 +167,7 @@ dependencies:
   image_gallery_saver: ^2.0.2
   # SQLite 的 Flutter 插件，一个独立的、高可靠性的嵌入式 SQL 数据库引擎。
   sqflite: ^2.3.0
-  sqflite_common_ffi: ^2.3.1
+  sqflite_common_ffi: ^2.3.2
   #sqlite3: ^1.11.2
   # 一个跨平台插件，用于显示和安排 Flutter 应用程序的本地通知，并能够针对每个平台进行自定义。
   flutter_local_notifications: ^16.3.0
@@ -250,6 +250,8 @@ dependencies:
   #    ref: master
 
   # 还没有直接应用的库
+  # 反射功能
+  #reflectable: ^4.0.5
   # 图像占位符的紧凑表示
   #flutter_blurhash: ^0.7.0
   # 下载更新

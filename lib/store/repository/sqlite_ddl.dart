@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/provider/app_version_provider.dart';
 import 'package:imboy/store/repository/user_tag_repo_sqlite.dart';
 import 'package:sqflite/sqflite.dart';
@@ -316,6 +317,16 @@ class SqliteDdl {
     await SqliteDdl.userDevice(db);
     await SqliteDdl.userCollect(db);
     await SqliteDdl.userTag(db);
+
+    final AppVersionProvider p = AppVersionProvider();
+    final List<String> ddl = await p.sqliteCreateDdl(version);
+    if (ddl.isEmpty) {
+      return;
+    }
+
+    for (var ddl1 in ddl) {
+      exeDDL(db, ddl1);
+    }
   }
 
   static Future onUpgrade(Database db, int oldVsn, int newVsn) async {
@@ -329,7 +340,7 @@ class SqliteDdl {
     }
 
     for (var ddl1 in ddl) {
-      if (ddl1.isNotEmpty) await db.execute(ddl1);
+      exeDDL(db, ddl1);
     }
   }
 
@@ -342,9 +353,19 @@ class SqliteDdl {
     if (ddl.isEmpty) {
       return;
     }
-
     for (var ddl1 in ddl) {
-      if (ddl1.isNotEmpty) await db.execute(ddl1);
+      exeDDL(db, ddl1);
+    }
+  }
+
+  static Future<void> exeDDL(Database db, String ddl1) async {
+    if (ddl1.isEmpty) {
+      return;
+    }
+    try {
+      await db.execute(ddl1);
+    } catch (e) {
+      iPrint("sqlite_ddl_exeDDL $ddl1 error: $e");
     }
   }
 }

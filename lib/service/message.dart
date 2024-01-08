@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 
-// ignore: depend_on_referenced_packages
 import 'package:flutter/cupertino.dart';
+// ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
+import 'package:xid/xid.dart';
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
@@ -27,7 +29,6 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:xid/xid.dart';
 
 class MessageService extends GetxService {
   static MessageService get to => Get.find();
@@ -458,7 +459,7 @@ class MessageService extends GetxService {
   }
 
   /// 收到C2C撤回ACK消息
-  Future<void> receiveC2CRevokeAckMessage(dtype, data) async {
+  Future<void> receiveC2CRevokeAckMessage(dType, data) async {
     MessageRepo repo = MessageRepo();
     MessageModel? msg = await repo.find(data['id']);
     if (msg == null) {
@@ -471,7 +472,7 @@ class MessageService extends GetxService {
     };
     await repo.update({
       'id': data['id'],
-      'type': dtype,
+      'type': dType,
       'status': MessageStatus.send,
       'payload': json.encode(msg.payload),
     });
@@ -547,6 +548,7 @@ class MessageService extends GetxService {
     );
   }
 
+  /// 更新消息状态
   Future<void> changeLocalMsgState(
     String msgId,
     int state, {
@@ -592,6 +594,7 @@ class MessageService extends GetxService {
     }
   }
 
+  /// 清理无效的本地消息
   Future<void> cleanInvalidLocalMsg({
     required String msgId,
     types.Message? message,
