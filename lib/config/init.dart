@@ -10,6 +10,7 @@ import 'package:get/get.dart' as getx;
 import 'package:imboy/component/controller.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -71,10 +72,15 @@ String deviceId = '';
 
 Future<void> init() async {
   WakelockPlus.enable();
+
+  await StorageService.init();
+  // 放在 UserRepoLocal 前面
+  getx.Get.lazyPut(() => StorageService());
+
   // 解决使用自签证书报错问题
   io.HttpOverrides.global = GlobalHttpOverrides();
   // Get.put(DeviceExt()); 需要放到靠前
-  getx.Get.put(DeviceExt());
+  getx.Get.lazyPut(() => DeviceExt());
 
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
   appVsn = packageInfo.version;
@@ -85,9 +91,6 @@ Future<void> init() async {
   iPrint("init deviceId $deviceId");
   await dotenv.load(fileName: ".env"); //
   // iPrint("> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
-
-  // 放在 UserRepoLocal 前面
-  await getx.Get.putAsync<StorageService>(() => StorageService().init());
 
   getx.Get.put(UserRepoLocal(), permanent: true);
   getx.Get.lazyPut(() => ThemeController());
@@ -114,7 +117,7 @@ Future<void> init() async {
   getx.Get.put(MessageService());
   // getx.Get.lazyPut(() => DeviceExt());
 
-  ntpOffset = await StorageService.to.ntpOffset();
+  ntpOffset = await DateTimeHelper.getNtpOffset();
   AMapHelper.setApiKey();
 
   // 初始化单例 WebSocketService
@@ -128,7 +131,7 @@ Future<void> init() async {
     LifecycleEventHandler(
       resumeCallBack: () async {
         // app 恢复
-        String token = UserRepoLocal.to.accessToken;
+        String? token = UserRepoLocal.to.accessToken;
         if (tokenExpired(token)) {
           iPrint('LifecycleEventHandler tokenExpired true');
           await (UserProvider()).refreshAccessTokenApi(
@@ -138,7 +141,7 @@ Future<void> init() async {
         // 统计新申请好友数量
         bnLogic.countNewFriendRemindCounter();
         iPrint("> on LifecycleEventHandler resumeCallBack");
-        ntpOffset = await StorageService.to.ntpOffset();
+        ntpOffset = await DateTimeHelper.getNtpOffset();
         // 检查WS链接状态
         WebSocketService.to.openSocket();
       },

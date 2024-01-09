@@ -3,9 +3,9 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:jose/jose.dart';
 
 /// 验证token是否过期
-bool tokenExpired(String token) {
+bool tokenExpired(String? token) {
   try {
-    var jwt = JsonWebToken.unverified(token);
+    var jwt = JsonWebToken.unverified(token ?? '');
     // 极端情况下扣除2秒
     int ts = DateTimeHelper.currentTimeMillis() - 2000;
     // debugPrint("> on jwt claims ${jwt.claims}, ${ts > jwt.claims['exp']}");

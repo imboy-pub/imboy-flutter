@@ -2,9 +2,9 @@ import 'package:get/get.dart';
 
 import 'group_detail_logic.dart';
 
-class GroupDetailBinding extends Bindings {
+class GroupDetailBinding extends Binding {
   @override
-  void dependencies() {
-    Get.lazyPut(() => GroupDetailLogic());
-  }
+  List<Bind> dependencies() => [
+        Bind.lazyPut(() => GroupDetailLogic()),
+      ];
 }

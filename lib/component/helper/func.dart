@@ -4,7 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/icon_image_provider.dart';
-import 'package:imboy/page/chat/chat/chat_binding.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/service/encrypter.dart';
@@ -255,7 +254,7 @@ void toChatPage(String peerId, String type) async {
       ),
       transition: Transition.rightToLeft,
       popGesture: true, // 右滑，返回上一页
-      binding: ChatBinding(),
+      // binding: ChatBinding(),
     );
   }
 }

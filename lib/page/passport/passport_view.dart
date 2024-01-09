@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/theme.dart';
@@ -20,6 +21,7 @@ class PassportPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    iPrint("BottomNavigationPage passport");
     // 检查网络状态
     Connectivity().checkConnectivity().then((res) {
       if (res == ConnectivityResult.none) {

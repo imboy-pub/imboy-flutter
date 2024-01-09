@@ -167,7 +167,7 @@ class IMBoyApp extends StatelessWidget {
               ? BottomNavigationPage()
               : PassportPage(),
           debugShowCheckedModeBanner: false,
-          getPages: AppPages.routes,
+          // getPages: AppPages.routes,
           // initialRoute: AppPages.INITIAL,
           // translations: TranslationService(),
           navigatorObservers: [AppPages.observer],
@@ -185,8 +185,8 @@ class IMBoyApp extends StatelessWidget {
           fallbackLocale: const Locale('en', 'US'),
           // 添加一个回调语言选项，以备上面指定的语言翻译不存在
           defaultTransition: Transition.fade,
-          opaqueRoute: Get.isOpaqueRouteDefault,
-          popGesture: Get.isPopGestureEnable,
+          // opaqueRoute: Get.isOpaqueRouteDefault,
+          // popGesture: Get.isPopGestureEnable,
           // theme: Get.find<ThemeController>().darkMode == 0
           //     ? ThemeData.light()
           //     : ThemeData.dark(),

@@ -2,9 +2,9 @@ import 'package:get/get.dart';
 
 import 'welcome_logic.dart';
 
-class WelcomeBinding extends Bindings {
+class WelcomeBinding extends Binding {
   @override
-  void dependencies() {
-    Get.lazyPut(() => WelcomeLogic());
-  }
+  List<Bind> dependencies() => [
+        Bind.lazyPut(() => WelcomeLogic()),
+      ];
 }

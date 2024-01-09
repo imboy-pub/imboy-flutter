@@ -2,9 +2,9 @@ import 'package:get/get.dart';
 
 import 'select_member_logic.dart';
 
-class SelectMemberBinding extends Bindings {
+class SelectMemberBinding extends Binding {
   @override
-  void dependencies() {
-    Get.lazyPut(() => SelectMemberLogic());
-  }
+    List<Bind> dependencies() => [
+        Bind.lazyPut(() => SelectMemberLogic()),
+      ];
 }

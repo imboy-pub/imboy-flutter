@@ -33,7 +33,7 @@ class UserTagSavePage extends StatelessWidget {
       appBar: PageAppBar(
         leading: InkWell(
           onTap: () {
-            Get.close(1);
+            Get.back(times: 1);
           },
           child: const Icon(Icons.close),
         ),

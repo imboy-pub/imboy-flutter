@@ -24,7 +24,6 @@ class RightButton extends StatelessWidget {
         showPopover(
           context: context,
           bodyBuilder: (context) => const RightButtonList(),
-          // onPop: () => print('Popover was popped!'),
           direction: PopoverDirection.left,
           barrierColor: Colors.black54,
           backgroundColor: Colors.black54,
@@ -61,7 +60,7 @@ class RightButtonList extends StatelessWidget {
       child: n.ListView.children([
         InkWell(
           onTap: () {
-            Get.close(1);
+            Navigator.of(context).pop();
             /*
             Get.to(
               () => AddFriendPage(),
@@ -86,7 +85,7 @@ class RightButtonList extends StatelessWidget {
         const SizedBox(height: 20),
         InkWell(
           onTap: () {
-            Get.close(1);
+            Navigator.of(context).pop();
             Get.to(
               () => AddFriendPage(),
               transition: Transition.rightToLeft,
@@ -109,7 +108,7 @@ class RightButtonList extends StatelessWidget {
         const SizedBox(height: 20),
         InkWell(
           onTap: () {
-            Get.close(1);
+            Navigator.of(context).pop();
             Get.to(
               () => RecentlyRegisteredUserPage(),
               transition: Transition.rightToLeft,
@@ -132,7 +131,7 @@ class RightButtonList extends StatelessWidget {
         const SizedBox(height: 20),
         InkWell(
           onTap: () {
-            Get.close(1);
+            Navigator.of(context).pop();
             Get.to(
               () => UqrcodePage(),
               transition: Transition.rightToLeft,
@@ -155,7 +154,7 @@ class RightButtonList extends StatelessWidget {
         const SizedBox(height: 20),
         InkWell(
           onTap: () {
-            Get.close(1);
+            Navigator.of(context).pop();
             Get.to(
               () => const ScannerPage(),
               transition: Transition.rightToLeft,

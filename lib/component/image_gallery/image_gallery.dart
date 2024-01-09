@@ -138,7 +138,7 @@ void zoomInPhotoView(String thumb) async {
   Get.bottomSheet(
     InkWell(
       onTap: () {
-        Get.back();
+        Get.close(closeBottomSheet: true);
       },
       child: PhotoView(
         imageProvider: thumbProvider,

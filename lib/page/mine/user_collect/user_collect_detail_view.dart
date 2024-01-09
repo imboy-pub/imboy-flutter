@@ -46,7 +46,7 @@ class UserCollectDetailPage extends StatelessWidget {
           ),
           onPressed: () async {
             obj.info['id'] = Xid().toString();
-            Get.close(0);
+            Get.back(times: 1);
             // 转发消息
             Get.bottomSheet(
               n.Padding(
@@ -113,7 +113,7 @@ class UserCollectDetailPage extends StatelessWidget {
                     if (ok) {
                       remark.value = remarkNew;
                       obj.remark = remarkNew;
-                      Get.close(1);
+                      Get.back(times: 1);
                     }
                     return ok;
                   }),
@@ -146,7 +146,7 @@ class UserCollectDetailPage extends StatelessWidget {
           onPressed: () async {
             bool res = await logic.remove(obj);
             if (res) {
-              Get.close(2);
+              Get.back(times: 2);
               logic.state.items.removeAt(pageIndex);
             }
           },

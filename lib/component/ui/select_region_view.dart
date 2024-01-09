@@ -169,7 +169,7 @@ class SelectRegionPage extends StatelessWidget {
                 bool res = await outCallback(logic.selectedVal.value);
                 if (res) {
                   int t = logic.selectedVal.value.split(" ").length;
-                  Get.close(t);
+                  Get.back(times: t);
                 }
               },
               // ignore: sort_child_properties_last

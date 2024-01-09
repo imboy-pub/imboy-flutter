@@ -812,7 +812,7 @@ class ChatPageState extends State<ChatPage> {
           popGesture: true, // 右滑，返回上一页
         )?.then((value) {
           // debugPrint("ChatSettingPage then $value, $mounted");
-          if (value != null && value) {
+          if (value != null) {
             _page = 1;
             _handleEndReached();
           }

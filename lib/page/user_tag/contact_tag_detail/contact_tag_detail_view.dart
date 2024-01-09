@@ -76,7 +76,7 @@ class ContactTagDetailPage extends StatelessWidget {
                             ),
                           ),
                           onPressed: () async {
-                            Get.close(0);
+                            Get.back(times: 1);
                             Get.bottomSheet(
                               n.Padding(
                                 // top: 80,
@@ -91,7 +91,7 @@ class ContactTagDetailPage extends StatelessWidget {
                       Center(
                         child: TextButton(
                           onPressed: () async {
-                            Get.close(0);
+                            Get.back(times: 1);
                             Get.bottomSheet(
                               SizedBox(
                                 width: Get.width,
@@ -144,7 +144,7 @@ class ContactTagDetailPage extends StatelessWidget {
                                                   .items
                                                   .removeAt(index);
                                             }
-                                            Get.close(2);
+                                            Get.back(times: 2);
                                             EasyLoading.showSuccess('操作成功'.tr);
                                           } else {
                                             EasyLoading.showError('操作失败'.tr);
@@ -388,7 +388,7 @@ class ContactTagDetailPage extends StatelessWidget {
                                                         .replaceRange(index2,
                                                             index2 + 1, [tag]);
                                                   }
-                                                  Get.close(1);
+                                                  Get.back(times: 1);
                                                   EasyLoading.showSuccess(
                                                       '操作成功'.tr);
                                                 } else {
@@ -707,7 +707,7 @@ class SelectFriendPage extends StatelessWidget {
                         selectedContact;
                     Get.find<ContactTagDetailLogic>().state.refererTime.value =
                         selectedContact.length;
-                    Get.close(1);
+                    Get.back(times: 1);
                     EasyLoading.showSuccess('操作成功'.tr);
                   } else {
                     EasyLoading.showError('操作失败'.tr);

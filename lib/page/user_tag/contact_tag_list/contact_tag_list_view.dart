@@ -122,7 +122,8 @@ class ContactTagListPage extends StatelessWidget {
                               scene: scene,
                             );
                             if (res) {
-                              Get.close(1);
+                              // Get.back(times: 1);
+                              Get.back();
                               EasyLoading.showSuccess('操作成功'.tr);
                             } else {
                               EasyLoading.showError('操作失败'.tr);
@@ -246,7 +247,7 @@ class ContactTagListPage extends StatelessWidget {
               ),
             ),
             onTap: () {
-              // Get.close(0);
+              // Get.back(times: 1);
               Get.bottomSheet(
                 n.Padding(
                   // top: 80,

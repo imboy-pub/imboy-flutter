@@ -325,14 +325,14 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         break;
       case '群聊名称':
         Get.to(
-          () => () => GroupRemarkPage(
-                groupInfoType: GroupInfoType.name,
-                text: groupName!,
-                groupId: widget.peer,
-              ),
+          () => GroupRemarkPage(
+            groupInfoType: GroupInfoType.name,
+            text: groupName!,
+            groupId: widget.peer,
+          ),
         )!
             .then((data) {
-          groupName = data ?? groupName;
+          groupName = (data ?? groupName) as String?;
           // Notice.send(ChatActions.groupName(), groupName);
         });
         break;
@@ -341,16 +341,16 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         break;
       case '群公告':
         Get.to(
-          () => () => GroupBillBoardPage(
-                dataGroup![0]['groupOwner'],
-                groupNotification!,
-                groupId: widget.peer!,
-                time: time!,
-                callback: (timeData) => time = timeData,
-              ),
+          () => GroupBillBoardPage(
+            dataGroup![0]['groupOwner'],
+            groupNotification!,
+            groupId: widget.peer!,
+            time: time!,
+            callback: (timeData) => time = timeData,
+          ),
         )!
             .then((data) {
-          groupNotification = data ?? groupNotification;
+          groupNotification = (data ?? groupNotification) as String?;
         });
         break;
       // case '查找聊天记录':
@@ -369,14 +369,14 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         break;
       case '我在群里的昵称':
         Get.to(
-          () => () => GroupRemarkPage(
-                groupInfoType: GroupInfoType.cardName,
-                text: cardName,
-                groupId: widget.peer,
-              ),
+          () => GroupRemarkPage(
+            groupInfoType: GroupInfoType.cardName,
+            text: cardName,
+            groupId: widget.peer,
+          ),
         )!
             .then((data) {
-          cardName = data ?? cardName;
+          cardName = (data ?? cardName).toString();
         });
         break;
       case '投诉':

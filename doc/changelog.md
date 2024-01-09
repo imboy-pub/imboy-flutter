@@ -1,3 +1,7 @@
+# 0.1.27
+* 升级 getx get: ^5.0.0-release-candidate-5 代码做响应调整，https://github.com/jonataslaw/getx/issues/2966
+*
+
 # 0.1.26
 * 引入 octo_image 库，聊天图片做相关调整；
 * 引入 r_upgrade 库，做Android IOS APP升级功能；

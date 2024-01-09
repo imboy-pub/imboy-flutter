@@ -14,23 +14,24 @@ class UserRepoLocal extends GetxController {
 
   //
   UserSettingModel get setting {
-    Map<String, dynamic> u = StorageService.to.getMap(Keys.currentUser);
+    Map<String, dynamic> u = StorageService.getMap(Keys.currentUser);
     return UserSettingModel.fromJson(u['setting'] ?? {});
   }
 
   // 令牌 token
-  String get accessToken => StorageService.to.getString(Keys.tokenKey);
+  String get accessToken => StorageService.to.getString(Keys.tokenKey) ?? '';
 
-  String get refreshToken => StorageService.to.getString(Keys.refreshTokenKey);
+  String get refreshToken =>
+      StorageService.to.getString(Keys.refreshTokenKey) ?? '';
 
-  String get currentUid => StorageService.to.getString(Keys.currentUid);
+  String get currentUid => StorageService.to.getString(Keys.currentUid) ?? '';
 
   UserModel get current => UserModel.fromJson(
-        StorageService.to.getMap(Keys.currentUser),
+        StorageService.getMap(Keys.currentUser),
       );
 
   String get lastLoginAccount =>
-      StorageService.to.getString(Keys.lastLoginAccount);
+      StorageService.to.getString(Keys.lastLoginAccount) ?? '';
 
   @override
   void onInit() {
@@ -39,15 +40,15 @@ class UserRepoLocal extends GetxController {
   }
 
   Future<bool> changeSetting(UserSettingModel setting) async {
-    Map<String, dynamic> u = StorageService.to.getMap(Keys.currentUser);
+    Map<String, dynamic> u = StorageService.getMap(Keys.currentUser);
     u['setting'] = setting.toMap();
-    await StorageService.to.setMap(Keys.currentUser, u);
+    await StorageService.setMap(Keys.currentUser, u);
     update();
     return true;
   }
 
   Future<bool> changeInfo(Map<String, dynamic> payload) async {
-    await StorageService.to.setMap(Keys.currentUser, payload);
+    await StorageService.setMap(Keys.currentUser, payload);
     update();
     return true;
   }
@@ -59,7 +60,7 @@ class UserRepoLocal extends GetxController {
       payload['refreshtoken'],
     );
     await StorageService.to.setString(Keys.currentUid, payload['uid']);
-    await StorageService.to.setMap(Keys.currentUser, payload);
+    await StorageService.setMap(Keys.currentUser, payload);
     SqliteService.to.db;
     // 初始化 WebSocket 链接
     // 检查WS链接状

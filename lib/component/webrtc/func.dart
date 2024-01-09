@@ -124,7 +124,7 @@ Future<void> incomingCallScreen(
   gTimer = Timer(const Duration(seconds: 60), () {
     MessageService.to.changeLocalMsgState(msgId, 5);
     if (Get.isDialogOpen != null && Get.isDialogOpen == true) {
-      Get.close(0);
+      Get.back(times: 1);
     }
     gTimer?.cancel();
     gTimer = null;
@@ -195,7 +195,7 @@ Future<void> incomingCallScreen(
                   gTimer = null;
                   sendWebRTCMsg('busy', {}, to: peer.peerId);
                   p2pCallScreenOn = false;
-                  Get.close(0);
+                  Get.closeAllDialogs();
                 },
                 child: const Icon(Icons.call_end, color: Colors.white),
               ),
@@ -211,7 +211,7 @@ Future<void> incomingCallScreen(
                 onPressed: () {
                   gTimer?.cancel();
                   gTimer = null;
-                  Get.close(0);
+                  Get.closeAllDialogs();
                   option['msgId'] = msgId;
                   openCallScreen(peer, session: s, option, caller: false);
                 },

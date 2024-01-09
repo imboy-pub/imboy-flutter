@@ -192,7 +192,7 @@ class UserCollectPage extends StatelessWidget {
         leading: isSelect
             ? InkWell(
                 onTap: () {
-                  Get.close(1);
+                  Get.back(times: 1);
                 },
                 child: const Icon(Icons.close),
               )
@@ -332,7 +332,7 @@ class UserCollectPage extends StatelessWidget {
                                                             state.items
                                                                 .removeAt(
                                                                     index);
-                                                            Get.close(1);
+                                                            Get.back(times: 1);
                                                             EasyLoading
                                                                 .showSuccess(
                                                                     '操作成功'.tr);

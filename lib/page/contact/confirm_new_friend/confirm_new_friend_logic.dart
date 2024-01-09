@@ -77,7 +77,7 @@ class ConfirmNewFriendLogic extends GetxController {
           bottomNavigationLogic.newFriendRemindCounter,
         ]);
       });
-      Get.close(1);
+      Get.back(times: 1);
     } else {
       EasyLoading.showError("网络故障，请重试！".tr);
     }

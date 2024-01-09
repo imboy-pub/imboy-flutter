@@ -2,9 +2,9 @@ import 'package:get/get.dart';
 
 import 'mine_logic.dart';
 
-class MineBinding extends Bindings {
+class MineBinding extends Binding {
   @override
-  void dependencies() {
-    Get.lazyPut(() => MineLogic());
-  }
+    List<Bind> dependencies() => [
+        Bind.lazyPut(() => MineLogic()),
+      ];
 }

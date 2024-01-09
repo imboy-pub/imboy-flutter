@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.1.26
+version: 0.1.27
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -16,19 +16,23 @@ dependencies:
   # Network
   dio: ^5.4.0 # 网络请求框架
   dio_http2_adapter: ^2.4.0
-  #web_socket_channel: ^2.4.1
-  web_socket_channel: ^2.4.0
-  url_launcher: ^6.2.2 # 打开url 拨打电话 发短信
+  #web_socket_channel: ^2.4.3
+  web_socket_channel: ^2.4.2
+  url_launcher: ^6.2.3 # 打开url 拨打电话 发短信
   # https://juejin.cn/post/6869291513508659213
-  webview_flutter: ^4.4.3 # Show web page (CGU)
+  webview_flutter: ^4.4.4 # Show web page (CGU)
   flutter_inappwebview: ^6.0.0 # 它允许你将WebView小部件整合到你的Flutter应用中，使用无头WebViews，或者使用In-App浏览器。
   mime: ^1.0.4
   connectivity_plus: ^5.0.2 # 是否联网及网络类型
 
   # UI
   cupertino_icons: ^1.0.6 # Use with the CupertinoIcons class for iOS style icons.
-  get: ^4.6.6 # getx 状态管理框架
-  #get: 5.0.0-release-candidate-5
+  #get: ^4.6.6 # getx 状态管理框架
+  # get: ^5.0.0-release-candidate-5
+  get:
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/getx.git
+      ref: master
   qr_flutter: ^4.1.0 # 二维码生成
   photo_view: ^0.14.0 #
   lpinyin: ^2.0.3 #
@@ -66,7 +70,7 @@ dependencies:
   #    path: permission_handler
   #    tag: permission_handler_android_v10.2.1
       #ref: master
-  camera: ^0.10.5+8
+  camera: ^0.10.5+9
   #wechat_camera_picker: ^4.2.0-dev.3
   wechat_camera_picker: ^4.2.0-dev.1
   wechat_assets_picker: ^9.0.0-dev.2
@@ -83,10 +87,10 @@ dependencies:
   # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
   video_compress: ^3.1.2
   # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
-  path_provider: ^2.1.1
-  image_picker: ^1.0.6
+  path_provider: ^2.1.2
+  image_picker: ^1.0.7
   image_picker_macos: ^0.2.1+1
-  image_picker_platform_interface: ^2.9.2
+  image_picker_platform_interface: ^2.9.3
   file_picker: ^6.1.1
   open_file: ^3.3.2
 
@@ -158,7 +162,7 @@ dependencies:
     #   url: https://gitee.com/imboy-tripartite-deps/niku.git
     #   ref: main
   # 二维码扫描
-  mobile_scanner: ^3.5.5
+  mobile_scanner: ^3.5.6
   #  mobile_scanner:
   #    git:
   #      url: https://gitee.com/imboy-tripartite-deps/mobile_scanner.git
@@ -204,7 +208,7 @@ dependencies:
   # 用于 Flutter 的 SVG 渲染和小部件库，允许绘制和显示可缩放矢量图形 1.1 文件。
   flutter_svg: ^2.0.9
   # 动画效果
-  flutter_animate: ^4.3.0
+  flutter_animate: ^4.4.0
   # dart 对象比较
   equatable: ^2.0.5
   # 用于查找设备上安装的可用地图并使用标记启动它们或显示方向。

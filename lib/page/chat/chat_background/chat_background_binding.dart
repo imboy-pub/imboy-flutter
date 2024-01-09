@@ -2,9 +2,9 @@ import 'package:get/get.dart';
 
 import 'chat_background_logic.dart';
 
-class ChatBackgroundBinding extends Bindings {
+class ChatBackgroundBinding extends Binding {
   @override
-  void dependencies() {
-    Get.lazyPut(() => ChatBackgroundLogic());
-  }
+  List<Bind> dependencies() => [
+        Bind.lazyPut(() => ChatBackgroundLogic()),
+      ];
 }

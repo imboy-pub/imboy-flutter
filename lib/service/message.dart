@@ -88,7 +88,7 @@ class MessageService extends GetxService {
               changeLocalMsgState(id, 4);
             }
             if (Get.isDialogOpen != null && Get.isDialogOpen == true) {
-              Get.close(0);
+              Get.back(times: 1);
             }
             gTimer?.cancel();
             gTimer = null;

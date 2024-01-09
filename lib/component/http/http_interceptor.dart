@@ -12,7 +12,7 @@ class IMBoyInterceptor extends Interceptor {
     options.headers['device-type'] = Platform.operatingSystem;
     options.headers['device-type-vsn'] = Platform.operatingSystemVersion;
 
-    String tk = UserRepoLocal.to.accessToken;
+    String? tk = UserRepoLocal.to.accessToken;
     if (strNoEmpty(tk)) {
       options.headers[Keys.tokenKey] = tk;
     }

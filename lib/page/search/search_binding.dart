@@ -2,9 +2,9 @@ import 'package:get/get.dart';
 
 import 'search_logic.dart';
 
-class SearchBinding extends Bindings {
+class SearchBinding extends Binding {
   @override
-  void dependencies() {
-    Get.lazyPut(() => SearchLogic());
-  }
+    List<Bind> dependencies() => [
+        Bind.lazyPut(() => SearchLogic()),
+      ];
 }

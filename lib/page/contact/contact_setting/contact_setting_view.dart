@@ -261,7 +261,7 @@ class ContactSettingPage extends StatelessWidget {
                               bool res = await logic.deleteContact(peerId);
                               if (res) {
                                 EasyLoading.showSuccess("操作成功");
-                                Get.close(3);
+                                Get.back(times: 3);
                                 Get.to(
                                   () => BottomNavigationPage(),
                                   arguments: {'index': 1},

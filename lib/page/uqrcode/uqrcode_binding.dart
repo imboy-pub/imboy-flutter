@@ -2,9 +2,9 @@ import 'package:get/get.dart';
 
 import 'uqrcode_logic.dart';
 
-class UqrcodeBinding extends Bindings {
+class UqrcodeBinding extends Binding {
   @override
-  void dependencies() {
-    Get.lazyPut(() => UqrcodeLogic());
-  }
+  List<Bind> dependencies() => [
+        Bind.lazyPut(() => UqrcodeLogic()),
+      ];
 }

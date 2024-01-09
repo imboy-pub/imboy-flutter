@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ScannerLogic extends GetxController {
-  Future showResult(String txt, int closeTime) {
+  Future showResult(String txt, int closeTimes) {
     return Get.bottomSheet(
       InkWell(
         onTap: () {
-          Get.close(closeTime);
+          Get.back(times: closeTimes);
         },
         child: Container(
           width: double.infinity,

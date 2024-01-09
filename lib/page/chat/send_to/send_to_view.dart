@@ -245,7 +245,7 @@ class SendToPage extends StatelessWidget {
   }
 
   /// 分别发送给
-  void separatelySendToDialog(List items, int callbackTime) {
+  void separatelySendToDialog(List items, int times) {
     List towD = listTo2D(items, 5);
     Get.defaultDialog(
       title: '分别发送给'.tr,
@@ -270,12 +270,12 @@ class SendToPage extends StatelessWidget {
             callback!();
           }
           Future.delayed(const Duration(milliseconds: 1600), () {
-            Get.close(callbackTime);
+            Get.back(times: times);
           });
           // if (res) {
           //   EasyLoading.showSuccess('发送成功'.tr);
           //   Future.delayed(const Duration(milliseconds: 1600), () {
-          //     Get.close(callbackTime);
+          //     Get.back(times: times);
           //   });
           // } else {
           //   EasyLoading.showError('发送失败'.tr);
@@ -318,7 +318,7 @@ class SendToPage extends StatelessWidget {
     );
   }
 
-  void sendToDialog(ConversationModel model, int callbackTime) {
+  void sendToDialog(ConversationModel model, int times) {
     Get.defaultDialog(
       title: '发送给'.tr,
       radius: 6,
@@ -342,7 +342,7 @@ class SendToPage extends StatelessWidget {
               callback!();
             }
             Future.delayed(const Duration(milliseconds: 1600), () {
-              Get.close(callbackTime);
+              Get.back(times: times);
             });
           } else {
             EasyLoading.showError('发送失败'.tr);

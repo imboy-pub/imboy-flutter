@@ -67,7 +67,12 @@ class MinePage extends StatelessWidget {
                             child: InkWell(
                               onTap: () {
                                 if (c.current.avatar.isEmpty) {
-                                  EasyLoading.showInfo('请进入【个人信息页面】设置头像'.tr);
+                                  Get.to(
+                                    () => const PersonalInfoPage(),
+                                    transition: Transition.rightToLeft,
+                                    popGesture: true, // 右滑，返回上一页
+                                  );
+                                  // EasyLoading.showInfo('请进入【个人信息页面】设置头像'.tr);
                                 } else {
                                   zoomInPhotoView(c.current.avatar);
                                 }

@@ -2,9 +2,9 @@ import 'package:get/get.dart';
 
 import 'chat_setting_logic.dart';
 
-class ChatSettingBinding extends Bindings {
+class ChatSettingBinding extends Binding {
   @override
-  void dependencies() {
-    Get.lazyPut(() => ChatSettingLogic());
-  }
+  List<Bind> dependencies() => [
+        Bind.lazyPut(() => ChatSettingLogic()),
+      ];
 }

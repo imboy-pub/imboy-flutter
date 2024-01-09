@@ -2,9 +2,9 @@ import 'package:get/get.dart';
 
 import 'group_bill_board_logic.dart';
 
-class GroupBillBoardBinding extends Bindings {
+class GroupBillBoardBinding extends Binding {
   @override
-  void dependencies() {
-    Get.lazyPut(() => GroupBillBoardLogic());
-  }
+    List<Bind> dependencies() => [
+        Bind.lazyPut(() => GroupBillBoardLogic()),
+      ];
 }
