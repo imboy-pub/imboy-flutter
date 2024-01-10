@@ -407,7 +407,6 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 ..onPressed = () async {
                   Navigator.of(context).pop();
                   // bool res = await logic.cleanMessageByPeerId(widget.peerId);
-                  // Get.back();
                   // if (res) {
                   //   backDoRefresh = true;
                   //   // 刷新会话列表

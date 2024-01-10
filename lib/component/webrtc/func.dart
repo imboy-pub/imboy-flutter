@@ -123,8 +123,8 @@ Future<void> incomingCallScreen(
 
   gTimer = Timer(const Duration(seconds: 60), () {
     MessageService.to.changeLocalMsgState(msgId, 5);
-    if (Get.isDialogOpen != null && Get.isDialogOpen == true) {
-      Get.back(times: 1);
+    if (Get.isDialogOpen ?? false) {
+      Get.closeAllDialogs();
     }
     gTimer?.cancel();
     gTimer = null;

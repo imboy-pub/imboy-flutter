@@ -9,14 +9,15 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 // ignore: implementation_imports
 import 'package:flutter_chat_ui/src/widgets/state/inherited_user.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+import 'package:octo_image/octo_image.dart';
+import 'package:open_file/open_file.dart';
+
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
-import 'package:octo_image/octo_image.dart';
-import 'package:open_file/open_file.dart';
 
 import 'message_audio_builder.dart';
 import 'message_location_builder.dart';
@@ -192,29 +193,27 @@ void showTextMessage(String text) {
   Get.bottomSheet(
     Container(
       width: double.infinity,
-      margin: const EdgeInsets.all(0.0),
       height: double.infinity,
+      margin: const EdgeInsets.all(0.0),
       // Creates insets from offsets from the left, top, right, and bottom.
       padding: const EdgeInsets.fromLTRB(16, 28, 0, 10),
       alignment: Alignment.center,
       color: Colors.white,
-      child: Center(
-        child: Scrollbar(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: SelectableText.rich(
-              TextSpan(
-                text: text,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 24,
-                ),
+      child: Scrollbar(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: SelectableText.rich(
+            TextSpan(
+              text: text,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 24,
               ),
-              onTap: () {
-                Get.back();
-              },
-              textAlign: TextAlign.left,
             ),
+            onTap: () {
+              Get.closeAllBottomSheets();
+            },
+            textAlign: TextAlign.left,
           ),
         ),
       ),

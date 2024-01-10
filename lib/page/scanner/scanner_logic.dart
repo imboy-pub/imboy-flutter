@@ -6,7 +6,7 @@ class ScannerLogic extends GetxController {
     return Get.bottomSheet(
       InkWell(
         onTap: () {
-          Get.back(times: closeTimes);
+          Get.closeAllBottomSheets();
         },
         child: Container(
           width: double.infinity,

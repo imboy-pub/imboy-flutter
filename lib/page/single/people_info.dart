@@ -277,7 +277,7 @@ class PeopleInfoPage extends StatelessWidget {
                     isBorder: true,
                     onPressed: () {
                       openCallScreen(
-                        ContactModel.fromJson({
+                        ContactModel.fromMap({
                           "id": id,
                           "nickname": nickname.value,
                           "avatar": avatar.value,
@@ -297,7 +297,7 @@ class PeopleInfoPage extends StatelessWidget {
                         text: '视频通话'.tr,
                         onPressed: () {
                           openCallScreen(
-                            ContactModel.fromJson({
+                            ContactModel.fromMap({
                               "id": id,
                               "nickname": nickname.value,
                               "avatar": avatar.value,

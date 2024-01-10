@@ -39,36 +39,30 @@ class PeopleNearbyPage extends StatelessWidget {
       body: SlidableAutoCloseBehavior(
         child: n.Column(
           [
-            n.Row(
-              [
-                InkWell(
-                  onTap: () {
-                    rotateCompass();
-                    logic.peopleNearby();
-                  },
-                  child: const Icon(
-                    Icons.explore,
-                    color: Colors.lightBlue,
-                    size: 80,
-                  )
-                      .animate(adapter: adapter)
-                      .rotate(duration: const Duration(milliseconds: 200)),
+            n.Row([
+              InkWell(
+                onTap: () {
+                  rotateCompass();
+                  logic.peopleNearby();
+                },
+                child: const Icon(
+                  Icons.explore,
+                  color: Colors.lightBlue,
+                  size: 80,
                 )
-              ],
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            ),
-            n.Row(
-              [
-                Text(
-                  '和附近的人交换联系方式，结交新朋友'.tr,
-                  style: const TextStyle(
-                    color: AppColors.TipColor,
-                    fontSize: 15,
-                  ),
-                )
-              ],
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            ),
+                    .animate(adapter: adapter)
+                    .rotate(duration: const Duration(milliseconds: 200)),
+              )
+            ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
+            n.Row([
+              Text(
+                '和附近的人交换联系方式，结交新朋友'.tr,
+                style: const TextStyle(
+                  color: AppColors.TipColor,
+                  fontSize: 15,
+                ),
+              )
+            ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
             SizedBox(
               width: Get.width,
               height: 8,
@@ -93,7 +87,6 @@ class PeopleNearbyPage extends StatelessWidget {
                                 // Users nearby will be able to view your profile and send you messages. This may help you find new friends, but could also attract excessive attention. You can stop sharing your profile at any time.
                                 //
                                 // Your phone number will remain hidden.
-
                                 Get.defaultDialog(
                                   title: '显示你的资料'.tr,
                                   // Show You Profile
@@ -105,7 +98,7 @@ class PeopleNearbyPage extends StatelessWidget {
                                   onConfirm: () {
                                     // 异步处理
                                     logic.makeMyselfVisible();
-                                    Get.back();
+                                    Get.closeAllDialogs();
                                     EasyLoading.showSuccess('操作成功'.tr);
                                   },
                                 );
@@ -128,33 +121,30 @@ class PeopleNearbyPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            child: n.Row(
-                              [
-                                Obx(() => Icon(
-                                      state.peopleNearbyVisible.isFalse
-                                          ? Icons.location_on
-                                          : Icons.location_off,
-                                      size: 28.0,
+                            child: n.Row([
+                              Obx(() => Icon(
+                                    state.peopleNearbyVisible.isFalse
+                                        ? Icons.location_on
+                                        : Icons.location_off,
+                                    size: 28.0,
+                                    color: Colors.lightBlue,
+                                  )),
+                              const SizedBox(
+                                width: 8,
+                                height: 32,
+                              ),
+                              Obx(() => Text(
+                                    state.peopleNearbyVisible.isFalse
+                                        ? '让自己可见'.tr
+                                        : '让自己不可见'.tr,
+                                    // Stop Showing Me
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
                                       color: Colors.lightBlue,
-                                    )),
-                                const SizedBox(
-                                  width: 8,
-                                  height: 32,
-                                ),
-                                Obx(() => Text(
-                                      state.peopleNearbyVisible.isFalse
-                                          ? '让自己可见'.tr
-                                          : '让自己不可见'.tr,
-                                      // Stop Showing Me
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.lightBlue,
-                                      ),
-                                    ))
-                              ],
-                              mainAxisAlignment: MainAxisAlignment.start,
-                            ),
+                                    ),
+                                  ))
+                            ], mainAxisAlignment: MainAxisAlignment.start),
                           ),
                         ),
                       ],

@@ -235,73 +235,71 @@ class ContactSettingPage extends StatelessWidget {
                   SizedBox(
                     width: Get.width,
                     height: Get.height * 0.25,
-                    child: n.Wrap(
-                      [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: 10,
-                            left: 15,
-                            right: 15,
-                            bottom: 10,
+                    child: n.Wrap([
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 10,
+                          left: 15,
+                          right: 15,
+                          bottom: 10,
+                        ),
+                        child: Text(
+                          '将联系人"$peerRemark"删除，同时删除与该联系人的聊天记录'.tr,
+                          style: const TextStyle(
+                            color: AppColors.MainTextColor,
+                            fontSize: 14.0,
                           ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Center(
+                        child: TextButton(
+                          onPressed: () async {
+                            bool res = await logic.deleteContact(peerId);
+                            if (res) {
+                              EasyLoading.showSuccess("操作成功");
+                              Get.back(times: 3);
+                              Get.to(
+                                () => BottomNavigationPage(),
+                                arguments: {'index': 1},
+                                transition: Transition.rightToLeft,
+                                popGesture: true, // 右滑，返回上一页
+                              );
+                            }
+                          },
                           child: Text(
-                            '将联系人"$peerRemark"删除，同时删除与该联系人的聊天记录'.tr,
-                            style: const TextStyle(
-                              color: AppColors.MainTextColor,
-                              fontSize: 14.0,
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
+                            '删除联系人'.tr,
                             textAlign: TextAlign.center,
-                          ),
-                        ),
-                        Center(
-                          child: TextButton(
-                            onPressed: () async {
-                              bool res = await logic.deleteContact(peerId);
-                              if (res) {
-                                EasyLoading.showSuccess("操作成功");
-                                Get.back(times: 3);
-                                Get.to(
-                                  () => BottomNavigationPage(),
-                                  arguments: {'index': 1},
-                                  transition: Transition.rightToLeft,
-                                  popGesture: true, // 右滑，返回上一页
-                                );
-                              }
-                            },
-                            child: Text(
-                              '删除联系人'.tr,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Colors.red,
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.normal,
-                              ),
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.normal,
                             ),
                           ),
                         ),
-                        Container(
-                          width: Get.width,
-                          height: 6,
-                          color: AppColors.AppBarColor,
-                        ),
-                        Center(
-                          child: TextButton(
-                            onPressed: () => Get.back(),
-                            child: Text(
-                              'button_cancel'.tr,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: AppColors.ItemOnColor,
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.normal,
-                              ),
+                      ),
+                      Container(
+                        width: Get.width,
+                        height: 6,
+                        color: AppColors.AppBarColor,
+                      ),
+                      Center(
+                        child: TextButton(
+                          onPressed: () => Get.close(),
+                          child: Text(
+                            'button_cancel'.tr,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: AppColors.ItemOnColor,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.normal,
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ]),
                   ),
                   // backgroundColor: Colors.black12,
                   backgroundColor: Colors.white,

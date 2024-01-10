@@ -119,7 +119,7 @@ class UserCollectPage extends StatelessWidget {
       radius: 6,
       cancel: TextButton(
         onPressed: () {
-          Get.back();
+          Get.close();
         },
         child: Text(
           '取消'.tr,
@@ -362,7 +362,7 @@ class UserCollectPage extends StatelessWidget {
                                                     Center(
                                                       child: TextButton(
                                                         onPressed: () =>
-                                                            Get.back(),
+                                                            Get.close(),
                                                         child: Text(
                                                           'button_cancel'.tr,
                                                           textAlign:

@@ -733,15 +733,20 @@ class ChatPageState extends State<ChatPage> {
     double l = offset.dx / 2 - renderBox.size.width / 2 + 75.0;
     double r = renderBox.size.width / 2 - 75.0;
     double dx = message.author.id == UserRepoLocal.to.currentUid ? r : l;
-    debugPrint("> on chat _handleMessageTap "
-        "dx:${offset.dx},dy:${offset.dy},"
-        "w:${renderBox.size.width},h:${renderBox.size.height}");
+    double dy = offset.dy;
+    double h = renderBox.size.height;
+    if (dy < 0 || dy > getx.Get.height) {
+      dy = getx.Get.height / 2;
+    }
+    if (h > getx.Get.height) {
+      dy = getx.Get.height / 2;
+    }
     menu.show(
       rect: Rect.fromLTWH(
         dx,
-        offset.dy,
+        dy,
         renderBox.size.width,
-        renderBox.size.height,
+        h,
       ),
     );
   }

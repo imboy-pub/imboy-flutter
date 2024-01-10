@@ -127,7 +127,6 @@ class ChangeNamePage extends StatelessWidget {
       controller: textController,
       keyboardType: TextInputType.text,
       textCapitalization: TextCapitalization.words,
-      textInputAction: TextInputAction.none,
       decoration: InputDecoration(
           contentPadding: const EdgeInsets.fromLTRB(14, 0, 8, 0),
           filled: true,

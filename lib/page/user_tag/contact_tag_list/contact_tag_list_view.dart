@@ -122,8 +122,7 @@ class ContactTagListPage extends StatelessWidget {
                               scene: scene,
                             );
                             if (res) {
-                              // Get.back(times: 1);
-                              Get.back();
+                              Get.closeAllBottomSheets();
                               EasyLoading.showSuccess('操作成功'.tr);
                             } else {
                               EasyLoading.showError('操作失败'.tr);
@@ -143,7 +142,7 @@ class ContactTagListPage extends StatelessWidget {
                       const HorizontalLine(height: 6),
                       Center(
                         child: TextButton(
-                          onPressed: () => Get.back(),
+                          onPressed: () => Get.close(),
                           child: Text(
                             'button_cancel'.tr,
                             textAlign: TextAlign.center,
@@ -247,7 +246,6 @@ class ContactTagListPage extends StatelessWidget {
               ),
             ),
             onTap: () {
-              // Get.back(times: 1);
               Get.bottomSheet(
                 n.Padding(
                   // top: 80,
@@ -273,67 +271,64 @@ class ContactTagListPage extends StatelessWidget {
             state.page += 1;
           }
         },
-        child: Obx(() => n.Column(
-              [
-                n.Padding(
+        child: Obx(() => n.Column([
+              n.Padding(
+                left: 8,
+                top: 2,
+                right: 8,
+                bottom: 2,
+                child: searchBar(
+                  context,
+                  leading: state.searchLeading?.value ??
+                      InkWell(
+                        onTap: () {
+                          logic.doSearch(state.kwd.value);
+                        },
+                        child: const Icon(Icons.search),
+                      ),
+                  trailing: state.kwd.isEmpty
+                      ? null
+                      : [
+                          InkWell(
+                            onTap: () {
+                              state.kwd.value = '';
+                              state.searchController.text = '';
+                              logic.doSearch(state.kwd.value);
+                            },
+                            child: const Icon(Icons.close),
+                          )
+                        ],
+                  controller: state.searchController,
+                  searchLabel: '搜索'.tr,
+                  hintText: '搜索'.tr,
+                  // queryTips: '收藏人名、群名、标签等'.tr,
+                  onChanged: ((query) async {
+                    state.kwd.value = query;
+                    debugPrint(
+                        "contact_tag_view_onChanged ${query.toString()}");
+                    await logic.doSearch(query);
+                  }),
+                ),
+              ),
+              Expanded(
+                child: n.Padding(
                   left: 8,
-                  top: 2,
                   right: 8,
-                  bottom: 2,
-                  child: searchBar(
-                    context,
-                    leading: state.searchLeading?.value ??
-                        InkWell(
-                          onTap: () {
-                            logic.doSearch(state.kwd.value);
-                          },
-                          child: const Icon(Icons.search),
-                        ),
-                    trailing: state.kwd.isEmpty
-                        ? null
-                        : [
-                            InkWell(
-                              onTap: () {
-                                state.kwd.value = '';
-                                state.searchController.text = '';
-                                logic.doSearch(state.kwd.value);
+                  child: SlidableAutoCloseBehavior(
+                      child: state.items.isEmpty
+                          ? NoDataView(text: '暂无数据'.tr)
+                          : ListView.builder(
+                              controller: controller,
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemCount: state.items.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                UserTagModel obj = state.items[index];
+                                return buildItem(index, obj);
                               },
-                              child: const Icon(Icons.close),
-                            )
-                          ],
-                    controller: state.searchController,
-                    searchLabel: '搜索'.tr,
-                    hintText: '搜索'.tr,
-                    // queryTips: '收藏人名、群名、标签等'.tr,
-                    onChanged: ((query) async {
-                      state.kwd.value = query;
-                      debugPrint(
-                          "contact_tag_view_onChanged ${query.toString()}");
-                      await logic.doSearch(query);
-                    }),
-                  ),
+                            )),
                 ),
-                Expanded(
-                  child: n.Padding(
-                    left: 8,
-                    right: 8,
-                    child: SlidableAutoCloseBehavior(
-                        child: state.items.isEmpty
-                            ? NoDataView(text: '暂无数据'.tr)
-                            : ListView.builder(
-                                controller: controller,
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                itemCount: state.items.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  UserTagModel obj = state.items[index];
-                                  return buildItem(index, obj);
-                                },
-                              )),
-                  ),
-                ),
-              ],
-              mainAxisSize: MainAxisSize.min,
-            )),
+              ),
+            ], mainAxisSize: MainAxisSize.min)),
       ),
     );
   }

@@ -166,10 +166,15 @@ class SelectRegionPage extends StatelessWidget {
           Obx(
             () => ElevatedButton(
               onPressed: () async {
+                var nav = Navigator.of(context);
                 bool res = await outCallback(logic.selectedVal.value);
+                // iPrint("logic.selectedVal.value ${logic.selectedVal.value}");
                 if (res) {
                   int t = logic.selectedVal.value.split(" ").length;
-                  Get.back(times: t);
+                  // iPrint("logic.selectedVal.value $t");
+                  for (var i = 0; i < t; i++) {
+                    nav.pop();
+                  }
                 }
               },
               // ignore: sort_child_properties_last

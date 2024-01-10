@@ -45,8 +45,8 @@ class UserCollectDetailPage extends StatelessWidget {
             ),
           ),
           onPressed: () async {
+            Get.closeAllBottomSheets();
             obj.info['id'] = Xid().toString();
-            Get.back(times: 1);
             // 转发消息
             Get.bottomSheet(
               n.Padding(
@@ -68,6 +68,7 @@ class UserCollectDetailPage extends StatelessWidget {
       Center(
         child: TextButton(
           onPressed: () {
+            Get.closeAllBottomSheets();
             Get.to(
               () => UserTagRelationPage(
                 peerId: obj.kindId,
@@ -102,6 +103,7 @@ class UserCollectDetailPage extends StatelessWidget {
       Center(
         child: TextButton(
           onPressed: () {
+            Get.closeAllBottomSheets();
             Get.to(
               () => UpdatePage(
                   title: '设置备注'.tr,
@@ -113,7 +115,6 @@ class UserCollectDetailPage extends StatelessWidget {
                     if (ok) {
                       remark.value = remarkNew;
                       obj.remark = remarkNew;
-                      Get.back(times: 1);
                     }
                     return ok;
                   }),
@@ -144,10 +145,11 @@ class UserCollectDetailPage extends StatelessWidget {
       Center(
         child: TextButton(
           onPressed: () async {
+            Get.closeAllBottomSheets();
             bool res = await logic.remove(obj);
             if (res) {
-              Get.back(times: 2);
               logic.state.items.removeAt(pageIndex);
+              Get.back();
             }
           },
           child: Text(
@@ -164,7 +166,7 @@ class UserCollectDetailPage extends StatelessWidget {
       const HorizontalLine(height: 6),
       Center(
         child: TextButton(
-          onPressed: () => Get.back(),
+          onPressed: () => Get.close(),
           child: Text(
             'button_cancel'.tr,
             textAlign: TextAlign.center,
@@ -191,6 +193,7 @@ class UserCollectDetailPage extends StatelessWidget {
               ),
             ),
             onPressed: () async {
+              Get.closeAllBottomSheets();
               // 复制消息
               final String txt = obj.info['payload']['text'] ?? '';
               if (txt.isNotEmpty) {

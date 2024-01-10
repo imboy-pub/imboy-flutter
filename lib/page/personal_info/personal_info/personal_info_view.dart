@@ -4,15 +4,17 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
 import 'package:image_picker/image_picker.dart';
+
 import 'package:imboy/component/helper/crop_image.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
 
 import '../update/update_view.dart';
 import 'personal_info_logic.dart';
@@ -36,8 +38,8 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
-      Get.back();
-      Get.snackbar("提示", "网络连接异常");
+      Get.close();
+      Get.snackbar('提示'.tr, '网络连接异常'.tr);
       return;
     }
 
@@ -55,8 +57,8 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
-      Get.back();
-      Get.snackbar("提示", "网络连接异常");
+      Get.close();
+      Get.snackbar('提示'.tr, '网络连接异常'.tr);
       return;
     }
     await ImagePicker()
@@ -69,10 +71,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   }
 
   void cropImage(XFile x) async {
-    Get.back();
     File originalImage = File(x.path);
 
-    String url = await Navigator.push(
+    String? url = await Navigator.push(
       context,
       CupertinoPageRoute(
         // “右滑返回上一页”功能
@@ -85,12 +86,13 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     );
 
     debugPrint("> cropImage url $url;");
-    if (url.isNotEmpty) {
+    if (strNoEmpty(url)) {
+      Get.closeAllBottomSheets();
       bool ok = await logic.changeInfo({"field": "avatar", "value": url});
       if (ok) {
         //url是图片上传后拿到的url
         setState(() {
-          currentUserAvatar = url;
+          currentUserAvatar = url!;
           Map<String, dynamic> payload = UserRepoLocal.to.current.toMap();
           payload["avatar"] = url;
           UserRepoLocal.to.changeInfo(payload);
@@ -189,7 +191,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                 const HorizontalLine(height: 6),
                 Center(
                   child: TextButton(
-                    onPressed: () => Get.back(),
+                    onPressed: () => Get.close(),
                     child: Text(
                       'button_cancel'.tr,
                       textAlign: TextAlign.center,

@@ -162,7 +162,7 @@ void zoomInPhotoViewGallery(List items) async {
   Get.bottomSheet(
     InkWell(
       onTap: () {
-        Get.back();
+        Get.closeAllBottomSheets();
       },
       child: PhotoViewGallery.builder(
         scrollPhysics: const BouncingScrollPhysics(),

@@ -58,7 +58,7 @@ class ContactTagDetailLogic extends GetxController {
     List<dynamic> items = resp?['list'] ?? [];
     for (var json in items) {
       // ContactModel model = await repo.save(json);
-      ContactModel model = ContactModel.fromJson(json);
+      ContactModel model = ContactModel.fromMap(json);
       iPrint("pageRelation item ${model.toJson().toString()} ");
       if (model.isFriend == 1) {
         contact.insert(0, model);

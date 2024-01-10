@@ -60,7 +60,7 @@ class SendToPage extends StatelessWidget {
       } else {
         btn = InkWell(
           onTap: () {
-            Get.back();
+            Get.close();
           },
           child: n.Padding(
             top: 14,
@@ -252,7 +252,7 @@ class SendToPage extends StatelessWidget {
       radius: 6,
       cancel: TextButton(
         onPressed: () {
-          Get.back();
+          Get.closeAllDialogs();
         },
         child: Text(
           '取消'.tr,
@@ -270,16 +270,9 @@ class SendToPage extends StatelessWidget {
             callback!();
           }
           Future.delayed(const Duration(milliseconds: 1600), () {
-            Get.back(times: times);
+            Get.closeAllDialogs();
+            Get.close();
           });
-          // if (res) {
-          //   EasyLoading.showSuccess('发送成功'.tr);
-          //   Future.delayed(const Duration(milliseconds: 1600), () {
-          //     Get.back(times: times);
-          //   });
-          // } else {
-          //   EasyLoading.showError('发送失败'.tr);
-          // }
         },
         child: Text(
           '发送'.tr,
@@ -324,7 +317,7 @@ class SendToPage extends StatelessWidget {
       radius: 6,
       cancel: TextButton(
         onPressed: () {
-          Get.back();
+          Get.closeAllDialogs();
         },
         child: Text(
           '取消'.tr,
@@ -342,7 +335,8 @@ class SendToPage extends StatelessWidget {
               callback!();
             }
             Future.delayed(const Duration(milliseconds: 1600), () {
-              Get.back(times: times);
+              Get.closeAllDialogs();
+              Get.close();
             });
           } else {
             EasyLoading.showError('发送失败'.tr);

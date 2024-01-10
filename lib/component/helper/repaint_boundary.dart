@@ -36,7 +36,6 @@ class RepaintBoundaryHelper {
         name: filename,
       );
       EasyLoading.showSuccess("保存成功".tr);
-      Get.back();
     } else {
       await openAppSettings();
     }

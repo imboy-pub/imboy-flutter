@@ -12,7 +12,7 @@ class ChatSettingLogic extends GetxController {
   Future<bool> cleanMessageByPeerId(String peerId) async {
     ConversationModel? model = await ConversationRepo().findByPeerId(peerId);
     if (model == null) {
-      return false;
+      return true;
     }
     await MessageRepo().deleteByConversationId(model.id);
     return true;

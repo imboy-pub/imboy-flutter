@@ -44,69 +44,68 @@ class UqrcodePage extends StatelessWidget {
                 SizedBox(
                   width: Get.width,
                   height: 172,
-                  child: n.Wrap(
-                    [
-                      Center(
-                        child: TextButton(
-                          child: Text(
-                            '保存二维码'.tr,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: AppColors.ItemOnColor,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.normal,
-                            ),
+                  child: n.Wrap([
+                    Center(
+                      child: TextButton(
+                        child: Text(
+                          '保存二维码'.tr,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppColors.ItemOnColor,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
                           ),
-                          onPressed: () async {
-                            String filename =
-                                "${UserRepoLocal.to.currentUid}_qrcode.png";
-                            RepaintBoundaryHelper().savePhoto(
-                              context,
-                              globalKey,
-                              filename,
-                            );
-                          },
+                        ),
+                        onPressed: () async {
+                          String filename =
+                              "${UserRepoLocal.to.currentUid}_qrcode.png";
+                          RepaintBoundaryHelper().savePhoto(
+                            context,
+                            globalKey,
+                            filename,
+                          );
+                          Get.closeAllBottomSheets();
+                        },
+                      ),
+                    ),
+                    const Divider(),
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          Get.closeAllBottomSheets();
+                          Get.to(
+                            () => const ScannerPage(),
+                            transition: Transition.rightToLeft,
+                            popGesture: true, // 右滑，返回上一页
+                          );
+                        },
+                        child: Text(
+                          '扫描二维码'.tr,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppColors.ItemOnColor,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
+                          ),
                         ),
                       ),
-                      const Divider(),
-                      Center(
-                        child: TextButton(
-                          onPressed: () {
-                            Get.back();
-                            Get.to(
-                              () => const ScannerPage(),
-                              transition: Transition.rightToLeft,
-                              popGesture: true, // 右滑，返回上一页
-                            );
-                          },
-                          child: Text(
-                            '扫描二维码'.tr,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: AppColors.ItemOnColor,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.normal,
-                            ),
+                    ),
+                    const HorizontalLine(height: 6),
+                    Center(
+                      child: TextButton(
+                        onPressed: () => Get.close(),
+                        child: Text(
+                          'button_cancel'.tr,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppColors.ItemOnColor,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
                           ),
                         ),
                       ),
-                      const HorizontalLine(height: 6),
-                      Center(
-                        child: TextButton(
-                          onPressed: () => Get.back(),
-                          child: Text(
-                            'button_cancel'.tr,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: AppColors.ItemOnColor,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
+                    )
+                  ]),
                 ),
                 backgroundColor: Colors.white,
                 //改变shape这里即可

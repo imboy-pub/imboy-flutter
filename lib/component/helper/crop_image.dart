@@ -59,7 +59,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.back();
+                  Get.close();
                 },
                 child: Text(
                   'button_cancel'.tr,

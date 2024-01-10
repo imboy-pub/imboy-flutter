@@ -109,7 +109,7 @@ class ApplyFriendPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Container(
           width: Get.width,
-          height: Get.height,
+          height: Get.height + 200,
           color: AppColors.BgColor,
           child: n.Padding(
             left: 30,

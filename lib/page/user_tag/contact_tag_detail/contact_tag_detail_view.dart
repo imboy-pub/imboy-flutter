@@ -62,161 +62,155 @@ class ContactTagDetailPage extends StatelessWidget {
                 SizedBox(
                   width: Get.width,
                   height: 172,
-                  child: n.Wrap(
-                    [
-                      Center(
-                        child: TextButton(
-                          child: Text(
-                            '更改标签名称'.tr,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              // color: Colors.white,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.normal,
-                            ),
+                  child: n.Wrap([
+                    Center(
+                      child: TextButton(
+                        child: Text(
+                          '更改标签名称'.tr,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            // color: Colors.white,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
                           ),
-                          onPressed: () async {
-                            Get.back(times: 1);
-                            Get.bottomSheet(
-                              n.Padding(
-                                // top: 80,
-                                child:
-                                    UserTagSavePage(tag: tag, scene: 'friend'),
-                              ),
-                            );
-                          },
                         ),
+                        onPressed: () async {
+                          Get.bottomSheet(
+                            n.Padding(
+                              // top: 80,
+                              child: UserTagSavePage(tag: tag, scene: 'friend'),
+                            ),
+                          );
+                        },
                       ),
-                      const Divider(),
-                      Center(
-                        child: TextButton(
-                          onPressed: () async {
-                            Get.back(times: 1);
-                            Get.bottomSheet(
-                              SizedBox(
-                                width: Get.width,
-                                height: 172,
-                                child: n.Wrap(
-                                  [
-                                    Center(
-                                      child: n.Padding(
-                                        top: 16,
-                                        bottom: 16,
-                                        child: Text(
-                                          '删除标签后，标签中的联系人不会被删除'.tr,
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                            // color: Colors.white,
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.normal,
-                                          ),
-                                        ),
+                    ),
+                    const Divider(),
+                    Center(
+                      child: TextButton(
+                        onPressed: () async {
+                          Get.bottomSheet(
+                            SizedBox(
+                              width: Get.width,
+                              height: 172,
+                              child: n.Wrap([
+                                Center(
+                                  child: n.Padding(
+                                    top: 16,
+                                    bottom: 16,
+                                    child: Text(
+                                      '删除标签后，标签中的联系人不会被删除'.tr,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        // color: Colors.white,
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.normal,
                                       ),
                                     ),
-                                    const Divider(),
-                                    Center(
-                                      child: TextButton(
-                                        onPressed: () async {
-                                          const String scene = 'friend';
-                                          bool res = await Get.find<
-                                                  ContactTagListLogic>()
+                                  ),
+                                ),
+                                const Divider(),
+                                Center(
+                                  child: TextButton(
+                                    onPressed: () async {
+                                      const String scene = 'friend';
+                                      bool res =
+                                          await Get.find<ContactTagListLogic>()
                                               .deleteTag(
-                                            tagId: tag.tagId,
-                                            tagName: tag.name,
-                                            scene: scene,
-                                          );
-                                          if (res) {
-                                            Get.find<ContactTagListLogic>()
-                                                .replaceObjectTag(
-                                                    scene: scene,
-                                                    oldName: tag.name,
-                                                    newName: '');
+                                        tagId: tag.tagId,
+                                        tagName: tag.name,
+                                        scene: scene,
+                                      );
+                                      if (res) {
+                                        Get.find<ContactTagListLogic>()
+                                            .replaceObjectTag(
+                                                scene: scene,
+                                                oldName: tag.name,
+                                                newName: '');
 
-                                            final index =
-                                                Get.find<ContactTagListLogic>()
-                                                    .state
-                                                    .items
-                                                    .indexWhere((e) =>
-                                                        e.tagId == tag.tagId);
-                                            if (index > -1) {
-                                              Get.find<ContactTagListLogic>()
-                                                  .state
-                                                  .items
-                                                  .removeAt(index);
-                                            }
-                                            Get.back(times: 2);
-                                            EasyLoading.showSuccess('操作成功'.tr);
-                                          } else {
-                                            EasyLoading.showError('操作失败'.tr);
-                                          }
-                                        },
-                                        child: Text(
-                                          '删除'.tr,
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                            color: Colors.red,
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.normal,
-                                          ),
-                                        ),
+                                        final index =
+                                            Get.find<ContactTagListLogic>()
+                                                .state
+                                                .items
+                                                .indexWhere((e) =>
+                                                    e.tagId == tag.tagId);
+                                        if (index > -1) {
+                                          Get.find<ContactTagListLogic>()
+                                              .state
+                                              .items
+                                              .removeAt(index);
+                                        }
+                                        Get.closeAllBottomSheets();
+                                        Get.back();
+                                        EasyLoading.showSuccess('操作成功'.tr);
+                                      } else {
+                                        EasyLoading.showError('操作失败'.tr);
+                                      }
+                                    },
+                                    child: Text(
+                                      '删除'.tr,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.normal,
                                       ),
                                     ),
-                                    const HorizontalLine(height: 6),
-                                    Center(
-                                      child: TextButton(
-                                        onPressed: () => Get.back(),
-                                        child: Text(
-                                          'button_cancel'.tr,
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                            // color: Colors.white,
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.normal,
-                                          ),
-                                        ),
+                                  ),
+                                ),
+                                const HorizontalLine(height: 6),
+                                Center(
+                                  child: TextButton(
+                                    onPressed: () => Get.close(),
+                                    child: Text(
+                                      'button_cancel'.tr,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        // color: Colors.white,
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.normal,
                                       ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              backgroundColor: Colors.white,
-                              //改变shape这里即可
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(20.0),
-                                  topRight: Radius.circular(20.0),
-                                ),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            '删除'.tr,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.red,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.normal,
+                                    ),
+                                  ),
+                                )
+                              ]),
                             ),
+                            backgroundColor: Colors.white,
+                            //改变shape这里即可
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20.0),
+                                topRight: Radius.circular(20.0),
+                              ),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          '删除'.tr,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
                           ),
                         ),
                       ),
-                      const HorizontalLine(height: 6),
-                      Center(
-                        child: TextButton(
-                          onPressed: () => Get.back(),
-                          child: Text(
-                            'button_cancel'.tr,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              // color: Colors.white,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.normal,
-                            ),
+                    ),
+                    const HorizontalLine(height: 6),
+                    Center(
+                      child: TextButton(
+                        onPressed: () => Get.close(),
+                        child: Text(
+                          'button_cancel'.tr,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            // color: Colors.white,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
                           ),
                         ),
-                      )
-                    ],
-                  ),
+                      ),
+                    )
+                  ]),
                 ),
                 backgroundColor: Colors.white,
                 //改变shape这里即可
@@ -410,7 +404,7 @@ class ContactTagDetailPage extends StatelessWidget {
                                           const HorizontalLine(height: 6),
                                           Center(
                                             child: TextButton(
-                                              onPressed: () => Get.back(),
+                                              onPressed: () => Get.close(),
                                               child: Text(
                                                 'button_cancel'.tr,
                                                 textAlign: TextAlign.center,
@@ -606,67 +600,61 @@ class SelectFriendPage extends StatelessWidget {
         model.selected.value = true;
       }
     }
-    return n.Column(
-      [
-        Obx(() => SizedBox(
-              height: _itemHeight.toDouble(),
-              child: InkWell(
-                onTap: () {
-                  // iPrint("model.selected ${model.selected}");
-                  model.selected.value = !model.selected.value;
-                  // iPrint("model.selected ${model.selected.isTrue}");
-                  if (model.selected.isTrue) {
-                    selectedContact.insert(0, model);
-                  } else {
-                    selectedContact
-                        .removeWhere((e) => e.peerId == model.peerId);
-                  }
-                  // iPrint("model.selected ${selectedContact.length}");
-                },
-                child: n.Row(
-                  [
-                    n.Padding(
-                      left: 8,
-                      right: 8,
-                      child: Icon(
-                        model.selected.isTrue
-                            ? CupertinoIcons.check_mark_circled_solid
-                            : CupertinoIcons.check_mark_circled,
-                        color:
-                            model.selected.isTrue ? Colors.green : Colors.grey,
-                      ),
-                    ),
-                    Avatar(
-                      imgUri: model.avatar,
-                      width: 49,
-                      height: 49,
-                    ),
-                    const Space(),
-                    Expanded(
-                      child: Container(
-                        alignment: Alignment.centerLeft,
-                        padding: const EdgeInsets.only(right: 30),
-                        height: _itemHeight.toDouble(),
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            top: BorderSide(
-                              color: AppColors.LineColor,
-                              width: 0.2,
-                            ),
-                          ),
-                        ),
-                        child: Text(
-                          model.title,
-                          style: const TextStyle(fontSize: 14.0),
-                        ),
-                      ),
-                    ),
-                  ],
+    return n.Column([
+      Obx(() => SizedBox(
+            height: _itemHeight.toDouble(),
+            child: InkWell(
+              onTap: () {
+                // iPrint("model.selected ${model.selected}");
+                model.selected.value = !model.selected.value;
+                // iPrint("model.selected ${model.selected.isTrue}");
+                if (model.selected.isTrue) {
+                  selectedContact.insert(0, model);
+                } else {
+                  selectedContact.removeWhere((e) => e.peerId == model.peerId);
+                }
+                // iPrint("model.selected ${selectedContact.length}");
+              },
+              child: n.Row([
+                n.Padding(
+                  left: 8,
+                  right: 8,
+                  child: Icon(
+                    model.selected.isTrue
+                        ? CupertinoIcons.check_mark_circled_solid
+                        : CupertinoIcons.check_mark_circled,
+                    color: model.selected.isTrue ? Colors.green : Colors.grey,
+                  ),
                 ),
-              ),
-            )),
-      ],
-    );
+                Avatar(
+                  imgUri: model.avatar,
+                  width: 49,
+                  height: 49,
+                ),
+                const Space(),
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.only(right: 30),
+                    height: _itemHeight.toDouble(),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: AppColors.LineColor,
+                          width: 0.2,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      model.title,
+                      style: const TextStyle(fontSize: 14.0),
+                    ),
+                  ),
+                ),
+              ]),
+            ),
+          )),
+    ]);
   }
 
   @override
@@ -678,7 +666,7 @@ class SelectFriendPage extends StatelessWidget {
         leading: n.Padding(
           child: InkWell(
             onTap: () {
-              Get.back();
+              Navigator.of(context).pop();
             },
             child: const Icon(Icons.close),
           ),
@@ -692,6 +680,7 @@ class SelectFriendPage extends StatelessWidget {
               bottom: 8,
               child: ElevatedButton(
                 onPressed: () async {
+                  Navigator.of(context).pop();
                   const String scene = 'friend';
                   bool res = await Get.find<ContactTagDetailLogic>().setObject(
                     scene: scene,
@@ -707,7 +696,6 @@ class SelectFriendPage extends StatelessWidget {
                         selectedContact;
                     Get.find<ContactTagDetailLogic>().state.refererTime.value =
                         selectedContact.length;
-                    Get.back(times: 1);
                     EasyLoading.showSuccess('操作成功'.tr);
                   } else {
                     EasyLoading.showError('操作失败'.tr);
@@ -753,67 +741,65 @@ class SelectFriendPage extends StatelessWidget {
       ),
       backgroundColor: Colors.white,
       body: Obx(
-        () => n.Stack(
-          [
-            RefreshIndicator(
-              onRefresh: () async {
-                debugPrint(">>> contact onRefresh");
-                List<ContactModel> contact =
-                    await Get.find<ContactLogic>().listFriend(true);
-                if (contact.isNotEmpty) {
-                  contactList.value = contact;
-                  // contactIsEmpty.value = contactList.isEmpty;
-                  _handleList(contactList);
+        () => n.Stack([
+          RefreshIndicator(
+            onRefresh: () async {
+              debugPrint(">>> contact onRefresh");
+              List<ContactModel> contact =
+                  await Get.find<ContactLogic>().listFriend(true);
+              if (contact.isNotEmpty) {
+                contactList.value = contact;
+                // contactIsEmpty.value = contactList.isEmpty;
+                _handleList(contactList);
+              }
+            },
+            child: AzListView(
+              data: contactList,
+              itemCount: contactList.length,
+              itemBuilder: (context, i) => _buildListItem(contactList[i]),
+              // 解决联系人数据量少的情况下无法刷新的问题
+              // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
+              physics: const AlwaysScrollableScrollPhysics(),
+              susItemBuilder: (BuildContext context, int index) {
+                ContactModel model = contactList[index];
+                if ('↑' == model.getSuspensionTag()) {
+                  return Container();
                 }
-              },
-              child: AzListView(
-                data: contactList,
-                itemCount: contactList.length,
-                itemBuilder: (context, i) => _buildListItem(contactList[i]),
-                // 解决联系人数据量少的情况下无法刷新的问题
-                // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
-                physics: const AlwaysScrollableScrollPhysics(),
-                susItemBuilder: (BuildContext context, int index) {
-                  ContactModel model = contactList[index];
-                  if ('↑' == model.getSuspensionTag()) {
-                    return Container();
-                  }
 
-                  return Get.find<ContactLogic>()
-                      .getSusItem(context, model.getSuspensionTag());
-                },
-                // indexBarData: const ['↑', ...kIndexBarData],
-                indexBarData:
-                    contactList.isNotEmpty ? ['↑', ...currIndexBarData] : [],
-                indexBarOptions: IndexBarOptions(
-                  needRebuild: true,
-                  ignoreDragCancel: true,
-                  downTextStyle: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.white,
-                  ),
-                  downItemDecoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.green,
-                  ),
-                  indexHintWidth: 128 / 2,
-                  indexHintHeight: 128 / 2,
-                  indexHintDecoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage(
-                        AssetsService.getImgPath('ic_index_bar_bubble_gray'),
-                      ),
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  indexHintAlignment: Alignment.centerRight,
-                  indexHintChildAlignment: const Alignment(-0.25, 0.0),
-                  indexHintOffset: const Offset(-20, 0),
+                return Get.find<ContactLogic>()
+                    .getSusItem(context, model.getSuspensionTag());
+              },
+              // indexBarData: const ['↑', ...kIndexBarData],
+              indexBarData:
+                  contactList.isNotEmpty ? ['↑', ...currIndexBarData] : [],
+              indexBarOptions: IndexBarOptions(
+                needRebuild: true,
+                ignoreDragCancel: true,
+                downTextStyle: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.white,
                 ),
+                downItemDecoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green,
+                ),
+                indexHintWidth: 128 / 2,
+                indexHintHeight: 128 / 2,
+                indexHintDecoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(
+                      AssetsService.getImgPath('ic_index_bar_bubble_gray'),
+                    ),
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                indexHintAlignment: Alignment.centerRight,
+                indexHintChildAlignment: const Alignment(-0.25, 0.0),
+                indexHintOffset: const Offset(-20, 0),
               ),
-            )
-          ],
-        ),
+            ),
+          )
+        ]),
       ),
     );
   }

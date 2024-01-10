@@ -123,7 +123,7 @@ class _ExtraItemsState extends State<ExtraItems> {
             image: const Icon(Icons.videocam, size: iconSize),
             onPressed: () {
               openCallScreen(
-                ContactModel.fromJson({
+                ContactModel.fromMap({
                   "id": widget.options["to"],
                   "nickname": widget.options["title"],
                   "avatar": widget.options["avatar"],
@@ -184,7 +184,7 @@ class _ExtraItemsState extends State<ExtraItems> {
             image: const Icon(Icons.phone, size: iconSize),
             onPressed: () {
               openCallScreen(
-                ContactModel.fromJson({
+                ContactModel.fromMap({
                   "id": widget.options["to"],
                   "nickname": widget.options["title"],
                   "avatar": widget.options["avatar"],

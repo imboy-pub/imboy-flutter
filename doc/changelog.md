@@ -1,6 +1,6 @@
 # 0.1.27
-* 升级 getx get: ^5.0.0-release-candidate-5 代码做响应调整，https://github.com/jonataslaw/getx/issues/2966
-*
+* 升级 getx get: ^5.0.0-release-candidate-5 代码做响应调整，https://github.com/jonataslaw/getx/issues/2966；
+* 修复升级到 getx 5 引发的调整相关问题；
 
 # 0.1.26
 * 引入 octo_image 库，聊天图片做相关调整；

@@ -119,7 +119,7 @@ class ContactModel extends ISuspensionBean {
     }
   }
 
-  factory ContactModel.fromJson(Map<String, dynamic> json) {
+  factory ContactModel.fromMap(Map<String, dynamic> json) {
     var isFrom = json[ContactRepo.isFrom] ?? 0;
     String tag = json[ContactRepo.tag] ?? '';
     tag = tag.replaceAll(',,', ',');

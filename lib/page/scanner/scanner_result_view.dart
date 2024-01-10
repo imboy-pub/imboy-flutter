@@ -36,7 +36,7 @@ class ScannerResultPage extends StatelessWidget {
                   heroTag: "back",
                   tooltip: "back".tr,
                   onPressed: () {
-                    Get.back(times: 2);
+                    Get.back();
                   },
                   child: const Icon(Icons.keyboard_arrow_left),
                 ),

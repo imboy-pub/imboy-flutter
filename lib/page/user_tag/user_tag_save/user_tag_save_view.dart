@@ -33,7 +33,11 @@ class UserTagSavePage extends StatelessWidget {
       appBar: PageAppBar(
         leading: InkWell(
           onTap: () {
-            Get.back(times: 1);
+            if (Get.isBottomSheetOpen ?? false) {
+              Get.closeAllBottomSheets();
+            } else {
+              Get.back();
+            }
           },
           child: const Icon(Icons.close),
         ),
@@ -41,10 +45,9 @@ class UserTagSavePage extends StatelessWidget {
         // rightDMActions: [],
       ),
       body: SizedBox(
-        width: Get.width,
-        height: 120,
-        child: n.Column(
-          [
+          width: Get.width,
+          height: 120,
+          child: n.Column([
             n.Padding(
               top: 10,
               bottom: 10,
@@ -56,7 +59,6 @@ class UserTagSavePage extends StatelessWidget {
                 controller: state.textController,
                 keyboardType: TextInputType.text,
                 textCapitalization: TextCapitalization.words,
-                textInputAction: TextInputAction.none,
                 decoration: InputDecoration(
                     contentPadding: const EdgeInsets.fromLTRB(14, 0, 8, 0),
                     filled: true,
@@ -123,8 +125,12 @@ class UserTagSavePage extends StatelessWidget {
                         tagName: trimmedText,
                       );
                       if (tag != null) {
-                        Get.back();
-                      } else {}
+                        if (Get.isBottomSheetOpen ?? false) {
+                          Get.closeAllBottomSheets();
+                        } else {
+                          Get.back();
+                        }
+                      }
                     } else if (state.valueChanged.isTrue) {
                       debugPrint("submit_trimmedText $trimmedText");
                       bool res = await logic.changeName(
@@ -149,7 +155,12 @@ class UserTagSavePage extends StatelessWidget {
                           //
                         }
                         EasyLoading.showSuccess('操作成功'.tr);
-                        Get.back();
+
+                        if (Get.isBottomSheetOpen ?? false) {
+                          Get.closeAllBottomSheets();
+                        } else {
+                          Get.back();
+                        }
                       }
                     }
                   },
@@ -193,10 +204,8 @@ class UserTagSavePage extends StatelessWidget {
               // 内容居中
               ..mainAxisAlignment = MainAxisAlignment.center
           ],
-          // 顶部对齐
-          mainAxisAlignment: MainAxisAlignment.start,
-        ),
-      ),
+              // 顶部对齐
+              mainAxisAlignment: MainAxisAlignment.start)),
     );
   }
 }

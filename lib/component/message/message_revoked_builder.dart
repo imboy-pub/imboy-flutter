@@ -52,7 +52,6 @@ class RevokedMessageBuilder extends StatelessWidget {
         : const SizedBox.shrink();
     return GestureDetector(
       onTap: () {
-        // Get.back();
       },
       child: Container(
         width: Get.width,

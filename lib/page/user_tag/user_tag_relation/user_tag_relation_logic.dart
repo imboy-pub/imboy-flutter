@@ -51,7 +51,7 @@ class UserTagRelationLogic extends GetxController {
 
     List<String> res = [];
     for (var item in items) {
-      String tag = item['name'] ?? '';
+      String tag = "${item['name'] ?? ''}";
       // 去除重复和空白字符串
       if (tag.isNotEmpty && !res.contains(tag)) {
         res.add(tag);

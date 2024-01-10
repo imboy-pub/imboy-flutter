@@ -67,7 +67,7 @@ class MessageService extends GetxService {
           if (obj != null) {
             await incomingCallScreen(
               msgId,
-              ContactModel.fromJson({
+              ContactModel.fromMap({
                 "id": obj.peerId,
                 "nickname": obj.title,
                 "avatar": obj.avatar,
@@ -87,8 +87,8 @@ class MessageService extends GetxService {
             for (var id in webrtcMsgIdLi) {
               changeLocalMsgState(id, 4);
             }
-            if (Get.isDialogOpen != null && Get.isDialogOpen == true) {
-              Get.back(times: 1);
+            if (Get.isDialogOpen ?? false) {
+              Get.closeAllDialogs();
             }
             gTimer?.cancel();
             gTimer = null;
@@ -168,6 +168,7 @@ class MessageService extends GetxService {
     String msgId = data['id'] ?? '';
     String msgType = payload['msg_type'] ?? '';
     bool autoAck = true;
+    // try {
     switch (msgType.toString().toLowerCase()) {
       case 'apply_friend': // 添加朋友申请
         newFriendLogic.receivedAddFriend(data);
@@ -284,6 +285,7 @@ class MessageService extends GetxService {
         // String uid = data['from'] ?? '';
         break;
     }
+    // } catch (e) {}
     // 确认消息
     if (autoAck) {
       iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId");

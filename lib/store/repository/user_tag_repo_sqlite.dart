@@ -85,8 +85,8 @@ class UserTagRepo {
   // 更新信息
   Future<int> update(Map<String, dynamic> json) async {
     Map<String, Object?> data = {};
-    if (strNoEmpty(json[UserTagRepo.name])) {
-      data[UserTagRepo.name] = json[UserTagRepo.name];
+    if (strNoEmpty("${json[UserTagRepo.name]}")) {
+      data[UserTagRepo.name] = json[UserTagRepo.name].toString();
     }
     String? subtitle = json[UserTagRepo.subtitle];
     if (subtitle != null) {

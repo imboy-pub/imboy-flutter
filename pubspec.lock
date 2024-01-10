@@ -946,11 +946,9 @@ packages:
   get:
     dependency: "direct main"
     description:
-      path: "."
-      ref: master
-      resolved-ref: "499b4a2be24a3cc6c19845573b56e37f66f33ca4"
-      url: "https://gitee.com/imboy-tripartite-deps/getx.git"
-    source: git
+      path: "plugin/getx"
+      relative: true
+    source: path
     version: "5.0.0-release-candidate-5"
   glob:
     dependency: transitive

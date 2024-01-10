@@ -105,7 +105,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
       radius: 6,
       cancel: TextButton(
         onPressed: () {
-          Get.back();
+          Get.close();
         },
         child: Text(
           '取消'.tr,
@@ -114,7 +114,6 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
       ),
       confirm: TextButton(
         onPressed: () async {
-          // Navigator.pop(context, model); //这里的url在上一页调用的result可以拿到
           var nav = Navigator.of(context);
           nav.pop();
           nav.pop(model);
@@ -187,10 +186,6 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
   Widget _buildListItem(ContactModel model) {
     // String susTag = model.getSuspensionTag();
     return n.Column([
-      // Offstage(
-      //   offstage: model.selected != true,
-      //   child: _buildSusWidget(susTag),
-      // ),
       SizedBox(
         height: _itemHeight.toDouble(),
         child: InkWell(
@@ -204,38 +199,36 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
             // }
             // setState(() {});
           },
-          child: n.Row(
-            [
-              n.Padding(
-                left: 16,
-                child: Avatar(
-                  imgUri: model.avatar,
-                  width: 49,
-                  height: 49,
-                ),
+          child: n.Row([
+            n.Padding(
+              left: 16,
+              child: Avatar(
+                imgUri: model.avatar,
+                width: 49,
+                height: 49,
               ),
-              const Space(),
-              Expanded(
-                child: Container(
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.only(right: 30),
-                  height: _itemHeight.toDouble(),
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        color: AppColors.LineColor,
-                        width: 0.2,
-                      ),
+            ),
+            const Space(),
+            Expanded(
+              child: Container(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(right: 30),
+                height: _itemHeight.toDouble(),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      color: AppColors.LineColor,
+                      width: 0.2,
                     ),
                   ),
-                  child: Text(
-                    model.title,
-                    style: const TextStyle(fontSize: 14.0),
-                  ),
+                ),
+                child: Text(
+                  model.title,
+                  style: const TextStyle(fontSize: 14.0),
                 ),
               ),
-            ],
-          ),
+            ),
+          ]),
         ),
       )
     ]);
@@ -249,7 +242,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
         leading: n.Padding(
           child: InkWell(
             onTap: () {
-              Get.back();
+              Navigator.of(context).pop();
             },
             child: const Icon(Icons.close),
           ),

@@ -34,7 +34,7 @@ class ContactProvider extends HttpClient {
     debugPrint("> on Provider/syncByUid resp: ${resp.payload.toString()}");
     if (resp.ok) {
       (ContactRepo()).save(resp.payload);
-      ct = ContactModel.fromJson(resp.payload);
+      ct = ContactModel.fromMap(resp.payload);
     }
     return ct!;
   }

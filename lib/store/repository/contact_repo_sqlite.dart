@@ -71,7 +71,7 @@ class ContactRepo {
 
     List<ContactModel> items = [];
     for (int i = 0; i < maps.length; i++) {
-      items.add(ContactModel.fromJson(maps[i]));
+      items.add(ContactModel.fromMap(maps[i]));
     }
     return items;
   }
@@ -180,7 +180,7 @@ class ContactRepo {
 
     List<ContactModel> items = [];
     for (int i = 0; i < maps.length; i++) {
-      items.add(ContactModel.fromJson(maps[i]));
+      items.add(ContactModel.fromMap(maps[i]));
     }
     return items;
   }
@@ -210,7 +210,7 @@ class ContactRepo {
       whereArgs: [UserRepoLocal.to.currentUid, uid],
     );
     if (maps.isNotEmpty) {
-      return ContactModel.fromJson(maps.first);
+      return ContactModel.fromMap(maps.first);
     }
     if (autoFetch) {
       // 如果没有联系人，同步去取
@@ -307,7 +307,7 @@ class ContactRepo {
       await update(json);
       return old;
     } else {
-      ContactModel model = ContactModel.fromJson(json);
+      ContactModel model = ContactModel.fromMap(json);
       await insert(model);
       return model;
     }

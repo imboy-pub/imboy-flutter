@@ -24,7 +24,7 @@ class UserTagModel {
       userId: data['user_id'],
       tagId: data['tag_id'] ?? (data['id'] ?? 0),
       scene: data['scene'] ?? 0,
-      name: data['name'] ?? '',
+      name: "${data['name'] ?? ''}",
       subtitle: data['subtitle'] ?? '',
       refererTime: data['referer_time'] ?? 0,
       updatedAt: data['updated_at'] ?? 0,
