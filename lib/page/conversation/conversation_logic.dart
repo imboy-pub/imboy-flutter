@@ -18,17 +18,20 @@ class ConversationLogic extends GetxController {
   RxString connectDesc = "".obs;
 
   // 会话提醒数量映射
-  final RxMap<String, int> conversationRemind = RxMap<String, int>({});
+  final RxMap<String, RxInt> conversationRemind = RxMap<String, RxInt>({});
 
   // 设置会话提醒
   setConversationRemind(String peerId, int val) {
     val = val > 0 ? val : 0;
-    conversationRemind[peerId] = val;
     (ConversationRepo()).updateByPeerId(peerId, {
       ConversationRepo.unreadNum: val,
       ConversationRepo.isShow: 1,
     });
-    update([conversationRemind]);
+    if (conversationRemind.containsKey(peerId)) {
+      conversationRemind[peerId]!.value = val;
+    } else {
+      conversationRemind[peerId] = val.obs;
+    }
   }
 
   /// 更新会话
@@ -52,28 +55,29 @@ class ConversationLogic extends GetxController {
     if (!conversationRemind.containsKey(key) ||
         conversationRemind[key] == null ||
         conversationRemind[key]! < 0) {
-      conversationRemind[key] = 0;
+      conversationRemind[key] = 0.obs;
     }
-    conversationRemind[key] = conversationRemind[key]!.toInt() + val;
-    setConversationRemind(key, conversationRemind[key]!);
+    RxInt val1 = (conversationRemind[key]?.value ?? 0 + val).obs;
+    conversationRemind[key] = val1;
+    setConversationRemind(key, val1.value);
   }
 
   // 步减会话提醒
   decreaseConversationRemind(String key, int val) {
-    if (conversationRemind.containsKey(key)) {
-      val = conversationRemind[key]! - val;
+    if (conversationRemind.value.containsKey(key)) {
+      val = conversationRemind[key]!.value - val;
     }
-    setConversationRemind(key, val > 0 ? val : 0);
+    setConversationRemind(key, val);
   }
 
   // 聊天消息提醒计数器
-  int get chatMsgRemindCounter {
+  Rx<int> get chatMsgRemindCounter {
     // debugPrint("> on count chatMsgRemindCounter");
     int c = 0;
-    conversationRemind.forEach((key, value) {
-      c += value;
+    conversationRemind.value.forEach((key, val) {
+      c += val.value;
     });
-    return c;
+    return c.obs;
   }
 
   @override
@@ -112,17 +116,6 @@ class ConversationLogic extends GetxController {
   Future<void> hideConversation(String peerId) async {
     await ConversationRepo()
         .updateByPeerId(peerId, {ConversationRepo.isShow: 0});
-  }
-
-  /// 标记为未读 / 已读
-  markAs(int conversationId, int num) async {
-    Database db = await SqliteService.to.db;
-    await db.update(
-      ConversationRepo.tableName,
-      {ConversationRepo.unreadNum: num},
-      where: "id=?",
-      whereArgs: [conversationId],
-    );
   }
 
   /// 按消息ID来更新会话最后一消息的状态

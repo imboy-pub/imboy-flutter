@@ -138,7 +138,7 @@ class ContactModel extends ISuspensionBean {
       status: json["status"] ?? '',
       remark: json["remark"].toString(),
       tag: tag,
-      region: json["region"].toString(),
+      region: "${json["region"] ?? ''}",
       source: json["source"].toString(),
       sign: json["sign"].toString(),
       // 单位毫秒，13位时间戳  1561021145560

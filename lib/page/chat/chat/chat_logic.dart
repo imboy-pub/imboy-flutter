@@ -251,25 +251,24 @@ class ChatLogic extends GetxController {
 
   /// 标记为已读
   Future<ConversationModel?> markAsRead(
-    int conversationId,
+    String peerId,
     List<String> msgIds,
   ) async {
     Database db = await SqliteService.to.db;
-    ConversationModel? conversation =
-        await ConversationRepo().findById(conversationId);
-    if (conversation == null) {
+    ConversationModel? c = await ConversationRepo().findByPeerId(peerId);
+    if (c == null) {
       return null;
     }
-    int newUnreadNum = conversation.unreadNum - msgIds.length;
-    conversation.unreadNum = newUnreadNum > 0 ? newUnreadNum : 0;
+    int newUnreadNum = c.unreadNum - msgIds.length;
+    c.unreadNum = newUnreadNum > 0 ? newUnreadNum : 0;
     bool res = await db.transaction((txn) async {
       db.update(
         ConversationRepo.tableName,
         {
-          ConversationRepo.unreadNum: conversation.unreadNum,
+          ConversationRepo.unreadNum: c.unreadNum,
         },
         where: "${ConversationRepo.id}=?",
-        whereArgs: [conversationId],
+        whereArgs: [c.id],
       );
       for (var id in msgIds) {
         db.update(
@@ -285,7 +284,7 @@ class ChatLogic extends GetxController {
       return true;
     });
     if (res) {
-      return conversation;
+      return c;
     } else {
       return null;
     }

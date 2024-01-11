@@ -112,10 +112,8 @@ class _ConversationPageState extends State<ConversationPage> {
                       itemBuilder: (BuildContext context, int index) {
                         ConversationModel model = logic.conversations[index];
                         int conversationId = model.id;
-                        var remindNum =
-                            logic.conversationRemind.containsKey(model.peerId)
-                                ? logic.conversationRemind[model.peerId]!.obs
-                                : 0.obs;
+                        // RxInt remindNum =
+                        //     logic.conversationRemind[model.peerId] ?? 0.obs;
                         return InkWell(
                           onTap: () {
                             Get.to(
@@ -139,9 +137,10 @@ class _ConversationPageState extends State<ConversationPage> {
                             closeOnScroll: true,
 
                             endActionPane: ActionPane(
-                              extentRatio: 0.75,
+                              extentRatio: 0.618,
                               motion: const StretchMotion(),
                               children: [
+                                /*
                                 CustomSlidableAction(
                                   onPressed: (_) async {
                                     int num = 1;
@@ -150,35 +149,30 @@ class _ConversationPageState extends State<ConversationPage> {
                                       num = 0;
                                       remindNum.value = 0;
                                     }
-                                    logic.markAs(model.id, num);
+                                    logic.markAs(model.peerId, num);
                                     model.unreadNum = num;
-                                    logic.update([
-                                      logic.conversationRemind[model.peerId] =
-                                          num,
-                                      logic.conversations[index].unreadNum =
-                                          num,
-                                    ]);
                                   },
                                   autoClose: true,
                                   backgroundColor: Colors.blue,
                                   flex: 2,
                                   child: Obx(
                                     () => Text(
-                                      remindNum.value > 0 ? "标为已读" : "标为未读",
+                                      remindNum > 0 ? "标为已读" : "标为未读",
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ),
+                                */
                                 SlidableAction(
                                   key: ValueKey("hide_$index"),
-                                  flex: 2,
+                                  flex: 3,
                                   backgroundColor: Colors.amber,
                                   onPressed: (_) async {
                                     await logic.hideConversation(model.peerId);
                                     logic.update([
                                       logic.conversations.removeAt(index),
                                       logic.conversationRemind[model.peerId] =
-                                          0,
+                                          0.obs,
                                       logic.chatMsgRemindCounter,
                                     ]);
                                   },
@@ -196,7 +190,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                     logic.update([
                                       logic.conversations.removeAt(index),
                                       logic.conversationRemind[model.peerId] =
-                                          0,
+                                          0.obs,
                                       logic.chatMsgRemindCounter,
                                     ]);
                                   },
@@ -208,7 +202,7 @@ class _ConversationPageState extends State<ConversationPage> {
                             // endActionPane: null,
                             child: ConversationItem(
                               model: model,
-                              remindCounter: remindNum,
+                              // remindCounter: remindNum,
                               onTapAvatar: () {
                                 Get.to(
                                   () => PeopleInfoPage(

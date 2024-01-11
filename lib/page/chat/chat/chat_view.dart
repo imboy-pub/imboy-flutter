@@ -244,7 +244,7 @@ class ChatPageState extends State<ChatPage> {
     } // end for items
     if (msgIds.isNotEmpty) {
       ConversationModel? conversation = await logic.markAsRead(
-        widget.conversationId,
+        widget.peerId,
         msgIds,
       );
       if (conversation != null) {

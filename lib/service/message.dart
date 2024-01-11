@@ -352,7 +352,8 @@ class MessageService extends GetxService {
     );
     int? exited = await (MessageRepo()).save(msg);
     // 确认消息
-    iPrint("> rtc msg CLIENT_ACK,C2C,${data['id']},$deviceId");
+    iPrint(
+        "> rtc msg CLIENT_ACK,C2C,${data['id']},$deviceId, exited $exited, ${DateTime.now()}");
     WebSocketService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$deviceId");
     if (exited != null && exited > 0) {
       return;

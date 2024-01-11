@@ -9,7 +9,9 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_view.dart';
+import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -187,6 +189,13 @@ Future<void> incomingCallScreen(
                 heroTag: "RejectCall",
                 backgroundColor: Colors.red,
                 onPressed: () {
+                  try {
+                    Get.find<ConversationLogic>()
+                        .decreaseConversationRemind(peer.peerId, 1);
+                    Get.find<ChatLogic>().markAsRead(peer.peerId, [msgId]);
+                  } catch (e) {
+                    //
+                  }
                   MessageService.to.changeLocalMsgState(
                     msgId,
                     5,
@@ -209,6 +218,13 @@ Future<void> incomingCallScreen(
                 heroTag: "AcceptCall",
                 backgroundColor: Colors.green,
                 onPressed: () {
+                  try {
+                    Get.find<ConversationLogic>()
+                        .decreaseConversationRemind(peer.peerId, 1);
+                    Get.find<ChatLogic>().markAsRead(peer.peerId, [msgId]);
+                  } catch (e) {
+                    //
+                  }
                   gTimer?.cancel();
                   gTimer = null;
                   Get.closeAllDialogs();

@@ -70,6 +70,7 @@ class ConversationRepo {
 
   // 更新信息
   Future<int> updateByPeerId(String peerId, Map<String, dynamic> data) async {
+    iPrint("updateByPeerId $peerId, data ${data.toString()}");
     data.remove(ConversationRepo.id);
     if (data.containsKey(ConversationRepo.payload) &&
         data[ConversationRepo.payload] is Map<String, dynamic>) {

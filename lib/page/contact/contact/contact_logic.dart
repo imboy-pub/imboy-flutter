@@ -328,7 +328,7 @@ class ContactLogic extends GetxController {
       ContactRepo.isFrom: 1,
       ContactRepo.isFriend: 1,
     };
-    contactList.add(ContactModel.fromMap(json));
+    contactList.value.add(ContactModel.fromMap(json));
     repo.save(json);
   }
 }
