@@ -30,10 +30,10 @@ dependencies:
   #get: ^4.6.6 # getx 状态管理框架
   # get: ^5.0.0-release-candidate-5
   get:
-    path: plugin/getx
-#    git:
-#      url: https://gitee.com/imboy-tripartite-deps/getx.git
-#      ref: master
+    # path: plugin/getx
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/getx.git
+      ref: leeyi
   qr_flutter: ^4.1.0 # 二维码生成
   photo_view: ^0.14.0 #
   lpinyin: ^2.0.3 #
