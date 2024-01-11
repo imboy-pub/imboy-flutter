@@ -45,7 +45,7 @@ class UserProvider extends HttpClient {
           'vsn': appVsn,
           'did': deviceId,
           'method': 'sha512',
-          'sign': EncrypterService.sha512("$deviceId|$appVsnXY", SOLIDIFIED_KEY)
+          'sign': EncrypterService.sha512("$deviceId|$appVsnMajor", SOLIDIFIED_KEY)
         },
       ),
     );

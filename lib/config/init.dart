@@ -67,7 +67,7 @@ List<AvailableMap> availableMaps = [];
 // JPush push = JPush();
 
 String appVsn = '';
-String appVsnXY = '';
+String appVsnMajor = '';
 String deviceId = '';
 
 Future<void> init() async {
@@ -85,8 +85,8 @@ Future<void> init() async {
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
   appVsn = packageInfo.version;
   List<String> li = appVsn.split(RegExp(r"(\.)"));
-  appVsnXY = '${li[0]}.${li[1]}';
-  iPrint("packageInfo appVsnXY $appVsnXY ${packageInfo.toString()}");
+  appVsnMajor = li[0].toString();
+  iPrint("packageInfo appVsnMajor $appVsnMajor ${packageInfo.toString()}");
   deviceId = await DeviceExt.did;
   iPrint("init deviceId $deviceId");
   await dotenv.load(fileName: ".env"); //

@@ -22,13 +22,14 @@ import 'http_response.dart';
 import 'http_transformer.dart';
 
 Future<Map<String, dynamic>> defaultHeaders() async {
+  iPrint("appVsnMajor $appVsnMajor");
   return {
     'cos': Platform.operatingSystem, // device_type: iso android macos web
     'cosv': Platform.operatingSystemVersion,
     'vsn': appVsn,
     'did': deviceId,
     'method': 'sha512',
-    'sign': EncrypterService.sha512("$deviceId|$appVsnXY", SOLIDIFIED_KEY)
+    'sign': EncrypterService.sha512("$deviceId|$appVsnMajor", SOLIDIFIED_KEY)
   };
 }
 
