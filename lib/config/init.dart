@@ -23,7 +23,6 @@ import 'package:imboy/component/http/http_config.dart';
 import 'package:imboy/component/http/http_interceptor.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/observer/lifecycle.dart';
-import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
@@ -127,7 +126,6 @@ Future<void> init() async {
 
   // 初始化单例 WebSocketService
   // WebSocketService.to.init();
-  await initIceServers();
 
   // fvp libary register
   registerWith();

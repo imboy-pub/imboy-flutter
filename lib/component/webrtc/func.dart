@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -21,13 +22,17 @@ import 'package:niku/namespace.dart' as n;
 import 'package:xid/xid.dart';
 
 /// 初始化 ice 配置信息
-initIceServers() async {
+Future<bool> initIceServers() async {
   debugPrint(
-      "> rtc initIceServers iceConfiguration == null: ${iceConfiguration == null}");
-  if (iceConfiguration == null && UserRepoLocal.to.isLogin) {
+      "> rtc initIceServers iceConfiguration == null: ${iceConfiguration == null}, ${UserRepoLocal.to.isLogin}, ${iceConfiguration.toString()}");
+  if (iceConfiguration == null) {
     try {
-      var turnCredential = await UserProvider().turnCredential();
+      Map<String, dynamic> turnCredential = await UserProvider().turnCredential();
       debugPrint("getIceServers _turnCredential ${turnCredential.toString()}");
+      if (turnCredential.isEmpty) {
+        EasyLoading.showError('发起请求失败，请检查网络连接，或稍后重试'.tr);
+        return false;
+      }
       iceConfiguration = {
         'iceServers': [
           {
@@ -49,9 +54,13 @@ initIceServers() async {
         "rtcpMuxPolicy": "require",
         'sdpSemantics': 'unified-plan',
       };
+      return true;
     } catch (e) {
       //
     }
+    return false;
+  } else {
+    return true;
   }
 }
 
@@ -244,17 +253,20 @@ Future<void> incomingCallScreen(
 }
 
 /// 调起
-void openCallScreen(
+Future<void> openCallScreen(
   ContactModel peer,
   Map<String, dynamic> option, {
   WebRTCSession? session,
   //  默认是主叫者
   bool caller = true,
-}) {
+}) async {
   if (p2pEntry != null) {
     return;
   }
-  initIceServers();
+  bool res = await initIceServers();
+  if (res == false) {
+    return;
+  }
   p2pCallScreenOn = true;
 
   String sid = sessionId(peer.peerId);
