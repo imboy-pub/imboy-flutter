@@ -4,9 +4,12 @@ import 'package:clock/clock.dart';
 import 'package:flutter_cache_manager/file.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:http/http.dart' as http;
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/assets.dart';
 
 import 'mime_converter.dart';
+
+const stalePeriod = Duration(days: 30);
 
 class IMBoyCacheManager extends CacheManager {
   static const key = 'imboy_cache_key';
@@ -39,7 +42,7 @@ class IMBoyCacheManager extends CacheManager {
       : super(
           Config(
             key,
-            stalePeriod: const Duration(days: 7),
+            stalePeriod: stalePeriod,
             maxNrOfCacheObjects: 20,
             repo: JsonCacheInfoRepository(databaseName: key),
             // fileSystem: IOFileSystem(key),
@@ -63,10 +66,16 @@ class IMBoyHttpFileService extends FileService {
     }
     String ext = "";
 
+    iPrint("imboy_cache_manager_get url $url");
     if (url.isNotEmpty && url.lastIndexOf(".") != -1) {
-      ext = url.substring(url.lastIndexOf("."),
-          url.lastIndexOf("?") > 0 ? url.lastIndexOf("?") : url.length);
+      Uri u1 = Uri.dataFromString(url);
+      ext = u1.path.substring(
+          u1.path.lastIndexOf("."),
+          u1.path.lastIndexOf("?") > 0
+              ? u1.path.lastIndexOf("?")
+              : u1.path.length);
     }
+    iPrint("imboy_cache_manager_get ext $ext");
     final httpResponse = await _httpClient.send(req);
     return IMBoyHttpGetResponse(httpResponse, ext: ext);
   }
@@ -96,7 +105,7 @@ class IMBoyHttpGetResponse implements FileServiceResponse {
   @override
   DateTime get validTill {
     // Without a cache-control header we keep the file for a week
-    var ageDuration = const Duration(days: 7);
+    var ageDuration = stalePeriod;
     final controlHeader = _header(HttpHeaders.cacheControlHeader);
     if (controlHeader != null) {
       final controlSettings = controlHeader.split(',');

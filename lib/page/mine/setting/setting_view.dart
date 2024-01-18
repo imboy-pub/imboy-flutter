@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/mine/storage_space/storage_space_view.dart';
 import 'package:imboy/page/single/upgrade.dart';
 import 'package:imboy/store/provider/app_version_provider.dart';
 import 'package:niku/namespace.dart' as n;
@@ -92,6 +93,21 @@ class _SettingPageState extends State<SettingPage> {
                       url:
                           "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/help_document.md",
                     ),
+                    transition: Transition.rightToLeft,
+                    popGesture: true, // 右滑，返回上一页
+                  );
+                },
+              ),
+              n.Padding(left: 18, child: const Divider()),
+              n.ListTile(
+                title: Text('存储空间'.tr),
+                trailing: Icon(
+                  Icons.navigate_next,
+                  color: AppColors.MainTextColor.withOpacity(0.5),
+                ),
+                onTap: () {
+                  Get.to(
+                    () => StorageSpacePage(),
                     transition: Transition.rightToLeft,
                     popGesture: true, // 右滑，返回上一页
                   );

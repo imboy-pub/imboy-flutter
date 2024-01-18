@@ -193,7 +193,6 @@ class IMBoyApp extends StatelessWidget {
           builder: EasyLoading.init(),
           theme: ThemeData(
             platform: TargetPlatform.iOS,
-            // brightness: Get.find<ThemeController>().darkMode,
             brightness: Get.find<ThemeController>().darkMode == 0
                 ? Brightness.light
                 : Brightness.dark,

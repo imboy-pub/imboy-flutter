@@ -1,0 +1,71 @@
+import 'dart:io';
+
+import 'package:get/get.dart';
+import 'package:ic_storage_space/ic_storage_space.dart';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/config/init.dart';
+import 'package:imboy/service/sqlite.dart';
+
+import 'storage_space_state.dart';
+
+class StorageSpaceLogic extends GetxController {
+  final StorageSpaceState state = StorageSpaceState();
+
+  Future<void> initData() async {
+    state.freeDiskSpace.value = await IcStorageSpace.getFreeDiskSpaceInBytes;
+    state.totalDiskSpace.value = await IcStorageSpace.getTotalDiskSpaceInBytes;
+    state.usedDiskSpace.value = await IcStorageSpace.getUsedDiskSpaceInBytes;
+
+    storageStats();
+
+    String path = await SqliteService.to.dbPath();
+    iPrint("StorageSpaceLogic dbPath $path");
+    // [  +39 ms] I/flutter (30689): iPrint StorageSpaceLogic dbPath /data/user/0/pub.imboy.apk/databases/imboy_javj8a_5.db
+    // [+1934 ms] I/System.out(30689): deleteFiles: /data/user/0/pub.imboy.apk/cache
+    // [        ] I/System.out(30689): deleteFiles: /data/user/0/pub.imboy.apk/cache/imboy_cache_key
+    // [        ] I/System.out(30689): deleteFiles: /data/user/0/pub.imboy.apk/files
+    // [  +11 ms] I/System.out(30689): deleteFiles: /storage/emulated/0/Android/data/pub.imboy.apk/cache
+    /*
+    try {
+      File file = File(path);
+      state.chatHistoryBytes.value = await file.length();
+    } catch (e) {
+      iPrint("Error while getting file size: $e");
+    }
+    // state.cacheBytes.value += await cacheManager.store.getCacheSize();
+    iPrint(
+        "StorageSpace_logic getCacheSize() ${await cacheManager.store.getCacheSize()}");
+    */
+  }
+
+  Future<bool> clearAllCache() async {
+    bool res = await IcStorageSpace.clearAllCache();
+    if (res) {
+      storageStats();
+      try {
+        await cacheManager.store.emptyCache();
+      } catch (e) {
+        //
+      }
+    }
+    return res;
+  }
+
+  Future<void> storageStats() async {
+    Map<dynamic, dynamic> stats = await IcStorageSpace.storageStats;
+    iPrint("StorageSpace_logic storageStats ${stats.toString()}");
+    state.appBytes.value = stats['appBytes'] ?? 0;
+    // state.cacheBytes.value = stats['cacheBytes'] ?? 0;
+    state.appCacheBytes.value = stats['appCacheBytes'] ?? 0;
+    state.dataBytes.value = stats['dataBytes'] ?? 0 - state.appCacheBytes.value;
+  }
+
+  Future<void> pathList() async {
+    String home = await IcStorageSpace.homeDirectory();
+    iPrint("StorageSpace_logic pathList home $home");
+    List<Object?> items2 = await IcStorageSpace.pathList(home);
+    for (var p in items2) {
+      iPrint("StorageSpace_logic p: $p");
+    }
+  }
+}

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 
 class ImageGalleryLogic extends GetxController {
@@ -14,6 +15,7 @@ class ImageGalleryLogic extends GetxController {
     final initialPage = gallery.indexWhere(
       (e) => e.id == msg.id && e.uri == msg.uri,
     );
+    iPrint("IMBoyImageGallery onImagePressed $initialPage");
     galleryPageController = PageController(initialPage: initialPage);
     isImageViewVisible.value = true;
   }

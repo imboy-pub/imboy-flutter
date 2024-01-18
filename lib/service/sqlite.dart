@@ -24,9 +24,7 @@ class SqliteService {
     if (_db != null) {
       return _db!;
     }
-    String dbName = "imboy_${UserRepoLocal.to.currentUid}_$_dbVersion.db";
-    debugPrint("> on Sqlite.database $dbName");
-    _db = await initDatabase(dbName);
+    _db = await initDatabase();
     return _db!;
   }
 
@@ -36,8 +34,13 @@ class SqliteService {
     }
   }
 
-  Future<Database> initDatabase(String dbName) async {
-    String path = join(await getDatabasesPath(), dbName);
+  Future<String> dbPath() async {
+    String name = "imboy_${UserRepoLocal.to.currentUid}_$_dbVersion.db";
+    return join(await getDatabasesPath(), name);
+  }
+
+  Future<Database> initDatabase() async {
+    String path = await dbPath();
     // debugPrint("> on open db path {$path}");
     return await openDatabase(
       path,

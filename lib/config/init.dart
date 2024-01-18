@@ -7,6 +7,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fvp/fvp.dart';
 import 'package:get/get.dart' as getx;
+import 'package:logger/logger.dart';
+import 'package:map_launcher/map_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
+
 import 'package:imboy/component/controller.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
@@ -31,10 +36,6 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:logger/logger.dart';
-import 'package:map_launcher/map_launcher.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
 
 // ignore: prefer_generic_function_type_aliases
 typedef Callback(data);
@@ -66,6 +67,8 @@ List<AvailableMap> availableMaps = [];
 
 // JPush push = JPush();
 
+String packageName = '';
+String appName = '';
 String appVsn = '';
 String appVsnMajor = '';
 String deviceId = '';
@@ -83,7 +86,9 @@ Future<void> init() async {
   getx.Get.lazyPut(() => DeviceExt());
 
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  packageName = packageInfo.packageName;
   appVsn = packageInfo.version;
+  appName = packageInfo.appName;
   List<String> li = appVsn.split(RegExp(r"(\.)"));
   appVsnMajor = li[0].toString();
   iPrint("packageInfo appVsnMajor $appVsnMajor ${packageInfo.toString()}");

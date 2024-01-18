@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/icon_image_provider.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/service/encrypter.dart';
@@ -183,12 +184,16 @@ ImageProvider<Object> cachedImageProvider(String url, {double w = 400}) {
   Uri u = AssetsService.viewUrl(url);
   // 不要缓存大文件，以节省设备存储空间
   if (w < 0) {
-    return CachedNetworkImageProvider(u.toString());
+    return CachedNetworkImageProvider(
+      u.toString(),
+      cacheManager: cacheManager,
+    );
   }
   String k = "${u.scheme}://${u.host}:${u.port}${u.path}";
   return CachedNetworkImageProvider(
     w > 0 ? "${u.toString()}&width=$w" : u.toString(),
     cacheKey: EncrypterService.md5(k),
+    cacheManager: cacheManager,
   );
 }
 
@@ -257,4 +262,21 @@ void toChatPage(String peerId, String type) async {
       // binding: ChatBinding(),
     );
   }
+}
+
+/// Returns text representation of a provided bytes value (e.g. 1kB, 1GB).
+String formatBytes(int size, {int fractionDigits = 2, int num = 1024}) {
+  if (size <= 0) return '0 B';
+  final multiple = (math.log(size) / math.log(num)).floor();
+  return '${(size / math.pow(num, multiple)).toStringAsFixed(fractionDigits)} ${[
+    'B',
+    'kB',
+    'MB',
+    'GB',
+    'TB',
+    'PB',
+    'EB',
+    'ZB',
+    'YB',
+  ][multiple]}';
 }

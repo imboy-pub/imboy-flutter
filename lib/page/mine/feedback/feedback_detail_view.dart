@@ -151,7 +151,7 @@ class FeedbackDetailPage extends StatelessWidget {
                         right: 10,
                         child: Obx(() {
                           return state.pageReplyList.isEmpty
-                              ? NoDataView(text: '暂无数据'.tr)
+                              ? NoDataView(text: '暂无回复'.tr)
                               : ListView.builder(
                                   itemCount: state.pageReplyList.length,
                                   itemBuilder:

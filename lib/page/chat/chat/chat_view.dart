@@ -1017,7 +1017,7 @@ class ChatPageState extends State<ChatPage> {
                 images: galleryLogic.gallery.value,
                 pageController: galleryLogic.galleryPageController!,
                 onClosePressed: () {
-                  debugPrint("> on onClosePressed ");
+                  iPrint("IMBoyImageGallery onClosePressed ");
                   galleryLogic.onCloseGalleryPressed();
                   setState(() {
                     _showAppBar = true;

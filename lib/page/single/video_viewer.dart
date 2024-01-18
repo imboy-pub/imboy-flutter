@@ -5,12 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_cache_manager/file.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+import 'package:video_player/video_player.dart';
+
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/service/encrypter.dart';
-import 'package:niku/namespace.dart' as n;
-import 'package:video_player/video_player.dart';
 
 class VideoViewerPage extends StatefulWidget {
   final String url;

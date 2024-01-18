@@ -52,43 +52,53 @@ class IMBoyImageGallery extends StatelessWidget {
   final PageController pageController;
 
   @override
-  Widget build(BuildContext context) => PopScope(
-        onPopInvoked: (bool didPop) async {
-          onClosePressed();
-        },
-        child: GestureDetector(
-          onTap: () => onClosePressed(),
-          child: Dismissible(
-            key: const Key('imboy_photo_view_gallery'),
-            direction: DismissDirection.down,
-            onDismissed: (direction) => onClosePressed(),
-            child: n.Stack([
-              PhotoViewGallery.builder(
-                builder: (BuildContext context, int index) =>
-                    PhotoViewGalleryPageOptions(
-                  imageProvider: cachedImageProvider(images[index].uri, w: 0),
-                  minScale: options.minScale,
-                  maxScale: options.maxScale,
-                ),
-                itemCount: images.length,
-                loadingBuilder: (context, event) =>
-                    _imageGalleryLoadingBuilder(event),
-                pageController: pageController,
-                scrollPhysics: const ClampingScrollPhysics(),
+  Widget build(BuildContext context) {
+    iPrint("IMBoyImageGallery build ${images.length}");
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) async {
+        iPrint('IMBoyImageGallery didPop: $didPop');
+        // var canPop = await controller.confirmDiscard();
+
+        if (didPop) {
+          return;
+        }
+        // onClosePressed();
+      },
+      child: GestureDetector(
+        onTap: () => onClosePressed(),
+        child: Dismissible(
+          key: const Key('imboy_photo_view_gallery'),
+          direction: DismissDirection.down,
+          onDismissed: (direction) => onClosePressed(),
+          child: n.Stack([
+            PhotoViewGallery.builder(
+              builder: (BuildContext context, int index) =>
+                  PhotoViewGalleryPageOptions(
+                imageProvider: cachedImageProvider(images[index].uri, w: 0),
+                minScale: options.minScale,
+                maxScale: options.maxScale,
               ),
-              // Positioned.directional(
-              //   end: 16,
-              //   textDirection: Directionality.of(context),
-              //   top: 56,
-              //   child: CloseButton(
-              //     color: Colors.white,
-              //     onPressed: onClosePressed,
-              //   ),
-              // ),
-            ]),
-          ),
+              itemCount: images.length,
+              loadingBuilder: (context, event) =>
+                  _imageGalleryLoadingBuilder(event),
+              pageController: pageController,
+              scrollPhysics: const ClampingScrollPhysics(),
+            ),
+            // Positioned.directional(
+            //   end: 16,
+            //   textDirection: Directionality.of(context),
+            //   top: 56,
+            //   child: CloseButton(
+            //     color: Colors.white,
+            //     onPressed: onClosePressed,
+            //   ),
+            // ),
+          ]),
         ),
-      );
+      ),
+    );
+  }
 
   Widget _imageGalleryLoadingBuilder(ImageChunkEvent? event) => Center(
         child: SizedBox(
@@ -116,7 +126,7 @@ class IMBoyImageGalleryOptions {
   final dynamic minScale;
 }
 
-/// 单击图片的时候放到显示图片的效果
+/// 单击图片的时候放大显示图片的效果
 void zoomInPhotoView(String thumb) async {
   ImageProvider thumbProvider = cachedImageProvider(
     thumb,
@@ -138,7 +148,7 @@ void zoomInPhotoView(String thumb) async {
   Get.bottomSheet(
     InkWell(
       onTap: () {
-        Get.close(closeBottomSheet: true);
+        Get.closeAllBottomSheets();
       },
       child: PhotoView(
         imageProvider: thumbProvider,
@@ -152,6 +162,7 @@ void zoomInPhotoView(String thumb) async {
 
 /// 显示多个图像并让用户在它们之间进行更改的效果
 void zoomInPhotoViewGallery(List items) async {
+  iPrint("zoomInPhotoViewGallery");
   List galleryItems = [];
   for (var e in items) {
     galleryItems.add(cachedImageProvider(
