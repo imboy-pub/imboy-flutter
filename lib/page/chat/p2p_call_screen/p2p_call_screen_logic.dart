@@ -253,7 +253,8 @@ class P2pCallScreenLogic {
       onLocalStream?.call(stream);
       return stream;
     } catch (e) {
-      iPrint("> rtc createStream error ${e.toString()} ${DateTime.now()}");
+      iPrint(
+          "> rtc createStream error userScreen $userScreen ${e.toString()} ${DateTime.now()}");
     }
     return null;
   }
@@ -264,7 +265,7 @@ class P2pCallScreenLogic {
     required bool screenSharing,
   }) async {
     iPrint(
-        "> rtc _createSession ${newSession?.sid}, ${newSession?.pc.toString()}, ${DateTime.now()}");
+        "> rtc _createSession media $media, sid ${newSession?.sid}, ${newSession?.pc.toString()}, ${DateTime.now()}");
     if (media != 'data') {
       _localStream ??= await _createStream(media, screenSharing);
     }

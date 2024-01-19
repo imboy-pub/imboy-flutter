@@ -294,12 +294,13 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       startAt: DateTimeHelper.currentTimeMillis(),
     );
     counter.start((Timer tm) {
-      setState(() {
-        // 秒数+1，因为一秒回调一次
-        counter.count += 1;
-        // 更新界面
-        stateTips = counter.show();
-      });
+      // 秒数+1，因为一秒回调一次
+      counter.count += 1;
+      // 更新界面
+      stateTips = counter.show();
+      if (mounted) {
+        setState(() {});
+      }
     });
   }
 

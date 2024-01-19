@@ -332,7 +332,7 @@ class UserCollectPage extends StatelessWidget {
                                                             state.items
                                                                 .removeAt(
                                                                     index);
-                                                            Get.back(times: 1);
+                                                            Get.closeAllBottomSheets();
                                                             EasyLoading
                                                                 .showSuccess(
                                                                     '操作成功'.tr);
@@ -343,7 +343,7 @@ class UserCollectPage extends StatelessWidget {
                                                           }
                                                         },
                                                         child: Text(
-                                                          '删除无法找回，确认删除？'.tr,
+                                                          '删除后无法找回，确认删除？'.tr,
                                                           textAlign:
                                                               TextAlign.center,
                                                           style:
@@ -361,8 +361,8 @@ class UserCollectPage extends StatelessWidget {
                                                         height: 6),
                                                     Center(
                                                       child: TextButton(
-                                                        onPressed: () =>
-                                                            Get.close(),
+                                                        onPressed: () => Get
+                                                            .closeAllBottomSheets(),
                                                         child: Text(
                                                           'button_cancel'.tr,
                                                           textAlign:

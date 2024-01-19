@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -6,6 +8,9 @@ import 'package:permission_handler/permission_handler.dart';
 /// 申请定位权限
 /// 授予定位权限返回true， 否则返回false
 Future<bool> requestLocationPermission() async {
+  if (Platform.isMacOS) {
+    return false;
+  }
   bool isEnabled = await Permission.location.serviceStatus.isEnabled;
   bool isEnabled2 = await Permission.locationWhenInUse.serviceStatus.isEnabled;
   debugPrint("getLocation location.serviceStatus $isEnabled");

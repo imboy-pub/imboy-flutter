@@ -52,8 +52,8 @@ class MessageService extends GetxService {
       if (type.startsWith('WEBRTC_')) {
         // 确认消息
         iPrint("> rtc msg CLIENT_ACK,WEBRTC,${data['id']},$deviceId");
-        WebSocketService.to
-            .sendMessage("CLIENT_ACK,WEBRTC,${data['id']},$deviceId");
+        MessageService.to.sendAckMsg('WEBRTC', data['id']);
+
         String msgId = '';
         if (type == 'WEBRTC_OFFER' ||
             type == 'WEBRTC_BUSY' ||
@@ -159,6 +159,11 @@ class MessageService extends GetxService {
     }
   }
 
+  /// type is ['C2C' | 'S2C' | 'WEBRTC']
+  void sendAckMsg(String type, String msgId) {
+    WebSocketService.to.sendMessage("CLIENT_ACK,$type,$msgId,$deviceId");
+  }
+
   Future<void> switchS2C(Map data) async {
     iPrint("switchS2C ${data.toString()}");
     var payload = data['payload'] ?? {};
@@ -247,7 +252,7 @@ class MessageService extends GetxService {
         break;
       case 'please_refresh_token': // 服务端通知客户端刷新token
         iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId,$autoAck");
-        WebSocketService.to.sendMessage("CLIENT_ACK,S2C,$msgId,$deviceId");
+        MessageService.to.sendAckMsg('S2C', msgId);
         await (UserProvider()).refreshAccessTokenApi(
             UserRepoLocal.to.refreshToken,
             checkNewToken: true);
@@ -289,7 +294,7 @@ class MessageService extends GetxService {
     // 确认消息
     if (autoAck) {
       iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId");
-      WebSocketService.to.sendMessage("CLIENT_ACK,S2C,$msgId,$deviceId");
+      MessageService.to.sendAckMsg('S2C', msgId);
     }
   }
 
@@ -354,7 +359,7 @@ class MessageService extends GetxService {
     // 确认消息
     iPrint(
         "> rtc msg CLIENT_ACK,C2C,${data['id']},$deviceId, exited $exited, ${DateTime.now()}");
-    WebSocketService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$deviceId");
+    MessageService.to.sendAckMsg('S2C', data['id']);
     if (exited != null && exited > 0) {
       return;
     }
@@ -482,7 +487,7 @@ class MessageService extends GetxService {
     // 更新会话里面的消息列表的特定消息状态
     eventBus.fire([msg.toTypeMessage()]);
     // 确认消息
-    WebSocketService.to.sendMessage("CLIENT_ACK,C2C,${data['id']},$deviceId");
+    MessageService.to.sendAckMsg('C2C', data['id']);
     changeConversation(msg, 'my_revoked');
   }
 

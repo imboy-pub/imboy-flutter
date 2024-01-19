@@ -1,3 +1,9 @@
+# 0.2.1
+* 修复”删除我的收藏“返回上一些的问题；
+* 修复 incomingCallScreen 的时候没有 initIceServers 的问题；
+* 新增 MessageService.to.sendAckMsg/2 方法，调整相关逻辑；
+* macos 权限配置调整
+
 # 0.2.0
 * 新增“存储空间”UI特效；
 * 新增获取设备已用空间、设备可用空间、设置磁盘空间、应用缓存、应用用户数据功能（依赖 ic_storage_space 库，Android版本需要8.0及以上）

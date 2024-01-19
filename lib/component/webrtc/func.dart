@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+import 'package:xid/xid.dart';
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/session.dart';
@@ -18,50 +21,50 @@ import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
-import 'package:xid/xid.dart';
 
 /// 初始化 ice 配置信息
-Future<bool> initIceServers() async {
+Future<bool> initIceServers({String from = 'incomingCallScreen'}) async {
   debugPrint(
       "> rtc initIceServers iceConfiguration == null: ${iceConfiguration == null}, ${UserRepoLocal.to.isLogin}, ${iceConfiguration.toString()}");
-  if (iceConfiguration == null) {
-    try {
-      Map<String, dynamic> turnCredential = await UserProvider().turnCredential();
-      debugPrint("getIceServers _turnCredential ${turnCredential.toString()}");
-      if (turnCredential.isEmpty) {
-        EasyLoading.showError('发起请求失败，请检查网络连接，或稍后重试'.tr);
-        return false;
-      }
-      iceConfiguration = {
-        'iceServers': [
-          {
-            'urls': [STUN_URL],
-          },
-          {
-            'urls': turnCredential['uris'] ?? [TURN_URL],
-            "ttl": turnCredential['ttl'] ?? 86400,
-            'username': turnCredential['username'],
-            'credential': turnCredential['credential']
-          },
-        ],
-        "iceCandidatePoolSize": 0,
-        "bundlePolicy": "balanced",
-        "encodedInsertableStreams": false,
-        // all:可以使用任何类型的候选者(表示host类型、srflx反射、relay中继都支持)
-        // relay: 只使用中继候选者（在真实的网络情况下一般都使用relay，因为Nat穿越在中国很困难）
-        'iceTransportPolicy': 'all',
-        "rtcpMuxPolicy": "require",
-        'sdpSemantics': 'unified-plan',
-      };
-      return true;
-    } catch (e) {
-      //
-    }
-    return false;
-  } else {
+
+  if (iceConfiguration != null) {
     return true;
   }
+  try {
+    Map<String, dynamic> turnCredential = await UserProvider().turnCredential();
+    debugPrint("getIceServers _turnCredential ${turnCredential.toString()}");
+    if (turnCredential.isEmpty && from == 'openCallScreen') {
+      EasyLoading.showError('发起请求失败，请检查网络连接，或稍后重试'.tr);
+      return false;
+    } else if (turnCredential.isEmpty) {
+      return false;
+    }
+    iceConfiguration = {
+      'iceServers': [
+        {
+          'urls': [STUN_URL],
+        },
+        {
+          'urls': turnCredential['uris'] ?? [TURN_URL],
+          "ttl": turnCredential['ttl'] ?? 86400,
+          'username': turnCredential['username'],
+          'credential': turnCredential['credential']
+        },
+      ],
+      "iceCandidatePoolSize": 0,
+      "bundlePolicy": "balanced",
+      "encodedInsertableStreams": false,
+      // all:可以使用任何类型的候选者(表示host类型、srflx反射、relay中继都支持)
+      // relay: 只使用中继候选者（在真实的网络情况下一般都使用relay，因为Nat穿越在中国很困难）
+      'iceTransportPolicy': 'all',
+      "rtcpMuxPolicy": "require",
+      'sdpSemantics': 'unified-plan',
+    };
+    return true;
+  } catch (e) {
+    //
+  }
+  return false;
 }
 
 /// 发送WebRTC 消息
@@ -120,6 +123,11 @@ Future<void> incomingCallScreen(
   if (p2pCallScreenOn == true) {
     return;
   }
+  bool res = await initIceServers();
+  if (res == false) {
+    return;
+  }
+
   p2pCallScreenOn = true;
   String sid = sessionId(peer.peerId);
   var s = webRTCSessions[sid];
@@ -263,7 +271,7 @@ Future<void> openCallScreen(
   if (p2pEntry != null) {
     return;
   }
-  bool res = await initIceServers();
+  bool res = await initIceServers(from: 'openCallScreen');
   if (res == false) {
     return;
   }
