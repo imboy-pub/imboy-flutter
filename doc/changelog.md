@@ -1,5 +1,7 @@
 # 0.2.1
-* 修复”删除我的收藏“返回上一些的问题；
+* 修复”删除我的收藏“返回上一页的问题；
+* 修复”删除该设备“返回上一页的问题；
+* 修复”设置设备名“完成按钮不高亮的问题；
 * 修复 incomingCallScreen 的时候没有 initIceServers 的问题；
 * 新增 MessageService.to.sendAckMsg/2 方法，调整相关逻辑；
 * macos 权限配置调整

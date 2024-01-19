@@ -167,8 +167,8 @@ class UserDeviceDetailPage extends StatelessWidget {
                           ..style = n.NikuButtonStyle(
                               foregroundColor: AppColors.ItemOnColor)
                           ..onPressed = () async {
-                            Navigator.of(context).pop();
-                            Navigator.of(context).pop();
+                            var nav = Navigator.of(context);
+
                             bool res = await logic.deleteDevice(
                               model.deviceId,
                             );
@@ -178,6 +178,8 @@ class UserDeviceDetailPage extends StatelessWidget {
                                     (e) => e.deviceId == model.deviceId),
                               );
                               EasyLoading.showSuccess('操作成功'.tr);
+                              nav.pop();
+                              Get.back(times: 1);
                             } else {
                               EasyLoading.showError('操作失败'.tr);
                             }

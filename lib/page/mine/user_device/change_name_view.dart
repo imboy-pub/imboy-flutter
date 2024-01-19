@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/mine/user_device/user_device_logic.dart';
@@ -45,76 +46,72 @@ class ChangeNamePage extends StatelessWidget {
       child: Wrap(
         children: <Widget>[
           PageAppBar(
-            titleWidget: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
-                    ),
+            titleWidget: Row(children: [
+              Expanded(
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
                   ),
-                  // 中间用Expanded控件
                 ),
-                Obx(
-                  () => ElevatedButton(
-                    onPressed: () async {
-                      if (field == "input") {
-                        String trimmedText = textController.text.trim();
-                        if (trimmedText == '') {
-                          valueChanged.value = false;
-                        } else {
-                          bool res = await callback(trimmedText);
-                          if (res) {
-                            Get.back();
-                          }
+                // 中间用Expanded控件
+              ),
+              Obx(
+                () => ElevatedButton(
+                  onPressed: () async {
+                    if (field == "input") {
+                      String trimmedText = textController.text.trim();
+                      if (trimmedText == '') {
+                        valueChanged.value = false;
+                      } else {
+                        bool res = await callback(trimmedText);
+                        if (res) {
+                          Get.back();
                         }
                       }
-                    },
-                    // ignore: sort_child_properties_last
-                    child: Text(
-                      'button_accomplish'.tr,
-                      textAlign: TextAlign.center,
-                    ),
-                    style: valueChanged.isTrue
-                        ? ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                              AppColors.primaryElement,
-                            ),
-                            foregroundColor: MaterialStateProperty.all<Color>(
-                              Colors.white,
-                            ),
-                            minimumSize:
-                                MaterialStateProperty.all(const Size(60, 40)),
-                            visualDensity: VisualDensity.compact,
-                            padding: MaterialStateProperty.all(EdgeInsets.zero),
-                          )
-                        : ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                              AppColors.AppBarColor,
-                            ),
-                            foregroundColor: MaterialStateProperty.all<Color>(
-                              AppColors.LineColor,
-                            ),
-                            minimumSize:
-                                MaterialStateProperty.all(const Size(60, 40)),
-                            visualDensity: VisualDensity.compact,
-                            padding: MaterialStateProperty.all(EdgeInsets.zero),
-                          ),
+                    }
+                  },
+                  // ignore: sort_child_properties_last
+                  child: Text(
+                    'button_accomplish'.tr,
+                    textAlign: TextAlign.center,
                   ),
+                  style: valueChanged.isTrue
+                      ? ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                            AppColors.primaryElement,
+                          ),
+                          foregroundColor: MaterialStateProperty.all<Color>(
+                            Colors.white,
+                          ),
+                          minimumSize:
+                              MaterialStateProperty.all(const Size(60, 40)),
+                          visualDensity: VisualDensity.compact,
+                          padding: MaterialStateProperty.all(EdgeInsets.zero),
+                        )
+                      : ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                            AppColors.AppBarColor,
+                          ),
+                          foregroundColor: MaterialStateProperty.all<Color>(
+                            AppColors.LineColor,
+                          ),
+                          minimumSize:
+                              MaterialStateProperty.all(const Size(60, 40)),
+                          visualDensity: VisualDensity.compact,
+                          padding: MaterialStateProperty.all(EdgeInsets.zero),
+                        ),
                 ),
-              ],
-            ),
-          ),
-          n.Row(
-            [
-              Expanded(
-                child: inputField(),
               ),
-            ],
+            ]),
           ),
+          n.Row([
+            Expanded(
+              child: inputField(),
+            ),
+          ]),
         ],
       ),
     );
@@ -167,7 +164,8 @@ class ChangeNamePage extends StatelessWidget {
       },
       //style: ,
       onChanged: (val) {
-        if (value == '' || value == val) {
+        iPrint("ChangeName_Page val $val, value $value;");
+        if (value == val) {
           valueChanged.value = false;
         } else {
           valueChanged.value = true;
