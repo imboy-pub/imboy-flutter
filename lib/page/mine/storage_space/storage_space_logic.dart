@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:ic_storage_space/ic_storage_space.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -53,17 +55,24 @@ class StorageSpaceLogic extends GetxController {
     Map<dynamic, dynamic> stats = await IcStorageSpace.storageStats;
     iPrint("StorageSpace_logic storageStats ${stats.toString()}");
     state.appBytes.value = stats['appBytes'] ?? 0;
-    // state.cacheBytes.value = stats['cacheBytes'] ?? 0;
-    state.appCacheBytes.value = stats['appCacheBytes'] ?? 0;
-    state.dataBytes.value = stats['dataBytes'] ?? 0 - state.appCacheBytes.value;
+    state.cacheBytes.value = stats['cacheBytes'] ?? 0;
+    state.dataBytes.value = stats['dataBytes'] ?? 0;
+    if (Platform.isAndroid) {
+      state.dataBytes.value =
+          (stats['dataBytes'] ?? 0) - state.cacheBytes.value;
+    }
   }
 
   Future<void> pathList() async {
     String home = await IcStorageSpace.homeDirectory();
-    iPrint("StorageSpace_logic pathList home $home");
     List<Object?> items2 = await IcStorageSpace.pathList(home);
-    for (var p in items2) {
-      iPrint("StorageSpace_logic p: $p");
-    }
+    iPrint("StorageSpace_logic pathList home $home ");
+    int? size = await IcStorageSpace.pathBytes(home);
+    iPrint(
+        "StorageSpace_logic pathList size: ${formatBytes(size ?? 0, num: 1000)} ; len ${items2.length} ");
+
+    // for (var p in items2) {
+    // iPrint("StorageSpace_logic p: $p");
+    // }
   }
 }

@@ -207,7 +207,7 @@ class StorageSpacePage extends StatelessWidget {
                         Obx(
                           () => Text(
                             formatBytes(
-                              state.appCacheBytes.value,
+                              state.cacheBytes.value,
                               num: 1000,
                             ),
                             style: const TextStyle(fontSize: 28),

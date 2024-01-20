@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.2.1
+version: 0.2.2
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -179,7 +179,7 @@ dependencies:
   sqflite_common_ffi: ^2.3.2
   #sqlite3: ^1.11.2
   # 一个跨平台插件，用于显示和安排 Flutter 应用程序的本地通知，并能够针对每个平台进行自定义。
-  flutter_local_notifications: ^16.3.0
+  flutter_local_notifications: ^16.3.1+1
   #桌面图标提醒
   flutter_app_badger: ^1.5.0
   # 录音
@@ -195,7 +195,8 @@ dependencies:
 #      ref: main
   # 一对一音视频通话等
   flutter_webrtc: ^0.9.47
-  #    path: plugin/flutter-webrtc
+#  flutter_webrtc:
+#      path: plugin/flutter-webrtc
   #    git:
   #      url: https://gitee.com/imboy-tripartite-deps/flutter-webrtc.git
   #      ref: main
@@ -253,7 +254,7 @@ dependencies:
 
   # 通过 RTMP 用于相机和麦克风流媒体库的 Flutter 插件。
   # haishin_kit: ^0.11.1
-  flutter_whip: ^0.5.5
+  #flutter_whip: ^0.5.5
   # 允许跨多个平台处理文件的抽象。
   cross_file: ^0.3.3+8
   # Dart 包用于解码 TIFF、JPEG、HEIC、PNG 和 WebP 文件中的 Exif 数据。

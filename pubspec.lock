@@ -498,14 +498,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.0"
-  events2:
-    dependency: transitive
-    description:
-      name: events2
-      sha256: "41eec2689af52ecd2581494b9241589769b2873359909c9260588e51fbc188e7"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.0"
   exif:
     dependency: "direct main"
     description:
@@ -765,10 +757,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_local_notifications
-      sha256: "892ada16046d641263f30c72e7432397088810a84f34479f6677494802a2b535"
+      sha256: "66cc2fe16bf4bca71d795939763ad3f1830ad85772dc3b1561613c501859826d"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "16.3.0"
+    version: "16.3.1+1"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
@@ -912,14 +904,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.9.47"
-  flutter_whip:
-    dependency: "direct main"
-    description:
-      name: flutter_whip
-      sha256: "1ba0c7bcc4939923d9a3298f07097407be33497e1db969389c5ef7f5502ee48e"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.5.5"
   font_awesome_flutter:
     dependency: transitive
     description:
@@ -1030,7 +1014,7 @@ packages:
     description:
       path: "."
       ref: leeyi
-      resolved-ref: caaf03d9a8d69413e22fc242f5fb1058b873b772
+      resolved-ref: "2556357f61e6f331ae611302c2f0240a58bb6f2d"
       url: "https://gitee.com/imboy-tripartite-deps/IcStorageSpace.git"
     source: git
     version: "0.0.3"
@@ -1708,14 +1692,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.3.8"
-  sdp_transform:
-    dependency: transitive
-    description:
-      name: sdp_transform
-      sha256: "73e412a5279a5c2de74001535208e20fff88f225c9a4571af0f7146202755e45"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.3.2"
   sensors_plus:
     dependency: "direct main"
     description:

@@ -18,9 +18,9 @@ class StorageSpaceState {
   // getCacheBytes得到应用程序缓存数据的大小。这包括存储在Context.getCacheDir()和Context.getCodeCacheDir() 下的文件。
   // Context#getCacheDir()这包括存储在和下的文件 Context#getCodeCacheDir()。
   // 如果主要外部/共享存储托管在此存储设备上，则这包括存储在 Context#getExternalCacheDir().
-  // RxInt cacheBytes = 0.obs;
+  // iOS MacOS 的 cacheBytes  定义为 NSHomeDirectory() + "/Library/Caches" + NSHomeDirectory() + "/tmp"
+  RxInt cacheBytes = 0.obs;
 
-  RxInt appCacheBytes = 0.obs;
   // 用户数据
   // https://developer.android.com/reference/android/app/usage/StorageStats#getDataBytes()
   // 返回所有数据的大小。Context#getDataDir()这包括存储在、Context#getCacheDir()、 下的文件 Context#getCodeCacheDir()。

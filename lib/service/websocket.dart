@@ -184,7 +184,7 @@ class WebSocketService {
 
     if (_webSocketChannel != null && _webSocketChannel!.closeCode != null) {
       iPrint(
-          '> ws _webSocketOnDone closeCode: ${_webSocketChannel!.closeCode}');
+          '> ws _webSocketOnDone closeCode: ${_webSocketChannel!.closeCode} ${DateTime.now()}');
       iPrint(
           '> ws _webSocketOnDone closeReason: ${_webSocketChannel!.closeReason.toString()}');
       // 1000 CLOSE_NORMAL 正常关闭；无论为何目的而创建，该链接都已成功完成任务

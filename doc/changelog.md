@@ -1,3 +1,7 @@
+# 0.2.2
+* The cache size Android APP storageStats.  GetCacheBytes ();  APP cacheBytes for ios macos is defined as NSHomeDirectory() + "/Library/Caches" + NSHomeDirectory() + "/tmp"
+* 其他一些细节调整
+
 # 0.2.1
 * 修复”删除我的收藏“返回上一页的问题；
 * 修复”删除该设备“返回上一页的问题；

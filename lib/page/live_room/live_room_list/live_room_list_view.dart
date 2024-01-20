@@ -76,11 +76,11 @@ class LiveRoomListPage extends StatelessWidget {
                                       AppColors.MainTextColor.withOpacity(0.5),
                                 ),
                                 onTap: () {
-                                  Get.to(
-                                    () => const PublisherPage(),
-                                    transition: Transition.rightToLeft,
-                                    popGesture: true, // 右滑，返回上一页
-                                  );
+                                  // Get.to(
+                                  //   () => const PublisherPage(),
+                                  //   transition: Transition.rightToLeft,
+                                  //   popGesture: true, // 右滑，返回上一页
+                                  // );
                                   // Get.to(
                                   //   () => LiveRoomPage(
                                   //     room: model,
@@ -110,11 +110,11 @@ class LiveRoomListPage extends StatelessWidget {
                                       AppColors.MainTextColor.withOpacity(0.5),
                                 ),
                                 onTap: () {
-                                  Get.to(
-                                    () => const SubscriberPage(),
-                                    transition: Transition.rightToLeft,
-                                    popGesture: true, // 右滑，返回上一页
-                                  );
+                                  // Get.to(
+                                  //   () => const SubscriberPage(),
+                                  //   transition: Transition.rightToLeft,
+                                  //   popGesture: true, // 右滑，返回上一页
+                                  // );
                                   // Get.to(
                                   //   () => LiveRoomPage(
                                   //     room: model,
