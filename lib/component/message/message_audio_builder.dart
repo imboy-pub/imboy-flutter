@@ -97,7 +97,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
                 }
               },
             ),
-            innerPadding: 4,
+            innerPadding: 2,
             cornerRadius: 16,
             size: 28,
             circlesColor: Colors.black38,

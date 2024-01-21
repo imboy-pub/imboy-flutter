@@ -17,9 +17,9 @@ class SelectRegionLogic extends GetxController {
 
   RxMap regionSelected = {}.obs;
 
-  void valueOnChange(bool ischange) {
+  void valueOnChange(bool isChange) {
     // 必须使用 .value 修饰具体的值
-    valueChanged.value = ischange;
+    valueChanged.value = isChange;
     update([valueChanged]);
   }
 
@@ -57,15 +57,15 @@ class SelectRegionLogic extends GetxController {
   ) {
     String title = "";
     List children = [];
+    iPrint("region_item getListItem ${model.runtimeType}, $parent : ${model.toString()}");
     if (model is String) {
       title = model;
     } else if (model is Map) {
       title = model["title"] ?? "";
       children = model["children"] ?? [];
     }
-    bool isRight = children.isNotEmpty;
+    bool haveChildren = children.isNotEmpty;
     title = title.trim();
-
     return Obx(
       () => Container(
         height: 52,
@@ -77,7 +77,7 @@ class SelectRegionLogic extends GetxController {
           selected: regionSelected[title] != null &&
               regionSelected[title]["selected"] == true,
           selectedColor: AppColors.primaryElement,
-          trailing: isRight
+          trailing: haveChildren
               ? Icon(
                   CupertinoIcons.right_chevron,
                   color: AppColors.MainTextColor.withOpacity(0.5),
@@ -88,17 +88,20 @@ class SelectRegionLogic extends GetxController {
                   : null),
           onTap: () {
             selectedVal.value = strEmpty(parent) ? title : "$parent $title";
-            if (isRight) {
-              Get.to(
-                () => SelectRegionPage(
-                  parent: selectedVal.value,
-                  children: children,
-                  callback: callback,
-                  outCallback: outCallback,
+            // iPrint("region_item $selectedVal, $haveChildren: ${children.toString()}");
+            if (haveChildren) {
+              parent = selectedVal.value;
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  // “右滑返回上一页”功能
+                  builder: (_) => SelectRegionPage(
+                    parent: selectedVal.value,
+                    children: children,
+                    callback: callback,
+                    outCallback: outCallback,
+                  ),
                 ),
-                preventDuplicates: false,
-                transition: Transition.rightToLeft,
-                popGesture: true, // 右滑，返回上一页
               );
             } else {
               // getListItem/4 第4个参数，有里面有业务逻辑处理
@@ -211,14 +214,13 @@ class SelectRegionPage extends StatelessWidget {
           ),
         ]),
       ),
-      body: n.Column(
-        [
+      body: n.Column([
           Container(
             alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.only(left: 15.0),
+            padding: const EdgeInsets.only(left: 16.0),
             width: Get.width,
             height: 40.0,
-            child: Text("全部".tr),
+            child: Text('全部'.tr, style: const TextStyle(fontSize: 12),),
           ),
           Expanded(
             child: ListView.builder(
@@ -237,7 +239,7 @@ class SelectRegionPage extends StatelessWidget {
             ),
           ),
         ],
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.min
       )..useParent((v) => v..bg = Colors.white),
     );
   }

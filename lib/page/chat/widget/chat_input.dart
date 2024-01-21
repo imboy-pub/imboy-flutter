@@ -43,7 +43,7 @@ Widget _buildVoiceButton(BuildContext context) {
 
 InputType _initType = InputType.text;
 
-double _softKeyHeight = 210;
+double _softKeyHeight = 198;
 
 class ChatInput extends StatefulWidget {
   const ChatInput({
@@ -360,8 +360,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       onSubmitted: (_) => _handleSendPressed(),
     );
 
-    return Stack(
-      children: <Widget>[
+    return n.Stack([
         Offstage(
           // ignore: sort_child_properties_last
           child: inputButton,
@@ -372,8 +371,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
           child: voiceButton,
           offstage: inputType != InputType.voice,
         ),
-      ],
-    );
+      ]);
   }
 
   Widget buildLeftButton() {
@@ -386,11 +384,6 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         }
         changeBottomHeight(0);
       },
-      // image: AssetImage(
-      //   inputType != InputType.voice
-      //       ? 'assets/images/chat/input_voice.png'
-      //       : 'assets/images/chat/input_keyboard.png',
-      // ),
       image: inputType != InputType.voice
           ? Icon(Icons.keyboard_voice_outlined, size: iconSize)
           : Icon(Icons.keyboard_alt_outlined, size: iconSize),
@@ -400,9 +393,6 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   ///
   Widget buildEmojiButton() {
     return ImageButton(
-      // image: AssetImage(inputType != InputType.emoji
-      //     ? 'assets/images/chat/input_emoji.png'
-      //     : 'assets/images/chat/input_keyboard.png'),
       image: inputType != InputType.emoji
           ? Icon(Icons.emoji_emotions_outlined, size: iconSize)
           : Icon(Icons.keyboard_alt_outlined, size: iconSize),
@@ -459,39 +449,35 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             child: Container(
               padding: EdgeInsets.fromLTRB(
                 query.padding.left,
-                4,
+                0,
                 query.padding.right,
-                4 + query.viewInsets.bottom + query.padding.bottom,
+                query.viewInsets.bottom + query.padding.bottom,
               ),
-              child: n.Column(
-                [
-                  widget.quoteTipsWidget ?? const SizedBox.shrink(),
-                  n.Row(
-                    [
-                      // voice
-                      buildLeftButton(),
-                      // input
-                      Expanded(
-                        child: _buildInputButton(context),
-                      ),
-                      // emoji
-                      buildEmojiButton(),
-                      //extra
-                      _textController.text.isEmpty
-                          ? buildExtra()
-                          : IconButton(
-                              icon: const Icon(Icons.send),
-                              onPressed: _handleSendPressed,
-                              padding: const EdgeInsets.only(left: 0),
-                            ),
-                    ],
+              child: n.Column([
+                widget.quoteTipsWidget ?? const SizedBox.shrink(),
+                n.Row([
+                  // voice
+                  buildLeftButton(),
+                  // input
+                  Expanded(
+                    child: _buildInputButton(context),
                   ),
-                  inputType == InputType.emoji || inputType == InputType.extra
-                      ? const Divider()
-                      : const SizedBox.shrink(), // 横线
-                  _buildBottomContainer(child: _buildBottomItems()),
-                ],
-              ),
+                  // emoji
+                  buildEmojiButton(),
+                  //extra
+                  _textController.text.isEmpty
+                      ? buildExtra()
+                      : IconButton(
+                    icon: const Icon(Icons.send),
+                    onPressed: _handleSendPressed,
+                    padding: const EdgeInsets.only(left: 0),
+                  ),
+                ]),
+                inputType == InputType.emoji || inputType == InputType.extra
+                    ? const Divider()
+                    : const SizedBox.shrink(), // 横线
+                _buildBottomContainer(child: _buildBottomItems()),
+              ],),
             ),
           ),
         ),

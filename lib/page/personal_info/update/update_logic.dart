@@ -15,10 +15,9 @@ class UpdatePageLogic extends GetxController {
 
   RxList regionList = [].obs;
 
-  void valueOnChange(bool ischange) {
+  void valueOnChange(bool isChange) {
     // 必须使用 .value 修饰具体的值
-    valueChanged.value = ischange;
-    update([valueChanged]);
+    valueChanged.value = isChange;
   }
 
   void setVal(String value) {
@@ -32,7 +31,6 @@ class UpdatePageLogic extends GetxController {
     await rootBundle.loadString('assets/data/region.json').then((value) {
       regionList.clear();
       regionList.value = json.decode(value);
-      update([regionList]);
     });
   }
 }

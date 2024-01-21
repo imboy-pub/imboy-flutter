@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -231,13 +232,15 @@ class PeopleInfoPage extends StatelessWidget {
                 LabelRow(
                   label: '更多信息'.tr,
                   isLine: false,
-                  onPressed: () => Get.to(
-                    () => PeopleInfoMorePage(
-                      id: id,
+                  onPressed: () => Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        // “右滑返回上一页”功能
+                        builder: (_) => PeopleInfoMorePage(
+                          id: id,
+                        ),
+                      ),
                     ),
-                    transition: Transition.rightToLeft,
-                    popGesture: true, // 右滑，返回上一页
-                  ),
                 ),
               const Space(),
               isFriend.value == 1 || scene == 'denylist'

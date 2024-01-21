@@ -147,13 +147,11 @@ class UpdatePage extends StatelessWidget {
               ],
             ),
           ),
-          Row(
-            children: [
+          n.Row([
               Expanded(
                 child: body,
               ),
-            ],
-          ),
+            ]),
         ],
       ),
     );
@@ -351,8 +349,7 @@ class UpdatePage extends StatelessWidget {
 
   Widget regionField() {
     return Obx(
-      () => n.Column(
-        [
+      () => n.Column([
           Container(
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.only(left: 15.0),
@@ -360,28 +357,26 @@ class UpdatePage extends StatelessWidget {
             height: 40.0,
             child: Text("已选地区： ".tr + logic.val.value),
           ),
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              Expanded(
-                child: SizedBox(
-                  height: Get.height - 40,
-                  child: ListView.builder(
-                    itemBuilder: (BuildContext context, int index) {
-                      return regionLogic
-                          .getListItem(context, "", logic.regionList[index],
-                              (String p, String t) async {
-                        logic.val.value = strEmpty(p) ? t : "$p $t";
-                        logic.valueOnChange(true);
-                        return true;
-                      }, callback);
-                    },
-                    itemCount: logic.regionList.length,
-                  ),
+          n.Row([
+            Expanded(
+              child: SizedBox(
+                height: Get.height - 40,
+                child: ListView.builder(
+                  itemBuilder: (BuildContext context, int index) {
+                    return regionLogic
+                        .getListItem(context, "", logic.regionList[index],
+                            (String p, String t) async {
+                      logic.val.value = strEmpty(p) ? t : "$p $t";
+                      logic.valueOnChange(true);
+                      return true;
+                    }, callback);
+                  },
+                  itemCount: logic.regionList.length,
                 ),
               ),
-            ],
-          ),
+            ),
+          ])
+          ..mainAxisSize= MainAxisSize.max,
         ],
         mainAxisSize: MainAxisSize.min,
       )..useParent((v) => v..bg = Colors.white),

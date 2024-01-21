@@ -135,8 +135,7 @@ class UqrcodePage extends StatelessWidget {
               width: Get.width,
               height: Get.height * 0.65 + 20,
               color: Colors.white,
-              child: n.Column(
-                [
+              child: n.Column([
                   ListTile(
                     leading: Container(
                       width: 64,
@@ -175,7 +174,7 @@ class UqrcodePage extends StatelessWidget {
                           dataModuleShape: QrDataModuleShape.circle,
                           color: Colors.black,
                         ),
-                        embeddedImage: cachedImageProvider(
+                        embeddedImage: Get.height < 640 ? null : cachedImageProvider(
                             UserRepoLocal.to.current.avatar),
                         // embeddedImage: AssetImage('assets/images/logo.png'),
                         embeddedImageStyle: const QrEmbeddedImageStyle(
@@ -190,8 +189,9 @@ class UqrcodePage extends StatelessWidget {
                     bottom: 15,
                     child: Text("扫一扫上面的二维码图案，加我为朋友".tr),
                   ),
-                ],
-              ),
+                ])
+              // 内容居中
+                ..mainAxisAlignment = MainAxisAlignment.center,
             ),
           ),
         ),

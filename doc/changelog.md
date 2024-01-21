@@ -1,3 +1,8 @@
+# 0.2.3
+* 修复 存储空间 Android 统计 appAllBytes 不准确问题；
+* 修复 聊天界面 RenderFlex overflowed 错误；
+* 修复 设置定期导航失效问题；
+
 # 0.2.2
 * The cache size Android APP storageStats.  GetCacheBytes ();  APP cacheBytes for ios macos is defined as NSHomeDirectory() + "/Library/Caches" + NSHomeDirectory() + "/tmp"
 * 其他一些细节调整

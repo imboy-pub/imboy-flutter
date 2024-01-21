@@ -33,7 +33,7 @@ class ExtraItem extends StatelessWidget {
       onTap: onPressed ?? () => Get.snackbar('Tips', '功能暂未实现'),
       child: n.Padding(
         left: 15,
-        top: 13,
+        top: 10,
         right: 15,
         bottom: 0,
         child: n.Column([
