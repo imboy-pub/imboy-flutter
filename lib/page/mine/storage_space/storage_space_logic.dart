@@ -61,6 +61,7 @@ class StorageSpaceLogic extends GetxController {
       state.dataBytes.value =
           (stats['dataBytes'] ?? 0) - state.cacheBytes.value;
     }
+    state.appAllBytes.value = state.appBytes.value + state.cacheBytes.value + state.dataBytes.value;
   }
 
   Future<void> pathList() async {
