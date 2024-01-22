@@ -2,6 +2,7 @@
 * 修复 存储空间 Android 统计 appAllBytes 不准确问题；
 * 修复 聊天界面 RenderFlex overflowed 错误；
 * 修复 设置定期导航失效问题；
+* 修复 sqlite dbPath 不包含 dbVersion（为了方便升级数据表的时候不需要删除、再创建sqlite，不需要copy数据了）；
 
 # 0.2.2
 * The cache size Android APP storageStats.  GetCacheBytes ();  APP cacheBytes for ios macos is defined as NSHomeDirectory() + "/Library/Caches" + NSHomeDirectory() + "/tmp"

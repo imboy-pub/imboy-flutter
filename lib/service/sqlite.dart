@@ -35,7 +35,7 @@ class SqliteService {
   }
 
   Future<String> dbPath() async {
-    String name = "imboy_${UserRepoLocal.to.currentUid}_$_dbVersion.db";
+    String name = "imboy_${UserRepoLocal.to.currentUid}.db";
     return join(await getDatabasesPath(), name);
   }
 
