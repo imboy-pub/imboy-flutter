@@ -1,3 +1,8 @@
+# 0.2.4
+* 修复 把 SqliteService/_initDatabase/0 设置为私有方法，防止并发访问
+* 优化 Copy the database to your file system [link](https://github.com/tekartik/sqflite/blob/master/sqflite/doc/opening_asset_db.md)
+* 升级一些依赖；
+
 # 0.2.3
 * 修复 存储空间 Android 统计 appAllBytes 不准确问题；
 * 修复 聊天界面 RenderFlex overflowed 错误；

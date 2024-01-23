@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/repository/sqlite_ddl.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -21,10 +23,7 @@ class SqliteService {
   static Database? _db;
 
   Future<Database> get db async {
-    if (_db != null) {
-      return _db!;
-    }
-    _db = await initDatabase();
+    _db ??= await _initDatabase();
     return _db!;
   }
 
@@ -39,17 +38,43 @@ class SqliteService {
     return join(await getDatabasesPath(), name);
   }
 
-  Future<Database> initDatabase() async {
+  Future<Database> _initDatabase() async {
     String path = await dbPath();
+
+    // Check if the database exists
+    var exists = await databaseExists(path);
+    if (!exists) {
+      // Should happen only the first time you launch your application
+      iPrint("Creating new copy from asset");
+
+      // Make sure the parent directory exists
+      try {
+        await Directory(dirname(path)).create(recursive: true);
+      } catch (_) {}
+
+      // Copy from asset
+      ByteData data = await rootBundle.load(url.join("assets", "example.db"));
+      List<int> bytes = data.buffer.asUint8List(
+        data.offsetInBytes,
+        data.lengthInBytes,
+      );
+
+      // Write and flush the bytes written
+      await File(path).writeAsBytes(bytes, flush: true);
+    } else {
+      iPrint("Opening existing database");
+    }
+
     // debugPrint("> on open db path {$path}");
     return await openDatabase(
       path,
       version: _dbVersion,
-      readOnly: false,
       onConfigure: _onConfigure,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
       onDowngrade: _onDowngrade,
+      readOnly: false,
+      singleInstance: true, // 重新打开相同的文件是安全的，它会给你相同的数据库。
     );
   }
 
@@ -64,18 +89,11 @@ class SqliteService {
     //注意： 创建多张表，需要执行多次 await db.execute 代码
     //      也就是一条SQL语句一个 db.execute
 
-    // await SqliteDdl.userTag(db);
-    // await db.execute("DROP TABLE IF EXISTS ${ContactRepo.tableName};");
-    // await db.execute("DROP TABLE IF EXISTS ${ConversationRepo.tableName};");
-    // await db.execute("DROP TABLE IF EXISTS ${MessageRepo.tableName};");
-    // await db.execute("DROP TABLE IF EXISTS ${NewFriendRepo.tableName};");
-    // TODO leeyi 2023-04-19
-    // https://www.wangfenjin.com/posts/simple-tokenizer/
-    // await db.execute('''
-    //       CREATE VIRTUAL TABLE t1 USING fts5(x, tokenize = "simple");
-    //     ''');
+    ///  请记住，回调onCreate onUpgrade onDowngrade已经内部包装在事务中，
+    ///  因此无需将语句包装在这些回调内的事务中。
   }
 
+  ///
   /// 如果在调用之前数据库不存在，则调用[onCreate]
   Future _onCreate(Database db, int version) async {
     iPrint("SqliteService_onCreate");

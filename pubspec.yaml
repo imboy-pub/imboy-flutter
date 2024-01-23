@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.2.3
+version: 0.2.4
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -17,7 +17,7 @@ dependencies:
   dio: ^5.4.0 # 网络请求框架
   dio_http2_adapter: ^2.4.0
   web_socket_channel: ^2.4.3
-  url_launcher: ^6.2.3 # 打开url 拨打电话 发短信
+  url_launcher: ^6.2.4 # 打开url 拨打电话 发短信
   # https://juejin.cn/post/6869291513508659213
   webview_flutter: ^4.4.4 # Show web page (CGU)
   flutter_inappwebview: ^6.0.0 # 它允许你将WebView小部件整合到你的Flutter应用中，使用无头WebViews，或者使用In-App浏览器。
@@ -100,7 +100,7 @@ dependencies:
   open_file: ^3.3.2
 
   logger: ^2.0.2+1
-  sentry_flutter: ^7.14.0
+  sentry_flutter: ^7.15.0
 
   # 用于访问加速度计、陀螺仪和磁力计传感器的 Flutter 插件。
   #sensors_plus: ^4.0.1
@@ -179,7 +179,7 @@ dependencies:
   sqflite_common_ffi: ^2.3.2
   #sqlite3: ^1.11.2
   # 一个跨平台插件，用于显示和安排 Flutter 应用程序的本地通知，并能够针对每个平台进行自定义。
-  flutter_local_notifications: ^16.3.1+1
+  flutter_local_notifications: ^16.3.2
   #桌面图标提醒
   flutter_app_badger: ^1.5.0
   # 录音
@@ -225,7 +225,7 @@ dependencies:
   # 视频播放器插件
   video_player: ^2.8.2
   # video_player的插件，支持所有桌面/移动平台。硬件解码器，最佳渲染。通过 FFmpeg 支持大多数格式
-  fvp: ^0.13.0
+  fvp: ^0.13.1
   #fvp: ^0.12.0
   # 标签编辑框
   textfield_tags: ^2.0.2
@@ -317,6 +317,7 @@ flutter:
 
   assets:
     - .env
+    - assets/example.db
     - assets/data/region.json
     - assets/images/splash_bg.png
     - assets/images/logo.png
