@@ -176,11 +176,10 @@ class SendToPage extends StatelessWidget {
   Widget searchBoxBuild(BuildContext context) {
     // TODO leeyi 2023-01-29 16:56:14
     return Container(
-      margin: const EdgeInsets.only(top: 58.0, left: 0, right: 0),
-      padding: const EdgeInsets.only(left: 10),
+      margin: const EdgeInsets.only(top: 58.0, left: 12),
       color: Colors.white,
       // color: Colors.red,
-      width: Get.width,
+      width: Get.width - 20,
       height: 48.0,
       child: InkWell(
         onTap: () {

@@ -175,7 +175,6 @@ class API {
   static const appVersionCheck = '/app_version/check';
   static const sqliteUpgradeDdl = '/app_ddl/get?type=upgrade';
   static const sqliteDowngradeDdl = '/app_ddl/get?type=downgrade';
-  static const sqliteCreateDdl = '/app_ddl/get?type=create';
 
   static const addFriend = '/friend/add';
   static const confirmFriend = '/friend/confirm';

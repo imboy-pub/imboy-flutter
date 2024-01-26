@@ -72,3 +72,4 @@ tripwire
 UserInterfaceState.xcuserstate
 .app_filename
 FlutterMacOS.podspec
+.dev.env

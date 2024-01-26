@@ -380,11 +380,18 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     try {
       String? filepath = await recorder.stopRecorder();
       cancelRecorderSubscriptions();
-      setState(() {
+
+      if (mounted) {
+        setState(() {
+          dbLevel = 0.0;
+          pos = 0;
+          recorderTxt = '00:00.000';
+        });
+      } else {
         dbLevel = 0.0;
         pos = 0;
         recorderTxt = '00:00.000';
-      });
+      }
       // _getDuration();
       return filepath;
     } catch (err) {

@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.2.4
+version: 0.2.5
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -124,7 +124,7 @@ dependencies:
   # 用于校正本地系统与时钟源服务器之前的时间
   ntp: ^2.0.0
   # Flutter 的表情符号选择器
-  emoji_picker_flutter: ^1.6.3
+  emoji_picker_flutter: ^1.6.4
   # 轮播滑块小部件
   carousel_slider: ^4.2.1
   # 具有登录/注册功能的登录小部件，有助于加快开发速度
@@ -317,6 +317,7 @@ flutter:
 
   assets:
     - .env
+    - .dev.env
     - assets/example.db
     - assets/data/region.json
     - assets/images/splash_bg.png

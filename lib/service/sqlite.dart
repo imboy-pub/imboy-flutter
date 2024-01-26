@@ -94,14 +94,10 @@ class SqliteService {
   }
 
   ///
+  /// 因为是 Copy from asset，所以该方法一定不会执行
   /// 如果在调用之前数据库不存在，则调用[onCreate]
   Future _onCreate(Database db, int version) async {
     iPrint("SqliteService_onCreate");
-    try {
-      await SqliteDdl.onCreate(db, version);
-    } catch (e) {
-      iPrint("SqliteService_onCreate error: $e");
-    }
   }
 
   /// 数据库已经存在，且[version]高于上一个数据库

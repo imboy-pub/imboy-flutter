@@ -4,7 +4,6 @@ import 'dart:io' as io;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fvp/fvp.dart';
 import 'package:get/get.dart' as getx;
 import 'package:logger/logger.dart';
@@ -93,7 +92,6 @@ Future<void> init() async {
   iPrint("packageInfo appVsnMajor $appVsnMajor ${packageInfo.toString()}");
   deviceId = await DeviceExt.did;
   iPrint("init deviceId $deviceId");
-  await dotenv.load(fileName: ".env"); //
   // iPrint("> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
 
   getx.Get.put(UserRepoLocal(), permanent: true);

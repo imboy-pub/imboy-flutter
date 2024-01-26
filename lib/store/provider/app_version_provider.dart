@@ -32,13 +32,4 @@ class AppVersionProvider extends HttpClient {
         "AppVersionProvider_sqliteUpgradeDdl resp: ${resp.payload.toString()}");
     return resp.payload['ddl'] ?? [];
   }
-
-  Future<List<String>> sqliteCreateDdl(int version) async {
-    IMBoyHttpResponse resp = await get(API.sqliteCreateDdl, queryParameters: {
-      'version': version,
-    });
-    debugPrint(
-        "AppVersionProvider_sqliteUpgradeDdl resp: ${resp.payload.toString()}");
-    return resp.payload['ddl'] ?? [];
-  }
 }

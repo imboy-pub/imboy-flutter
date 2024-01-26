@@ -1,3 +1,9 @@
+# 0.2.5
+* 新增：引入 .dev.env main_dev.dart 表示开发环境（.dev main.dart 对应生产环境）
+* 修复：聊天消息，“转发给”页面兼容性修复
+* 修复：sqlite _onCreate 的时候，使用了“Copy from asset”方案，所以该方法一定不会执行删除SqliteDdl里面的相关不再需要的代码；
+* 其他一些细节调整，一个依赖升级
+
 # 0.2.4
 * 修复 把 SqliteService/_initDatabase/0 设置为私有方法，防止并发访问
 * 优化 Copy the database to your file system [link](https://github.com/tekartik/sqflite/blob/master/sqflite/doc/opening_asset_db.md)

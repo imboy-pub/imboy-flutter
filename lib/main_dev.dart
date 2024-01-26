@@ -66,7 +66,7 @@ void run() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env"); //
+  await dotenv.load(fileName: ".dev.env"); //
   await init();
   // await initJPush();
   if (kDebugMode) {

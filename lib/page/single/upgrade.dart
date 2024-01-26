@@ -29,10 +29,10 @@ class UpgradePage extends StatefulWidget {
   });
 
   @override
-  _UpgradePageState createState() => _UpgradePageState();
+  UpgradePageState createState() => UpgradePageState();
 }
 
-class _UpgradePageState extends State<UpgradePage> {
+class UpgradePageState extends State<UpgradePage> {
   int downloadId = 0;
   UpgradeCard? _upgradeCard;
   String downloadKey = 'downloaderSendPort';
@@ -315,10 +315,10 @@ class UpgradeCard extends StatefulWidget {
     this.progress = 0,
   });
 
-  final _upgradeCardState = _UpgradeCardState();
+  // final upgradeCardState = UpgradeCardState();
 
   @override
-  _UpgradeCardState createState() => _upgradeCardState;
+  UpgradeCardState createState() => UpgradeCardState();
 
   /// 外部更新函数
   void updateProgress({
@@ -334,7 +334,7 @@ class UpgradeCard extends StatefulWidget {
     int? maxLength,
     int? currentLength,
   }) =>
-      _upgradeCardState.updateProgress(
+      updateProgress(
         title: title,
         message: message,
         positiveBtn: positiveBtn,
@@ -349,7 +349,7 @@ class UpgradeCard extends StatefulWidget {
       );
 }
 
-class _UpgradeCardState extends State<UpgradeCard> {
+class UpgradeCardState extends State<UpgradeCard> {
   /// 内部更新函数
   void updateProgress({
     required bool hasLinearProgress,
