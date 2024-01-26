@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class StorageSpaceState {
   RxInt totalDiskSpace = 0.obs;
@@ -30,9 +29,10 @@ class StorageSpaceState {
   // 可清理所选聊天记录里的图片、视频、和文件，或者清空所选聊天记录里的所有聊天信息。
   RxInt chatHistoryBytes = 0.obs; // 属于用户数据的一部分
 
-  RxInt appAllBytes = 0.obs; // appBytes + dataBytes（dataBytes 需不包含cache） + cacheBytes
+  RxInt appAllBytes =
+      0.obs; // appBytes + dataBytes（dataBytes 需不包含cache） + cacheBytes
 
-  RxList<CacheObject>? cacheItems;
+  // RxList<CacheObject>? cacheItems;
 
   StorageSpaceState() {
     ///Initialize variables

@@ -122,5 +122,7 @@
 		</array>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
+		<key>com.apple.security.files.user-selected.read-only</key>
+         <true/>
 	</dict>
 </plist>

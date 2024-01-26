@@ -635,11 +635,10 @@ packages:
   flutter_cache_manager:
     dependency: "direct main"
     description:
-      path: flutter_cache_manager
-      ref: leeyi
-      resolved-ref: "31de90baa8ec65a997abf75abe2b8046fcf5785a"
-      url: "https://gitee.com/imboy-tripartite-deps/flutter_cache_manager.git"
-    source: git
+      name: flutter_cache_manager
+      sha256: "8207f27539deb83732fdda03e259349046a39a4c767269285f449ade355d54ba"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
     version: "3.3.1"
   flutter_chat_types:
     dependency: transitive

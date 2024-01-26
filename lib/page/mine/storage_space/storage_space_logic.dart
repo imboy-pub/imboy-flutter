@@ -25,17 +25,6 @@ class StorageSpaceLogic extends GetxController {
     // [        ] I/System.out(30689): deleteFiles: /data/user/0/pub.imboy.apk/cache/imboy_cache_key
     // [        ] I/System.out(30689): deleteFiles: /data/user/0/pub.imboy.apk/files
     // [  +11 ms] I/System.out(30689): deleteFiles: /storage/emulated/0/Android/data/pub.imboy.apk/cache
-    /*
-    try {
-      File file = File(path);
-      state.chatHistoryBytes.value = await file.length();
-    } catch (e) {
-      iPrint("Error while getting file size: $e");
-    }
-    // state.cacheBytes.value += await cacheManager.store.getCacheSize();
-    iPrint(
-        "StorageSpace_logic getCacheSize() ${await cacheManager.store.getCacheSize()}");
-    */
   }
 
   Future<bool> clearAllCache() async {
@@ -61,7 +50,8 @@ class StorageSpaceLogic extends GetxController {
       state.dataBytes.value =
           (stats['dataBytes'] ?? 0) - state.cacheBytes.value;
     }
-    state.appAllBytes.value = state.appBytes.value + state.cacheBytes.value + state.dataBytes.value;
+    state.appAllBytes.value =
+        state.appBytes.value + state.cacheBytes.value + state.dataBytes.value;
   }
 
   Future<void> pathList() async {

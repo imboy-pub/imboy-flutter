@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:image_picker/image_picker.dart';
 
@@ -32,9 +33,10 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   final logic = Get.put(PersonalInfoLogic());
   final PersonalInfoState state = Get.find<PersonalInfoLogic>().state;
   String currentUserAvatar = UserRepoLocal.to.current.avatar;
+  final ImagePickerPlatform _picker = ImagePickerPlatform.instance;
 
-  ///拍摄照片
-  Future fromCamera() async {
+  Future getImageFromSource(ImageSource source) async {
+    iPrint("getImageFromSource start");
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
@@ -42,32 +44,18 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       Get.snackbar('提示'.tr, '网络连接异常'.tr);
       return;
     }
+    try {
+      final XFile? avatarFile = await _picker.getImageFromSource(
+        source: source,
+      );
 
-    await ImagePicker()
-        .pickImage(source: ImageSource.camera)
-        .then((avatarFile) {
+      iPrint("getImageFromSource ${avatarFile.toString()}");
       if (avatarFile != null) {
         return cropImage(avatarFile);
       }
-    });
-  }
-
-  ///从相册选取
-  Future fromGallery() async {
-    // 检查网络状态
-    var connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none) {
-      Get.close();
-      Get.snackbar('提示'.tr, '网络连接异常'.tr);
-      return;
+    } catch (e) {
+      iPrint("getImageFromSource e ${e.toString()}");
     }
-    await ImagePicker()
-        .pickImage(source: ImageSource.gallery)
-        .then((avatarFile) {
-      if (avatarFile != null) {
-        return cropImage(avatarFile);
-      }
-    });
   }
 
   void cropImage(XFile x) async {
@@ -161,7 +149,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               child: n.Wrap([
                 Center(
                   child: TextButton(
-                    onPressed: () => fromCamera(),
+                    onPressed: () => getImageFromSource(ImageSource.camera),
                     child: Text(
                       'button_taking_pictures'.tr,
                       textAlign: TextAlign.center,
@@ -176,7 +164,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                 const Divider(),
                 Center(
                   child: TextButton(
-                    onPressed: () => fromGallery(),
+                    onPressed: () => getImageFromSource(ImageSource.gallery),
                     child: Text(
                       '从相册选择'.tr,
                       textAlign: TextAlign.center,
