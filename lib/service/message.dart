@@ -359,7 +359,7 @@ class MessageService extends GetxService {
     // 确认消息
     iPrint(
         "> rtc msg CLIENT_ACK,C2C,${data['id']},$deviceId, exited $exited, ${DateTime.now()}");
-    MessageService.to.sendAckMsg('S2C', data['id']);
+    MessageService.to.sendAckMsg('C2C', data['id']);
     if (exited != null && exited > 0) {
       return;
     }
