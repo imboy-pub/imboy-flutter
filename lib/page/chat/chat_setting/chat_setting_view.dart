@@ -167,7 +167,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.ChatBg,
+      backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(
         leading: BackButton(
           onPressed: () {

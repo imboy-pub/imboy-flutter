@@ -301,6 +301,7 @@ class StorageSpacePage extends StatelessWidget {
                     title: n.Row([
                       Text('用户数据'.tr),
                       const Expanded(child: SizedBox()),
+                      /* TODO 2024-01-29 17:42:21
                       ElevatedButton(
                         onPressed: () {
                           logic.pathList();
@@ -327,6 +328,7 @@ class StorageSpacePage extends StatelessWidget {
                           ),
                         ),
                       ),
+                      */
                     ]),
                     subtitle: n.Column([
                       n.Row([

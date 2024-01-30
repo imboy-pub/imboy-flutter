@@ -55,7 +55,7 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
-      backgroundColor: AppColors.BgColor,
+      backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(title: '新注册的朋友'.tr),
       body: SlidableAutoCloseBehavior(
           child: n.Column([

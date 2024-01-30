@@ -46,7 +46,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
       ),
     );
     return Scaffold(
-      backgroundColor: AppColors.ChatBg,
+      backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(
         title: '通过朋友验证'.tr,
         backgroundColor: Colors.white,

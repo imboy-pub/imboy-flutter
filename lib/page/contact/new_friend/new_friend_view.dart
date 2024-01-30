@@ -38,7 +38,7 @@ class NewFriendPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
-      backgroundColor: AppColors.ChatBg,
+      backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(
         title: '新的朋友'.tr,
         rightDMActions: [

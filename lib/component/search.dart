@@ -45,7 +45,7 @@ Widget searchBar(
       borderRadius: BorderRadius.all(Radius.circular(10.0)),
     )),
     hintStyle: MaterialStateProperty.all(TextStyle(
-      fontSize: 16,
+      fontSize: 14,
       color: AppColors.LineColor.withOpacity(0.7),
     )),
 
@@ -100,7 +100,9 @@ class SearchBarDelegate extends SearchDelegate {
         child: IconButton(
           tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
           icon: const Center(child: Icon(Icons.clear)),
-          onPressed: () => query = '',
+          onPressed: () {
+            query = '';
+          },
         ),
       ),
     ];
@@ -117,6 +119,8 @@ class SearchBarDelegate extends SearchDelegate {
       onPressed: () {
         // close(context, null);
         close(context, 'error');
+        // 收起键盘
+        FocusScope.of(context).requestFocus(FocusNode());
       },
     );
   }

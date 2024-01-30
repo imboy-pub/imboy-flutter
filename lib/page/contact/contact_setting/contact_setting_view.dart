@@ -64,7 +64,7 @@ class ContactSettingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
-      backgroundColor: AppColors.ChatBg,
+      backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(
         title: '资料设置'.tr,
       ),

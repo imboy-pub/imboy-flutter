@@ -43,7 +43,8 @@ class WebSocketService {
   SocketStatus? _socketStatus; // socket状态
   // Timer? _heartBeat; // 心跳定时器 使用 IOWebSocketChannel 的心跳机制
   // _heartTimes 必须比 服务端 idle_timeout 小一些
-  final int _heartTimes = 100000; // 心跳间隔(毫秒)
+  // 服务端设置为128秒，这个设置为120秒，不要超过128秒
+  final int _heartTimes = 120000; // 心跳间隔(毫秒)
   final int _reconnectMax = 10; // 重连次数，默认10次
   int _reconnectTimes = 0; // 重连计数器
   Timer? _reconnectTimer; // 重连定时器
@@ -229,7 +230,7 @@ class WebSocketService {
 
   /// 关闭WebSocket
   void closeSocket([bool nullInstance = true]) {
-    iPrint('> ws closeSocket');
+    iPrint('> ws closeSocket $nullInstance');
     // destroyHeartBeat();
     destroyReconnectTimer();
     if (_webSocketChannel != null) {

@@ -834,7 +834,7 @@ class ChatPageState extends State<ChatPage> {
       )
     ];
     return Scaffold(
-      backgroundColor: AppColors.ChatBg,
+      backgroundColor: AppColors.AppBarColor,
       appBar: _showAppBar
           ? PageAppBar(
               title: newGroupName == "" ? widget.peerTitle : newGroupName,

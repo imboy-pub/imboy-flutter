@@ -46,7 +46,7 @@ class ApplyFriendPage extends StatelessWidget {
       ),
     );
     return Scaffold(
-      backgroundColor: AppColors.ChatBg,
+      backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(
         title: '申请添加朋友'.tr,
         backgroundColor: Colors.white,

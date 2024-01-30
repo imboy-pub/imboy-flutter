@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/page/contact/add_friend/add_friend_view.dart';
 import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_view.dart';
+import 'package:imboy/page/group/group_launch/group_launch_view.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/page/uqrcode/uqrcode_view.dart';
 import 'package:niku/namespace.dart' as n;
@@ -61,13 +62,12 @@ class RightButtonList extends StatelessWidget {
         InkWell(
           onTap: () {
             Navigator.of(context).pop();
-            /*
+
             Get.to(
-              () => AddFriendPage(),
+              () => GroupLaunchPage(),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
             );
-            */
           },
           child: n.Row([
             n.Padding(
