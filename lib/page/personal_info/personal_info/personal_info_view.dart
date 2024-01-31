@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:image_picker/image_picker.dart';
 
 import 'package:imboy/component/helper/crop_image.dart';
 import 'package:imboy/component/helper/func.dart';

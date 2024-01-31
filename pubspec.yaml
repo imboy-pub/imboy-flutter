@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.2.6
+version: 0.2.7
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -17,24 +17,18 @@ dependencies:
   dio: ^5.4.0 # 网络请求框架
   dio_http2_adapter: ^2.4.0
   web_socket_channel: ^2.4.3
-  url_launcher: ^6.2.4 # 打开url 拨打电话 发短信
-  # https://juejin.cn/post/6869291513508659213
-  webview_flutter: ^4.4.4 # Show web page (CGU)
-  flutter_inappwebview: ^6.0.0 # 它允许你将WebView小部件整合到你的Flutter应用中，使用无头WebViews，或者使用In-App浏览器。
   mime: ^1.0.4
   connectivity_plus: ^5.0.2 # 是否联网及网络类型
 
   # UI
+  # 从实用程序 Widget 和带有点级联的扩展中构建 Flutter UI。流畅地开发，没有头痛和嵌套地狱。
+  niku: ^2.4.3
+    #niku:
+    # path: plugin/niku
+    # git:
+    #   url: https://gitee.com/imboy-tripartite-deps/niku.git
+  #   ref: main
   cupertino_icons: ^1.0.6 # Use with the CupertinoIcons class for iOS style icons.
-  #get: ^4.6.6 # getx 状态管理框架
-  # get: ^5.0.0-release-candidate-5
-  get:
-    # path: plugin/getx
-    git:
-      url: https://gitee.com/imboy-tripartite-deps/getx.git
-      ref: leeyi
-  qr_flutter: ^4.1.0 # 二维码生成
-  photo_view: ^0.14.0 #
   lpinyin: ^2.0.3 #
   #azlistview: ^2.0.0
   azlistview:
@@ -42,10 +36,25 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/azlistview.git
       ref: leeyi
 
+  #get: ^4.6.6 # getx 状态管理框架
+  # get: ^5.0.0-release-candidate-5
+  get:
+    # path: plugin/getx
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/getx.git
+      ref: leeyi
+
+  url_launcher: ^6.2.4 # 打开url 拨打电话 发短信
+  # https://juejin.cn/post/6869291513508659213
+  webview_flutter: ^4.4.4 # Show web page (CGU)
+  flutter_inappwebview: ^6.0.0 # 它允许你将WebView小部件整合到你的Flutter应用中，使用无头WebViews，或者使用In-App浏览器。
+
+
+  qr_flutter: ^4.1.0 # 二维码生成
+
 
   event_bus: ^2.0.0
-
-
+  jose: ^0.3.4 # jwt 插件
   encrypt: ^5.0.3 # 一组基于 PointyCastle 的高级 API，用于双向加密。 RSA AES
   # 在纯 Dart 中实现的一组加密函数。  SHA-* MD5 HMAC
   # crypto: ^3.0.2
@@ -56,8 +65,6 @@ dependencies:
   # cryptography_flutter: ^2.0.2
   # e2ee
   #webcrypto: ^0.5.2
-  jose: ^0.3.4 # jwt 插件
-
   #json序列化和反序列化用的
   #json_annotation: ^4.8.1
   permission_handler: ^11.2.0
@@ -70,10 +77,6 @@ dependencies:
   #    path: permission_handler
   #    tag: permission_handler_android_v10.2.1
       #ref: master
-  camera: ^0.10.5+9
-  #wechat_camera_picker: ^4.2.0-dev.3
-  wechat_camera_picker: ^4.2.0-dev.1
-  wechat_assets_picker: ^9.0.0-dev.2
   # 缓存
   shared_preferences: ^2.2.2
   #  Flutter Secure Storage 提供 API 将数据存储在安全存储中。iOS 中使用 Keychain，Android 中使用基于 KeyStore 的解决方案。
@@ -82,6 +85,13 @@ dependencies:
   flutter_cache_manager: ^3.3.1
   # 在运行时从文件加载环境变量.env
   flutter_dotenv: ^5.1.0
+
+  camera: ^0.10.5+9
+  #wechat_camera_picker: ^4.2.0-dev.3
+  wechat_camera_picker: ^4.2.0-dev.1
+  wechat_assets_picker: ^9.0.0-dev.2
+  # Photo View provides a gesture sensitive zoomable widget. Photo View is largely used to show interactive images and other stuff such as SVG.
+  photo_view: ^0.14.0 #
   # 照片管理器
   photo_manager: 3.0.0-dev.5
   # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
@@ -93,9 +103,18 @@ dependencies:
   image_picker_platform_interface: ^2.9.3
   file_picker: ^6.1.1
   open_file: ^3.3.2
+  # image_crop: ^0.4.1
+  # image_crop:
+  #  path: plugin/image_crop
+  #
+  image: ^4.1.4
+  image_crop:
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/image_crop.git
+      ref: leeyi
 
   logger: ^2.0.2+1
-  sentry_flutter: ^7.15.0
+  sentry_flutter: ^7.16.0
 
   # 用于访问加速度计、陀螺仪和磁力计传感器的 Flutter 插件。
   #sensors_plus: ^4.0.1
@@ -119,13 +138,13 @@ dependencies:
   # 用于校正本地系统与时钟源服务器之前的时间
   ntp: ^2.0.0
   # Flutter 的表情符号选择器
-  emoji_picker_flutter: ^1.6.4
+  emoji_picker_flutter: ^2.0.0
   # 轮播滑块小部件
   carousel_slider: ^4.2.1
   # 具有登录/注册功能的登录小部件，有助于加快开发速度
   flutter_login: ^5.0.0
   # 进度条
-  percent_indicator: ^4.2.3
+  #percent_indicator: ^4.2.3
   # 一个干净和轻量级的加载/吐司小部件
   flutter_easyloading: ^3.0.5
   # 生成闪屏页
@@ -138,15 +157,6 @@ dependencies:
   #    url: https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git
   #    ref: leeyi
 
-  # image_crop: ^0.4.1
-  # image_crop:
-  #  path: plugin/image_crop
-  #
-  image: ^4.1.4
-  image_crop:
-    git:
-      url: https://gitee.com/imboy-tripartite-deps/image_crop.git
-      ref: leeyi
   # Flutter 的弹出窗口。弹出窗口是一种瞬态视图，当您点击某个控件或某个区域时，它会出现在屏幕上其他内容的上方。
   popover: ^0.2.9
   # popup_menu: ^1.0.5
@@ -154,13 +164,6 @@ dependencies:
     git:
       url: https://gitee.com/imboy-tripartite-deps/popup_menu.git
       ref: master
-  # 从实用程序 Widget 和带有点级联的扩展中构建 Flutter UI。流畅地开发，没有头痛和嵌套地狱。
-  niku: ^2.4.3
-  #niku:
-    # path: plugin/niku
-    # git:
-    #   url: https://gitee.com/imboy-tripartite-deps/niku.git
-    #   ref: main
   # 二维码扫描
   mobile_scanner: ^4.0.0
   #  mobile_scanner:
@@ -203,7 +206,7 @@ dependencies:
   clock: ^1.1.1
   # 用于 HTTP 请求的可组合、多平台、基于Future的 API。
   http: ^1.2.0
-  device_info_plus: ^9.1.1
+  device_info_plus: ^9.1.2
   package_info_plus: ^5.0.1
   # Flutter 的 Markdown 渲染器
   flutter_markdown: ^0.6.18+3
@@ -220,7 +223,7 @@ dependencies:
   # 视频播放器插件
   video_player: ^2.8.2
   # video_player的插件，支持所有桌面/移动平台。硬件解码器，最佳渲染。通过 FFmpeg 支持大多数格式
-  fvp: ^0.13.1
+  fvp: ^0.14.0
   #fvp: ^0.12.0
   # 标签编辑框
   textfield_tags: ^2.0.2

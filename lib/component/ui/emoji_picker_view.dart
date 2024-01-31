@@ -1,194 +1,196 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 
 // ignore: implementation_imports, unnecessary_import
-import 'package:emoji_picker_flutter/src/category_emoji.dart'
+import 'package:emoji_picker_flutter/src/category_view/category_emoji.dart'
     show CategoryEmoji;
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:imboy/config/const.dart';
 
-/// EmojiPicker Implementation
-class EmojiPickerView extends EmojiPickerBuilder {
-  /// Constructor
-  EmojiPickerView(
+/// Customized IMBoy category view
+class EmojiCategoryView extends CategoryView {
+  const EmojiCategoryView(
     super.config,
     super.state,
-    this.handleSendPressed, {
+    super.tabController,
+    super.pageController, {
     super.key,
   });
 
   @override
-  // ignore: library_private_types_in_public_api
-  _EmojiPickerViewState createState() => _EmojiPickerViewState();
-
-  /// See [AttachmentButton.onPressed]
-  final void Function()? handleSendPressed;
+  EmojiCategoryViewState createState() => EmojiCategoryViewState();
 }
 
-class _EmojiPickerViewState extends State<EmojiPickerView>
-    with SingleTickerProviderStateMixin {
-  PageController? _pageController;
-  TabController? _tabController;
-
+class EmojiCategoryViewState extends State<EmojiCategoryView>
+    with SkinToneOverlayStateMixin {
   @override
-  void initState() {
-    var initCategory = widget.state.categoryEmoji.indexWhere(
-        (element) => element.category == widget.config.initCategory);
-    if (initCategory == -1) {
-      initCategory = 0;
-    }
-    _tabController = TabController(
-        initialIndex: initCategory,
-        length: widget.state.categoryEmoji.length,
-        vsync: this);
-    _pageController = PageController(initialPage: initCategory);
-    super.initState();
+  Widget build(BuildContext context) {
+    return Container(
+      color: widget.config.categoryViewConfig.backgroundColor,
+      child: n.Row([
+        Expanded(
+          child: EmojiTabBar(
+            widget.config,
+            widget.tabController,
+            widget.pageController,
+            widget.state.categoryEmoji,
+            closeSkinToneOverlay,
+          ),
+        ),
+        _buildBackspaceButton(),
+      ]),
+    );
   }
+
+  Widget _buildBackspaceButton() {
+    if (widget.config.categoryViewConfig.showBackspaceButton) {
+      return BackspaceButton(
+        widget.config,
+        widget.state.onBackspacePressed,
+        widget.state.onBackspaceLongPressed,
+        widget.config.categoryViewConfig.backspaceColor,
+      );
+    }
+    return const SizedBox.shrink();
+  }
+}
+
+class EmojiTabBar extends StatelessWidget {
+  const EmojiTabBar(
+    this.config,
+    this.tabController,
+    this.pageController,
+    this.categoryEmojis,
+    this.closeSkinToneOverlay, {
+    super.key,
+  });
+
+  final Config config;
+
+  final TabController tabController;
+
+  final PageController pageController;
+
+  final List<CategoryEmoji> categoryEmojis;
+
+  final VoidCallback closeSkinToneOverlay;
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final emojiSize = widget.config.getEmojiSize(constraints.maxWidth);
-
-        return Container(
-          color: widget.config.bgColor,
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: TabBar(
-                      labelColor: widget.config.iconColorSelected,
-                      indicatorColor: widget.config.indicatorColor,
-                      unselectedLabelColor: widget.config.iconColor,
-                      controller: _tabController,
-                      labelPadding: EdgeInsets.zero,
-                      onTap: (index) {
-                        _pageController!.jumpToPage(index);
-                      },
-                      tabs: widget.state.categoryEmoji
-                          .asMap()
-                          .entries
-                          .map<Widget>((item) =>
-                              _buildCategory(item.key, item.value.category))
-                          .toList(),
-                    ),
-                  ),
-                  IconButton(
-                    padding: const EdgeInsets.only(bottom: 2),
-                    icon: Icon(
-                      Icons.backspace,
-                      color: widget.config.backspaceColor,
-                    ),
-                    onPressed: () {
-                      widget.state.onBackspacePressed!();
-                    },
-                  ),
-                  // IconButton(
-                  //   // iconSize: 16,
-                  //   onPressed: () {
-                  //     widget.handleSendPressed!();
-                  //   },
-                  //   // backgroundColor: Colors.lightGreen,
-                  //   icon: Icon(Icons.send),
-                  // ),
-                ],
-              ),
-              Flexible(
-                child: PageView.builder(
-                  itemCount: widget.state.categoryEmoji.length,
-                  controller: _pageController,
-                  onPageChanged: (index) {
-                    _tabController!.animateTo(
-                      index,
-                      duration: widget.config.tabIndicatorAnimDuration,
-                    );
-                  },
-                  itemBuilder: (context, index) =>
-                      _buildPage(emojiSize, widget.state.categoryEmoji[index]),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+    return SizedBox(
+      height: config.categoryViewConfig.tabBarHeight,
+      child: TabBar(
+        labelColor: config.categoryViewConfig.iconColorSelected,
+        indicatorColor: config.categoryViewConfig.indicatorColor,
+        unselectedLabelColor: config.categoryViewConfig.iconColor,
+        dividerColor: config.categoryViewConfig.dividerColor,
+        controller: tabController,
+        labelPadding: const EdgeInsets.only(top: 1.0),
+        indicatorSize: TabBarIndicatorSize.label,
+        indicator: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.black12,
+        ),
+        onTap: (index) {
+          closeSkinToneOverlay();
+          pageController.jumpToPage(index);
+        },
+        tabs: categoryEmojis
+            .asMap()
+            .entries
+            .map<Widget>(
+                (item) => _buildCategory(item.key, item.value.category))
+            .toList(),
+      ),
     );
   }
 
   Widget _buildCategory(int index, Category category) {
     return Tab(
-      icon: Icon(
-        widget.config.getIconForCategory(category),
-      ),
-    );
-  }
-
-  Widget _buildButtonWidget(
-      {required VoidCallback onPressed, required Widget child}) {
-    if (widget.config.buttonMode == ButtonMode.MATERIAL) {
-      return TextButton(
-        onPressed: onPressed,
-        // ignore: sort_child_properties_last
-        child: child,
-        style: ButtonStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),
-      );
-    }
-    return CupertinoButton(
-        padding: EdgeInsets.zero, onPressed: onPressed, child: child);
-  }
-
-  Widget _buildPage(double emojiSize, CategoryEmoji categoryEmoji) {
-    // Display notice if recent has no entries yet
-    if (categoryEmoji.category == Category.RECENT &&
-        categoryEmoji.emoji.isEmpty) {
-      return _buildNoRecent();
-    }
-    // Build page normally
-    return GridView.count(
-      scrollDirection: Axis.vertical,
-      physics: const ScrollPhysics(),
-      shrinkWrap: true,
-      primary: true,
-      padding: const EdgeInsets.all(0),
-      crossAxisCount: widget.config.columns,
-      mainAxisSpacing: widget.config.verticalSpacing,
-      crossAxisSpacing: widget.config.horizontalSpacing,
-      children: categoryEmoji.emoji
-          .map<Widget>((item) => _buildEmoji(emojiSize, categoryEmoji, item))
-          .toList(),
-    );
-  }
-
-  Widget _buildEmoji(
-    double emojiSize,
-    CategoryEmoji categoryEmoji,
-    Emoji emoji,
-  ) {
-    return _buildButtonWidget(
-        onPressed: () {
-          widget.state.onEmojiSelected(categoryEmoji.category, emoji);
-        },
-        child: FittedBox(
-          fit: BoxFit.fill,
-          child: Text(
-            emoji.emoji,
-            textScaler: const TextScaler.linear(1.0),
-            style: TextStyle(
-              fontSize: emojiSize,
-              backgroundColor: Colors.transparent,
-            ),
+      child: Padding(
+        padding: const EdgeInsets.all(6.0),
+        child: Icon(
+          getIconForCategory(
+            config.categoryViewConfig.categoryIcons,
+            category,
           ),
-        ));
-  }
-
-  Widget _buildNoRecent() {
-    return Center(
-      child: Text(
-        'No Recents'.tr,
-        style: const TextStyle(fontSize: 20, color: Colors.black26),
-        textAlign: TextAlign.center,
+          size: 28,
+        ),
       ),
     );
+  }
+}
+
+/// Custom IMBoy Search view implementation
+class EmojiSearchView extends SearchView {
+  const EmojiSearchView(super.config, super.state, super.showEmojiView,
+      {super.key});
+
+  @override
+  EmojiSearchViewState createState() => EmojiSearchViewState();
+}
+
+class EmojiSearchViewState extends SearchViewState {
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final emojiSize =
+          widget.config.emojiViewConfig.getEmojiSize(constraints.maxWidth);
+      final emojiBoxSize =
+          widget.config.emojiViewConfig.getEmojiBoxSize(constraints.maxWidth);
+      return Container(
+        color: widget.config.searchViewConfig.backgroundColor,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: emojiBoxSize + 8.0,
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                scrollDirection: Axis.horizontal,
+                itemCount: results.length,
+                itemBuilder: (context, index) {
+                  return buildEmoji(
+                    results[index],
+                    emojiSize,
+                    emojiBoxSize,
+                  );
+                },
+              ),
+            ),
+            Row(
+              children: [
+                IconButton(
+                  onPressed: widget.showEmojiView,
+                  color: widget.config.searchViewConfig.buttonColor,
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: widget.config.searchViewConfig.buttonIconColor,
+                    size: 28.0,
+                  ),
+                ),
+                Expanded(
+                  child: TextField(
+                    onChanged: onTextInputChanged,
+                    focusNode: focusNode,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      hintText: 'Search',
+                      hintStyle: TextStyle(
+                        color: AppColors.ItemOnColor,
+                        fontWeight: FontWeight.normal,
+                      ),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
 }

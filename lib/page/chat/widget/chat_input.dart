@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_chat_ui/src/widgets/state/inherited_chat_theme.dart'
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/emoji_picker_view.dart';
 import 'package:imboy/component/ui/image_button.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:niku/namespace.dart' as n;
@@ -44,6 +46,7 @@ Widget _buildVoiceButton(BuildContext context) {
 InputType _initType = InputType.text;
 
 double _softKeyHeight = 198;
+double fontSize = 22 * (Platform.isIOS ? 1.2 : 1.0);
 
 class ChatInput extends StatefulWidget {
   const ChatInput({
@@ -295,27 +298,73 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                 );
             },
             config: Config(
-              columns: 7,
-              // Issue: https://github.com/flutter/flutter/issues/28894
-              emojiSizeMax: 24 * (GetPlatform.isIOS ? 1.30 : 1.0),
-              verticalSpacing: 0,
-              horizontalSpacing: 0,
-              initCategory: Category.RECENT,
-              bgColor: const Color(0xFFF2F2F2),
-              indicatorColor: Colors.black87,
-              iconColorSelected: Colors.black87,
-              iconColor: Colors.grey,
-              backspaceColor: Colors.black54,
-              recentsLimit: 19,
-              tabIndicatorAnimDuration: kTabScrollDuration,
-              categoryIcons: const CategoryIcons(),
-              buttonMode: ButtonMode.MATERIAL,
-            ),
-            customWidget: (Config config, EmojiViewState state) =>
-                EmojiPickerView(
-              config,
-              state,
-              _handleSendPressed,
+              height: 400,
+              checkPlatformCompatibility: true,
+              emojiTextStyle: TextStyle(fontSize: fontSize),
+              emojiViewConfig: EmojiViewConfig(
+                columns: 8,
+                emojiSizeMax: fontSize,
+                verticalSpacing: 0,
+                horizontalSpacing: 0,
+                recentsLimit: 19,
+                // tabIndicatorAnimDuration: kTabScrollDuration,
+                // categoryIcons: const CategoryIcons(),
+                buttonMode: ButtonMode.MATERIAL,
+                backgroundColor: Colors.white,
+              ),
+              swapCategoryAndBottomBar: true,
+              skinToneConfig: const SkinToneConfig(),
+              categoryViewConfig: CategoryViewConfig(
+                tabBarHeight: 48,
+                backgroundColor: Colors.white,
+                dividerColor: Colors.white,
+                indicatorColor: AppColors.primaryElement,
+                iconColorSelected: Colors.black,
+                iconColor: AppColors.tabBarElement,
+                customCategoryView: (
+                  config,
+                  state,
+                  tabController,
+                  pageController,
+                ) {
+                  return EmojiCategoryView(
+                    config,
+                    state,
+                    tabController,
+                    pageController,
+                  );
+                },
+                categoryIcons: const CategoryIcons(
+                  recentIcon: Icons.access_time_outlined,
+                  smileyIcon: Icons.emoji_emotions_outlined,
+                  animalIcon: Icons.cruelty_free_outlined,
+                  foodIcon: Icons.coffee_outlined,
+                  activityIcon: Icons.sports_soccer_outlined,
+                  travelIcon: Icons.directions_car_filled_outlined,
+                  objectIcon: Icons.lightbulb_outline,
+                  symbolIcon: Icons.emoji_symbols_outlined,
+                  flagIcon: Icons.flag_outlined,
+                ),
+              ),
+              bottomActionBarConfig: const BottomActionBarConfig(
+                backgroundColor: Colors.white,
+                buttonColor: Colors.white,
+                buttonIconColor: AppColors.ItemOnColor,
+              ),
+              searchViewConfig: SearchViewConfig(
+                backgroundColor: Colors.white,
+                customSearchView: (
+                  config,
+                  state,
+                  showEmojiView,
+                ) {
+                  return EmojiSearchView(
+                    config,
+                    state,
+                    showEmojiView,
+                  );
+                },
+              ),
             ),
           ),
         ),
@@ -354,24 +403,25 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         widget.onTextFieldTap;
       },
       style: InheritedChatTheme.of(ctx).theme.inputTextStyle.copyWith(
-            color: InheritedChatTheme.of(ctx).theme.inputTextColor,
-          ),
+          color: InheritedChatTheme.of(ctx).theme.inputTextColor,
+          height: 1.8,
+          fontSize: fontSize),
       // 点击键盘的动作按钮时的回调，参数为当前输入框中的值
       onSubmitted: (_) => _handleSendPressed(),
     );
 
     return n.Stack([
-        Offstage(
-          // ignore: sort_child_properties_last
-          child: inputButton,
-          offstage: inputType == InputType.voice,
-        ),
-        Offstage(
-          // ignore: sort_child_properties_last
-          child: voiceButton,
-          offstage: inputType != InputType.voice,
-        ),
-      ]);
+      Offstage(
+        // ignore: sort_child_properties_last
+        child: inputButton,
+        offstage: inputType == InputType.voice,
+      ),
+      Offstage(
+        // ignore: sort_child_properties_last
+        child: voiceButton,
+        offstage: inputType != InputType.voice,
+      ),
+    ]);
   }
 
   Widget buildLeftButton() {
@@ -449,9 +499,9 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             child: Container(
               padding: EdgeInsets.fromLTRB(
                 query.padding.left,
-                0,
+                4,
                 query.padding.right,
-                query.viewInsets.bottom + query.padding.bottom,
+                query.viewInsets.bottom + query.padding.bottom + 4,
               ),
               child: n.Column([
                 widget.quoteTipsWidget ?? const SizedBox.shrink(),
@@ -468,16 +518,16 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                   _textController.text.isEmpty
                       ? buildExtra()
                       : IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: _handleSendPressed,
-                    padding: const EdgeInsets.only(left: 0),
-                  ),
+                          icon: const Icon(Icons.send),
+                          onPressed: _handleSendPressed,
+                          padding: const EdgeInsets.only(left: 0),
+                        ),
                 ]),
                 inputType == InputType.emoji || inputType == InputType.extra
                     ? const Divider()
                     : const SizedBox.shrink(), // 横线
                 _buildBottomContainer(child: _buildBottomItems()),
-              ],),
+              ]),
             ),
           ),
         ),
