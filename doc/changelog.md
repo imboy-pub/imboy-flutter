@@ -1,3 +1,6 @@
+# 0.2.8
+* 还原 ./lib/page/single/upgrade.dart代码，解决点击“立即更新”无效的问题；
+
 # 0.2.7
 * 优化”单聊输入框“输入内容都得的问题；
 * 升级 emoji_picker_flutter 到 2.0，调整Emoji显示样式，调整单聊输入框样式；

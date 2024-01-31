@@ -29,10 +29,10 @@ class UpgradePage extends StatefulWidget {
   });
 
   @override
-  UpgradePageState createState() => UpgradePageState();
+  _UpgradePageState createState() => _UpgradePageState();
 }
 
-class UpgradePageState extends State<UpgradePage> {
+class _UpgradePageState extends State<UpgradePage> {
   int downloadId = 0;
   UpgradeCard? _upgradeCard;
   String downloadKey = 'downloaderSendPort';
@@ -315,10 +315,10 @@ class UpgradeCard extends StatefulWidget {
     this.progress = 0,
   });
 
-  // final upgradeCardState = UpgradeCardState();
+  final _upgradeCardState = _UpgradeCardState();
 
   @override
-  UpgradeCardState createState() => UpgradeCardState();
+  _UpgradeCardState createState() => _upgradeCardState;
 
   /// 外部更新函数
   void updateProgress({
@@ -334,7 +334,7 @@ class UpgradeCard extends StatefulWidget {
     int? maxLength,
     int? currentLength,
   }) =>
-      updateProgress(
+      _upgradeCardState.updateProgress(
         title: title,
         message: message,
         positiveBtn: positiveBtn,
@@ -349,7 +349,7 @@ class UpgradeCard extends StatefulWidget {
       );
 }
 
-class UpgradeCardState extends State<UpgradeCard> {
+class _UpgradeCardState extends State<UpgradeCard> {
   /// 内部更新函数
   void updateProgress({
     required bool hasLinearProgress,
@@ -463,26 +463,26 @@ class UpgradeCardState extends State<UpgradeCard> {
                   ),
                 )),
             SizedBox(
-              height: 40,
+              height: 44,
               width: Get.width - 40,
               // margin: const EdgeInsets.only(bottom: 0),
               child: widget.planTime == null
                   ? const SizedBox.shrink()
                   : n.Column([
-                      n.Row([
-                        Text(
-                            "${'包大小'.tr} ${(widget.maxLength / 1024 / 1024).toStringAsFixed(3)}MB"),
-                        const Expanded(child: SizedBox()),
-                        Text(
-                            "${'还需'.tr} ${(widget.planTime!).toStringAsFixed(3)}秒"),
-                      ]),
-                      n.Row([
-                        Text(
-                            "${'已下载'.tr} ${(widget.currentLength / 1024 / 1024).toStringAsFixed(3)}MB"),
-                        const Expanded(child: SizedBox()),
-                        Text('速度'.tr + widget.speed!),
-                      ]),
-                    ]),
+                n.Row([
+                  Text(
+                      "${'包大小'.tr} ${(widget.maxLength / 1024 / 1024).toStringAsFixed(3)}MB"),
+                  const Expanded(child: SizedBox()),
+                  Text(
+                      "${'还需'.tr} ${(widget.planTime!).toStringAsFixed(3)}秒"),
+                ]),
+                n.Row([
+                  Text(
+                      "${'已下载'.tr} ${(widget.currentLength / 1024 / 1024).toStringAsFixed(3)}MB"),
+                  const Expanded(child: SizedBox()),
+                  Text('速度'.tr + widget.speed!),
+                ]),
+              ]),
             ),
 
             // 进度条
@@ -492,13 +492,13 @@ class UpgradeCardState extends State<UpgradeCard> {
               margin: const EdgeInsets.only(bottom: 20),
               child: widget.hasLinearProgress
                   ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: LinearProgressIndicator(
-                        value: widget.progress,
-                        backgroundColor: Colors.grey[200],
-                        valueColor: const AlwaysStoppedAnimation(Colors.blue),
-                      ),
-                    )
+                borderRadius: BorderRadius.circular(8),
+                child: LinearProgressIndicator(
+                  value: widget.progress,
+                  backgroundColor: Colors.grey[200],
+                  valueColor: const AlwaysStoppedAnimation(Colors.blue),
+                ),
+              )
                   : const SizedBox.shrink(),
             ),
 
