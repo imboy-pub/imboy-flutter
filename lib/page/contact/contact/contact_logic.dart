@@ -19,7 +19,7 @@ import 'package:lpinyin/lpinyin.dart';
 import 'package:niku/namespace.dart' as n;
 
 class ContactLogic extends GetxController {
-  RxList<ContactModel> contactList = RxList<ContactModel>();
+  RxList<ContactModel> contactList = <ContactModel>[].obs;
 
   // ignore: prefer_collection_literals
   RxSet currIndexBarData = Set().obs;
@@ -171,6 +171,16 @@ class ContactLogic extends GetxController {
     }
     contact = await (ContactRepo()).findFriend();
     return contact;
+  }
+
+  Future<bool> isFriend(String peerId) async {
+    for (var ct in contactList.value) {
+      if (ct.peerId == peerId) {
+        return ct.isFriend == 1 ? true : false;
+      }
+    }
+    ContactModel? ct = await ContactRepo().findByUid(peerId);
+    return ct?.isFriend == 1 ? true : false;
   }
 
   Widget getChatListItem(

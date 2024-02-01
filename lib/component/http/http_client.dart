@@ -95,6 +95,11 @@ class HttpClient {
       _dio.options.baseUrl = API_BASE_URL;
     }
     String tk = UserRepoLocal.to.accessToken;
+    if (UserRepoLocal.to.isValidToken == false) {
+      tk = await (UserProvider()).refreshAccessTokenApi(
+          UserRepoLocal.to.refreshToken,
+          checkNewToken: false);
+    }
     bool notRTK = !_dio.options.headers.containsKey(Keys.refreshTokenKey);
     if (strNoEmpty(tk) && notRTK) {
       _dio.options.headers[Keys.tokenKey] = tk;
@@ -129,21 +134,6 @@ class HttpClient {
         response,
         httpTransformer: httpTransformer,
       );
-      if (resp.code == 705) {
-        String tk = await (UserProvider()).refreshAccessTokenApi(
-            UserRepoLocal.to.refreshToken,
-            checkNewToken: false);
-        if (tk.isNotEmpty) {
-          var response = await _dio.get(
-            uri,
-            queryParameters: queryParameters,
-            options: options,
-            cancelToken: cancelToken,
-            onReceiveProgress: onReceiveProgress,
-          );
-          resp = handleResponse(response, httpTransformer: httpTransformer);
-        }
-      }
       return resp;
     } on Exception catch (e) {
       debugPrint("> on Exception: $e");
@@ -182,26 +172,6 @@ class HttpClient {
         response,
         httpTransformer: httpTransformer,
       );
-      if (resp.code == 705) {
-        String tk = await (UserProvider()).refreshAccessTokenApi(
-            UserRepoLocal.to.refreshToken,
-            checkNewToken: false);
-        if (tk.isNotEmpty) {
-          var response = await _dio.post(
-            uri,
-            data: data,
-            queryParameters: queryParameters,
-            options: options,
-            cancelToken: cancelToken,
-            onSendProgress: onSendProgress,
-            onReceiveProgress: onReceiveProgress,
-          );
-          resp = handleResponse(
-            response,
-            httpTransformer: httpTransformer,
-          );
-        }
-      }
       return resp;
     } on Exception catch (e) {
       debugPrint("http_post e ${e.toString()}");
@@ -235,24 +205,6 @@ class HttpClient {
         response,
         httpTransformer: httpTransformer,
       );
-      if (resp.code == 705) {
-        String tk = await (UserProvider()).refreshAccessTokenApi(
-            UserRepoLocal.to.refreshToken,
-            checkNewToken: false);
-        if (tk.isNotEmpty) {
-          var response = await _dio.delete(
-            uri,
-            data: data,
-            queryParameters: queryParameters,
-            options: options,
-            cancelToken: cancelToken,
-          );
-          resp = handleResponse(
-            response,
-            httpTransformer: httpTransformer,
-          );
-        }
-      }
       return resp;
     } on Exception catch (e) {
       return handleException(e);

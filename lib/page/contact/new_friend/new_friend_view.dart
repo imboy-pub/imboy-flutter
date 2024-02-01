@@ -69,7 +69,7 @@ class NewFriendPage extends StatelessWidget {
               bottom: 10,
               child: searchBar(
                 context,
-                hintText: '微信号/手机号',
+                hintText: '账号/Email/手机号',
                 queryTips: '',
                 doSearch: ((query) async {
                   // debugPrint(

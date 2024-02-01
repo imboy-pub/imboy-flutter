@@ -59,6 +59,7 @@ class ApplyFriendPage extends StatelessWidget {
           height: 40, // 宽度值必须设置为double.infinity
           child: ElevatedButton(
             onPressed: () async {
+              var nav = Navigator.of(context);
               Map<String, dynamic> payload = {
                 "from": {
                   "source": source,
@@ -86,6 +87,8 @@ class ApplyFriendPage extends StatelessWidget {
                 peerAvatar: avatar,
                 payload: payload,
               );
+              nav.pop();
+              nav.pop();
             },
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(

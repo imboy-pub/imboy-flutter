@@ -34,7 +34,7 @@ class PeopleInfoPage extends StatelessWidget {
   RxInt gender = 0.obs;
   RxString remark = "".obs;
   RxString tag = "".obs;
-  RxInt isFriend = 1.obs;
+  RxInt isFriend = 0.obs;
   RxInt isFrom = 0.obs;
 
   PeopleInfoPage({
@@ -44,7 +44,9 @@ class PeopleInfoPage extends StatelessWidget {
   });
 
   Future<void> initData() async {
+    iPrint("people_info.initData 10 ${DateTime.now()}");
     ContactModel? ct = await ContactRepo().findByUid(id);
+    iPrint("people_info.initData 20 ${DateTime.now()}");
     // debugPrint("> on cdv initData $id");
     // debugPrint("> on cdv initData ${ct?.toJson().toString()}");
     if (ct != null) {
@@ -233,14 +235,14 @@ class PeopleInfoPage extends StatelessWidget {
                   label: '更多信息'.tr,
                   isLine: false,
                   onPressed: () => Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                        // “右滑返回上一页”功能
-                        builder: (_) => PeopleInfoMorePage(
-                          id: id,
-                        ),
+                    context,
+                    CupertinoPageRoute(
+                      // “右滑返回上一页”功能
+                      builder: (_) => PeopleInfoMorePage(
+                        id: id,
                       ),
                     ),
+                  ),
                 ),
               const Space(),
               isFriend.value == 1 || scene == 'denylist'

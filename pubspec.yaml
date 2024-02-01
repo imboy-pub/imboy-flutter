@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.2.8
+version: 0.2.9
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -215,7 +215,7 @@ dependencies:
   # 用于 Flutter 的 SVG 渲染和小部件库，允许绘制和显示可缩放矢量图形 1.1 文件。
   flutter_svg: ^2.0.9
   # 动画效果
-  flutter_animate: ^4.4.1
+  flutter_animate: ^4.5.0
   # dart 对象比较
   equatable: ^2.0.5
   # 用于查找设备上安装的可用地图并使用标记启动它们或显示方向。

@@ -45,13 +45,16 @@ class UserProvider extends HttpClient {
           'vsn': appVsn,
           'did': deviceId,
           'method': 'sha512',
-          'sign': EncrypterService.sha512("$deviceId|$appVsnMajor", SOLIDIFIED_KEY)
+          'sign':
+              EncrypterService.sha512("$deviceId|$appVsnMajor", SOLIDIFIED_KEY)
         },
       ),
     );
     // iPrint("refreshAccessTokenApi ${response.toString()}");
     // iPrint("refreshAccessTokenApi refreshToken $refreshToken");
     IMBoyHttpResponse resp = handleResponse(response);
+    // 705 token 过期
+    // 706 token 无效
     if (resp.code == 705 || resp.code == 706) {
       checkNewToken = true;
     }

@@ -27,14 +27,17 @@ class FeedbackDetailPage extends StatelessWidget {
   final state = Get.find<FeedbackLogic>().state;
 
   void initData() async {
+    page = 1;
     state.pageReplyList.value = [];
     var list = await logic.pageReply(
       model.feedbackId,
       page: page,
       size: size,
     );
+    if (list.isNotEmpty) {
+      page = page + 1;
+    }
     state.pageReplyList.value = list;
-    page = page + 1;
   }
 
   @override

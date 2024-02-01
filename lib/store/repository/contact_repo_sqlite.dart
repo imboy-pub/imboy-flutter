@@ -209,9 +209,11 @@ class ContactRepo {
       where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
       whereArgs: [UserRepoLocal.to.currentUid, uid],
     );
+    iPrint("people_info.initData 11 ${DateTime.now()}");
     if (maps.isNotEmpty) {
       return ContactModel.fromMap(maps.first);
     }
+    iPrint("people_info.initData 12 ${DateTime.now()} $autoFetch");
     if (autoFetch) {
       // 如果没有联系人，同步去取
       return await (ContactProvider()).syncByUid(uid);

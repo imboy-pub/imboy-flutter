@@ -1,9 +1,12 @@
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/user_model.dart';
+import 'package:jose/jose.dart';
 
 class UserRepoLocal extends GetxController {
   static UserRepoLocal get to => Get.find();
@@ -16,6 +19,18 @@ class UserRepoLocal extends GetxController {
   UserSettingModel get setting {
     Map<String, dynamic> u = StorageService.getMap(Keys.currentUser);
     return UserSettingModel.fromJson(u['setting'] ?? {});
+  }
+
+  bool get isValidToken {
+    String tk = StorageService.to.getString(Keys.tokenKey) ?? '';
+    if (tk.isEmpty) {
+      return false;
+    }
+    var jwt = JsonWebToken.unverified(tk);
+    iPrint("protected parameters: ${jwt.claims}}");
+    return (jwt.claims['exp'] ?? 0) - 1500 > DateTimeHelper.currentTimeMillis()
+        ? true
+        : false;
   }
 
   // 令牌 token

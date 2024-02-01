@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/store/provider/user_provider.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -130,7 +131,13 @@ class WebSocketService {
 
     try {
       Map<String, dynamic> headers = await defaultHeaders();
-      headers[Keys.tokenKey] = UserRepoLocal.to.accessToken;
+      String tk = UserRepoLocal.to.accessToken;
+      if (UserRepoLocal.to.isValidToken == false) {
+        tk = await (UserProvider()).refreshAccessTokenApi(
+            UserRepoLocal.to.refreshToken,
+            checkNewToken: false);
+      }
+      headers[Keys.tokenKey] = tk;
 
       _webSocketChannel = IOWebSocketChannel.connect(
         WS_URL,
@@ -164,10 +171,10 @@ class WebSocketService {
         cancelOnError: true,
       );
       lastConnectedAt = DateTimeHelper.currentTimeMillis();
-    } catch (exception) {
+    } catch (e) {
       closeSocket(false);
       _socketStatus = SocketStatus.SocketStatusFailed;
-      iPrint("> openSocket $WS_URL error ${exception.toString()}");
+      iPrint("> openSocket $WS_URL error ${e.toString()}");
     }
   }
 
