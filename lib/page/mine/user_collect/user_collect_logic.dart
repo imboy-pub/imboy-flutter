@@ -707,7 +707,7 @@ class UserCollectLogic extends GetxController {
         "userCollectLogic/add $kind, $source, info ${info.toString()} ;");
     if (res) {
       await UserCollectRepo().save({
-        UserCollectRepo.createdAt: DateTimeHelper.currentTimeMillis(),
+        UserCollectRepo.createdAt: DateTimeHelper.utc(),
         UserCollectRepo.userId: UserRepoLocal.to.currentUid,
         UserCollectRepo.kind: kind,
         UserCollectRepo.kindId: message.id,
@@ -729,7 +729,7 @@ class UserCollectLogic extends GetxController {
     // debugPrint("send_to_view callback after $res");
     if (res) {
       await UserCollectRepo().save({
-        UserCollectRepo.updatedAt: DateTimeHelper.currentTimeMillis(),
+        UserCollectRepo.updatedAt: DateTimeHelper.utc(),
         UserCollectRepo.userId: UserRepoLocal.to.currentUid,
         UserCollectRepo.kindId: kindId
       });
@@ -748,7 +748,7 @@ class UserCollectLogic extends GetxController {
     debugPrint("send_to_view callback after $res");
     if (res) {
       await UserCollectRepo().save({
-        UserCollectRepo.updatedAt: DateTimeHelper.currentTimeMillis(),
+        UserCollectRepo.updatedAt: DateTimeHelper.utc(),
         UserCollectRepo.userId: UserRepoLocal.to.currentUid,
         UserCollectRepo.kindId: kindId,
         UserCollectRepo.remark: remark,

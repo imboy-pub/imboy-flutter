@@ -95,6 +95,9 @@ class ConversationModel {
     return "[$str]";
   }
 
+  int get lastTimeLocal =>
+      lastTime + DateTime.now().timeZoneOffset.inMilliseconds;
+
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
     var payload = json[ConversationRepo.payload];
     if (payload is String) {

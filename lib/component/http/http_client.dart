@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart' as getx;
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
@@ -29,6 +30,7 @@ Future<Map<String, dynamic>> defaultHeaders() async {
     'vsn': appVsn,
     'did': deviceId,
     'method': 'sha512',
+    'tzoffset': DateTime.now().timeZoneOffset.inMilliseconds,
     'sign': EncrypterService.sha512("$deviceId|$appVsnMajor", SOLIDIFIED_KEY)
   };
 }
@@ -95,7 +97,7 @@ class HttpClient {
       _dio.options.baseUrl = API_BASE_URL;
     }
     String tk = UserRepoLocal.to.accessToken;
-    if (UserRepoLocal.to.isValidToken == false) {
+    if (tokenExpired(tk) == false) {
       tk = await (UserProvider()).refreshAccessTokenApi(
           UserRepoLocal.to.refreshToken,
           checkNewToken: false);

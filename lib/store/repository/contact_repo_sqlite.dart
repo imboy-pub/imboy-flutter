@@ -98,7 +98,7 @@ class ContactRepo {
       ContactRepo.sign: obj.sign,
       ContactRepo.source: obj.source,
       // 单位毫秒，13位时间戳  1561021145560
-      ContactRepo.updateAt: obj.updateAt ?? DateTimeHelper.currentTimeMillis(),
+      ContactRepo.updateAt: obj.updateAt ?? DateTimeHelper.utc(),
       ContactRepo.isFriend: obj.isFriend,
       ContactRepo.isFrom: obj.isFrom,
       ContactRepo.categoryId: obj.categoryId,
@@ -284,7 +284,7 @@ class ContactRepo {
     }
     // debugPrint("> on ContactRepo/update/1 data: ${data.toString()}");
     if (strNoEmpty(peerId)) {
-      data[ContactRepo.updateAt] = DateTimeHelper.currentTimeMillis();
+      data[ContactRepo.updateAt] = DateTimeHelper.utc();
       return await _db.update(
         ContactRepo.tableName,
         data,

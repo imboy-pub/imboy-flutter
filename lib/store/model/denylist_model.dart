@@ -81,8 +81,7 @@ class DenylistModel extends ISuspensionBean {
 
       sign: json[UserDenylistRepo.sign].toString(),
       // 单位毫秒，13位时间戳  1561021145560
-      createdAt: json[UserDenylistRepo.createdAt] ??
-          DateTimeHelper.currentTimeMillis(),
+      createdAt: json[UserDenylistRepo.createdAt] ?? DateTimeHelper.utc(),
 
       gender: json[UserDenylistRepo.gender] ?? 0,
       region: json[UserDenylistRepo.region].toString(),
@@ -102,7 +101,7 @@ class DenylistModel extends ISuspensionBean {
         'region': region,
         'sign': sign,
         'source': source,
-        UserDenylistRepo.createdAt: createdAt,
+        UserDenylistRepo.createdAt: createdAt ?? 0,
         //
         'firstLetter': firstLetter,
         'nameIndex': nameIndex,

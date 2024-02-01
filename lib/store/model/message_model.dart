@@ -97,7 +97,7 @@ class MessageModel {
     data[MessageRepo.to] = toId;
     data[MessageRepo.payload] = json.encode(payload);
     data[MessageRepo.createdAt] = createdAt;
-    data[MessageRepo.serverTs] = serverTs ?? 0;
+    data[MessageRepo.serverTs] = serverTs;
     data[MessageRepo.conversationId] = conversationId;
 
     // debugPrint("> on MessageModel toMap $data");
@@ -209,6 +209,8 @@ class MessageModel {
   types.Message toTypeMessage() {
     String sysPrompt = payload?['sys_prompt'] ?? '';
     types.Message? message;
+    int createdDtLocal =
+        createdAt! + DateTime.now().timeZoneOffset.inMilliseconds;
     // enum MessageType { custom, file, image, text, unsupported }
     if (payload!['msg_type'] == 'text') {
       message = types.TextMessage(
@@ -217,7 +219,7 @@ class MessageModel {
           // firstName: "",
           // imageUrl: "",
         ),
-        createdAt: createdAt,
+        createdAt: createdDtLocal,
         id: id!,
         remoteId: toId,
         text: payload?['text'],
@@ -231,7 +233,7 @@ class MessageModel {
           // firstName: "",
           // imageUrl: "",
         ),
-        createdAt: createdAt,
+        createdAt: createdDtLocal,
         id: id!,
         remoteId: toId,
         name: payload!['name'],
@@ -249,7 +251,7 @@ class MessageModel {
           // firstName: "",
           // imageUrl: "",
         ),
-        createdAt: createdAt,
+        createdAt: createdDtLocal,
         id: id!,
         remoteId: toId,
         name: payload!['name'],
@@ -269,7 +271,7 @@ class MessageModel {
           // imageUrl: "",
         ),
         id: id!,
-        createdAt: createdAt,
+        createdAt: createdDtLocal,
         remoteId: toId,
         metadata: payload,
       );
@@ -281,7 +283,7 @@ class MessageModel {
           // imageUrl: "",
         ),
         id: id!,
-        createdAt: createdAt,
+        createdAt: createdDtLocal,
         remoteId: toId,
         metadata: payload,
       );
@@ -293,7 +295,7 @@ class MessageModel {
           // imageUrl: "",
         ),
         id: id!,
-        createdAt: createdAt,
+        createdAt: createdDtLocal,
         remoteId: toId,
         status: typesStatus,
         metadata: payload,

@@ -152,6 +152,7 @@ class IMBoyChatTheme extends ChatTheme {
         color: neutral2,
       ),
     ),
+    super.messageMaxWidth = double.infinity,
   }) : super(
           sendButtonMargin: null,
           attachmentButtonMargin: null,

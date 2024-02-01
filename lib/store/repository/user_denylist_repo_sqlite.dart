@@ -110,7 +110,7 @@ class UserDenylistRepo {
       UserDenylistRepo.source: obj.source,
       // 单位毫秒，13位时间戳  1561021145560
       UserDenylistRepo.createdAt:
-          obj.createdAt ?? DateTimeHelper.currentTimeMillis(),
+          obj.createdAt ?? DateTimeHelper.utc(),
     };
     debugPrint("> on UserDenylistRepo/insert/1 $insert");
 
@@ -205,7 +205,7 @@ class UserDenylistRepo {
 
     debugPrint("> on UserDenylistRepo/update/1 data: ${data.toString()}");
     if (strNoEmpty(uid)) {
-      data[UserDenylistRepo.createdAt] = DateTimeHelper.currentTimeMillis();
+      data[UserDenylistRepo.createdAt] = DateTimeHelper.utc();
       return await _db.update(
         UserDenylistRepo.tableName,
         data,

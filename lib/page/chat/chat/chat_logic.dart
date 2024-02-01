@@ -66,7 +66,7 @@ class ChatLogic extends GetxController {
   Future<bool> sendWsMsg(MessageModel obj) async {
     if (obj.status == MessageStatus.sending) {
       Map<String, dynamic> msg = {
-        'ts': DateTimeHelper.currentTimeMillis(),
+        'ts': DateTimeHelper.utc(),
         'id': obj.id,
         'type': obj.type,
         'from': obj.fromId,
@@ -122,14 +122,15 @@ class ChatLogic extends GetxController {
       payload['sys_prompt'] = sysPrompt;
     }
     // debugPrint("> on addMessage getMsgFromTMsg 2 ${payload.toString()}");
+    iPrint("_handleSendPressed 2 ${message.createdAt}");
     MessageModel obj = MessageModel(
       message.id,
       type: type,
       fromId: message.author.id,
       toId: message.remoteId,
       payload: payload,
-      createdAt: message.createdAt,
-      serverTs: message.updatedAt,
+      createdAt:
+          message.createdAt! - DateTime.now().timeZoneOffset.inMilliseconds,
       conversationId: conversationId,
       status: MessageStatus.sending,
     );
@@ -149,7 +150,7 @@ class ChatLogic extends GetxController {
   }) async {
     String subtitle = MessageModel.conversationSubtitle(message);
     String msgType = MessageModel.conversationMsgType(message);
-    int createdAt = DateTimeHelper.currentTimeMillis();
+    int createdAt = DateTimeHelper.utc();
     if (toId == UserRepoLocal.to.currentUid) {
       throw Exception('not send message to myself');
     }
@@ -239,7 +240,7 @@ class ChatLogic extends GetxController {
   /// 撤回消息
   Future<bool> revokeMessage(types.Message obj) async {
     Map<String, dynamic> msg = {
-      'ts': DateTimeHelper.currentTimeMillis(),
+      'ts': DateTimeHelper.utc(),
       'id': obj.id,
       'type': 'C2C_REVOKE',
       'from': obj.author.id,

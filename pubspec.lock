@@ -390,10 +390,10 @@ packages:
     dependency: transitive
     description:
       name: dart_webrtc
-      sha256: "5897a3bdd6c7fded07e80e250260ca4c9cd61f9080911aa308b516e1206745a9"
+      sha256: "5cbc40bd9b33d0c9b8004cff52e9883c71f0f54799afc8faca77535eeb9ef857"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.1.3"
+    version: "1.2.1"
   dbus:
     dependency: transitive
     description:
@@ -652,10 +652,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_chat_ui
-      sha256: "6a4712026429d3b28547bd3d147ded44f8dd53dacc1ff14113693d7b7dd14382"
+      sha256: c8580c85e2d29359ffc84147e643d08d883eb6e757208652377f0105ef58807f
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.6.10"
+    version: "1.6.12"
   flutter_dotenv:
     dependency: "direct main"
     description:
@@ -907,10 +907,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_webrtc
-      sha256: "577216727181cb13776a65d3e7cb33e783e740c5496335011aed4a038b28c3fe"
+      sha256: "2f17fb96e0c9c6ff75f6b1c36d94755461fc7f36a5c28386f5ee5a18b98688c8"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.47"
+    version: "0.9.48+hotfix.1"
   font_awesome_flutter:
     dependency: transitive
     description:
@@ -1029,10 +1029,10 @@ packages:
     dependency: "direct main"
     description:
       name: image
-      sha256: "004a2e90ce080f8627b5a04aecb4cdfac87d2c3f3b520aa291260be5a32c033d"
+      sha256: "49a0d4b0c12402853d3f227fe7c315601b238d126aa4caa5dbb2dcf99421aa4a"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.1.4"
+    version: "4.1.6"
   image_crop:
     dependency: "direct main"
     description:
@@ -1852,10 +1852,10 @@ packages:
     dependency: "direct main"
     description:
       name: sqflite_common_ffi
-      sha256: d0e3f0d04fdf668e57db8db1df758f56c4193cb429092c708e7bfcc6ab04b27e
+      sha256: "754927d82de369a6b9e760fb60640aa81da650f35ffd468d5a992814d6022908"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.3.2"
+    version: "2.3.2+1"
   sqlite3:
     dependency: transitive
     description:
@@ -2196,10 +2196,10 @@ packages:
     dependency: "direct main"
     description:
       name: webview_flutter
-      sha256: "71e1bfaef41016c8d5954291df5e9f8c6172f1f6ff3af01b5656456ddb11f94c"
+      sha256: d81b68e88cc353e546afb93fb38958e3717282c5ac6e5d3be4a4aef9fc3c1413
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.4.4"
+    version: "4.5.0"
   webview_flutter_android:
     dependency: transitive
     description:

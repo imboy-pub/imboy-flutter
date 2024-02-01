@@ -143,7 +143,7 @@ class ContactSettingPage extends StatelessWidget {
                       firstName: UserRepoLocal.to.current.nickname,
                       imageUrl: UserRepoLocal.to.current.avatar,
                     ),
-                    createdAt: DateTimeHelper.currentTimeMillis(),
+                    createdAt: DateTimeHelper.utc(),
                     id: Xid().toString(),
                     remoteId: c1.peerId,
                     status: types.Status.sending,
@@ -208,7 +208,7 @@ class ContactSettingPage extends StatelessWidget {
                             avatar: peerAvatar,
                             region: peerRegion,
                             gender: peerGender,
-                            createdAt: DateTimeHelper.currentTimeMillis(),
+                            createdAt: DateTimeHelper.utc(),
                           );
                           res = await DenylistLogic().addDenylist(model);
                         }

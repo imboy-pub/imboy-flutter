@@ -112,7 +112,7 @@ class DenylistLogic extends GetxController {
     bool res = payload == null ? false : true;
     if (res) {
       model.createdAt =
-          payload['created_at'] ?? DateTimeHelper.currentTimeMillis();
+          payload['created_at'] ?? DateTimeHelper.utc();
       await repo.insert(model);
       // 隐藏联系人
       await ContactRepo().update({

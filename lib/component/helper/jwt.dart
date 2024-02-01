@@ -6,10 +6,10 @@ import 'package:jose/jose.dart';
 bool tokenExpired(String? token) {
   try {
     var jwt = JsonWebToken.unverified(token ?? '');
-    // 极端情况下扣除2秒
-    int ts = DateTimeHelper.currentTimeMillis() - 2000;
-    // debugPrint("> on jwt claims ${jwt.claims}, ${ts > jwt.claims['exp']}");
-    return ts > jwt.claims['exp'] ? true : false;
+    // 极端情况下扣除1.5秒
+    return (jwt.claims['exp'] ?? 0) - 1500 > DateTimeHelper.utc()
+        ? true
+        : false;
   } on Exception catch (e) {
     // 任意一个异常
     debugPrint('Unknown exception: $e');

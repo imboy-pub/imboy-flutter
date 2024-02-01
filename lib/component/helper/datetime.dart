@@ -71,6 +71,11 @@ class DateTimeHelper {
     }
   }
 
+  /// 当前utc0 时间戳
+  static int utc() {
+    return currentTimeMillis() - DateTime.now().timeZoneOffset.inMilliseconds;
+  }
+
   /// 当前时间的毫秒时间戳
   static int currentTimeMillis() {
     DateTime myTime;

@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.2.9
+version: 0.2.10
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -46,7 +46,7 @@ dependencies:
 
   url_launcher: ^6.2.4 # 打开url 拨打电话 发短信
   # https://juejin.cn/post/6869291513508659213
-  webview_flutter: ^4.4.4 # Show web page (CGU)
+  webview_flutter: ^4.5.0 # Show web page (CGU)
   flutter_inappwebview: ^6.0.0 # 它允许你将WebView小部件整合到你的Flutter应用中，使用无头WebViews，或者使用In-App浏览器。
 
 
@@ -107,7 +107,7 @@ dependencies:
   # image_crop:
   #  path: plugin/image_crop
   #
-  image: ^4.1.4
+  image: ^4.1.6
   image_crop:
     git:
       url: https://gitee.com/imboy-tripartite-deps/image_crop.git
@@ -149,7 +149,7 @@ dependencies:
   flutter_easyloading: ^3.0.5
   # 生成闪屏页
   flutter_native_splash: ^2.3.10
-  flutter_chat_ui: ^1.6.10
+  flutter_chat_ui: ^1.6.12
   feedback: ^3.0.0
   #flutter_chat_ui:
   #  #path: plugin/flutter_chat_ui
@@ -174,7 +174,7 @@ dependencies:
   image_gallery_saver: ^2.0.2
   # SQLite 的 Flutter 插件，一个独立的、高可靠性的嵌入式 SQL 数据库引擎。
   sqflite: ^2.3.2
-  sqflite_common_ffi: ^2.3.2
+  sqflite_common_ffi: ^2.3.2+1
   #sqlite3: ^1.11.2
   # 一个跨平台插件，用于显示和安排 Flutter 应用程序的本地通知，并能够针对每个平台进行自定义。
   flutter_local_notifications: ^16.3.2
@@ -192,7 +192,7 @@ dependencies:
 #      url: https://gitee.com/imboy-tripartite-deps/voice_message_player.git
 #      ref: main
   # 一对一音视频通话等
-  flutter_webrtc: ^0.9.47
+  flutter_webrtc: ^0.9.48+hotfix.1
 #  flutter_webrtc:
 #      path: plugin/flutter-webrtc
   #    git:

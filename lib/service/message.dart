@@ -46,7 +46,7 @@ class MessageService extends GetxService {
       iPrint(
           "> rtc msg listen: $type , $p2pCallScreenOn, ${DateTime.now()} $data");
       if (data.containsKey('ts')) {
-        int now = DateTimeHelper.currentTimeMillis();
+        int now = DateTimeHelper.utc();
         iPrint("> rtc msg now: $now elapsed: ${now - data['ts']}");
       }
       if (type.startsWith('WEBRTC_')) {
@@ -314,7 +314,7 @@ class MessageService extends GetxService {
     var msgType = data['payload']['msg_type'] ?? '';
     var subtitle = data['payload']['text'] ?? '';
     iPrint("> rtc msg c2c receiveMessage $data");
-    int now = DateTimeHelper.currentTimeMillis();
+    int now = DateTimeHelper.utc();
     iPrint("> rtc msg c2c now: $now elapsed: ${now - data['created_at']}");
 
     ContactModel? ct = await ContactRepo().findByUid(data['from']);
@@ -338,7 +338,7 @@ class MessageService extends GetxService {
       type: data['type'],
       msgType: msgType,
       lastMsgId: data['id'],
-      lastTime: data['created_at'] ?? DateTimeHelper.currentTimeMillis(),
+      lastTime: data['created_at'] ?? DateTimeHelper.utc(),
       unreadNum: 1,
       id: 0,
     );
@@ -513,7 +513,7 @@ class MessageService extends GetxService {
           firstName: UserRepoLocal.to.current.nickname,
           imageUrl: UserRepoLocal.to.current.avatar,
         ),
-        createdAt: DateTimeHelper.currentTimeMillis(),
+        createdAt: DateTimeHelper.utc(),
         id: msgId,
         remoteId: peer.peerId,
         status: types.Status.delivered,
@@ -532,7 +532,7 @@ class MessageService extends GetxService {
           firstName: peer.nickname,
           imageUrl: peer.avatar,
         ),
-        createdAt: DateTimeHelper.currentTimeMillis(),
+        createdAt: DateTimeHelper.utc(),
         id: msgId,
         remoteId: UserRepoLocal.to.currentUid,
         status: types.Status.delivered,

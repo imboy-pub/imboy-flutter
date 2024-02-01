@@ -26,7 +26,7 @@ class AttachmentProvider {
     Function errorCallback, {
     bool process = true,
   }) async {
-    int ts = DateTimeHelper.currentTimeMillis();
+    int ts = DateTimeHelper.utc();
     DateTime dt = DateTime.fromMillisecondsSinceEpoch(ts);
     String savePath = "/$prefix/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";
     if (prefix == "avatar") {
@@ -83,7 +83,7 @@ class AttachmentProvider {
 
   static Future<dynamic> preUpload(
       String prefix, Map<String, dynamic> data) async {
-    int ts = DateTimeHelper.currentTimeMillis();
+    int ts = DateTimeHelper.utc();
     DateTime dt = DateTime.fromMillisecondsSinceEpoch(ts);
     String savePath = "/$prefix/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";
 

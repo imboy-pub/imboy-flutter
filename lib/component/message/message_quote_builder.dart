@@ -33,7 +33,7 @@ class QuoteMessageBuilder extends StatelessWidget {
     Map<String, dynamic> quoteMsgMap = message.metadata?['quote_msg'] ?? {};
     types.Message quoteMsg = types.Message.fromJson(quoteMsgMap);
 
-    // int now = DateTimeHelper.currentTimeMillis();
+    // int now = DateTimeHelper.utc();
     String text = message.metadata?['quote_text'] ?? '';
     return n.Column([
       n.Row([

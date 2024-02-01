@@ -273,7 +273,6 @@ class ChatPageState extends State<ChatPage> {
         type,
         message,
       );
-
       setState(() {
         logic.state.messages.insert(0, message);
       });
@@ -656,6 +655,7 @@ class ChatPageState extends State<ChatPage> {
 
   Future<bool> _handleSendPressed(types.PartialText msg) async {
     if (quoteMessage == null) {
+      iPrint("_handleSendPressed 1 ${DateTimeHelper.currentTimeMillis()}");
       final textMessage = types.TextMessage(
         author: currentUser,
         createdAt: DateTimeHelper.currentTimeMillis(),
@@ -697,7 +697,7 @@ class ChatPageState extends State<ChatPage> {
     if (msg.status != types.Status.sending) {
       return;
     }
-    int diff = DateTimeHelper.currentTimeMillis() - msg.createdAt!;
+    int diff = DateTimeHelper.utc() - msg.createdAt!;
     if (diff > 1000) {
       // 检查为发送消息
       logic.sendWsMsg(logic.getMsgFromTMsg(

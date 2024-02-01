@@ -142,8 +142,7 @@ class ContactModel extends ISuspensionBean {
       source: json["source"].toString(),
       sign: json["sign"].toString(),
       // 单位毫秒，13位时间戳  1561021145560
-      updateAt:
-          json[ContactRepo.updateAt] ?? DateTimeHelper.currentTimeMillis(),
+      updateAt: json[ContactRepo.updateAt] ?? DateTimeHelper.utc(),
       isFriend: json[ContactRepo.isFriend] ?? 0,
       categoryId: json[ContactRepo.categoryId] ?? 0,
       isFrom: int.tryParse('$isFrom') ?? 0,
@@ -162,7 +161,7 @@ class ContactModel extends ISuspensionBean {
         'sign': sign,
         'source': source,
         ContactRepo.tag: tag,
-        ContactRepo.updateAt: updateAt,
+        ContactRepo.updateAt: updateAt ?? 0,
         ContactRepo.isFriend: isFriend,
         ContactRepo.isFrom: isFrom,
         ContactRepo.categoryId: categoryId,

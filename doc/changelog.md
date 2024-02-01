@@ -1,3 +1,10 @@
+# 0.2.10
+* 修复 APP判断token过期的当前时间去 utc+0 的时间戳，服务器端的 token 的 exp 也去 utc+0的时间戳，以避免时区差异影响；
+* 当前时间毫秒，使用 int now = DateTimeHelper.utc(); 修改相关代码；
+* 与时间相关的概念存储在数据库统一存储为 utc+0 的时间戳毫秒，显示的时候 +DateTime.now().timeZoneOffset.inMilliseconds。
+* types.Message 使用的是本地时间，MessageModel 使用的是utc时间；
+* 升级一些其他依赖；
+
 # 0.2.9
 * 添加好友体验细节调整；
 * 新增验证JWT是否有效的方法，发起WebSocket请求和其他Http请求前判断token是否有效，无效则刷新之，以解决2小时后APP自动退出登录的问题；

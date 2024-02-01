@@ -12,7 +12,7 @@ class NewFriendModel {
     required this.source,
     this.avatar,
     this.status = 0,
-    this.updateAt,
+    this.updateAt = 0,
     required this.createAt,
     this.msg = '',
     required this.payload,
@@ -27,7 +27,7 @@ class NewFriendModel {
   // 0 待验证  1 已添加  2 已过期
   int status; //
   String msg;
-  final int? updateAt;
+  final int updateAt;
   final int createAt;
   final String payload;
 
@@ -47,8 +47,7 @@ class NewFriendModel {
       status: status is String ? int.parse(status) : status,
       msg: json[NewFriendRepo.msg].toString(),
       // 单位毫秒，13位时间戳  1561021145560
-      updateAt:
-          json[NewFriendRepo.updateAt] ?? DateTimeHelper.currentTimeMillis(),
+      updateAt: json[NewFriendRepo.updateAt] ?? DateTimeHelper.utc(),
       createAt: json[NewFriendRepo.createAt],
       payload: json["payload"],
     );

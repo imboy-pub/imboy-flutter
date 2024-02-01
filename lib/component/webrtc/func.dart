@@ -70,7 +70,7 @@ Future<bool> initIceServers({String from = 'incomingCallScreen'}) async {
 /// 发送WebRTC 消息
 sendWebRTCMsg(String event, Map payload, {String? to, String? debug}) {
   Map request = {};
-  request["ts"] = DateTimeHelper.currentTimeMillis();
+  request["ts"] = DateTimeHelper.utc();
   request["id"] = Xid().toString();
   request["to"] = to;
   request["from"] = UserRepoLocal.to.currentUid; // currentUid

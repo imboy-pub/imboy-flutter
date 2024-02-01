@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -119,7 +120,7 @@ class WebSocketService {
       iPrint('> ws openSocket is not login');
       return;
     }
-    int now = DateTimeHelper.currentTimeMillis();
+    int now = DateTimeHelper.utc();
     if ((now - lastConnectedAt) > 3600000) {
       closeSocket(false);
     }
@@ -132,7 +133,7 @@ class WebSocketService {
     try {
       Map<String, dynamic> headers = await defaultHeaders();
       String tk = UserRepoLocal.to.accessToken;
-      if (UserRepoLocal.to.isValidToken == false) {
+      if (tokenExpired(tk) == false) {
         tk = await (UserProvider()).refreshAccessTokenApi(
             UserRepoLocal.to.refreshToken,
             checkNewToken: false);
@@ -170,7 +171,7 @@ class WebSocketService {
         //设置错误时取消订阅
         cancelOnError: true,
       );
-      lastConnectedAt = DateTimeHelper.currentTimeMillis();
+      lastConnectedAt = DateTimeHelper.utc();
     } catch (e) {
       closeSocket(false);
       _socketStatus = SocketStatus.SocketStatusFailed;

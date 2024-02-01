@@ -42,7 +42,7 @@ class ApplyFriendLogic extends GetxController {
     required Map<String, dynamic> payload,
   }) async {
     payload["msg_type"] = "apply_friend";
-    int createdAt = DateTimeHelper.currentTimeMillis();
+    int createdAt = DateTimeHelper.utc();
     Map<String, dynamic> msg = {
       "to": to,
       "payload": json.encode(payload),
