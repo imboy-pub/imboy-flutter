@@ -88,8 +88,8 @@ class DateTimeHelper {
     return ntpTime.millisecondsSinceEpoch;
   }
 
-  /// 当前时间的秒时间戳
-  static int currentTimeSecond() {
-    return currentTimeMillis() ~/ 1000;
+  /// UTC时间的秒时间戳
+  static int utcSecond() {
+    return utc() ~/ 1000;
   }
 }

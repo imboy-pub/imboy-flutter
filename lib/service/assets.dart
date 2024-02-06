@@ -22,7 +22,7 @@ class AssetsService {
 
   /// Assets.authData()
   static Map<String, dynamic> authData() {
-    int v = DateTimeHelper.currentTimeSecond();
+    int v = DateTimeHelper.utcSecond();
     // md5(a + v)
     String tk = EncrypterService.md5("$UP_AUTH_KEY$v").substring(8, 24);
     return {
@@ -35,7 +35,7 @@ class AssetsService {
   /// 获取URL地址的 v 参数，和当前时间做比较，再决定是否重新生成授权令牌
   /// Assets.viewUrl
   static Uri viewUrl(String url) {
-    int now = DateTimeHelper.currentTimeSecond();
+    int now = DateTimeHelper.utcSecond();
     int diff = 3600; // 1hour
 
     // Map<String, dynamic> cache = {};
