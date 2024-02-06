@@ -11,6 +11,12 @@ class FeedbackReplyModel {
   int updatedAt;
   int createdAt;
 
+  int get updatedAtLocal =>
+      updatedAt + DateTime.now().timeZoneOffset.inMilliseconds;
+
+  int get createdAtLocal =>
+      createdAt + DateTime.now().timeZoneOffset.inMilliseconds;
+
   FeedbackReplyModel({
     this.feedbackReplyId = 0,
     required this.feedbackId,

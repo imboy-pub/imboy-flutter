@@ -133,7 +133,7 @@ class NewFriendPage extends StatelessWidget {
                           if (model.status ==
                               NewFriendStatus.waiting_for_validation.index) {
                             Jiffy dt = Jiffy.parseFromMillisecondsSinceEpoch(
-                              model.createAt,
+                              model.createdAtLocal,
                             );
                             int diff =
                                 Jiffy.now().diff(dt, unit: Unit.day) as int;

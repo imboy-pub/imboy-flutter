@@ -8,6 +8,12 @@ class UserTagModel {
   int updatedAt;
   int createdAt;
 
+  int get updatedAtLocal =>
+      updatedAt + DateTime.now().timeZoneOffset.inMilliseconds;
+
+  int get createdAtLocal =>
+      createdAt + DateTime.now().timeZoneOffset.inMilliseconds;
+
   UserTagModel({
     required this.userId,
     required this.tagId,

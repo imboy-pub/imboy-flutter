@@ -8,6 +8,9 @@ class UserDeviceModel {
   bool online;
   Map<dynamic, dynamic> deviceVsn;
 
+  int get lastActiveAtLocal =>
+      lastActiveAt + DateTime.now().timeZoneOffset.inMilliseconds;
+
   UserDeviceModel({
     required this.deviceId,
     required this.deviceName,

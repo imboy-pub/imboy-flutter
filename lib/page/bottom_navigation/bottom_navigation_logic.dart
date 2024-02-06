@@ -27,7 +27,7 @@ class BottomNavigationLogic extends GetxController {
       where:
           '${NewFriendRepo.status}=? and ${NewFriendRepo.uid}=? and ${NewFriendRepo.to}=?',
       whereArgs: [0, UserRepoLocal.to.currentUid, UserRepoLocal.to.currentUid],
-      orderBy: "${NewFriendRepo.createAt} desc",
+      orderBy: "${NewFriendRepo.createdAt} desc",
       limit: 1000,
     );
     // iPrint(

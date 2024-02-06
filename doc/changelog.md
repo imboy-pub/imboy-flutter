@@ -3,6 +3,7 @@
 * 当前时间毫秒，使用 int now = DateTimeHelper.utc(); 修改相关代码；
 * 与时间相关的概念存储在数据库统一存储为 utc+0 的时间戳毫秒，显示的时候 +DateTime.now().timeZoneOffset.inMilliseconds。
 * types.Message 使用的是本地时间，MessageModel 使用的是utc时间；
+* 所有设计时间模型的属性都新增 xxLocal 计算属性，例如 createdAt 对应新增 createdAtLocal；
 * 升级一些其他依赖；
 
 # 0.2.9

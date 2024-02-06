@@ -132,7 +132,7 @@ class FeedbackPage extends StatelessWidget {
                                     const Space(width: 10),
                                     Text(
                                       DateTimeHelper.lastTimeFmt(
-                                          model.createdAt),
+                                          model.createdAtLocal),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(

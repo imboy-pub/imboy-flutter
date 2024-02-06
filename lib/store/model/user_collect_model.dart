@@ -29,6 +29,12 @@ class UserCollectModel {
     required this.info,
   });
 
+  int get updatedAtLocal =>
+      updatedAt + DateTime.now().timeZoneOffset.inMilliseconds;
+
+  int get createdAtLocal =>
+      createdAt + DateTime.now().timeZoneOffset.inMilliseconds;
+
   factory UserCollectModel.fromJson(Map<String, dynamic> data) {
     var info1 = data['info'] ?? {};
     try {

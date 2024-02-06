@@ -42,7 +42,7 @@ class MessageModel {
   String? fromId; // 等价于数据库的 from
   String? toId; // 等价于数据库的 to
   Map<String, dynamic>? payload;
-  int? createdAt; // 消息创建时间 毫秒时间戳
+  int createdAt; // 消息创建时间 毫秒时间戳
   int? serverTs; // 服务器组装消息的时间戳
   //
   int? conversationId;
@@ -59,11 +59,17 @@ class MessageModel {
     required this.fromId,
     required this.toId,
     required this.payload,
-    this.createdAt,
+    this.createdAt = 0,
     this.serverTs,
     //
     required this.conversationId,
   });
+
+  // int get updatedAtLocal =>
+  //     updatedAt + DateTime.now().timeZoneOffset.inMilliseconds;
+
+  int get createdAtLocal =>
+      createdAt + DateTime.now().timeZoneOffset.inMilliseconds;
 
   factory MessageModel.fromJson(Map<String, dynamic> data) {
     Map<String, dynamic>? p;
@@ -209,8 +215,6 @@ class MessageModel {
   types.Message toTypeMessage() {
     String sysPrompt = payload?['sys_prompt'] ?? '';
     types.Message? message;
-    int createdDtLocal =
-        createdAt! + DateTime.now().timeZoneOffset.inMilliseconds;
     // enum MessageType { custom, file, image, text, unsupported }
     if (payload!['msg_type'] == 'text') {
       message = types.TextMessage(
@@ -219,7 +223,7 @@ class MessageModel {
           // firstName: "",
           // imageUrl: "",
         ),
-        createdAt: createdDtLocal,
+        createdAt: createdAtLocal,
         id: id!,
         remoteId: toId,
         text: payload?['text'],
@@ -233,7 +237,7 @@ class MessageModel {
           // firstName: "",
           // imageUrl: "",
         ),
-        createdAt: createdDtLocal,
+        createdAt: createdAtLocal,
         id: id!,
         remoteId: toId,
         name: payload!['name'],
@@ -251,7 +255,7 @@ class MessageModel {
           // firstName: "",
           // imageUrl: "",
         ),
-        createdAt: createdDtLocal,
+        createdAt: createdAtLocal,
         id: id!,
         remoteId: toId,
         name: payload!['name'],
@@ -271,7 +275,7 @@ class MessageModel {
           // imageUrl: "",
         ),
         id: id!,
-        createdAt: createdDtLocal,
+        createdAt: createdAtLocal,
         remoteId: toId,
         metadata: payload,
       );
@@ -283,7 +287,7 @@ class MessageModel {
           // imageUrl: "",
         ),
         id: id!,
-        createdAt: createdDtLocal,
+        createdAt: createdAtLocal,
         remoteId: toId,
         metadata: payload,
       );
@@ -295,7 +299,7 @@ class MessageModel {
           // imageUrl: "",
         ),
         id: id!,
-        createdAt: createdDtLocal,
+        createdAt: createdAtLocal,
         remoteId: toId,
         status: typesStatus,
         metadata: payload,

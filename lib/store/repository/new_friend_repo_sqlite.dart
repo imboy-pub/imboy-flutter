@@ -19,8 +19,8 @@ class NewFriendRepo {
   static String status = 'status';
 
   static String payload = 'payload';
-  static String updateAt = "update_at";
-  static String createAt = "create_at";
+  static String updatedAt = "update_at";
+  static String createdAt = "create_at";
   static String source = "source";
 
   final SqliteService _db = SqliteService.to;
@@ -37,8 +37,8 @@ class NewFriendRepo {
       NewFriendRepo.status: obj.status,
       NewFriendRepo.payload: obj.payload,
       // 单位毫秒，13位时间戳  1561021145560
-      NewFriendRepo.updateAt: obj.updateAt,
-      NewFriendRepo.createAt: DateTimeHelper.utc(),
+      NewFriendRepo.updatedAt: obj.updatedAt,
+      NewFriendRepo.createdAt: DateTimeHelper.utc(),
     };
     debugPrint("> on NewFriendRepo/insert/1 $insert");
 
@@ -58,12 +58,12 @@ class NewFriendRepo {
         NewFriendRepo.status,
         NewFriendRepo.msg,
         NewFriendRepo.payload,
-        NewFriendRepo.updateAt,
-        NewFriendRepo.createAt,
+        NewFriendRepo.updatedAt,
+        NewFriendRepo.createdAt,
       ],
       where: '${NewFriendRepo.uid}=?',
       whereArgs: [uid],
-      orderBy: "${NewFriendRepo.createAt} desc",
+      orderBy: "${NewFriendRepo.createdAt} desc",
       limit: limit,
     );
     // debugPrint("> on findFriend ${maps.length}, ${maps.toList().toString()}");
@@ -91,8 +91,8 @@ class NewFriendRepo {
         NewFriendRepo.status,
         NewFriendRepo.msg,
         NewFriendRepo.payload,
-        NewFriendRepo.updateAt,
-        NewFriendRepo.createAt,
+        NewFriendRepo.updatedAt,
+        NewFriendRepo.createdAt,
       ],
       where: '${NewFriendRepo.from} = ? and ${NewFriendRepo.to} = ?',
       whereArgs: [from, to],
@@ -142,17 +142,17 @@ class NewFriendRepo {
       data[NewFriendRepo.payload] = json[NewFriendRepo.payload];
     }
 
-    if (json[NewFriendRepo.updateAt] != null &&
-        json[NewFriendRepo.updateAt] >= 0) {
-      data[NewFriendRepo.updateAt] = json[NewFriendRepo.updateAt];
+    if (json[NewFriendRepo.updatedAt] != null &&
+        json[NewFriendRepo.updatedAt] >= 0) {
+      data[NewFriendRepo.updatedAt] = json[NewFriendRepo.updatedAt];
     }
-    if (json[NewFriendRepo.createAt] != null &&
-        json[NewFriendRepo.createAt] >= 0) {
-      data[NewFriendRepo.createAt] = json[NewFriendRepo.createAt];
+    if (json[NewFriendRepo.createdAt] != null &&
+        json[NewFriendRepo.createdAt] >= 0) {
+      data[NewFriendRepo.createdAt] = json[NewFriendRepo.createdAt];
     }
 
     if (strNoEmpty(from) && strNoEmpty(to)) {
-      data[NewFriendRepo.updateAt] = DateTimeHelper.utc();
+      data[NewFriendRepo.updatedAt] = DateTimeHelper.utc();
       return await _db.update(
         NewFriendRepo.tableName,
         data,

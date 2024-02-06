@@ -448,10 +448,10 @@ class UserCollectPage extends StatelessWidget {
                                                         obj.updatedAt > 0
                                                     ? DateTimeHelper
                                                         .lastTimeFmt(
-                                                            obj.updatedAt)
+                                                            obj.updatedAtLocal)
                                                     : DateTimeHelper
                                                         .lastTimeFmt(
-                                                            obj.createdAt),
+                                                            obj.createdAtLocal),
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: const TextStyle(

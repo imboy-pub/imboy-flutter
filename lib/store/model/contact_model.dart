@@ -53,7 +53,7 @@ class ContactModel extends ISuspensionBean {
     this.region = "",
     this.sign = "",
     this.source = "",
-    this.updateAt,
+    this.updatedAt = 0,
     this.isFriend = 1,
     // isFrom 好友关系发起人
     this.isFrom = 0,
@@ -85,7 +85,7 @@ class ContactModel extends ISuspensionBean {
   // visit_card | qrcode | people_nearby
   // recently_user
   final String source;
-  final int? updateAt;
+  final int updatedAt;
   int isFriend;
 
   // isFrom 好友关系发起人
@@ -102,6 +102,12 @@ class ContactModel extends ISuspensionBean {
 
   final VoidCallback? onPressed;
   final VoidCallback? onLongPressed;
+
+  int get updatedAtLocal =>
+      updatedAt + DateTime.now().timeZoneOffset.inMilliseconds;
+
+  // int get createdAtLocal =>
+  //     createdAt + DateTime.now().timeZoneOffset.inMilliseconds;
 
   /// 联系人来源描述
   String get sourceTr {
@@ -142,7 +148,7 @@ class ContactModel extends ISuspensionBean {
       source: json["source"].toString(),
       sign: json["sign"].toString(),
       // 单位毫秒，13位时间戳  1561021145560
-      updateAt: json[ContactRepo.updateAt] ?? DateTimeHelper.utc(),
+      updatedAt: json[ContactRepo.updatedAt] ?? DateTimeHelper.utc(),
       isFriend: json[ContactRepo.isFriend] ?? 0,
       categoryId: json[ContactRepo.categoryId] ?? 0,
       isFrom: int.tryParse('$isFrom') ?? 0,
@@ -161,7 +167,7 @@ class ContactModel extends ISuspensionBean {
         'sign': sign,
         'source': source,
         ContactRepo.tag: tag,
-        ContactRepo.updateAt: updateAt ?? 0,
+        ContactRepo.updatedAt: updatedAt,
         ContactRepo.isFriend: isFriend,
         ContactRepo.isFrom: isFrom,
         ContactRepo.categoryId: categoryId,

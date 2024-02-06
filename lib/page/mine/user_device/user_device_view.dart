@@ -177,7 +177,7 @@ class UserDevicePage extends StatelessWidget {
                                     if (model.lastActiveAt > 0)
                                       Text(
                                         DateTimeHelper.lastTimeFmt(
-                                            model.lastActiveAt),
+                                            model.lastActiveAtLocal),
                                       ),
                                   ]),
                                   trailing: Icon(

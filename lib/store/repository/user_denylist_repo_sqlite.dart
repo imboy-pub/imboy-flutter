@@ -109,8 +109,7 @@ class UserDenylistRepo {
       UserDenylistRepo.sign: obj.sign,
       UserDenylistRepo.source: obj.source,
       // 单位毫秒，13位时间戳  1561021145560
-      UserDenylistRepo.createdAt:
-          obj.createdAt ?? DateTimeHelper.utc(),
+      UserDenylistRepo.createdAt: obj.createdAt,
     };
     debugPrint("> on UserDenylistRepo/insert/1 $insert");
 

@@ -114,7 +114,8 @@ class UserDeviceDetailPage extends StatelessWidget {
                 isRight: false,
                 rightW: SizedBox(
                   child: Text(
-                    Jiffy.parseFromMillisecondsSinceEpoch(model.lastActiveAt)
+                    Jiffy.parseFromMillisecondsSinceEpoch(
+                            model.lastActiveAtLocal)
                         .format(pattern: 'yyyy-MM-dd HH:mm:ss'),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

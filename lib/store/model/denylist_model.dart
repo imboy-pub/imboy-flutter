@@ -41,7 +41,7 @@ class DenylistModel extends ISuspensionBean {
   final String region;
   final String sign;
   final String source; // 朋友来源 visit_card | qrcode | people_nearby
-  int? createdAt;
+  int createdAt;
 
   //
   String nameIndex;
@@ -53,6 +53,12 @@ class DenylistModel extends ISuspensionBean {
 
   final VoidCallback? onPressed;
   final VoidCallback? onLongPressed;
+
+  // int get updatedAtLocal =>
+  //     updatedAt + DateTime.now().timeZoneOffset.inMilliseconds;
+
+  int get createdAtLocal =>
+      createdAt + DateTime.now().timeZoneOffset.inMilliseconds;
 
   /// 联系人来源描述
   String get sourceTr {
@@ -101,7 +107,7 @@ class DenylistModel extends ISuspensionBean {
         'region': region,
         'sign': sign,
         'source': source,
-        UserDenylistRepo.createdAt: createdAt ?? 0,
+        UserDenylistRepo.createdAt: createdAt,
         //
         'firstLetter': firstLetter,
         'nameIndex': nameIndex,

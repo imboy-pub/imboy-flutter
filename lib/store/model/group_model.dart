@@ -2,6 +2,12 @@ import 'package:flutter/services.dart';
 import 'package:imboy/config/init.dart';
 
 class GroupModel {
+  // int get updatedAtLocal =>
+  //     updatedAt + DateTime.now().timeZoneOffset.inMilliseconds;
+  //
+  // int get createdAtLocal =>
+  //     createdAt + DateTime.now().timeZoneOffset.inMilliseconds;
+  //
   static Future<dynamic> inviteGroupMember(List list, String groupId,
       {Callback? callback}) async {
     try {

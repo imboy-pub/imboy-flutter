@@ -280,21 +280,7 @@ class ContactLogic extends GetxController {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-            ),
-            // Space(width: mainSpace),
-            // n.Column([
-            //   // 最近会话时间
-            //   Text(
-            //     DateTimeHelper.lastTimeFmt(model.lastTime),
-            //     maxLines: 1,
-            //     overflow: TextOverflow.ellipsis,
-            //     style: const TextStyle(
-            //       color: AppColors.MainTextColor,
-            //       fontSize: 14.0,
-            //     ),
-            //   ),
-            //   const Icon(Icons.flag, color: Colors.transparent),
-            // ])
+            )
           ]),
         )
       ])

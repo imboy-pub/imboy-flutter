@@ -59,9 +59,10 @@ class PassportPage extends StatelessWidget {
       } else {
         deviceName = "[$deviceName]";
       }
-      int mts = args['server_ts'] ?? DateTimeHelper.currentTimeMillis;
-      String hm =
-          Jiffy.parseFromMillisecondsSinceEpoch(mts).format(pattern: "H:m");
+      int mts = args['server_ts'] ?? DateTimeHelper.utc();
+      String hm = Jiffy.parseFromMillisecondsSinceEpoch(
+              mts + DateTime.now().timeZoneOffset.inMilliseconds)
+          .format(pattern: "H:m");
       // "logged_in_on_another_device":"你的账号于%s在%s设备上登录了",
       Future.delayed(const Duration(milliseconds: 500), () {
         n.showDialog(
