@@ -19,17 +19,17 @@ class AppVersionProvider extends HttpClient {
     });
     debugPrint(
         "AppVersionProvider_sqliteUpgradeDdl resp: ${resp.payload.toString()}");
-    return resp.payload['ddl'] ?? [];
+    return List<String>.from((resp.payload['ddl'] ?? []) as List<dynamic>);
   }
 
   Future<List<String>> sqliteDowngradeDdl(int oldVsn, int newVsn) async {
     IMBoyHttpResponse resp =
         await get(API.sqliteDowngradeDdl, queryParameters: {
-      'old_vsn': oldVsn,
-      'new_vsn': newVsn,
+      'old_vsn': newVsn,
+      'new_vsn': oldVsn,
     });
     debugPrint(
         "AppVersionProvider_sqliteUpgradeDdl resp: ${resp.payload.toString()}");
-    return resp.payload['ddl'] ?? [];
+    return List<String>.from((resp.payload['ddl'] ?? []) as List<dynamic>);
   }
 }

@@ -1,3 +1,8 @@
+# 0.2.11
+* 修复2个表的字段命名，规范化调整 （ update_at TO updated_at; create_at TO created_at)；
+* 修复处理升降级两个API的结果异常的问题 /app_ddl/get?type=upgrade /app_ddl/get?type=downgrade；
+* 升级一些其他依赖；
+
 # 0.2.10
 * 修复 APP判断token过期的当前时间去 utc+0 的时间戳，服务器端的 token 的 exp 也去 utc+0的时间戳，以避免时区差异影响；
 * 当前时间毫秒，使用 int now = DateTimeHelper.utc(); 修改相关代码；

@@ -23,7 +23,7 @@ class ContactRepo {
   static String region = 'region';
   static String sign = 'sign';
   static String source = 'source';
-  static String updatedAt = "update_at";
+  static String updatedAt = "updated_at";
   static String isFriend = 'is_friend';
   static String categoryId = 'category_id';
 

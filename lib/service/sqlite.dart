@@ -14,7 +14,7 @@ import 'package:sqflite/sqflite.dart';
 /// 参考 https://www.javacodegeeks.com/2020/06/using-sqlite-in-flutter-tutorial.html
 /// Sqlite 只负责维护表结构
 class SqliteService {
-  static const _dbVersion = 5;
+  static const _dbVersion = 6;
 
   SqliteService._privateConstructor();
 
@@ -104,20 +104,12 @@ class SqliteService {
   ///数据库版本
   Future _onUpgrade(Database db, int oldVsn, int newVsn) async {
     iPrint("SqliteService_onUpgrade oldVsn: $oldVsn, newVsn: $newVsn");
-    try {
-      await SqliteDdl.onUpgrade(db, oldVsn, newVsn);
-    } catch (e) {
-      iPrint("SqliteService_onUpgrade error: $e");
-    }
+    await SqliteDdl.onUpgrade(db, oldVsn, newVsn);
   }
 
   Future _onDowngrade(Database db, int oldVsn, int newVsn) async {
     iPrint("SqliteService_onDowngrade oldVsn: $oldVsn, newVsn: $newVsn");
-    try {
-      await SqliteDdl.onDowngrade(db, oldVsn, newVsn);
-    } catch (e) {
-      iPrint("SqliteService_onDowngrade error: $e");
-    }
+    await SqliteDdl.onDowngrade(db, oldVsn, newVsn);
   }
 
   Future<int> insert(String table, Map<String, dynamic> data) async {

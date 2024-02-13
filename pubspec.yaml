@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.2.10
+version: 0.2.11
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -46,7 +46,7 @@ dependencies:
 
   url_launcher: ^6.2.4 # 打开url 拨打电话 发短信
   # https://juejin.cn/post/6869291513508659213
-  webview_flutter: ^4.5.0 # Show web page (CGU)
+  webview_flutter: ^4.7.0 # Show web page (CGU)
   flutter_inappwebview: ^6.0.0 # 它允许你将WebView小部件整合到你的Flutter应用中，使用无头WebViews，或者使用In-App浏览器。
 
 
@@ -67,10 +67,10 @@ dependencies:
   #webcrypto: ^0.5.2
   #json序列化和反序列化用的
   #json_annotation: ^4.8.1
-  permission_handler: ^11.2.0
-  permission_handler_apple: ^9.3.0
-  permission_handler_android: ^12.0.3
-  permission_handler_platform_interface: ^4.1.0
+  permission_handler: ^11.3.0
+  permission_handler_apple: ^9.4.0
+  permission_handler_android: ^12.0.5
+  permission_handler_platform_interface: ^4.2.0
   #any permission_handler:
   #  git:
   #    url: https://gitee.com/imboy-tripartite-deps/flutter-permission-handler.git
@@ -107,7 +107,7 @@ dependencies:
   # image_crop:
   #  path: plugin/image_crop
   #
-  image: ^4.1.6
+  image: ^4.1.7
   image_crop:
     git:
       url: https://gitee.com/imboy-tripartite-deps/image_crop.git
@@ -158,7 +158,7 @@ dependencies:
   #    ref: leeyi
 
   # Flutter 的弹出窗口。弹出窗口是一种瞬态视图，当您点击某个控件或某个区域时，它会出现在屏幕上其他内容的上方。
-  popover: ^0.2.9
+  popover: ^0.3.0
   # popup_menu: ^1.0.5
   popup_menu:
     git:
@@ -288,7 +288,7 @@ dependencies:
 dependency_overrides:
   #http: ^1.1.2
   #voice_message_package: 1.0.41
-  web: 0.4.0
+  web: 0.4.2
   logger: ^2.0.2+1
 
 dev_dependencies:

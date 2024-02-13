@@ -19,8 +19,8 @@ class NewFriendRepo {
   static String status = 'status';
 
   static String payload = 'payload';
-  static String updatedAt = "update_at";
-  static String createdAt = "create_at";
+  static String updatedAt = "updated_at";
+  static String createdAt = "created_at";
   static String source = "source";
 
   final SqliteService _db = SqliteService.to;

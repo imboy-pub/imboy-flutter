@@ -1,6 +1,5 @@
 import 'package:sqflite/sqflite.dart';
 
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/provider/app_version_provider.dart';
 
 class SqliteDdl {
@@ -37,10 +36,6 @@ class SqliteDdl {
     if (ddl1.isEmpty) {
       return;
     }
-    try {
-      await db.execute(ddl1);
-    } catch (e) {
-      iPrint("sqlite_ddl_exeDDL $ddl1 error: $e");
-    }
+    await db.execute(ddl1);
   }
 }
