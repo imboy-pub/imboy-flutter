@@ -1,3 +1,8 @@
+# 0.3.0
+* 新增 为imboy_[user_id].db 新增4个群聊相关表；
+* 修复 重新定义 conversation 表的唯一主键为 uk_Type_From_To ON conversation (type, user_id, peer_id);
+* 修改 其他支持群聊的相关数据类别的调整（type 为 C2C C2G 等，message 表和 group_message 结构完全一致，前缀存储C2C消息，后者存储C2G消息）
+
 # 0.2.11
 * 修复2个表的字段命名，规范化调整 （ update_at TO updated_at; create_at TO created_at)；
 * 修复处理升降级两个API的结果异常的问题 /app_ddl/get?type=upgrade /app_ddl/get?type=downgrade；

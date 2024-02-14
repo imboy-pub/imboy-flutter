@@ -45,7 +45,9 @@ class ChatLogic extends GetxController {
     if (obj == null) {
       return [];
     }
-    List<MessageModel> items = await MessageRepo().findByConversation(
+    String tb = obj.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+    MessageRepo repo = MessageRepo(tableName: tb);
+    List<MessageModel> items = await repo.findByConversation(
       obj.id,
       page,
       size,
@@ -144,7 +146,7 @@ class ChatLogic extends GetxController {
     String toId, // peerId
     String? avatar,
     String title,
-    String type, // C2C or GROUP
+    String type, // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
     types.Message message, {
     bool sendToServer = true,
   }) async {
@@ -161,7 +163,7 @@ class ChatLogic extends GetxController {
       title: title,
       subtitle: subtitle,
       type: type,
-      // C2C or GROUP
+      // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
       msgType: msgType,
       lastMsgId: message.id,
       lastTime: createdAt,
@@ -175,7 +177,10 @@ class ChatLogic extends GetxController {
     conversation = await (ConversationRepo()).save(conversation);
     MessageModel obj = getMsgFromTMsg(type, conversation.id, message);
     // debugPrint("> on addMessage before insert MessageRepo");
-    await (MessageRepo()).insert(obj);
+    String tb = conversation.type == 'C2G'
+        ? MessageRepo.c2gTable
+        : MessageRepo.c2cTable;
+    await (MessageRepo(tableName: tb)).insert(obj);
     // debugPrint("> on addMessage after insert MessageRepo");
     eventBus.fire(conversation);
     // send to server
@@ -190,26 +195,34 @@ class ChatLogic extends GetxController {
     }
   }
 
-  Future<bool> removeMessage(int conversationId, types.Message msg) async {
+  Future<bool> removeMessage(
+    int conversationId,
+    types.Message msg,
+  ) async {
+    ConversationRepo repo = ConversationRepo();
+    ConversationModel? cm;
+    MessageModel? lastMsg;
     if (conversationId == 0) {
-      ConversationModel? cm = await ConversationRepo().findByPeerId(
+      cm = await repo.findByPeerId(
         msg.remoteId ?? '',
       );
       conversationId = cm == null ? 0 : cm.id;
+    } else {
+      cm = await repo.findById(conversationId);
     }
-    MessageModel? lastMsg;
+    String tb = cm?.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
     if (conversationId > 0) {
-      List<MessageModel> items = await MessageRepo().findByConversation(
+      List<MessageModel> items =
+          await MessageRepo(tableName: tb).findByConversation(
         conversationId,
         2,
         1,
       );
       lastMsg = items.isEmpty ? null : items[0];
+      debugPrint(
+          "removeMessage ${msg.id}; $conversationId, lastMsg: ${lastMsg?.toJson()} ;");
+      await MessageRepo(tableName: tb).delete(msg.id);
     }
-    debugPrint(
-        "removeMessage ${msg.id}; $conversationId, lastMsg: ${lastMsg?.toJson()} ;");
-    await MessageRepo().delete(msg.id);
-    ConversationRepo repo = ConversationRepo();
     if (lastMsg == null) {
       await repo.updateById(conversationId, {
         ConversationRepo.lastMsgId: '',
@@ -227,9 +240,9 @@ class ChatLogic extends GetxController {
         ConversationRepo.subtitle: MessageModel.conversationSubtitle(msg2),
       });
     }
-    ConversationModel? conversation = await repo.findById(conversationId);
-    if (conversation != null) {
-      eventBus.fire(conversation);
+    cm = await repo.findById(conversationId);
+    if (cm != null) {
+      eventBus.fire(cm);
     }
     if (msg is types.ImageMessage) {
       Get.find<ImageGalleryLogic>().remoteFromGallery(msg.id);
@@ -238,11 +251,11 @@ class ChatLogic extends GetxController {
   }
 
   /// 撤回消息
-  Future<bool> revokeMessage(types.Message obj) async {
+  Future<bool> revokeMessage(String type, types.Message obj) async {
     Map<String, dynamic> msg = {
       'ts': DateTimeHelper.utc(),
       'id': obj.id,
-      'type': 'C2C_REVOKE',
+      'type': type == 'C2G' ? 'C2G_REVOKE' : 'C2C_REVOKE',
       'from': obj.author.id,
       'to': obj.remoteId,
     };
@@ -260,6 +273,8 @@ class ChatLogic extends GetxController {
     if (c == null) {
       return null;
     }
+    String tableName =
+        c.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
     int newUnreadNum = c.unreadNum - msgIds.length;
     c.unreadNum = newUnreadNum > 0 ? newUnreadNum : 0;
     bool res = await db.transaction((txn) async {
@@ -273,7 +288,7 @@ class ChatLogic extends GetxController {
       );
       for (var id in msgIds) {
         db.update(
-          MessageRepo.tableName,
+          tableName,
           {
             MessageRepo.status: MessageStatus.seen,
           },
@@ -302,8 +317,8 @@ class ChatLogic extends GetxController {
     return sysPrompt;
   }
 
-  void setSysPrompt(String msgId, String sysPrompt) async {
-    var repo = MessageRepo();
+  void setSysPrompt(String tableName, String msgId, String sysPrompt) async {
+    var repo = MessageRepo(tableName: tableName);
     MessageModel? msg = await repo.find(msgId);
     Map<String, dynamic> payload = msg!.payload ?? {};
     payload['msg_type'] = payload['msg_type'].toString();

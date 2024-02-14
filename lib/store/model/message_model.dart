@@ -38,7 +38,7 @@ class ReEditMessage {
 
 class MessageModel {
   String? id;
-  String? type; // C2C or GROUP
+  String? type; // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
   String? fromId; // 等价于数据库的 from
   String? toId; // 等价于数据库的 to
   Map<String, dynamic>? payload;

@@ -214,6 +214,7 @@ class UserCollectLogic extends GetxController {
               SizedBox(
                 height: 80,
                 child: AudioMessageBuilder(
+                  type: obj.info['type'],
                   user: types.User(
                     id: UserRepoLocal.to.currentUid,
                     firstName: UserRepoLocal.to.current.nickname,
@@ -685,10 +686,10 @@ class UserCollectLogic extends GetxController {
   }
 
   /// 添加收藏
-  Future<bool> add(types.Message message) async {
-    int kind = getCollectKind(message);
-    String source = await getCollectSource(message.author.id);
-    MessageModel? msg2 = await MessageRepo().find(message.id);
+  Future<bool> add({required String tb, required types.Message msg}) async {
+    int kind = getCollectKind(msg);
+    String source = await getCollectSource(msg.author.id);
+    MessageModel? msg2 = await MessageRepo(tableName: tb).find(msg.id);
     if (msg2 == null) {
       return false;
     }
@@ -699,7 +700,7 @@ class UserCollectLogic extends GetxController {
     }
     bool res = await UserCollectProvider().add(
       kind,
-      message.id,
+      msg.id,
       source,
       info,
     );
@@ -710,7 +711,7 @@ class UserCollectLogic extends GetxController {
         UserCollectRepo.createdAt: DateTimeHelper.utc(),
         UserCollectRepo.userId: UserRepoLocal.to.currentUid,
         UserCollectRepo.kind: kind,
-        UserCollectRepo.kindId: message.id,
+        UserCollectRepo.kindId: msg.id,
         UserCollectRepo.source: source,
         UserCollectRepo.info: info
       });

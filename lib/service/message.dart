@@ -41,6 +41,7 @@ class MessageService extends GetxService {
   void onInit() {
     super.onInit();
     eventBus.on<Map>().listen((Map data) async {
+      // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
       String type = data['type'] ?? 'error';
       type = type.toUpperCase();
       iPrint(
@@ -97,35 +98,32 @@ class MessageService extends GetxService {
           eventBus.fire(msgModel);
         }
       } else {
+        data['type'] = type;
         switch (type) {
           case 'C2C':
-            await receiveC2CMessage(data);
+            await receiveMessage(data);
             break;
           case 'C2C_SERVER_ACK': // C2C 服务端消息确认
-            await receiveC2CServerAckMessage(data);
+            await receiveServerAckMessage(data);
             break;
           case 'C2C_REVOKE': // 对端撤回消息
-            await receiveC2CRevokeMessage(data);
+            await receiveRevokeMessage(data);
             break;
           case 'C2C_REVOKE_ACK': // 对端撤回消息ACK
-            await receiveC2CRevokeAckMessage(type, data);
+            await receiveRevokeAckMessage(type, data);
             break;
-          // case 'C2G':
-          //  TODO leeyi 2023-04-28
-          //   await receiveC2GMessage(data);
-          //   break;
-          // case 'C2G_SERVER_ACK': // C2G 服务端消息确认
-          //  TODO leeyi 2023-04-28
-          //   await receiveC2GServerAckMessage(data);
-          //   break;
-          // case 'C2G_REVOKE': // 对端撤回消息
-          //  TODO leeyi 2023-04-28
-          //   await receiveC2GRevokeMessage(data);
-          //   break;
-          // case 'C2G_REVOKE_ACK': // 对端撤回消息ACK
-          //  TODO leeyi 2023-04-28
-          //   await receiveC2GRevokeAckMessage(type, data);
-          //   break;
+          case 'C2G':
+            await receiveMessage(data);
+            break;
+          case 'C2G_SERVER_ACK': // C2G 服务端消息确认
+            await receiveServerAckMessage(data);
+            break;
+          case 'C2G_REVOKE': // 对端撤回消息
+            await receiveRevokeMessage(data);
+            break;
+          case 'C2G_REVOKE_ACK': // 对端撤回消息ACK
+            await receiveRevokeAckMessage(type, data);
+            break;
           case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
             break;
           case 'ERROR': //
@@ -231,11 +229,13 @@ class MessageService extends GetxService {
       case 'in_denylist':
         // 对方将我加入黑名单后： 消息已发出，但被对方拒收了。
         // String msgId = payload['content'] ?? '';
-        Get.find<ChatLogic>().setSysPrompt(msgId, 'in_denylist');
+        Get.find<ChatLogic>()
+            .setSysPrompt(MessageRepo.c2cTable, msgId, 'in_denylist');
         break;
       case 'not_a_friend':
         // String msgId = payload['content'] ?? '';
-        Get.find<ChatLogic>().setSysPrompt(msgId, 'not_a_friend');
+        Get.find<ChatLogic>()
+            .setSysPrompt(MessageRepo.c2cTable, msgId, 'not_a_friend');
         break;
       case 'logged_another_device': // 在其他设备登录了
         String did = payload['did'] ?? '';
@@ -309,13 +309,13 @@ class MessageService extends GetxService {
     super.onClose();
   }
 
-  /// 收到C2C消息
-  Future<void> receiveC2CMessage(data) async {
+  /// 收到消息  C2C or C2G
+  Future<void> receiveMessage(data) async {
     var msgType = data['payload']['msg_type'] ?? '';
     var subtitle = data['payload']['text'] ?? '';
-    iPrint("> rtc msg c2c receiveMessage $data");
+    iPrint("> rtc msg receiveMessage $data");
     int now = DateTimeHelper.utc();
-    iPrint("> rtc msg c2c now: $now elapsed: ${now - data['created_at']}");
+    iPrint("> rtc msg now: $now elapsed: ${now - data['created_at']}");
 
     ContactModel? ct = await ContactRepo().findByUid(data['from']);
     String avatar = ct!.avatar;
@@ -335,6 +335,7 @@ class MessageService extends GetxService {
       avatar: avatar,
       title: title,
       subtitle: subtitle,
+      // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
       type: data['type'],
       msgType: msgType,
       lastMsgId: data['id'],
@@ -355,11 +356,15 @@ class MessageService extends GetxService {
       conversationId: conversation.id,
       status: MessageStatus.delivered, // 未读 已投递
     );
-    int? exited = await (MessageRepo()).save(msg);
+    String tb =
+        data['type'] == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+    MessageRepo repo = MessageRepo(tableName: tb);
+    int? exited = await repo.save(msg);
     // 确认消息
     iPrint(
-        "> rtc msg CLIENT_ACK,C2C,${data['id']},$deviceId, exited $exited, ${DateTime.now()}");
-    MessageService.to.sendAckMsg('C2C', data['id']);
+        "365> rtc msg CLIENT_ACK,${data['type']},${data['id']},$deviceId, exited $exited, ${DateTime.now()}");
+    // data['type'] C2C or C2G
+    MessageService.to.sendAckMsg(data['type'], data['id']);
     if (exited != null && exited > 0) {
       return;
     }
@@ -380,10 +385,13 @@ class MessageService extends GetxService {
     eventBus.fire(tMsg);
   }
 
-  /// 收到C2C服务端确认消息
-  Future<void> receiveC2CServerAckMessage(Map data) async {
+  /// 收到服务端确认消息 C2C_SERVER_ACK C2G_SERVER_ACK
+  Future<void> receiveServerAckMessage(Map data) async {
     iPrint("> rtc msg S_RECEIVED: msg:$data");
-    MessageRepo repo = MessageRepo();
+    String tb = data['type'] == 'C2G_SERVER_ACK'
+        ? MessageRepo.c2gTable
+        : MessageRepo.c2cTable;
+    MessageRepo repo = MessageRepo(tableName: tb);
     String id = data['id'];
     int res = await repo.update({
       'id': id,
@@ -402,10 +410,13 @@ class MessageService extends GetxService {
     );
   }
 
-  /// 收到C2C撤回消息
-  Future<void> receiveC2CRevokeMessage(data) async {
+  /// 收到撤回消息 C2C_REVOKE C2G_REVOKE
+  Future<void> receiveRevokeMessage(data) async {
+    String tb = data['type'] == 'C2G_REVOKE'
+        ? MessageRepo.c2gTable
+        : MessageRepo.c2cTable;
+    MessageRepo repo = MessageRepo(tableName: tb);
     ContactModel? contact = await ContactRepo().findByUid(data['from']);
-    MessageRepo repo = MessageRepo();
     String id = data['id'];
     await repo.update({
       'id': id,
@@ -427,11 +438,40 @@ class MessageService extends GetxService {
     // 通知服务器已撤销
     Map<String, dynamic> msg2 = {
       'id': id,
-      'type': 'C2C_REVOKE_ACK',
+      'type':
+          data['type'] == 'C2G_REVOKE' ? 'C2G_REVOKE_ACK' : 'C2C_REVOKE_ACK',
       'from': data["to"],
       'to': data["from"],
     };
     WebSocketService.to.sendMessage(json.encode(msg2));
+  }
+
+  /// 收到撤回ACK消息 C2C_REVOKE_ACK C2G_REVOKE_ACK
+  Future<void> receiveRevokeAckMessage(dType, data) async {
+    String tb =
+        dType == 'C2G_REVOKE_ACK' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+    MessageRepo repo = MessageRepo(tableName: tb);
+    MessageModel? msg = await repo.find(data['id']);
+    if (msg == null) {
+      return;
+    }
+    msg.payload = {
+      "msg_type": "custom",
+      "custom_type": "revoked",
+      'text': msg.payload!['text'],
+    };
+    await repo.update({
+      'id': data['id'],
+      'type': dType,
+      'status': MessageStatus.send,
+      'payload': json.encode(msg.payload),
+    });
+    // 更新会话里面的消息列表的特定消息状态
+    eventBus.fire([msg.toTypeMessage()]);
+    // 确认消息
+    String ackType = dType == 'C2G_REVOKE_ACK' ? 'C2G' : 'C2C';
+    MessageService.to.sendAckMsg(ackType, data['id']);
+    changeConversation(msg, 'my_revoked');
   }
 
   /// 撤回消息修正相应会话记录
@@ -466,31 +506,7 @@ class MessageService extends GetxService {
     }
   }
 
-  /// 收到C2C撤回ACK消息
-  Future<void> receiveC2CRevokeAckMessage(dType, data) async {
-    MessageRepo repo = MessageRepo();
-    MessageModel? msg = await repo.find(data['id']);
-    if (msg == null) {
-      return;
-    }
-    msg.payload = {
-      "msg_type": "custom",
-      "custom_type": "revoked",
-      'text': msg.payload!['text'],
-    };
-    await repo.update({
-      'id': data['id'],
-      'type': dType,
-      'status': MessageStatus.send,
-      'payload': json.encode(msg.payload),
-    });
-    // 更新会话里面的消息列表的特定消息状态
-    eventBus.fire([msg.toTypeMessage()]);
-    // 确认消息
-    MessageService.to.sendAckMsg('C2C', data['id']);
-    changeConversation(msg, 'my_revoked');
-  }
-
+  /// 一对一通话添加本地消息
   Future<void> addLocalMsg({
     required String media,
     required bool caller,
@@ -565,7 +581,7 @@ class MessageService extends GetxService {
   }) async {
     iPrint(
         "changeLocalMsgState state $state, $msgId, startAt $startAt, endAt $endAt;");
-    MessageRepo repo = MessageRepo();
+    MessageRepo repo = MessageRepo(tableName: MessageRepo.c2cTable);
     MessageModel? msg = await repo.find(msgId);
     iPrint(
         "changeLocalMsgState 2 $msgId, ${msg?.payload?.toString()}; webrtcMsgIdLi ${webrtcMsgIdLi.toString()}");
@@ -603,16 +619,18 @@ class MessageService extends GetxService {
   }
 
   /// 清理无效的本地消息
+  /*
   Future<void> cleanInvalidLocalMsg({
+    required String tableName,
     required String msgId,
     types.Message? message,
   }) async {
     if (msgId.isEmpty) {
-      MessageModel? m = await MessageRepo().lastMsg();
+      MessageModel? m = await MessageRepo(tableName: tableName).lastMsg();
       message = m?.toTypeMessage();
     }
     if (message == null) {
-      MessageModel? m = await MessageRepo().find(msgId);
+      MessageModel? m = await MessageRepo(tableName: tableName).find(msgId);
       message = m?.toTypeMessage();
     }
     int startAt = message?.metadata?['start_at'] ?? 0;
@@ -622,4 +640,5 @@ class MessageService extends GetxService {
       Get.find<ChatLogic>().removeMessage(0, message);
     }
   }
+  */
 }

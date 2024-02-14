@@ -46,8 +46,11 @@ class CustomMessageBuilder extends StatelessWidget {
   /// Creates a text message widget from a [types.TextMessage] class
   const CustomMessageBuilder({
     super.key,
+    required this.type,
     required this.message,
   });
+
+  final String type; // C2C C2G
 
   /// [types.TextMessage]
   final types.CustomMessage message;
@@ -72,6 +75,7 @@ class CustomMessageBuilder extends StatelessWidget {
         );
       } else if (customType == 'quote') {
         w = QuoteMessageBuilder(
+          type: type,
           message: message,
           user: InheritedUser.of(context).user,
         );
@@ -82,6 +86,7 @@ class CustomMessageBuilder extends StatelessWidget {
         );
       } else if (customType == 'audio') {
         w = AudioMessageBuilder(
+          type: type,
           message: message,
           user: InheritedUser.of(context).user,
         );
@@ -164,6 +169,7 @@ Widget messageMsgWidget(types.Message msg) {
     );
   } else if (customType == 'audio') {
     msgWidget = AudioMessageBuilder(
+      type: msg.metadata?['type'], // TODO TEST leeyi 2024-02-14 19:49:43
       user: user,
       message: msg as types.CustomMessage,
     );

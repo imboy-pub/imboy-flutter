@@ -202,7 +202,7 @@ class SendToPage extends StatelessWidget {
                     title: value.title,
                     subtitle: '',
                     type: 'C2C',
-                    // C2C or GROUP
+                    // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
                     msgType: 'C2C',
                     lastMsgId: '',
                     lastTime: 0,

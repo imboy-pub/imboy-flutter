@@ -22,11 +22,12 @@ enum BubbleDirection { left, right }
 class AudioMessageBuilder extends StatefulWidget {
   AudioMessageBuilder({
     super.key,
+    required this.type, // for c2c c2g
     required this.user,
     required this.message,
     this.onPlay,
   });
-
+  final String type;
   final types.User user;
 
   /// [types.CustomMessage]
@@ -93,7 +94,10 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
                     'id': widget.message.id,
                     'payload': json.encode(widget.message.metadata),
                   };
-                  (MessageRepo()).update(data);
+                  String tb = widget.type == 'C2G'
+                      ? MessageRepo.c2gTable
+                      : MessageRepo.c2cTable;
+                  (MessageRepo(tableName: tb)).update(data);
                 }
               },
             ),
@@ -106,38 +110,5 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
                 : AppColors.ChatSentMessageBodyTextColor),
       ]),
     );
-    /*
-    return VoiceMessage(
-      audioSrc: widget.message.metadata!['uri'],
-      audioFile: tmpF,
-      duration: d,
-      showDuration: true,
-      noiseCount: 32,
-      formatDuration: (Duration duration) {
-        return duration.toString().substring(2, 11);
-      },
-      // waveform: widget.message.metadata!['waveform'],
-      played: widget.message.metadata!['played'] ?? false,
-      // To show played badge or not.
-      me: userIsAuthor,
-      // Set message side.
-      meBgColor: AppColors.ChatSendMessageBgColor,
-      contactFgColor: AppColors.ChatSentMessageBodyTextColor,
-      contactPlayIconColor: Colors.white,
-      onPlay: () {
-        if (widget.onPlay != null) widget.onPlay!();
-        if (widget.message.metadata!['played'] != true) {
-          setState(() {
-            widget.message.metadata!['played'] = true;
-          });
-          Map<String, dynamic> data = {
-            'id': widget.message.id,
-            'payload': json.encode(widget.message.metadata),
-          };
-          (MessageRepo()).update(data);
-        }
-      }, // Do something when voice played.
-    );
-    */
   }
 }

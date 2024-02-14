@@ -17,11 +17,12 @@ import 'package:niku/namespace.dart' as n;
 class QuoteMessageBuilder extends StatelessWidget {
   QuoteMessageBuilder({
     super.key,
+    required this.type,
     // 当前登录用户
     required this.user,
     required this.message,
   });
-
+  final String type; // C2C C2G
   final types.User user;
   final types.CustomMessage message;
 

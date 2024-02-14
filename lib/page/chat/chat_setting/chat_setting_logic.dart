@@ -14,7 +14,10 @@ class ChatSettingLogic extends GetxController {
     if (model == null) {
       return true;
     }
-    await MessageRepo().deleteByConversationId(model.id);
+    String tb = model.type.toUpperCase() == 'C2G'
+        ? MessageRepo.c2gTable
+        : MessageRepo.c2cTable;
+    await MessageRepo(tableName: tb).deleteByConversationId(model.id);
     return true;
   }
 }

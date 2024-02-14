@@ -99,9 +99,12 @@ class ConversationLogic extends GetxController {
   /// 移除会话
   Future<bool> removeConversation(int conversationId) async {
     Database db = await SqliteService.to.db;
+    ConversationModel? cm = await ConversationRepo().findById(conversationId);
+    String tableName =
+        cm?.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
     return await db.transaction((txn) async {
       await txn.execute(
-        "DELETE FROM ${MessageRepo.tableName} WHERE ${MessageRepo.conversationId}=?",
+        "DELETE FROM $tableName WHERE ${MessageRepo.conversationId}=?",
         [conversationId],
       );
       await txn.execute(
@@ -177,8 +180,10 @@ class ConversationLogic extends GetxController {
 
   // 重新计算会话消息提醒数量
   recalculateConversationRemind(String peerId) async {
+    ConversationModel? cm = await ConversationRepo().findByPeerId(peerId);
+    String tb = cm?.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
     int? count = await SqliteService.to.count(
-      MessageRepo.tableName,
+      tb,
       where:
           "${MessageRepo.status} = ? and ${MessageRepo.from} = ? and ${MessageRepo.from} <> ?",
       whereArgs: [MessageStatus.delivered, peerId, UserRepoLocal.to.currentUid],

@@ -209,7 +209,10 @@ Future<void> incomingCallScreen(
                   try {
                     Get.find<ConversationLogic>()
                         .decreaseConversationRemind(peer.peerId, 1);
-                    Get.find<ChatLogic>().markAsRead(peer.peerId, [msgId]);
+                    Get.find<ChatLogic>().markAsRead(
+                      peer.peerId,
+                      [msgId],
+                    );
                   } catch (e) {
                     //
                   }
@@ -238,7 +241,10 @@ Future<void> incomingCallScreen(
                   try {
                     Get.find<ConversationLogic>()
                         .decreaseConversationRemind(peer.peerId, 1);
-                    Get.find<ChatLogic>().markAsRead(peer.peerId, [msgId]);
+                    Get.find<ChatLogic>().markAsRead(
+                      peer.peerId,
+                      [msgId],
+                    );
                   } catch (e) {
                     //
                   }

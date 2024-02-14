@@ -65,7 +65,7 @@ class ChatPage extends StatefulWidget {
   final String peerAvatar;
   final String peerTitle;
   final String peerSign;
-  final String type; // [C2C | GROUP]
+  final String type; // [C2C | C2G]
 
   ChatPage({
     super.key,
@@ -104,7 +104,6 @@ class ChatPageState extends State<ChatPage> {
 
   // ignore: prefer_typing_uninitialized_variables
   late var currentUser;
-
   @override
   void initState() {
     // 初始化的时候置空数据，放在该位置（initData之前），不会出现闪屏
@@ -771,8 +770,10 @@ class ChatPageState extends State<ChatPage> {
       Clipboard.setData(ClipboardData(text: msg.text));
       EasyLoading.showToast("已复制".tr);
     } else if (itemId == "collect") {
+      String tb =
+          widget.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
       // 添加收藏
-      bool res = await UserCollectLogic().add(msg);
+      bool res = await UserCollectLogic().add(tb: tb, msg: msg);
       if (res) {
         EasyLoading.showSuccess('已收藏'.tr);
       } else {
@@ -780,7 +781,7 @@ class ChatPageState extends State<ChatPage> {
       }
     } else if (itemId == "revoke") {
       // 撤回消息
-      await logic.revokeMessage(msg);
+      await logic.revokeMessage(widget.type, msg);
     } else if (itemId == "quote") {
       // 引用消息
       updateQuoteMessage(msg);
@@ -885,6 +886,7 @@ class ChatPageState extends State<ChatPage> {
               customMessageBuilder: (types.CustomMessage msg,
                   {required int messageWidth}) {
                 return CustomMessageBuilder(
+                  type: widget.type,
                   message: msg,
                 );
               },
