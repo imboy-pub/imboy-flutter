@@ -209,7 +209,7 @@ dependencies:
   device_info_plus: ^9.1.2
   package_info_plus: ^5.0.1
   # Flutter 的 Markdown 渲染器
-  flutter_markdown: ^0.6.18+3
+  flutter_markdown: ^0.6.19
   # 滑动吸顶
   sliding_up_panel: ^2.0.0+1
   # 用于 Flutter 的 SVG 渲染和小部件库，允许绘制和显示可缩放矢量图形 1.1 文件。

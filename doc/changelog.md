@@ -1,6 +1,8 @@
 # 0.2.11
 * 修复2个表的字段命名，规范化调整 （ update_at TO updated_at; create_at TO created_at)；
 * 修复处理升降级两个API的结果异常的问题 /app_ddl/get?type=upgrade /app_ddl/get?type=downgrade；
+* 修复音视频消息创建时间有误的问题（types.Message 的时间取本地时间 MessageModel 的时间取utc0时间戳）；
+* 优化：EmojiViewConfig.columns =  Get.width ~/ (fontSize + 10) ; EmojiViewConfig.recentsLimit = columns * 3 - 2
 * 升级一些其他依赖；
 
 # 0.2.10

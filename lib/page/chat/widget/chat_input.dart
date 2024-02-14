@@ -282,89 +282,86 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     if (inputType == InputType.extra) {
       return widget.extraWidget ?? const Center(child: Text("其他item"));
     } else if (inputType == InputType.emoji) {
+      int columns = Get.width ~/ (fontSize + 10);
       return Offstage(
         offstage: !emojiShowing,
-        child: SizedBox(
-          height: 400,
-          child: EmojiPicker(
-            onEmojiSelected: (Category? category, Emoji emoji) {
-              _setText(emoji.emoji);
-            },
-            onBackspacePressed: () {
-              _textController
-                ..text = _textController.text.characters.skipLast(1).toString()
-                ..selection = TextSelection.fromPosition(
-                  TextPosition(offset: _textController.text.length),
-                );
-            },
-            config: Config(
-              height: 400,
-              checkPlatformCompatibility: true,
-              emojiTextStyle: TextStyle(fontSize: fontSize),
-              emojiViewConfig: EmojiViewConfig(
-                columns: 8,
-                emojiSizeMax: fontSize,
-                verticalSpacing: 0,
-                horizontalSpacing: 0,
-                recentsLimit: 19,
-                // tabIndicatorAnimDuration: kTabScrollDuration,
-                // categoryIcons: const CategoryIcons(),
-                buttonMode: ButtonMode.MATERIAL,
-                backgroundColor: Colors.white,
-              ),
-              swapCategoryAndBottomBar: true,
-              skinToneConfig: const SkinToneConfig(),
-              categoryViewConfig: CategoryViewConfig(
-                tabBarHeight: 48,
-                backgroundColor: Colors.white,
-                dividerColor: Colors.white,
-                indicatorColor: AppColors.primaryElement,
-                iconColorSelected: Colors.black,
-                iconColor: AppColors.tabBarElement,
-                customCategoryView: (
+        child: EmojiPicker(
+          onEmojiSelected: (Category? category, Emoji emoji) {
+            _setText(emoji.emoji);
+          },
+          onBackspacePressed: () {
+            _textController
+              ..text = _textController.text.characters.skipLast(1).toString()
+              ..selection = TextSelection.fromPosition(
+                TextPosition(offset: _textController.text.length),
+              );
+          },
+          config: Config(
+            checkPlatformCompatibility: true,
+            // emojiTextStyle: TextStyle(fontSize: fontSize),
+            emojiViewConfig: EmojiViewConfig(
+              columns: columns,
+              emojiSizeMax: fontSize,
+              verticalSpacing: 0,
+              horizontalSpacing: 4,
+              recentsLimit: columns * 3 - 2,
+              // tabIndicatorAnimDuration: kTabScrollDuration,
+              // categoryIcons: const CategoryIcons(),
+              buttonMode: ButtonMode.MATERIAL,
+              backgroundColor: Colors.white,
+            ),
+            swapCategoryAndBottomBar: true,
+            skinToneConfig: const SkinToneConfig(),
+            categoryViewConfig: CategoryViewConfig(
+              tabBarHeight: 48,
+              backgroundColor: Colors.white,
+              dividerColor: Colors.white,
+              indicatorColor: AppColors.primaryElement,
+              iconColorSelected: Colors.black,
+              iconColor: AppColors.tabBarElement,
+              customCategoryView: (
+                config,
+                state,
+                tabController,
+                pageController,
+              ) {
+                return EmojiCategoryView(
                   config,
                   state,
                   tabController,
                   pageController,
-                ) {
-                  return EmojiCategoryView(
-                    config,
-                    state,
-                    tabController,
-                    pageController,
-                  );
-                },
-                categoryIcons: const CategoryIcons(
-                  recentIcon: Icons.access_time_outlined,
-                  smileyIcon: Icons.emoji_emotions_outlined,
-                  animalIcon: Icons.cruelty_free_outlined,
-                  foodIcon: Icons.coffee_outlined,
-                  activityIcon: Icons.sports_soccer_outlined,
-                  travelIcon: Icons.directions_car_filled_outlined,
-                  objectIcon: Icons.lightbulb_outline,
-                  symbolIcon: Icons.emoji_symbols_outlined,
-                  flagIcon: Icons.flag_outlined,
-                ),
+                );
+              },
+              categoryIcons: const CategoryIcons(
+                recentIcon: Icons.access_time_outlined,
+                smileyIcon: Icons.emoji_emotions_outlined,
+                animalIcon: Icons.cruelty_free_outlined,
+                foodIcon: Icons.coffee_outlined,
+                activityIcon: Icons.sports_soccer_outlined,
+                travelIcon: Icons.directions_car_filled_outlined,
+                objectIcon: Icons.lightbulb_outline,
+                symbolIcon: Icons.emoji_symbols_outlined,
+                flagIcon: Icons.flag_outlined,
               ),
-              bottomActionBarConfig: const BottomActionBarConfig(
-                backgroundColor: Colors.white,
-                buttonColor: Colors.white,
-                buttonIconColor: AppColors.ItemOnColor,
-              ),
-              searchViewConfig: SearchViewConfig(
-                backgroundColor: Colors.white,
-                customSearchView: (
+            ),
+            bottomActionBarConfig: const BottomActionBarConfig(
+              backgroundColor: Colors.white,
+              buttonColor: Colors.white,
+              buttonIconColor: AppColors.ItemOnColor,
+            ),
+            searchViewConfig: SearchViewConfig(
+              backgroundColor: Colors.white,
+              customSearchView: (
+                config,
+                state,
+                showEmojiView,
+              ) {
+                return EmojiSearchView(
                   config,
                   state,
                   showEmojiView,
-                ) {
-                  return EmojiSearchView(
-                    config,
-                    state,
-                    showEmojiView,
-                  );
-                },
-              ),
+                );
+              },
             ),
           ),
         ),
