@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/page/mine/storage_space/storage_space_view.dart';
 import 'package:imboy/page/single/upgrade.dart';
 import 'package:imboy/store/provider/app_version_provider.dart';
@@ -37,11 +38,48 @@ class _SettingPageState extends State<SettingPage> {
       ),
       // color: appBarColor,
       body: SingleChildScrollView(
-          child: n.Column(
-        [
+        child: n.Column([
           Container(
             color: Colors.white,
             child: n.Column([
+              n.ListTile(
+                title: Text('账号与安全'.tr),
+                trailing: Icon(
+                  Icons.navigate_next,
+                  color: AppColors.MainTextColor.withOpacity(0.5),
+                ),
+                onTap: () {
+                  // Get.to(
+                  //       () => MarkdownPage(
+                  //     title: '更新日志'.tr,
+                  //     url:
+                  //     "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
+                  //   ),
+                  //   transition: Transition.rightToLeft,
+                  //   popGesture: true, // 右滑，返回上一页
+                  // );
+                },
+              ),
+              n.Padding(left: 18, child: const Divider()),
+              n.ListTile(
+                title: Text('语言设置'.tr),
+                trailing: Icon(
+                  Icons.navigate_next,
+                  color: AppColors.MainTextColor.withOpacity(0.5),
+                ),
+                onTap: () {
+                  // Get.to(
+                  //       () => MarkdownPage(
+                  //     title: '更新日志'.tr,
+                  //     url:
+                  //     "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
+                  //   ),
+                  //   transition: Transition.rightToLeft,
+                  //   popGesture: true, // 右滑，返回上一页
+                  // );
+                },
+              ),
+              const HorizontalLine(height: 10),
               n.ListTile(
                 title: Text('消息通知'.tr),
                 trailing: Icon(
@@ -61,6 +99,36 @@ class _SettingPageState extends State<SettingPage> {
                 },
               ),
               n.Padding(left: 18, child: const Divider()),
+              n.ListTile(
+                title: Text('存储空间'.tr),
+                trailing: Icon(
+                  Icons.navigate_next,
+                  color: AppColors.MainTextColor.withOpacity(0.5),
+                ),
+                onTap: () {
+                  Get.to(
+                    () => StorageSpacePage(),
+                    transition: Transition.rightToLeft,
+                    popGesture: true, // 右滑，返回上一页
+                  );
+                },
+              ),
+              // n.Padding(left: 18, child: const Divider()),
+              // n.ListTile(
+              //   title: Text('朋友权限'.tr),
+              //   trailing: Icon(
+              //     Icons.navigate_next,
+              //     color: AppColors.MainTextColor.withOpacity(0.5),
+              //   ),
+              //   onTap: () {
+              //     Get.to(
+              //       () => FriendsPermissionsPage(),
+              //       transition: Transition.rightToLeft,
+              //       popGesture: true, // 右滑，返回上一页
+              //     );
+              //   },
+              // ),
+              const HorizontalLine(height: 10),
               n.ListTile(
                 title: Text('更新日志'.tr),
                 trailing: Icon(
@@ -98,36 +166,6 @@ class _SettingPageState extends State<SettingPage> {
                   );
                 },
               ),
-              n.Padding(left: 18, child: const Divider()),
-              n.ListTile(
-                title: Text('存储空间'.tr),
-                trailing: Icon(
-                  Icons.navigate_next,
-                  color: AppColors.MainTextColor.withOpacity(0.5),
-                ),
-                onTap: () {
-                  Get.to(
-                    () => StorageSpacePage(),
-                    transition: Transition.rightToLeft,
-                    popGesture: true, // 右滑，返回上一页
-                  );
-                },
-              ),
-              // n.Padding(left: 18, child: const Divider()),
-              // n.ListTile(
-              //   title: Text('朋友权限'.tr),
-              //   trailing: Icon(
-              //     Icons.navigate_next,
-              //     color: AppColors.MainTextColor.withOpacity(0.5),
-              //   ),
-              //   onTap: () {
-              //     Get.to(
-              //       () => FriendsPermissionsPage(),
-              //       transition: Transition.rightToLeft,
-              //       popGesture: true, // 右滑，返回上一页
-              //     );
-              //   },
-              // ),
               n.Padding(left: 18, child: const Divider()),
               n.ListTile(
                 title: n.Row([
@@ -223,8 +261,8 @@ class _SettingPageState extends State<SettingPage> {
             onPressed: () async {},
           ),
           */
+          const HorizontalLine(height: 10),
           ButtonRow(
-            margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
             text: '退出登录'.tr,
             style: const TextStyle(
               color: AppColors.ButtonTextColor,
@@ -240,9 +278,8 @@ class _SettingPageState extends State<SettingPage> {
               }
             },
           ),
-        ],
-        crossAxisAlignment: CrossAxisAlignment.start,
-      )),
+        ]),
+      ),
     );
   }
 
