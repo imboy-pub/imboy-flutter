@@ -120,10 +120,7 @@ class WebSocketService {
       iPrint('> ws openSocket is not login');
       return;
     }
-    int now = DateTimeHelper.utc();
-    if ((now - lastConnectedAt) > 3600000) {
-      closeSocket();
-    }
+
     // 链接状态正常，不需要任何处理
     if (isConnected) {
       iPrint('> ws openSocket _socketStatus: $_socketStatus;');
