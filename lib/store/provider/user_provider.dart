@@ -61,7 +61,7 @@ class UserProvider extends HttpClient {
     String newToken = resp.payload?['token'] ?? '';
     if (checkNewToken && strEmpty(newToken) && UserRepoLocal.to.isLogin) {
       await StorageService.to.remove(Keys.tokenKey);
-      WebSocketService.to.closeSocket(true);
+      WebSocketService.to.closeSocket();
       Get.offAll(() => PassportPage());
       return "";
     }

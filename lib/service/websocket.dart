@@ -122,7 +122,7 @@ class WebSocketService {
     }
     int now = DateTimeHelper.utc();
     if ((now - lastConnectedAt) > 3600000) {
-      closeSocket(false);
+      closeSocket();
     }
     // 链接状态正常，不需要任何处理
     if (isConnected) {
@@ -173,7 +173,7 @@ class WebSocketService {
       );
       lastConnectedAt = DateTimeHelper.utc();
     } catch (e) {
-      closeSocket(false);
+      closeSocket();
       _socketStatus = SocketStatus.SocketStatusFailed;
       iPrint("> openSocket $WS_URL error ${e.toString()}");
     }
@@ -206,7 +206,7 @@ class WebSocketService {
       // 4000–4999		可以由应用使用。
       // 4006 通知客户端刷新token消息没有得到确认，系统主动关闭连接
       int closeCode = _webSocketChannel?.closeCode ?? 0;
-      closeSocket(false);
+      closeSocket();
 
       switch (closeCode) {
         case 4006:
@@ -229,7 +229,7 @@ class WebSocketService {
     WebSocketChannelException ex = e;
     _socketStatus = SocketStatus.SocketStatusFailed;
     onError(ex.message);
-    closeSocket(false);
+    closeSocket();
   }
 
   void destroyReconnectTimer() {
@@ -237,8 +237,8 @@ class WebSocketService {
   }
 
   /// 关闭WebSocket
-  void closeSocket([bool nullInstance = true]) {
-    iPrint('> ws closeSocket $nullInstance');
+  void closeSocket() {
+    iPrint('> ws closeSocket ${DateTime.now()}');
     // destroyHeartBeat();
     destroyReconnectTimer();
     if (_webSocketChannel != null) {
@@ -246,9 +246,6 @@ class WebSocketService {
       _webSocketChannel?.sink.close();
       _webSocketChannel = null;
       _socketStatus = SocketStatus.SocketStatusClosed;
-    }
-    if (nullInstance) {
-      _instance = null;
     }
   }
 
@@ -277,7 +274,7 @@ class WebSocketService {
   void _reconnect() {
     iPrint(
         '> ws _reconnect _reconnectTimes $_reconnectTimes < $_reconnectMax ${DateTime.now()}');
-    closeSocket(false);
+    closeSocket();
     if (_reconnectTimes < _reconnectMax) {
       openSocket(fromReconnect: true);
       _reconnectTimes += 1;

@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.3.0
+version: 0.3.1
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -14,9 +14,9 @@ dependencies:
     sdk: flutter
 
   # Network
-  dio: ^5.4.0 # 网络请求框架
+  dio: ^5.4.1 # 网络请求框架
   dio_http2_adapter: ^2.4.0
-  web_socket_channel: ^2.4.3
+  web_socket_channel: ^2.4.4
   mime: ^1.0.4
   connectivity_plus: ^5.0.2 # 是否联网及网络类型
 
@@ -42,7 +42,7 @@ dependencies:
     # path: plugin/getx
     git:
       url: https://gitee.com/imboy-tripartite-deps/getx.git
-      ref: leeyi
+      ref: master
 
   url_launcher: ^6.2.4 # 打开url 拨打电话 发短信
   # https://juejin.cn/post/6869291513508659213
@@ -206,7 +206,7 @@ dependencies:
   # 提供了一个Clock类，它封装了“当前时间”的概念，并提供了对相对于当前时间的点的简单访问
   clock: ^1.1.1
   # 用于 HTTP 请求的可组合、多平台、基于Future的 API。
-  http: ^1.2.0
+  http: ^1.2.1
   device_info_plus: ^9.1.2
   package_info_plus: ^5.0.1
   # Flutter 的 Markdown 渲染器
@@ -242,8 +242,8 @@ dependencies:
   amap_flutter_location: ^3.0.0
   amap_flutter_map: ^3.0.0
   # Flutter 插件，可让您在 Android、iOS、macOS、Windows 和 Web 上保持设备屏幕处于唤醒状态。
-  #wakelock_plus: ^1.1.4
-  wakelock_plus: ^1.1.2
+  wakelock_plus: ^1.1.4
+  #wakelock_plus: ^1.1.2
   # 类似于 Iphone 上的 AssistiveTouch 的 Flutter 包。
   drag_ball: ^2.0.0
   # Flutter应用升级/ Flutter App Upgrade /Flutter App Update/Flutter Update / 下载插件（有提示栏进度），支持全量升级、热更新和增量升级

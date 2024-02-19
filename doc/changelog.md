@@ -1,3 +1,6 @@
+# 0.3.1
+* 优化 WebSocketService，onClose的时候不把 _instance 设置为0，避免产生多个实例；
+
 # 0.3.0
 * 新增 为imboy_[user_id].db 新增4个群聊相关表；
 * 修复 重新定义 conversation 表的唯一主键为 uk_Type_From_To ON conversation (type, user_id, peer_id);

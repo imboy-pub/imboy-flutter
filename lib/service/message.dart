@@ -151,7 +151,7 @@ class MessageService extends GetxService {
       //   String content = data['payload']['content'] ?? '';
       //   break;
       case '706': // 需要重新登录
-        WebSocketService.to.closeSocket(true);
+        WebSocketService.to.closeSocket();
         Get.offAll(() => PassportPage());
         break;
     }
