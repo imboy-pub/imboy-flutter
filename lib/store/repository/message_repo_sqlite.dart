@@ -82,7 +82,9 @@ class MessageRepo {
     if (count == null || count == 0) {
       await insert(obj);
     } else {
-      await update(obj.toJson());
+      Map<String, dynamic> data = obj.toJson();
+      data.remove(MessageRepo.autoId);
+      await update(data);
     }
     // debugPrint("> on MessageRepo/save count:$count; id: $obj.id");
     return count;

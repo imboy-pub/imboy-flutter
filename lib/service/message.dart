@@ -9,7 +9,6 @@ import 'package:xid/xid.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
@@ -357,7 +356,7 @@ class MessageService extends GetxService {
       createdAt: data['created_at'],
       serverTs: data['server_ts'],
       conversationId: conversation.id,
-      status: MessageStatus.delivered, // 未读 已投递
+      status: IMBoyMessageStatus.delivered, // 未读 已投递
     );
     String tb =
         data['type'] == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
@@ -372,45 +371,50 @@ class MessageService extends GetxService {
       return;
     }
 
-    eventBus.fire(conversation);
     // 收到一个消息，步增会话消息 1
-    conversationLogic.increaseConversationRemind(conversation.id, 1);
-    types.Message tMsg = msg.toTypeMessage();
+    await conversationLogic.increaseConversationRemind(conversation.id, 1);
 
-    if (tMsg is types.ImageMessage) {
-      try {
-        ImageGalleryLogic galleryLogic = Get.find();
-        galleryLogic.pushToGallery(tMsg.id, tMsg.uri);
-      } catch (e) {
-        //
-      }
-    }
+    eventBus.fire(conversation);
+    types.Message tMsg = msg.toTypeMessage();
     eventBus.fire(tMsg);
   }
 
   /// 收到服务端确认消息 C2C_SERVER_ACK C2G_SERVER_ACK
   Future<void> receiveServerAckMessage(Map data) async {
     iPrint("> rtc msg S_RECEIVED: msg:$data");
+
+    // iPrint("> rtc msg S_RECEIVED:$res");
+
     String tb = data['type'] == 'C2G_SERVER_ACK'
         ? MessageRepo.c2gTable
         : MessageRepo.c2cTable;
-    MessageRepo repo = MessageRepo(tableName: tb);
-    String id = data['id'];
-    int res = await repo.update({
-      'id': id,
-      'status': MessageStatus.send,
-    });
-    // iPrint("> rtc msg S_RECEIVED:$res");
-    MessageModel? msg = await repo.find(id);
-    if (res > 0 && msg != null) {
+    MessageModel? msg = await changeStatus(
+      tb,
+      data['id'],
+      IMBoyMessageStatus.send,
+    );
+    if (msg != null) {
       // 更新会话里面的消息列表的特定消息状态
       eventBus.fire([msg.toTypeMessage()]);
     }
+  }
+
+  Future<MessageModel?> changeStatus(
+    String tb,
+    String msgId,
+    int status,
+  ) async {
+    MessageRepo repo = MessageRepo(tableName: tb);
+    await repo.update({
+      'id': msgId,
+      'status': status,
+    });
     // 更新会话状态
     conversationLogic.updateConversationByMsgId(
-      id,
-      {ConversationRepo.lastMsgStatus: MessageStatus.send},
+      msgId,
+      {ConversationRepo.lastMsgStatus: status},
     );
+    return await repo.find(msgId);
   }
 
   /// 收到撤回消息 C2C_REVOKE C2G_REVOKE
@@ -423,7 +427,7 @@ class MessageService extends GetxService {
     String id = data['id'];
     await repo.update({
       'id': id,
-      'status': MessageStatus.send,
+      'status': IMBoyMessageStatus.send,
       'payload': json.encode({
         "msg_type": "custom",
         "custom_type": "revoked",
@@ -466,7 +470,7 @@ class MessageService extends GetxService {
     await repo.update({
       'id': data['id'],
       'type': dType,
-      'status': MessageStatus.send,
+      'status': IMBoyMessageStatus.send,
       'payload': json.encode(msg.payload),
     });
     // 更新会话里面的消息列表的特定消息状态

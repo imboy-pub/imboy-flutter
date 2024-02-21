@@ -13,6 +13,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart' as getx;
 
 import 'package:image/image.dart' as img;
+import 'package:imboy/service/message.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:mime/mime.dart';
 import 'package:niku/namespace.dart' as n;
@@ -43,7 +44,6 @@ import 'package:imboy/page/mine/user_collect/user_collect_logic.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_view.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
-import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -160,16 +160,28 @@ class ChatPageState extends State<ChatPage> {
     // 接收到新的消息订阅
     eventBus.on<types.Message>().listen((types.Message msg) async {
       final i = logic.state.messages.indexWhere((e) => e.id == msg.id);
-      iPrint("changeMessageState 4 ${msg.id}; i $i;");
+      iPrint("changeMessageState 4 ${msg.id}; i $i; mounted $mounted");
       if (i == -1) {
         if (msg is types.ImageMessage) {
           galleryLogic.pushToLast(msg.id, msg.uri);
         }
+        iPrint("decreaseConversationRemind ${widget.conversationId}");
+
+        String tb =
+            widget.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+        MessageModel? m = await MessageService.to.changeStatus(
+          tb,
+          msg.id,
+          IMBoyMessageStatus.seen,
+        );
+        conversationLogic.decreaseConversationRemind(
+          widget.conversationId,
+          1,
+        );
+        if (m != null) {
+          msg = m.toTypeMessage();
+        }
         if (mounted) {
-          conversationLogic.decreaseConversationRemind(
-            widget.conversationId,
-            1,
-          );
           setState(() {
             logic.state.messages.insert(0, msg);
           });
@@ -204,14 +216,6 @@ class ChatPageState extends State<ChatPage> {
   /// 用于分页(无限滚动)。当用户滚动时调用
   /// 到列表的最后(减去[onEndReachedThreshold])。
   Future<void> _handleEndReached() async {
-    if (widget.conversationId == 0) {
-      widget.conversationId = await conversationLogic.createConversationId(
-        widget.peerId,
-        widget.peerAvatar,
-        widget.peerTitle,
-        widget.type,
-      );
-    }
     // 初始化 当前会话新增消息
     List<types.Message>? items = await logic.pageMessages(
       widget.conversationId,
@@ -252,19 +256,16 @@ class ChatPageState extends State<ChatPage> {
         msgIds.add(msg.id);
       }
     } // end for items
-    if (msgIds.isNotEmpty) {
-      ConversationModel? m = await logic.markAsRead(
+    // iPrint("countConversationRemind ${items.toList().toString()}");
+    if (msgIds.isEmpty) {
+      // 重新计算会话消息提醒数量
+      conversationLogic.recalculateConversationRemind(widget.conversationId);
+    } else {
+      await logic.markAsRead(
         widget.type,
         widget.peerId,
         msgIds,
       );
-      if (m != null) {
-        conversationLogic.decreaseConversationRemind(
-          m.id,
-          msgIds.length,
-        );
-        conversationLogic.replace(m);
-      }
     }
   }
 

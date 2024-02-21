@@ -28,7 +28,7 @@ class ConversationItem extends StatelessWidget {
     // 当前会话未读消息数量
     RxInt remindCounter = logic.conversationRemind[model.id] ?? 0.obs;
     var icon = <Widget>[];
-    if (model.lastMsgStatus == MessageStatus.sending) {
+    if (model.lastMsgStatus == IMBoyMessageStatus.sending) {
       icon.add(
         const Padding(
           padding: EdgeInsets.only(right: 4),

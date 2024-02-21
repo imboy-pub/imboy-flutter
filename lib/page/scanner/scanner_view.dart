@@ -219,6 +219,8 @@ class _ScannerPageState extends State<ScannerPage>
                       icon: const Icon(Icons.image),
                       iconSize: 32.0,
                       onPressed: () async {
+                        ScaffoldMessengerState state =
+                            ScaffoldMessenger.of(context);
                         isStarted = true;
                         final ImagePicker picker = ImagePicker();
                         // Pick an image
@@ -228,19 +230,18 @@ class _ScannerPageState extends State<ScannerPage>
                         if (image == null) {
                           return;
                         }
+                        if (!mounted) return;
                         bool res = await controller.analyzeImage(image.path);
                         debugPrint("> on barcode $res ${image.path}");
                         if (res) {
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          state.showSnackBar(
                             const SnackBar(
                               content: Text('Barcode found!'),
                               backgroundColor: Colors.green,
                             ),
                           );
                         } else {
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          state.showSnackBar(
                             const SnackBar(
                               content: Text('No barcode found!'),
                               backgroundColor: Colors.red,

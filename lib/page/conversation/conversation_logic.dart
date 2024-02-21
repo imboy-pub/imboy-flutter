@@ -33,14 +33,15 @@ class ConversationLogic extends GetxController {
     } else {
       conversationRemind[cid] = val.obs;
     }
+    refresh();
   }
 
   /// 更新会话
   replace(ConversationModel obj) async {
     iPrint("ConversationRepo_Logic_replace ${obj.toJson().toString()}");
     // 第一次会话的时候 i 为 -1
-    final i = conversations.indexWhere((ConversationModel item) =>
-        item.type == obj.type && item.peerId == obj.peerId);
+    final i =
+        conversations.indexWhere((ConversationModel item) => item.id == obj.id);
     if (i > -1) {
       int i2 = i > 0 ? i : 0;
       conversations[i2] = obj;
@@ -49,11 +50,10 @@ class ConversationLogic extends GetxController {
     }
     // 重新计算会话消息提醒数量
     recalculateConversationRemind(obj.id);
-    update([conversations]);
   }
 
   /// 步增会话提醒
-  increaseConversationRemind(int cid, int val) {
+  increaseConversationRemind(int cid, int val) async {
     if (!conversationRemind.containsKey(cid) ||
         conversationRemind[cid] == null ||
         conversationRemind[cid]! < 0) {
@@ -61,15 +61,21 @@ class ConversationLogic extends GetxController {
     }
     RxInt val1 = (conversationRemind[cid]?.value ?? 0 + val).obs;
     conversationRemind[cid] = val1;
-    setConversationRemind(cid, val1.value);
+    iPrint(
+        "setConversationRemind_increaseConversationRemind cid $cid, val $val ${DateTime.now()}");
+    await setConversationRemind(cid, val1.value);
   }
 
   // 步减会话提醒
-  decreaseConversationRemind(int cid, int val) {
+  decreaseConversationRemind(int cid, int val) async {
+    iPrint(
+        "setConversationRemind_decreaseConversationRemind cid $cid, val $val ${DateTime.now()}");
     if (conversationRemind.value.containsKey(cid)) {
+      iPrint(
+          "decreaseConversationRemind cid $cid, val2 ${conversationRemind[cid]!.value}");
       val = conversationRemind[cid]!.value - val;
     }
-    setConversationRemind(cid, val);
+    await setConversationRemind(cid, val);
   }
 
   // 聊天消息提醒计数器
@@ -194,18 +200,16 @@ class ConversationLogic extends GetxController {
   // 重新计算会话消息提醒数量
   recalculateConversationRemind(int cid) async {
     ConversationModel? cm = await ConversationRepo().findById(cid);
-    String tb = cm?.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+    if (cm == null) {
+      return;
+    }
+    String tb = cm.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
     int? count = await SqliteService.to.count(
       tb,
-      where:
-          "${MessageRepo.status} = ? and ${MessageRepo.from} = ? and ${MessageRepo.from} <> ?",
-      whereArgs: [
-        MessageStatus.delivered,
-        cm?.peerId,
-        UserRepoLocal.to.currentUid
-      ],
+      where: "${MessageRepo.conversationId} = ? and ${MessageRepo.status} = ?",
+      whereArgs: [cid, IMBoyMessageStatus.delivered],
     );
-    // debugPrint("recalculateConversationRemind $count, $peerId");
+    iPrint("recalculateConversationRemind $count, $cid, $tb");
     // String sql = Sqlite.instance
     if (count != null) {
       setConversationRemind(cid, count);

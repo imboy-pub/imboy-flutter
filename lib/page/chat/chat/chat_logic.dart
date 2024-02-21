@@ -60,7 +60,7 @@ class ChatLogic extends GetxController {
     for (MessageModel obj in items) {
       // debugPrint(
       //     "> on getMessages $conversationId obj: ${obj.toJson().toString()}");
-      if (obj.status == MessageStatus.sending) {
+      if (obj.status == IMBoyMessageStatus.sending) {
         await sendWsMsg(obj);
       }
       messages.insert(0, obj.toTypeMessage());
@@ -69,7 +69,7 @@ class ChatLogic extends GetxController {
   }
 
   Future<bool> sendWsMsg(MessageModel obj) async {
-    if (obj.status == MessageStatus.sending) {
+    if (obj.status == IMBoyMessageStatus.sending) {
       Map<String, dynamic> msg = {
         'ts': DateTimeHelper.utc(),
         'id': obj.id,
@@ -138,7 +138,7 @@ class ChatLogic extends GetxController {
       createdAt:
           message.createdAt! - DateTime.now().timeZoneOffset.inMilliseconds,
       conversationId: conversationId,
-      status: MessageStatus.sending,
+      status: IMBoyMessageStatus.sending,
     );
     // debugPrint("> on addMessage getMsgFromTMsg 3 ${message.status}");
     obj.status = obj.toStatus(message.status ?? types.Status.sending);
@@ -262,7 +262,7 @@ class ChatLogic extends GetxController {
   }
 
   /// 标记为已读
-  Future<ConversationModel?> markAsRead(
+  Future<bool> markAsRead(
     String type,
     String peerId,
     List<String> msgIds,
@@ -270,7 +270,7 @@ class ChatLogic extends GetxController {
     Database db = await SqliteService.to.db;
     ConversationModel? c = await ConversationRepo().findByPeerId(type, peerId);
     if (c == null) {
-      return null;
+      return false;
     }
     String tableName =
         c.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
@@ -289,19 +289,24 @@ class ChatLogic extends GetxController {
         db.update(
           tableName,
           {
-            MessageRepo.status: MessageStatus.seen,
+            MessageRepo.status: IMBoyMessageStatus.seen,
           },
           where: "${MessageRepo.id}=?",
           whereArgs: [id],
         );
       }
-
       return true;
     });
     if (res) {
-      return c;
+      ConversationLogic conversationLogic = Get.find<ConversationLogic>();
+      conversationLogic.decreaseConversationRemind(
+        c.id,
+        msgIds.length,
+      );
+      conversationLogic.replace(c);
+      return true;
     } else {
-      return null;
+      return false;
     }
   }
 
@@ -324,10 +329,10 @@ class ChatLogic extends GetxController {
     payload['sys_prompt'] = sysPrompt;
     await repo.update({
       'id': msgId,
-      MessageRepo.status: MessageStatus.error,
+      MessageRepo.status: IMBoyMessageStatus.error,
       MessageRepo.payload: payload,
     });
-    msg.status = MessageStatus.error;
+    msg.status = IMBoyMessageStatus.error;
     msg.payload = payload;
     // 更新会话里面的消息列表的特定消息状态
     eventBus.fire([msg.toTypeMessage()]);
@@ -337,7 +342,7 @@ class ChatLogic extends GetxController {
       msgId,
       {
         ConversationRepo.payload: {'sys_prompt': sysPrompt},
-        ConversationRepo.lastMsgStatus: MessageStatus.send,
+        ConversationRepo.lastMsgStatus: IMBoyMessageStatus.send,
       },
     );
   }

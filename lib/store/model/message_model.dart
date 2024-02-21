@@ -13,7 +13,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// All possible statuses message can have.
 // enum Status { delivered, error, seen, sending, sent }
-class MessageStatus {
+class IMBoyMessageStatus {
   // 发送中
   static const int sending = 10;
 
@@ -119,15 +119,15 @@ class MessageModel {
   /// 41 错误（发送失败） error;
   ///  types.Status { delivered, error, seen, sending, sent }
   types.Status get typesStatus {
-    if (status == MessageStatus.sending) {
+    if (status == IMBoyMessageStatus.sending) {
       return types.Status.sending;
-    } else if (status == MessageStatus.send) {
+    } else if (status == IMBoyMessageStatus.send) {
       return types.Status.sent;
-    } else if (status == MessageStatus.delivered) {
+    } else if (status == IMBoyMessageStatus.delivered) {
       return types.Status.delivered;
-    } else if (status == MessageStatus.seen) {
+    } else if (status == IMBoyMessageStatus.seen) {
       return types.Status.seen;
-    } else if (status == MessageStatus.error) {
+    } else if (status == IMBoyMessageStatus.error) {
       return types.Status.error;
     }
     return types.Status.error;
@@ -195,17 +195,17 @@ class MessageModel {
 
   int toStatus(types.Status status) {
     if (status == types.Status.sending) {
-      return MessageStatus.sending;
+      return IMBoyMessageStatus.sending;
     } else if (status == types.Status.sent) {
-      return MessageStatus.send;
+      return IMBoyMessageStatus.send;
     } else if (status == types.Status.delivered) {
-      return MessageStatus.delivered;
+      return IMBoyMessageStatus.delivered;
     } else if (status == types.Status.seen) {
-      return MessageStatus.seen;
+      return IMBoyMessageStatus.seen;
     } else if (status == types.Status.error) {
-      return MessageStatus.error;
+      return IMBoyMessageStatus.error;
     }
-    return MessageStatus.error;
+    return IMBoyMessageStatus.error;
   }
 
   Future<ContactModel?> get to async {
