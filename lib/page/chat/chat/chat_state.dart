@@ -10,6 +10,7 @@ class ChatState {
   // 当前会话新增消息
   List<types.Message> messages = [];
 
+  int nextAutoId = 0;
   ChatState() {
     ///Initialize variables
   }

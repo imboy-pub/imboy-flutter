@@ -37,6 +37,7 @@ class ReEditMessage {
 }
 
 class MessageModel {
+  int autoId;
   String? id;
   String? type; // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
   String? fromId; // 等价于数据库的 from
@@ -54,6 +55,7 @@ class MessageModel {
 
   MessageModel(
     this.id, {
+    required this.autoId,
     required this.type,
     required this.status,
     required this.fromId,
@@ -83,6 +85,7 @@ class MessageModel {
 
     return MessageModel(
       data[MessageRepo.id],
+      autoId: data[MessageRepo.autoId],
       type: data[MessageRepo.type],
       status: int.parse('${data[MessageRepo.status] ?? 0}'),
       fromId: data[MessageRepo.from] ?? '',
@@ -97,6 +100,7 @@ class MessageModel {
   Map<String, dynamic> toJson() {
     Map<String, dynamic> data = <String, dynamic>{};
     data[MessageRepo.id] = id;
+    data[MessageRepo.autoId] = autoId;
     data[MessageRepo.type] = type;
     data[MessageRepo.status] = status;
     data[MessageRepo.from] = fromId;

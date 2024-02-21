@@ -96,7 +96,7 @@ class DenylistLogic extends GetxController {
         ContactRepo.isFriend: 1,
       });
       // 显示会话
-      await ConversationRepo().updateByPeerId(peerId, {
+      await ConversationRepo().updateByPeerId('C2C', peerId, {
         ConversationRepo.isShow: 1,
       });
       await refreshData();
@@ -111,8 +111,7 @@ class DenylistLogic extends GetxController {
     Map? payload = await api.add(deniedUserUid: model.deniedUid);
     bool res = payload == null ? false : true;
     if (res) {
-      model.createdAt =
-          payload['created_at'] ?? DateTimeHelper.utc();
+      model.createdAt = payload['created_at'] ?? DateTimeHelper.utc();
       await repo.insert(model);
       // 隐藏联系人
       await ContactRepo().update({
@@ -121,7 +120,7 @@ class DenylistLogic extends GetxController {
         ContactRepo.isFriend: 0,
       });
       // 隐藏会话
-      await ConversationRepo().updateByPeerId(model.deniedUid, {
+      await ConversationRepo().updateByPeerId('C2C', model.deniedUid, {
         ConversationRepo.isShow: 0,
       });
       await refreshData();

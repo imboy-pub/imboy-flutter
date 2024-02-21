@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
+import 'package:imboy/store/model/conversation_model.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:xid/xid.dart';
 
@@ -205,13 +206,20 @@ Future<void> incomingCallScreen(
                 mini: true,
                 heroTag: "RejectCall",
                 backgroundColor: Colors.red,
-                onPressed: () {
+                onPressed: () async {
                   try {
-                    Get.find<ConversationLogic>()
-                        .decreaseConversationRemind(peer.peerId, 1);
-                    Get.find<ChatLogic>().markAsRead(
+                    ConversationModel? m =
+                        await Get.find<ChatLogic>().markAsRead(
+                      'C2G',
                       peer.peerId,
                       [msgId],
+                    );
+                    if (m == null) {
+                      return;
+                    }
+                    Get.find<ConversationLogic>().decreaseConversationRemind(
+                      m.id,
+                      1,
                     );
                   } catch (e) {
                     //
@@ -237,13 +245,20 @@ Future<void> incomingCallScreen(
                 mini: true,
                 heroTag: "AcceptCall",
                 backgroundColor: Colors.green,
-                onPressed: () {
+                onPressed: () async {
                   try {
-                    Get.find<ConversationLogic>()
-                        .decreaseConversationRemind(peer.peerId, 1);
-                    Get.find<ChatLogic>().markAsRead(
+                    ConversationModel? m =
+                        await Get.find<ChatLogic>().markAsRead(
+                      'C2G',
                       peer.peerId,
                       [msgId],
+                    );
+                    if (m == null) {
+                      return;
+                    }
+                    Get.find<ConversationLogic>().decreaseConversationRemind(
+                      m.id,
+                      1,
                     );
                   } catch (e) {
                     //

@@ -26,7 +26,7 @@ class ConversationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 当前会话未读消息数量
-    RxInt remindCounter = logic.conversationRemind[model.peerId] ?? 0.obs;
+    RxInt remindCounter = logic.conversationRemind[model.id] ?? 0.obs;
     var icon = <Widget>[];
     if (model.lastMsgStatus == MessageStatus.sending) {
       icon.add(

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -18,27 +19,28 @@ class ConversationLogic extends GetxController {
   RxString connectDesc = "".obs;
 
   // 会话提醒数量映射
-  final RxMap<String, RxInt> conversationRemind = RxMap<String, RxInt>({});
+  final RxMap<int, RxInt> conversationRemind = RxMap<int, RxInt>({});
 
   // 设置会话提醒
-  setConversationRemind(String peerId, int val) {
+  setConversationRemind(int cid, int val) {
     val = val > 0 ? val : 0;
-    (ConversationRepo()).updateByPeerId(peerId, {
+    (ConversationRepo()).updateById(cid, {
       ConversationRepo.unreadNum: val,
       ConversationRepo.isShow: 1,
     });
-    if (conversationRemind.containsKey(peerId)) {
-      conversationRemind[peerId]!.value = val;
+    if (conversationRemind.containsKey(cid)) {
+      conversationRemind[cid]!.value = val;
     } else {
-      conversationRemind[peerId] = val.obs;
+      conversationRemind[cid] = val.obs;
     }
   }
 
   /// 更新会话
   replace(ConversationModel obj) async {
+    iPrint("ConversationRepo_Logic_replace ${obj.toJson().toString()}");
     // 第一次会话的时候 i 为 -1
-    final i = conversations
-        .indexWhere((ConversationModel item) => (item).peerId == obj.peerId);
+    final i = conversations.indexWhere((ConversationModel item) =>
+        item.type == obj.type && item.peerId == obj.peerId);
     if (i > -1) {
       int i2 = i > 0 ? i : 0;
       conversations[i2] = obj;
@@ -46,28 +48,28 @@ class ConversationLogic extends GetxController {
       conversations.add(obj);
     }
     // 重新计算会话消息提醒数量
-    recalculateConversationRemind(obj.peerId);
+    recalculateConversationRemind(obj.id);
     update([conversations]);
   }
 
   /// 步增会话提醒
-  increaseConversationRemind(String key, int val) {
-    if (!conversationRemind.containsKey(key) ||
-        conversationRemind[key] == null ||
-        conversationRemind[key]! < 0) {
-      conversationRemind[key] = 0.obs;
+  increaseConversationRemind(int cid, int val) {
+    if (!conversationRemind.containsKey(cid) ||
+        conversationRemind[cid] == null ||
+        conversationRemind[cid]! < 0) {
+      conversationRemind[cid] = 0.obs;
     }
-    RxInt val1 = (conversationRemind[key]?.value ?? 0 + val).obs;
-    conversationRemind[key] = val1;
-    setConversationRemind(key, val1.value);
+    RxInt val1 = (conversationRemind[cid]?.value ?? 0 + val).obs;
+    conversationRemind[cid] = val1;
+    setConversationRemind(cid, val1.value);
   }
 
   // 步减会话提醒
-  decreaseConversationRemind(String key, int val) {
-    if (conversationRemind.value.containsKey(key)) {
-      val = conversationRemind[key]!.value - val;
+  decreaseConversationRemind(int cid, int val) {
+    if (conversationRemind.value.containsKey(cid)) {
+      val = conversationRemind[cid]!.value - val;
     }
-    setConversationRemind(key, val);
+    setConversationRemind(cid, val);
   }
 
   // 聊天消息提醒计数器
@@ -116,14 +118,16 @@ class ConversationLogic extends GetxController {
   }
 
   /// 不显示（在会话列表）
-  Future<void> hideConversation(String peerId) async {
-    await ConversationRepo()
-        .updateByPeerId(peerId, {ConversationRepo.isShow: 0});
+  Future<void> hideConversation(int cid) async {
+    await ConversationRepo().updateById(cid, {ConversationRepo.isShow: 0});
   }
 
   /// 按消息ID来更新会话最后一消息的状态
   Future<List<ConversationModel>> updateLastMsg(
-      String msgId, Map<String, dynamic> data) async {
+    String msgId,
+    Map<String, dynamic> data,
+  ) async {
+    iPrint("updateLastMsg $msgId, ${data.toString()}");
     if (data.containsKey(ConversationRepo.payload) &&
         data[ConversationRepo.payload] is Map<String, dynamic>) {
       data[ConversationRepo.payload] =
@@ -155,10 +159,19 @@ class ConversationLogic extends GetxController {
     String title,
     String type,
   ) async {
-    ConversationRepo repo = ConversationRepo();
-    ConversationModel? obj = await repo.findByPeerId(peerId);
-    if (obj != null) {
-      return obj.id;
+    String where =
+        '${ConversationRepo.type} = ? and ${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?';
+    List<Object?> whereArgs = [type, UserRepoLocal.to.currentUid, peerId];
+
+    int? id = await SqliteService.to.pluck(
+      'id',
+      ConversationRepo.tableName,
+      where: where,
+      whereArgs: whereArgs,
+    );
+    iPrint("> on pageMessages createConversationId id $id");
+    if (id != null && id > 0) {
+      return id;
     }
 
     return await (ConversationRepo()).insert(ConversationModel.fromJson({
@@ -179,19 +192,23 @@ class ConversationLogic extends GetxController {
   }
 
   // 重新计算会话消息提醒数量
-  recalculateConversationRemind(String peerId) async {
-    ConversationModel? cm = await ConversationRepo().findByPeerId(peerId);
+  recalculateConversationRemind(int cid) async {
+    ConversationModel? cm = await ConversationRepo().findById(cid);
     String tb = cm?.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
     int? count = await SqliteService.to.count(
       tb,
       where:
           "${MessageRepo.status} = ? and ${MessageRepo.from} = ? and ${MessageRepo.from} <> ?",
-      whereArgs: [MessageStatus.delivered, peerId, UserRepoLocal.to.currentUid],
+      whereArgs: [
+        MessageStatus.delivered,
+        cm?.peerId,
+        UserRepoLocal.to.currentUid
+      ],
     );
     // debugPrint("recalculateConversationRemind $count, $peerId");
     // String sql = Sqlite.instance
     if (count != null) {
-      setConversationRemind(peerId, count);
+      setConversationRemind(cid, count);
     }
   }
 

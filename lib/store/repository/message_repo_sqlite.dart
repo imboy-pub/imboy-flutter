@@ -9,6 +9,7 @@ class MessageRepo {
   static String c2cTable = 'message';
   static String c2gTable = 'group_message';
 
+  static String autoId = 'auto_id';
   static String id = 'id';
 
   // C2C C2G C2C_REVOKE_ACK C2G_REVOKE_ACK
@@ -87,6 +88,52 @@ class MessageRepo {
     return count;
   }
 
+  Future<List<MessageModel>> pageForConversation(
+    int conversationId,
+    int nextAutoId,
+    int size,
+  ) async {
+    String where =
+        "${MessageRepo.conversationId} = ? AND ${MessageRepo.autoId} < ?";
+    List<int> args = [conversationId, nextAutoId];
+    if (nextAutoId <= 0) {
+      where = "${MessageRepo.conversationId} = ?";
+      args = [conversationId];
+    }
+    List<Map<String, dynamic>> maps = await _db.query(
+      tableName,
+      columns: [
+        MessageRepo.autoId,
+        MessageRepo.id,
+        MessageRepo.type,
+        MessageRepo.from,
+        MessageRepo.to,
+        MessageRepo.payload,
+        MessageRepo.createdAt,
+        MessageRepo.serverTs,
+        MessageRepo.status,
+        MessageRepo.conversationId,
+      ],
+      where: where,
+      whereArgs: args,
+      orderBy: "${MessageRepo.autoId} DESC",
+      offset: 0,
+      limit: size,
+    );
+    // debugPrint(
+    //     "> on findByConversation  $conversationId, $page, ${maps.length}; ${maps.toList().toString()}");
+    if (maps.isEmpty) {
+      return [];
+    }
+
+    List<MessageModel> messages = [];
+    for (int i = 0; i < maps.length; i++) {
+      int j = maps.length - i - 1;
+      messages.add(MessageModel.fromJson(maps[j]));
+    }
+    return messages;
+  }
+
   Future<List<MessageModel>> findByConversation(
     int conversationId,
     int page,
@@ -95,6 +142,7 @@ class MessageRepo {
     List<Map<String, dynamic>> maps = await _db.query(
       tableName,
       columns: [
+        MessageRepo.autoId,
         MessageRepo.id,
         MessageRepo.type,
         MessageRepo.from,
@@ -130,6 +178,7 @@ class MessageRepo {
     List<Map<String, dynamic>> maps = await _db.query(
       tableName,
       columns: [
+        MessageRepo.autoId,
         MessageRepo.id,
         MessageRepo.type,
         MessageRepo.from,
@@ -179,6 +228,7 @@ class MessageRepo {
     List<Map<String, dynamic>> maps = await _db.query(
       tableName,
       columns: [
+        MessageRepo.autoId,
         MessageRepo.id,
         MessageRepo.type,
         MessageRepo.from,

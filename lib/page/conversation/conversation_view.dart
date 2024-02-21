@@ -69,8 +69,9 @@ class _ConversationPageState extends State<ConversationPage> {
 
     // 设置消息提醒数量
     for (ConversationModel obj in logic.conversations) {
+      iPrint("ConversationModel obj ${obj.toJson()}");
       // 重新计算会话消息提醒数量
-      logic.recalculateConversationRemind(obj.peerId);
+      logic.recalculateConversationRemind(obj.id);
     }
   }
 
@@ -168,10 +169,10 @@ class _ConversationPageState extends State<ConversationPage> {
                                   flex: 3,
                                   backgroundColor: Colors.amber,
                                   onPressed: (_) async {
-                                    await logic.hideConversation(model.peerId);
+                                    await logic.hideConversation(model.id);
                                     logic.update([
                                       logic.conversations.removeAt(index),
-                                      logic.conversationRemind[model.peerId] =
+                                      logic.conversationRemind[model.id] =
                                           0.obs,
                                       logic.chatMsgRemindCounter,
                                     ]);
@@ -189,7 +190,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                         .removeConversation(conversationId);
                                     logic.update([
                                       logic.conversations.removeAt(index),
-                                      logic.conversationRemind[model.peerId] =
+                                      logic.conversationRemind[model.id] =
                                           0.obs,
                                       logic.chatMsgRemindCounter,
                                     ]);

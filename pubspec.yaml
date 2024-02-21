@@ -210,11 +210,11 @@ dependencies:
   device_info_plus: ^9.1.2
   package_info_plus: ^5.0.1
   # Flutter 的 Markdown 渲染器
-  flutter_markdown: ^0.6.19
+  flutter_markdown: ^0.6.20
   # 滑动吸顶
   sliding_up_panel: ^2.0.0+1
   # 用于 Flutter 的 SVG 渲染和小部件库，允许绘制和显示可缩放矢量图形 1.1 文件。
-  flutter_svg: ^2.0.9
+  flutter_svg: ^2.0.10+1
   # 动画效果
   flutter_animate: ^4.5.0
   # dart 对象比较
@@ -243,7 +243,6 @@ dependencies:
   amap_flutter_map: ^3.0.0
   # Flutter 插件，可让您在 Android、iOS、macOS、Windows 和 Web 上保持设备屏幕处于唤醒状态。
   wakelock_plus: ^1.1.4
-  #wakelock_plus: ^1.1.2
   # 类似于 Iphone 上的 AssistiveTouch 的 Flutter 包。
   drag_ball: ^2.0.0
   # Flutter应用升级/ Flutter App Upgrade /Flutter App Update/Flutter Update / 下载插件（有提示栏进度），支持全量升级、热更新和增量升级
@@ -255,7 +254,7 @@ dependencies:
   # haishin_kit: ^0.11.1
   #flutter_whip: ^0.5.5
   # 允许跨多个平台处理文件的抽象。
-  cross_file: ^0.3.3+8
+  cross_file: ^0.3.4
   # Dart 包用于解码 TIFF、JPEG、HEIC、PNG 和 WebP 文件中的 Exif 数据。
   exif: ^3.3.0
   # Get the information about free and total disk space for you device. It is an update to the disk_space plugin.
@@ -289,7 +288,6 @@ dependencies:
 dependency_overrides:
   #http: ^1.1.2
   #voice_message_package: 1.0.41
-  #flutter_native_splash: ^2.3.11
   web: 0.4.2
   logger: ^2.0.2+1
 

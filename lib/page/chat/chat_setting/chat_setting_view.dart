@@ -14,10 +14,16 @@ import 'chat_setting_state.dart';
 
 // ignore: must_be_immutable
 class ChatSettingPage extends StatefulWidget {
+  final String type;
   final String peerId;
   Map<String, dynamic>? options;
 
-  ChatSettingPage(this.peerId, {super.key, this.options});
+  ChatSettingPage(
+    this.peerId, {
+    super.key,
+    required this.type,
+    this.options,
+  });
 
   @override
   // ignore: library_private_types_in_public_api
@@ -61,7 +67,6 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
     ];
 
     return [
-      // ChatMember(options: widget.options!),
       LabelRow(
         label: '查找聊天记录'.tr,
         margin: const EdgeInsets.only(top: 10.0),
@@ -117,12 +122,12 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                   ..onPressed = () async {
                     Navigator.of(context).pop();
 
-                    bool res = await logic.cleanMessageByPeerId(widget.peerId);
-                    if (res) {
+                    int cid = await logic.cleanMessageByPeerId(
+                        widget.type, widget.peerId);
+                    if (cid > 0) {
                       backDoRefresh = true;
                       // 刷新会话列表
-                      await Get.find<ConversationLogic>()
-                          .hideConversation(widget.peerId);
+                      await Get.find<ConversationLogic>().hideConversation(cid);
                       // 刷新会话列表
                       await Get.find<ConversationLogic>().conversationsList();
                       EasyLoading.showSuccess('操作成功'.tr);

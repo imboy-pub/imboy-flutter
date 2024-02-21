@@ -345,8 +345,11 @@ class MessageService extends GetxService {
     );
     conversation = await (ConversationRepo()).save(conversation);
 
+    iPrint(
+        "receiveMessage cid ${conversation.id} t ${data['type']} pid ${data['from']}");
     MessageModel msg = MessageModel(
       data['id'],
+      autoId: 0,
       type: data['type'],
       fromId: data['from'],
       toId: data['to'],
@@ -371,7 +374,7 @@ class MessageService extends GetxService {
 
     eventBus.fire(conversation);
     // 收到一个消息，步增会话消息 1
-    conversationLogic.increaseConversationRemind(data['from'], 1);
+    conversationLogic.increaseConversationRemind(conversation.id, 1);
     types.Message tMsg = msg.toTypeMessage();
 
     if (tMsg is types.ImageMessage) {
@@ -486,7 +489,10 @@ class MessageService extends GetxService {
       return;
     }
     ConversationRepo repo = ConversationRepo();
-    ConversationModel? conversation = await repo.findByPeerId(peerId);
+    ConversationModel? conversation = await repo.findByPeerId(
+      msg.type ?? '',
+      peerId,
+    );
     if (conversation == null) {
       return;
     }
@@ -496,7 +502,7 @@ class MessageService extends GetxService {
     //msgType = peerId == UserRepoLocal.to.currentUid ? 'peer_revoked' : 'my_revoked';
     conversation.msgType = msgType;
     conversation.subtitle = '';
-    int res2 = await repo.updateByPeerId(peerId, {
+    int res2 = await repo.updateById(conversation.id, {
       ConversationRepo.msgType: conversation.msgType,
       ConversationRepo.subtitle: '',
     });

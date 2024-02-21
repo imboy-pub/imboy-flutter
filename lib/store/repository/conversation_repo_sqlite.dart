@@ -50,16 +50,18 @@ class ConversationRepo {
       ConversationRepo.isShow: obj.isShow,
       ConversationRepo.payload: jsonEncode(obj.payload)
     };
-    int lastInsertId = await _db.insert(ConversationRepo.tableName, insert);
-    return lastInsertId;
+    // return lastInsertId;
+    return await _db.insert(ConversationRepo.tableName, insert);
   }
 
   Future<int> updateById(int id, Map<String, dynamic> data) async {
+    iPrint("ConversationRepo_updateById $id, ${data.toString()}");
     if (data.containsKey(ConversationRepo.payload) &&
         data[ConversationRepo.payload] is Map<String, dynamic>) {
       data[ConversationRepo.payload] =
           jsonEncode(data[ConversationRepo.payload]);
     }
+    data.remove(ConversationRepo.id);
     return await _db.update(
       ConversationRepo.tableName,
       data,
@@ -69,8 +71,12 @@ class ConversationRepo {
   }
 
   // 更新信息
-  Future<int> updateByPeerId(String peerId, Map<String, dynamic> data) async {
-    iPrint("updateByPeerId $peerId, data ${data.toString()}");
+  Future<int> updateByPeerId(
+    String type,
+    String peerId,
+    Map<String, dynamic> data,
+  ) async {
+    iPrint("ConversationRepo_updateByPeerId $id, ${data.toString()}");
     data.remove(ConversationRepo.id);
     if (data.containsKey(ConversationRepo.payload) &&
         data[ConversationRepo.payload] is Map<String, dynamic>) {
@@ -81,43 +87,38 @@ class ConversationRepo {
       ConversationRepo.tableName,
       data,
       where:
-          '${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',
-      whereArgs: [UserRepoLocal.to.currentUid, peerId],
+          '${ConversationRepo.type} = ? and ${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',
+      whereArgs: [type, UserRepoLocal.to.currentUid, peerId],
     );
   }
 
   // 存在就更新，不存在就插入
   Future<ConversationModel> save(ConversationModel obj) async {
-    ConversationModel? oldObj = await findByPeerId(obj.peerId);
+    iPrint("ConversationRepo_save $id, ${obj.toJson().toString()}");
+    ConversationModel? oldObj = await findByPeerId(obj.type, obj.peerId);
     int unreadNumOld = oldObj == null ? 0 : oldObj.unreadNum;
     obj.isShow = oldObj?.isShow ?? 1;
     obj.unreadNum = obj.unreadNum + unreadNumOld;
     if (oldObj == null) {
-      await insert(obj);
+      obj.id = await insert(obj);
     } else {
-      await updateByPeerId(obj.peerId, obj.toJson());
-    }
-    if (obj.id == 0) {
-      int? id = await _db.pluck(
-        ConversationRepo.id,
-        ConversationRepo.tableName,
-        where:
-            '${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',
-        whereArgs: [UserRepoLocal.to.currentUid, obj.peerId],
-      );
-      if (id != null) {
-        obj.id = id;
-      }
+      Map<String, dynamic> data = obj.toJson();
+      data.remove(ConversationRepo.id);
+      await updateById(oldObj.id, data);
+      obj.id = oldObj.id;
     }
     return obj;
   }
 
   //
   Future<List<ConversationModel>> search(
-      String where, List<Object?>? whereArgs) async {
+    String where,
+    List<Object?>? whereArgs,
+  ) async {
     List<Map<String, dynamic>> maps = await _db.query(
       ConversationRepo.tableName,
       columns: [
+        ConversationRepo.id,
         ConversationRepo.peerId,
         ConversationRepo.avatar,
         ConversationRepo.title,
@@ -157,6 +158,7 @@ class ConversationRepo {
       ConversationRepo.tableName,
       columns: [
         ConversationRepo.id,
+        ConversationRepo.userId,
         ConversationRepo.peerId,
         ConversationRepo.avatar,
         ConversationRepo.title,
@@ -167,9 +169,10 @@ class ConversationRepo {
         ConversationRepo.lastMsgId,
         ConversationRepo.lastMsgStatus,
         ConversationRepo.unreadNum,
+        ConversationRepo.payload,
         ConversationRepo.type,
         ConversationRepo.msgType,
-        ConversationRepo.payload,
+        // ConversationRepo.isShow,
       ],
       where:
           '${ConversationRepo.userId} = ? and ${ConversationRepo.isShow} = ? and ${ConversationRepo.lastTime} > 0',
@@ -195,6 +198,7 @@ class ConversationRepo {
       ConversationRepo.tableName,
       columns: [
         ConversationRepo.id,
+        ConversationRepo.userId,
         ConversationRepo.peerId,
         ConversationRepo.avatar,
         ConversationRepo.title,
@@ -205,9 +209,10 @@ class ConversationRepo {
         ConversationRepo.lastMsgId,
         ConversationRepo.lastMsgStatus,
         ConversationRepo.unreadNum,
+        ConversationRepo.payload,
         ConversationRepo.type,
         ConversationRepo.msgType,
-        ConversationRepo.payload
+        // ConversationRepo.isShow,
       ],
       where: 'id=?',
       whereArgs: [id],
@@ -221,28 +226,33 @@ class ConversationRepo {
   }
 
   //
-  Future<ConversationModel?> findByPeerId(String peerId) async {
+  Future<ConversationModel?> findByPeerId(String type, String peerId) async {
     List<Map<String, dynamic>> maps = await _db.query(
       ConversationRepo.tableName,
       columns: [
         ConversationRepo.id,
+        ConversationRepo.userId,
         ConversationRepo.peerId,
+        ConversationRepo.avatar,
         ConversationRepo.title,
         ConversationRepo.subtitle,
         ConversationRepo.region,
         ConversationRepo.sign,
-        ConversationRepo.avatar,
         ConversationRepo.lastTime,
         ConversationRepo.lastMsgId,
         ConversationRepo.lastMsgStatus,
-        ConversationRepo.msgType,
         ConversationRepo.unreadNum,
         ConversationRepo.payload,
+        ConversationRepo.type,
+        ConversationRepo.msgType,
+        // ConversationRepo.isShow,
       ],
       where:
-          '${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',
-      whereArgs: [UserRepoLocal.to.currentUid, peerId],
+          '${ConversationRepo.type} = ? and ${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',
+      whereArgs: [type, UserRepoLocal.to.currentUid, peerId],
     );
+    iPrint(
+        "> on pageMessages findByPeerId $type, ${UserRepoLocal.to.currentUid}, pid $peerId, ${maps.toString()}");
     if (maps.isNotEmpty) {
       return ConversationModel.fromJson(maps.first);
     }
@@ -250,12 +260,12 @@ class ConversationRepo {
   }
 
   // 根据ID删除信息
-  Future<int> delete(String peerId) async {
+  Future<int> delete(String type, String peerId) async {
     return await _db.delete(
       ConversationRepo.tableName,
       where:
-          '${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',
-      whereArgs: [UserRepoLocal.to.currentUid, peerId],
+          '${ConversationRepo.type} = ? and ${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',
+      whereArgs: [type, UserRepoLocal.to.currentUid, peerId],
     );
   }
 

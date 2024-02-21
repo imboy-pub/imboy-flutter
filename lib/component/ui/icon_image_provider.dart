@@ -48,13 +48,17 @@ class IconImageProvider extends ImageProvider<IconImageProvider> {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (other.runtimeType != runtimeType) return false;
-    final IconImageProvider typedOther = other;
-    return icon == typedOther.icon &&
-        scale == typedOther.scale &&
-        size == typedOther.size &&
-        color == typedOther.color;
+    if (other is IconImageProvider) {
+      final IconImageProvider typedOther = other;
+      return icon == typedOther.icon &&
+          scale == typedOther.scale &&
+          size == typedOther.size &&
+          color == typedOther.color;
+    } else {
+      return false;
+    }
   }
 
   @override

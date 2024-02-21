@@ -26,37 +26,40 @@ import 'chat_state.dart';
 
 class ChatLogic extends GetxController {
   final state = ChatState();
-
   ChatLogic();
-
   void initState() {
     state.messages = [];
     state.scrollController = AutoScrollController();
   }
 
-  Future<List<types.Message>?> getMessages(
-    String peerId,
-    int page,
+  Future<List<types.Message>?> pageMessages(
+    int conversationId,
+    // int maxAutoId,
     int size,
   ) async {
     // final response = await rootBundle.loadString('assets/data/messages.json');
-    ConversationModel? obj = await ConversationRepo().findByPeerId(peerId);
-    // debugPrint("> on getMessages $peerId obj: ${obj?.toJson().toString()}");
+    ConversationModel? obj = await ConversationRepo().findById(conversationId);
+    debugPrint(
+        "> on pageMessages nextAutoId ${state.nextAutoId}, cid $conversationId, pid ${obj?.peerId}");
     if (obj == null) {
       return [];
     }
     String tb = obj.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
     MessageRepo repo = MessageRepo(tableName: tb);
-    List<MessageModel> items = await repo.findByConversation(
+    List<MessageModel> items = await repo.pageForConversation(
       obj.id,
-      page,
+      state.nextAutoId,
       size,
     );
-
+    if (items.isEmpty) {
+      return [];
+    }
     List<types.Message> messages = [];
+    state.nextAutoId = items.first.autoId;
     // 重发在发送中状态的消息
     for (MessageModel obj in items) {
-      debugPrint("> on getMessages $peerId obj: ${obj.toJson().toString()}");
+      // debugPrint(
+      //     "> on getMessages $conversationId obj: ${obj.toJson().toString()}");
       if (obj.status == MessageStatus.sending) {
         await sendWsMsg(obj);
       }
@@ -126,6 +129,7 @@ class ChatLogic extends GetxController {
     // debugPrint("> on addMessage getMsgFromTMsg 2 ${payload.toString()}");
     iPrint("_handleSendPressed 2 ${message.createdAt}");
     MessageModel obj = MessageModel(
+      autoId: 0,
       message.id,
       type: type,
       fromId: message.author.id,
@@ -202,18 +206,12 @@ class ChatLogic extends GetxController {
     ConversationRepo repo = ConversationRepo();
     ConversationModel? cm;
     MessageModel? lastMsg;
-    if (conversationId == 0) {
-      cm = await repo.findByPeerId(
-        msg.remoteId ?? '',
-      );
-      conversationId = cm == null ? 0 : cm.id;
-    } else {
-      cm = await repo.findById(conversationId);
-    }
+    cm = await repo.findById(conversationId);
     String tb = cm?.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
     if (conversationId > 0) {
-      List<MessageModel> items =
-          await MessageRepo(tableName: tb).findByConversation(
+      MessageRepo mRepo = MessageRepo(tableName: tb);
+      // 获取lastMsg，以更新会话lastMsg信息
+      List<MessageModel> items = await mRepo.findByConversation(
         conversationId,
         2,
         1,
@@ -221,7 +219,7 @@ class ChatLogic extends GetxController {
       lastMsg = items.isEmpty ? null : items[0];
       debugPrint(
           "removeMessage ${msg.id}; $conversationId, lastMsg: ${lastMsg?.toJson()} ;");
-      await MessageRepo(tableName: tb).delete(msg.id);
+      await mRepo.delete(msg.id);
     }
     if (lastMsg == null) {
       await repo.updateById(conversationId, {
@@ -265,11 +263,12 @@ class ChatLogic extends GetxController {
 
   /// 标记为已读
   Future<ConversationModel?> markAsRead(
+    String type,
     String peerId,
     List<String> msgIds,
   ) async {
     Database db = await SqliteService.to.db;
-    ConversationModel? c = await ConversationRepo().findByPeerId(peerId);
+    ConversationModel? c = await ConversationRepo().findByPeerId(type, peerId);
     if (c == null) {
       return null;
     }

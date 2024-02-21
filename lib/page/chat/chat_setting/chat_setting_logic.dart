@@ -9,15 +9,16 @@ class ChatSettingLogic extends GetxController {
   final state = ChatSettingState();
 
   /// 清空会话聊天记录
-  Future<bool> cleanMessageByPeerId(String peerId) async {
-    ConversationModel? model = await ConversationRepo().findByPeerId(peerId);
+  Future<int> cleanMessageByPeerId(String type, String peerId) async {
+    ConversationModel? model =
+        await ConversationRepo().findByPeerId(type, peerId);
     if (model == null) {
-      return true;
+      return 0;
     }
     String tb = model.type.toUpperCase() == 'C2G'
         ? MessageRepo.c2gTable
         : MessageRepo.c2cTable;
     await MessageRepo(tableName: tb).deleteByConversationId(model.id);
-    return true;
+    return model.id;
   }
 }

@@ -93,7 +93,6 @@ class ChatPageState extends State<ChatPage> {
 
   String newGroupName = "";
 
-  int _page = 1;
   final int _size = 16;
 
   int get maxAssetsCount => 9;
@@ -108,6 +107,7 @@ class ChatPageState extends State<ChatPage> {
   void initState() {
     // 初始化的时候置空数据，放在该位置（initData之前），不会出现闪屏
     logic.initState();
+
     //监听Widget是否绘制完毕
     super.initState();
     initData();
@@ -123,7 +123,17 @@ class ChatPageState extends State<ChatPage> {
       imageUrl: UserRepoLocal.to.current.avatar,
     );
 
-    _page = 1;
+    iPrint("> on pageMessages ${widget.conversationId}");
+    if (widget.conversationId == 0) {
+      widget.conversationId = await conversationLogic.createConversationId(
+        widget.peerId,
+        widget.peerAvatar,
+        widget.peerTitle,
+        widget.type,
+      );
+    }
+
+    logic.state.nextAutoId = 0;
     if (availableMaps.isEmpty) {
       try {
         availableMaps = await MapLauncher.installedMaps;
@@ -156,7 +166,10 @@ class ChatPageState extends State<ChatPage> {
           galleryLogic.pushToLast(msg.id, msg.uri);
         }
         if (mounted) {
-          conversationLogic.decreaseConversationRemind(widget.peerId, 1);
+          conversationLogic.decreaseConversationRemind(
+            widget.conversationId,
+            1,
+          );
           setState(() {
             logic.state.messages.insert(0, msg);
           });
@@ -200,9 +213,8 @@ class ChatPageState extends State<ChatPage> {
       );
     }
     // 初始化 当前会话新增消息
-    List<types.Message>? items = await logic.getMessages(
-      widget.peerId,
-      _page,
+    List<types.Message>? items = await logic.pageMessages(
+      widget.conversationId,
       _size,
     );
     // debugPrint("ChatSettingPage then 2 ${items?.length};");
@@ -220,10 +232,9 @@ class ChatPageState extends State<ChatPage> {
             ...logic.state.messages,
             ...items,
           ];
-          _page = _page + 1;
         });
       }
-    } else if (_page == 1 && mounted) {
+    } else if (logic.state.nextAutoId == 0 && mounted) {
       setState(() {
         logic.state.messages = [];
       });
@@ -242,16 +253,17 @@ class ChatPageState extends State<ChatPage> {
       }
     } // end for items
     if (msgIds.isNotEmpty) {
-      ConversationModel? conversation = await logic.markAsRead(
+      ConversationModel? m = await logic.markAsRead(
+        widget.type,
         widget.peerId,
         msgIds,
       );
-      if (conversation != null) {
+      if (m != null) {
         conversationLogic.decreaseConversationRemind(
-          widget.peerId,
+          m.id,
           msgIds.length,
         );
-        conversationLogic.replace(conversation);
+        conversationLogic.replace(m);
       }
     }
   }
@@ -715,13 +727,12 @@ class ChatPageState extends State<ChatPage> {
       await OpenFile.open(AssetsService.viewUrl(message.uri).toString());
     }
 
+    if (!context.mounted) return;
     // ignore: use_build_context_synchronously
     popupmenu.PopupMenu menu = popupmenu.PopupMenu(
-      // backgroundColor: Colors.teal,
-      // lineColor: Colors.tealAccent,
-      // maxColumn: 2,
-      items: logic.getPopupMenuItems(message),
+      // ignore: must_be_immutable
       context: c1,
+      items: logic.getPopupMenuItems(message),
       onClickMenu: onClickMenu,
       // stateChanged: stateChanged,
       // onDismiss: onDismiss,
@@ -759,10 +770,10 @@ class ChatPageState extends State<ChatPage> {
       // 删除消息
       bool res = await logic.removeMessage(widget.conversationId, msg);
       if (res) {
-        final index =
+        final i =
             logic.state.messages.indexWhere((element) => element.id == msg.id);
         setState(() {
-          logic.state.messages.removeAt(index);
+          logic.state.messages.removeAt(i);
         });
       }
     } else if (itemId == "copy" && msg is types.TextMessage) {
@@ -804,12 +815,12 @@ class ChatPageState extends State<ChatPage> {
     final topRightWidget = [
       InkWell(
         onTap: () => getx.Get.to(
-          () => widget.type == 'GROUP'
+          () => widget.type == 'C2G'
               ? GroupDetailPage(
                   widget.peerId,
                   callBack: (v) {},
                 )
-              : ChatSettingPage(widget.peerId, options: {
+              : ChatSettingPage(widget.peerId, type: widget.type, options: {
                   "peerId": widget.peerId,
                   "avatar": widget.peerAvatar,
                   "nickname": widget.peerTitle,
@@ -819,7 +830,7 @@ class ChatPageState extends State<ChatPage> {
         )?.then((value) {
           // debugPrint("ChatSettingPage then $value, $mounted");
           if (value != null) {
-            _page = 1;
+            logic.state.nextAutoId = 0;
             _handleEndReached();
           }
         }),

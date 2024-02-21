@@ -194,16 +194,17 @@ class SendToPage extends StatelessWidget {
               onTapForItem: (value) async {
                 if (value is ContactModel) {
                   final repo = ConversationRepo();
-                  ConversationModel? conversation =
-                      await repo.findByPeerId(value.peerId);
-                  conversation ??= ConversationModel(
+                  ConversationModel? obj = await repo.findByPeerId(
+                    'C2C',
+                    value.peerId,
+                  );
+                  obj ??= ConversationModel(
                     peerId: value.peerId,
                     avatar: value.avatar,
                     title: value.title,
                     subtitle: '',
                     type: 'C2C',
-                    // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
-                    msgType: 'C2C',
+                    msgType: '',
                     lastMsgId: '',
                     lastTime: 0,
                     lastMsgStatus: 11,
@@ -213,8 +214,8 @@ class SendToPage extends StatelessWidget {
                     id: 0,
                   );
                   // 保存会话
-                  conversation = await (ConversationRepo()).save(conversation);
-                  sendToDialog(conversation, 3);
+                  obj = await (ConversationRepo()).save(obj);
+                  sendToDialog(obj, 3);
                 }
               },
             ),

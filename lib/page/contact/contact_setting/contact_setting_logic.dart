@@ -11,7 +11,7 @@ class ContactSettingLogic extends GetxController {
     bool res = await (ContactProvider()).deleteContact(uid);
     if (res) {
       await MessageRepo(tableName: MessageRepo.c2cTable).deleteByUid(uid);
-      await ConversationRepo().delete(uid);
+      await ConversationRepo().delete('C2C', uid);
       await NewFriendRepo().deleteByUid(uid);
       await ContactRepo().deleteByUid(uid);
     }
