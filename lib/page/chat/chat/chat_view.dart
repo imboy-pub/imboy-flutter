@@ -167,21 +167,22 @@ class ChatPageState extends State<ChatPage> {
         }
         iPrint("decreaseConversationRemind ${widget.conversationId}");
 
-        String tb =
-            widget.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
-        MessageModel? m = await MessageService.to.changeStatus(
-          tb,
-          msg.id,
-          IMBoyMessageStatus.seen,
-        );
-        conversationLogic.decreaseConversationRemind(
-          widget.conversationId,
-          1,
-        );
-        if (m != null) {
-          msg = m.toTypeMessage();
-        }
         if (mounted) {
+          String tb = widget.type == 'C2G'
+              ? MessageRepo.c2gTable
+              : MessageRepo.c2cTable;
+          MessageModel? m = await MessageService.to.changeStatus(
+            tb,
+            msg.id,
+            IMBoyMessageStatus.seen,
+          );
+          conversationLogic.decreaseConversationRemind(
+            widget.conversationId,
+            1,
+          );
+          if (m != null) {
+            msg = m.toTypeMessage();
+          }
           setState(() {
             logic.state.messages.insert(0, msg);
           });
