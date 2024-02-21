@@ -48,7 +48,7 @@ class UserCollectModel {
       userId: data['user_id'],
       kind: data['kind'],
       kindId: data['kind_id'],
-      source: data['source'] ?? '',
+      source: (data['source'] ?? '').toString(),
       remark: data['remark'] ?? '',
       tag: data['tag'] ?? '',
       updatedAt: data['updated_at'] ?? 0,
