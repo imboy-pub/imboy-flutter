@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/line.dart';
+import 'package:imboy/page/mine/language/language_view.dart';
 import 'package:imboy/page/mine/storage_space/storage_space_view.dart';
 import 'package:imboy/page/single/upgrade.dart';
 import 'package:imboy/store/provider/app_version_provider.dart';
@@ -62,21 +63,17 @@ class _SettingPageState extends State<SettingPage> {
               ),
               n.Padding(left: 18, child: const Divider()),
               n.ListTile(
-                title: Text('语言设置'.tr),
+                title: Text('language_setting'.tr),
                 trailing: Icon(
                   Icons.navigate_next,
                   color: AppColors.MainTextColor.withOpacity(0.5),
                 ),
                 onTap: () {
-                  // Get.to(
-                  //       () => MarkdownPage(
-                  //     title: '更新日志'.tr,
-                  //     url:
-                  //     "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
-                  //   ),
-                  //   transition: Transition.rightToLeft,
-                  //   popGesture: true, // 右滑，返回上一页
-                  // );
+                  Get.to(
+                    () => LanguagePage(),
+                    transition: Transition.rightToLeft,
+                    popGesture: true, // 右滑，返回上一页
+                  );
                 },
               ),
               const HorizontalLine(height: 10),

@@ -44,6 +44,7 @@ class Keys {
 
   static const String currentUid = "current_uid";
   static const String currentUser = "current_user";
+  static const String currentLang = 'user_current_lang';
 
   static const String account = "account";
   static const String password = "password";

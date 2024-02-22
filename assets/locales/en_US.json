@@ -151,6 +151,7 @@
     "file_created": "File: %s created successfully at path: %s",
     "route_created": "%s route created successfully."
   },
+  "language_setting": "Language setting",
   "bugReport": "Bug report",
   "featureRequest": "Feature request",
   "ios_app_id_unknown": "The app Store is not listed or the ID[%s] does not exist"

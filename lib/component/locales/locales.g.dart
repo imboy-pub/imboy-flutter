@@ -144,6 +144,7 @@ class LocaleKeys {
   static const sucess_navigation_added = 'sucess_navigation_added';
   static const sucess_file_created = 'sucess_file_created';
   static const sucess_route_created = 'sucess_route_created';
+  static const language_setting = 'language_setting';
   static const bugReport = 'bugReport';
   static const featureRequest = 'featureRequest';
   static const ios_app_id_unknown = 'ios_app_id_unknown';
@@ -277,6 +278,7 @@ class Locales {
     'sucess_navigation_added': '%s navigation添加成功.',
     'sucess_file_created': '文件: %s 创建成功，路径: %s',
     'sucess_route_created': '%s route 创建成功.',
+    'language_setting': '语言设置',
     'bugReport': '错误报告',
     'featureRequest': '功能要求',
     'ios_app_id_unknown': 'AppStore未上架或AppID[%s]不存在',
@@ -426,6 +428,7 @@ class Locales {
     'sucess_navigation_added': '%s navigation added successfully.',
     'sucess_file_created': 'File: %s created successfully at path: %s',
     'sucess_route_created': '%s route created successfully.',
+    'language_setting': 'Language setting',
     'bugReport': 'Bug report',
     'featureRequest': 'Feature request',
     'ios_app_id_unknown':

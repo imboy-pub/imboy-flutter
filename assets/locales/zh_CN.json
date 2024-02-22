@@ -151,6 +151,7 @@
     "file_created": "文件: %s 创建成功，路径: %s",
     "route_created": "%s route 创建成功."
   },
+  "language_setting": "语言设置",
   "bugReport": "错误报告",
   "featureRequest": "功能要求",
   "ios_app_id_unknown": "AppStore未上架或AppID[%s]不存在"

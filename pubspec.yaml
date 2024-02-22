@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.3.3
+version: 0.3.4
 
 environment:
   sdk: ">=2.17.0 <=4.0.0"
@@ -44,7 +44,7 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/getx.git
       ref: master
 
-  url_launcher: ^6.2.4 # 打开url 拨打电话 发短信
+  url_launcher: ^6.2.5 # 打开url 拨打电话 发短信
   # https://juejin.cn/post/6869291513508659213
   webview_flutter: ^4.7.0 # Show web page (CGU)
   flutter_inappwebview: ^6.0.0 # 它允许你将WebView小部件整合到你的Flutter应用中，使用无头WebViews，或者使用In-App浏览器。
@@ -210,7 +210,7 @@ dependencies:
   device_info_plus: ^9.1.2
   package_info_plus: ^5.0.1
   # Flutter 的 Markdown 渲染器
-  flutter_markdown: ^0.6.20
+  flutter_markdown: ^0.6.20+1
   # 滑动吸顶
   sliding_up_panel: ^2.0.0+1
   # 用于 Flutter 的 SVG 渲染和小部件库，允许绘制和显示可缩放矢量图形 1.1 文件。

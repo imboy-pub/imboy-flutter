@@ -32,6 +32,7 @@ import 'component/locales/locales.dart';
 import 'config/init.dart';
 import 'config/theme.dart';
 import 'page/passport/passport_view.dart';
+import 'service/storage.dart';
 
 void run() async {
   await Jiffy.setLocale(sysLang('jiffy'));
@@ -88,6 +89,8 @@ class IMBoyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String lang = StorageService.to.getString(Keys.currentLang) ?? 'zh_CN';
+    List<String> code = lang.split("_");
     return Dragball(
       icon: const DecoratedBox(
         decoration: BoxDecoration(
@@ -181,9 +184,10 @@ class IMBoyApp extends StatelessWidget {
           translationsKeys: AppTranslation.translations,
 
           translations: IMBoyTranslations(),
-          // 你的翻译
-          locale: const Locale('zh', 'CN'),
-          // 将会按照此处指定的语言翻译
+          // 翻译将在该语言环境中显示
+          // locale: const Locale('zh', 'CN'),
+          locale: Locale(code[0], code[1]),
+          // 如果选择了无效的语言环境，则指定备用语言环境。
           fallbackLocale: const Locale('en', 'US'),
           // 添加一个回调语言选项，以备上面指定的语言翻译不存在
           defaultTransition: Transition.fade,
