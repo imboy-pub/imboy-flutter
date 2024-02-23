@@ -55,7 +55,7 @@ class ContactSettingTagPage extends StatelessWidget {
         titleWidget: n.Row([
           Expanded(
             child: Text(
-              '设置备注和标签'.tr,
+              'set_remarks_tags'.tr,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 16.0,
@@ -73,7 +73,7 @@ class ContactSettingTagPage extends StatelessWidget {
                 } else if (logic.valueChanged.isTrue) {
                   bool res = await logic.changeRemark(peerId, trimmedText);
                   if (res) {
-                    EasyLoading.showSuccess('操作成功'.tr);
+                    EasyLoading.showSuccess('tip_success'.tr);
                     Get.back(result: trimmedText);
                   }
                 }
@@ -118,7 +118,7 @@ class ContactSettingTagPage extends StatelessWidget {
         right: 12,
         child: n.Column([
           n.TextFormField(
-            labelText: '备注'.tr,
+            labelText: 'remark'.tr,
             autofocus: true,
             showCursor: true,
             style: n.TextStyle(color: AppColors.ItemOnColor),
@@ -148,9 +148,9 @@ class ContactSettingTagPage extends StatelessWidget {
           const SizedBox(height: 20),
           //
           Obx(() => n.TextFormField(
-                labelText: '标签'.tr,
+                labelText: 'tags'.tr,
                 controller: TextEditingController()
-                  ..text = peerTag.isEmpty ? '添加标签'.tr : peerTag.value,
+                  ..text = peerTag.isEmpty ? 'add_tag'.tr : peerTag.value,
                 style: n.TextStyle(color: AppColors.ItemOnColor),
                 readOnly: true,
                 minLines: 1,

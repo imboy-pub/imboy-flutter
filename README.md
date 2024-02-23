@@ -53,12 +53,14 @@ https://github.com/jonataslaw/get_cli/tree/master/translations
 flutter pub global activate get_cli
 export PATH="$PATH":"$HOME/.pub-cache/bin"
 
-mkdir -p assets assets/locales lib/component/locales
-// cd assets/locales/
-// wget https://raw.githubusercontent.com/jonataslaw/get_cli/master/translations/zh_CN.json
-// https://github.com/jonataslaw/get_cli/blob/master/translations/en.json
 // 生产json文件之后执行下面命令
 get generate locales assets/locales on lib/component/locales
+
+System locale
+
+return GetMaterialApp(
+    locale: Get.deviceLocale,
+);
 ```
 
 ## 开发环境遇到的一些问题

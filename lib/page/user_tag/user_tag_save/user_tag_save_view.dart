@@ -41,7 +41,7 @@ class UserTagSavePage extends StatelessWidget {
           },
           child: const Icon(Icons.close),
         ),
-        title: tag == null ? '新建标签'.tr : '更改标签名称'.tr,
+        title: tag == null ? 'add_tag'.tr : 'change_tag_name'.tr,
         // rightDMActions: [],
       ),
       body: SizedBox(
@@ -154,7 +154,7 @@ class UserTagSavePage extends StatelessWidget {
                         } catch (e) {
                           //
                         }
-                        EasyLoading.showSuccess('操作成功'.tr);
+                        EasyLoading.showSuccess('tip_success'.tr);
 
                         if (Get.isBottomSheetOpen ?? false) {
                           Get.closeAllBottomSheets();

@@ -23,31 +23,31 @@ class LanguageState {
       "id": "zh_CN",
       "languageCode": "zh",
       "regionCode": "CN",
-      "title": "简体中文".tr
+      "title": 'zh_cn'.tr // 简体中文
     },
     // {
     //   "id": "zh_TW",
     //   "languageCode": "zh",
     //   "regionCode": "TW",
-    //   "title": "繁体中文".tr
+    //   "title": 'zh_tw'.tr, // 繁体中文
     // },
     // {
     //   "id": "ru_RU",
     //   "languageCode": "ru",
     //   "regionCode": "RU",
-    //   "title": "俄罗斯俄语".tr
+    //   "title": 'ru_ru'.tr, //"俄罗斯俄语"
     // },
     // {
     //   "id": "en_GB",
     //   "languageCode": "en",
     //   "regionCode": "GB",
-    //   "title": "英国英语".tr
+    //   "title": 'en_gb'.tr "英国英语"
     // },
     {
       "id": "en_US",
       "languageCode": "en",
       "regionCode": "US",
-      "title": "美国英语".tr
+      "title": 'en_us'.tr //美国英语
     }
   ];
   LanguageState() {

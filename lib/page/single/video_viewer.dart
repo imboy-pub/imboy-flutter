@@ -182,21 +182,19 @@ class _VideoViewerPageState extends State<VideoViewerPage> {
   Widget buildVideo(BuildContext context) {
     return MergeSemantics(
       child: Semantics(
-        label: '播放'.tr,
+        label: 'play'.tr,
         image: true,
-        onTapHint: '播放'.tr,
+        onTapHint: 'play'.tr,
         sortKey: const OrdinalSortKey(1),
-        child: n.Stack(
-          [
-            Center(
-              child: AspectRatio(
-                aspectRatio: _controller!.value.aspectRatio,
-                child: VideoPlayer(_controller!),
-              ),
+        child: n.Stack([
+          Center(
+            child: AspectRatio(
+              aspectRatio: _controller!.value.aspectRatio,
+              child: VideoPlayer(_controller!),
             ),
-            buildPlayControlButton(context),
-          ],
-        ),
+          ),
+          buildPlayControlButton(context),
+        ]),
       ),
     );
   }
@@ -264,7 +262,7 @@ class _VideoViewerPageState extends State<VideoViewerPage> {
                     [
                       const CircularProgressIndicator(),
                       Center(
-                        child: Text("${'Loading'.tr}..."),
+                        child: Text("${'loading'.tr}..."),
                       ),
                     ],
                     // 垂直居中

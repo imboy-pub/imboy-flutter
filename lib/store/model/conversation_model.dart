@@ -60,33 +60,34 @@ class ConversationModel {
     if (strNoEmpty(sysPrompt)) {
       return sysPrompt;
     }
-    String str = '未知消息'.tr;
+    String str = 'unknown_message'.tr;
     if (msgType == 'text') {
       return subtitle;
     } else if (msgType == 'quote') {
       return subtitle;
     } else if (msgType == 'image') {
-      str = '图片'.tr;
+      str = 'image'.tr;
     } else if (msgType == 'file') {
-      str = '文件'.tr;
+      // str = '文件';
+      str = 'file'.tr;
     } else if (msgType == 'audio') {
-      str = '语音消息'.tr;
+      str = 'voice_message'.tr;
     } else if (msgType == 'video') {
-      str = '视频'.tr;
+      str = 'video'.tr;
     } else if (msgType == 'webrtc_audio') {
-      str = '语音通话'.tr;
+      str = 'voice_call'.tr;
     } else if (msgType == 'webrtc_video') {
-      str = '视频通话'.tr;
+      str = 'video_call'.tr;
     } else if (msgType == 'visit_card') {
-      str = '个人名片'.tr;
+      str = 'personal_card'.tr;
       return "[$str]$subtitle";
     } else if (msgType == 'location') {
-      str = '位置'.tr;
+      str = 'location'.tr;
       return "[$str]$subtitle";
     } else if (msgType == 'peer_revoked') {
-      return '"$title"${'撤回了一条消息'.tr}';
+      return '"$title"${'message_was_withdrawn'.tr}';
     } else if (msgType == 'my_revoked') {
-      return '你撤回了一条消息'.tr;
+      return 'you_withdrew_a_message'.tr;
     } else if (msgType == 'custom') {
       str = subtitle;
     } else if (msgType == 'empty') {

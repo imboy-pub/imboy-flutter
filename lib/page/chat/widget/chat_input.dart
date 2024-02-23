@@ -34,7 +34,7 @@ Widget _buildVoiceButton(BuildContext context) {
     child: TextButton(
       // color: Colors.white70,
       onPressed: () {
-        Get.snackbar('Tips', '语音输入功能暂无实现');
+        Get.snackbar('Tips', 'voice_input_not_implemented'.tr);
       },
       child: Text(
         'chat_hold_down_talk'.tr,

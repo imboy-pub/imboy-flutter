@@ -44,15 +44,15 @@ class IMBoyFeedback {
   // 评级描述
   get ratingDesc {
     if (double.parse(rating) == 5.0) {
-      return '非常棒'.tr;
+      return 'great'.tr;
     } else if (double.parse(rating) >= 4.0) {
-      return '很棒'.tr;
+      return 'good'.tr;
     } else if (double.parse(rating) >= 3.0) {
-      return '还不错'.tr;
+      return 'not_bad'.tr; // 还不错
     } else if (double.parse(rating) >= 2.0) {
-      return '需要继续加油'.tr;
+      return 'need_continue_work_hard'.tr; // '需要继续加油';
     } else {
-      return '太差了'.tr;
+      return 'too_bad'.tr;
     }
   }
 }
@@ -105,7 +105,8 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                   0,
                 ),
                 children: [
-                  Text('请留下您宝贵的意见和建议'.tr),
+                  // 请留下您宝贵的意见和建议
+                  Text('leave_your_suggestions'.tr),
                   n.Row([
                     n.Padding(
                       right: 8,
@@ -144,8 +145,8 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                         style: TextStyle(color: Colors.red),
                       ),
                     ),
-                    // Text('What is your feedback?'),
-                    Text('你的反馈是什么?'.tr),
+                    // 你的反馈是什么?
+                    Text('what_your_feedback?'.tr),
                   ]),
                   TextField(
                     cursorColor: Colors.black54,
@@ -191,7 +192,8 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                         _feedback.feedbackText = newFeedback,
                   ),
                   const SizedBox(height: 16),
-                  Text('你的联系方式'.tr),
+                  // 你的联系方式
+                  Text('your_contact_information'.tr),
                   TextField(
                     cursorColor: Colors.black54,
                     decoration: const InputDecoration(
@@ -233,12 +235,14 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                   ),
                   const SizedBox(height: 16),
                   // const Text('How does this make you feel?'),
-                  Text('这让你感觉如何?'.tr),
+                  // 这让你感觉如何
+                  Text('your_feel'.tr),
                   n.Padding(
                     top: 12,
                     bottom: 12,
                     child: n.Row([
-                      Text('评级'.tr),
+                      // 评级
+                      Text('rating'.tr),
                       Text(': ${_feedback.rating}    '),
                       Text(_feedback.ratingDesc),
                     ])

@@ -23,7 +23,7 @@ class ScannerResultPage extends StatelessWidget {
 
     return Scaffold(
         backgroundColor: AppColors.AppBarColor,
-        appBar: PageAppBar(title: '扫描结果'.tr),
+        appBar: PageAppBar(title: 'scan_result'.tr),
         floatingActionButtonLocation:
             FloatingActionButtonLocation.miniCenterFloat,
         floatingActionButton: SizedBox(
@@ -34,7 +34,7 @@ class ScannerResultPage extends StatelessWidget {
                 const Space(width: 40),
                 FloatingActionButton(
                   heroTag: "back",
-                  tooltip: "back".tr,
+                  tooltip: "button_back".tr,
                   onPressed: () {
                     Get.back();
                   },
@@ -43,12 +43,12 @@ class ScannerResultPage extends StatelessWidget {
 
                 // copy
                 FloatingActionButton(
-                  heroTag: "copy",
-                  tooltip: "copy".tr,
+                  heroTag: 'copy',
+                  tooltip: 'button_copy'.tr,
                   onPressed: () {
                     // 已复制
                     Clipboard.setData(ClipboardData(text: scanResult));
-                    EasyLoading.showToast("已复制".tr);
+                    EasyLoading.showToast('copied'.tr);
                   },
                   child: const Icon(Icons.copy_all),
                 ),

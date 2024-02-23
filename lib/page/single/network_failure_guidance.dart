@@ -11,7 +11,7 @@ class NetworkFailureGuidancePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PageAppBar(
-        title: '网络无法连接'.tr,
+        title: 'network_exception'.tr,
       ),
       body: Card(
         color: AppColors.BgColor,

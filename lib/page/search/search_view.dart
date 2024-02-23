@@ -21,7 +21,7 @@ class _SearchPageState extends State<SearchPage> {
 
   final TextEditingController _searchC = TextEditingController();
 
-  List words = ['朋友圈', '文章', '公众号', '小程序', '音乐', '表情'];
+  List words = ['moment'.tr, '文章', '公众号', '小程序', '音乐', '表情'];
 
   Widget wordView(item) {
     return InkWell(
@@ -34,7 +34,7 @@ class _SearchPageState extends State<SearchPage> {
           style: const TextStyle(color: AppColors.TipColor),
         ),
       ),
-      onTap: () => Get.snackbar("tips", "$item功能小编正在开发"),
+      onTap: () => Get.snackbar("tips", "$item功能正在开发"),
     );
   }
 
@@ -45,7 +45,7 @@ class _SearchPageState extends State<SearchPage> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 10.0),
           child: Text(
-            '搜索指定内容'.tr,
+            'search_specific_content'.tr,
             style: const TextStyle(color: AppColors.MainTextColor),
           ),
         ),
@@ -66,7 +66,7 @@ class _SearchPageState extends State<SearchPage> {
             style: const TextStyle(textBaseline: TextBaseline.alphabetic),
             decoration: InputDecoration(
               border: InputBorder.none,
-              hintText: '搜索'.tr,
+              hintText: 'search'.tr,
             ),
             onChanged: (text) {
               setState(() {});

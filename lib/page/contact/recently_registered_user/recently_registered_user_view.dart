@@ -44,7 +44,7 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
           state.items.addAll(list);
           state.page = state.page + 1;
         } else {
-          EasyLoading.showToast('没有更多数据了'.tr);
+          EasyLoading.showToast('no_more_data'.tr);
         }
       }
     });
@@ -56,7 +56,7 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
     initData();
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(title: '新注册的朋友'.tr),
+      appBar: PageAppBar(title: 'newly_registered_friends'.tr),
       body: SlidableAutoCloseBehavior(
           child: n.Column([
         Expanded(

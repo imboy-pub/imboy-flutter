@@ -110,11 +110,10 @@ class _ScannerPageState extends State<ScannerPage>
                       popGesture: true, // 右滑，返回上一页
                     );
                   } else if (result == 'user_not_exist') {
-                    // EasyLoading.showToast("用户不存在".tr);
-                    await logic.showResult("用户不存在".tr, 2);
+                    await logic.showResult('user_not_exist'.tr, 2);
                   } else if (result == 'user_is_disabled_or_deleted') {
-                    // EasyLoading.showToast("用户被禁用或已删除".tr);
-                    await logic.showResult("用户被禁用或已删除".tr, 2);
+                    // 用户被禁用或已删除
+                    await logic.showResult('user_disabled_or_deleted'.tr, 2);
                   }
                 } else {
                   Get.to(
@@ -185,8 +184,8 @@ class _ScannerPageState extends State<ScannerPage>
                         height: 20,
                         child: FittedBox(
                           child: Text(
-                            // barcode ?? '扫一扫'.tr,
-                            '扫一扫'.tr,
+                            // barcode ?? 'scan_qr_code'.tr,
+                            'scan_qr_code'.tr,
                             // overflow: TextOverflow.fade,
                             style: const TextStyle(
                               color: Colors.white,

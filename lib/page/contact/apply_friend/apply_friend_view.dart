@@ -35,7 +35,7 @@ class ApplyFriendPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _msgController.text = "${'我是'.tr} ${UserRepoLocal.to.current.nickname}";
+    _msgController.text = "${'i_am'.tr} ${UserRepoLocal.to.current.nickname}";
     _remarkController.text = remark;
 
     Widget secondary = const Text(
@@ -48,7 +48,7 @@ class ApplyFriendPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(
-        title: '申请添加朋友'.tr,
+        title: 'apply_add_friend'.tr,
         backgroundColor: Colors.white,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -72,7 +72,7 @@ class ApplyFriendPage extends StatelessWidget {
                   "gender": UserRepoLocal.to.current.gender,
                   "region": UserRepoLocal.to.current.region,
 
-                  "role": logic.role.value, // role 可能的值 all justchat
+                  "role": logic.role.value, // role 可能的值 all just_chat
                   // donotlookhim 前后端约定的名称，请不要随意修改
                   "donotlookhim": logic.donotlookhim.isTrue,
                   // donotlethimlook 前后端约定的名称，请不要随意修改
@@ -102,7 +102,7 @@ class ApplyFriendPage extends StatelessWidget {
               padding: MaterialStateProperty.all(EdgeInsets.zero),
             ),
             child: Text(
-              '发送'.tr,
+              'button_send'.tr,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 16),
             ),
@@ -120,7 +120,7 @@ class ApplyFriendPage extends StatelessWidget {
             right: 30,
             child: Obx(() => n.Column([
                   TitleTextField(
-                    title: '发送添加朋友申请'.tr,
+                    title: 'send_friend_request'.tr,
                     controller: _msgController,
                     minLines: 3,
                     maxLines: 4,
@@ -128,18 +128,18 @@ class ApplyFriendPage extends StatelessWidget {
                     contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                   ),
                   TitleTextField(
-                    title: '设置备注'.tr,
+                    title: 'set_remark'.tr,
                     controller: _remarkController,
                     minLines: 1,
                     maxLines: 1,
                     maxLength: 80,
                     contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                   ),
-                  Text('标签'.tr),
+                  Text('tags'.tr),
                   Obx(() => IconTextView(
-                        // leftText: '添加标签'.tr,
+                        // leftText: 'add_tag'.tr,
                         leftText: logic.peerTag.isEmpty
-                            ? '添加标签'.tr
+                            ? 'add_tag'.tr
                             : logic.peerTag.value,
                         paddingLeft: 10,
                         onPressed: () {
@@ -170,7 +170,7 @@ class ApplyFriendPage extends StatelessWidget {
                     padding: const EdgeInsets.only(
                       top: 14,
                     ),
-                    child: Text('设置朋友圈'.tr),
+                    child: Text('set_moment'.tr),
                   ),
                   Card(
                     color: const Color.fromARGB(255, 247, 247, 247),
@@ -182,7 +182,7 @@ class ApplyFriendPage extends StatelessWidget {
                       [
                         IMBoyRadioListTile(
                           value: "all",
-                          title: n.Text("聊天、朋友圈、运动数据等".tr),
+                          title: n.Text('chat_moment_sport_data_etc'.tr),
                           selected: false,
                           secondary:
                               logic.role.value == "all" ? secondary : null,
@@ -200,11 +200,12 @@ class ApplyFriendPage extends StatelessWidget {
                           },
                         ),
                         IMBoyRadioListTile(
-                          value: "justchat",
-                          title: n.Text("仅聊天".tr),
+                          value: "just_chat",
+                          title: n.Text('just_chat'.tr),
                           selected: false,
-                          secondary:
-                              logic.role.value == "justchat" ? secondary : null,
+                          secondary: logic.role.value == "just_chat"
+                              ? secondary
+                              : null,
                           controlAffinity: ListTileControlAffinity.leading,
                           activeColor: AppColors.primaryElement,
                           groupValue: logic.role.value,
@@ -234,35 +235,33 @@ class ApplyFriendPage extends StatelessWidget {
                       ),
                       child: n.Column(
                         [
-                          Text('朋友圈和状态'.tr),
+                          Text('moment_status'.tr),
                           Card(
                             color: const Color.fromARGB(255, 247, 247, 247),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadiusDirectional.circular(5),
                             ),
                             clipBehavior: Clip.antiAlias,
-                            child: n.Column(
-                              [
-                                SwitchListTile(
-                                  title: Text('不让他（她）看'.tr),
-                                  value: logic.donotlethimlook.isTrue,
-                                  activeColor: AppColors.primaryElement,
-                                  onChanged: (val) {
-                                    logic.donotlethimlook.value = val;
-                                    logic.update([logic.donotlethimlook]);
-                                  },
-                                ),
-                                SwitchListTile(
-                                  title: Text('不看他（她）'.tr),
-                                  value: logic.donotlookhim.isTrue,
-                                  activeColor: AppColors.primaryElement,
-                                  onChanged: (val) {
-                                    logic.donotlookhim.value = val;
-                                    logic.update([logic.donotlookhim]);
-                                  },
-                                ),
-                              ],
-                            ),
+                            child: n.Column([
+                              SwitchListTile(
+                                title: Text('not_let_him_see'.tr),
+                                value: logic.donotlethimlook.isTrue,
+                                activeColor: AppColors.primaryElement,
+                                onChanged: (val) {
+                                  logic.donotlethimlook.value = val;
+                                  logic.update([logic.donotlethimlook]);
+                                },
+                              ),
+                              SwitchListTile(
+                                title: Text('not_see_him'.tr),
+                                value: logic.donotlookhim.isTrue,
+                                activeColor: AppColors.primaryElement,
+                                onChanged: (val) {
+                                  logic.donotlookhim.value = val;
+                                  logic.update([logic.donotlookhim]);
+                                },
+                              ),
+                            ]),
                           ),
                         ],
                         crossAxisAlignment: CrossAxisAlignment.start,

@@ -41,7 +41,7 @@ class DenylistPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.ChatBg,
       appBar: PageAppBar(
-        title: '黑名单'.tr,
+        title: 'blacklist'.tr,
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -57,9 +57,9 @@ class DenylistPage extends StatelessWidget {
                 bottom: 10,
                 child: searchBar(
                   context,
-                  searchLabel: '搜索'.tr,
-                  hintText: '搜索'.tr,
-                  queryTips: '通过好友昵称、备注搜索好友'.tr,
+                  searchLabel: 'search'.tr,
+                  hintText: 'search'.tr,
+                  queryTips: 'search_friends_tips'.tr,
                   doSearch: ((query) {
                     // debugPrint(
                     //     "> on search doSearch ${query.toString()}");
@@ -86,7 +86,7 @@ class DenylistPage extends StatelessWidget {
                   color: Colors.white,
                   child: SlidableAutoCloseBehavior(child: Obx(() {
                     return logic.items.isEmpty
-                        ? NoDataView(text: '暂无数据'.tr)
+                        ? NoDataView(text: 'no_data'.tr)
                         : AzListView(
                             data: logic.items,
                             itemCount: logic.items.length,

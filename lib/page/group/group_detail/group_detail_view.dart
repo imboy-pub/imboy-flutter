@@ -187,7 +187,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               visible: memberList.length > 20,
               child: TextButton(
                 child: Text(
-                  '查看全部群成员'.tr,
+                  // 查看全部群成员
+                  'view_all_group_member'.tr,
                   style: const TextStyle(fontSize: 14.0, color: Colors.black54),
                 ),
                 onPressed: () => Get.to(() => GroupMemberPage(widget.peer!)),
@@ -195,7 +196,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             ),
             const SizedBox(height: 10.0),
             functionBtn(
-              '群聊名称',
+              'group_name'.tr,
               detail: groupName.toString().length > 7
                   ? '${groupName.toString().substring(0, 6)}...'
                   : groupName.toString(),
@@ -219,7 +220,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             const Space(height: 10.0),
             functionBtn('查找聊天记录'),
             const Space(height: 10.0),
-            functionBtn('消息免打扰',
+            functionBtn('message_mute'.tr,
                 right: CupertinoSwitch(
                   value: _dnd,
                   onChanged: (bool value) {
@@ -258,10 +259,10 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   },
                 )),
             const Space(),
-            functionBtn('设置当前聊天背景'.tr),
-            functionBtn('投诉'.tr),
+            functionBtn('set_chat_background'.tr),
+            functionBtn('complaint'.tr),
             const Space(),
-            functionBtn('清空聊天记录'.tr),
+            functionBtn('clear_chat_record'.tr),
             const Space(),
             TextButton(
               // padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
@@ -269,12 +270,12 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               onPressed: () {
                 if (widget.peer == '') return;
 
-                String tips = '确定要退出本群吗？'.tr;
+                String tips = 'sure_to_leave_group'.tr;
                 Get.defaultDialog(
-                  title: 'Alert'.tr,
+                  title: 'tip_tips'.tr,
                   content: Text(tips),
-                  textCancel: "  ${'取消'.tr}  ",
-                  textConfirm: "  ${'清空'.tr}  ",
+                  textCancel: "  ${'button_cancel'.tr}  ",
+                  textConfirm: "  ${'button_setempty'.tr}  ",
                   confirmTextColor: AppColors.primaryElementText,
                   onConfirm: () {
                     GroupModel.quitGroupModel(widget.peer!, callback: (str) {
@@ -323,7 +324,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
       case '备注':
         Get.to(() => GroupDetailPage(widget.peer));
         break;
-      case '群聊名称':
+      // 群聊名称
+      case 'group_name':
         Get.to(
           () => GroupRemarkPage(
             groupInfoType: GroupInfoType.name,
@@ -353,6 +355,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
           groupNotification = (data ?? groupNotification) as String?;
         });
         break;
+      // 'search_chat_record'.tr
       // case '查找聊天记录':
       //   Get.to(()=>(() => SearchPage());
       //   break;
@@ -365,7 +368,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         setState(() {});
         _top ? _setTop(1) : _setTop(2);
         break;
-      case '设置当前聊天背景':
+      // 设置当前聊天背景
+      case 'set_chat_background':
         break;
       case '我在群里的昵称':
         Get.to(
@@ -379,15 +383,17 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
           cardName = (data ?? cardName).toString();
         });
         break;
-      case '投诉':
+      // case '投诉':
+      case 'complaint':
         Get.to(
           () => WebViewPage(CONST_HELP_URL, '投诉'),
           transition: Transition.rightToLeft,
           popGesture: true, // 右滑，返回上一页
         );
         break;
-      case '清空聊天记录':
-        String tips = '确定删除群的聊天记录吗？'.tr;
+      // 清空聊天记录
+      case 'clear_chat_record':
+        String tips = 'sure_quit_group_tips'.tr;
         n.showDialog(
           context: Get.context!,
           builder: (context) => n.Alert()
@@ -397,13 +403,13 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               child: Center(child: Text(tips)),
             )
             ..actions = [
-              n.Button('取消'.tr.n)
+              n.Button('button_cancel'.tr.n)
                 ..style =
                     n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
                 ..onPressed = () {
                   Navigator.of(context).pop();
                 },
-              n.Button('确定'.tr.n)
+              n.Button('button_confirm'.tr.n)
                 ..onPressed = () async {
                   Navigator.of(context).pop();
                   // bool res = await logic.cleanMessageByPeerId(widget.peerId);
@@ -414,9 +420,9 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   //       .hideConversation(widget.peerId);
                   //   // 刷新会话列表
                   //   await Get.find<ConversationLogic>().conversationsList();
-                  EasyLoading.showSuccess('操作成功'.tr);
+                  EasyLoading.showSuccess('tip_success'.tr);
                   // } else {
-                  //   EasyLoading.showError('操作失败'.tr);
+                  //   EasyLoading.showError('tip_failed'.tr);
                   // }
                 },
             ],

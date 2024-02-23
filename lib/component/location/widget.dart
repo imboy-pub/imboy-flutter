@@ -223,7 +223,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                             ),
                           ),
                           child: Text(
-                            '发送'.tr,
+                            'button_send'.tr,
                             style: const TextStyle(
                               color: AppColors.primaryElementText,
                               fontWeight: FontWeight.bold,
@@ -333,7 +333,8 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                             size: 20,
                                           ),
                                           border: InputBorder.none,
-                                          hintText: "搜索地点".tr,
+                                          // 搜索地点
+                                          hintText: 'search_location'.tr,
                                         ),
                                       ),
                                     ),
@@ -357,7 +358,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                       color: Colors.white,
                                       child: Center(
                                         child: Text(
-                                          "取消".tr,
+                                          'button_cancel'.tr,
                                         ),
                                       ),
                                     ),

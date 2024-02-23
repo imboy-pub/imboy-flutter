@@ -443,9 +443,9 @@ class ChatPageState extends State<ChatPage> {
       bool res = await _addMessage(msg);
       if (res) {
         getx.Get.find<UserCollectLogic>().change(c1.kindId);
-        EasyLoading.showSuccess('发送成功'.tr);
+        EasyLoading.showSuccess('tip_success'.tr);
       } else {
-        EasyLoading.showError('发送失败'.tr);
+        EasyLoading.showError('tip_failed'.tr);
       }
     }
   }
@@ -486,9 +486,9 @@ class ChatPageState extends State<ChatPage> {
       );
       bool res = await _addMessage(message);
       if (res) {
-        EasyLoading.showSuccess('发送成功'.tr);
+        EasyLoading.showSuccess('tip_success'.tr);
       } else {
-        EasyLoading.showError('发送失败'.tr);
+        EasyLoading.showError('tip_failed'.tr);
       }
     }
   }
@@ -781,16 +781,16 @@ class ChatPageState extends State<ChatPage> {
     } else if (itemId == "copy" && msg is types.TextMessage) {
       // 复制消息
       Clipboard.setData(ClipboardData(text: msg.text));
-      EasyLoading.showToast("已复制".tr);
+      EasyLoading.showToast('copied'.tr);
     } else if (itemId == "collect") {
       String tb =
           widget.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
       // 添加收藏
       bool res = await UserCollectLogic().add(tb: tb, msg: msg);
       if (res) {
-        EasyLoading.showSuccess('已收藏'.tr);
+        EasyLoading.showSuccess('collected'.tr);
       } else {
-        EasyLoading.showError('操作失败，请稍后重试'.tr);
+        EasyLoading.showError('operation_failed_again_later'.tr);
       }
     } else if (itemId == "revoke") {
       // 撤回消息

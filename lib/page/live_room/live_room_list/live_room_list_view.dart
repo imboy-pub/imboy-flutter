@@ -41,7 +41,7 @@ class LiveRoomListPage extends StatelessWidget {
 
     return Scaffold(
       appBar: PageAppBar(
-        title: '我的直播'.tr,
+        title: 'my_live'.tr,
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -55,7 +55,7 @@ class LiveRoomListPage extends StatelessWidget {
                 right: 10,
                 child: Obx(() {
                   return state.items.isEmpty
-                      ? NoDataView(text: '暂无数据'.tr)
+                      ? NoDataView(text: 'no_data'.tr)
                       : ListView.builder(
                           itemCount: state.items.length,
                           itemBuilder: (BuildContext context, int index) {
@@ -64,7 +64,7 @@ class LiveRoomListPage extends StatelessWidget {
                               ListTile(
                                 contentPadding: const EdgeInsets.only(left: 0),
                                 title: n.Row([
-                                  Text('直播'.tr),
+                                  Text('live_broadcast'.tr),
                                   const Space(width: 10),
                                 ]),
                                 subtitle: n.Row([
@@ -98,7 +98,7 @@ class LiveRoomListPage extends StatelessWidget {
                               ListTile(
                                 contentPadding: const EdgeInsets.only(left: 0),
                                 title: n.Row([
-                                  Text('直播'.tr),
+                                  Text('live_broadcast'.tr),
                                   const Space(width: 10),
                                 ]),
                                 subtitle: n.Row([

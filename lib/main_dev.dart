@@ -109,8 +109,11 @@ class IMBoyApp extends StatelessWidget {
       ball: SizedBox(
         width: 96,
         height: 30,
-        child: n.Row(
-            [const Space(width: 18), Text('反馈建议'.tr), const Space(width: 18)])
+        child: n.Row([
+          const Space(width: 18),
+          Text('feedback_suggestion'.tr),
+          const Space(width: 18)
+        ])
           ..backgroundColor = AppColors.ChatInputBackgroundColor
           // 垂直居中
           ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
@@ -122,7 +125,7 @@ class IMBoyApp extends StatelessWidget {
               "BetterFeedback show extra ${feedback.extra.toString()} isLogin ${UserRepoLocal.to.isLogin}");
           // Uint8List feedbackScreenshot = feedback.screenshot
           if (feedback.text.isEmpty) {
-            EasyLoading.showError("反馈内容不能为空".tr);
+            EasyLoading.showError('feedback_content_required'.tr);
             return;
           }
 
@@ -146,9 +149,9 @@ class IMBoyApp extends StatelessWidget {
             };
             bool res = await p.add(data);
             if (res) {
-              EasyLoading.showSuccess('你的反馈问题我们已经收到了，会尽快处理！'.tr);
+              EasyLoading.showSuccess('feedback_success_msg'.tr);
             } else {
-              EasyLoading.showError('操作失败'.tr);
+              EasyLoading.showError('tip_failed'.tr);
             }
           }, (Error error) {
             debugPrint("> on upload ${error.toString()}");
@@ -186,6 +189,7 @@ class IMBoyApp extends StatelessWidget {
           translations: IMBoyTranslations(),
           // 翻译将在该语言环境中显示
           // locale: const Locale('zh', 'CN'),
+          // locale: Get.deviceLocale,
           locale: Locale(code[0], code[1]),
           // 如果选择了无效的语言环境，则指定备用语言环境。
           fallbackLocale: const Locale('en', 'US'),

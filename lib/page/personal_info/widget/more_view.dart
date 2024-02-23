@@ -30,17 +30,17 @@ class MoreView extends StatelessWidget {
     };
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(title: "更多信息".tr),
+      appBar: PageAppBar(title: 'more_info'.tr),
       body: Column(children: [
         LabelRow(
-          label: '性别'.tr,
+          label: 'gender'.tr,
           isLine: true,
           isRight: true,
           rightW: Obx(() => Text(logic.genderTitle.value)),
           onPressed: () {
             Get.to(
               () => UpdatePage(
-                  title: '设置性别'.tr,
+                  title: 'set_gender'.tr,
                   value: UserRepoLocal.to.current.gender.toString(),
                   field: 'gender',
                   callback: (gender) async {
@@ -68,14 +68,14 @@ class MoreView extends StatelessWidget {
           },
         ),
         LabelRow(
-          label: '地区'.tr,
+          label: 'region'.tr,
           isLine: true,
           isRight: true,
           rightW: Obx(() => Text(deleteFirst(logic.region.value))),
           onPressed: () {
             Get.to(
               () => UpdatePage(
-                  title: '设置地区'.tr,
+                  title: 'set_region'.tr,
                   value: logic.region.value,
                   field: 'region',
                   callback: (region) async {
@@ -118,7 +118,7 @@ class MoreView extends StatelessWidget {
               children: <Widget>[
                 SizedBox(
                   child: Text(
-                    '个性签名'.tr,
+                    'signature'.tr,
                     style: const TextStyle(fontSize: 17.0),
                   ),
                 ),
@@ -151,7 +151,7 @@ class MoreView extends StatelessWidget {
           onPressed: () {
             Get.to(
               () => UpdatePage(
-                  title: '设置个性签名'.tr,
+                  title: 'set_signature'.tr,
                   value: UserRepoLocal.to.current.sign,
                   field: 'text',
                   callback: (sign) async {

@@ -78,7 +78,7 @@ class PassportPage extends StatelessWidget {
               ),
             )
             ..actions = [
-              n.Button('确定'.tr.n)
+              n.Button('button_confirm'.tr.n)
                 ..style =
                     n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
                 ..onPressed = () {

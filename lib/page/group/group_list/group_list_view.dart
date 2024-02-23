@@ -18,7 +18,7 @@ class GroupListPage extends StatelessWidget {
       backgroundColor: AppColors.ChatBg,
       // backgroundColor: Colors.white,
       appBar: PageAppBar(
-        title: '群聊'.tr,
+        title: 'group_chat'.tr,
       ),
       body: n.Padding(
         left: 12,

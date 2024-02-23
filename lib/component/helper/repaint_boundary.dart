@@ -35,7 +35,7 @@ class RepaintBoundaryHelper {
         quality: 72,
         name: filename,
       );
-      EasyLoading.showSuccess("保存成功".tr);
+      EasyLoading.showSuccess("save_success".tr);
     } else {
       await openAppSettings();
     }

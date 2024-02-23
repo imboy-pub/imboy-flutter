@@ -62,8 +62,8 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   double start = 0.0;
   double offset = 0.0;
   bool isUp = false;
-  String textShow = "按住说话".tr;
-  String toastShow = "手指上滑,取消发送".tr;
+  String textShow = 'chat_hold_down_talk'.tr;
+  String toastShow = 'slide_up_cancle_sending'.tr;
   String voiceIco = "assets/images/chat/voice_volume_1.png";
 
   Duration recordingDuration = const Duration();
@@ -142,13 +142,13 @@ class _VoiceWidgetState extends State<VoiceWidget> {
 
   showVoiceView(BuildContext ctx) {
     setState(() {
-      textShow = "松开结束".tr;
+      textShow = 'release_end'.tr;
     });
 
     ///显示录音悬浮布局
     buildOverLayView(ctx);
 
-    debugPrint("> on record showVoiceView");
+    // debugPrint("> on record showVoiceView");
     recorderStart(ctx);
   }
 
@@ -157,7 +157,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
       if (_count < 1) {
         Toast.showView(
             context: ctx,
-            msg: '说话时间太短'.tr,
+            msg: 'speaking_too_short'.tr,
             icon: const Text(
               '!',
               style: TextStyle(
@@ -172,7 +172,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     }
 
     setState(() {
-      textShow = "按住说话".tr;
+      textShow = 'chat_hold_down_talk'.tr;
     });
 
     filePath = (await recorderStop(recorderModule))!;
@@ -201,11 +201,11 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     setState(() {
       isUp = start - offset > 100 ? true : false;
       if (isUp) {
-        textShow = "松开手指,取消发送".tr;
+        textShow = 'release_finger_cancel_sending'.tr;
         toastShow = textShow;
       } else {
-        textShow = "松开结束".tr;
-        toastShow = "手指上滑,取消发送".tr;
+        textShow = 'release_end'.tr;
+        toastShow = 'slide_up_cancle_sending'.tr;
       }
     });
   }
@@ -273,8 +273,9 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     try {
       var status = await Permission.microphone.request();
       if (status != PermissionStatus.granted) {
-        Get.snackbar("", "未获取到麦克风权限".tr);
-        throw RecordingPermissionException("未获取到麦克风权限".tr);
+        Get.snackbar("", 'microphone_permission_not_obtained'.tr);
+        throw RecordingPermissionException(
+            'microphone_permission_not_obtained'.tr);
       }
       await recorderModule.openRecorder();
 

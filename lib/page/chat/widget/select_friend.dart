@@ -101,14 +101,14 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
 
   void sendToDialog(ContactModel model) {
     Get.defaultDialog(
-      title: '发送给'.tr,
+      title: 'send_to'.tr,
       radius: 6,
       cancel: TextButton(
         onPressed: () {
           Get.close();
         },
         child: Text(
-          '取消'.tr,
+          'button_cancel'.tr,
           textAlign: TextAlign.center,
         ),
       ),
@@ -119,7 +119,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
           nav.pop(model);
         },
         child: Text(
-          '发送'.tr,
+          'button_send'.tr,
           textAlign: TextAlign.center,
         ),
       ),
@@ -172,8 +172,8 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
             child: Text(
               // visit_card
               widget.peerIsReceiver
-                  ? "[${'个人名片'.tr}]${widget.peer['nickname']}"
-                  : "[${'个人名片'.tr}]${model.nickname}",
+                  ? "[${'personal_card'.tr}]${widget.peer['nickname']}"
+                  : "[${'personal_card'.tr}]${model.nickname}",
               style: const TextStyle(color: AppColors.TipColor),
             ),
           ),
@@ -238,7 +238,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: NavAppBar(
-        title: '选择朋友'.tr,
+        title: 'select_friends'.tr,
         leading: n.Padding(
           child: InkWell(
             onTap: () {
@@ -255,10 +255,10 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
         //     ),
         //     onTap: () {
         //       if (!listNoEmpty(selects)) {
-        //         Get.snackbar('', '请选择要添加的成员'.tr);
+        //         Get.snackbar('', 'please_select_members_for_add'.tr);
         //       }
         //     },
-        //     text: '确定'.tr,
+        //     text: 'button_confirm'.tr,
         //   ),
         // ],
       ),

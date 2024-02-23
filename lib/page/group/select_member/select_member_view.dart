@@ -160,7 +160,7 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PageAppBar(
-        title: '选择联系人'.tr,
+        title: 'select_contacts'.tr,
         /*
         rightDMActions: <Widget>[
           ComMomButton(
@@ -170,10 +170,10 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
             ),
             onTap: () {
               if (!listNoEmpty(selects)) {
-                Get.snackbar('', '请选择要添加的成员'.tr);
+                Get.snackbar('', 'please_select_members_for_add'.tr);
               }
             },
-            text: '确定'.tr,
+            text: 'button_confirm'.tr,
           ),
         ],
         */

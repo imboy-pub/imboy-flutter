@@ -156,7 +156,7 @@ class SearchBarDelegate extends SearchDelegate {
         if (snapshot.hasData) {
           List<dynamic> items = snapshot.data;
           if (items.isEmpty) {
-            return Center(child: Text('No person found :('.tr));
+            return Center(child: Text('search_no_found'.tr));
           }
           return n.Padding(
             top: 16,

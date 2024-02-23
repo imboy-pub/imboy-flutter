@@ -66,255 +66,252 @@ class ContactSettingPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(
-        title: '资料设置'.tr,
+        title: 'profile_settings'.tr,
       ),
       body: SingleChildScrollView(
-        child: n.Column(
-          [
-            LabelRow(
-              label: '设置备注和标签'.tr,
-              isLine: true,
-              onPressed: () {
-                Get.to(
-                  () => ContactSettingTagPage(
-                    peerId: peerId,
-                    peerAvatar: peerAvatar,
-                    peerAccount: peerAccount,
-                    peerNickname: peerNickname,
-                    peerGender: peerGender,
-                    peerTitle: peerTitle,
-                    peerSign: peerSign,
-                    peerRegion: peerRegion,
-                    peerSource: peerSource,
-                    peerRemark: peerRemark,
-                    peerTag: peerTag.obs,
+        child: n.Column([
+          LabelRow(
+            label: 'set_remarks_tags'.tr,
+            isLine: true,
+            onPressed: () {
+              Get.to(
+                () => ContactSettingTagPage(
+                  peerId: peerId,
+                  peerAvatar: peerAvatar,
+                  peerAccount: peerAccount,
+                  peerNickname: peerNickname,
+                  peerGender: peerGender,
+                  peerTitle: peerTitle,
+                  peerSign: peerSign,
+                  peerRegion: peerRegion,
+                  peerSource: peerSource,
+                  peerRemark: peerRemark,
+                  peerTag: peerTag.obs,
+                ),
+                transition: Transition.rightToLeft,
+                popGesture: true, // 右滑，返回上一页
+              );
+            },
+          ),
+          // LabelRow(
+          //   label: 'friend_permissions'.tr,
+          //   onPressed: () {
+          //     Get.to(
+          //       () => FriendsPermissionsPage(),
+          //       transition: Transition.rightToLeft,
+          //       popGesture: true, // 右滑，返回上一页
+          //     );
+          //   },
+          // ),
+          const Space(),
+          LabelRow(
+            label: 'recommend_to_friend'.tr,
+            // isLine: false,
+            isLine: false,
+            onPressed: () async {
+              Map<String, String> peer = {
+                'peerId': peerId,
+                'avatar': peerAvatar,
+                'title': peerTitle,
+                'nickname': peerNickname,
+              };
+
+              ContactModel? c1 = await Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  // “右滑返回上一页”功能
+                  builder: (_) => SelectFriendPage(
+                    peer: peer,
+                    peerIsReceiver: true,
                   ),
-                  transition: Transition.rightToLeft,
-                  popGesture: true, // 右滑，返回上一页
-                );
-              },
-            ),
-            // LabelRow(
-            //   label: '朋友权限'.tr,
-            //   onPressed: () {
-            //     Get.to(
-            //       () => FriendsPermissionsPage(),
-            //       transition: Transition.rightToLeft,
-            //       popGesture: true, // 右滑，返回上一页
-            //     );
-            //   },
-            // ),
-            const Space(),
-            LabelRow(
-              label: '把他推荐给朋友'.tr,
-              // isLine: false,
-              isLine: false,
-              onPressed: () async {
-                Map<String, String> peer = {
-                  'peerId': peerId,
-                  'avatar': peerAvatar,
+                ),
+              );
+              debugPrint("handleVisitCardSelection ${c1?.toJson().toString()}");
+              if (c1 != null) {
+                Map<String, dynamic> metadata = {
+                  'custom_type': 'visit_card',
+                  'uid': peerId,
                   'title': peerTitle,
-                  'nickname': peerNickname,
+                  'avatar': peerAvatar,
                 };
-
-                ContactModel? c1 = await Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                    // “右滑返回上一页”功能
-                    builder: (_) => SelectFriendPage(
-                      peer: peer,
-                      peerIsReceiver: true,
-                    ),
+                debugPrint("> location metadata: ${metadata.toString()}");
+                final message = types.CustomMessage(
+                  author: types.User(
+                    id: UserRepoLocal.to.currentUid,
+                    firstName: UserRepoLocal.to.current.nickname,
+                    imageUrl: UserRepoLocal.to.current.avatar,
                   ),
+                  createdAt: DateTimeHelper.utc(),
+                  id: Xid().toString(),
+                  remoteId: c1.peerId,
+                  status: types.Status.sending,
+                  metadata: metadata,
                 );
-                debugPrint(
-                    "handleVisitCardSelection ${c1?.toJson().toString()}");
-                if (c1 != null) {
-                  Map<String, dynamic> metadata = {
-                    'custom_type': 'visit_card',
-                    'uid': peerId,
-                    'title': peerTitle,
-                    'avatar': peerAvatar,
-                  };
-                  debugPrint("> location metadata: ${metadata.toString()}");
-                  final message = types.CustomMessage(
-                    author: types.User(
-                      id: UserRepoLocal.to.currentUid,
-                      firstName: UserRepoLocal.to.current.nickname,
-                      imageUrl: UserRepoLocal.to.current.avatar,
-                    ),
-                    createdAt: DateTimeHelper.utc(),
-                    id: Xid().toString(),
-                    remoteId: c1.peerId,
-                    status: types.Status.sending,
-                    metadata: metadata,
-                  );
-                  final logic2 = Get.put(ChatLogic());
-                  await logic2.addMessage(
-                    UserRepoLocal.to.currentUid,
-                    c1.peerId,
-                    c1.avatar,
-                    c1.title,
-                    'C2C',
-                    message,
-                  );
+                final logic2 = Get.put(ChatLogic());
+                await logic2.addMessage(
+                  UserRepoLocal.to.currentUid,
+                  c1.peerId,
+                  c1.avatar,
+                  c1.title,
+                  'C2C',
+                  message,
+                );
 
-                  EasyLoading.showSuccess('发送成功'.tr);
-                }
-              },
-            ),
-            const Space(),
-            Container(
-              color: Colors.white,
-              child: Container(
-                padding: const EdgeInsets.only(
-                  left: 0,
-                  top: 0.0,
-                  bottom: 0.0,
-                  right: 0.0,
-                ),
-                margin: const EdgeInsets.only(left: 15.0),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  border: Border(
-                    bottom: BorderSide(color: AppColors.LineColor, width: 0.2),
-                  ),
-                ),
-                child: Obx(() => SwitchListTile(
-                      title: Text('加入黑名单'.tr),
-                      // value: false,
-                      value: inDenylist.isTrue,
-                      contentPadding: const EdgeInsets.only(
-                        left: 0,
-                        top: 0.0,
-                        bottom: 0.0,
-                        right: 0.0,
-                      ),
-                      activeColor: AppColors.primaryElement,
-                      onChanged: (val) async {
-                        debugPrint("addDenylist val $val, $inDenylist");
-
-                        bool res;
-                        if (inDenylist.isTrue) {
-                          res = await DenylistLogic().removeDenylist(peerId);
-                        } else {
-                          DenylistModel model = DenylistModel(
-                            deniedUid: peerId,
-                            nickname: peerNickname,
-                            account: peerAccount,
-                            remark: peerRemark,
-                            sign: peerSign,
-                            source: peerSource,
-                            avatar: peerAvatar,
-                            region: peerRegion,
-                            gender: peerGender,
-                            createdAt: DateTimeHelper.utc(),
-                          );
-                          res = await DenylistLogic().addDenylist(model);
-                        }
-                        if (res) {
-                          inDenylist.value = val;
-                        }
-                      },
-                    )),
+                EasyLoading.showSuccess('tip_success'.tr);
+              }
+            },
+          ),
+          const Space(),
+          Container(
+            color: Colors.white,
+            child: Container(
+              padding: const EdgeInsets.only(
+                left: 0,
+                top: 0.0,
+                bottom: 0.0,
+                right: 0.0,
               ),
-            ),
-            // LabelRow(
-            //   label: '投诉'.tr,
-            //   isLine: false,
-            //   onPressed: () {},
-            // ),
-            // const Space(),
-            ButtonRow(
-              margin: const EdgeInsets.only(top: 10.0),
-              text: '删除',
-              isBorder: false,
-              style: const TextStyle(color: Colors.red, fontSize: 16),
-              onPressed: () {
-                Get.bottomSheet(
-                  SizedBox(
-                    width: Get.width,
-                    height: Get.height * 0.25,
-                    child: n.Wrap([
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 10,
-                          left: 15,
-                          right: 15,
-                          bottom: 10,
-                        ),
-                        child: Text(
-                          '将联系人"$peerRemark"删除，同时删除与该联系人的聊天记录'.tr,
-                          style: const TextStyle(
-                            color: AppColors.MainTextColor,
-                            fontSize: 14.0,
-                          ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      Center(
-                        child: TextButton(
-                          onPressed: () async {
-                            bool res = await logic.deleteContact(peerId);
-                            if (res) {
-                              EasyLoading.showSuccess("操作成功");
-                              Get.back(times: 3);
-                              Get.to(
-                                () => BottomNavigationPage(),
-                                arguments: {'index': 1},
-                                transition: Transition.rightToLeft,
-                                popGesture: true, // 右滑，返回上一页
-                              );
-                            }
-                          },
-                          child: Text(
-                            '删除联系人'.tr,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.red,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: Get.width,
-                        height: 6,
-                        color: AppColors.AppBarColor,
-                      ),
-                      Center(
-                        child: TextButton(
-                          onPressed: () => Get.close(),
-                          child: Text(
-                            'button_cancel'.tr,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: AppColors.ItemOnColor,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ]),
-                  ),
-                  // backgroundColor: Colors.black12,
-                  backgroundColor: Colors.white,
-                  //改变shape这里即可
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20.0),
-                      topRight: Radius.circular(20.0),
+              margin: const EdgeInsets.only(left: 15.0),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  bottom: BorderSide(color: AppColors.LineColor, width: 0.2),
+                ),
+              ),
+              child: Obx(() => SwitchListTile(
+                    title: Text('add_to_blacklist'.tr),
+                    // value: false,
+                    value: inDenylist.isTrue,
+                    contentPadding: const EdgeInsets.only(
+                      left: 0,
+                      top: 0.0,
+                      bottom: 0.0,
+                      right: 0.0,
                     ),
-                  ),
-                );
-              },
+                    activeColor: AppColors.primaryElement,
+                    onChanged: (val) async {
+                      debugPrint("addDenylist val $val, $inDenylist");
+
+                      bool res;
+                      if (inDenylist.isTrue) {
+                        res = await DenylistLogic().removeDenylist(peerId);
+                      } else {
+                        DenylistModel model = DenylistModel(
+                          deniedUid: peerId,
+                          nickname: peerNickname,
+                          account: peerAccount,
+                          remark: peerRemark,
+                          sign: peerSign,
+                          source: peerSource,
+                          avatar: peerAvatar,
+                          region: peerRegion,
+                          gender: peerGender,
+                          createdAt: DateTimeHelper.utc(),
+                        );
+                        res = await DenylistLogic().addDenylist(model);
+                      }
+                      if (res) {
+                        inDenylist.value = val;
+                      }
+                    },
+                  )),
             ),
-          ],
-        ),
+          ),
+          // LabelRow(
+          //   label: 'complaint'.tr,
+          //   isLine: false,
+          //   onPressed: () {},
+          // ),
+          // const Space(),
+          ButtonRow(
+            margin: const EdgeInsets.only(top: 10.0),
+            text: '删除',
+            isBorder: false,
+            style: const TextStyle(color: Colors.red, fontSize: 16),
+            onPressed: () {
+              Get.bottomSheet(
+                SizedBox(
+                  width: Get.width,
+                  height: Get.height * 0.25,
+                  child: n.Wrap([
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: 10,
+                        left: 15,
+                        right: 15,
+                        bottom: 10,
+                      ),
+                      child: Text(
+                        'tip_delete_contact'.trArgs([peerRemark]),
+                        style: const TextStyle(
+                          color: AppColors.MainTextColor,
+                          fontSize: 14.0,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Center(
+                      child: TextButton(
+                        onPressed: () async {
+                          bool res = await logic.deleteContact(peerId);
+                          if (res) {
+                            EasyLoading.showSuccess("操作成功");
+                            Get.back(times: 3);
+                            Get.to(
+                              () => BottomNavigationPage(),
+                              arguments: {'index': 1},
+                              transition: Transition.rightToLeft,
+                              popGesture: true, // 右滑，返回上一页
+                            );
+                          }
+                        },
+                        child: Text(
+                          'delete_contact'.tr,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: Get.width,
+                      height: 6,
+                      color: AppColors.AppBarColor,
+                    ),
+                    Center(
+                      child: TextButton(
+                        onPressed: () => Get.close(),
+                        child: Text(
+                          'button_cancel'.tr,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppColors.ItemOnColor,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ]),
+                ),
+                // backgroundColor: Colors.black12,
+                backgroundColor: Colors.white,
+                //改变shape这里即可
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20.0),
+                    topRight: Radius.circular(20.0),
+                  ),
+                ),
+              );
+            },
+          ),
+        ]),
       ),
     );
   }

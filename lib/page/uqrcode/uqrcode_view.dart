@@ -26,7 +26,7 @@ class UqrcodePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(
-        title: "二维码名片".tr,
+        title: 'qr_code_business_card'.tr,
         rightDMActions: <Widget>[
           InkWell(
             child: n.Padding(
@@ -48,7 +48,7 @@ class UqrcodePage extends StatelessWidget {
                     Center(
                       child: TextButton(
                         child: Text(
-                          '保存二维码'.tr,
+                          'save_qr_code'.tr,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: AppColors.ItemOnColor,
@@ -80,7 +80,7 @@ class UqrcodePage extends StatelessWidget {
                           );
                         },
                         child: Text(
-                          '扫描二维码'.tr,
+                          'scan_qr_code'.tr,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: AppColors.ItemOnColor,
@@ -136,61 +136,63 @@ class UqrcodePage extends StatelessWidget {
               height: Get.height * 0.65 + 20,
               color: Colors.white,
               child: n.Column([
-                  ListTile(
-                    leading: Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(10.0),
-                        // color: defHeaderBgColor,
-                        image: dynamicAvatar(UserRepoLocal.to.current.avatar),
-                      ),
-                    ),
-                    title: Text(UserRepoLocal.to.current.nickname),
-                    subtitle: Text(UserRepoLocal.to.current.region),
-                    trailing: genderIcon(gender),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: QrImageView(
-                        data: qrcodeData,
-                        version: QrVersions.auto,
-                        errorCorrectionLevel: QrErrorCorrectLevel.H,
-                        size: 320,
-                        padding: const EdgeInsets.only(
-                          left: 10,
-                          right: 10,
-                          top: 10,
-                          // bottom: 10,
-                        ),
-                        gapless: true,
-                        //
-                        eyeStyle: const QrEyeStyle(
-                          eyeShape: QrEyeShape.circle,
-                          color: Colors.black,
-                        ),
-                        dataModuleStyle: const QrDataModuleStyle(
-                          dataModuleShape: QrDataModuleShape.circle,
-                          color: Colors.black,
-                        ),
-                        embeddedImage: Get.height < 640 ? null : cachedImageProvider(
-                            UserRepoLocal.to.current.avatar),
-                        // embeddedImage: AssetImage('assets/images/logo.png'),
-                        embeddedImageStyle: const QrEmbeddedImageStyle(
-                          size: Size.square(64),
-                          // color: Colors.pink,
-                        ),
-                      ),
+                ListTile(
+                  leading: Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.circular(10.0),
+                      // color: defHeaderBgColor,
+                      image: dynamicAvatar(UserRepoLocal.to.current.avatar),
                     ),
                   ),
-                  n.Padding(
-                    // top: 10,
-                    bottom: 15,
-                    child: Text("扫一扫上面的二维码图案，加我为朋友".tr),
+                  title: Text(UserRepoLocal.to.current.nickname),
+                  subtitle: Text(UserRepoLocal.to.current.region),
+                  trailing: genderIcon(gender),
+                ),
+                Expanded(
+                  child: Center(
+                    child: QrImageView(
+                      data: qrcodeData,
+                      version: QrVersions.auto,
+                      errorCorrectionLevel: QrErrorCorrectLevel.H,
+                      size: 320,
+                      padding: const EdgeInsets.only(
+                        left: 10,
+                        right: 10,
+                        top: 10,
+                        // bottom: 10,
+                      ),
+                      gapless: true,
+                      //
+                      eyeStyle: const QrEyeStyle(
+                        eyeShape: QrEyeShape.circle,
+                        color: Colors.black,
+                      ),
+                      dataModuleStyle: const QrDataModuleStyle(
+                        dataModuleShape: QrDataModuleShape.circle,
+                        color: Colors.black,
+                      ),
+                      embeddedImage: Get.height < 640
+                          ? null
+                          : cachedImageProvider(
+                              UserRepoLocal.to.current.avatar),
+                      // embeddedImage: AssetImage('assets/images/logo.png'),
+                      embeddedImageStyle: const QrEmbeddedImageStyle(
+                        size: Size.square(64),
+                        // color: Colors.pink,
+                      ),
+                    ),
                   ),
-                ])
-              // 内容居中
+                ),
+                n.Padding(
+                  // top: 10,
+                  bottom: 15,
+                  child: Text('scan_qrcode_add_friend'.tr),
+                ),
+              ])
+                // 内容居中
                 ..mainAxisAlignment = MainAxisAlignment.center,
             ),
           ),

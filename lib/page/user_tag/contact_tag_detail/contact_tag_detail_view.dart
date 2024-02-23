@@ -66,7 +66,7 @@ class ContactTagDetailPage extends StatelessWidget {
                     Center(
                       child: TextButton(
                         child: Text(
-                          '更改标签名称'.tr,
+                          'change_tag_name'.tr,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             // color: Colors.white,
@@ -98,7 +98,7 @@ class ContactTagDetailPage extends StatelessWidget {
                                     top: 16,
                                     bottom: 16,
                                     child: Text(
-                                      '删除标签后，标签中的联系人不会被删除'.tr,
+                                      'delete_tag_tips'.tr,
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
                                         // color: Colors.white,
@@ -141,13 +141,14 @@ class ContactTagDetailPage extends StatelessWidget {
                                         }
                                         Get.closeAllBottomSheets();
                                         Get.back();
-                                        EasyLoading.showSuccess('操作成功'.tr);
+                                        EasyLoading.showSuccess(
+                                            'tip_success'.tr);
                                       } else {
-                                        EasyLoading.showError('操作失败'.tr);
+                                        EasyLoading.showError('tip_failed'.tr);
                                       }
                                     },
                                     child: Text(
-                                      '删除'.tr,
+                                      'button_delete'.tr,
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
                                         color: Colors.red,
@@ -185,7 +186,7 @@ class ContactTagDetailPage extends StatelessWidget {
                           );
                         },
                         child: Text(
-                          '删除'.tr,
+                          'button_delete'.tr,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: Colors.red,
@@ -277,9 +278,9 @@ class ContactTagDetailPage extends StatelessWidget {
                         )
                       ],
                 controller: state.searchController,
-                searchLabel: '搜索'.tr,
-                hintText: '搜索'.tr,
-                // queryTips: '收藏人名、群名、标签等'.tr,
+                searchLabel: 'search'.tr,
+                hintText: 'search'.tr,
+                // queryTips: 'favorite_group_tags_etc'.tr,
                 onChanged: ((query) {
                   state.kwd.value = query;
                   // debugPrint("contact_tag_view_onChanged ${query.toString()}");
@@ -384,14 +385,14 @@ class ContactTagDetailPage extends StatelessWidget {
                                                   }
                                                   Get.back(times: 1);
                                                   EasyLoading.showSuccess(
-                                                      '操作成功'.tr);
+                                                      'tip_success'.tr);
                                                 } else {
                                                   EasyLoading.showError(
-                                                      '操作失败'.tr);
+                                                      'tip_failed'.tr);
                                                 }
                                               },
                                               child: Text(
-                                                '从标签中移除联系人'.tr,
+                                                'remove_contact_from_tag'.tr,
                                                 textAlign: TextAlign.center,
                                                 style: const TextStyle(
                                                   color: Colors.red,
@@ -430,7 +431,7 @@ class ContactTagDetailPage extends StatelessWidget {
                                   );
                                 },
                                 // icon: Icons.delete_forever_sharp,
-                                label: "删除".tr,
+                                label: 'button_delete'.tr,
                                 spacing: 1,
                               ),
                             ],
@@ -488,7 +489,7 @@ class ContactTagDetailPage extends StatelessWidget {
           state.contactList.isEmpty
               ? n.Column([
                   if (tag.refererTime == 0)
-                    n.Row([NoDataView(text: '当前标签无成员'.tr)])
+                    n.Row([NoDataView(text: 'no_members_in_current_tag'.tr)])
                       // 内容居中
                       ..mainAxisAlignment = MainAxisAlignment.center,
                   n.Row([
@@ -501,7 +502,7 @@ class ContactTagDetailPage extends StatelessWidget {
                         left: 40,
                         right: 40,
                         child: Text(
-                          '添加'.tr,
+                          'button_add'.tr,
                           style: const TextStyle(color: AppColors.ItemOnColor),
                         ),
                       ),
@@ -662,7 +663,7 @@ class SelectFriendPage extends StatelessWidget {
     loadData();
     return Scaffold(
       appBar: NavAppBar(
-        title: '选择朋友'.tr,
+        title: 'select_friends'.tr,
         leading: n.Padding(
           child: InkWell(
             onTap: () {
@@ -696,14 +697,14 @@ class SelectFriendPage extends StatelessWidget {
                         selectedContact;
                     Get.find<ContactTagDetailLogic>().state.refererTime.value =
                         selectedContact.length;
-                    EasyLoading.showSuccess('操作成功'.tr);
+                    EasyLoading.showSuccess('tip_success'.tr);
                   } else {
-                    EasyLoading.showError('操作失败'.tr);
+                    EasyLoading.showError('tip_failed'.tr);
                   }
                 },
                 // ignore: sort_child_properties_last
                 child: Text(
-                  '添加'.tr +
+                  'button_add'.tr +
                       (selectedContact.isEmpty
                           ? ""
                           : " (${selectedContact.length})    "),

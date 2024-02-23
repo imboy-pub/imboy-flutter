@@ -13,7 +13,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 class ApplyFriendLogic extends GetxController {
   // 聊天、朋友圈、运动数据等
-  // role 可能的值 all justchat
+  // role 可能的值 all just_chat
   RxString role = "all".obs;
 
   RxBool visibilityLook = true.obs;
@@ -50,7 +50,7 @@ class ApplyFriendLogic extends GetxController {
     };
 
     EasyLoading.show(
-      status: '正在发送...'.tr,
+      status: 'sending'.tr,
     );
 
     IMBoyHttpResponse resp = await HttpClient.client.post(
@@ -74,9 +74,9 @@ class ApplyFriendLogic extends GetxController {
       };
       // debugPrint("> on receivedAddFriend ${saveData.toString()}");
       (NewFriendRepo()).save(saveData);
-      EasyLoading.showSuccess("已发送".tr);
+      EasyLoading.showSuccess('sent'.tr);
     } else {
-      EasyLoading.showError("网络故障，请重试！".tr);
+      EasyLoading.showError('network_failure_try_again'.tr);
     }
   }
 }

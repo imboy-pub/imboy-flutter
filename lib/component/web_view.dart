@@ -34,9 +34,12 @@ class WebViewPageState extends State<WebViewPage> {
         NavigationDelegate(
           onProgress: (int progress) {
             if (widget.title.isEmpty) {
-              EasyLoading.showProgress(progress / 100, status: "网页加载中...".tr);
+              EasyLoading.showProgress(
+                progress / 100,
+                status: 'webpage_loading'.tr,
+              );
             }
-            debugPrint('> WebView is loading (progress : $progress%)');
+            // debugPrint('> WebView is loading (progress : $progress%)');
           },
           onPageStarted: (String url) {
             debugPrint("> on onPageStarted $url");

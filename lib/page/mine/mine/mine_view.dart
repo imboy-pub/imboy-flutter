@@ -110,7 +110,7 @@ class MinePage extends StatelessWidget {
                               bottom: 8.0,
                               child: Text(
                                 // '',
-                                '账号：'.tr + c.current.account,
+                                "${'account'.tr}：${c.current.account}",
                                 style: const TextStyle(
                                   color: AppColors.MainTextColor,
                                 ),
@@ -118,7 +118,7 @@ class MinePage extends StatelessWidget {
                             ),
                             strNoEmpty(c.current.region)
                                 ? Text(
-                                    '地区：'.tr + c.current.region,
+                                    'region'.tr + c.current.region,
                                     style: const TextStyle(
                                         color: AppColors.MainTextColor),
                                   )
@@ -155,7 +155,7 @@ class MinePage extends StatelessWidget {
                 ),
                 title: Transform(
                   transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text('我的直播'.tr),
+                  child: Text('my_live'.tr),
                 ),
                 trailing: Icon(
                   Icons.navigate_next,
@@ -179,7 +179,7 @@ class MinePage extends StatelessWidget {
                 ),
                 title: Transform(
                   transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text('我的收藏'.tr),
+                  child: Text('my_favorites'.tr),
                 ),
                 trailing: Icon(
                   Icons.navigate_next,
@@ -202,7 +202,7 @@ class MinePage extends StatelessWidget {
                 ),
                 title: Transform(
                   transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text('设备列表'.tr),
+                  child: Text('device_list'.tr),
                 ),
                 trailing: Icon(
                   Icons.navigate_next,
@@ -226,7 +226,7 @@ class MinePage extends StatelessWidget {
                 ),
                 title: Transform(
                   transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text('存储空间和数据'.tr),
+                  child: Text('storage_space_data'.tr),
                 ),
                 trailing: Icon(
                   Icons.navigate_next,
@@ -244,7 +244,7 @@ class MinePage extends StatelessWidget {
                 ),
                 title: Transform(
                   transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text('黑名单'.tr),
+                  child: Text('blacklist'.tr),
                 ),
                 trailing: Icon(
                   Icons.navigate_next,
@@ -268,20 +268,7 @@ class MinePage extends StatelessWidget {
                 title: Transform(
                   transform: Matrix4.translationValues(-10, 0.0, 0.0),
                   child: n.Row([
-                    Text('反馈建议'.tr),
-                    // const Expanded(child: SizedBox()),
-                    // InkWell(
-                    //   child: Text(
-                    //     '提交反馈'.tr,
-                    //     style: const TextStyle(
-                    //       height: 2.8,
-                    //       // fontSize: 18,
-                    //       // backgroundColor: Colors.red,
-                    //     ),
-                    //   ),
-                    //   onTap: () {
-                    //   },
-                    // )
+                    Text('feedback_suggestion'.tr),
                   ]),
                 ),
                 trailing: Icon(
@@ -302,7 +289,7 @@ class MinePage extends StatelessWidget {
               //     color: Colors.grey,
               //     size: 22,
               //   ),
-              //   title: Text('告诉朋友'.tr),
+              //   title: Text('tell_friend'.tr),
               //   trailing: Icon(
               //     Icons.navigate_next,
               //     color: AppColors.MainTextColor.withOpacity(0.5),
@@ -321,7 +308,7 @@ class MinePage extends StatelessWidget {
                 ),
                 title: Transform(
                   transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text('设置'.tr),
+                  child: Text('setting'.tr),
                 ),
                 trailing: Icon(
                   Icons.navigate_next,

@@ -10,7 +10,7 @@ class VoiceRecord extends StatelessWidget {
       width: double.infinity,
       child: TextButton(
         onPressed: () {
-          Get.snackbar('tips'.tr, '语音输入功能暂无实现'.tr);
+          Get.snackbar('tip_tips'.tr, 'voice_input_not_implemented'.tr);
         },
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all<Color>(Colors.white70),

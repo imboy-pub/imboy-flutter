@@ -156,7 +156,7 @@ class SelectRegionPage extends StatelessWidget {
         titleWidget: n.Row([
           Expanded(
             child: Text(
-              '设置地区'.tr,
+              'set_region'.tr,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 // color: Colors.white,
@@ -220,7 +220,7 @@ class SelectRegionPage extends StatelessWidget {
             padding: const EdgeInsets.only(left: 16.0),
             width: Get.width,
             height: 40.0,
-            child: Text('全部'.tr, style: const TextStyle(fontSize: 12),),
+            child: Text('all'.tr, style: const TextStyle(fontSize: 12),),
           ),
           Expanded(
             child: ListView.builder(

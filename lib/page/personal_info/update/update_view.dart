@@ -148,10 +148,10 @@ class UpdatePage extends StatelessWidget {
             ),
           ),
           n.Row([
-              Expanded(
-                child: body,
-              ),
-            ]),
+            Expanded(
+              child: body,
+            ),
+          ]),
         ],
       ),
     );
@@ -288,7 +288,7 @@ class UpdatePage extends StatelessWidget {
         [
           IMBoyRadioListTile(
             value: "1",
-            title: n.Text("男".tr),
+            title: n.Text('male'.tr),
             selected: false,
             secondary: logic.val.value == "1" ? secondary : null,
             controlAffinity: ListTileControlAffinity.leading,
@@ -306,7 +306,7 @@ class UpdatePage extends StatelessWidget {
           ),
           IMBoyRadioListTile(
             value: "2",
-            title: n.Text("女".tr),
+            title: n.Text('female'.tr),
             selected: false,
             secondary: logic.val.value == "2" ? secondary : null,
             controlAffinity: ListTileControlAffinity.leading,
@@ -323,10 +323,10 @@ class UpdatePage extends StatelessWidget {
             color: AppColors.AppBarColor,
           ),
           IMBoyRadioListTile(
-            value: "3",
-            title: n.Text("保密".tr),
+            value: '3',
+            title: n.Text('keep_secret'.tr),
             selected: false,
-            secondary: logic.val.value == "3" ? secondary : null,
+            secondary: logic.val.value == '3' ? secondary : null,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(0.0),
@@ -349,13 +349,14 @@ class UpdatePage extends StatelessWidget {
 
   Widget regionField() {
     return Obx(
-      () => n.Column([
+      () => n.Column(
+        [
           Container(
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.only(left: 15.0),
             width: Get.width,
             height: 40.0,
-            child: Text("已选地区： ".tr + logic.val.value),
+            child: Text("${'selected_region'.tr}： ${logic.val.value}"),
           ),
           n.Row([
             Expanded(
@@ -376,7 +377,7 @@ class UpdatePage extends StatelessWidget {
               ),
             ),
           ])
-          ..mainAxisSize= MainAxisSize.max,
+            ..mainAxisSize = MainAxisSize.max,
         ],
         mainAxisSize: MainAxisSize.min,
       )..useParent((v) => v..bg = Colors.white),

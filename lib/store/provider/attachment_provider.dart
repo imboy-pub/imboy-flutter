@@ -286,7 +286,7 @@ class AttachmentProvider {
     } else if (file is File) {
       path = file.path;
     } else {
-      throw Exception("不支持的文件文件类型".tr);
+      throw Exception('unsupported_file_type'.tr);
     }
     String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
     if (name == "") {

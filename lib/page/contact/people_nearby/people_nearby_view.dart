@@ -35,7 +35,7 @@ class PeopleNearbyPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(title: '附近的人'.tr),
+      appBar: PageAppBar(title: 'people_nearby'.tr),
       body: SlidableAutoCloseBehavior(
         child: n.Column(
           [
@@ -56,7 +56,7 @@ class PeopleNearbyPage extends StatelessWidget {
             ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
             n.Row([
               Text(
-                '和附近的人交换联系方式，结交新朋友'.tr,
+                'nearby_people_tips'.tr,
                 style: const TextStyle(
                   color: AppColors.TipColor,
                   fontSize: 15,
@@ -81,25 +81,20 @@ class PeopleNearbyPage extends StatelessWidget {
                           child: TextButton(
                             onPressed: () {
                               if (state.peopleNearbyVisible.isFalse) {
-                                String tips =
-                                    '附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。\n\n你的电话号码将会被隐藏。'
-                                        .tr;
-                                // Users nearby will be able to view your profile and send you messages. This may help you find new friends, but could also attract excessive attention. You can stop sharing your profile at any time.
-                                //
                                 // Your phone number will remain hidden.
                                 Get.defaultDialog(
-                                  title: '显示你的资料'.tr,
+                                  title: 'display_profle'.tr,
                                   // Show You Profile
-                                  content: Text(tips),
-                                  textCancel: "  ${'取消'.tr}  ",
-                                  textConfirm: "  ${'确定'.tr}  ",
+                                  content: Text('nearby_people_explain'.tr),
+                                  textCancel: "  ${'button_cancel'.tr}  ",
+                                  textConfirm: "  ${'button_confirm'.tr}  ",
                                   confirmTextColor:
                                       AppColors.primaryElementText,
                                   onConfirm: () {
                                     // 异步处理
                                     logic.makeMyselfVisible();
                                     Get.closeAllDialogs();
-                                    EasyLoading.showSuccess('操作成功'.tr);
+                                    EasyLoading.showSuccess('tip_success'.tr);
                                   },
                                 );
                               } else {
@@ -135,8 +130,8 @@ class PeopleNearbyPage extends StatelessWidget {
                               ),
                               Obx(() => Text(
                                     state.peopleNearbyVisible.isFalse
-                                        ? '让自己可见'.tr
-                                        : '让自己不可见'.tr,
+                                        ? 'make_yourself_visible'.tr
+                                        : 'make_yourself_ivisible'.tr,
                                     // Stop Showing Me
                                     style: const TextStyle(
                                       fontSize: 14,

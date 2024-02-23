@@ -60,11 +60,11 @@ class FeedbackReplyModel {
   get statusDesc {
     // 状态: -1 删除  0 禁用  1 启用
     if (status == 1) {
-      return '启用'.tr;
+      return 'enable'.tr;
     } else if (status == 0) {
-      return '禁用'.tr;
+      return 'disable'.tr;
     } else if (status == -1) {
-      return '删除'.tr;
+      return 'button_delete'.tr;
     } else {
       return '';
     }

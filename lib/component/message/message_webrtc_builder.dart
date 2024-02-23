@@ -32,7 +32,7 @@ class WebRTCMessageBuilder extends StatelessWidget {
           top: 2,
           right: 4,
           child: Text(
-            // '通话时长 10:48'.tr,
+            // '通话时长 10:48',
             title,
             textAlign: TextAlign.left,
             style: const TextStyle(
@@ -60,7 +60,7 @@ class WebRTCMessageBuilder extends StatelessWidget {
           top: 2,
           left: 4,
           child: Text(
-            // '通话时长 10:48'.tr,
+            // '通话时长 10:48',
             title,
             textAlign: TextAlign.left,
             style: const TextStyle(
@@ -104,17 +104,17 @@ class WebRTCMessageBuilder extends StatelessWidget {
     } else if (state == 1) {
       // 已连接
     } else if (state == 2) {
-      title = '未应答'.tr; // 发送者收到未应答
+      title = 'unanswered'.tr; // 发送者收到未应答
     } else if (state == 3) {
-      title = '对方已挂断'.tr;
+      title = 'peer_has_hungup'.tr;
     } else if (state == 4) {
-      title = '已取消'.tr;
+      title = 'cancelled'.tr;
     } else if (state == 5) {
-      title = '未应答'.tr; // 接收人未应答
+      title = 'unanswered'.tr; // 接收人未应答
     }
 
     if (title.isEmpty && callCuration.isNotEmpty) {
-      title = "${'通话时长'.tr} $callCuration";
+      title = "${'call_duration'.tr} $callCuration";
     }
     if (title.isEmpty) {
       return const SizedBox.shrink();

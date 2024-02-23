@@ -314,9 +314,11 @@ class ChatLogic extends GetxController {
   /// sysPrompt in metadata is sys_prompt
   String parseSysPrompt(String sysPrompt) {
     if (sysPrompt == 'in_denylist') {
-      sysPrompt = '消息已发出，但被对方拒收了。'.tr;
+      // 消息已发出，但被对方拒收了。
+      sysPrompt = 'send_msg_rejected'.tr;
     } else if (sysPrompt == 'not_a_friend') {
-      sysPrompt = '对方开启了好友验证，你还不是他（她）好友。请先发送好友验证请求，对方验证通过后，才能聊天。'.tr;
+      // '对方开启了好友验证，你还不是他（她）好友。请先发送好友验证请求，对方验证通过后，才能聊天。'
+      sysPrompt = 'send_msg_not_friend_tips'.tr;
     }
     return sysPrompt;
   }
@@ -350,7 +352,7 @@ class ChatLogic extends GetxController {
   List<popupmenu.MenuItemProvider> getPopupMenuItems(types.Message message) {
     List<popupmenu.MenuItemProvider> items = [
       // MenuItem(
-      //   title: '多选'.tr,
+      //   title: 'multi_select'.tr,
       //   userInfo: {"id":"multiselect", "msg":message},
       //   textAlign: TextAlign.center,
       //   textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
@@ -389,7 +391,7 @@ class ChatLogic extends GetxController {
         UserCollectLogic.getCollectKind(message) > 0 ? true : false;
     if (canCollect) {
       items.add(popupmenu.MenuItem(
-        title: '收藏'.tr,
+        title: 'favorites'.tr,
         userInfo: {"id": "collect", "msg": message},
         textAlign: TextAlign.center,
         textStyle: const TextStyle(
@@ -426,7 +428,7 @@ class ChatLogic extends GetxController {
         ),
       ));
       items.add(popupmenu.MenuItem(
-        title: '引用'.tr,
+        title: 'quote'.tr,
         userInfo: {"id": "quote", "msg": message},
         textAlign: TextAlign.center,
         textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),

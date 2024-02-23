@@ -33,7 +33,7 @@ Future<bool> initIceServers({String from = 'incomingCallScreen'}) async {
     Map<String, dynamic> turnCredential = await UserProvider().turnCredential();
     debugPrint("getIceServers _turnCredential ${turnCredential.toString()}");
     if (turnCredential.isEmpty && from == 'openCallScreen') {
-      EasyLoading.showError('发起请求失败，请检查网络连接，或稍后重试'.tr);
+      EasyLoading.showError('failed_request_please_check_network'.tr);
       return false;
     } else if (turnCredential.isEmpty) {
       return false;
@@ -185,7 +185,8 @@ Future<void> incomingCallScreen(
               n.Padding(
                 top: 10,
                 child: Text(
-                  "Incoming ${option['media']} call".tr,
+                  // "Incoming ${option['media']} call".tr,
+                  'incoming_call'.trArgs([option['media'].tr]),
                   style: const TextStyle(
                     color: Colors.white60,
                     fontSize: 12,

@@ -78,7 +78,7 @@ class RightButtonList extends StatelessWidget {
                 ..color = Colors.white.withOpacity(0.9),
             ),
             n.Text(
-              '发起群聊'.tr,
+              'initiate_group_chat'.tr,
             )..apply = ItemTitleStyle.style,
           ]),
         ),
@@ -101,7 +101,7 @@ class RightButtonList extends StatelessWidget {
                 ..color = Colors.white.withOpacity(0.9),
             ),
             n.Text(
-              '添加朋友'.tr,
+              'add_friend'.tr,
             )..apply = ItemTitleStyle.style,
           ]),
         ),
@@ -124,7 +124,7 @@ class RightButtonList extends StatelessWidget {
                 ..color = Colors.white.withOpacity(0.9),
             ),
             n.Text(
-              '新注册的朋友'.tr,
+              'newly_registered_friends'.tr,
             )..apply = ItemTitleStyle.style,
           ]),
         ),
@@ -147,7 +147,7 @@ class RightButtonList extends StatelessWidget {
                 ..color = Colors.white.withOpacity(0.9),
             ),
             n.Text(
-              '我的二维码'.tr,
+              'my_qrcode'.tr,
             )..apply = ItemTitleStyle.style,
           ]),
         ),
@@ -170,7 +170,7 @@ class RightButtonList extends StatelessWidget {
                 ..color = Colors.white.withOpacity(0.9),
             ),
             n.Text(
-              '扫一扫'.tr,
+              'scan_qr_code'.tr,
             )..apply = ItemTitleStyle.style,
           ]),
         ),

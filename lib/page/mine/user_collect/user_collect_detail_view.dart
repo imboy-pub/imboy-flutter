@@ -36,7 +36,7 @@ class UserCollectDetailPage extends StatelessWidget {
       Center(
         child: TextButton(
           child: Text(
-            '转发给朋友'.tr,
+            'forward_to_friend'.tr,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: AppColors.ItemOnColor,
@@ -106,7 +106,7 @@ class UserCollectDetailPage extends StatelessWidget {
             Get.closeAllBottomSheets();
             Get.to(
               () => UpdatePage(
-                  title: '设置备注'.tr,
+                  title: 'set_remark'.tr,
                   value: obj.remark,
                   field: 'text',
                   maxLength: 100,
@@ -131,7 +131,7 @@ class UserCollectDetailPage extends StatelessWidget {
             });
           },
           child: Text(
-            '设置备注'.tr,
+            'set_remark'.tr,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: AppColors.ItemOnColor,
@@ -153,7 +153,7 @@ class UserCollectDetailPage extends StatelessWidget {
             }
           },
           child: Text(
-            '删除'.tr,
+            'button_delete'.tr,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.red,
@@ -184,7 +184,7 @@ class UserCollectDetailPage extends StatelessWidget {
         Center(
           child: TextButton(
             child: Text(
-              '复制文本'.tr,
+              'button_copy'.tr,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: AppColors.ItemOnColor,
@@ -198,7 +198,7 @@ class UserCollectDetailPage extends StatelessWidget {
               final String txt = obj.info['payload']['text'] ?? '';
               if (txt.isNotEmpty) {
                 Clipboard.setData(ClipboardData(text: txt));
-                EasyLoading.showToast("已复制".tr);
+                EasyLoading.showToast('copied'.tr);
               }
             },
           ),
@@ -215,7 +215,7 @@ class UserCollectDetailPage extends StatelessWidget {
 
     return Scaffold(
       appBar: PageAppBar(
-        title: '详情'.tr,
+        title: 'details'.tr,
         rightDMActions: [
           InkWell(
             onTap: () {
@@ -261,7 +261,7 @@ class UserCollectDetailPage extends StatelessWidget {
             Expanded(
                 flex: 2,
                 child: Text(
-                  "${'来自'.tr} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAtLocal)}",
+                  "${'from'.tr} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAtLocal)}",
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 12),
                 )),
@@ -279,7 +279,7 @@ class UserCollectDetailPage extends StatelessWidget {
               child: n.Column([
                 n.Row([
                   Text(
-                    "${'备注'.tr}: ",
+                    "${'remark'.tr}: ",
                     textAlign: TextAlign.left,
                     style: const TextStyle(fontSize: 16),
                   )

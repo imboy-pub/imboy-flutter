@@ -54,13 +54,13 @@ class UserModel {
 
   String get genderTitle {
     if (gender == 1) {
-      return "男".tr;
+      return 'male'.tr;
     } else if (gender == 2) {
-      return "女".tr;
+      return 'female'.tr;
     } else if (gender == 3) {
-      return "保密".tr;
+      return "keep_secret".tr;
     }
-    return "未知".tr;
+    return 'unknown'.tr;
   }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {

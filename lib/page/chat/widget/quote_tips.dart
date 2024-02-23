@@ -54,7 +54,7 @@ class QuoteTipsWidget extends StatelessWidget {
       body = n.Column([
         n.Row([
           Text(
-            "[${'文件'.tr}] (${formatBytes(fileMsg.size.truncate())})",
+            "[${'file'.tr}] (${formatBytes(fileMsg.size.truncate())})",
             style: const TextStyle(color: AppColors.thirdElementText),
           ),
         ]),
@@ -75,24 +75,24 @@ class QuoteTipsWidget extends StatelessWidget {
     if (customType == 'quote') {
       String txt = message?.metadata?['quote_text'] ?? '';
       body = Text(
-        "[${'引用'.tr}] $txt",
+        "[${'quote'.tr}] $txt",
         style: const TextStyle(color: AppColors.thirdElementText),
       );
     } else if (customType == 'audio') {
       double durationMS = message?.metadata?["duration_ms"] / 1000;
       body = Text(
-        "[${'语音消息'.tr}] $durationMS''",
+        "[${'voice_message'.tr}] $durationMS''",
         style: const TextStyle(color: AppColors.thirdElementText),
       );
     } else if (customType == 'location') {
       body = Text(
-        "[${'位置'.tr}] ${message?.metadata?['title'] ?? ''}",
+        "[${'location'.tr}] ${message?.metadata?['title'] ?? ''}",
         style: const TextStyle(color: AppColors.thirdElementText),
       );
     } else if (customType == 'video') {
       body = n.Row([
         Text(
-          "[${'视频'.tr}] ",
+          "[${'video'.tr}] ",
           style: const TextStyle(color: AppColors.thirdElementText),
         ),
         ImageView(

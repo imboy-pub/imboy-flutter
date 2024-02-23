@@ -19,7 +19,7 @@ class FeedbackLogic extends GetxController {
     // 检查网络状态
     var res = await Connectivity().checkConnectivity();
     if (res == ConnectivityResult.none) {
-      EasyLoading.showToast('网络状态异常，需要打开网络才能够查看数据'.tr);
+      EasyLoading.showToast('network_exception_plase_need_network_to_view_data'.tr);
       // list = await repo.page(limit: size, offset: offset);
     }
     if (list.isNotEmpty) {
@@ -62,7 +62,7 @@ class FeedbackLogic extends GetxController {
     // 检查网络状态
     var res = await Connectivity().checkConnectivity();
     if (res == ConnectivityResult.none) {
-      EasyLoading.showToast('网络状态异常，需要打开网络才能够查看数据'.tr);
+      EasyLoading.showToast('network_exception_plase_need_network_to_view_data'.tr);
       // list = await repo.page(limit: size, offset: offset);
     }
     if (list.isNotEmpty) {

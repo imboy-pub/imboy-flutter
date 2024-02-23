@@ -13,7 +13,7 @@ import '../new_friend/new_friend_logic.dart';
 
 class ConfirmNewFriendLogic extends GetxController {
   // 聊天、朋友圈、运动数据等
-  // role 可能的值 all justchat
+  // role 可能的值 all just_chat
   RxString role = "all".obs;
 
   RxBool visibilityLook = true.obs;
@@ -51,7 +51,7 @@ class ConfirmNewFriendLogic extends GetxController {
     };
 
     EasyLoading.show(
-      status: '正在发送...'.tr,
+      status: 'sending'.tr,
     );
     IMBoyHttpResponse resp = await HttpClient.client.post(
       "$API_BASE_URL${API.confirmFriend}",
@@ -61,7 +61,7 @@ class ConfirmNewFriendLogic extends GetxController {
       ),
     );
     if (resp.ok) {
-      EasyLoading.showSuccess("已发送".tr);
+      EasyLoading.showSuccess('sent'.tr);
       // 修正好友申请状态
       newFriendLogic.receivedConfirmFriend(false, {
         "from": to,
@@ -79,7 +79,7 @@ class ConfirmNewFriendLogic extends GetxController {
       });
       Get.back(times: 1);
     } else {
-      EasyLoading.showError("网络故障，请重试！".tr);
+      EasyLoading.showError('network_failure_try_again'.tr);
     }
   }
 }

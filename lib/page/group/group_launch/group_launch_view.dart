@@ -27,9 +27,9 @@ class GroupLaunchPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
-      // appBar: PageAppBar(title: '选择联系人'.tr),
+      // appBar: PageAppBar(title: 'select_contacts'.tr),
       appBar: NavAppBar(
-        title: '选择联系人'.tr,
+        title: 'select_contacts'.tr,
         leading: n.Padding(
           top: 8,
           child: TextButton(
@@ -107,9 +107,9 @@ class GroupLaunchPage extends StatelessWidget {
             bottom: 10,
             child: searchBar(
               context,
-              searchLabel: '搜索'.tr,
-              hintText: '搜索'.tr,
-              queryTips: ''.tr,
+              searchLabel: 'search'.tr,
+              hintText: 'search'.tr,
+              queryTips: '',
               doSearch: ((query) {
                 // debugPrint(
                 //     "> on search doSearch ${query.toString()}");
@@ -141,7 +141,7 @@ class GroupLaunchPage extends StatelessWidget {
               color: AppColors.BgColor,
               child: n.Column([
                 n.ListTile(
-                  title: Text('选择一个群'.tr),
+                  title: Text('select_a_group'.tr),
                   trailing: Icon(
                     Icons.navigate_next,
                     color: AppColors.MainTextColor.withOpacity(0.5),
@@ -149,7 +149,7 @@ class GroupLaunchPage extends StatelessWidget {
                   onTap: () {
                     // Get.to(
                     //       () => MarkdownPage(
-                    //     title: '更新日志'.tr,
+                    //     title: 'update_log'.tr,
                     //     url:
                     //     "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
                     //   ),
@@ -160,7 +160,7 @@ class GroupLaunchPage extends StatelessWidget {
                 ),
                 n.Padding(left: 18, child: const Divider()),
                 n.ListTile(
-                  title: Text('面对面建群'.tr),
+                  title: Text('create_group_f2f'.tr),
                   trailing: Icon(
                     Icons.navigate_next,
                     color: AppColors.MainTextColor.withOpacity(0.5),
@@ -168,7 +168,7 @@ class GroupLaunchPage extends StatelessWidget {
                   onTap: () {
                     // Get.to(
                     //       () => MarkdownPage(
-                    //     title: '更新日志'.tr,
+                    //     title: 'update_log'.tr,
                     //     url:
                     //     "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
                     //   ),
@@ -183,7 +183,7 @@ class GroupLaunchPage extends StatelessWidget {
                     color: Colors.white,
                     child: SlidableAutoCloseBehavior(child: Obx(() {
                       return logic.state.items.isEmpty
-                          ? NoDataView(text: '暂无数据'.tr)
+                          ? NoDataView(text: 'no_data'.tr)
                           : AzListView(
                               data: logic.state.items,
                               itemCount: logic.state.items.length,

@@ -32,7 +32,7 @@ class ContactPage extends StatelessWidget {
     loadData();
     return Scaffold(
       appBar: NavAppBar(
-        title: "联系人".tr,
+        title: 'title_contact'.tr,
         rightDMActions: <Widget>[
           InkWell(
             onTap: () {
@@ -128,7 +128,7 @@ class ContactPage extends StatelessWidget {
         Obx(() => Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: contactIsEmpty.isTrue
-                  ? NoDataView(text: '无联系人'.tr)
+                  ? NoDataView(text: 'no_contacts'.tr)
                   : const SizedBox.shrink(),
             )),
       ]),

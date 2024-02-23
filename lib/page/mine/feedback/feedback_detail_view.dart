@@ -46,7 +46,7 @@ class FeedbackDetailPage extends StatelessWidget {
 
     return Scaffold(
       appBar: PageAppBar(
-        title: '反馈建议明细'.tr,
+        title: 'feedback_details'.tr,
       ),
       body: SingleChildScrollView(
         child: n.Padding(
@@ -57,7 +57,7 @@ class FeedbackDetailPage extends StatelessWidget {
             n.Row([
               Text(model.type.tr, maxLines: 1, overflow: TextOverflow.ellipsis),
               const Expanded(child: SizedBox()),
-              Text('提交于'.tr),
+              Text('submitted_at'.tr),
               const Space(width: 10),
               Text(
                 DateTimeHelper.lastTimeFmt(model.createdAtLocal),
@@ -66,13 +66,13 @@ class FeedbackDetailPage extends StatelessWidget {
               ),
             ]),
             n.Row([
-              Text('状态'.tr),
+              Text('status'.tr),
               Text(': ${model.statusDesc}'),
               const Expanded(child: SizedBox()),
               const Space(width: 10),
               InkWell(
                 child: n.Row([
-                  Text('浏览附件'.tr),
+                  Text('view_attachments'.tr),
                   const Icon(
                     Icons.screenshot,
                     size: 40,
@@ -154,7 +154,7 @@ class FeedbackDetailPage extends StatelessWidget {
                         right: 10,
                         child: Obx(() {
                           return state.pageReplyList.isEmpty
-                              ? NoDataView(text: '暂无回复'.tr)
+                              ? NoDataView(text: 'no_reply'.tr)
                               : ListView.builder(
                                   itemCount: state.pageReplyList.length,
                                   itemBuilder:
@@ -167,7 +167,7 @@ class FeedbackDetailPage extends StatelessWidget {
                                             const EdgeInsets.only(left: 0),
                                         title: n.Row([
                                           Text(
-                                            '回复于'.tr,
+                                            'replied_at'.tr,
                                             style: const TextStyle(
                                               color: AppColors.MainTextColor,
                                               fontSize: 14.0,

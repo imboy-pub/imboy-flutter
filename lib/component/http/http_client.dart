@@ -155,7 +155,7 @@ class HttpClient {
   }) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
-      EasyLoading.showError('网络连接异常'.tr);
+      EasyLoading.showError('network_exception'.tr);
       return handleException(NetworkException());
     }
     try {
@@ -191,7 +191,7 @@ class HttpClient {
   }) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
-      EasyLoading.showError('网络连接异常'.tr);
+      EasyLoading.showError('network_exception'.tr);
       return handleException(NetworkException());
     }
     try {
@@ -225,7 +225,7 @@ class HttpClient {
   }) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
-      EasyLoading.showError('网络连接异常'.tr);
+      EasyLoading.showError('network_exception'.tr);
       return handleException(NetworkException());
     }
     try {
@@ -255,7 +255,7 @@ class HttpClient {
   }) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
-      EasyLoading.showError('网络连接异常'.tr);
+      EasyLoading.showError('network_exception'.tr);
       return handleException(NetworkException());
     }
     try {

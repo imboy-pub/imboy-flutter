@@ -363,7 +363,7 @@ class UserCollectLogic extends GetxController {
                 bottom: 20,
                 child: n.Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, [
                   Text(
-                    "${'文件大小'.tr}: ${formatBytes(obj.info['payload']['size'] ?? '')}",
+                    "${'file_size'.tr}: ${formatBytes(obj.info['payload']['size'] ?? '')}",
                     style: const TextStyle(
                       fontSize: 14.0,
                     ),

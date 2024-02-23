@@ -65,7 +65,7 @@ class UserCollectPage extends StatelessWidget {
           state.items.addAll(list);
           state.page = state.page + 1;
         } else {
-          EasyLoading.showToast('没有更多数据了'.tr);
+          EasyLoading.showToast('no_more_data'.tr);
         }
       }
     });
@@ -115,14 +115,14 @@ class UserCollectPage extends StatelessWidget {
   Future<void> sendToDialog(BuildContext ctx, UserCollectModel model) async {
     types.Message msg = MessageModel.fromJson(model.info).toTypeMessage();
     Get.defaultDialog(
-      title: '发送给'.tr,
+      title: 'send_to'.tr,
       radius: 6,
       cancel: TextButton(
         onPressed: () {
           Get.close();
         },
         child: Text(
-          '取消'.tr,
+          'button_cancel'.tr,
           textAlign: TextAlign.center,
         ),
       ),
@@ -134,7 +134,7 @@ class UserCollectPage extends StatelessWidget {
           nav.pop(model);
           // bool res = await sendToLogic.sendMsg(conversation!, msg);
           // if (res) {
-          //   EasyLoading.showSuccess('发送成功'.tr);
+          //   EasyLoading.showSuccess('tip_success'.tr);
           //   logic.change(kindId);
           //
           //
@@ -142,11 +142,11 @@ class UserCollectPage extends StatelessWidget {
           //   //   Get.close(2);
           //   // });
           // } else {
-          //   EasyLoading.showError('发送失败'.tr);
+          //   EasyLoading.showError('tip_failed'.tr);
           // }
         },
         child: Text(
-          '发送'.tr,
+          'button_send'.tr,
           textAlign: TextAlign.center,
         ),
       ),
@@ -197,7 +197,7 @@ class UserCollectPage extends StatelessWidget {
                 child: const Icon(Icons.close),
               )
             : null,
-        title: isSelect ? '收藏'.tr : '我的收藏'.tr,
+        title: isSelect ? 'favorites'.tr : 'my_favorites'.tr,
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -240,9 +240,9 @@ class UserCollectPage extends StatelessWidget {
                           ),
                       trailing: state.searchTrailing?.value,
                       controller: state.searchController,
-                      searchLabel: '搜索'.tr,
-                      hintText: '搜索'.tr,
-                      queryTips: '收藏人名、群名、标签等'.tr,
+                      searchLabel: 'search'.tr,
+                      hintText: 'search'.tr,
+                      queryTips: 'favorite_group_tags_etc'.tr,
                       onChanged: ((query) {
                         state.kwd = query.obs;
                         debugPrint(
@@ -256,7 +256,7 @@ class UserCollectPage extends StatelessWidget {
                   Expanded(
                     child: SlidableAutoCloseBehavior(
                         child: state.items.isEmpty
-                            ? NoDataView(text: '暂无数据'.tr)
+                            ? NoDataView(text: 'no_data'.tr)
                             : n.Padding(
                                 top: 16,
                                 left: 10,
@@ -307,7 +307,7 @@ class UserCollectPage extends StatelessWidget {
                                             },
                                             icon: Icons.local_offer,
                                             foregroundColor: Colors.green,
-                                            label: "标签".tr,
+                                            label: 'tags'.tr,
                                             spacing: 1,
                                           ),
                                           SlidableAction(
@@ -335,11 +335,13 @@ class UserCollectPage extends StatelessWidget {
                                                             Get.closeAllBottomSheets();
                                                             EasyLoading
                                                                 .showSuccess(
-                                                                    '操作成功'.tr);
+                                                                    'tip_success'
+                                                                        .tr);
                                                           } else {
                                                             EasyLoading
                                                                 .showError(
-                                                                    '操作失败'.tr);
+                                                                    'tip_failed'
+                                                                        .tr);
                                                           }
                                                         },
                                                         child: Text(
@@ -396,7 +398,7 @@ class UserCollectPage extends StatelessWidget {
                                             },
                                             icon: Icons.delete_forever_sharp,
                                             foregroundColor: Colors.red,
-                                            label: "删除".tr,
+                                            label: 'button_delete'.tr,
                                             spacing: 1,
                                           ),
                                         ],
@@ -484,15 +486,15 @@ class UserCollectPage extends StatelessWidget {
   Widget _buildKindList() {
     //  Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息  7 个人名片
     Map<String, String> kindMap = {
-      state.recentUse: '最近使用'.tr,
-      '1': '文本'.tr,
-      '2': '图片'.tr,
-      '7': '个人名片'.tr,
-      '4': '视频'.tr,
-      '5': '文件'.tr,
-      '6': '位置消息'.tr,
-      '3': '语音'.tr,
-      'all': '所有'.tr,
+      state.recentUse: 'recently_used'.tr,
+      '1': 'text'.tr,
+      '2': 'image'.tr,
+      '7': 'personal_card'.tr,
+      '4': 'video'.tr,
+      '5': 'file'.tr,
+      '6': 'location_message'.tr,
+      '3': 'voice'.tr,
+      'all': 'all'.tr,
     };
     List<Widget> items = [];
     kindMap.forEach((key, value) {
@@ -543,7 +545,7 @@ class UserCollectPage extends StatelessWidget {
                       color: AppColors.MainTextColor.withOpacity(0.8),
                     ),
                     const SizedBox(width: 10),
-                    Text('类型'.tr),
+                    Text('type'.tr),
                   ]);
                 } else {
                   return n.Wrap([
@@ -551,7 +553,7 @@ class UserCollectPage extends StatelessWidget {
                       onTap: () {
                         state.kindActive.value = !state.kindActive.value;
                         state.kindActive.value = !state.kindActive.value;
-                        logic.searchByKind(state.recentUse, '最近使用'.tr, () {
+                        logic.searchByKind(state.recentUse, 'recently_used'.tr, () {
                           state.kindActive.value = !state.kindActive.value;
                         });
                       },
@@ -560,14 +562,14 @@ class UserCollectPage extends StatelessWidget {
                         bottom: 16,
                         left: 8,
                         right: 8,
-                        child: Text('最近使用'.tr),
+                        child: Text('recently_used'.tr),
                       ),
                     ),
                     InkWell(
                       onTap: () {
                         state.kindActive.value = !state.kindActive.value;
                         state.kindActive.value = !state.kindActive.value;
-                        logic.searchByKind('1', '文本'.tr, () {
+                        logic.searchByKind('1', 'text'.tr, () {
                           // state.kindActive.value = !state.kindActive.value;
                         });
                       },
@@ -576,14 +578,14 @@ class UserCollectPage extends StatelessWidget {
                         bottom: 16,
                         left: 8,
                         right: 8,
-                        child: Text(" ${'文本'.tr} "),
+                        child: Text(" ${'text'.tr} "),
                       ),
                     ),
                     InkWell(
                       onTap: () {
                         state.kindActive.value = !state.kindActive.value;
                         state.kindActive.value = !state.kindActive.value;
-                        logic.searchByKind('2', '图片'.tr, () {
+                        logic.searchByKind('2', 'image'.tr, () {
                           // state.kindActive.value = !state.kindActive.value;
                         });
                       },
@@ -592,14 +594,14 @@ class UserCollectPage extends StatelessWidget {
                         bottom: 16,
                         left: 8,
                         right: 8,
-                        child: Text(" ${'图片'.tr} "),
+                        child: Text(" ${'image'.tr} "),
                       ),
                     ),
                     InkWell(
                       onTap: () {
                         state.kindActive.value = !state.kindActive.value;
                         state.kindActive.value = !state.kindActive.value;
-                        logic.searchByKind('4', '视频'.tr, () {
+                        logic.searchByKind('4', 'video'.tr, () {
                           //
                         });
                       },
@@ -608,14 +610,14 @@ class UserCollectPage extends StatelessWidget {
                         bottom: 16,
                         left: 8,
                         right: 8,
-                        child: Text(" ${'视频'.tr} "),
+                        child: Text(" ${'video'.tr} "),
                       ),
                     ),
                     InkWell(
                       onTap: () {
                         state.kindActive.value = !state.kindActive.value;
                         state.kindActive.value = !state.kindActive.value;
-                        logic.searchByKind('5', '文件'.tr, () {
+                        logic.searchByKind('5', 'file'.tr, () {
                           // state.kindActive.value = !state.kindActive.value;
                         });
                       },
@@ -624,7 +626,7 @@ class UserCollectPage extends StatelessWidget {
                         bottom: 16,
                         left: 8,
                         right: 8,
-                        child: Text(" ${'文件'.tr} "),
+                        child: Text(" ${'file'.tr} "),
                       ),
                     ),
                   ]);
@@ -652,7 +654,7 @@ class UserCollectPage extends StatelessWidget {
                           color: AppColors.MainTextColor.withOpacity(0.8),
                         ),
                         const SizedBox(width: 10),
-                        Text('标签'.tr),
+                        Text('tags'.tr),
                       ]),
                     ),
                   if (state.tagItems.value.isNotEmpty)

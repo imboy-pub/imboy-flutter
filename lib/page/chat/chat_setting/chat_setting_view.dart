@@ -61,14 +61,18 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
 
   List<Widget> body() {
     List switchItems = [
-      {'label': 'no_disturbing', 'title': '消息免打扰'.tr, 'value': isDoNotDisturb},
-      // {'label': 'chat_on_top', 'title': '置顶聊天'.tr, 'value': isTop},
-      // {'label': 'strong_reminder', 'title': '强提醒'.tr, 'value': isRemind},
+      {
+        'label': 'no_disturbing',
+        'title': 'message_mute'.tr,
+        'value': isDoNotDisturb
+      },
+      // {'label': 'chat_on_top', 'title': 'top_chat'.tr, 'value': isTop},
+      // {'label': 'strong_reminder', 'title': 'strong_reminder'.tr, 'value': isRemind},
     ];
 
     return [
       LabelRow(
-        label: '查找聊天记录'.tr,
+        label: 'search_chat_record'.tr,
         margin: const EdgeInsets.only(top: 10.0),
         onPressed: () {
           Get.to(
@@ -82,7 +86,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
         children: switchItems.map(buildSwitch).toList(),
       ),
       // LabelRow(
-      //   label: '设置当前聊天背景'.tr,
+      //   label: 'set_chat_background'.tr,
       //   margin: const EdgeInsets.only(top: 10.0),
       //   onPressed: () {
       //     Get.to(()=>
@@ -93,10 +97,10 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
       //   },
       // ),
       LabelRow(
-        label: '清空聊天记录'.tr,
+        label: 'clear_chat_record'.tr,
         margin: const EdgeInsets.only(top: 10.0),
         onPressed: () {
-          String tips = '确定删除聊天记录吗？'.tr;
+          String tips = 'confirm_delete_chat_record'.tr;
           n.showDialog(
             context: Get.context!,
             builder: (context) => n.Alert()
@@ -110,13 +114,13 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                 )),
               )
               ..actions = [
-                n.Button('取消'.tr.n)
+                n.Button('button_cancel'.tr.n)
                   ..style =
                       n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
                   ..onPressed = () {
                     Navigator.of(context).pop();
                   },
-                n.Button('确定'.tr.n)
+                n.Button('button_confirm'.tr.n)
                   ..style =
                       n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
                   ..onPressed = () async {
@@ -130,9 +134,9 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                       await Get.find<ConversationLogic>().hideConversation(cid);
                       // 刷新会话列表
                       await Get.find<ConversationLogic>().conversationsList();
-                      EasyLoading.showSuccess('操作成功'.tr);
+                      EasyLoading.showSuccess('tip_success'.tr);
                     } else {
-                      EasyLoading.showError('操作失败'.tr);
+                      EasyLoading.showError('tip_failed'.tr);
                     }
                   },
               ],
@@ -142,11 +146,11 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
       ),
       /*
       LabelRow(
-          label: '投诉'.tr,
+          label: 'complaint'.tr,
           margin: const EdgeInsets.only(top: 10.0),
           onPressed: () {
             Get.to(
-              () => WebViewPage(CONST_HELP_URL, '投诉'.tr),
+              () => WebViewPage(CONST_HELP_URL, 'complaint'.tr),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
             );
@@ -179,7 +183,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
             Get.back(result: backDoRefresh);
           },
         ),
-        title: '聊天设置'.tr,
+        title: 'chat_settings'.tr,
       ),
       body: SingleChildScrollView(
         child: Column(children: body()),

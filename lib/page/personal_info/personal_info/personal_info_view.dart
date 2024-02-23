@@ -40,7 +40,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
       Get.close();
-      Get.snackbar('提示'.tr, '网络连接异常'.tr);
+      Get.snackbar('tip_tips'.tr, 'network_exception'.tr);
       return;
     }
     try {
@@ -108,29 +108,33 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     List data = [
       {
         'label': 'account',
-        'title': '账号',
+        'title': 'account'.tr,
         'value': UserRepoLocal.to.current.account,
         'isRight': false
       },
-      {'label': 'user_qrcode', 'title': '二维码名片'.tr, 'value': ''},
-      {'label': 'more', 'title': '更多信息'.tr, 'value': ''},
-      // {'label': 'address', 'title': '我的地址'.tr, 'value': ''},
+      {
+        'label': 'user_qrcode',
+        'title': 'qr_code_business_card'.tr,
+        'value': ''
+      },
+      {'label': 'more', 'title': 'more_info'.tr, 'value': ''},
+      // {'label': 'address', 'title': 'my_address'.tr, 'value': ''},
     ];
     // if (UserRepoLocal.to.current.email.isNotEmpty) {
     data.insert(1, {
       'label': 'user_email',
-      'title': '登录邮箱'.tr,
+      'title': 'login_email'.tr,
       'value': UserRepoLocal.to.current.email,
       'isRight': false
     });
     // }
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(title: '个人信息'.tr),
+      appBar: PageAppBar(title: 'personal_information'.tr),
       body: SingleChildScrollView(
           child: n.Column([
         LabelRow(
-          label: '头像'.tr,
+          label: 'avatar'.tr,
           isLine: true,
           isRight: true,
           rightW: SizedBox(
@@ -165,7 +169,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                   child: TextButton(
                     onPressed: () => getImageFromSource(ImageSource.gallery),
                     child: Text(
-                      '从相册选择'.tr,
+                      'choose_from_album'.tr,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         // color: Colors.white,
@@ -203,7 +207,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           ),
         ),
         LabelRow(
-            label: '昵称'.tr,
+            label: 'nickname'.tr,
             isLine: true,
             isRight: true,
             rightW: SizedBox(
@@ -221,7 +225,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             onPressed: () {
               Get.to(
                 () => UpdatePage(
-                    title: '设置昵称'.tr,
+                    title: 'set_nickname'.tr,
                     value: UserRepoLocal.to.current.nickname,
                     field: 'input',
                     callback: (nickname) async {

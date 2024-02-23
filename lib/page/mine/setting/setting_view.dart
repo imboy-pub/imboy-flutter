@@ -35,7 +35,7 @@ class _SettingPageState extends State<SettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PageAppBar(
-        title: '设置'.tr,
+        title: 'setting'.tr,
       ),
       // color: appBarColor,
       body: SingleChildScrollView(
@@ -44,7 +44,7 @@ class _SettingPageState extends State<SettingPage> {
             color: Colors.white,
             child: n.Column([
               n.ListTile(
-                title: Text('账号与安全'.tr),
+                title: Text('account_security'.tr),
                 trailing: Icon(
                   Icons.navigate_next,
                   color: AppColors.MainTextColor.withOpacity(0.5),
@@ -52,7 +52,7 @@ class _SettingPageState extends State<SettingPage> {
                 onTap: () {
                   // Get.to(
                   //       () => MarkdownPage(
-                  //     title: '更新日志'.tr,
+                  //     title: 'update_log'.tr,
                   //     url:
                   //     "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
                   //   ),
@@ -78,7 +78,7 @@ class _SettingPageState extends State<SettingPage> {
               ),
               const HorizontalLine(height: 10),
               n.ListTile(
-                title: Text('消息通知'.tr),
+                title: Text('message_notification'.tr),
                 trailing: Icon(
                   Icons.navigate_next,
                   color: AppColors.MainTextColor.withOpacity(0.5),
@@ -86,7 +86,7 @@ class _SettingPageState extends State<SettingPage> {
                 onTap: () {
                   // Get.to(
                   //       () => MarkdownPage(
-                  //     title: '更新日志'.tr,
+                  //     title: 'update_log'.tr,
                   //     url:
                   //     "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
                   //   ),
@@ -97,7 +97,7 @@ class _SettingPageState extends State<SettingPage> {
               ),
               n.Padding(left: 18, child: const Divider()),
               n.ListTile(
-                title: Text('存储空间'.tr),
+                title: Text('storage_space'.tr),
                 trailing: Icon(
                   Icons.navigate_next,
                   color: AppColors.MainTextColor.withOpacity(0.5),
@@ -112,7 +112,7 @@ class _SettingPageState extends State<SettingPage> {
               ),
               // n.Padding(left: 18, child: const Divider()),
               // n.ListTile(
-              //   title: Text('朋友权限'.tr),
+              //   title: Text('friend_permissions'.tr),
               //   trailing: Icon(
               //     Icons.navigate_next,
               //     color: AppColors.MainTextColor.withOpacity(0.5),
@@ -127,7 +127,7 @@ class _SettingPageState extends State<SettingPage> {
               // ),
               const HorizontalLine(height: 10),
               n.ListTile(
-                title: Text('更新日志'.tr),
+                title: Text('update_log'.tr),
                 trailing: Icon(
                   Icons.navigate_next,
                   color: AppColors.MainTextColor.withOpacity(0.5),
@@ -135,7 +135,7 @@ class _SettingPageState extends State<SettingPage> {
                 onTap: () {
                   Get.to(
                     () => MarkdownPage(
-                      title: '更新日志'.tr,
+                      title: 'update_log'.tr,
                       url:
                           "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
                     ),
@@ -146,7 +146,7 @@ class _SettingPageState extends State<SettingPage> {
               ),
               n.Padding(left: 18, child: const Divider()),
               n.ListTile(
-                title: Text('帮助文档'.tr),
+                title: Text('help_document'.tr),
                 trailing: Icon(
                   Icons.navigate_next,
                   color: AppColors.MainTextColor.withOpacity(0.5),
@@ -154,7 +154,7 @@ class _SettingPageState extends State<SettingPage> {
                 onTap: () {
                   Get.to(
                     () => MarkdownPage(
-                      title: '帮助文档'.tr,
+                      title: 'help_document'.tr,
                       url:
                           "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/help_document.md",
                     ),
@@ -166,8 +166,8 @@ class _SettingPageState extends State<SettingPage> {
               n.Padding(left: 18, child: const Divider()),
               n.ListTile(
                 title: n.Row([
-                  Text('关于IMBoy'.tr),
-                  Text("${'版本'.tr} $appVsn"),
+                  Text('about_app'.tr),
+                  Text("${'version'.tr} $appVsn"),
                 ])
                   // 两端对齐
                   ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
@@ -204,12 +204,12 @@ class _SettingPageState extends State<SettingPage> {
                               ),
                             );
                           } else {
-                            EasyLoading.showInfo('未检测到新版本'.tr);
+                            EasyLoading.showInfo('now_new_version'.tr);
                           }
                         },
                         // ignore: sort_child_properties_last
                         child: Text(
-                          '检查更新'.tr,
+                          'check_for_updates'.tr,
                           textAlign: TextAlign.center,
                         ),
                         style: ButtonStyle(
@@ -231,7 +231,7 @@ class _SettingPageState extends State<SettingPage> {
                   ];
                   Get.to(
                     () => MarkdownPage(
-                      title: '关于IMBoy'.tr,
+                      title: 'about'.tr + appName,
                       rightDMActions: rightDMActions,
                       url:
                           "https://gitee.com/imboy-pub/imboy-flutter/raw/main/README.md",
@@ -248,7 +248,7 @@ class _SettingPageState extends State<SettingPage> {
             margin: const EdgeInsets.only(
               top: 10.0,
             ),
-            text: '切换账号'.tr,
+            text: 'switch_account'.tr,
             style: const TextStyle(
               color: AppColors.ButtonTextColor,
               fontWeight: FontWeight.w600,
@@ -260,7 +260,7 @@ class _SettingPageState extends State<SettingPage> {
           */
           const HorizontalLine(height: 10),
           ButtonRow(
-            text: '退出登录'.tr,
+            text: 'log_out'.tr,
             style: const TextStyle(
               color: AppColors.ButtonTextColor,
               fontWeight: FontWeight.w600,

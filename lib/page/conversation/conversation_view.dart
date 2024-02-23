@@ -107,7 +107,7 @@ class _ConversationPageState extends State<ConversationPage> {
           child: SlidableAutoCloseBehavior(
             child: Obx(() {
               return logic.conversations.isEmpty
-                  ? NoDataView(text: '无会话消息'.tr)
+                  ? NoDataView(text: 'no_conversation_messages'.tr)
                   : ListView.builder(
                       itemCount: logic.conversations.length,
                       itemBuilder: (BuildContext context, int index) {
@@ -177,7 +177,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                       logic.chatMsgRemindCounter,
                                     ]);
                                   },
-                                  label: "不显示".tr,
+                                  label: 'not_show'.tr,
                                   spacing: 1,
                                 ),
                                 SlidableAction(
@@ -195,7 +195,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                       logic.chatMsgRemindCounter,
                                     ]);
                                   },
-                                  label: "删除".tr,
+                                  label: 'button_delete'.tr,
                                   spacing: 1,
                                 ),
                               ],

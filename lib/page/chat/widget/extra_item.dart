@@ -109,17 +109,17 @@ class _ExtraItemsState extends State<ExtraItems> {
       n.Column([
         n.Row([
           ExtraItem(
-            title: "照片".tr,
+            title: 'photo'.tr,
             image: const Icon(Icons.photo, size: iconSize),
             onPressed: widget.handleImageSelection,
           ),
           ExtraItem(
-            title: "拍摄".tr,
+            title: 'take_photo'.tr,
             image: const Icon(Icons.camera_alt, size: iconSize),
             onPressed: widget.handlePickerSelection,
           ),
           ExtraItem(
-            title: "视频通话".tr,
+            title: 'video_call'.tr,
             image: const Icon(Icons.videocam, size: iconSize),
             onPressed: () {
               openCallScreen(
@@ -136,7 +136,7 @@ class _ExtraItemsState extends State<ExtraItems> {
             },
           ),
           ExtraItem(
-            title: "位置".tr,
+            title: 'location'.tr,
             image: const Icon(Icons.location_on, size: iconSize),
             onPressed: () async {
               AMapPosition? l = await AMapHelper().startLocation();
@@ -157,7 +157,7 @@ class _ExtraItemsState extends State<ExtraItems> {
                   // debugPrint("getLocation MapLocationPicker_reslut $value");
                   if (value != null) {
                     if (value["image"] == null) {
-                      EasyLoading.showError("获取地图失败,请重试".tr);
+                      EasyLoading.showError('failed_get_map_try_again'.tr);
                       FocusScope.of(context).requestFocus(FocusNode());
                       return;
                     }
@@ -180,7 +180,7 @@ class _ExtraItemsState extends State<ExtraItems> {
         ]),
         n.Row([
           ExtraItem(
-            title: "语音通话".tr,
+            title: 'voice_call'.tr,
             image: const Icon(Icons.phone, size: iconSize),
             onPressed: () {
               openCallScreen(
@@ -198,12 +198,12 @@ class _ExtraItemsState extends State<ExtraItems> {
           ),
           // const SizedBox(width: 86, height: 56,),
           ExtraItem(
-            title: "个人名片".tr, // visit card
+            title: 'personal_card'.tr, // visit card
             image: const Icon(Icons.person, size: iconSize),
             onPressed: widget.handleVisitCardSelection,
           ),
           ExtraItem(
-            title: "收藏".tr,
+            title: 'favorites'.tr,
             image: const Icon(Icons.collections_bookmark, size: iconSize),
             onPressed: widget.handleCollectSelection,
           ),
@@ -212,18 +212,18 @@ class _ExtraItemsState extends State<ExtraItems> {
       n.Column([
         n.Row([
           ExtraItem(
-            title: "文件".tr,
+            title: 'file'.tr,
             image: const Icon(Icons.file_copy, size: iconSize),
             onPressed: widget.handleFileSelection,
           ),
           /**
               ExtraItem(
-              title: "语音输入".tr,
+              title: 'voice_input'.tr,
               image: const Icon(Icons.keyboard_voice, size: iconSize),
               onPressed: null,
               ),
               ExtraItem(
-              title: "卡券".tr,
+              title: 'coupon'.tr,
               image: const AssetImage('assets/images/chat/extra_wallet.png'),
               onPressed: null,
               ),

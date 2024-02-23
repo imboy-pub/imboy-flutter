@@ -39,7 +39,7 @@ class PeopleNearbyLogic extends GetxController {
     }
     if (state.longitude.value.isEmpty || state.longitude.value == "null") {
       EasyLoading.showInfo(
-          "${'无法获取经纬度'.tr}\n${'您还没有打开位置信息服务'.tr}\n${'或者'.tr} ${'您还没有授权获取经纬度'.tr}");
+          "${'failed_get_lat_long'.tr}\n${'not_turned_location_service'.tr}\n${'or'.tr} ${'not_authorized_lat_long'.tr}");
       return;
     }
     // debugPrint("PeopleNearbyLogic peopleNearby ${state.longitude.value.isEmpty} = ${state.longitude.value} ");

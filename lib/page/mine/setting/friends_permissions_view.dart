@@ -25,7 +25,7 @@ class FriendsPermissionsPage extends StatelessWidget {
     return Scaffold(
         backgroundColor: AppColors.ChatBg,
         appBar: PageAppBar(
-          title: '朋友权限'.tr,
+          title: 'friend_permissions'.tr,
         ),
         body: SingleChildScrollView(child: n.Column(const [])));
   }

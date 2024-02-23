@@ -47,7 +47,7 @@ class ContactLogic extends GetxController {
     final List<ContactModel> topList = [
       ContactModel(
         peerId: 'people_nearby',
-        nickname: '找附近的人'.tr,
+        nickname: 'find_nearby_people'.tr,
         nameIndex: '↑',
         bgColor: Colors.orange,
         iconData: const Center(
@@ -67,7 +67,7 @@ class ContactLogic extends GetxController {
       ),
       ContactModel(
         peerId: 'new_friend',
-        nickname: '新的朋友'.tr,
+        nickname: 'new_friend'.tr,
         nameIndex: '↑',
         bgColor: Colors.orange,
         iconData: Obx(() => badges.Badge(
@@ -109,7 +109,7 @@ class ContactLogic extends GetxController {
       ),
       ContactModel(
         peerId: 'group',
-        nickname: '群聊'.tr,
+        nickname: 'group_chat'.tr,
         nameIndex: '↑',
         bgColor: Colors.green,
         iconData: const Icon(
@@ -127,7 +127,7 @@ class ContactLogic extends GetxController {
       ),
       ContactModel(
         peerId: 'tag',
-        nickname: '标签'.tr,
+        nickname: 'tags'.tr,
         nameIndex: '↑',
         bgColor: Colors.blue,
         // icon 翻转

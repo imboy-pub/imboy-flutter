@@ -59,7 +59,7 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
     } else if (widget.groupInfoType == GroupInfoType.cardName) {
       return '我在本群的昵称';
     } else {
-      return '备注';
+      return 'remark'.tr;
     }
   }
 
@@ -116,8 +116,8 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                         controller: _textController,
                         decoration: InputDecoration(
                           hintText: widget.groupInfoType == GroupInfoType.name
-                              ? '群聊名称'.tr
-                              : '备注'.tr,
+                              ? 'group_name'.tr
+                              : 'remark'.tr,
                           border: InputBorder.none,
                         ),
                       ),

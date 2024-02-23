@@ -40,7 +40,7 @@ class NewFriendPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(
-        title: '新的朋友'.tr,
+        title: 'new_friend'.tr,
         rightDMActions: [
           TextButton(
             onPressed: () {
@@ -51,7 +51,7 @@ class NewFriendPage extends StatelessWidget {
               );
             },
             child: Text(
-              '添加朋友'.tr,
+              'add_friend'.tr,
             ),
           )
         ],
@@ -108,14 +108,15 @@ class NewFriendPage extends StatelessWidget {
             //         color: AppColors.primaryElement,
             //       ),
             //     ),
-            //     label: '添加手机联系人'.tr,
+            // 添加手机联系人
+            //     label: 'add_phone_contact'.tr,
             //   ),
             // ),
             // Spacer(),
             Expanded(
               child: SlidableAutoCloseBehavior(
                 child: Obx(() => logic.items.isEmpty
-                    ? NoDataView(text: '没有新的好友'.tr)
+                    ? NoDataView(text: 'no_new_friends'.tr)
                     : ListView.builder(
                         itemBuilder: (BuildContext ctx, int i) {
                           NewFriendModel model = logic.items[i];
@@ -147,7 +148,7 @@ class NewFriendPage extends StatelessWidget {
                                   NewFriendStatus
                                       .waiting_for_validation.index) {
                             rightWidget.add(
-                              Text('等待验证'.tr),
+                              Text('awaiting_verification'.tr),
                             );
                           } else if (model.status ==
                               NewFriendStatus.waiting_for_validation.index) {
@@ -175,17 +176,17 @@ class NewFriendPage extends StatelessWidget {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              child: Text('接受'.tr),
+                              child: Text('accept'.tr),
                             ));
                           } else if (model.status ==
                               NewFriendStatus.added.index) {
                             rightWidget.add(
-                              Text('已添加'.tr),
+                              Text('added'.tr),
                             );
                           } else if (model.status ==
                               NewFriendStatus.expired.index) {
                             rightWidget.add(
-                              Text('已过期'.tr),
+                              Text('expired'.tr),
                             );
                           }
                           return Slidable(
@@ -202,7 +203,7 @@ class NewFriendPage extends StatelessWidget {
                                   onPressed: (_) async {
                                     await logic.delete(model.from, model.to);
                                   },
-                                  label: "删除",
+                                  label: 'button_delete'.tr,
                                   spacing: 1,
                                 ),
                               ],

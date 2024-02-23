@@ -23,7 +23,7 @@ class _ChatBackgroundPageState extends State<ChatBackgroundPage> {
     return Scaffold(
         backgroundColor: AppColors.AppBarColor,
         appBar: PageAppBar(
-          title: '设置当前聊天背景'.tr,
+          title: 'set_chat_background'.tr,
           // backgroundColor: AppColors.AppBarColor,
         ),
         body: const SizedBox.shrink());

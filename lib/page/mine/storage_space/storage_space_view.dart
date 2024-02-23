@@ -29,7 +29,7 @@ class StorageSpacePage extends StatelessWidget {
 
     return Scaffold(
       appBar: PageAppBar(
-        title: '存储空间'.tr,
+        title: 'storage_space'.tr,
       ),
       body: SingleChildScrollView(
         child: n.Padding(
@@ -88,7 +88,7 @@ class StorageSpacePage extends StatelessWidget {
               const SizedBox(width: 4),
               Obx(() => Text(
                     appName +
-                        '已使用空间'.tr +
+                        'used_space'.tr +
                         formatBytes(
                           (state.appAllBytes.value),
                           num: 1000,
@@ -105,7 +105,7 @@ class StorageSpacePage extends StatelessWidget {
               const SizedBox(width: 4),
               Obx(
                 () => Text(
-                  '设备已使用空间'.tr +
+                  'device_used_space'.tr +
                       formatBytes(
                         state.usedDiskSpace.value,
                         num: 1000,
@@ -122,7 +122,7 @@ class StorageSpacePage extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Obx(() => Text(
-                    '设备可用空间'.tr +
+                    'device_available_space'.tr +
                         formatBytes(
                           state.freeDiskSpace.value,
                           num: 1000,
@@ -132,7 +132,7 @@ class StorageSpacePage extends StatelessWidget {
             ]),
             const SizedBox(height: 16),
             n.Column([
-              n.Row([Text(appName + '已使用空间'.tr)]),
+              n.Row([Text(appName + 'used_space'.tr)]),
               n.Row([
                 Obx(
                   () => Text(
@@ -145,18 +145,19 @@ class StorageSpacePage extends StatelessWidget {
                 )
               ]),
               n.Row([
-                Obx(() => Text('占设备 @percent‰ 存储空间(@total)'.trParams({
-                      'percent': state.totalDiskSpace.value > 0
+                // 占设备 @percent‰ 存储空间(@total)
+                Obx(() => Text('tip_device_space'.trArgs([
+                      state.totalDiskSpace.value > 0
                           ? ((state.appAllBytes.value /
                                       state.totalDiskSpace.value) *
                                   1000)
                               .toStringAsFixed(3)
                           : '0',
-                      'total': formatBytes(
+                      formatBytes(
                         state.totalDiskSpace.value,
                         num: 1000,
                       ),
-                    })))
+                    ])))
               ]),
             ]),
             const SizedBox(height: 8),
@@ -167,15 +168,15 @@ class StorageSpacePage extends StatelessWidget {
                   color: AppColors.primaryBackground,
                   child: n.ListTile(
                     title: n.Row([
-                      Text(appName + '缓存'.tr),
+                      Text(appName + 'cache'.tr),
                       const Expanded(child: SizedBox()),
                       ElevatedButton(
                         onPressed: () async {
                           bool res = await logic.clearAllCache();
                           if (res) {
-                            EasyLoading.showSuccess('操作成功'.tr);
+                            EasyLoading.showSuccess('tip_success'.tr);
                           } else {
-                            EasyLoading.showError('操作失败'.tr);
+                            EasyLoading.showError('tip_failed'.tr);
                           }
                         },
                         style: ButtonStyle(
@@ -192,8 +193,8 @@ class StorageSpacePage extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          // '前往清理'.tr,
-                          '清理'.tr,
+                          // 'go_clean'.tr,
+                          'clean'.tr,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: AppColors.primaryElement,
@@ -235,7 +236,7 @@ class StorageSpacePage extends StatelessWidget {
                   color: AppColors.primaryBackground,
                   child: n.ListTile(
                     title: n.Row([
-                      Text('聊天记录'.tr),
+                      Text('chat_history'.tr),
                       const Expanded(child: SizedBox()),
                       ElevatedButton(
                         onPressed: () {
@@ -255,7 +256,7 @@ class StorageSpacePage extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          '管理'.tr,
+                          'manage'.tr,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: AppColors.primaryText,
@@ -279,8 +280,9 @@ class StorageSpacePage extends StatelessWidget {
                         // 内容居左
                         ..mainAxisAlignment = MainAxisAlignment.start,
                       Text(
+                        // 当前账号本地生成的sqlite文件大小；可清理所选聊天记录里的图片、视频、和文件，或者清空所选聊天记录里的所有聊天信息。
                         appName +
-                            '当前账号本地生成的sqlite文件大小；可清理所选聊天记录里的图片、视频、和文件，或者清空所选聊天记录里的所有聊天信息。'
+                            'app_sqlite_file_size_explain'
                                 .tr,
                         style:
                             const TextStyle(color: AppColors.thirdElementText),
@@ -299,7 +301,7 @@ class StorageSpacePage extends StatelessWidget {
                   color: AppColors.primaryBackground,
                   child: n.ListTile(
                     title: n.Row([
-                      Text('用户数据'.tr),
+                      Text('user_data'.tr),
                       const Expanded(child: SizedBox()),
                       /* TODO 2024-01-29 17:42:21
                       ElevatedButton(
@@ -320,7 +322,7 @@ class StorageSpacePage extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          '管理'.tr,
+                          'manage'.tr,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: AppColors.primaryText,
@@ -361,7 +363,7 @@ class StorageSpacePage extends StatelessWidget {
                 child: Container(
                   color: AppColors.primaryBackground,
                   child: n.ListTile(
-                    title: Text('应用大小'.tr),
+                    title: Text('app_size'.tr),
                     subtitle: n.Column([
                       n.Row([
                         Obx(

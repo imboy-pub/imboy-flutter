@@ -67,18 +67,18 @@ class ContactCard extends StatelessWidget {
     if (strNoEmpty(nickname)) {
       items.add(Padding(
         padding: const EdgeInsets.only(top: 3.0),
-        child: Text("昵称：".tr + nickname!, style: labelStyle),
+        child: Text("${'nickname'.tr}：$nickname", style: labelStyle),
       ));
     }
     if (strNoEmpty(account)) {
       items.add(Padding(
         padding: const EdgeInsets.only(top: 3.0),
-        child: Text("账号：".tr + account!, style: labelStyle),
+        child: Text("${'account'.tr}：$account", style: labelStyle),
       ));
     }
     if (strNoEmpty(region) && region != 'null') {
       items.add(
-        Text("地区：".tr + region, style: labelStyle),
+        Text("${'region'.tr}：$region", style: labelStyle),
       );
     }
     return Container(
@@ -118,7 +118,7 @@ class ContactCard extends StatelessWidget {
               if (isNetWorkImg(avatar!)) {
                 zoomInPhotoView(avatar!);
               } else {
-                Get.snackbar('', '无头像'.tr);
+                Get.snackbar('', 'no_avatar'.tr);
               }
             },
           ),

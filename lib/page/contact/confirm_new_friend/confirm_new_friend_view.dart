@@ -48,7 +48,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(
-        title: '通过朋友验证'.tr,
+        title: 'accept_friend_request'.tr,
         backgroundColor: Colors.white,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -67,7 +67,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                 "avatar": UserRepoLocal.to.current.avatar,
                 "sign": UserRepoLocal.to.current.sign,
                 "gender": UserRepoLocal.to.current.gender,
-                "role": logic.role.value, // role 可能的值 all justchat
+                "role": logic.role.value, // role 可能的值 all just_chat
                 "donotlookhim": logic.donotlookhim.isTrue,
                 "donotlethimlook": logic.donotlethimlook.isTrue,
                 "tag": logic.peerTag.isEmpty ? '' : "${logic.peerTag.value},",
@@ -87,7 +87,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
               padding: MaterialStateProperty.all(EdgeInsets.zero),
             ),
             child: Text(
-              '完成'.tr,
+              'button_accomplish'.tr,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 16),
             ),
@@ -107,7 +107,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
             ),
             child: Obx(() => n.Column([
                   TitleTextField(
-                    title: '设置备注'.tr,
+                    title: 'set_remark'.tr,
                     controller: _remarkController,
                     minLines: 1,
                     maxLines: 1,
@@ -123,7 +123,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                   ),
                   Obx(() => IconTextView(
                         leftText: logic.peerTag.isEmpty
-                            ? '添加标签'.tr
+                            ? 'add_tag'.tr
                             : logic.peerTag.value,
                         paddingLeft: 10,
                         onPressed: () {
@@ -154,7 +154,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                     padding: const EdgeInsets.only(
                       top: 14,
                     ),
-                    child: Text('设置朋友圈'.tr),
+                    child: Text('set_moment'.tr),
                   ),
                   Card(
                     color: const Color.fromARGB(255, 247, 247, 247),
@@ -165,7 +165,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                     child: n.Column([
                       IMBoyRadioListTile(
                         value: "all",
-                        title: n.Text("聊天、朋友圈、运动数据等".tr),
+                        title: n.Text('chat_moment_sport_data_etc'.tr),
                         selected: false,
                         secondary: logic.role.value == "all" ? secondary : null,
                         controlAffinity: ListTileControlAffinity.leading,
@@ -181,11 +181,11 @@ class ConfirmNewFriendPage extends StatelessWidget {
                         },
                       ),
                       IMBoyRadioListTile(
-                        value: "justchat",
-                        title: n.Text("仅聊天".tr),
+                        value: "just_chat",
+                        title: n.Text('just_chat'.tr),
                         selected: false,
                         secondary:
-                            logic.role.value == "justchat" ? secondary : null,
+                            logic.role.value == "just_chat" ? secondary : null,
                         controlAffinity: ListTileControlAffinity.leading,
                         activeColor: AppColors.primaryElement,
                         groupValue: logic.role.value,
@@ -210,7 +210,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                       top: 10,
                       bottom: 50,
                       child: n.Column([
-                        Text('朋友圈和状态'.tr),
+                        Text('moment_status'.tr),
                         Card(
                           color: const Color.fromARGB(255, 247, 247, 247),
                           shape: RoundedRectangleBorder(
@@ -220,7 +220,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                           child: n.Column(
                             [
                               SwitchListTile(
-                                title: Text('不让他（她）看'.tr),
+                                title: Text('not_let_him_see'.tr),
                                 value: logic.donotlethimlook.isTrue,
                                 activeColor: AppColors.primaryElement,
                                 onChanged: (val) {
@@ -229,7 +229,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                                 },
                               ),
                               SwitchListTile(
-                                title: Text('不看他（她）'.tr),
+                                title: Text('not_see_him'.tr),
                                 value: logic.donotlookhim.isTrue,
                                 activeColor: AppColors.primaryElement,
                                 onChanged: (val) {

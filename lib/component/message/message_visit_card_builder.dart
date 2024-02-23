@@ -81,7 +81,7 @@ class VisitCardMessageBuilder extends StatelessWidget {
             Expanded(
               flex: 1,
               child: Text(
-                '个人名片'.tr,
+                'personal_card'.tr,
                 style: const TextStyle(color: AppColors.TipColor, fontSize: 12),
               ),
             ),

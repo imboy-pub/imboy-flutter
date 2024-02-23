@@ -157,7 +157,7 @@ class PeopleInfoPage extends StatelessWidget {
               Visibility(
                 visible: !isSelf,
                 child: LabelRow(
-                  label: tag.value.isEmpty ? '备注和标签'.tr : '标签'.tr,
+                  label: tag.value.isEmpty ? 'remarks_tags'.tr : 'tags'.tr,
                   labelWidth: tag.value.isEmpty ? 96 : 40,
                   // rValue: tag.value.isEmpty ? null : tag.value,
                   isLine: true,
@@ -209,7 +209,7 @@ class PeopleInfoPage extends StatelessWidget {
               Visibility(
                 visible: !isSelf,
                 child: LabelRow(
-                  label: '朋友权限'.tr,
+                  label: 'friend_permissions'.tr,
                   onPressed: () {
                     Get.to(
                       () => FriendsPermissionsPage(),
@@ -221,7 +221,7 @@ class PeopleInfoPage extends StatelessWidget {
               ),
               const Space(),
               LabelRow(
-                label: '朋友圈'.tr,
+                label: 'moment'.tr,
                 isLine: true,
                 onPressed: () => Get.to(()=>
                   const FriendCirclePage(),
@@ -232,7 +232,7 @@ class PeopleInfoPage extends StatelessWidget {
               */
               if (isFriend.value == 1 || scene == 'denylist')
                 LabelRow(
-                  label: '更多信息'.tr,
+                  label: 'more_info'.tr,
                   isLine: false,
                   onPressed: () => Navigator.push(
                     context,
@@ -278,7 +278,7 @@ class PeopleInfoPage extends StatelessWidget {
                 Visibility(
                   visible: !isSelf,
                   child: ButtonRow(
-                    text: '语音通话'.tr,
+                    text: 'voice_call'.tr,
                     isBorder: true,
                     onPressed: () {
                       openCallScreen(
@@ -299,7 +299,7 @@ class PeopleInfoPage extends StatelessWidget {
                   ? Visibility(
                       visible: !isSelf,
                       child: ButtonRow(
-                        text: '视频通话'.tr,
+                        text: 'video_call'.tr,
                         onPressed: () {
                           openCallScreen(
                             ContactModel.fromMap({
@@ -316,7 +316,7 @@ class PeopleInfoPage extends StatelessWidget {
                   : Visibility(
                       visible: showApplyFriendBtn,
                       child: ButtonRow(
-                        text: '添加到通讯录'.tr,
+                        text: 'add_to_contacts'.tr,
                         onPressed: () => Get.to(
                           () => ApplyFriendPage(
                             id,
@@ -336,7 +336,7 @@ class PeopleInfoPage extends StatelessWidget {
                   child: n.Row([
                     const Icon(Icons.warning_amber_rounded, color: Colors.red),
                     const Space(width: 4),
-                    Text('已添加至黑名单，你将不再收到对方的消息'.tr),
+                    Text('added_to_blacklist_tips'.tr),
                   ])
                     // 内容居中
                     ..mainAxisAlignment = MainAxisAlignment.center,
@@ -367,7 +367,8 @@ class PeopleInfoMorePage extends StatelessWidget {
 
     sign.value = model!.sign;
     source.value = model.sourceTr;
-    sourcePrefix.value = model.isFrom == 1 ? "" : "对方".tr;
+    // other_party 对方
+    sourcePrefix.value = model.isFrom == 1 ? '' : 'other_party'.tr;
     debugPrint(
         "PeopleInfoMorePage initData $source, $sourcePrefix , sign $sign");
   }
@@ -379,7 +380,7 @@ class PeopleInfoMorePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.ChatBg,
       appBar: PageAppBar(
-        title: '社交资料'.tr,
+        title: 'social_profile'.tr,
         // backgroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
@@ -387,8 +388,9 @@ class PeopleInfoMorePage extends StatelessWidget {
           () => n.Column(
             [
               LabelRow(
-                label: '我和他的共同群聊'.tr,
-                rValue: '$groupCount个'.tr,
+                label: 'mutual_groups_with_her'.tr,
+                // 10个
+                rValue: 'num_unit'.trArgs(['$groupCount']),
                 isLine: false,
                 isRight: false,
                 padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
@@ -399,7 +401,7 @@ class PeopleInfoMorePage extends StatelessWidget {
               Visibility(
                 visible: strNoEmpty(sign.value),
                 child: LabelRow(
-                  label: '个性签名'.tr,
+                  label: 'signature'.tr,
                   // rValue: sign,
                   rightW: SizedBox(
                     width: Get.width - 100,
@@ -426,7 +428,7 @@ class PeopleInfoMorePage extends StatelessWidget {
               ),
               if (source.value.isNotEmpty)
                 LabelRow(
-                  label: '来源'.tr,
+                  label: 'source'.tr,
                   rValue: '$sourcePrefix ${source.value}',
                   // rValue: getSourceTr(source.value),
                   isLine: false,

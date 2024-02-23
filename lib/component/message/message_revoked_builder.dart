@@ -41,7 +41,7 @@ class RevokedMessageBuilder extends StatelessWidget {
               );
             },
             child: Text(
-              '重新编辑'.tr,
+              're_edit'.tr,
               style: const TextStyle(
                 height: 1.5,
                 color: Color.fromRGBO(107, 110, 153, 1),
@@ -51,8 +51,7 @@ class RevokedMessageBuilder extends StatelessWidget {
           )
         : const SizedBox.shrink();
     return GestureDetector(
-      onTap: () {
-      },
+      onTap: () {},
       child: Container(
         width: Get.width,
         // Creates insets from offsets from the left, top, right, and bottom.
@@ -71,7 +70,7 @@ class RevokedMessageBuilder extends StatelessWidget {
                   : const EdgeInsets.only(left: 50),
               // padding: EdgeInsets.only(right: 10),
               child: Text(
-                nickname + '撤回了一条消息'.tr,
+                nickname + 'message_was_withdrawn'.tr,
                 style: const TextStyle(
                   color: AppColors.MainTextColor,
                   backgroundColor: AppColors.ChatBg,

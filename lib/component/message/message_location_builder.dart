@@ -53,12 +53,9 @@ class LocationMessageBuilder extends StatelessWidget {
                 Get.bottomSheet(
                   Container(
                     color: AppColors.primaryBackground,
-                    // child: Center(
-                    //   child: Text('您没有安装任何地区APP哦'.tr),
-                    // )
                     child: availableMaps.isEmpty
                         ? Center(
-                            child: Text('您没有安装任何地区APP哦'.tr),
+                            child: Text('not_install_any_map_app'.tr),
                           )
                         : SingleChildScrollView(
                             child: Wrap(
@@ -96,7 +93,6 @@ class LocationMessageBuilder extends StatelessWidget {
                   n.Padding(
                     child: Text(
                       // '大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发'
-                      //     .tr,
                       message.metadata?['title'],
                       textAlign: TextAlign.left,
                       style: const TextStyle(
@@ -111,7 +107,7 @@ class LocationMessageBuilder extends StatelessWidget {
                     bottom: 8,
                     child: Text(
                       message.metadata?['address'],
-                      // '大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发'.tr,
+                      // '大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发',
                       textAlign: TextAlign.left,
                       style: const TextStyle(
                         color: AppColors.thirdElementText,

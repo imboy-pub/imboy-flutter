@@ -28,7 +28,7 @@ class AddFriendPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(
-        title: '添加朋友'.tr,
+        title: 'add_friend'.tr,
         // backgroundColor: AppColors.AppBarColor,
       ),
       body: SingleChildScrollView(
@@ -61,7 +61,7 @@ class AddFriendPage extends StatelessWidget {
                 n.Padding(
                   child: n.Row(
                     [
-                      Text('我的账号：'.tr),
+                      Text("${'my_account'.tr}："),
                       Text(UserRepoLocal.to.current.account),
                       const Space(),
                       InkWell(
@@ -93,10 +93,10 @@ class AddFriendPage extends StatelessWidget {
                       ),
                       title: Transform(
                         transform: Matrix4.translationValues(0, 0.0, 0.0),
-                        child: Text('附近的人'.tr),
+                        child: Text('people_nearby'.tr),
                       ),
                       subtitle: Text(
-                        '和附近的人交换联系方式，结交新朋友'.tr,
+                        'nearby_people_tips'.tr,
                         style: const TextStyle(
                           color: AppColors.TipColor,
                           fontSize: 12,
@@ -127,10 +127,10 @@ class AddFriendPage extends StatelessWidget {
                       ),
                       title: Transform(
                         transform: Matrix4.translationValues(0, 0.0, 0.0),
-                        child: Text('面对面建群'.tr),
+                        child: Text('create_group_f2f'.tr),
                       ),
                       subtitle: Text(
-                        '与身边的朋友进入同一个群聊'.tr,
+                        'enter_same_group'.tr,
                         style: const TextStyle(
                           color: AppColors.TipColor,
                           fontSize: 12,
@@ -160,10 +160,10 @@ class AddFriendPage extends StatelessWidget {
                       ),
                       title: Transform(
                         transform: Matrix4.translationValues(0, 0.0, 0.0),
-                        child: Text('扫一扫'.tr),
+                        child: Text('scan_qr_code'.tr),
                       ),
                       subtitle: Text(
-                        '扫描二维码名片'.tr,
+                        'scan_qr_code_business_card'.tr,
                         style: const TextStyle(
                           color: AppColors.TipColor,
                           fontSize: 12,
@@ -193,10 +193,11 @@ class AddFriendPage extends StatelessWidget {
                       ),
                       title: Transform(
                         transform: Matrix4.translationValues(0, 0.0, 0.0),
-                        child: Text('新注册的朋友'.tr),
+                        child: Text('newly_registered_friends'.tr),
                       ),
                       subtitle: Text(
-                        '最近新注册的并且允许被搜索到的朋友'.tr,
+                        // 最近新注册的并且允许被搜索到的朋友
+                        'allowed_be_searched'.tr,
                         style: const TextStyle(
                           color: AppColors.TipColor,
                           fontSize: 12,

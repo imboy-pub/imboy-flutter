@@ -25,14 +25,13 @@ class LaunchGroupItem extends StatelessWidget {
         // color: Colors.white,
         // padding: const EdgeInsets.symmetric(vertical: 15.0),
         onPressed: () {
-          if (item == '选择一个群') {
+          // 选择一个群 select_a_group
+          if (item == 'select_a_group') {
             Get.to(
               () => const GroupSelectPage(),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
             );
-          } else {
-            Get.snackbar('', '敬请期待');
           }
         },
         child: Container(
@@ -77,7 +76,7 @@ class LaunchSearch extends StatelessWidget {
             controller: searchC,
             style: const TextStyle(textBaseline: TextBaseline.alphabetic),
             decoration: InputDecoration(
-              hintText: '搜索',
+              hintText: 'search'.tr,
               hintStyle: TextStyle(color: AppColors.LineColor.withOpacity(0.7)),
               border: InputBorder.none,
             ),

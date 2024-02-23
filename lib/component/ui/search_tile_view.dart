@@ -29,7 +29,7 @@ class SearchTileView extends StatelessWidget {
               size: 50.0,
             ),
           ),
-          const Text('搜索：'),
+          Text("${'search'.tr}："),
           Text(
             text!,
             style: const TextStyle(color: Colors.green),

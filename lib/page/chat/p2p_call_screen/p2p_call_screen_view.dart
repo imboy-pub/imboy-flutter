@@ -160,12 +160,12 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
           break;
         case WebRTCCallState.CallStateNew:
           setState(() {
-            stateTips = '等待对方接受邀请...'.tr;
+            stateTips = 'waiting_peer_accept'.tr;
           });
           answerTimer = Timer(const Duration(seconds: 60), () {
             if (mounted) {
               setState(() {
-                stateTips = '对方无应答...'.tr;
+                stateTips = 'peer_no_response'.tr;
               });
             }
             Future.delayed(const Duration(seconds: 2), () {
@@ -177,14 +177,14 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
           // 呼入= Ringing
           if (widget.caller && mounted) {
             setState(() {
-              stateTips = '已响铃...'.tr;
+              stateTips = 'ringing'.tr;
             });
           }
           break;
         case WebRTCCallState.CallStateBye:
           setState(() {
             counter.cleanUp();
-            stateTips = '对方已挂断'.tr;
+            stateTips = 'peer_has_hungup'.tr;
           });
 
           Future.delayed(const Duration(seconds: 2), () {
@@ -199,7 +199,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         case WebRTCCallState.CallStateBusy:
           if (mounted) {
             setState(() {
-              stateTips = '对方正忙，请稍后重试'.tr;
+              stateTips = 'busy_try_again_later'.tr;
             });
           }
           Future.delayed(const Duration(seconds: 2), () {
@@ -341,8 +341,8 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         n.Row([
           // 麦克风
           FloatingActionButton(
-            heroTag: "microphone",
-            tooltip: "microphone".tr,
+            heroTag: 'microphone',
+            tooltip: 'microphone'.tr,
             onPressed: () {
               var res = logic?.turnMicrophone();
               if (res != null) {
@@ -357,7 +357,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
           ),
           if (media == 'audio')
             FloatingActionButton(
-              heroTag: "hangup",
+              heroTag: 'hangup',
               tooltip: 'hangup'.tr,
               onPressed: () {
                 _hangUp(
@@ -370,8 +370,8 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
             ),
           // 扬声器开关
           FloatingActionButton(
-            heroTag: "loudspeaker",
-            tooltip: "loudspeaker".tr,
+            heroTag: 'loudspeaker',
+            tooltip: 'loudspeaker'.tr,
             onPressed: () {
               setState(() {
                 speakerOn = !speakerOn;
@@ -454,7 +454,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
               ]),
               n.Row([
                 Text(
-                  "正在通话".tr,
+                  'calling'.tr,
                   style: const TextStyle(color: Colors.green),
                 ),
               ]),

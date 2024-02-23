@@ -49,7 +49,7 @@ class ContactTagListPage extends StatelessWidget {
           state.items.addAll(list);
           state.page = state.page + 1;
         } else {
-          EasyLoading.showToast('没有更多数据了'.tr);
+          EasyLoading.showToast('no_more_data'.tr);
         }
       }
     });
@@ -81,7 +81,7 @@ class ContactTagListPage extends StatelessWidget {
               );
             },
             // icon: Icons.delete_forever_sharp,
-            label: "修改名称".tr,
+            label: 'modify_name'.tr,
             spacing: 1,
           ),
           SlidableAction(
@@ -101,7 +101,7 @@ class ContactTagListPage extends StatelessWidget {
                           top: 16,
                           bottom: 16,
                           child: Text(
-                            '删除标签后，标签中的联系人不会被删除'.tr,
+                            'delete_tag_tips'.tr,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               // color: Colors.white,
@@ -123,13 +123,13 @@ class ContactTagListPage extends StatelessWidget {
                             );
                             if (res) {
                               Get.closeAllBottomSheets();
-                              EasyLoading.showSuccess('操作成功'.tr);
+                              EasyLoading.showSuccess('tip_success'.tr);
                             } else {
-                              EasyLoading.showError('操作失败'.tr);
+                              EasyLoading.showError('tip_failed'.tr);
                             }
                           },
                           child: Text(
-                            '删除'.tr,
+                            'button_delete'.tr,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               color: Colors.red,
@@ -168,7 +168,7 @@ class ContactTagListPage extends StatelessWidget {
               );
             },
             // icon: Icons.delete_forever_sharp,
-            label: "删除".tr,
+            label: 'button_delete'.tr,
             spacing: 1,
           ),
         ],
@@ -235,7 +235,7 @@ class ContactTagListPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.ChatBg,
       appBar: PageAppBar(
-        title: '联系人标签'.tr,
+        title: 'contact_tags'.tr,
         rightDMActions: <Widget>[
           InkWell(
             child: const SizedBox(
@@ -299,9 +299,9 @@ class ContactTagListPage extends StatelessWidget {
                           )
                         ],
                   controller: state.searchController,
-                  searchLabel: '搜索'.tr,
-                  hintText: '搜索'.tr,
-                  // queryTips: '收藏人名、群名、标签等'.tr,
+                  searchLabel: 'search'.tr,
+                  hintText: 'search'.tr,
+                  // queryTips: 'favorite_group_tags_etc'.tr,
                   onChanged: ((query) async {
                     state.kwd.value = query;
                     debugPrint(
@@ -316,7 +316,7 @@ class ContactTagListPage extends StatelessWidget {
                   right: 8,
                   child: SlidableAutoCloseBehavior(
                       child: state.items.isEmpty
-                          ? NoDataView(text: '暂无数据'.tr)
+                          ? NoDataView(text: 'no_data'.tr)
                           : ListView.builder(
                               controller: controller,
                               physics: const AlwaysScrollableScrollPhysics(),

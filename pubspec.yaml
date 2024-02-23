@@ -100,7 +100,7 @@ dependencies:
   path_provider: ^2.1.2
   image_picker: ^1.0.7
   image_picker_macos: ^0.2.1+1
-  image_picker_platform_interface: ^2.9.3
+  image_picker_platform_interface: ^2.9.4
   file_picker: ^6.1.1
   open_file: ^3.3.2
   # image_crop: ^0.4.1
@@ -148,7 +148,7 @@ dependencies:
   # 一个干净和轻量级的加载/吐司小部件
   flutter_easyloading: ^3.0.5
   # 生成闪屏页
-  #flutter_native_splash: ^2.3.11
+  #flutter_native_splash: ^2.3.13
   flutter_native_splash: ^2.3.10
   flutter_chat_ui: ^1.6.12
   feedback: ^3.0.0
@@ -254,7 +254,7 @@ dependencies:
   # haishin_kit: ^0.11.1
   #flutter_whip: ^0.5.5
   # 允许跨多个平台处理文件的抽象。
-  cross_file: ^0.3.4
+  cross_file: ^0.3.4+1
   # Dart 包用于解码 TIFF、JPEG、HEIC、PNG 和 WebP 文件中的 Exif 数据。
   exif: ^3.3.0
   # Get the information about free and total disk space for you device. It is an update to the disk_space plugin.

@@ -137,7 +137,7 @@ Widget messageMsgWidget(types.Message msg) {
     msgWidget = n.Column([
       n.Row([
         Text(
-          "[${'文件'.tr}] (${formatBytes(msg.size.truncate())})",
+          "[${'file'.tr}] (${formatBytes(msg.size.truncate())})",
           style: const TextStyle(color: AppColors.thirdElementText),
         )
       ]),
@@ -181,7 +181,7 @@ Widget messageMsgWidget(types.Message msg) {
   } else if (customType == 'quote') {
     String txt = msg.metadata?['quote_text'] ?? '';
     msgWidget = Text(
-      "[${'引用'.tr}] $txt",
+      "[${'quote'.tr}] $txt",
       style: const TextStyle(
         color: AppColors.MainTextColor,
         fontSize: 13.0,
@@ -237,15 +237,15 @@ void confirmOpenFile(String uri) {
       // ..title = Text("Session Expired")
       ..content = SizedBox(
         height: 40,
-        child: Center(child: Text('确定要打开文件吗？'.tr)),
+        child: Center(child: Text('sure_open_the_file'.tr)),
       )
       ..actions = [
-        n.Button('取消'.tr.n)
+        n.Button('button_cancel'.tr.n)
           ..style = n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
           ..onPressed = () {
             Navigator.of(context).pop();
           },
-        n.Button('确定'.tr.n)
+        n.Button('button_confirm'.tr.n)
           ..style = n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
           ..onPressed = () async {
             Navigator.of(context).pop();

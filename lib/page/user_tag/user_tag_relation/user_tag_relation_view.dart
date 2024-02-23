@@ -68,7 +68,7 @@ class UserTagRelationPage extends StatelessWidget {
       state.tagItems.value = state.tagController.getTags!;
       logic.valueOnChange(diff);
       if (diff) {
-        state.tagController.setError = '需要确认提交，该操作才生效'.tr;
+        state.tagController.setError = 'need_submit_effect'.tr;
       }
     });
   }
@@ -93,12 +93,12 @@ class UserTagRelationPage extends StatelessWidget {
         logic.valueOnChange(diff);
         if (tag.length > 14) {
           // 最最最最最最最最最最最最最最1
-          return '最多14个字'.tr;
+          return 'error_invalid'.trArgs(['14']);
         }
         if (state.tagController.getTags != null &&
             state.tagController.getTags!.contains(tag)) {
           // return 'you already entered that';
-          return '你已经输入过了'.tr;
+          return 'already_entered'.tr;
         }
         return null;
       },
@@ -123,11 +123,12 @@ class UserTagRelationPage extends StatelessWidget {
                   borderSide:
                       BorderSide(color: tagSelectedBackgroundColor, width: 1.0),
                 ),
-                // helperText: '全部标签'.tr,
+                // helperText: 'all_tags'.tr,
                 helperStyle: TextStyle(
                   color: tagSelectedBackgroundColor,
                 ),
-                hintText: state.tagController.hasTags ? '' : '选择或输入标签'.tr,
+                hintText:
+                    state.tagController.hasTags ? '' : 'select_or_enter_tag'.tr,
                 errorText: error,
                 prefixIconConstraints:
                     BoxConstraints(maxWidth: state.distanceToField * 1.0),
@@ -202,14 +203,14 @@ class UserTagRelationPage extends StatelessWidget {
       backgroundColor: AppColors.ChatBg,
       // backgroundColor: Colors.white,
       appBar: PageAppBar(
-        title: title ?? '添加标签'.tr,
+        title: title ?? 'add_tag'.tr,
       ),
       body: SizedBox(
         height: Get.height - 40,
         child: Obx(() => state.loaded.isTrue
             ? FilterListWidget<String>(
-                resetButtonText: '置空'.tr,
-                applyButtonText: '确认'.tr,
+                resetButtonText: 'button_setempty'.tr,
+                applyButtonText: 'button_confirm'.tr,
                 // hideHeader: true,
                 header: _buildHeader(),
                 enableOnlySingleSelection: false,
@@ -250,7 +251,7 @@ class UserTagRelationPage extends StatelessWidget {
                   // debugPrint("submit_tag ${tag?.length} ${tag.toString()}, ");
                   bool res = await logic.add(scene, peerId, tag ?? []);
                   if (res) {
-                    // EasyLoading.showSuccess('操作成功'.tr);
+                    // EasyLoading.showSuccess('tip_success'.tr);
                     Get.back(result: tag!.join(','));
                   }
                 },
@@ -263,7 +264,7 @@ class UserTagRelationPage extends StatelessWidget {
                 },
                 onReset: () {
                   state.tagController.clearTags();
-                  state.tagController.setError = '需要确认提交，该操作才生效'.tr;
+                  state.tagController.setError = 'need_submit_effect'.tr;
                 },
                 onSelected: (String item, bool selected) {
                   if (selected) {

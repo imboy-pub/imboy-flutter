@@ -39,7 +39,7 @@ class UserDevicePage extends StatelessWidget {
     String tips = '你的帐号在以下设备中登录过，你可以删除设备，删除后在该设备登录时需进行安全验证。'.tr;
     return Scaffold(
       appBar: PageAppBar(
-        title: '登录设备管理'.tr,
+        title: 'login_device_management'.tr,
         // rightDMActions: [
         //   TextButton(
         //     onPressed: () {
@@ -50,7 +50,7 @@ class UserDevicePage extends StatelessWidget {
         //       // );
         //     },
         //     child: Text(
-        //       '编辑'.tr,
+        //       'edit'.tr,
         //     ),
         //   )
         // ],
@@ -84,7 +84,7 @@ class UserDevicePage extends StatelessWidget {
                 right: 10,
                 child: Obx(() {
                   return state.deviceList.isEmpty
-                      ? NoDataView(text: '暂无数据'.tr)
+                      ? NoDataView(text: 'no_data'.tr)
                       : ListView.builder(
                           itemCount: state.deviceList.length,
                           itemBuilder: (BuildContext context, int index) {
@@ -118,14 +118,14 @@ class UserDevicePage extends StatelessWidget {
                                               child: Center(child: Text(tips)),
                                             )
                                             ..actions = [
-                                              n.Button('取消'.tr.n)
+                                              n.Button('button_cancel'.tr.n)
                                                 ..style = n.NikuButtonStyle(
                                                     foregroundColor:
                                                         AppColors.ItemOnColor)
                                                 ..onPressed = () {
                                                   Navigator.of(context).pop();
                                                 },
-                                              n.Button('删除'.tr.n)
+                                              n.Button('button_delete'.tr.n)
                                                 ..onPressed = () async {
                                                   Navigator.of(context).pop();
                                                   bool res =
@@ -140,17 +140,17 @@ class UserDevicePage extends StatelessWidget {
                                                               model.deviceId),
                                                     );
                                                     EasyLoading.showSuccess(
-                                                        '操作成功'.tr);
+                                                        'tip_success'.tr);
                                                   } else {
                                                     EasyLoading.showError(
-                                                        '操作失败'.tr);
+                                                        'tip_failed'.tr);
                                                   }
                                                 },
                                             ],
                                           barrierDismissible: true,
                                         );
                                       },
-                                      label: "删除".tr,
+                                      label: 'button_delete'.tr,
                                       spacing: 1,
                                     ),
                                   ],
@@ -163,7 +163,7 @@ class UserDevicePage extends StatelessWidget {
                                     const Space(width: 10),
                                     if (currentDid.value == model.deviceId)
                                       Text(
-                                        '当前设备'.tr,
+                                        'current_device'.tr,
                                         style: TextStyle(
                                           color: AppColors.MainTextColor
                                               .withOpacity(0.7),
@@ -172,7 +172,9 @@ class UserDevicePage extends StatelessWidget {
                                       ),
                                   ]),
                                   subtitle: n.Row([
-                                    Text(model.online ? '在线'.tr : '离线'.tr),
+                                    Text(model.online
+                                        ? 'online'.tr
+                                        : 'offline'.tr),
                                     const Space(width: 10),
                                     if (model.lastActiveAt > 0)
                                       Text(

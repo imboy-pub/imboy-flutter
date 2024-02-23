@@ -18,17 +18,16 @@ String getSourceTr(String? source) {
   // 通过群聊添加
   switch (source.toLowerCase()) {
     case 'visit_card':
-      sourceTr = '个人名片'.tr;
+      sourceTr = 'personal_card'.tr;
       break;
     case 'qrcode':
-      // sourceTr = 'source_qrcode'.tr;
-      sourceTr = '通过扫一扫添加'.tr;
+      sourceTr = 'source_qrcode'.tr;
       break;
     case 'people_nearby':
-      sourceTr = '附近的人'.tr;
+      sourceTr = 'people_nearby'.tr;
       break;
     case 'recently_user':
-      sourceTr = '新注册的朋友'.tr;
+      sourceTr = 'newly_registered_friends'.tr;
       break;
     case 'null':
       sourceTr = '';

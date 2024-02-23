@@ -5,6 +5,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/init.dart';
 import 'package:r_upgrade/r_upgrade.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:permission_handler/permission_handler.dart';
@@ -55,16 +56,16 @@ class UpgradePageState extends State<UpgradePage> {
         // 更新进度条
         if (info.status == DownloadStatus.STATUS_PAUSED) {
           // STATUS_PAUSED 下载已暂停
-          positiveBtn = '继续下载'.tr;
+          positiveBtn = 'continue_downloading'.tr;
           positiveCallback = upgradeWithId;
         } else if (info.status == DownloadStatus.STATUS_PENDING) {
           //  STATUS_PENDING等待下载
-          positiveBtn = '等待下载'.tr;
+          positiveBtn = 'waiting_download'.tr;
           positiveCallback = pause;
           progress = 0;
         } else if (info.status == DownloadStatus.STATUS_RUNNING) {
           // STATUS_RUNNING下载中
-          positiveBtn = '暂停下载'.tr;
+          positiveBtn = 'pause_downloading'.tr;
           positiveCallback = pause;
           progress = (info.percent ?? 0) / 100;
           maxLength = info.maxLength!;
@@ -73,12 +74,12 @@ class UpgradePageState extends State<UpgradePage> {
           planTime = info.planTime;
         } else if (info.status == DownloadStatus.STATUS_SUCCESSFUL) {
           // STATUS_SUCCESSFUL下载成功
-          positiveBtn = '立即安装'.tr;
+          positiveBtn = 'install_now'.tr;
           progress = 1;
           positiveCallback = install;
         } else if (info.status == DownloadStatus.STATUS_FAILED) {
           //   STATUS_FAILED下载失败
-          positiveBtn = '继续下载'.tr;
+          positiveBtn = 'continue_downloading'.tr;
           positiveCallback = upgradeWithId;
         }
         // STATUS_CANCEL下载取消
@@ -105,10 +106,10 @@ class UpgradePageState extends State<UpgradePage> {
   // 初始化弹框文案
   initGeneral() {
     _upgradeCard?.updateProgress(
-      title: '检测到新版本'.tr + widget.version,
+      title: 'new_version_detected'.tr + widget.version,
       message: widget.message,
-      positiveBtn: '立即更新'.tr,
-      negativeBtn: '下次在说'.tr,
+      positiveBtn: 'update_now'.tr,
+      negativeBtn: 'remind_me_later'.tr,
       hasLinearProgress: true,
       progress: 0,
     );
@@ -144,10 +145,6 @@ class UpgradePageState extends State<UpgradePage> {
 
   //第一步：点击更新按钮
   _updateApplication() async {
-    // if (widget.downLoadUrl.isEmpty) {
-    //   EasyLoading.showError('下载地址为空，请联系客服'.tr);
-    //   return;
-    // }
     if (await _checkPermission()) {
       if (Platform.isAndroid) {
         initGeneral();
@@ -156,7 +153,7 @@ class UpgradePageState extends State<UpgradePage> {
         upgradeFromAppStore();
       }
     } else {
-      EasyLoading.showError('权限获取失败'.tr);
+      EasyLoading.showError('permission_acquisition_failed'.tr);
     }
   }
 
@@ -172,7 +169,7 @@ class UpgradePageState extends State<UpgradePage> {
       } else if (status == DownloadStatus.STATUS_FAILED) {
         downloadId = (await RUpgrade.upgrade(
           url,
-          fileName: 'IMBoy${widget.version}.apk',
+          fileName: '$appName${widget.version}.apk',
           useDownloadManager: false,
           notificationVisibility: showNotification == true
               ? NotificationVisibility.VISIBILITY_VISIBLE
@@ -184,7 +181,7 @@ class UpgradePageState extends State<UpgradePage> {
     } else {
       downloadId = (await RUpgrade.upgrade(
         url,
-        fileName: 'IMBoy${widget.version}.apk',
+        fileName: '$appName${widget.version}.apk',
         useDownloadManager: false,
         notificationVisibility: showNotification == true
             ? NotificationVisibility.VISIBILITY_VISIBLE
@@ -263,10 +260,10 @@ class UpgradePageState extends State<UpgradePage> {
       return _upgradeCard!;
     }
     return _upgradeCard = UpgradeCard(
-      title: '检测到新版本'.tr + widget.version,
+      title: 'new_version_detected'.tr + widget.version,
       message: widget.message,
-      positiveBtn: '立即更新'.tr,
-      negativeBtn: widget.isForce ? '' : '下次再说'.tr,
+      positiveBtn: 'update_now'.tr,
+      negativeBtn: widget.isForce ? '' : 'remind_me_later'.tr,
       positiveCallback: () => _updateApplication(),
       // positiveCallback: () => getAndroidStores(),
       negativeCallback: () => closeCallback(),
@@ -321,19 +318,18 @@ class UpgradeCard extends StatefulWidget {
   UpgradeCardState createState() => upgradeCardState;
 
   /// 外部更新函数
-  void updateProgress({
-    required bool hasLinearProgress,
-    required double progress,
-    String? title,
-    String? message,
-    String? positiveBtn,
-    String? negativeBtn,
-    GestureTapCallback? positiveCallback,
-    String? speed,
-    double? planTime,
-    int? maxLength,
-    int? currentLength
-  }) =>
+  void updateProgress(
+          {required bool hasLinearProgress,
+          required double progress,
+          String? title,
+          String? message,
+          String? positiveBtn,
+          String? negativeBtn,
+          GestureTapCallback? positiveCallback,
+          String? speed,
+          double? planTime,
+          int? maxLength,
+          int? currentLength}) =>
       upgradeCardState.updateProgress(
         title: title,
         message: message,
@@ -364,7 +360,7 @@ class UpgradeCardState extends State<UpgradeCard> {
     int? maxLength,
     int? currentLength,
   }) {
-    if(!mounted) {
+    if (!mounted) {
       return;
     }
     setState(() {
@@ -452,7 +448,7 @@ class UpgradeCardState extends State<UpgradeCard> {
                     child: SelectableText.rich(
                       TextSpan(
                         text: widget.message.isEmpty
-                            ? '无更新说明'.tr
+                            ? 'no_update_description'.tr
                             : widget.message,
                         // style: const TextStyle(
                         //   color: Colors.black,
@@ -472,20 +468,20 @@ class UpgradeCardState extends State<UpgradeCard> {
               child: widget.planTime == null
                   ? const SizedBox.shrink()
                   : n.Column([
-                n.Row([
-                  Text(
-                      "${'包大小'.tr} ${(widget.maxLength / 1024 / 1024).toStringAsFixed(3)}MB"),
-                  const Expanded(child: SizedBox()),
-                  Text(
-                      "${'还需'.tr} ${(widget.planTime!).toStringAsFixed(3)}秒"),
-                ]),
-                n.Row([
-                  Text(
-                      "${'已下载'.tr} ${(widget.currentLength / 1024 / 1024).toStringAsFixed(3)}MB"),
-                  const Expanded(child: SizedBox()),
-                  Text('速度'.tr + widget.speed!),
-                ]),
-              ]),
+                      n.Row([
+                        Text(
+                            "${'package_size'.tr} ${(widget.maxLength / 1024 / 1024).toStringAsFixed(3)}MB"),
+                        const Expanded(child: SizedBox()),
+                        Text(
+                            "${'still_needed'.tr} ${(widget.planTime!).toStringAsFixed(3)}秒"),
+                      ]),
+                      n.Row([
+                        Text(
+                            "${'downloaded'.tr} ${(widget.currentLength / 1024 / 1024).toStringAsFixed(3)}MB"),
+                        const Expanded(child: SizedBox()),
+                        Text('speed'.tr + widget.speed!),
+                      ]),
+                    ]),
             ),
 
             // 进度条
@@ -495,13 +491,13 @@ class UpgradeCardState extends State<UpgradeCard> {
               margin: const EdgeInsets.only(bottom: 20),
               child: widget.hasLinearProgress
                   ? ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: widget.progress,
-                  backgroundColor: Colors.grey[200],
-                  valueColor: const AlwaysStoppedAnimation(Colors.blue),
-                ),
-              )
+                      borderRadius: BorderRadius.circular(8),
+                      child: LinearProgressIndicator(
+                        value: widget.progress,
+                        backgroundColor: Colors.grey[200],
+                        valueColor: const AlwaysStoppedAnimation(Colors.blue),
+                      ),
+                    )
                   : const SizedBox.shrink(),
             ),
 

@@ -15,7 +15,8 @@ Future<bool> requestLocationPermission() async {
   bool isEnabled2 = await Permission.locationWhenInUse.serviceStatus.isEnabled;
   debugPrint("getLocation location.serviceStatus $isEnabled");
   if (isEnabled == false && isEnabled2 == false) {
-    EasyLoading.showInfo("您还没有打开位置信息服务".tr);
+    // "您还没有打开位置信息服务"
+    EasyLoading.showInfo('location_service_required'.tr);
     // openAppSettings();
     return false;
   }

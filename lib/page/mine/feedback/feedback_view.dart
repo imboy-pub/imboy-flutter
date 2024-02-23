@@ -35,7 +35,7 @@ class FeedbackPage extends StatelessWidget {
 
     return Scaffold(
       appBar: PageAppBar(
-        title: '反馈建议'.tr,
+        title: 'feedback_suggestion'.tr,
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -49,7 +49,7 @@ class FeedbackPage extends StatelessWidget {
                 right: 10,
                 child: Obx(() {
                   return state.itemList.isEmpty
-                      ? NoDataView(text: '暂无数据'.tr)
+                      ? NoDataView(text: 'no_data'.tr)
                       : ListView.builder(
                           itemCount: state.itemList.length,
                           itemBuilder: (BuildContext context, int index) {
@@ -69,8 +69,7 @@ class FeedbackPage extends StatelessWidget {
                                       backgroundColor: Colors.red,
                                       // foregroundColor: Colors.white,
                                       onPressed: (_) async {
-                                        String tips = '确认删除吗？删除后不可恢复。'.tr;
-
+                                        String tips = 'sure_delete_data'.tr;
                                         n.showDialog(
                                           context: Get.context!,
                                           builder: (context) => n.Alert()
@@ -79,14 +78,14 @@ class FeedbackPage extends StatelessWidget {
                                               child: Center(child: Text(tips)),
                                             )
                                             ..actions = [
-                                              n.Button('取消'.tr.n)
+                                              n.Button('button_cancel'.tr.n)
                                                 ..style = n.NikuButtonStyle(
                                                     foregroundColor:
                                                         AppColors.ItemOnColor)
                                                 ..onPressed = () {
                                                   Navigator.of(context).pop();
                                                 },
-                                              n.Button('删除'.tr.n)
+                                              n.Button('button_delete'.tr.n)
                                                 ..style = n.NikuButtonStyle(
                                                     foregroundColor:
                                                         AppColors.ItemOnColor)
@@ -103,17 +102,17 @@ class FeedbackPage extends StatelessWidget {
                                                               model.feedbackId),
                                                     );
                                                     EasyLoading.showSuccess(
-                                                        '操作成功'.tr);
+                                                        'tip_success'.tr);
                                                   } else {
                                                     EasyLoading.showError(
-                                                        '操作失败'.tr);
+                                                        'tip_failed'.tr);
                                                   }
                                                 },
                                             ],
                                           barrierDismissible: true,
                                         );
                                       },
-                                      label: "删除".tr,
+                                      label: 'button_delete'.tr,
                                       spacing: 1,
                                     ),
                                   ],
@@ -123,7 +122,7 @@ class FeedbackPage extends StatelessWidget {
                                       const EdgeInsets.only(left: 0),
                                   title: n.Row([
                                     Text(
-                                      '${model.type.tr} | 提交于'.tr,
+                                      "${model.type.tr} | ${'submitted_at'.tr}",
                                       style: const TextStyle(
                                         color: AppColors.MainTextColor,
                                         fontSize: 14.0,

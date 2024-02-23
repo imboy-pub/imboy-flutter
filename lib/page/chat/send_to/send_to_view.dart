@@ -54,7 +54,7 @@ class SendToPage extends StatelessWidget {
           child: n.Padding(
             top: 14,
             left: 16,
-            child: Text('取消'.tr),
+            child: Text('button_cancel'.tr),
           ),
         );
       } else {
@@ -65,7 +65,7 @@ class SendToPage extends StatelessWidget {
           child: n.Padding(
             top: 14,
             left: 16,
-            child: Text('关闭'.tr),
+            child: Text('button_close'.tr),
           ),
         );
       }
@@ -76,7 +76,7 @@ class SendToPage extends StatelessWidget {
         onTap: () {
           if (state.multipleChoice.isTrue) {
             if (state.selects.isEmpty) {
-              EasyLoading.showInfo('请选择'.tr);
+              EasyLoading.showInfo('please_select'.tr);
               return;
             }
             separatelySendToDialog(state.selects, 2);
@@ -95,8 +95,8 @@ class SendToPage extends StatelessWidget {
               left: 10,
               right: 10,
               child: state.multipleChoice.isTrue
-                  ? Text("${'完成'.tr}$suffix")
-                  : Text('多选'.tr),
+                  ? Text("${'button_accomplish'.tr}$suffix")
+                  : Text('multi_select'.tr),
             );
           },
         ),
@@ -106,7 +106,7 @@ class SendToPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: NavAppBar(
         leading: leading,
-        title: '转发给'.tr,
+        title: 'forward_to'.tr,
         rightDMActions: topRightWidget,
         automaticallyImplyLeading: true,
       ),
@@ -127,7 +127,7 @@ class SendToPage extends StatelessWidget {
           child: n.Column(
             [
               ListTile(
-                title: Text('最近转发'.tr),
+                title: Text('recent_forwards'.tr),
               ),
               n.Row([])
             ],
@@ -151,7 +151,7 @@ class SendToPage extends StatelessWidget {
             child: n.Column([
               ListTile(
                 title: Text(
-                  '最近聊天'.tr,
+                  'recent_chats'.tr,
                 ),
               ),
               Expanded(
@@ -189,8 +189,8 @@ class SendToPage extends StatelessWidget {
               doSearch: ((query) {
                 return ContactRepo().search(kwd: query);
               }),
-              searchLabel: '搜索'.tr,
-              queryTips: '通过好友昵称、备注搜索好友'.tr,
+              searchLabel: 'search'.tr,
+              queryTips: 'search_friends_tips'.tr,
               onTapForItem: (value) async {
                 if (value is ContactModel) {
                   final repo = ConversationRepo();
@@ -227,7 +227,7 @@ class SendToPage extends StatelessWidget {
             backgroundColor: Colors.white,
             shape: const CircleBorder(),
             elevation: 0,
-            tooltip: '搜索'.tr,
+            tooltip: 'search'.tr,
             onPressed: () {},
             child: const Icon(
               Icons.search,
@@ -237,7 +237,7 @@ class SendToPage extends StatelessWidget {
           ),
           n.Padding(
             left: 0,
-            child: Text('搜索'.tr),
+            child: Text('search'.tr),
           ),
         ]),
       ),
@@ -248,14 +248,14 @@ class SendToPage extends StatelessWidget {
   void separatelySendToDialog(List items, int times) {
     List towD = listTo2D(items, 5);
     Get.defaultDialog(
-      title: '分别发送给'.tr,
+      title: 'send_separately_to'.tr,
       radius: 6,
       cancel: TextButton(
         onPressed: () {
           Get.closeAllDialogs();
         },
         child: Text(
-          '取消'.tr,
+          'button_cancel'.tr,
           textAlign: TextAlign.center,
         ),
       ),
@@ -264,7 +264,7 @@ class SendToPage extends StatelessWidget {
           for (var item in state.selects) {
             await logic.sendMsg(item, msg);
           }
-          EasyLoading.showSuccess('发送成功'.tr);
+          EasyLoading.showSuccess('tip_success'.tr);
           debugPrint("send_to_view callback before ${callback.toString()};");
           if (callback != null) {
             callback!();
@@ -275,7 +275,7 @@ class SendToPage extends StatelessWidget {
           });
         },
         child: Text(
-          '发送'.tr,
+          'button_send'.tr,
           textAlign: TextAlign.center,
         ),
       ),
@@ -313,14 +313,14 @@ class SendToPage extends StatelessWidget {
 
   void sendToDialog(ConversationModel model, int times) {
     Get.defaultDialog(
-      title: '发送给'.tr,
+      title: 'send_to'.tr,
       radius: 6,
       cancel: TextButton(
         onPressed: () {
           Get.closeAllDialogs();
         },
         child: Text(
-          '取消'.tr,
+          'button_cancel'.tr,
           textAlign: TextAlign.center,
         ),
       ),
@@ -328,7 +328,7 @@ class SendToPage extends StatelessWidget {
         onPressed: () async {
           bool res = await logic.sendMsg(model, msg);
           if (res) {
-            EasyLoading.showSuccess('发送成功'.tr);
+            EasyLoading.showSuccess('tip_success'.tr);
             debugPrint(
                 "send_to_view callback before 2 ${callback.toString()};");
             if (callback != null) {
@@ -339,11 +339,11 @@ class SendToPage extends StatelessWidget {
               Get.close();
             });
           } else {
-            EasyLoading.showError('发送失败'.tr);
+            EasyLoading.showError('tip_failed'.tr);
           }
         },
         child: Text(
-          '发送'.tr,
+          'button_send'.tr,
           textAlign: TextAlign.center,
         ),
       ),

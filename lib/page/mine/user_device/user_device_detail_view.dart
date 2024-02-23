@@ -37,7 +37,7 @@ class UserDeviceDetailPage extends StatelessWidget {
     initData();
     return Scaffold(
       appBar: PageAppBar(
-        title: '设备详情'.tr,
+        title: 'device_details'.tr,
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -47,7 +47,7 @@ class UserDeviceDetailPage extends StatelessWidget {
           child: n.Column(
             [
               LabelRow(
-                label: '设备名称'.tr,
+                label: 'device_name'.tr,
                 isLine: true,
                 isRight: true,
                 rightW: SizedBox(
@@ -65,7 +65,7 @@ class UserDeviceDetailPage extends StatelessWidget {
                 onPressed: () {
                   Get.to(
                     () => ChangeNamePage(
-                        title: '设置设备名'.tr,
+                        title: 'set_device_name'.tr,
                         value: model.deviceName,
                         field: 'input',
                         callback: (newName) async {
@@ -88,7 +88,7 @@ class UserDeviceDetailPage extends StatelessWidget {
                 },
               ),
               LabelRow(
-                label: '设备类型'.tr,
+                label: 'device_type'.tr,
                 isLine: false,
                 isRight: false,
                 rightW: SizedBox(
@@ -109,7 +109,7 @@ class UserDeviceDetailPage extends StatelessWidget {
                 height: 8,
               ),
               LabelRow(
-                label: '最近活跃时间'.tr,
+                label: 'last_active_time'.tr,
                 isLine: false,
                 isRight: false,
                 rightW: SizedBox(
@@ -133,11 +133,12 @@ class UserDeviceDetailPage extends StatelessWidget {
                 left: 14,
                 right: 8,
                 bottom: 10,
-                child: Text('当设备处于安全状态时，会自动延长登录时间以保持朋友消息的及时收发，此时会更新最近活跃时问。'.tr),
+                // 当设备处于安全状态时，会自动延长登录时间以保持朋友消息的及时收发，此时会更新最近活跃时问。
+                child: Text('last_active_tips'.tr),
               ),
               ButtonRow(
                 margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                text: '删除该设备'.tr,
+                text: 'delete_this_device'.tr,
                 style: const TextStyle(
                   color: Colors.red,
                   fontWeight: FontWeight.w600,
@@ -145,7 +146,8 @@ class UserDeviceDetailPage extends StatelessWidget {
                 ),
                 isBorder: false,
                 onPressed: () async {
-                  String tips = '删除后，下次在该设备登录时需要进行安全验证。'.tr;
+                  // 删除后，下次在该设备登录时需要进行安全验证。
+                  String tips = 'delete_this_device_tips'.tr;
                   n.showDialog(
                     context: Get.context!,
                     builder: (context) => n.Alert()
@@ -158,13 +160,13 @@ class UserDeviceDetailPage extends StatelessWidget {
                         )),
                       )
                       ..actions = [
-                        n.Button('取消'.tr.n)
+                        n.Button('button_cancel'.tr.n)
                           ..style = n.NikuButtonStyle(
                               foregroundColor: AppColors.ItemOnColor)
                           ..onPressed = () {
                             Navigator.of(context).pop();
                           },
-                        n.Button('删除'.tr.n)
+                        n.Button('button_delete'.tr.n)
                           ..style = n.NikuButtonStyle(
                               foregroundColor: AppColors.ItemOnColor)
                           ..onPressed = () async {
@@ -178,11 +180,11 @@ class UserDeviceDetailPage extends StatelessWidget {
                                 state.deviceList.indexWhere(
                                     (e) => e.deviceId == model.deviceId),
                               );
-                              EasyLoading.showSuccess('操作成功'.tr);
+                              EasyLoading.showSuccess('tip_success'.tr);
                               nav.pop();
                               Get.back(times: 1);
                             } else {
-                              EasyLoading.showError('操作失败'.tr);
+                              EasyLoading.showError('tip_failed'.tr);
                             }
                           },
                       ],
