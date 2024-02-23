@@ -944,6 +944,8 @@ class Locales {
     'save_success': 'Save successfully',
     'network_exception': 'Network connection exception',
     'search_location': 'Search location',
+    'nickname': 'Nickname',
+    'account': 'Account',
     'region': 'Region',
     'selected_region': 'Selected region',
     'uploading': 'Be uploading',
