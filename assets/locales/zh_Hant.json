@@ -328,6 +328,7 @@
   "delete_this_device": "刪除該設備",
   "delete_this_device_tips": "刪除後，下次在該設備登錄時需要進行安全驗證。",
   "login_device_management": "登錄設備管理",
+  "login_device_management_tips": "您的帳號曾在以下設備中登入過，您可以刪除設備，刪除後在該設備登入時需進行安全驗證。",
   "edit": "編輯",
   "current_device": "當前設備",
   "online": "在線",

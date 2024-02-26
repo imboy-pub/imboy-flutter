@@ -350,6 +350,7 @@ class LocaleKeys {
   static const delete_this_device = 'delete_this_device';
   static const delete_this_device_tips = 'delete_this_device_tips';
   static const login_device_management = 'login_device_management';
+  static const login_device_management_tips = 'login_device_management_tips';
   static const edit = 'edit';
   static const current_device = 'current_device';
   static const online = 'online';
@@ -755,6 +756,7 @@ class Locales {
     'delete_this_device': '删除该设备',
     'delete_this_device_tips': '删除后，下次在该设备登录时需要进行安全验证。',
     'login_device_management': '登录设备管理',
+    'login_device_management_tips': '你的帐号在以下设备中登录过，你可以删除设备，删除后在该设备登录时需进行安全验证。',
     'edit': '编辑',
     'current_device': '当前设备',
     'online': '在线',
@@ -1179,6 +1181,8 @@ class Locales {
     'delete_this_device_tips':
         'After deletion, security verification will be required for the next login on this device.',
     'login_device_management': 'Login Device Management',
+    'login_device_management_tips':
+        'Your account has been logged in to the following devices, you can delete the device, after deleting the device login need to perform security verification.',
     'edit': 'Edit',
     'current_device': 'Current Device',
     'online': 'Online',
@@ -1613,6 +1617,8 @@ class Locales {
     'delete_this_device_tips':
         'После удаления при следующем входе на этом устройстве потребуется безопасная верификация.',
     'login_device_management': 'Управление устройств входа',
+    'login_device_management_tips':
+        'Ваш номер счета был зарегирован в следующем устройстве, и вы можете удалить устройство, которое должно быть проверено на безопасность после удаления.',
     'edit': 'Редактировать',
     'current_device': 'Текущее устройство',
     'online': 'В сети',
@@ -2018,6 +2024,7 @@ class Locales {
     'delete_this_device': '刪除該設備',
     'delete_this_device_tips': '刪除後，下次在該設備登錄時需要進行安全驗證。',
     'login_device_management': '登錄設備管理',
+    'login_device_management_tips': '您的帳號曾在以下設備中登入過，您可以刪除設備，刪除後在該設備登入時需進行安全驗證。',
     'edit': '編輯',
     'current_device': '當前設備',
     'online': '在線',

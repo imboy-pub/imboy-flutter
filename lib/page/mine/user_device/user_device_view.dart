@@ -36,7 +36,7 @@ class UserDevicePage extends StatelessWidget {
   Widget build(BuildContext context) {
     //
     initData();
-    String tips = '你的帐号在以下设备中登录过，你可以删除设备，删除后在该设备登录时需进行安全验证。'.tr;
+    String tips = 'login_device_management_tips'.tr;
     return Scaffold(
       appBar: PageAppBar(
         title: 'login_device_management'.tr,
@@ -112,7 +112,10 @@ class UserDevicePage extends StatelessWidget {
                                           builder: (context) => n.Alert()
                                             ..content = SizedBox(
                                               height: 40,
-                                              child: Center(child: Text('delete_this_device_tips'.tr)),
+                                              child: Center(
+                                                  child: Text(
+                                                      'delete_this_device_tips'
+                                                          .tr)),
                                             )
                                             ..actions = [
                                               n.Button('button_cancel'.tr.n)

@@ -329,6 +329,7 @@
   "delete_this_device": "删除该设备",
   "delete_this_device_tips": "删除后，下次在该设备登录时需要进行安全验证。",
   "login_device_management": "登录设备管理",
+  "login_device_management_tips": "你的帐号在以下设备中登录过，你可以删除设备，删除后在该设备登录时需进行安全验证。",
   "edit": "编辑",
   "current_device": "当前设备",
   "online": "在线",

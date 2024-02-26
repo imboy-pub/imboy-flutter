@@ -328,6 +328,7 @@
   "delete_this_device": "Delete This Device",
   "delete_this_device_tips": "After deletion, security verification will be required for the next login on this device.",
   "login_device_management": "Login Device Management",
+  "login_device_management_tips": "Your account has been logged in to the following devices, you can delete the device, after deleting the device login need to perform security verification.",
   "edit": "Edit",
   "current_device": "Current Device",
   "online": "Online",
