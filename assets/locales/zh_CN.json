@@ -150,7 +150,7 @@
   "please_check_network": "请检查你的网络设置。",
   "webpage_loading": "网页加载中...",
   "failed_request_please_check_network": "发起请求失败，请检查网络连接，或稍后重试",
-  "feedback_suggestion": "反馈建议",
+  "feedback": "反馈建议",
   "feedback_content_required": "反馈内容不能为空",
   "feedback_success_msg": "你的反馈问题我们已经收到了，会尽快处理！",
   "send_msg_rejected": "消息已发出，但被对方拒收了。",

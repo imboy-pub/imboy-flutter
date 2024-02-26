@@ -110,7 +110,7 @@ class IMBoyApp extends StatelessWidget {
         height: 30,
         child: n.Row([
           const Space(width: 20),
-          Expanded(child: Text('feedback_suggestion'.tr)),
+          Expanded(child: Text('feedback'.tr)),
           const Space(width: 20)
         ])
           ..backgroundColor = AppColors.ChatInputBackgroundColor

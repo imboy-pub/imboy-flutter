@@ -34,7 +34,7 @@ class FeedbackPage extends StatelessWidget {
 
     return Scaffold(
       appBar: PageAppBar(
-        title: 'feedback_suggestion'.tr,
+        title: 'feedback'.tr,
       ),
       body: SingleChildScrollView(
         child: Container(

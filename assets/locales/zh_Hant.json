@@ -150,7 +150,7 @@
   "please_check_network": "請檢查你的網絡設置。",
   "webpage_loading": "網頁加載中...",
   "failed_request_please_check_network": "發起請求失敗，請檢查網絡連接，或稍后重試",
-  "feedback_suggestion": "回饋建議",
+  "feedback": "回饋建議",
   "feedback_content_required": "回饋內容不能為空",
   "feedback_success_msg": "你的回饋問題我們已經收到了，會盡快處理！",
   "send_msg_rejected": "訊息已發出，但被對方拒收了。",

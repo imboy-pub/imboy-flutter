@@ -268,7 +268,7 @@ class MinePage extends StatelessWidget {
                 title: Transform(
                   transform: Matrix4.translationValues(-10, 0.0, 0.0),
                   child: n.Row([
-                    Text('feedback_suggestion'.tr),
+                    Text('feedback'.tr),
                   ]),
                 ),
                 trailing: Icon(

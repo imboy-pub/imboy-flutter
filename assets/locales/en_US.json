@@ -150,7 +150,7 @@
   "please_check_network": "Please check your network settings.",
   "webpage_loading": "Webpage loading...",
   "failed_request_please_check_network": "Failed to initiate request, please check your network connection or try again later",
-  "feedback_suggestion": "Feedback",
+  "feedback": "Feedback",
   "feedback_content_required": "Feedback content cannot be empty",
   "feedback_success_msg": "We have received your feedback and will process it as soon as possible!",
   "send_msg_rejected": "The message was sent but rejected by the recipient.",

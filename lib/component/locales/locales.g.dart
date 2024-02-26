@@ -170,7 +170,7 @@ class LocaleKeys {
   static const webpage_loading = 'webpage_loading';
   static const failed_request_please_check_network =
       'failed_request_please_check_network';
-  static const feedback_suggestion = 'feedback_suggestion';
+  static const feedback = 'feedback';
   static const feedback_content_required = 'feedback_content_required';
   static const feedback_success_msg = 'feedback_success_msg';
   static const send_msg_rejected = 'send_msg_rejected';
@@ -576,7 +576,7 @@ class Locales {
     'please_check_network': '请检查你的网络设置。',
     'webpage_loading': '网页加载中...',
     'failed_request_please_check_network': '发起请求失败，请检查网络连接，或稍后重试',
-    'feedback_suggestion': '反馈建议',
+    'feedback': '反馈建议',
     'feedback_content_required': '反馈内容不能为空',
     'feedback_success_msg': '你的反馈问题我们已经收到了，会尽快处理！',
     'send_msg_rejected': '消息已发出，但被对方拒收了。',
@@ -987,7 +987,7 @@ class Locales {
     'webpage_loading': 'Webpage loading...',
     'failed_request_please_check_network':
         'Failed to initiate request, please check your network connection or try again later',
-    'feedback_suggestion': 'Feedback',
+    'feedback': 'Feedback',
     'feedback_content_required': 'Feedback content cannot be empty',
     'feedback_success_msg':
         'We have received your feedback and will process it as soon as possible!',
@@ -1418,7 +1418,7 @@ class Locales {
     'webpage_loading': 'Веб-страница загружается...',
     'failed_request_please_check_network':
         'Запрос не удался, проверьте подключение к сети или повторите попытку позже',
-    'feedback_suggestion': 'Обратн связ',
+    'feedback': 'Обратн связ',
     'feedback_content_required':
         'Содержимое обратной связи не может быть пустым',
     'feedback_success_msg':
@@ -1840,7 +1840,7 @@ class Locales {
     'please_check_network': '請檢查你的網絡設置。',
     'webpage_loading': '網頁加載中...',
     'failed_request_please_check_network': '發起請求失敗，請檢查網絡連接，或稍后重試',
-    'feedback_suggestion': '回饋建議',
+    'feedback': '回饋建議',
     'feedback_content_required': '回饋內容不能為空',
     'feedback_success_msg': '你的回饋問題我們已經收到了，會盡快處理！',
     'send_msg_rejected': '訊息已發出，但被對方拒收了。',
