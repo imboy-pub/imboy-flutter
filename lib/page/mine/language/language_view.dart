@@ -43,10 +43,13 @@ class LanguagePage extends StatelessWidget {
                 logic.changeLanguage(state.selectedLanguage.value);
               },
               // ignore: sort_child_properties_last
-              child: Text(
-                'button_accomplish'.tr,
-                textAlign: TextAlign.center,
-              ),
+              child: n.Padding(
+                  left: 10,
+                  right: 10,
+                  child: Text(
+                    'button_accomplish'.tr,
+                    textAlign: TextAlign.center,
+                  )),
               style: state.valueChanged.isTrue
                   ? ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(

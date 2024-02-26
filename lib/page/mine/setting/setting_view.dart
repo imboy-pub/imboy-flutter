@@ -179,6 +179,8 @@ class _SettingPageState extends State<SettingPage> {
                   final rightDMActions = [
                     n.Padding(
                       right: 10,
+                      top: 10,
+                      bottom: 10,
                       child: ElevatedButton(
                         onPressed: () async {
                           final AppVersionProvider p = AppVersionProvider();
@@ -208,10 +210,13 @@ class _SettingPageState extends State<SettingPage> {
                           }
                         },
                         // ignore: sort_child_properties_last
-                        child: Text(
-                          'check_for_updates'.tr,
-                          textAlign: TextAlign.center,
-                        ),
+                        child: n.Padding(
+                            left: 10,
+                            right: 10,
+                            child: Text(
+                              'check_for_updates'.tr,
+                              textAlign: TextAlign.center,
+                            )),
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
                             AppColors.primaryElement,

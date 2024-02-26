@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
 import 'package:imboy/store/model/contact_model.dart';
 
-class GroupLaunchState {
-  GroupLaunchState() {
+class LaunchChatState {
+  LaunchChatState() {
     ///Initialize variables
   }
 

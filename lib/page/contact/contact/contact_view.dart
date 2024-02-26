@@ -42,10 +42,13 @@ class ContactPage extends StatelessWidget {
                 popGesture: true, // 右滑，返回上一页
               );
             },
-            child: const SizedBox(
-              width: 60.0,
-              child: Icon(Icons.search_outlined),
-            ),
+            child: n.Padding(
+                top: 10,
+                bottom: 10,
+                child: const SizedBox(
+                  width: 60.0,
+                  child: Icon(Icons.search_outlined),
+                )),
           ),
         ],
       ),

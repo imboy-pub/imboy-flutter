@@ -13,15 +13,15 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:niku/namespace.dart' as n;
 
-import 'group_launch_logic.dart';
-import 'group_launch_state.dart';
+import 'launch_chat_logic.dart';
+import 'launch_chat_state.dart';
 
-/// 发起群聊页面
-class GroupLaunchPage extends StatelessWidget {
-  final GroupLaunchLogic logic = Get.put(GroupLaunchLogic());
-  final GroupLaunchState state = Get.find<GroupLaunchLogic>().state;
+/// 发起聊天页面
+class LaunchChatPage extends StatelessWidget {
+  final LaunchChatLogic logic = Get.put(LaunchChatLogic());
+  final LaunchChatState state = Get.find<LaunchChatLogic>().state;
 
-  GroupLaunchPage({super.key});
+  LaunchChatPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +30,7 @@ class GroupLaunchPage extends StatelessWidget {
       // appBar: PageAppBar(title: 'select_contacts'.tr),
       appBar: NavAppBar(
         title: 'select_contacts'.tr,
+        leadingWidth: 72,
         leading: n.Padding(
           top: 8,
           child: TextButton(
@@ -63,10 +64,13 @@ class GroupLaunchPage extends StatelessWidget {
                 // }
               },
               // ignore: sort_child_properties_last
-              child: Text(
-                'button_accomplish'.tr,
-                textAlign: TextAlign.center,
-              ),
+              child: n.Padding(
+                  left: 10,
+                  right: 10,
+                  child: Text(
+                    'button_accomplish'.tr,
+                    textAlign: TextAlign.center,
+                  )),
               style: logic.state.valueChanged.isTrue
                   ? ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
@@ -76,7 +80,7 @@ class GroupLaunchPage extends StatelessWidget {
                         Colors.white,
                       ),
                       minimumSize:
-                          MaterialStateProperty.all(const Size(60, 40)),
+                          MaterialStateProperty.all(const Size(88, 40)),
                       visualDensity: VisualDensity.compact,
                       padding: MaterialStateProperty.all(EdgeInsets.zero),
                     )
@@ -88,12 +92,13 @@ class GroupLaunchPage extends StatelessWidget {
                         AppColors.LineColor,
                       ),
                       minimumSize:
-                          MaterialStateProperty.all(const Size(60, 40)),
+                          MaterialStateProperty.all(const Size(88, 40)),
                       visualDensity: VisualDensity.compact,
                       padding: MaterialStateProperty.all(EdgeInsets.zero),
                     ),
             ),
-          )
+          ),
+          const SizedBox(width: 10)
         ],
       ),
 

@@ -840,6 +840,8 @@ class ChatPageState extends State<ChatPage> {
         child: n.Padding(
           left: 10,
           right: 10,
+          bottom: 10,
+          top: 10,
           child: const Icon(
             Icons.more_horiz,
             // size: 40,

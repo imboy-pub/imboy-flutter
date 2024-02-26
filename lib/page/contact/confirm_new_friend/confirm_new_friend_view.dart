@@ -86,11 +86,14 @@ class ConfirmNewFriendPage extends StatelessWidget {
               visualDensity: VisualDensity.compact,
               padding: MaterialStateProperty.all(EdgeInsets.zero),
             ),
-            child: Text(
-              'button_accomplish'.tr,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
-            ),
+            child: n.Padding(
+                left: 10,
+                right: 10,
+                child: Text(
+                  'button_accomplish'.tr,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16),
+                )),
           ),
         ),
       ),

@@ -5,6 +5,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
   const NavAppBar({
     super.key,
     this.leading,
+    this.leadingWidth,
     this.title = '',
     this.titleWidget,
     this.rightDMActions,
@@ -14,6 +15,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   final Widget? leading;
+  final double? leadingWidth;
   final String? title;
   final Widget? titleWidget;
   final List<Widget>? rightDMActions;
@@ -28,6 +30,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       leading: leading,
+      leadingWidth: leadingWidth,
       title: titleWidget ??
           Text(
             title!,

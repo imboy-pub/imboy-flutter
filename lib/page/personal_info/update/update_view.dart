@@ -113,10 +113,13 @@ class UpdatePage extends StatelessWidget {
                       }
                     },
                     // ignore: sort_child_properties_last
-                    child: Text(
-                      'button_accomplish'.tr,
-                      textAlign: TextAlign.center,
-                    ),
+                    child: n.Padding(
+                        left: 10,
+                        right: 10,
+                        child: Text(
+                          'button_accomplish'.tr,
+                          textAlign: TextAlign.center,
+                        )),
                     style: logic.valueChanged.isTrue
                         ? ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(

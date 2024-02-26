@@ -31,7 +31,8 @@ class UqrcodePage extends StatelessWidget {
           InkWell(
             child: n.Padding(
               left: 20,
-              right: 10,
+              right: 20,
+              bottom: 20,
               child: const Text(
                 "...",
                 style: TextStyle(
@@ -178,7 +179,6 @@ class UqrcodePage extends StatelessWidget {
                           ? null
                           : cachedImageProvider(
                               UserRepoLocal.to.current.avatar),
-                      // embeddedImage: AssetImage('assets/images/logo.png'),
                       embeddedImageStyle: const QrEmbeddedImageStyle(
                         size: Size.square(64),
                         // color: Colors.pink,

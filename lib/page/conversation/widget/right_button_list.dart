@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/chat/launch_chat/launch_chat_view.dart';
 import 'package:imboy/page/contact/add_friend/add_friend_view.dart';
 import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_view.dart';
-import 'package:imboy/page/group/group_launch/group_launch_view.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/page/uqrcode/uqrcode_view.dart';
 import 'package:niku/namespace.dart' as n;
@@ -14,13 +14,16 @@ class RightButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      child: const SizedBox(
-        width: 46.0,
-        child: Icon(
-          Icons.add_circle_outline_sharp,
-          color: Colors.black54,
-        ),
-      ),
+      child: n.Padding(
+          top: 10,
+          bottom: 10,
+          child: const SizedBox(
+            width: 46.0,
+            child: Icon(
+              Icons.add_circle_outline_sharp,
+              color: Colors.black54,
+            ),
+          )),
       onTap: () {
         showPopover(
           context: context,
@@ -62,9 +65,8 @@ class RightButtonList extends StatelessWidget {
         InkWell(
           onTap: () {
             Navigator.of(context).pop();
-
             Get.to(
-              () => GroupLaunchPage(),
+              () => LaunchChatPage(),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
             );
