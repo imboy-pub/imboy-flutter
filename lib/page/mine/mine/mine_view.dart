@@ -43,7 +43,7 @@ class MinePage extends StatelessWidget {
                   child: Container(
                     color: Colors.white,
                     // 显示地区需要360的高度
-                    height: c.current.region.isEmpty ? 320 : 360,
+                    height: c.current.region.isEmpty ? 340 : 380,
                     padding: const EdgeInsets.only(
                       left: 16.0,
                       right: 12.0,
@@ -90,7 +90,8 @@ class MinePage extends StatelessWidget {
                       ])
                         ..mainAxisAlignment = MainAxisAlignment.center,
                       n.Row([
-                        Container(
+                        Expanded(
+                            child: Container(
                           margin: const EdgeInsets.only(left: 0.0, top: 10.0),
                           width: 200.0,
                           child: n.Column([
@@ -118,7 +119,7 @@ class MinePage extends StatelessWidget {
                             ),
                             strNoEmpty(c.current.region)
                                 ? Text(
-                                    'region'.tr + c.current.region,
+                                    "${'region'.tr}：${c.current.region}",
                                     style: const TextStyle(
                                         color: AppColors.MainTextColor),
                                   )
@@ -127,10 +128,9 @@ class MinePage extends StatelessWidget {
                             ..mainAxisSize = MainAxisSize.min
                             ..mainAxisAlignment = MainAxisAlignment.start
                             ..crossAxisAlignment = CrossAxisAlignment.start,
-                        ),
-                        const Spacer(),
+                        )),
                         Container(
-                          width: 18.0,
+                          width: 20.0,
                           margin: const EdgeInsets.only(right: 10.0),
                           child: const Icon(Icons.qr_code_2),
                         ),

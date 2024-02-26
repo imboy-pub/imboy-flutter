@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/locales/locales.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:jiffy/jiffy.dart';
@@ -11,7 +11,7 @@ class LanguageLogic extends GetxController {
   final state = LanguageState();
 
   void changeLanguage(String lang) async {
-    await Jiffy.setLocale(lang);
+    await Jiffy.setLocale(jiffyLocal(lang));
 
     StorageService.to.setString(Keys.currentLang, lang);
     state.valueChanged.value = false;

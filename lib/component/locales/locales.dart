@@ -34,19 +34,24 @@ String sysLang(String pkg) {
   debugPrint("> on main $local");
   // zh_Hans_CN ui.window.locale.toString();
   if (pkg == 'jiffy') {
-    // from ./jiffy-6.1.0/lib/src/locale/available_locales.dart
-    // 'zh_cn': ZhCnLocale(),
-    // 'zh_hk': ZhHkLocale(),
-    // 'zh_tw': ZhTwLocale(),
-    if (local == 'zh_Hans_CN' ||
-        local == 'zh-Hans-SG' ||
-        local == 'zh-Hans-CN') {
-      local = 'zh_CN';
-    } else if (local == 'zh-Hant-HK') {
-      local = 'zh_Hant';
-    } else if (local == 'zh-Hant-TW') {
-      local = 'zh_Hant';
-    }
+    local = jiffyLocal(local);
   }
   return StorageService.to.getString(Keys.currentLang) ?? local;
+}
+
+String jiffyLocal(String local) {
+  // from ./jiffy-6.1.0/lib/src/locale/available_locales.dart
+  // 'zh_cn': ZhCnLocale(),
+  // 'zh_hk': ZhHkLocale(),
+  // 'zh_tw': ZhTwLocale(),
+  if (local == 'zh_Hans_CN' || local == 'zh-Hans-SG' || local == 'zh-Hans-CN') {
+    local = 'zh_CN';
+  } else if (local == 'zh-Hant-HK') {
+    local = 'zh_Hant';
+  } else if (local == 'zh-Hant-TW') {
+    local = 'zh_Hant';
+  } else if (local.startsWith('ru_')) {
+    local = 'ru';
+  }
+  return local;
 }

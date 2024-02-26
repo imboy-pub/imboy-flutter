@@ -34,7 +34,7 @@ import 'config/theme.dart';
 import 'page/passport/passport_view.dart';
 
 void run() async {
-  await Jiffy.setLocale(sysLang('jiffy'));
+  await Jiffy.setLocale(jiffyLocal(sysLang('jiffy')));
   // 强制竖屏 DeviceOrientation.portraitUp
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
@@ -88,7 +88,7 @@ class IMBoyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String lang = sysLang('jiffy');
+    String lang = sysLang('');
     List<String> code = lang.split('_');
     return Dragball(
       icon: const DecoratedBox(
@@ -106,12 +106,12 @@ class IMBoyApp extends StatelessWidget {
         ),
       ),
       ball: SizedBox(
-        width: 100,
+        width: 110,
         height: 30,
         child: n.Row([
-          const Space(width: 18),
-          Text('feedback_suggestion'.tr),
-          const Space(width: 12)
+          const Space(width: 20),
+          Expanded(child: Text('feedback_suggestion'.tr)),
+          const Space(width: 20)
         ])
           ..backgroundColor = AppColors.ChatInputBackgroundColor
           // 垂直居中
