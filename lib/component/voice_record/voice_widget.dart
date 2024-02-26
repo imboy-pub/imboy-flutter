@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:audio_session/audio_session.dart';
+import 'package:niku/namespace.dart' as n;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
 import 'package:get/get.dart';
+
 import 'package:imboy/component/helper/func.dart';
 
 // ignore: depend_on_referenced_packages
@@ -100,41 +102,40 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   buildOverLayView(BuildContext context) {
     overlayEntry ??= OverlayEntry(builder: (content) {
       return CustomOverlay(
-        icon: Column(
-          children: <Widget>[
-            Container(
-              margin: const EdgeInsets.only(top: 10),
-              child: _countTotal - _count < 11
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 15.0),
-                        child: Text(
-                          (_countTotal - _count).toString(),
-                          style: const TextStyle(
-                            fontSize: 70.0,
-                            color: Colors.white,
-                          ),
+        height: 200,
+        icon: n.Column([
+          Container(
+            margin: const EdgeInsets.only(top: 10),
+            child: _countTotal - _count < 11
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 15.0),
+                      child: Text(
+                        (_countTotal - _count).toString(),
+                        style: const TextStyle(
+                          fontSize: 70.0,
+                          color: Colors.white,
                         ),
                       ),
-                    )
-                  : Image.asset(
-                      voiceIco,
-                      width: 100,
-                      height: 100,
-                      // package: 'flutter_plugin_record',
                     ),
+                  )
+                : Image.asset(
+                    voiceIco,
+                    width: 100,
+                    height: 100,
+                    // package: 'flutter_plugin_record',
+                  ),
+          ),
+          Text(
+            "$toastShow\n$recorderTxt",
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontStyle: FontStyle.normal,
+              color: Colors.white,
+              fontSize: 14,
             ),
-            Text(
-              "$toastShow\n$recorderTxt",
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontStyle: FontStyle.normal,
-                color: Colors.white,
-                fontSize: 14,
-              ),
-            )
-          ],
-        ),
+          )
+        ]),
       );
     });
     Overlay.of(context).insert(overlayEntry!);
@@ -445,12 +446,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
               color: Colors.white70,
             ),
         margin: widget.margin ?? const EdgeInsets.fromLTRB(50, 0, 50, 20),
-        child: Center(
-          child: Text(
-            textShow,
-            // '${textShow}(pos: ${pos})',
-          ),
-        ),
+        child: Center(child: Flexible(child: Text(textShow))),
       ),
     );
   }
@@ -498,26 +494,26 @@ class Toast {
             }
           },
           child: CustomOverlay(
-            icon: Column(
-              children: [
-                Padding(
-                  // ignore: sort_child_properties_last
-                  child: icon,
-                  padding: const EdgeInsets.only(
-                    bottom: 10.0,
-                  ),
-                ),
-                Text(
-                  msg ?? '',
-                  style: style ??
-                      const TextStyle(
-                        fontStyle: FontStyle.normal,
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                )
-              ],
-            ),
+            height: 200,
+            icon: n.Row([
+              // Padding(
+              //   // ignore: sort_child_properties_last
+              //   child: icon,
+              //   padding: const EdgeInsets.only(
+              //     bottom: 10.0,
+              //   ),
+              // ),
+              Expanded(
+                  child: Text(
+                msg ?? '',
+                style: style ??
+                    const TextStyle(
+                      fontStyle: FontStyle.normal,
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+              ))
+            ]),
           ),
         );
       });

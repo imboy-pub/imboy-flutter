@@ -59,41 +59,39 @@ class LabelRow extends StatelessWidget {
                         color: AppColors.LineColor, width: lineWidth!))
                 : null,
           ),
-          child: n.Row(
-            [
-              if (headW != null) headW!,
-              SizedBox(
-                width: labelWidth,
-                child: Text(
-                  label ?? '',
-                  style: const TextStyle(fontSize: 17.0),
-                ),
+          child: n.Row([
+            if (headW != null) headW!,
+            SizedBox(
+              width: labelWidth,
+              child: Text(
+                label ?? '',
+                style: const TextStyle(fontSize: 17.0),
               ),
-              value != null
-                  ? Text(
-                      value!,
-                      style: TextStyle(
+            ),
+            value != null
+                ? Text(
+                    value!,
+                    style: TextStyle(
+                      color: AppColors.MainTextColor.withOpacity(0.7),
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.left,
+                  )
+                : Container(),
+            isSpacer == true ? const Spacer() : const SizedBox.shrink(),
+            rValue != null
+                ? Text(rValue!,
+                    style: TextStyle(
                         color: AppColors.MainTextColor.withOpacity(0.7),
-                      ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.left,
-                    )
-                  : Container(),
-              isSpacer == true ? const Spacer() : const SizedBox.shrink(),
-              rValue != null
-                  ? Text(rValue!,
-                      style: TextStyle(
-                          color: AppColors.MainTextColor.withOpacity(0.7),
-                          fontWeight: FontWeight.w400))
-                  : const SizedBox.shrink(),
-              rightW != null ? Center(child: rightW!) : Container(),
-              isRight!
-                  ? Icon(CupertinoIcons.right_chevron,
-                      color: AppColors.MainTextColor.withOpacity(0.5))
-                  : Container(width: 10.0)
-            ],
-          ),
+                        fontWeight: FontWeight.w400))
+                : const SizedBox.shrink(),
+            rightW != null ? Center(child: rightW!) : Container(),
+            isRight!
+                ? Icon(CupertinoIcons.right_chevron,
+                    color: AppColors.MainTextColor.withOpacity(0.5))
+                : Container(width: 10.0)
+          ]),
         ),
       ),
       margin: margin,

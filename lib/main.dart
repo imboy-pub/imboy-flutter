@@ -32,7 +32,6 @@ import 'component/locales/locales.dart';
 import 'config/init.dart';
 import 'config/theme.dart';
 import 'page/passport/passport_view.dart';
-import 'service/storage.dart';
 
 void run() async {
   await Jiffy.setLocale(sysLang('jiffy'));
@@ -89,8 +88,8 @@ class IMBoyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String lang = StorageService.to.getString(Keys.currentLang) ?? 'zh_CN';
-    List<String> code = lang.split("_");
+    String lang = sysLang('jiffy');
+    List<String> code = lang.split('_');
     return Dragball(
       icon: const DecoratedBox(
         decoration: BoxDecoration(
@@ -107,12 +106,12 @@ class IMBoyApp extends StatelessWidget {
         ),
       ),
       ball: SizedBox(
-        width: 96,
+        width: 100,
         height: 30,
         child: n.Row([
           const Space(width: 18),
           Text('feedback_suggestion'.tr),
-          const Space(width: 18)
+          const Space(width: 12)
         ])
           ..backgroundColor = AppColors.ChatInputBackgroundColor
           // 垂直居中

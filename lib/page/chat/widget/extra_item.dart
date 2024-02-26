@@ -109,12 +109,12 @@ class _ExtraItemsState extends State<ExtraItems> {
       n.Column([
         n.Row([
           ExtraItem(
-            title: 'photo'.tr,
+            title: 'album'.tr,
             image: const Icon(Icons.photo, size: iconSize),
             onPressed: widget.handleImageSelection,
           ),
           ExtraItem(
-            title: 'take_photo'.tr,
+            title: 'camera'.tr,
             image: const Icon(Icons.camera_alt, size: iconSize),
             onPressed: widget.handlePickerSelection,
           ),

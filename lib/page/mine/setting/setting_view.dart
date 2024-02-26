@@ -231,7 +231,7 @@ class _SettingPageState extends State<SettingPage> {
                   ];
                   Get.to(
                     () => MarkdownPage(
-                      title: 'about'.tr + appName,
+                      title: "${'about'.tr} $appName",
                       rightDMActions: rightDMActions,
                       url:
                           "https://gitee.com/imboy-pub/imboy-flutter/raw/main/README.md",

@@ -25,18 +25,18 @@ class LanguageState {
       "regionCode": "CN",
       "title": 'zh_cn'.tr // 简体中文
     },
-    // {
-    //   "id": "zh_TW",
-    //   "languageCode": "zh",
-    //   "regionCode": "TW",
-    //   "title": 'zh_tw'.tr, // 繁体中文
-    // },
-    // {
-    //   "id": "ru_RU",
-    //   "languageCode": "ru",
-    //   "regionCode": "RU",
-    //   "title": 'ru_ru'.tr, //"俄罗斯俄语"
-    // },
+    {
+      "id": "zh_TW",
+      "languageCode": "zh",
+      "regionCode": "TW",
+      "title": 'zh_hant'.tr, // 繁体中文
+    },
+    {
+      "id": "ru_RU",
+      "languageCode": "ru",
+      "regionCode": "RU",
+      "title": 'ru_ru'.tr, //"俄罗斯俄语"
+    },
     // {
     //   "id": "en_GB",
     //   "languageCode": "en",

@@ -87,7 +87,7 @@ class FeedbackDetailPage extends StatelessWidget {
             ]),
             if (model.rating.isNotEmpty)
               n.Row([
-                Text('评级'.tr),
+                Text('rating'.tr),
                 Text(': ${model.rating}    '),
                 Text(model.ratingDesc),
               ]),

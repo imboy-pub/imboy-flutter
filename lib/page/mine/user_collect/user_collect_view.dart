@@ -289,7 +289,7 @@ class UserCollectPage extends StatelessWidget {
                                                   // peerTag: peerTag.value,
                                                   peerTag: obj.tag,
                                                   scene: 'collect',
-                                                  title: '编辑标签'.tr,
+                                                  title: 'edit_tag'.tr,
                                                 ),
                                                 // () => TagAddPage(peerId:peerId, peerTag:'标签1, 标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,ABCD'),
                                                 transition:
@@ -345,7 +345,7 @@ class UserCollectPage extends StatelessWidget {
                                                           }
                                                         },
                                                         child: Text(
-                                                          '删除后无法找回，确认删除？'.tr,
+                                                          'sure_delete_data'.tr,
                                                           textAlign:
                                                               TextAlign.center,
                                                           style:

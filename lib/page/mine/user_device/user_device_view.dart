@@ -107,15 +107,12 @@ class UserDevicePage extends StatelessWidget {
                                       backgroundColor: Colors.red,
                                       // foregroundColor: Colors.white,
                                       onPressed: (_) async {
-                                        String tips =
-                                            '删除后，下次在该设备登录时需要进行安全验证。'.tr;
-
                                         n.showDialog(
                                           context: Get.context!,
                                           builder: (context) => n.Alert()
                                             ..content = SizedBox(
                                               height: 40,
-                                              child: Center(child: Text(tips)),
+                                              child: Center(child: Text('delete_this_device_tips'.tr)),
                                             )
                                             ..actions = [
                                               n.Button('button_cancel'.tr.n)

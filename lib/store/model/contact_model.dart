@@ -27,7 +27,7 @@ String getSourceTr(String? source) {
       sourceTr = 'people_nearby'.tr;
       break;
     case 'recently_user':
-      sourceTr = 'newly_registered_friends'.tr;
+      sourceTr = 'newly_registered_people'.tr;
       break;
     case 'null':
       sourceTr = '';

@@ -74,7 +74,7 @@ class UserCollectDetailPage extends StatelessWidget {
                 peerId: obj.kindId,
                 peerTag: obj.tag,
                 scene: 'collect',
-                title: '编辑标签'.tr,
+                title: 'edit_tag'.tr,
               ),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
@@ -89,7 +89,7 @@ class UserCollectDetailPage extends StatelessWidget {
             });
           },
           child: Text(
-            '编辑标签'.tr,
+            'edit_tag'.tr,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: AppColors.ItemOnColor,

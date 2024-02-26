@@ -193,7 +193,7 @@ class AddFriendPage extends StatelessWidget {
                       ),
                       title: Transform(
                         transform: Matrix4.translationValues(0, 0.0, 0.0),
-                        child: Text('newly_registered_friends'.tr),
+                        child: Text('newly_registered_people'.tr),
                       ),
                       subtitle: Text(
                         // 最近新注册的并且允许被搜索到的朋友

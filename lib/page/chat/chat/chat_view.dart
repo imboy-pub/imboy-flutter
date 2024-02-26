@@ -988,7 +988,7 @@ class ChatPageState extends State<ChatPage> {
                   startRecord: () {},
                   stopRecord: _handleVoiceSelection,
                   // 加入定制化Container的相关属性
-                  height: 40.0,
+                  height: 60.0,
                   margin: EdgeInsets.zero,
                 ),
                 extraWidget: ExtraItems(

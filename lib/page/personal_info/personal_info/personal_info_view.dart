@@ -112,11 +112,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
         'value': UserRepoLocal.to.current.account,
         'isRight': false
       },
-      {
-        'label': 'user_qrcode',
-        'title': 'qr_code_business_card'.tr,
-        'value': ''
-      },
+      {'label': 'user_qrcode', 'title': 'my_qrcode'.tr, 'value': ''},
       {'label': 'more', 'title': 'more_info'.tr, 'value': ''},
       // {'label': 'address', 'title': 'my_address'.tr, 'value': ''},
     ];
@@ -211,7 +207,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             isLine: true,
             isRight: true,
             rightW: SizedBox(
-              width: Get.width - 100,
+              width: Get.width - 160,
               child: Text(
                 UserRepoLocal.to.current.nickname,
                 maxLines: 1,

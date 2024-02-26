@@ -250,7 +250,7 @@ class PeopleInfoPage extends StatelessWidget {
                       visible: !isSelf,
                       child: ButtonRow(
                           margin: const EdgeInsets.only(bottom: 0.0),
-                          text: '发消息',
+                          text: 'message_call'.tr,
                           isBorder: true,
                           onPressed: () {
                             String peerTitle = remark.value;
@@ -336,7 +336,7 @@ class PeopleInfoPage extends StatelessWidget {
                   child: n.Row([
                     const Icon(Icons.warning_amber_rounded, color: Colors.red),
                     const Space(width: 4),
-                    Text('added_to_blacklist_tips'.tr),
+                    Expanded(child: Text('added_to_blacklist_tips'.tr)),
                   ])
                     // 内容居中
                     ..mainAxisAlignment = MainAxisAlignment.center,

@@ -26,7 +26,7 @@ class UqrcodePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(
-        title: 'qr_code_business_card'.tr,
+        title: '',
         rightDMActions: <Widget>[
           InkWell(
             child: n.Padding(

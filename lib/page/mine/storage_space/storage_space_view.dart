@@ -218,7 +218,7 @@ class StorageSpacePage extends StatelessWidget {
                         // 内容居左
                         ..mainAxisAlignment = MainAxisAlignment.start,
                       Text(
-                        '缓存是使用APP过程中产生的临时数据，清理缓存不会影响你的正常使用。'.tr,
+                        'cache_tips'.tr,
                         style:
                             const TextStyle(color: AppColors.thirdElementText),
                       )
@@ -347,7 +347,7 @@ class StorageSpacePage extends StatelessWidget {
                         // 内容居左
                         ..mainAxisAlignment = MainAxisAlignment.start,
                       Text(
-                        '包含APP运行时必要的文件，以及聊天消息、好有关系等所有记录数据。'.tr,
+                        'user_data_tips'.tr,
                         style:
                             const TextStyle(color: AppColors.thirdElementText),
                       )
@@ -379,7 +379,7 @@ class StorageSpacePage extends StatelessWidget {
                         // 内容居左
                         ..mainAxisAlignment = MainAxisAlignment.start,
                       Text(
-                        '包含APP运行的必要文件，包括 APK 文件、优化的编译器输出和解压的原生库。'.tr,
+                        'app_size_tips'.tr,
                         style:
                             const TextStyle(color: AppColors.thirdElementText),
                       )

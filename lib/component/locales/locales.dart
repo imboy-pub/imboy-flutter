@@ -3,6 +3,8 @@ import 'dart:io' show Platform;
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/locales/locales.g.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
 
 class IMBoyTranslations extends Translations {
   @override
@@ -39,12 +41,12 @@ String sysLang(String pkg) {
     if (local == 'zh_Hans_CN' ||
         local == 'zh-Hans-SG' ||
         local == 'zh-Hans-CN') {
-      return 'zh_cn';
+      local = 'zh_CN';
     } else if (local == 'zh-Hant-HK') {
-      return 'zh_hk';
+      local = 'zh_Hant';
     } else if (local == 'zh-Hant-TW') {
-      return 'zh_tw';
+      local = 'zh_Hant';
     }
   }
-  return local;
+  return StorageService.to.getString(Keys.currentLang) ?? local;
 }

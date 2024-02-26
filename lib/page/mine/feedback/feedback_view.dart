@@ -3,7 +3,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/mine/feedback/feedback_detail_view.dart';
 import 'package:imboy/store/model/feedback_model.dart';
@@ -120,33 +119,36 @@ class FeedbackPage extends StatelessWidget {
                                 child: ListTile(
                                   contentPadding:
                                       const EdgeInsets.only(left: 0),
-                                  title: n.Row([
-                                    Text(
-                                      "${model.type.tr} | ${'submitted_at'.tr}",
-                                      style: const TextStyle(
-                                        color: AppColors.MainTextColor,
-                                        fontSize: 14.0,
+                                  title: n.Column([
+                                    n.Row([
+                                      Text(
+                                        "${model.type.tr} | ${'submitted_at'.tr}",
+                                        style: const TextStyle(
+                                          color: AppColors.MainTextColor,
+                                          fontSize: 14.0,
+                                        ),
                                       ),
-                                    ),
-                                    const Space(width: 10),
-                                    Text(
-                                      DateTimeHelper.lastTimeFmt(
-                                          model.createdAtLocal),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        color: AppColors.MainTextColor,
-                                        fontSize: 14.0,
+                                    ]),
+                                    n.Row([
+                                      Text(
+                                        DateTimeHelper.lastTimeFmt(
+                                            model.createdAtLocal),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          color: AppColors.MainTextColor,
+                                          fontSize: 14.0,
+                                        ),
                                       ),
-                                    ),
-                                    const Expanded(child: SizedBox()),
-                                    Text(
-                                      model.statusDesc,
-                                      style: const TextStyle(
-                                        color: AppColors.MainTextColor,
-                                        fontSize: 14.0,
-                                      ),
-                                    )
+                                      const Expanded(child: SizedBox()),
+                                      Text(
+                                        model.statusDesc,
+                                        style: const TextStyle(
+                                          color: AppColors.MainTextColor,
+                                          fontSize: 14.0,
+                                        ),
+                                      )
+                                    ])
                                   ]),
                                   subtitle: n.Row([
                                     Expanded(

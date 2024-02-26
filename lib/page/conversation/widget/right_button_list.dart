@@ -78,7 +78,7 @@ class RightButtonList extends StatelessWidget {
                 ..color = Colors.white.withOpacity(0.9),
             ),
             n.Text(
-              'initiate_group_chat'.tr,
+              'initiate_chat'.tr,
             )..apply = ItemTitleStyle.style,
           ]),
         ),
@@ -124,7 +124,7 @@ class RightButtonList extends StatelessWidget {
                 ..color = Colors.white.withOpacity(0.9),
             ),
             n.Text(
-              'newly_registered_friends'.tr,
+              'newly_registered_people'.tr,
             )..apply = ItemTitleStyle.style,
           ]),
         ),

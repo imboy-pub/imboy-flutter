@@ -3,16 +3,20 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:jiffy/jiffy.dart';
 
 import 'language_state.dart';
 
 class LanguageLogic extends GetxController {
   final state = LanguageState();
 
-  void changeLanguage(String lang) {
+  void changeLanguage(String lang) async {
+    await Jiffy.setLocale(lang);
+
     StorageService.to.setString(Keys.currentLang, lang);
     state.valueChanged.value = false;
     state.currentLanguage.value = lang;
+
     List<String> code = lang.split("_");
     Get.updateLocale(Locale(code[0], code[1]));
   }
