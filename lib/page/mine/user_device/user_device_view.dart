@@ -36,7 +36,6 @@ class UserDevicePage extends StatelessWidget {
   Widget build(BuildContext context) {
     //
     initData();
-    String tips = 'login_device_management_tips'.tr;
     return Scaffold(
       appBar: PageAppBar(
         title: 'login_device_management'.tr,
@@ -72,8 +71,8 @@ class UserDevicePage extends StatelessWidget {
                   bottom: 20,
                 ),
                 child: Text(
-                  tips,
-                  maxLines: 2,
+                  'login_device_management_tips'.tr,
+                  maxLines: 6,
                   overflow: TextOverflow.ellipsis,
                 ),
               )
