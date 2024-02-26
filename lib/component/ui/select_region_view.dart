@@ -57,7 +57,8 @@ class SelectRegionLogic extends GetxController {
   ) {
     String title = "";
     List children = [];
-    iPrint("region_item getListItem ${model.runtimeType}, $parent : ${model.toString()}");
+    iPrint(
+        "region_item getListItem ${model.runtimeType}, $parent : ${model.toString()}");
     if (model is String) {
       title = model;
     } else if (model is Map) {
@@ -181,10 +182,13 @@ class SelectRegionPage extends StatelessWidget {
                 }
               },
               // ignore: sort_child_properties_last
-              child: Text(
-                'button_accomplish'.tr,
-                textAlign: TextAlign.center,
-              ),
+              child: n.Padding(
+                  left: 10,
+                  right: 10,
+                  child: Text(
+                    'button_accomplish'.tr,
+                    textAlign: TextAlign.center,
+                  )),
               style: logic.valueChanged.isTrue
                   ? ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
@@ -215,32 +219,34 @@ class SelectRegionPage extends StatelessWidget {
         ]),
       ),
       body: n.Column([
-          Container(
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.only(left: 16.0),
-            width: Get.width,
-            height: 40.0,
-            child: Text('all'.tr, style: const TextStyle(fontSize: 12),),
+        Container(
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.only(left: 16.0),
+          width: Get.width,
+          height: 40.0,
+          child: Text(
+            'all'.tr,
+            style: const TextStyle(fontSize: 12),
           ),
-          Expanded(
-            child: ListView.builder(
-              itemBuilder: (BuildContext context, int index) {
-                return logic.getListItem(
-                  context,
-                  parent,
-                  children[index],
-                  (a, b) async {
-                    return true;
-                  },
-                  outCallback,
-                );
-              },
-              itemCount: children.length,
-            ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemBuilder: (BuildContext context, int index) {
+              return logic.getListItem(
+                context,
+                parent,
+                children[index],
+                (a, b) async {
+                  return true;
+                },
+                outCallback,
+              );
+            },
+            itemCount: children.length,
           ),
-        ],
-        mainAxisSize: MainAxisSize.min
-      )..useParent((v) => v..bg = Colors.white),
+        ),
+      ], mainAxisSize: MainAxisSize.min)
+        ..useParent((v) => v..bg = Colors.white),
     );
   }
 }

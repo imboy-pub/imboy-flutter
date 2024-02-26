@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/config/const.dart';
@@ -31,7 +33,7 @@ class MoreView extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.AppBarColor,
       appBar: PageAppBar(title: 'more_info'.tr),
-      body: Column(children: [
+      body: n.Column([
         LabelRow(
           label: 'gender'.tr,
           isLine: true,
