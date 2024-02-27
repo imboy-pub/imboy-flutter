@@ -56,6 +56,7 @@
   "hint_login_recoverycode": "找回密码验证码",
   "hint_login_password": "密码",
   "hint_login_confirmpassword": "确认密码",
+  "chat_bot":"聊天机器人",
   "chat_hold_down_talk": "按住说话",
   "incoming_call": "%s呼入",
   "error_confirmpassword": "两次输入密码不一致",

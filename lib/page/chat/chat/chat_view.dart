@@ -65,7 +65,7 @@ class ChatPage extends StatefulWidget {
   final String peerAvatar;
   final String peerTitle;
   final String peerSign;
-  final String type; // [C2C | C2G]
+  final String type; // [C2C | C2G | C2S]
 
   ChatPage({
     super.key,

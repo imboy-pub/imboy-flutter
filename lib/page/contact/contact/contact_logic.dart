@@ -147,6 +147,36 @@ class ContactLogic extends GetxController {
           );
         },
       ),
+      /*
+      ContactModel(
+        peerId: 'chat_bot',
+        nickname: 'chat_bot'.tr,
+        nameIndex: '↑',
+        bgColor: Colors.teal,
+        // icon 翻转
+        iconData: Transform.scale(
+          scaleX: -1,
+          child: const Icon(
+            Icons.chat,
+            color: Colors.white,
+            size: 24,
+          ),
+        ),
+        onPressed: () {
+          Get.to(
+            () => ChatPage(
+              peerId: 'chat_bot',
+              peerTitle: 'chat_bot'.tr,
+              peerAvatar: '',
+              peerSign: '',
+              type: 'C2S',
+            ),
+            transition: Transition.rightToLeft,
+            popGesture: true, // 右滑，返回上一页
+          );
+        },
+      ),
+      */
     ];
     // add topList.
     list.insertAll(0, topList);

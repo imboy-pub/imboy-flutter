@@ -70,6 +70,7 @@ class LocaleKeys {
   static const hint_login_recoverycode = 'hint_login_recoverycode';
   static const hint_login_password = 'hint_login_password';
   static const hint_login_confirmpassword = 'hint_login_confirmpassword';
+  static const chat_bot = 'chat_bot';
   static const chat_hold_down_talk = 'chat_hold_down_talk';
   static const incoming_call = 'incoming_call';
   static const error_confirmpassword = 'error_confirmpassword';
@@ -481,6 +482,7 @@ class Locales {
     'hint_login_recoverycode': '找回密码验证码',
     'hint_login_password': '密码',
     'hint_login_confirmpassword': '确认密码',
+    'chat_bot': '聊天机器人',
     'chat_hold_down_talk': '按住说话',
     'incoming_call': '%s呼入',
     'error_confirmpassword': '两次输入密码不一致',
@@ -886,9 +888,10 @@ class Locales {
     'hint_login_phone': 'Phone Number',
     'hint_login_email': 'Email',
     'hint_login_confirmationcode': 'Confirmation Code',
-    'hint_login_recoverycode': 'Password Recovery Verification Code',
+    'hint_login_recoverycode': 'Verification Code',
     'hint_login_password': 'Password',
     'hint_login_confirmpassword': 'Confirm Password',
+    'chat_bot': 'Chatbot',
     'chat_hold_down_talk': 'Press to talk',
     'incoming_call': '%s incoming call',
     'error_confirmpassword': 'The two passwords entered do not match',
@@ -1315,9 +1318,10 @@ class Locales {
     'hint_login_phone': 'Номер телефона',
     'hint_login_email': 'Электронная почта',
     'hint_login_confirmationcode': 'Код подтверждения',
-    'hint_login_recoverycode': 'Код восстановления пароля',
+    'hint_login_recoverycode': 'Код подтверждения',
     'hint_login_password': 'Пароль',
     'hint_login_confirmpassword': 'Подтвердить пароль',
+    'chat_bot': 'Говорящий робот',
     'chat_hold_down_talk': 'Зажмите, чтобы говорить',
     'incoming_call': 'Входящий звонок от %s',
     'error_confirmpassword': 'Пароли не совпадают',
@@ -1750,6 +1754,7 @@ class Locales {
     'hint_login_recoverycode': '找回密碼驗證碼',
     'hint_login_password': '密碼',
     'hint_login_confirmpassword': '確認密碼',
+    'chat_bot': '聊天機器人',
     'chat_hold_down_talk': '按住說話',
     'incoming_call': '%s呼入',
     'error_confirmpassword': '兩次輸入密碼不一致',

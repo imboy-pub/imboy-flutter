@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_crop/image_crop.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/store/provider/attachment_provider.dart';
 
 // ignore: must_be_immutable
@@ -78,15 +80,18 @@ class _CropImageRouteState extends State<CropImageRoute> {
                 onPressed: () {
                   _crop(widget.image);
                 },
-                child: Text(
-                  'button_accomplish'.tr,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
+                child: n.Padding(
+                    left: 10,
+                    right: 10,
+                    child: Text(
+                      'button_accomplish'.tr,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    )),
               ),
             ],
           ),

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/mine/user_device/user_device_logic.dart';
-import 'package:niku/namespace.dart' as n;
 
 // ignore: must_be_immutable
 class ChangeNamePage extends StatelessWidget {
@@ -43,77 +44,78 @@ class ChangeNamePage extends StatelessWidget {
       color: AppColors.AppBarColor,
       width: Get.width,
       height: Get.height,
-      child: Wrap(
-        children: <Widget>[
-          PageAppBar(
-            titleWidget: Row(children: [
-              Expanded(
-                child: Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                  ),
+      child: n.Wrap([
+        PageAppBar(
+          titleWidget: n.Row([
+            Expanded(
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
                 ),
-                // 中间用Expanded控件
               ),
-              Obx(
-                () => ElevatedButton(
-                  onPressed: () async {
-                    if (field == "input") {
-                      String trimmedText = textController.text.trim();
-                      if (trimmedText == '') {
-                        valueChanged.value = false;
-                      } else {
-                        bool res = await callback(trimmedText);
-                        if (res) {
-                          Get.back();
-                        }
+              // 中间用Expanded控件
+            ),
+            Obx(
+              () => ElevatedButton(
+                onPressed: () async {
+                  if (field == "input") {
+                    String trimmedText = textController.text.trim();
+                    if (trimmedText == '') {
+                      valueChanged.value = false;
+                    } else {
+                      bool res = await callback(trimmedText);
+                      if (res) {
+                        Get.back();
                       }
                     }
-                  },
-                  // ignore: sort_child_properties_last
-                  child: Text(
-                    'button_accomplish'.tr,
-                    textAlign: TextAlign.center,
-                  ),
-                  style: valueChanged.isTrue
-                      ? ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            AppColors.primaryElement,
-                          ),
-                          foregroundColor: MaterialStateProperty.all<Color>(
-                            Colors.white,
-                          ),
-                          minimumSize:
-                              MaterialStateProperty.all(const Size(60, 40)),
-                          visualDensity: VisualDensity.compact,
-                          padding: MaterialStateProperty.all(EdgeInsets.zero),
-                        )
-                      : ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            AppColors.AppBarColor,
-                          ),
-                          foregroundColor: MaterialStateProperty.all<Color>(
-                            AppColors.LineColor,
-                          ),
-                          minimumSize:
-                              MaterialStateProperty.all(const Size(60, 40)),
-                          visualDensity: VisualDensity.compact,
-                          padding: MaterialStateProperty.all(EdgeInsets.zero),
+                  }
+                },
+                // ignore: sort_child_properties_last
+                child: n.Padding(
+                    left: 10,
+                    right: 10,
+                    child: Text(
+                      'button_accomplish'.tr,
+                      textAlign: TextAlign.center,
+                    )),
+                style: valueChanged.isTrue
+                    ? ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                          AppColors.primaryElement,
                         ),
-                ),
+                        foregroundColor: MaterialStateProperty.all<Color>(
+                          Colors.white,
+                        ),
+                        minimumSize:
+                            MaterialStateProperty.all(const Size(60, 40)),
+                        visualDensity: VisualDensity.compact,
+                        padding: MaterialStateProperty.all(EdgeInsets.zero),
+                      )
+                    : ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                          AppColors.AppBarColor,
+                        ),
+                        foregroundColor: MaterialStateProperty.all<Color>(
+                          AppColors.LineColor,
+                        ),
+                        minimumSize:
+                            MaterialStateProperty.all(const Size(60, 40)),
+                        visualDensity: VisualDensity.compact,
+                        padding: MaterialStateProperty.all(EdgeInsets.zero),
+                      ),
               ),
-            ]),
-          ),
-          n.Row([
-            Expanded(
-              child: inputField(),
             ),
           ]),
-        ],
-      ),
+        ),
+        n.Row([
+          Expanded(
+            child: inputField(),
+          ),
+        ]),
+      ]),
     );
   }
 
