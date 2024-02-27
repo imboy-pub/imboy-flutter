@@ -868,6 +868,16 @@ class ChatPageState extends State<ChatPage> {
             Chat(
               user: currentUser,
               messages: logic.state.messages,
+              emptyState: Container(
+                alignment: Alignment.center,
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                ),
+                child: Text(
+                  'tip_empty_chat_placeholder'.tr,
+                  textAlign: TextAlign.center,
+                ),
+              ),
               textMessageBuilder: (
                 types.TextMessage message, {
                 required int messageWidth,

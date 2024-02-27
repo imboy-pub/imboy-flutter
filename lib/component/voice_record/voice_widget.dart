@@ -446,7 +446,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
               color: Colors.white70,
             ),
         margin: widget.margin ?? const EdgeInsets.fromLTRB(50, 0, 50, 20),
-        child: Center(child: Flexible(child: Text(textShow))),
+        child: Center(child: Text(textShow)),
       ),
     );
   }

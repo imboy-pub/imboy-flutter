@@ -1,4 +1,5 @@
 {
+  "you": "你",
   "button_cancel": "取消",
   "button_accomplish": "完成",
   "button_taking_pictures": "拍照",
@@ -49,6 +50,7 @@
   "tip_greeting": "欢迎使用",
   "tip_device_space":"占设备 %s‰ 存储空间(%s)",
   "tip_delete_contact":"将联系人\"%s\"删除，同时删除与该联系人的聊天记录",
+  "tip_empty_chat_placeholder":"这里还没有消息",
   "hint_login_account": "账号/邮箱/手机号",
   "hint_login_phone": "手机号",
   "hint_login_email": "邮箱",
@@ -124,6 +126,7 @@
   "call_duration": "通话时长",
   "set_region": "设置地区",
   "all": "全部",
+  "revoke": "撤回",
   "forward": "转发",
   "quote": "引用",
   "complaint": "投诉",

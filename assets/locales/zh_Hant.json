@@ -1,4 +1,5 @@
 {
+  "you": "你",
   "button_cancel": "取消",
   "button_accomplish": "完成",
   "button_taking_pictures": "拍照",
@@ -49,6 +50,7 @@
   "tip_greeting": "歡迎使用",
   "tip_device_space": "占設備 %s‰ 存儲空間(%s)",
   "tip_delete_contact": "將聯繫人\"%s\"刪除，同時刪除與該聯繫人的聊天記錄",
+  "tip_empty_chat_placeholder":"這裡還沒有消息",
   "hint_login_account": "帳號/郵箱/手機號",
   "hint_login_phone": "手機號",
   "hint_login_email": "郵箱",
@@ -124,6 +126,7 @@
   "call_duration": "通話時長",
   "set_region": "設置地區",
   "all": "全部",
+  "revoke": "撤回",
   "forward": "轉發",
   "quote": "引用",
   "complaint": "投訴",

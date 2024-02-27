@@ -24,7 +24,7 @@ class RevokedMessageBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     bool userIsAuthor = user.id == message.author.id;
 
-    String nickname = userIsAuthor ? '你' : '"${message.author.firstName}"';
+    String nickname = userIsAuthor ? 'you'.tr : '"${message.author.firstName}"';
     int now = DateTimeHelper.utc();
     bool canEdit = userIsAuthor && (now - message.createdAt!) < 300000;
     String text = message.metadata?['text'] ?? '';
@@ -70,7 +70,7 @@ class RevokedMessageBuilder extends StatelessWidget {
                   : const EdgeInsets.only(left: 50),
               // padding: EdgeInsets.only(right: 10),
               child: Text(
-                nickname + 'message_was_withdrawn'.tr,
+                "$nickname ${'message_was_withdrawn'.tr}",
                 style: const TextStyle(
                   color: AppColors.MainTextColor,
                   backgroundColor: AppColors.ChatBg,

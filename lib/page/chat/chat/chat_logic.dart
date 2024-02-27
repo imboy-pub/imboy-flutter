@@ -372,7 +372,7 @@ class ChatLogic extends GetxController {
     }
     if (canCopy) {
       items.add(popupmenu.MenuItem(
-        title: '复制',
+        title: 'button_copy'.tr,
         userInfo: {"id": "copy", "msg": message},
         textAlign: TextAlign.center,
         textStyle: const TextStyle(
@@ -415,7 +415,7 @@ class ChatLogic extends GetxController {
     }
     if (!isRevoked) {
       items.add(popupmenu.MenuItem(
-        title: '转发'.tr,
+        title: 'forward'.tr,
         userInfo: {"id": "transpond", "msg": message},
         textAlign: TextAlign.center,
         textStyle: const TextStyle(
@@ -443,7 +443,7 @@ class ChatLogic extends GetxController {
         isRevoked == false) {
       items.add(
         popupmenu.MenuItem(
-          title: '撤回',
+          title: 'revoke'.tr,
           userInfo: {"id": "revoke", "msg": message},
           textAlign: TextAlign.center,
           textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
@@ -456,7 +456,7 @@ class ChatLogic extends GetxController {
       );
     }
     items.add(popupmenu.MenuItem(
-      title: '删除',
+      title: 'button_delete'.tr,
       userInfo: {"id": "delete", "msg": message},
       textAlign: TextAlign.center,
       textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),

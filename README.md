@@ -26,10 +26,10 @@ imboy 的Flutter项目
 ## 功能树
 
 * 大概的大大小小功能实现情况：
-    * TODO 38
-    * OK 116
+    * TODO 67
+    * OK 118
 
-[查看](./doc/feature_0.1.0_tree.md)
+[查看](./doc/feature_tree.md)
 
 ## Version
 力求基于“语义化版本控制的规范”([语义化版本 2.0.0](https://semver.org/lang/zh-CN/))实施版本管理.

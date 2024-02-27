@@ -13,6 +13,7 @@ class AppTranslation {
 
 class LocaleKeys {
   LocaleKeys._();
+  static const you = 'you';
   static const button_cancel = 'button_cancel';
   static const button_accomplish = 'button_accomplish';
   static const button_taking_pictures = 'button_taking_pictures';
@@ -63,6 +64,7 @@ class LocaleKeys {
   static const tip_greeting = 'tip_greeting';
   static const tip_device_space = 'tip_device_space';
   static const tip_delete_contact = 'tip_delete_contact';
+  static const tip_empty_chat_placeholder = 'tip_empty_chat_placeholder';
   static const hint_login_account = 'hint_login_account';
   static const hint_login_phone = 'hint_login_phone';
   static const hint_login_email = 'hint_login_email';
@@ -142,6 +144,7 @@ class LocaleKeys {
   static const call_duration = 'call_duration';
   static const set_region = 'set_region';
   static const all = 'all';
+  static const revoke = 'revoke';
   static const forward = 'forward';
   static const quote = 'quote';
   static const complaint = 'complaint';
@@ -425,6 +428,7 @@ class LocaleKeys {
 
 class Locales {
   static const zh_CN = {
+    'you': '你',
     'button_cancel': '取消',
     'button_accomplish': '完成',
     'button_taking_pictures': '拍照',
@@ -475,6 +479,7 @@ class Locales {
     'tip_greeting': '欢迎使用',
     'tip_device_space': '占设备 %s‰ 存储空间(%s)',
     'tip_delete_contact': '将联系人"%s"删除，同时删除与该联系人的聊天记录',
+    'tip_empty_chat_placeholder': '这里还没有消息',
     'hint_login_account': '账号/邮箱/手机号',
     'hint_login_phone': '手机号',
     'hint_login_email': '邮箱',
@@ -550,6 +555,7 @@ class Locales {
     'call_duration': '通话时长',
     'set_region': '设置地区',
     'all': '全部',
+    'revoke': '撤回',
     'forward': '转发',
     'quote': '引用',
     'complaint': '投诉',
@@ -829,6 +835,7 @@ class Locales {
     'about_app': '关于应用',
   };
   static const en_US = {
+    'you': 'You',
     'button_cancel': 'Cancel',
     'button_accomplish': 'Accomplish',
     'button_taking_pictures': 'Take Photo',
@@ -884,6 +891,7 @@ class Locales {
     'tip_device_space': 'Occupying device %s‰ storage space(%s)',
     'tip_delete_contact':
         'Delete contact "%s" and chat history with this contact',
+    'tip_empty_chat_placeholder': 'No messages here yet',
     'hint_login_account': 'Account/Email/Phone Number',
     'hint_login_phone': 'Phone Number',
     'hint_login_email': 'Email',
@@ -953,7 +961,7 @@ class Locales {
     'sure_open_the_file': 'Are you sure you want to open the file?',
     'not_install_any_map_app': 'You haven\'t installed any map apps',
     're_edit': 'Re-edit',
-    'message_was_withdrawn': 'A message was withdrawn',
+    'message_was_withdrawn': 'withdrew a message',
     'you_withdrew_a_message': 'You withdrew a message',
     'personal_card': 'Contact Card',
     'unanswered': 'Unanswered',
@@ -962,6 +970,7 @@ class Locales {
     'call_duration': 'Call Duration',
     'set_region': 'Set Region',
     'all': 'All',
+    'revoke': 'Revoke',
     'forward': 'Forward',
     'quote': 'Quote',
     'complaint': 'Complaint',
@@ -1260,6 +1269,7 @@ class Locales {
     'about_app': 'About app',
   };
   static const ru_RU = {
+    'you': 'ты',
     'button_cancel': 'Отмена',
     'button_accomplish': 'Завершить',
     'button_taking_pictures': 'Фотографировать',
@@ -1314,6 +1324,7 @@ class Locales {
     'tip_greeting': 'Добро пожаловать в использование',
     'tip_device_space': 'Занимает %s‰ пространства на устройстве (%s)',
     'tip_delete_contact': 'Удалить контакт "%s" и сообщения с ним',
+    'tip_empty_chat_placeholder': 'десь пока нет сообщений',
     'hint_login_account': 'Учетная запись/почта/телефон',
     'hint_login_phone': 'Номер телефона',
     'hint_login_email': 'Электронная почта',
@@ -1386,7 +1397,7 @@ class Locales {
     'not_install_any_map_app':
         'Вы не установили ни одного картографического приложения',
     're_edit': 'Перередактировать',
-    'message_was_withdrawn': 'Сообщение отменено',
+    'message_was_withdrawn': 'отозвал сообщение',
     'you_withdrew_a_message': 'Вы отменили сообщение',
     'personal_card': 'Свяжись с визиткой',
     'unanswered': 'Не отвечено',
@@ -1395,6 +1406,7 @@ class Locales {
     'call_duration': 'Длительность звонка',
     'set_region': 'Установить регион',
     'all': 'Все',
+    'revoke': 'отозва',
     'forward': 'Переслать',
     'quote': 'Цитата',
     'complaint': 'Жалоба',
@@ -1697,6 +1709,7 @@ class Locales {
     'about_app': 'О приложении',
   };
   static const zh_Hant = {
+    'you': '你',
     'button_cancel': '取消',
     'button_accomplish': '完成',
     'button_taking_pictures': '拍照',
@@ -1747,6 +1760,7 @@ class Locales {
     'tip_greeting': '歡迎使用',
     'tip_device_space': '占設備 %s‰ 存儲空間(%s)',
     'tip_delete_contact': '將聯繫人"%s"刪除，同時刪除與該聯繫人的聊天記錄',
+    'tip_empty_chat_placeholder': '這裡還沒有消息',
     'hint_login_account': '帳號/郵箱/手機號',
     'hint_login_phone': '手機號',
     'hint_login_email': '郵箱',
@@ -1822,6 +1836,7 @@ class Locales {
     'call_duration': '通話時長',
     'set_region': '設置地區',
     'all': '全部',
+    'revoke': '撤回',
     'forward': '轉發',
     'quote': '引用',
     'complaint': '投訴',
