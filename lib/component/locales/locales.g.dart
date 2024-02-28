@@ -13,6 +13,7 @@ class AppTranslation {
 
 class LocaleKeys {
   LocaleKeys._();
+  static const bot_qian_fan = 'bot_qian_fan';
   static const you = 'you';
   static const button_cancel = 'button_cancel';
   static const button_accomplish = 'button_accomplish';
@@ -72,7 +73,6 @@ class LocaleKeys {
   static const hint_login_recoverycode = 'hint_login_recoverycode';
   static const hint_login_password = 'hint_login_password';
   static const hint_login_confirmpassword = 'hint_login_confirmpassword';
-  static const chat_bot = 'chat_bot';
   static const chat_hold_down_talk = 'chat_hold_down_talk';
   static const incoming_call = 'incoming_call';
   static const error_confirmpassword = 'error_confirmpassword';
@@ -428,6 +428,7 @@ class LocaleKeys {
 
 class Locales {
   static const zh_CN = {
+    'bot_qian_fan': '千帆机器人',
     'you': '你',
     'button_cancel': '取消',
     'button_accomplish': '完成',
@@ -487,7 +488,6 @@ class Locales {
     'hint_login_recoverycode': '找回密码验证码',
     'hint_login_password': '密码',
     'hint_login_confirmpassword': '确认密码',
-    'chat_bot': '聊天机器人',
     'chat_hold_down_talk': '按住说话',
     'incoming_call': '%s呼入',
     'error_confirmpassword': '两次输入密码不一致',
@@ -835,6 +835,7 @@ class Locales {
     'about_app': '关于应用',
   };
   static const en_US = {
+    'bot_qian_fan': 'Qianfan robot',
     'you': 'You',
     'button_cancel': 'Cancel',
     'button_accomplish': 'Accomplish',
@@ -899,7 +900,6 @@ class Locales {
     'hint_login_recoverycode': 'Verification Code',
     'hint_login_password': 'Password',
     'hint_login_confirmpassword': 'Confirm Password',
-    'chat_bot': 'Chatbot',
     'chat_hold_down_talk': 'Press to talk',
     'incoming_call': '%s incoming call',
     'error_confirmpassword': 'The two passwords entered do not match',
@@ -1269,6 +1269,7 @@ class Locales {
     'about_app': 'About app',
   };
   static const ru_RU = {
+    'bot_qian_fan': 'Qianfan робот',
     'you': 'ты',
     'button_cancel': 'Отмена',
     'button_accomplish': 'Завершить',
@@ -1332,7 +1333,6 @@ class Locales {
     'hint_login_recoverycode': 'Код подтверждения',
     'hint_login_password': 'Пароль',
     'hint_login_confirmpassword': 'Подтвердить пароль',
-    'chat_bot': 'Говорящий робот',
     'chat_hold_down_talk': 'Зажмите, чтобы говорить',
     'incoming_call': 'Входящий звонок от %s',
     'error_confirmpassword': 'Пароли не совпадают',
@@ -1709,6 +1709,7 @@ class Locales {
     'about_app': 'О приложении',
   };
   static const zh_Hant = {
+    'bot_qian_fan': '千帆機器人',
     'you': '你',
     'button_cancel': '取消',
     'button_accomplish': '完成',
@@ -1768,7 +1769,6 @@ class Locales {
     'hint_login_recoverycode': '找回密碼驗證碼',
     'hint_login_password': '密碼',
     'hint_login_confirmpassword': '確認密碼',
-    'chat_bot': '聊天機器人',
     'chat_hold_down_talk': '按住說話',
     'incoming_call': '%s呼入',
     'error_confirmpassword': '兩次輸入密碼不一致',

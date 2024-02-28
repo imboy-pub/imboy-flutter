@@ -88,12 +88,12 @@ dependencies:
 
   camera: ^0.10.5+9
   #wechat_camera_picker: ^4.2.0-dev.3
-  wechat_camera_picker: ^4.2.0-dev.1
-  wechat_assets_picker: ^9.0.0-dev.2
+  wechat_camera_picker: ^4.2.0
+  wechat_assets_picker: ^9.0.0
   # Photo View provides a gesture sensitive zoomable widget. Photo View is largely used to show interactive images and other stuff such as SVG.
   photo_view: ^0.14.0 #
   # 照片管理器
-  photo_manager: 3.0.0-dev.5
+  photo_manager: 3.0.0
   # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
   video_compress: ^3.1.2
   # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
@@ -151,7 +151,7 @@ dependencies:
   #flutter_native_splash: ^2.3.13
   flutter_native_splash: ^2.3.10
   flutter_chat_ui: ^1.6.12
-  feedback: ^3.0.0
+  feedback: ^3.0.1
   #flutter_chat_ui:
   #  #path: plugin/flutter_chat_ui
   #  git:
@@ -288,7 +288,7 @@ dependencies:
 dependency_overrides:
   #http: ^1.1.2
   #voice_message_package: 1.0.41
-  web: 0.4.2
+  web: 0.5.0
   logger: ^2.0.2+1
 
 dev_dependencies:

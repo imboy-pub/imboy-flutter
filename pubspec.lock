@@ -534,10 +534,10 @@ packages:
     dependency: "direct main"
     description:
       name: feedback
-      sha256: "3cb138a56a3f3914dd38471479c351ce6df377abb29c5ebe4042be5481fee271"
+      sha256: fe585cb251d08074e25ba8a7f19c58861bda48387855c27ff84d8f8622873de6
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.0.0"
+    version: "3.0.1"
   ffi:
     dependency: transitive
     description:
@@ -1550,18 +1550,18 @@ packages:
     dependency: "direct main"
     description:
       name: photo_manager
-      sha256: "8cf79918f6de9843b394a1670fe1aec54ebcac852b4b4c9ef88211894547dc61"
+      sha256: df594f989f0c31cdb3ed48f3d49cb9ffadf11cc3700d2c3460b1912c93432621
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.0.0-dev.5"
+    version: "3.0.0"
   photo_manager_image_provider:
     dependency: transitive
     description:
       name: photo_manager_image_provider
-      sha256: c187f60c3fdbe5630735d9a0bccbb071397ec03dcb1ba6085c29c8adece798a0
+      sha256: "38ef1023dc11de3a8669f16e7c981673b3c5cfee715d17120f4b87daa2cdd0af"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.1.0"
+    version: "2.1.1"
   photo_view:
     dependency: "direct main"
     description:
@@ -2204,10 +2204,10 @@ packages:
     dependency: "direct overridden"
     description:
       name: web
-      sha256: "4188706108906f002b3a293509234588823c8c979dc83304e229ff400c996b05"
+      sha256: "1d9158c616048c38f712a6646e317a3426da10e884447626167240d45209cbad"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.4.2"
+    version: "0.5.0"
   web_socket_channel:
     dependency: "direct main"
     description:
@@ -2260,18 +2260,26 @@ packages:
     dependency: "direct main"
     description:
       name: wechat_assets_picker
-      sha256: "55364283d14bb5adcbf903bf878ae5032850df4a50715850e56f59f82fd9cc08"
+      sha256: dc289e7418dff078ab5b4383dceda83ee0afb5b98f16f3bc0cc58da2e672d3bd
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.0.0-dev.2"
+    version: "9.0.0"
   wechat_camera_picker:
     dependency: "direct main"
     description:
       name: wechat_camera_picker
-      sha256: ffc6f987b62d7e1104ec08c4797a620cb1cc9698cbfb6d19865290e835ea1777
+      sha256: "6397311b2fc2205b00c376455094934f4626f72fdcfc2d41293d81f0c0264a63"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.2.0-dev.3"
+    version: "4.2.0"
+  wechat_picker_library:
+    dependency: transitive
+    description:
+      name: wechat_picker_library
+      sha256: a47cdb227955f64494fe55bc42d91a76bfc626a446075d4284a070f1e1297b4e
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.0"
   win32:
     dependency: transitive
     description:

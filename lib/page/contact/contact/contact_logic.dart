@@ -149,8 +149,8 @@ class ContactLogic extends GetxController {
       ),
       /*
       ContactModel(
-        peerId: 'chat_bot',
-        nickname: 'chat_bot'.tr,
+        peerId: 'bot_qian_fan',
+        nickname: 'bot_qian_fan'.tr,
         nameIndex: '↑',
         bgColor: Colors.teal,
         // icon 翻转
@@ -165,8 +165,8 @@ class ContactLogic extends GetxController {
         onPressed: () {
           Get.to(
             () => ChatPage(
-              peerId: 'chat_bot',
-              peerTitle: 'chat_bot'.tr,
+              peerId: 'bot_qian_fan',
+              peerTitle: 'bot_qian_fan'.tr,
               peerAvatar: '',
               peerSign: '',
               type: 'C2S',
