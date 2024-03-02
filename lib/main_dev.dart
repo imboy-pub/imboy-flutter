@@ -88,7 +88,7 @@ class IMBoyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String lang = sysLang('');
+    String lang = jiffyLocal(sysLang(''));
     List<String> code = lang.split('_');
     return Dragball(
       icon: const DecoratedBox(

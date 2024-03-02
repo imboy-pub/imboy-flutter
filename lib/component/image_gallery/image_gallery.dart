@@ -54,16 +54,15 @@ class IMBoyImageGallery extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     iPrint("IMBoyImageGallery build ${images.length}");
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (bool didPop) async {
-        iPrint('IMBoyImageGallery didPop: $didPop');
-        // var canPop = await controller.confirmDiscard();
-
-        if (didPop) {
-          return;
-        }
-        // onClosePressed();
+    // return PopScope(
+    //   canPop: false,
+    //   onPopInvoked: (bool didPop) async {
+    //     iPrint('IMBoyImageGallery didPop: $didPop');
+    //     // var canPop = await controller.confirmDiscard();
+    //   },
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
       },
       child: GestureDetector(
         onTap: () => onClosePressed(),
