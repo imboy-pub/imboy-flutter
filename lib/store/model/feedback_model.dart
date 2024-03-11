@@ -10,6 +10,7 @@ class FeedbackModel {
   // String clientOperatingSystem;
   // String clientOperatingSystemVsn;
   String appVsn;
+
   //   bugReport,
   //   featureRequest,
   String type;

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
-import 'package:imboy/config/const.dart';
-import 'package:niku/namespace.dart' as n;
 
 // ignore: must_be_immutable
 class ContactCard extends StatelessWidget {
@@ -31,7 +32,7 @@ class ContactCard extends StatelessWidget {
     this.region = '', //
     this.remark = '',
     this.isBorder = false,
-    this.lineWidth = mainLineWidth,
+    this.lineWidth,
     this.padding,
   }) : assert(id != null);
 
@@ -39,7 +40,7 @@ class ContactCard extends StatelessWidget {
   Widget build(BuildContext context) {
     TextStyle labelStyle = const TextStyle(
       fontSize: 14,
-      color: AppColors.MainTextColor,
+      // color: AppColors.MainTextColor,
     );
 
     String? title = (remark == null || remark == 'null') ? '' : remark;
@@ -53,7 +54,6 @@ class ContactCard extends StatelessWidget {
             child: Text(
           title ?? '',
           style: const TextStyle(
-            color: Colors.black,
             fontSize: 18.0,
             fontWeight: FontWeight.w600,
           ),
@@ -83,12 +83,12 @@ class ContactCard extends StatelessWidget {
     }
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        // color: Colors.white,
         border: isBorder!
             ? Border(
                 bottom: BorderSide(
-                  color: AppColors.LineColor,
-                  width: lineWidth!,
+                  color: Theme.of(context).colorScheme.primary,
+                  width: lineWidth ?? mainLineWidth,
                 ),
               )
             : null,
@@ -124,8 +124,9 @@ class ContactCard extends StatelessWidget {
           ),
           const Space(width: mainSpace * 2),
           Expanded(
-              child: n.Column(items)
-                ..crossAxisAlignment = CrossAxisAlignment.start),
+            child: n.Column(items)
+              ..crossAxisAlignment = CrossAxisAlignment.start,
+          ),
         ],
       ),
     );

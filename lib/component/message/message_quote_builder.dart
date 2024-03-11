@@ -7,7 +7,7 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/message/message.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:jiffy/jiffy.dart';
@@ -22,6 +22,7 @@ class QuoteMessageBuilder extends StatelessWidget {
     required this.user,
     required this.message,
   });
+
   final String type; // C2C C2G
   final types.User user;
   final types.CustomMessage message;
@@ -39,7 +40,7 @@ class QuoteMessageBuilder extends StatelessWidget {
     return n.Column([
       n.Row([
         Bubble(
-          color: AppColors.ChatSendMessageBgColor,
+          // color: AppColors.ChatSendMessageBgColor,
           nip: userIsAuthor ? BubbleNip.rightBottom : BubbleNip.leftBottom,
           nipRadius: 4,
           style: const BubbleStyle(nipWidth: 16),
@@ -48,7 +49,7 @@ class QuoteMessageBuilder extends StatelessWidget {
           child: Text(
             text,
             style: const TextStyle(
-              color: AppColors.MainTextColor,
+              // color: AppColors.MainTextColor,
               fontSize: 15,
               fontWeight: FontWeight.w400,
             ),
@@ -62,7 +63,7 @@ class QuoteMessageBuilder extends StatelessWidget {
 
       // 被引用消息
       Bubble(
-        color: AppColors.AppBarColor,
+        // color: AppColors.AppBarColor,
         margin: const BubbleEdges.only(top: 4),
         padding: const BubbleEdges.only(bottom: 10),
         child: n.Column([
@@ -102,7 +103,7 @@ class QuoteMessageBuilder extends StatelessWidget {
                           DateTime.now().timeZoneOffset.inMilliseconds,
                     ).format(pattern: 'y-MM-dd\nHH:mm:ss'),
                     style: const TextStyle(
-                      color: AppColors.LabelTextColor,
+                      // color: AppColors.LabelTextColor,
                       fontSize: 11.0,
                     ),
                   ),

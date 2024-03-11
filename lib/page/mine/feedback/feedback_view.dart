@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/line.dart';
+import 'package:niku/namespace.dart' as n;
+
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/mine/feedback/feedback_detail_view.dart';
 import 'package:imboy/store/model/feedback_model.dart';
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
 
 import 'feedback_logic.dart';
 
@@ -33,14 +34,15 @@ class FeedbackPage extends StatelessWidget {
     initData();
 
     return Scaffold(
-      appBar: PageAppBar(
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         title: 'feedback'.tr,
       ),
       body: SingleChildScrollView(
         child: Container(
           width: Get.width,
           height: Get.height,
-          color: AppColors.primaryBackground,
+          color: Theme.of(context).colorScheme.background,
           child: n.Column([
             Expanded(
               child: n.Padding(
@@ -79,15 +81,21 @@ class FeedbackPage extends StatelessWidget {
                                             ..actions = [
                                               n.Button('button_cancel'.tr.n)
                                                 ..style = n.NikuButtonStyle(
-                                                    foregroundColor:
-                                                        AppColors.ItemOnColor)
+                                                  foregroundColor:
+                                                      Theme.of(context)
+                                                          .colorScheme
+                                                          .onBackground,
+                                                )
                                                 ..onPressed = () {
                                                   Navigator.of(context).pop();
                                                 },
                                               n.Button('button_delete'.tr.n)
                                                 ..style = n.NikuButtonStyle(
-                                                    foregroundColor:
-                                                        AppColors.ItemOnColor)
+                                                  foregroundColor:
+                                                      Theme.of(context)
+                                                          .colorScheme
+                                                          .onBackground,
+                                                )
                                                 ..onPressed = () async {
                                                   Navigator.of(context).pop();
                                                   bool res = await logic.remove(
@@ -124,7 +132,7 @@ class FeedbackPage extends StatelessWidget {
                                       Text(
                                         "${model.type.tr} | ${'submitted_at'.tr}",
                                         style: const TextStyle(
-                                          color: AppColors.MainTextColor,
+                                          // color: AppColors.MainTextColor,
                                           fontSize: 14.0,
                                         ),
                                       ),
@@ -136,7 +144,7 @@ class FeedbackPage extends StatelessWidget {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
-                                          color: AppColors.MainTextColor,
+                                          // color: AppColors.MainTextColor,
                                           fontSize: 14.0,
                                         ),
                                       ),
@@ -144,7 +152,7 @@ class FeedbackPage extends StatelessWidget {
                                       Text(
                                         model.statusDesc,
                                         style: const TextStyle(
-                                          color: AppColors.MainTextColor,
+                                          // color: AppColors.MainTextColor,
                                           fontSize: 14.0,
                                         ),
                                       )
@@ -164,11 +172,7 @@ class FeedbackPage extends StatelessWidget {
                                       ),
                                     ),
                                   ]),
-                                  trailing: Icon(
-                                    Icons.navigate_next,
-                                    color: AppColors.MainTextColor.withOpacity(
-                                        0.5),
-                                  ),
+                                  trailing: navigateNextIcon,
                                   onTap: () {
                                     Get.to(
                                       () => FeedbackDetailPage(
@@ -180,10 +184,8 @@ class FeedbackPage extends StatelessWidget {
                                   },
                                 ),
                               ),
-                              const Divider(
-                                height: 8.0,
-                                indent: 0.0,
-                                color: Colors.black26,
+                              HorizontalLine(
+                                height: Get.isDarkMode ? 0.5 : 1.0,
                               ),
                             ]);
                           },

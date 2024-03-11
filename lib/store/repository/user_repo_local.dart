@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
@@ -86,7 +87,7 @@ class UserRepoLocal extends GetxController {
     await StorageService.to.remove(Keys.currentUid);
     await StorageService.to.remove(Keys.currentUser);
 
-    WebSocketService.to.closeSocket();
+    WebSocketService.to.closeSocket(exit: true);
     SqliteService.to.close();
     return true;
   }

@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/chat/send_to/send_to_view.dart';
 import 'package:imboy/page/personal_info/update/update_view.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
@@ -38,8 +38,8 @@ class UserCollectDetailPage extends StatelessWidget {
           child: Text(
             'forward_to_friend'.tr,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.ItemOnColor,
+            style: TextStyle(
+              color: Theme.of(txt).colorScheme.onPrimary,
               fontSize: 16.0,
               fontWeight: FontWeight.normal,
             ),
@@ -47,24 +47,39 @@ class UserCollectDetailPage extends StatelessWidget {
           onPressed: () async {
             Get.closeAllBottomSheets();
             obj.info['id'] = Xid().toString();
+
             // 转发消息
-            Get.bottomSheet(
-              n.Padding(
-                top: 24,
-                child: SendToPage(
-                    msg: MessageModel.fromJson(obj.info).toTypeMessage(),
-                    callback: () {
-                      logic.change(obj.kindId);
-                    }),
-              ),
-              // 是否支持全屏弹出，默认false
-              isScrollControlled: true,
-              // enableDrag: false,
+
+            Get.to(
+              () => SendToPage(
+                  msg: MessageModel.fromJson(obj.info).toTypeMessage(),
+                  callback: () {
+                    logic.change(obj.kindId);
+                  }),
+              transition: Transition.rightToLeft,
+              popGesture: true, // 右滑，返回上一页
             );
+            // Get.bottomSheet(
+            //   n.Padding(
+            //     top: 24,
+            //     child: SendToPage(
+            //         msg: MessageModel.fromJson(obj.info).toTypeMessage(),
+            //         callback: () {
+            //           logic.change(obj.kindId);
+            //         }),
+            //   ),
+            //   // 是否支持全屏弹出，默认false
+            //   isScrollControlled: true,
+            //   // enableDrag: false,
+            // );
           },
         ),
       ),
-      const Divider(),
+      n.Padding(
+        left: 16,
+        right: 16,
+        child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
+      ),
       Center(
         child: TextButton(
           onPressed: () {
@@ -91,15 +106,19 @@ class UserCollectDetailPage extends StatelessWidget {
           child: Text(
             'edit_tag'.tr,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.ItemOnColor,
+            style: TextStyle(
+              color: Theme.of(txt).colorScheme.onPrimary,
               fontSize: 16.0,
               fontWeight: FontWeight.normal,
             ),
           ),
         ),
       ),
-      const Divider(),
+      n.Padding(
+        left: 16,
+        right: 16,
+        child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
+      ),
       Center(
         child: TextButton(
           onPressed: () {
@@ -133,15 +152,19 @@ class UserCollectDetailPage extends StatelessWidget {
           child: Text(
             'set_remark'.tr,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.ItemOnColor,
+            style: TextStyle(
+              color: Theme.of(txt).colorScheme.onPrimary,
               fontSize: 16.0,
               fontWeight: FontWeight.normal,
             ),
           ),
         ),
       ),
-      const Divider(),
+      n.Padding(
+        left: 16,
+        right: 16,
+        child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
+      ),
       Center(
         child: TextButton(
           onPressed: () async {
@@ -170,13 +193,18 @@ class UserCollectDetailPage extends StatelessWidget {
           child: Text(
             'button_cancel'.tr,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.ItemOnColor,
+            style: TextStyle(
+              color: Theme.of(txt).colorScheme.onPrimary,
               fontSize: 16.0,
               fontWeight: FontWeight.normal,
             ),
           ),
         ),
+      ),
+      n.Padding(
+        left: 16,
+        right: 16,
+        child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
       )
     ];
     if (obj.kind == 1) {
@@ -186,8 +214,8 @@ class UserCollectDetailPage extends StatelessWidget {
             child: Text(
               'button_copy'.tr,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.ItemOnColor,
+              style: TextStyle(
+                color: Theme.of(txt).colorScheme.onPrimary,
                 fontSize: 16.0,
                 fontWeight: FontWeight.normal,
               ),
@@ -203,7 +231,11 @@ class UserCollectDetailPage extends StatelessWidget {
             },
           ),
         ),
-        const Divider(),
+        n.Padding(
+          left: 16,
+          right: 16,
+          child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
+        ),
       ]);
     }
     return n.Wrap(rightItems);
@@ -214,7 +246,8 @@ class UserCollectDetailPage extends StatelessWidget {
     remark.value = obj.remark;
 
     return Scaffold(
-      appBar: PageAppBar(
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         title: 'details'.tr,
         rightDMActions: [
           InkWell(
@@ -225,7 +258,9 @@ class UserCollectDetailPage extends StatelessWidget {
                   height: 304 + (obj.kind == 1 ? 64 : 0),
                   child: buildRightItems(context),
                 ),
-                backgroundColor: Colors.white,
+                backgroundColor: Get.isDarkMode
+                    ? const Color.fromRGBO(80, 80, 80, 1)
+                    : const Color.fromRGBO(240, 240, 240, 1),
                 //改变shape这里即可
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(

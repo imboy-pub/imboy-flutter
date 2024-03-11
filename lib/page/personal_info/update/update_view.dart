@@ -1,13 +1,12 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/line.dart';
+import 'package:imboy/page/mine/select_region/select_region_logic.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/radio_list_title.dart';
-import 'package:imboy/component/ui/select_region_view.dart';
-import 'package:imboy/config/const.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'update_logic.dart';
 
@@ -37,6 +36,7 @@ class UpdatePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    logic.val.value = value;
     Future.delayed(const Duration(milliseconds: 100)).then((e) {
       // 设置提交按钮灰色
       logic.valueOnChange(false);
@@ -44,123 +44,110 @@ class UpdatePage extends StatelessWidget {
     Widget body = const SizedBox.shrink();
     if (field == "input") {
       logic.textController.text = value;
-      body = inputField();
+      body = inputField(context);
     } else if (field == "text") {
       logic.textController.text = value;
       logic.valueOnChange(true);
-      body = textField();
+      body = textField(context);
     } else if (field == "region") {
-      logic.val.value = value;
       // 选择如果是顶级地区,选中之
-      regionLogic.regionSelectedTitle(logic.val.value);
+      regionLogic.regionSelectedTitle(value);
       // 加载地区数据
       logic.loadData();
-      body = regionField();
+      body = regionField(context);
     } else if (field == "gender") {
-      logic.val.value = value;
       logic.valueOnChange(true);
-      body = genderField();
+      body = genderField(context);
     }
-    double top = 0;
-    if (Platform.isAndroid || Platform.isIOS || Platform.isFuchsia) {
-      top = 22;
-    }
-    return Container(
-      padding: EdgeInsets.only(top: top),
-      color: AppColors.AppBarColor,
-      width: Get.width,
-      height: Get.height,
-      child: Wrap(
-        children: <Widget>[
-          PageAppBar(
-            titleWidget: Row(
-              children: [
-                Expanded(
+    // double top = 0;
+    // if (Platform.isAndroid || Platform.isIOS || Platform.isFuchsia) {
+    //   top = 22;
+    // }
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
+        titleWidget: n.Row([
+          Expanded(
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+            ),
+            // 中间用Expanded控件
+          ),
+          Obx(
+            () => ElevatedButton(
+              onPressed: () async {
+                if (field == "input") {
+                  String trimmedText = logic.textController.text.trim();
+                  if (trimmedText == '') {
+                    logic.valueOnChange(false);
+                  } else {
+                    bool res = await callback(trimmedText);
+                    if (res) {
+                      Get.back();
+                    }
+                  }
+                } else if (field == "text") {
+                  String trimmedText = logic.textController.text.trim();
+                  bool res = await callback(trimmedText);
+                  if (res) {
+                    Get.back();
+                  }
+                } else if (field == "region" || field == "gender") {
+                  bool res = await callback(logic.val.value);
+                  if (res) {
+                    Get.back();
+                  }
+                }
+              },
+              // ignore: sort_child_properties_last
+              child: n.Padding(
+                  left: 10,
+                  right: 10,
                   child: Text(
-                    title,
+                    'button_accomplish'.tr,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
+                  )),
+              style: logic.valueChanged.isTrue
+                  ? ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                        Colors.green,
+                      ),
+                      foregroundColor: MaterialStateProperty.all<Color>(
+                        Colors.white,
+                      ),
+                      minimumSize:
+                          MaterialStateProperty.all(const Size(60, 40)),
+                      visualDensity: VisualDensity.compact,
+                      padding: MaterialStateProperty.all(EdgeInsets.zero),
+                    )
+                  : ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                        Colors.green.withOpacity(0.6),
+                      ),
+                      foregroundColor: MaterialStateProperty.all<Color>(
+                        Colors.white.withOpacity(0.6),
+                      ),
+                      minimumSize:
+                          MaterialStateProperty.all(const Size(60, 40)),
+                      visualDensity: VisualDensity.compact,
+                      padding: MaterialStateProperty.all(EdgeInsets.zero),
                     ),
-                  ),
-                  // 中间用Expanded控件
-                ),
-                Obx(
-                  () => ElevatedButton(
-                    onPressed: () async {
-                      if (field == "input") {
-                        String trimmedText = logic.textController.text.trim();
-                        if (trimmedText == '') {
-                          logic.valueOnChange(false);
-                        } else {
-                          bool res = await callback(trimmedText);
-                          if (res) {
-                            Get.back();
-                          }
-                        }
-                      } else if (field == "text") {
-                        String trimmedText = logic.textController.text.trim();
-                        bool res = await callback(trimmedText);
-                        if (res) {
-                          Get.back();
-                        }
-                      } else if (field == "region" || field == "gender") {
-                        bool res = await callback(logic.val.value);
-                        if (res) {
-                          Get.back();
-                        }
-                      }
-                    },
-                    // ignore: sort_child_properties_last
-                    child: n.Padding(
-                        left: 10,
-                        right: 10,
-                        child: Text(
-                          'button_accomplish'.tr,
-                          textAlign: TextAlign.center,
-                        )),
-                    style: logic.valueChanged.isTrue
-                        ? ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                              AppColors.primaryElement,
-                            ),
-                            foregroundColor: MaterialStateProperty.all<Color>(
-                              Colors.white,
-                            ),
-                            minimumSize:
-                                MaterialStateProperty.all(const Size(60, 40)),
-                            visualDensity: VisualDensity.compact,
-                            padding: MaterialStateProperty.all(EdgeInsets.zero),
-                          )
-                        : ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                              AppColors.AppBarColor,
-                            ),
-                            foregroundColor: MaterialStateProperty.all<Color>(
-                              AppColors.LineColor,
-                            ),
-                            minimumSize:
-                                MaterialStateProperty.all(const Size(60, 40)),
-                            visualDensity: VisualDensity.compact,
-                            padding: MaterialStateProperty.all(EdgeInsets.zero),
-                          ),
-                  ),
-                ),
-              ],
             ),
           ),
-          n.Row([
-            Expanded(
-              child: body,
-            ),
-          ]),
-        ],
+        ]),
       ),
+      body: SingleChildScrollView(child: body),
     );
   }
 
-  Widget inputField() {
+  Widget inputField(BuildContext context) {
     return TextFormField(
       autofocus: true,
       focusNode: logic.inputFocusNode,
@@ -170,18 +157,20 @@ class UpdatePage extends StatelessWidget {
       decoration: InputDecoration(
           contentPadding: const EdgeInsets.fromLTRB(14, 0, 8, 0),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: Get.isDarkMode
+              ? const Color.fromRGBO(70, 70, 70, 1.0)
+              : Colors.white70,
           focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(3),
-              borderSide: const BorderSide(
+              borderSide: BorderSide(
                 width: 1.0,
-                color: AppColors.AppBarColor,
+                color: Theme.of(context).colorScheme.background,
               )),
           enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(3),
-              borderSide: const BorderSide(
+              borderSide: BorderSide(
                 width: 1.0,
-                color: AppColors.AppBarColor,
+                color: Theme.of(context).colorScheme.background,
               )),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(3),
@@ -207,11 +196,7 @@ class UpdatePage extends StatelessWidget {
       },
       //style: ,
       onChanged: (value) {
-        if (value == '' || value == logic.val.value) {
-          logic.valueOnChange(false);
-        } else {
-          logic.valueOnChange(true);
-        }
+        onChanged(value);
       },
       onSaved: (value) {},
       validator: (value) {
@@ -220,7 +205,17 @@ class UpdatePage extends StatelessWidget {
     );
   }
 
-  Widget textField() {
+  onChanged(val) {
+    iPrint("onChanged ${logic.val.value} = $val");
+    if (val == '' || val == value) {
+      logic.valueOnChange(false);
+    } else {
+      logic.valueOnChange(true);
+    }
+    logic.setVal(val);
+  }
+
+  Widget textField(BuildContext context) {
     return TextFormField(
       autofocus: true,
       focusNode: logic.inputFocusNode,
@@ -234,18 +229,14 @@ class UpdatePage extends StatelessWidget {
       decoration: InputDecoration(
           contentPadding: const EdgeInsets.fromLTRB(14, 16, 8, 0),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: Get.isDarkMode
+              ? const Color.fromRGBO(70, 70, 70, 1.0)
+              : Colors.white70,
           focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(3),
-              borderSide: const BorderSide(
-                width: 1.0,
-                color: AppColors.AppBarColor,
-              )),
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(3),
-              borderSide: const BorderSide(
-                width: 1.0,
-                color: AppColors.AppBarColor,
+              borderSide: BorderSide(
+                width: 0.2,
+                color: Theme.of(context).colorScheme.background,
               )),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(3),
@@ -265,11 +256,7 @@ class UpdatePage extends StatelessWidget {
         }
       },
       onChanged: (value) {
-        if (value == '' || value == logic.val.value) {
-          logic.valueOnChange(false);
-        } else {
-          logic.valueOnChange(true);
-        }
+        onChanged(value);
       },
       onSaved: (value) {},
       validator: (value) {
@@ -278,112 +265,152 @@ class UpdatePage extends StatelessWidget {
     );
   }
 
-  Widget genderField() {
+  Widget genderField(BuildContext context) {
     Widget secondary = const Text(
       "√",
       style: TextStyle(
         fontSize: 20,
-        color: AppColors.primaryElement,
+        color: Colors.green,
       ),
     );
     return Obx(
-      () => n.Column(
-        [
-          IMBoyRadioListTile(
-            value: "1",
-            title: n.Text('male'.tr),
-            selected: false,
-            secondary: logic.val.value == "1" ? secondary : null,
-            controlAffinity: ListTileControlAffinity.leading,
-            activeColor: AppColors.primaryElement,
-            groupValue: logic.val.value,
-            onChanged: (val) {
-              logic.valueOnChange(true);
-              logic.setVal(val.toString());
-            },
-          ),
-          Container(
-            width: Get.width * 0.92,
-            height: 1,
-            color: AppColors.AppBarColor,
-          ),
-          IMBoyRadioListTile(
-            value: "2",
-            title: n.Text('female'.tr),
-            selected: false,
-            secondary: logic.val.value == "2" ? secondary : null,
-            controlAffinity: ListTileControlAffinity.leading,
-            activeColor: AppColors.primaryElement,
-            groupValue: logic.val.value,
-            onChanged: (val) {
-              logic.valueOnChange(true);
-              logic.setVal(val.toString());
-            },
-          ),
-          Container(
-            width: Get.width * 0.92,
-            height: 1,
-            color: AppColors.AppBarColor,
-          ),
-          IMBoyRadioListTile(
-            value: '3',
-            title: n.Text('keep_secret'.tr),
-            selected: false,
-            secondary: logic.val.value == '3' ? secondary : null,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(0.0),
-                topRight: Radius.circular(0.0),
-              ),
+      () => n.Column([
+        IMBoyRadioListTile(
+          value: '1',
+          title: n.Text(
+            'male'.tr,
+            style: n.TextStyle(
+              fontSize: logic.val.value == '1' ? 20 : 16,
+              color: Theme.of(context).colorScheme.onPrimary,
             ),
-            controlAffinity: ListTileControlAffinity.leading,
-            activeColor: AppColors.primaryElement,
-            groupValue: logic.val.value,
-            onChanged: (val) {
-              logic.valueOnChange(true);
-              logic.setVal(val.toString());
-            },
           ),
-        ],
-        mainAxisSize: MainAxisSize.min,
-      )..useParent((v) => v..bg = Colors.white),
+          selected: false,
+          secondary: logic.val.value == '1' ? secondary : null,
+          controlAffinity: ListTileControlAffinity.leading,
+          activeColor: Theme.of(context).colorScheme.primary,
+          groupValue: logic.val.value,
+          onChanged: (val) {
+            onChanged(val);
+          },
+        ),
+        n.Padding(
+          left: 16,
+          right: 16,
+          child: HorizontalLine(
+            height: Get.isDarkMode ? 0.5 : 1.0,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        IMBoyRadioListTile(
+          value: '2',
+          title: n.Text(
+            'female'.tr,
+            style: n.TextStyle(
+              fontSize: logic.val.value == '2' ? 20 : 16,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
+          ),
+          selected: false,
+          secondary: logic.val.value == '2' ? secondary : null,
+          controlAffinity: ListTileControlAffinity.leading,
+          activeColor: Theme.of(context).colorScheme.primary,
+          groupValue: logic.val.value,
+          onChanged: (val) {
+            onChanged(val);
+          },
+        ),
+        n.Padding(
+          left: 16,
+          right: 16,
+          child: HorizontalLine(
+            height: Get.isDarkMode ? 0.5 : 1.0,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        IMBoyRadioListTile(
+          value: '3',
+          title: n.Text(
+            'keep_secret'.tr,
+            style: n.TextStyle(
+              fontSize: logic.val.value == '3' ? 20 : 16,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
+          ),
+          selected: false,
+          secondary: logic.val.value == '3' ? secondary : null,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(0.0),
+              topRight: Radius.circular(0.0),
+            ),
+          ),
+          controlAffinity: ListTileControlAffinity.leading,
+          activeColor: Theme.of(Get.context!).colorScheme.primary,
+          groupValue: logic.val.value,
+          onChanged: (val) {
+            onChanged(val);
+          },
+        ),
+        n.Padding(
+          left: 16,
+          right: 16,
+          child: HorizontalLine(
+            height: Get.isDarkMode ? 0.5 : 1.0,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+      ])
+        ..mainAxisSize = MainAxisSize.min
+        ..useParent((v) => v
+            // ..bg = Get.isDarkMode
+            //     ? const Color.fromRGBO(70, 70, 70, 1.0)
+            //     : Colors.white70
+            ),
     );
   }
 
-  Widget regionField() {
-    return Obx(
-      () => n.Column(
-        [
-          Container(
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.only(left: 15.0),
-            width: Get.width,
-            height: 40.0,
-            child: Text("${'selected_region'.tr}： ${logic.val.value}"),
-          ),
-          n.Row([
-            Expanded(
-              child: SizedBox(
-                height: Get.height - 40,
-                child: ListView.builder(
-                  itemBuilder: (BuildContext context, int index) {
-                    return regionLogic
-                        .getListItem(context, "", logic.regionList[index],
-                            (String p, String t) async {
-                      logic.val.value = strEmpty(p) ? t : "$p $t";
-                      logic.valueOnChange(true);
-                      return true;
-                    }, callback);
-                  },
-                  itemCount: logic.regionList.length,
-                ),
+  Widget regionField(BuildContext context) {
+    return Obx(() => n.Column([
+              Container(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(left: 16.0),
+                width: Get.width,
+                height: 40.0,
+                child: Text("${'selected_region'.tr}： ${logic.val.value}"),
               ),
-            ),
-          ])
-            ..mainAxisSize = MainAxisSize.max,
-        ],
-        mainAxisSize: MainAxisSize.min,
-      )..useParent((v) => v..bg = Colors.white),
-    );
+              n.Row([
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.only(left: 16, right: 16),
+                    width: Get.width,
+                    height: Get.height - 40,
+                    // color: Theme.of(context).colorScheme.background,
+                    child: ListView.builder(
+                      itemBuilder: (BuildContext context, int index) {
+                        return regionLogic.getListItem(
+                            context: context,
+                            parent: '',
+                            model: logic.regionList[index],
+                            callback: (String p, String t) async {
+                              // logic.val.value = strEmpty(p) ? t : "$p $t";
+                              // logic.valueOnChange(true);
+                              onChanged(strEmpty(p) ? t : "$p $t");
+                              return true;
+                            },
+                            outCallback: callback,
+                            margin: const EdgeInsets.only(left: 0, right: 0));
+                      },
+                      itemCount: logic.regionList.length,
+                    ),
+                  ),
+                ),
+              ])
+                ..mainAxisSize = MainAxisSize.min
+                // 内容文本左对齐
+                ..crossAxisAlignment = CrossAxisAlignment.start,
+            ])
+              ..mainAxisSize = MainAxisSize.min
+        // ..useParent((v) => v..bg = Theme.of(context).colorScheme.background),
+        );
   }
 }

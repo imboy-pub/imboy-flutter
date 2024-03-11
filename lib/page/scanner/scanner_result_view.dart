@@ -6,7 +6,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/web_view.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:niku/namespace.dart' as n;
 
 import 'scanner_logic.dart';
@@ -22,8 +22,9 @@ class ScannerResultPage extends StatelessWidget {
     final logic = Get.find<ScannerLogic>();
 
     return Scaffold(
-        backgroundColor: AppColors.AppBarColor,
-        appBar: PageAppBar(title: 'scan_result'.tr),
+        backgroundColor: Theme.of(context).colorScheme.background,
+        appBar:
+            NavAppBar(automaticallyImplyLeading: true, title: 'scan_result'.tr),
         floatingActionButtonLocation:
             FloatingActionButtonLocation.miniCenterFloat,
         floatingActionButton: SizedBox(

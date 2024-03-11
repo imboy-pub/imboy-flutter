@@ -3,7 +3,8 @@ import 'package:get/get.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/config/const.dart';
+import 'package:imboy/component/ui/line.dart';
+
 import 'package:niku/namespace.dart' as n;
 
 Widget searchBar(
@@ -44,9 +45,9 @@ Widget searchBar(
     shape: MaterialStateProperty.all(const RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(10.0)),
     )),
-    hintStyle: MaterialStateProperty.all(TextStyle(
+    hintStyle: MaterialStateProperty.all(const TextStyle(
       fontSize: 14,
-      color: AppColors.LineColor.withOpacity(0.7),
+      // color: AppColors.LineColor.withOpacity(0.7),
     )),
 
     controller: controller,
@@ -111,7 +112,7 @@ class SearchBarDelegate extends SearchDelegate {
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
-      tooltip: 'Back',
+      tooltip: 'button_back'.tr,
       icon: AnimatedIcon(
         icon: AnimatedIcons.menu_arrow,
         progress: transitionAnimation,
@@ -163,30 +164,38 @@ class SearchBarDelegate extends SearchDelegate {
             child: ListView(
               children: <Widget>[
                 for (int i = 0; i < items.length; i++)
-                  n.ListTile(
-                    // selected: true,
-                    onTap: () {
-                      onTapForItem(items[i]);
-                    },
-                    leading: Avatar(
-                      imgUri: items[i].avatar,
-                      onTap: () {},
-                    ),
-                    title: n.Row([
-                      Expanded(
-                        child: Text(
-                          // 会话对象标题
-                          items[i].title,
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.normal,
+                  n.Column([
+                    n.ListTile(
+                      // selected: true,
+                      onTap: () {
+                        onTapForItem(items[i]);
+                      },
+                      leading: Avatar(
+                        imgUri: items[i].avatar,
+                        onTap: () {},
+                      ),
+                      title: n.Row([
+                        Expanded(
+                          child: Text(
+                            // 会话对象标题
+                            items[i].title,
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.normal,
+                            ),
+                            maxLines: 6,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 6,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      )
-                    ]),
-                  ),
+                      ]),
+                    ),
+                    n.Padding(
+                      left: 16,
+                      right: 16,
+                      bottom: 10,
+                      child: const HorizontalLine(height: 1.0),
+                    ),
+                  ]),
               ],
             ),
           );

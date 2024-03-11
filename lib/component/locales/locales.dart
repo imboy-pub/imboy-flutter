@@ -2,8 +2,10 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/locales/locales.g.dart';
+
 import 'package:imboy/config/const.dart';
+
+import 'package:imboy/component/locales/locales.g.dart';
 import 'package:imboy/service/storage.dart';
 
 class IMBoyTranslations extends Translations {
@@ -46,9 +48,7 @@ String jiffyLocal(String local) {
   // 'zh_tw': ZhTwLocale(),
   if (local == 'zh_Hans_CN' || local == 'zh-Hans-SG' || local == 'zh-Hans-CN') {
     local = 'zh_CN';
-  } else if (local == 'zh-Hant-HK') {
-    local = 'zh_Hant';
-  } else if (local == 'zh-Hant-TW') {
+  } else if (local == 'zh-Hant-HK' || local == 'zh-Hant-TW') {
     local = 'zh_Hant';
   } else if (local.startsWith('ru_')) {
     local = 'ru';

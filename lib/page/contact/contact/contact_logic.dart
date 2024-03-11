@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/page/contact/new_friend/new_friend_view.dart';
@@ -263,7 +263,6 @@ class ContactLogic extends GetxController {
     // debugPrint("getChatItem ${model.toJson().toString()}");
     return Container(
       padding: const EdgeInsets.only(top: 10, left: 10.0, bottom: 6),
-      color: Colors.white,
       child: n.Row([
         n.Padding(
           right: 2,
@@ -294,9 +293,12 @@ class ContactLogic extends GetxController {
             bottom: 10.0,
           ),
           width: Get.width - 78,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: AppColors.LineColor, width: 0.25),
+              bottom: BorderSide(
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                width: 0.25,
+              ),
             ),
           ),
           child: n.Row([
@@ -323,14 +325,14 @@ class ContactLogic extends GetxController {
       height: susHeight,
       width: MediaQuery.of(context).size.width,
       padding: const EdgeInsets.only(left: 10.0),
-      color: const Color(0xFFF3F4F5),
+      // color: const Color(0xFFF3F4F5),
       alignment: Alignment.centerLeft,
       child: Text(
         tag,
         softWrap: false,
         style: const TextStyle(
           fontSize: 14.0,
-          color: Color(0xFF666666),
+          // color: Color(0xFF666666),
         ),
       ),
     );

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/user_tag/contact_tag_detail/contact_tag_detail_logic.dart';
 import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_logic.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
@@ -30,7 +30,8 @@ class UserTagSavePage extends StatelessWidget {
     return Scaffold(
       // 输入框(TextField)被键盘遮挡解决方案
       resizeToAvoidBottomInset: false,
-      appBar: PageAppBar(
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         leading: InkWell(
           onTap: () {
             if (Get.isBottomSheetOpen ?? false) {
@@ -62,18 +63,20 @@ class UserTagSavePage extends StatelessWidget {
                 decoration: InputDecoration(
                     contentPadding: const EdgeInsets.fromLTRB(14, 0, 8, 0),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: Get.isDarkMode
+                        ? const Color.fromRGBO(70, 70, 70, 1.0)
+                        : Colors.white70,
                     focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(3),
                         borderSide: const BorderSide(
                           width: 1.0,
-                          color: AppColors.AppBarColor,
+                          // color: AppColors.AppBarColor,
                         )),
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(3),
                         borderSide: const BorderSide(
                           width: 1.0,
-                          color: AppColors.AppBarColor,
+                          // color: AppColors.AppBarColor,
                         )),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(3),
@@ -171,12 +174,17 @@ class UserTagSavePage extends StatelessWidget {
                     child: Text(
                       'button_accomplish'.tr,
                       textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.normal,
+                      ),
                     ),
                   ),
                   style: state.valueChanged.isTrue
                       ? ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
-                            AppColors.primaryElement,
+                            Colors.green,
                           ),
                           foregroundColor: MaterialStateProperty.all<Color>(
                             Colors.white,
@@ -188,10 +196,10 @@ class UserTagSavePage extends StatelessWidget {
                         )
                       : ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
-                            AppColors.AppBarColor,
+                            Colors.green.withOpacity(0.6),
                           ),
                           foregroundColor: MaterialStateProperty.all<Color>(
-                            AppColors.LineColor,
+                            Colors.white.withOpacity(0.6),
                           ),
                           minimumSize:
                               MaterialStateProperty.all(const Size(60, 40)),

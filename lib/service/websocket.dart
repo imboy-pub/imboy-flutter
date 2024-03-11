@@ -9,9 +9,10 @@ import 'package:imboy/store/provider/user_provider.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/http/http_client.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/service/storage.dart';
@@ -35,6 +36,8 @@ class WebSocketService {
     return _instance!;
   }
 
+  // wsConnectLock 防止token过期的时候产生多个WS链接
+  bool wsConnectLock = false;
   static WebSocketService? _instance;
 
   Iterable<String> protocols = ['text', 'sip'];
@@ -126,7 +129,10 @@ class WebSocketService {
       iPrint('> ws openSocket _socketStatus: $_socketStatus;');
       return;
     }
-
+    if (wsConnectLock) {
+      return;
+    }
+    wsConnectLock = true;
     try {
       Map<String, dynamic> headers = await defaultHeaders();
       String tk = UserRepoLocal.to.accessToken;
@@ -173,6 +179,8 @@ class WebSocketService {
       closeSocket();
       _socketStatus = SocketStatus.SocketStatusFailed;
       iPrint("> openSocket $WS_URL error ${e.toString()}");
+    } finally {
+      wsConnectLock = false;
     }
   }
 
@@ -203,14 +211,15 @@ class WebSocketService {
       // 4000–4999		可以由应用使用。
       // 4006 通知客户端刷新token消息没有得到确认，系统主动关闭连接
       int closeCode = _webSocketChannel?.closeCode ?? 0;
-      closeSocket();
 
       switch (closeCode) {
         case 4006:
+          closeSocket(exit: true);
           await StorageService.to.remove(Keys.tokenKey);
           Get.offAll(() => PassportPage());
           break;
         default:
+          closeSocket();
           Future.delayed(const Duration(milliseconds: 1000), () {
             iPrint('_webSocketOnDone _reconnectTimes: $_reconnectTimes');
             _reconnect();
@@ -230,19 +239,22 @@ class WebSocketService {
   }
 
   void destroyReconnectTimer() {
+    _reconnectTimes = 0;
     _reconnectTimer?.cancel();
+    _reconnectTimer = null;
   }
 
   /// 关闭WebSocket
-  void closeSocket() {
+  void closeSocket({bool exit = false}) {
     iPrint('> ws closeSocket ${DateTime.now()}');
     // destroyHeartBeat();
     destroyReconnectTimer();
-    if (_webSocketChannel != null) {
-      iPrint('> ws WebSocket连接关闭 $WS_URL');
-      _webSocketChannel?.sink.close();
-      _webSocketChannel = null;
-      _socketStatus = SocketStatus.SocketStatusClosed;
+    iPrint('> ws WebSocket连接关闭 $WS_URL');
+    _webSocketChannel?.sink.close();
+    _webSocketChannel = null;
+    _socketStatus = SocketStatus.SocketStatusClosed;
+    if (exit) {
+      _instance = null;
     }
   }
 
@@ -250,13 +262,13 @@ class WebSocketService {
   Future<bool> sendMessage(String msg) async {
     bool result = false;
     if (isConnected == false) {
-      await openSocket();
+      await WebSocketService.to.openSocket();
     }
     // iPrint('> ws sendMsg $msg');
     try {
       result = _send(msg);
     } catch (e) {
-      await openSocket();
+      await WebSocketService.to.openSocket();
       result = _send(msg);
     }
     return result;
@@ -271,15 +283,14 @@ class WebSocketService {
   void _reconnect() {
     iPrint(
         '> ws _reconnect _reconnectTimes $_reconnectTimes < $_reconnectMax ${DateTime.now()}');
-    closeSocket();
     if (_reconnectTimes < _reconnectMax) {
-      openSocket(fromReconnect: true);
+      WebSocketService.to.openSocket(fromReconnect: true);
       _reconnectTimes += 1;
       _reconnectTimer?.cancel();
       _reconnectTimer = Timer.periodic(
         Duration(milliseconds: _heartTimes),
         (timer) {
-          openSocket(fromReconnect: true);
+          WebSocketService.to.openSocket(fromReconnect: true);
         },
       );
     } else {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -19,7 +19,7 @@ class ContactSettingTagPage extends StatelessWidget {
   final String peerSign;
   final String peerRegion;
   final String peerSource;
-  final String peerRemark;
+  String peerRemark;
   Rx<String> peerTag;
 
   ContactSettingTagPage({
@@ -51,7 +51,8 @@ class ContactSettingTagPage extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: PageAppBar(
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         titleWidget: n.Row([
           Expanded(
             child: Text(
@@ -74,19 +75,24 @@ class ContactSettingTagPage extends StatelessWidget {
                   bool res = await logic.changeRemark(peerId, trimmedText);
                   if (res) {
                     EasyLoading.showSuccess('tip_success'.tr);
+                    peerRemark = trimmedText;
                     Get.back(result: trimmedText);
                   }
                 }
               },
               // ignore: sort_child_properties_last
-              child: n.Padding(left:10, right:10, child:Text(
-                'button_accomplish'.tr,
-                textAlign: TextAlign.center,
-              )),
+              child: n.Padding(
+                  left: 10,
+                  right: 10,
+                  child: Text(
+                    'button_accomplish'.tr,
+                    textAlign: TextAlign.center,
+                  )),
               style: logic.valueChanged.isTrue
                   ? ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
-                        AppColors.primaryElement,
+                        // Theme.of(context).colorScheme.background,
+                        Colors.green,
                       ),
                       foregroundColor: MaterialStateProperty.all<Color>(
                         Colors.white,
@@ -98,10 +104,10 @@ class ContactSettingTagPage extends StatelessWidget {
                     )
                   : ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
-                        AppColors.AppBarColor,
+                        Colors.green.withOpacity(0.6),
                       ),
                       foregroundColor: MaterialStateProperty.all<Color>(
-                        AppColors.LineColor,
+                        Colors.white.withOpacity(0.6),
                       ),
                       minimumSize:
                           MaterialStateProperty.all(const Size(60, 40)),
@@ -118,10 +124,15 @@ class ContactSettingTagPage extends StatelessWidget {
         right: 12,
         child: n.Column([
           n.TextFormField(
-            labelText: 'remark'.tr,
+            label: Text(
+              'remark'.tr,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+            ),
             autofocus: true,
             showCursor: true,
-            style: n.TextStyle(color: AppColors.ItemOnColor),
+            // style: n.TextStyle(color: Colors.red),
             focusNode: logic.remarkFocusNode,
             controller: logic.remarkTextController,
             keyboardType: TextInputType.text,
@@ -143,15 +154,24 @@ class ContactSettingTagPage extends StatelessWidget {
                 logic.valueOnChange(true);
               }
             },
-          )..usePrefixStyle((v) => v..color = Colors.white),
-
+          )
+          // ..usePrefixStyle(
+          //   (v) => v..color = Theme.of(context).colorScheme.background,
+          // )
+          ,
           const SizedBox(height: 20),
           //
           Obx(() => n.TextFormField(
-                labelText: 'tags'.tr,
+                // labelText: 'tags'.tr,
+                label: Text(
+                  'tags'.tr,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
                 controller: TextEditingController()
                   ..text = peerTag.isEmpty ? 'add_tag'.tr : peerTag.value,
-                style: n.TextStyle(color: AppColors.ItemOnColor),
+                // style: n.TextStyle(color: AppColors.ItemOnColor),
                 readOnly: true,
                 minLines: 1,
                 maxLines: 8,

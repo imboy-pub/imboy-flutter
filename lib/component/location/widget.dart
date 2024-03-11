@@ -6,9 +6,9 @@ import 'package:amap_flutter_map/amap_flutter_map.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/config/const.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+import 'package:imboy/config/const.dart';
 import 'amap_helper.dart';
 
 class SearchBarStyle {
@@ -219,13 +219,13 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                         child: TextButton(
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(
-                              AppColors.primaryElement,
+                              Theme.of(context).colorScheme.primary,
                             ),
                           ),
                           child: Text(
                             'button_send'.tr,
-                            style: const TextStyle(
-                              color: AppColors.primaryElementText,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -392,9 +392,11 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                   subtitle:
                                       Text("$distance${data[index].address}"),
                                   trailing: _selindex == index
-                                      ? const Icon(
+                                      ? Icon(
                                           Icons.check,
-                                          color: AppColors.ButtonTextColor,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
                                         )
                                       : const SizedBox.shrink(),
                                 ),
@@ -406,10 +408,10 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                     ),
                   );
                 } else {
-                  return const Center(
+                  return Center(
                     child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation(
-                        AppColors.ButtonTextColor,
+                        Theme.of(context).colorScheme.onPrimary,
                       ),
                     ),
                   );

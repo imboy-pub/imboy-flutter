@@ -4,12 +4,16 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+// ignore: implementation_imports
+import 'package:flutter_chat_ui/src/widgets/state/inherited_chat_theme.dart'
+    show InheritedChatTheme;
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/location/widget.dart';
 import 'package:imboy/component/webrtc/func.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/store/model/contact_model.dart';
-import 'package:niku/namespace.dart' as n;
 
 class ExtraItem extends StatelessWidget {
   const ExtraItem({
@@ -42,19 +46,23 @@ class ExtraItem extends StatelessWidget {
             height: height ?? 56,
             // margin: EdgeInsets.symmetric(horizontal: 10),
             child: Material(
-              color: AppColors.ChatInputBackgroundColor,
+              color: InheritedChatTheme.of(context).theme.inputBackgroundColor,
               // INK可以实现装饰容器
               child: Ink(
                 // 用ink圆角矩形
                 decoration: BoxDecoration(
                   // 背景
-                  color: AppColors.ChatInputFillGgColor,
+                  color: Get.isDarkMode
+                      ? const Color.fromRGBO(38, 38, 38, 1.0)
+                      : const Color.fromRGBO(255, 255, 255, 1.0),
                   // 设置四周圆角 角度
                   borderRadius: const BorderRadius.all(Radius.circular(16.0)),
                   // 设置四周边框
                   border: Border.all(
                     width: 1,
-                    color: AppColors.ChatInputBackgroundColor,
+                    color: Get.isDarkMode
+                        ? const Color.fromRGBO(44, 44, 44, 1.0)
+                        : const Color.fromRGBO(255, 255, 255, 1.0),
                   ),
                 ),
                 child: image is ImageProvider
@@ -268,9 +276,7 @@ class _ExtraItemsState extends State<ExtraItems> {
               ),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: (Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black)
+                color: (Get.isDarkMode ? Colors.white : Colors.black)
                     .withOpacity(_current == entry.key ? 0.7 : 0.2),
               ),
             ),

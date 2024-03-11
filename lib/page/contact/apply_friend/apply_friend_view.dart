@@ -4,7 +4,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/icon_text.dart';
 import 'package:imboy/component/ui/radio_list_title.dart';
 import 'package:imboy/component/ui/title_text_field.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
@@ -38,18 +38,18 @@ class ApplyFriendPage extends StatelessWidget {
     _msgController.text = "${'i_am'.tr} ${UserRepoLocal.to.current.nickname}";
     _remarkController.text = remark;
 
-    Widget secondary = const Text(
+    Widget secondary = Text(
       "√",
       style: TextStyle(
         fontSize: 20,
-        color: AppColors.primaryElement,
+        color: Theme.of(context).colorScheme.primary,
       ),
     );
     return Scaffold(
-      backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: NavAppBar(
         title: 'apply_add_friend'.tr,
-        backgroundColor: Colors.white,
+        automaticallyImplyLeading: true,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Padding(
@@ -92,10 +92,10 @@ class ApplyFriendPage extends StatelessWidget {
             },
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(
-                AppColors.primaryElement,
+                Theme.of(context).colorScheme.background,
               ),
               foregroundColor: MaterialStateProperty.all<Color>(
-                Colors.white,
+                Theme.of(context).colorScheme.onBackground,
               ),
               minimumSize: MaterialStateProperty.all(const Size(60, 40)),
               visualDensity: VisualDensity.compact,
@@ -113,7 +113,7 @@ class ApplyFriendPage extends StatelessWidget {
         child: Container(
           width: Get.width,
           height: Get.height + 200,
-          color: AppColors.BgColor,
+          color: Theme.of(context).colorScheme.background,
           child: n.Padding(
             left: 30,
             top: 10,
@@ -187,10 +187,14 @@ class ApplyFriendPage extends StatelessWidget {
                           secondary:
                               logic.role.value == "all" ? secondary : null,
                           controlAffinity: ListTileControlAffinity.leading,
-                          activeColor: AppColors.primaryElement,
+                          activeColor: Theme.of(context).colorScheme.onPrimary,
                           groupValue: logic.role.value,
-                          contentPadding:
-                              const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          contentPadding: const EdgeInsets.fromLTRB(
+                            10,
+                            0,
+                            10,
+                            0,
+                          ),
                           onChanged: (val) {
                             logic.setRole(val.toString());
                             logic.visibilityLook = true.obs;
@@ -207,7 +211,7 @@ class ApplyFriendPage extends StatelessWidget {
                               ? secondary
                               : null,
                           controlAffinity: ListTileControlAffinity.leading,
-                          activeColor: AppColors.primaryElement,
+                          activeColor: Theme.of(context).colorScheme.primary,
                           groupValue: logic.role.value,
                           contentPadding:
                               const EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -233,39 +237,39 @@ class ApplyFriendPage extends StatelessWidget {
                         top: 10,
                         bottom: 50,
                       ),
-                      child: n.Column(
-                        [
-                          Text('moment_status'.tr),
-                          Card(
-                            color: const Color.fromARGB(255, 247, 247, 247),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadiusDirectional.circular(5),
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: n.Column([
-                              SwitchListTile(
-                                title: Text('not_let_him_see'.tr),
-                                value: logic.donotlethimlook.isTrue,
-                                activeColor: AppColors.primaryElement,
-                                onChanged: (val) {
-                                  logic.donotlethimlook.value = val;
-                                  logic.update([logic.donotlethimlook]);
-                                },
-                              ),
-                              SwitchListTile(
-                                title: Text('not_see_him'.tr),
-                                value: logic.donotlookhim.isTrue,
-                                activeColor: AppColors.primaryElement,
-                                onChanged: (val) {
-                                  logic.donotlookhim.value = val;
-                                  logic.update([logic.donotlookhim]);
-                                },
-                              ),
-                            ]),
+                      child: n.Column([
+                        Text('moment_status'.tr),
+                        Card(
+                          color: const Color.fromARGB(255, 247, 247, 247),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadiusDirectional.circular(5),
                           ),
-                        ],
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                      ),
+                          clipBehavior: Clip.antiAlias,
+                          child: n.Column([
+                            SwitchListTile(
+                              title: Text('not_let_him_see'.tr),
+                              value: logic.donotlethimlook.isTrue,
+                              activeColor:
+                                  Theme.of(context).colorScheme.primary,
+                              onChanged: (val) {
+                                logic.donotlethimlook.value = val;
+                                logic.update([logic.donotlethimlook]);
+                              },
+                            ),
+                            SwitchListTile(
+                              title: Text('not_see_him'.tr),
+                              value: logic.donotlookhim.isTrue,
+                              activeColor:
+                                  Theme.of(context).colorScheme.primary,
+                              onChanged: (val) {
+                                logic.donotlookhim.value = val;
+                                logic.update([logic.donotlookhim]);
+                              },
+                            ),
+                          ]),
+                        ),
+                      ])
+                        ..crossAxisAlignment = CrossAxisAlignment.start,
                     ),
                   ),
                 ])

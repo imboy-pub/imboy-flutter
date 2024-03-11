@@ -85,7 +85,7 @@ class MessageModel {
 
     return MessageModel(
       data[MessageRepo.id],
-      autoId: data[MessageRepo.autoId],
+      autoId: data[MessageRepo.autoId] ?? 0,
       type: data[MessageRepo.type],
       status: int.parse('${data[MessageRepo.status] ?? 0}'),
       fromId: data[MessageRepo.from] ?? '',
@@ -220,6 +220,10 @@ class MessageModel {
     String sysPrompt = payload?['sys_prompt'] ?? '';
     types.Message? message;
     // enum MessageType { custom, file, image, text, unsupported }
+    Map<String, dynamic> metadata = {
+      'conversation_id': conversationId,
+      'sys_prompt': sysPrompt,
+    };
     if (payload!['msg_type'] == 'text') {
       message = types.TextMessage(
         author: types.User(
@@ -232,7 +236,7 @@ class MessageModel {
         remoteId: toId,
         text: payload?['text'],
         status: typesStatus,
-        metadata: {'sys_prompt': sysPrompt},
+        metadata: metadata,
       );
     } else if (payload!['msg_type'] == 'image') {
       message = types.ImageMessage(
@@ -250,7 +254,7 @@ class MessageModel {
         width: payload!['width'] / 1.0,
         height: payload!['height'] / 1.0,
         status: typesStatus,
-        metadata: {'sys_prompt': sysPrompt},
+        metadata: metadata,
       );
     } else if (payload!['msg_type'] == 'file') {
       message = types.FileMessage(
@@ -266,7 +270,7 @@ class MessageModel {
         size: payload!['size'],
         uri: payload!['uri'],
         status: typesStatus,
-        metadata: {'sys_prompt': sysPrompt},
+        metadata: metadata,
       );
     } else if (payload!['custom_type'] == 'revoked' ||
         payload!['custom_type'] == 'peer_revoked' ||
@@ -281,7 +285,7 @@ class MessageModel {
         id: id!,
         createdAt: createdAtLocal,
         remoteId: toId,
-        metadata: payload,
+        metadata: {...metadata, ...?payload},
       );
     } else if (payload!['custom_type'] == 'quote') {
       message = types.CustomMessage(
@@ -293,7 +297,7 @@ class MessageModel {
         id: id!,
         createdAt: createdAtLocal,
         remoteId: toId,
-        metadata: payload,
+        metadata: {...metadata, ...?payload},
       );
     } else if (payload!['msg_type'] == 'custom') {
       message = types.CustomMessage(
@@ -306,7 +310,7 @@ class MessageModel {
         createdAt: createdAtLocal,
         remoteId: toId,
         status: typesStatus,
-        metadata: payload,
+        metadata: {...metadata, ...?payload},
       );
     }
 

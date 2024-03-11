@@ -10,7 +10,7 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_logic.dart';
 import 'package:imboy/page/user_tag/user_tag_save/user_tag_save_view.dart';
@@ -53,12 +53,16 @@ class ContactTagDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     loadData();
     return Scaffold(
-      appBar: PageAppBar(
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         titleWidget: Obx(() => Text('${state.tagName} (${state.refererTime})')),
         rightDMActions: [
           InkWell(
             onTap: () {
               Get.bottomSheet(
+                backgroundColor: Get.isDarkMode
+                    ? const Color.fromRGBO(80, 80, 80, 1)
+                    : const Color.fromRGBO(240, 240, 240, 1),
                 SizedBox(
                   width: Get.width,
                   height: 172,
@@ -76,6 +80,9 @@ class ContactTagDetailPage extends StatelessWidget {
                         ),
                         onPressed: () async {
                           Get.bottomSheet(
+                            backgroundColor: Get.isDarkMode
+                                ? const Color.fromRGBO(80, 80, 80, 1)
+                                : const Color.fromRGBO(240, 240, 240, 1),
                             n.Padding(
                               // top: 80,
                               child: UserTagSavePage(tag: tag, scene: 'friend'),
@@ -175,7 +182,9 @@ class ContactTagDetailPage extends StatelessWidget {
                                 )
                               ]),
                             ),
-                            backgroundColor: Colors.white,
+                            backgroundColor: Get.isDarkMode
+                                ? const Color.fromRGBO(80, 80, 80, 1)
+                                : const Color.fromRGBO(240, 240, 240, 1),
                             //改变shape这里即可
                             shape: const RoundedRectangleBorder(
                               borderRadius: BorderRadius.only(
@@ -213,7 +222,6 @@ class ContactTagDetailPage extends StatelessWidget {
                     )
                   ]),
                 ),
-                backgroundColor: Colors.white,
                 //改变shape这里即可
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
@@ -227,8 +235,11 @@ class ContactTagDetailPage extends StatelessWidget {
             child: n.Padding(
               left: 10,
               right: 10,
-              child: const Icon(
+              top: 10,
+              bottom: 10,
+              child: Icon(
                 Icons.more_horiz,
+                color: Theme.of(context).colorScheme.onPrimary,
                 // size: 40,
               ),
             ),
@@ -420,7 +431,10 @@ class ContactTagDetailPage extends StatelessWidget {
                                         ],
                                       ),
                                     ),
-                                    backgroundColor: Colors.white,
+                                    backgroundColor: Get.isDarkMode
+                                        ? const Color.fromRGBO(80, 80, 80, 1)
+                                        : const Color.fromRGBO(
+                                            240, 240, 240, 1),
                                     //改变shape这里即可
                                     shape: const RoundedRectangleBorder(
                                       borderRadius: BorderRadius.only(
@@ -503,12 +517,16 @@ class ContactTagDetailPage extends StatelessWidget {
                         right: 40,
                         child: Text(
                           'button_add'.tr,
-                          style: const TextStyle(color: AppColors.ItemOnColor),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
+                          ),
                         ),
                       ),
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(
-                          AppColors.AppBarColor,
+                          Theme.of(context).colorScheme.background,
                         ),
                         minimumSize:
                             MaterialStateProperty.all(const Size(60, 40)),
@@ -641,7 +659,7 @@ class SelectFriendPage extends StatelessWidget {
                     decoration: const BoxDecoration(
                       border: Border(
                         top: BorderSide(
-                          color: AppColors.LineColor,
+                          // color: AppColors.LineColor,
                           width: 0.2,
                         ),
                       ),
@@ -713,7 +731,7 @@ class SelectFriendPage extends StatelessWidget {
                 style: selectedContact.isNotEmpty
                     ? ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(
-                          AppColors.primaryElement,
+                          Colors.green,
                         ),
                         foregroundColor: MaterialStateProperty.all<Color>(
                           Colors.white,
@@ -725,10 +743,10 @@ class SelectFriendPage extends StatelessWidget {
                       )
                     : ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(
-                          AppColors.AppBarColor,
+                          Colors.green.withOpacity(0.6),
                         ),
                         foregroundColor: MaterialStateProperty.all<Color>(
-                          AppColors.LineColor,
+                          Colors.white.withOpacity(0.6),
                         ),
                         minimumSize:
                             MaterialStateProperty.all(const Size(60, 40)),
@@ -740,7 +758,6 @@ class SelectFriendPage extends StatelessWidget {
           )
         ],
       ),
-      backgroundColor: Colors.white,
       body: Obx(
         () => n.Stack([
           RefreshIndicator(

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/locales/locales.dart';
-import 'package:imboy/config/const.dart';
-import 'package:imboy/service/storage.dart';
 import 'package:jiffy/jiffy.dart';
+
+import 'package:imboy/config/const.dart';
+import 'package:imboy/component/locales/locales.dart';
+import 'package:imboy/service/storage.dart';
 
 import 'language_state.dart';
 
@@ -38,14 +39,20 @@ class LanguageLogic extends GetxController {
         child: ListTile(
           title: Text(
             model['title'] ?? '',
+            style: TextStyle(
+              fontSize: state.selectedLanguage.value == id ? 20 : 16,
+              // color: Theme.of(context).colorScheme.onPrimary,
+            ),
           ),
           selected: state.selectedLanguage.value == id,
-          selectedColor: AppColors.primaryElement,
+          selectedColor: Theme.of(context).colorScheme.onPrimary,
           trailing: state.selectedLanguage.value == id
               ? const Text(
-                  "√",
+                  '√',
                   style: TextStyle(
-                      fontSize: 20, color: AppColors.secondaryElementText),
+                    fontSize: 20,
+                    color: Colors.green,
+                  ),
                 )
               : null,
           onTap: () {
@@ -57,12 +64,13 @@ class LanguageLogic extends GetxController {
             // regionSelectedTitle(title);
           },
         ),
+        // margin: const EdgeInsets.only(left: 16, right: 16),
         // 下边框
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
-              width: 1,
-              color: Color(0xffe5e5e5),
+              width: 1.0,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
         ),

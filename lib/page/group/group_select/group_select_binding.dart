@@ -4,7 +4,7 @@ import 'group_select_logic.dart';
 
 class GroupSelectBinding extends Binding {
   @override
-    List<Bind> dependencies() => [
+  List<Bind> dependencies() => [
         Bind.lazyPut(() => GroupSelectLogic()),
       ];
 }

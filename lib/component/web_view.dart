@@ -93,8 +93,9 @@ class WebViewPageState extends State<WebViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PageAppBar(
+      appBar: NavAppBar(
         titleWidget: Text(widget.title),
+        automaticallyImplyLeading: true,
       ),
       body: WebViewWidget(controller: widget._controller!),
     );

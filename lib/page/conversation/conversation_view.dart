@@ -89,14 +89,15 @@ class _ConversationPageState extends State<ConversationPage> {
         titleWidget: Obx(
           () => Text(
             'title_message'.tr + logic.connectDesc.value,
-            style: const TextStyle(
-              color: Colors.black,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimary,
               fontSize: 16.0,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
       ),
+      // backgroundColor: Get.isDarkMode ? darkBgColor : lightBgColor,
       body: n.Column([
         Obx(() {
           return logic.connectDesc.isEmpty
@@ -184,7 +185,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                   key: ValueKey("delete_$index"),
                                   flex: 2,
                                   backgroundColor: Colors.red,
-                                  // foregroundColor: Colors.white,
+                                  foregroundColor: Colors.white,
                                   onPressed: (_) async {
                                     await logic
                                         .removeConversation(conversationId);

@@ -1,11 +1,10 @@
-import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:imboy/component/webrtc/func.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -24,7 +23,8 @@ class WebRTCMessageBuilder extends StatelessWidget {
   final types.User user;
   final types.CustomMessage message;
 
-  Widget _buildBody(String customType, String title, bool userIsAuthor) {
+  Widget _buildBody(BuildContext context, String customType, String title,
+      bool userIsAuthor) {
     Widget row;
     if (userIsAuthor) {
       row = n.Row([
@@ -36,7 +36,8 @@ class WebRTCMessageBuilder extends StatelessWidget {
             title,
             textAlign: TextAlign.left,
             style: const TextStyle(
-              color: AppColors.primaryText,
+              // color: Theme.of(context).colorScheme.onPrimary,
+              color: Color.fromRGBO(34, 34, 34, 1.0),
               fontSize: 15.0,
             ),
             maxLines: 4,
@@ -44,8 +45,14 @@ class WebRTCMessageBuilder extends StatelessWidget {
           ),
         ),
         customType == 'webrtc_video'
-            ? const Icon(Icons.videocam)
-            : const Icon(Icons.call_end),
+            ? const Icon(
+                Icons.videocam,
+                color: Color.fromRGBO(34, 34, 34, 1.0),
+              )
+            : const Icon(
+                Icons.call_end,
+                color: Color.fromRGBO(34, 34, 34, 1.0),
+              ),
       ])
         ..mainAxisSize = MainAxisSize.min
         // 内容文本左对齐
@@ -64,7 +71,7 @@ class WebRTCMessageBuilder extends StatelessWidget {
             title,
             textAlign: TextAlign.left,
             style: const TextStyle(
-              color: AppColors.primaryText,
+              // color: AppColors.primaryText,
               fontSize: 15.0,
             ),
             maxLines: 4,
@@ -119,10 +126,42 @@ class WebRTCMessageBuilder extends StatelessWidget {
     if (title.isEmpty) {
       return const SizedBox.shrink();
     }
+    return InkWell(
+      onTap: () async {
+        ContactModel? peer = await ContactRepo().findByUid(peerId);
+        // UserModel peer = UserModel(
+        //   uid: peerId,
+        //   account: c!.account,
+        //   nickname: c.nickname,
+        //   avatar: c.avatar,
+        // );
+        openCallScreen(
+          peer!,
+          // session: s,
+          {
+            'media': media,
+          },
+          caller: true,
+        );
+      },
+      child: n.Padding(
+        left: 10,
+        right: 10,
+        top: 8,
+        bottom: 8,
+        child: _buildBody(
+          context,
+          customType,
+          title,
+          userIsAuthor,
+        ),
+      ),
+    );
+    /*
     return Bubble(
-      color: userIsAuthor
-          ? AppColors.ChatSendMessageBgColor
-          : AppColors.ChatReceivedMessageBodyBgColor,
+      // color: userIsAuthor
+      //     ? AppColors.ChatSendMessageBgColor
+      //     : AppColors.ChatReceivedMessageBodyBgColor,
       // color: AppColors.ChatReceivedMessageBodyBgColor,
       nip: userIsAuthor ? BubbleNip.rightBottom : BubbleNip.leftBottom,
       // style: const BubbleStyle(nipWidth: 16),
@@ -153,5 +192,6 @@ class WebRTCMessageBuilder extends StatelessWidget {
         ),
       ),
     );
+    */
   }
 }

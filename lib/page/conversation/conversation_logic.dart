@@ -40,8 +40,7 @@ class ConversationLogic extends GetxController {
   replace(ConversationModel obj) async {
     iPrint("ConversationRepo_Logic_replace ${obj.toJson().toString()}");
     // 第一次会话的时候 i 为 -1
-    final i =
-        conversations.indexWhere((ConversationModel item) => item.id == obj.id);
+    final i = conversations.indexWhere((ConversationModel m) => m.id == obj.id);
     if (i > -1) {
       int i2 = i > 0 ? i : 0;
       conversations[i2] = obj;
@@ -209,7 +208,7 @@ class ConversationLogic extends GetxController {
       where: "${MessageRepo.conversationId} = ? and ${MessageRepo.status} = ?",
       whereArgs: [cid, IMBoyMessageStatus.delivered],
     );
-    iPrint("recalculateConversationRemind $count, $cid, $tb");
+    iPrint("recalculateConversationRemind $tb $count, $cid");
     // String sql = Sqlite.instance
     if (count != null) {
       setConversationRemind(cid, count);

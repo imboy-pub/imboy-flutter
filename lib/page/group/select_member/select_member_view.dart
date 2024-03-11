@@ -5,11 +5,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:lpinyin/lpinyin.dart';
+
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
-import 'package:lpinyin/lpinyin.dart';
 
 import 'select_member_logic.dart';
 import 'select_member_state.dart';
@@ -75,7 +76,7 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
       height: _suspensionHeight.toDouble(),
       width: double.infinity,
       alignment: Alignment.centerLeft,
-      color: AppColors.AppBarColor,
+      color: Theme.of(context).colorScheme.background,
       child: Text(
         susTag,
         textScaler: const TextScaler.linear(1.2),
@@ -128,7 +129,7 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
                     decoration: const BoxDecoration(
                       border: Border(
                         top: BorderSide(
-                          color: AppColors.LineColor,
+                          // color: AppColors.LineColor,
                           width: 0.2,
                         ),
                       ),
@@ -159,7 +160,8 @@ class _SelectMemberPageState extends State<SelectMemberPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PageAppBar(
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         title: 'select_contacts'.tr,
         /*
         rightDMActions: <Widget>[

@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:imboy/config/const.dart';
 import 'package:niku/namespace.dart' as n;
+
+import 'package:imboy/config/const.dart';
 
 class LabelRow extends StatelessWidget {
   final String? label;
@@ -32,7 +33,7 @@ class LabelRow extends StatelessWidget {
     this.margin,
     this.padding = const EdgeInsets.only(top: 15.0, bottom: 15.0, right: 5.0),
     this.headW,
-    this.lineWidth = mainLineWidth,
+    this.lineWidth,
   });
 
   @override
@@ -43,8 +44,8 @@ class LabelRow extends StatelessWidget {
         style: TextButton.styleFrom(
           minimumSize: Size.zero,
           padding: EdgeInsets.zero,
-          foregroundColor: AppColors.ItemOnColor,
-          backgroundColor: Colors.white,
+          // foregroundColor: AppColors.ItemOnColor,
+          // backgroundColor: Theme.of(context).colorScheme.background,
           //取消圆角边框
           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         ),
@@ -56,7 +57,10 @@ class LabelRow extends StatelessWidget {
             border: isLine!
                 ? Border(
                     bottom: BorderSide(
-                        color: AppColors.LineColor, width: lineWidth!))
+                      width: lineWidth ?? mainLineWidth,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  )
                 : null,
           ),
           child: n.Row([
@@ -65,14 +69,19 @@ class LabelRow extends StatelessWidget {
               width: labelWidth,
               child: Text(
                 label ?? '',
-                style: const TextStyle(fontSize: 17.0),
+                style: TextStyle(
+                    fontSize: 17.0,
+                    color: Theme.of(context).colorScheme.onPrimary),
               ),
             ),
             value != null
                 ? Text(
                     value!,
                     style: TextStyle(
-                      color: AppColors.MainTextColor.withOpacity(0.7),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onPrimary
+                          .withOpacity(0.7),
                     ),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
@@ -83,13 +92,19 @@ class LabelRow extends StatelessWidget {
             rValue != null
                 ? Text(rValue!,
                     style: TextStyle(
-                        color: AppColors.MainTextColor.withOpacity(0.7),
-                        fontWeight: FontWeight.w400))
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onPrimary
+                          .withOpacity(0.7),
+                      fontWeight: FontWeight.w400,
+                    ))
                 : const SizedBox.shrink(),
             rightW != null ? Center(child: rightW!) : Container(),
             isRight!
-                ? Icon(CupertinoIcons.right_chevron,
-                    color: AppColors.MainTextColor.withOpacity(0.5))
+                ? Icon(
+                    Icons.navigate_next,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  )
                 : Container(width: 10.0)
           ]),
         ),

@@ -17,11 +17,11 @@ class RightButton extends StatelessWidget {
       child: n.Padding(
           top: 10,
           bottom: 10,
-          child: const SizedBox(
+          child: SizedBox(
             width: 46.0,
             child: Icon(
               Icons.add_circle_outline_sharp,
-              color: Colors.black54,
+              color: Theme.of(context).colorScheme.onPrimary,
             ),
           )),
       onTap: () {
@@ -29,8 +29,8 @@ class RightButton extends StatelessWidget {
           context: context,
           bodyBuilder: (context) => const RightButtonList(),
           direction: PopoverDirection.left,
-          barrierColor: Colors.black54,
-          backgroundColor: Colors.black54,
+          barrierColor: Theme.of(context).colorScheme.onBackground,
+          backgroundColor: Theme.of(context).colorScheme.onBackground,
           // barrierDismissible: false,
           // shadow: const [BoxShadow(color: Colors.white, blurRadius: 5)],
           width: 132,
@@ -59,7 +59,7 @@ class RightButtonList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black54,
+      color: Theme.of(context).colorScheme.onBackground,
       padding: EdgeInsets.symmetric(vertical: GetPlatform.isDesktop ? 24 : 8),
       child: n.ListView.children([
         InkWell(

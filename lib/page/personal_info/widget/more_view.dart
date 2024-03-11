@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:niku/namespace.dart' as n;
 
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../personal_info/personal_info_logic.dart';
@@ -31,14 +31,20 @@ class MoreView extends StatelessWidget {
       return items[items.length - 2] + " " + items[items.length - 1];
     };
     return Scaffold(
-      backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(title: 'more_info'.tr),
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: NavAppBar(automaticallyImplyLeading: true, title: 'more_info'.tr),
       body: n.Column([
         LabelRow(
           label: 'gender'.tr,
           isLine: true,
+          lineWidth: Get.isDarkMode ? 0.5 : 1.0,
           isRight: true,
-          rightW: Obx(() => Text(logic.genderTitle.value)),
+          rightW: Obx(() => Text(
+                logic.genderTitle.value,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+              )),
           onPressed: () {
             Get.to(
               () => UpdatePage(
@@ -72,8 +78,16 @@ class MoreView extends StatelessWidget {
         LabelRow(
           label: 'region'.tr,
           isLine: true,
+          lineWidth: Get.isDarkMode ? 0.5 : 1.0,
           isRight: true,
-          rightW: Obx(() => Text(deleteFirst(logic.region.value))),
+          rightW: Obx(
+            () => Text(
+              deleteFirst(logic.region.value),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+            ),
+          ),
           onPressed: () {
             Get.to(
               () => UpdatePage(
@@ -105,50 +119,48 @@ class MoreView extends StatelessWidget {
           style: TextButton.styleFrom(
             minimumSize: Size.zero,
             padding: EdgeInsets.zero,
-            foregroundColor: AppColors.ItemOnColor,
-            backgroundColor: Colors.white,
+            foregroundColor: Theme.of(context).colorScheme.onBackground,
+            // backgroundColor: Theme.of(context).colorScheme.background,
             //取消圆角边框
-            shape:
-                const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+            ),
           ),
           child: Container(
             padding: const EdgeInsets.only(top: 15.0, bottom: 15.0, right: 5.0),
             margin: const EdgeInsets.only(
               left: 20.0,
             ),
-            child: Row(
-              children: <Widget>[
-                SizedBox(
-                  child: Text(
-                    'signature'.tr,
-                    style: const TextStyle(fontSize: 17.0),
-                  ),
+            child: n.Row([
+              SizedBox(
+                child: Text(
+                  'signature'.tr,
+                  style: const TextStyle(fontSize: 17.0),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 0, 0),
-                    child: Obx(
-                      () => Text(
-                        logic.sign.value == "" ? "未填写" : logic.sign.value,
-                        style: const TextStyle(
-                          color: AppColors.MainTextColor,
-                          fontSize: 14.0,
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: logic.sign.value == ""
-                            ? TextAlign.right
-                            : TextAlign.left,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 0, 0),
+                  child: Obx(
+                    () => Text(
+                      logic.sign.value == ''
+                          ? 'not_filled'.tr
+                          : logic.sign.value,
+                      style: const TextStyle(
+                        // color: AppColors.MainTextColor,
+                        fontSize: 14.0,
                       ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: logic.sign.value == ""
+                          ? TextAlign.right
+                          : TextAlign.left,
                     ),
                   ),
                 ),
-                Icon(
-                  CupertinoIcons.right_chevron,
-                  color: AppColors.MainTextColor.withOpacity(0.5),
-                )
-              ],
-            ),
+              ),
+              navigateNextIcon
+            ]),
           ),
           onPressed: () {
             Get.to(
@@ -157,8 +169,10 @@ class MoreView extends StatelessWidget {
                   value: UserRepoLocal.to.current.sign,
                   field: 'text',
                   callback: (sign) async {
-                    bool ok = await logic
-                        .changeInfo({"field": "sign", "value": sign});
+                    bool ok = await logic.changeInfo({
+                      "field": "sign",
+                      "value": sign,
+                    });
                     if (ok) {
                       Map<String, dynamic> payload =
                           UserRepoLocal.to.current.toMap();

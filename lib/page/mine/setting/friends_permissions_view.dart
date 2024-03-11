@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/mine/setting/setting_logic.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -23,8 +23,9 @@ class FriendsPermissionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
-        backgroundColor: AppColors.ChatBg,
-        appBar: PageAppBar(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        appBar: NavAppBar(
+          automaticallyImplyLeading: true,
           title: 'friend_permissions'.tr,
         ),
         body: SingleChildScrollView(child: n.Column(const [])));

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:niku/namespace.dart' as n;
 
 // import 'group_list_logic.dart';
@@ -15,10 +15,11 @@ class GroupListPage extends StatelessWidget {
     // final state = Get.find<GroupListLogic>().state;
 
     return Scaffold(
-      backgroundColor: AppColors.ChatBg,
+      backgroundColor: Theme.of(context).colorScheme.background,
       // backgroundColor: Colors.white,
-      appBar: PageAppBar(
+      appBar: NavAppBar(
         title: 'group_chat'.tr,
+        automaticallyImplyLeading: true,
       ),
       body: n.Padding(
         left: 12,

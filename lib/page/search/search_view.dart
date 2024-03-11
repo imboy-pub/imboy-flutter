@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
 
 import 'search_logic.dart';
 import 'search_state.dart';
@@ -31,7 +30,7 @@ class _SearchPageState extends State<SearchPage> {
         margin: const EdgeInsets.symmetric(vertical: 15.0),
         child: Text(
           item,
-          style: const TextStyle(color: AppColors.TipColor),
+          // style: const TextStyle(color: AppColors.TipColor),
         ),
       ),
       onTap: () => Get.snackbar("tips", "$item功能正在开发"),
@@ -46,7 +45,7 @@ class _SearchPageState extends State<SearchPage> {
           padding: const EdgeInsets.symmetric(vertical: 10.0),
           child: Text(
             'search_specific_content'.tr,
-            style: const TextStyle(color: AppColors.MainTextColor),
+            // style: const TextStyle(color: AppColors.MainTextColor),
           ),
         ),
         Wrap(
@@ -85,8 +84,9 @@ class _SearchPageState extends State<SearchPage> {
       ],
     );
     return Scaffold(
-      backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(titleWidget: searchView),
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar:
+          NavAppBar(automaticallyImplyLeading: true, titleWidget: searchView),
       body: SizedBox(width: Get.width, child: body()),
     );
   }

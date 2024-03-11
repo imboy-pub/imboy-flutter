@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
-import 'package:imboy/config/const.dart';
 
 class UserTagProvider extends HttpClient {
   Future<Map<String, dynamic>?> page({
@@ -29,7 +30,7 @@ class UserTagProvider extends HttpClient {
   /// tag 为空表示移除表情
   Future<bool> relationAdd({
     required String objectId,
-    required List<String> tag,
+    required List<dynamic> tag,
     required String scene,
   }) async {
     IMBoyHttpResponse resp = await post(API.userTagRelationAdd, data: {

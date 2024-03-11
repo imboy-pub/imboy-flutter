@@ -6,8 +6,9 @@ import 'package:amap_flutter_location/amap_flutter_location.dart';
 import 'package:amap_flutter_location/amap_location_option.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:imboy/component/helper/permission.dart';
+
 import 'package:imboy/config/const.dart';
+import 'package:imboy/component/helper/permission.dart';
 
 /// https://lbs.amap.com/api/flutter/guide/positioning-flutter-plug-in/interface-info
 

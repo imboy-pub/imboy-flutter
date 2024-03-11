@@ -10,7 +10,7 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/dragable.dart';
 import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/session.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -421,7 +421,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         onTap: _zoom,
         child: Container(
           decoration: BoxDecoration(
-            color: AppColors.AppBarColor,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.white10, width: 2),
           ),
@@ -476,7 +476,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
         width: Get.width,
         height: Get.height,
-        decoration: const BoxDecoration(color: Colors.black54),
+        //decoration: const BoxDecoration(color: Colors.black54),
         child: InkWell(
           onTap: switchTools,
           child: RTCVideoView(
@@ -553,6 +553,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
   Widget build(BuildContext context) {
     return IndexedStack(index: minimized ? 1 : 0, children: [
       Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
         floatingActionButtonLocation:
             FloatingActionButtonLocation.miniCenterFloat,
         floatingActionButton: showTool ? _buildTools() : null,

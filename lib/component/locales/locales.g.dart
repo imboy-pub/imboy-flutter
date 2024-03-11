@@ -13,7 +13,15 @@ class AppTranslation {
 
 class LocaleKeys {
   LocaleKeys._();
+
+  static const manually = 'manually';
   static const bot_qian_fan = 'bot_qian_fan';
+  static const dark_model = 'dark_model';
+  static const normal_model = 'normal_model';
+  static const follow_system = 'follow_system';
+  static const follow_system_tips = 'follow_system_tips';
+  static const on = 'on';
+  static const off = 'off';
   static const you = 'you';
   static const button_cancel = 'button_cancel';
   static const button_accomplish = 'button_accomplish';
@@ -23,7 +31,7 @@ class LocaleKeys {
   static const button_login = 'button_login';
   static const button_signup = 'button_signup';
   static const button_logout = 'button_logout';
-  static const button_setempty = 'button_setempty';
+  static const button_set_empty = 'button_set_empty';
   static const button_confirm = 'button_confirm';
   static const button_add = 'button_add';
   static const button_delete = 'button_delete';
@@ -40,6 +48,7 @@ class LocaleKeys {
   static const button_sign_in_google = 'button_sign_in_google';
   static const button_sign_in_apple = 'button_sign_in_apple';
   static const title_termofservices = 'title_termofservices';
+  static const selected_items = 'selected_items';
   static const title_mine = 'title_mine';
   static const title_contact = 'title_contact';
   static const title_message = 'title_message';
@@ -264,9 +273,9 @@ class LocaleKeys {
   static const not_turned_location_service = 'not_turned_location_service';
   static const or = 'or';
   static const not_authorized_lat_long = 'not_authorized_lat_long';
-  static const display_profle = 'display_profle';
+  static const display_profile = 'display_profile';
   static const make_yourself_visible = 'make_yourself_visible';
-  static const make_yourself_ivisible = 'make_yourself_ivisible';
+  static const make_yourself_invisible = 'make_yourself_invisible';
   static const no_more_data = 'no_more_data';
   static const initiate_chat = 'initiate_chat';
   static const my_qrcode = 'my_qrcode';
@@ -372,6 +381,7 @@ class LocaleKeys {
   static const set_gender = 'set_gender';
   static const signature = 'signature';
   static const set_signature = 'set_signature';
+  static const not_filled = 'not_filled';
   static const scan_result = 'scan_result';
   static const user_not_exist = 'user_not_exist';
   static const user_disabled_or_deleted = 'user_disabled_or_deleted';
@@ -428,7 +438,14 @@ class LocaleKeys {
 
 class Locales {
   static const zh_CN = {
+    'manually': '手动选择',
     'bot_qian_fan': '千帆机器人',
+    'dark_model': '深色模式',
+    'normal_model': '普通模式',
+    'follow_system': '跟随系统',
+    'follow_system_tips': '开启后,将跟随系统打开或关闭深色模式',
+    'on': '已开启',
+    'off': '已关闭',
     'you': '你',
     'button_cancel': '取消',
     'button_accomplish': '完成',
@@ -438,7 +455,7 @@ class Locales {
     'button_login': '登录',
     'button_signup': '注册',
     'button_logout': '注销',
-    'button_setempty': '置空',
+    'button_set_empty': '置空',
     'button_confirm': '确认',
     'button_add': '添加',
     'button_delete': '删除',
@@ -455,6 +472,7 @@ class Locales {
     'button_sign_in_google': '用 Google 登录',
     'button_sign_in_apple': '用 Apple 登录',
     'title_termofservices': '服务条款',
+    'selected_items': '%s 个选定项目',
     'title_mine': '我的',
     'title_contact': '联系人',
     'title_message': '消息',
@@ -675,9 +693,9 @@ class Locales {
     'not_turned_location_service': '您还没有打开位置信息服务',
     'or': '或者',
     'not_authorized_lat_long': '您还没有授权获取经纬度',
-    'display_profle': '显示你的资料',
+    'display_profile': '显示你的资料',
     'make_yourself_visible': '让自己可见',
-    'make_yourself_ivisible': '让自己不可见',
+    'make_yourself_invisible': '让自己不可见',
     'no_more_data': '没有更多数据了',
     'initiate_chat': '发起聊天',
     'my_qrcode': '我的二维码',
@@ -782,6 +800,7 @@ class Locales {
     'set_gender': '设置性别',
     'signature': '个性签名',
     'set_signature': '设置个性签名',
+    'not_filled': '未填写',
     'scan_result': '扫描结果',
     'user_not_exist': '用户不存在',
     'user_disabled_or_deleted': '用户被禁用或已删除',
@@ -835,7 +854,15 @@ class Locales {
     'about_app': '关于应用',
   };
   static const en_US = {
+    'manually': 'Choose manually',
     'bot_qian_fan': 'Qianfan robot',
+    'dark_model': 'Dark Mode',
+    'normal_model': 'Normal Mode',
+    'follow_system': 'Follow System',
+    'follow_system_tips':
+        'When enabled, it will follow the system to turn on or off Dark Mode',
+    'on': 'Enabled',
+    'off': 'Disabled',
     'you': 'You',
     'button_cancel': 'Cancel',
     'button_accomplish': 'Accomplish',
@@ -845,7 +872,7 @@ class Locales {
     'button_login': 'Log in',
     'button_signup': 'Sign up',
     'button_logout': 'Log out',
-    'button_setempty': 'Set Empty',
+    'button_set_empty': 'Set Empty',
     'button_confirm': 'Confirm',
     'button_add': 'Add',
     'button_delete': 'Delete',
@@ -862,6 +889,7 @@ class Locales {
     'button_sign_in_google': 'Sign in with Google',
     'button_sign_in_apple': 'Sign in with Apple',
     'title_termofservices': 'Terms of Service',
+    'selected_items': '%s selected items',
     'title_mine': 'Mine',
     'title_contact': 'Contacts',
     'title_message': 'Messages',
@@ -1096,9 +1124,9 @@ class Locales {
     'or': 'Or',
     'not_authorized_lat_long':
         'You have not authorized access to latitude and longitude',
-    'display_profle': 'Display your profile',
+    'display_profile': 'Display your profile',
     'make_yourself_visible': 'Make yourself visible',
-    'make_yourself_ivisible': 'Make yourself invisible',
+    'make_yourself_invisible': 'Make yourself invisible',
     'no_more_data': 'No more data',
     'initiate_chat': 'New Chat',
     'my_qrcode': 'My QR Code',
@@ -1212,6 +1240,7 @@ class Locales {
     'set_gender': 'Set Gender',
     'signature': 'Signature',
     'set_signature': 'Set Signature',
+    'not_filled': 'Not filled',
     'scan_result': 'Scan Result',
     'user_not_exist': 'User does not exist',
     'user_disabled_or_deleted': 'User is disabled or deleted',
@@ -1269,7 +1298,15 @@ class Locales {
     'about_app': 'About app',
   };
   static const ru_RU = {
+    'manually': 'Выбор вручную',
     'bot_qian_fan': 'Qianfan робот',
+    'dark_model': 'Темный режим',
+    'normal_model': 'Обычный режим',
+    'follow_system': 'Следовать за системой',
+    'follow_system_tips':
+        'При включении будет следовать за системой для включения или отключения темного режима',
+    'on': 'Включено',
+    'off': 'Выключено',
     'you': 'ты',
     'button_cancel': 'Отмена',
     'button_accomplish': 'Завершить',
@@ -1279,7 +1316,7 @@ class Locales {
     'button_login': 'Войти',
     'button_signup': 'Зарегистрироваться',
     'button_logout': 'Выйти',
-    'button_setempty': 'Очистить',
+    'button_set_empty': 'Очистить',
     'button_confirm': 'Подтвердить',
     'button_add': 'Добавить',
     'button_delete': 'Удалить',
@@ -1296,6 +1333,7 @@ class Locales {
     'button_sign_in_google': 'Войти через Google',
     'button_sign_in_apple': 'Войти через Apple',
     'title_termofservices': 'Условия обслуживания',
+    'selected_items': '%s выбранных элементов',
     'title_mine': 'Мой',
     'title_contact': 'Контакты',
     'title_message': 'Сообщения',
@@ -1537,9 +1575,9 @@ class Locales {
     'or': 'или',
     'not_authorized_lat_long':
         'Вы еще не авторизовали доступ к широте и долготе',
-    'display_profle': 'Показать ваш профиль',
+    'display_profile': 'Показать ваш профиль',
     'make_yourself_visible': 'Сделать себя видимым',
-    'make_yourself_ivisible': 'Сделать себя невидимым',
+    'make_yourself_invisible': 'Сделать себя невидимым',
     'no_more_data': 'Нет больше данных',
     'initiate_chat': 'Начать разговор',
     'my_qrcode': 'Мой QR-код',
@@ -1652,6 +1690,7 @@ class Locales {
     'set_gender': 'Установить пол',
     'signature': 'Персональная подпись',
     'set_signature': 'Установить персональную подпись',
+    'not_filled': 'Не заполнено',
     'scan_result': 'Результат сканирования',
     'user_not_exist': 'Пользователь не существует',
     'user_disabled_or_deleted': 'Пользователь заблокирован или удален',
@@ -1709,7 +1748,14 @@ class Locales {
     'about_app': 'О приложении',
   };
   static const zh_Hant = {
+    'manually': '手動選擇',
     'bot_qian_fan': '千帆機器人',
+    'dark_model': '深色模式',
+    'normal_model': '普通模式',
+    'follow_system': '跟隨系統',
+    'follow_system_tips': '啟用後，將跟隨系統打開或關閉深色模式',
+    'on': '已開啟',
+    'off': '已關閉',
     'you': '你',
     'button_cancel': '取消',
     'button_accomplish': '完成',
@@ -1719,7 +1765,7 @@ class Locales {
     'button_login': '登錄',
     'button_signup': '註帳',
     'button_logout': '登出',
-    'button_setempty': '置空',
+    'button_set_empty': '置空',
     'button_confirm': '確認',
     'button_add': '新增',
     'button_delete': '刪除',
@@ -1736,6 +1782,7 @@ class Locales {
     'button_sign_in_google': '用 Google 登錄',
     'button_sign_in_apple': '用 Apple 登錄',
     'title_termofservices': '服務條款',
+    'selected_items': '%s 個選定項目',
     'title_mine': '我的',
     'title_contact': '聯繫人',
     'title_message': '訊息',
@@ -1956,9 +2003,9 @@ class Locales {
     'not_turned_location_service': '您還沒有打開位置信息服務',
     'or': '或者',
     'not_authorized_lat_long': '您還沒有授權獲取經緯度',
-    'display_profle': '顯示你的資料',
+    'display_profile': '顯示你的資料',
     'make_yourself_visible': '讓自己可見',
-    'make_yourself_ivisible': '讓自己不可見',
+    'make_yourself_invisible': '讓自己不可見',
     'no_more_data': '沒有更多數據了',
     'initiate_chat': '發起群聊',
     'my_qrcode': '我的二維碼',
@@ -2062,6 +2109,7 @@ class Locales {
     'set_gender': '設置性別',
     'signature': '個性簽名',
     'set_signature': '設置個性簽名',
+    'not_filled': '未填寫',
     'scan_result': '掃描結果',
     'user_not_exist': '用戶不存在',
     'user_disabled_or_deleted': '用戶被禁用或已刪除',

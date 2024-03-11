@@ -14,7 +14,7 @@ import 'package:open_file/open_file.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -104,11 +104,12 @@ class CustomMessageBuilder extends StatelessWidget {
     } catch (e) {
       debugPrint("> on CustomMessageBuilder e ${e.toString()}");
     }
-    return Container(
-      color: AppColors.ChatBg,
-      width: Get.width * 0.85,
-      child: w,
-    );
+    return w;
+    // return Container(
+    //   color: Theme.of(context).colorScheme.background,
+    //   width: Get.width * 0.85,
+    //   child: w,
+    // );
   }
 }
 
@@ -127,7 +128,6 @@ Widget messageMsgWidget(types.Message msg) {
     msgWidget = Text(
       msg.text,
       style: const TextStyle(
-        color: AppColors.MainTextColor,
         fontSize: 13.0,
       ),
       maxLines: 4,
@@ -138,13 +138,13 @@ Widget messageMsgWidget(types.Message msg) {
       n.Row([
         Text(
           "[${'file'.tr}] (${formatBytes(msg.size.truncate())})",
-          style: const TextStyle(color: AppColors.thirdElementText),
+          style: TextStyle(color: Theme.of(Get.context!).colorScheme.tertiary),
         )
       ]),
       n.Row([
         Text(
           msg.name,
-          style: const TextStyle(color: AppColors.thirdElementText),
+          style: TextStyle(color: Theme.of(Get.context!).colorScheme.tertiary),
         )
       ]),
     ])
@@ -182,8 +182,8 @@ Widget messageMsgWidget(types.Message msg) {
     String txt = msg.metadata?['quote_text'] ?? '';
     msgWidget = Text(
       "[${'quote'.tr}] $txt",
-      style: const TextStyle(
-        color: AppColors.MainTextColor,
+      style: TextStyle(
+        color: Theme.of(Get.context!).colorScheme.onPrimary,
         fontSize: 13.0,
       ),
       maxLines: 4,
@@ -196,6 +196,9 @@ Widget messageMsgWidget(types.Message msg) {
 /// 双击文本消息的时候全屏显示文本消息
 void showTextMessage(String text) {
   Get.bottomSheet(
+    backgroundColor: Get.isDarkMode
+        ? const Color.fromRGBO(80, 80, 80, 1)
+        : const Color.fromRGBO(240, 240, 240, 1),
     Container(
       width: double.infinity,
       height: double.infinity,
@@ -203,7 +206,7 @@ void showTextMessage(String text) {
       // Creates insets from offsets from the left, top, right, and bottom.
       padding: const EdgeInsets.fromLTRB(16, 28, 0, 10),
       alignment: Alignment.center,
-      color: Colors.white,
+      // color: Colors.white,
       child: Scrollbar(
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
@@ -211,7 +214,7 @@ void showTextMessage(String text) {
             TextSpan(
               text: text,
               style: const TextStyle(
-                color: Colors.black,
+                // color: Colors.black,
                 fontSize: 24,
               ),
             ),
@@ -241,12 +244,14 @@ void confirmOpenFile(String uri) {
       )
       ..actions = [
         n.Button('button_cancel'.tr.n)
-          ..style = n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
+          ..style = n.NikuButtonStyle(
+              foregroundColor: Theme.of(Get.context!).colorScheme.onPrimary)
           ..onPressed = () {
             Navigator.of(context).pop();
           },
         n.Button('button_confirm'.tr.n)
-          ..style = n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
+          ..style = n.NikuButtonStyle(
+              foregroundColor: Theme.of(Get.context!).colorScheme.onPrimary)
           ..onPressed = () async {
             Navigator.of(context).pop();
             File? tmpF = await IMBoyCacheManager().getSingleFile(

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:niku/namespace.dart' as n;
@@ -13,7 +14,7 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/ui/line.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../update/update_view.dart';
@@ -97,7 +98,10 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       isRight: item['isRight'] ?? true,
       margin: EdgeInsets.only(bottom: item['label'] == 'more' ? 10.0 : 0.0),
       rightW: item['label'] == 'user_qrcode'
-          ? const Icon(Icons.qr_code_2)
+          ? Icon(
+              Icons.qr_code_2,
+              color: Get.isDarkMode ? Colors.white70 : Colors.black,
+            )
           : Container(),
       onPressed: () => logic.labelOnPressed(item['label']),
     );
@@ -125,8 +129,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     });
     // }
     return Scaffold(
-      backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(title: 'personal_information'.tr),
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: NavAppBar(
+          automaticallyImplyLeading: true, title: 'personal_information'.tr),
       body: SingleChildScrollView(
           child: n.Column([
         LabelRow(
@@ -152,8 +157,8 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                     child: Text(
                       'button_taking_pictures'.tr,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        // color: Colors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
                         fontSize: 16.0,
                         fontWeight: FontWeight.normal,
                       ),
@@ -167,23 +172,26 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                     child: Text(
                       'choose_from_album'.tr,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        // color: Colors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
                         fontSize: 16.0,
                         fontWeight: FontWeight.normal,
                       ),
                     ),
                   ),
                 ),
-                const HorizontalLine(height: 6),
+                HorizontalLine(
+                  height: 6,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 Center(
                   child: TextButton(
                     onPressed: () => Get.close(),
                     child: Text(
                       'button_cancel'.tr,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        // color: Colors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
                         fontSize: 16.0,
                         fontWeight: FontWeight.normal,
                       ),
@@ -192,7 +200,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                 )
               ]),
             ),
-            backgroundColor: Colors.white,
+            backgroundColor: Get.isDarkMode
+                ? const Color.fromRGBO(80, 80, 80, 1)
+                : const Color.fromRGBO(240, 240, 240, 1),
             //改变shape这里即可
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.only(
@@ -214,7 +224,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.right,
                 style: TextStyle(
-                    color: AppColors.MainTextColor.withOpacity(0.7),
+                    color: Theme.of(context).colorScheme.onPrimary,
                     fontWeight: FontWeight.w400),
               ),
             ),
@@ -225,8 +235,10 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                     value: UserRepoLocal.to.current.nickname,
                     field: 'input',
                     callback: (nickname) async {
-                      bool ok = await logic
-                          .changeInfo({"field": "nickname", "value": nickname});
+                      bool ok = await logic.changeInfo({
+                        "field": "nickname",
+                        "value": nickname,
+                      });
                       if (ok) {
                         //url是图片上传后拿到的url
                         setState(() {

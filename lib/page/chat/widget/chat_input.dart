@@ -4,19 +4,19 @@ import 'dart:io';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
-
 // ignore: implementation_imports
 import 'package:flutter_chat_ui/src/widgets/state/inherited_chat_theme.dart'
     show InheritedChatTheme;
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/emoji_picker_view.dart';
 import 'package:imboy/component/ui/image_button.dart';
-import 'package:imboy/config/const.dart';
+import 'package:imboy/component/ui/line.dart';
+
 import 'package:imboy/config/init.dart';
+import 'package:imboy/config/theme.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -32,7 +32,6 @@ Widget _buildVoiceButton(BuildContext context) {
   return SizedBox(
     width: double.infinity,
     child: TextButton(
-      // color: Colors.white70,
       onPressed: () {
         Get.snackbar('Tips', 'voice_input_not_implemented'.tr);
       },
@@ -308,17 +307,25 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               // tabIndicatorAnimDuration: kTabScrollDuration,
               // categoryIcons: const CategoryIcons(),
               buttonMode: ButtonMode.MATERIAL,
-              backgroundColor: Colors.white,
+              backgroundColor: Get.isDarkMode
+                  ? const Color.fromRGBO(34, 34, 34, 1.0)
+                  : const Color.fromRGBO(246, 246, 246, 1.0),
             ),
             swapCategoryAndBottomBar: true,
-            skinToneConfig: const SkinToneConfig(),
+            skinToneConfig: SkinToneConfig(
+              indicatorColor: Get.isDarkMode
+                  ? const Color.fromRGBO(34, 34, 34, 1.0)
+                  : const Color.fromRGBO(246, 246, 246, 1.0),
+            ),
             categoryViewConfig: CategoryViewConfig(
               tabBarHeight: 48,
-              backgroundColor: Colors.white,
-              dividerColor: Colors.white,
-              indicatorColor: AppColors.primaryElement,
-              iconColorSelected: Colors.black,
-              iconColor: AppColors.tabBarElement,
+              backgroundColor: Get.isDarkMode
+                  ? const Color.fromRGBO(34, 34, 34, 1.0)
+                  : const Color.fromRGBO(246, 246, 246, 1.0),
+              // dividerColor: Colors.white,
+              // indicatorColor: AppColors.primaryElement,
+              iconColorSelected: Theme.of(context).colorScheme.onPrimary,
+              // iconColor: AppColors.tabBarElement,
               customCategoryView: (
                 config,
                 state,
@@ -344,13 +351,25 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                 flagIcon: Icons.flag_outlined,
               ),
             ),
-            bottomActionBarConfig: const BottomActionBarConfig(
-              backgroundColor: Colors.white,
-              buttonColor: Colors.white,
-              buttonIconColor: AppColors.ItemOnColor,
+            bottomActionBarConfig: BottomActionBarConfig(
+              enabled: true,
+              // showSearchViewButton: false,
+              backgroundColor: Get.isDarkMode
+                  ? const Color.fromRGBO(35, 35, 35, 1.0)
+                  : const Color.fromRGBO(246, 246, 246, 1.0),
+              buttonColor: Theme.of(context).colorScheme.background,
+              buttonIconColor: Theme.of(context).colorScheme.onPrimary,
+              customBottomActionBar: (
+                config,
+                state,
+                showEmojiView,
+              ) {
+                return AppBottomActionBar(config, state, showEmojiView);
+              },
             ),
             searchViewConfig: SearchViewConfig(
-              backgroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.background,
+              buttonIconColor: Theme.of(context).colorScheme.onPrimary,
               customSearchView: (
                 config,
                 state,
@@ -378,11 +397,11 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       cursorColor: InheritedChatTheme.of(ctx).theme.inputTextCursorColor,
       decoration: InheritedChatTheme.of(ctx).theme.inputTextDecoration.copyWith(
             hintStyle: InheritedChatTheme.of(ctx).theme.inputTextStyle.copyWith(
-                  color: InheritedChatTheme.of(ctx)
-                      .theme
-                      .inputTextColor
-                      .withOpacity(0.5),
+                  color: InheritedChatTheme.of(ctx).theme.inputTextColor,
+                  // color: Colors.red,
                 ),
+            fillColor:
+                Get.isDarkMode ? darkInputFillColor : lightInputFillColor,
             hintText: '',
           ),
       focusNode: _inputFocusNode,
@@ -401,6 +420,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       },
       style: InheritedChatTheme.of(ctx).theme.inputTextStyle.copyWith(
           color: InheritedChatTheme.of(ctx).theme.inputTextColor,
+          // backgroundColor: Colors.red,
           height: 1.8,
           fontSize: fontSize),
       // 点击键盘的动作按钮时的回调，参数为当前输入框中的值
@@ -484,47 +504,52 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final query = MediaQuery.of(context);
 
-    return InkWell(
-      child: Focus(
-        autofocus: true,
-        child: Padding(
-          padding: InheritedChatTheme.of(context).theme.inputPadding,
-          child: Material(
-            borderRadius:
-                InheritedChatTheme.of(context).theme.inputBorderRadius,
-            color: InheritedChatTheme.of(context).theme.inputBackgroundColor,
-            child: Container(
-              padding: EdgeInsets.fromLTRB(
-                query.padding.left,
-                4,
-                query.padding.right,
-                query.viewInsets.bottom + query.padding.bottom + 4,
-              ),
-              child: n.Column([
-                widget.quoteTipsWidget ?? const SizedBox.shrink(),
-                n.Row([
-                  // voice
-                  buildLeftButton(),
-                  // input
-                  Expanded(
-                    child: _buildInputButton(context),
-                  ),
-                  // emoji
-                  buildEmojiButton(),
-                  //extra
-                  _textController.text.isEmpty
-                      ? buildExtra()
-                      : IconButton(
-                          icon: const Icon(Icons.send),
-                          onPressed: _handleSendPressed,
-                          padding: const EdgeInsets.only(left: 0),
-                        ),
+    return WillPopScope(
+      onWillPop: () async {
+        return true;
+      },
+      child: InkWell(
+        child: Focus(
+          autofocus: true,
+          child: Padding(
+            padding: InheritedChatTheme.of(context).theme.inputPadding,
+            child: Material(
+              borderRadius:
+                  InheritedChatTheme.of(context).theme.inputBorderRadius,
+              color: InheritedChatTheme.of(context).theme.inputBackgroundColor,
+              child: Container(
+                padding: EdgeInsets.fromLTRB(
+                  query.padding.left,
+                  4,
+                  query.padding.right,
+                  query.viewInsets.bottom + query.padding.bottom + 4,
+                ),
+                child: n.Column([
+                  widget.quoteTipsWidget ?? const SizedBox.shrink(),
+                  n.Row([
+                    // voice
+                    buildLeftButton(),
+                    // input
+                    Expanded(
+                      child: _buildInputButton(context),
+                    ),
+                    // emoji
+                    buildEmojiButton(),
+                    //extra
+                    _textController.text.isEmpty
+                        ? buildExtra()
+                        : IconButton(
+                            icon: const Icon(Icons.send),
+                            onPressed: _handleSendPressed,
+                            padding: const EdgeInsets.only(left: 0),
+                          ),
+                  ]),
+                  inputType == InputType.emoji || inputType == InputType.extra
+                      ? n.Padding(top: 4, child: const HorizontalLine())
+                      : const SizedBox.shrink(), // 横线
+                  _buildBottomContainer(child: _buildBottomItems()),
                 ]),
-                inputType == InputType.emoji || inputType == InputType.extra
-                    ? const Divider()
-                    : const SizedBox.shrink(), // 横线
-                _buildBottomContainer(child: _buildBottomItems()),
-              ]),
+              ),
             ),
           ),
         ),

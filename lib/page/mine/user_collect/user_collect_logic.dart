@@ -12,7 +12,7 @@ import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/message/message_audio_builder.dart';
 import 'package:imboy/component/message/message_location_builder.dart';
 import 'package:imboy/component/message/message_visit_card_builder.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/single/video_viewer.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_logic.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -158,7 +158,7 @@ class UserCollectLogic extends GetxController {
             Text(
               formatBytes(obj.info['payload']['size'] ?? ''),
               style: const TextStyle(
-                color: AppColors.MainTextColor,
+                // color: AppColors.MainTextColor,
                 fontSize: 14.0,
               ),
               maxLines: 1,
@@ -167,7 +167,7 @@ class UserCollectLogic extends GetxController {
             Text(
               " ${obj.info['payload']['width']}X${obj.info['payload']['height']}",
               style: const TextStyle(
-                color: AppColors.MainTextColor,
+                // color: AppColors.MainTextColor,
                 fontSize: 14.0,
               ),
               maxLines: 1,
@@ -280,7 +280,7 @@ class UserCollectLogic extends GetxController {
             Text(
               formatBytes(obj.info['payload']['video']['size'] ?? 0),
               style: const TextStyle(
-                color: AppColors.MainTextColor,
+                // color: AppColors.MainTextColor,
                 fontSize: 14.0,
               ),
               maxLines: 1,
@@ -289,7 +289,7 @@ class UserCollectLogic extends GetxController {
             Text(
               " ${obj.info['payload']['video']['width']}X${obj.info['payload']['video']['height']}",
               style: const TextStyle(
-                color: AppColors.MainTextColor,
+                // color: AppColors.MainTextColor,
                 fontSize: 14.0,
               ),
               maxLines: 1,
@@ -333,7 +333,7 @@ class UserCollectLogic extends GetxController {
                     Text(
                       "$mimeType  ${formatBytes(obj.info['payload']['size'] ?? '')}",
                       style: const TextStyle(
-                        color: AppColors.MainTextColor,
+                        // color: AppColors.MainTextColor,
                         fontSize: 14.0,
                       ),
                       maxLines: 1,
@@ -376,7 +376,7 @@ class UserCollectLogic extends GetxController {
                 Text(
                   mimeType,
                   style: const TextStyle(
-                    color: AppColors.MainTextColor,
+                    // color: AppColors.MainTextColor,
                     fontSize: 14.0,
                   ),
                   maxLines: 1,
@@ -414,7 +414,7 @@ class UserCollectLogic extends GetxController {
                       maxLines: 4,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        color: AppColors.MainTextColor,
+                        // color: AppColors.MainTextColor,
                         fontSize: 14.0,
                       ),
                     ),
@@ -450,24 +450,22 @@ class UserCollectLogic extends GetxController {
             ]);
     } else if (obj.kind == 7) {
       // row > expand > column > text 换行有效
-      body = n.Row(
-        [
-          Expanded(
-              child: VisitCardMessageBuilder(
-            // width: Get.width - 20,
-            // height: Get.height - 160,
-            user: types.User(
-              id: UserRepoLocal.to.currentUid,
-              firstName: UserRepoLocal.to.current.nickname,
-              imageUrl: UserRepoLocal.to.current.avatar,
-            ),
-            message: MessageModel.fromJson(obj.info).toTypeMessage()
-                as types.CustomMessage,
-          ))
-        ],
+      body = n.Row([
+        Expanded(
+            child: VisitCardMessageBuilder(
+          // width: Get.width - 20,
+          // height: Get.height - 160,
+          user: types.User(
+            id: UserRepoLocal.to.currentUid,
+            firstName: UserRepoLocal.to.current.nickname,
+            imageUrl: UserRepoLocal.to.current.avatar,
+          ),
+          message: MessageModel.fromJson(obj.info).toTypeMessage()
+              as types.CustomMessage,
+        ))
+      ])
         // 内容文本左对齐
-        crossAxisAlignment: CrossAxisAlignment.start,
-      );
+        ..crossAxisAlignment = CrossAxisAlignment.start;
     }
     return scene == 'detail'
         ? SizedBox(
@@ -522,7 +520,7 @@ class UserCollectLogic extends GetxController {
                 return Colors.white.withOpacity(0.75);
               }
               // Use the component's default.
-              return AppColors.ChatBg;
+              return Theme.of(Get.context!).colorScheme.background;
             },
           ),
         ),
@@ -532,19 +530,24 @@ class UserCollectLogic extends GetxController {
             right: 8,
             child: Transform.scale(
               scaleX: -1,
-              child: Icon(
+              child: const Icon(
                 Icons.local_offer,
                 size: 18,
-                color: AppColors.MainTextColor.withOpacity(0.8),
+                // color: AppColors.MainTextColor.withOpacity(0.8),
               ),
             ),
           ),
-          Text(kindTips, style: const TextStyle(color: AppColors.ItemOnColor)),
+          Text(
+            kindTips,
+            // style: TextStyle(
+            //   color: AppColors.ItemOnColor,
+            // ),
+          ),
           const SizedBox(width: 12),
-          Icon(
+          const Icon(
             Icons.close,
             size: 16,
-            color: AppColors.ItemOnColor.withOpacity(0.7),
+            // color: AppColors.ItemOnColor.withOpacity(0.7),
           ),
         ]),
       )
@@ -596,7 +599,7 @@ class UserCollectLogic extends GetxController {
                 return Colors.white.withOpacity(0.75);
               }
               // Use the component's default.
-              return AppColors.ChatBg;
+              return Theme.of(Get.context!).colorScheme.background;
             },
           ),
         ),
@@ -605,19 +608,24 @@ class UserCollectLogic extends GetxController {
             right: 8,
             child: Transform.scale(
               scaleX: -1,
-              child: Icon(
+              child: const Icon(
                 Icons.grid_view,
                 size: 18,
-                color: AppColors.MainTextColor.withOpacity(0.8),
+                // color: AppColors.MainTextColor.withOpacity(0.8),
               ),
             ),
           ),
-          Text(kindTips, style: const TextStyle(color: AppColors.ItemOnColor)),
+          Text(
+            kindTips,
+            // style: const TextStyle(
+            //   color: AppColors.ItemOnColor,
+            // ),
+          ),
           const SizedBox(width: 12),
-          Icon(
+          const Icon(
             Icons.close,
             size: 16,
-            color: AppColors.ItemOnColor.withOpacity(0.7),
+            // color: AppColors.ItemOnColor.withOpacity(0.7),
           ),
         ]),
       )
@@ -788,7 +796,7 @@ class UserCollectLogic extends GetxController {
           right: 2,
           child: Text(
             tag,
-            style: const TextStyle(color: AppColors.MainTextColor),
+            // style: const TextStyle(color: AppColors.MainTextColor),
           ),
         ),
       ));

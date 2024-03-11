@@ -4,6 +4,9 @@ import 'package:get/get.dart';
 class ScannerLogic extends GetxController {
   Future showResult(String txt, int closeTimes) {
     return Get.bottomSheet(
+      backgroundColor: Get.isDarkMode
+          ? const Color.fromRGBO(80, 80, 80, 1)
+          : const Color.fromRGBO(240, 240, 240, 1),
       InkWell(
         onTap: () {
           Get.closeAllBottomSheets();

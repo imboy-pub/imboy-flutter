@@ -6,7 +6,6 @@ import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
 
 import 'storage_space_logic.dart';
 
@@ -28,7 +27,8 @@ class StorageSpacePage extends StatelessWidget {
     initData();
 
     return Scaffold(
-      appBar: PageAppBar(
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         title: 'storage_space'.tr,
       ),
       body: SingleChildScrollView(
@@ -72,7 +72,7 @@ class StorageSpacePage extends StatelessWidget {
                               : 1,
                           child: const LinearProgressIndicator(
                             value: 1,
-                            backgroundColor: Color(0xFF7E7F88),
+                            backgroundColor: Colors.grey,
                             valueColor:
                                 AlwaysStoppedAnimation<Color>(Colors.black12),
                           ),
@@ -117,7 +117,7 @@ class StorageSpacePage extends StatelessWidget {
             n.Row([
               const Icon(
                 Icons.square,
-                color: Colors.black12,
+                color: Colors.grey,
                 size: 12,
               ),
               const SizedBox(width: 4),
@@ -165,7 +165,7 @@ class StorageSpacePage extends StatelessWidget {
               ClipRRect(
                 borderRadius: const BorderRadius.all(Radius.circular(8)),
                 child: Container(
-                  color: AppColors.primaryBackground,
+                  color: Theme.of(context).colorScheme.background,
                   child: n.ListTile(
                     title: n.Row([
                       Text(appName + 'cache'.tr),
@@ -196,8 +196,8 @@ class StorageSpacePage extends StatelessWidget {
                           // 'go_clean'.tr,
                           'clean'.tr,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.primaryElement,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
                             fontWeight: FontWeight.normal,
                           ),
                         ),
@@ -219,8 +219,9 @@ class StorageSpacePage extends StatelessWidget {
                         ..mainAxisAlignment = MainAxisAlignment.start,
                       Text(
                         'cache_tips'.tr,
-                        style:
-                            const TextStyle(color: AppColors.thirdElementText),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
                       )
                     ])
                       // 内容居左
@@ -298,7 +299,7 @@ class StorageSpacePage extends StatelessWidget {
               ClipRRect(
                 borderRadius: const BorderRadius.all(Radius.circular(8)),
                 child: Container(
-                  color: AppColors.primaryBackground,
+                  color: Theme.of(context).colorScheme.background,
                   child: n.ListTile(
                     title: n.Row([
                       Text('user_data'.tr),
@@ -348,8 +349,9 @@ class StorageSpacePage extends StatelessWidget {
                         ..mainAxisAlignment = MainAxisAlignment.start,
                       Text(
                         'user_data_tips'.tr,
-                        style:
-                            const TextStyle(color: AppColors.thirdElementText),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
                       )
                     ])
                       // 内容居左
@@ -361,7 +363,7 @@ class StorageSpacePage extends StatelessWidget {
               ClipRRect(
                 borderRadius: const BorderRadius.all(Radius.circular(8)),
                 child: Container(
-                  color: AppColors.primaryBackground,
+                  color: Theme.of(context).colorScheme.background,
                   child: n.ListTile(
                     title: Text('app_size'.tr),
                     subtitle: n.Column([
@@ -380,8 +382,9 @@ class StorageSpacePage extends StatelessWidget {
                         ..mainAxisAlignment = MainAxisAlignment.start,
                       Text(
                         'app_size_tips'.tr,
-                        style:
-                            const TextStyle(color: AppColors.thirdElementText),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
                       )
                     ])
                       // 内容居左

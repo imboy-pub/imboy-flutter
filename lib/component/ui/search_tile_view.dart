@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/const.dart';
 
 class SearchTileView extends StatelessWidget {
   final String? text;
@@ -60,7 +59,7 @@ class SearchTileView extends StatelessWidget {
             ),
             const Text(
               '小程序、公众号、文章、朋友圈、和表情等',
-              style: TextStyle(color: AppColors.MainTextColor),
+              // style: TextStyle(color: AppColors.MainTextColor),
             )
           ],
         )
@@ -70,7 +69,7 @@ class SearchTileView extends StatelessWidget {
     if (type == 0) {
       return Container(
         decoration: BoxDecoration(
-            color: strNoEmpty(text) ? Colors.white : AppColors.AppBarColor,
+            // color: strNoEmpty(text) ? Colors.white : AppColors.AppBarColor,
             border: Border(
                 top: BorderSide(
                     color: Colors.grey.withOpacity(0.2), width: 0.5))),

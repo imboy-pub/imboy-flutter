@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/config/theme.dart';
+import 'package:niku/namespace.dart' as n;
+import 'package:qr_flutter/qr_flutter.dart';
+
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/repaint_boundary.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
-import 'package:qr_flutter/qr_flutter.dart';
 
 class UqrcodePage extends StatelessWidget {
   final GlobalKey globalKey = GlobalKey();
@@ -24,8 +27,9 @@ class UqrcodePage extends StatelessWidget {
     int gender = UserRepoLocal.to.current.gender;
 
     return Scaffold(
-      backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         title: '',
         rightDMActions: <Widget>[
           InkWell(
@@ -42,6 +46,9 @@ class UqrcodePage extends StatelessWidget {
             ),
             onTap: () {
               Get.bottomSheet(
+                backgroundColor: Get.isDarkMode
+                    ? const Color.fromRGBO(80, 80, 80, 1)
+                    : const Color.fromRGBO(240, 240, 240, 1),
                 SizedBox(
                   width: Get.width,
                   height: 172,
@@ -51,8 +58,8 @@ class UqrcodePage extends StatelessWidget {
                         child: Text(
                           'save_qr_code'.tr,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.ItemOnColor,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
                             fontSize: 16.0,
                             fontWeight: FontWeight.normal,
                           ),
@@ -83,23 +90,26 @@ class UqrcodePage extends StatelessWidget {
                         child: Text(
                           'scan_qr_code'.tr,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.ItemOnColor,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
                             fontSize: 16.0,
                             fontWeight: FontWeight.normal,
                           ),
                         ),
                       ),
                     ),
-                    const HorizontalLine(height: 6),
+                    HorizontalLine(
+                      height: 6,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                     Center(
                       child: TextButton(
                         onPressed: () => Get.close(),
                         child: Text(
                           'button_cancel'.tr,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.ItemOnColor,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
                             fontSize: 16.0,
                             fontWeight: FontWeight.normal,
                           ),
@@ -108,7 +118,6 @@ class UqrcodePage extends StatelessWidget {
                     )
                   ]),
                 ),
-                backgroundColor: Colors.white,
                 //改变shape这里即可
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
@@ -130,7 +139,8 @@ class UqrcodePage extends StatelessWidget {
           key: globalKey,
           child: Card(
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadiusDirectional.circular(20)),
+              borderRadius: BorderRadiusDirectional.circular(20),
+            ),
             clipBehavior: Clip.antiAlias,
             child: Container(
               width: Get.width,
@@ -148,8 +158,18 @@ class UqrcodePage extends StatelessWidget {
                       image: dynamicAvatar(UserRepoLocal.to.current.avatar),
                     ),
                   ),
-                  title: Text(UserRepoLocal.to.current.nickname),
-                  subtitle: Text(UserRepoLocal.to.current.region),
+                  title: Text(
+                    UserRepoLocal.to.current.nickname,
+                    style: const TextStyle(
+                      color: lightOnPrimaryColor,
+                    ),
+                  ),
+                  subtitle: Text(
+                    UserRepoLocal.to.current.region,
+                    style: const TextStyle(
+                      color: lightOnPrimaryColor,
+                    ),
+                  ),
                   trailing: genderIcon(gender),
                 ),
                 Expanded(
@@ -189,7 +209,12 @@ class UqrcodePage extends StatelessWidget {
                 n.Padding(
                   // top: 10,
                   bottom: 15,
-                  child: Text('scan_qrcode_add_friend'.tr),
+                  child: Text(
+                    'scan_qrcode_add_friend'.tr,
+                    style: const TextStyle(
+                      color: lightOnPrimaryColor,
+                    ),
+                  ),
                 ),
               ])
                 // 内容居中

@@ -1,7 +1,9 @@
 import 'package:get/get.dart';
+
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/personal_info/widget/more_view.dart';
 import 'package:imboy/page/uqrcode/uqrcode_view.dart';
 
@@ -21,7 +23,7 @@ class PersonalInfoLogic extends GetxController {
   }
 
   labelOnPressed(String label) {
-    if (label == "more") {
+    if (label == 'more') {
       Get.to(
         () => const MoreView(),
         transition: Transition.rightToLeft,

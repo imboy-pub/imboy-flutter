@@ -6,7 +6,7 @@ import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/user_tag/contact_tag_detail/contact_tag_detail_view.dart';
 import 'package:imboy/page/user_tag/user_tag_save/user_tag_save_view.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
@@ -71,6 +71,9 @@ class ContactTagListPage extends StatelessWidget {
             // foregroundColor: Colors.white,
             onPressed: (_) async {
               Get.bottomSheet(
+                backgroundColor: Get.isDarkMode
+                    ? const Color.fromRGBO(80, 80, 80, 1)
+                    : const Color.fromRGBO(240, 240, 240, 1),
                 n.Padding(
                   // top: 80,
                   child: UserTagSavePage(
@@ -94,71 +97,70 @@ class ContactTagListPage extends StatelessWidget {
                 SizedBox(
                   width: Get.width,
                   height: 172,
-                  child: n.Wrap(
-                    [
-                      Center(
-                        child: n.Padding(
-                          top: 16,
-                          bottom: 16,
-                          child: Text(
-                            'delete_tag_tips'.tr,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              // color: Colors.white,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.normal,
-                            ),
+                  child: n.Wrap([
+                    Center(
+                      child: n.Padding(
+                        top: 16,
+                        bottom: 16,
+                        child: Text(
+                          'delete_tag_tips'.tr,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            // color: Colors.white,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
                           ),
                         ),
                       ),
-                      const Divider(),
-                      Center(
-                        child: TextButton(
-                          onPressed: () async {
-                            const String scene = 'friend';
-                            bool res = await logic.deleteTag(
-                              tagId: obj.tagId,
-                              tagName: obj.name,
-                              scene: scene,
-                            );
-                            if (res) {
-                              Get.closeAllBottomSheets();
-                              EasyLoading.showSuccess('tip_success'.tr);
-                            } else {
-                              EasyLoading.showError('tip_failed'.tr);
-                            }
-                          },
-                          child: Text(
-                            'button_delete'.tr,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.red,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.normal,
-                            ),
+                    ),
+                    const Divider(),
+                    Center(
+                      child: TextButton(
+                        onPressed: () async {
+                          const String scene = 'friend';
+                          bool res = await logic.deleteTag(
+                            tagId: obj.tagId,
+                            tagName: obj.name,
+                            scene: scene,
+                          );
+                          if (res) {
+                            Get.closeAllBottomSheets();
+                            EasyLoading.showSuccess('tip_success'.tr);
+                          } else {
+                            EasyLoading.showError('tip_failed'.tr);
+                          }
+                        },
+                        child: Text(
+                          'button_delete'.tr,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
                           ),
                         ),
                       ),
-                      const HorizontalLine(height: 6),
-                      Center(
-                        child: TextButton(
-                          onPressed: () => Get.close(),
-                          child: Text(
-                            'button_cancel'.tr,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              // color: Colors.white,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.normal,
-                            ),
+                    ),
+                    const HorizontalLine(height: 6),
+                    Center(
+                      child: TextButton(
+                        onPressed: () => Get.close(),
+                        child: Text(
+                          'button_cancel'.tr,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            // color: Colors.white,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
                           ),
                         ),
-                      )
-                    ],
-                  ),
+                      ),
+                    )
+                  ]),
                 ),
-                backgroundColor: Colors.white,
-                //改变shape这里即可
+                backgroundColor: Get.isDarkMode
+                    ? const Color.fromRGBO(80, 80, 80, 1)
+                    : const Color.fromRGBO(240, 240, 240, 1), //改变shape这里即可
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(20.0),
@@ -176,7 +178,7 @@ class ContactTagListPage extends StatelessWidget {
       child: Container(
         // width: Get.width - 24,
         // height: Get.height - 125,
-        color: Colors.white,
+        // color: Colors.white,
         margin: const EdgeInsets.fromLTRB(0, 0, 0, 2),
         padding: const EdgeInsets.all(10),
         // decoration: BoxDecoration(
@@ -204,10 +206,10 @@ class ContactTagListPage extends StatelessWidget {
               ),
               Text(
                 ' (${obj.refererTime})',
-                style: const TextStyle(
-                  color: AppColors.MainTextColor,
-                  // fontSize: 14.0,
-                ),
+                // style: const TextStyle(
+                //   color: AppColors.MainTextColor,
+                //   // fontSize: 14.0,
+                // ),
               ),
             ]),
             n.Row([
@@ -218,11 +220,12 @@ class ContactTagListPage extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      color: AppColors.MainTextColor,
+                      // color: AppColors.MainTextColor,
                       fontSize: 14.0,
                     ),
                   )),
             ]),
+            const HorizontalLine(height: 1.0)
           ]),
         ),
       ),
@@ -233,20 +236,25 @@ class ContactTagListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
-      backgroundColor: AppColors.ChatBg,
-      appBar: PageAppBar(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         title: 'contact_tags'.tr,
         rightDMActions: <Widget>[
           InkWell(
-            child: const SizedBox(
+            child: SizedBox(
               width: 46.0,
-              child: Icon(
-                Icons.add,
-                color: Colors.black54,
+              child: n.Padding(
+                top: 10,
+                bottom: 10,
+                child: const Icon(Icons.add),
               ),
             ),
             onTap: () {
               Get.bottomSheet(
+                backgroundColor: Get.isDarkMode
+                    ? const Color.fromRGBO(80, 80, 80, 1)
+                    : const Color.fromRGBO(240, 240, 240, 1),
                 n.Padding(
                   // top: 80,
                   child: UserTagSavePage(scene: 'friend'),

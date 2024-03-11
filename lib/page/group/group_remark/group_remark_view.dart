@@ -4,7 +4,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/main_input.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/config/enum.dart';
 
 import 'group_remark_logic.dart';
@@ -77,7 +77,9 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
   Widget build(BuildContext context) {
     return MainInputBody(
       child: Scaffold(
-        appBar: const PageAppBar(backgroundColor: Colors.white),
+        appBar: const NavAppBar(
+          automaticallyImplyLeading: true,
+        ),
         body: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
@@ -141,7 +143,9 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                         child: Text(
                           '填入',
                           style: TextStyle(
-                              color: AppColors.MainTextColor, fontSize: 14),
+                            // color: AppColors.MainTextColor,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                       onTap: () {

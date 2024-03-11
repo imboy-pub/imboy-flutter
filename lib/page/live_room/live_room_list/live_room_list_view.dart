@@ -3,9 +3,11 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
+
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/live_room/publisher/publisher_view.dart';
-import 'package:imboy/page/live_room/subscriber/subscriber_view.dart';
+
+// import 'package:imboy/page/live_room/publisher/publisher_view.dart';
+// import 'package:imboy/page/live_room/subscriber/subscriber_view.dart';
 import 'package:imboy/store/model/live_room_model.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -40,14 +42,15 @@ class LiveRoomListPage extends StatelessWidget {
     initData();
 
     return Scaffold(
-      appBar: PageAppBar(
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         title: 'my_live'.tr,
       ),
       body: SingleChildScrollView(
         child: Container(
           width: Get.width,
           height: Get.height,
-          color: AppColors.primaryBackground,
+          color: Theme.of(context).colorScheme.background,
           child: n.Column([
             Expanded(
               child: n.Padding(
@@ -70,11 +73,7 @@ class LiveRoomListPage extends StatelessWidget {
                                 subtitle: n.Row([
                                   Text('PublisherPage'.tr),
                                 ]),
-                                trailing: Icon(
-                                  Icons.navigate_next,
-                                  color:
-                                      AppColors.MainTextColor.withOpacity(0.5),
-                                ),
+                                trailing: navigateNextIcon,
                                 onTap: () {
                                   // Get.to(
                                   //   () => const PublisherPage(),
@@ -104,11 +103,7 @@ class LiveRoomListPage extends StatelessWidget {
                                 subtitle: n.Row([
                                   Text('Subscriber'.tr),
                                 ]),
-                                trailing: Icon(
-                                  Icons.navigate_next,
-                                  color:
-                                      AppColors.MainTextColor.withOpacity(0.5),
-                                ),
+                                trailing: navigateNextIcon,
                                 onTap: () {
                                   // Get.to(
                                   //   () => const SubscriberPage(),

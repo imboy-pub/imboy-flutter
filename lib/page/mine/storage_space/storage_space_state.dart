@@ -2,8 +2,10 @@ import 'package:get/get.dart';
 
 class StorageSpaceState {
   RxInt totalDiskSpace = 0.obs;
+
   // 可用空间
   RxInt freeDiskSpace = 0.obs;
+
   // 已用空间
   RxInt usedDiskSpace = 0.obs;
 

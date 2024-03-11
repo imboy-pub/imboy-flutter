@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/single/video_viewer.dart';
 
@@ -27,9 +27,9 @@ class VideoMessageBuilder extends StatelessWidget {
     bool userIsAuthor = user.id == message.author.id;
 
     return Bubble(
-      color: userIsAuthor
-          ? AppColors.ChatSendMessageBgColor
-          : AppColors.ChatReceivedMessageBodyBgColor,
+      // color: userIsAuthor
+      //     ? AppColors.ChatSendMessageBgColor
+      //     : AppColors.ChatReceivedMessageBodyBgColor,
       nip: userIsAuthor ? BubbleNip.rightBottom : BubbleNip.leftBottom,
       // style: const BubbleStyle(nipWidth: 16),
       child: InkWell(

@@ -5,8 +5,6 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:niku/namespace.dart' as n;
 
-import 'package:imboy/config/const.dart';
-
 /// A data type holding user feedback consisting of a feedback type, free from
 /// feedback text, and a sentiment rating.
 class IMBoyFeedback {
@@ -154,7 +152,7 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                       labelText: "",
                       labelStyle: TextStyle(
                         fontSize: 14,
-                        color: AppColors.MainTextColor,
+                        // color: AppColors.MainTextColor,
                       ),
                       contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                       fillColor: Color.fromARGB(255, 247, 247, 247),
@@ -200,7 +198,7 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                       labelText: "",
                       labelStyle: TextStyle(
                         fontSize: 14,
-                        color: AppColors.MainTextColor,
+                        // color: AppColors.MainTextColor,
                       ),
                       contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                       fillColor: Color.fromARGB(255, 247, 247, 247),
@@ -285,7 +283,7 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                 }
               : null,
           style: TextButton.styleFrom(
-            foregroundColor: AppColors.primaryElement,
+            // foregroundColor: AppColors.primaryElement,
             minimumSize: Size.zero,
             padding: EdgeInsets.zero,
             backgroundColor: Colors.white,

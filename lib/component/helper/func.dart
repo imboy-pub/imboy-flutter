@@ -4,10 +4,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/icon_image_provider.dart';
+
+import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/service/encrypter.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
@@ -279,4 +282,24 @@ String formatBytes(int size, {int fractionDigits = 2, int num = 1024}) {
     'ZB',
     'YB',
   ][multiple]}';
+}
+
+/// 获取本地 主题配置
+/// 0 白色
+/// 1 黑色
+/// 2 跟随系统
+getLocalProfileAboutThemeModel({
+  bool isUserCache = true,
+  int themeType = 0,
+}) {
+  int type =
+      isUserCache ? StorageService.to.getInt(Keys.themeType) ?? 0 : themeType;
+  iPrint("getLocalProfileAboutThemeModel $type");
+  if (type == 0) {
+    return ThemeMode.light;
+  } else if (type == 1) {
+    return ThemeMode.dark;
+  } else if (type == 2) {
+    return ThemeMode.system;
+  }
 }

@@ -12,7 +12,6 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/list.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/tag.dart';
-import 'package:imboy/config/const.dart';
 
 // ignore: implementation_imports
 import 'package:textfield_tags/textfield_tags.dart';
@@ -65,7 +64,7 @@ class UserTagRelationPage extends StatelessWidget {
     state.tagController.addListener(() {
       bool diff =
           listDiff(state.tagItems.toList(), state.tagController.getTags);
-      state.tagItems.value = state.tagController.getTags!;
+      state.tagItems.value = state.tagController.getTags! as List<String>;
       logic.valueOnChange(diff);
       if (diff) {
         state.tagController.setError = 'need_submit_effect'.tr;
@@ -81,9 +80,8 @@ class UserTagRelationPage extends StatelessWidget {
       textfieldTagsController: state.tagController,
       initialTags: state.tagItems,
       textSeparators: const [' ', ','],
-      // textSeparators: const [','],
       letterCase: LetterCase.normal,
-      validator: (String tag) {
+      validator: (dynamic tag) {
         bool diff = listDiff(
           state.tagItems,
           state.tagController.getTags,
@@ -93,7 +91,7 @@ class UserTagRelationPage extends StatelessWidget {
         logic.valueOnChange(diff);
         if (tag.length > 14) {
           // 最最最最最最最最最最最最最最1
-          return 'error_invalid'.trArgs(['14']);
+          return 'up_to_words'.trArgs(['14']);
         }
         if (state.tagController.getTags != null &&
             state.tagController.getTags!.contains(tag)) {
@@ -102,95 +100,97 @@ class UserTagRelationPage extends StatelessWidget {
         }
         return null;
       },
-
-      inputfieldBuilder:
-          (context, tecController, fn, error, onChanged, onSubmitted) {
-        return ((context, scController, tags, onTagDelete) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: TextField(
-              // keyboardType: TextInputType.multiline,
-              // minLines: 1,
-              // maxLines: null,
-              controller: tecController,
-              // focusNode: fn,
-              decoration: InputDecoration(
-                border: UnderlineInputBorder(
-                  borderSide:
-                      BorderSide(color: tagSelectedBackgroundColor, width: 1.0),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide:
-                      BorderSide(color: tagSelectedBackgroundColor, width: 1.0),
-                ),
-                // helperText: 'all_tags'.tr,
-                helperStyle: TextStyle(
-                  color: tagSelectedBackgroundColor,
-                ),
-                hintText:
-                    state.tagController.hasTags ? '' : 'select_or_enter_tag'.tr,
-                errorText: error,
-                prefixIconConstraints:
-                    BoxConstraints(maxWidth: state.distanceToField * 1.0),
-                prefixIcon: tags.isEmpty
-                    ? null
-                    : SingleChildScrollView(
-                        controller: scController,
-                        scrollDirection: Axis.vertical,
-                        child: Wrap(
-                          // runSpacing: 7.0,
-                          children: (tags.map((String tag) {
-                            return TagItem(
-                              tag: tag,
-                              onTagDelete: (String tag) {
-                                onTagDelete(tag);
-                                final state2 =
-                                    StateProvider.of<FilterState<String>>(
-                                        context,
-                                        rebuildOnChange: true);
-                                state2.removeSelectedItem(tag);
-                              },
-                              backgroundColor: tagBackgroundColor,
-                              tagSelectedColor: tagSelectedColor,
-                              selectedBackgroundColor:
-                                  tagSelectedBackgroundColor,
-                            );
-                          }).toList()),
-                        )),
+      inputFieldBuilder: (
+        BuildContext context,
+        InputFieldValues<dynamic> inputFieldValues,
+      ) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: TextField(
+            // keyboardType: TextInputType.multiline,
+            // minLines: 1,
+            // maxLines: null,
+            controller: inputFieldValues.textEditingController,
+            focusNode: inputFieldValues.focusNode,
+            // focusNode: fn,
+            decoration: InputDecoration(
+              border: UnderlineInputBorder(
+                borderSide:
+                    BorderSide(color: tagSelectedBackgroundColor, width: 1.0),
               ),
-              onChanged: (String tag) {
-                debugPrint("input_onChanged $tag");
+              focusedBorder: UnderlineInputBorder(
+                borderSide:
+                    BorderSide(color: tagSelectedBackgroundColor, width: 1.0),
+              ),
+              // helperText: 'all_tags'.tr,
+              helperStyle: TextStyle(
+                color: tagSelectedBackgroundColor,
+              ),
+              hintText: inputFieldValues.tags.isNotEmpty
+                  ? ''
+                  : 'select_or_enter_tag'.tr,
+              errorText: inputFieldValues.error,
+              prefixIconConstraints:
+                  BoxConstraints(maxWidth: state.distanceToField * 1.0),
+              prefixIcon: inputFieldValues.tags.isEmpty
+                  ? null
+                  : SingleChildScrollView(
+                      controller: inputFieldValues.tagScrollController,
+                      scrollDirection: Axis.vertical,
+                      child: Wrap(
+                        // runSpacing: 7.0,
+                        children: (inputFieldValues.tags.map((dynamic tag) {
+                          return TagItem(
+                            tag: tag,
+                            onTagDelete: (String tag) {
+                              inputFieldValues.onTagRemoved(tag);
+                              final state2 =
+                                  StateProvider.of<FilterState<String>>(context,
+                                      rebuildOnChange: true);
+                              state2.removeSelectedItem(tag);
+                            },
+                            backgroundColor: tagBackgroundColor,
+                            tagSelectedColor: tagSelectedColor,
+                            selectedBackgroundColor: tagSelectedBackgroundColor,
+                          );
+                        }).toList()),
+                      )),
+            ),
+            onChanged: (String tag) {
+              debugPrint("input_onChanged $tag");
+              logic.state.inputTimer?.cancel();
+              logic.state.inputTimer = null;
+              logic.state.lastInputTag = tag;
+
+              logic.state.inputTimer =
+                  Timer.periodic(const Duration(seconds: 2), (timer) {
+                inputFieldValues.onTagRemoved(logic.state.lastInputTag);
+                logic.state.lastInputTag = '';
                 logic.state.inputTimer?.cancel();
                 logic.state.inputTimer = null;
-                logic.state.lastInputTag = tag;
-
-                logic.state.inputTimer =
-                    Timer.periodic(const Duration(seconds: 2), (timer) {
-                  onSubmitted!(logic.state.lastInputTag);
-                  logic.state.lastInputTag = '';
-                  logic.state.inputTimer?.cancel();
-                  logic.state.inputTimer = null;
-                });
-              },
-              onSubmitted: (String tag) {
-                if (tag.isEmpty) {
-                  return;
-                }
-                // debugPrint("input_onSubmitted $tag");
-                final state2 = StateProvider.of<FilterState<String>>(context);
-                state2.addSelectedItem(tag);
-                if (state2.items != null &&
-                    state2.items!.contains(tag) == false) {
-                  List<String>? items = state2.items;
-                  items?.add(tag);
-                  state2.items = items;
-                }
-                state.tagController.addTag = tag;
-                // onSubmitted!(tag);
-              },
-            ),
-          );
-        });
+              });
+            },
+            onSubmitted: (String tag) {
+              if (tag.isEmpty) {
+                return;
+              }
+              debugPrint("input_onSubmitted $tag");
+              if (tag.length > 14) {
+                return;
+              }
+              final state2 = StateProvider.of<FilterState<String>>(context);
+              state2.addSelectedItem(tag);
+              if (state2.items != null &&
+                  state2.items!.contains(tag) == false) {
+                List<String>? items = state2.items;
+                items?.add(tag);
+                state2.items = items;
+              }
+              state.tagController.addTag(tag);
+              // onSubmitted!(tag);
+            },
+          ),
+        );
       },
     );
   }
@@ -200,26 +200,28 @@ class UserTagRelationPage extends StatelessWidget {
     initData();
 
     return Scaffold(
-      backgroundColor: AppColors.ChatBg,
+      backgroundColor: Theme.of(context).colorScheme.background,
       // backgroundColor: Colors.white,
-      appBar: PageAppBar(
+      appBar: NavAppBar(
         title: title ?? 'add_tag'.tr,
+        automaticallyImplyLeading: true,
       ),
       body: SizedBox(
         height: Get.height - 40,
         child: Obx(() => state.loaded.isTrue
             ? FilterListWidget<String>(
-                resetButtonText: 'button_setempty'.tr,
+                resetButtonText: 'button_set_empty'.tr,
                 applyButtonText: 'button_confirm'.tr,
+                selectedItemsText: 'selected_items'.trArgs(['']).trim(),
                 // hideHeader: true,
                 header: _buildHeader(),
                 enableOnlySingleSelection: false,
-                listData: state.recentTagItems,
-                selectedListData: state.tagItems,
+                listData: state.recentTagItems.value,
+                selectedListData: state.tagItems.value,
                 controlButtons: const [ControlButtonType.Reset],
                 themeData: FilterListThemeData(
                   context,
-                  backgroundColor: AppColors.ChatBg,
+                  backgroundColor: Theme.of(context).colorScheme.background,
                   choiceChipTheme: ChoiceChipThemeData(
                     backgroundColor: tagBackgroundColor,
                     selectedBackgroundColor: tagSelectedBackgroundColor,
@@ -227,13 +229,18 @@ class UserTagRelationPage extends StatelessWidget {
                     selectedTextStyle: TextStyle(color: tagSelectedColor),
                   ),
                   controlButtonBarTheme: const ControlButtonBarThemeData.raw(
-                    backgroundColor: AppColors.ChatBg,
+                    // backgroundColor: Theme.of(context).colorScheme.background,
                     controlButtonTheme: ControlButtonThemeData(
                       borderRadius: 4,
-                      primaryButtonTextStyle: TextStyle(color: Colors.white),
-                      primaryButtonBackgroundColor: Color(0xFF19B84D),
-                      textStyle: TextStyle(color: Color(0xFF19B84D)),
-                      backgroundColor: Color(0xFFE5E5E5),
+                      primaryButtonTextStyle: TextStyle(
+                        color: Colors.white,
+                      ),
+                      primaryButtonBackgroundColor: Colors.green,
+                      textStyle: TextStyle(
+                        color: Colors.white70,
+                      ),
+                      // backgroundColor: Theme.of(context).colorScheme.background,
+                      backgroundColor: Colors.grey,
                     ),
                     buttonSpacing: 20,
                     controlContainerDecoration: BoxDecoration(
@@ -245,7 +252,7 @@ class UserTagRelationPage extends StatelessWidget {
                   ),
                 ),
                 onApplyButtonClick: (list) async {
-                  List<String>? tag =
+                  List<dynamic>? tag =
                       state.tagController.getTags?.toSet().toList();
                   // state.tagController.getTags = tag?.toList();
                   // debugPrint("submit_tag ${tag?.length} ${tag.toString()}, ");
@@ -268,10 +275,11 @@ class UserTagRelationPage extends StatelessWidget {
                 },
                 onSelected: (String item, bool selected) {
                   if (selected) {
-                    state.tagController.addTag = item;
+                    state.tagController.addTag(item);
                   } else {
-                    state.tagController.removeTag = item;
-                    state.tagItems.value = state.tagController.getTags!;
+                    state.tagController.removeTag(item);
+                    state.tagItems.value =
+                        state.tagController.getTags! as List<String>;
                   }
                   // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
                   state.tagController.notifyListeners();

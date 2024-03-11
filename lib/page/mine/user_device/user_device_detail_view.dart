@@ -5,7 +5,7 @@ import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/ui/line.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/store/model/user_device_model.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:niku/namespace.dart' as n;
@@ -36,14 +36,14 @@ class UserDeviceDetailPage extends StatelessWidget {
     //
     initData();
     return Scaffold(
-      appBar: PageAppBar(
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         title: 'device_details'.tr,
       ),
       body: SingleChildScrollView(
-        child: Container(
+        child: SizedBox(
           width: Get.width,
           height: Get.height,
-          color: const Color(0xFFEEEEEE),
           child: n.Column([
             LabelRow(
               label: 'device_name'.tr,
@@ -56,7 +56,10 @@ class UserDeviceDetailPage extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.right,
                       style: TextStyle(
-                        color: AppColors.MainTextColor.withOpacity(0.8),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onPrimary
+                            .withOpacity(0.8),
                         fontWeight: FontWeight.w400,
                       ),
                     )),
@@ -97,7 +100,10 @@ class UserDeviceDetailPage extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.right,
                   style: TextStyle(
-                    color: AppColors.MainTextColor.withOpacity(0.8),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onPrimary
+                        .withOpacity(0.8),
                     fontWeight: FontWeight.w400,
                   ),
                 ),
@@ -105,7 +111,7 @@ class UserDeviceDetailPage extends StatelessWidget {
               onPressed: () {},
             ),
             const HorizontalLine(
-              height: 8,
+              height: 4,
             ),
             LabelRow(
               label: 'last_active_time'.tr,
@@ -119,7 +125,10 @@ class UserDeviceDetailPage extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.right,
                   style: TextStyle(
-                    color: AppColors.MainTextColor.withOpacity(0.8),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onPrimary
+                        .withOpacity(0.8),
                     fontWeight: FontWeight.w400,
                   ),
                 ),
@@ -160,13 +169,17 @@ class UserDeviceDetailPage extends StatelessWidget {
                     ..actions = [
                       n.Button('button_cancel'.tr.n)
                         ..style = n.NikuButtonStyle(
-                            foregroundColor: AppColors.ItemOnColor)
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onBackground,
+                        )
                         ..onPressed = () {
                           Navigator.of(context).pop();
                         },
                       n.Button('button_delete'.tr.n)
                         ..style = n.NikuButtonStyle(
-                            foregroundColor: AppColors.ItemOnColor)
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onBackground,
+                        )
                         ..onPressed = () async {
                           var nav = Navigator.of(context);
 

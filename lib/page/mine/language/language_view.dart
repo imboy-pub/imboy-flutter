@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/config/const.dart';
-import 'package:imboy/service/storage.dart';
 import 'package:niku/namespace.dart' as n;
 
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
 import 'language_logic.dart';
@@ -22,15 +22,16 @@ class LanguagePage extends StatelessWidget {
     state.selectedLanguage.value =
         StorageService.to.getString(Keys.currentLang) ?? 'zh_CN';
     return Scaffold(
-      backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(
+      // backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         titleWidget: n.Row([
           Expanded(
             child: Text(
               'language_setting'.tr,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                // color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
                 fontSize: 16.0,
                 fontWeight: FontWeight.bold,
               ),
@@ -53,7 +54,8 @@ class LanguagePage extends StatelessWidget {
               style: state.valueChanged.isTrue
                   ? ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
-                        AppColors.primaryElement,
+                        // Theme.of(context).colorScheme.background,
+                        Colors.green,
                       ),
                       foregroundColor: MaterialStateProperty.all<Color>(
                         Colors.white,
@@ -65,10 +67,10 @@ class LanguagePage extends StatelessWidget {
                     )
                   : ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
-                        AppColors.AppBarColor,
+                        Colors.green.withOpacity(0.6),
                       ),
                       foregroundColor: MaterialStateProperty.all<Color>(
-                        AppColors.LineColor,
+                        Colors.white.withOpacity(0.6),
                       ),
                       // minimumSize:
                       //     MaterialStateProperty.all(const Size(88, 40)),
@@ -90,7 +92,7 @@ class LanguagePage extends StatelessWidget {
           ),
         ),
       ], mainAxisSize: MainAxisSize.min)
-        ..useParent((v) => v..bg = Colors.white),
+        ..useParent((v) => v..bg = Theme.of(context).colorScheme.background),
     );
   }
 }

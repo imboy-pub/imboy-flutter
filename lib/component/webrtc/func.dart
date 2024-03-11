@@ -11,6 +11,7 @@ import 'package:xid/xid.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/session.dart';
+
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
@@ -152,7 +153,9 @@ Future<void> incomingCallScreen(
   sendWebRTCMsg('ringing', {}, to: peer.peerId);
   Get.defaultDialog(
     title: '',
-    backgroundColor: Colors.black54,
+    backgroundColor: Get.isDarkMode
+        ? const Color.fromRGBO(80, 80, 80, 1)
+        : const Color.fromRGBO(240, 240, 240, 1),
     titlePadding: const EdgeInsets.all(0),
     barrierDismissible: false,
     radius: 10,
@@ -170,8 +173,8 @@ Future<void> incomingCallScreen(
               Expanded(
                 child: Text(
                   peer.nickname,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(Get.context!).colorScheme.onPrimary,
                     fontSize: 12.0,
                     fontWeight: FontWeight.w500,
                   ),
@@ -187,8 +190,8 @@ Future<void> incomingCallScreen(
                 child: Text(
                   // "Incoming ${option['media']} call".tr,
                   'incoming_call'.trArgs([option['media'].tr]),
-                  style: const TextStyle(
-                    color: Colors.white60,
+                  style: TextStyle(
+                    color: Theme.of(Get.context!).colorScheme.onPrimary,
                     fontSize: 12,
                   ),
                   textAlign: TextAlign.left,
@@ -253,8 +256,10 @@ Future<void> incomingCallScreen(
                   openCallScreen(peer, session: s, option, caller: false);
                 },
                 child: option['media'] == 'video'
-                    ? const Icon(Icons.videocam, color: Colors.white)
-                    : const Icon(Icons.phone, color: Colors.white),
+                    ? Icon(Icons.videocam,
+                        color: Theme.of(Get.context!).colorScheme.onPrimary)
+                    : Icon(Icons.phone,
+                        color: Theme.of(Get.context!).colorScheme.onPrimary),
               ),
             ),
           ]),

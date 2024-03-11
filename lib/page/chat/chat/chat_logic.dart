@@ -26,7 +26,9 @@ import 'chat_state.dart';
 
 class ChatLogic extends GetxController {
   final state = ChatState();
+
   ChatLogic();
+
   void initState() {
     state.messages = [];
     state.scrollController = AutoScrollController();

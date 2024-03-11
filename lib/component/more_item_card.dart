@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/ui/common.dart';
+
 import 'package:imboy/config/const.dart';
+import 'package:imboy/component/ui/common.dart';
 
 class MoreItemCard extends StatelessWidget {
   final String? name, icon;
@@ -58,8 +59,10 @@ class MoreItemCard extends StatelessWidget {
           const Space(width: mainSpace / 2),
           Text(
             name ?? '',
-            style:
-                const TextStyle(color: AppColors.MainTextColor, fontSize: 11),
+            style: const TextStyle(
+              // color: AppColors.MainTextColor,
+              fontSize: 11,
+            ),
           ),
         ],
       ),

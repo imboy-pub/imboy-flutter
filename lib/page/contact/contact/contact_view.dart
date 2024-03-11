@@ -92,7 +92,9 @@ class ContactPage extends StatelessWidget {
                         return Container();
                       }
                       return logic.getSusItem(
-                          context, model.getSuspensionTag());
+                        context,
+                        model.getSuspensionTag(),
+                      );
                     },
                     // indexBarData: const ['↑', ...kIndexBarData],
                     indexBarData: logic.contactList.isNotEmpty

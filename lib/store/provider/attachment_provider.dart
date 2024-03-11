@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:video_compress/video_compress.dart';
+import 'package:wechat_assets_picker/wechat_assets_picker.dart';
+import 'package:xid/xid.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:crypto/crypto.dart';
@@ -9,14 +12,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart' as getx;
-import 'package:imboy/component/helper/datetime.dart';
+
 import 'package:imboy/config/const.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
-import 'package:video_compress/video_compress.dart';
-import 'package:wechat_assets_picker/wechat_assets_picker.dart';
-import 'package:xid/xid.dart';
 
 class AttachmentProvider {
   static Future<void> _upload(

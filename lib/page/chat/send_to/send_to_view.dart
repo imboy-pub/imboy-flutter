@@ -11,7 +11,8 @@ import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
+import 'package:imboy/component/ui/line.dart';
+
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -60,7 +61,7 @@ class SendToPage extends StatelessWidget {
       } else {
         btn = InkWell(
           onTap: () {
-            Get.close();
+            Get.back();
           },
           child: n.Padding(
             top: 14,
@@ -94,6 +95,7 @@ class SendToPage extends StatelessWidget {
               top: 14,
               left: 10,
               right: 10,
+              bottom: 14,
               child: state.multipleChoice.isTrue
                   ? Text("${'button_accomplish'.tr}$suffix")
                   : Text('multi_select'.tr),
@@ -103,7 +105,7 @@ class SendToPage extends StatelessWidget {
       )
     ];
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: NavAppBar(
         leading: leading,
         title: 'forward_to'.tr,
@@ -113,11 +115,10 @@ class SendToPage extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
       floatingActionButton: searchBoxBuild(context),
       body: n.Column([
-        // line
         Container(
           width: Get.width,
           height: 8,
-          color: AppColors.ChatBg,
+          color: Theme.of(context).colorScheme.background,
           // color: Colors.red,
           margin: const EdgeInsets.only(top: 53.0),
         ),
@@ -160,8 +161,12 @@ class SendToPage extends StatelessWidget {
                   child: Obx(
                     () => n.ListView(
                       itemCount: state.conversations.length,
-                      children:
-                          state.conversations.map(_buildListItem).toList(),
+                      children: state.conversations
+                          .map((conversation) => _buildListItem(
+                                context,
+                                conversation,
+                              ))
+                          .toList(),
                     ),
                   ),
                 ),
@@ -173,18 +178,18 @@ class SendToPage extends StatelessWidget {
     );
   }
 
-  Widget searchBoxBuild(BuildContext context) {
+  Widget searchBoxBuild(BuildContext ctx) {
     // TODO leeyi 2023-01-29 16:56:14
     return Container(
       margin: const EdgeInsets.only(top: 58.0, left: 12),
-      color: Colors.white,
+      // color: Colors.white,
       // color: Colors.red,
       width: Get.width - 20,
       height: 48.0,
       child: InkWell(
         onTap: () {
           showSearch(
-            context: context,
+            context: ctx,
             delegate: SearchBarDelegate(
               doSearch: ((query) {
                 return ContactRepo().search(kwd: query);
@@ -215,7 +220,7 @@ class SendToPage extends StatelessWidget {
                   );
                   // 保存会话
                   obj = await (ConversationRepo()).save(obj);
-                  sendToDialog(obj, 3);
+                  sendToDialog(Get.context!, obj, 3);
                 }
               },
             ),
@@ -223,15 +228,15 @@ class SendToPage extends StatelessWidget {
         },
         child: n.Row([
           FloatingActionButton(
-            // mini: true,
-            backgroundColor: Colors.white,
+            mini: true,
+            // backgroundColor: Colors.white,
             shape: const CircleBorder(),
             elevation: 0,
             tooltip: 'search'.tr,
             onPressed: () {},
-            child: const Icon(
+            child: Icon(
               Icons.search,
-              color: AppColors.thirdElementText,
+              color: Theme.of(ctx).colorScheme.onPrimary,
               size: 20,
             ),
           ),
@@ -249,6 +254,9 @@ class SendToPage extends StatelessWidget {
     List towD = listTo2D(items, 5);
     Get.defaultDialog(
       title: 'send_separately_to'.tr,
+      backgroundColor: Get.isDarkMode
+          ? const Color.fromRGBO(80, 80, 80, 1)
+          : const Color.fromRGBO(240, 240, 240, 1),
       radius: 6,
       cancel: TextButton(
         onPressed: () {
@@ -277,6 +285,9 @@ class SendToPage extends StatelessWidget {
         child: Text(
           'button_send'.tr,
           textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Theme.of(Get.context!).colorScheme.onPrimary,
+          ),
         ),
       ),
       content: SizedBox(
@@ -302,7 +313,7 @@ class SendToPage extends StatelessWidget {
               ),
             ),
           ),
-          const Divider(),
+          const HorizontalLine(height: 1.0),
           Expanded(
             child: messageMsgWidget(msg),
           ),
@@ -311,9 +322,12 @@ class SendToPage extends StatelessWidget {
     );
   }
 
-  void sendToDialog(ConversationModel model, int times) {
+  void sendToDialog(BuildContext ctx, ConversationModel model, int times) {
     Get.defaultDialog(
       title: 'send_to'.tr,
+      backgroundColor: Get.isDarkMode
+          ? const Color.fromRGBO(80, 80, 80, 1)
+          : const Color.fromRGBO(240, 240, 240, 1),
       radius: 6,
       cancel: TextButton(
         onPressed: () {
@@ -322,6 +336,9 @@ class SendToPage extends StatelessWidget {
         child: Text(
           'button_cancel'.tr,
           textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Theme.of(ctx).colorScheme.onPrimary,
+          ),
         ),
       ),
       confirm: TextButton(
@@ -345,6 +362,9 @@ class SendToPage extends StatelessWidget {
         child: Text(
           'button_send'.tr,
           textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Theme.of(ctx).colorScheme.onPrimary,
+          ),
         ),
       ),
       content: SizedBox(
@@ -380,7 +400,7 @@ class SendToPage extends StatelessWidget {
     );
   }
 
-  Widget _buildListItem(ConversationModel model) {
+  Widget _buildListItem(BuildContext context, ConversationModel model) {
     // String susTag = model.getSuspensionTag();
     return n.Column([
       // Offstage(
@@ -402,7 +422,7 @@ class SendToPage extends StatelessWidget {
               }
               // setState(() {});
             } else {
-              sendToDialog(model, 2);
+              sendToDialog(context, model, 2);
             }
           },
           child: n.Row([
@@ -427,11 +447,12 @@ class SendToPage extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 padding: const EdgeInsets.only(right: 30),
                 height: _itemHeight.toDouble(),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(
-                      color: AppColors.LineColor,
-                      width: 0.2,
+                      width: Get.isDarkMode ? 0.5 : 1.0,
+                      color:
+                          Theme.of(Get.context!).colorScheme.primaryContainer,
                     ),
                   ),
                 ),

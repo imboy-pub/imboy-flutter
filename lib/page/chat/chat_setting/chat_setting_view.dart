@@ -4,7 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/search/search_view.dart';
 import 'package:niku/namespace.dart' as n;
@@ -74,6 +74,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
       LabelRow(
         label: 'search_chat_record'.tr,
         margin: const EdgeInsets.only(top: 10.0),
+        isLine: true,
         onPressed: () {
           Get.to(
             () => const SearchPage(),
@@ -99,6 +100,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
       LabelRow(
         label: 'clear_chat_record'.tr,
         margin: const EdgeInsets.only(top: 10.0),
+        isLine: true,
         onPressed: () {
           String tips = 'confirm_delete_chat_record'.tr;
           n.showDialog(
@@ -115,14 +117,14 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
               )
               ..actions = [
                 n.Button('button_cancel'.tr.n)
-                  ..style =
-                      n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
+                  ..style = n.NikuButtonStyle(
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary)
                   ..onPressed = () {
                     Navigator.of(context).pop();
                   },
                 n.Button('button_confirm'.tr.n)
-                  ..style =
-                      n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
+                  ..style = n.NikuButtonStyle(
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary)
                   ..onPressed = () async {
                     Navigator.of(context).pop();
 
@@ -176,14 +178,15 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: NavAppBar(
         leading: BackButton(
           onPressed: () {
             Get.back(result: backDoRefresh);
           },
         ),
         title: 'chat_settings'.tr,
+        automaticallyImplyLeading: true,
       ),
       body: SingleChildScrollView(
         child: Column(children: body()),

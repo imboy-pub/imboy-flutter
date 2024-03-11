@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:imboy/config/const.dart';
 
 class NoDataView extends StatelessWidget {
   final String text;
@@ -18,7 +17,7 @@ class NoDataView extends StatelessWidget {
         onTap: onTop,
         child: Text(
           text,
-          style: const TextStyle(color: AppColors.MainTextColor),
+          // style: const TextStyle(color: AppColors.MainTextColor),
         ),
       ),
     );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:niku/namespace.dart' as n;
 
 class NetworkFailureGuidancePage extends StatelessWidget {
@@ -10,11 +10,12 @@ class NetworkFailureGuidancePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PageAppBar(
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         title: 'network_exception'.tr,
       ),
       body: Card(
-        color: AppColors.BgColor,
+        color: Theme.of(context).colorScheme.background,
         child: n.Column(
           // mainAxisSize: MainAxisSize.min,
           [

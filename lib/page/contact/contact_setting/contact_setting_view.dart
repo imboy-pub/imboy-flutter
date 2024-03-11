@@ -7,10 +7,10 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/button.dart';
-import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
-import 'package:imboy/config/const.dart';
+import 'package:imboy/component/ui/line.dart';
+
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/chat/widget/select_friend.dart';
@@ -35,7 +35,7 @@ class ContactSettingPage extends StatelessWidget {
   final String peerSign;
   final String peerRegion;
   final String peerSource;
-  final String peerRemark;
+  String peerRemark;
   final String peerTag;
 
   ContactSettingPage({
@@ -64,8 +64,9 @@ class ContactSettingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
-      backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         title: 'profile_settings'.tr,
       ),
       body: SingleChildScrollView(
@@ -90,7 +91,11 @@ class ContactSettingPage extends StatelessWidget {
                 ),
                 transition: Transition.rightToLeft,
                 popGesture: true, // 右滑，返回上一页
-              );
+              )?.then((value) {
+                if (value != null) {
+                  peerRemark = value.toString();
+                }
+              });
             },
           ),
           // LabelRow(
@@ -103,7 +108,11 @@ class ContactSettingPage extends StatelessWidget {
           //     );
           //   },
           // ),
-          const Space(),
+          n.Padding(
+            left: 16,
+            right: 16,
+            child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
+          ),
           LabelRow(
             label: 'recommend_to_friend'.tr,
             // isLine: false,
@@ -161,68 +170,84 @@ class ContactSettingPage extends StatelessWidget {
               }
             },
           ),
-          const Space(),
+
+          n.Padding(
+            left: 16,
+            right: 16,
+            child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
+          ),
           Container(
-            color: Colors.white,
-            child: Container(
-              padding: const EdgeInsets.only(
-                left: 0,
-                top: 0.0,
-                bottom: 0.0,
-                right: 0.0,
-              ),
-              margin: const EdgeInsets.only(left: 15.0),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                  bottom: BorderSide(color: AppColors.LineColor, width: 0.2),
+            padding: const EdgeInsets.only(
+              left: 0,
+              top: 0.0,
+              bottom: 0.0,
+              right: 0.0,
+            ),
+            margin: const EdgeInsets.only(left: 16.0, right: 16),
+            decoration: BoxDecoration(
+              // color: Colors.white,
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  width: 0.5,
                 ),
               ),
-              child: Obx(() => SwitchListTile(
-                    title: Text('add_to_blacklist'.tr),
-                    // value: false,
-                    value: inDenylist.isTrue,
-                    contentPadding: const EdgeInsets.only(
-                      left: 0,
-                      top: 0.0,
-                      bottom: 0.0,
-                      right: 0.0,
-                    ),
-                    activeColor: AppColors.primaryElement,
-                    onChanged: (val) async {
-                      debugPrint("addDenylist val $val, $inDenylist");
-
-                      bool res;
-                      if (inDenylist.isTrue) {
-                        res = await DenylistLogic().removeDenylist(peerId);
-                      } else {
-                        DenylistModel model = DenylistModel(
-                          deniedUid: peerId,
-                          nickname: peerNickname,
-                          account: peerAccount,
-                          remark: peerRemark,
-                          sign: peerSign,
-                          source: peerSource,
-                          avatar: peerAvatar,
-                          region: peerRegion,
-                          gender: peerGender,
-                          createdAt: DateTimeHelper.utc(),
-                        );
-                        res = await DenylistLogic().addDenylist(model);
-                      }
-                      if (res) {
-                        inDenylist.value = val;
-                      }
-                    },
-                  )),
             ),
+            child: Obx(() => SwitchListTile(
+                  title: Text('add_to_blacklist'.tr),
+                  // value: false,
+                  value: inDenylist.isTrue,
+                  contentPadding: const EdgeInsets.only(
+                    left: 0,
+                    top: 0.0,
+                    bottom: 0.0,
+                    right: 0.0,
+                  ),
+                  activeColor: Colors.green,
+                  inactiveThumbColor: Theme.of(context).colorScheme.onPrimary,
+                  trackColor: MaterialStateProperty.all<Color>(
+                    Get.isDarkMode
+                        ? const Color.fromRGBO(100, 100, 100, 1.0)
+                        : const Color.fromRGBO(230, 230, 230, 1.0),
+                  ),
+                  // activeColor: Theme.of(context).colorScheme.onPrimary,
+                  onChanged: (val) async {
+                    debugPrint("addDenylist val $val, $inDenylist");
+
+                    bool res;
+                    if (inDenylist.isTrue) {
+                      res = await DenylistLogic().removeDenylist(peerId);
+                    } else {
+                      DenylistModel model = DenylistModel(
+                        deniedUid: peerId,
+                        nickname: peerNickname,
+                        account: peerAccount,
+                        remark: peerRemark,
+                        sign: peerSign,
+                        source: peerSource,
+                        avatar: peerAvatar,
+                        region: peerRegion,
+                        gender: peerGender,
+                        createdAt: DateTimeHelper.utc(),
+                      );
+                      res = await DenylistLogic().addDenylist(model);
+                    }
+                    if (res) {
+                      inDenylist.value = val;
+                    }
+                  },
+                )),
           ),
           // LabelRow(
           //   label: 'complaint'.tr,
           //   isLine: false,
           //   onPressed: () {},
           // ),
-          // const Space(),
+          n.Padding(
+            left: 16,
+            right: 16,
+            child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
+          ),
           ButtonRow(
             margin: const EdgeInsets.only(top: 10.0),
             text: '删除',
@@ -230,6 +255,9 @@ class ContactSettingPage extends StatelessWidget {
             style: const TextStyle(color: Colors.red, fontSize: 16),
             onPressed: () {
               Get.bottomSheet(
+                backgroundColor: Get.isDarkMode
+                    ? const Color.fromRGBO(80, 80, 80, 1)
+                    : const Color.fromRGBO(240, 240, 240, 1),
                 SizedBox(
                   width: Get.width,
                   height: Get.height * 0.25,
@@ -244,7 +272,7 @@ class ContactSettingPage extends StatelessWidget {
                       child: Text(
                         'tip_delete_contact'.trArgs([peerRemark]),
                         style: const TextStyle(
-                          color: AppColors.MainTextColor,
+                          // color: AppColors.MainTextColor,
                           fontSize: 14.0,
                         ),
                         maxLines: 3,
@@ -281,7 +309,7 @@ class ContactSettingPage extends StatelessWidget {
                     Container(
                       width: Get.width,
                       height: 6,
-                      color: AppColors.AppBarColor,
+                      color: Theme.of(context).colorScheme.background,
                     ),
                     Center(
                       child: TextButton(
@@ -289,8 +317,8 @@ class ContactSettingPage extends StatelessWidget {
                         child: Text(
                           'button_cancel'.tr,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.ItemOnColor,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
                             fontSize: 16.0,
                             fontWeight: FontWeight.normal,
                           ),
@@ -300,7 +328,6 @@ class ContactSettingPage extends StatelessWidget {
                   ]),
                 ),
                 // backgroundColor: Colors.black12,
-                backgroundColor: Colors.white,
                 //改变shape这里即可
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(

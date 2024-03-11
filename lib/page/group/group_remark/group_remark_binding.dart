@@ -4,7 +4,7 @@ import 'group_remark_logic.dart';
 
 class GroupRemarkBinding extends Binding {
   @override
-    List<Bind> dependencies() => [
+  List<Bind> dependencies() => [
         Bind.lazyPut(() => GroupRemarkLogic()),
       ];
 }

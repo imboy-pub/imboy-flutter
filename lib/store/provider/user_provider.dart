@@ -1,11 +1,13 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_parse.dart';
 import 'package:imboy/component/http/http_response.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/service/encrypter.dart';
@@ -28,10 +30,13 @@ class UserProvider extends HttpClient {
     return resp.payload;
   }
 
-  Future<String> refreshAccessTokenApi(String refreshToken,
-      {bool checkNewToken = true}) async {
+  Future<String> refreshAccessTokenApi(
+    String refreshToken, {
+    bool checkNewToken = true,
+  }) async {
     if (strEmpty(refreshToken)) {
       await StorageService.to.remove(Keys.tokenKey);
+      WebSocketService.to.closeSocket(exit: true);
       Get.offAll(() => PassportPage());
       return "";
     }
@@ -61,7 +66,7 @@ class UserProvider extends HttpClient {
     String newToken = resp.payload?['token'] ?? '';
     if (checkNewToken && strEmpty(newToken) && UserRepoLocal.to.isLogin) {
       await StorageService.to.remove(Keys.tokenKey);
-      WebSocketService.to.closeSocket();
+      WebSocketService.to.closeSocket(exit: true);
       Get.offAll(() => PassportPage());
       return "";
     }

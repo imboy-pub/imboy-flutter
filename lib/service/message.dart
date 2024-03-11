@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
@@ -150,7 +151,7 @@ class MessageService extends GetxService {
       //   String content = data['payload']['content'] ?? '';
       //   break;
       case '706': // 需要重新登录
-        WebSocketService.to.closeSocket();
+        WebSocketService.to.closeSocket(exit: true);
         Get.offAll(() => PassportPage());
         break;
     }
@@ -240,7 +241,7 @@ class MessageService extends GetxService {
         String did = payload['did'] ?? '';
         if (did != deviceId) {
           int serverTs = data['server_ts'] ?? 0;
-          WebSocketService.to.closeSocket();
+          WebSocketService.to.closeSocket(exit: true);
           UserRepoLocal.to.logout();
           Get.off(() => PassportPage(), arguments: {
             "msg_type": "logged_another_device",
@@ -531,46 +532,33 @@ class MessageService extends GetxService {
     if (peer.peerId == UserRepoLocal.to.currentUid) {
       throw Exception('not send message to myself');
     }
-    types.CustomMessage msg;
+
+    types.User author = types.User(
+      id: peer.peerId,
+      firstName: peer.nickname,
+      imageUrl: peer.avatar,
+    );
     if (caller) {
-      msg = types.CustomMessage(
-        author: types.User(
-          id: UserRepoLocal.to.currentUid,
-          firstName: UserRepoLocal.to.current.nickname,
-          imageUrl: UserRepoLocal.to.current.avatar,
-        ),
-        createdAt: DateTimeHelper.currentTimeMillis(),
-        id: msgId,
-        remoteId: peer.peerId,
-        status: types.Status.delivered,
-        metadata: {
-          'custom_type': media == 'video' ? 'webrtc_video' : 'webrtc_audio',
-          'media': media,
-          'start_at': 0,
-          'end_at': 0,
-          'state': 0,
-        },
-      );
-    } else {
-      msg = types.CustomMessage(
-        author: types.User(
-          id: peer.peerId,
-          firstName: peer.nickname,
-          imageUrl: peer.avatar,
-        ),
-        createdAt: DateTimeHelper.currentTimeMillis(),
-        id: msgId,
-        remoteId: UserRepoLocal.to.currentUid,
-        status: types.Status.delivered,
-        metadata: {
-          'custom_type': media == 'video' ? 'webrtc_video' : 'webrtc_audio',
-          'media': media,
-          'start_at': 0,
-          'end_at': 0,
-          'state': 0,
-        },
+      author = types.User(
+        id: UserRepoLocal.to.currentUid,
+        firstName: UserRepoLocal.to.current.nickname,
+        imageUrl: UserRepoLocal.to.current.avatar,
       );
     }
+    types.CustomMessage msg = types.CustomMessage(
+      author: author,
+      createdAt: DateTimeHelper.currentTimeMillis(),
+      id: msgId,
+      remoteId: peer.peerId,
+      status: types.Status.delivered,
+      metadata: {
+        'custom_type': media == 'video' ? 'webrtc_video' : 'webrtc_audio',
+        'media': media,
+        'start_at': 0,
+        'end_at': 0,
+        'state': 0,
+      },
+    );
     await Get.find<ChatLogic>().addMessage(
       UserRepoLocal.to.currentUid,
       peer.peerId,
@@ -629,7 +617,7 @@ class MessageService extends GetxService {
   }
 
   /// 清理无效的本地消息
-  /*
+/*
   Future<void> cleanInvalidLocalMsg({
     required String tableName,
     required String msgId,

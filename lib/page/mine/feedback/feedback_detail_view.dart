@@ -3,7 +3,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/store/model/feedback_reply_model.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -45,7 +45,8 @@ class FeedbackDetailPage extends StatelessWidget {
     initData();
 
     return Scaffold(
-      appBar: PageAppBar(
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         title: 'feedback_details'.tr,
       ),
       body: SingleChildScrollView(
@@ -114,10 +115,7 @@ class FeedbackDetailPage extends StatelessWidget {
             n.Padding(
               top: 8,
               bottom: 20,
-              child: const HorizontalLine(
-                height: 2,
-                color: Colors.black12,
-              ),
+              child: const HorizontalLine(height: 1.0),
             ),
             n.Row([
               Expanded(
@@ -136,17 +134,14 @@ class FeedbackDetailPage extends StatelessWidget {
             n.Padding(
               top: 8,
               bottom: 20,
-              child: const HorizontalLine(
-                height: 2,
-                color: Colors.black12,
-              ),
+              child: const HorizontalLine(height: 1.0),
             ),
             n.Row([
               SingleChildScrollView(
                 child: Container(
                   width: Get.width - 32,
                   height: Get.height,
-                  color: AppColors.primaryBackground,
+                  color: Theme.of(context).colorScheme.background,
                   child: n.Column([
                     Expanded(
                       child: n.Padding(
@@ -169,7 +164,7 @@ class FeedbackDetailPage extends StatelessWidget {
                                           Text(
                                             'replied_at'.tr,
                                             style: const TextStyle(
-                                              color: AppColors.MainTextColor,
+                                              // color: AppColors.MainTextColor,
                                               fontSize: 14.0,
                                             ),
                                           ),
@@ -180,7 +175,7 @@ class FeedbackDetailPage extends StatelessWidget {
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(
-                                              color: AppColors.MainTextColor,
+                                              // color: AppColors.MainTextColor,
                                               fontSize: 14.0,
                                             ),
                                           ),
@@ -188,7 +183,7 @@ class FeedbackDetailPage extends StatelessWidget {
                                           Text(
                                             model.statusDesc,
                                             style: const TextStyle(
-                                              color: AppColors.MainTextColor,
+                                              // color: AppColors.MainTextColor,
                                               fontSize: 14.0,
                                             ),
                                           )
@@ -218,11 +213,7 @@ class FeedbackDetailPage extends StatelessWidget {
                                         //   );
                                         // },
                                       ),
-                                      const Divider(
-                                        height: 8.0,
-                                        indent: 0.0,
-                                        color: Colors.black26,
-                                      ),
+                                      const HorizontalLine(height: 1.0)
                                     ]);
                                   },
                                 );

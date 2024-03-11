@@ -11,6 +11,7 @@ class ChatState {
   List<types.Message> messages = [];
 
   int nextAutoId = 0;
+
   ChatState() {
     ///Initialize variables
   }

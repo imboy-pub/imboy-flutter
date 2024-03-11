@@ -7,8 +7,9 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/contact_card.dart';
 import 'package:imboy/component/ui/label_row.dart';
+import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/webrtc/func.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/page/contact/apply_friend/apply_friend_view.dart';
 import 'package:imboy/page/contact/contact_setting/contact_setting_view.dart';
@@ -89,260 +90,280 @@ class PeopleInfoPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     bool isSelf = UserRepoLocal.to.currentUid == id;
-    var rWidget = [
-      SizedBox(
-        width: 60,
-        child: TextButton(
-          onPressed: () {
-            Get.to(
-              () => ContactSettingPage(
-                peerId: id,
-                peerAvatar: avatar.value,
-                peerAccount: account.value,
-                peerNickname: nickname.value,
-                peerGender: gender.value,
-                peerTitle: title.value,
-                peerSign: sign.value,
-                peerRegion: region.value,
-                peerSource: source.value,
-                peerRemark: remark.value,
-                peerTag: tag.value,
-              ),
-              transition: Transition.rightToLeft,
-              popGesture: true, // 右滑，返回上一页
-            );
-          },
-          child: n.Padding(
-            left: 10,
-            right: 10,
-            child: const Icon(
-              Icons.more_horiz,
-              // size: 40,
-            ),
-          ),
-        ),
-      )
-    ];
     bool showApplyFriendBtn = !isSelf;
     if (scene == 'denylist') {
       showApplyFriendBtn = false;
     }
     return Scaffold(
-      backgroundColor: AppColors.ChatBg,
-      appBar: PageAppBar(
+      // backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         title: '',
-        backgroundColor: Colors.white,
-        rightDMActions: isSelf ? [] : rWidget,
-      ),
-      body: SingleChildScrollView(
-        child: Obx(
-          () => n.Column(
-            [
-              ContactCard(
-                id: id,
-                remark: remark.value,
-                nickname: nickname.value,
-                account: account.value,
-                avatar: avatar.value,
-                gender: gender.value,
-                region: region.value,
-                isBorder: true,
-                padding: const EdgeInsets.only(
-                  top: 8,
-                  right: 15.0,
-                  left: 15.0,
-                  bottom: 16.0,
-                ),
-              ),
-              Visibility(
-                visible: !isSelf,
-                child: LabelRow(
-                  label: tag.value.isEmpty ? 'remarks_tags'.tr : 'tags'.tr,
-                  labelWidth: tag.value.isEmpty ? 96 : 40,
-                  // rValue: tag.value.isEmpty ? null : tag.value,
-                  isLine: true,
-                  rightW: SizedBox(
-                    width: Get.width - 140,
-                    child: Text(
-                      (tag.value.endsWith(',')
-                          ? tag.value.substring(0, tag.value.length - 1)
-                          : tag.value),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.left,
-                      style: const TextStyle(
-                        fontSize: 17.0,
-                        color: AppColors.MainTextColor,
+        // backgroundColor: Colors.white,
+        rightDMActions: isSelf
+            ? []
+            : [
+                SizedBox(
+                  width: 60,
+                  child: TextButton(
+                    onPressed: () {
+                      Get.to(
+                        () => ContactSettingPage(
+                          peerId: id,
+                          peerAvatar: avatar.value,
+                          peerAccount: account.value,
+                          peerNickname: nickname.value,
+                          peerGender: gender.value,
+                          peerTitle: title.value,
+                          peerSign: sign.value,
+                          peerRegion: region.value,
+                          peerSource: source.value,
+                          peerRemark: remark.value,
+                          peerTag: tag.value,
+                        ),
+                        transition: Transition.rightToLeft,
+                        popGesture: true, // 右滑，返回上一页
+                      )?.then((value) {
+                        initData();
+                        // iPrint("ContactSettingPage_back $value;");
+                      });
+                    },
+                    child: n.Padding(
+                      left: 10,
+                      right: 10,
+                      child: Icon(
+                        Icons.more_horiz,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        // size: 40,
                       ),
                     ),
                   ),
-                  onPressed: () {
-                    Get.to(
-                      () => ContactSettingTagPage(
-                        peerId: id,
-                        peerAvatar: avatar.value,
-                        peerAccount: account.value,
-                        peerNickname: nickname.value,
-                        peerGender: gender.value,
-                        peerTitle: title.value,
-                        peerSign: sign.value,
-                        peerRegion: region.value,
-                        peerSource: source.value,
-                        peerRemark: remark.value,
-                        peerTag: tag,
-                      ),
-                      transition: Transition.rightToLeft,
-                      popGesture: true, // 右滑，返回上一页
-                    )?.then((value) {
-                      debugPrint(
-                          "PeopleInfoPage_ContactSettingTagPage_back then $value");
-                      if (value != null &&
-                          value is String &&
-                          value.isNotEmpty) {
-                        remark.value = value.toString();
-                      }
-                    });
-                  },
+                )
+              ],
+      ),
+      body: SingleChildScrollView(
+        child: Obx(
+          () => n.Column([
+            ContactCard(
+              id: id,
+              remark: remark.value,
+              nickname: nickname.value,
+              account: account.value,
+              avatar: avatar.value,
+              gender: gender.value,
+              region: region.value,
+              isBorder: true,
+              lineWidth: 1.0,
+              padding: const EdgeInsets.only(
+                top: 8,
+                right: 15.0,
+                left: 15.0,
+                bottom: 16.0,
+              ),
+            ),
+            Visibility(
+              visible: !isSelf,
+              child: LabelRow(
+                label: tag.value.isEmpty ? 'remarks_tags'.tr : 'tags'.tr,
+                labelWidth: tag.value.isEmpty ? 96 : 40,
+                // rValue: tag.value.isEmpty ? null : tag.value,
+                isLine: true,
+                lineWidth: 1.0,
+                rightW: SizedBox(
+                  width: Get.width - 140,
+                  child: Text(
+                    (tag.value.endsWith(',')
+                        ? tag.value.substring(0, tag.value.length - 1)
+                        : tag.value),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontSize: 17.0,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  Get.to(
+                    () => ContactSettingTagPage(
+                      peerId: id,
+                      peerAvatar: avatar.value,
+                      peerAccount: account.value,
+                      peerNickname: nickname.value,
+                      peerGender: gender.value,
+                      peerTitle: title.value,
+                      peerSign: sign.value,
+                      peerRegion: region.value,
+                      peerSource: source.value,
+                      peerRemark: remark.value,
+                      peerTag: tag,
+                    ),
+                    transition: Transition.rightToLeft,
+                    popGesture: true, // 右滑，返回上一页
+                  )?.then((value) {
+                    debugPrint(
+                        "PeopleInfoPage_ContactSettingTagPage_back then $value");
+                    if (value != null && value is String && value.isNotEmpty) {
+                      remark.value = value.toString();
+                    }
+                  });
+                },
+              ),
+            ),
+            /*
+          Visibility(
+            visible: !isSelf,
+            child: LabelRow(
+              label: 'friend_permissions'.tr,
+              onPressed: () {
+                Get.to(
+                  () => FriendsPermissionsPage(),
+                  transition: Transition.rightToLeft,
+                  popGesture: true, // 右滑，返回上一页
+                );
+              },
+            ),
+          ),
+          const Space(),
+          LabelRow(
+            label: 'moment'.tr,
+            isLine: true,
+            onPressed: () => Get.to(()=>
+              const FriendCirclePage(),
+              transition: Transition.rightToLeft,
+              popGesture: true, // 右滑，返回上一页
+            ),
+          ),
+          */
+            if (isFriend.value == 1 || scene == 'denylist')
+              LabelRow(
+                label: 'more_info'.tr,
+                isLine: false,
+                onPressed: () => Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                    // “右滑返回上一页”功能
+                    builder: (_) => PeopleInfoMorePage(
+                      id: id,
+                    ),
+                  ),
                 ),
               ),
-              /*
+            HorizontalLine(
+              height: 10,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            isFriend.value == 1 || scene == 'denylist'
+                ? Visibility(
+                    visible: !isSelf,
+                    child: ButtonRow(
+                        margin: const EdgeInsets.only(bottom: 0.0),
+                        text: 'message_call'.tr,
+                        isBorder: true,
+                        lineWidth: 1.0,
+                        onPressed: () {
+                          String peerTitle = remark.value;
+                          if (peerTitle.isEmpty) {
+                            peerTitle = nickname.value;
+                          }
+                          if (peerTitle.isEmpty) {
+                            peerTitle = account.value;
+                          }
+                          Get.to(
+                            () => ChatPage(
+                              peerId: id,
+                              peerTitle: peerTitle,
+                              peerAvatar: avatar.value,
+                              peerSign: sign.value,
+                              type: 'C2C',
+                            ),
+                            transition: Transition.rightToLeft,
+                            popGesture: true, // 右滑，返回上一页
+                          );
+                        }),
+                  )
+                : const SizedBox.shrink(),
+            if (isFriend.value == 1)
               Visibility(
                 visible: !isSelf,
-                child: LabelRow(
-                  label: 'friend_permissions'.tr,
+                child: ButtonRow(
+                  text: 'voice_call'.tr,
+                  isBorder: true,
+                  lineWidth: 1.0,
                   onPressed: () {
-                    Get.to(
-                      () => FriendsPermissionsPage(),
-                      transition: Transition.rightToLeft,
-                      popGesture: true, // 右滑，返回上一页
+                    openCallScreen(
+                      ContactModel.fromMap({
+                        "id": id,
+                        "nickname": nickname.value,
+                        "avatar": avatar.value,
+                        "sign": sign.value,
+                      }),
+                      {
+                        'media': 'audio',
+                      },
                     );
                   },
                 ),
               ),
-              const Space(),
-              LabelRow(
-                label: 'moment'.tr,
-                isLine: true,
-                onPressed: () => Get.to(()=>
-                  const FriendCirclePage(),
-                  transition: Transition.rightToLeft,
-                  popGesture: true, // 右滑，返回上一页
-                ),
-              ),
-              */
-              if (isFriend.value == 1 || scene == 'denylist')
-                LabelRow(
-                  label: 'more_info'.tr,
-                  isLine: false,
-                  onPressed: () => Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                      // “右滑返回上一页”功能
-                      builder: (_) => PeopleInfoMorePage(
-                        id: id,
-                      ),
-                    ),
-                  ),
-                ),
-              const Space(),
-              isFriend.value == 1 || scene == 'denylist'
-                  ? Visibility(
-                      visible: !isSelf,
-                      child: ButtonRow(
-                          margin: const EdgeInsets.only(bottom: 0.0),
-                          text: 'message_call'.tr,
-                          isBorder: true,
-                          onPressed: () {
-                            String peerTitle = remark.value;
-                            if (peerTitle.isEmpty) {
-                              peerTitle = nickname.value;
-                            }
-                            if (peerTitle.isEmpty) {
-                              peerTitle = account.value;
-                            }
-                            Get.to(
-                              () => ChatPage(
-                                peerId: id,
-                                peerTitle: peerTitle,
-                                peerAvatar: avatar.value,
-                                peerSign: sign.value,
-                                type: 'C2C',
-                              ),
-                              transition: Transition.rightToLeft,
-                              popGesture: true, // 右滑，返回上一页
-                            );
+            isFriend.value == 1
+                ? Visibility(
+                    visible: !isSelf,
+                    child: ButtonRow(
+                      text: 'video_call'.tr,
+                      isBorder: true,
+                      lineWidth: 1.0,
+                      onPressed: () {
+                        openCallScreen(
+                          ContactModel.fromMap({
+                            "id": id,
+                            "nickname": nickname.value,
+                            "avatar": avatar.value,
+                            "sign": sign.value,
                           }),
-                    )
-                  : const SizedBox.shrink(),
-              if (isFriend.value == 1)
-                Visibility(
-                  visible: !isSelf,
-                  child: ButtonRow(
-                    text: 'voice_call'.tr,
-                    isBorder: true,
-                    onPressed: () {
-                      openCallScreen(
-                        ContactModel.fromMap({
-                          "id": id,
-                          "nickname": nickname.value,
-                          "avatar": avatar.value,
-                          "sign": sign.value,
-                        }),
-                        {
-                          'media': 'audio',
-                        },
-                      );
-                    },
-                  ),
-                ),
-              isFriend.value == 1
-                  ? Visibility(
-                      visible: !isSelf,
-                      child: ButtonRow(
-                        text: 'video_call'.tr,
-                        onPressed: () {
-                          openCallScreen(
-                            ContactModel.fromMap({
-                              "id": id,
-                              "nickname": nickname.value,
-                              "avatar": avatar.value,
-                              "sign": sign.value,
-                            }),
-                            {},
-                          );
-                        },
-                      ),
-                    )
-                  : Visibility(
-                      visible: showApplyFriendBtn,
-                      child: ButtonRow(
-                        text: 'add_to_contacts'.tr,
-                        onPressed: () => Get.to(
-                          () => ApplyFriendPage(
-                            id,
-                            nickname.value,
-                            avatar.value,
-                            region.value,
-                            source: source.value,
-                          ),
-                          transition: Transition.rightToLeft,
-                          popGesture: true, // 右滑，返回上一页
+                          {},
+                        );
+                      },
+                    ),
+                  )
+                : Visibility(
+                    visible: showApplyFriendBtn,
+                    child: ButtonRow(
+                      text: 'add_to_contacts'.tr,
+                      onPressed: () => Get.to(
+                        () => ApplyFriendPage(
+                          id,
+                          nickname.value,
+                          avatar.value,
+                          region.value,
+                          source: source.value,
                         ),
+                        transition: Transition.rightToLeft,
+                        popGesture: true, // 右滑，返回上一页
                       ),
                     ),
-              if (scene == 'denylist')
-                n.Padding(
-                  top: 20,
-                  child: n.Row([
-                    const Icon(Icons.warning_amber_rounded, color: Colors.red),
-                    const Space(width: 4),
-                    Expanded(child: Text('added_to_blacklist_tips'.tr)),
-                  ])
-                    // 内容居中
-                    ..mainAxisAlignment = MainAxisAlignment.center,
-                ),
-            ],
-          ),
+                  ),
+            if (scene == 'denylist')
+              n.Padding(
+                top: 20,
+                child: n.Row([
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  const Space(width: 4),
+                  Expanded(
+                      child: Text(
+                    'added_to_blacklist_tips'.tr,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                  )),
+                ])
+                  // 内容居中
+                  ..mainAxisAlignment = MainAxisAlignment.center,
+              ),
+          ]),
         ),
       ),
     );
@@ -378,65 +399,68 @@ class PeopleInfoMorePage extends StatelessWidget {
     initData();
     // bool isSelf = UserRepoLocal.to.currentUid == id;
     return Scaffold(
-      backgroundColor: AppColors.ChatBg,
-      appBar: PageAppBar(
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         title: 'social_profile'.tr,
         // backgroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         child: Obx(
-          () => n.Column(
-            [
-              LabelRow(
-                label: 'mutual_groups_with_her'.tr,
-                // 10个
-                rValue: 'num_unit'.trArgs(['$groupCount']),
-                isLine: false,
+          () => n.Column([
+            LabelRow(
+              label: 'mutual_groups_with_her'.tr,
+              // 10个
+              rValue: 'num_unit'.trArgs(['$groupCount']),
+              isLine: true,
+              lineWidth: 1.0,
+              isRight: false,
+              padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+              margin: const EdgeInsets.only(bottom: 10.0),
+              // onPressed: () => Get.to(()=> const FriendCirclePage()),
+            ),
+            Visibility(
+              visible: strNoEmpty(sign.value),
+              child: LabelRow(
+                label: 'signature'.tr,
+                // rValue: sign,
+                rightW: SizedBox(
+                  width: Get.width - 100,
+                  child: n.Row([
+                    const SizedBox(width: 20),
+                    // use Expanded only within a Column, Row or Flex
+                    Expanded(
+                        child: Text(
+                      sign.value,
+                      maxLines: 8,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onPrimary
+                            .withOpacity(0.8),
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ))
+                  ]),
+                ),
+                isLine: true,
+                lineWidth: 1.0,
                 isRight: false,
-                padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
-                margin: const EdgeInsets.only(bottom: 10.0),
-
+                isSpacer: false,
                 // onPressed: () => Get.to(()=> const FriendCirclePage()),
               ),
-              Visibility(
-                visible: strNoEmpty(sign.value),
-                child: LabelRow(
-                  label: 'signature'.tr,
-                  // rValue: sign,
-                  rightW: SizedBox(
-                    width: Get.width - 100,
-                    child: n.Row([
-                      const SizedBox(width: 20),
-                      // use Expanded only within a Column, Row or Flex
-                      Expanded(
-                          child: Text(
-                        sign.value,
-                        maxLines: 8,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: AppColors.MainTextColor.withOpacity(0.7),
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ))
-                    ]),
-                  ),
-                  isLine: true,
-                  isRight: false,
-                  isSpacer: false,
-                  // onPressed: () => Get.to(()=> const FriendCirclePage()),
-                ),
+            ),
+            if (source.value.isNotEmpty)
+              LabelRow(
+                label: 'source'.tr,
+                rValue: '$sourcePrefix ${source.value}',
+                // rValue: getSourceTr(source.value),
+                isLine: true,
+                lineWidth: 1.0,
+                isRight: false,
+                onPressed: () {},
               ),
-              if (source.value.isNotEmpty)
-                LabelRow(
-                  label: 'source'.tr,
-                  rValue: '$sourcePrefix ${source.value}',
-                  // rValue: getSourceTr(source.value),
-                  isLine: false,
-                  isRight: false,
-                  onPressed: () {},
-                ),
-            ],
-          ),
+          ]),
         ),
       ),
     );

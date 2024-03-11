@@ -5,7 +5,7 @@ import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
@@ -38,8 +38,9 @@ class NewFriendPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
-      backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         title: 'new_friend'.tr,
         rightDMActions: [
           TextButton(
@@ -52,6 +53,7 @@ class NewFriendPage extends StatelessWidget {
             },
             child: Text(
               'add_friend'.tr,
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
             ),
           )
         ],
@@ -60,7 +62,7 @@ class NewFriendPage extends StatelessWidget {
         child: Container(
           width: Get.width,
           height: Get.height,
-          color: AppColors.ChatBg,
+          color: Theme.of(context).colorScheme.background,
           child: n.Column([
             n.Padding(
               left: 8,
@@ -168,9 +170,10 @@ class NewFriendPage extends StatelessWidget {
                               },
                               style: TextButton.styleFrom(
                                 padding: const EdgeInsets.only(right: 0),
-                                foregroundColor: AppColors.primaryElement,
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.background,
                                 backgroundColor:
-                                    AppColors.ChatInputBackgroundColor,
+                                    Theme.of(context).colorScheme.onBackground,
                                 textStyle: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -210,7 +213,6 @@ class NewFriendPage extends StatelessWidget {
                             ),
                             child: Container(
                               decoration: const BoxDecoration(
-                                color: Colors.white,
                                 border: Border(
                                   bottom: BorderSide(
                                     width: 0.2,

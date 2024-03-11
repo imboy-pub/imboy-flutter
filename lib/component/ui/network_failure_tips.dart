@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' as getx;
 import 'package:get/get.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/single/network_failure_guidance.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -43,7 +43,7 @@ class NetworkFailureTips extends StatelessWidget {
           )),
           const Icon(
             Icons.chevron_right_rounded,
-            color: AppColors.LabelTextColor,
+            // color: AppColors.LabelTextColor,
           )
         ]),
       ),

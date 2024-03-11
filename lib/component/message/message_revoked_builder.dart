@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/config/init.dart';
+import 'package:imboy/config/theme.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -42,10 +43,10 @@ class RevokedMessageBuilder extends StatelessWidget {
             },
             child: Text(
               're_edit'.tr,
-              style: const TextStyle(
+              style: TextStyle(
                 height: 1.5,
-                color: Color.fromRGBO(107, 110, 153, 1),
-                // backgroundColor: Colors.white,
+                color: Theme.of(context).colorScheme.onPrimary,
+                // backgroundColor: Theme.of(context).colorScheme.background,
               ),
             ),
           )
@@ -57,33 +58,35 @@ class RevokedMessageBuilder extends StatelessWidget {
         // Creates insets from offsets from the left, top, right, and bottom.
         padding: const EdgeInsets.all(12),
         alignment: Alignment.center,
-        color: AppColors.ChatBg,
-        child: n.Row(
-          [
-            Expanded(
-                child: Padding(
-              padding: userIsAuthor
-                  ? const EdgeInsets.only(
-                      right: 10,
-                      left: 0,
-                    )
-                  : const EdgeInsets.only(left: 50),
-              // padding: EdgeInsets.only(right: 10),
-              child: Text(
-                "$nickname ${'message_was_withdrawn'.tr}",
-                style: const TextStyle(
-                  color: AppColors.MainTextColor,
-                  backgroundColor: AppColors.ChatBg,
-                  fontSize: 14.0,
-                ),
-                maxLines: 2,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
+        // color: Theme.of(context).colorScheme.background,
+        color: Get.isDarkMode
+            ? Theme.of(context).colorScheme.background
+            : lightBgColor,
+        child: n.Row([
+          Expanded(
+              child: Padding(
+            padding: userIsAuthor
+                ? const EdgeInsets.only(
+                    right: 10,
+                    left: 0,
+                  )
+                : const EdgeInsets.only(left: 50),
+            // padding: EdgeInsets.only(right: 10),
+            child: Text(
+              "$nickname ${'message_was_withdrawn'.tr}",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
+                // backgroundColor: Theme.of(context).colorScheme.background,
+                fontSize: 14.0,
               ),
-            )),
-            btn,
-          ],
-        )..crossAxisAlignment = CrossAxisAlignment.center,
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+            ),
+          )),
+          btn,
+        ])
+          ..crossAxisAlignment = CrossAxisAlignment.center,
       ),
     );
   }

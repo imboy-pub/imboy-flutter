@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:imboy/config/const.dart';
 
 class ButtonRow extends StatelessWidget {
@@ -7,19 +8,20 @@ class ButtonRow extends StatelessWidget {
   final TextStyle? style;
   final VoidCallback? onPressed;
   final bool isBorder;
-  final double lineWidth;
+  final double? lineWidth;
 
   const ButtonRow({
     super.key,
     this.margin,
     this.text,
     this.style = const TextStyle(
-        color: AppColors.ButtonTextColor,
-        fontWeight: FontWeight.w600,
-        fontSize: 16),
+      // color: AppColors.ButtonTextColor,
+      fontWeight: FontWeight.w600,
+      fontSize: 16,
+    ),
     this.onPressed,
     this.isBorder = false,
-    this.lineWidth = mainLineWidth,
+    this.lineWidth,
   });
 
   @override
@@ -30,17 +32,18 @@ class ButtonRow extends StatelessWidget {
         border: isBorder
             ? Border(
                 bottom: BorderSide(
-                color: AppColors.LineColor,
-                width: lineWidth,
-              ))
+                  color: Theme.of(context).colorScheme.primary,
+                  width: lineWidth ?? mainLineWidth,
+                ),
+              )
             : null,
       ),
       child: TextButton(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.primaryElement,
+          foregroundColor: Theme.of(context).colorScheme.onBackground,
           minimumSize: Size.zero,
           padding: EdgeInsets.zero,
-          backgroundColor: Colors.white,
+          // backgroundColor: Theme.of(context).colorScheme.background,
           //取消圆角边框
           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:imboy/config/theme.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:flutter/material.dart';
 
@@ -10,7 +11,7 @@ import 'package:get/get.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:voice_message_package/voice_message_package.dart';
@@ -27,6 +28,7 @@ class AudioMessageBuilder extends StatefulWidget {
     required this.message,
     this.onPlay,
   });
+
   final String type;
   final types.User user;
 
@@ -71,7 +73,8 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
     );
     return Obx(
       () => n.Row([
-        VoiceMessageView(
+        Expanded(
+          child: VoiceMessageView(
             controller: VoiceController(
               // audioSrc: widget.message.metadata!['uri'],
               audioSrc: audioPath.value,
@@ -105,9 +108,17 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
             cornerRadius: 16,
             size: 28,
             circlesColor: Colors.black38,
-            activeSliderColor: userIsAuthor
-                ? AppColors.ChatSendMessageBgColor
-                : AppColors.ChatSentMessageBodyTextColor),
+            // activeSliderColor: Colors.red,
+            backgroundColor: Get.isDarkMode
+                ? (userIsAuthor
+                    ? ChatColor.ChatSendMessageBgColor
+                    : const Color.fromRGBO(236, 236, 236, 1.0))
+                : (userIsAuthor
+                    ? ChatColor.ChatSendMessageBgColor
+                    : Theme.of(Get.context!).colorScheme.background),
+            activeSliderColor: const Color.fromRGBO(34, 34, 34, 1.0),
+          ),
+        ),
       ]),
     );
   }

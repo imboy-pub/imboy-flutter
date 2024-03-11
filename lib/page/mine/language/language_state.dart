@@ -50,6 +50,7 @@ class LanguageState {
       "title": 'en_us'.tr //美国英语
     }
   ];
+
   LanguageState() {
     ///Initialize variables
   }

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/http/http_client.dart';
-import 'package:imboy/component/http/http_response.dart';
-import 'package:imboy/config/const.dart';
-import 'package:imboy/page/single/people_info.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:niku/namespace.dart' as n;
 
+import 'package:imboy/config/const.dart';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/page/single/people_info.dart';
 import 'scanner_logic.dart';
 import 'scanner_result_view.dart';
 

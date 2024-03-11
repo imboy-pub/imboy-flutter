@@ -70,7 +70,8 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
     // );
 
     return Scaffold(
-      appBar: const PageAppBar(
+      appBar: const NavAppBar(
+        automaticallyImplyLeading: true,
         title: '群公告',
         // rightDMActions: <Widget>[rWidget],
       ),

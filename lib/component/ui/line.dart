@@ -1,15 +1,17 @@
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 
 /// 水平线
 class HorizontalLine extends StatelessWidget {
   final double height;
-  final Color color;
+  final Color? color;
   final double horizontal;
 
   const HorizontalLine({
     super.key,
     this.height = 0.5,
-    this.color = const Color(0xFFEEEEEE),
+    // this.color = const Color(0xFFEEEEEE),
+    this.color,
     this.horizontal = 0.0,
   });
 
@@ -17,7 +19,10 @@ class HorizontalLine extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: height,
-      color: color,
+      color: color ??
+          (Get.isDarkMode
+              ? const Color.fromRGBO(100, 100, 100, 1)
+              : const Color.fromRGBO(210, 210, 210, 1)),
       margin: EdgeInsets.symmetric(horizontal: horizontal),
     );
   }

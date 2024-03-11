@@ -6,12 +6,14 @@ import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:niku/namespace.dart' as n;
+
+import 'package:imboy/config/const.dart';
 
 import 'launch_chat_logic.dart';
 import 'launch_chat_state.dart';
@@ -26,8 +28,8 @@ class LaunchChatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.AppBarColor,
-      // appBar: PageAppBar(title: 'select_contacts'.tr),
+      backgroundColor: Theme.of(context).colorScheme.background,
+      // appBar: NavAppBar(automaticallyImplyLeading: true,title: 'select_contacts'.tr),
       appBar: NavAppBar(
         title: 'select_contacts'.tr,
         leadingWidth: 72,
@@ -74,10 +76,10 @@ class LaunchChatPage extends StatelessWidget {
               style: logic.state.valueChanged.isTrue
                   ? ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
-                        AppColors.primaryElement,
+                        Theme.of(context).colorScheme.primary,
                       ),
                       foregroundColor: MaterialStateProperty.all<Color>(
-                        Colors.white,
+                        Theme.of(context).colorScheme.onPrimary,
                       ),
                       minimumSize:
                           MaterialStateProperty.all(const Size(88, 40)),
@@ -86,13 +88,14 @@ class LaunchChatPage extends StatelessWidget {
                     )
                   : ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
-                        AppColors.AppBarColor,
+                        Theme.of(context).colorScheme.background,
                       ),
                       foregroundColor: MaterialStateProperty.all<Color>(
-                        AppColors.LineColor,
+                        Theme.of(context).colorScheme.onBackground,
                       ),
-                      minimumSize:
-                          MaterialStateProperty.all(const Size(88, 40)),
+                      minimumSize: MaterialStateProperty.all(
+                        const Size(88, 40),
+                      ),
                       visualDensity: VisualDensity.compact,
                       padding: MaterialStateProperty.all(EdgeInsets.zero),
                     ),
@@ -143,14 +146,11 @@ class LaunchChatPage extends StatelessWidget {
             child: Container(
               width: Get.width,
               height: Get.height - 150,
-              color: AppColors.BgColor,
+              color: Theme.of(context).colorScheme.background,
               child: n.Column([
                 n.ListTile(
                   title: Text('select_a_group'.tr),
-                  trailing: Icon(
-                    Icons.navigate_next,
-                    color: AppColors.MainTextColor.withOpacity(0.5),
-                  ),
+                  trailing: navigateNextIcon,
                   onTap: () {
                     // Get.to(
                     //       () => MarkdownPage(
@@ -166,10 +166,7 @@ class LaunchChatPage extends StatelessWidget {
                 n.Padding(left: 18, child: const Divider()),
                 n.ListTile(
                   title: Text('create_group_f2f'.tr),
-                  trailing: Icon(
-                    Icons.navigate_next,
-                    color: AppColors.MainTextColor.withOpacity(0.5),
-                  ),
+                  trailing: navigateNextIcon,
                   onTap: () {
                     // Get.to(
                     //       () => MarkdownPage(
@@ -185,7 +182,6 @@ class LaunchChatPage extends StatelessWidget {
                 n.Padding(left: 18, child: const Divider()),
                 Expanded(
                   child: Container(
-                    color: Colors.white,
                     child: SlidableAutoCloseBehavior(child: Obx(() {
                       return logic.state.items.isEmpty
                           ? NoDataView(text: 'no_data'.tr)

@@ -3,12 +3,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/const.dart';
-import 'package:imboy/config/init.dart';
 import 'package:r_upgrade/r_upgrade.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:permission_handler/permission_handler.dart';
+
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/config/init.dart';
 
 class UpgradePage extends StatefulWidget {
   /// apk更新url

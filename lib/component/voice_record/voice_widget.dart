@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:niku/namespace.dart' as n;
@@ -441,12 +442,20 @@ class _VoiceWidgetState extends State<VoiceWidget> {
               borderRadius: BorderRadius.circular(6.0),
               border: Border.all(
                 width: 1.0,
-                color: Colors.white70,
+                color: Get.isDarkMode
+                    ? const Color.fromRGBO(44, 44, 44, 1.0)
+                    : const Color.fromRGBO(255, 255, 255, 1.0),
               ),
-              color: Colors.white70,
+              color: Get.isDarkMode
+                  ? const Color.fromRGBO(44, 44, 44, 1.0)
+                  : const Color.fromRGBO(255, 255, 255, 1.0),
             ),
         margin: widget.margin ?? const EdgeInsets.fromLTRB(50, 0, 50, 20),
-        child: Center(child: Text(textShow)),
+        child: Center(
+            child: Text(
+          textShow,
+          style: const TextStyle(fontSize: 20),
+        )),
       ),
     );
   }
@@ -455,7 +464,6 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   void dispose() {
     recorderStop(recorderModule);
     cancelRecorderSubscriptions();
-
     // Be careful : you must `close` the audio session when you have finished with it.
     recorderModule.closeRecorder();
     session = null;

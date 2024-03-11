@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
 
 import 'chat_background_logic.dart';
 import 'chat_background_state.dart';
@@ -21,10 +20,10 @@ class _ChatBackgroundPageState extends State<ChatBackgroundPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: AppColors.AppBarColor,
-        appBar: PageAppBar(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        appBar: NavAppBar(
           title: 'set_chat_background'.tr,
-          // backgroundColor: AppColors.AppBarColor,
+          automaticallyImplyLeading: true,
         ),
         body: const SizedBox.shrink());
   }

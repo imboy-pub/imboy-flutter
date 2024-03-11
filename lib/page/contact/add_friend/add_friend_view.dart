@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
-
-// import 'package:imboy/component/ui/search_bar.dart';
 import 'package:imboy/page/contact/people_nearby/people_nearby_view.dart';
 import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_view.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/page/uqrcode/uqrcode_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
 
 import '../new_friend/new_friend_logic.dart';
 import 'add_friend_logic.dart';
@@ -26,16 +25,16 @@ class AddFriendPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: NavAppBar(
         title: 'add_friend'.tr,
-        // backgroundColor: AppColors.AppBarColor,
+        automaticallyImplyLeading: true,
       ),
       body: SingleChildScrollView(
         child: Container(
             width: Get.width,
             height: Get.height,
-            color: AppColors.AppBarColor,
+            color: Theme.of(context).colorScheme.background,
             child: n.Column(
               [
                 n.Padding(
@@ -83,7 +82,7 @@ class AddFriendPage extends StatelessWidget {
                 ),
                 const Space(),
                 Container(
-                  color: AppColors.primaryBackground,
+                  color: Theme.of(context).colorScheme.background,
                   child: n.Column([
                     n.ListTile(
                       leading: const Icon(
@@ -98,15 +97,12 @@ class AddFriendPage extends StatelessWidget {
                       subtitle: Text(
                         'nearby_people_tips'.tr,
                         style: const TextStyle(
-                          color: AppColors.TipColor,
+                          // color: AppColors.TipColor,
                           fontSize: 12,
                         ),
                       ),
                       dense: true,
-                      trailing: Icon(
-                        Icons.navigate_next,
-                        color: AppColors.MainTextColor.withOpacity(0.5),
-                      ),
+                      trailing: navigateNextIcon,
                       onTap: () {
                         Get.to(
                           () => PeopleNearbyPage(),
@@ -132,14 +128,11 @@ class AddFriendPage extends StatelessWidget {
                       subtitle: Text(
                         'enter_same_group'.tr,
                         style: const TextStyle(
-                          color: AppColors.TipColor,
+                          // color: AppColors.TipColor,
                           fontSize: 12,
                         ),
                       ),
-                      trailing: Icon(
-                        Icons.navigate_next,
-                        color: AppColors.MainTextColor.withOpacity(0.5),
-                      ),
+                      trailing: navigateNextIcon,
                       onTap: () {
                         // Get.to(
                         //   () => PeopleNearbyPage(),
@@ -165,14 +158,11 @@ class AddFriendPage extends StatelessWidget {
                       subtitle: Text(
                         'scan_qr_code_business_card'.tr,
                         style: const TextStyle(
-                          color: AppColors.TipColor,
+                          // color: AppColors.TipColor,
                           fontSize: 12,
                         ),
                       ),
-                      trailing: Icon(
-                        Icons.navigate_next,
-                        color: AppColors.MainTextColor.withOpacity(0.5),
-                      ),
+                      trailing: navigateNextIcon,
                       onTap: () {
                         Get.to(
                           () => const ScannerPage(),
@@ -199,14 +189,11 @@ class AddFriendPage extends StatelessWidget {
                         // 最近新注册的并且允许被搜索到的朋友
                         'allowed_be_searched'.tr,
                         style: const TextStyle(
-                          color: AppColors.TipColor,
+                          // color: AppColors.TipColor,
                           fontSize: 12,
                         ),
                       ),
-                      trailing: Icon(
-                        Icons.navigate_next,
-                        color: AppColors.MainTextColor.withOpacity(0.5),
-                      ),
+                      trailing: navigateNextIcon,
                       onTap: () {
                         Get.to(
                           () => RecentlyRegisteredUserPage(),

@@ -11,7 +11,7 @@ import 'package:map_launcher/map_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import 'package:imboy/component/controller.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -23,7 +23,7 @@ import 'package:imboy/component/http/http_interceptor.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/observer/lifecycle.dart';
 import 'package:imboy/component/webrtc/session.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/contact/contact/contact_logic.dart';
@@ -95,7 +95,6 @@ Future<void> init() async {
   // iPrint("> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
 
   getx.Get.put(UserRepoLocal(), permanent: true);
-  getx.Get.lazyPut(() => ThemeController());
 
   // Get.put<AuthController>(AuthController());
   HttpConfig dioConfig = HttpConfig(

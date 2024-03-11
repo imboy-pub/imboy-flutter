@@ -8,11 +8,13 @@ import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart' as getx;
+
+import 'package:imboy/config/const.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
-import 'package:imboy/config/const.dart';
-import 'package:imboy/config/init.dart';
+
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';

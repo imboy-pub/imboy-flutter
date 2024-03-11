@@ -18,7 +18,7 @@ class UserTagRelationLogic extends GetxController {
     update([valueChanged]);
   }
 
-  Future<bool> add(String scene, String objectId, List<String> tag) async {
+  Future<bool> add(String scene, String objectId, List<dynamic> tag) async {
     bool res = await UserTagProvider().relationAdd(
       scene: scene,
       objectId: objectId,

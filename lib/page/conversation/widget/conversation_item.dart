@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -17,6 +17,7 @@ class ConversationItem extends StatelessWidget {
   // 会话头像点击事件
   final Function()? onTapAvatar;
   final ConversationLogic logic = Get.find<ConversationLogic>();
+
   ConversationItem({
     super.key,
     required this.model,
@@ -44,7 +45,6 @@ class ConversationItem extends StatelessWidget {
     // debugPrint("> on imgUri ${imgUri!}");
     return Container(
       padding: const EdgeInsets.only(left: 10.0, top: 2),
-      color: Colors.white,
       child: n.Row([
         Obx(
           () => badges.Badge(
@@ -57,7 +57,10 @@ class ConversationItem extends StatelessWidget {
             // animationType: badges.BadgeAnimationType.scale,
             badgeContent: Text(
               "$remindCounter",
-              style: const TextStyle(color: Colors.white, fontSize: 8),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 8,
+              ),
             ),
             // 会话头像
             child: Avatar(
@@ -77,48 +80,50 @@ class ConversationItem extends StatelessWidget {
           width: Get.width - 78,
           decoration: const BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: AppColors.LineColor, width: 0.25),
+              bottom: BorderSide(
+                // color: AppColors.LineColor,
+                width: 0.25,
+              ),
             ),
           ),
           child: n.Row([
             const Space(width: 6),
             Expanded(
-              child: n.Column(
-                [
-                  n.Row([
+              child: n.Column([
+                n.Row([
+                  Expanded(
+                    child: Text(
+                      // 会话对象标题
+                      model.title,
+                      style: const TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.normal,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ]),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: n.Row([
+                    n.Column(icon),
+                    // 会话对象子标题
                     Expanded(
                       child: Text(
-                        // 会话对象标题
-                        model.title,
+                        model.content,
                         style: const TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.normal,
+                          // color: AppColors.MainTextColor,
+                          fontSize: 14.0,
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ]),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: n.Row([
-                      n.Column(icon),
-                      // 会话对象子标题
-                      Expanded(
-                        child: Text(
-                          model.content,
-                          style: const TextStyle(
-                            color: AppColors.MainTextColor,
-                            fontSize: 14.0,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ]),
-                  ),
-                ],
-              )..crossAxisAlignment = CrossAxisAlignment.start,
+                ),
+              ])
+                ..crossAxisAlignment = CrossAxisAlignment.start,
             ),
             // Space(width: mainSpace),
             n.Column([
@@ -129,7 +134,7 @@ class ConversationItem extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    color: AppColors.MainTextColor,
+                    // color: AppColors.MainTextColor,
                     fontSize: 14.0,
                   ),
                 ),

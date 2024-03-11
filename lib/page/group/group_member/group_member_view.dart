@@ -150,7 +150,8 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
     }
 
     return Scaffold(
-      appBar: PageAppBar(titleWidget: titleWidget()),
+      appBar: NavAppBar(
+          automaticallyImplyLeading: true, titleWidget: titleWidget()),
       body: ListView(
         padding: const EdgeInsets.all(10),
         children: <Widget>[

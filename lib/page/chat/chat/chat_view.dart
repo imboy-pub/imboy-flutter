@@ -33,7 +33,7 @@ import 'package:imboy/component/message/message_image_builder.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/voice_record/voice_widget.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/chat/chat_setting/chat_setting_view.dart';
@@ -103,6 +103,7 @@ class ChatPageState extends State<ChatPage> {
 
   // ignore: prefer_typing_uninitialized_variables
   late var currentUser;
+
   @override
   void initState() {
     // 初始化的时候置空数据，放在该位置（initData之前），不会出现闪屏
@@ -159,6 +160,10 @@ class ChatPageState extends State<ChatPage> {
 
     // 接收到新的消息订阅
     eventBus.on<types.Message>().listen((types.Message msg) async {
+      final int msgCid = msg.metadata?['conversation_id'] ?? 0;
+      if (widget.conversationId != msgCid) {
+        return;
+      }
       final i = logic.state.messages.indexWhere((e) => e.id == msg.id);
       iPrint("changeMessageState 4 ${msg.id}; i $i; mounted $mounted");
       if (i == -1) {
@@ -801,6 +806,9 @@ class ChatPageState extends State<ChatPage> {
     } else if (itemId == "transpond") {
       // 转发消息
       getx.Get.bottomSheet(
+        backgroundColor: getx.Get.isDarkMode
+            ? const Color.fromRGBO(80, 80, 80, 1)
+            : const Color.fromRGBO(240, 240, 240, 1),
         n.Padding(
           top: 24,
           child: SendToPage(msg: msg),
@@ -842,19 +850,20 @@ class ChatPageState extends State<ChatPage> {
           right: 10,
           bottom: 10,
           top: 10,
-          child: const Icon(
+          child: Icon(
             Icons.more_horiz,
+            color: Theme.of(context).colorScheme.onPrimary,
             // size: 40,
           ),
         ),
       )
     ];
     return Scaffold(
-      backgroundColor: AppColors.AppBarColor,
       appBar: _showAppBar
-          ? PageAppBar(
+          ? NavAppBar(
               title: newGroupName == "" ? widget.peerTitle : newGroupName,
               rightDMActions: topRightWidget,
+              automaticallyImplyLeading: true,
             )
           : null,
       body: n.Column([
@@ -893,7 +902,6 @@ class ChatPageState extends State<ChatPage> {
                     // nameBuilder: nameBuilder,
                     onPreviewDataFetched: _handlePreviewDataFetched,
                     // options: textMessageOptions,
-                    // showName: showName,
                     // usePreviewData: usePreviewData,
                     // userAgent: userAgent,
                   ),
@@ -947,7 +955,9 @@ class ChatPageState extends State<ChatPage> {
               onMessageStatusTap: _onMessageStatusTap,
               onMessageStatusLongPress: _onMessageStatusTap,
               hideBackgroundOnEmojiMessages: false,
-              theme: const IMBoyChatTheme(),
+              theme: getx.Get.isDarkMode
+                  ? const AppDarkChatTheme()
+                  : const LightChatTheme(),
               // onTextFieldTap: () {
               // debugPrint("> on chatinput onTextFieldTap");
               // },
@@ -978,7 +988,7 @@ class ChatPageState extends State<ChatPage> {
                             bottom: 16,
                             child: Text(
                               sysPrompt,
-                              style: const TextStyle(color: AppColors.TipColor),
+                              // style: const TextStyle(color: AppColors.TipColor),
                               maxLines: 4,
                               softWrap: true,
                               overflow: TextOverflow.fade,

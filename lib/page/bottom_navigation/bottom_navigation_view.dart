@@ -41,7 +41,7 @@ class BottomNavigationPage extends StatelessWidget {
     if (args is Map<String, dynamic>) {
       state.bottomBarIndex.value = args['index'] ?? state.bottomBarIndex.value;
       // Flutter中滑动出现_positions.isNotEmpty异常解决办法  https://www.jianshu.com/p/d5a99c68e295
-      Future.delayed(const Duration(milliseconds: 500), () {
+      Future.delayed(const Duration(milliseconds: 350), () {
         if (pageController.hasClients) {
           pageController.jumpToPage(state.bottomBarIndex.value);
         }
@@ -60,6 +60,7 @@ class BottomNavigationPage extends StatelessWidget {
       //底部导航条
       bottomNavigationBar: Obx(
         () => BottomNavigationBar(
+          backgroundColor: Theme.of(context).colorScheme.primary,
           // 当前菜单下标
           currentIndex: state.bottomBarIndex.value,
           // 点击事件,获取当前点击的标签下标
@@ -70,6 +71,7 @@ class BottomNavigationPage extends StatelessWidget {
           },
           iconSize: 30.0,
           // 底部导航栏按钮选中时的颜色
+          // fixedColor: Theme.of(context).colorScheme.onPrimary,
           fixedColor: Colors.green,
           type: BottomNavigationBarType.fixed,
           items: [
@@ -78,7 +80,7 @@ class BottomNavigationPage extends StatelessWidget {
                 showBadge: conversationLogic.chatMsgRemindCounter > 0,
                 // shape: badges.BadgeShape.square,
                 // borderRadius: BorderRadius.circular(10),
-                position: badges.BadgePosition.topStart(top: -4, start: 20),
+                position: badges.BadgePosition.topStart(top: -8, start: 20),
                 // padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
                 badgeContent: Container(
                   color: Colors.red,
@@ -87,7 +89,7 @@ class BottomNavigationPage extends StatelessWidget {
                     conversationLogic.chatMsgRemindCounter.toString(),
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 8,
+                      fontSize: 10,
                     ),
                   ),
                 ),
@@ -108,7 +110,7 @@ class BottomNavigationPage extends StatelessWidget {
                 showBadge: logic.newFriendRemindCounter.isNotEmpty,
                 // shape: badges.BadgeShape.square,
                 // borderRadius: BorderRadius.circular(10),
-                position: badges.BadgePosition.topStart(top: -4, start: 20),
+                position: badges.BadgePosition.topStart(top: -8, start: 20),
                 // padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
                 badgeContent: Container(
                   color: Colors.red,
@@ -117,7 +119,7 @@ class BottomNavigationPage extends StatelessWidget {
                     logic.newFriendRemindCounter.length.toString(),
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 8,
+                      fontSize: 10,
                     ),
                   ),
                 ),

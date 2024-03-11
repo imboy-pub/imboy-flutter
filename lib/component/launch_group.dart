@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/group/group_select/group_select_view.dart';
 
 class LaunchGroupItem extends StatelessWidget {
@@ -17,7 +17,10 @@ class LaunchGroupItem extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: AppColors.LineColor, width: 0.3),
+          bottom: BorderSide(
+            // color: AppColors.LineColor,
+            width: 0.3,
+          ),
         ),
       ),
       alignment: Alignment.centerLeft,
@@ -77,7 +80,7 @@ class LaunchSearch extends StatelessWidget {
             style: const TextStyle(textBaseline: TextBaseline.alphabetic),
             decoration: InputDecoration(
               hintText: 'search'.tr,
-              hintStyle: TextStyle(color: AppColors.LineColor.withOpacity(0.7)),
+              // hintStyle: TextStyle(color: AppColors.LineColor.withOpacity(0.7)),
               border: InputBorder.none,
             ),
             onChanged: onChanged,

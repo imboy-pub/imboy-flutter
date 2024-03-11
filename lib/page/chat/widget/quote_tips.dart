@@ -5,7 +5,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/image_view.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:niku/namespace.dart' as n;
 
 // ignore: must_be_immutable
@@ -40,7 +40,7 @@ class QuoteTipsWidget extends StatelessWidget {
     if (message is types.TextMessage) {
       body = Text(
         (message as types.TextMessage).text,
-        style: const TextStyle(color: AppColors.thirdElementText),
+        style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
         maxLines: 8,
         overflow: TextOverflow.ellipsis,
       );
@@ -55,14 +55,14 @@ class QuoteTipsWidget extends StatelessWidget {
         n.Row([
           Text(
             "[${'file'.tr}] (${formatBytes(fileMsg.size.truncate())})",
-            style: const TextStyle(color: AppColors.thirdElementText),
+            style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
           ),
         ]),
         n.Row([
           Expanded(
             child: Text(
               fileMsg.name,
-              style: const TextStyle(color: AppColors.thirdElementText),
+              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
             ),
           ),
         ])
@@ -76,24 +76,24 @@ class QuoteTipsWidget extends StatelessWidget {
       String txt = message?.metadata?['quote_text'] ?? '';
       body = Text(
         "[${'quote'.tr}] $txt",
-        style: const TextStyle(color: AppColors.thirdElementText),
+        style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
       );
     } else if (customType == 'audio') {
       double durationMS = message?.metadata?["duration_ms"] / 1000;
       body = Text(
         "[${'voice_message'.tr}] $durationMS''",
-        style: const TextStyle(color: AppColors.thirdElementText),
+        style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
       );
     } else if (customType == 'location') {
       body = Text(
         "[${'location'.tr}] ${message?.metadata?['title'] ?? ''}",
-        style: const TextStyle(color: AppColors.thirdElementText),
+        style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
       );
     } else if (customType == 'video') {
       body = n.Row([
         Text(
           "[${'video'.tr}] ",
-          style: const TextStyle(color: AppColors.thirdElementText),
+          style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
         ),
         ImageView(
           img: message?.metadata?['thumb']['uri'],
@@ -116,7 +116,7 @@ class QuoteTipsWidget extends StatelessWidget {
                 width: 4,
                 child: VerticalDivider(
                   thickness: 2, // 分割线的厚度
-                  color: AppColors.ItemOnColor,
+                  // color: AppColors.ItemOnColor,
                 ),
               ),
             ),
@@ -127,7 +127,9 @@ class QuoteTipsWidget extends StatelessWidget {
                       child: Text(
                     title,
                     style: const TextStyle(
-                        color: AppColors.primaryText, fontSize: 16),
+                      // color: AppColors.primaryText,
+                      fontSize: 16,
+                    ),
                   ))
                 ]),
                 n.Row([

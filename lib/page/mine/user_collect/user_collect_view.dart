@@ -13,7 +13,7 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
@@ -92,10 +92,10 @@ class UserCollectPage extends StatelessWidget {
             [
               Transform.scale(
                 scaleX: -1,
-                child: Icon(
+                child: const Icon(
                   Icons.local_offer,
                   size: 12,
-                  color: AppColors.MainTextColor.withOpacity(0.8),
+                  // color: AppColors.MainTextColor.withOpacity(0.8),
                 ),
               ),
               Text(
@@ -116,6 +116,9 @@ class UserCollectPage extends StatelessWidget {
     types.Message msg = MessageModel.fromJson(model.info).toTypeMessage();
     Get.defaultDialog(
       title: 'send_to'.tr,
+      backgroundColor: Get.isDarkMode
+          ? const Color.fromRGBO(80, 80, 80, 1)
+          : const Color.fromRGBO(240, 240, 240, 1),
       radius: 6,
       cancel: TextButton(
         onPressed: () {
@@ -124,6 +127,9 @@ class UserCollectPage extends StatelessWidget {
         child: Text(
           'button_cancel'.tr,
           textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Theme.of(ctx).colorScheme.onPrimary,
+          ),
         ),
       ),
       confirm: TextButton(
@@ -148,6 +154,9 @@ class UserCollectPage extends StatelessWidget {
         child: Text(
           'button_send'.tr,
           textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Theme.of(ctx).colorScheme.onPrimary,
+          ),
         ),
       ),
       content: SizedBox(
@@ -187,12 +196,13 @@ class UserCollectPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
-      backgroundColor: AppColors.ChatBg,
-      appBar: PageAppBar(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         leading: isSelect
             ? InkWell(
                 onTap: () {
-                  Get.back(times: 1);
+                  Navigator.of(context).pop();
                 },
                 child: const Icon(Icons.close),
               )
@@ -221,263 +231,255 @@ class UserCollectPage extends StatelessWidget {
         child: Container(
           width: Get.width,
           height: Get.height,
-          color: AppColors.ChatBg,
-          child: Obx(() => n.Column(
-                [
-                  n.Padding(
-                    left: 8,
-                    top: 10,
-                    right: 8,
-                    bottom: 10,
-                    child: searchBar(
-                      context,
-                      leading: state.searchLeading?.value ??
-                          InkWell(
-                            onTap: () {
-                              logic.doSearch(state.kwd);
-                            },
-                            child: const Icon(Icons.search),
-                          ),
-                      trailing: state.searchTrailing?.value,
-                      controller: state.searchController,
-                      searchLabel: 'search'.tr,
-                      hintText: 'search'.tr,
-                      queryTips: 'favorite_group_tags_etc'.tr,
-                      onChanged: ((query) {
-                        state.kwd = query.obs;
-                        debugPrint(
-                            "user_collect_s_onChanged ${query.toString()}");
-                        logic.doSearch(state.kwd);
-                      }),
-                      doSearch: logic.doSearch,
-                    ),
-                  ),
-                  _buildKindList(),
-                  Expanded(
-                    child: SlidableAutoCloseBehavior(
-                        child: state.items.isEmpty
-                            ? NoDataView(text: 'no_data'.tr)
-                            : n.Padding(
-                                top: 16,
-                                left: 10,
-                                right: 10,
-                                child: ListView.builder(
-                                  controller: controller,
-                                  physics:
-                                      const AlwaysScrollableScrollPhysics(),
-                                  itemCount: state.items.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    UserCollectModel obj = state.items[index];
-                                    return Slidable(
-                                      key: ValueKey(obj.kindId),
-                                      groupTag: '0',
-                                      closeOnScroll: true,
-                                      endActionPane: ActionPane(
-                                        extentRatio: 0.5,
-                                        motion: const StretchMotion(),
-                                        children: [
-                                          SlidableAction(
-                                            key: ValueKey("tag_$index"),
-                                            flex: 1,
-                                            backgroundColor: AppColors.ChatBg,
-                                            // foregroundColor: Colors.white,
-                                            onPressed: (_) async {
-                                              Get.to(
-                                                () => UserTagRelationPage(
-                                                  peerId: obj.kindId,
-                                                  // peerTag: peerTag.value,
-                                                  peerTag: obj.tag,
-                                                  scene: 'collect',
-                                                  title: 'edit_tag'.tr,
-                                                ),
-                                                // () => TagAddPage(peerId:peerId, peerTag:'标签1, 标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,ABCD'),
-                                                transition:
-                                                    Transition.rightToLeft,
-                                                popGesture: true, // 右滑，返回上一页
-                                              )?.then((value) {
-                                                // iPrint(
-                                                //     "UserCollectListPage_TagAddPage_back then $value");
-                                                if (value != null &&
-                                                    value is String) {
-                                                  obj.tag = value.toString();
-                                                  logic.updateItem(obj);
-                                                }
-                                              });
-                                            },
-                                            icon: Icons.local_offer,
-                                            foregroundColor: Colors.green,
-                                            label: 'tags'.tr,
-                                            spacing: 1,
-                                          ),
-                                          SlidableAction(
-                                            key: ValueKey("delete_$index"),
-                                            flex: 1,
-                                            backgroundColor: AppColors.ChatBg,
-                                            // foregroundColor: Colors.white,
-                                            onPressed: (_) async {
-                                              Get.bottomSheet(
-                                                SizedBox(
-                                                  width: Get.width,
-                                                  height: 106,
-                                                  child: n.Wrap([
-                                                    Center(
-                                                      child: TextButton(
-                                                        onPressed: () async {
-                                                          bool res = await logic
-                                                              .remove(obj);
-                                                          debugPrint(
-                                                              "user_collect_remove $res; i $index");
-                                                          if (res) {
-                                                            state.items
-                                                                .removeAt(
-                                                                    index);
-                                                            Get.closeAllBottomSheets();
-                                                            EasyLoading
-                                                                .showSuccess(
-                                                                    'tip_success'
-                                                                        .tr);
-                                                          } else {
-                                                            EasyLoading
-                                                                .showError(
-                                                                    'tip_failed'
-                                                                        .tr);
-                                                          }
-                                                        },
-                                                        child: Text(
-                                                          'sure_delete_data'.tr,
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          style:
-                                                              const TextStyle(
-                                                            color: Colors.red,
-                                                            fontSize: 16.0,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .normal,
-                                                          ),
-                                                        ),
+          color: Theme.of(context).colorScheme.background,
+          child: Obx(
+            () => n.Column([
+              n.Padding(
+                left: 8,
+                top: 10,
+                right: 8,
+                bottom: 10,
+                child: searchBar(
+                  context,
+                  leading: state.searchLeading?.value ??
+                      InkWell(
+                        onTap: () {
+                          logic.doSearch(state.kwd);
+                        },
+                        child: const Icon(Icons.search),
+                      ),
+                  trailing: state.searchTrailing?.value,
+                  controller: state.searchController,
+                  searchLabel: 'search'.tr,
+                  hintText: 'search'.tr,
+                  queryTips: 'favorite_group_tags_etc'.tr,
+                  onChanged: ((query) {
+                    state.kwd = query.obs;
+                    debugPrint("user_collect_s_onChanged ${query.toString()}");
+                    logic.doSearch(state.kwd);
+                  }),
+                  doSearch: logic.doSearch,
+                ),
+              ),
+              _buildKindList(),
+              Expanded(
+                child: SlidableAutoCloseBehavior(
+                    child: state.items.isEmpty
+                        ? NoDataView(text: 'no_data'.tr)
+                        : n.Padding(
+                            top: 16,
+                            left: 10,
+                            right: 10,
+                            child: ListView.builder(
+                              controller: controller,
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemCount: state.items.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                UserCollectModel obj = state.items[index];
+                                return Slidable(
+                                  key: ValueKey(obj.kindId),
+                                  groupTag: '0',
+                                  closeOnScroll: true,
+                                  endActionPane: ActionPane(
+                                    extentRatio: 0.5,
+                                    motion: const StretchMotion(),
+                                    children: [
+                                      SlidableAction(
+                                        key: ValueKey("tag_$index"),
+                                        flex: 1,
+                                        backgroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .background,
+                                        // foregroundColor: Colors.white,
+                                        onPressed: (_) async {
+                                          Get.to(
+                                            () => UserTagRelationPage(
+                                              peerId: obj.kindId,
+                                              // peerTag: peerTag.value,
+                                              peerTag: obj.tag,
+                                              scene: 'collect',
+                                              title: 'edit_tag'.tr,
+                                            ),
+                                            // () => TagAddPage(peerId:peerId, peerTag:'标签1, 标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,ABCD'),
+                                            transition: Transition.rightToLeft,
+                                            popGesture: true, // 右滑，返回上一页
+                                          )?.then((value) {
+                                            // iPrint(
+                                            //     "UserCollectListPage_TagAddPage_back then $value");
+                                            if (value != null &&
+                                                value is String) {
+                                              obj.tag = value.toString();
+                                              logic.updateItem(obj);
+                                            }
+                                          });
+                                        },
+                                        icon: Icons.local_offer,
+                                        foregroundColor: Colors.green,
+                                        label: 'tags'.tr,
+                                        spacing: 1,
+                                      ),
+                                      SlidableAction(
+                                        key: ValueKey("delete_$index"),
+                                        flex: 1,
+                                        backgroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .background,
+                                        // foregroundColor: Colors.white,
+                                        onPressed: (_) async {
+                                          Get.bottomSheet(
+                                            SizedBox(
+                                              width: Get.width,
+                                              height: 106,
+                                              child: n.Wrap([
+                                                Center(
+                                                  child: TextButton(
+                                                    onPressed: () async {
+                                                      bool res = await logic
+                                                          .remove(obj);
+                                                      debugPrint(
+                                                          "user_collect_remove $res; i $index");
+                                                      if (res) {
+                                                        state.items
+                                                            .removeAt(index);
+                                                        Get.closeAllBottomSheets();
+                                                        EasyLoading.showSuccess(
+                                                            'tip_success'.tr);
+                                                      } else {
+                                                        EasyLoading.showError(
+                                                            'tip_failed'.tr);
+                                                      }
+                                                    },
+                                                    child: Text(
+                                                      'sure_delete_data'.tr,
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: const TextStyle(
+                                                        color: Colors.red,
+                                                        fontSize: 16.0,
+                                                        fontWeight:
+                                                            FontWeight.normal,
                                                       ),
                                                     ),
-                                                    const HorizontalLine(
-                                                        height: 6),
-                                                    Center(
-                                                      child: TextButton(
-                                                        onPressed: () => Get
-                                                            .closeAllBottomSheets(),
-                                                        child: Text(
-                                                          'button_cancel'.tr,
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          style:
-                                                              const TextStyle(
-                                                            // color: Colors.white,
-                                                            fontSize: 16.0,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .normal,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    )
-                                                  ]),
-                                                ),
-                                                backgroundColor: Colors.white,
-                                                //改变shape这里即可
-                                                shape:
-                                                    const RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(20.0),
-                                                    topRight:
-                                                        Radius.circular(20.0),
                                                   ),
                                                 ),
-                                              );
-                                            },
-                                            icon: Icons.delete_forever_sharp,
-                                            foregroundColor: Colors.red,
-                                            label: 'button_delete'.tr,
-                                            spacing: 1,
+                                                const HorizontalLine(height: 6),
+                                                Center(
+                                                  child: TextButton(
+                                                    onPressed: () => Get
+                                                        .closeAllBottomSheets(),
+                                                    child: Text(
+                                                      'button_cancel'.tr,
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: const TextStyle(
+                                                        // color: Colors.white,
+                                                        fontSize: 16.0,
+                                                        fontWeight:
+                                                            FontWeight.normal,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                )
+                                              ]),
+                                            ),
+                                            backgroundColor: Get.isDarkMode
+                                                ? const Color.fromRGBO(
+                                                    80, 80, 80, 1)
+                                                : const Color.fromRGBO(
+                                                    240, 240, 240, 1),
+                                            //改变shape这里即可
+                                            shape: const RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(20.0),
+                                                topRight: Radius.circular(20.0),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        icon: Icons.delete_forever_sharp,
+                                        foregroundColor: Colors.red,
+                                        label: 'button_delete'.tr,
+                                        spacing: 1,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Container(
+                                    margin: const EdgeInsets.fromLTRB(
+                                      0,
+                                      0,
+                                      0,
+                                      16,
+                                    ),
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Get.isDarkMode
+                                          ? const Color.fromRGBO(60, 60, 60, 1)
+                                          : const Color.fromRGBO(
+                                              245, 245, 245, 1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: InkWell(
+                                      onTap: () async {
+                                        if (isSelect) {
+                                          // 转发消息
+                                          sendToDialog(context, obj);
+                                        } else {
+                                          // 收藏详情
+                                          Get.to(
+                                            () => UserCollectDetailPage(
+                                              obj: obj,
+                                              pageIndex: index,
+                                            ),
+                                            transition: Transition.rightToLeft,
+                                            popGesture: true, // 右滑，返回上一页
+                                          );
+                                        }
+                                      },
+                                      child: n.Column([
+                                        logic.buildItemBody(obj, 'page'),
+                                        n.Row(const [SizedBox(height: 16)]),
+                                        n.Row([
+                                          Text(
+                                            obj.source,
+                                            maxLines: 6,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              // color:
+                                              //     AppColors.MainTextColor,
+                                              fontSize: 14.0,
+                                            ),
                                           ),
-                                        ],
-                                      ),
-                                      child: Container(
-                                        margin: const EdgeInsets.fromLTRB(
-                                            0, 0, 0, 16),
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        child: InkWell(
-                                          onTap: () async {
-                                            if (isSelect) {
-                                              // 转发消息
-                                              sendToDialog(context, obj);
-                                            } else {
-                                              // 收藏详情
-                                              Get.to(
-                                                () => UserCollectDetailPage(
-                                                  obj: obj,
-                                                  pageIndex: index,
-                                                ),
-                                                transition:
-                                                    Transition.rightToLeft,
-                                                popGesture: true, // 右滑，返回上一页
-                                              );
-                                            }
-                                          },
-                                          child: n.Column([
-                                            logic.buildItemBody(obj, 'page'),
-                                            n.Row(const [SizedBox(height: 16)]),
-                                            n.Row([
-                                              Text(
-                                                obj.source,
-                                                maxLines: 6,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                  color:
-                                                      AppColors.MainTextColor,
-                                                  fontSize: 14.0,
-                                                ),
-                                              ),
-                                              const Expanded(child: SizedBox()),
-                                              Text(
-                                                state.kind == state.recentUse &&
-                                                        obj.updatedAt > 0
-                                                    ? DateTimeHelper
-                                                        .lastTimeFmt(
-                                                            obj.updatedAtLocal)
-                                                    : DateTimeHelper
-                                                        .lastTimeFmt(
-                                                            obj.createdAtLocal),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                  color:
-                                                      AppColors.MainTextColor,
-                                                  fontSize: 14.0,
-                                                ),
-                                              ),
-                                            ])
-                                              ..mainAxisAlignment =
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                            buildItemTag(obj.tag),
-                                          ]),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              )),
-                  ),
-                ],
-                mainAxisSize: MainAxisSize.min,
-              )),
+                                          const Expanded(child: SizedBox()),
+                                          Text(
+                                            state.kind == state.recentUse &&
+                                                    obj.updatedAt > 0
+                                                ? DateTimeHelper.lastTimeFmt(
+                                                    obj.updatedAtLocal)
+                                                : DateTimeHelper.lastTimeFmt(
+                                                    obj.createdAtLocal),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              // color:
+                                              //     AppColors.MainTextColor,
+                                              fontSize: 14.0,
+                                            ),
+                                          ),
+                                        ])
+                                          ..mainAxisAlignment =
+                                              MainAxisAlignment.spaceBetween,
+                                        buildItemTag(obj.tag),
+                                      ]),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          )),
+              ),
+            ])
+              ..mainAxisSize = MainAxisSize.min,
+          ),
         ),
       ),
     );
@@ -519,30 +521,30 @@ class UserCollectPage extends StatelessWidget {
         ),
         child: Text(
           value,
-          style: const TextStyle(color: AppColors.MainTextColor),
+          // style: const TextStyle(color: AppColors.MainTextColor),
         ),
       ));
     });
     return Container(
         padding: const EdgeInsets.only(left: 8, right: 16.0),
-        color: AppColors.ChatBg,
+        color: Theme.of(Get.context!).colorScheme.background,
         child: ExpansionPanelList(
-          expandIconColor: AppColors.ChatBg,
+          expandIconColor: Theme.of(Get.context!).colorScheme.background,
           expansionCallback: (panelIndex, isExpanded) {
             state.kindActive.value = !state.kindActive.value;
             debugPrint("state.kindActive $state.kindActive");
           },
           children: <ExpansionPanel>[
             ExpansionPanel(
-              backgroundColor: AppColors.ChatBg,
+              backgroundColor: Theme.of(Get.context!).colorScheme.background,
               headerBuilder: (context, isExpanded) {
                 if (isExpanded) {
                   return n.Row([
                     const SizedBox(width: 8),
-                    Icon(
+                    const Icon(
                       Icons.grid_view,
                       size: 18,
-                      color: AppColors.MainTextColor.withOpacity(0.8),
+                      // color: AppColors.MainTextColor.withOpacity(0.8),
                     ),
                     const SizedBox(width: 10),
                     Text('type'.tr),
@@ -553,7 +555,8 @@ class UserCollectPage extends StatelessWidget {
                       onTap: () {
                         state.kindActive.value = !state.kindActive.value;
                         state.kindActive.value = !state.kindActive.value;
-                        logic.searchByKind(state.recentUse, 'recently_used'.tr, () {
+                        logic.searchByKind(state.recentUse, 'recently_used'.tr,
+                            () {
                           state.kindActive.value = !state.kindActive.value;
                         });
                       },
@@ -648,10 +651,10 @@ class UserCollectPage extends StatelessWidget {
                       top: 16,
                       child: n.Row([
                         const SizedBox(width: 8),
-                        Icon(
+                        const Icon(
                           Icons.sell_outlined,
                           size: 18,
-                          color: AppColors.MainTextColor.withOpacity(0.8),
+                          // color: AppColors.MainTextColor.withOpacity(0.8),
                         ),
                         const SizedBox(width: 10),
                         Text('tags'.tr),

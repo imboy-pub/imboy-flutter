@@ -7,7 +7,6 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 // ignore: implementation_imports, unnecessary_import
 import 'package:emoji_picker_flutter/src/category_view/category_emoji.dart'
     show CategoryEmoji;
-import 'package:imboy/config/const.dart';
 
 /// Customized IMBoy category view
 class EmojiCategoryView extends CategoryView {
@@ -82,16 +81,16 @@ class EmojiTabBar extends StatelessWidget {
     return SizedBox(
       height: config.categoryViewConfig.tabBarHeight,
       child: TabBar(
-        labelColor: config.categoryViewConfig.iconColorSelected,
-        indicatorColor: config.categoryViewConfig.indicatorColor,
-        unselectedLabelColor: config.categoryViewConfig.iconColor,
-        dividerColor: config.categoryViewConfig.dividerColor,
+        // labelColor: config.categoryViewConfig.iconColorSelected,
+        // indicatorColor: config.categoryViewConfig.indicatorColor,
+        // unselectedLabelColor: config.categoryViewConfig.iconColor,
+        // dividerColor: config.categoryViewConfig.dividerColor,
         controller: tabController,
         labelPadding: const EdgeInsets.only(top: 1.0),
         indicatorSize: TabBarIndicatorSize.label,
-        indicator: const BoxDecoration(
+        indicator: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.black12,
+          color: Theme.of(context).colorScheme.onBackground,
         ),
         onTap: (index) {
           closeSkinToneOverlay();
@@ -175,11 +174,11 @@ class EmojiSearchViewState extends SearchViewState {
                   child: TextField(
                     onChanged: onTextInputChanged,
                     focusNode: focusNode,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: 'Search',
-                      hintStyle: TextStyle(
-                        color: AppColors.ItemOnColor,
+                      hintText: 'search'.tr,
+                      hintStyle: const TextStyle(
+                        // color: AppColors.ItemOnColor,
                         fontWeight: FontWeight.normal,
                       ),
                       contentPadding: EdgeInsets.zero,
@@ -192,5 +191,61 @@ class EmojiSearchViewState extends SearchViewState {
         ),
       );
     });
+  }
+}
+
+/// Default Bottom Action Bar implementation
+class AppBottomActionBar extends BottomActionBar {
+  /// Constructor
+  const AppBottomActionBar(
+      Config config, EmojiViewState state, VoidCallback showSearchView,
+      {super.key})
+      : super(config, state, showSearchView);
+
+  @override
+  State<StatefulWidget> createState() => _AppBottomActionBarState();
+}
+
+class _AppBottomActionBarState extends State<AppBottomActionBar> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: widget.config.bottomActionBarConfig.backgroundColor,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildSearchViewButton(),
+          _buildBackspaceButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchViewButton() {
+    if (widget.config.bottomActionBarConfig.showSearchViewButton) {
+      return CircleAvatar(
+        backgroundColor: widget.config.bottomActionBarConfig.buttonColor,
+        child: IconButton(
+          onPressed: widget.showSearchView,
+          icon: Icon(
+            Icons.search,
+            color: widget.config.bottomActionBarConfig.buttonIconColor,
+          ),
+        ),
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildBackspaceButton() {
+    if (widget.config.bottomActionBarConfig.showBackspaceButton) {
+      return BackspaceButton(
+        widget.config,
+        widget.state.onBackspacePressed,
+        widget.state.onBackspaceLongPressed,
+        widget.config.bottomActionBarConfig.buttonIconColor,
+      );
+    }
+    return const SizedBox.shrink();
   }
 }

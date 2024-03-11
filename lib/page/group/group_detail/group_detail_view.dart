@@ -4,12 +4,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/web_view.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/group/group_bill_board/group_bill_board_view.dart';
@@ -18,7 +21,6 @@ import 'package:imboy/page/group/group_member_detail/group_member_detail_view.da
 import 'package:imboy/page/group/group_remark/group_remark_view.dart';
 import 'package:imboy/page/group/select_member/select_member_view.dart';
 import 'package:imboy/store/model/group_model.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'group_detail_logic.dart';
 import 'group_detail_state.dart';
@@ -166,7 +168,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xffEDEDED),
-      appBar: PageAppBar(
+      appBar: NavAppBar(
+        automaticallyImplyLeading: true,
         title: '聊天信息 (${dataGroup![0]['memberNum']})',
       ),
       body: ScrollConfiguration(
@@ -273,10 +276,13 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 String tips = 'sure_to_leave_group'.tr;
                 Get.defaultDialog(
                   title: 'tip_tips'.tr,
+      backgroundColor: Get.isDarkMode
+          ? const Color.fromRGBO(80, 80, 80, 1)
+          : const Color.fromRGBO(240, 240, 240, 1),
                   content: Text(tips),
                   textCancel: "  ${'button_cancel'.tr}  ",
                   textConfirm: "  ${'button_setempty'.tr}  ",
-                  confirmTextColor: AppColors.primaryElementText,
+                  // confirmTextColor: AppColors.primaryElementText,
                   onConfirm: () {
                     GroupModel.quitGroupModel(widget.peer!, callback: (str) {
                       if (str.toString().contains('失败')) {
@@ -404,8 +410,9 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             )
             ..actions = [
               n.Button('button_cancel'.tr.n)
-                ..style =
-                    n.NikuButtonStyle(foregroundColor: AppColors.ItemOnColor)
+                ..style = n.NikuButtonStyle(
+                  foregroundColor: Theme.of(context).colorScheme.onBackground,
+                )
                 ..onPressed = () {
                   Navigator.of(context).pop();
                 },

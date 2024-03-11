@@ -3,7 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:niku/namespace.dart' as n;
@@ -55,8 +55,9 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
-      backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(title: 'newly_registered_people'.tr),
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: NavAppBar(
+          automaticallyImplyLeading: true, title: 'newly_registered_people'.tr),
       body: SlidableAutoCloseBehavior(
           child: n.Column([
         Expanded(

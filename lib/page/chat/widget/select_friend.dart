@@ -9,7 +9,7 @@ import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -102,6 +102,9 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
   void sendToDialog(ContactModel model) {
     Get.defaultDialog(
       title: 'send_to'.tr,
+      backgroundColor: Get.isDarkMode
+          ? const Color.fromRGBO(80, 80, 80, 1)
+          : const Color.fromRGBO(240, 240, 240, 1),
       radius: 6,
       cancel: TextButton(
         onPressed: () {
@@ -110,6 +113,9 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
         child: Text(
           'button_cancel'.tr,
           textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
         ),
       ),
       confirm: TextButton(
@@ -121,6 +127,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
         child: Text(
           'button_send'.tr,
           textAlign: TextAlign.center,
+          style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
         ),
       ),
       content: SizedBox(
@@ -174,7 +181,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
               widget.peerIsReceiver
                   ? "[${'personal_card'.tr}]${widget.peer['nickname']}"
                   : "[${'personal_card'.tr}]${model.nickname}",
-              style: const TextStyle(color: AppColors.TipColor),
+              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
             ),
           ),
         ])
@@ -217,8 +224,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
                 decoration: const BoxDecoration(
                   border: Border(
                     top: BorderSide(
-                      color: AppColors.LineColor,
-                      width: 0.2,
+                      width: 0.5,
                     ),
                   ),
                 ),
@@ -262,7 +268,6 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
         //   ),
         // ],
       ),
-      backgroundColor: Colors.white,
       body: Obx(
         () => n.Stack([
           RefreshIndicator(

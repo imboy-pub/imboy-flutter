@@ -6,7 +6,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/icon_text.dart';
 import 'package:imboy/component/ui/radio_list_title.dart';
 import 'package:imboy/component/ui/title_text_field.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
@@ -38,18 +38,18 @@ class ConfirmNewFriendPage extends StatelessWidget {
   Widget build(BuildContext context) {
     _remarkController.text = nickname;
 
-    Widget secondary = const Text(
+    Widget secondary = Text(
       "√",
       style: TextStyle(
         fontSize: 20,
-        color: AppColors.primaryElement,
+        color: Theme.of(context).colorScheme.primary,
       ),
     );
     return Scaffold(
-      backgroundColor: AppColors.AppBarColor,
-      appBar: PageAppBar(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: NavAppBar(
         title: 'accept_friend_request'.tr,
-        backgroundColor: Colors.white,
+        automaticallyImplyLeading: true,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Padding(
@@ -77,10 +77,10 @@ class ConfirmNewFriendPage extends StatelessWidget {
             },
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(
-                AppColors.primaryElement,
+                Theme.of(context).colorScheme.background,
               ),
               foregroundColor: MaterialStateProperty.all<Color>(
-                Colors.white,
+                Theme.of(context).colorScheme.onBackground,
               ),
               minimumSize: MaterialStateProperty.all(const Size(40, 40)),
               visualDensity: VisualDensity.compact,
@@ -101,7 +101,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
         child: Container(
           width: Get.width,
           height: Get.height,
-          color: AppColors.BgColor,
+          color: Theme.of(context).colorScheme.background,
           child: Padding(
             padding: const EdgeInsets.only(
               left: 30,
@@ -121,7 +121,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 0, bottom: 20),
                     child: Text(
                       '对方发来的验证消息为："$msg"',
-                      style: const TextStyle(color: AppColors.LabelTextColor),
+                      // style: const TextStyle(color: AppColors.LabelTextColor),
                     ),
                   ),
                   Obx(() => IconTextView(
@@ -172,7 +172,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                         selected: false,
                         secondary: logic.role.value == "all" ? secondary : null,
                         controlAffinity: ListTileControlAffinity.leading,
-                        activeColor: AppColors.primaryElement,
+                        activeColor: Theme.of(context).colorScheme.primary,
                         groupValue: logic.role.value,
                         contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                         onChanged: (val) {
@@ -190,7 +190,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                         secondary:
                             logic.role.value == "just_chat" ? secondary : null,
                         controlAffinity: ListTileControlAffinity.leading,
-                        activeColor: AppColors.primaryElement,
+                        activeColor: Theme.of(context).colorScheme.primary,
                         groupValue: logic.role.value,
                         contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                         onChanged: (val) {
@@ -225,7 +225,8 @@ class ConfirmNewFriendPage extends StatelessWidget {
                               SwitchListTile(
                                 title: Text('not_let_him_see'.tr),
                                 value: logic.donotlethimlook.isTrue,
-                                activeColor: AppColors.primaryElement,
+                                activeColor:
+                                    Theme.of(context).colorScheme.primary,
                                 onChanged: (val) {
                                   logic.donotlethimlook.value = val;
                                   logic.update([logic.donotlethimlook]);
@@ -234,7 +235,8 @@ class ConfirmNewFriendPage extends StatelessWidget {
                               SwitchListTile(
                                 title: Text('not_see_him'.tr),
                                 value: logic.donotlookhim.isTrue,
-                                activeColor: AppColors.primaryElement,
+                                activeColor:
+                                    Theme.of(context).colorScheme.primary,
                                 onChanged: (val) {
                                   logic.donotlookhim.value = val;
                                   logic.update([logic.donotlookhim]);

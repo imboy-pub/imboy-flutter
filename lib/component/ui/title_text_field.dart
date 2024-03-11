@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:imboy/config/const.dart';
+
 import 'package:niku/namespace.dart' as n;
 
 // ignore: must_be_immutable
@@ -33,9 +33,9 @@ class TitleTextField extends StatelessWidget {
           cursorColor: Colors.black54,
           decoration: InputDecoration(
             labelText: "",
-            labelStyle: const TextStyle(
+            labelStyle: TextStyle(
               fontSize: 14,
-              color: AppColors.MainTextColor,
+              color: Theme.of(context).colorScheme.onPrimary,
             ),
             contentPadding:
                 contentPadding ?? const EdgeInsets.fromLTRB(10, 10, 10, 10),

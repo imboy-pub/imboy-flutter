@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
+
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
-import 'package:imboy/config/const.dart';
 
 class AppVersionProvider extends HttpClient {
   Future<Map<String, dynamic>> check(String vsn) async {

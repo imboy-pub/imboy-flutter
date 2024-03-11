@@ -78,10 +78,8 @@ class _ImageMessageState extends State<ImageMessageBuilder> {
         width: _size.width,
       );
     } else if (_size.aspectRatio < 0.1 || _size.aspectRatio > 10) {
-      return Container(
-        color: user.id == widget.message.author.id
-            ? InheritedChatTheme.of(context).theme.primaryColor
-            : InheritedChatTheme.of(context).theme.secondaryColor,
+      return SizedBox(
+        width: Get.width * 0.618,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -150,11 +148,8 @@ class _ImageMessageState extends State<ImageMessageBuilder> {
         ),
       );
     } else {
-      return Container(
-        constraints: BoxConstraints(
-          maxHeight: widget.messageWidth.toDouble(),
-          minWidth: 170,
-        ),
+      return SizedBox(
+        width: Get.width * 0.618,
         child: AspectRatio(
           aspectRatio: _size.aspectRatio > 0 ? _size.aspectRatio : 1,
           child: Image(
