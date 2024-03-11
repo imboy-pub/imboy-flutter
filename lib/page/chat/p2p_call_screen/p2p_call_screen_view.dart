@@ -352,8 +352,8 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
               }
             },
             child: microphoneOff
-                ? const Icon(Icons.mic_off)
-                : const Icon(Icons.mic),
+                ? const Icon(Icons.mic_off, color: Colors.white)
+                : const Icon(Icons.mic, color: Colors.white),
           ),
           if (media == 'audio')
             FloatingActionButton(
@@ -366,7 +366,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
                 );
               },
               backgroundColor: Colors.pink,
-              child: const Icon(Icons.call_end),
+              child: const Icon(Icons.call_end, color: Colors.white),
             ),
           // 扬声器开关
           FloatingActionButton(
@@ -380,14 +380,14 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
             },
             // child: const Icon(Icons.volume_up),
             child: speakerOn
-                ? const Icon(Icons.volume_up)
-                : const Icon(Icons.volume_off),
+                ? const Icon(Icons.volume_up, color: Colors.white)
+                : const Icon(Icons.volume_off, color: Colors.white),
           ),
           if (media == 'video')
             FloatingActionButton(
               heroTag: "switch_camera",
               onPressed: logic?.switchCamera,
-              child: const Icon(Icons.switch_camera),
+              child: const Icon(Icons.switch_camera, color: Colors.white),
             ),
         ])
           ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
@@ -406,7 +406,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
                   );
                 },
                 backgroundColor: Colors.pink,
-                child: const Icon(Icons.call_end),
+                child: const Icon(Icons.call_end, color: Colors.white),
               ),
             ),
           ])
