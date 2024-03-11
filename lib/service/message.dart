@@ -36,7 +36,7 @@ class MessageService extends GetxService {
   final NewFriendLogic newFriendLogic = Get.find();
   final ConversationLogic conversationLogic = Get.find();
   List<String> webrtcMsgIdLi = [];
-
+  bool addMessageLock = false;
   @override
   void onInit() {
     super.onInit();
@@ -525,49 +525,59 @@ class MessageService extends GetxService {
     required ContactModel peer,
   }) async {
     iPrint(
-        "changeLocalMsgState 0 $msgId, ${peer.peerId == UserRepoLocal.to.currentUid}; peer.peerId ${peer.toJson().toString()} ;");
+        "changeLocalMsgState_addMessageLock $addMessageLock $msgId, ${peer.peerId == UserRepoLocal.to.currentUid}; peer.peerId ${peer.toJson().toString()} ;");
     if (msgId.isEmpty) {
       return;
     }
     if (peer.peerId == UserRepoLocal.to.currentUid) {
       throw Exception('not send message to myself');
     }
-
-    types.User author = types.User(
-      id: peer.peerId,
-      firstName: peer.nickname,
-      imageUrl: peer.avatar,
-    );
-    if (caller) {
-      author = types.User(
-        id: UserRepoLocal.to.currentUid,
-        firstName: UserRepoLocal.to.current.nickname,
-        imageUrl: UserRepoLocal.to.current.avatar,
-      );
+    if (addMessageLock) {
+      return;
     }
-    types.CustomMessage msg = types.CustomMessage(
-      author: author,
-      createdAt: DateTimeHelper.currentTimeMillis(),
-      id: msgId,
-      remoteId: peer.peerId,
-      status: types.Status.delivered,
-      metadata: {
-        'custom_type': media == 'video' ? 'webrtc_video' : 'webrtc_audio',
-        'media': media,
-        'start_at': 0,
-        'end_at': 0,
-        'state': 0,
-      },
-    );
-    await Get.find<ChatLogic>().addMessage(
-      UserRepoLocal.to.currentUid,
-      peer.peerId,
-      peer.avatar,
-      peer.nickname,
-      'C2C',
-      msg,
-      sendToServer: false,
-    );
+    addMessageLock = true;
+    try {
+      types.User author = types.User(
+        id: peer.peerId,
+        firstName: peer.nickname,
+        imageUrl: peer.avatar,
+      );
+      if (caller) {
+        author = types.User(
+          id: UserRepoLocal.to.currentUid,
+          firstName: UserRepoLocal.to.current.nickname,
+          imageUrl: UserRepoLocal.to.current.avatar,
+        );
+      }
+      types.CustomMessage msg = types.CustomMessage(
+        author: author,
+        createdAt: DateTimeHelper.currentTimeMillis(),
+        id: msgId,
+        remoteId: peer.peerId,
+        status: types.Status.delivered,
+        metadata: {
+          'custom_type': media == 'video' ? 'webrtc_video' : 'webrtc_audio',
+          'media': media,
+          'start_at': 0,
+          'end_at': 0,
+          'state': 0,
+        },
+      );
+      await Get.find<ChatLogic>().addMessage(
+        UserRepoLocal.to.currentUid,
+        peer.peerId,
+        peer.avatar,
+        peer.nickname,
+        'C2C',
+        msg,
+        sendToServer: false,
+      );
+    } catch (e) {
+      iPrint("addLocalMsg_error ${e.toString()}");
+      rethrow;
+    } finally {
+      addMessageLock = false;
+    }
   }
 
   /// 更新消息状态
