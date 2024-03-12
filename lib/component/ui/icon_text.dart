@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:imboy/config/theme.dart';
 
 class IconTextView extends StatefulWidget {
   // 左侧 图标
@@ -149,7 +151,11 @@ class _IconTextViewState extends State<IconTextView> {
           height: widget.height,
           decoration: widget.decoration ??
               (BoxDecoration(
-                color: _isClickDown ? const Color(0xFFEEEEEE) : Colors.white,
+                color: _isClickDown
+                    ? const Color(0xFFEEEEEE)
+                    : (Get.isDarkMode
+                        ? darkInputFillColor
+                        : lightInputFillColor),
               )),
           child: Stack(
             children: <Widget>[

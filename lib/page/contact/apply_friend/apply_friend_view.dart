@@ -4,6 +4,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/icon_text.dart';
 import 'package:imboy/component/ui/radio_list_title.dart';
 import 'package:imboy/component/ui/title_text_field.dart';
+import 'package:imboy/config/theme.dart';
 
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -38,11 +39,11 @@ class ApplyFriendPage extends StatelessWidget {
     _msgController.text = "${'i_am'.tr} ${UserRepoLocal.to.current.nickname}";
     _remarkController.text = remark;
 
-    Widget secondary = Text(
-      "√",
+    Widget secondary = const Text(
+      '√',
       style: TextStyle(
         fontSize: 20,
-        color: Theme.of(context).colorScheme.primary,
+        color: Colors.green,
       ),
     );
     return Scaffold(
@@ -160,7 +161,9 @@ class ApplyFriendPage extends StatelessWidget {
                           });
                         },
                         decoration: ShapeDecoration(
-                          color: const Color.fromARGB(255, 247, 247, 247),
+                          color: Get.isDarkMode
+                              ? darkInputFillColor
+                              : lightInputFillColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadiusDirectional.circular(5),
                           ),
@@ -173,62 +176,59 @@ class ApplyFriendPage extends StatelessWidget {
                     child: Text('set_moment'.tr),
                   ),
                   Card(
-                    color: const Color.fromARGB(255, 247, 247, 247),
+                    color: Get.isDarkMode
+                        ? darkInputFillColor
+                        : lightInputFillColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadiusDirectional.circular(5),
                     ),
                     clipBehavior: Clip.antiAlias,
-                    child: n.Column(
-                      [
-                        IMBoyRadioListTile(
-                          value: "all",
-                          title: n.Text('chat_moment_sport_data_etc'.tr),
-                          selected: false,
-                          secondary:
-                              logic.role.value == "all" ? secondary : null,
-                          controlAffinity: ListTileControlAffinity.leading,
-                          activeColor: Theme.of(context).colorScheme.onPrimary,
-                          groupValue: logic.role.value,
-                          contentPadding: const EdgeInsets.fromLTRB(
-                            10,
-                            0,
-                            10,
-                            0,
-                          ),
-                          onChanged: (val) {
-                            logic.setRole(val.toString());
-                            logic.visibilityLook = true.obs;
-                            logic.update([logic.visibilityLook]);
-                            debugPrint(
-                                "> on logic.visibilityLook1 ${logic.visibilityLook}");
-                          },
+                    child: n.Column([
+                      IMBoyRadioListTile(
+                        value: "all",
+                        title: n.Text('chat_moment_sport_data_etc'.tr),
+                        selected: false,
+                        secondary: logic.role.value == "all" ? secondary : null,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        activeColor: Colors.green,
+                        groupValue: logic.role.value,
+                        contentPadding: const EdgeInsets.fromLTRB(
+                          10,
+                          0,
+                          10,
+                          0,
                         ),
-                        IMBoyRadioListTile(
-                          value: "just_chat",
-                          title: n.Text('just_chat'.tr),
-                          selected: false,
-                          secondary: logic.role.value == "just_chat"
-                              ? secondary
-                              : null,
-                          controlAffinity: ListTileControlAffinity.leading,
-                          activeColor: Theme.of(context).colorScheme.primary,
-                          groupValue: logic.role.value,
-                          contentPadding:
-                              const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                          onChanged: (val) {
-                            logic.setRole(val.toString());
-                            logic.visibilityLook = false.obs;
-                            logic.donotlethimlook = false.obs;
-                            logic.donotlookhim = false.obs;
-                            logic.update();
-                            debugPrint(
-                                "> on logic.visibilityLook2 ${logic.visibilityLook}");
-                            debugPrint(
-                                "> on logic.donotlethimlook3 ${logic.donotlethimlook}");
-                          },
-                        ),
-                      ],
-                    ),
+                        onChanged: (val) {
+                          logic.setRole(val.toString());
+                          logic.visibilityLook = true.obs;
+                          logic.update([logic.visibilityLook]);
+                          debugPrint(
+                              "> on logic.visibilityLook1 ${logic.visibilityLook}");
+                        },
+                      ),
+                      IMBoyRadioListTile(
+                        value: "just_chat",
+                        title: n.Text('just_chat'.tr),
+                        selected: false,
+                        secondary:
+                            logic.role.value == "just_chat" ? secondary : null,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        activeColor: Colors.green,
+                        groupValue: logic.role.value,
+                        contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                        onChanged: (val) {
+                          logic.setRole(val.toString());
+                          logic.visibilityLook = false.obs;
+                          logic.donotlethimlook = false.obs;
+                          logic.donotlookhim = false.obs;
+                          logic.update();
+                          debugPrint(
+                              "> on logic.visibilityLook2 ${logic.visibilityLook}");
+                          debugPrint(
+                              "> on logic.donotlethimlook3 ${logic.donotlethimlook}");
+                        },
+                      ),
+                    ]),
                   ),
                   Visibility(
                     visible: logic.visibilityLook.isTrue,
@@ -240,7 +240,9 @@ class ApplyFriendPage extends StatelessWidget {
                       child: n.Column([
                         Text('moment_status'.tr),
                         Card(
-                          color: const Color.fromARGB(255, 247, 247, 247),
+                          color: Get.isDarkMode
+                              ? darkInputFillColor
+                              : lightInputFillColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadiusDirectional.circular(5),
                           ),
@@ -249,8 +251,7 @@ class ApplyFriendPage extends StatelessWidget {
                             SwitchListTile(
                               title: Text('not_let_him_see'.tr),
                               value: logic.donotlethimlook.isTrue,
-                              activeColor:
-                                  Theme.of(context).colorScheme.primary,
+                              activeColor: Colors.green,
                               onChanged: (val) {
                                 logic.donotlethimlook.value = val;
                                 logic.update([logic.donotlethimlook]);
@@ -259,8 +260,7 @@ class ApplyFriendPage extends StatelessWidget {
                             SwitchListTile(
                               title: Text('not_see_him'.tr),
                               value: logic.donotlookhim.isTrue,
-                              activeColor:
-                                  Theme.of(context).colorScheme.primary,
+                              activeColor: Colors.green,
                               onChanged: (val) {
                                 logic.donotlookhim.value = val;
                                 logic.update([logic.donotlookhim]);

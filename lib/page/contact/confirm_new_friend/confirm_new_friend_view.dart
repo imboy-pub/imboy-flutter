@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/icon_text.dart';
 import 'package:imboy/component/ui/radio_list_title.dart';
 import 'package:imboy/component/ui/title_text_field.dart';
+import 'package:imboy/config/theme.dart';
 
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -38,11 +39,11 @@ class ConfirmNewFriendPage extends StatelessWidget {
   Widget build(BuildContext context) {
     _remarkController.text = nickname;
 
-    Widget secondary = Text(
-      "√",
+    Widget secondary = const Text(
+      '√',
       style: TextStyle(
         fontSize: 20,
-        color: Theme.of(context).colorScheme.primary,
+        color: Colors.green,
       ),
     );
     return Scaffold(
@@ -147,7 +148,9 @@ class ConfirmNewFriendPage extends StatelessWidget {
                           });
                         },
                         decoration: ShapeDecoration(
-                          color: const Color.fromARGB(255, 247, 247, 247),
+                          color: Get.isDarkMode
+                              ? darkInputFillColor
+                              : lightInputFillColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadiusDirectional.circular(5),
                           ),
@@ -160,7 +163,9 @@ class ConfirmNewFriendPage extends StatelessWidget {
                     child: Text('set_moment'.tr),
                   ),
                   Card(
-                    color: const Color.fromARGB(255, 247, 247, 247),
+                    color: Get.isDarkMode
+                        ? darkInputFillColor
+                        : lightInputFillColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadiusDirectional.circular(5),
                     ),
@@ -215,7 +220,9 @@ class ConfirmNewFriendPage extends StatelessWidget {
                       child: n.Column([
                         Text('moment_status'.tr),
                         Card(
-                          color: const Color.fromARGB(255, 247, 247, 247),
+                          color: Get.isDarkMode
+                              ? darkInputFillColor
+                              : lightInputFillColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadiusDirectional.circular(5),
                           ),
@@ -225,8 +232,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                               SwitchListTile(
                                 title: Text('not_let_him_see'.tr),
                                 value: logic.donotlethimlook.isTrue,
-                                activeColor:
-                                    Theme.of(context).colorScheme.primary,
+                                activeColor: Colors.green,
                                 onChanged: (val) {
                                   logic.donotlethimlook.value = val;
                                   logic.update([logic.donotlethimlook]);
@@ -235,8 +241,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                               SwitchListTile(
                                 title: Text('not_see_him'.tr),
                                 value: logic.donotlookhim.isTrue,
-                                activeColor:
-                                    Theme.of(context).colorScheme.primary,
+                                activeColor: Colors.green,
                                 onChanged: (val) {
                                   logic.donotlookhim.value = val;
                                   logic.update([logic.donotlookhim]);

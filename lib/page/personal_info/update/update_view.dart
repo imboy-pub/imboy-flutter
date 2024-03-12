@@ -267,7 +267,7 @@ class UpdatePage extends StatelessWidget {
 
   Widget genderField(BuildContext context) {
     Widget secondary = const Text(
-      "√",
+      '√',
       style: TextStyle(
         fontSize: 20,
         color: Colors.green,
