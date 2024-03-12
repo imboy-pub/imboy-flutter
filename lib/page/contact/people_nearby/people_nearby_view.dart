@@ -58,13 +58,20 @@ class PeopleNearbyPage extends StatelessWidget {
             )
           ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
           n.Row([
-            Text(
-              'nearby_people_tips'.tr,
-              style: const TextStyle(
-                fontSize: 15,
+            Expanded(
+              child: n.Padding(
+                left: 16,
+                right: 16,
+                child: Text(
+                  'nearby_people_tips'.tr,
+                  style: const TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
               ),
             )
-          ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
+          ])
+            ..mainAxisAlignment = MainAxisAlignment.spaceEvenly,
           SizedBox(
             width: Get.width,
             height: 8,
