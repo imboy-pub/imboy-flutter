@@ -37,6 +37,7 @@
   "title_mine": "我的",
   "title_contact": "联系人",
   "title_message": "消息",
+  "verification_message_sent_by_peer_is":"对方发来的验证消息为：%s",
   "tip_tips": "小贴士",
   "tip_title": "喔！",
   "tip_success": "操作成功！",

@@ -25,11 +25,9 @@ class GroupListPage extends StatelessWidget {
         left: 12,
         top: 12,
         right: 12,
-        child: n.Column(
-          const [],
+        child: n.Column(const [])
           // 内容文本左对齐
-          crossAxisAlignment: CrossAxisAlignment.start,
-        ),
+          ..crossAxisAlignment = CrossAxisAlignment.start,
       ),
     );
   }

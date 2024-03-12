@@ -116,7 +116,7 @@ class CustomMessageBuilder extends StatelessWidget {
 /// 构建被引用消息Widget
 /// 构建被转发消息Widget
 /// messageMsgWidget(msg)
-Widget messageMsgWidget(types.Message msg) {
+Widget messageMsgWidget(types.Message msg, {Color? txtColor}) {
   // 当前登录用户
   types.User user = types.User(
     id: UserRepoLocal.to.currentUid,
@@ -127,8 +127,9 @@ Widget messageMsgWidget(types.Message msg) {
   if (msg is types.TextMessage) {
     msgWidget = Text(
       msg.text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 13.0,
+        color: txtColor,
       ),
       maxLines: 4,
       overflow: TextOverflow.ellipsis,
@@ -138,13 +139,17 @@ Widget messageMsgWidget(types.Message msg) {
       n.Row([
         Text(
           "[${'file'.tr}] (${formatBytes(msg.size.truncate())})",
-          style: TextStyle(color: Theme.of(Get.context!).colorScheme.tertiary),
+          style: TextStyle(
+            color: txtColor,
+          ),
         )
       ]),
       n.Row([
         Text(
           msg.name,
-          style: TextStyle(color: Theme.of(Get.context!).colorScheme.tertiary),
+          style: TextStyle(
+            color: txtColor,
+          ),
         )
       ]),
     ])
@@ -183,7 +188,7 @@ Widget messageMsgWidget(types.Message msg) {
     msgWidget = Text(
       "[${'quote'.tr}] $txt",
       style: TextStyle(
-        color: Theme.of(Get.context!).colorScheme.onPrimary,
+        color: txtColor,
         fontSize: 13.0,
       ),
       maxLines: 4,

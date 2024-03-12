@@ -37,6 +37,7 @@
   "title_mine": "Мой",
   "title_contact": "Контакты",
   "title_message": "Сообщения",
+  "verification_message_sent_by_peer_is":"Подтвержденное сообщение от другой стороны: %s",
   "tip_tips": "Советы",
   "tip_title": "Ура!",
   "tip_success": "Операция успешна!",

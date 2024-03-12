@@ -37,6 +37,7 @@
   "title_mine": "Mine",
   "title_contact": "Contacts",
   "title_message": "Messages",
+  "verification_message_sent_by_peer_is":"The verification message sent by the peer party is: %s",
   "tip_tips": "Tips",
   "tip_title": "Oops!",
   "tip_success": "Successful!",

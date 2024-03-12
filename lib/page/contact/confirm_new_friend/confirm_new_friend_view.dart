@@ -121,7 +121,8 @@ class ConfirmNewFriendPage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 0, bottom: 20),
                     child: Text(
-                      '对方发来的验证消息为："$msg"',
+                      // '对方发来的验证消息为："$msg"',
+                      'verification_message_sent_by_peer_is'.trArgs(['"$msg"']),
                       // style: const TextStyle(color: AppColors.LabelTextColor),
                     ),
                   ),
