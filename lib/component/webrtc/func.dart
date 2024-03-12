@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:xid/xid.dart';
 
@@ -120,15 +122,22 @@ Future<void> incomingCallScreen(
   ContactModel peer,
   Map<String, dynamic> option,
 ) async {
+  iPrint(
+      "rtc_msg incomingCallScreen msgid $msgId, peer ${peer.peerId} , option ${option.toString()}");
   if (p2pCallScreenOn == true) {
     return;
   }
+  p2pCallScreenOn = true;
   bool res = await initIceServers();
+  iPrint("rtc_msg incomingCallScreen msgid $msgId, res $res,");
+  if (res == false) {
+    sleep(const Duration(seconds: 2));
+    res = await initIceServers();
+  }
   if (res == false) {
     return;
   }
 
-  p2pCallScreenOn = true;
   String sid = sessionId(peer.peerId);
   var s = webRTCSessions[sid];
   s ??= WebRTCSession(pid: peer.peerId, sid: sid);
@@ -156,6 +165,7 @@ Future<void> incomingCallScreen(
     backgroundColor: Get.isDarkMode
         ? const Color.fromRGBO(80, 80, 80, 1)
         : const Color.fromRGBO(240, 240, 240, 1),
+    // backgroundColor: const Color.fromRGBO(80, 80, 80, 1),
     titlePadding: const EdgeInsets.all(0),
     barrierDismissible: false,
     radius: 10,
@@ -173,12 +183,11 @@ Future<void> incomingCallScreen(
               Expanded(
                 child: Text(
                   peer.nickname,
-                  style: TextStyle(
-                    color: Theme.of(Get.context!).colorScheme.onPrimary,
+                  style: const TextStyle(
                     fontSize: 12.0,
                     fontWeight: FontWeight.w500,
                   ),
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.left,
                 ),
@@ -189,7 +198,13 @@ Future<void> incomingCallScreen(
                 top: 10,
                 child: Text(
                   // "Incoming ${option['media']} call".tr,
-                  'incoming_call'.trArgs([option['media'].tr]),
+                  'incoming_call'.trArgs([
+                    option['media'] == 'video'
+                        ? 'video'.tr
+                        : (option['media'] == 'audio'
+                            ? 'audio'.tr
+                            : option['media'])
+                  ]),
                   style: TextStyle(
                     color: Theme.of(Get.context!).colorScheme.onPrimary,
                     fontSize: 12,

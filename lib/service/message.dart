@@ -45,14 +45,14 @@ class MessageService extends GetxService {
       String type = data['type'] ?? 'error';
       type = type.toUpperCase();
       iPrint(
-          "> rtc msg listen: $type , $p2pCallScreenOn, ${DateTime.now()} $data");
+          "rtc_msg listen: $type , $p2pCallScreenOn, ${DateTime.now()} $data");
       if (data.containsKey('ts')) {
         int now = DateTimeHelper.utc();
         iPrint("> rtc msg now: $now elapsed: ${now - data['ts']}");
       }
       if (type.startsWith('WEBRTC_')) {
         // 确认消息
-        iPrint("> rtc msg CLIENT_ACK,WEBRTC,${data['id']},$deviceId");
+        iPrint("rtc_msg CLIENT_ACK,WEBRTC,${data['id']},$deviceId");
         MessageService.to.sendAckMsg('WEBRTC', data['id']);
 
         String msgId = '';
@@ -65,6 +65,7 @@ class MessageService extends GetxService {
         if (p2pCallScreenOn == false && type == 'WEBRTC_OFFER') {
           String peerId = data['from'];
           ContactModel? obj = await ContactRepo().findByUid(peerId);
+          iPrint("rtc_msg obj ${obj?.toJson().toString()}");
           if (obj != null) {
             await incomingCallScreen(
               msgId,
@@ -355,7 +356,7 @@ class MessageService extends GetxService {
       toId: data['to'],
       payload: data['payload'],
       createdAt: data['created_at'],
-      serverTs: data['server_ts'],
+      isAuthor: data['from'] == UserRepoLocal.to.currentUid ? 1 : 0,
       conversationId: conversation.id,
       status: IMBoyMessageStatus.delivered, // 未读 已投递
     );

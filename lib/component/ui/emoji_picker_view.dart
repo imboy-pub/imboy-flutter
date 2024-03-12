@@ -197,10 +197,8 @@ class EmojiSearchViewState extends SearchViewState {
 /// Default Bottom Action Bar implementation
 class AppBottomActionBar extends BottomActionBar {
   /// Constructor
-  const AppBottomActionBar(
-      Config config, EmojiViewState state, VoidCallback showSearchView,
-      {super.key})
-      : super(config, state, showSearchView);
+  const AppBottomActionBar(super.config, super.state, super.showSearchView,
+      {super.key});
 
   @override
   State<StatefulWidget> createState() => _AppBottomActionBarState();

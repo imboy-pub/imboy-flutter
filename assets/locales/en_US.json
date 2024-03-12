@@ -193,6 +193,8 @@
   "location": "Location",
   "failed_get_map_try_again": "Failed to get map, please try again",
   "message_call":"Message call",
+  "video": "Video",
+  "audio": "Audio",
   "video_call": "Video call",
   "voice_call": "Voice call",
   "favorites": "Favorites",

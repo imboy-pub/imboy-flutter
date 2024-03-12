@@ -193,6 +193,8 @@
   "location": "位置",
   "failed_get_map_try_again": "獲取地圖失敗,請重試",
   "message_call":"發訊息",
+  "video": "視頻",
+  "audio": "音頻",
   "video_call": "視頻通話",
   "voice_call": "語音通話",
   "favorites": "收藏",

@@ -44,9 +44,9 @@ class MessageModel {
   String? toId; // 等价于数据库的 to
   Map<String, dynamic>? payload;
   int createdAt; // 消息创建时间 毫秒时间戳
-  int? serverTs; // 服务器组装消息的时间戳
-  //
   int? conversationId;
+  // from id is author bool true | false
+  int isAuthor;
 
   // enum Status { delivered, error, seen, sending, sent }
   // types.Status status;
@@ -61,10 +61,9 @@ class MessageModel {
     required this.fromId,
     required this.toId,
     required this.payload,
-    this.createdAt = 0,
-    this.serverTs,
-    //
+    required this.isAuthor,
     required this.conversationId,
+    this.createdAt = 0,
   });
 
   // int get updatedAtLocal =>
@@ -92,7 +91,7 @@ class MessageModel {
       toId: data[MessageRepo.to],
       payload: p,
       createdAt: int.parse('${data[MessageRepo.createdAt] ?? 0}'),
-      serverTs: int.parse('${data[MessageRepo.serverTs] ?? 0}'),
+      isAuthor: data[MessageRepo.isAuthor] ?? 0,
       conversationId: int.parse('${data[MessageRepo.conversationId] ?? 0}'),
     );
   }
@@ -107,7 +106,7 @@ class MessageModel {
     data[MessageRepo.to] = toId;
     data[MessageRepo.payload] = json.encode(payload);
     data[MessageRepo.createdAt] = createdAt;
-    data[MessageRepo.serverTs] = serverTs;
+    data[MessageRepo.isAuthor] = isAuthor;
     data[MessageRepo.conversationId] = conversationId;
 
     // debugPrint("> on MessageModel toMap $data");

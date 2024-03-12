@@ -10,7 +10,7 @@ class MessageRepo {
   static String c2gTable = 'group_message';
 
   static String autoId = 'auto_id';
-  static String id = 'id';
+  static String id = 'id'; // message_id
 
   // C2C C2G C2C_REVOKE_ACK C2G_REVOKE_ACK
   static String type = 'type';
@@ -18,11 +18,11 @@ class MessageRepo {
   static String to = 'to_id';
   static String payload = 'payload';
   static String createdAt = 'created_at';
-  static String serverTs = 'server_ts';
-
   //
   static String conversationId = 'conversation_id';
   static String status = 'status';
+  // from id is author bool true | false
+  static String isAuthor = 'is_author';
 
   final SqliteService _db = SqliteService.to;
 
@@ -46,7 +46,7 @@ class MessageRepo {
         MessageRepo.to: msg.toId,
         MessageRepo.payload: json.encode(msg.payload),
         MessageRepo.createdAt: msg.createdAt,
-        MessageRepo.serverTs: msg.serverTs ?? 0,
+        MessageRepo.isAuthor: msg.isAuthor,
         MessageRepo.conversationId: msg.conversationId,
         MessageRepo.status: msg.status,
       };
@@ -112,7 +112,7 @@ class MessageRepo {
         MessageRepo.to,
         MessageRepo.payload,
         MessageRepo.createdAt,
-        MessageRepo.serverTs,
+        MessageRepo.isAuthor,
         MessageRepo.status,
         MessageRepo.conversationId,
       ],
@@ -122,8 +122,8 @@ class MessageRepo {
       offset: 0,
       limit: size,
     );
-    // debugPrint(
-    //     "> on findByConversation  $conversationId, $page, ${maps.length}; ${maps.toList().toString()}");
+    debugPrint(
+        "findByConversation $conversationId, where $where, ${maps.length}; ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }
@@ -151,7 +151,7 @@ class MessageRepo {
         MessageRepo.to,
         MessageRepo.payload,
         MessageRepo.createdAt,
-        MessageRepo.serverTs,
+        MessageRepo.isAuthor,
         MessageRepo.status,
         MessageRepo.conversationId,
       ],
@@ -187,7 +187,7 @@ class MessageRepo {
         MessageRepo.to,
         MessageRepo.payload,
         MessageRepo.createdAt,
-        MessageRepo.serverTs,
+        MessageRepo.isAuthor,
         MessageRepo.conversationId,
         MessageRepo.status,
       ],
@@ -237,7 +237,7 @@ class MessageRepo {
         MessageRepo.to,
         MessageRepo.payload,
         MessageRepo.createdAt,
-        MessageRepo.serverTs,
+        MessageRepo.isAuthor,
         MessageRepo.conversationId,
         MessageRepo.status,
       ],

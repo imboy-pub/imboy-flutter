@@ -14,7 +14,7 @@ import 'package:sqflite/sqflite.dart';
 /// 参考 https://www.javacodegeeks.com/2020/06/using-sqlite-in-flutter-tutorial.html
 /// Sqlite 只负责维护表结构
 class SqliteService {
-  static const _dbVersion = 7;
+  static const _dbVersion = 8;
 
   SqliteService._privateConstructor();
 

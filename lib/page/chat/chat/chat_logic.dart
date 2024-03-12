@@ -42,11 +42,13 @@ class ChatLogic extends GetxController {
     // final response = await rootBundle.loadString('assets/data/messages.json');
     ConversationModel? obj = await ConversationRepo().findById(conversationId);
     debugPrint(
-        "> on pageMessages nextAutoId ${state.nextAutoId}, cid $conversationId, pid ${obj?.peerId}");
+        "> on pageMessages nextAutoId ${state.nextAutoId}, cid $conversationId, obj ${obj?.toJson().toString()}");
     if (obj == null) {
       return [];
     }
-    String tb = obj.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+    String tb = obj.type.toUpperCase() == 'C2G'
+        ? MessageRepo.c2gTable
+        : MessageRepo.c2cTable;
     MessageRepo repo = MessageRepo(tableName: tb);
     List<MessageModel> items = await repo.pageForConversation(
       obj.id,
@@ -60,8 +62,8 @@ class ChatLogic extends GetxController {
     state.nextAutoId = items.first.autoId;
     // 重发在发送中状态的消息
     for (MessageModel obj in items) {
-      // debugPrint(
-      //     "> on getMessages $conversationId obj: ${obj.toJson().toString()}");
+      debugPrint(
+          "> on getMessages $conversationId obj: ${obj.toJson().toString()}");
       if (obj.status == IMBoyMessageStatus.sending) {
         await sendWsMsg(obj);
       }
@@ -139,6 +141,7 @@ class ChatLogic extends GetxController {
       payload: payload,
       createdAt:
           message.createdAt! - DateTime.now().timeZoneOffset.inMilliseconds,
+      isAuthor: message.author.id == UserRepoLocal.to.currentUid ? 1 : 0,
       conversationId: conversationId,
       status: IMBoyMessageStatus.sending,
     );

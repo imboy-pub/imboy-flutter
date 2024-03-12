@@ -13,7 +13,6 @@ class AppTranslation {
 
 class LocaleKeys {
   LocaleKeys._();
-
   static const manually = 'manually';
   static const bot_qian_fan = 'bot_qian_fan';
   static const dark_model = 'dark_model';
@@ -214,6 +213,8 @@ class LocaleKeys {
   static const location = 'location';
   static const failed_get_map_try_again = 'failed_get_map_try_again';
   static const message_call = 'message_call';
+  static const video = 'video';
+  static const audio = 'audio';
   static const video_call = 'video_call';
   static const voice_call = 'voice_call';
   static const favorites = 'favorites';
@@ -310,7 +311,6 @@ class LocaleKeys {
   static const ringing = 'ringing';
   static const sending = 'sending';
   static const voice_message = 'voice_message';
-  static const video = 'video';
   static const add_tag = 'add_tag';
   static const edit_tag = 'edit_tag';
   static const accept_friend_request = 'accept_friend_request';
@@ -634,6 +634,8 @@ class Locales {
     'location': '位置',
     'failed_get_map_try_again': '获取地图失败,请重试',
     'message_call': '发消息',
+    'video': '视频',
+    'audio': '音频',
     'video_call': '视频通话',
     'voice_call': '语音通话',
     'favorites': '收藏',
@@ -729,7 +731,6 @@ class Locales {
     'ringing': '已响铃...',
     'sending': '正在发送...',
     'voice_message': '语音消息',
-    'video': '视频',
     'add_tag': '添加标签',
     'edit_tag': '编辑标签',
     'accept_friend_request': '通过朋友验证',
@@ -1063,6 +1064,8 @@ class Locales {
     'location': 'Location',
     'failed_get_map_try_again': 'Failed to get map, please try again',
     'message_call': 'Message call',
+    'video': 'Video',
+    'audio': 'Audio',
     'video_call': 'Video call',
     'voice_call': 'Voice call',
     'favorites': 'Favorites',
@@ -1163,7 +1166,6 @@ class Locales {
     'ringing': 'Ringing...',
     'sending': 'Sending...',
     'voice_message': 'Voice Message',
-    'video': 'Video',
     'add_tag': 'Add Tag',
     'accept_friend_request': 'Accept Friend Request',
     'add_phone_contact': 'Add Phone Contact',
@@ -1511,6 +1513,8 @@ class Locales {
     'location': 'Местоположение',
     'failed_get_map_try_again': 'Не удалось получить карта, попробуйте еще раз',
     'message_call': 'Отправить сообщение',
+    'video': 'Видео',
+    'audio': 'аудио',
     'video_call': 'Видео звонок',
     'voice_call': 'Голосовой звонок',
     'favorites': 'Избранное',
@@ -1613,7 +1617,6 @@ class Locales {
     'ringing': 'Звонок...',
     'sending': 'Отправка...',
     'voice_message': 'Голосовое сообщение',
-    'video': 'Видео',
     'add_tag': 'Добавить тег',
     'accept_friend_request': 'Принять запрос в друзья',
     'add_phone_contact': 'Добавить контакт телефона',
@@ -1944,6 +1947,8 @@ class Locales {
     'location': '位置',
     'failed_get_map_try_again': '獲取地圖失敗,請重試',
     'message_call': '發訊息',
+    'video': '視頻',
+    'audio': '音頻',
     'video_call': '視頻通話',
     'voice_call': '語音通話',
     'favorites': '收藏',
@@ -2039,7 +2044,6 @@ class Locales {
     'ringing': '已響鈴...',
     'sending': '正在發送...',
     'voice_message': '語音消息',
-    'video': '視頻',
     'add_tag': '添加標籤',
     'accept_friend_request': '通過朋友驗證',
     'add_phone_contact': '添加手機聯繫人',

@@ -193,6 +193,8 @@
   "location": "位置",
   "failed_get_map_try_again": "获取地图失败,请重试",
   "message_call":"发消息",
+  "video": "视频",
+  "audio": "音频",
   "video_call": "视频通话",
   "voice_call": "语音通话",
   "favorites": "收藏",

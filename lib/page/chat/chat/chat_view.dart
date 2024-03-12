@@ -227,7 +227,8 @@ class ChatPageState extends State<ChatPage> {
       widget.conversationId,
       _size,
     );
-    // debugPrint("ChatSettingPage then 2 ${items?.length};");
+    debugPrint(
+        "ChatSettingPage then 2 sid ${widget.conversationId},len ${items?.length}; nextAutoId ${logic.state.nextAutoId}");
     if (items != null && items.isNotEmpty) {
       for (var msg in items) {
         if (msg is types.ImageMessage) {

@@ -48,7 +48,7 @@ class ConversationLogic extends GetxController {
       conversations.add(obj);
     }
     // 重新计算会话消息提醒数量
-    recalculateConversationRemind(obj.id);
+    // recalculateConversationRemind(obj.id);
   }
 
   /// 步增会话提醒
@@ -203,12 +203,19 @@ class ConversationLogic extends GetxController {
       return;
     }
     String tb = cm.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+    // idx_conversation_status_author
     int? count = await SqliteService.to.count(
       tb,
-      where: "${MessageRepo.conversationId} = ? and ${MessageRepo.status} = ?",
-      whereArgs: [cid, IMBoyMessageStatus.delivered],
+      where:
+          "${MessageRepo.conversationId} = ? and ${MessageRepo.status} = ? and ${MessageRepo.isAuthor} = ?",
+      whereArgs: [
+        cid,
+        IMBoyMessageStatus.delivered,
+        0,
+      ],
     );
-    iPrint("recalculateConversationRemind $tb $count, $cid");
+    iPrint(
+        "recalculateConversationRemind $tb $count, ${UserRepoLocal.to.currentUid}, $cid");
     // String sql = Sqlite.instance
     if (count != null) {
       setConversationRemind(cid, count);

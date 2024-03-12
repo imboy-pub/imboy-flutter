@@ -553,7 +553,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
   Widget build(BuildContext context) {
     return IndexedStack(index: minimized ? 1 : 0, children: [
       Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: const Color.fromRGBO(80, 80, 80, 1),
         floatingActionButtonLocation:
             FloatingActionButtonLocation.miniCenterFloat,
         floatingActionButton: showTool ? _buildTools() : null,
@@ -563,65 +563,63 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
             double h = orientation == Orientation.portrait ? 120.0 : 90.0;
 
             Widget localVideo = _buildLocalVideo(w, h);
-            return n.Stack(
-              [
-                // remote video
-                _buildRemoteVideo(),
+            return n.Stack([
+              // remote video
+              _buildRemoteVideo(),
 
-                // local video
+              // local video
+              Positioned(
+                left: connected ? localX : 0,
+                top: connected ? localY : 0,
+                child: connected
+                    ? Draggable(
+                        feedback: localVideo,
+                        childWhenDragging: const SizedBox.shrink(),
+                        // 拖动中的回调
+                        onDragEnd: (details) {
+                          if (connected) {
+                            setState(() {
+                              localX = details.offset.dx;
+                              localY = details.offset.dy;
+                            });
+                          }
+                        },
+                        child: localVideo,
+                      )
+                    : localVideo,
+              ),
+
+              if (showTool)
                 Positioned(
-                  left: connected ? localX : 0,
-                  top: connected ? localY : 0,
-                  child: connected
-                      ? Draggable(
-                          feedback: localVideo,
-                          childWhenDragging: const SizedBox.shrink(),
-                          // 拖动中的回调
-                          onDragEnd: (details) {
-                            if (connected) {
-                              setState(() {
-                                localX = details.offset.dx;
-                                localY = details.offset.dy;
-                              });
-                            }
-                          },
-                          child: localVideo,
-                        )
-                      : localVideo,
+                  top: 32,
+                  left: 8,
+                  child: InkWell(
+                    onTap: _zoom,
+                    child: const Icon(
+                      Icons.fullscreen_exit_rounded,
+                      color: Colors.white,
+                      size: 30.0,
+                    ),
+                    // child: const Icon(Icons.zoom_in_map_rounded, color:Colors.white,),
+                  ),
+                ),
+              if (showTool)
+                Positioned(
+                  top: 40,
+                  left: (Get.width - 160) / 2,
+                  width: 160,
+                  child: Text(
+                    stateTips,
+                    style: const TextStyle(
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
 
-                if (showTool)
-                  Positioned(
-                    top: 32,
-                    left: 8,
-                    child: InkWell(
-                      onTap: _zoom,
-                      child: const Icon(
-                        Icons.fullscreen_exit_rounded,
-                        color: Colors.white,
-                        size: 30.0,
-                      ),
-                      // child: const Icon(Icons.zoom_in_map_rounded, color:Colors.white,),
-                    ),
-                  ),
-                if (showTool)
-                  Positioned(
-                    top: 40,
-                    left: (Get.width - 160) / 2,
-                    width: 160,
-                    child: Text(
-                      stateTips,
-                      style: const TextStyle(
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-
-                if ((connected == false && showTool) || media == 'audio')
-                  _buildPeerInfo(),
-              ],
-            );
+              if ((connected == false && showTool) || media == 'audio')
+                _buildPeerInfo(),
+            ]);
           },
         ),
       ),
