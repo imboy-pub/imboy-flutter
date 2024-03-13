@@ -3,13 +3,13 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
-
 import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/store/model/people_model.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'people_nearby_logic.dart';
 
