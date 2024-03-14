@@ -114,7 +114,7 @@ dependencies:
       ref: leeyi
 
   logger: ^2.1.0
-  sentry_flutter: ^7.17.0
+  #sentry_flutter: ^7.18.0
 
   # 用于访问加速度计、陀螺仪和磁力计传感器的 Flutter 插件。
   #sensors_plus: ^4.0.1
@@ -123,7 +123,7 @@ dependencies:
   # 页面刷新
   easy_refresh: ^3.3.4
   # https://github.com/letsar/flutter_slidjable
-  flutter_slidable: ^3.0.1
+  flutter_slidable: ^3.1.0
   # 消息提醒的红点效果
   badges: ^3.1.2
   # 聊天气泡
