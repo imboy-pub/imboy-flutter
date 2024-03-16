@@ -125,7 +125,9 @@ Future<void> init() async {
   // WebSocketService.to.init();
 
   // fvp libary register
-  registerWith();
+  registerWith(options: {
+    'platforms': ['windows', 'macos', 'linux']
+  }); // only these platforms will use this plugin implementation
 
   WidgetsBinding.instance.addObserver(
     LifecycleEventHandler(

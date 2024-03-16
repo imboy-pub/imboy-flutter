@@ -97,9 +97,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
                     'id': widget.message.id,
                     'payload': json.encode(widget.message.metadata),
                   };
-                  String tb = widget.type == 'C2G'
-                      ? MessageRepo.c2gTable
-                      : MessageRepo.c2cTable;
+                  String tb = MessageRepo.getTableName(widget.type);
                   (MessageRepo(tableName: tb)).update(data);
                 }
               },

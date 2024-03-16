@@ -113,6 +113,8 @@ class MessageService extends GetxService {
           case 'C2C_REVOKE_ACK': // 对端撤回消息ACK
             await receiveRevokeAckMessage(type, data);
             break;
+
+          //
           case 'C2G':
             await receiveMessage(data);
             break;
@@ -125,13 +127,22 @@ class MessageService extends GetxService {
           case 'C2G_REVOKE_ACK': // 对端撤回消息ACK
             await receiveRevokeAckMessage(type, data);
             break;
-          case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
+
+          //
+          case 'C2S':
+            await receiveMessage(data);
             break;
-          case 'ERROR': //
-            await switchError(data);
+          case 'C2S_SERVER_ACK': // C2S 服务端消息确认
+            await receiveServerAckMessage(data);
+            break;
+
+          case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
             break;
           case 'S2C':
             await switchS2C(data);
+            break;
+          case 'ERROR': //
+            await switchError(data);
             break;
         }
       }
@@ -158,7 +169,7 @@ class MessageService extends GetxService {
     }
   }
 
-  /// type is ['C2C' | 'S2C' | 'WEBRTC']
+  /// type is ['C2C' | 'S2C' | 'C2G' | 'C2S | 'WEBRTC']
   void sendAckMsg(String type, String msgId) {
     WebSocketService.to.sendMessage("CLIENT_ACK,$type,$msgId,$deviceId");
   }
@@ -310,7 +321,7 @@ class MessageService extends GetxService {
     super.onClose();
   }
 
-  /// 收到消息  C2C or C2G
+  /// 收到消息  C2C | C2G | C2S
   Future<void> receiveMessage(data) async {
     var msgType = data['payload']['msg_type'] ?? '';
     var subtitle = data['payload']['text'] ?? '';
@@ -357,17 +368,17 @@ class MessageService extends GetxService {
       payload: data['payload'],
       createdAt: data['created_at'],
       isAuthor: data['from'] == UserRepoLocal.to.currentUid ? 1 : 0,
+      topicId: data['topic_id'] ?? 0,
       conversationId: conversation.id,
       status: IMBoyMessageStatus.delivered, // 未读 已投递
     );
-    String tb =
-        data['type'] == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+    String tb = MessageRepo.getTableName(data['type']);
     MessageRepo repo = MessageRepo(tableName: tb);
     int? exited = await repo.save(msg);
     // 确认消息
     iPrint(
-        "365> rtc msg CLIENT_ACK,${data['type']},${data['id']},$deviceId, exited $exited, ${DateTime.now()}");
-    // data['type'] C2C or C2G
+        "380> rtc msg CLIENT_ACK,${data['type']},${data['id']},$deviceId, exited $exited, ${DateTime.now()}");
+    // data['type'] C2C | C2G | C2S
     MessageService.to.sendAckMsg(data['type'], data['id']);
     if (exited != null && exited > 0) {
       return;
@@ -384,12 +395,7 @@ class MessageService extends GetxService {
   /// 收到服务端确认消息 C2C_SERVER_ACK C2G_SERVER_ACK
   Future<void> receiveServerAckMessage(Map data) async {
     iPrint("> rtc msg S_RECEIVED: msg:$data");
-
-    // iPrint("> rtc msg S_RECEIVED:$res");
-
-    String tb = data['type'] == 'C2G_SERVER_ACK'
-        ? MessageRepo.c2gTable
-        : MessageRepo.c2cTable;
+    String tb = MessageRepo.getTableName(data['type']);
     MessageModel? msg = await changeStatus(
       tb,
       data['id'],
@@ -406,6 +412,7 @@ class MessageService extends GetxService {
     String msgId,
     int status,
   ) async {
+    iPrint("changeStatus tb $tb, msgId, $msgId, status $status");
     MessageRepo repo = MessageRepo(tableName: tb);
     await repo.update({
       'id': msgId,
@@ -421,9 +428,7 @@ class MessageService extends GetxService {
 
   /// 收到撤回消息 C2C_REVOKE C2G_REVOKE
   Future<void> receiveRevokeMessage(data) async {
-    String tb = data['type'] == 'C2G_REVOKE'
-        ? MessageRepo.c2gTable
-        : MessageRepo.c2cTable;
+    String tb = MessageRepo.getTableName(data['type']);
     MessageRepo repo = MessageRepo(tableName: tb);
     ContactModel? contact = await ContactRepo().findByUid(data['from']);
     String id = data['id'];
@@ -457,8 +462,7 @@ class MessageService extends GetxService {
 
   /// 收到撤回ACK消息 C2C_REVOKE_ACK C2G_REVOKE_ACK
   Future<void> receiveRevokeAckMessage(dType, data) async {
-    String tb =
-        dType == 'C2G_REVOKE_ACK' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+    String tb = MessageRepo.getTableName(dType);
     MessageRepo repo = MessageRepo(tableName: tb);
     MessageModel? msg = await repo.find(data['id']);
     if (msg == null) {

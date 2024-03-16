@@ -138,6 +138,19 @@ class HttpClient {
         response,
         httpTransformer: httpTransformer,
       );
+      if (resp.code == 707) {
+        response = await _dio.get(
+          uri,
+          queryParameters: queryParameters,
+          options: options,
+          cancelToken: cancelToken,
+          onReceiveProgress: onReceiveProgress,
+        );
+        resp = handleResponse(
+          response,
+          httpTransformer: httpTransformer,
+        );
+      }
       return resp;
     } on Exception catch (e) {
       debugPrint("> on Exception: $e");

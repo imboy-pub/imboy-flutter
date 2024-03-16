@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/image_view.dart';
 
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
@@ -147,20 +148,23 @@ class ContactLogic extends GetxController {
           );
         },
       ),
-      /*
       ContactModel(
         peerId: 'bot_qian_fan',
         nickname: 'bot_qian_fan'.tr,
         nameIndex: '↑',
         bgColor: Colors.teal,
         // icon 翻转
-        iconData: Transform.scale(
-          scaleX: -1,
-          child: const Icon(
-            Icons.chat,
-            color: Colors.white,
-            size: 24,
-          ),
+        // iconData: Transform.scale(
+        //   scaleX: -1,
+        //   child: const Icon(
+        //     Icons.chat,
+        //     color: Colors.white,
+        //     size: 24,
+        //   ),
+        // ),
+        iconData: const ImageView(
+          uri: 'https://bce.bdstatic.com/img/favicon.ico',
+          height: 40,
         ),
         onPressed: () {
           Get.to(
@@ -176,7 +180,6 @@ class ContactLogic extends GetxController {
           );
         },
       ),
-      */
     ];
     // add topList.
     list.insertAll(0, topList);

@@ -46,9 +46,7 @@ class ChatLogic extends GetxController {
     if (obj == null) {
       return [];
     }
-    String tb = obj.type.toUpperCase() == 'C2G'
-        ? MessageRepo.c2gTable
-        : MessageRepo.c2cTable;
+    String tb = MessageRepo.getTableName(obj.type);
     MessageRepo repo = MessageRepo(tableName: tb);
     List<MessageModel> items = await repo.pageForConversation(
       obj.id,
@@ -186,9 +184,7 @@ class ChatLogic extends GetxController {
     conversation = await (ConversationRepo()).save(conversation);
     MessageModel obj = getMsgFromTMsg(type, conversation.id, message);
     // debugPrint("> on addMessage before insert MessageRepo");
-    String tb = conversation.type == 'C2G'
-        ? MessageRepo.c2gTable
-        : MessageRepo.c2cTable;
+    String tb = MessageRepo.getTableName(conversation.type.toString());
     await (MessageRepo(tableName: tb)).insert(obj);
     // debugPrint("> on addMessage after insert MessageRepo");
     eventBus.fire(conversation);
@@ -212,7 +208,7 @@ class ChatLogic extends GetxController {
     ConversationModel? cm;
     MessageModel? lastMsg;
     cm = await repo.findById(conversationId);
-    String tb = cm?.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+    String tb = MessageRepo.getTableName(cm!.type);
     if (conversationId > 0) {
       MessageRepo mRepo = MessageRepo(tableName: tb);
       // 获取lastMsg，以更新会话lastMsg信息
@@ -253,12 +249,12 @@ class ChatLogic extends GetxController {
     return true;
   }
 
-  /// 撤回消息
+  /// 撤回消息 type C2C | C2G
   Future<bool> revokeMessage(String type, types.Message obj) async {
     Map<String, dynamic> msg = {
       'ts': DateTimeHelper.utc(),
       'id': obj.id,
-      'type': type == 'C2G' ? 'C2G_REVOKE' : 'C2C_REVOKE',
+      'type': '${type.toUpperCase()}_REVOKE',
       'from': obj.author.id,
       'to': obj.remoteId,
     };
@@ -277,8 +273,7 @@ class ChatLogic extends GetxController {
     if (c == null) {
       return false;
     }
-    String tableName =
-        c.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+    String tb = MessageRepo.getTableName(c.type);
     int newUnreadNum = c.unreadNum - msgIds.length;
     c.unreadNum = newUnreadNum > 0 ? newUnreadNum : 0;
     bool res = await db.transaction((txn) async {
@@ -292,13 +287,12 @@ class ChatLogic extends GetxController {
       );
       for (var id in msgIds) {
         db.update(
-          tableName,
-          {
-            MessageRepo.status: IMBoyMessageStatus.seen,
-          },
-          where: "${MessageRepo.id}=?",
-          whereArgs: [id],
-        );
+            tb,
+            {
+              MessageRepo.status: IMBoyMessageStatus.seen,
+            },
+            where: "${MessageRepo.id}=?",
+            whereArgs: [id]);
       }
       return true;
     });

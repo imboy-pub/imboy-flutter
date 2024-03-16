@@ -79,7 +79,7 @@ class PassportLogic extends GetxController {
       SOLIDIFIED_KEY_IV,
     ));
     // debugPrint("login_pwd_rsa_encrypt ${resp1.payload.toString()}");
-    // debugPrint("login_pwd_rsa_encrypt ${payload.toString()}");
+    debugPrint("login_pwd_rsa_encrypt ${payload.toString()}");
     final rsaEncrypt = payload['login_pwd_rsa_encrypt'].toString();
     if (rsaEncrypt == "1") {
       String pubKey = payload['login_rsa_pub_key'].toString();
@@ -171,7 +171,7 @@ class PassportLogic extends GetxController {
     if (resp2.ok) {
       return null;
     } else {
-      _error = resp2.error!.message;
+      _error = resp2.error?.message ?? 'unknown'.tr;
       return _error;
     }
   }

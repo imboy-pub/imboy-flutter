@@ -8,6 +8,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 class MessageRepo {
   static String c2cTable = 'message';
   static String c2gTable = 'group_message';
+  static String c2sTable = 'c2s_message';
 
   static String autoId = 'auto_id';
   static String id = 'id'; // message_id
@@ -23,12 +24,56 @@ class MessageRepo {
   static String status = 'status';
   // from id is author bool true | false
   static String isAuthor = 'is_author';
+  static String topicId = 'topic_id';
 
   final SqliteService _db = SqliteService.to;
 
   final String tableName;
 
   MessageRepo({required this.tableName});
+
+  static String getTableName(String type) {
+    String tb = '';
+    // iPrint("> rtc msg S_RECEIVED:$res");
+    switch (type.toUpperCase()) {
+      case 'C2C':
+        tb = MessageRepo.c2cTable;
+        break;
+      case 'C2G':
+        tb = MessageRepo.c2gTable;
+        break;
+      case 'C2S':
+        tb = MessageRepo.c2sTable;
+        break;
+
+      //
+      case 'C2C_SERVER_ACK':
+        tb = MessageRepo.c2cTable;
+        break;
+      case 'C2G_SERVER_ACK':
+        tb = MessageRepo.c2gTable;
+        break;
+      case 'C2S_SERVER_ACK':
+        tb = MessageRepo.c2sTable;
+        break;
+
+      //
+      case 'C2C_REVOKE':
+        tb = MessageRepo.c2cTable;
+        break;
+      case 'C2G_REVOKE':
+        tb = MessageRepo.c2gTable;
+        break;
+
+      case 'C2C_REVOKE_ACK':
+        tb = MessageRepo.c2cTable;
+        break;
+      case 'C2G_REVOKE_ACK':
+        tb = MessageRepo.c2gTable;
+        break;
+    }
+    return tb;
+  }
 
   // 插入一条数据
   Future<MessageModel> insert(MessageModel msg) async {
@@ -47,10 +92,11 @@ class MessageRepo {
         MessageRepo.payload: json.encode(msg.payload),
         MessageRepo.createdAt: msg.createdAt,
         MessageRepo.isAuthor: msg.isAuthor,
+        MessageRepo.topicId: msg.topicId,
         MessageRepo.conversationId: msg.conversationId,
         MessageRepo.status: msg.status,
       };
-      debugPrint("> on MessgeMode/insert $insert");
+      debugPrint("> on MessgeMode/insert tb $tableName : $insert");
       await _db.insert(tableName, insert);
     } else {
       debugPrint("> on MessgeMode/insert count $count : $insert");
@@ -113,6 +159,8 @@ class MessageRepo {
         MessageRepo.payload,
         MessageRepo.createdAt,
         MessageRepo.isAuthor,
+        MessageRepo.topicId,
+        MessageRepo.topicId,
         MessageRepo.status,
         MessageRepo.conversationId,
       ],
@@ -152,6 +200,7 @@ class MessageRepo {
         MessageRepo.payload,
         MessageRepo.createdAt,
         MessageRepo.isAuthor,
+        MessageRepo.topicId,
         MessageRepo.status,
         MessageRepo.conversationId,
       ],
@@ -188,6 +237,7 @@ class MessageRepo {
         MessageRepo.payload,
         MessageRepo.createdAt,
         MessageRepo.isAuthor,
+        MessageRepo.topicId,
         MessageRepo.conversationId,
         MessageRepo.status,
       ],
@@ -238,6 +288,7 @@ class MessageRepo {
         MessageRepo.payload,
         MessageRepo.createdAt,
         MessageRepo.isAuthor,
+        MessageRepo.topicId,
         MessageRepo.conversationId,
         MessageRepo.status,
       ],

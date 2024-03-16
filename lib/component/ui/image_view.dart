@@ -8,7 +8,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/service/assets.dart';
 
 class ImageView extends StatelessWidget {
-  final String img;
+  final String uri;
   final double? width;
   final double? height;
   final BoxFit? fit;
@@ -16,7 +16,7 @@ class ImageView extends StatelessWidget {
 
   const ImageView({
     super.key,
-    required this.img,
+    required this.uri,
     this.height,
     this.width,
     this.fit,
@@ -26,24 +26,24 @@ class ImageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget image;
-    if (isNetWorkImg(img)) {
+    if (isNetWorkImg(uri)) {
       image = CachedNetworkImage(
-        imageUrl: AssetsService.viewUrl(img).toString(),
+        imageUrl: AssetsService.viewUrl(uri).toString(),
         width: width,
         height: height,
         fit: fit,
         cacheManager: cacheManager,
       );
-    } else if (File(img).existsSync()) {
+    } else if (File(uri).existsSync()) {
       image = Image.file(
-        File(img),
+        File(uri),
         width: width,
         height: height,
         fit: fit,
       );
-    } else if (isAssetsImg(img)) {
+    } else if (isAssetsImg(uri)) {
       image = Image(
-        image: AssetImage(img),
+        image: AssetImage(uri),
         width: width,
         height: height,
         fit: width != null && height != null ? BoxFit.fill : fit,

@@ -91,7 +91,7 @@ class PeopleInfoPage extends StatelessWidget {
     initData();
     bool isSelf = UserRepoLocal.to.currentUid == id;
     bool showApplyFriendBtn = !isSelf;
-    if (scene == 'denylist') {
+    if (scene == 'denylist' || id == 'bot_qian_fan') {
       showApplyFriendBtn = false;
     }
     return Scaffold(
@@ -100,7 +100,7 @@ class PeopleInfoPage extends StatelessWidget {
         automaticallyImplyLeading: true,
         title: '',
         // backgroundColor: Colors.white,
-        rightDMActions: isSelf
+        rightDMActions: isSelf || id == 'bot_qian_fan'
             ? []
             : [
                 SizedBox(
@@ -162,7 +162,7 @@ class PeopleInfoPage extends StatelessWidget {
               ),
             ),
             Visibility(
-              visible: !isSelf,
+              visible: !isSelf && id != 'bot_qian_fan',
               child: LabelRow(
                 label: tag.value.isEmpty ? 'remarks_tags'.tr : 'tags'.tr,
                 labelWidth: tag.value.isEmpty ? 96 : 40,

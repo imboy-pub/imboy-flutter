@@ -47,6 +47,7 @@ class MessageModel {
   int? conversationId;
   // from id is author bool true | false
   int isAuthor;
+  int topicId;
 
   // enum Status { delivered, error, seen, sending, sent }
   // types.Status status;
@@ -63,6 +64,7 @@ class MessageModel {
     required this.payload,
     required this.isAuthor,
     required this.conversationId,
+    this.topicId = 0,
     this.createdAt = 0,
   });
 
@@ -92,6 +94,7 @@ class MessageModel {
       payload: p,
       createdAt: int.parse('${data[MessageRepo.createdAt] ?? 0}'),
       isAuthor: data[MessageRepo.isAuthor] ?? 0,
+      topicId: data[MessageRepo.topicId] ?? 0,
       conversationId: int.parse('${data[MessageRepo.conversationId] ?? 0}'),
     );
   }
@@ -107,6 +110,7 @@ class MessageModel {
     data[MessageRepo.payload] = json.encode(payload);
     data[MessageRepo.createdAt] = createdAt;
     data[MessageRepo.isAuthor] = isAuthor;
+    data[MessageRepo.topicId] = topicId;
     data[MessageRepo.conversationId] = conversationId;
 
     // debugPrint("> on MessageModel toMap $data");

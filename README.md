@@ -26,8 +26,8 @@ imboy 的Flutter项目
 ## 功能树
 
 * 大概的大大小小功能实现情况：
-    * TODO 67
-    * OK 118
+    * TODO 65
+    * OK 119
 
 [查看](./doc/feature_tree.md)
 
@@ -118,6 +118,7 @@ Lib
 ```
 ## init
 ```
+git clone https://gitee.com/imboy-pub/imboy-flutter.git imboyflutter
 cd imboyflutter
 cp assets/example.env ./.env
 ```

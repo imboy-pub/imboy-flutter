@@ -859,7 +859,7 @@ class Locales {
   };
   static const en_US = {
     'manually': 'Choose manually',
-    'bot_qian_fan': 'Qianfan robot',
+    'bot_qian_fan': 'Qianfan bot',
     'dark_model': 'Dark Mode',
     'normal_model': 'Normal Mode',
     'follow_system': 'Follow System',

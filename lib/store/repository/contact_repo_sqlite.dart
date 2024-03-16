@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -187,6 +188,15 @@ class ContactRepo {
 
   //
   Future<ContactModel?> findByUid(String uid, {bool autoFetch = true}) async {
+    if (uid == 'bot_qian_fan') {
+      return ContactModel.fromMap({
+        ContactRepo.peerId: uid,
+        ContactRepo.account: '',
+        ContactRepo.nickname: uid.tr,
+        ContactRepo.sign: '',
+        ContactRepo.avatar: 'https://bce.bdstatic.com/img/favicon.ico',
+      });
+    }
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tableName,
       columns: [

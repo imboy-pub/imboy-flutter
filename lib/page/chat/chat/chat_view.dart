@@ -111,8 +111,8 @@ class ChatPageState extends State<ChatPage> {
 
     //监听Widget是否绘制完毕
     super.initState();
+
     initData();
-    unawaited(_handleEndReached());
     // 异步检查是否有离线数据 TODO leeyi 2023-01-29 16:43:47
   }
 
@@ -133,7 +133,6 @@ class ChatPageState extends State<ChatPage> {
         widget.type,
       );
     }
-
     logic.state.nextAutoId = 0;
     if (availableMaps.isEmpty) {
       try {
@@ -149,6 +148,9 @@ class ChatPageState extends State<ChatPage> {
     } else {
       connected = true.obs;
     }
+    // 获取本地聊天记录
+    unawaited(_handleEndReached());
+
     // 监听网络状态
     Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
       if (r == ConnectivityResult.none) {
@@ -170,12 +172,11 @@ class ChatPageState extends State<ChatPage> {
         if (msg is types.ImageMessage) {
           galleryLogic.pushToLast(msg.id, msg.uri);
         }
-        iPrint("decreaseConversationRemind ${widget.conversationId}");
+        iPrint(
+            "decreaseConversationRemind cid ${widget.conversationId}, type ${widget.type}");
 
         if (mounted) {
-          String tb = widget.type == 'C2G'
-              ? MessageRepo.c2gTable
-              : MessageRepo.c2cTable;
+          String tb = MessageRepo.getTableName(widget.type);
           MessageModel? m = await MessageService.to.changeStatus(
             tb,
             msg.id,
@@ -213,7 +214,6 @@ class ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
-    // getx.Get.delete<ChatLogic>();
     getx.Get.delete<ImageGalleryLogic>();
 
     super.dispose();
@@ -263,7 +263,8 @@ class ChatPageState extends State<ChatPage> {
         msgIds.add(msg.id);
       }
     } // end for items
-    // iPrint("countConversationRemind ${items.toList().toString()}");
+    iPrint(
+        "countConversationRemind msgIds.len ${msgIds.length} type ${widget.type}");
     if (msgIds.isEmpty) {
       // 重新计算会话消息提醒数量
       conversationLogic.recalculateConversationRemind(widget.conversationId);
@@ -789,8 +790,7 @@ class ChatPageState extends State<ChatPage> {
       Clipboard.setData(ClipboardData(text: msg.text));
       EasyLoading.showToast('copied'.tr);
     } else if (itemId == "collect") {
-      String tb =
-          widget.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+      String tb = MessageRepo.getTableName(widget.type);
       // 添加收藏
       bool res = await UserCollectLogic().add(tb: tb, msg: msg);
       if (res) {
@@ -1002,50 +1002,53 @@ class ChatPageState extends State<ChatPage> {
                   ]),
                 );
               },
-              customBottomWidget: ChatInput(
-                // 发送触发事件
-                onSendPressed: _handleSendPressed,
-                sendButtonVisibilityMode: SendButtonVisibilityMode.editing,
-                // voiceWidget: VoiceRecord(),
-                voiceWidget: VoiceWidget(
-                  startRecord: () {},
-                  stopRecord: _handleVoiceSelection,
-                  // 加入定制化Container的相关属性
-                  height: 60.0,
-                  margin: EdgeInsets.zero,
-                ),
-                extraWidget: ExtraItems(
-                    // 照片
-                    handleImageSelection: _handleImageSelection,
-                    // 文件
-                    handleFileSelection: _handleFileSelection,
-                    // 拍摄
-                    handlePickerSelection: _handlePickerSelection,
-                    // 位置消息
-                    handleLocationSelection: _handleLocationSelection,
-                    // 个人名片
-                    handleVisitCardSelection: _handleVisitCardSelection,
-                    // 收藏
-                    handleCollectSelection: _handleCollectSelection,
-                    options: {
-                      "to": widget.peerId,
-                      "title": widget.peerTitle,
-                      "avatar": widget.peerAvatar,
-                      "sign": widget.peerSign,
-                    }),
-                // 引用消息
-                quoteTipsWidget: QuoteTipsWidget(
-                  title: (quoteMessage != null &&
-                          quoteMessage?.author.id ==
-                              UserRepoLocal.to.currentUid)
-                      ? UserRepoLocal.to.current.nickname
-                      : widget.peerTitle,
-                  message: quoteMessage,
-                  close: () {
-                    updateQuoteMessage(null);
-                  },
-                ),
-              ),
+              customBottomWidget: widget.type == 'C2S'
+                  ? null
+                  : ChatInput(
+                      // 发送触发事件
+                      onSendPressed: _handleSendPressed,
+                      sendButtonVisibilityMode:
+                          SendButtonVisibilityMode.editing,
+                      // voiceWidget: VoiceRecord(),
+                      voiceWidget: VoiceWidget(
+                        startRecord: () {},
+                        stopRecord: _handleVoiceSelection,
+                        // 加入定制化Container的相关属性
+                        height: 60.0,
+                        margin: EdgeInsets.zero,
+                      ),
+                      extraWidget: ExtraItems(
+                          // 照片
+                          handleImageSelection: _handleImageSelection,
+                          // 文件
+                          handleFileSelection: _handleFileSelection,
+                          // 拍摄
+                          handlePickerSelection: _handlePickerSelection,
+                          // 位置消息
+                          handleLocationSelection: _handleLocationSelection,
+                          // 个人名片
+                          handleVisitCardSelection: _handleVisitCardSelection,
+                          // 收藏
+                          handleCollectSelection: _handleCollectSelection,
+                          options: {
+                            "to": widget.peerId,
+                            "title": widget.peerTitle,
+                            "avatar": widget.peerAvatar,
+                            "sign": widget.peerSign,
+                          }),
+                      // 引用消息
+                      quoteTipsWidget: QuoteTipsWidget(
+                        title: (quoteMessage != null &&
+                                quoteMessage?.author.id ==
+                                    UserRepoLocal.to.currentUid)
+                            ? UserRepoLocal.to.current.nickname
+                            : widget.peerTitle,
+                        message: quoteMessage,
+                        close: () {
+                          updateQuoteMessage(null);
+                        },
+                      ),
+                    ),
               // 禁用 flutter_chat_ui 的相册
               disableImageGallery: true,
             ),
