@@ -132,10 +132,10 @@ void zoomInPhotoView(String thumb) async {
     w: Get.width,
   );
   // 检查网络状态
-  var res = await Connectivity().checkConnectivity();
+  var connectivityResult = await Connectivity().checkConnectivity();
   String width = Uri.parse(thumb).queryParameters['width'] ?? "";
   // 如果有网络、并且图片有设置width，就从网络读取2倍清晰图片
-  if (res != ConnectivityResult.none && width.isNotEmpty) {
+  if (connectivityResult.contains(ConnectivityResult.none) && width.isNotEmpty) {
     int w = int.parse(width) * 2;
     thumb = thumb.replaceAll('&width=$width', '&width=$w');
     thumbProvider = cachedImageProvider(

@@ -24,8 +24,8 @@ class PassportPage extends StatelessWidget {
   Widget build(BuildContext context) {
     iPrint("BottomNavigationPage passport");
     // 检查网络状态
-    Connectivity().checkConnectivity().then((res) {
-      if (res == ConnectivityResult.none) {
+    Connectivity().checkConnectivity().then((r) {
+      if (r.contains(ConnectivityResult.none)) {
         // ignore: prefer_interpolation_to_compose_strings
         logic.connectDesc.value = 'tip_connect_desc'.tr;
       } else {
@@ -33,7 +33,7 @@ class PassportPage extends StatelessWidget {
       }
     });
     // 监听网络状态
-    Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
+    Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
       if (r == ConnectivityResult.none) {
         // ignore: prefer_interpolation_to_compose_strings
         logic.connectDesc.value = 'tip_connect_desc'.tr;

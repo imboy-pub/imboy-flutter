@@ -142,8 +142,8 @@ class ChatPageState extends State<ChatPage> {
       }
     }
     // 检查网络状态
-    var res = await Connectivity().checkConnectivity();
-    if (res == ConnectivityResult.none) {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       connected = false.obs;
     } else {
       connected = true.obs;
@@ -152,7 +152,7 @@ class ChatPageState extends State<ChatPage> {
     unawaited(_handleEndReached());
 
     // 监听网络状态
-    Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
+    Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
       if (r == ConnectivityResult.none) {
         connected = false.obs;
       } else {

@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.3.10
+version: 0.3.11
 
 environment:
   sdk: ">=3.0.0 <=4.0.0"
@@ -18,7 +18,7 @@ dependencies:
   dio_http2_adapter: ^2.5.0
   web_socket_channel: ^2.4.4
   mime: ^1.0.4
-  connectivity_plus: ^5.0.2 # 是否联网及网络类型
+  connectivity_plus: ^6.0.1 # 是否联网及网络类型
 
   # UI
   # 从实用程序 Widget 和带有点级联的扩展中构建 Flutter UI。流畅地开发，没有头痛和嵌套地狱。
@@ -68,7 +68,7 @@ dependencies:
   #json序列化和反序列化用的
   #json_annotation: ^4.8.1
   permission_handler: ^11.3.0
-  permission_handler_apple: ^9.4.0
+  permission_handler_apple: ^9.4.2
   permission_handler_android: ^12.0.5
   permission_handler_platform_interface: ^4.2.0
   #any permission_handler:
@@ -88,7 +88,7 @@ dependencies:
 
   camera: ^0.10.5+9
   #wechat_camera_picker: ^4.2.0-dev.3
-  wechat_camera_picker: ^4.2.0
+  wechat_camera_picker: ^4.2.1
   wechat_assets_picker: ^9.0.2
   # Photo View provides a gesture sensitive zoomable widget. Photo View is largely used to show interactive images and other stuff such as SVG.
   photo_view: ^0.14.0 #
@@ -101,7 +101,8 @@ dependencies:
   image_picker: ^1.0.7
   image_picker_macos: ^0.2.1+1
   image_picker_platform_interface: ^2.9.4
-  file_picker: ^6.2.0
+  #file_picker: ^6.2.0
+  file_picker: ^8.0.0+1
   open_file: ^3.3.2
   # image_crop: ^0.4.1
   # image_crop:
@@ -118,7 +119,7 @@ dependencies:
 
   # 用于访问加速度计、陀螺仪和磁力计传感器的 Flutter 插件。
   #sensors_plus: ^4.0.1
-  sensors_plus: ^4.0.2
+  sensors_plus: ^5.0.0
   flutter_screenutil: ^5.9.0
   # 页面刷新
   easy_refresh: ^3.3.4
@@ -137,7 +138,7 @@ dependencies:
   # 用于校正本地系统与时钟源服务器之前的时间
   ntp: ^2.0.0
   # Flutter 的表情符号选择器
-  emoji_picker_flutter: ^2.1.0
+  emoji_picker_flutter: ^2.1.1
   # 轮播滑块小部件
   carousel_slider: ^4.2.1
   # 具有登录/注册功能的登录小部件，有助于加快开发速度
@@ -173,7 +174,7 @@ dependencies:
   image_gallery_saver: ^2.0.2
   # SQLite 的 Flutter 插件，一个独立的、高可靠性的嵌入式 SQL 数据库引擎。
   sqflite: ^2.3.2
-  sqflite_common_ffi: ^2.3.2+1
+  sqflite_common_ffi: ^2.3.3
   #sqlite3: ^1.11.2
   # 一个跨平台插件，用于显示和安排 Flutter 应用程序的本地通知，并能够针对每个平台进行自定义。
   flutter_local_notifications: ^17.0.0
@@ -192,8 +193,8 @@ dependencies:
 #      ref: main
   # 一对一音视频通话等
   flutter_webrtc: ^0.9.48+hotfix.1
-#  flutter_webrtc:
-#      path: plugin/flutter-webrtc
+  #flutter_webrtc:
+  #    path: plugin/flutter-webrtc
   #    git:
   #      url: https://gitee.com/imboy-tripartite-deps/flutter-webrtc.git
   #      ref: main
@@ -205,10 +206,10 @@ dependencies:
   clock: ^1.1.1
   # 用于 HTTP 请求的可组合、多平台、基于Future的 API。
   http: ^1.2.1
-  device_info_plus: ^9.1.2
-  package_info_plus: ^5.0.1
+  device_info_plus: ^10.0.1
+  package_info_plus: ^6.0.0
   # Flutter 的 Markdown 渲染器
-  flutter_markdown: ^0.6.21
+  flutter_markdown: ^0.6.22
   # 滑动吸顶
   sliding_up_panel: ^2.0.0+1
   # 用于 Flutter 的 SVG 渲染和小部件库，允许绘制和显示可缩放矢量图形 1.1 文件。
@@ -284,7 +285,8 @@ dependencies:
   #huawei_account: ^6.1.0+304
 
 dependency_overrides:
-  web: 0.5.0
+  sensors_plus: ^5.0.0
+  package_info_plus: ^6.0.0
   js: ^0.7.1
 
 dev_dependencies:

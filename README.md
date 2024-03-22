@@ -46,6 +46,7 @@ Strive to implement version management based on "Specification for Semantic vers
 * 语音消息播放之后红点需要取消（已解决）
 * 一对一视频通话偶尔有问题，需要进一步优化（以优化，可以进一步调整体验）
 * 消息"长按事件"不够灵活（已解决）
+* 群消息读取的时候是直接limit读取的，这样可能对于未读消息数量这块不好处理
 
 ## 多语言
 https://github.com/jonataslaw/get_cli/tree/master/translations

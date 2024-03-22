@@ -275,7 +275,7 @@ class WebSocketService {
   }
 
   bool _send(String msg) {
-    _webSocketChannel!.sink.add(msg);
+    _webSocketChannel?.sink.add(msg);
     return true;
   }
 

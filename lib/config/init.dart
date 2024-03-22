@@ -158,9 +158,9 @@ Future<void> init() async {
     ),
   );
   // 监听网络状态
-  Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
+  Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
     iPrint("onConnectivityChanged ${r.toString()}");
-    if (r == ConnectivityResult.none) {
+    if (r.contains(ConnectivityResult.none)) {
       // 关闭网络的情况下，没有必要开启WS服务了
       WebSocketService.to.closeSocket();
     } else {

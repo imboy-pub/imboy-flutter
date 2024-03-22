@@ -95,7 +95,7 @@ class UserCollectPage extends StatelessWidget {
                 child: const Icon(
                   Icons.local_offer,
                   size: 12,
-                  // color: AppColors.MainTextColor.withOpacity(0.8),
+                  // color: Colors.red,
                 ),
               ),
               Text(
@@ -212,8 +212,8 @@ class UserCollectPage extends StatelessWidget {
       body: RefreshIndicator(
         onRefresh: () async {
           // 检查网络状态
-          var res = await Connectivity().checkConnectivity();
-          if (res == ConnectivityResult.none) {
+          var connectivityResult = await Connectivity().checkConnectivity();
+          if (connectivityResult.contains(ConnectivityResult.none)) {
             String msg = 'tip_connect_desc'.tr;
             EasyLoading.showInfo(' $msg        ');
             return;
@@ -439,7 +439,7 @@ class UserCollectPage extends StatelessWidget {
                                         logic.buildItemBody(obj, 'page'),
                                         n.Row(const [SizedBox(height: 16)]),
                                         n.Row([
-                                          Text(
+                                          Flexible(child: Text(
                                             obj.source,
                                             maxLines: 6,
                                             overflow: TextOverflow.ellipsis,
@@ -448,7 +448,7 @@ class UserCollectPage extends StatelessWidget {
                                               //     AppColors.MainTextColor,
                                               fontSize: 14.0,
                                             ),
-                                          ),
+                                          )),
                                           const Expanded(child: SizedBox()),
                                           Text(
                                             state.kind == state.recentUse &&
@@ -512,16 +512,16 @@ class UserCollectPage extends StatelessWidget {
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
               if (states.contains(MaterialState.pressed)) {
-                return Colors.white.withOpacity(0.75);
+                return Theme.of(Get.context!).colorScheme.primary.withOpacity(0.75);
               }
               // Use the component's default.
-              return Colors.white.withOpacity(0.95);
+              return Theme.of(Get.context!).colorScheme.primary.withOpacity(0.95);
             },
           ),
         ),
         child: Text(
           value,
-          // style: const TextStyle(color: AppColors.MainTextColor),
+          style: TextStyle(color: Theme.of(Get.context!).colorScheme.onPrimary),
         ),
       ));
     });
@@ -635,8 +635,7 @@ class UserCollectPage extends StatelessWidget {
                   ]);
                 }
               },
-              body: n.Column(
-                [
+              body: n.Column([
                   n.Padding(
                     left: 8,
                     bottom: 10,
@@ -670,10 +669,9 @@ class UserCollectPage extends StatelessWidget {
                             children: state.tagItems.value,
                           )),
                     )
-                ],
-                // 内容文本左对齐
-                crossAxisAlignment: CrossAxisAlignment.start,
-              ),
+                ])
+              // 内容文本左对齐
+              ..crossAxisAlignment = CrossAxisAlignment.start,
               isExpanded: state.kindActive.value,
               canTapOnHeader: true,
             )

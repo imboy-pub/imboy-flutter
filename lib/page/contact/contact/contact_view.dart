@@ -57,8 +57,8 @@ class ContactPage extends StatelessWidget {
           onRefresh: () async {
             debugPrint(">>> contact onRefresh");
             // 检查网络状态
-            var res = await Connectivity().checkConnectivity();
-            if (res == ConnectivityResult.none) {
+            var connectivityResult = await Connectivity().checkConnectivity();
+            if (connectivityResult.contains(ConnectivityResult.none)) {
               String msg = 'tip_connect_desc'.tr;
               EasyLoading.showInfo(' $msg        ');
               return;

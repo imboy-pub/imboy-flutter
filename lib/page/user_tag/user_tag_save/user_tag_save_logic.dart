@@ -18,8 +18,8 @@ class UserTagUpdateLogic extends GetxController {
     required String tagName,
   }) async {
     // 检查网络状态
-    var res = await Connectivity().checkConnectivity();
-    if (res == ConnectivityResult.none) {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       return false;
     }
     bool res2 = await UserTagProvider().changeName(
@@ -43,8 +43,8 @@ class UserTagUpdateLogic extends GetxController {
     required String tagName,
   }) async {
     // 检查网络状态
-    var res = await Connectivity().checkConnectivity();
-    if (res == ConnectivityResult.none) {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       return null;
     }
     int tagId = await UserTagProvider().addTag(

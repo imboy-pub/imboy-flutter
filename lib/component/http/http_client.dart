@@ -124,7 +124,7 @@ class HttpClient {
     try {
       _setDefaultConfig();
       var connectivityResult = await (Connectivity().checkConnectivity());
-      if (connectivityResult == ConnectivityResult.none) {
+      if (connectivityResult.contains(ConnectivityResult.none)) {
         return handleException(NetworkException());
       }
       var response = await _dio.get(
@@ -169,7 +169,7 @@ class HttpClient {
     HttpTransformer? httpTransformer,
   }) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       EasyLoading.showError('network_exception'.tr);
       return handleException(NetworkException());
     }
@@ -205,7 +205,7 @@ class HttpClient {
     HttpTransformer? httpTransformer,
   }) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       EasyLoading.showError('network_exception'.tr);
       return handleException(NetworkException());
     }
@@ -239,7 +239,7 @@ class HttpClient {
     HttpTransformer? httpTransformer,
   }) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       EasyLoading.showError('network_exception'.tr);
       return handleException(NetworkException());
     }
@@ -269,7 +269,7 @@ class HttpClient {
     HttpTransformer? httpTransformer,
   }) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       EasyLoading.showError('network_exception'.tr);
       return handleException(NetworkException());
     }
