@@ -439,7 +439,8 @@ class UserCollectPage extends StatelessWidget {
                                         logic.buildItemBody(obj, 'page'),
                                         n.Row(const [SizedBox(height: 16)]),
                                         n.Row([
-                                          Flexible(child: Text(
+                                          Flexible(
+                                              child: Text(
                                             obj.source,
                                             maxLines: 6,
                                             overflow: TextOverflow.ellipsis,
@@ -512,10 +513,16 @@ class UserCollectPage extends StatelessWidget {
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
               if (states.contains(MaterialState.pressed)) {
-                return Theme.of(Get.context!).colorScheme.primary.withOpacity(0.75);
+                return Theme.of(Get.context!)
+                    .colorScheme
+                    .primary
+                    .withOpacity(0.75);
               }
               // Use the component's default.
-              return Theme.of(Get.context!).colorScheme.primary.withOpacity(0.95);
+              return Theme.of(Get.context!)
+                  .colorScheme
+                  .primary
+                  .withOpacity(0.95);
             },
           ),
         ),
@@ -636,42 +643,42 @@ class UserCollectPage extends StatelessWidget {
                 }
               },
               body: n.Column([
+                n.Padding(
+                  left: 8,
+                  bottom: 10,
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    spacing: 8,
+                    children: items,
+                  ),
+                ),
+                if (state.tagItems.value.isNotEmpty)
+                  n.Padding(
+                    top: 16,
+                    child: n.Row([
+                      const SizedBox(width: 8),
+                      const Icon(
+                        Icons.sell_outlined,
+                        size: 18,
+                        // color: AppColors.MainTextColor.withOpacity(0.8),
+                      ),
+                      const SizedBox(width: 10),
+                      Text('tags'.tr),
+                    ]),
+                  ),
+                if (state.tagItems.value.isNotEmpty)
                   n.Padding(
                     left: 8,
-                    bottom: 10,
-                    child: Wrap(
-                      alignment: WrapAlignment.spaceBetween,
-                      spacing: 8,
-                      children: items,
-                    ),
-                  ),
-                  if (state.tagItems.value.isNotEmpty)
-                    n.Padding(
-                      top: 16,
-                      child: n.Row([
-                        const SizedBox(width: 8),
-                        const Icon(
-                          Icons.sell_outlined,
-                          size: 18,
-                          // color: AppColors.MainTextColor.withOpacity(0.8),
-                        ),
-                        const SizedBox(width: 10),
-                        Text('tags'.tr),
-                      ]),
-                    ),
-                  if (state.tagItems.value.isNotEmpty)
-                    n.Padding(
-                      left: 8,
-                      bottom: 12,
-                      child: Obx(() => Wrap(
-                            alignment: WrapAlignment.spaceBetween,
-                            spacing: 8,
-                            children: state.tagItems.value,
-                          )),
-                    )
-                ])
-              // 内容文本左对齐
-              ..crossAxisAlignment = CrossAxisAlignment.start,
+                    bottom: 12,
+                    child: Obx(() => Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          spacing: 8,
+                          children: state.tagItems.value,
+                        )),
+                  )
+              ])
+                // 内容文本左对齐
+                ..crossAxisAlignment = CrossAxisAlignment.start,
               isExpanded: state.kindActive.value,
               canTapOnHeader: true,
             )

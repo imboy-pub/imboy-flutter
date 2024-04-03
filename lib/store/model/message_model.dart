@@ -45,6 +45,7 @@ class MessageModel {
   Map<String, dynamic>? payload;
   int createdAt; // 消息创建时间 毫秒时间戳
   int? conversationId;
+
   // from id is author bool true | false
   int isAuthor;
   int topicId;

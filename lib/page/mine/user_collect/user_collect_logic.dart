@@ -522,7 +522,10 @@ class UserCollectLogic extends GetxController {
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
               if (states.contains(MaterialState.pressed)) {
-                return Theme.of(Get.context!).colorScheme.background.withOpacity(0.75);
+                return Theme.of(Get.context!)
+                    .colorScheme
+                    .background
+                    .withOpacity(0.75);
               }
               // Use the component's default.
               return Theme.of(Get.context!).colorScheme.background;
@@ -535,24 +538,28 @@ class UserCollectLogic extends GetxController {
             right: 8,
             child: Transform.scale(
               scaleX: -1,
-              child:  Icon(
+              child: Icon(
                 Icons.local_offer,
                 size: 18,
-                color:Theme.of(Get.context!).colorScheme.onPrimary.withOpacity(0.75),
+                color: Theme.of(Get.context!)
+                    .colorScheme
+                    .onPrimary
+                    .withOpacity(0.75),
               ),
             ),
           ),
           Text(
             kindTips,
             style: TextStyle(
-              color:Theme.of(Get.context!).colorScheme.onPrimary,
+              color: Theme.of(Get.context!).colorScheme.onPrimary,
             ),
           ),
           const SizedBox(width: 12),
           Icon(
             Icons.close,
             size: 16,
-            color:Theme.of(Get.context!).colorScheme.onPrimary.withOpacity(0.75),
+            color:
+                Theme.of(Get.context!).colorScheme.onPrimary.withOpacity(0.75),
           ),
         ]),
       )
@@ -601,7 +608,10 @@ class UserCollectLogic extends GetxController {
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
               if (states.contains(MaterialState.pressed)) {
-                return Theme.of(Get.context!).colorScheme.background.withOpacity(0.75);
+                return Theme.of(Get.context!)
+                    .colorScheme
+                    .background
+                    .withOpacity(0.75);
               }
               // Use the component's default.
               return Theme.of(Get.context!).colorScheme.background;
@@ -613,24 +623,28 @@ class UserCollectLogic extends GetxController {
             right: 8,
             child: Transform.scale(
               scaleX: -1,
-              child:  Icon(
+              child: Icon(
                 Icons.grid_view,
                 size: 18,
-                color: Theme.of(Get.context!).colorScheme.onPrimary.withOpacity(0.8),
+                color: Theme.of(Get.context!)
+                    .colorScheme
+                    .onPrimary
+                    .withOpacity(0.8),
               ),
             ),
           ),
           Text(
             kindTips,
-            style:  TextStyle(
+            style: TextStyle(
               color: Theme.of(Get.context!).colorScheme.onPrimary,
             ),
           ),
           const SizedBox(width: 12),
-           Icon(
+          Icon(
             Icons.close,
             size: 16,
-            color: Theme.of(Get.context!).colorScheme.onPrimary.withOpacity(0.7),
+            color:
+                Theme.of(Get.context!).colorScheme.onPrimary.withOpacity(0.7),
           ),
         ]),
       )
@@ -779,7 +793,8 @@ class UserCollectLogic extends GetxController {
     for (String tag in items) {
       widgetList.add(ElevatedButton(
         onPressed: () {
-          debugPrint("searchLeading_tag $tag ${state.searchLeading.toString()}");
+          debugPrint(
+              "searchLeading_tag $tag ${state.searchLeading.toString()}");
           state.kindActive.value = !state.kindActive.value;
           searchByTag(tag, tag, () {
             state.kindActive.value = !state.kindActive.value;
@@ -789,10 +804,16 @@ class UserCollectLogic extends GetxController {
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
               if (states.contains(MaterialState.pressed)) {
-                return Theme.of(Get.context!).colorScheme.primary.withOpacity(0.75);
+                return Theme.of(Get.context!)
+                    .colorScheme
+                    .primary
+                    .withOpacity(0.75);
               }
               // Use the component's default.
-              return Theme.of(Get.context!).colorScheme.primary.withOpacity(0.95);
+              return Theme.of(Get.context!)
+                  .colorScheme
+                  .primary
+                  .withOpacity(0.95);
             },
           ),
         ),
@@ -801,7 +822,8 @@ class UserCollectLogic extends GetxController {
           right: 2,
           child: Text(
             tag,
-            style: TextStyle(color: Theme.of(Get.context!).colorScheme.onPrimary),
+            style:
+                TextStyle(color: Theme.of(Get.context!).colorScheme.onPrimary),
           ),
         ),
       ));

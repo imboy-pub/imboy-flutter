@@ -13,6 +13,7 @@ class AppTranslation {
 
 class LocaleKeys {
   LocaleKeys._();
+
   static const manually = 'manually';
   static const bot_qian_fan = 'bot_qian_fan';
   static const dark_model = 'dark_model';

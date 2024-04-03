@@ -37,6 +37,7 @@ class MessageService extends GetxService {
   final ConversationLogic conversationLogic = Get.find();
   List<String> webrtcMsgIdLi = [];
   bool addMessageLock = false;
+
   @override
   void onInit() {
     super.onInit();

@@ -129,7 +129,8 @@ class UserCollectRepo {
     // if (json.containsKey(UserCollectRepo.source)){
     //   iPrint("user_collect_repo_sqlite/update 2 ${json[UserCollectRepo.source]}");
     // }
-    if (json.containsKey(UserCollectRepo.source) && strNoEmpty(json[UserCollectRepo.source].toString())) {
+    if (json.containsKey(UserCollectRepo.source) &&
+        strNoEmpty(json[UserCollectRepo.source].toString())) {
       data[UserCollectRepo.source] = json[UserCollectRepo.source];
     }
     var info = json[UserCollectRepo.info] ?? {};

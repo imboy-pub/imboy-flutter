@@ -276,9 +276,9 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 String tips = 'sure_to_leave_group'.tr;
                 Get.defaultDialog(
                   title: 'tip_tips'.tr,
-      backgroundColor: Get.isDarkMode
-          ? const Color.fromRGBO(80, 80, 80, 1)
-          : const Color.fromRGBO(240, 240, 240, 1),
+                  backgroundColor: Get.isDarkMode
+                      ? const Color.fromRGBO(80, 80, 80, 1)
+                      : const Color.fromRGBO(240, 240, 240, 1),
                   content: Text(tips),
                   textCancel: "  ${'button_cancel'.tr}  ",
                   textConfirm: "  ${'button_setempty'.tr}  ",

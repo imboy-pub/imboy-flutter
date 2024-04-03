@@ -20,7 +20,7 @@ class FeedbackLogic extends GetxController {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
       EasyLoading.showToast(
-          'network_exception_plase_need_network_to_view_data'.tr,
+        'network_exception_plase_need_network_to_view_data'.tr,
       );
       // list = await repo.page(limit: size, offset: offset);
     }

@@ -14,7 +14,7 @@ void main() async {
   await init();
   // await initJPush();
   // if (kDebugMode) {
-    run();
+  run();
   // } else {
   //   await SentryFlutter.init(
   //     (options) {

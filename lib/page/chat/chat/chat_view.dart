@@ -153,7 +153,7 @@ class ChatPageState extends State<ChatPage> {
 
     // 监听网络状态
     Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
-      if (r == ConnectivityResult.none) {
+      if (r.contains(ConnectivityResult.none)) {
         connected = false.obs;
       } else {
         connected = true.obs;

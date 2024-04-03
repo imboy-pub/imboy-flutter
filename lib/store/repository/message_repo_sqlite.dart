@@ -19,9 +19,11 @@ class MessageRepo {
   static String to = 'to_id';
   static String payload = 'payload';
   static String createdAt = 'created_at';
+
   //
   static String conversationId = 'conversation_id';
   static String status = 'status';
+
   // from id is author bool true | false
   static String isAuthor = 'is_author';
   static String topicId = 'topic_id';
