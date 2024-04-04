@@ -1,3 +1,6 @@
+# 0.3.12
+* c2c c2g c2s 相关3个表新增 conversation_uk3 字段，三次 conversation_id字段；新增 s2c_message 表；调整相关代码逻辑
+
 # 0.3.11
 * 修正“我的收藏”按tag搜索、按关键词搜索的bug；
 * 修正“我的收藏”列表样式问题；

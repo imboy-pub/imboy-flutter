@@ -34,22 +34,12 @@ class ChatLogic extends GetxController {
     state.scrollController = AutoScrollController();
   }
 
-  Future<List<types.Message>?> pageMessages(
-    int conversationId,
-    // int maxAutoId,
-    int size,
-  ) async {
+  Future<List<types.Message>?> pageMessages(ConversationModel obj, int size) async {
     // final response = await rootBundle.loadString('assets/data/messages.json');
-    ConversationModel? obj = await ConversationRepo().findById(conversationId);
-    debugPrint(
-        "> on pageMessages nextAutoId ${state.nextAutoId}, cid $conversationId, obj ${obj?.toJson().toString()}");
-    if (obj == null) {
-      return [];
-    }
     String tb = MessageRepo.getTableName(obj.type);
     MessageRepo repo = MessageRepo(tableName: tb);
     List<MessageModel> items = await repo.pageForConversation(
-      obj.id,
+      obj,
       state.nextAutoId,
       size,
     );
@@ -60,8 +50,7 @@ class ChatLogic extends GetxController {
     state.nextAutoId = items.first.autoId;
     // 重发在发送中状态的消息
     for (MessageModel obj in items) {
-      debugPrint(
-          "> on getMessages $conversationId obj: ${obj.toJson().toString()}");
+      debugPrint("> on getMessages obj: ${obj.toJson().toString()}");
       if (obj.status == IMBoyMessageStatus.sending) {
         await sendWsMsg(obj);
       }
@@ -89,7 +78,7 @@ class ChatLogic extends GetxController {
 
   MessageModel getMsgFromTMsg(
     String type,
-    int conversationId,
+    String conversationUk3,
     types.Message message,
   ) {
     Map<String, dynamic> payload = {};
@@ -140,7 +129,7 @@ class ChatLogic extends GetxController {
       createdAt:
           message.createdAt! - DateTime.now().timeZoneOffset.inMilliseconds,
       isAuthor: message.author.id == UserRepoLocal.to.currentUid ? 1 : 0,
-      conversationId: conversationId,
+      conversationUk3: conversationUk3,
       status: IMBoyMessageStatus.sending,
     );
     // debugPrint("> on addMessage getMsgFromTMsg 3 ${message.status}");
@@ -182,7 +171,7 @@ class ChatLogic extends GetxController {
     );
     // 保存会话
     conversation = await (ConversationRepo()).save(conversation);
-    MessageModel obj = getMsgFromTMsg(type, conversation.id, message);
+    MessageModel obj = getMsgFromTMsg(type, conversation.uk3, message);
     // debugPrint("> on addMessage before insert MessageRepo");
     String tb = MessageRepo.getTableName(conversation.type.toString());
     await (MessageRepo(tableName: tb)).insert(obj);
@@ -201,29 +190,23 @@ class ChatLogic extends GetxController {
   }
 
   Future<bool> removeMessage(
-    int conversationId,
+      ConversationModel cm,
     types.Message msg,
   ) async {
     ConversationRepo repo = ConversationRepo();
-    ConversationModel? cm;
     MessageModel? lastMsg;
-    cm = await repo.findById(conversationId);
-    String tb = MessageRepo.getTableName(cm!.type);
-    if (conversationId > 0) {
-      MessageRepo mRepo = MessageRepo(tableName: tb);
-      // 获取lastMsg，以更新会话lastMsg信息
-      List<MessageModel> items = await mRepo.findByConversation(
-        conversationId,
-        2,
-        1,
-      );
-      lastMsg = items.isEmpty ? null : items[0];
-      debugPrint(
-          "removeMessage ${msg.id}; $conversationId, lastMsg: ${lastMsg?.toJson()} ;");
-      await mRepo.delete(msg.id);
-    }
+    String tb = MessageRepo.getTableName(cm.type);
+    MessageRepo mRepo = MessageRepo(tableName: tb);
+    // 获取lastMsg，以更新会话lastMsg信息
+    List<MessageModel> items = await mRepo.findByConversation(
+      cm.uk3,
+      2,
+      1,
+    );
+    lastMsg = items.isEmpty ? null : items[0];
+    await mRepo.delete(msg.id);
     if (lastMsg == null) {
-      await repo.updateById(conversationId, {
+      await repo.updateById(cm.id, {
         ConversationRepo.lastMsgId: '',
         ConversationRepo.lastMsgStatus: 0,
         ConversationRepo.msgType: 'empty',
@@ -232,16 +215,16 @@ class ChatLogic extends GetxController {
       });
     } else {
       types.Message msg2 = lastMsg.toTypeMessage();
-      await repo.updateById(conversationId, {
+      await repo.updateById(cm.id, {
         ConversationRepo.lastMsgId: lastMsg.id,
         ConversationRepo.lastMsgStatus: lastMsg.status,
         ConversationRepo.msgType: MessageModel.conversationMsgType(msg2),
         ConversationRepo.subtitle: MessageModel.conversationSubtitle(msg2),
       });
     }
-    cm = await repo.findById(conversationId);
-    if (cm != null) {
-      eventBus.fire(cm);
+    ConversationModel? cm2 = await repo.findById(cm.id);
+    if (cm2 != null) {
+      eventBus.fire(cm2);
     }
     if (msg is types.ImageMessage) {
       Get.find<ImageGalleryLogic>().remoteFromGallery(msg.id);
@@ -299,7 +282,7 @@ class ChatLogic extends GetxController {
     if (res) {
       ConversationLogic conversationLogic = Get.find<ConversationLogic>();
       conversationLogic.decreaseConversationRemind(
-        c.id,
+        c,
         msgIds.length,
       );
       conversationLogic.replace(c);

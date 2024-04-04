@@ -34,7 +34,7 @@ class PassportPage extends StatelessWidget {
     });
     // 监听网络状态
     Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
-      if (r == ConnectivityResult.none) {
+      if (r.contains(ConnectivityResult.none)) {
         // ignore: prefer_interpolation_to_compose_strings
         logic.connectDesc.value = 'tip_connect_desc'.tr;
       } else {

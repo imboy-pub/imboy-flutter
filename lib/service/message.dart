@@ -357,9 +357,6 @@ class MessageService extends GetxService {
       id: 0,
     );
     conversation = await (ConversationRepo()).save(conversation);
-
-    iPrint(
-        "receiveMessage cid ${conversation.id} t ${data['type']} pid ${data['from']}");
     MessageModel msg = MessageModel(
       data['id'],
       autoId: 0,
@@ -370,7 +367,7 @@ class MessageService extends GetxService {
       createdAt: data['created_at'],
       isAuthor: data['from'] == UserRepoLocal.to.currentUid ? 1 : 0,
       topicId: data['topic_id'] ?? 0,
-      conversationId: conversation.id,
+      conversationUk3: conversation.uk3,
       status: IMBoyMessageStatus.delivered, // 未读 已投递
     );
     String tb = MessageRepo.getTableName(data['type']);
@@ -386,7 +383,7 @@ class MessageService extends GetxService {
     }
 
     // 收到一个消息，步增会话消息 1
-    await conversationLogic.increaseConversationRemind(conversation.id, 1);
+    await conversationLogic.increaseConversationRemind(conversation, 1);
 
     eventBus.fire(conversation);
     types.Message tMsg = msg.toTypeMessage();

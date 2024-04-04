@@ -71,7 +71,7 @@ class _ConversationPageState extends State<ConversationPage> {
     for (ConversationModel obj in logic.conversations) {
       iPrint("ConversationModel obj ${obj.toJson()}");
       // 重新计算会话消息提醒数量
-      logic.recalculateConversationRemind(obj.id);
+      logic.recalculateConversationRemind(obj);
     }
   }
 
@@ -113,14 +113,12 @@ class _ConversationPageState extends State<ConversationPage> {
                       itemCount: logic.conversations.length,
                       itemBuilder: (BuildContext context, int index) {
                         ConversationModel model = logic.conversations[index];
-                        int conversationId = model.id;
                         // RxInt remindNum =
                         //     logic.conversationRemind[model.peerId] ?? 0.obs;
                         return InkWell(
                           onTap: () {
                             Get.to(
                               () => ChatPage(
-                                conversationId: model.id,
                                 peerId: model.peerId,
                                 peerTitle: model.title,
                                 peerAvatar: model.avatar,
@@ -173,7 +171,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                     await logic.hideConversation(model.id);
                                     logic.update([
                                       logic.conversations.removeAt(index),
-                                      logic.conversationRemind[model.id] =
+                                      logic.conversationRemind[model.uk3] =
                                           0.obs,
                                       logic.chatMsgRemindCounter,
                                     ]);
@@ -188,10 +186,10 @@ class _ConversationPageState extends State<ConversationPage> {
                                   foregroundColor: Colors.white,
                                   onPressed: (_) async {
                                     await logic
-                                        .removeConversation(conversationId);
+                                        .removeConversation(model);
                                     logic.update([
                                       logic.conversations.removeAt(index),
-                                      logic.conversationRemind[model.id] =
+                                      logic.conversationRemind[model.uk3] =
                                           0.obs,
                                       logic.chatMsgRemindCounter,
                                     ]);

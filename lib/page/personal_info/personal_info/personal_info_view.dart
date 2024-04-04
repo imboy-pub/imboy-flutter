@@ -37,8 +37,8 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   Future getImageFromSource(ImageSource source) async {
     iPrint("getImageFromSource start");
     // 检查网络状态
-    var connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none) {
+    var res = await Connectivity().checkConnectivity();
+    if (res.contains(ConnectivityResult.none)) {
       Get.close();
       Get.snackbar('tip_tips'.tr, 'network_exception'.tr);
       return;

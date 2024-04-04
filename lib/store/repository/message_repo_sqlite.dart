@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -9,6 +10,7 @@ class MessageRepo {
   static String c2cTable = 'message';
   static String c2gTable = 'group_message';
   static String c2sTable = 'c2s_message';
+  static String s2cTable = 's2c_message';
 
   static String autoId = 'auto_id';
   static String id = 'id'; // message_id
@@ -20,8 +22,8 @@ class MessageRepo {
   static String payload = 'payload';
   static String createdAt = 'created_at';
 
-  //
-  static String conversationId = 'conversation_id';
+  // varchar(80)
+  static String conversationUk3 = 'conversation_uk3';
   static String status = 'status';
 
   // from id is author bool true | false
@@ -95,7 +97,7 @@ class MessageRepo {
         MessageRepo.createdAt: msg.createdAt,
         MessageRepo.isAuthor: msg.isAuthor,
         MessageRepo.topicId: msg.topicId,
-        MessageRepo.conversationId: msg.conversationId,
+        MessageRepo.conversationUk3: msg.conversationUk3,
         MessageRepo.status: msg.status,
       };
       debugPrint("> on MessgeMode/insert tb $tableName : $insert");
@@ -139,16 +141,16 @@ class MessageRepo {
   }
 
   Future<List<MessageModel>> pageForConversation(
-    int conversationId,
+      ConversationModel obj,
     int nextAutoId,
     int size,
   ) async {
     String where =
-        "${MessageRepo.conversationId} = ? AND ${MessageRepo.autoId} < ?";
-    List<int> args = [conversationId, nextAutoId];
+        "${MessageRepo.conversationUk3} = ? AND ${MessageRepo.autoId} < ?";
+    List args = [obj.uk3, nextAutoId];
     if (nextAutoId <= 0) {
-      where = "${MessageRepo.conversationId} = ?";
-      args = [conversationId];
+      where = "${MessageRepo.conversationUk3} = ?";
+      args = [obj.uk3];
     }
     List<Map<String, dynamic>> maps = await _db.query(
       tableName,
@@ -164,7 +166,7 @@ class MessageRepo {
         MessageRepo.topicId,
         MessageRepo.topicId,
         MessageRepo.status,
-        MessageRepo.conversationId,
+        MessageRepo.conversationUk3,
       ],
       where: where,
       whereArgs: args,
@@ -172,8 +174,6 @@ class MessageRepo {
       offset: 0,
       limit: size,
     );
-    debugPrint(
-        "findByConversation $conversationId, where $where, ${maps.length}; ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }
@@ -187,7 +187,7 @@ class MessageRepo {
   }
 
   Future<List<MessageModel>> findByConversation(
-    int conversationId,
+    String conversationUk3,
     int page,
     int size,
   ) async {
@@ -204,10 +204,10 @@ class MessageRepo {
         MessageRepo.isAuthor,
         MessageRepo.topicId,
         MessageRepo.status,
-        MessageRepo.conversationId,
+        MessageRepo.conversationUk3,
       ],
-      where: "${MessageRepo.conversationId} = ?",
-      whereArgs: [conversationId],
+      where: "${MessageRepo.conversationUk3} = ?",
+      whereArgs: [conversationUk3],
       orderBy: "${MessageRepo.createdAt} DESC",
       offset: ((page - 1) > 0 ? (page - 1) : 0) * size,
       limit: size,
@@ -240,7 +240,7 @@ class MessageRepo {
         MessageRepo.createdAt,
         MessageRepo.isAuthor,
         MessageRepo.topicId,
-        MessageRepo.conversationId,
+        MessageRepo.conversationUk3,
         MessageRepo.status,
       ],
       where: '${MessageRepo.id} = ?',
@@ -273,7 +273,7 @@ class MessageRepo {
   Future<int> deleteByConversationId(int id) async {
     return await _db.delete(
       tableName,
-      where: '${MessageRepo.conversationId} = ?',
+      where: '${MessageRepo.conversationUk3} = ?',
       whereArgs: [id],
     );
   }
@@ -291,7 +291,7 @@ class MessageRepo {
         MessageRepo.createdAt,
         MessageRepo.isAuthor,
         MessageRepo.topicId,
-        MessageRepo.conversationId,
+        MessageRepo.conversationUk3,
         MessageRepo.status,
       ],
       where: '${MessageRepo.from} = ?',

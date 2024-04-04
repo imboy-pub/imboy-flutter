@@ -115,7 +115,7 @@ class WebSocketService {
   /// 开启WebSocket连接
   Future<void> openSocket({bool fromReconnect = false}) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       iPrint('> ws openSocket 网络连接异常ws');
       return;
     }

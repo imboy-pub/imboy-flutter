@@ -14,6 +14,7 @@ import 'package:get/get.dart' as getx;
 
 import 'package:image/image.dart' as img;
 import 'package:imboy/service/message.dart';
+import 'package:imboy/store/model/conversation_model.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:mime/mime.dart';
 import 'package:niku/namespace.dart' as n;
@@ -60,16 +61,14 @@ import 'chat_logic.dart';
 
 // ignore: must_be_immutable
 class ChatPage extends StatefulWidget {
-  int conversationId; // 会话ID
+  final String type; // [C2C | C2G | C2S]
   final String peerId; // 用户ID
   final String peerAvatar;
   final String peerTitle;
   final String peerSign;
-  final String type; // [C2C | C2G | C2S]
 
-  ChatPage({
+  const ChatPage({
     super.key,
-    this.conversationId = 0,
     required this.peerId,
     required this.peerTitle,
     required this.peerAvatar,
@@ -103,6 +102,7 @@ class ChatPageState extends State<ChatPage> {
 
   // ignore: prefer_typing_uninitialized_variables
   late var currentUser;
+  late ConversationModel conversation;
 
   @override
   void initState() {
@@ -123,16 +123,12 @@ class ChatPageState extends State<ChatPage> {
       firstName: UserRepoLocal.to.current.nickname,
       imageUrl: UserRepoLocal.to.current.avatar,
     );
-
-    iPrint("> on pageMessages ${widget.conversationId}");
-    if (widget.conversationId == 0) {
-      widget.conversationId = await conversationLogic.createConversationId(
-        widget.peerId,
-        widget.peerAvatar,
-        widget.peerTitle,
-        widget.type,
-      );
-    }
+    conversation = await conversationLogic.createConversation(
+      type:widget.type,
+      peerId: widget.peerId,
+      avatar: widget.peerAvatar,
+      title: widget.peerTitle,
+    );
     logic.state.nextAutoId = 0;
     if (availableMaps.isEmpty) {
       try {
@@ -162,8 +158,8 @@ class ChatPageState extends State<ChatPage> {
 
     // 接收到新的消息订阅
     eventBus.on<types.Message>().listen((types.Message msg) async {
-      final int msgCid = msg.metadata?['conversation_id'] ?? 0;
-      if (widget.conversationId != msgCid) {
+      final String conversationUk3 = msg.metadata?['conversationUk3'] ?? '';
+      if (conversationUk3 != conversation.uk3) {
         return;
       }
       final i = logic.state.messages.indexWhere((e) => e.id == msg.id);
@@ -172,8 +168,7 @@ class ChatPageState extends State<ChatPage> {
         if (msg is types.ImageMessage) {
           galleryLogic.pushToLast(msg.id, msg.uri);
         }
-        iPrint(
-            "decreaseConversationRemind cid ${widget.conversationId}, type ${widget.type}");
+        iPrint("decreaseConversationRemind ${conversation.uk3}");
 
         if (mounted) {
           String tb = MessageRepo.getTableName(widget.type);
@@ -183,7 +178,7 @@ class ChatPageState extends State<ChatPage> {
             IMBoyMessageStatus.seen,
           );
           conversationLogic.decreaseConversationRemind(
-            widget.conversationId,
+            conversation,
             1,
           );
           if (m != null) {
@@ -224,11 +219,9 @@ class ChatPageState extends State<ChatPage> {
   Future<void> _handleEndReached() async {
     // 初始化 当前会话新增消息
     List<types.Message>? items = await logic.pageMessages(
-      widget.conversationId,
+      conversation,
       _size,
     );
-    debugPrint(
-        "ChatSettingPage then 2 sid ${widget.conversationId},len ${items?.length}; nextAutoId ${logic.state.nextAutoId}");
     if (items != null && items.isNotEmpty) {
       for (var msg in items) {
         if (msg is types.ImageMessage) {
@@ -267,7 +260,7 @@ class ChatPageState extends State<ChatPage> {
         "countConversationRemind msgIds.len ${msgIds.length} type ${widget.type}");
     if (msgIds.isEmpty) {
       // 重新计算会话消息提醒数量
-      conversationLogic.recalculateConversationRemind(widget.conversationId);
+      conversationLogic.recalculateConversationRemind(conversation);
     } else {
       await logic.markAsRead(
         widget.type,
@@ -442,7 +435,7 @@ class ChatPageState extends State<ChatPage> {
       data[MessageRepo.from] = UserRepoLocal.to.currentUid;
       data[MessageRepo.to] = widget.peerId;
       data[MessageRepo.status] = 10;
-      data[MessageRepo.conversationId] = widget.conversationId;
+      data[MessageRepo.conversationUk3] = conversation.uk3;
       data[MessageRepo.createdAt] = DateTimeHelper.currentTimeMillis();
 
       types.Message msg = MessageModel.fromJson(data).toTypeMessage();
@@ -722,7 +715,7 @@ class ChatPageState extends State<ChatPage> {
       // 检查为发送消息
       logic.sendWsMsg(logic.getMsgFromTMsg(
         widget.type,
-        widget.conversationId,
+        conversation.uk3,
         msg,
       ));
       setState(() {
@@ -777,7 +770,7 @@ class ChatPageState extends State<ChatPage> {
     debugPrint("> on onClickMenu $itemId, ${msg.id}");
     if (itemId == "delete") {
       // 删除消息
-      bool res = await logic.removeMessage(widget.conversationId, msg);
+      bool res = await logic.removeMessage(conversation, msg);
       if (res) {
         final i =
             logic.state.messages.indexWhere((element) => element.id == msg.id);

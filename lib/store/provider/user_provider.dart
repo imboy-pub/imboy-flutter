@@ -18,7 +18,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 class UserProvider extends HttpClient {
   Future<Map<String, dynamic>> turnCredential() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       return {};
     }
     IMBoyHttpResponse resp = await get(

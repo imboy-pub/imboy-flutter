@@ -44,7 +44,8 @@ class MessageModel {
   String? toId; // 等价于数据库的 to
   Map<String, dynamic>? payload;
   int createdAt; // 消息创建时间 毫秒时间戳
-  int? conversationId;
+  // type_userId_peerId
+  String conversationUk3;
 
   // from id is author bool true | false
   int isAuthor;
@@ -64,7 +65,7 @@ class MessageModel {
     required this.toId,
     required this.payload,
     required this.isAuthor,
-    required this.conversationId,
+    required this.conversationUk3,
     this.topicId = 0,
     this.createdAt = 0,
   });
@@ -96,7 +97,7 @@ class MessageModel {
       createdAt: int.parse('${data[MessageRepo.createdAt] ?? 0}'),
       isAuthor: data[MessageRepo.isAuthor] ?? 0,
       topicId: data[MessageRepo.topicId] ?? 0,
-      conversationId: int.parse('${data[MessageRepo.conversationId] ?? 0}'),
+      conversationUk3: data[MessageRepo.conversationUk3],
     );
   }
 
@@ -112,7 +113,7 @@ class MessageModel {
     data[MessageRepo.createdAt] = createdAt;
     data[MessageRepo.isAuthor] = isAuthor;
     data[MessageRepo.topicId] = topicId;
-    data[MessageRepo.conversationId] = conversationId;
+    data[MessageRepo.conversationUk3] = conversationUk3;
 
     // debugPrint("> on MessageModel toMap $data");
     return data;
@@ -225,7 +226,7 @@ class MessageModel {
     types.Message? message;
     // enum MessageType { custom, file, image, text, unsupported }
     Map<String, dynamic> metadata = {
-      'conversation_id': conversationId,
+      'conversation_uk3': conversationUk3,
       'sys_prompt': sysPrompt,
     };
     if (payload!['msg_type'] == 'text') {
