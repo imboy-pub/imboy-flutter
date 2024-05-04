@@ -1,6 +1,8 @@
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
@@ -8,7 +10,6 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
-import 'package:niku/namespace.dart' as n;
 
 // ignore: must_be_immutable
 class ConversationItem extends StatelessWidget {
@@ -63,8 +64,9 @@ class ConversationItem extends StatelessWidget {
               ),
             ),
             // 会话头像
-            child: Avatar(
+            child: ComputeAvatar(
               imgUri: model.avatar,
+              computeAvatar: model.computeAvatar,
               onTap: onTapAvatar,
             ),
           ),
@@ -94,7 +96,7 @@ class ConversationItem extends StatelessWidget {
                   Expanded(
                     child: Text(
                       // 会话对象标题
-                      model.title,
+                      model.title.trim().isEmpty ? model.computeTitle : model.title,
                       style: const TextStyle(
                         fontSize: 18.0,
                         fontWeight: FontWeight.normal,

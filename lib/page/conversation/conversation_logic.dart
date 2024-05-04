@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -40,9 +41,9 @@ class ConversationLogic extends GetxController {
   replace(ConversationModel obj) async {
     iPrint("ConversationRepo_Logic_replace ${obj.toJson().toString()}");
     // 第一次会话的时候 i 为 -1
-    final i = conversations.indexWhere((ConversationModel m) => m.id == obj.id);
+    final i = conversations.indexWhere((ConversationModel m) => m.uk3 == obj.uk3);
     if (i > -1) {
-      int i2 = i > 0 ? i : 0;
+      final i2 = i > 0 ? i : 0;
       conversations[i2] = obj;
     } else {
       conversations.add(obj);
@@ -92,8 +93,25 @@ class ConversationLogic extends GetxController {
   }
 
   /// 获取会话类别
-  Future<void> conversationsList() async {
-    conversations.value = await (ConversationRepo()).list();
+  Future<List<ConversationModel>> conversationsList({String type = '', bool recalculateRemind = true}) async {
+    List<ConversationModel> li = await (ConversationRepo()).list(type: type);
+    for (ConversationModel obj in li) {
+      if (obj.type == 'C2G' && obj.avatar.isEmpty) {
+        obj.computeAvatar = await Get.find<GroupListLogic>().computeAvatar(obj.peerId);
+        iPrint("ConversationModel obj.title ${ obj.title}, ${obj.computeTitle}; obj.computeAvatar ${obj.computeAvatar.toString()}");
+      }
+      if (obj.type == 'C2G' && obj.title.isEmpty) {
+        obj.computeTitle = await Get.find<GroupListLogic>().computeTitle(
+          obj.peerId,
+        );
+      }
+      // 重新计算会话消息提醒数量
+      if (recalculateRemind) {
+        recalculateConversationRemind(obj);
+      }
+    }
+    conversations.value = li;
+    return li;
   }
 
   /// 会话列表按最近会话时间倒序排序
@@ -159,25 +177,30 @@ class ConversationLogic extends GetxController {
     required String peerId,
     required String avatar,
     required String title,
+    int lastTime = 0,
     String subtitle = '',
   }) async {
-    ConversationModel m = await (ConversationRepo()).save(ConversationModel.fromJson({
-      ConversationRepo.peerId: peerId,
-      ConversationRepo.avatar: avatar,
-      ConversationRepo.title: title,
-      ConversationRepo.subtitle: '',
-      // 单位毫秒，13位时间戳  1561021145560
-      ConversationRepo.lastTime: 0,
-      ConversationRepo.lastMsgId: '',
-      ConversationRepo.lastMsgStatus: 1,
-      ConversationRepo.unreadNum: 0,
-      ConversationRepo.type: type,
-      ConversationRepo.msgType: '',
-      ConversationRepo.isShow: 0,
-      ConversationRepo.payload: {},
-    }));
-    iPrint("> on pageMessages createConversation ${m.toJson().toString()}");
-    return m;
+    ConversationRepo repo = ConversationRepo();
+    ConversationModel? m = await repo.findByPeerId(type, peerId);
+    if (m == null) {
+      repo.insert(ConversationModel.fromJson({
+        ConversationRepo.peerId: peerId,
+        ConversationRepo.avatar: avatar,
+        ConversationRepo.title: title,
+        ConversationRepo.subtitle: subtitle,
+        // 单位毫秒，13位时间戳  1561021145560
+        ConversationRepo.lastTime: lastTime,
+        ConversationRepo.lastMsgId: '',
+        ConversationRepo.lastMsgStatus: 1,
+        ConversationRepo.unreadNum: 0,
+        ConversationRepo.type: type,
+        ConversationRepo.msgType: '',
+        ConversationRepo.isShow: 1,
+        ConversationRepo.payload: {},
+      }));
+      m = await repo.findByPeerId(type, peerId);
+    }
+    return m!;
   }
 
   // 重新计算会话消息提醒数量

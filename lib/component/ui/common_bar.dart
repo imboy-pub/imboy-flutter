@@ -8,9 +8,10 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.title = '',
     this.titleWidget,
     this.rightDMActions,
-    // this.backgroundColor = AppColors.AppBarColor,
+    this.backgroundColor,
     // this.mainColor = Colors.black,
     this.automaticallyImplyLeading = false,
+    this.popTime = 1,
   });
 
   final Widget? leading;
@@ -19,11 +20,12 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? titleWidget;
   final List<Widget>? rightDMActions;
 
-  // final Color? backgroundColor;
+  final Color? backgroundColor;
   // final Color? mainColor;
   // 如果有 leading 这个不会管用 ；
   // 如果没有leading ，当有侧边栏的时候， false：不会显示默认的图片，true 会显示 默认图片，并响应打开侧边栏的事件
   final bool automaticallyImplyLeading;
+  final int popTime;
 
   @override
   Size get preferredSize => const Size(100, 50);
@@ -31,7 +33,19 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      leading: leading,
+      leading: leading ??
+          BackButton(
+            style: ButtonStyle(
+              iconSize: MaterialStateProperty.all(18),
+            ),
+            onPressed: () {
+              NavigatorState nav = Navigator.of(context);
+              // iPrint("popTime $popTime;");
+              for (int i = 0; i < popTime; i++) {
+                nav.pop();
+              }
+            },
+          ),
       leadingWidth: leadingWidth,
       title: titleWidget ??
           Text(
@@ -43,7 +57,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
       automaticallyImplyLeading: automaticallyImplyLeading,
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: backgroundColor ?? Theme.of(context).colorScheme.primary,
       // foregroundColor: mainColor,
       // backgroundColor: Theme.of(context).colorScheme.background,
       // foregroundColor: Theme.of(context).colorScheme.primary,

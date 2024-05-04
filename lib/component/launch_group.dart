@@ -31,7 +31,7 @@ class LaunchGroupItem extends StatelessWidget {
           // 选择一个群 select_a_group
           if (item == 'select_a_group') {
             Get.to(
-              () => const GroupSelectPage(),
+              () => GroupSelectPage(),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
             );

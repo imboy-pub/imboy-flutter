@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/config/const.dart';
 
@@ -55,6 +56,73 @@ class ButtonRow extends StatelessWidget {
           child: Text(text!, style: style),
         ),
       ),
+    );
+  }
+}
+
+class RoundedElevatedButton extends StatelessWidget {
+  final String text;
+  final VoidCallback? onPressed;
+  final bool highlighted;
+  final Size? size;
+  final BorderRadius? borderRadius;
+
+  const RoundedElevatedButton({
+    super.key,
+    required this.text,
+    this.onPressed,
+    this.highlighted = false,
+    this.size,
+    this.borderRadius,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      // ignore: sort_child_properties_last
+      child: n.Padding(
+          left: 10,
+          right: 10,
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+          )),
+      style: highlighted
+          ? ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(
+                Colors.green,
+              ),
+              foregroundColor: MaterialStateProperty.all<Color>(
+                Colors.white,
+              ),
+              minimumSize: MaterialStateProperty.all(
+                size ?? const Size(88, 40),
+              ),
+              visualDensity: VisualDensity.compact,
+              padding: MaterialStateProperty.all(EdgeInsets.zero),
+              shape: MaterialStateProperty.all<OutlinedBorder>(
+                  RoundedRectangleBorder(
+                borderRadius:
+                    borderRadius ?? BorderRadius.circular(30.0), // 设置圆角大小
+              )),
+            )
+          : ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(
+                Colors.white12,
+              ),
+              foregroundColor: MaterialStateProperty.all<Color>(Colors.grey),
+              minimumSize: MaterialStateProperty.all(
+                size ?? const Size(88, 40),
+              ),
+              visualDensity: VisualDensity.compact,
+              padding: MaterialStateProperty.all(EdgeInsets.zero),
+              shape: MaterialStateProperty.all<OutlinedBorder>(
+                  RoundedRectangleBorder(
+                borderRadius:
+                    borderRadius ?? BorderRadius.circular(30.0), // 设置圆角大小
+              )),
+            ),
     );
   }
 }

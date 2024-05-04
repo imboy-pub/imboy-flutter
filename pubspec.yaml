@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.3.12
+version: 0.4.0
 
 environment:
   sdk: ">=3.0.0 <=4.0.0"
@@ -14,11 +14,11 @@ dependencies:
     sdk: flutter
 
   # Network
-  dio: ^5.4.2+1 # 网络请求框架
-  dio_http2_adapter: ^2.5.1
-  web_socket_channel: ^2.4.4
+  dio: ^5.4.3+1 # 网络请求框架
+  dio_http2_adapter: ^2.5.2
+  web_socket_channel: ^2.4.5
   mime: ^1.0.4
-  connectivity_plus: ^6.0.1 # 是否联网及网络类型
+  connectivity_plus: ^6.0.3 # 是否联网及网络类型
 
   # UI
   # 从实用程序 Widget 和带有点级联的扩展中构建 Flutter UI。流畅地开发，没有头痛和嵌套地狱。
@@ -44,7 +44,7 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/getx.git
       ref: master
 
-  url_launcher: ^6.2.5 # 打开url 拨打电话 发短信
+  url_launcher: ^6.2.6 # 打开url 拨打电话 发短信
   # https://juejin.cn/post/6869291513508659213
   webview_flutter: ^4.7.0 # Show web page (CGU)
   flutter_inappwebview: ^6.0.0 # 它允许你将WebView小部件整合到你的Flutter应用中，使用无头WebViews，或者使用In-App浏览器。
@@ -69,7 +69,7 @@ dependencies:
   #json_annotation: ^4.8.1
   permission_handler: ^11.3.1
   permission_handler_apple: ^9.4.4
-  permission_handler_android: ^12.0.5
+  permission_handler_android: ^12.0.6
   permission_handler_platform_interface: ^4.2.1
   #any permission_handler:
   #  git:
@@ -78,31 +78,31 @@ dependencies:
   #    tag: permission_handler_android_v10.2.1
       #ref: master
   # 缓存
-  shared_preferences: ^2.2.2
+  shared_preferences: ^2.2.3
   #  Flutter Secure Storage 提供 API 将数据存储在安全存储中。iOS 中使用 Keychain，Android 中使用基于 KeyStore 的解决方案。
   #flutter_secure_storage: ^9.0.0
   cached_network_image: ^3.3.1
-  flutter_cache_manager: ^3.3.1
+  flutter_cache_manager: ^3.3.2
   # 在运行时从文件加载环境变量.env
   flutter_dotenv: ^5.1.0
 
   camera: ^0.10.5+9
   #wechat_camera_picker: ^4.2.0-dev.3
   wechat_camera_picker: ^4.2.1
-  wechat_assets_picker: ^9.0.2
+  wechat_assets_picker: ^9.0.3
   # Photo View provides a gesture sensitive zoomable widget. Photo View is largely used to show interactive images and other stuff such as SVG.
-  photo_view: ^0.14.0 #
+  photo_view: ^0.15.0 #
   # 照片管理器
-  photo_manager: 3.0.0
+  photo_manager: 3.1.0
   # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
   video_compress: ^3.1.2
   # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
-  path_provider: ^2.1.2
-  image_picker: ^1.0.7
+  path_provider: ^2.1.3
+  image_picker: ^1.1.1
   image_picker_macos: ^0.2.1+1
-  image_picker_platform_interface: ^2.9.4
+  image_picker_platform_interface: ^2.10.0
   #file_picker: ^6.2.0
-  file_picker: ^8.0.0+1
+  file_picker: ^8.0.3
   open_file: ^3.3.2
   # image_crop: ^0.4.1
   # image_crop:
@@ -118,10 +118,10 @@ dependencies:
   #sentry_flutter: ^7.18.0
 
   # 用于访问加速度计、陀螺仪和磁力计传感器的 Flutter 插件。
-  sensors_plus: ^5.0.0
+  sensors_plus: ^5.0.1
   flutter_screenutil: ^5.9.0
   # 页面刷新
-  easy_refresh: ^3.3.4
+  easy_refresh: ^3.3.5+1
   # https://github.com/letsar/flutter_slidjable
   flutter_slidable: ^3.1.0
   # 消息提醒的红点效果
@@ -149,7 +149,7 @@ dependencies:
   # 生成闪屏页
   flutter_native_splash: ^2.3.13
   flutter_chat_ui: ^1.6.12
-  feedback: ^3.0.1
+  feedback: ^3.1.0
   #flutter_chat_ui:
   #  #path: plugin/flutter_chat_ui
   #  git:
@@ -164,6 +164,7 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/popup_menu.git
       ref: master
   # 二维码扫描
+#  mobile_scanner: ^5.0.1
   mobile_scanner: ^4.0.1
   #  mobile_scanner:
   #    git:
@@ -172,26 +173,26 @@ dependencies:
   # 将图像保存到图库的 flutter 插件
   image_gallery_saver: ^2.0.2
   # SQLite 的 Flutter 插件，一个独立的、高可靠性的嵌入式 SQL 数据库引擎。
-  sqflite: ^2.3.3
+  sqflite: ^2.3.3+1
   sqflite_common_ffi: ^2.3.3
   #sqlite3: ^1.11.2
   # 一个跨平台插件，用于显示和安排 Flutter 应用程序的本地通知，并能够针对每个平台进行自定义。
-  flutter_local_notifications: ^17.0.0
+  flutter_local_notifications: ^17.1.1
   #桌面图标提醒
   flutter_app_badger: ^1.5.0
   # 录音
   flutter_sound: ^9.4.6
   flutter_sound_platform_interface: ^9.4.6
-  audio_session: ^0.1.18
+  audio_session: ^0.1.19
   # 语音消息播放器
-  voice_message_package: ^2.1.4
-#  voice_message_package:
-#    path: plugin/voice_message_package
-#    git:
-#      url: https://gitee.com/imboy-tripartite-deps/voice_message_player.git
-#      ref: main
+  #voice_message_package: ^2.1.4
+  voice_message_package:
+  #  path: plugin/voice_message_package
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/voice_message_player.git
+      ref: leeyi
   # 一对一音视频通话等
-  flutter_webrtc: ^0.9.48+hotfix.1
+  flutter_webrtc: ^0.10.3
   #flutter_webrtc:
   #    path: plugin/flutter-webrtc
   #    git:
@@ -205,10 +206,10 @@ dependencies:
   clock: ^1.1.1
   # 用于 HTTP 请求的可组合、多平台、基于Future的 API。
   http: ^1.2.1
-  device_info_plus: ^10.0.1
-  package_info_plus: ^6.0.0
+  device_info_plus: ^10.1.0
+  package_info_plus: ^8.0.0
   # Flutter 的 Markdown 渲染器
-  flutter_markdown: ^0.6.22+1
+  flutter_markdown: ^0.7.1
   # 滑动吸顶
   sliding_up_panel: ^2.0.0+1
   # 用于 Flutter 的 SVG 渲染和小部件库，允许绘制和显示可缩放矢量图形 1.1 文件。
@@ -218,11 +219,11 @@ dependencies:
   # dart 对象比较
   equatable: ^2.0.5
   # 用于查找设备上安装的可用地图并使用标记启动它们或显示方向。
-  map_launcher: ^3.2.0
+  map_launcher: ^3.3.0
   # 视频播放器插件
-  video_player: ^2.8.4
+  video_player: ^2.8.6
   # video_player的插件，支持所有桌面/移动平台。硬件解码器，最佳渲染。通过 FFmpeg 支持大多数格式
-  fvp: ^0.16.1
+  fvp: ^0.17.0
   #fvp: ^0.12.0
   # 标签编辑框
   textfield_tags: ^3.0.1
@@ -240,7 +241,7 @@ dependencies:
   amap_flutter_location: ^3.0.0
   amap_flutter_map: ^3.0.0
   # Flutter 插件，可让您在 Android、iOS、macOS、Windows 和 Web 上保持设备屏幕处于唤醒状态。
-  wakelock_plus: ^1.2.2
+  wakelock_plus: ^1.2.5
   # 类似于 Iphone 上的 AssistiveTouch 的 Flutter 包。
   drag_ball: ^2.0.0
   # Flutter应用升级/ Flutter App Upgrade /Flutter App Update/Flutter Update / 下载插件（有提示栏进度），支持全量升级、热更新和增量升级
@@ -263,6 +264,8 @@ dependencies:
     git:
       url: https://gitee.com/imboy-tripartite-deps/IcStorageSpace.git
       ref: leeyi
+  nine_grid_view: ^2.0.0
+  synchronized: ^3.1.0+1
 
   # https://pub-web.flutter-io.cn/packages/rtmp_broadcaster
   #rtmp_broadcaster:
@@ -284,10 +287,12 @@ dependencies:
   #huawei_account: ^6.1.0+304
 
 dependency_overrides:
+  #package_info_plus: ^8.0.0
   intl: ^0.19.0 # dep by jiffy: ^6.3.0
   jiffy: ^6.3.0
-  sensors_plus: ^5.0.0 # dep by wechat_camera_picker
+  sensors_plus: ^5.0.1 # dep by wechat_camera_picker
   js: ^0.7.1
+  photo_view: ^0.15.0 #
 
 dev_dependencies:
   build_runner: ^2.4.9

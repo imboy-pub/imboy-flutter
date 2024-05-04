@@ -92,6 +92,18 @@ class API {
   static const denylistRemove = '/friend/denylist/remove';
   static const denylistPage = '/friend/denylist/page';
 
+  static const groupFace2face = '/group/face2face';
+  static const groupFace2faceSave = '/group/face2face_save';
+  static const groupAdd = '/group/add';
+  static const groupEdit = '/group/edit';
+  static const groupDetail = '/group/detail';
+  static const groupDissolve = '/group/dissolve';
+  static const groupPage = '/group/page';
+  static const groupMsgPage = '/group/msg_page';
+  static const groupMemberPage = '/group_member/page';
+  static const groupMemberJoin = '/group_member/join';
+  static const groupMemberLeave = '/group_member/leave';
+
   static const userShow = '/user/show';
   static const turnCredential = '/user/credential';
   static const userUpdate = '/user/update';

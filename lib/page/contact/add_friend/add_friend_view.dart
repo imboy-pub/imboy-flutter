@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/group/face_to_face/face_to_face_view.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/config/const.dart';
@@ -134,11 +135,11 @@ class AddFriendPage extends StatelessWidget {
                       ),
                       trailing: navigateNextIcon,
                       onTap: () {
-                        // Get.to(
-                        //   () => PeopleNearbyPage(),
-                        //   transition: Transition.rightToLeft,
-                        //   popGesture: true, // 右滑，返回上一页
-                        // );
+                        Get.to(
+                          () => FaceToFacePage(),
+                          transition: Transition.rightToLeft,
+                          popGesture: true, // 右滑，返回上一页
+                        );
                       },
                     ),
                     n.Padding(

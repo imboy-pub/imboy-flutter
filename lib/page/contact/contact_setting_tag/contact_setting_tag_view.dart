@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/config/theme.dart';
 
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:niku/namespace.dart' as n;
@@ -58,10 +59,7 @@ class ContactSettingTagPage extends StatelessWidget {
             child: Text(
               'set_remarks_tags'.tr,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppStyle.navAppBarTitleStyle,
             ),
             // 中间用Expanded控件
           ),

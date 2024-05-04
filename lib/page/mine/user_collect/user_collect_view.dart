@@ -113,7 +113,7 @@ class UserCollectPage extends StatelessWidget {
   }
 
   Future<void> sendToDialog(BuildContext ctx, UserCollectModel model) async {
-    types.Message msg = MessageModel.fromJson(model.info).toTypeMessage();
+    types.Message msg = await MessageModel.fromJson(model.info).toTypeMessage();
     Get.defaultDialog(
       title: 'send_to'.tr,
       backgroundColor: Get.isDarkMode

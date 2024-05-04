@@ -120,7 +120,7 @@ class ContactLogic extends GetxController {
         ),
         onPressed: () {
           Get.to(
-            () => const GroupListPage(),
+            () => GroupListPage(),
             transition: Transition.rightToLeft,
             popGesture: true, // 右滑，返回上一页
           );
@@ -166,6 +166,7 @@ class ContactLogic extends GetxController {
           uri: 'https://bce.bdstatic.com/img/favicon.ico',
           height: 40,
         ),
+        /*
         onPressed: () {
           Get.to(
             () => ChatPage(
@@ -179,6 +180,7 @@ class ContactLogic extends GetxController {
             popGesture: true, // 右滑，返回上一页
           );
         },
+        */
       ),
     ];
     // add topList.

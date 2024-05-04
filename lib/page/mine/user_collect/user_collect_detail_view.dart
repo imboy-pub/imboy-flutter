@@ -47,12 +47,11 @@ class UserCollectDetailPage extends StatelessWidget {
           onPressed: () async {
             Get.closeAllBottomSheets();
             obj.info['id'] = Xid().toString();
-
+            var msg = await MessageModel.fromJson(obj.info).toTypeMessage();
             // 转发消息
-
             Get.to(
               () => SendToPage(
-                  msg: MessageModel.fromJson(obj.info).toTypeMessage(),
+                  msg: msg,
                   callback: () {
                     logic.change(obj.kindId);
                   }),
@@ -63,7 +62,7 @@ class UserCollectDetailPage extends StatelessWidget {
             //   n.Padding(
             //     top: 24,
             //     child: SendToPage(
-            //         msg: MessageModel.fromJson(obj.info).toTypeMessage(),
+            //         msg: await MessageModel.fromJson(obj.info).toTypeMessage(),
             //         callback: () {
             //           logic.change(obj.kindId);
             //         }),

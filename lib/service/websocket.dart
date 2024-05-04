@@ -47,8 +47,8 @@ class WebSocketService {
   IOWebSocketChannel? _webSocketChannel; // WebSocket
   SocketStatus? _socketStatus; // socket状态
   // Timer? _heartBeat; // 心跳定时器 使用 IOWebSocketChannel 的心跳机制
+  // 服务端设置为128秒，客服端设置为120秒，不要超过128秒
   // _heartTimes 必须比 服务端 idle_timeout 小一些
-  // 服务端设置为128秒，这个设置为120秒，不要超过128秒
   final int _heartTimes = 120000; // 心跳间隔(毫秒)
   final int _reconnectMax = 10; // 重连次数，默认10次
   int _reconnectTimes = 0; // 重连计数器
@@ -150,7 +150,7 @@ class WebSocketService {
         protocols: protocols,
       );
       // _webSocketChannel.innerWebSocket;
-      // 连接成功，返回WebSocket实例
+      // 连接成功，设置socket状态
       _socketStatus = SocketStatus.SocketStatusConnected;
 
       // 连接成功，重置重连计数器
@@ -209,7 +209,7 @@ class WebSocketService {
       // 1007	Unsupported Data	由于收到了格式不符的数据而断开连接 (如文本消息中包含了非 UTF-8 数据).
       // 1009	CLOSE_TOO_LARGE	由于收到过大的数据帧而断开连接。
       // 4000–4999		可以由应用使用。
-      // 4006 通知客户端刷新token消息没有得到确认，系统主动关闭连接
+      // 4006 服务端通知客户端刷新token消息没有得到确认，系统主动关闭连接
       int closeCode = _webSocketChannel?.closeCode ?? 0;
 
       switch (closeCode) {
@@ -280,6 +280,7 @@ class WebSocketService {
   }
 
   /// 重连机制
+  ///
   void _reconnect() {
     iPrint(
         '> ws _reconnect _reconnectTimes $_reconnectTimes < $_reconnectMax ${DateTime.now()}');
@@ -294,6 +295,7 @@ class WebSocketService {
         },
       );
     } else {
+      // 达到最大重连次数，停止重连
       closeSocket();
       return;
     }

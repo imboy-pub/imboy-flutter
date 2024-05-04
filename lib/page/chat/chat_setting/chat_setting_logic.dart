@@ -16,7 +16,7 @@ class ChatSettingLogic extends GetxController {
       return 0;
     }
     String tb = MessageRepo.getTableName(model.type);
-    await MessageRepo(tableName: tb).deleteByConversationId(model.id);
+    await MessageRepo(tableName: tb).deleteByConversationId(model.uk3);
     return model.id;
   }
 }

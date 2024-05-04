@@ -6,89 +6,123 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
 
 import 'package:imboy/page/single/people_info.dart';
-import 'package:niku/namespace.dart' as n;
+import 'package:imboy/store/model/message_model.dart';
 
-class VisitCardMessageBuilder extends StatelessWidget {
+class VisitCardMessageBuilder extends StatefulWidget {
   const VisitCardMessageBuilder({
     super.key,
     required this.user,
-    required this.message,
+    this.message,
+    this.info,
   });
 
   final types.User user;
-  final types.CustomMessage message;
+  final types.CustomMessage? message;
+  final Map<String, dynamic>? info;
+
+  @override
+  VisitCardMessageBuilderState createState() => VisitCardMessageBuilderState();
+}
+
+class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
+  late Future<types.CustomMessage?> messageFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    messageFuture = _getMessage();
+  }
+
+  Future<types.CustomMessage?> _getMessage() async {
+    if (widget.message != null) {
+      return widget.message;
+    }
+    if (widget.info != null) {
+      return await MessageModel.fromJson(widget.info!).toTypeMessage()
+          as types.CustomMessage;
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
-    bool userIsAuthor = user.id == message.author.id;
-
-    return SizedBox(
-      width: Get.width * 0.618,
-      height: 96,
-      child: n.Padding(
-          left: 8,
-          top: 8,
-          bottom: 8,
-          child: n.Column([
-            Expanded(
-              flex: 3,
-              child: InkWell(
-                onTap: () {
-                  Get.to(
-                    () => PeopleInfoPage(
-                        id: message.metadata?['uid'], scene: 'visit_card'),
-                    transition: Transition.rightToLeft,
-                    popGesture: true, // 右滑，返回上一页
-                  );
-                },
-                child: n.Row([
-                  n.Padding(
-                    top: 4,
-                    right: 4,
-                    child: Avatar(imgUri: message.metadata?['avatar']),
-                  ),
-                  Expanded(
-                    child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          message.metadata?['title'],
-                          // '大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发',
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                            color: Get.isDarkMode
-                                ? (userIsAuthor
-                                    ? Colors.black87
-                                    : Theme.of(context).colorScheme.onPrimary)
-                                : Theme.of(context).colorScheme.onPrimary,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14.0,
+    return FutureBuilder<types.CustomMessage?>(
+      future: messageFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final msg = snapshot.data;
+        if (msg == null) {
+          return Container(); // 或者一些错误提示
+        }
+        final userIsAuthor = widget.user.id == msg.author.id;
+        final textColor = Theme.of(context).colorScheme.onPrimary;
+        return SizedBox(
+          width: Get.width * 0.618,
+          height: 105,
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: InkWell(
+                    onTap: () {
+                      Get.to(
+                        () => PeopleInfoPage(
+                          id: msg.metadata?['uid'],
+                          scene: 'visit_card',
+                        ),
+                        transition: Transition.rightToLeft,
+                        popGesture: true, // 右滑，返回上一页
+                      );
+                    },
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4, right: 4),
+                          child: Avatar(imgUri: msg.metadata?['avatar']),
+                        ),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              msg.metadata?['title'] ?? (msg.metadata?['account'] ?? ''),
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                color:
+                                    userIsAuthor ? Colors.black87 : textColor,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14.0,
+                              ),
+                              maxLines: 4,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                          maxLines: 4,
-                          overflow: TextOverflow.ellipsis,
-                        )),
+                        ),
+                      ],
+                    ),
                   ),
-                ])
-                  // 内容文本左对齐
-                  ..crossAxisAlignment = CrossAxisAlignment.start,
-              ),
-            ),
-            const Divider(),
-            Expanded(
-              flex: 1,
-              child: Text(
-                'personal_card'.tr,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Get.isDarkMode
-                      ? (userIsAuthor
-                          ? Colors.black87
-                          : Theme.of(context).colorScheme.onPrimary)
-                      : Theme.of(context).colorScheme.onPrimary,
                 ),
-              ),
+                const Divider(),
+                Expanded(
+                  flex: 1,
+                  child: Text(
+                    'personal_card'.tr,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: userIsAuthor ? Colors.black87 : textColor,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ])
-            ..crossAxisAlignment = CrossAxisAlignment.start),
+          ),
+        );
+      },
     );
   }
 }

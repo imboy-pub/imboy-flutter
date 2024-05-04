@@ -49,6 +49,9 @@ class MessageRepo {
       case 'C2S':
         tb = MessageRepo.c2sTable;
         break;
+      case 'S2C':
+        tb = MessageRepo.s2cTable;
+        break;
 
       //
       case 'C2C_SERVER_ACK':
@@ -59,6 +62,9 @@ class MessageRepo {
         break;
       case 'C2S_SERVER_ACK':
         tb = MessageRepo.c2sTable;
+        break;
+      case 'S2C_SERVER_ACK':
+        tb = MessageRepo.s2cTable;
         break;
 
       //
@@ -270,11 +276,11 @@ class MessageRepo {
     );
   }
 
-  Future<int> deleteByConversationId(int id) async {
+  Future<int> deleteByConversationId(String uk3) async {
     return await _db.delete(
       tableName,
       where: '${MessageRepo.conversationUk3} = ?',
-      whereArgs: [id],
+      whereArgs: [uk3],
     );
   }
 

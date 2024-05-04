@@ -174,7 +174,7 @@ class ContactRepo {
       limit: limit,
       offset: offset,
     );
-    // debugPrint("> on findFriend ${maps.length}, ${maps.toList().toString()}");
+    debugPrint("> on findFriend ${maps.length}, ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }
@@ -194,7 +194,7 @@ class ContactRepo {
         ContactRepo.account: '',
         ContactRepo.nickname: uid.tr,
         ContactRepo.sign: '',
-        ContactRepo.avatar: 'https://bce.bdstatic.com/img/favicon.ico',
+        ContactRepo.avatar: '',
       });
     }
     List<Map<String, dynamic>> maps = await _db.query(

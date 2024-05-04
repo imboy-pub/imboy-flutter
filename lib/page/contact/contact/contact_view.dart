@@ -32,6 +32,7 @@ class ContactPage extends StatelessWidget {
     loadData();
     return Scaffold(
       appBar: NavAppBar(
+        leading: const SizedBox.shrink(),
         title: 'title_contact'.tr,
         rightDMActions: <Widget>[
           InkWell(

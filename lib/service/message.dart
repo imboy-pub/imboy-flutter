@@ -1,12 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:xid/xid.dart';
+
+import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
+import 'package:imboy/page/group/group_list/group_list_logic.dart';
+import 'package:imboy/store/model/group_extend_model.dart';
+import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/store/model/people_model.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -186,6 +191,61 @@ class MessageService extends GetxService {
     bool autoAck = true;
     // try {
     switch (msgType.toString().toLowerCase()) {
+      case 'group_member_join':
+        // {id: , type: S2C, from: vyb9xb, to: 7b4v1b, payload: {msg_type: group_member_join}, server_ts: 1713334354767}
+        String userId = data['from'];
+        String nickname = payload['nickname'];
+        String avatar = payload['avatar'];
+        String account = payload['account'];
+        String gid = payload['gid'];
+        int userIdSum = payload['user_id_sum'] ?? 0;
+        await Get.find<GroupListLogic>().memberJoin(
+          groupId: gid,
+          userId: userId,
+          userIdSum: userIdSum,
+        );
+        eventBus.fire(JoinGroupModel(
+          groupId: gid,
+          userId: userId,
+          people: PeopleModel(
+            id: userId,
+            account: account,
+            nickname: nickname,
+            avatar: avatar,
+          ),
+        ));
+        break;
+      case 'group_dissolve':
+        // String userId = data['from'];
+        String gid = payload['gid'];
+        await GroupDetailLogic().cleanData(gid);
+        break;
+      case 'group_member_leave':
+        String userId = data['from'];
+        String gid = payload['gid'];
+        int userIdSum = payload['user_id_sum'] ?? 0;
+        await Get.find<GroupListLogic>().memberLeave(
+          groupId: gid,
+          userId: userId,
+          userIdSum: userIdSum,
+        );
+        eventBus.fire(LeaveGroupModel(
+          groupId: gid,
+          userId: userId,
+          people: PeopleModel(
+            id: userId,
+            account: '',
+          ),
+        ));
+        break;
+      case 'group_member_alias':
+        // payload:{alias:, description:, updated_at:, gid:}
+        break;
+      case 'user_cancel':
+        // 当前用户的朋友user_id注销了
+        // TODO
+        // String userId = data['from'];
+        break;
       case 'apply_friend': // 添加朋友申请
         newFriendLogic.receivedAddFriend(data);
         break;
@@ -328,11 +388,22 @@ class MessageService extends GetxService {
     var subtitle = data['payload']['text'] ?? '';
     iPrint("> rtc msg receiveMessage $data");
     int now = DateTimeHelper.utc();
-    iPrint("> rtc msg now: $now elapsed: ${now - data['created_at']}");
+    iPrint("> rtc msg now: $now elapsed: ${data['created_at'] - now}");
 
-    ContactModel? ct = await ContactRepo().findByUid(data['from']);
-    String avatar = ct!.avatar;
-    String title = ct.title;
+    String peerId = '';
+    String avatar = '';
+    String title = '';
+    if (data['type'] == 'C2G') {
+      peerId = data['to'];
+      GroupModel? g = await GroupDetailLogic().detail(gid: peerId);
+      avatar = g?.avatar ?? '';
+      title = g?.title ?? '';
+    } else {
+      ContactModel? ct = await ContactRepo().findByUid(data['from']);
+      peerId = data['from'];
+      avatar = ct!.avatar;
+      title = ct.title;
+    }
     if (msgType == 'custom') {
       msgType = data['payload']['custom_type'] ?? '';
       subtitle = '';
@@ -344,7 +415,7 @@ class MessageService extends GetxService {
     }
 
     ConversationModel conversation = ConversationModel(
-      peerId: data['from'],
+      peerId: peerId,
       avatar: avatar,
       title: title,
       subtitle: subtitle,
@@ -386,22 +457,23 @@ class MessageService extends GetxService {
     await conversationLogic.increaseConversationRemind(conversation, 1);
 
     eventBus.fire(conversation);
-    types.Message tMsg = msg.toTypeMessage();
+    types.Message tMsg = await msg.toTypeMessage();
     eventBus.fire(tMsg);
   }
 
   /// 收到服务端确认消息 C2C_SERVER_ACK C2G_SERVER_ACK
   Future<void> receiveServerAckMessage(Map data) async {
-    iPrint("> rtc msg S_RECEIVED: msg:$data");
+    iPrint("> rtc msg S_RECEIVED: data:$data");
     String tb = MessageRepo.getTableName(data['type']);
     MessageModel? msg = await changeStatus(
       tb,
       data['id'],
       IMBoyMessageStatus.send,
     );
+    iPrint("> rtc msg S_RECEIVED: msg:${msg?.toJson().toString()} ;");
     if (msg != null) {
       // 更新会话里面的消息列表的特定消息状态
-      eventBus.fire([msg.toTypeMessage()]);
+      eventBus.fire([await msg.toTypeMessage()]);
     }
   }
 
@@ -443,7 +515,7 @@ class MessageService extends GetxService {
     MessageModel? msg = await repo.find(id);
     if (msg != null) {
       // 更新会话里面的消息列表的特定消息状态
-      eventBus.fire([msg.toTypeMessage()]);
+      eventBus.fire([await msg.toTypeMessage()]);
       changeConversation(msg, 'peer_revoked');
     }
 
@@ -478,7 +550,7 @@ class MessageService extends GetxService {
       'payload': json.encode(msg.payload),
     });
     // 更新会话里面的消息列表的特定消息状态
-    eventBus.fire([msg.toTypeMessage()]);
+    eventBus.fire([await msg.toTypeMessage()]);
     // 确认消息
     String ackType = dType == 'C2G_REVOKE_ACK' ? 'C2G' : 'C2C';
     MessageService.to.sendAckMsg(ackType, data['id']);
@@ -619,7 +691,7 @@ class MessageService extends GetxService {
     });
     if (res > 0) {
       msg.payload = payload;
-      types.Message msg2 = msg.toTypeMessage();
+      types.Message msg2 = await msg.toTypeMessage();
       // 更新会话里面的消息列表的特定消息状态
       eventBus.fire([msg2]);
       // 通话完成，加入到消息列表
@@ -638,11 +710,11 @@ class MessageService extends GetxService {
   }) async {
     if (msgId.isEmpty) {
       MessageModel? m = await MessageRepo(tableName: tableName).lastMsg();
-      message = m?.toTypeMessage();
+      message = await m?.toTypeMessage();
     }
     if (message == null) {
       MessageModel? m = await MessageRepo(tableName: tableName).find(msgId);
-      message = m?.toTypeMessage();
+      message = await m?.toTypeMessage();
     }
     int startAt = message?.metadata?['start_at'] ?? 0;
     int endAt = message?.metadata?['end_at'] ?? 0;

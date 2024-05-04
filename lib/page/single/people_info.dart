@@ -76,7 +76,7 @@ class PeopleInfoPage extends StatelessWidget {
         source.value = 'recently_user';
       } else if (scene == 'contact_page' || scene == 'denylist') {
         source.value = '';
-        // } else if (scene == '') {
+      } else if (scene == 'group_member') {
         // } else if (scene == '') {
         // } else if (scene == '') {
         // } else if (scene == '') {

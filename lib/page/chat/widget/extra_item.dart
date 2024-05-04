@@ -21,9 +21,9 @@ class ExtraItem extends StatelessWidget {
     super.key,
     required this.onPressed,
     required this.image,
+    required this.title,
     this.width,
     this.height,
-    required this.title,
   });
 
   final Widget image;
@@ -90,9 +90,11 @@ class ExtraItems extends StatefulWidget {
     this.handleLocationSelection,
     this.handleVisitCardSelection,
     this.handleCollectSelection,
+    required this.type,
     required this.options,
   });
 
+  final String type; // [C2C | C2G | C2S]
   final Map options;
   final void Function()? handleImageSelection;
   final void Function()? handleFileSelection;
@@ -126,23 +128,6 @@ class _ExtraItemsState extends State<ExtraItems> {
             title: 'camera'.tr,
             image: const Icon(Icons.camera_alt, size: iconSize),
             onPressed: widget.handlePickerSelection,
-          ),
-          ExtraItem(
-            title: 'video_call'.tr,
-            image: const Icon(Icons.videocam, size: iconSize),
-            onPressed: () {
-              openCallScreen(
-                ContactModel.fromMap({
-                  "id": widget.options["to"],
-                  "nickname": widget.options["title"],
-                  "avatar": widget.options["avatar"],
-                  "sign": widget.options["sign"],
-                }),
-                {
-                  'media': 'video',
-                },
-              );
-            },
           ),
           ExtraItem(
             title: 'location'.tr,
@@ -186,9 +171,14 @@ class _ExtraItemsState extends State<ExtraItems> {
               }
             },
           ),
+          ExtraItem(
+            title: 'personal_card'.tr, // visit card
+            image: const Icon(Icons.person, size: iconSize),
+            onPressed: widget.handleVisitCardSelection,
+          ),
         ]),
         n.Row([
-          ExtraItem(
+          if (widget.type != 'C2G') ExtraItem(
             title: 'voice_call'.tr,
             image: const Icon(Icons.phone, size: iconSize),
             onPressed: () {
@@ -205,12 +195,24 @@ class _ExtraItemsState extends State<ExtraItems> {
               );
             },
           ),
-          // const SizedBox(width: 86, height: 56,),
-          ExtraItem(
-            title: 'personal_card'.tr, // visit card
-            image: const Icon(Icons.person, size: iconSize),
-            onPressed: widget.handleVisitCardSelection,
+          if (widget.type != 'C2G') ExtraItem(
+            title: 'video_call'.tr,
+            image: const Icon(Icons.videocam, size: iconSize),
+            onPressed: () {
+              openCallScreen(
+                ContactModel.fromMap({
+                  "id": widget.options["to"],
+                  "nickname": widget.options["title"],
+                  "avatar": widget.options["avatar"],
+                  "sign": widget.options["sign"],
+                }),
+                {
+                  'media': 'video',
+                },
+              );
+            },
           ),
+          // const SizedBox(width: 86, height: 56,),
           ExtraItem(
             title: 'favorites'.tr,
             image: const Icon(Icons.collections_bookmark, size: iconSize),

@@ -53,19 +53,22 @@ class ChatInput extends StatefulWidget {
   const ChatInput({
     // super.key,
     super.key,
+    required this.type,
+    required this.onSendPressed,
+    required this.sendButtonVisibilityMode,
     this.isAttachmentUploading,
     this.onAttachmentPressed,
-    required this.onSendPressed,
     // this.options = const InputOptions(),
     // imboy add
     this.onTextChanged,
     this.onTextFieldTap,
-    required this.sendButtonVisibilityMode,
     this.extraWidget,
     this.voiceWidget,
     this.quoteTipsWidget,
     // imboy add end
   });
+
+  final String type; // [C2C | C2G | C2S]
 
   /// Whether attachment is uploading. Will replace attachment button with a
   /// [CircularProgressIndicator]. Since we don't have libraries for

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/config/theme.dart';
 
 import 'search_logic.dart';
 import 'search_state.dart';
@@ -62,7 +63,7 @@ class _SearchPageState extends State<SearchPage> {
         Expanded(
           child: TextField(
             controller: _searchC,
-            style: const TextStyle(textBaseline: TextBaseline.alphabetic),
+            style: AppStyle.navAppBarTitleStyle,
             decoration: InputDecoration(
               border: InputBorder.none,
               hintText: 'search'.tr,

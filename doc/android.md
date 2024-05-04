@@ -1,7 +1,5 @@
 
 
-
-
 ### getAppBytes得到应用APP大小 [link](https://developer.android.com/reference/android/app/usage/StorageStats#getAppBytes())
 * getAppBytes得到应用程序的大小。这包括 APK 文件、优化的编译器输出和解压的原生库。
 * Added in API level 26

@@ -224,8 +224,9 @@ class UserCollectLogic extends GetxController {
                     firstName: UserRepoLocal.to.current.nickname,
                     imageUrl: UserRepoLocal.to.current.avatar,
                   ),
-                  message: MessageModel.fromJson(obj.info).toTypeMessage()
-                      as types.CustomMessage,
+                  info: obj.info,
+                  // message: MessageModel.fromJson(obj.info).toTypeMessage()
+                  //     as types.CustomMessage,
                 ),
               ),
             ])
@@ -448,8 +449,9 @@ class UserCollectLogic extends GetxController {
                       firstName: UserRepoLocal.to.current.nickname,
                       imageUrl: UserRepoLocal.to.current.avatar,
                     ),
-                    message: MessageModel.fromJson(obj.info).toTypeMessage()
-                        as types.CustomMessage,
+                    info: obj.info,
+                    // message: MessageModel.fromJson(obj.info).toTypeMessage()
+                    //     as types.CustomMessage,
                   ))
             ]);
     } else if (obj.kind == 7) {
@@ -457,15 +459,12 @@ class UserCollectLogic extends GetxController {
       body = n.Row([
         Expanded(
             child: VisitCardMessageBuilder(
-          // width: Get.width - 20,
-          // height: Get.height - 160,
           user: types.User(
             id: UserRepoLocal.to.currentUid,
             firstName: UserRepoLocal.to.current.nickname,
             imageUrl: UserRepoLocal.to.current.avatar,
           ),
-          message: MessageModel.fromJson(obj.info).toTypeMessage()
-              as types.CustomMessage,
+          info: obj.info,
         ))
       ])
         // 内容文本左对齐

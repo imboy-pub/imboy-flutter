@@ -6,6 +6,7 @@ import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fvp/fvp.dart';
 import 'package:get/get.dart' as getx;
+import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:logger/logger.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -116,7 +117,8 @@ Future<void> init() async {
   getx.Get.put(ChatLogic());
   // MessageService 不能用 lazyPut
   getx.Get.put(MessageService());
-  // getx.Get.lazyPut(() => DeviceExt());
+  // GroupListLogic 不能用 lazyPut
+  getx.Get.put(GroupListLogic());
 
   ntpOffset = await DateTimeHelper.getNtpOffset();
   AMapHelper.setApiKey();

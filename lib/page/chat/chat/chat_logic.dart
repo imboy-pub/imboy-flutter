@@ -10,10 +10,12 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
+import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_logic.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -34,7 +36,24 @@ class ChatLogic extends GetxController {
     state.scrollController = AutoScrollController();
   }
 
-  Future<List<types.Message>?> pageMessages(ConversationModel obj, int size) async {
+  Future<String> groupTitle(String gid, String prefix, int num) async {
+    // iPrint('logic.state.selects chat_logic/groupTitle $gid, $prefix, $num');
+    String prefix2 = strNoEmpty(prefix) ? prefix : 'group_chat'.tr;
+    if (num > 0) {
+      return "$prefix2($num)";
+    } else {
+      GroupModel? g = await GroupDetailLogic().detail(gid: gid);
+      state.memberCount = g?.memberCount ?? 0;
+      // iPrint('logic.state.selects chat_logic/groupTitle $gid, $prefix2, ${g?.memberCount}');
+      if (state.memberCount > 0) {
+        return "$prefix2(${state.memberCount})";
+      }
+      return prefix2;
+    }
+  }
+
+  Future<List<types.Message>?> pageMessages(
+      ConversationModel obj, int size) async {
     // final response = await rootBundle.loadString('assets/data/messages.json');
     String tb = MessageRepo.getTableName(obj.type);
     MessageRepo repo = MessageRepo(tableName: tb);
@@ -54,7 +73,7 @@ class ChatLogic extends GetxController {
       if (obj.status == IMBoyMessageStatus.sending) {
         await sendWsMsg(obj);
       }
-      messages.insert(0, obj.toTypeMessage());
+      messages.insert(0, await obj.toTypeMessage());
     }
     return messages;
   }
@@ -153,24 +172,22 @@ class ChatLogic extends GetxController {
       throw Exception('not send message to myself');
     }
     // message.status = types.Status.sent;
-    ConversationModel conversation = ConversationModel(
-      peerId: toId,
-      avatar: avatar!,
-      title: title,
-      subtitle: subtitle,
-      type: type,
-      // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
-      msgType: msgType,
-      lastMsgId: message.id,
-      lastTime: createdAt,
-      // lastMsgStatus 10 发送中 sending;  11 已发送 send;
-      lastMsgStatus: sendToServer ? 10 : 11,
-      unreadNum: 0,
-      isShow: 1,
-      id: 0,
-    );
+    ConversationRepo repo = ConversationRepo();
+    ConversationModel? conversation = await repo.findByPeerId(type, toId);
+
     // 保存会话
-    conversation = await (ConversationRepo()).save(conversation);
+    await repo.updateById(conversation!.id, {
+      ConversationRepo.title: title,
+      ConversationRepo.subtitle: subtitle,
+      // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
+      ConversationRepo.msgType: msgType,
+      ConversationRepo.lastMsgId: message.id,
+      ConversationRepo.lastTime: createdAt,
+      // lastMsgStatus 10 发送中 sending;  11 已发送 send;
+      ConversationRepo.lastMsgStatus: sendToServer ? 10 : 11,
+      ConversationRepo.unreadNum: conversation.unreadNum,
+      ConversationRepo.isShow: 1,
+    });
     MessageModel obj = getMsgFromTMsg(type, conversation.uk3, message);
     // debugPrint("> on addMessage before insert MessageRepo");
     String tb = MessageRepo.getTableName(conversation.type.toString());
@@ -190,7 +207,7 @@ class ChatLogic extends GetxController {
   }
 
   Future<bool> removeMessage(
-      ConversationModel cm,
+    ConversationModel cm,
     types.Message msg,
   ) async {
     ConversationRepo repo = ConversationRepo();
@@ -214,7 +231,7 @@ class ChatLogic extends GetxController {
         ConversationRepo.subtitle: '',
       });
     } else {
-      types.Message msg2 = lastMsg.toTypeMessage();
+      types.Message msg2 = await lastMsg.toTypeMessage();
       await repo.updateById(cm.id, {
         ConversationRepo.lastMsgId: lastMsg.id,
         ConversationRepo.lastMsgStatus: lastMsg.status,
@@ -319,7 +336,7 @@ class ChatLogic extends GetxController {
     msg.status = IMBoyMessageStatus.error;
     msg.payload = payload;
     // 更新会话里面的消息列表的特定消息状态
-    eventBus.fire([msg.toTypeMessage()]);
+    eventBus.fire([await msg.toTypeMessage()]);
 
     // 更新会话状态
     Get.find<ConversationLogic>().updateConversationByMsgId(

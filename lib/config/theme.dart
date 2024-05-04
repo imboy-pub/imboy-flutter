@@ -36,7 +36,7 @@ const Color darkBgColor = Color.fromRGBO(40, 40, 40, 1.0);
 // const Color darkInputBgColor = Colors.black87;
 const Color darkPrimaryColor = Color.fromRGBO(26, 26, 26, 1);
 const Color darkOnPrimaryColor = Color.fromRGBO(208, 208, 208, 1.0);
-const Color darkInputTextColor = Color.fromRGBO(212, 212, 212, 1.0);
+const Color darkInputTextColor = Color.fromRGBO(255, 255, 255, 1.0);
 const Color darkInputFillColor = Color.fromRGBO(44, 44, 44, 1.0);
 
 class ChatColor {
@@ -108,6 +108,7 @@ final ThemeData darkTheme = ThemeData(
   primarySwatch: createMaterialColor(const Color(0x00ffffff)),
   useMaterial3: true,
   colorScheme: darkColorScheme,
+    // inputDecorationTheme: InputDecorationTheme(),
 );
 
 final LoginTheme loginTheme = LoginTheme(
@@ -156,7 +157,7 @@ class AppDarkChatTheme extends ChatTheme {
     super.deliveredIcon,
     super.documentIcon,
     super.emptyChatPlaceholderTextStyle = const TextStyle(
-      // color: Theme.of(Get.context!).colorScheme.onPrimary,
+      // color: Colors.black,
       fontFamily: 'Avenir',
       fontSize: 18,
       fontWeight: FontWeight.w500,
@@ -503,4 +504,12 @@ class LightChatTheme extends ChatTheme {
             ),
           ),
         );
+}
+
+class AppStyle {
+  static TextStyle navAppBarTitleStyle = TextStyle(
+    color: Theme.of(Get.context!).colorScheme.onPrimary,
+    fontSize: 16.0,
+    fontWeight: FontWeight.w600,
+  );
 }

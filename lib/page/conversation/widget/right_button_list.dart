@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/page/chat/launch_chat/launch_chat_view.dart';
+import 'package:imboy/page/group/launch_chat/launch_chat_view.dart';
 import 'package:imboy/page/contact/add_friend/add_friend_view.dart';
 import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_view.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
@@ -33,8 +33,8 @@ class RightButton extends StatelessWidget {
           backgroundColor: Theme.of(context).colorScheme.onBackground,
           // barrierDismissible: false,
           // shadow: const [BoxShadow(color: Colors.white, blurRadius: 5)],
-          width: 132,
-          height: 230,
+          width: 110,
+          height: 260,
           arrowHeight: 6,
           arrowWidth: 20,
           arrowDxOffset: 0,
@@ -59,11 +59,12 @@ class RightButtonList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.onBackground,
-      padding: EdgeInsets.symmetric(vertical: GetPlatform.isDesktop ? 24 : 8),
+      color: Colors.black87,
+      // padding: EdgeInsets.symmetric(vertical: GetPlatform.isDesktop ? 24 : 8),
+      // width: 80,
       child: n.ListView.children([
-        InkWell(
-          onTap: () {
+        TextButton(
+          onPressed: () {
             Navigator.of(context).pop();
             Get.to(
               () => LaunchChatPage(),
@@ -73,43 +74,43 @@ class RightButtonList extends StatelessWidget {
           },
           child: n.Row([
             n.Padding(
-              left: 12,
               right: 8,
               child: n.Icon(Icons.chat_bubble_outlined)
                 ..size = 18
                 ..color = Colors.white.withOpacity(0.9),
             ),
-            n.Text(
-              'initiate_chat'.tr,
-            )..apply = ItemTitleStyle.style,
+            Expanded(
+              child: n.Text(
+                'initiate_chat'.tr,
+              )..apply = ItemTitleStyle.style,
+            ),
           ]),
         ),
-        const SizedBox(height: 20),
-        InkWell(
-          onTap: () {
+        TextButton(
+          onPressed: () {
             Navigator.of(context).pop();
             Get.to(
-              () => AddFriendPage(),
+                  () => AddFriendPage(),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
             );
           },
           child: n.Row([
             n.Padding(
-              left: 12,
               right: 8,
               child: n.Icon(Icons.person_add_alt_1)
                 ..size = 18
                 ..color = Colors.white.withOpacity(0.9),
             ),
-            n.Text(
-              'add_friend'.tr,
-            )..apply = ItemTitleStyle.style,
+            Expanded(
+              child: n.Text(
+                'add_friend'.tr,
+              )..apply = ItemTitleStyle.style,
+            ),
           ]),
         ),
-        const SizedBox(height: 20),
-        InkWell(
-          onTap: () {
+        TextButton(
+          onPressed:  () {
             Navigator.of(context).pop();
             Get.to(
               () => RecentlyRegisteredUserPage(),
@@ -119,20 +120,19 @@ class RightButtonList extends StatelessWidget {
           },
           child: n.Row([
             n.Padding(
-              left: 12,
               right: 8,
               child: n.Icon(Icons.person)
                 ..size = 18
                 ..color = Colors.white.withOpacity(0.9),
             ),
-            n.Text(
+            Expanded(
+                child: n.Text(
               'newly_registered_people'.tr,
-            )..apply = ItemTitleStyle.style,
+            )..apply = ItemTitleStyle.style),
           ]),
         ),
-        const SizedBox(height: 20),
-        InkWell(
-          onTap: () {
+        TextButton(
+          onPressed:  () {
             Navigator.of(context).pop();
             Get.to(
               () => UqrcodePage(),
@@ -142,20 +142,19 @@ class RightButtonList extends StatelessWidget {
           },
           child: n.Row([
             n.Padding(
-              left: 12,
               right: 8,
               child: n.Icon(Icons.qr_code_2)
                 ..size = 18
                 ..color = Colors.white.withOpacity(0.9),
             ),
-            n.Text(
+            Expanded(
+                child: n.Text(
               'my_qrcode'.tr,
-            )..apply = ItemTitleStyle.style,
+            )..apply = ItemTitleStyle.style),
           ]),
         ),
-        const SizedBox(height: 20),
-        InkWell(
-          onTap: () {
+        TextButton(
+          onPressed:  () {
             Navigator.of(context).pop();
             Get.to(
               () => const ScannerPage(),
@@ -165,15 +164,15 @@ class RightButtonList extends StatelessWidget {
           },
           child: n.Row([
             n.Padding(
-              left: 12,
               right: 8,
               child: n.Icon(Icons.qr_code_scanner_outlined)
                 ..size = 18
                 ..color = Colors.white.withOpacity(0.9),
             ),
-            n.Text(
+            Expanded(
+                child: n.Text(
               'scan_qr_code'.tr,
-            )..apply = ItemTitleStyle.style,
+            )..apply = ItemTitleStyle.style),
           ]),
         ),
       ]),

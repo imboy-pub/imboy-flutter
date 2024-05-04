@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/config/theme.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/common_bar.dart';
@@ -40,10 +41,7 @@ class SelectRegionPage extends StatelessWidget {
             child: Text(
               'set_region'.tr,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppStyle.navAppBarTitleStyle,
             ),
             // 中间用Expanded控件
           ),

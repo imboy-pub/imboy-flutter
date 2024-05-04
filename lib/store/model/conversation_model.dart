@@ -33,6 +33,11 @@ class ConversationModel {
 
   RxBool selected = false.obs;
 
+  // 如果 title 为空，零时计算title
+  String computeTitle = '';
+  // 如果 avatar 为空，零时计算avatar
+  List<String> computeAvatar = [];
+
   ConversationModel({
     required this.id,
     required this.peerId,
@@ -53,7 +58,7 @@ class ConversationModel {
 
   // CREATE UNIQUE INDEX uk_cv_Type_From_To ON conversation ("type",user_id,peer_id)
   String get uk3 {
-    return "${type}_${UserRepoLocal.to.currentUid}_$peerId";
+    return "${type}_${UserRepoLocal.to.currentUid}_$peerId".toLowerCase();
   }
   /// 会话内容计算
   String get content {
@@ -66,7 +71,7 @@ class ConversationModel {
       return sysPrompt;
     }
     String str = 'unknown_message'.tr;
-    if (msgType == 'text') {
+    if (msgType == 'text' || msgType == '') {
       return subtitle;
     } else if (msgType == 'quote') {
       return subtitle;

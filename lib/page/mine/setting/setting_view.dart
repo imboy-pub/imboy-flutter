@@ -309,10 +309,10 @@ class _SettingPageState extends State<SettingPage> {
               }
             },
           ),
-          // HorizontalLine(
-          //   height: 20,
-          //   color: Theme.of(context).colorScheme.primary,
-          // ),
+          HorizontalLine(
+            height: 10,
+            color: Theme.of(context).colorScheme.primary,
+          ),
         ]),
       ),
     );

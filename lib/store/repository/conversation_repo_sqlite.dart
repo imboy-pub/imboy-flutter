@@ -95,10 +95,10 @@ class ConversationRepo {
 
   // 存在就更新，不存在就插入
   Future<ConversationModel> save(ConversationModel obj) async {
-    iPrint("ConversationRepo_save $id, ${obj.toJson().toString()}");
+    iPrint("ConversationRepo_save ${obj.toJson().toString()}");
     ConversationModel? oldObj = await findByPeerId(obj.type, obj.peerId);
     int unreadNumOld = oldObj == null ? 0 : oldObj.unreadNum;
-    obj.isShow = oldObj?.isShow ?? 1;
+    // obj.isShow = oldObj?.isShow ?? 1;
     obj.unreadNum = obj.unreadNum + unreadNumOld;
     if (oldObj == null) {
       obj.id = await insert(obj);
@@ -152,9 +152,17 @@ class ConversationRepo {
 
   //
   Future<List<ConversationModel>> list({
-    limit = 2000,
-    offset = 0,
+    int limit = 2000,
+    int offset = 0,
+    String type = '',
   }) async {
+    String where =
+        '${ConversationRepo.userId} = ? and ${ConversationRepo.isShow} = ? and ${ConversationRepo.lastTime} > 0';
+    List whereArgs = [UserRepoLocal.to.currentUid, 1];
+    if (type.isNotEmpty) {
+      where += " and ${ConversationRepo.type} = ?";
+      whereArgs.add(type);
+    }
     List<Map<String, dynamic>> items = await _db.query(
       ConversationRepo.tableName,
       columns: [
@@ -175,9 +183,8 @@ class ConversationRepo {
         ConversationRepo.msgType,
         // ConversationRepo.isShow,
       ],
-      where:
-          '${ConversationRepo.userId} = ? and ${ConversationRepo.isShow} = ? and ${ConversationRepo.lastTime} > 0',
-      whereArgs: [UserRepoLocal.to.currentUid, 1],
+      where: where,
+      whereArgs: whereArgs,
       limit: limit,
       offset: offset,
       orderBy: "${ConversationRepo.lastTime} DESC",
@@ -189,6 +196,7 @@ class ConversationRepo {
     }
     List<ConversationModel> item2 = [];
     for (var e in items) {
+      // if(e['t'])
       item2.add(ConversationModel.fromJson(e));
     }
     return item2;

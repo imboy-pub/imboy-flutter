@@ -10,6 +10,7 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/config/theme.dart';
 
 import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_logic.dart';
@@ -55,7 +56,10 @@ class ContactTagDetailPage extends StatelessWidget {
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        titleWidget: Obx(() => Text('${state.tagName} (${state.refererTime})')),
+        titleWidget: Obx(() => Text(
+              '${state.tagName} (${state.refererTime})',
+              style: AppStyle.navAppBarTitleStyle,
+            )),
         rightDMActions: [
           InkWell(
             onTap: () {
