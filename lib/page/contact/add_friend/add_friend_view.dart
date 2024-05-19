@@ -10,7 +10,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/contact/people_nearby/people_nearby_view.dart';
 import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_view.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
-import 'package:imboy/page/uqrcode/uqrcode_view.dart';
+import 'package:imboy/page/qrcode/qrcode_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../new_friend/new_friend_logic.dart';
@@ -67,7 +67,7 @@ class AddFriendPage extends StatelessWidget {
                       InkWell(
                         onTap: () {
                           Get.to(
-                            () => UqrcodePage(),
+                            () => UserQrCodePage(),
                             transition: Transition.rightToLeft,
                             popGesture: true, // 右滑，返回上一页
                           );

@@ -69,7 +69,8 @@ class UserCollectRepo {
     UserCollectModel? old = await findByKindId(kid);
     if (old is UserCollectModel) {
       await update(kid, json);
-      return old;
+      old = await findByKindId(kid);
+      return old!;
     } else {
       UserCollectModel model = UserCollectModel.fromJson(json);
       await insert(model);

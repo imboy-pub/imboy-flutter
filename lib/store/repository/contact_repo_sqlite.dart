@@ -317,7 +317,8 @@ class ContactRepo {
     ContactModel? old = await findByUid(uid, autoFetch: false);
     if (old is ContactModel) {
       await update(json);
-      return old;
+      old = await findByUid(uid, autoFetch: false);
+      return old!;
     } else {
       ContactModel model = ContactModel.fromMap(json);
       await insert(model);

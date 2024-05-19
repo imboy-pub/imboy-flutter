@@ -1,3 +1,15 @@
+# 0.4.1
+* 新增功能：修改设置群聊名称；
+* 优化: 在有需要的模式下替换 RoundedElevatedButton 封装（
+  * personal_info/update/update_view.dart setting_view.dart 
+  * language_view.dart 
+  * user_device/change_name_view.dart 
+  * mine/select_region/select_region_view.dart
+  * contact/contact_setting_tag/contact_setting_tag_view.dart
+  * user_tag/user_tag_save/user_tag_save_view.dart
+  * user_tag/contact_tag_detail/contact_tag_detail_view.dart
+* 升级一些依赖，跳转相关代码
+
 # 0.4.0
 * 新增功能：发起群聊功能-选择一个群；
 * 新增功能：发起群聊功能-选择联系人创建群聊；

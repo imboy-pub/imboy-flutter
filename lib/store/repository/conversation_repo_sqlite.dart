@@ -106,7 +106,7 @@ class ConversationRepo {
       Map<String, dynamic> data = obj.toJson();
       data.remove(ConversationRepo.id);
       await updateById(oldObj.id, data);
-      obj.id = oldObj.id;
+      obj = (await findByPeerId(obj.type, obj.peerId))!;
     }
     return obj;
   }

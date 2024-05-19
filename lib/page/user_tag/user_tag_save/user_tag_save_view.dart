@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
 import 'package:imboy/page/user_tag/contact_tag_detail/contact_tag_detail_logic.dart';
@@ -117,7 +118,9 @@ class UserTagSavePage extends StatelessWidget {
             ),
             n.Row([
               Obx(
-                () => ElevatedButton(
+                () => RoundedElevatedButton(
+              text: 'button_accomplish'.tr,
+              highlighted: state.valueChanged.isTrue,
                   onPressed: () async {
                     String trimmedText = state.textController.text.trim();
                     if (trimmedText == '') {
@@ -166,47 +169,7 @@ class UserTagSavePage extends StatelessWidget {
                         }
                       }
                     }
-                  },
-                  // ignore: sort_child_properties_last
-                  child: n.Padding(
-                    left: 40,
-                    right: 40,
-                    child: Text(
-                      'button_accomplish'.tr,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                  style: state.valueChanged.isTrue
-                      ? ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            Colors.green,
-                          ),
-                          foregroundColor: MaterialStateProperty.all<Color>(
-                            Colors.white,
-                          ),
-                          minimumSize:
-                              MaterialStateProperty.all(const Size(60, 40)),
-                          visualDensity: VisualDensity.compact,
-                          padding: MaterialStateProperty.all(EdgeInsets.zero),
-                        )
-                      : ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            Colors.green.withOpacity(0.6),
-                          ),
-                          foregroundColor: MaterialStateProperty.all<Color>(
-                            Colors.white.withOpacity(0.6),
-                          ),
-                          minimumSize:
-                              MaterialStateProperty.all(const Size(60, 40)),
-                          visualDensity: VisualDensity.compact,
-                          padding: MaterialStateProperty.all(EdgeInsets.zero),
-                        ),
-                ),
+                  },),
               )
             ])
               // 内容居中

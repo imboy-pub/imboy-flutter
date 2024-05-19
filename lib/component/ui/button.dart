@@ -62,16 +62,16 @@ class ButtonRow extends StatelessWidget {
 
 class RoundedElevatedButton extends StatelessWidget {
   final String text;
-  final VoidCallback? onPressed;
   final bool highlighted;
+  final VoidCallback? onPressed;
   final Size? size;
   final BorderRadius? borderRadius;
 
   const RoundedElevatedButton({
     super.key,
     required this.text,
-    this.onPressed,
-    this.highlighted = false,
+    required this.highlighted,
+    required this.onPressed,
     this.size,
     this.borderRadius,
   });

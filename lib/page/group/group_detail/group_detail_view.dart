@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/page/single/people_info.dart';
+import 'package:imboy/page/qrcode/qrcode_view.dart';
 import 'package:imboy/store/model/group_extend_model.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -21,6 +22,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/page/group/group_member/group_member_view.dart';
 import 'package:synchronized/synchronized.dart';
 
+import 'change_info_view.dart';
 import 'group_detail_logic.dart';
 import 'remove_member_view.dart';
 import 'add_member_view.dart';
@@ -61,7 +63,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
   String? myGroupAlias;
 
   bool _top = false;
-  bool _showName = false;
+
+  // bool _showName = false;
 
   // bool _contact = false;
   // bool _dnd = false;
@@ -138,17 +141,20 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
     // 监听新成员加入
     eventBus.on<JoinGroupModel>().listen((JoinGroupModel obj) async {
       iPrint(
-          "face_to_face_confirm widget.gid ${obj.groupId} = ${widget.groupId} - uid ${obj.userId}; $mounted");
-      if (obj.groupId == widget.groupId) {
+          "face_to_face_confirm widget.gid ${obj.groupId} = ${widget.groupId} - uid ${obj.userId}; obj.isFirst ${obj.isFirst}");
+      if (obj.groupId == widget.groupId && obj.isFirst) {
         // 使用锁来保护消息处理逻辑
         await _lock.synchronized(() async {
           // GroupModel? g = await (GroupRepo()).findById(widget.groupId);
+          // final i = memberList.indexWhere((e) => e.id == obj.people.id);
+          // if (i == -1) {
           memberCount += 1;
           memberList.insert(0, obj.people);
           backDoRefresh = true;
           if (mounted) {
             setState(() {});
           }
+          // }
         });
       }
     });
@@ -160,17 +166,17 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
         // 使用锁来保护消息处理逻辑
         await _lock.synchronized(() async {
           // GroupModel? g = await (GroupRepo()).findById(widget.groupId);
-          memberCount -= 1;
 
           final i =
               memberList.indexWhere((PeopleModel p) => p.id == obj.userId);
           if (i > -1) {
+            memberCount -= 1;
             memberList.removeAt(i);
+            if (mounted) {
+              setState(() {});
+            }
           }
           backDoRefresh = true;
-          if (mounted) {
-            setState(() {});
-          }
         });
       }
     });
@@ -266,21 +272,33 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             n.ListTile(
               title: n.Row([
                 Text('group_name'.tr),
-                Text(title.isEmpty
-                    ? '未命名'
-                    : (title.length > 7
-                        ? '${title.substring(0, 6)}...'
-                        : title)),
+                Flexible(
+                  child: Text(
+                    title.isEmpty ? '未命名'.tr : title,
+                  ),
+                ),
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
               trailing: navigateNextIcon,
-              onTap: () {
-                // Get.to(
-                //       () => DenylistPage(),
-                //   transition: Transition.rightToLeft,
-                //   popGesture: true, // 右滑，返回上一页
-                // );
+              onTap: () async {
+                GroupModel group = (await logic.find(widget.groupId))!;
+                Get.to(
+                  () => ChangeInfoPage(
+                    group: group,
+                    title: '修改群聊名称'.tr,
+                    subtitle: '修改群聊名称后，将在群内通知其他成员。'.tr,
+                  ),
+                  transition: Transition.rightToLeft,
+                  popGesture: true, // 右滑，返回上一页
+                )?.then((value) {
+                  iPrint("ChangeInfoPage back ${value.toString()}");
+                  if (value != null && value is GroupModel) {
+                    // memberCount = value.memberCount;
+                    title = value.title;
+                    setState(() {});
+                  }
+                });
               },
             ),
             n.Padding(
@@ -295,12 +313,13 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
               trailing: navigateNextIcon,
-              onTap: () {
-                // Get.to(
-                //       () => DenylistPage(),
-                //   transition: Transition.rightToLeft,
-                //   popGesture: true, // 右滑，返回上一页
-                // );
+              onTap: () async {
+                GroupModel group = (await logic.find(widget.groupId))!;
+                Get.to(
+                  () => GroupQrCodePage(group: group),
+                  transition: Transition.rightToLeft,
+                  popGesture: true, // 右滑，返回上一页
+                );
               },
             ),
             n.Padding(

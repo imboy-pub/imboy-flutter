@@ -194,13 +194,15 @@ class ChatPageState extends State<ChatPage> {
       eventBus.on<JoinGroupModel>().listen((JoinGroupModel obj) async {
         iPrint(
             "face_to_face_confirm widget.gid ${obj.groupId} = ${widget.peerId} - uid ${obj.userId}; $mounted");
-        if (obj.groupId == widget.peerId) {
+        if (obj.groupId == widget.peerId && obj.isFirst) {
           // 使用锁来保护消息处理逻辑
           await _lock.synchronized(() async {
-            // GroupModel? g = await (GroupRepo()).findById(widget.peerId);
             logic.state.memberCount += 1;
             newGroupName = await logic.groupTitle(
-                widget.peerId, widget.peerTitle, logic.state.memberCount);
+              widget.peerId,
+              widget.peerTitle,
+              logic.state.memberCount,
+            );
             if (mounted) {
               setState(() {});
             }

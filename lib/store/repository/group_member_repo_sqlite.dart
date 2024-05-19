@@ -192,7 +192,8 @@ class GroupMemberRepo {
       return model;
     } else {
       await update(gid, userId, json);
-      return old;
+      old = await findByUserId(gid, userId);
+      return old!;
     }
   }
   Future<GroupMemberModel?> findByUserId(String gid, String userId) async {

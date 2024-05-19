@@ -49,7 +49,7 @@ class GroupModel {
       type: json['type'],
       joinLimit: json['join_limit'],
       contentLimit: json['content_limit'],
-      userIdSum: json['user_id_sum'],
+      userIdSum: json['user_id_sum'] ?? 0,
       ownerUid: json['owner_uid'],
       creatorUid: json['creator_uid'],
       memberMax: json['member_max'],

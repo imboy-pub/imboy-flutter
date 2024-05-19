@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:imboy/page/chat/chat/chat_view.dart';
+import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -26,6 +29,7 @@ class _ScannerPageState extends State<ScannerPage>
 
   MobileScannerController controller = MobileScannerController(
     // torchEnabled: false, // 是否 打开灯
+    // returnImage: true,
     formats: [BarcodeFormat.all],
     // formats: [BarcodeFormat.qrCode],
     // facing: CameraFacing.front,
@@ -35,7 +39,83 @@ class _ScannerPageState extends State<ScannerPage>
   bool attainableResult = true;
   Barcode? barcode;
   BarcodeCapture? capture;
-  MobileScannerArguments? arguments;
+
+  @override
+  void initState() {
+    super.initState();
+    controller.start();
+  }
+
+  @override
+  Future<void> dispose() async {
+    super.dispose();
+    await controller.dispose();
+  }
+
+  Future<void> onDetect(BarcodeCapture barcodes) async {
+    debugPrint("> scanner onDetect attainableResult $attainableResult, barcodes.length ${barcodes.barcodes.length}; barcodeStr $barcodeStr");
+    capture = barcodes;
+    setState(() => barcode = barcodes.barcodes.first);
+    if (attainableResult == false) {
+      return;
+    }
+    attainableResult = false;
+    Future.delayed(const Duration(seconds: 2), () {
+      attainableResult = true;
+    });
+
+    // New barcode found !!
+    setState(() {
+      barcodeStr = barcodes.barcodes.last.rawValue;
+    });
+    bool isIMBoyQrcode = barcodeStr!.endsWith(qrcodeDataSuffix);
+    if (isUrl(barcodeStr!) && isIMBoyQrcode) {
+      IMBoyHttpResponse resp = await HttpClient.client.get(barcodeStr!);
+      if (!resp.ok) {
+        EasyLoading.showError(resp.msg);
+        return;
+      }
+      Map payload = resp.payload;
+      debugPrint("> on qrcode: ${payload.toString()}");
+      String result = payload['result'] ?? '';
+      String type = payload['type'] ?? 'user';
+      if (result == '' && type == 'user') {
+        Get.off(
+          () => PeopleInfoPage(id: payload['id'], scene: 'qrcode'),
+          transition: Transition.rightToLeft,
+          popGesture: true, // 右滑，返回上一页
+        );
+      } else if (result == '' && type == 'group') {
+        await GroupMemberRepo().save(payload['group_member']);
+        Get.to(
+          () => ChatPage(
+            peerId: payload['id'],
+            peerTitle: payload['title'],
+            peerAvatar: payload['avatar'],
+            peerSign: '',
+            type: 'C2G',
+            options: {'memberCount': payload['member_count']},
+          ),
+          transition: Transition.rightToLeft,
+          popGesture: true, // 右滑，返回上一页
+        );
+      } else if (result == 'user_not_exist') {
+        await logic.showResult('user_not_exist'.tr, 2);
+      } else if (result == 'user_is_disabled_or_deleted') {
+        // 用户被禁用或已删除
+        await logic.showResult('user_disabled_or_deleted'.tr, 2);
+      }
+    } else {
+      Get.to(
+        () => ScannerResultPage(
+          scanResult: barcodeStr!,
+        ),
+        transition: Transition.rightToLeft,
+        popGesture: true, // 右滑，返回上一页
+      );
+      // logic.showResult(barcodeStr!);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,63 +150,14 @@ class _ScannerPageState extends State<ScannerPage>
               fit: BoxFit.contain,
               scanWindow: scanWindow,
               controller: controller,
-              onScannerStarted: (arguments) {
-                debugPrint(
-                    "> scanner onScannerStarted ${arguments.toString()}");
-                setState(() {
-                  this.arguments = arguments;
-                });
-              },
-              onDetect: (BarcodeCapture barcodes) async {
-                debugPrint(
-                    "> scanner onDetect ${barcodes.barcodes.length} $barcodeStr");
-                capture = barcodes;
-                setState(() => barcode = barcodes.barcodes.first);
-                if (attainableResult == false) {
-                  return;
-                }
-                attainableResult = barcodeStr != null &&
-                        barcodeStr == barcodes.barcodes.last.rawValue
-                    ? false
-                    : true;
-                // New barcode found !!
-                setState(() {
-                  barcodeStr = barcodes.barcodes.last.rawValue;
-                });
-                bool isUserQrcode = barcodeStr!.endsWith(userQrcodeDataSuffix);
-                if (isUrl(barcodeStr!) && isUserQrcode) {
-                  IMBoyHttpResponse resp =
-                      await HttpClient.client.get(barcodeStr!);
-                  if (!resp.ok) {
-                    return;
-                  }
-                  Map payload = resp.payload;
-                  // debugPrint("> on qrcode: ${payload.toString()}");
-                  String result = payload['result'] ?? '';
-                  if (result == '' && payload['id'] != null) {
-                    Get.off(
-                      () => PeopleInfoPage(id: payload['id'], scene: 'qrcode'),
-                      transition: Transition.rightToLeft,
-                      popGesture: true, // 右滑，返回上一页
-                    );
-                  } else if (result == 'user_not_exist') {
-                    await logic.showResult('user_not_exist'.tr, 2);
-                  } else if (result == 'user_is_disabled_or_deleted') {
-                    // 用户被禁用或已删除
-                    await logic.showResult('user_disabled_or_deleted'.tr, 2);
-                  }
-                } else {
-                  Get.to(
-                    () => ScannerResultPage(
-                      scanResult: barcodeStr!,
-                    ),
-                    transition: Transition.rightToLeft,
-                    popGesture: true, // 右滑，返回上一页
-                  );
-                  attainableResult = true;
-                  // logic.showResult(barcodeStr!);
-                }
-              },
+              // onScannerStarted: (arguments) {
+              //   debugPrint(
+              //       "> scanner onScannerStarted ${arguments.toString()}");
+              //   setState(() {
+              //     this.arguments = arguments;
+              //   });
+              // },
+              onDetect: onDetect,
             ),
             CustomPaint(
               painter: ScannerOverlay(scanWindow),
@@ -143,25 +174,15 @@ class _ScannerPageState extends State<ScannerPage>
                     IconButton(
                       color: Colors.white,
                       icon: ValueListenableBuilder(
-                        valueListenable: controller.torchState,
-                        builder: (context, state, child) {
-                          switch (state) {
-                            case TorchState.off:
-                              return const Icon(
-                                Icons.flash_off,
-                                color: Colors.grey,
-                              );
-                            case TorchState.on:
-                              return const Icon(
-                                Icons.flash_on,
-                                color: Colors.yellow,
-                              );
-                            default:
-                              return const Icon(
-                                Icons.flash_off,
-                                color: Colors.grey,
-                              );
-                          }
+                        valueListenable: controller,
+                        builder: (context, MobileScannerState state, child) {
+                          final iconData = state.torchState == TorchState.on
+                              ? Icons.flash_on
+                              : Icons.flash_off;
+                          final color = state.torchState == TorchState.on
+                              ? Colors.yellow
+                              : Colors.grey;
+                          return Icon(iconData, color: color);
                         },
                       ),
                       iconSize: 32.0,
@@ -198,16 +219,14 @@ class _ScannerPageState extends State<ScannerPage>
                     IconButton(
                       color: Colors.white,
                       icon: ValueListenableBuilder(
-                        valueListenable: controller.cameraFacingState,
-                        builder: (context, state, child) {
-                          switch (state) {
-                            case CameraFacing.front:
-                              return const Icon(Icons.camera_front);
-                            case CameraFacing.back:
-                              return const Icon(Icons.camera_rear);
-                            default:
-                              return const Icon(Icons.camera_front);
-                          }
+                        valueListenable: controller,
+                        builder:
+                            (context, MobileScannerState cameraFacing, child) {
+                          final iconData =
+                              cameraFacing.cameraDirection == CameraFacing.front
+                                  ? Icons.camera_front
+                                  : Icons.camera_rear;
+                          return Icon(iconData);
                         },
                       ),
                       iconSize: 32.0,
@@ -230,22 +249,24 @@ class _ScannerPageState extends State<ScannerPage>
                           return;
                         }
                         if (!mounted) return;
-                        bool res = await controller.analyzeImage(image.path);
+                        BarcodeCapture? res =
+                            await controller.analyzeImage(image.path);
                         debugPrint("> on barcode $res ${image.path}");
-                        if (res) {
+                        if (res == null) {
                           state.showSnackBar(
-                            const SnackBar(
-                              content: Text('Barcode found!'),
-                              backgroundColor: Colors.green,
+                            SnackBar(
+                              content: Text('No barcode found!'.tr),
+                              backgroundColor: Colors.red,
                             ),
                           );
                         } else {
                           state.showSnackBar(
-                            const SnackBar(
-                              content: Text('No barcode found!'),
-                              backgroundColor: Colors.red,
+                            SnackBar(
+                              content: Text('Barcode found!'.tr),
+                              backgroundColor: Colors.green,
                             ),
                           );
+                          onDetect(res);
                         }
                       },
                     ),

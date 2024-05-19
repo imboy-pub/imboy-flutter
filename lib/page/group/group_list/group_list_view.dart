@@ -26,8 +26,10 @@ class GroupListPage extends StatelessWidget {
   void initData() async {
     if (state.page == 1) {
       // state.groupList.value = await logic.page(page: page, size: size);
-      List<GroupModel> list =
-          await logic.page(page: state.page, size: state.size);
+      List<GroupModel> list = await logic.page(
+        page: state.page,
+        size: state.size,
+      );
       List<GroupModel> list2 = [];
       for (GroupModel m in list) {
         if (strEmpty(m.title)) {

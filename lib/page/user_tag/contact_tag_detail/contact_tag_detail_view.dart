@@ -6,6 +6,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
@@ -701,7 +702,12 @@ class SelectFriendPage extends StatelessWidget {
               top: 8,
               right: 8,
               bottom: 8,
-              child: ElevatedButton(
+              child: RoundedElevatedButton(
+              text: 'button_add'.tr +
+                      (selectedContact.isEmpty
+                          ? ""
+                          : " (${selectedContact.length})    "),
+              highlighted: selectedContact.isNotEmpty,
                 onPressed: () async {
                   Navigator.of(context).pop();
                   const String scene = 'friend';
@@ -723,41 +729,7 @@ class SelectFriendPage extends StatelessWidget {
                   } else {
                     EasyLoading.showError('tip_failed'.tr);
                   }
-                },
-                // ignore: sort_child_properties_last
-                child: Text(
-                  'button_add'.tr +
-                      (selectedContact.isEmpty
-                          ? ""
-                          : " (${selectedContact.length})    "),
-                  textAlign: TextAlign.center,
-                ),
-                style: selectedContact.isNotEmpty
-                    ? ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          Colors.green,
-                        ),
-                        foregroundColor: MaterialStateProperty.all<Color>(
-                          Colors.white,
-                        ),
-                        minimumSize:
-                            MaterialStateProperty.all(const Size(60, 40)),
-                        visualDensity: VisualDensity.compact,
-                        padding: MaterialStateProperty.all(EdgeInsets.zero),
-                      )
-                    : ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          Colors.green.withOpacity(0.6),
-                        ),
-                        foregroundColor: MaterialStateProperty.all<Color>(
-                          Colors.white.withOpacity(0.6),
-                        ),
-                        minimumSize:
-                            MaterialStateProperty.all(const Size(60, 40)),
-                        visualDensity: VisualDensity.compact,
-                        padding: MaterialStateProperty.all(EdgeInsets.zero),
-                      ),
-              ),
+                }),
             ),
           )
         ],

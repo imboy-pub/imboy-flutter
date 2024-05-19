@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/mine/select_region/select_region_logic.dart';
@@ -78,7 +79,9 @@ class UpdatePage extends StatelessWidget {
             // 中间用Expanded控件
           ),
           Obx(
-            () => ElevatedButton(
+            () => RoundedElevatedButton(
+              text: 'button_accomplish'.tr,
+              highlighted: logic.valueChanged.isTrue,
               onPressed: () async {
                 if (field == "input") {
                   String trimmedText = logic.textController.text.trim();
@@ -103,39 +106,6 @@ class UpdatePage extends StatelessWidget {
                   }
                 }
               },
-              // ignore: sort_child_properties_last
-              child: n.Padding(
-                  left: 10,
-                  right: 10,
-                  child: Text(
-                    'button_accomplish'.tr,
-                    textAlign: TextAlign.center,
-                  )),
-              style: logic.valueChanged.isTrue
-                  ? ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.green,
-                      ),
-                      foregroundColor: MaterialStateProperty.all<Color>(
-                        Colors.white,
-                      ),
-                      minimumSize:
-                          MaterialStateProperty.all(const Size(60, 40)),
-                      visualDensity: VisualDensity.compact,
-                      padding: MaterialStateProperty.all(EdgeInsets.zero),
-                    )
-                  : ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.green.withOpacity(0.6),
-                      ),
-                      foregroundColor: MaterialStateProperty.all<Color>(
-                        Colors.white.withOpacity(0.6),
-                      ),
-                      minimumSize:
-                          MaterialStateProperty.all(const Size(60, 40)),
-                      visualDensity: VisualDensity.compact,
-                      padding: MaterialStateProperty.all(EdgeInsets.zero),
-                    ),
             ),
           ),
         ]),

@@ -199,6 +199,7 @@ class MessageService extends GetxService {
         String account = payload['account'];
         String gid = payload['gid'];
         int userIdSum = payload['user_id_sum'] ?? 0;
+        Map<String, dynamic>? joinRes =
         await Get.find<GroupListLogic>().memberJoin(
           groupId: gid,
           userId: userId,
@@ -207,6 +208,7 @@ class MessageService extends GetxService {
         eventBus.fire(JoinGroupModel(
           groupId: gid,
           userId: userId,
+          isFirst: joinRes?['isFirst'] ?? false,
           people: PeopleModel(
             id: userId,
             account: account,
@@ -221,7 +223,7 @@ class MessageService extends GetxService {
         await GroupDetailLogic().cleanData(gid);
         break;
       case 'group_member_leave':
-        String userId = data['from'];
+        String userId = payload['leave_uid'];
         String gid = payload['gid'];
         int userIdSum = payload['user_id_sum'] ?? 0;
         await Get.find<GroupListLogic>().memberLeave(

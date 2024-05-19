@@ -9,7 +9,7 @@ const contactAssets = 'assets/images/contact/';
 const CONST_HELP_URL =
     'https://kf.qq.com/touch/product/wechat_app.html?scene_id=kf338';
 
-String userQrcodeDataSuffix = "s=uqrcode";
+String qrcodeDataSuffix = "s=app_qrcode";
 
 const RECORD_LOG = true;
 

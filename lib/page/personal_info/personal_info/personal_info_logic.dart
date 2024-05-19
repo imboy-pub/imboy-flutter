@@ -5,7 +5,7 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 
 import 'package:imboy/page/personal_info/widget/more_view.dart';
-import 'package:imboy/page/uqrcode/uqrcode_view.dart';
+import 'package:imboy/page/qrcode/qrcode_view.dart';
 
 import 'personal_info_state.dart';
 
@@ -31,7 +31,7 @@ class PersonalInfoLogic extends GetxController {
       );
     } else if (label == "user_qrcode") {
       Get.to(
-        () => UqrcodePage(),
+        () => UserQrCodePage(),
         transition: Transition.rightToLeft,
         popGesture: true, // 右滑，返回上一页
       );

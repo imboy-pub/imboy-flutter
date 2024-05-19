@@ -207,7 +207,9 @@ class _SettingPageState extends State<SettingPage> {
                     right: 10,
                     top: 10,
                     bottom: 10,
-                    child: ElevatedButton(
+                    child: RoundedElevatedButton(
+                      text: 'check_for_updates'.tr,
+                      highlighted: true,
                       onPressed: () async {
                         final AppVersionProvider p = AppVersionProvider();
                         final navigator = Navigator.of(context);
@@ -235,28 +237,6 @@ class _SettingPageState extends State<SettingPage> {
                           EasyLoading.showInfo('now_new_version'.tr);
                         }
                       },
-                      // ignore: sort_child_properties_last
-                      child: n.Padding(
-                          left: 10,
-                          right: 10,
-                          child: Text(
-                            'check_for_updates'.tr,
-                            textAlign: TextAlign.center,
-                          )),
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          Theme.of(context).colorScheme.background,
-                        ),
-                        foregroundColor: MaterialStateProperty.all<Color>(
-                          Theme.of(context).colorScheme.onBackground,
-                        ),
-                        minimumSize: MaterialStateProperty.all(
-                          const Size(80, 32),
-                        ),
-                        padding: MaterialStateProperty.all(
-                          EdgeInsets.zero,
-                        ),
-                      ),
                     ),
                   )
                 ];

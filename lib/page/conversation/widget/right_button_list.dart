@@ -4,7 +4,7 @@ import 'package:imboy/page/group/launch_chat/launch_chat_view.dart';
 import 'package:imboy/page/contact/add_friend/add_friend_view.dart';
 import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_view.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
-import 'package:imboy/page/uqrcode/uqrcode_view.dart';
+import 'package:imboy/page/qrcode/qrcode_view.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:popover/popover.dart';
 
@@ -135,7 +135,7 @@ class RightButtonList extends StatelessWidget {
           onPressed:  () {
             Navigator.of(context).pop();
             Get.to(
-              () => UqrcodePage(),
+              () => UserQrCodePage(),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
             );

@@ -216,7 +216,8 @@ class GroupRepo {
       return model;
     } else {
       await update(gid, json);
-      return old;
+      old = await findById(gid);
+      return old!;
     }
   }
 

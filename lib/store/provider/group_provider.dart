@@ -28,8 +28,7 @@ class GroupProvider extends HttpClient {
     IMBoyHttpResponse resp = await get(API.groupDetail, queryParameters: {
       "gid": gid,
     });
-    debugPrint(
-        "GroupProvider/detail resp.payload: ${resp.payload.toString()}");
+    debugPrint("GroupProvider/detail resp.payload: ${resp.payload.toString()}");
     if (resp.ok == false) {
       EasyLoading.showError(resp.msg);
     }
@@ -93,6 +92,20 @@ class GroupProvider extends HttpClient {
     return resp.ok ? resp.payload : null;
   }
 
+  Future<bool> groupEdit({
+    required String gid,
+    required Map<String, dynamic> data,
+  }) async {
+    data['gid'] = gid;
+    IMBoyHttpResponse resp = await post(API.groupEdit, data: data);
+    debugPrint(
+        "GroupProvider/groupEdit resp: ${resp.code.toString()}; ${resp.msg}");
+    if (resp.code == 1) {
+      EasyLoading.showError(resp.msg);
+    }
+    return resp.ok ? true : false;
+  }
+
   /// 下面的代码是垃圾代码，作完功能后需要清理 TODO
 
   // Future<bool> deleteGr({required String groupId}) async {
@@ -103,23 +116,6 @@ class GroupProvider extends HttpClient {
   //   debugPrint("GroupProvider/deleteTag resp: ${resp.toString()}");
   //   return resp.ok ? true : false;
   // }
-
-  Future<bool> changeName(
-      {required String scene,
-      required int tagId,
-      required String tagName}) async {
-    IMBoyHttpResponse resp = await post(API.userTagChangeName, data: {
-      "scene": scene,
-      "tagId": tagId,
-      "tagName": tagName,
-    });
-    debugPrint(
-        "GroupProvider/changeName resp: ${resp.code.toString()}; ${resp.msg}");
-    if (resp.code == 1) {
-      EasyLoading.showError(resp.msg);
-    }
-    return resp.ok ? true : false;
-  }
 
   Future<int> addTag({required String scene, required String tagName}) async {
     IMBoyHttpResponse resp = await post(API.userTagAdd, data: {

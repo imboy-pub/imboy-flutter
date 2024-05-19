@@ -5,6 +5,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -27,8 +28,8 @@ class GroupListLogic extends GetxController {
     List<Map> list = await db.rawQuery(sql);
     iPrint("computeAvatar l $gid, ${list.length} $sql");
     iPrint("computeAvatar $gid, ${list.toString()}");
-    // List<String> li = [UserRepoLocal.to.current.avatar];
-    List<String> li = [];
+    List<String> li = [UserRepoLocal.to.current.avatar];
+    // List<String> li = [];
     if (list.isNotEmpty) {
       for (var e in list) {
         String t = e['avatar'] ?? '';
@@ -151,7 +152,7 @@ class GroupListLogic extends GetxController {
     return true;
   }
 
-  Future<void> memberJoin(
+  Future<Map<String, dynamic>?> memberJoin(
       {required String groupId,
       required String userId,
       required int userIdSum}) async {
@@ -163,7 +164,7 @@ class GroupListLogic extends GetxController {
     // 届时再从服务端拉取group记录和group_member记录同步到各客户端？ TODO leeyi2024-04-26 15:32:22
     iPrint("memberJoin g ${g?.toJson().toString()};");
     if (g == null) {
-      return;
+      return null;
     }
     GroupMemberRepo gmRepo = GroupMemberRepo();
     GroupMemberModel? gm = await gmRepo.findByUserId(groupId, userId);
@@ -186,7 +187,7 @@ class GroupListLogic extends GetxController {
         GroupRepo.memberCount: g.memberCount + 1,
       });
     }
-
+    return {"isFirst": gm == null ? true : false};
     // iPrint("memberJoin userIdSum $userIdSum g ${g.userIdSum}: ${g.userIdSum < userIdSum} ");
     // if (g.userIdSum < userIdSum) {
     // GroupModel? g2 = await (GroupRepo()).findById(groupId);
@@ -206,13 +207,25 @@ class GroupListLogic extends GetxController {
     // 届时再从服务端拉取group记录和group_member记录同步到各客户端？ TODO leeyi2024-04-26 15:32:22
     iPrint("memberLeave g ${g?.toJson().toString()};");
 
-    int res = await (GroupMemberRepo()).delete(groupId, userId);
-    iPrint("memberLeave $res;");
-
-    // int? memberCount = await gmRepo.countByGid(groupId);
-    await gRepo.save(groupId, {
-      GroupRepo.userIdSum: userIdSum,
-      GroupRepo.memberCount: g!.memberCount - 1,
-    });
+    if (userId == UserRepoLocal.to.currentUid) {
+      await GroupMemberRepo().deleteByGid(groupId);
+      await gRepo.delete(groupId);
+      // 是直接移出回话记录和相关聊天记录，还是想微信QQ一样发送一个聊天消息，让后不能够在群里面发消息了 TODO leeyi 2024-05-13 16:21:51
+      // ConversationModel? c =
+      //     await ConversationRepo().findByPeerId('C2G', groupId);
+      // if (c != null) {
+      //   await MessageRepo(
+      //     tableName: MessageRepo.c2gTable,
+      //   ).deleteByConversationId(c.uk3);
+      // }
+    } else {
+      int res = await GroupMemberRepo().delete(groupId, userId);
+      iPrint("memberLeave $res;");
+      // int? memberCount = await gmRepo.countByGid(groupId);
+      await gRepo.save(groupId, {
+        GroupRepo.userIdSum: userIdSum,
+        GroupRepo.memberCount: g!.memberCount - 1,
+      });
+    }
   }
 }

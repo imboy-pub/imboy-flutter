@@ -77,8 +77,8 @@ class ComputeAvatar extends StatelessWidget {
       child: computeAvatar != null && computeAvatar!.length < 2
           ? Avatar(imgUri: imgUri, width: width, height: height)
           : NineGridView(
-              width: 56,
-              height: 56,
+              width: width ?? 56,
+              height: height ?? 56,
               padding: const EdgeInsets.all(0),
               space: 1,
               type: NineGridType.weChatGp,
