@@ -35,7 +35,7 @@ class PeopleNearbyPage extends StatelessWidget {
     });
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         title: 'people_nearby'.tr,
@@ -115,15 +115,15 @@ class PeopleNearbyPage extends StatelessWidget {
                         },
                         style: ButtonStyle(
                           overlayColor:
-                              MaterialStateProperty.all(Colors.transparent),
+                              WidgetStateProperty.all(Colors.transparent),
                           backgroundColor:
-                              MaterialStateProperty.resolveWith((states) {
-                            // return states.contains(MaterialState.pressed)
+                              WidgetStateProperty.resolveWith((states) {
+                            // return states.contains(WidgetState.pressed)
                             //     ? Colors.black12
                             //     : Colors.white;
-                            return Theme.of(context).colorScheme.background;
+                            return Theme.of(context).colorScheme.surface;
                           }),
-                          shape: MaterialStateProperty.all(
+                          shape: WidgetStateProperty.all(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -198,7 +198,7 @@ class PeopleNearbyPage extends StatelessWidget {
           // 附近的群
         ])
           ..mainAxisSize = MainAxisSize.min
-          ..useParent((v) => v..bg = Theme.of(context).colorScheme.background),
+          ..useParent((v) => v..bg = Theme.of(context).colorScheme.surface),
       ),
     );
   }

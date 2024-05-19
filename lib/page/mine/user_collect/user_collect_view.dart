@@ -196,7 +196,7 @@ class UserCollectPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         leading: isSelect
@@ -231,7 +231,7 @@ class UserCollectPage extends StatelessWidget {
         child: Container(
           width: Get.width,
           height: Get.height,
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           child: Obx(
             () => n.Column([
               n.Padding(
@@ -289,7 +289,7 @@ class UserCollectPage extends StatelessWidget {
                                         flex: 1,
                                         backgroundColor: Theme.of(context)
                                             .colorScheme
-                                            .background,
+                                            .surface,
                                         // foregroundColor: Colors.white,
                                         onPressed: (_) async {
                                           Get.to(
@@ -323,7 +323,7 @@ class UserCollectPage extends StatelessWidget {
                                         flex: 1,
                                         backgroundColor: Theme.of(context)
                                             .colorScheme
-                                            .background,
+                                            .surface,
                                         // foregroundColor: Colors.white,
                                         onPressed: (_) async {
                                           Get.bottomSheet(
@@ -510,9 +510,9 @@ class UserCollectPage extends StatelessWidget {
           });
         },
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-            (Set<MaterialState> states) {
-              if (states.contains(MaterialState.pressed)) {
+          backgroundColor: WidgetStateProperty.resolveWith<Color>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.pressed)) {
                 return Theme.of(Get.context!)
                     .colorScheme
                     .primary
@@ -534,16 +534,16 @@ class UserCollectPage extends StatelessWidget {
     });
     return Container(
         padding: const EdgeInsets.only(left: 8, right: 16.0),
-        color: Theme.of(Get.context!).colorScheme.background,
+        color: Theme.of(Get.context!).colorScheme.surface,
         child: ExpansionPanelList(
-          expandIconColor: Theme.of(Get.context!).colorScheme.background,
+          expandIconColor: Theme.of(Get.context!).colorScheme.surface,
           expansionCallback: (panelIndex, isExpanded) {
             state.kindActive.value = !state.kindActive.value;
             debugPrint("state.kindActive $state.kindActive");
           },
           children: <ExpansionPanel>[
             ExpansionPanel(
-              backgroundColor: Theme.of(Get.context!).colorScheme.background,
+              backgroundColor: Theme.of(Get.context!).colorScheme.surface,
               headerBuilder: (context, isExpanded) {
                 if (isExpanded) {
                   return n.Row([

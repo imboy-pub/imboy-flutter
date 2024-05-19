@@ -130,7 +130,7 @@ class AddMemberPageState extends State<AddMemberPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         title: 'select_contacts'.tr,
         leading: n.Padding(
@@ -216,7 +216,7 @@ class AddMemberPageState extends State<AddMemberPage> {
               width: Get.width,
               // height: Get.height - 150,
               height: Get.height,
-              color: Theme.of(context).colorScheme.background,
+              color: Theme.of(context).colorScheme.surface,
               child: n.Column([
                 Expanded(
                   child: SlidableAutoCloseBehavior(child: Obx(() {

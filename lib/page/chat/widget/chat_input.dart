@@ -362,7 +362,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               backgroundColor: Get.isDarkMode
                   ? const Color.fromRGBO(35, 35, 35, 1.0)
                   : const Color.fromRGBO(246, 246, 246, 1.0),
-              buttonColor: Theme.of(context).colorScheme.background,
+              buttonColor: Theme.of(context).colorScheme.surface,
               buttonIconColor: Theme.of(context).colorScheme.onPrimary,
               customBottomActionBar: (
                 config,
@@ -373,7 +373,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               },
             ),
             searchViewConfig: SearchViewConfig(
-              backgroundColor: Theme.of(context).colorScheme.background,
+              backgroundColor: Theme.of(context).colorScheme.surface,
               buttonIconColor: Theme.of(context).colorScheme.onPrimary,
               customSearchView: (
                 config,

@@ -518,16 +518,16 @@ class UserCollectLogic extends GetxController {
           callback();
         },
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-            (Set<MaterialState> states) {
-              if (states.contains(MaterialState.pressed)) {
+          backgroundColor: WidgetStateProperty.resolveWith<Color>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.pressed)) {
                 return Theme.of(Get.context!)
                     .colorScheme
-                    .background
+                    .surface
                     .withOpacity(0.75);
               }
               // Use the component's default.
-              return Theme.of(Get.context!).colorScheme.background;
+              return Theme.of(Get.context!).colorScheme.surface;
             },
           ),
         ),
@@ -604,16 +604,16 @@ class UserCollectLogic extends GetxController {
           callback();
         },
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-            (Set<MaterialState> states) {
-              if (states.contains(MaterialState.pressed)) {
+          backgroundColor: WidgetStateProperty.resolveWith<Color>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.pressed)) {
                 return Theme.of(Get.context!)
                     .colorScheme
-                    .background
+                    .surface
                     .withOpacity(0.75);
               }
               // Use the component's default.
-              return Theme.of(Get.context!).colorScheme.background;
+              return Theme.of(Get.context!).colorScheme.surface;
             },
           ),
         ),
@@ -800,9 +800,9 @@ class UserCollectLogic extends GetxController {
           });
         },
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-            (Set<MaterialState> states) {
-              if (states.contains(MaterialState.pressed)) {
+          backgroundColor: WidgetStateProperty.resolveWith<Color>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.pressed)) {
                 return Theme.of(Get.context!)
                     .colorScheme
                     .primary

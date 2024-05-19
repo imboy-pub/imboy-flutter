@@ -106,7 +106,7 @@ class LaunchChatPage extends StatelessWidget {
   Widget build(BuildContext context) {
     loadData();
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         title: 'select_contacts'.tr,
         leadingWidth: 72,
@@ -205,7 +205,7 @@ class LaunchChatPage extends StatelessWidget {
             child: Container(
               width: Get.width,
               height: Get.height - 150,
-              color: Theme.of(context).colorScheme.background,
+              color: Theme.of(context).colorScheme.surface,
               child: n.Column([
                 n.ListTile(
                   title: Text('select_a_group'.tr),

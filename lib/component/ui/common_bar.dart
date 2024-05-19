@@ -36,7 +36,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: leading ??
           BackButton(
             style: ButtonStyle(
-              iconSize: MaterialStateProperty.all(18),
+              iconSize: WidgetStateProperty.all(18),
             ),
             onPressed: () {
               NavigatorState nav = Navigator.of(context);
@@ -59,7 +59,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: automaticallyImplyLeading,
       backgroundColor: backgroundColor ?? Theme.of(context).colorScheme.primary,
       // foregroundColor: mainColor,
-      // backgroundColor: Theme.of(context).colorScheme.background,
+      // backgroundColor: Theme.of(context).colorScheme.surface,
       // foregroundColor: Theme.of(context).colorScheme.primary,
       elevation: 0.0,
       centerTitle: true,

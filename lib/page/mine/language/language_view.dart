@@ -23,7 +23,7 @@ class LanguagePage extends StatelessWidget {
     state.selectedLanguage.value =
         StorageService.to.getString(Keys.currentLang) ?? 'zh_CN';
     return Scaffold(
-      // backgroundColor: Theme.of(context).colorScheme.background,
+      // backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         titleWidget: n.Row([
@@ -60,7 +60,7 @@ class LanguagePage extends StatelessWidget {
           ),
         ),
       ], mainAxisSize: MainAxisSize.min)
-        ..useParent((v) => v..bg = Theme.of(context).colorScheme.background),
+        ..useParent((v) => v..bg = Theme.of(context).colorScheme.surface),
     );
   }
 }

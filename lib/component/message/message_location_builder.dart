@@ -88,7 +88,7 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
                     ? const Color.fromRGBO(80, 80, 80, 1)
                     : const Color.fromRGBO(240, 240, 240, 1),
                 Container(
-                  color: Theme.of(Get.context!).colorScheme.background,
+                  color: Theme.of(Get.context!).colorScheme.surface,
                   child: availableMaps.isEmpty
                       ? Center(
                     child: Text('not_install_any_map_app'.tr),

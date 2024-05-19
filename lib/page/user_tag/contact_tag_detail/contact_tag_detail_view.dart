@@ -530,13 +530,13 @@ class ContactTagDetailPage extends StatelessWidget {
                         ),
                       ),
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          Theme.of(context).colorScheme.background,
+                        backgroundColor: WidgetStateProperty.all<Color>(
+                          Theme.of(context).colorScheme.surface,
                         ),
                         minimumSize:
-                            MaterialStateProperty.all(const Size(60, 40)),
+                            WidgetStateProperty.all(const Size(60, 40)),
                         visualDensity: VisualDensity.compact,
-                        padding: MaterialStateProperty.all(EdgeInsets.zero),
+                        padding: WidgetStateProperty.all(EdgeInsets.zero),
                       ),
                     )
                   ])

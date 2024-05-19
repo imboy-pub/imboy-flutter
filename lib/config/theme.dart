@@ -66,9 +66,9 @@ final ColorScheme lightColorScheme = ColorScheme.fromSeed(
   // 主色调的容器背景色，更淡一些以提供对比
   onPrimaryContainer: Colors.black54,
   // 主色调容器上的文字或图标颜色
-  background: lightBgColor,
+  surface: lightBgColor,
   // 背景颜色，比表面颜色稍深一些以提供对比
-  onBackground: Colors.black54,
+  onSurface: Colors.black54,
   // 背景颜色上的文字或图标颜色
   error: Colors.red,
   // 错误状态的颜色
@@ -85,9 +85,9 @@ final ColorScheme darkColorScheme = ColorScheme.fromSeed(
   // 主色调的容器背景色，更淡一些以提供对比
   onPrimaryContainer: Colors.black54,
   // 主色调容器上的文字或图标颜色
-  background: darkBgColor,
+  surface: darkBgColor,
   // 背景颜色改为更深的黑色调
-  onBackground: Colors.white70,
+  onSurface: Colors.white70,
   // 背景颜色上的文字颜色保持一定的透明度
   error: Colors.red,
   // 错误颜色

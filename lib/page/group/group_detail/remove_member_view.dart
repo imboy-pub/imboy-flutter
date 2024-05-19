@@ -159,7 +159,7 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         title: 'remove_member'.tr,
         leading: n.Padding(
@@ -250,7 +250,7 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
               width: Get.width,
               // height: Get.height - 150,
               height: Get.height,
-              color: Theme.of(context).colorScheme.background,
+              color: Theme.of(context).colorScheme.surface,
               child: n.Column([
                 Expanded(
                   child: SlidableAutoCloseBehavior(

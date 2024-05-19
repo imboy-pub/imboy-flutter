@@ -41,10 +41,10 @@ class ButtonRow extends StatelessWidget {
       ),
       child: TextButton(
         style: TextButton.styleFrom(
-          foregroundColor: Theme.of(context).colorScheme.onBackground,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
           minimumSize: Size.zero,
           padding: EdgeInsets.zero,
-          // backgroundColor: Theme.of(context).colorScheme.background,
+          // backgroundColor: Theme.of(context).colorScheme.surface,
           //取消圆角边框
           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         ),
@@ -90,34 +90,34 @@ class RoundedElevatedButton extends StatelessWidget {
           )),
       style: highlighted
           ? ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(
+              backgroundColor: WidgetStateProperty.all<Color>(
                 Colors.green,
               ),
-              foregroundColor: MaterialStateProperty.all<Color>(
+              foregroundColor: WidgetStateProperty.all<Color>(
                 Colors.white,
               ),
-              minimumSize: MaterialStateProperty.all(
+              minimumSize: WidgetStateProperty.all(
                 size ?? const Size(88, 40),
               ),
               visualDensity: VisualDensity.compact,
-              padding: MaterialStateProperty.all(EdgeInsets.zero),
-              shape: MaterialStateProperty.all<OutlinedBorder>(
+              padding: WidgetStateProperty.all(EdgeInsets.zero),
+              shape: WidgetStateProperty.all<OutlinedBorder>(
                   RoundedRectangleBorder(
                 borderRadius:
                     borderRadius ?? BorderRadius.circular(30.0), // 设置圆角大小
               )),
             )
           : ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(
+              backgroundColor: WidgetStateProperty.all<Color>(
                 Colors.white12,
               ),
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.grey),
-              minimumSize: MaterialStateProperty.all(
+              foregroundColor: WidgetStateProperty.all<Color>(Colors.grey),
+              minimumSize: WidgetStateProperty.all(
                 size ?? const Size(88, 40),
               ),
               visualDensity: VisualDensity.compact,
-              padding: MaterialStateProperty.all(EdgeInsets.zero),
-              shape: MaterialStateProperty.all<OutlinedBorder>(
+              padding: WidgetStateProperty.all(EdgeInsets.zero),
+              shape: WidgetStateProperty.all<OutlinedBorder>(
                   RoundedRectangleBorder(
                 borderRadius:
                     borderRadius ?? BorderRadius.circular(30.0), // 设置圆角大小

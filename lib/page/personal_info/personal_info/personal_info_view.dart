@@ -128,7 +128,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     });
     // }
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
           automaticallyImplyLeading: true, title: 'personal_information'.tr),
       body: SingleChildScrollView(

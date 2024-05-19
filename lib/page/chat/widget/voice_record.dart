@@ -13,7 +13,7 @@ class VoiceRecord extends StatelessWidget {
           Get.snackbar('tip_tips'.tr, 'voice_input_not_implemented'.tr);
         },
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(Colors.white70),
+          backgroundColor: WidgetStateProperty.all<Color>(Colors.white70),
         ),
         child: Text('chat_hold_down_talk'.tr),
       ),

@@ -1,3 +1,11 @@
+# 0.4.2
+* 升级2个依赖，解除下面警告信息；
+* info: 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre.
+* info: 'MaterialStateProperty' is deprecated and shouldn't be used. Use WidgetStateProperty instead. Moved to the Widgets layer to make code available outside of Material. This feature was deprecated after v3.19.0-0.3.pre.
+* info: 'onBackground' is deprecated and shouldn't be used. Use onSurface instead. This feature was deprecated after v3.18.0-0.1.pre.
+* info: 'MaterialState' is deprecated and shouldn't be used. Use WidgetState instead. Moved to the Widgets layer to make code available outside of Material. This feature was deprecated after v3.19.0-0.3.pre.
+* 
+
 # 0.4.1
 * 新增功能：修改设置群聊名称；
 * 优化: 在有需要的模式下替换 RoundedElevatedButton 封装（

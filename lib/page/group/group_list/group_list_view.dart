@@ -49,7 +49,7 @@ class GroupListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         // title: "${'group_chat'.tr}(${state.groupList.length})",
         titleWidget: Obx(() => Text(
@@ -62,7 +62,7 @@ class GroupListPage extends StatelessWidget {
         child: Container(
           width: Get.width,
           height: Get.height,
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           child: n.Column([
             n.Padding(
               left: 8,

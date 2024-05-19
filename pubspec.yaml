@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.4.1
+version: 0.4.2
 
 environment:
   sdk: ">=3.0.0 <=4.0.0"
@@ -26,7 +26,7 @@ dependencies:
     #niku:
     # path: plugin/niku
     # git:
-    #   url: https://gitee.com/imboy-tripartite-deps/niku.git
+  #   url: https://gitee.com/imboy-tripartite-deps/niku.git
   #   ref: main
   cupertino_icons: ^1.0.6 # Use with the CupertinoIcons class for iOS style icons.
   lpinyin: ^2.0.3 #
@@ -71,12 +71,12 @@ dependencies:
   permission_handler_apple: ^9.4.4
   permission_handler_android: ^12.0.6
   permission_handler_platform_interface: ^4.2.1
-  #any permission_handler:
-  #  git:
-  #    url: https://gitee.com/imboy-tripartite-deps/flutter-permission-handler.git
-  #    path: permission_handler
-  #    tag: permission_handler_android_v10.2.1
-      #ref: master
+    #any permission_handler:
+    #  git:
+    #    url: https://gitee.com/imboy-tripartite-deps/flutter-permission-handler.git
+    #    path: permission_handler
+    #    tag: permission_handler_android_v10.2.1
+  #ref: master
   # 缓存
   shared_preferences: ^2.2.3
   #  Flutter Secure Storage 提供 API 将数据存储在安全存储中。iOS 中使用 Keychain，Android 中使用基于 KeyStore 的解决方案。
@@ -148,7 +148,7 @@ dependencies:
   flutter_easyloading: ^3.0.5
   # 生成闪屏页
   flutter_native_splash: ^2.3.13
-  flutter_chat_ui: ^1.6.12
+  flutter_chat_ui: ^1.6.13
   feedback: ^3.1.0
   #flutter_chat_ui:
   #  #path: plugin/flutter_chat_ui
@@ -157,7 +157,7 @@ dependencies:
   #    ref: leeyi
 
   # Flutter 的弹出窗口。弹出窗口是一种瞬态视图，当您点击某个控件或某个区域时，它会出现在屏幕上其他内容的上方。
-  popover: ^0.3.0
+  popover: ^0.3.0+1
   # popup_menu: ^1.0.5
   popup_menu:
     git:
@@ -165,7 +165,7 @@ dependencies:
       ref: master
   # 二维码扫描
   mobile_scanner: ^5.1.1
-#  mobile_scanner: ^4.0.1
+  #  mobile_scanner: ^4.0.1
   #  mobile_scanner:
   #    git:
   #      url: https://gitee.com/imboy-tripartite-deps/mobile_scanner.git
@@ -187,7 +187,7 @@ dependencies:
   # 语音消息播放器
   #voice_message_package: ^2.1.4
   voice_message_package:
-  #  path: plugin/voice_message_package
+    #  path: plugin/voice_message_package
     git:
       url: https://gitee.com/imboy-tripartite-deps/voice_message_player.git
       ref: leeyi
@@ -220,6 +220,12 @@ dependencies:
   equatable: ^2.0.5
   # 用于查找设备上安装的可用地图并使用标记启动它们或显示方向。
   map_launcher: ^3.3.0
+  # 基础的点击
+  tapped: ^2.0.0
+  # map取值
+  safemap: ^2.1.0
+  # 加载动画库
+  flutter_spinkit: ^5.2.1
   # 视频播放器插件
   video_player: ^2.8.6
   # video_player的插件，支持所有桌面/移动平台。硬件解码器，最佳渲染。通过 FFmpeg 支持大多数格式

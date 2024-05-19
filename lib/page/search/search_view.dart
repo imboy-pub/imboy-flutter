@@ -85,7 +85,7 @@ class _SearchPageState extends State<SearchPage> {
       ],
     );
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar:
           NavAppBar(automaticallyImplyLeading: true, titleWidget: searchView),
       body: SizedBox(width: Get.width, child: body()),

@@ -26,7 +26,7 @@ class AddFriendPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         title: 'add_friend'.tr,
         automaticallyImplyLeading: true,
@@ -35,7 +35,7 @@ class AddFriendPage extends StatelessWidget {
         child: Container(
             width: Get.width,
             height: Get.height,
-            color: Theme.of(context).colorScheme.background,
+            color: Theme.of(context).colorScheme.surface,
             child: n.Column(
               [
                 n.Padding(
@@ -83,7 +83,7 @@ class AddFriendPage extends StatelessWidget {
                 ),
                 const Space(),
                 Container(
-                  color: Theme.of(context).colorScheme.background,
+                  color: Theme.of(context).colorScheme.surface,
                   child: n.Column([
                     n.ListTile(
                       leading: const Icon(

@@ -26,7 +26,7 @@ class MinePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       child: SingleChildScrollView(
         child: n.Column([
           GetBuilder<UserRepoLocal>(

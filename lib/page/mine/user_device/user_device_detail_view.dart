@@ -170,7 +170,7 @@ class UserDeviceDetailPage extends StatelessWidget {
                       n.Button('button_cancel'.tr.n)
                         ..style = n.NikuButtonStyle(
                           foregroundColor:
-                              Theme.of(context).colorScheme.onBackground,
+                              Theme.of(context).colorScheme.onSurface,
                         )
                         ..onPressed = () {
                           Navigator.of(context).pop();
@@ -178,7 +178,7 @@ class UserDeviceDetailPage extends StatelessWidget {
                       n.Button('button_delete'.tr.n)
                         ..style = n.NikuButtonStyle(
                           foregroundColor:
-                              Theme.of(context).colorScheme.onBackground,
+                              Theme.of(context).colorScheme.onSurface,
                         )
                         ..onPressed = () async {
                           var nav = Navigator.of(context);

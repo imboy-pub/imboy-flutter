@@ -123,7 +123,7 @@ class ContactSettingTagPage extends StatelessWidget {
             },
           )
           // ..usePrefixStyle(
-          //   (v) => v..color = Theme.of(context).colorScheme.background,
+          //   (v) => v..color = Theme.of(context).colorScheme.surface,
           // )
           ,
           const SizedBox(height: 20),

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -33,7 +32,7 @@ class UserQrCodePage extends StatelessWidget {
     int gender = UserRepoLocal.to.current.gender;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         title: '',
@@ -254,7 +253,7 @@ class GroupQrCodePage extends StatelessWidget {
         "$API_BASE_URL/group/qrcode?id=${group.groupId}&exp=$expiredAt&tk=$tk&$qrcodeDataSuffix";
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         title: '',

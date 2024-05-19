@@ -108,7 +108,7 @@ class PassportPage extends StatelessWidget {
             child: logic.connectDesc.isEmpty
                 ? const SizedBox.shrink()
                 : NetworkFailureTips(
-                    backgroundColor: Theme.of(context).colorScheme.background,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
                   ),
           );
         }),

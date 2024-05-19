@@ -657,10 +657,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_chat_ui
-      sha256: c8580c85e2d29359ffc84147e643d08d883eb6e757208652377f0105ef58807f
+      sha256: "40fb37acc328dd179eadc3d67bf8bd2d950dc0da34464aa8d48e8707e0234c09"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.6.12"
+    version: "1.6.13"
   flutter_dotenv:
     dependency: "direct main"
     description:
@@ -883,7 +883,7 @@ packages:
     source: hosted
     version: "9.4.11"
   flutter_spinkit:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_spinkit
       sha256: d2696eed13732831414595b98863260e33e8882fc069ee80ec35d4ac9ddb0472
@@ -1635,10 +1635,10 @@ packages:
     dependency: "direct main"
     description:
       name: popover
-      sha256: ca3bef9d88ebf5c5c3823946a5de3ce8360018fbb6a3e25819586a7d5a203db2
+      sha256: "5cba40e04115cbbf15c35e00767b91e8bf3f769763a34beb2f8a1b9e8b5fc876"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.3.0"
+    version: "0.3.0+1"
   popup_menu:
     dependency: "direct main"
     description:
@@ -1720,6 +1720,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.27.7"
+  safemap:
+    dependency: "direct main"
+    description:
+      name: safemap
+      sha256: "6525179e412bfd664e59f57023b9cf3a83583e53aa5a8c3039b094ea41ee6b60"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.1.0"
   scroll_to_index:
     dependency: "direct main"
     description:
@@ -1949,6 +1957,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.1.0+1"
+  tapped:
+    dependency: "direct main"
+    description:
+      name: tapped
+      sha256: "27a01d5c80d0e33100f62514dfcca43d933984822d852c84a7664943b3cf1b30"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.0.0"
   term_glyph:
     dependency: transitive
     description:

@@ -34,7 +34,7 @@ class SelectRegionPage extends StatelessWidget {
       logic.valueOnChange(false);
     });
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         titleWidget: n.Row([
@@ -97,7 +97,7 @@ class SelectRegionPage extends StatelessWidget {
         ),
       ])
         // ..mainAxisSize = MainAxisSize.min
-        ..useParent((v) => v..bg = Theme.of(context).colorScheme.background),
+        ..useParent((v) => v..bg = Theme.of(context).colorScheme.surface),
     );
   }
 }

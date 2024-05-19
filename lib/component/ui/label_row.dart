@@ -44,7 +44,7 @@ class LabelRow extends StatelessWidget {
           minimumSize: Size.zero,
           padding: EdgeInsets.zero,
           // foregroundColor: AppColors.ItemOnColor,
-          // backgroundColor: Theme.of(context).colorScheme.background,
+          // backgroundColor: Theme.of(context).colorScheme.surface,
           //取消圆角边框
           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         ),
@@ -102,7 +102,7 @@ class LabelRow extends StatelessWidget {
             isRight!
                 ? Icon(
                     Icons.navigate_next,
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Theme.of(context).colorScheme.onSurface,
                   )
                 : Container(width: 10.0)
           ]),

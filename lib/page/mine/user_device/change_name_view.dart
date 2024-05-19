@@ -87,13 +87,13 @@ class ChangeNamePage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(3),
                 borderSide: BorderSide(
                   width: 0.2,
-                  color: Theme.of(context).colorScheme.background,
+                  color: Theme.of(context).colorScheme.surface,
                 )),
             enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(3),
                 borderSide: BorderSide(
                   width: 0.2,
-                  color: Theme.of(context).colorScheme.background,
+                  color: Theme.of(context).colorScheme.surface,
                 )),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(3),

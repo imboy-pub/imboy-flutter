@@ -30,7 +30,7 @@ class MoreView extends StatelessWidget {
       return items[items.length - 2] + " " + items[items.length - 1];
     };
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(automaticallyImplyLeading: true, title: 'more_info'.tr),
       body: n.Column([
         LabelRow(
@@ -118,8 +118,8 @@ class MoreView extends StatelessWidget {
           style: TextButton.styleFrom(
             minimumSize: Size.zero,
             padding: EdgeInsets.zero,
-            foregroundColor: Theme.of(context).colorScheme.onBackground,
-            // backgroundColor: Theme.of(context).colorScheme.background,
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
+            // backgroundColor: Theme.of(context).colorScheme.surface,
             //取消圆角边框
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.zero,

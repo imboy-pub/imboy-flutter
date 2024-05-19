@@ -121,7 +121,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
       backgroundColor: Get.isDarkMode
           ? (userIsAuthor
               ? ChatColor.ChatSendMessageBgColor
-              : Theme.of(context).colorScheme.background.withOpacity(0.2))
+              : Theme.of(context).colorScheme.surface.withOpacity(0.2))
           : (userIsAuthor ? ChatColor.ChatSendMessageBgColor : Colors.white),
       activeSliderColor:
           Get.isDarkMode ? (userIsAuthor? Colors.black :Colors.white) : const Color.fromRGBO(34, 34, 34, 1.0),

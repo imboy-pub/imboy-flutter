@@ -200,7 +200,7 @@ class UserTagRelationPage extends StatelessWidget {
     initData();
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       // backgroundColor: Colors.white,
       appBar: NavAppBar(
         title: title ?? 'add_tag'.tr,
@@ -221,7 +221,7 @@ class UserTagRelationPage extends StatelessWidget {
                 controlButtons: const [ControlButtonType.Reset],
                 themeData: FilterListThemeData(
                   context,
-                  backgroundColor: Theme.of(context).colorScheme.background,
+                  backgroundColor: Theme.of(context).colorScheme.surface,
                   choiceChipTheme: ChoiceChipThemeData(
                     backgroundColor: tagBackgroundColor,
                     selectedBackgroundColor: tagSelectedBackgroundColor,
@@ -229,7 +229,7 @@ class UserTagRelationPage extends StatelessWidget {
                     selectedTextStyle: TextStyle(color: tagSelectedColor),
                   ),
                   controlButtonBarTheme: const ControlButtonBarThemeData.raw(
-                    // backgroundColor: Theme.of(context).colorScheme.background,
+                    // backgroundColor: Theme.of(context).colorScheme.surface,
                     controlButtonTheme: ControlButtonThemeData(
                       borderRadius: 4,
                       primaryButtonTextStyle: TextStyle(
@@ -239,7 +239,7 @@ class UserTagRelationPage extends StatelessWidget {
                       textStyle: TextStyle(
                         color: Colors.white70,
                       ),
-                      // backgroundColor: Theme.of(context).colorScheme.background,
+                      // backgroundColor: Theme.of(context).colorScheme.surface,
                       backgroundColor: Colors.grey,
                     ),
                     buttonSpacing: 20,

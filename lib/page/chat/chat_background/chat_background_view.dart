@@ -20,7 +20,7 @@ class _ChatBackgroundPageState extends State<ChatBackgroundPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: NavAppBar(
           title: 'set_chat_background'.tr,
           automaticallyImplyLeading: true,

@@ -95,7 +95,7 @@ class PeopleInfoPage extends StatelessWidget {
       showApplyFriendBtn = false;
     }
     return Scaffold(
-      // backgroundColor: Theme.of(context).colorScheme.background,
+      // backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         title: '',
@@ -356,7 +356,7 @@ class PeopleInfoPage extends StatelessWidget {
                       child: Text(
                     'added_to_blacklist_tips'.tr,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   )),
                 ])

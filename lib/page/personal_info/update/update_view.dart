@@ -66,7 +66,7 @@ class UpdatePage extends StatelessWidget {
     //   top = 22;
     // }
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         titleWidget: n.Row([
@@ -131,13 +131,13 @@ class UpdatePage extends StatelessWidget {
               borderRadius: BorderRadius.circular(3),
               borderSide: BorderSide(
                 width: 1.0,
-                color: Theme.of(context).colorScheme.background,
+                color: Theme.of(context).colorScheme.surface,
               )),
           enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(3),
               borderSide: BorderSide(
                 width: 1.0,
-                color: Theme.of(context).colorScheme.background,
+                color: Theme.of(context).colorScheme.surface,
               )),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(3),
@@ -203,7 +203,7 @@ class UpdatePage extends StatelessWidget {
               borderRadius: BorderRadius.circular(3),
               borderSide: BorderSide(
                 width: 0.2,
-                color: Theme.of(context).colorScheme.background,
+                color: Theme.of(context).colorScheme.surface,
               )),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(3),
@@ -351,7 +351,7 @@ class UpdatePage extends StatelessWidget {
                     margin: const EdgeInsets.only(left: 16, right: 16),
                     width: Get.width,
                     height: Get.height - 40,
-                    // color: Theme.of(context).colorScheme.background,
+                    // color: Theme.of(context).colorScheme.surface,
                     child: ListView.builder(
                       itemBuilder: (BuildContext context, int index) {
                         return regionLogic.getListItem(
@@ -377,7 +377,7 @@ class UpdatePage extends StatelessWidget {
                 ..crossAxisAlignment = CrossAxisAlignment.start,
             ])
               ..mainAxisSize = MainAxisSize.min
-        // ..useParent((v) => v..bg = Theme.of(context).colorScheme.background),
+        // ..useParent((v) => v..bg = Theme.of(context).colorScheme.surface),
         );
   }
 }

@@ -31,7 +31,7 @@ class GroupSelectPage extends StatelessWidget {
   Widget build(BuildContext context) {
     loadData();
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: NavAppBar(
           title: 'select_group'.tr,
           automaticallyImplyLeading: true,

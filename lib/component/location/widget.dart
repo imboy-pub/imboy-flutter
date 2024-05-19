@@ -218,7 +218,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                         width: 60,
                         child: TextButton(
                           style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
+                            backgroundColor: WidgetStateProperty.all<Color>(
                               Theme.of(context).colorScheme.primary,
                             ),
                           ),

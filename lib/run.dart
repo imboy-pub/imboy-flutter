@@ -74,7 +74,7 @@ class IMBoyApp extends StatelessWidget {
       icon: DecoratedBox(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
         ),
         child: const Padding(
           padding: EdgeInsets.all(2),
@@ -92,7 +92,7 @@ class IMBoyApp extends StatelessWidget {
           Expanded(child: Text('FB')),
           Space(width: 16)
         ])
-          ..backgroundColor = Theme.of(context).colorScheme.background
+          ..backgroundColor = Theme.of(context).colorScheme.surface
           // 垂直居中
           ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
       ),
