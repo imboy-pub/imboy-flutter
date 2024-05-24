@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="pub.imoby.apk">
+    package="pub.imboy.apk">
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
     <uses-permission android:name="android.permission.GET_PACKAGE_SIZE" />
     <!--(如果需要上架到google store ,不能添加这个权限 , 也无法使用应用内更新功能)-->

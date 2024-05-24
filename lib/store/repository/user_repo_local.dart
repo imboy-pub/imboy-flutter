@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
@@ -27,9 +29,16 @@ class UserRepoLocal extends GetxController {
 
   String get currentUid => StorageService.to.getString(Keys.currentUid) ?? '';
 
-  UserModel get current => UserModel.fromJson(
-        StorageService.getMap(Keys.currentUser),
-      );
+
+  UserModel get current {
+    Map<String, dynamic> user = StorageService.getMap(Keys.currentUser);
+    iPrint("current user ${user.toString()}");
+    if (user.isEmpty) {
+      WebSocketService.to.closeSocket(exit: true);
+      Get.offAll(() => PassportPage());
+    }
+    return UserModel.fromJson(user);
+  }
 
   String get lastLoginAccount =>
       StorageService.to.getString(Keys.lastLoginAccount) ?? '';
