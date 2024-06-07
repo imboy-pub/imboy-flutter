@@ -1105,6 +1105,7 @@ class ChatPageState extends State<ChatPage> {
                   ? null
                   : ChatInput(
                       type: widget.type,
+                      peerId: widget.peerId,
                       // 发送触发事件
                       onSendPressed: _handleSendPressed,
                       sendButtonVisibilityMode:

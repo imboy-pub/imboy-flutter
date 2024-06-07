@@ -1,3 +1,7 @@
+# 0.4.3
+* 新增 聊天消息草稿功能（保存当前回话没有发送的文本消息）；
+* 升级一些依赖
+
 # 0.4.2
 * 升级2个依赖，解除下面警告信息；
 * info: 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre.
@@ -16,7 +20,7 @@
   * contact/contact_setting_tag/contact_setting_tag_view.dart
   * user_tag/user_tag_save/user_tag_save_view.dart
   * user_tag/contact_tag_detail/contact_tag_detail_view.dart
-* 升级一些依赖，跳转相关代码
+* 升级一些依赖，调整相关代码
 
 # 0.4.0
 * 新增功能：发起群聊功能-选择一个群；

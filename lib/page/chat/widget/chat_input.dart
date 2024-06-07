@@ -13,12 +13,14 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_chat_ui/src/widgets/state/inherited_chat_theme.dart'
     show InheritedChatTheme;
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/emoji_picker_view.dart';
 import 'package:imboy/component/ui/image_button.dart';
 import 'package:imboy/component/ui/line.dart';
 
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/theme.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -54,6 +56,7 @@ class ChatInput extends StatefulWidget {
     // super.key,
     super.key,
     required this.type,
+    required this.peerId,
     required this.onSendPressed,
     required this.sendButtonVisibilityMode,
     this.isAttachmentUploading,
@@ -69,6 +72,7 @@ class ChatInput extends StatefulWidget {
   });
 
   final String type; // [C2C | C2G | C2S]
+  final String peerId;
 
   /// Whether attachment is uploading. Will replace attachment button with a
   /// [CircularProgressIndicator]. Since we don't have libraries for
@@ -122,6 +126,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   bool emojiShowing = false;
   bool sendButtonVisible = false;
   InputType inputType = _initType;
+  late String draftKey;
 
   /// https://stackoverflow.com/questions/60057840/flutter-how-to-insert-text-in-middle-of-text-field-text
   void _setText(String val) {
@@ -143,6 +148,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   @override
   void initState() {
+    draftKey = "draft${widget.type}_${widget.peerId}";
     super.initState();
     if (!mounted) {
       return;
@@ -163,6 +169,11 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     // 解决"重新进入聊天页面的时候_bottomHeightController在开启状态"的问题
     _bottomHeightController.animateBack(0);
 
+
+    String? draft = StorageService.to.getString(draftKey);
+    if (strNoEmpty(draft)) {
+      _setText(draft!);
+    }
     // 接收到新的消息订阅
     eventBus.on<ReEditMessage>().listen((msg) async {
       if (_textController.text.toString() != msg.text) {
@@ -194,6 +205,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
           await widget.onSendPressed(types.PartialText(text: trimmedText));
       if (res) {
         _textController.clear();
+        StorageService.to.remove(draftKey);
       } else {
         // 网络原因，发送失败
       }
@@ -418,7 +430,10 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       keyboardType: TextInputType.multiline,
       textCapitalization: TextCapitalization.sentences,
       textInputAction: TextInputAction.newline,
-      onChanged: widget.onTextChanged,
+      onChanged: (String val) {
+        StorageService.to.setString(draftKey, val);
+        if (widget.onTextChanged != null) widget.onTextChanged!(val);
+      },
       onTap: () {
         updateState(inputType);
         widget.onTextFieldTap;
