@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.4.3
+version: 0.4.4
 
 environment:
   sdk: ">=3.0.0 <=4.0.0"
@@ -69,7 +69,7 @@ dependencies:
   #json_annotation: ^4.8.1
   permission_handler: ^11.3.1
   permission_handler_apple: ^9.4.5
-  permission_handler_android: ^12.0.6
+  permission_handler_android: ^12.0.7
   permission_handler_platform_interface: ^4.2.1
     #any permission_handler:
     #  git:
@@ -89,11 +89,11 @@ dependencies:
   camera: ^0.11.0+1
   #wechat_camera_picker: ^4.2.0-dev.3
   wechat_camera_picker: ^4.2.2
-  wechat_assets_picker: ^9.0.3
+  wechat_assets_picker: ^9.0.4
   # Photo View provides a gesture sensitive zoomable widget. Photo View is largely used to show interactive images and other stuff such as SVG.
   photo_view: ^0.15.0 #
   # 照片管理器
-  photo_manager: 3.1.1
+  photo_manager: ^3.2.0
   # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
   video_compress: ^3.1.2
   # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
@@ -102,7 +102,7 @@ dependencies:
   image_picker_macos: ^0.2.1+1
   image_picker_platform_interface: ^2.10.0
   #file_picker: ^6.2.0
-  file_picker: ^8.0.3
+  file_picker: ^8.0.5
   open_file: ^3.3.2
   # image_crop: ^0.4.1
   # image_crop:
@@ -148,7 +148,7 @@ dependencies:
   flutter_easyloading: ^3.0.5
   # 生成闪屏页
   flutter_native_splash: ^2.3.13
-  flutter_chat_ui: ^1.6.13
+  flutter_chat_ui: ^1.6.14
   feedback: ^3.1.0
   #flutter_chat_ui:
   #  #path: plugin/flutter_chat_ui
@@ -181,8 +181,8 @@ dependencies:
   #桌面图标提醒
   flutter_app_badger: ^1.5.0
   # 录音
-  flutter_sound: ^9.4.18
-  flutter_sound_platform_interface: ^9.4.18
+  flutter_sound: ^9.6.0
+  flutter_sound_platform_interface: ^9.6.0
   audio_session: ^0.1.19
   # 语音消息播放器
   #voice_message_package: ^2.1.4
@@ -192,7 +192,7 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/voice_message_player.git
       ref: leeyi
   # 一对一音视频通话等
-  flutter_webrtc: ^0.10.8
+  flutter_webrtc: ^0.11.1
   #flutter_webrtc:
   #    path: plugin/flutter-webrtc
   #    git:
@@ -209,7 +209,7 @@ dependencies:
   device_info_plus: ^10.1.0
   package_info_plus: ^8.0.0
   # Flutter 的 Markdown 渲染器
-  flutter_markdown: ^0.7.1
+  flutter_markdown: ^0.7.2
   # 滑动吸顶
   sliding_up_panel: ^2.0.0+1
   # 用于 Flutter 的 SVG 渲染和小部件库，允许绘制和显示可缩放矢量图形 1.1 文件。
@@ -227,7 +227,7 @@ dependencies:
   # 加载动画库
   flutter_spinkit: ^5.2.1
   # 视频播放器插件
-  video_player: ^2.8.6
+  video_player: ^2.8.7
   # video_player的插件，支持所有桌面/移动平台。硬件解码器，最佳渲染。通过 FFmpeg 支持大多数格式
   fvp: ^0.19.0
   #fvp: ^0.12.0

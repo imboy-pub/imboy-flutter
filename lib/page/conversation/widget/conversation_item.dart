@@ -96,7 +96,9 @@ class ConversationItem extends StatelessWidget {
                   Expanded(
                     child: Text(
                       // 会话对象标题
-                      model.title.trim().isEmpty ? model.computeTitle : model.title,
+                      model.title.trim().isEmpty
+                          ? model.computeTitle
+                          : model.title,
                       style: const TextStyle(
                         fontSize: 18.0,
                         fontWeight: FontWeight.normal,
@@ -110,10 +112,20 @@ class ConversationItem extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 4),
                   child: n.Row([
                     n.Column(icon),
+                    if (model.content.contains('_color_red_'))
+                      Text(
+                        "${model.content.split('_color_red_')[0]} ",
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 14.0,
+                        ),
+                      ),
                     // 会话对象子标题
                     Expanded(
                       child: Text(
-                        model.content,
+                        model.content.contains('_color_red_')
+                            ? model.content.split('_color_red_')[1]
+                            : model.content,
                         style: const TextStyle(
                           // color: AppColors.MainTextColor,
                           fontSize: 14.0,

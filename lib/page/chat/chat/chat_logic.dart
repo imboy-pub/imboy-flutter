@@ -174,9 +174,16 @@ class ChatLogic extends GetxController {
     // message.status = types.Status.sent;
     ConversationRepo repo = ConversationRepo();
     ConversationModel? conversation = await repo.findByPeerId(type, toId);
-
+    conversation ??= await Get.find<ConversationLogic>().createConversation(
+        type: type,
+        peerId: toId,
+        avatar: avatar ?? '',
+        title: title,
+        subtitle: "",
+        lastTime: DateTimeHelper.utc(),
+      );
     // 保存会话
-    await repo.updateById(conversation!.id, {
+    await repo.updateById(conversation.id, {
       ConversationRepo.title: title,
       ConversationRepo.subtitle: subtitle,
       // 等价于 msg type: C2C C2G S2C 等等，根据type显示item

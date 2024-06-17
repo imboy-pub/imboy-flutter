@@ -53,6 +53,7 @@ class LocaleKeys {
   static const title_message = 'title_message';
   static const verification_message_sent_by_peer_is =
       'verification_message_sent_by_peer_is';
+  static const tip_draft = 'tip_draft';
   static const tip_tips = 'tip_tips';
   static const tip_title = 'tip_title';
   static const tip_success = 'tip_success';
@@ -491,6 +492,7 @@ class Locales {
     'title_contact': '联系人',
     'title_message': '消息',
     'verification_message_sent_by_peer_is': '对方发来的验证消息为：%s',
+    'tip_draft': '草稿',
     'tip_tips': '小贴士',
     'tip_title': '喔！',
     'tip_success': '操作成功！',
@@ -724,7 +726,7 @@ class Locales {
     'create_group_f2f_tips': '和身边的朋友输入同样的四个数字，进入同一个群聊',
     'create_group_f2f_confirm_tips': '这些朋友也将进入群聊',
     'select_a_group': '选择一个群',
-    'remove_member': '移出chen',
+    'remove_member': '移出成员',
     'group_chat': '群聊',
     'group_name': '群聊名称',
     'group_qrcode': '群二维码',
@@ -923,6 +925,7 @@ class Locales {
     'title_message': 'Messages',
     'verification_message_sent_by_peer_is':
         'The verification message sent by the peer party is: %s',
+    'tip_draft': 'Draft',
     'tip_tips': 'Tips',
     'tip_title': 'Oops!',
     'tip_success': 'Successful!',
@@ -1384,6 +1387,7 @@ class Locales {
     'title_message': 'Сообщения',
     'verification_message_sent_by_peer_is':
         'Подтвержденное сообщение от другой стороны: %s',
+    'tip_draft': '草稿',
     'tip_tips': 'Советы',
     'tip_title': 'Ура!',
     'tip_success': 'Операция успешна!',
@@ -1849,6 +1853,7 @@ class Locales {
     'title_contact': '聯繫人',
     'title_message': '訊息',
     'verification_message_sent_by_peer_is': '對方發來的驗證消息為：%s',
+    'tip_draft': '草稿',
     'tip_tips': '小貼士',
     'tip_title': '喔！',
     'tip_success': '操作成功！',

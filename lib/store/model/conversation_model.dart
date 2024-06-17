@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -70,6 +71,12 @@ class ConversationModel {
     if (strNoEmpty(sysPrompt)) {
       return sysPrompt;
     }
+    String draftKey = "draft${type}_$peerId";
+    String? draft = StorageService.to.getString(draftKey);
+    if (strNoEmpty(draft)) {
+      return "[${'tip_draft'.tr}]_color_red_$draft";
+    }
+
     String str = 'unknown_message'.tr;
     if (msgType == 'text' || msgType == '') {
       return subtitle;

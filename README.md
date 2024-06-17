@@ -52,6 +52,8 @@ Strive to implement version management based on "Specification for Semantic vers
 https://github.com/jonataslaw/get_cli/tree/master/translations
 ```
 flutter pub global activate get_cli
+flutter pub global activate --source=git https://github.com/inyong1/get_cli.git
+
 export PATH="$PATH":"$HOME/.pub-cache/bin"
 
 // 生产json文件之后执行下面命令
@@ -122,6 +124,9 @@ Lib
 git clone https://gitee.com/imboy-pub/imboy-flutter.git imboyflutter
 cd imboyflutter
 cp assets/example.env ./.env
+
+open -a Xcode ./ios
+
 ```
 
 
