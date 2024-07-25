@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'package:imboy/config/env.dart';
 import 'package:mime/mime.dart';
 
-import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'encrypter.dart';
 
@@ -23,11 +23,13 @@ class AssetsService {
   static Map<String, dynamic> authData() {
     int v = DateTimeHelper.utcSecond();
     // md5(a + v)
-    String tk = EncrypterService.md5("$UP_AUTH_KEY$v").substring(8, 24);
+
+    String tk = EncrypterService.md5("${Env.uploadKey}$v").substring(8, 24);
+    // iPrint("AssetsService_authData ${Env.uploadKey} $v");
     return {
       'v': v,
       'a': tk,
-      's': UPLOAD_SENCE,
+      's': Env.uploadScene,
     };
   }
 

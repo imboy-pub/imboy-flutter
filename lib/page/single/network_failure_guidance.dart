@@ -15,7 +15,7 @@ class NetworkFailureGuidancePage extends StatelessWidget {
         title: 'network_exception'.tr,
       ),
       body: Card(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         child: n.Column(
           // mainAxisSize: MainAxisSize.min,
           [

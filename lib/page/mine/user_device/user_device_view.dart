@@ -60,12 +60,12 @@ class UserDevicePage extends StatelessWidget {
         child: Container(
           width: Get.width,
           height: Get.height,
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           child: n.Column([
             n.Column([
               Container(
                 width: Get.width,
-                color: Theme.of(context).colorScheme.background,
+                color: Theme.of(context).colorScheme.surface,
                 padding: const EdgeInsets.only(
                   top: 10.0,
                   left: 15,
@@ -124,7 +124,7 @@ class UserDevicePage extends StatelessWidget {
                                                   foregroundColor:
                                                       Theme.of(context)
                                                           .colorScheme
-                                                          .onBackground,
+                                                          .onSurface,
                                                 )
                                                 ..onPressed = () {
                                                   Navigator.of(context).pop();

@@ -53,6 +53,7 @@ class LocaleKeys {
   static const title_message = 'title_message';
   static const verification_message_sent_by_peer_is =
       'verification_message_sent_by_peer_is';
+  static const tip_draft = 'tip_draft';
   static const tip_tips = 'tip_tips';
   static const tip_title = 'tip_title';
   static const tip_success = 'tip_success';
@@ -230,7 +231,6 @@ class LocaleKeys {
   static const add_friend = 'add_friend';
   static const my_account = 'my_account';
   static const nearby_people_tips = 'nearby_people_tips';
-  static const create_group_f2f = 'create_group_f2f';
   static const enter_same_group = 'enter_same_group';
   static const scan = 'scan';
   static const scan_qr_code = 'scan_qr_code';
@@ -284,12 +284,24 @@ class LocaleKeys {
   static const my_qrcode = 'my_qrcode';
   static const view_all_group_member = 'view_all_group_member';
   static const clear_chat_record = 'clear_chat_record';
-  static const sure_quit_group_tips = 'sure_quit_group_tips';
   static const sure_delete_group_chat_record = 'sure_delete_group_chat_record';
   static const select_contacts = 'select_contacts';
+  static const select_group = 'select_group';
+  static const create_group_f2f = 'create_group_f2f';
+  static const create_group_f2f_tips = 'create_group_f2f_tips';
+  static const create_group_f2f_confirm_tips = 'create_group_f2f_confirm_tips';
   static const select_a_group = 'select_a_group';
+  static const remove_member = 'remove_member';
   static const group_chat = 'group_chat';
   static const group_name = 'group_name';
+  static const group_qrcode = 'group_qrcode';
+  static const group_management = 'group_management';
+  static const group_leave = 'group_leave';
+  static const group_dissolve = 'group_dissolve';
+  static const group_join = 'group_join';
+  static const group_alias = 'group_alias';
+  static const group_add_local = 'group_add_local';
+  static const chat_message = 'chat_message';
   static const live_broadcast = 'live_broadcast';
   static const feedback_details = 'feedback_details';
   static const submitted_at = 'submitted_at';
@@ -320,6 +332,7 @@ class LocaleKeys {
   static const no_conversation_messages = 'no_conversation_messages';
   static const not_show = 'not_show';
   static const sure_to_leave_group = 'sure_to_leave_group';
+  static const sure_to_dissolve_group = 'sure_to_dissolve_group';
   static const sure_delete_data = 'sure_delete_data';
   static const zh_cn = 'zh_cn';
   static const zh_hant = 'zh_hant';
@@ -479,6 +492,7 @@ class Locales {
     'title_contact': '联系人',
     'title_message': '消息',
     'verification_message_sent_by_peer_is': '对方发来的验证消息为：%s',
+    'tip_draft': '草稿',
     'tip_tips': '小贴士',
     'tip_title': '喔！',
     'tip_success': '操作成功！',
@@ -652,7 +666,6 @@ class Locales {
     'add_friend': '添加朋友',
     'my_account': '我的账号',
     'nearby_people_tips': '和附近的人交换联系方式，结交新朋友',
-    'create_group_f2f': '面对面建群',
     'enter_same_group': '与身边的朋友进入同一个群聊',
     'scan': '扫一扫',
     'scan_qr_code': '扫描二维码',
@@ -702,16 +715,28 @@ class Locales {
     'make_yourself_visible': '让自己可见',
     'make_yourself_invisible': '让自己不可见',
     'no_more_data': '没有更多数据了',
-    'initiate_chat': '发起聊天',
+    'initiate_chat': '发起群聊',
     'my_qrcode': '我的二维码',
     'view_all_group_member': '查看全部群成员',
     'clear_chat_record': '清空聊天记录',
-    'sure_quit_group_tips': '确定要退出本群吗？',
     'sure_delete_group_chat_record': '确定删除群的聊天记录吗？',
     'select_contacts': '选择联系人',
+    'select_group': '选择群聊',
+    'create_group_f2f': '面对面建群',
+    'create_group_f2f_tips': '和身边的朋友输入同样的四个数字，进入同一个群聊',
+    'create_group_f2f_confirm_tips': '这些朋友也将进入群聊',
     'select_a_group': '选择一个群',
+    'remove_member': '移出成员',
     'group_chat': '群聊',
     'group_name': '群聊名称',
+    'group_qrcode': '群二维码',
+    'group_management': '群管理',
+    'group_leave': '退出群聊',
+    'group_dissolve': '解散群聊',
+    'group_join': '加入群聊',
+    'group_alias': '我在本群的昵称',
+    'group_add_local': '保存到通讯录',
+    'chat_message': '聊天消息',
     'live_broadcast': '直播',
     'feedback_details': '反馈建议明细',
     'submitted_at': '提交于',
@@ -741,6 +766,7 @@ class Locales {
     'no_conversation_messages': '无会话消息',
     'not_show': '不显示',
     'sure_to_leave_group': '确定要退出本群吗？',
+    'sure_to_dissolve_group': '确定要解散本群吗？',
     'sure_delete_data': '确认删除吗？删除后不可恢复。',
     'zh_cn': '简体中文',
     'zh_hant': '繁体中文',
@@ -859,7 +885,7 @@ class Locales {
   };
   static const en_US = {
     'manually': 'Choose manually',
-    'bot_qian_fan': 'Qianfan robot',
+    'bot_qian_fan': 'Qianfan bot',
     'dark_model': 'Dark Mode',
     'normal_model': 'Normal Mode',
     'follow_system': 'Follow System',
@@ -899,6 +925,7 @@ class Locales {
     'title_message': 'Messages',
     'verification_message_sent_by_peer_is':
         'The verification message sent by the peer party is: %s',
+    'tip_draft': 'Draft',
     'tip_tips': 'Tips',
     'tip_title': 'Oops!',
     'tip_success': 'Successful!',
@@ -1085,7 +1112,6 @@ class Locales {
     'my_account': 'My account',
     'nearby_people_tips':
         'Exchange contact information with nearby people and make new friends',
-    'create_group_f2f': 'Create group face-to-face',
     'enter_same_group': 'Join the same group chat with nearby friends',
     'scan': 'Scan',
     'scan_qr_code': 'Scan QR Code',
@@ -1140,13 +1166,27 @@ class Locales {
     'my_qrcode': 'My QR Code',
     'view_all_group_member': 'View all group members',
     'clear_chat_record': 'Clear chat history',
-    'sure_quit_group_tips': 'Are you sure you want to leave this group?',
     'sure_delete_group_chat_record':
         'Are you sure you want to delete the group chat history?',
     'select_contacts': 'Select contacts',
+    'select_group': 'Select group',
+    'create_group_f2f': 'Create group face-to-face',
+    'create_group_f2f_tips':
+        'Enter the same four numbers as your friends to enter the same group chat',
+    'create_group_f2f_confirm_tips':
+        'These friends will also join the group chat',
     'select_a_group': 'Select a group',
+    'remove_member': 'Remove member',
     'group_chat': 'Group chat',
     'group_name': 'Group name',
+    'group_qrcode': 'Group QR Code',
+    'group_management': 'Group management',
+    'group_leave': ' Leave group',
+    'group_dissolve': ' Dissolve group',
+    'group_join': ' Join group',
+    'group_alias': ' My alias in this group ',
+    'group_add_local': ' Save to address book ',
+    'chat_message': 'Chat message',
     'live_broadcast': 'Live broadcast',
     'feedback_details': 'Feedback details',
     'submitted_at': 'Submitted on',
@@ -1177,6 +1217,7 @@ class Locales {
     'no_conversation_messages': 'No Conversation Messages',
     'not_show': 'Don\'t Show',
     'sure_to_leave_group': 'Are you sure you want to leave this group?',
+    'sure_to_dissolve_group': 'Are you sure you want to dissolve this group?',
     'sure_delete_data':
         'Are you sure you want to delete? It cannot be recovered after deletion.',
     'zh_cn': 'Simplified Chinese',
@@ -1346,6 +1387,7 @@ class Locales {
     'title_message': 'Сообщения',
     'verification_message_sent_by_peer_is':
         'Подтвержденное сообщение от другой стороны: %s',
+    'tip_draft': '草稿',
     'tip_tips': 'Советы',
     'tip_title': 'Ура!',
     'tip_success': 'Операция успешна!',
@@ -1534,19 +1576,18 @@ class Locales {
         'Пожалуйста, выберите членов для добавления',
     'voice_input_not_implemented':
         'Функция голосового ввода пока не реализована',
-    'add_friend': 'Добавить в друзья',
+    'add_friend': 'Добавить друзей',
     'my_account': 'Мой аккаунт',
     'nearby_people_tips':
         'Обмениваться контактами с людьми поблизости и заводить новых друзей',
-    'create_group_f2f': 'Создать группу лицом к лицу',
     'enter_same_group': 'Войти в ту же группу с людьми рядом',
     'scan': 'Сканировать',
-    'scan_qr_code': 'Сканирую двухмерный код',
+    'scan_qr_code': 'Подмета ярд',
     'qr_code_business_card': 'QR-код визитки',
     'scan_qr_code_business_card': 'Сканировать QR-код визитки',
     'source_qrcode': 'Добавлено через сканирование QR-кода',
     'scan_qrcode_add_friend': 'Сканируйте QR-код выше и добавьте меня в друзья',
-    'newly_registered_people': 'Новый регистратор',
+    'newly_registered_people': 'Новые друзья',
     'people_nearby': 'Люди поблизости',
     'allowed_be_searched':
         'Новые зарегистрированные пользователи, разрешившие поиск',
@@ -1590,17 +1631,31 @@ class Locales {
     'make_yourself_visible': 'Сделать себя видимым',
     'make_yourself_invisible': 'Сделать себя невидимым',
     'no_more_data': 'Нет больше данных',
-    'initiate_chat': 'Начать разговор',
+    'initiate_chat': 'Группов чат',
     'my_qrcode': 'Мой QR-код',
     'view_all_group_member': 'Просмотреть всех участников группы',
     'clear_chat_record': 'Очистить историю чата',
-    'sure_quit_group_tips': 'Вы уверены, что хотите покинуть эту группу?',
     'sure_delete_group_chat_record':
         'Вы уверены, что хотите удалить историю чата группы?',
     'select_contacts': 'Выбрать контакты',
+    'select_group': 'Групповой разговор',
+    'create_group_f2f': 'Создать группу лицом к лицу',
+    'create_group_f2f_tips':
+        'Введи те же четыре цифры, что и твой друг, в ту же группу разговоров',
+    'create_group_f2f_confirm_tips':
+        'Эти друзья тоже пойдут в группу для беседы',
     'select_a_group': 'Выбрать группу',
+    'remove_member': 'Удалить член',
     'group_chat': 'Групповой чат',
     'group_name': 'Название группы',
+    'group_qrcode': 'Групповой двухмерный код',
+    'group_management': 'Групповое управление',
+    'group_leave': ' разговор вне группы ',
+    'group_dissolve': ' расформировать группу для беседы ',
+    'group_join': ' присоединяйтесь к группам разговоров ',
+    'group_alias': ' мое прозвище в этой группе ',
+    'group_add_local': ' сохранена в адресной книге ',
+    'chat_message': 'Поболтать',
     'live_broadcast': 'Прямая трансляция',
     'feedback_details': 'Подробности обратной связи',
     'submitted_at': 'Отправлено',
@@ -1630,6 +1685,7 @@ class Locales {
     'no_conversation_messages': 'Нет сообщений в чате',
     'not_show': 'Не показывать',
     'sure_to_leave_group': 'Вы уверены, что хотите покинуть эту группу?',
+    'sure_to_dissolve_group': 'Вы уверены, что хотите распустить группу?',
     'sure_delete_data':
         'Вы уверены, что хотите удалить? После удаления восстановление невозможно.',
     'zh_cn': 'Китайский (простой)',
@@ -1797,6 +1853,7 @@ class Locales {
     'title_contact': '聯繫人',
     'title_message': '訊息',
     'verification_message_sent_by_peer_is': '對方發來的驗證消息為：%s',
+    'tip_draft': '草稿',
     'tip_tips': '小貼士',
     'tip_title': '喔！',
     'tip_success': '操作成功！',
@@ -1970,7 +2027,6 @@ class Locales {
     'add_friend': '添加朋友',
     'my_account': '我的帳號',
     'nearby_people_tips': '和附近的人交換聯系方式，結交新朋友',
-    'create_group_f2f': '面對面建群',
     'enter_same_group': '與身邊的朋友進入同一個群聊',
     'scan': '掃一掃',
     'scan_qr_code': '掃描二維碼',
@@ -2024,12 +2080,24 @@ class Locales {
     'my_qrcode': '我的二維碼',
     'view_all_group_member': '查看全部群成員',
     'clear_chat_record': '清空聊天記錄',
-    'sure_quit_group_tips': '確定要退出本群嗎？',
     'sure_delete_group_chat_record': '確定刪除群的聊天記錄嗎？',
     'select_contacts': '選擇聯繫人',
+    'select_group': '選擇群聊',
+    'create_group_f2f': '面對面建群',
+    'create_group_f2f_tips': '和身边的朋友輸入相同的四個數字，進入同一個群聊',
+    'create_group_f2f_confirm_tips': '這些朋友也將進入群聊',
     'select_a_group': '選擇一個群',
+    'remove_member': '移出成員',
     'group_chat': '群聊',
     'group_name': '群聊名稱',
+    'group_qrcode': '群二維碼',
+    'group_management': '群管理',
+    'group_leave': '退出群聊',
+    'group_dissolve': '解散群聊',
+    'group_join': '加入群聊',
+    'group_alias': '我在本群的昵稱',
+    'group_add_local': '保存到通訊錄',
+    'chat_message': '聊天訊息',
     'live_broadcast': '直播',
     'feedback_details': '反饋建議明細',
     'submitted_at': '提交於',
@@ -2058,6 +2126,7 @@ class Locales {
     'no_conversation_messages': '無會話消息',
     'not_show': '不顯示',
     'sure_to_leave_group': '確定要退出本群嗎？',
+    'sure_to_dissolve_group': '確定要解散本群嗎？',
     'sure_delete_data': '確認刪除嗎？刪除後不可恢復。',
     'zh_cn': '簡體中文',
     'zh_tw': '繁體中文',

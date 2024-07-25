@@ -16,8 +16,8 @@ class UserDeviceLogic extends GetxController {
     var repo = UserDeviceRepo();
 
     // 检查网络状态
-    var res = await Connectivity().checkConnectivity();
-    if (res == ConnectivityResult.none) {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       list = await repo.page(limit: size, offset: offset);
     }
     if (list.isNotEmpty) {
@@ -41,8 +41,8 @@ class UserDeviceLogic extends GetxController {
   Future<bool> deleteDevice(String deviceId) async {
     // return true;
     // 检查网络状态
-    var res = await Connectivity().checkConnectivity();
-    if (res == ConnectivityResult.none) {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       return false;
     }
     bool res2 = await UserDeviceProvider().deleteDevice(
@@ -57,8 +57,8 @@ class UserDeviceLogic extends GetxController {
 
   changeName({required String deviceId, required String name}) async {
     // 检查网络状态
-    var res = await Connectivity().checkConnectivity();
-    if (res == ConnectivityResult.none) {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       return false;
     }
     bool res2 = await UserDeviceProvider().changeName(

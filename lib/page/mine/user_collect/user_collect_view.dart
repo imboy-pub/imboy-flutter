@@ -95,7 +95,7 @@ class UserCollectPage extends StatelessWidget {
                 child: const Icon(
                   Icons.local_offer,
                   size: 12,
-                  // color: AppColors.MainTextColor.withOpacity(0.8),
+                  // color: Colors.red,
                 ),
               ),
               Text(
@@ -113,7 +113,7 @@ class UserCollectPage extends StatelessWidget {
   }
 
   Future<void> sendToDialog(BuildContext ctx, UserCollectModel model) async {
-    types.Message msg = MessageModel.fromJson(model.info).toTypeMessage();
+    types.Message msg = await MessageModel.fromJson(model.info).toTypeMessage();
     Get.defaultDialog(
       title: 'send_to'.tr,
       backgroundColor: Get.isDarkMode
@@ -196,7 +196,7 @@ class UserCollectPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         leading: isSelect
@@ -212,8 +212,8 @@ class UserCollectPage extends StatelessWidget {
       body: RefreshIndicator(
         onRefresh: () async {
           // 检查网络状态
-          var res = await Connectivity().checkConnectivity();
-          if (res == ConnectivityResult.none) {
+          var connectivityResult = await Connectivity().checkConnectivity();
+          if (connectivityResult.contains(ConnectivityResult.none)) {
             String msg = 'tip_connect_desc'.tr;
             EasyLoading.showInfo(' $msg        ');
             return;
@@ -231,7 +231,7 @@ class UserCollectPage extends StatelessWidget {
         child: Container(
           width: Get.width,
           height: Get.height,
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           child: Obx(
             () => n.Column([
               n.Padding(
@@ -289,7 +289,7 @@ class UserCollectPage extends StatelessWidget {
                                         flex: 1,
                                         backgroundColor: Theme.of(context)
                                             .colorScheme
-                                            .background,
+                                            .surface,
                                         // foregroundColor: Colors.white,
                                         onPressed: (_) async {
                                           Get.to(
@@ -323,7 +323,7 @@ class UserCollectPage extends StatelessWidget {
                                         flex: 1,
                                         backgroundColor: Theme.of(context)
                                             .colorScheme
-                                            .background,
+                                            .surface,
                                         // foregroundColor: Colors.white,
                                         onPressed: (_) async {
                                           Get.bottomSheet(
@@ -439,7 +439,8 @@ class UserCollectPage extends StatelessWidget {
                                         logic.buildItemBody(obj, 'page'),
                                         n.Row(const [SizedBox(height: 16)]),
                                         n.Row([
-                                          Text(
+                                          Flexible(
+                                              child: Text(
                                             obj.source,
                                             maxLines: 6,
                                             overflow: TextOverflow.ellipsis,
@@ -448,7 +449,7 @@ class UserCollectPage extends StatelessWidget {
                                               //     AppColors.MainTextColor,
                                               fontSize: 14.0,
                                             ),
-                                          ),
+                                          )),
                                           const Expanded(child: SizedBox()),
                                           Text(
                                             state.kind == state.recentUse &&
@@ -509,34 +510,40 @@ class UserCollectPage extends StatelessWidget {
           });
         },
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-            (Set<MaterialState> states) {
-              if (states.contains(MaterialState.pressed)) {
-                return Colors.white.withOpacity(0.75);
+          backgroundColor: WidgetStateProperty.resolveWith<Color>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.pressed)) {
+                return Theme.of(Get.context!)
+                    .colorScheme
+                    .primary
+                    .withOpacity(0.75);
               }
               // Use the component's default.
-              return Colors.white.withOpacity(0.95);
+              return Theme.of(Get.context!)
+                  .colorScheme
+                  .primary
+                  .withOpacity(0.95);
             },
           ),
         ),
         child: Text(
           value,
-          // style: const TextStyle(color: AppColors.MainTextColor),
+          style: TextStyle(color: Theme.of(Get.context!).colorScheme.onPrimary),
         ),
       ));
     });
     return Container(
         padding: const EdgeInsets.only(left: 8, right: 16.0),
-        color: Theme.of(Get.context!).colorScheme.background,
+        color: Theme.of(Get.context!).colorScheme.surface,
         child: ExpansionPanelList(
-          expandIconColor: Theme.of(Get.context!).colorScheme.background,
+          expandIconColor: Theme.of(Get.context!).colorScheme.surface,
           expansionCallback: (panelIndex, isExpanded) {
             state.kindActive.value = !state.kindActive.value;
             debugPrint("state.kindActive $state.kindActive");
           },
           children: <ExpansionPanel>[
             ExpansionPanel(
-              backgroundColor: Theme.of(Get.context!).colorScheme.background,
+              backgroundColor: Theme.of(Get.context!).colorScheme.surface,
               headerBuilder: (context, isExpanded) {
                 if (isExpanded) {
                   return n.Row([
@@ -635,45 +642,43 @@ class UserCollectPage extends StatelessWidget {
                   ]);
                 }
               },
-              body: n.Column(
-                [
+              body: n.Column([
+                n.Padding(
+                  left: 8,
+                  bottom: 10,
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    spacing: 8,
+                    children: items,
+                  ),
+                ),
+                if (state.tagItems.value.isNotEmpty)
+                  n.Padding(
+                    top: 16,
+                    child: n.Row([
+                      const SizedBox(width: 8),
+                      const Icon(
+                        Icons.sell_outlined,
+                        size: 18,
+                        // color: AppColors.MainTextColor.withOpacity(0.8),
+                      ),
+                      const SizedBox(width: 10),
+                      Text('tags'.tr),
+                    ]),
+                  ),
+                if (state.tagItems.value.isNotEmpty)
                   n.Padding(
                     left: 8,
-                    bottom: 10,
-                    child: Wrap(
-                      alignment: WrapAlignment.spaceBetween,
-                      spacing: 8,
-                      children: items,
-                    ),
-                  ),
-                  if (state.tagItems.value.isNotEmpty)
-                    n.Padding(
-                      top: 16,
-                      child: n.Row([
-                        const SizedBox(width: 8),
-                        const Icon(
-                          Icons.sell_outlined,
-                          size: 18,
-                          // color: AppColors.MainTextColor.withOpacity(0.8),
-                        ),
-                        const SizedBox(width: 10),
-                        Text('tags'.tr),
-                      ]),
-                    ),
-                  if (state.tagItems.value.isNotEmpty)
-                    n.Padding(
-                      left: 8,
-                      bottom: 12,
-                      child: Obx(() => Wrap(
-                            alignment: WrapAlignment.spaceBetween,
-                            spacing: 8,
-                            children: state.tagItems.value,
-                          )),
-                    )
-                ],
+                    bottom: 12,
+                    child: Obx(() => Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          spacing: 8,
+                          children: state.tagItems.value,
+                        )),
+                  )
+              ])
                 // 内容文本左对齐
-                crossAxisAlignment: CrossAxisAlignment.start,
-              ),
+                ..crossAxisAlignment = CrossAxisAlignment.start,
               isExpanded: state.kindActive.value,
               canTapOnHeader: true,
             )

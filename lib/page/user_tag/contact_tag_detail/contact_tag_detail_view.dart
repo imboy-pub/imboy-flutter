@@ -6,10 +6,12 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/config/theme.dart';
 
 import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_logic.dart';
@@ -55,7 +57,10 @@ class ContactTagDetailPage extends StatelessWidget {
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        titleWidget: Obx(() => Text('${state.tagName} (${state.refererTime})')),
+        titleWidget: Obx(() => Text(
+              '${state.tagName} (${state.refererTime})',
+              style: AppStyle.navAppBarTitleStyle,
+            )),
         rightDMActions: [
           InkWell(
             onTap: () {
@@ -525,13 +530,13 @@ class ContactTagDetailPage extends StatelessWidget {
                         ),
                       ),
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          Theme.of(context).colorScheme.background,
+                        backgroundColor: WidgetStateProperty.all<Color>(
+                          Theme.of(context).colorScheme.surface,
                         ),
                         minimumSize:
-                            MaterialStateProperty.all(const Size(60, 40)),
+                            WidgetStateProperty.all(const Size(60, 40)),
                         visualDensity: VisualDensity.compact,
-                        padding: MaterialStateProperty.all(EdgeInsets.zero),
+                        padding: WidgetStateProperty.all(EdgeInsets.zero),
                       ),
                     )
                   ])
@@ -697,7 +702,12 @@ class SelectFriendPage extends StatelessWidget {
               top: 8,
               right: 8,
               bottom: 8,
-              child: ElevatedButton(
+              child: RoundedElevatedButton(
+              text: 'button_add'.tr +
+                      (selectedContact.isEmpty
+                          ? ""
+                          : " (${selectedContact.length})    "),
+              highlighted: selectedContact.isNotEmpty,
                 onPressed: () async {
                   Navigator.of(context).pop();
                   const String scene = 'friend';
@@ -719,41 +729,7 @@ class SelectFriendPage extends StatelessWidget {
                   } else {
                     EasyLoading.showError('tip_failed'.tr);
                   }
-                },
-                // ignore: sort_child_properties_last
-                child: Text(
-                  'button_add'.tr +
-                      (selectedContact.isEmpty
-                          ? ""
-                          : " (${selectedContact.length})    "),
-                  textAlign: TextAlign.center,
-                ),
-                style: selectedContact.isNotEmpty
-                    ? ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          Colors.green,
-                        ),
-                        foregroundColor: MaterialStateProperty.all<Color>(
-                          Colors.white,
-                        ),
-                        minimumSize:
-                            MaterialStateProperty.all(const Size(60, 40)),
-                        visualDensity: VisualDensity.compact,
-                        padding: MaterialStateProperty.all(EdgeInsets.zero),
-                      )
-                    : ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          Colors.green.withOpacity(0.6),
-                        ),
-                        foregroundColor: MaterialStateProperty.all<Color>(
-                          Colors.white.withOpacity(0.6),
-                        ),
-                        minimumSize:
-                            MaterialStateProperty.all(const Size(60, 40)),
-                        visualDensity: VisualDensity.compact,
-                        padding: MaterialStateProperty.all(EdgeInsets.zero),
-                      ),
-              ),
+                }),
             ),
           )
         ],

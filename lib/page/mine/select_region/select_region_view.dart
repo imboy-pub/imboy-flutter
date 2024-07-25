@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/button.dart';
+import 'package:imboy/config/theme.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/common_bar.dart';
@@ -32,7 +34,7 @@ class SelectRegionPage extends StatelessWidget {
       logic.valueOnChange(false);
     });
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         titleWidget: n.Row([
@@ -40,61 +42,26 @@ class SelectRegionPage extends StatelessWidget {
             child: Text(
               'set_region'.tr,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppStyle.navAppBarTitleStyle,
             ),
             // 中间用Expanded控件
           ),
           Obx(
-            () => ElevatedButton(
-              onPressed: () async {
-                var nav = Navigator.of(context);
-                bool res = await outCallback(logic.selectedVal.value);
-                // iPrint("logic.selectedVal.value ${logic.selectedVal.value}");
-                if (res) {
-                  int t = logic.selectedVal.value.split(" ").length;
-                  // iPrint("logic.selectedVal.value $t");
-                  for (var i = 0; i < t; i++) {
-                    nav.pop();
+            () => RoundedElevatedButton(
+                text: 'button_accomplish'.tr,
+                highlighted: logic.valueChanged.isTrue,
+                onPressed: () async {
+                  var nav = Navigator.of(context);
+                  bool res = await outCallback(logic.selectedVal.value);
+                  // iPrint("logic.selectedVal.value ${logic.selectedVal.value}");
+                  if (res) {
+                    int t = logic.selectedVal.value.split(" ").length;
+                    // iPrint("logic.selectedVal.value $t");
+                    for (var i = 0; i < t; i++) {
+                      nav.pop();
+                    }
                   }
-                }
-              },
-              // ignore: sort_child_properties_last
-              child: n.Padding(
-                  left: 10,
-                  right: 10,
-                  child: Text(
-                    'button_accomplish'.tr,
-                    textAlign: TextAlign.center,
-                  )),
-              style: logic.valueChanged.isTrue
-                  ? ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.green,
-                      ),
-                      foregroundColor: MaterialStateProperty.all<Color>(
-                        Colors.white,
-                      ),
-                      minimumSize:
-                          MaterialStateProperty.all(const Size(60, 40)),
-                      visualDensity: VisualDensity.compact,
-                      padding: MaterialStateProperty.all(EdgeInsets.zero),
-                    )
-                  : ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.green.withOpacity(0.6),
-                      ),
-                      foregroundColor: MaterialStateProperty.all<Color>(
-                        Colors.white.withOpacity(0.6),
-                      ),
-                      minimumSize:
-                          MaterialStateProperty.all(const Size(60, 40)),
-                      visualDensity: VisualDensity.compact,
-                      padding: MaterialStateProperty.all(EdgeInsets.zero),
-                    ),
-            ),
+                }),
           ),
         ]),
       ),
@@ -130,7 +97,7 @@ class SelectRegionPage extends StatelessWidget {
         ),
       ])
         // ..mainAxisSize = MainAxisSize.min
-        ..useParent((v) => v..bg = Theme.of(context).colorScheme.background),
+        ..useParent((v) => v..bg = Theme.of(context).colorScheme.surface),
     );
   }
 }

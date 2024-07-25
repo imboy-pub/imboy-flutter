@@ -127,7 +127,8 @@ class UserTagRepo {
       return model;
     } else {
       await update(json);
-      return old;
+      old = await findByTagId(tagId);
+      return old!;
     }
   }
 

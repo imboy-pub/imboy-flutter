@@ -304,7 +304,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         toFile: filePath,
         codec: recordCodec,
         bitRate: 8000,
-        sampleRate: 8000,
+        // sampleRate: 8000,
         audioSource: AudioSource.microphone,
       );
 

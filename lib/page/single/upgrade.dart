@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/config/env.dart';
 import 'package:r_upgrade/r_upgrade.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 
 class UpgradePage extends StatefulWidget {
@@ -195,11 +195,11 @@ class UpgradePageState extends State<UpgradePage> {
   // ios 点击立即更新调整到 applly APP Store
   void upgradeFromAppStore() async {
     bool? isSuccess = await RUpgrade.upgradeFromAppStore(
-      IOS_APP_ID,
+      Env.iosAppId,
     );
     if (isSuccess == false) {
       EasyLoading.showError(
-        'ios_app_id_unknown'.trArgs([IOS_APP_ID]),
+        'ios_app_id_unknown'.trArgs([Env.iosAppId]),
       );
       return;
     }

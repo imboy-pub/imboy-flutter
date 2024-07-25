@@ -40,12 +40,12 @@ Widget searchBar(
     trailing: trailing,
     hintText: hintText,
     // 取消阴影效果
-    elevation: MaterialStateProperty.all(0),
+    elevation: WidgetStateProperty.all(0),
     // 圆角效果
-    shape: MaterialStateProperty.all(const RoundedRectangleBorder(
+    shape: WidgetStateProperty.all(const RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(10.0)),
     )),
-    hintStyle: MaterialStateProperty.all(const TextStyle(
+    hintStyle: WidgetStateProperty.all(const TextStyle(
       fontSize: 14,
       // color: AppColors.LineColor.withOpacity(0.7),
     )),

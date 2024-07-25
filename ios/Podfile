@@ -1,6 +1,6 @@
 # Uncomment this line to define a global platform for your project
 # platform :ios, '12.0'
-platform :ios, '12.0'
+platform :ios, '13.0'
 
 # rm -rf Podfile.lock pods .symlink Runner.xcworkspace && flutter clean && flutter pub get && pod install --repo-update
 # source 'https://github.com/CocoaPods/Specs.git'

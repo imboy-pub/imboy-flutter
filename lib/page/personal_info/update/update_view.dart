@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/line.dart';
+import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/mine/select_region/select_region_logic.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -64,7 +66,7 @@ class UpdatePage extends StatelessWidget {
     //   top = 22;
     // }
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         titleWidget: n.Row([
@@ -72,16 +74,14 @@ class UpdatePage extends StatelessWidget {
             child: Text(
               title,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
+              style: AppStyle.navAppBarTitleStyle,
             ),
             // 中间用Expanded控件
           ),
           Obx(
-            () => ElevatedButton(
+            () => RoundedElevatedButton(
+              text: 'button_accomplish'.tr,
+              highlighted: logic.valueChanged.isTrue,
               onPressed: () async {
                 if (field == "input") {
                   String trimmedText = logic.textController.text.trim();
@@ -106,39 +106,6 @@ class UpdatePage extends StatelessWidget {
                   }
                 }
               },
-              // ignore: sort_child_properties_last
-              child: n.Padding(
-                  left: 10,
-                  right: 10,
-                  child: Text(
-                    'button_accomplish'.tr,
-                    textAlign: TextAlign.center,
-                  )),
-              style: logic.valueChanged.isTrue
-                  ? ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.green,
-                      ),
-                      foregroundColor: MaterialStateProperty.all<Color>(
-                        Colors.white,
-                      ),
-                      minimumSize:
-                          MaterialStateProperty.all(const Size(60, 40)),
-                      visualDensity: VisualDensity.compact,
-                      padding: MaterialStateProperty.all(EdgeInsets.zero),
-                    )
-                  : ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.green.withOpacity(0.6),
-                      ),
-                      foregroundColor: MaterialStateProperty.all<Color>(
-                        Colors.white.withOpacity(0.6),
-                      ),
-                      minimumSize:
-                          MaterialStateProperty.all(const Size(60, 40)),
-                      visualDensity: VisualDensity.compact,
-                      padding: MaterialStateProperty.all(EdgeInsets.zero),
-                    ),
             ),
           ),
         ]),
@@ -164,13 +131,13 @@ class UpdatePage extends StatelessWidget {
               borderRadius: BorderRadius.circular(3),
               borderSide: BorderSide(
                 width: 1.0,
-                color: Theme.of(context).colorScheme.background,
+                color: Theme.of(context).colorScheme.surface,
               )),
           enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(3),
               borderSide: BorderSide(
                 width: 1.0,
-                color: Theme.of(context).colorScheme.background,
+                color: Theme.of(context).colorScheme.surface,
               )),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(3),
@@ -236,7 +203,7 @@ class UpdatePage extends StatelessWidget {
               borderRadius: BorderRadius.circular(3),
               borderSide: BorderSide(
                 width: 0.2,
-                color: Theme.of(context).colorScheme.background,
+                color: Theme.of(context).colorScheme.surface,
               )),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(3),
@@ -384,7 +351,7 @@ class UpdatePage extends StatelessWidget {
                     margin: const EdgeInsets.only(left: 16, right: 16),
                     width: Get.width,
                     height: Get.height - 40,
-                    // color: Theme.of(context).colorScheme.background,
+                    // color: Theme.of(context).colorScheme.surface,
                     child: ListView.builder(
                       itemBuilder: (BuildContext context, int index) {
                         return regionLogic.getListItem(
@@ -410,7 +377,7 @@ class UpdatePage extends StatelessWidget {
                 ..crossAxisAlignment = CrossAxisAlignment.start,
             ])
               ..mainAxisSize = MainAxisSize.min
-        // ..useParent((v) => v..bg = Theme.of(context).colorScheme.background),
+        // ..useParent((v) => v..bg = Theme.of(context).colorScheme.surface),
         );
   }
 }

@@ -14,7 +14,6 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/session.dart';
 
-import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_view.dart';
@@ -44,10 +43,10 @@ Future<bool> initIceServers({String from = 'incomingCallScreen'}) async {
     iceConfiguration = {
       'iceServers': [
         {
-          'urls': [STUN_URL],
+          'urls': turnCredential['stun_urls'], // stun urls
         },
         {
-          'urls': turnCredential['uris'] ?? [TURN_URL],
+          'urls': turnCredential['turn_urls'], // turn urls
           "ttl": turnCredential['ttl'] ?? 86400,
           'username': turnCredential['username'],
           'credential': turnCredential['credential']

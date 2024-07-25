@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:imboy/config/env.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xid/xid.dart';
@@ -13,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart' as getx;
 
-import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/entity_image.dart';
@@ -38,7 +38,7 @@ class AttachmentProvider {
     // data = {'file':MultipartFile.fromFile(path, filename: name)};
     data['output'] = 'json2';
     data['path'] = savePath;
-    data['scene'] = UPLOAD_SENCE;
+    data['scene'] = Env.uploadScene;
 
     data['v'] = authData['v'];
     data['a'] = authData['a'];
@@ -47,16 +47,16 @@ class AttachmentProvider {
     debugPrint("> on upload param ${(data['file'] as MultipartFile).filename}");
     FormData formData = FormData.fromMap(data);
 
-    debugPrint("> on upload UPLOAD_BASE_URL $UPLOAD_BASE_URL");
+    debugPrint("> on upload UPLOAD_BASE_URL ${Env.uploadUrl}");
     var options = BaseOptions(
-      baseUrl: UPLOAD_BASE_URL,
+      baseUrl: Env.uploadUrl,
       contentType: 'application/x-www-form-urlencoded',
       connectTimeout: const Duration(milliseconds: 30000),
       sendTimeout: const Duration(milliseconds: 60000),
       receiveTimeout: const Duration(milliseconds: 30000),
     );
     await Dio(options).post(
-      "$UPLOAD_BASE_URL/upload",
+      "${Env.uploadUrl}/upload",
       data: formData,
       onSendProgress: (int sent, int total) {
         // debugPrint('> on upload $sent / $total');
@@ -93,19 +93,19 @@ class AttachmentProvider {
     data['md5'] = data['md5'];
     data['output'] = 'json2';
     data['path'] = savePath;
-    data['scene'] = UPLOAD_SENCE;
+    data['scene'] = Env.uploadScene;
     data['s'] = authData['s'];
     data['v'] = authData['v'];
     data['a'] = authData['a'];
     var options = BaseOptions(
-      baseUrl: UPLOAD_BASE_URL,
+      baseUrl: Env.uploadUrl,
       contentType: 'application/x-www-form-urlencoded',
       connectTimeout: const Duration(milliseconds: 30000),
       sendTimeout: const Duration(milliseconds: 60000),
       receiveTimeout: const Duration(milliseconds: 30000),
     );
     return Dio(options).get(
-      "$UPLOAD_BASE_URL/upload",
+      "${Env.uploadUrl}/upload",
       queryParameters: data,
     );
   }

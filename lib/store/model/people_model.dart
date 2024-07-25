@@ -12,7 +12,7 @@ class PeopleModel {
   String remark;
 
   PeopleModel({
-    required this.id,
+    required this.id, // userId or other
     this.distance = -1,
     this.distanceUnit = 'm',
     required this.account,

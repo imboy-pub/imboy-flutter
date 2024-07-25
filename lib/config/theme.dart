@@ -25,6 +25,9 @@ MaterialColor createMaterialColor(Color color) {
   return MaterialColor(color.value, swatch);
 }
 
+const mainSpace = 10.0;
+double mainLineWidth = Get.isDarkMode ? 0.5 : 1.0;
+
 const Color lightBgColor = Color.fromRGBO(248, 248, 248, 1.0);
 // const Color lightInputBgColor = Colors.white70;
 const Color lightPrimaryColor = Color.fromRGBO(236, 236, 236, 1);
@@ -36,7 +39,7 @@ const Color darkBgColor = Color.fromRGBO(40, 40, 40, 1.0);
 // const Color darkInputBgColor = Colors.black87;
 const Color darkPrimaryColor = Color.fromRGBO(26, 26, 26, 1);
 const Color darkOnPrimaryColor = Color.fromRGBO(208, 208, 208, 1.0);
-const Color darkInputTextColor = Color.fromRGBO(212, 212, 212, 1.0);
+const Color darkInputTextColor = Color.fromRGBO(255, 255, 255, 1.0);
 const Color darkInputFillColor = Color.fromRGBO(44, 44, 44, 1.0);
 
 class ChatColor {
@@ -66,9 +69,9 @@ final ColorScheme lightColorScheme = ColorScheme.fromSeed(
   // 主色调的容器背景色，更淡一些以提供对比
   onPrimaryContainer: Colors.black54,
   // 主色调容器上的文字或图标颜色
-  background: lightBgColor,
+  surface: lightBgColor,
   // 背景颜色，比表面颜色稍深一些以提供对比
-  onBackground: Colors.black54,
+  onSurface: Colors.black54,
   // 背景颜色上的文字或图标颜色
   error: Colors.red,
   // 错误状态的颜色
@@ -85,9 +88,9 @@ final ColorScheme darkColorScheme = ColorScheme.fromSeed(
   // 主色调的容器背景色，更淡一些以提供对比
   onPrimaryContainer: Colors.black54,
   // 主色调容器上的文字或图标颜色
-  background: darkBgColor,
+  surface: darkBgColor,
   // 背景颜色改为更深的黑色调
-  onBackground: Colors.white70,
+  onSurface: Colors.white70,
   // 背景颜色上的文字颜色保持一定的透明度
   error: Colors.red,
   // 错误颜色
@@ -108,25 +111,36 @@ final ThemeData darkTheme = ThemeData(
   primarySwatch: createMaterialColor(const Color(0x00ffffff)),
   useMaterial3: true,
   colorScheme: darkColorScheme,
+  // inputDecorationTheme: InputDecorationTheme(),
 );
 
 final LoginTheme loginTheme = LoginTheme(
   // background
-  primaryColor: Get.isDarkMode ? darkPrimaryColor : lightPrimaryColor,
+  // primaryColor: Get.isDarkMode ? darkPrimaryColor : lightPrimaryColor,
+  primaryColor: Colors.green,
   accentColor: Theme.of(Get.context!).colorScheme.onPrimary,
   footerBackgroundColor: Colors.green,
-  logoWidth: 1,
-  headerMargin: 10,
-  titleStyle: TextStyle(
-    color: Theme.of(Get.context!).colorScheme.onPrimary,
+  logoWidth: 1.0,
+  headerMargin: 20,
+  titleStyle: const TextStyle(
+    color: Colors.white,
   ),
   buttonTheme: LoginButtonTheme(
-    splashColor: Theme.of(Get.context!).colorScheme.onPrimary,
+    // splashColor: Theme.of(Get.context!).colorScheme.onPrimary,
+    splashColor: Colors.red,
     backgroundColor: Colors.green,
-    highlightColor: Colors.white,
-    elevation: 9.0,
+    highlightColor: Colors.lightGreen,
+    elevation: 10.0,
     shape: BeveledRectangleBorder(
       borderRadius: BorderRadius.circular(2),
+    ),
+  ),
+  cardTheme: CardTheme(
+    // color: Colors.yellow.shade100,
+    elevation: 8,
+    margin: const EdgeInsets.only(top: 8, left: 0, right: 0),
+    shape: ContinuousRectangleBorder(
+      borderRadius: BorderRadius.circular(40.0),
     ),
   ),
   inputTheme: const InputDecorationTheme(
@@ -156,7 +170,7 @@ class AppDarkChatTheme extends ChatTheme {
     super.deliveredIcon,
     super.documentIcon,
     super.emptyChatPlaceholderTextStyle = const TextStyle(
-      // color: Theme.of(Get.context!).colorScheme.onPrimary,
+      // color: Colors.black,
       fontFamily: 'Avenir',
       fontSize: 18,
       fontWeight: FontWeight.w500,
@@ -503,4 +517,12 @@ class LightChatTheme extends ChatTheme {
             ),
           ),
         );
+}
+
+class AppStyle {
+  static TextStyle navAppBarTitleStyle = TextStyle(
+    color: Theme.of(Get.context!).colorScheme.onPrimary,
+    fontSize: 16.0,
+    fontWeight: FontWeight.w600,
+  );
 }

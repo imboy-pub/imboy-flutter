@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
-import 'package:imboy/config/const.dart';
+import 'package:imboy/config/theme.dart';
+import 'package:niku/namespace.dart' as n;
 
 class ButtonRow extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
@@ -40,10 +40,10 @@ class ButtonRow extends StatelessWidget {
       ),
       child: TextButton(
         style: TextButton.styleFrom(
-          foregroundColor: Theme.of(context).colorScheme.onBackground,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
           minimumSize: Size.zero,
           padding: EdgeInsets.zero,
-          // backgroundColor: Theme.of(context).colorScheme.background,
+          // backgroundColor: Theme.of(context).colorScheme.surface,
           //取消圆角边框
           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         ),
@@ -55,6 +55,73 @@ class ButtonRow extends StatelessWidget {
           child: Text(text!, style: style),
         ),
       ),
+    );
+  }
+}
+
+class RoundedElevatedButton extends StatelessWidget {
+  final String text;
+  final bool highlighted;
+  final VoidCallback? onPressed;
+  final Size? size;
+  final BorderRadius? borderRadius;
+
+  const RoundedElevatedButton({
+    super.key,
+    required this.text,
+    required this.highlighted,
+    required this.onPressed,
+    this.size,
+    this.borderRadius,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      // ignore: sort_child_properties_last
+      child: n.Padding(
+          left: 10,
+          right: 10,
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+          )),
+      style: highlighted
+          ? ButtonStyle(
+              backgroundColor: WidgetStateProperty.all<Color>(
+                Colors.green,
+              ),
+              foregroundColor: WidgetStateProperty.all<Color>(
+                Colors.white,
+              ),
+              minimumSize: WidgetStateProperty.all(
+                size ?? const Size(88, 40),
+              ),
+              visualDensity: VisualDensity.compact,
+              padding: WidgetStateProperty.all(EdgeInsets.zero),
+              shape: WidgetStateProperty.all<OutlinedBorder>(
+                  RoundedRectangleBorder(
+                borderRadius:
+                    borderRadius ?? BorderRadius.circular(30.0), // 设置圆角大小
+              )),
+            )
+          : ButtonStyle(
+              backgroundColor: WidgetStateProperty.all<Color>(
+                Colors.white12,
+              ),
+              foregroundColor: WidgetStateProperty.all<Color>(Colors.grey),
+              minimumSize: WidgetStateProperty.all(
+                size ?? const Size(88, 40),
+              ),
+              visualDensity: VisualDensity.compact,
+              padding: WidgetStateProperty.all(EdgeInsets.zero),
+              shape: WidgetStateProperty.all<OutlinedBorder>(
+                  RoundedRectangleBorder(
+                borderRadius:
+                    borderRadius ?? BorderRadius.circular(30.0), // 设置圆角大小
+              )),
+            ),
     );
   }
 }

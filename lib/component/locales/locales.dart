@@ -46,9 +46,9 @@ String jiffyLocal(String local) {
   // 'zh_cn': ZhCnLocale(),
   // 'zh_hk': ZhHkLocale(),
   // 'zh_tw': ZhTwLocale(),
-  if (local == 'zh_Hans_CN' || local == 'zh-Hans-SG' || local == 'zh-Hans-CN') {
+  if (local.startsWith('zh_Hans') || local.startsWith('zh-Hans')) {
     local = 'zh_CN';
-  } else if (local == 'zh-Hant-HK' || local == 'zh-Hant-TW') {
+  } else if (local.startsWith('zh-Hant')) {
     local = 'zh_Hant';
   } else if (local.startsWith('ru_')) {
     local = 'ru';

@@ -171,6 +171,7 @@ class NewFriendRepo {
     // debugPrint("> on new_friend save: ${old.toString()}");
     if (old != null || old is NewFriendModel) {
       await update(json);
+      // old = await findByFromTo(from, to);
     } else {
       await insert(NewFriendModel.fromJson(json));
     }

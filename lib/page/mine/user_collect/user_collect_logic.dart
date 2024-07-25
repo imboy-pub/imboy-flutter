@@ -61,9 +61,9 @@ class UserCollectLogic extends GetxController {
       }
       if (strNoEmpty(kwd)) {
         where =
-            "$where and (${UserCollectRepo.source} like '%$kwd%' or ${UserCollectRepo.remark} like '%$kwd%' or ${UserCollectRepo.tag} like '%$kwd%')";
+            "$where and (${UserCollectRepo.source} like '%$kwd%' or ${UserCollectRepo.remark} like '%$kwd%' or ${UserCollectRepo.info} like '%$kwd%')";
       }
-
+      iPrint("searchLeading_tag where $where");
       List<UserCollectModel> list = await repo.page(
         limit: size,
         offset: offset,
@@ -71,6 +71,7 @@ class UserCollectLogic extends GetxController {
         whereArgs: whereArgs,
         orderBy: orderBy,
       );
+      iPrint("searchLeading_tag list ${list.length}");
       if (page == 1 && list.isEmpty) {
         // 第1页没有查到数据的时候到服务端去查询
       } else {
@@ -89,6 +90,9 @@ class UserCollectLogic extends GetxController {
     }
     if (strNoEmpty(kwd)) {
       args['kwd'] = kwd;
+    }
+    if (strNoEmpty(tag)) {
+      args['tag'] = tag;
     }
     Map<String, dynamic>? payload = await UserCollectProvider().page(args);
     if (payload == null) {
@@ -220,8 +224,9 @@ class UserCollectLogic extends GetxController {
                     firstName: UserRepoLocal.to.current.nickname,
                     imageUrl: UserRepoLocal.to.current.avatar,
                   ),
-                  message: MessageModel.fromJson(obj.info).toTypeMessage()
-                      as types.CustomMessage,
+                  info: obj.info,
+                  // message: MessageModel.fromJson(obj.info).toTypeMessage()
+                  //     as types.CustomMessage,
                 ),
               ),
             ])
@@ -444,8 +449,9 @@ class UserCollectLogic extends GetxController {
                       firstName: UserRepoLocal.to.current.nickname,
                       imageUrl: UserRepoLocal.to.current.avatar,
                     ),
-                    message: MessageModel.fromJson(obj.info).toTypeMessage()
-                        as types.CustomMessage,
+                    info: obj.info,
+                    // message: MessageModel.fromJson(obj.info).toTypeMessage()
+                    //     as types.CustomMessage,
                   ))
             ]);
     } else if (obj.kind == 7) {
@@ -453,15 +459,12 @@ class UserCollectLogic extends GetxController {
       body = n.Row([
         Expanded(
             child: VisitCardMessageBuilder(
-          // width: Get.width - 20,
-          // height: Get.height - 160,
           user: types.User(
             id: UserRepoLocal.to.currentUid,
             firstName: UserRepoLocal.to.current.nickname,
             imageUrl: UserRepoLocal.to.current.avatar,
           ),
-          message: MessageModel.fromJson(obj.info).toTypeMessage()
-              as types.CustomMessage,
+          info: obj.info,
         ))
       ])
         // 内容文本左对齐
@@ -483,6 +486,7 @@ class UserCollectLogic extends GetxController {
     Function callback,
   ) async {
     state.page = 1;
+    iPrint("searchLeading_tag searchByTag tag $tag, kindTips $kindTips");
     var list = await page(page: state.page, size: state.size, tag: tag);
     if (list.isNotEmpty) {
       state.page += 1;
@@ -514,13 +518,16 @@ class UserCollectLogic extends GetxController {
           callback();
         },
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-            (Set<MaterialState> states) {
-              if (states.contains(MaterialState.pressed)) {
-                return Colors.white.withOpacity(0.75);
+          backgroundColor: WidgetStateProperty.resolveWith<Color>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.pressed)) {
+                return Theme.of(Get.context!)
+                    .colorScheme
+                    .surface
+                    .withOpacity(0.75);
               }
               // Use the component's default.
-              return Theme.of(Get.context!).colorScheme.background;
+              return Theme.of(Get.context!).colorScheme.surface;
             },
           ),
         ),
@@ -530,24 +537,28 @@ class UserCollectLogic extends GetxController {
             right: 8,
             child: Transform.scale(
               scaleX: -1,
-              child: const Icon(
+              child: Icon(
                 Icons.local_offer,
                 size: 18,
-                // color: AppColors.MainTextColor.withOpacity(0.8),
+                color: Theme.of(Get.context!)
+                    .colorScheme
+                    .onPrimary
+                    .withOpacity(0.75),
               ),
             ),
           ),
           Text(
             kindTips,
-            // style: TextStyle(
-            //   color: AppColors.ItemOnColor,
-            // ),
+            style: TextStyle(
+              color: Theme.of(Get.context!).colorScheme.onPrimary,
+            ),
           ),
           const SizedBox(width: 12),
-          const Icon(
+          Icon(
             Icons.close,
             size: 16,
-            // color: AppColors.ItemOnColor.withOpacity(0.7),
+            color:
+                Theme.of(Get.context!).colorScheme.onPrimary.withOpacity(0.75),
           ),
         ]),
       )
@@ -593,13 +604,16 @@ class UserCollectLogic extends GetxController {
           callback();
         },
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-            (Set<MaterialState> states) {
-              if (states.contains(MaterialState.pressed)) {
-                return Colors.white.withOpacity(0.75);
+          backgroundColor: WidgetStateProperty.resolveWith<Color>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.pressed)) {
+                return Theme.of(Get.context!)
+                    .colorScheme
+                    .surface
+                    .withOpacity(0.75);
               }
               // Use the component's default.
-              return Theme.of(Get.context!).colorScheme.background;
+              return Theme.of(Get.context!).colorScheme.surface;
             },
           ),
         ),
@@ -608,24 +622,28 @@ class UserCollectLogic extends GetxController {
             right: 8,
             child: Transform.scale(
               scaleX: -1,
-              child: const Icon(
+              child: Icon(
                 Icons.grid_view,
                 size: 18,
-                // color: AppColors.MainTextColor.withOpacity(0.8),
+                color: Theme.of(Get.context!)
+                    .colorScheme
+                    .onPrimary
+                    .withOpacity(0.8),
               ),
             ),
           ),
           Text(
             kindTips,
-            // style: const TextStyle(
-            //   color: AppColors.ItemOnColor,
-            // ),
+            style: TextStyle(
+              color: Theme.of(Get.context!).colorScheme.onPrimary,
+            ),
           ),
           const SizedBox(width: 12),
-          const Icon(
+          Icon(
             Icons.close,
             size: 16,
-            // color: AppColors.ItemOnColor.withOpacity(0.7),
+            color:
+                Theme.of(Get.context!).colorScheme.onPrimary.withOpacity(0.7),
           ),
         ]),
       )
@@ -774,20 +792,27 @@ class UserCollectLogic extends GetxController {
     for (String tag in items) {
       widgetList.add(ElevatedButton(
         onPressed: () {
-          debugPrint("searchLeading ${state.searchLeading.toString()}");
+          debugPrint(
+              "searchLeading_tag $tag ${state.searchLeading.toString()}");
           state.kindActive.value = !state.kindActive.value;
           searchByTag(tag, tag, () {
             state.kindActive.value = !state.kindActive.value;
           });
         },
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-            (Set<MaterialState> states) {
-              if (states.contains(MaterialState.pressed)) {
-                return Colors.white.withOpacity(0.75);
+          backgroundColor: WidgetStateProperty.resolveWith<Color>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.pressed)) {
+                return Theme.of(Get.context!)
+                    .colorScheme
+                    .primary
+                    .withOpacity(0.75);
               }
               // Use the component's default.
-              return Colors.white.withOpacity(0.95);
+              return Theme.of(Get.context!)
+                  .colorScheme
+                  .primary
+                  .withOpacity(0.95);
             },
           ),
         ),
@@ -796,7 +821,8 @@ class UserCollectLogic extends GetxController {
           right: 2,
           child: Text(
             tag,
-            // style: const TextStyle(color: AppColors.MainTextColor),
+            style:
+                TextStyle(color: Theme.of(Get.context!).colorScheme.onPrimary),
           ),
         ),
       ));

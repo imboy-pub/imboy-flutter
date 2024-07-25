@@ -12,6 +12,8 @@ class ChatState {
 
   int nextAutoId = 0;
 
+  int memberCount = 0;
+
   ChatState() {
     ///Initialize variables
   }

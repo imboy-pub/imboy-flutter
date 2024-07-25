@@ -47,7 +47,7 @@ class ApplyFriendPage extends StatelessWidget {
       ),
     );
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         title: 'apply_add_friend'.tr,
         automaticallyImplyLeading: true,
@@ -92,15 +92,15 @@ class ApplyFriendPage extends StatelessWidget {
               nav.pop();
             },
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(
-                Theme.of(context).colorScheme.background,
+              backgroundColor: WidgetStateProperty.all<Color>(
+                Theme.of(context).colorScheme.surface,
               ),
-              foregroundColor: MaterialStateProperty.all<Color>(
-                Theme.of(context).colorScheme.onBackground,
+              foregroundColor: WidgetStateProperty.all<Color>(
+                Theme.of(context).colorScheme.onSurface,
               ),
-              minimumSize: MaterialStateProperty.all(const Size(60, 40)),
+              minimumSize: WidgetStateProperty.all(const Size(60, 40)),
               visualDensity: VisualDensity.compact,
-              padding: MaterialStateProperty.all(EdgeInsets.zero),
+              padding: WidgetStateProperty.all(EdgeInsets.zero),
             ),
             child: Text(
               'button_send'.tr,
@@ -114,7 +114,7 @@ class ApplyFriendPage extends StatelessWidget {
         child: Container(
           width: Get.width,
           height: Get.height + 200,
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           child: n.Padding(
             left: 30,
             top: 10,

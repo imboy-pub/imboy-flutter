@@ -193,6 +193,7 @@ ImageProvider<Object> cachedImageProvider(String url, {double w = 400}) {
     );
   }
   String k = "${u.scheme}://${u.host}:${u.port}${u.path}";
+  // iPrint("cachedImageProvider_url $u");
   return CachedNetworkImageProvider(
     w > 0 ? "${u.toString()}&width=$w" : u.toString(),
     cacheKey: EncrypterService.md5(k),

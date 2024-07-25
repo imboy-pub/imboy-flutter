@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/store/repository/sqlite_ddl.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -14,7 +15,7 @@ import 'package:sqflite/sqflite.dart';
 /// 参考 https://www.javacodegeeks.com/2020/06/using-sqlite-in-flutter-tutorial.html
 /// Sqlite 只负责维护表结构
 class SqliteService {
-  static const _dbVersion = 8;
+  static const _dbVersion = 9;
 
   SqliteService._privateConstructor();
 
@@ -22,9 +23,9 @@ class SqliteService {
 
   static Database? _db;
 
-  Future<Database> get db async {
+  Future<Database?> get db async {
     _db ??= await _initDatabase();
-    return _db!;
+    return _db;
   }
 
   Future<void> close() async {
@@ -34,11 +35,16 @@ class SqliteService {
   }
 
   Future<String> dbPath() async {
-    String name = "imboy_${UserRepoLocal.to.currentUid}.db";
+    String name = "${currentEnv}_${UserRepoLocal.to.currentUid}.db";
     return join(await getDatabasesPath(), name);
   }
 
-  Future<Database> _initDatabase() async {
+  Future<Database?> _initDatabase() async {
+    debugPrint(" UserRepoLocal.to.currentUid isEmpty ${UserRepoLocal.to.currentUid.isEmpty};");
+    if (UserRepoLocal.to.currentUid.isEmpty) {
+      // Get.offAll(() => PassportPage());
+      return null;
+    }
     String path = await dbPath();
 
     // Check if the database exists
@@ -113,7 +119,10 @@ class SqliteService {
   }
 
   Future<int> insert(String table, Map<String, dynamic> data) async {
-    Database db = await to.db;
+    Database? db = await to.db;
+    if (db == null) {
+      return 0;
+    }
     int lastInsertId = await db.insert(
       table,
       data,
@@ -129,7 +138,10 @@ class SqliteService {
     List<Object?>? whereArgs,
     ConflictAlgorithm? conflictAlgorithm,
   }) async {
-    Database db = await to.db;
+    Database? db = await to.db;
+    if (db == null) {
+      return 0;
+    }
     var res = await db.update(
       table,
       values,
@@ -142,7 +154,10 @@ class SqliteService {
 
   /// See [Database.rawUpdate]
   Future<int> execute(String sql, [List<Object?>? arguments]) async {
-    Database db = await to.db;
+    Database? db = await to.db;
+    if (db == null) {
+      return 0;
+    }
     var res = await db.rawUpdate(
       sql,
       arguments,
@@ -162,7 +177,10 @@ class SqliteService {
     int? limit,
     int? offset,
   }) async {
-    Database db = await to.db;
+    Database? db = await to.db;
+    if (db == null) {
+      return [];
+    }
     var res = await db.query(
       table,
       distinct: distinct,
@@ -188,7 +206,10 @@ class SqliteService {
       sql += " WHERE $where";
     }
     // debugPrint('sqlite count $sql');
-    Database db = await to.db;
+    Database? db = await to.db;
+    if (db == null) {
+      return null;
+    }
     int? res = Sqflite.firstIntValue(await db.rawQuery(
       sql,
       whereArgs,
@@ -206,7 +227,10 @@ class SqliteService {
     if (strNoEmpty(where)) {
       sql += " WHERE $where";
     }
-    Database db = await to.db;
+    Database? db = await to.db;
+    if (db == null) {
+      return null;
+    }
     int? res = Sqflite.firstIntValue(await db.rawQuery(
       sql,
       whereArgs,
@@ -216,7 +240,10 @@ class SqliteService {
 
   Future<int> delete(String table,
       {String? where, List<Object?>? whereArgs}) async {
-    Database db = await to.db;
+    Database? db = await to.db;
+    if (db == null) {
+      return 0;
+    }
     var res = await db.delete(
       table,
       where: where,

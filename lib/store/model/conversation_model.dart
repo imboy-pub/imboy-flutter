@@ -3,10 +3,15 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 class ConversationModel {
   int id;
+  // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
+  final String type;
+  // CREATE UNIQUE INDEX uk_cv_Type_From_To ON conversation ("type",user_id,peer_id)
   final String peerId;
   String avatar;
   String title; // peerTitle
@@ -23,14 +28,16 @@ class ConversationModel {
   final int? lastMsgStatus;
   int unreadNum;
 
-  // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
-  final String type;
-
   //
   String msgType;
   int isShow;
 
   RxBool selected = false.obs;
+
+  // 如果 title 为空，零时计算title
+  String computeTitle = '';
+  // 如果 avatar 为空，零时计算avatar
+  List<String> computeAvatar = [];
 
   ConversationModel({
     required this.id,
@@ -50,6 +57,10 @@ class ConversationModel {
     this.payload, // 消息原数据
   });
 
+  // CREATE UNIQUE INDEX uk_cv_Type_From_To ON conversation ("type",user_id,peer_id)
+  String get uk3 {
+    return "${type}_${UserRepoLocal.to.currentUid}_$peerId".toLowerCase();
+  }
   /// 会话内容计算
   String get content {
     // debugPrint("ConversationModel_content ${payload.toString()}");
@@ -60,8 +71,14 @@ class ConversationModel {
     if (strNoEmpty(sysPrompt)) {
       return sysPrompt;
     }
+    String draftKey = "draft${type}_$peerId";
+    String? draft = StorageService.to.getString(draftKey);
+    if (strNoEmpty(draft)) {
+      return "[${'tip_draft'.tr}]_color_red_$draft";
+    }
+
     String str = 'unknown_message'.tr;
-    if (msgType == 'text') {
+    if (msgType == 'text' || msgType == '') {
       return subtitle;
     } else if (msgType == 'quote') {
       return subtitle;

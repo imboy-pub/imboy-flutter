@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/button.dart';
+import 'package:imboy/config/theme.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/func.dart';
@@ -45,63 +47,27 @@ class ChangeNamePage extends StatelessWidget {
             child: Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppStyle.navAppBarTitleStyle,
             ),
             // 中间用Expanded控件
           ),
           Obx(
-            () => ElevatedButton(
-              onPressed: () async {
-                if (field == "input") {
-                  String trimmedText = textController.text.trim();
-                  if (trimmedText == '') {
-                    valueChanged.value = false;
-                  } else {
-                    bool res = await callback(trimmedText);
-                    if (res) {
-                      Get.back();
+            () => RoundedElevatedButton(
+                text: 'button_accomplish'.tr,
+                highlighted: valueChanged.isTrue,
+                onPressed: () async {
+                  if (field == "input") {
+                    String trimmedText = textController.text.trim();
+                    if (trimmedText == '') {
+                      valueChanged.value = false;
+                    } else {
+                      bool res = await callback(trimmedText);
+                      if (res) {
+                        Get.back();
+                      }
                     }
                   }
-                }
-              },
-              // ignore: sort_child_properties_last
-              child: n.Padding(
-                  left: 10,
-                  right: 10,
-                  child: Text(
-                    'button_accomplish'.tr,
-                    textAlign: TextAlign.center,
-                  )),
-              style: valueChanged.isTrue
-                  ? ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.green,
-                      ),
-                      foregroundColor: MaterialStateProperty.all<Color>(
-                        Colors.white,
-                      ),
-                      minimumSize:
-                          MaterialStateProperty.all(const Size(60, 40)),
-                      visualDensity: VisualDensity.compact,
-                      padding: MaterialStateProperty.all(EdgeInsets.zero),
-                    )
-                  : ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.green.withOpacity(0.6),
-                      ),
-                      foregroundColor: MaterialStateProperty.all<Color>(
-                        Colors.white.withOpacity(0.6),
-                      ),
-                      minimumSize: MaterialStateProperty.all(
-                        const Size(60, 40),
-                      ),
-                      visualDensity: VisualDensity.compact,
-                      padding: MaterialStateProperty.all(EdgeInsets.zero),
-                    ),
-            ),
+                }),
           ),
         ]),
       ),
@@ -121,13 +87,13 @@ class ChangeNamePage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(3),
                 borderSide: BorderSide(
                   width: 0.2,
-                  color: Theme.of(context).colorScheme.background,
+                  color: Theme.of(context).colorScheme.surface,
                 )),
             enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(3),
                 borderSide: BorderSide(
                   width: 0.2,
-                  color: Theme.of(context).colorScheme.background,
+                  color: Theme.of(context).colorScheme.surface,
                 )),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(3),

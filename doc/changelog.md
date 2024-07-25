@@ -1,3 +1,66 @@
+# 0.5.0
+* 引入 flutter_keychain 存储用户登录token等信息
+* 添加 Env 模型，从服务动态端加载一些配置，硬编码一些配置（删除 flutter_dotenv，删除 .env 文件），调整相关代码；
+* 添加 RSAService 服务，客户端生成RSA算法公钥私钥对，登录的时候公钥上传到服务器；
+* 调整接口签名规则，配置应用签名，使用签名秘钥加密接口签名，使得APP更安全；
+* 群二维码内容使用 sha256加密；
+* 取消 header 参数 cosv，只在必要的方法中使用 post 参数获取 operatingSystemVersion；
+* 新增 为了方便调试，添加了切换环境的功能；
+* 优化登录界面样式；
+* 引入 pasteboard pointycastle 
+* 升级一些依赖；
+* 
+
+# 0.4.4
+* 修复 有回话草稿的时候，在回话列表里面显示它；
+* 修复 “没有回话记录的时候”发起视频聊天报错的问题；
+* 升级一些依赖
+
+# 0.4.3
+* 新增 聊天消息草稿功能（保存当前回话没有发送的文本消息）；
+* 升级一些依赖
+
+# 0.4.2
+* 升级2个依赖，解除下面警告信息；
+* info: 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre.
+* info: 'MaterialStateProperty' is deprecated and shouldn't be used. Use WidgetStateProperty instead. Moved to the Widgets layer to make code available outside of Material. This feature was deprecated after v3.19.0-0.3.pre.
+* info: 'onBackground' is deprecated and shouldn't be used. Use onSurface instead. This feature was deprecated after v3.18.0-0.1.pre.
+* info: 'MaterialState' is deprecated and shouldn't be used. Use WidgetState instead. Moved to the Widgets layer to make code available outside of Material. This feature was deprecated after v3.19.0-0.3.pre.
+* 
+
+# 0.4.1
+* 新增功能：修改设置群聊名称；
+* 优化: 在有需要的模式下替换 RoundedElevatedButton 封装（
+  * personal_info/update/update_view.dart setting_view.dart 
+  * language_view.dart 
+  * user_device/change_name_view.dart 
+  * mine/select_region/select_region_view.dart
+  * contact/contact_setting_tag/contact_setting_tag_view.dart
+  * user_tag/user_tag_save/user_tag_save_view.dart
+  * user_tag/contact_tag_detail/contact_tag_detail_view.dart
+* 升级一些依赖，调整相关代码
+
+# 0.4.0
+* 新增功能：发起群聊功能-选择一个群；
+* 新增功能：发起群聊功能-选择联系人创建群聊；
+* 新增功能：发起群聊功能-面对面建群；
+* 新增功能：退出群聊/解散群聊；
+* 新增功能：新增群聊列表功能，列表本地搜索功能；
+* 新增功能：群聊发送
+
+# 0.3.12
+* c2c c2g c2s 相关3个表新增 conversation_uk3 字段，删除 conversation_id字段；新增 s2c_message 表；调整相关代码逻辑
+
+# 0.3.11
+* 修正“我的收藏”按tag搜索、按关键词搜索的bug；
+* 修正“我的收藏”列表样式问题；
+* 代码格式调整；
+* 一些依赖升级（相关代码调整）；
+
+# 0.3.10
+* 新增 “千帆机器人”聊天功能；
+* 
+
 # 0.3.9
 * 修复“引用”消息样式；
 * 修复视频消息样式问题

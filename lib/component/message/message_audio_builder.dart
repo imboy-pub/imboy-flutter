@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 
 import 'package:imboy/config/theme.dart';
-import 'package:niku/namespace.dart' as n;
-import 'package:flutter/material.dart';
+import 'package:imboy/store/model/message_model.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -11,31 +11,25 @@ import 'package:get/get.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
-
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:voice_message_package/voice_message_package.dart';
 
-///方向
-enum BubbleDirection { left, right }
-
-// ignore: must_be_immutable
 class AudioMessageBuilder extends StatefulWidget {
-  AudioMessageBuilder({
-    super.key,
-    required this.type, // for c2c c2g
-    required this.user,
-    required this.message,
-    this.onPlay,
-  });
-
   final String type;
   final types.User user;
+  final types.CustomMessage? message;
+  final Map<String, dynamic>? info;
+  final Function()? onPlay;
 
-  /// [types.CustomMessage]
-  final types.CustomMessage message;
-
-  Function()? onPlay;
+  const AudioMessageBuilder({
+    super.key,
+    required this.type,
+    required this.user,
+    this.message,
+    this.info,
+    this.onPlay,
+  });
 
   @override
   // ignore: library_private_types_in_public_api
@@ -43,83 +37,110 @@ class AudioMessageBuilder extends StatefulWidget {
 }
 
 class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
-  Rx<String> audioPath = "".obs;
-
-  Future<void> init() async {
-    File tmpF = await IMBoyCacheManager().getSingleFile(
-      widget.message.metadata!['uri'],
-      key: EncrypterService.md5(widget.message.metadata!['uri']),
-    );
-    audioPath.value = tmpF.path;
-  }
+  late Future<String> audioPathFuture;
+  late Future<types.CustomMessage?> messageFuture;
 
   @override
   void initState() {
     super.initState();
-    init();
+    messageFuture = _initMessage();
+    audioPathFuture = _initAudioPath();
   }
 
-  @override
-  Future<void> dispose() async {
-    super.dispose();
+  Future<types.CustomMessage?> _initMessage() async {
+    if (widget.message != null) {
+      return widget.message;
+    } else if (widget.info != null) {
+      return await MessageModel.fromJson(widget.info!).toTypeMessage()
+          as types.CustomMessage;
+    }
+    return null;
+  }
+
+  Future<String> _initAudioPath() async {
+    var msg = await messageFuture;
+    if (msg != null) {
+      File tmpF = await IMBoyCacheManager().getSingleFile(
+        msg.metadata!['uri'],
+        key: EncrypterService.md5(msg.metadata!['uri']),
+      );
+      return tmpF.path;
+    }
+    throw Exception('Audio file path initialization failed');
   }
 
   @override
   Widget build(BuildContext context) {
-    bool userIsAuthor = widget.user.id == widget.message.author.id;
+    return FutureBuilder<types.CustomMessage?>(
+      future: messageFuture,
+      builder: (context, messageSnapshot) {
+        if (!messageSnapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final msg = messageSnapshot.data!;
+        final bool userIsAuthor = widget.user.id == msg.author.id;
 
-    Duration d = Duration(
-      milliseconds: widget.message.metadata!["duration_ms"],
+        return FutureBuilder<String>(
+          future: audioPathFuture,
+          builder: (context, audioPathSnapshot) {
+            if (!audioPathSnapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final audioPath = audioPathSnapshot.data!;
+            Duration duration =
+                Duration(milliseconds: msg.metadata!["duration_ms"]);
+
+            return _buildVoiceMessageView(
+                audioPath, duration, msg, userIsAuthor);
+          },
+        );
+      },
     );
-    return Obx(
-      () => n.Row([
-        Expanded(
-          child: VoiceMessageView(
-            controller: VoiceController(
-              // audioSrc: widget.message.metadata!['uri'],
-              audioSrc: audioPath.value,
-              maxDuration: d,
-              isFile: true,
-              onComplete: () {
-                iPrint('VoiceMessageView onComplete');
-              },
-              onPause: () {
-                iPrint('VoiceMessageView onPause');
-              },
-              onPlaying: () {
-                iPrint('VoiceMessageView onPlaying');
-                if (widget.onPlay != null) widget.onPlay!();
-                if (widget.message.metadata!['played'] != true) {
-                  setState(() {
-                    widget.message.metadata!['played'] = true;
-                  });
-                  Map<String, dynamic> data = {
-                    'id': widget.message.id,
-                    'payload': json.encode(widget.message.metadata),
-                  };
-                  String tb = widget.type == 'C2G'
-                      ? MessageRepo.c2gTable
-                      : MessageRepo.c2cTable;
-                  (MessageRepo(tableName: tb)).update(data);
-                }
-              },
-            ),
-            innerPadding: 2,
-            cornerRadius: 16,
-            size: 28,
-            circlesColor: Colors.black38,
-            // activeSliderColor: Colors.red,
-            backgroundColor: Get.isDarkMode
-                ? (userIsAuthor
-                    ? ChatColor.ChatSendMessageBgColor
-                    : const Color.fromRGBO(236, 236, 236, 1.0))
-                : (userIsAuthor
-                    ? ChatColor.ChatSendMessageBgColor
-                    : Theme.of(Get.context!).colorScheme.background),
-            activeSliderColor: const Color.fromRGBO(34, 34, 34, 1.0),
-          ),
-        ),
-      ]),
+  }
+
+  Widget _buildVoiceMessageView(String audioPath, Duration duration,
+      types.CustomMessage msg, bool userIsAuthor) {
+    return VoiceMessageView(
+      controller: VoiceController(
+        audioSrc: audioPath,
+        maxDuration: duration,
+        isFile: true,
+        // noiseWidth: 36.0,
+        onComplete: () => iPrint('VoiceMessageView onComplete'),
+        onPause: () => iPrint('VoiceMessageView onPause'),
+        onPlaying: () => _handleOnPlaying(msg),
+      ),
+      innerPadding: 6,
+      cornerRadius: 16,
+      size: 28,
+      circlesColor: Colors.black38,
+      counterTextStyle: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: Get.isDarkMode ? Colors.white : Colors.black54),
+      backgroundColor: Get.isDarkMode
+          ? (userIsAuthor
+              ? ChatColor.ChatSendMessageBgColor
+              : Theme.of(context).colorScheme.surface.withOpacity(0.2))
+          : (userIsAuthor ? ChatColor.ChatSendMessageBgColor : Colors.white),
+      activeSliderColor:
+          Get.isDarkMode ? (userIsAuthor? Colors.black :Colors.white) : const Color.fromRGBO(34, 34, 34, 1.0),
     );
+  }
+
+  void _handleOnPlaying(types.CustomMessage msg) {
+    iPrint('VoiceMessageView onPlaying');
+    widget.onPlay?.call();
+    if (msg.metadata!['played'] != true) {
+      setState(() {
+        msg.metadata!['played'] = true;
+      });
+      Map<String, dynamic> data = {
+        'id': msg.id,
+        'payload': json.encode(msg.metadata),
+      };
+      String tableName = MessageRepo.getTableName(widget.type);
+      MessageRepo(tableName: tableName).update(data);
+    }
   }
 }

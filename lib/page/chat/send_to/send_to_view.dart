@@ -105,7 +105,7 @@ class SendToPage extends StatelessWidget {
       )
     ];
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         leading: leading,
         title: 'forward_to'.tr,
@@ -118,7 +118,7 @@ class SendToPage extends StatelessWidget {
         Container(
           width: Get.width,
           height: 8,
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           // color: Colors.red,
           margin: const EdgeInsets.only(top: 53.0),
         ),

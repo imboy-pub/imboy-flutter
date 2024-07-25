@@ -46,7 +46,7 @@ class RevokedMessageBuilder extends StatelessWidget {
               style: TextStyle(
                 height: 1.5,
                 color: Theme.of(context).colorScheme.onPrimary,
-                // backgroundColor: Theme.of(context).colorScheme.background,
+                // backgroundColor: Theme.of(context).colorScheme.surface,
               ),
             ),
           )
@@ -58,9 +58,9 @@ class RevokedMessageBuilder extends StatelessWidget {
         // Creates insets from offsets from the left, top, right, and bottom.
         padding: const EdgeInsets.all(12),
         alignment: Alignment.center,
-        // color: Theme.of(context).colorScheme.background,
+        // color: Theme.of(context).colorScheme.surface,
         color: Get.isDarkMode
-            ? Theme.of(context).colorScheme.background
+            ? Theme.of(context).colorScheme.surface
             : lightBgColor,
         child: n.Row([
           Expanded(
@@ -76,7 +76,7 @@ class RevokedMessageBuilder extends StatelessWidget {
               "$nickname ${'message_was_withdrawn'.tr}",
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onPrimary,
-                // backgroundColor: Theme.of(context).colorScheme.background,
+                // backgroundColor: Theme.of(context).colorScheme.surface,
                 fontSize: 14.0,
               ),
               maxLines: 2,

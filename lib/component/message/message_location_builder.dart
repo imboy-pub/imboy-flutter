@@ -1,39 +1,84 @@
+
 import 'package:flutter/material.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/image_gallery/image_gallery.dart';
-
-// import 'package:imboy/component/helper/datetime.dart';
-
-import 'package:imboy/config/init.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:octo_image/octo_image.dart';
 
-class LocationMessageBuilder extends StatelessWidget {
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/image_gallery/image_gallery.dart';
+import 'package:imboy/config/init.dart';
+import 'package:imboy/store/model/message_model.dart';
+
+
+class LocationMessageBuilder extends StatefulWidget {
+  final types.User user;
+  final types.CustomMessage? message;
+  final Map<String, dynamic>? info;
+
+  final Function()? onPlay;
+  final double? width, height;
+
   const LocationMessageBuilder({
     super.key,
     required this.user,
-    required this.message,
+    this.message,
+    this.info,
+    this.onPlay,
     this.width,
     this.height,
   });
 
-  final double? width;
-  final double? height;
-  final types.User user;
-  final types.CustomMessage message;
+  @override
+  LocationMessageBuilderState createState() => LocationMessageBuilderState();
+}
+
+class LocationMessageBuilderState extends State<LocationMessageBuilder> {
+  late Future<types.CustomMessage?> messageFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    messageFuture = _getMessage();
+  }
+
+  Future<types.CustomMessage?> _getMessage() async {
+    if (widget.message != null) {
+      return widget.message;
+    } else if (widget.info != null) {
+      return await MessageModel.fromJson(widget.info!).toTypeMessage() as types.CustomMessage;
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder<types.CustomMessage?>(
+      future: messageFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final msg = snapshot.data;
+        if (msg == null) {
+          return Container(); // 或者一些错误提示
+        }
+        // 构建消息视图
+        return _buildMessageView(msg);
+      },
+    );
+  }
+
+  Widget _buildMessageView(types.CustomMessage msg) {
     // bool userIsAuthor = user.id == message.author.id;
-    String thumb = message.metadata?['thumb'];
+    String thumb = msg.metadata?['thumb'];
     return Container(
-        width: width ?? Get.width * 0.618,
-        height: height ?? 240,
+        width: widget.width ?? Get.width * 0.618,
+        height: widget.height ?? 240,
         color: const Color.fromRGBO(230, 230, 230, 1.0),
         child: n.Column([
           InkWell(
@@ -43,39 +88,36 @@ class LocationMessageBuilder extends StatelessWidget {
                     ? const Color.fromRGBO(80, 80, 80, 1)
                     : const Color.fromRGBO(240, 240, 240, 1),
                 Container(
-                  color: Theme.of(Get.context!).colorScheme.background,
+                  color: Theme.of(Get.context!).colorScheme.surface,
                   child: availableMaps.isEmpty
                       ? Center(
-                          child: Text('not_install_any_map_app'.tr),
-                        )
+                    child: Text('not_install_any_map_app'.tr),
+                  )
                       : SingleChildScrollView(
-                          child: Wrap(
-                            //使用 ListTile 平铺布局即可
-                            children: availableMaps.map<Widget>((map) {
-                              return ListTile(
-                                onTap: () {
-                                  map.showMarker(
-                                    coords: Coords(
-                                      double.parse(
-                                          message.metadata?['latitude']),
-                                      double.parse(
-                                          message.metadata?['longitude']),
-                                    ),
-                                    title: message.metadata?['title'],
-                                    description:
-                                        message.metadata?['description'],
-                                  );
-                                },
-                                title: Text(map.mapName),
-                                leading: SvgPicture.asset(
-                                  map.icon,
-                                  height: 30.0,
-                                  width: 30.0,
-                                ),
-                              );
-                            }).toList(),
+                    child: Wrap(
+                      //使用 ListTile 平铺布局即可
+                      children: availableMaps.map<Widget>((map) {
+                        return ListTile(
+                          onTap: () {
+                            map.showMarker(
+                              coords: Coords(
+                                double.parse(msg.metadata?['latitude']),
+                                double.parse(msg.metadata?['longitude']),
+                              ),
+                              title: msg.metadata?['title'],
+                              description: msg.metadata?['description'],
+                            );
+                          },
+                          title: Text(map.mapName),
+                          leading: SvgPicture.asset(
+                            map.icon,
+                            height: 30.0,
+                            width: 30.0,
                           ),
-                        ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 ),
               );
             },
@@ -86,7 +128,7 @@ class LocationMessageBuilder extends StatelessWidget {
                 top: 8,
                 child: Text(
                   // '大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发',
-                  message.metadata?['title'],
+                  msg.metadata?['title'],
                   textAlign: TextAlign.left,
                   style: const TextStyle(
                     color: Color.fromRGBO(44, 44, 44, 1.0),
@@ -100,7 +142,7 @@ class LocationMessageBuilder extends StatelessWidget {
                 left: 8,
                 bottom: 8,
                 child: Text(
-                  message.metadata?['address'],
+                  msg.metadata?['address'],
                   // '大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发',
                   textAlign: TextAlign.left,
                   style: const TextStyle(
@@ -112,7 +154,7 @@ class LocationMessageBuilder extends StatelessWidget {
                 ),
               ),
             ])
-              // 内容文本左对齐
+            // 内容文本左对齐
               ..crossAxisAlignment = CrossAxisAlignment.start,
           ),
           Expanded(
@@ -129,7 +171,7 @@ class LocationMessageBuilder extends StatelessWidget {
                   w: Get.width,
                 ),
                 errorBuilder: (context, error, stacktrace) =>
-                    const Icon(Icons.error),
+                const Icon(Icons.error),
               ),
             ),
           ),

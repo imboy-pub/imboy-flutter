@@ -26,8 +26,8 @@ imboy 的Flutter项目
 ## 功能树
 
 * 大概的大大小小功能实现情况：
-    * TODO 67
-    * OK 118
+    * TODO 75
+    * OK 127
 
 [查看](./doc/feature_tree.md)
 
@@ -46,11 +46,14 @@ Strive to implement version management based on "Specification for Semantic vers
 * 语音消息播放之后红点需要取消（已解决）
 * 一对一视频通话偶尔有问题，需要进一步优化（以优化，可以进一步调整体验）
 * 消息"长按事件"不够灵活（已解决）
+* 群消息读取的时候是直接limit读取的，这样可能对于未读消息数量这块不好处理
 
 ## 多语言
 https://github.com/jonataslaw/get_cli/tree/master/translations
 ```
 flutter pub global activate get_cli
+flutter pub global activate --source=git https://github.com/inyong1/get_cli.git
+
 export PATH="$PATH":"$HOME/.pub-cache/bin"
 
 // 生产json文件之后执行下面命令
@@ -118,8 +121,18 @@ Lib
 ```
 ## init
 ```
+git clone https://gitee.com/imboy-pub/imboy-flutter.git imboyflutter
 cd imboyflutter
-cp assets/example.env ./.env
+cp ./example.env ./.env.dev && cp ./example.env ./.env.pro
+
+dart run build_runner build --verbose
+
+//修改.env文件时
+dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs
+
+open -a Xcode ./ios
+
+
 ```
 
 

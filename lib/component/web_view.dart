@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/config/theme.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 // ignore: must_be_immutable
@@ -94,7 +95,10 @@ class WebViewPageState extends State<WebViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: NavAppBar(
-        titleWidget: Text(widget.title),
+        titleWidget: Text(
+          widget.title,
+          style: AppStyle.navAppBarTitleStyle,
+        ),
         automaticallyImplyLeading: true,
       ),
       body: WebViewWidget(controller: widget._controller!),

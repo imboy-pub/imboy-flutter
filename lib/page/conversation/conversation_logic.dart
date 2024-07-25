@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -19,19 +20,19 @@ class ConversationLogic extends GetxController {
   RxString connectDesc = "".obs;
 
   // 会话提醒数量映射
-  final RxMap<int, RxInt> conversationRemind = RxMap<int, RxInt>({});
+  final RxMap<String, RxInt> conversationRemind = RxMap<String, RxInt>({});
 
   // 设置会话提醒
-  setConversationRemind(int cid, int val) {
+  setConversationRemind(ConversationModel conversation, int val) {
     val = val > 0 ? val : 0;
-    (ConversationRepo()).updateById(cid, {
+    (ConversationRepo()).updateById(conversation.id, {
       ConversationRepo.unreadNum: val,
       ConversationRepo.isShow: 1,
     });
-    if (conversationRemind.containsKey(cid)) {
-      conversationRemind[cid]!.value = val;
+    if (conversationRemind.containsKey(conversation.uk3)) {
+      conversationRemind[conversation.uk3]!.value = val;
     } else {
-      conversationRemind[cid] = val.obs;
+      conversationRemind[conversation.uk3] = val.obs;
     }
     refresh();
   }
@@ -40,9 +41,9 @@ class ConversationLogic extends GetxController {
   replace(ConversationModel obj) async {
     iPrint("ConversationRepo_Logic_replace ${obj.toJson().toString()}");
     // 第一次会话的时候 i 为 -1
-    final i = conversations.indexWhere((ConversationModel m) => m.id == obj.id);
+    final i = conversations.indexWhere((ConversationModel m) => m.uk3 == obj.uk3);
     if (i > -1) {
-      int i2 = i > 0 ? i : 0;
+      final i2 = i > 0 ? i : 0;
       conversations[i2] = obj;
     } else {
       conversations.add(obj);
@@ -52,29 +53,27 @@ class ConversationLogic extends GetxController {
   }
 
   /// 步增会话提醒
-  increaseConversationRemind(int cid, int val) async {
-    if (!conversationRemind.containsKey(cid) ||
-        conversationRemind[cid] == null ||
-        conversationRemind[cid]! < 0) {
-      conversationRemind[cid] = 0.obs;
+  increaseConversationRemind(ConversationModel conversation, int val) async {
+    if (!conversationRemind.containsKey(conversation.uk3) ||
+        conversationRemind[conversation.uk3] == null ||
+        conversationRemind[conversation.uk3]! < 0) {
+      conversationRemind[conversation.uk3] = 0.obs;
     }
-    RxInt val1 = (conversationRemind[cid]?.value ?? 0 + val).obs;
-    conversationRemind[cid] = val1;
+    RxInt val1 = (conversationRemind[conversation.uk3]?.value ?? 0 + val).obs;
+    conversationRemind[conversation.uk3] = val1;
     iPrint(
-        "setConversationRemind_increaseConversationRemind cid $cid, val $val ${DateTime.now()}");
-    await setConversationRemind(cid, val1.value);
+        "setConversationRemind_increaseConversationRemind conversation.uk3 ${conversation.uk3}, val $val ${DateTime.now()}");
+    await setConversationRemind(conversation, val1.value);
   }
 
   // 步减会话提醒
-  decreaseConversationRemind(int cid, int val) async {
+  decreaseConversationRemind(ConversationModel conversation, int val) async {
     iPrint(
-        "setConversationRemind_decreaseConversationRemind cid $cid, val $val ${DateTime.now()}");
-    if (conversationRemind.value.containsKey(cid)) {
-      iPrint(
-          "decreaseConversationRemind cid $cid, val2 ${conversationRemind[cid]!.value}");
-      val = conversationRemind[cid]!.value - val;
+        "setConversationRemind_decreaseConversationRemind uk3 ${conversation.uk3}, val $val ${DateTime.now()}");
+    if (conversationRemind.value.containsKey(conversation.uk3)) {
+      val = conversationRemind[conversation.uk3]!.value - val;
     }
-    await setConversationRemind(cid, val);
+    await setConversationRemind(conversation, val);
   }
 
   // 聊天消息提醒计数器
@@ -94,8 +93,25 @@ class ConversationLogic extends GetxController {
   }
 
   /// 获取会话类别
-  Future<void> conversationsList() async {
-    conversations.value = await (ConversationRepo()).list();
+  Future<List<ConversationModel>> conversationsList({String type = '', bool recalculateRemind = true}) async {
+    List<ConversationModel> li = await (ConversationRepo()).list(type: type);
+    for (ConversationModel obj in li) {
+      if (obj.type == 'C2G' && obj.avatar.isEmpty) {
+        obj.computeAvatar = await Get.find<GroupListLogic>().computeAvatar(obj.peerId);
+        iPrint("ConversationModel obj.title ${ obj.title}, ${obj.computeTitle}; obj.computeAvatar ${obj.computeAvatar.toString()}");
+      }
+      if (obj.type == 'C2G' && obj.title.isEmpty) {
+        obj.computeTitle = await Get.find<GroupListLogic>().computeTitle(
+          obj.peerId,
+        );
+      }
+      // 重新计算会话消息提醒数量
+      if (recalculateRemind) {
+        recalculateConversationRemind(obj);
+      }
+    }
+    conversations.value = li;
+    return li;
   }
 
   /// 会话列表按最近会话时间倒序排序
@@ -104,19 +120,20 @@ class ConversationLogic extends GetxController {
   }
 
   /// 移除会话
-  Future<bool> removeConversation(int conversationId) async {
-    Database db = await SqliteService.to.db;
-    ConversationModel? cm = await ConversationRepo().findById(conversationId);
-    String tableName =
-        cm?.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+  Future<bool> removeConversation(ConversationModel cm) async {
+    Database? db = await SqliteService.to.db;
+    if (db == null) {
+      return false;
+    }
+    String tb = MessageRepo.getTableName(cm.type);
     return await db.transaction((txn) async {
       await txn.execute(
-        "DELETE FROM $tableName WHERE ${MessageRepo.conversationId}=?",
-        [conversationId],
+        "DELETE FROM $tb WHERE ${MessageRepo.conversationUk3}=?",
+        [cm.uk3],
       );
       await txn.execute(
         "DELETE FROM ${ConversationRepo.tableName} WHERE id=?",
-        [conversationId],
+        [cm.id],
       );
       return true;
     });
@@ -138,7 +155,10 @@ class ConversationLogic extends GetxController {
       data[ConversationRepo.payload] =
           jsonEncode(data[ConversationRepo.payload]);
     }
-    Database db = await SqliteService.to.db;
+    Database? db = await SqliteService.to.db;
+    if (db == null) {
+      return [];
+    }
     String where =
         "${ConversationRepo.userId}=? and ${ConversationRepo.lastMsgId}=?";
     List<String> whereArgs = [
@@ -158,67 +178,54 @@ class ConversationLogic extends GetxController {
     );
   }
 
-  Future<int> createConversationId(
-    String peerId,
-    String avatar,
-    String title,
-    String type,
-  ) async {
-    String where =
-        '${ConversationRepo.type} = ? and ${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?';
-    List<Object?> whereArgs = [type, UserRepoLocal.to.currentUid, peerId];
-
-    int? id = await SqliteService.to.pluck(
-      'id',
-      ConversationRepo.tableName,
-      where: where,
-      whereArgs: whereArgs,
-    );
-    iPrint("> on pageMessages createConversationId id $id");
-    if (id != null && id > 0) {
-      return id;
+  Future<ConversationModel> createConversation({
+    required String type,
+    required String peerId,
+    required String avatar,
+    required String title,
+    int lastTime = 0,
+    String subtitle = '',
+  }) async {
+    ConversationRepo repo = ConversationRepo();
+    ConversationModel? m = await repo.findByPeerId(type, peerId);
+    if (m == null) {
+      repo.insert(ConversationModel.fromJson({
+        ConversationRepo.peerId: peerId,
+        ConversationRepo.avatar: avatar,
+        ConversationRepo.title: title,
+        ConversationRepo.subtitle: subtitle,
+        // 单位毫秒，13位时间戳  1561021145560
+        ConversationRepo.lastTime: lastTime,
+        ConversationRepo.lastMsgId: '',
+        ConversationRepo.lastMsgStatus: 1,
+        ConversationRepo.unreadNum: 0,
+        ConversationRepo.type: type,
+        ConversationRepo.msgType: '',
+        ConversationRepo.isShow: 1,
+        ConversationRepo.payload: {},
+      }));
+      m = await repo.findByPeerId(type, peerId);
     }
-
-    return await (ConversationRepo()).insert(ConversationModel.fromJson({
-      ConversationRepo.peerId: peerId,
-      ConversationRepo.avatar: avatar,
-      ConversationRepo.title: title,
-      ConversationRepo.subtitle: '',
-      // 单位毫秒，13位时间戳  1561021145560
-      ConversationRepo.lastTime: 0,
-      ConversationRepo.lastMsgId: '',
-      ConversationRepo.lastMsgStatus: 1,
-      ConversationRepo.unreadNum: 0,
-      ConversationRepo.type: type,
-      ConversationRepo.msgType: '',
-      ConversationRepo.isShow: 0,
-      ConversationRepo.payload: {},
-    }));
+    return m!;
   }
 
   // 重新计算会话消息提醒数量
-  recalculateConversationRemind(int cid) async {
-    ConversationModel? cm = await ConversationRepo().findById(cid);
-    if (cm == null) {
-      return;
-    }
-    String tb = cm.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+  recalculateConversationRemind(ConversationModel cm) async {
+    String tb = MessageRepo.getTableName(cm.type);
     // idx_conversation_status_author
     int? count = await SqliteService.to.count(
       tb,
       where:
-          "${MessageRepo.conversationId} = ? and ${MessageRepo.status} = ? and ${MessageRepo.isAuthor} = ?",
+          "${MessageRepo.conversationUk3} = ? and ${MessageRepo.status} = ? and ${MessageRepo.isAuthor} = ?",
       whereArgs: [
-        cid,
+        cm.uk3,
         IMBoyMessageStatus.delivered,
         0,
       ],
     );
-    iPrint(
-        "recalculateConversationRemind $tb $count, ${UserRepoLocal.to.currentUid}, $cid");
     // String sql = Sqlite.instance
     if (count != null) {
-      setConversationRemind(cid, count);
+      setConversationRemind(cm, count);
     }
   }
 

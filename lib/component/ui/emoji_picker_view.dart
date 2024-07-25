@@ -90,7 +90,7 @@ class EmojiTabBar extends StatelessWidget {
         indicatorSize: TabBarIndicatorSize.label,
         indicator: BoxDecoration(
           shape: BoxShape.circle,
-          color: Theme.of(context).colorScheme.onBackground,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
         onTap: (index) {
           closeSkinToneOverlay();

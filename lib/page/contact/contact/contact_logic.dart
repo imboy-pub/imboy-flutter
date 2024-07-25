@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/image_view.dart';
 
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
@@ -119,7 +120,7 @@ class ContactLogic extends GetxController {
         ),
         onPressed: () {
           Get.to(
-            () => const GroupListPage(),
+            () => GroupListPage(),
             transition: Transition.rightToLeft,
             popGesture: true, // 右滑，返回上一页
           );
@@ -147,21 +148,25 @@ class ContactLogic extends GetxController {
           );
         },
       ),
-      /*
       ContactModel(
         peerId: 'bot_qian_fan',
         nickname: 'bot_qian_fan'.tr,
         nameIndex: '↑',
         bgColor: Colors.teal,
         // icon 翻转
-        iconData: Transform.scale(
-          scaleX: -1,
-          child: const Icon(
-            Icons.chat,
-            color: Colors.white,
-            size: 24,
-          ),
+        // iconData: Transform.scale(
+        //   scaleX: -1,
+        //   child: const Icon(
+        //     Icons.chat,
+        //     color: Colors.white,
+        //     size: 24,
+        //   ),
+        // ),
+        iconData: const ImageView(
+          uri: 'https://bce.bdstatic.com/img/favicon.ico',
+          height: 40,
         ),
+        /*
         onPressed: () {
           Get.to(
             () => ChatPage(
@@ -175,8 +180,8 @@ class ContactLogic extends GetxController {
             popGesture: true, // 右滑，返回上一页
           );
         },
+        */
       ),
-      */
     ];
     // add topList.
     list.insertAll(0, topList);
@@ -196,7 +201,7 @@ class ContactLogic extends GetxController {
     var repo = ContactRepo();
     List<dynamic> dataMap = await (ContactProvider()).listFriend();
     for (var json in dataMap) {
-      // debugPrint("> on findFriend2 item ${model.toJson().toString()} ");
+      debugPrint("> on findFriend2 item ${json.toString()} ");
       await repo.save(json);
     }
     contact = await (ContactRepo()).findFriend();

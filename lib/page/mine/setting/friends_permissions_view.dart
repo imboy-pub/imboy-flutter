@@ -23,7 +23,7 @@ class FriendsPermissionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: NavAppBar(
           automaticallyImplyLeading: true,
           title: 'friend_permissions'.tr,

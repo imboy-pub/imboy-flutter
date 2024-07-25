@@ -106,7 +106,7 @@ class CustomMessageBuilder extends StatelessWidget {
     }
     return w;
     // return Container(
-    //   color: Theme.of(context).colorScheme.background,
+    //   color: Theme.of(context).colorScheme.surface,
     //   width: Get.width * 0.85,
     //   child: w,
     // );

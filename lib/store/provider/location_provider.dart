@@ -43,9 +43,9 @@ class LocationProvider extends HttpClient {
   }
 
   /// 让自己不可见
-  Future<bool> makeMyselfUnvisible() async {
+  Future<bool> makeMyselfUnVisible() async {
     IMBoyHttpResponse resp = await post(API.makeMyselfUnVisible);
-    debugPrint("> on Provider/makeMyselfUnvisible resp: ${resp.payload}");
+    debugPrint("> on Provider/makeMyselfUnVisible resp: ${resp.payload}");
     return resp.ok ? true : false;
   }
 }

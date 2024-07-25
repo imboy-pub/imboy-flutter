@@ -44,9 +44,12 @@ class MessageModel {
   String? toId; // 等价于数据库的 to
   Map<String, dynamic>? payload;
   int createdAt; // 消息创建时间 毫秒时间戳
-  int? conversationId;
+  // type_userId_peerId
+  String conversationUk3;
+
   // from id is author bool true | false
   int isAuthor;
+  int topicId;
 
   // enum Status { delivered, error, seen, sending, sent }
   // types.Status status;
@@ -62,7 +65,8 @@ class MessageModel {
     required this.toId,
     required this.payload,
     required this.isAuthor,
-    required this.conversationId,
+    required this.conversationUk3,
+    this.topicId = 0,
     this.createdAt = 0,
   });
 
@@ -92,7 +96,8 @@ class MessageModel {
       payload: p,
       createdAt: int.parse('${data[MessageRepo.createdAt] ?? 0}'),
       isAuthor: data[MessageRepo.isAuthor] ?? 0,
-      conversationId: int.parse('${data[MessageRepo.conversationId] ?? 0}'),
+      topicId: data[MessageRepo.topicId] ?? 0,
+      conversationUk3: data[MessageRepo.conversationUk3] ?? '',
     );
   }
 
@@ -107,7 +112,8 @@ class MessageModel {
     data[MessageRepo.payload] = json.encode(payload);
     data[MessageRepo.createdAt] = createdAt;
     data[MessageRepo.isAuthor] = isAuthor;
-    data[MessageRepo.conversationId] = conversationId;
+    data[MessageRepo.topicId] = topicId;
+    data[MessageRepo.conversationUk3] = conversationUk3;
 
     // debugPrint("> on MessageModel toMap $data");
     return data;
@@ -215,21 +221,35 @@ class MessageModel {
     return await ContactRepo().findByUid(fromId!);
   }
 
-  types.Message toTypeMessage() {
+  Future<types.Message> toTypeMessage() async {
     String sysPrompt = payload?['sys_prompt'] ?? '';
     types.Message? message;
     // enum MessageType { custom, file, image, text, unsupported }
     Map<String, dynamic> metadata = {
-      'conversation_id': conversationId,
+      'conversation_uk3': conversationUk3,
       'sys_prompt': sysPrompt,
     };
+    String nickname = '';
+    String avatar = '';
+    if (fromId == UserRepoLocal.to.currentUid) {
+      nickname = UserRepoLocal.to.current.nickname;
+      avatar = UserRepoLocal.to.current.avatar;
+    } else {
+      ContactModel? cm = await ContactRepo().findByUid(fromId!);
+      nickname = cm?.nickname ?? '';
+      avatar = cm?.avatar ?? '';
+    }
+    types.User author = types.User(
+      id: fromId!,
+      imageUrl: avatar,
+      // payload!['peer_name'] 目前只在收到撤回消息的时候才存在 peer_name
+      firstName: nickname.isEmpty
+          ? (payload?['peer_name'] ?? (payload?['quote_msg_author_name'] ?? ''))
+          : nickname,
+    );
     if (payload!['msg_type'] == 'text') {
       message = types.TextMessage(
-        author: types.User(
-          id: fromId!,
-          // firstName: "",
-          // imageUrl: "",
-        ),
+        author: author,
         createdAt: createdAtLocal,
         id: id!,
         remoteId: toId,
@@ -239,11 +259,7 @@ class MessageModel {
       );
     } else if (payload!['msg_type'] == 'image') {
       message = types.ImageMessage(
-        author: types.User(
-          id: fromId!,
-          // firstName: "",
-          // imageUrl: "",
-        ),
+        author: author,
         createdAt: createdAtLocal,
         id: id!,
         remoteId: toId,
@@ -257,11 +273,7 @@ class MessageModel {
       );
     } else if (payload!['msg_type'] == 'file') {
       message = types.FileMessage(
-        author: types.User(
-          id: fromId!,
-          // firstName: "",
-          // imageUrl: "",
-        ),
+        author: author,
         createdAt: createdAtLocal,
         id: id!,
         remoteId: toId,
@@ -275,12 +287,7 @@ class MessageModel {
         payload!['custom_type'] == 'peer_revoked' ||
         payload!['custom_type'] == 'c2c_revoke') {
       message = types.CustomMessage(
-        author: types.User(
-          id: fromId!,
-          // payload!['peer_name'] 目前只在收到撤回消息的时候才存在 peer_name
-          firstName: payload!['peer_name'] ?? '',
-          // imageUrl: "",
-        ),
+        author: author,
         id: id!,
         createdAt: createdAtLocal,
         remoteId: toId,
@@ -288,11 +295,7 @@ class MessageModel {
       );
     } else if (payload!['custom_type'] == 'quote') {
       message = types.CustomMessage(
-        author: types.User(
-          id: fromId!,
-          firstName: payload!['quote_msg_author_name'] ?? '',
-          // imageUrl: "",
-        ),
+        author: author,
         id: id!,
         createdAt: createdAtLocal,
         remoteId: toId,
@@ -300,11 +303,7 @@ class MessageModel {
       );
     } else if (payload!['msg_type'] == 'custom') {
       message = types.CustomMessage(
-        author: types.User(
-          id: fromId!,
-          // firstName: "",
-          // imageUrl: "",
-        ),
+        author: author,
         id: id!,
         createdAt: createdAtLocal,
         remoteId: toId,

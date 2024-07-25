@@ -39,8 +39,8 @@ class ContactTagListLogic extends GetxController {
     }
 
     // 检查网络状态
-    var res = await Connectivity().checkConnectivity();
-    if (res == ConnectivityResult.none) {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       String msg = 'tip_connect_desc'.tr;
       EasyLoading.showError(' $msg        ');
       return [];
@@ -111,8 +111,8 @@ class ContactTagListLogic extends GetxController {
     required String tagName,
   }) async {
     // 检查网络状态
-    var res = await Connectivity().checkConnectivity();
-    if (res == ConnectivityResult.none) {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       return false;
     }
     bool res2 = await UserTagProvider().deleteTag(

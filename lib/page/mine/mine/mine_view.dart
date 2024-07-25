@@ -26,7 +26,7 @@ class MinePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       child: SingleChildScrollView(
         child: n.Column([
           GetBuilder<UserRepoLocal>(
@@ -60,8 +60,9 @@ class MinePage extends StatelessWidget {
                         width: 180.0,
                         height: 180.0,
                         child: ClipRRect(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(100.0)),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(100.0),
+                          ),
                           child: InkWell(
                             onTap: () {
                               if (c.current.avatar.isEmpty) {

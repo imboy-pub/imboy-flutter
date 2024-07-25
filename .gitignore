@@ -51,7 +51,6 @@ app.*.map.json
 # Ignore Gradle build output directory
 build
 Podfile.lock
-.env
 connectivity_plus_linux
 package_info_plus_linux
 linux/flutter/ephemeral/.plugin_symlinks
@@ -72,4 +71,14 @@ tripwire
 UserInterfaceState.xcuserstate
 .app_filename
 FlutterMacOS.podspec
-.dev.env
+.env
+.env.dev
+.env.pro
+pro_env.g.dart
+libkey.dylib
+*.jks
+pro_env.dart
+main_dev.dart
+main_pro.dart
+main_local.dart
+

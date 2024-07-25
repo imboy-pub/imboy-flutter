@@ -95,9 +95,9 @@ class PeopleNearbyLogic extends GetxController {
   }
 
   /// 让自己不可见
-  Future<bool> makeMyselfUnvisible() async {
+  Future<bool> makeMyselfUnVisible() async {
     state.peopleNearbyVisible.value = !state.peopleNearbyVisible.value;
-    bool res = await LocationProvider().makeMyselfUnvisible();
+    bool res = await LocationProvider().makeMyselfUnVisible();
     if (res) {
       var s = UserRepoLocal.to.setting;
       s.peopleNearbyVisible = false;

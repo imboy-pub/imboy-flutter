@@ -48,14 +48,6 @@ class DeviceExt extends DeviceInfoPlugin {
           'type': data.type,
           'isPhysicalDevice': data.isPhysicalDevice,
           'systemFeatures': data.systemFeatures,
-          'displaySizeInches':
-              ((data.displayMetrics.sizeInches * 10).roundToDouble() / 10),
-          'displayWidthPixels': data.displayMetrics.widthPx,
-          'displayWidthInches': data.displayMetrics.widthInches,
-          'displayHeightPixels': data.displayMetrics.heightPx,
-          'displayHeightInches': data.displayMetrics.heightInches,
-          'displayXDpi': data.displayMetrics.xDpi,
-          'displayYDpi': data.displayMetrics.yDpi,
         }),
       };
 

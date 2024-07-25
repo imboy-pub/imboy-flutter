@@ -1,7 +1,5 @@
 
 
-
-
 ### getAppBytes得到应用APP大小 [link](https://developer.android.com/reference/android/app/usage/StorageStats#getAppBytes())
 * getAppBytes得到应用程序的大小。这包括 APK 文件、优化的编译器输出和解压的原生库。
 * Added in API level 26
@@ -47,5 +45,49 @@
 原文链接：https://blog.csdn.net/u010937230/article/details/73303034
 
 
+### 应用签名
+* https://docs.flutter.cn/deployment/android/
+* https://support.google.com/googleplay/android-developer/answer/9842756?hl=en&visit_id=638557457812803401-1126397345&rd=1
+* https://developer.android.google.cn/studio/publish/app-signing#sign-apk
+
+Android 应用需要两个签名：上传签名 和 应用签名。
+
+* 开发者上传到 Play Store 的 .aab 或 .apk 需要有上传签名。
+* 终端用户下载的 .apk 文件需要有 应用签名。
+
+google play 的 升级应用签名密钥 的 从其他代码库上传新的应用签名密钥
+ 的 第3步的上传 zip文件，这个zip文件如何制作，请给出步骤
+```
+
+cd /Users/leeyi/project/imboy.pub/doc/keystore
+
+keytool -genkey -v -keystore sign-keystore.jks -keyalg RSA \
+  -keysize 2048 -validity 100000 -alias sign
+
+-- for huawei
+https://github.com/yongjhih/pepk/releases/download/0.0.1/pepk.jar
+
+java -jar pepk.0.0.1.jar --keystore sign-keystore.jks --alias sign --output=huawei-sign.zip --encryptionkey=034200041E224EE22B45D19B23DB91BA9F52DE0A06513E03A5821409B34976FDEED6E0A47DBA48CC249DD93734A6C5D9A0F43461F9E140F278A5D2860846C2CF5D2C3C02 --include-cert
+
+java -jar pepk.jar --keystore sign-keystore.jks --alias sign --output=huawei-sign.zip --encryptionkey=034200041E224EE22B45D19B23DB91BA9F52DE0A06513E03A5821409B34976FDEED6E0A47DBA48CC249DD93734A6C5D9A0F43461F9E140F278A5D2860846C2CF5D2C3C02 --include-cert
+
+-- for Google play
+
+https://www.gstatic.com/play-apps-publisher-rapid/signing-tool/prod/pepk.jar
+
+brew install openjdk@21
+
+java -jar pepk.jar --keystore sign-keystore.jks --alias sign --output=google-output.zip --include-cert --rsa-aes-encryption --encryption-key-path=google_play_encryption_public_key.pem
+
+
+keytool -genkey -v -keystore upload-keystore.jks -keyalg RSA \
+  -keysize 2048 -validity 100000 -alias upload
+
+keytool -export -rfc -keystore upload-keystore.jks -alias upload -file upload_certificate.pem
+
+```
+
 ### 其他文章
 * 一篇文章搞懂android存储目录结构 https://zhuanlan.zhihu.com/p/165140637
+
+

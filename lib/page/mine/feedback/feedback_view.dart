@@ -42,7 +42,7 @@ class FeedbackPage extends StatelessWidget {
         child: Container(
           width: Get.width,
           height: Get.height,
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           child: n.Column([
             Expanded(
               child: n.Padding(
@@ -84,7 +84,7 @@ class FeedbackPage extends StatelessWidget {
                                                   foregroundColor:
                                                       Theme.of(context)
                                                           .colorScheme
-                                                          .onBackground,
+                                                          .onSurface,
                                                 )
                                                 ..onPressed = () {
                                                   Navigator.of(context).pop();
@@ -94,7 +94,7 @@ class FeedbackPage extends StatelessWidget {
                                                   foregroundColor:
                                                       Theme.of(context)
                                                           .colorScheme
-                                                          .onBackground,
+                                                          .onSurface,
                                                 )
                                                 ..onPressed = () async {
                                                   Navigator.of(context).pop();

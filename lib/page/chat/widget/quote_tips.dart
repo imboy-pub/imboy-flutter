@@ -46,7 +46,7 @@ class QuoteTipsWidget extends StatelessWidget {
       );
     } else if (message is types.ImageMessage) {
       body = ImageView(
-        img: (message as types.ImageMessage).uri,
+        uri: (message as types.ImageMessage).uri,
         height: 40,
       );
     } else if (message is types.FileMessage) {
@@ -96,7 +96,7 @@ class QuoteTipsWidget extends StatelessWidget {
           style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
         ),
         ImageView(
-          img: message?.metadata?['thumb']['uri'],
+          uri: message?.metadata?['thumb']['uri'],
           height: 40,
         ),
       ]);

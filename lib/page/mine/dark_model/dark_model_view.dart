@@ -89,7 +89,7 @@ class DarkModelPage extends StatelessWidget {
         top: 15,
         bottom: 15,
       ),
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       // color: Colors.white,
       child: n.Row([
         Expanded(
@@ -140,7 +140,7 @@ class DarkModelPage extends StatelessWidget {
           top: 10,
         ),
         decoration: BoxDecoration(
-          color: Theme.of(Get.context!).colorScheme.background,
+          color: Theme.of(Get.context!).colorScheme.surface,
         ),
         child: n.Row([
           Expanded(

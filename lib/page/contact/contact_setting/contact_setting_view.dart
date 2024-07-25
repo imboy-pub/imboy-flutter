@@ -64,7 +64,7 @@ class ContactSettingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         title: 'profile_settings'.tr,
@@ -205,7 +205,7 @@ class ContactSettingPage extends StatelessWidget {
                   ),
                   activeColor: Colors.green,
                   inactiveThumbColor: Theme.of(context).colorScheme.onPrimary,
-                  trackColor: MaterialStateProperty.all<Color>(
+                  trackColor: WidgetStateProperty.all<Color>(
                     Get.isDarkMode
                         ? const Color.fromRGBO(100, 100, 100, 1.0)
                         : const Color.fromRGBO(230, 230, 230, 1.0),
@@ -309,7 +309,7 @@ class ContactSettingPage extends StatelessWidget {
                     Container(
                       width: Get.width,
                       height: 6,
-                      color: Theme.of(context).colorScheme.background,
+                      color: Theme.of(context).colorScheme.surface,
                     ),
                     Center(
                       child: TextButton(

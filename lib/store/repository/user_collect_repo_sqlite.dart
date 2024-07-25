@@ -69,7 +69,8 @@ class UserCollectRepo {
     UserCollectModel? old = await findByKindId(kid);
     if (old is UserCollectModel) {
       await update(kid, json);
-      return old;
+      old = await findByKindId(kid);
+      return old!;
     } else {
       UserCollectModel model = UserCollectModel.fromJson(json);
       await insert(model);
@@ -113,6 +114,7 @@ class UserCollectRepo {
 
   // 更新信息
   Future<int> update(String kid, Map<String, dynamic> json) async {
+    // iPrint("user_collect_repo_sqlite/update $kid, ${json.toString()}");
     Map<String, Object?> data = {};
     if (strNoEmpty(json[UserCollectRepo.remark])) {
       data[UserCollectRepo.remark] = json[UserCollectRepo.remark];
@@ -125,7 +127,11 @@ class UserCollectRepo {
       tag = tag.replaceAll(',,', ',');
       data[UserCollectRepo.tag] = tag;
     }
-    if (strNoEmpty(json[UserCollectRepo.source])) {
+    // if (json.containsKey(UserCollectRepo.source)){
+    //   iPrint("user_collect_repo_sqlite/update 2 ${json[UserCollectRepo.source]}");
+    // }
+    if (json.containsKey(UserCollectRepo.source) &&
+        strNoEmpty(json[UserCollectRepo.source].toString())) {
       data[UserCollectRepo.source] = json[UserCollectRepo.source];
     }
     var info = json[UserCollectRepo.info] ?? {};

@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart';
@@ -13,7 +13,9 @@ import 'package:imboy/component/extension/get_extension.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/service/encrypter.dart';
+import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -51,34 +53,29 @@ class PassportLogic extends GetxController {
   /// 用户登录
   Future<String?> loginUser(LoginData data) async {
     // Get.loading();
-    bool loginSuccess = await login(data.name.trim(), data.password.trim());
-    Get.dismiss();
-    if (loginSuccess) {
-      return null;
-      // Get.off(() => BottomNavigationPage());
-    } else {
-      return _error;
+    try {
+      bool loginSuccess = await login(data.name.trim(), data.password.trim());
+      Get.dismiss();
+      if (loginSuccess) {
+        return null;
+        // Get.off(() => BottomNavigationPage());
+      } else {
+        return _error;
+      }
+    } catch (e, stack) {
+      // 也可以使用 print 语句打印异常信息
+      iPrint('login_error: $e');
+      iPrint('Stack trace:\n${stack.toString()}');
+      return e.toString();
     }
   }
 
   Future<Map<String, dynamic>> encryptPassword(String password) async {
     password = EncrypterService.md5(password);
-    IMBoyHttpResponse resp1 = await HttpClient.client.get(API.initConfig);
-    debugPrint("> on init ${resp1.payload.toString()}");
-    if (!resp1.ok) {
-      return {"error": "网络故障或服务故障"};
+    Map<String, dynamic> payload = await initConfig();
+    if (payload.containsKey('error')) {
+      return payload;
     }
-    String encrypted = resp1.payload['res'] ?? '';
-    if (encrypted.isEmpty) {
-      return {"error": "服务故障协议有误"};
-    }
-
-    Map<String, dynamic> payload = jsonDecode(EncrypterService.aesDecrypt(
-      encrypted,
-      SOLIDIFIED_KEY,
-      SOLIDIFIED_KEY_IV,
-    ));
-    // debugPrint("login_pwd_rsa_encrypt ${resp1.payload.toString()}");
     // debugPrint("login_pwd_rsa_encrypt ${payload.toString()}");
     final rsaEncrypt = payload['login_pwd_rsa_encrypt'].toString();
     if (rsaEncrypt == "1") {
@@ -102,7 +99,6 @@ class PassportLogic extends GetxController {
         return false;
       }
       Map<String, dynamic>? dinfo = await DeviceExt.to.detail;
-
       Map<String, dynamic> postData = {
         "account": account,
         "pwd": data['password'],
@@ -111,6 +107,7 @@ class PassportLogic extends GetxController {
         "did": dinfo!["did"],
         // 客户端操作系统（设备类型）
         "cos": dinfo["cos"],
+        "public_key": await RSAService.publicKey(),
         // "dname": dinfo["deviceName"],
         // "dvsn": dinfo["deviceVersion"],
       };
@@ -123,12 +120,9 @@ class PassportLogic extends GetxController {
       IMBoyHttpResponse resp2 = await HttpClient.client.post(
         API.login,
         data: postData,
-        options: Options(
-          contentType: "application/x-www-form-urlencoded",
-        ),
       );
       if (!resp2.ok) {
-        _error = resp2.error!.message;
+        _error = resp2.error?.message;
         return false;
       } else {
         StorageService.to.setString(Keys.lastLoginAccount, account);
@@ -162,16 +156,14 @@ class PassportLogic extends GetxController {
         "pwd": data1["password"],
         "rsa_encrypt": data1["rsa_encrypt"],
         "code": code,
+        "sys_version": Platform.operatingSystemVersion,
         "ref_uid": "",
       },
-      options: Options(
-        contentType: "application/x-www-form-urlencoded",
-      ),
     );
     if (resp2.ok) {
       return null;
     } else {
-      _error = resp2.error!.message;
+      _error = resp2.error?.message ?? 'unknown'.tr;
       return _error;
     }
   }
@@ -230,13 +222,12 @@ class PassportLogic extends GetxController {
         "code": code,
         "pwd": result['password'],
         "rsa_encrypt": result['rsa_encrypt'],
+        "sys_version": Platform.operatingSystemVersion,
       };
+
       IMBoyHttpResponse resp2 = await HttpClient.client.post(
         API.findPassword,
         data: postData,
-        options: Options(
-          contentType: "application/x-www-form-urlencoded",
-        ),
       );
       if (!resp2.ok) {
         _error = resp2.error!.message;

@@ -47,7 +47,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
       ),
     );
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         title: 'accept_friend_request'.tr,
         automaticallyImplyLeading: true,
@@ -77,15 +77,15 @@ class ConfirmNewFriendPage extends StatelessWidget {
               await logic.confirm(from, to, p2);
             },
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(
-                Theme.of(context).colorScheme.background,
+              backgroundColor: WidgetStateProperty.all<Color>(
+                Theme.of(context).colorScheme.surface,
               ),
-              foregroundColor: MaterialStateProperty.all<Color>(
-                Theme.of(context).colorScheme.onBackground,
+              foregroundColor: WidgetStateProperty.all<Color>(
+                Theme.of(context).colorScheme.onSurface,
               ),
-              minimumSize: MaterialStateProperty.all(const Size(40, 40)),
+              minimumSize: WidgetStateProperty.all(const Size(40, 40)),
               visualDensity: VisualDensity.compact,
-              padding: MaterialStateProperty.all(EdgeInsets.zero),
+              padding: WidgetStateProperty.all(EdgeInsets.zero),
             ),
             child: n.Padding(
                 left: 10,
@@ -102,7 +102,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
         child: Container(
           width: Get.width,
           height: Get.height,
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           child: Padding(
             padding: const EdgeInsets.only(
               left: 30,

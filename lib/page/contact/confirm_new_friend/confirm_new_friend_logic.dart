@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/config/env.dart';
 
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 
@@ -56,7 +57,7 @@ class ConfirmNewFriendLogic extends GetxController {
       status: 'sending'.tr,
     );
     IMBoyHttpResponse resp = await HttpClient.client.post(
-      "$API_BASE_URL${API.confirmFriend}",
+      "${Env.apiBaseUrl}${API.confirmFriend}",
       data: msg,
       options: Options(
         contentType: "application/x-www-form-urlencoded",

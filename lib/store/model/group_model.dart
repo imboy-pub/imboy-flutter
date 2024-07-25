@@ -1,151 +1,83 @@
-import 'package:flutter/services.dart';
-import 'package:imboy/config/init.dart';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/store/repository/group_repo_sqlite.dart';
 
 class GroupModel {
-  // int get updatedAtLocal =>
-  //     updatedAt + DateTime.now().timeZoneOffset.inMilliseconds;
-  //
-  // int get createdAtLocal =>
-  //     createdAt + DateTime.now().timeZoneOffset.inMilliseconds;
-  //
-  static Future<dynamic> inviteGroupMember(List list, String groupId,
-      {Callback? callback}) async {
-    try {
-      // var result = await im.group.inviteGroupMember(list, groupId);
-      // callback(result);
-    } on PlatformException {
-      // print('邀请好友进群  失败');
-    }
+  final String groupId; //
+  final int type; // 类型: 1 公开群组  2 私有群组
+  int joinLimit; //  加入限制: 1 不需审核  2 需要审核  3 只允许邀请加入
+  int contentLimit; // 内部发布限制: 1 圈内不需审核  2 圈内需要审核  3 圈外需要审核
+  int userIdSum; // 主要用于添加群聊的时候排重；还可以用于校验客户端memberCount是否应该增加
+  String ownerUid; //  群组拥有者ID
+  String creatorUid; //群组创建者ID
+  int memberMax; // 允许最大成员数量
+  int memberCount; // 成员数量
+  String introduction; // 简介
+  String avatar;
+  String title;
+  int status;
+  int updatedAt;
+  int createdAt;
+
+  // 如果 title 为空，零时计算title
+  String computeTitle = '';
+
+  // 如果 avatar 为空，零时计算avatar
+  List<String> computeAvatar = [];
+
+  GroupModel({
+    required this.groupId,
+    required this.type,
+    required this.joinLimit,
+    required this.contentLimit,
+    required this.userIdSum,
+    required this.ownerUid,
+    required this.creatorUid,
+    required this.memberMax,
+    required this.memberCount,
+    this.introduction = '',
+    this.avatar = '',
+    this.title = '',
+    this.status = 1, // '状态: -1 删除  0 禁用  1 启用
+    this.updatedAt = 0,
+    required this.createdAt,
+  });
+
+  factory GroupModel.fromJson(Map<String, dynamic> json) {
+    iPrint("GroupModel.fromJson ${json.toString()}");
+    return GroupModel(
+      groupId: json['group_id'] ?? (json['id'] ?? json['gid']),
+      type: json['type'],
+      joinLimit: json['join_limit'],
+      contentLimit: json['content_limit'],
+      userIdSum: json['user_id_sum'] ?? 0,
+      ownerUid: json['owner_uid'],
+      creatorUid: json['creator_uid'],
+      memberMax: json['member_max'],
+      memberCount: json['member_count'],
+      introduction: json['introduction'] ?? '',
+      avatar: json['avatar'] ?? '',
+      title: json['title'] ?? '',
+      status: json['status'] ?? 1,
+      updatedAt: json['updated_at'] ?? 0,
+      createdAt: json['created_at'],
+    );
   }
 
-  static Future<dynamic> quitGroupModel(String groupId,
-      {Callback? callback}) async {
-    try {
-      // var result = await im.group.quitGroup(groupId);
-      // callback(result);
-    } on PlatformException {
-      // print('退出群聊  失败');
-      callback!('退出群聊  失败');
-    }
-  }
-
-  static Future<dynamic> deleteGroupMemberModel(String groupId, List deleteList,
-      {Callback? callback}) async {
-    try {
-      // var result = await im.group.deleteGroupMember(groupId, deleteList);
-      // callback(result);
-    } on PlatformException {
-      // print('删除群成员  失败');
-    }
-  }
-
-  static Future<dynamic> getGroupMembersListModel(String groupId,
-      {Callback? callback}) async {
-    try {
-      // var result = await im.group.getGroupMembersList(groupId);
-      // callback(result);
-    } on PlatformException {
-      // print('获取群成员  失败');
-    }
-  }
-
-  static Future<dynamic> getGroupMembersListModelLIST(String groupId,
-      {Callback? callback}) async {
-    try {
-      // var result = await im.group.getGroupMembersList(groupId);
-      // print('获取群成员 getGroupMembersListModel >>>> $result');
-      // List memberList = json.decode(result.toString().replaceAll("'", '"'));
-      // if (listNoEmpty(memberList)) {
-      //   for (int i = 0; i < memberList.length; i++) {
-      //     List<String> ls = new List();
-      //
-      //     ls.add(memberList[i]['user']);
-      //   }
-      // }
-      // callback(result);
-    } on PlatformException {
-      // print('获取群成员  失败');
-    }
-  }
-
-  static Future<dynamic> getGroupListModel(Callback? callback) async {
-    try {
-      // var result = await im.group.getGroupList();
-      // callback(result);
-    } on PlatformException {
-      // print('获取群列表  失败');
-    }
-  }
-
-  static Future<dynamic> getGroupInfoListModel(List<String> groupID,
-      {Callback? callback}) async {
-    try {
-      // var result = await im.group.getGroupInfoList(groupID);
-      // callback(result);
-      // return result;
-    } on PlatformException {
-      // print('获取群资料  失败');
-    }
-  }
-
-  static Future<dynamic> deleteGroupModel(String groupId,
-      {Callback? callback}) async {
-    try {
-      // var result = await im.group.deleteGroup(groupId);
-      // callback(result);
-    } on PlatformException {
-      // print('解散群  失败');
-    }
-  }
-
-  static Future<dynamic> modifyGroupNameModel(
-      String groupId, String setGroupName,
-      {Callback? callback}) async {
-    try {
-      // var result = await im.group.modifyGroupName(groupId, setGroupName);
-      // callback(result);
-    } on PlatformException {
-      // print('修改群名称  失败');
-    }
-  }
-
-  static Future<dynamic> modifyGroupIntroductionModel(
-      String groupId, String setIntroduction,
-      {Callback? callback}) async {
-    try {
-      // var result =
-      //     await im.group.modifyGroupIntroduction(groupId, setIntroduction);
-      // callback(result);
-    } on PlatformException {
-      // print('修改群简介  失败');
-    }
-  }
-
-  static Future<dynamic> modifyGroupNotificationModel(
-      String groupId, String notification, String time,
-      {Callback? callback}) async {
-    try {
-      // var result =
-      //     await im.group.modifyGroupNotification(groupId, notification, time);
-      // if (callback != null) callback(result);
-    } on PlatformException {
-      // print('修改群公告  失败');
-    }
-  }
-
-  static Future<dynamic> setReceiveMessageOptionModel(
-      String groupId, String identifier, int type,
-      {Callback? callback}) async {
-    try {
-      // var result =
-      //     await im.group.setReceiveMessageOption(groupId, identifier, type);
-      // callback(result);
-    } on PlatformException {
-      // print('修改群消息提醒选项  失败');
-    }
-  }
-
-  static getUsersProfile(item, Null Function(Cb) param1) {}
+  Map<String, dynamic> toJson() => {
+        GroupRepo.groupId: groupId,
+        GroupRepo.type: type,
+        GroupRepo.joinLimit: joinLimit,
+        GroupRepo.contentLimit: contentLimit,
+        GroupRepo.userIdSum: userIdSum,
+        GroupRepo.ownerUid: ownerUid,
+        GroupRepo.creatorUid: creatorUid,
+        GroupRepo.memberMax: memberMax,
+        GroupRepo.memberCount: memberCount,
+        GroupRepo.introduction: introduction,
+        GroupRepo.avatar: avatar,
+        GroupRepo.title: title,
+        GroupRepo.status: status,
+        GroupRepo.updatedAt: updatedAt,
+        GroupRepo.createdAt: createdAt,
+      };
 }
-
-class Cb {}

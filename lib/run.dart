@@ -2,6 +2,7 @@ import 'package:drag_ball/drag_ball.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:image/image.dart' as img;
@@ -60,8 +61,26 @@ void run() async {
   });
 }
 
-class IMBoyApp extends StatelessWidget {
+class IMBoyApp extends StatefulWidget {
   const IMBoyApp({super.key});
+
+  @override
+  State<IMBoyApp> createState() => _IMBoyAppState();
+}
+
+class _IMBoyAppState extends State<IMBoyApp> {
+  @override
+  void initState() {
+    super.initState();
+
+    initialization();
+  }
+
+  void initialization() async {
+    /// HACK: 启动页关闭
+    await Future.delayed(const Duration(seconds: 3));
+    FlutterNativeSplash.remove();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +93,7 @@ class IMBoyApp extends StatelessWidget {
       icon: DecoratedBox(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
         ),
         child: const Padding(
           padding: EdgeInsets.all(2),
@@ -92,7 +111,7 @@ class IMBoyApp extends StatelessWidget {
           Expanded(child: Text('FB')),
           Space(width: 16)
         ])
-          ..backgroundColor = Theme.of(context).colorScheme.background
+          ..backgroundColor = Theme.of(context).colorScheme.surface
           // 垂直居中
           ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
       ),
@@ -153,7 +172,7 @@ class IMBoyApp extends StatelessWidget {
           navigatorKey: navigatorKey,
           title: appName,
           // 底部导航组件
-          home: UserRepoLocal.to.isLogin
+          home: UserRepoLocal.to.currentUid.isNotEmpty
               ? BottomNavigationPage()
               : PassportPage(),
           debugShowCheckedModeBanner: false,

@@ -141,7 +141,7 @@ class FeedbackDetailPage extends StatelessWidget {
                 child: Container(
                   width: Get.width - 32,
                   height: Get.height,
-                  color: Theme.of(context).colorScheme.background,
+                  color: Theme.of(context).colorScheme.surface,
                   child: n.Column([
                     Expanded(
                       child: n.Padding(

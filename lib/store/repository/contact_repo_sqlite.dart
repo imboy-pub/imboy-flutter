@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -103,7 +104,7 @@ class ContactRepo {
       ContactRepo.isFrom: obj.isFrom,
       ContactRepo.categoryId: obj.categoryId,
     };
-    // debugPrint("> on ContactRepo/insert/1 $insert");
+    debugPrint("> on ContactRepo/insert/1 $insert");
 
     await _db.insert(ContactRepo.tableName, insert);
     return obj;
@@ -173,7 +174,7 @@ class ContactRepo {
       limit: limit,
       offset: offset,
     );
-    // debugPrint("> on findFriend ${maps.length}, ${maps.toList().toString()}");
+    debugPrint("> on findFriend ${maps.length}, ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }
@@ -187,6 +188,15 @@ class ContactRepo {
 
   //
   Future<ContactModel?> findByUid(String uid, {bool autoFetch = true}) async {
+    if (uid == 'bot_qian_fan') {
+      return ContactModel.fromMap({
+        ContactRepo.peerId: uid,
+        ContactRepo.account: '',
+        ContactRepo.nickname: uid.tr,
+        ContactRepo.sign: '',
+        ContactRepo.avatar: '',
+      });
+    }
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tableName,
       columns: [
@@ -307,7 +317,8 @@ class ContactRepo {
     ContactModel? old = await findByUid(uid, autoFetch: false);
     if (old is ContactModel) {
       await update(json);
-      return old;
+      old = await findByUid(uid, autoFetch: false);
+      return old!;
     } else {
       ContactModel model = ContactModel.fromMap(json);
       await insert(model);

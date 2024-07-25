@@ -10,10 +10,12 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
+import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_logic.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -34,24 +36,29 @@ class ChatLogic extends GetxController {
     state.scrollController = AutoScrollController();
   }
 
-  Future<List<types.Message>?> pageMessages(
-    int conversationId,
-    // int maxAutoId,
-    int size,
-  ) async {
-    // final response = await rootBundle.loadString('assets/data/messages.json');
-    ConversationModel? obj = await ConversationRepo().findById(conversationId);
-    debugPrint(
-        "> on pageMessages nextAutoId ${state.nextAutoId}, cid $conversationId, obj ${obj?.toJson().toString()}");
-    if (obj == null) {
-      return [];
+  Future<String> groupTitle(String gid, String prefix, int num) async {
+    // iPrint('logic.state.selects chat_logic/groupTitle $gid, $prefix, $num');
+    String prefix2 = strNoEmpty(prefix) ? prefix : 'group_chat'.tr;
+    if (num > 0) {
+      return "$prefix2($num)";
+    } else {
+      GroupModel? g = await GroupDetailLogic().detail(gid: gid);
+      state.memberCount = g?.memberCount ?? 0;
+      // iPrint('logic.state.selects chat_logic/groupTitle $gid, $prefix2, ${g?.memberCount}');
+      if (state.memberCount > 0) {
+        return "$prefix2(${state.memberCount})";
+      }
+      return prefix2;
     }
-    String tb = obj.type.toUpperCase() == 'C2G'
-        ? MessageRepo.c2gTable
-        : MessageRepo.c2cTable;
+  }
+
+  Future<List<types.Message>?> pageMessages(
+      ConversationModel obj, int size) async {
+    // final response = await rootBundle.loadString('assets/data/messages.json');
+    String tb = MessageRepo.getTableName(obj.type);
     MessageRepo repo = MessageRepo(tableName: tb);
     List<MessageModel> items = await repo.pageForConversation(
-      obj.id,
+      obj,
       state.nextAutoId,
       size,
     );
@@ -62,12 +69,11 @@ class ChatLogic extends GetxController {
     state.nextAutoId = items.first.autoId;
     // 重发在发送中状态的消息
     for (MessageModel obj in items) {
-      debugPrint(
-          "> on getMessages $conversationId obj: ${obj.toJson().toString()}");
+      debugPrint("> on getMessages obj: ${obj.toJson().toString()}");
       if (obj.status == IMBoyMessageStatus.sending) {
         await sendWsMsg(obj);
       }
-      messages.insert(0, obj.toTypeMessage());
+      messages.insert(0, await obj.toTypeMessage());
     }
     return messages;
   }
@@ -91,7 +97,7 @@ class ChatLogic extends GetxController {
 
   MessageModel getMsgFromTMsg(
     String type,
-    int conversationId,
+    String conversationUk3,
     types.Message message,
   ) {
     Map<String, dynamic> payload = {};
@@ -142,7 +148,7 @@ class ChatLogic extends GetxController {
       createdAt:
           message.createdAt! - DateTime.now().timeZoneOffset.inMilliseconds,
       isAuthor: message.author.id == UserRepoLocal.to.currentUid ? 1 : 0,
-      conversationId: conversationId,
+      conversationUk3: conversationUk3,
       status: IMBoyMessageStatus.sending,
     );
     // debugPrint("> on addMessage getMsgFromTMsg 3 ${message.status}");
@@ -166,29 +172,32 @@ class ChatLogic extends GetxController {
       throw Exception('not send message to myself');
     }
     // message.status = types.Status.sent;
-    ConversationModel conversation = ConversationModel(
-      peerId: toId,
-      avatar: avatar!,
-      title: title,
-      subtitle: subtitle,
-      type: type,
-      // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
-      msgType: msgType,
-      lastMsgId: message.id,
-      lastTime: createdAt,
-      // lastMsgStatus 10 发送中 sending;  11 已发送 send;
-      lastMsgStatus: sendToServer ? 10 : 11,
-      unreadNum: 0,
-      isShow: 1,
-      id: 0,
-    );
+    ConversationRepo repo = ConversationRepo();
+    ConversationModel? conversation = await repo.findByPeerId(type, toId);
+    conversation ??= await Get.find<ConversationLogic>().createConversation(
+        type: type,
+        peerId: toId,
+        avatar: avatar ?? '',
+        title: title,
+        subtitle: "",
+        lastTime: DateTimeHelper.utc(),
+      );
     // 保存会话
-    conversation = await (ConversationRepo()).save(conversation);
-    MessageModel obj = getMsgFromTMsg(type, conversation.id, message);
+    await repo.updateById(conversation.id, {
+      ConversationRepo.title: title,
+      ConversationRepo.subtitle: subtitle,
+      // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
+      ConversationRepo.msgType: msgType,
+      ConversationRepo.lastMsgId: message.id,
+      ConversationRepo.lastTime: createdAt,
+      // lastMsgStatus 10 发送中 sending;  11 已发送 send;
+      ConversationRepo.lastMsgStatus: sendToServer ? 10 : 11,
+      ConversationRepo.unreadNum: conversation.unreadNum,
+      ConversationRepo.isShow: 1,
+    });
+    MessageModel obj = getMsgFromTMsg(type, conversation.uk3, message);
     // debugPrint("> on addMessage before insert MessageRepo");
-    String tb = conversation.type == 'C2G'
-        ? MessageRepo.c2gTable
-        : MessageRepo.c2cTable;
+    String tb = MessageRepo.getTableName(conversation.type.toString());
     await (MessageRepo(tableName: tb)).insert(obj);
     // debugPrint("> on addMessage after insert MessageRepo");
     eventBus.fire(conversation);
@@ -205,29 +214,23 @@ class ChatLogic extends GetxController {
   }
 
   Future<bool> removeMessage(
-    int conversationId,
+    ConversationModel cm,
     types.Message msg,
   ) async {
     ConversationRepo repo = ConversationRepo();
-    ConversationModel? cm;
     MessageModel? lastMsg;
-    cm = await repo.findById(conversationId);
-    String tb = cm?.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
-    if (conversationId > 0) {
-      MessageRepo mRepo = MessageRepo(tableName: tb);
-      // 获取lastMsg，以更新会话lastMsg信息
-      List<MessageModel> items = await mRepo.findByConversation(
-        conversationId,
-        2,
-        1,
-      );
-      lastMsg = items.isEmpty ? null : items[0];
-      debugPrint(
-          "removeMessage ${msg.id}; $conversationId, lastMsg: ${lastMsg?.toJson()} ;");
-      await mRepo.delete(msg.id);
-    }
+    String tb = MessageRepo.getTableName(cm.type);
+    MessageRepo mRepo = MessageRepo(tableName: tb);
+    // 获取lastMsg，以更新会话lastMsg信息
+    List<MessageModel> items = await mRepo.findByConversation(
+      cm.uk3,
+      2,
+      1,
+    );
+    lastMsg = items.isEmpty ? null : items[0];
+    await mRepo.delete(msg.id);
     if (lastMsg == null) {
-      await repo.updateById(conversationId, {
+      await repo.updateById(cm.id, {
         ConversationRepo.lastMsgId: '',
         ConversationRepo.lastMsgStatus: 0,
         ConversationRepo.msgType: 'empty',
@@ -235,17 +238,17 @@ class ChatLogic extends GetxController {
         ConversationRepo.subtitle: '',
       });
     } else {
-      types.Message msg2 = lastMsg.toTypeMessage();
-      await repo.updateById(conversationId, {
+      types.Message msg2 = await lastMsg.toTypeMessage();
+      await repo.updateById(cm.id, {
         ConversationRepo.lastMsgId: lastMsg.id,
         ConversationRepo.lastMsgStatus: lastMsg.status,
         ConversationRepo.msgType: MessageModel.conversationMsgType(msg2),
         ConversationRepo.subtitle: MessageModel.conversationSubtitle(msg2),
       });
     }
-    cm = await repo.findById(conversationId);
-    if (cm != null) {
-      eventBus.fire(cm);
+    ConversationModel? cm2 = await repo.findById(cm.id);
+    if (cm2 != null) {
+      eventBus.fire(cm2);
     }
     if (msg is types.ImageMessage) {
       Get.find<ImageGalleryLogic>().remoteFromGallery(msg.id);
@@ -253,12 +256,12 @@ class ChatLogic extends GetxController {
     return true;
   }
 
-  /// 撤回消息
+  /// 撤回消息 type C2C | C2G
   Future<bool> revokeMessage(String type, types.Message obj) async {
     Map<String, dynamic> msg = {
       'ts': DateTimeHelper.utc(),
       'id': obj.id,
-      'type': type == 'C2G' ? 'C2G_REVOKE' : 'C2C_REVOKE',
+      'type': '${type.toUpperCase()}_REVOKE',
       'from': obj.author.id,
       'to': obj.remoteId,
     };
@@ -272,13 +275,15 @@ class ChatLogic extends GetxController {
     String peerId,
     List<String> msgIds,
   ) async {
-    Database db = await SqliteService.to.db;
+    Database? db = await SqliteService.to.db;
+    if (db == null) {
+      return false;
+    }
     ConversationModel? c = await ConversationRepo().findByPeerId(type, peerId);
     if (c == null) {
       return false;
     }
-    String tableName =
-        c.type == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+    String tb = MessageRepo.getTableName(c.type);
     int newUnreadNum = c.unreadNum - msgIds.length;
     c.unreadNum = newUnreadNum > 0 ? newUnreadNum : 0;
     bool res = await db.transaction((txn) async {
@@ -292,20 +297,19 @@ class ChatLogic extends GetxController {
       );
       for (var id in msgIds) {
         db.update(
-          tableName,
-          {
-            MessageRepo.status: IMBoyMessageStatus.seen,
-          },
-          where: "${MessageRepo.id}=?",
-          whereArgs: [id],
-        );
+            tb,
+            {
+              MessageRepo.status: IMBoyMessageStatus.seen,
+            },
+            where: "${MessageRepo.id}=?",
+            whereArgs: [id]);
       }
       return true;
     });
     if (res) {
       ConversationLogic conversationLogic = Get.find<ConversationLogic>();
       conversationLogic.decreaseConversationRemind(
-        c.id,
+        c,
         msgIds.length,
       );
       conversationLogic.replace(c);
@@ -342,7 +346,7 @@ class ChatLogic extends GetxController {
     msg.status = IMBoyMessageStatus.error;
     msg.payload = payload;
     // 更新会话里面的消息列表的特定消息状态
-    eventBus.fire([msg.toTypeMessage()]);
+    eventBus.fire([await msg.toTypeMessage()]);
 
     // 更新会话状态
     Get.find<ConversationLogic>().updateConversationByMsgId(

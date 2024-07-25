@@ -22,7 +22,7 @@ class ScannerResultPage extends StatelessWidget {
     final logic = Get.find<ScannerLogic>();
 
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar:
             NavAppBar(automaticallyImplyLeading: true, title: 'scan_result'.tr),
         floatingActionButtonLocation:

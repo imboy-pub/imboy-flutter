@@ -5,6 +5,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -15,7 +16,6 @@ import 'package:imboy/component/http/http_client.dart';
 
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/passport/passport_view.dart';
-import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// WebSocket状态
@@ -47,8 +47,8 @@ class WebSocketService {
   IOWebSocketChannel? _webSocketChannel; // WebSocket
   SocketStatus? _socketStatus; // socket状态
   // Timer? _heartBeat; // 心跳定时器 使用 IOWebSocketChannel 的心跳机制
+  // 服务端设置为128秒，客服端设置为120秒，不要超过128秒
   // _heartTimes 必须比 服务端 idle_timeout 小一些
-  // 服务端设置为128秒，这个设置为120秒，不要超过128秒
   final int _heartTimes = 120000; // 心跳间隔(毫秒)
   final int _reconnectMax = 10; // 重连次数，默认10次
   int _reconnectTimes = 0; // 重连计数器
@@ -115,42 +115,56 @@ class WebSocketService {
   /// 开启WebSocket连接
   Future<void> openSocket({bool fromReconnect = false}) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       iPrint('> ws openSocket 网络连接异常ws');
       return;
     }
-    if (UserRepoLocal.to.isLogin == false) {
-      iPrint('> ws openSocket is not login');
-      return;
-    }
-
     // 链接状态正常，不需要任何处理
     if (isConnected) {
       iPrint('> ws openSocket _socketStatus: $_socketStatus;');
       return;
     }
+
+    String tk = await UserRepoLocal.to.accessToken;
+    iPrint("Get.currentRoute ${Get.currentRoute}");
+    if (tk.isEmpty) {
+      iPrint('> ws openSocket tk isEmpty ${tk.isEmpty};');
+      if (Get.currentRoute != '/PassportPage') {
+        UserRepoLocal.to.logout();
+        Get.offAll(() => PassportPage());
+      }
+      return;
+    }
+    if (tokenExpired(tk) == false) {
+      String rtk = await UserRepoLocal.to.refreshToken;
+      tk = await (UserProvider()).refreshAccessTokenApi(
+        rtk,
+        checkNewToken: false,
+      );
+    }
+    Map<String, dynamic> headers = await defaultHeaders();
+
+    headers[Keys.tokenKey] = tk;
+    iPrint("openSocket_headers ${headers.toString()}");
+
     if (wsConnectLock) {
       return;
     }
     wsConnectLock = true;
     try {
-      Map<String, dynamic> headers = await defaultHeaders();
-      String tk = UserRepoLocal.to.accessToken;
-      if (tokenExpired(tk) == false) {
-        tk = await (UserProvider()).refreshAccessTokenApi(
-            UserRepoLocal.to.refreshToken,
-            checkNewToken: false);
+      String? url = Env.wsUrl;
+      if (strEmpty(url)) {
+        await initConfig();
+        url = Env.wsUrl;
       }
-      headers[Keys.tokenKey] = tk;
-
       _webSocketChannel = IOWebSocketChannel.connect(
-        WS_URL,
+        url!,
         headers: headers,
         pingInterval: Duration(milliseconds: _heartTimes),
         protocols: protocols,
       );
       // _webSocketChannel.innerWebSocket;
-      // 连接成功，返回WebSocket实例
+      // 连接成功，设置socket状态
       _socketStatus = SocketStatus.SocketStatusConnected;
 
       // 连接成功，重置重连计数器
@@ -178,7 +192,7 @@ class WebSocketService {
     } catch (e) {
       closeSocket();
       _socketStatus = SocketStatus.SocketStatusFailed;
-      iPrint("> openSocket $WS_URL error ${e.toString()}");
+      iPrint("> openSocket ${Env.wsUrl} error ${e.toString()}");
     } finally {
       wsConnectLock = false;
     }
@@ -209,13 +223,12 @@ class WebSocketService {
       // 1007	Unsupported Data	由于收到了格式不符的数据而断开连接 (如文本消息中包含了非 UTF-8 数据).
       // 1009	CLOSE_TOO_LARGE	由于收到过大的数据帧而断开连接。
       // 4000–4999		可以由应用使用。
-      // 4006 通知客户端刷新token消息没有得到确认，系统主动关闭连接
+      // 4006 服务端通知客户端刷新token消息没有得到确认，系统主动关闭连接
       int closeCode = _webSocketChannel?.closeCode ?? 0;
 
       switch (closeCode) {
         case 4006:
-          closeSocket(exit: true);
-          await StorageService.to.remove(Keys.tokenKey);
+          UserRepoLocal.to.logout();
           Get.offAll(() => PassportPage());
           break;
         default:
@@ -249,7 +262,7 @@ class WebSocketService {
     iPrint('> ws closeSocket ${DateTime.now()}');
     // destroyHeartBeat();
     destroyReconnectTimer();
-    iPrint('> ws WebSocket连接关闭 $WS_URL');
+    iPrint('> ws WebSocket连接关闭 ${Env.wsUrl}');
     _webSocketChannel?.sink.close();
     _webSocketChannel = null;
     _socketStatus = SocketStatus.SocketStatusClosed;
@@ -275,11 +288,12 @@ class WebSocketService {
   }
 
   bool _send(String msg) {
-    _webSocketChannel!.sink.add(msg);
+    _webSocketChannel?.sink.add(msg);
     return true;
   }
 
   /// 重连机制
+  ///
   void _reconnect() {
     iPrint(
         '> ws _reconnect _reconnectTimes $_reconnectTimes < $_reconnectMax ${DateTime.now()}');
@@ -294,6 +308,7 @@ class WebSocketService {
         },
       );
     } else {
+      // 达到最大重连次数，停止重连
       closeSocket();
       return;
     }

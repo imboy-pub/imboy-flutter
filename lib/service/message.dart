@@ -1,12 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:xid/xid.dart';
+
+import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
+import 'package:imboy/page/group/group_list/group_list_logic.dart';
+import 'package:imboy/store/model/group_extend_model.dart';
+import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/store/model/people_model.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -37,6 +42,7 @@ class MessageService extends GetxService {
   final ConversationLogic conversationLogic = Get.find();
   List<String> webrtcMsgIdLi = [];
   bool addMessageLock = false;
+
   @override
   void onInit() {
     super.onInit();
@@ -113,6 +119,8 @@ class MessageService extends GetxService {
           case 'C2C_REVOKE_ACK': // 对端撤回消息ACK
             await receiveRevokeAckMessage(type, data);
             break;
+
+          //
           case 'C2G':
             await receiveMessage(data);
             break;
@@ -125,13 +133,22 @@ class MessageService extends GetxService {
           case 'C2G_REVOKE_ACK': // 对端撤回消息ACK
             await receiveRevokeAckMessage(type, data);
             break;
-          case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
+
+          //
+          case 'C2S':
+            await receiveMessage(data);
             break;
-          case 'ERROR': //
-            await switchError(data);
+          case 'C2S_SERVER_ACK': // C2S 服务端消息确认
+            await receiveServerAckMessage(data);
+            break;
+
+          case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
             break;
           case 'S2C':
             await switchS2C(data);
+            break;
+          case 'ERROR': //
+            await switchError(data);
             break;
         }
       }
@@ -152,13 +169,13 @@ class MessageService extends GetxService {
       //   String content = data['payload']['content'] ?? '';
       //   break;
       case '706': // 需要重新登录
-        WebSocketService.to.closeSocket(exit: true);
+        UserRepoLocal.to.logout();
         Get.offAll(() => PassportPage());
         break;
     }
   }
 
-  /// type is ['C2C' | 'S2C' | 'WEBRTC']
+  /// type is ['C2C' | 'S2C' | 'C2G' | 'C2S | 'WEBRTC']
   void sendAckMsg(String type, String msgId) {
     WebSocketService.to.sendMessage("CLIENT_ACK,$type,$msgId,$deviceId");
   }
@@ -174,6 +191,63 @@ class MessageService extends GetxService {
     bool autoAck = true;
     // try {
     switch (msgType.toString().toLowerCase()) {
+      case 'group_member_join':
+        // {id: , type: S2C, from: vyb9xb, to: 7b4v1b, payload: {msg_type: group_member_join}, server_ts: 1713334354767}
+        String userId = data['from'];
+        String nickname = payload['nickname'];
+        String avatar = payload['avatar'];
+        String account = payload['account'];
+        String gid = payload['gid'];
+        int userIdSum = payload['user_id_sum'] ?? 0;
+        Map<String, dynamic>? joinRes =
+            await Get.find<GroupListLogic>().memberJoin(
+          groupId: gid,
+          userId: userId,
+          userIdSum: userIdSum,
+        );
+        eventBus.fire(JoinGroupModel(
+          groupId: gid,
+          userId: userId,
+          isFirst: joinRes?['isFirst'] ?? false,
+          people: PeopleModel(
+            id: userId,
+            account: account,
+            nickname: nickname,
+            avatar: avatar,
+          ),
+        ));
+        break;
+      case 'group_dissolve':
+        // String userId = data['from'];
+        String gid = payload['gid'];
+        await GroupDetailLogic().cleanData(gid);
+        break;
+      case 'group_member_leave':
+        String userId = payload['leave_uid'];
+        String gid = payload['gid'];
+        int userIdSum = payload['user_id_sum'] ?? 0;
+        await Get.find<GroupListLogic>().memberLeave(
+          groupId: gid,
+          userId: userId,
+          userIdSum: userIdSum,
+        );
+        eventBus.fire(LeaveGroupModel(
+          groupId: gid,
+          userId: userId,
+          people: PeopleModel(
+            id: userId,
+            account: '',
+          ),
+        ));
+        break;
+      case 'group_member_alias':
+        // payload:{alias:, description:, updated_at:, gid:}
+        break;
+      case 'user_cancel':
+        // 当前用户的朋友user_id注销了
+        // TODO
+        // String userId = data['from'];
+        break;
       case 'apply_friend': // 添加朋友申请
         newFriendLogic.receivedAddFriend(data);
         break;
@@ -242,7 +316,6 @@ class MessageService extends GetxService {
         String did = payload['did'] ?? '';
         if (did != deviceId) {
           int serverTs = data['server_ts'] ?? 0;
-          WebSocketService.to.closeSocket(exit: true);
           UserRepoLocal.to.logout();
           Get.off(() => PassportPage(), arguments: {
             "msg_type": "logged_another_device",
@@ -254,9 +327,9 @@ class MessageService extends GetxService {
       case 'please_refresh_token': // 服务端通知客户端刷新token
         iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId,$autoAck");
         MessageService.to.sendAckMsg('S2C', msgId);
-        await (UserProvider()).refreshAccessTokenApi(
-            UserRepoLocal.to.refreshToken,
-            checkNewToken: true);
+        String rtk = await UserRepoLocal.to.refreshToken;
+
+        await (UserProvider()).refreshAccessTokenApi(rtk, checkNewToken: true);
         break;
       case 'app_upgrade':
         final AppVersionProvider p = AppVersionProvider();
@@ -310,17 +383,28 @@ class MessageService extends GetxService {
     super.onClose();
   }
 
-  /// 收到消息  C2C or C2G
+  /// 收到消息  C2C | C2G | C2S
   Future<void> receiveMessage(data) async {
     var msgType = data['payload']['msg_type'] ?? '';
     var subtitle = data['payload']['text'] ?? '';
     iPrint("> rtc msg receiveMessage $data");
     int now = DateTimeHelper.utc();
-    iPrint("> rtc msg now: $now elapsed: ${now - data['created_at']}");
+    iPrint("> rtc msg now: $now elapsed: ${data['created_at'] - now}");
 
-    ContactModel? ct = await ContactRepo().findByUid(data['from']);
-    String avatar = ct!.avatar;
-    String title = ct.title;
+    String peerId = '';
+    String avatar = '';
+    String title = '';
+    if (data['type'] == 'C2G') {
+      peerId = data['to'];
+      GroupModel? g = await GroupDetailLogic().detail(gid: peerId);
+      avatar = g?.avatar ?? '';
+      title = g?.title ?? '';
+    } else {
+      ContactModel? ct = await ContactRepo().findByUid(data['from']);
+      peerId = data['from'];
+      avatar = ct!.avatar;
+      title = ct.title;
+    }
     if (msgType == 'custom') {
       msgType = data['payload']['custom_type'] ?? '';
       subtitle = '';
@@ -332,7 +416,7 @@ class MessageService extends GetxService {
     }
 
     ConversationModel conversation = ConversationModel(
-      peerId: data['from'],
+      peerId: peerId,
       avatar: avatar,
       title: title,
       subtitle: subtitle,
@@ -345,9 +429,6 @@ class MessageService extends GetxService {
       id: 0,
     );
     conversation = await (ConversationRepo()).save(conversation);
-
-    iPrint(
-        "receiveMessage cid ${conversation.id} t ${data['type']} pid ${data['from']}");
     MessageModel msg = MessageModel(
       data['id'],
       autoId: 0,
@@ -357,47 +438,43 @@ class MessageService extends GetxService {
       payload: data['payload'],
       createdAt: data['created_at'],
       isAuthor: data['from'] == UserRepoLocal.to.currentUid ? 1 : 0,
-      conversationId: conversation.id,
+      topicId: data['topic_id'] ?? 0,
+      conversationUk3: conversation.uk3,
       status: IMBoyMessageStatus.delivered, // 未读 已投递
     );
-    String tb =
-        data['type'] == 'C2G' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+    String tb = MessageRepo.getTableName(data['type']);
     MessageRepo repo = MessageRepo(tableName: tb);
     int? exited = await repo.save(msg);
     // 确认消息
     iPrint(
-        "365> rtc msg CLIENT_ACK,${data['type']},${data['id']},$deviceId, exited $exited, ${DateTime.now()}");
-    // data['type'] C2C or C2G
+        "380> rtc msg CLIENT_ACK,${data['type']},${data['id']},$deviceId, exited $exited, ${DateTime.now()}");
+    // data['type'] C2C | C2G | C2S
     MessageService.to.sendAckMsg(data['type'], data['id']);
     if (exited != null && exited > 0) {
       return;
     }
 
     // 收到一个消息，步增会话消息 1
-    await conversationLogic.increaseConversationRemind(conversation.id, 1);
+    await conversationLogic.increaseConversationRemind(conversation, 1);
 
     eventBus.fire(conversation);
-    types.Message tMsg = msg.toTypeMessage();
+    types.Message tMsg = await msg.toTypeMessage();
     eventBus.fire(tMsg);
   }
 
   /// 收到服务端确认消息 C2C_SERVER_ACK C2G_SERVER_ACK
   Future<void> receiveServerAckMessage(Map data) async {
-    iPrint("> rtc msg S_RECEIVED: msg:$data");
-
-    // iPrint("> rtc msg S_RECEIVED:$res");
-
-    String tb = data['type'] == 'C2G_SERVER_ACK'
-        ? MessageRepo.c2gTable
-        : MessageRepo.c2cTable;
+    iPrint("> rtc msg S_RECEIVED: data:$data");
+    String tb = MessageRepo.getTableName(data['type']);
     MessageModel? msg = await changeStatus(
       tb,
       data['id'],
       IMBoyMessageStatus.send,
     );
+    iPrint("> rtc msg S_RECEIVED: msg:${msg?.toJson().toString()} ;");
     if (msg != null) {
       // 更新会话里面的消息列表的特定消息状态
-      eventBus.fire([msg.toTypeMessage()]);
+      eventBus.fire([await msg.toTypeMessage()]);
     }
   }
 
@@ -406,6 +483,7 @@ class MessageService extends GetxService {
     String msgId,
     int status,
   ) async {
+    iPrint("changeStatus tb $tb, msgId, $msgId, status $status");
     MessageRepo repo = MessageRepo(tableName: tb);
     await repo.update({
       'id': msgId,
@@ -421,9 +499,7 @@ class MessageService extends GetxService {
 
   /// 收到撤回消息 C2C_REVOKE C2G_REVOKE
   Future<void> receiveRevokeMessage(data) async {
-    String tb = data['type'] == 'C2G_REVOKE'
-        ? MessageRepo.c2gTable
-        : MessageRepo.c2cTable;
+    String tb = MessageRepo.getTableName(data['type']);
     MessageRepo repo = MessageRepo(tableName: tb);
     ContactModel? contact = await ContactRepo().findByUid(data['from']);
     String id = data['id'];
@@ -440,7 +516,7 @@ class MessageService extends GetxService {
     MessageModel? msg = await repo.find(id);
     if (msg != null) {
       // 更新会话里面的消息列表的特定消息状态
-      eventBus.fire([msg.toTypeMessage()]);
+      eventBus.fire([await msg.toTypeMessage()]);
       changeConversation(msg, 'peer_revoked');
     }
 
@@ -457,8 +533,7 @@ class MessageService extends GetxService {
 
   /// 收到撤回ACK消息 C2C_REVOKE_ACK C2G_REVOKE_ACK
   Future<void> receiveRevokeAckMessage(dType, data) async {
-    String tb =
-        dType == 'C2G_REVOKE_ACK' ? MessageRepo.c2gTable : MessageRepo.c2cTable;
+    String tb = MessageRepo.getTableName(dType);
     MessageRepo repo = MessageRepo(tableName: tb);
     MessageModel? msg = await repo.find(data['id']);
     if (msg == null) {
@@ -476,7 +551,7 @@ class MessageService extends GetxService {
       'payload': json.encode(msg.payload),
     });
     // 更新会话里面的消息列表的特定消息状态
-    eventBus.fire([msg.toTypeMessage()]);
+    eventBus.fire([await msg.toTypeMessage()]);
     // 确认消息
     String ackType = dType == 'C2G_REVOKE_ACK' ? 'C2G' : 'C2C';
     MessageService.to.sendAckMsg(ackType, data['id']);
@@ -617,7 +692,7 @@ class MessageService extends GetxService {
     });
     if (res > 0) {
       msg.payload = payload;
-      types.Message msg2 = msg.toTypeMessage();
+      types.Message msg2 = await msg.toTypeMessage();
       // 更新会话里面的消息列表的特定消息状态
       eventBus.fire([msg2]);
       // 通话完成，加入到消息列表
@@ -636,11 +711,11 @@ class MessageService extends GetxService {
   }) async {
     if (msgId.isEmpty) {
       MessageModel? m = await MessageRepo(tableName: tableName).lastMsg();
-      message = m?.toTypeMessage();
+      message = await m?.toTypeMessage();
     }
     if (message == null) {
       MessageModel? m = await MessageRepo(tableName: tableName).find(msgId);
-      message = m?.toTypeMessage();
+      message = await m?.toTypeMessage();
     }
     int startAt = message?.metadata?['start_at'] ?? 0;
     int endAt = message?.metadata?['end_at'] ?? 0;

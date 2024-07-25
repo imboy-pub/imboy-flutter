@@ -2,15 +2,18 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
+import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/store/model/conversation_model.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'conversation_logic.dart';
 import 'widget/conversation_item.dart';
@@ -38,16 +41,16 @@ class _ConversationPageState extends State<ConversationPage> {
 
   void initData() async {
     // 检查网络状态
-    var res = await Connectivity().checkConnectivity();
-    if (res == ConnectivityResult.none) {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       // ignore: prefer_interpolation_to_compose_strings
       logic.connectDesc.value = '(' + 'tip_connect_desc'.tr + ')';
     } else {
       logic.connectDesc.value = '';
     }
     // 监听网络状态
-    Connectivity().onConnectivityChanged.listen((ConnectivityResult r) {
-      if (r == ConnectivityResult.none) {
+    Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
+      if (r.contains(ConnectivityResult.none)) {
         // ignore: prefer_interpolation_to_compose_strings
         logic.connectDesc.value = '(${'tip_connect_desc'.tr})';
       } else {
@@ -56,9 +59,19 @@ class _ConversationPageState extends State<ConversationPage> {
     });
 
     // 监听会话消息
-    eventBus.on<ConversationModel>().listen((e) async {
+    eventBus.on<ConversationModel>().listen((obj) async {
+      if (obj.type == 'C2G' && obj.avatar.isEmpty) {
+        obj.computeAvatar = await Get.find<GroupListLogic>().computeAvatar(
+          obj.peerId,
+        );
+      }
+      if (obj.type == 'C2G' && obj.title.trim().isEmpty) {
+        obj.computeTitle = await Get.find<GroupListLogic>().computeTitle(
+          obj.peerId,
+        );
+      }
       // 更新会话
-      await logic.replace(e);
+      await logic.replace(obj);
       // 重新排序会话列表
       await logic.sortConversationsList();
     });
@@ -66,36 +79,25 @@ class _ConversationPageState extends State<ConversationPage> {
     if (logic.conversations.isEmpty) {
       await logic.conversationsList();
     }
-
-    // 设置消息提醒数量
-    for (ConversationModel obj in logic.conversations) {
-      iPrint("ConversationModel obj ${obj.toJson()}");
-      // 重新计算会话消息提醒数量
-      logic.recalculateConversationRemind(obj.id);
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: NavAppBar(
-        // title: 'title_message'.tr + logic.connectDesc.value,
+        leading: const SizedBox.shrink(),
+        titleWidget: Obx(
+          () => Text(
+            'title_message'.tr + logic.connectDesc.value,
+            style: AppStyle.navAppBarTitleStyle,
+          ),
+        ),
         rightDMActions: <Widget>[
           n.Padding(
             right: 4,
             child: const RightButton(),
           ),
         ],
-        titleWidget: Obx(
-          () => Text(
-            'title_message'.tr + logic.connectDesc.value,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onPrimary,
-              fontSize: 16.0,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
       ),
       // backgroundColor: Get.isDarkMode ? darkBgColor : lightBgColor,
       body: n.Column([
@@ -113,14 +115,12 @@ class _ConversationPageState extends State<ConversationPage> {
                       itemCount: logic.conversations.length,
                       itemBuilder: (BuildContext context, int index) {
                         ConversationModel model = logic.conversations[index];
-                        int conversationId = model.id;
                         // RxInt remindNum =
                         //     logic.conversationRemind[model.peerId] ?? 0.obs;
                         return InkWell(
                           onTap: () {
                             Get.to(
                               () => ChatPage(
-                                conversationId: model.id,
                                 peerId: model.peerId,
                                 peerTitle: model.title,
                                 peerAvatar: model.avatar,
@@ -173,7 +173,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                     await logic.hideConversation(model.id);
                                     logic.update([
                                       logic.conversations.removeAt(index),
-                                      logic.conversationRemind[model.id] =
+                                      logic.conversationRemind[model.uk3] =
                                           0.obs,
                                       logic.chatMsgRemindCounter,
                                     ]);
@@ -187,11 +187,10 @@ class _ConversationPageState extends State<ConversationPage> {
                                   backgroundColor: Colors.red,
                                   foregroundColor: Colors.white,
                                   onPressed: (_) async {
-                                    await logic
-                                        .removeConversation(conversationId);
+                                    await logic.removeConversation(model);
                                     logic.update([
                                       logic.conversations.removeAt(index),
-                                      logic.conversationRemind[model.id] =
+                                      logic.conversationRemind[model.uk3] =
                                           0.obs,
                                       logic.chatMsgRemindCounter,
                                     ]);

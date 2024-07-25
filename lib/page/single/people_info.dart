@@ -76,7 +76,7 @@ class PeopleInfoPage extends StatelessWidget {
         source.value = 'recently_user';
       } else if (scene == 'contact_page' || scene == 'denylist') {
         source.value = '';
-        // } else if (scene == '') {
+      } else if (scene == 'group_member') {
         // } else if (scene == '') {
         // } else if (scene == '') {
         // } else if (scene == '') {
@@ -91,16 +91,16 @@ class PeopleInfoPage extends StatelessWidget {
     initData();
     bool isSelf = UserRepoLocal.to.currentUid == id;
     bool showApplyFriendBtn = !isSelf;
-    if (scene == 'denylist') {
+    if (scene == 'denylist' || id == 'bot_qian_fan') {
       showApplyFriendBtn = false;
     }
     return Scaffold(
-      // backgroundColor: Theme.of(context).colorScheme.background,
+      // backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         title: '',
         // backgroundColor: Colors.white,
-        rightDMActions: isSelf
+        rightDMActions: isSelf || id == 'bot_qian_fan'
             ? []
             : [
                 SizedBox(
@@ -162,7 +162,7 @@ class PeopleInfoPage extends StatelessWidget {
               ),
             ),
             Visibility(
-              visible: !isSelf,
+              visible: !isSelf && id != 'bot_qian_fan',
               child: LabelRow(
                 label: tag.value.isEmpty ? 'remarks_tags'.tr : 'tags'.tr,
                 labelWidth: tag.value.isEmpty ? 96 : 40,
@@ -356,7 +356,7 @@ class PeopleInfoPage extends StatelessWidget {
                       child: Text(
                     'added_to_blacklist_tips'.tr,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   )),
                 ])

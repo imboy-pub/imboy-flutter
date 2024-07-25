@@ -38,7 +38,7 @@ class NewFriendPage extends StatelessWidget {
   Widget build(BuildContext context) {
     initData();
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         title: 'new_friend'.tr,
@@ -62,7 +62,7 @@ class NewFriendPage extends StatelessWidget {
         child: Container(
           width: Get.width,
           height: Get.height,
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           child: n.Column([
             n.Padding(
               left: 8,
@@ -171,9 +171,9 @@ class NewFriendPage extends StatelessWidget {
                               style: TextButton.styleFrom(
                                 padding: const EdgeInsets.only(right: 0),
                                 foregroundColor:
-                                    Theme.of(context).colorScheme.background,
+                                    Theme.of(context).colorScheme.surface,
                                 backgroundColor:
-                                    Theme.of(context).colorScheme.onBackground,
+                                    Theme.of(context).colorScheme.onSurface,
                                 textStyle: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
