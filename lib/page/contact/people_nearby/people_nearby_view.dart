@@ -110,7 +110,7 @@ class PeopleNearbyPage extends StatelessWidget {
                               },
                             );
                           } else {
-                            logic.makeMyselfUnvisible();
+                            logic.makeMyselfUnVisible();
                           }
                         },
                         style: ButtonStyle(

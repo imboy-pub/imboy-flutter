@@ -1,7 +1,9 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/config/const.dart';
@@ -16,7 +18,6 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/page/single/markdown.dart';
-import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'setting_logic.dart';
@@ -252,6 +253,55 @@ class _SettingPageState extends State<SettingPage> {
                 );
               },
             ),
+            n.Padding(
+                left: 18,
+                child: HorizontalLine(
+                  height: Get.isDarkMode ? 0.5 : 1.0,
+                  color: Theme.of(context).colorScheme.primary,
+                )),
+            n.ListTile(
+              title: n.Row([
+                Text('切换环境'.tr),
+                // Text("${'当前环境'.tr} $currentEnv"),
+                DropdownButton<String>(
+                  value: currentEnv,
+                  items: const [
+                     DropdownMenuItem(
+                      value: 'local',
+                      child: Text('Local'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'dev',
+                      child: Text('Development'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'pro',
+                      child: Text('Production'),
+                    ),
+                  ],
+                  onChanged: (String? value) {
+                    // setState(() {
+                    //   currentEnv = value!;
+                    // });
+                    if (strNoEmpty(value)) {
+                      currentEnv = value!;
+                      logic.switchEnvironment(currentEnv);
+                    }
+                  },
+                )
+              ])
+                // 两端对齐
+                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+              // trailing: navigateNextIcon,
+              // trailing: navigateNextIcon,
+              // onTap: () {
+              //   Get.to(
+              //     () => ChangeEnvPage(),
+              //     transition: Transition.rightToLeft,
+              //     popGesture: true, // 右滑，返回上一页
+              //   );
+              // },
+            ),
           ]),
           /*
           ButtonRow(
@@ -283,8 +333,6 @@ class _SettingPageState extends State<SettingPage> {
             onPressed: () async {
               bool result = await UserRepoLocal.to.logout();
               if (result) {
-                await StorageService.to.remove(Keys.refreshTokenKey);
-                await StorageService.to.remove(Keys.tokenKey);
                 Get.offAll(() => PassportPage());
               }
             },

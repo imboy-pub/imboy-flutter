@@ -60,8 +60,9 @@ class MinePage extends StatelessWidget {
                         width: 180.0,
                         height: 180.0,
                         child: ClipRRect(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(100.0)),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(100.0),
+                          ),
                           child: InkWell(
                             onTap: () {
                               if (c.current.avatar.isEmpty) {

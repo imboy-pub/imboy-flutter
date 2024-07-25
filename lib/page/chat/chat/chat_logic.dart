@@ -275,7 +275,10 @@ class ChatLogic extends GetxController {
     String peerId,
     List<String> msgIds,
   ) async {
-    Database db = await SqliteService.to.db;
+    Database? db = await SqliteService.to.db;
+    if (db == null) {
+      return false;
+    }
     ConversationModel? c = await ConversationRepo().findByPeerId(type, peerId);
     if (c == null) {
       return false;

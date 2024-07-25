@@ -5,13 +5,13 @@ import 'http_response.dart';
 
 /// Response 解析
 abstract class HttpTransformer {
-  IMBoyHttpResponse parse(Response response);
+  IMBoyHttpResponse parse(Response response, String uri);
 }
 
 class DefaultHttpTransformer extends HttpTransformer {
   @override
-  IMBoyHttpResponse parse(Response response) {
-    iPrint("response.data_status: ${response.data.toString()};");
+  IMBoyHttpResponse parse(Response response, String uri) {
+    iPrint("uri $uri, response.data_status: ${response.data.toString()};");
     if (response.data is! Map) {
       return IMBoyHttpResponse.failure();
     }

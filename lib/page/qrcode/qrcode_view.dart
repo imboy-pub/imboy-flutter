@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/config/theme.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -18,6 +19,9 @@ import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/page/scanner/scanner_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
+import 'qrcode_logic.dart';
+import 'qrcode_state.dart';
+
 class UserQrCodePage extends StatelessWidget {
   final GlobalKey globalKey = GlobalKey();
 
@@ -27,7 +31,7 @@ class UserQrCodePage extends StatelessWidget {
   Widget build(BuildContext context) {
     // API_BASE_URL=https://dev.imboy.pub
     String qrcodeData =
-        "$API_BASE_URL/uqrcode?id=${UserRepoLocal.to.currentUid}&$qrcodeDataSuffix";
+        "${Env.apiBaseUrl}/user/qrcode?id=${UserRepoLocal.to.currentUid}&$qrcodeDataSuffix";
 
     int gender = UserRepoLocal.to.current.gender;
 
@@ -239,19 +243,27 @@ class UserQrCodePage extends StatelessWidget {
 class GroupQrCodePage extends StatelessWidget {
   final GlobalKey globalKey = GlobalKey();
 
+  final int dayNum = 7;
   final GroupModel group;
 
   GroupQrCodePage({super.key, required this.group});
 
+
+  final QrCodeState state = Get.find<QrCodeLogic>().state;
+
+  Future<void> _initData() async {
+    // API_BASE_URL=https://dev.imboy.pub
+    int expiredAt  = DateTimeHelper.utc() + dayNum * 86400 * 1000;
+    String key = await Env.signKey();
+    String tk = EncrypterService.sha256("$expiredAt", key);
+    state.qrcodeData.value =
+        "${Env.apiBaseUrl}/group/qrcode?id=${group.groupId}&exp=$expiredAt&tk=$tk&$qrcodeDataSuffix";
+    state.expiredAt.value = expiredAt;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // API_BASE_URL=https://dev.imboy.pub
-    int dayNum = 7;
-    int expiredAt = DateTimeHelper.utc() + dayNum * 86400 * 1000;
-    String tk = EncrypterService.md5("${expiredAt}_$SOLIDIFIED_KEY");
-    String qrcodeData =
-        "$API_BASE_URL/group/qrcode?id=${group.groupId}&exp=$expiredAt&tk=$tk&$qrcodeDataSuffix";
-
+    _initData();
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
@@ -374,86 +386,87 @@ class GroupQrCodePage extends StatelessWidget {
                 borderRadius: BorderRadiusDirectional.circular(20),
               ),
               clipBehavior: Clip.antiAlias,
-              child: Container(
-                width: Get.width,
-                height: 520,
-                color: Colors.white,
-                child: n.Column([
-                  n.Padding(
-                    // top: 10,
-                    bottom: 10,
-                    child: ComputeAvatar(
-                      imgUri: group.avatar,
-                      computeAvatar: group.computeAvatar,
-                    ),
-                  ),
-                  Flexible(
-                      child: n.Padding(
-                          // top: 20,
-                          left: 10,
-                          right: 10,
-                          bottom: 20,
-                          child: Text(
-                            "${'group_chat'.tr}: ${group.title.isEmpty ? group.computeTitle : group.title}",
-                            style: const TextStyle(
-                              color: lightOnPrimaryColor,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ))),
-                  Center(
-                    child: QrImageView(
-                      data: qrcodeData,
-                      version: QrVersions.auto,
-                      errorCorrectionLevel: QrErrorCorrectLevel.H,
-                      size: 320,
-                      padding: const EdgeInsets.only(
-                        left: 10,
-                        right: 10,
-                        top: 10,
+              child: Obx(() => Container(
+                    width: Get.width,
+                    height: 520,
+                    color: Colors.white,
+                    child: n.Column([
+                      n.Padding(
+                        // top: 10,
                         bottom: 10,
+                        child: ComputeAvatar(
+                          imgUri: group.avatar,
+                          computeAvatar: group.computeAvatar,
+                        ),
                       ),
-                      gapless: true,
-                      //
-                      eyeStyle: const QrEyeStyle(
-                        eyeShape: QrEyeShape.circle,
-                        color: Colors.black,
+                      Flexible(
+                          child: n.Padding(
+                              // top: 20,
+                              left: 10,
+                              right: 10,
+                              bottom: 20,
+                              child: Text(
+                                "${'group_chat'.tr}: ${group.title.isEmpty ? group.computeTitle : group.title}",
+                                style: const TextStyle(
+                                  color: lightOnPrimaryColor,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ))),
+                      Center(
+                        child: QrImageView(
+                          data: state.qrcodeData.value,
+                          version: QrVersions.auto,
+                          errorCorrectionLevel: QrErrorCorrectLevel.H,
+                          size: 320,
+                          padding: const EdgeInsets.only(
+                            left: 10,
+                            right: 10,
+                            top: 10,
+                            bottom: 10,
+                          ),
+                          gapless: true,
+                          //
+                          eyeStyle: const QrEyeStyle(
+                            eyeShape: QrEyeShape.circle,
+                            color: Colors.black,
+                          ),
+                          dataModuleStyle: const QrDataModuleStyle(
+                            dataModuleShape: QrDataModuleShape.circle,
+                            color: Colors.black,
+                          ),
+                          embeddedImage: Get.height < 640
+                              ? null
+                              : const AssetImage('assets/images/3.0x/logo.png'),
+                          embeddedImageStyle: const QrEmbeddedImageStyle(
+                            size: Size.square(64),
+                            // color: Colors.pink,
+                          ),
+                        ),
                       ),
-                      dataModuleStyle: const QrDataModuleStyle(
-                        dataModuleShape: QrDataModuleShape.circle,
-                        color: Colors.black,
+                      n.Padding(
+                        // top: 10,
+                        left: 10, right: 10,
+                        bottom: 10,
+                        child: Text(
+                          // 该二维码%s天内（%s前）有效，重新进入将更新
+                          '该二维码%s天内（%s前）有效，重新进入将更新'.trArgs([
+                            dayNum.toString(),
+                            Jiffy.parseFromDateTime(
+                                    Jiffy.parseFromMillisecondsSinceEpoch(
+                                        state.expiredAt.value)
+                                        .dateTime)
+                                .format(pattern: 'y-MM-dd')
+                          ]),
+                          style: const TextStyle(
+                            color: lightOnPrimaryColor,
+                          ),
+                        ),
                       ),
-                      embeddedImage: Get.height < 640
-                          ? null
-                          : const AssetImage('assets/images/3.0x/logo.png'),
-                      embeddedImageStyle: const QrEmbeddedImageStyle(
-                        size: Size.square(64),
-                        // color: Colors.pink,
-                      ),
-                    ),
-                  ),
-                  n.Padding(
-                    // top: 10,
-                    left: 10, right: 10,
-                    bottom: 10,
-                    child: Text(
-                      // 该二维码%s天内（%s前）有效，重新进入将更新
-                      '该二维码%s天内（%s前）有效，重新进入将更新'.trArgs([
-                        dayNum.toString(),
-                        Jiffy.parseFromDateTime(
-                                Jiffy.parseFromMillisecondsSinceEpoch(expiredAt)
-                                    .dateTime)
-                            .format(pattern: 'y-MM-dd')
-                      ]),
-                      style: const TextStyle(
-                        color: lightOnPrimaryColor,
-                      ),
-                    ),
-                  ),
-                ])
-                  // 内容居中
-                  ..mainAxisAlignment = MainAxisAlignment.center,
-              ),
+                    ])
+                      // 内容居中
+                      ..mainAxisAlignment = MainAxisAlignment.center,
+                  )),
             ),
           ),
           Center(

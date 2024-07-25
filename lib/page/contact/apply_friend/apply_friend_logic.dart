@@ -10,6 +10,7 @@ import 'package:imboy/component/http/http_response.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/enum.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -56,7 +57,7 @@ class ApplyFriendLogic extends GetxController {
     );
 
     IMBoyHttpResponse resp = await HttpClient.client.post(
-      "$API_BASE_URL${API.addFriend}",
+      "${Env.apiBaseUrl}${API.addFriend}",
       data: msg,
       options: Options(
         contentType: "application/x-www-form-urlencoded",

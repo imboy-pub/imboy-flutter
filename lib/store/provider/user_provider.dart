@@ -1,5 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_keychain/flutter_keychain.dart';
 import 'package:get/get.dart';
 
 import 'package:imboy/config/const.dart';
@@ -7,12 +8,9 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_parse.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/config/env.dart';
 
-import 'package:imboy/config/init.dart';
 import 'package:imboy/page/passport/passport_view.dart';
-import 'package:imboy/service/encrypter.dart';
-import 'package:imboy/service/storage.dart';
-import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class UserProvider extends HttpClient {
@@ -35,42 +33,37 @@ class UserProvider extends HttpClient {
     bool checkNewToken = true,
   }) async {
     if (strEmpty(refreshToken)) {
-      await StorageService.to.remove(Keys.tokenKey);
-      WebSocketService.to.closeSocket(exit: true);
+      UserRepoLocal.to.logout();
       Get.offAll(() => PassportPage());
       return "";
     }
-
-    var response = await Dio(BaseOptions(baseUrl: API_BASE_URL)).post(
+    Map<String, dynamic> headers = await defaultHeaders();
+    headers[Keys.refreshTokenKey] = refreshToken;
+    var response = await Dio(BaseOptions(baseUrl: Env.apiBaseUrl)).post(
       API.refreshToken,
       options: Options(
-        contentType: "application/x-www-form-urlencoded",
-        headers: {
-          Keys.refreshTokenKey: refreshToken,
-          'vsn': appVsn,
-          'did': deviceId,
-          'method': 'sha512',
-          'sign':
-              EncrypterService.sha512("$deviceId|$appVsnMajor", SOLIDIFIED_KEY)
-        },
+        // contentType: "application/x-www-form-urlencoded",
+        headers: headers,
       ),
     );
     // iPrint("refreshAccessTokenApi ${response.toString()}");
     // iPrint("refreshAccessTokenApi refreshToken $refreshToken");
-    IMBoyHttpResponse resp = handleResponse(response);
+    IMBoyHttpResponse resp = handleResponse(response, uri: API.refreshToken);
     // 705 token 过期
     // 706 token 无效
     if (resp.code == 705 || resp.code == 706) {
       checkNewToken = true;
     }
     String newToken = resp.payload?['token'] ?? '';
-    if (checkNewToken && strEmpty(newToken) && UserRepoLocal.to.isLogin) {
-      await StorageService.to.remove(Keys.tokenKey);
-      WebSocketService.to.closeSocket(exit: true);
+    if (checkNewToken && strEmpty(newToken)) {
+      UserRepoLocal.to.logout();
       Get.offAll(() => PassportPage());
       return "";
     }
-    await StorageService.to.setString(Keys.tokenKey, newToken);
+    await FlutterKeychain.put(
+      key: Keys.tokenKey,
+      value: newToken,
+    );
     return newToken;
   }
 

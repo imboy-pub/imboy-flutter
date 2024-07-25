@@ -7,8 +7,8 @@ import 'package:amap_flutter_location/amap_location_option.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
-import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/permission.dart';
+import 'package:imboy/config/env.dart';
 
 /// https://lbs.amap.com/api/flutter/guide/positioning-flutter-plug-in/interface-info
 
@@ -32,7 +32,7 @@ class AMapHelper {
   /// 设置Android和iOS的apikey
   static void setApiKey() {
     if (Platform.isAndroid || Platform.isIOS) {
-      AMapFlutterLocation.setApiKey(AMAP_ANDROID_KEY, AMAP_IOS_KEY);
+      AMapFlutterLocation.setApiKey(Env.amapAndroidKey, Env.amapIosKey);
     }
   }
 
@@ -159,7 +159,7 @@ class AMapApi {
     int size,
   ) async {
     Map<String, dynamic> queryParameters = {
-      "key": AMAP_WEBS_KEY,
+      "key": Env.amapWebsKey,
       "location": location,
       "types": types,
       "page_size": page.toString(),
@@ -181,7 +181,7 @@ class AMapApi {
     int size,
   ) async {
     Map<String, dynamic> queryParameters = {
-      "key": AMAP_WEBS_KEY,
+      "key": Env.amapWebsKey,
       "keywords": keywords,
       "types": types,
       "region": region,

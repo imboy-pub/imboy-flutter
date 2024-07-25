@@ -1,3 +1,4 @@
+import 'package:flutter_keychain/flutter_keychain.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 
@@ -11,9 +12,12 @@ import 'package:imboy/store/model/user_model.dart';
 class UserRepoLocal extends GetxController {
   static UserRepoLocal get to => Get.find();
 
-  bool get isLogin => accessToken.isNotEmpty;
 
-  bool get hasToken => accessToken.isNotEmpty;
+  String get currentUid => StorageService.to.getString(Keys.currentUid) ?? '';
+
+  bool get isLogin {
+    return currentUid.isNotEmpty;
+  }
 
   //
   UserSettingModel get setting {
@@ -22,13 +26,14 @@ class UserRepoLocal extends GetxController {
   }
 
   // 令牌 token
-  String get accessToken => StorageService.to.getString(Keys.tokenKey) ?? '';
+  Future<String> get accessToken async {
+    return await FlutterKeychain.get(key: Keys.tokenKey) ?? '';
+  }
 
-  String get refreshToken =>
-      StorageService.to.getString(Keys.refreshTokenKey) ?? '';
-
-  String get currentUid => StorageService.to.getString(Keys.currentUid) ?? '';
-
+  Future<String> get refreshToken async {
+    // StorageService.to.getString(Keys.refreshTokenKey) ?? '';
+    return await FlutterKeychain.get(key: Keys.refreshTokenKey) ?? '';
+  }
 
   UserModel get current {
     Map<String, dynamic> user = StorageService.getMap(Keys.currentUser);
@@ -46,6 +51,7 @@ class UserRepoLocal extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // _loadIsLogin();
     update();
   }
 
@@ -64,12 +70,20 @@ class UserRepoLocal extends GetxController {
   }
 
   Future<bool> loginAfter(Map<String, dynamic> payload) async {
-    await StorageService.to.setString(Keys.tokenKey, payload['token']);
-    await StorageService.to.setString(
-      Keys.refreshTokenKey,
-      payload['refreshtoken'],
-    );
     await StorageService.to.setString(Keys.currentUid, payload['uid']);
+
+    await FlutterKeychain.put(
+      key: Keys.tokenKey,
+      value: payload['token'],
+    );
+    await FlutterKeychain.put(
+      key: Keys.refreshTokenKey,
+      value: payload['refreshtoken'],
+    );
+    payload.remove('token');
+    payload.remove('refreshtoken');
+
+    // await StorageService.to.setString(Keys.currentUid, payload['uid']);
     await StorageService.setMap(Keys.currentUser, payload);
     SqliteService.to.db;
     // 初始化 WebSocket 链接
@@ -92,9 +106,11 @@ class UserRepoLocal extends GetxController {
 
   Future<bool> logout() async {
     WebSocketService.to.sendMessage("logout");
-    await StorageService.to.remove(Keys.tokenKey);
     await StorageService.to.remove(Keys.currentUid);
-    await StorageService.to.remove(Keys.currentUser);
+
+    await FlutterKeychain.remove(key:Keys.tokenKey);
+    await FlutterKeychain.remove(key:Keys.currentUid);
+    await FlutterKeychain.remove(key:Keys.currentUser);
 
     WebSocketService.to.closeSocket(exit: true);
     SqliteService.to.close();

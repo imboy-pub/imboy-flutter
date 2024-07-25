@@ -1,8 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:get/get.dart';
 
 const contactAssets = 'assets/images/contact/';
 
@@ -13,36 +11,21 @@ String qrcodeDataSuffix = "s=app_qrcode";
 
 const RECORD_LOG = true;
 
-String SENTRY_DSN = dotenv.get('SENTRY_DSN');
-// 附件上传认证密钥
-String UP_AUTH_KEY = dotenv.get('UP_AUTH_KEY');
-// 用于服务端和APP交互数据对称加密的密钥 16 字符 或者32 位字符串， 需要和服务端一致
-String SOLIDIFIED_KEY = dotenv.get('SOLIDIFIED_KEY');
-// IV 必须都为128比特，也就是16字节，需要和服务端一致
-String SOLIDIFIED_KEY_IV = dotenv.get('SOLIDIFIED_KEY_IV');
-
-// 高德地图 key
-String AMAP_WEBS_KEY = dotenv.get('AMAP_WEBS_KEY');
-String AMAP_IOS_KEY = dotenv.get('AMAP_IOS_KEY');
-String AMAP_ANDROID_KEY = dotenv.get('AMAP_ANDROID_KEY');
-
-// 极光推送 APPKEY
-String JPUSH_APPKEY = dotenv.get('JPUSH_APPKEY');
-
-String WS_URL = dotenv.get('WS_URL');
-String STUN_URL = dotenv.get('STUN_URL');
-String TURN_URL = dotenv.get('TURN_URL');
-String API_BASE_URL = dotenv.get('API_BASE_URL');
-String UPLOAD_BASE_URL = dotenv.get('UPLOAD_BASE_URL');
-String UPLOAD_SENCE = dotenv.get('UPLOAD_SENCE');
-
-String IOS_APP_ID = dotenv.get('IOS_APP_ID');
-
 Icon navigateNextIcon = const Icon(
   Icons.navigate_next,
 );
 
 class Keys {
+
+  static const String wsUrl = "ws_url";
+  static const String apiPublicKey = "api_public_key";
+  static const String uploadUrl = "upload_url";
+  static const String uploadKey = "upload_key";
+  static const String uploadScene = "upload_scene";
+
+  static const String publicKey = "public_key";
+  static const String privateKey = "private_key";
+
   // 客服端Key
   static const String currentLanguageCode = "current_language_code";
   static const String currentLanguage = "current_language";
@@ -65,8 +48,6 @@ class Keys {
   static String themeType = 'theme_type';
 }
 
-const mainSpace = 10.0;
-double mainLineWidth = Get.isDarkMode ? 0.5 : 1.0;
 
 class API {
   static const initConfig = '/init';

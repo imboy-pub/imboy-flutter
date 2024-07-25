@@ -25,6 +25,9 @@ MaterialColor createMaterialColor(Color color) {
   return MaterialColor(color.value, swatch);
 }
 
+const mainSpace = 10.0;
+double mainLineWidth = Get.isDarkMode ? 0.5 : 1.0;
+
 const Color lightBgColor = Color.fromRGBO(248, 248, 248, 1.0);
 // const Color lightInputBgColor = Colors.white70;
 const Color lightPrimaryColor = Color.fromRGBO(236, 236, 236, 1);
@@ -108,26 +111,36 @@ final ThemeData darkTheme = ThemeData(
   primarySwatch: createMaterialColor(const Color(0x00ffffff)),
   useMaterial3: true,
   colorScheme: darkColorScheme,
-    // inputDecorationTheme: InputDecorationTheme(),
+  // inputDecorationTheme: InputDecorationTheme(),
 );
 
 final LoginTheme loginTheme = LoginTheme(
   // background
-  primaryColor: Get.isDarkMode ? darkPrimaryColor : lightPrimaryColor,
+  // primaryColor: Get.isDarkMode ? darkPrimaryColor : lightPrimaryColor,
+  primaryColor: Colors.green,
   accentColor: Theme.of(Get.context!).colorScheme.onPrimary,
   footerBackgroundColor: Colors.green,
-  logoWidth: 1,
-  headerMargin: 10,
-  titleStyle: TextStyle(
-    color: Theme.of(Get.context!).colorScheme.onPrimary,
+  logoWidth: 1.0,
+  headerMargin: 20,
+  titleStyle: const TextStyle(
+    color: Colors.white,
   ),
   buttonTheme: LoginButtonTheme(
-    splashColor: Theme.of(Get.context!).colorScheme.onPrimary,
+    // splashColor: Theme.of(Get.context!).colorScheme.onPrimary,
+    splashColor: Colors.red,
     backgroundColor: Colors.green,
-    highlightColor: Colors.white,
-    elevation: 9.0,
+    highlightColor: Colors.lightGreen,
+    elevation: 10.0,
     shape: BeveledRectangleBorder(
       borderRadius: BorderRadius.circular(2),
+    ),
+  ),
+  cardTheme: CardTheme(
+    // color: Colors.yellow.shade100,
+    elevation: 8,
+    margin: const EdgeInsets.only(top: 8, left: 0, right: 0),
+    shape: ContinuousRectangleBorder(
+      borderRadius: BorderRadius.circular(40.0),
     ),
   ),
   inputTheme: const InputDecorationTheme(

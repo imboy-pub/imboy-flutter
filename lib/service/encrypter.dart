@@ -6,6 +6,7 @@ import 'package:convert/convert.dart';
 // ignore: depend_on_referenced_packages
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:encrypt/encrypt.dart';
+import 'package:imboy/component/helper/func.dart';
 
 class EncrypterService {
   /// EncrypterService.aesEncrypt
@@ -19,6 +20,8 @@ class EncrypterService {
 
   /// EncrypterService.aesDecrypt
   static String aesDecrypt(String encrypted, String key, String ivStr) {
+    iPrint("aesDecrypt");
+    // iPrint("aesDecrypt key $key ; iv $ivStr");
     final k = Key.fromUtf8(key);
     final iv = IV.fromUtf8(ivStr);
 

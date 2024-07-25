@@ -104,7 +104,7 @@ class ContactRepo {
       ContactRepo.isFrom: obj.isFrom,
       ContactRepo.categoryId: obj.categoryId,
     };
-    // debugPrint("> on ContactRepo/insert/1 $insert");
+    debugPrint("> on ContactRepo/insert/1 $insert");
 
     await _db.insert(ContactRepo.tableName, insert);
     return obj;

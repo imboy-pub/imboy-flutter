@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:imboy/config/const.dart';
@@ -10,12 +9,7 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
 class ContactProvider extends HttpClient {
   Future<List<dynamic>> listFriend() async {
-    IMBoyHttpResponse resp = await get(
-      API.friendList,
-      options: Options(
-        contentType: "application/x-www-form-urlencoded",
-      ),
-    );
+    IMBoyHttpResponse resp = await get(API.friendList);
     // debugPrint("> on Provider/listFriend resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return [];
@@ -27,10 +21,7 @@ class ContactProvider extends HttpClient {
   Future<ContactModel> syncByUid(String uid) async {
     IMBoyHttpResponse resp = await get(
       API.userShow,
-      queryParameters: {"id": uid},
-      options: Options(
-        contentType: "application/x-www-form-urlencoded",
-      ),
+      queryParameters: {"id": uid}
     );
     ContactModel? ct;
     debugPrint("> on Provider/syncByUid resp: ${resp.payload.toString()}");

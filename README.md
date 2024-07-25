@@ -123,9 +123,15 @@ Lib
 ```
 git clone https://gitee.com/imboy-pub/imboy-flutter.git imboyflutter
 cd imboyflutter
-cp assets/example.env ./.env
+cp ./example.env ./.env.dev && cp ./example.env ./.env.pro
+
+dart run build_runner build --verbose
+
+//修改.env文件时
+dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs
 
 open -a Xcode ./ios
+
 
 ```
 

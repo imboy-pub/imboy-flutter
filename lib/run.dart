@@ -62,7 +62,7 @@ void run() async {
 }
 
 class IMBoyApp extends StatefulWidget {
-  const IMBoyApp({Key? key}) : super(key: key);
+  const IMBoyApp({super.key});
 
   @override
   State<IMBoyApp> createState() => _IMBoyAppState();
@@ -172,7 +172,7 @@ class _IMBoyAppState extends State<IMBoyApp> {
           navigatorKey: navigatorKey,
           title: appName,
           // 底部导航组件
-          home: UserRepoLocal.to.isLogin
+          home: UserRepoLocal.to.currentUid.isNotEmpty
               ? BottomNavigationPage()
               : PassportPage(),
           debugShowCheckedModeBanner: false,

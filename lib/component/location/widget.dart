@@ -6,9 +6,9 @@ import 'package:amap_flutter_map/amap_flutter_map.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/config/env.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-import 'package:imboy/config/const.dart';
 import 'amap_helper.dart';
 
 class SearchBarStyle {
@@ -117,9 +117,9 @@ class _MapLocationPickerState extends State<MapLocationPicker>
         hasShow: true,
         hasAgree: true,
       ),
-      apiKey: AMapApiKey(
-        iosKey: AMAP_IOS_KEY,
-        androidKey: AMAP_ANDROID_KEY,
+      apiKey:  AMapApiKey(
+        iosKey: Env.amapIosKey,
+        androidKey: Env.amapAndroidKey,
       ),
       initialCameraPosition: _kInitialPosition,
       mapType: MapType.normal,

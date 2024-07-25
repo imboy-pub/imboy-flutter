@@ -75,7 +75,7 @@ class GroupSelectPage extends StatelessWidget {
                               peerSign: '',
                               // computeTitle: model.computeTitle,
                               type: 'C2G',
-                              options:  {'popTime':2, 'memberCount': 0},
+                              options:  const {'popTime':2, 'memberCount': 0},
                               // options:  {'popTime':2, 'memberCount': model.memberCount},
                             ),
                             transition: Transition.rightToLeft,

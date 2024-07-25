@@ -9,12 +9,12 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 class IMBoyInterceptor extends Interceptor {
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     options.headers['Accept'] = Headers.jsonContentType;
     options.headers['device-type'] = Platform.operatingSystem;
     options.headers['device-type-vsn'] = Platform.operatingSystemVersion;
 
-    String? tk = UserRepoLocal.to.accessToken;
+    String tk = await UserRepoLocal.to.accessToken;
     if (strNoEmpty(tk)) {
       options.headers[Keys.tokenKey] = tk;
     }

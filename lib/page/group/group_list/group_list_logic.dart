@@ -24,7 +24,10 @@ class GroupListLogic extends GetxController {
     const limit = 9;
     String sql =
         "select c.avatar from ${ContactRepo.tableName} as c left join ${GroupMemberRepo.tableName} gm on gm.${GroupMemberRepo.userId} = c.${ContactRepo.peerId} WHERE gm.group_id = '$gid' limit $limit;";
-    Database db = await SqliteService.to.db;
+    Database? db = await SqliteService.to.db;
+    if (db == null) {
+      return [];
+    }
     List<Map> list = await db.rawQuery(sql);
     iPrint("computeAvatar l $gid, ${list.length} $sql");
     iPrint("computeAvatar $gid, ${list.toString()}");
@@ -64,7 +67,10 @@ class GroupListLogic extends GetxController {
     String title = '';
     String sql =
         "select c.remark, c.nickname, c.account, gm.${GroupMemberRepo.alias} from ${ContactRepo.tableName} as c left join ${GroupMemberRepo.tableName} gm on gm.${GroupMemberRepo.userId} = c.${ContactRepo.peerId} WHERE gm.group_id = '$gid' limit $limit;";
-    Database db = await SqliteService.to.db;
+    Database? db = await SqliteService.to.db;
+    if (db == null) {
+      return '';
+    }
     List<Map> list = await db.rawQuery(sql);
     iPrint("computeTitle $gid, ${list.length} $sql");
     iPrint("computeTitle $gid, ${list.toString()}");

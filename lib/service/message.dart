@@ -169,7 +169,7 @@ class MessageService extends GetxService {
       //   String content = data['payload']['content'] ?? '';
       //   break;
       case '706': // 需要重新登录
-        WebSocketService.to.closeSocket(exit: true);
+        UserRepoLocal.to.logout();
         Get.offAll(() => PassportPage());
         break;
     }
@@ -200,7 +200,7 @@ class MessageService extends GetxService {
         String gid = payload['gid'];
         int userIdSum = payload['user_id_sum'] ?? 0;
         Map<String, dynamic>? joinRes =
-        await Get.find<GroupListLogic>().memberJoin(
+            await Get.find<GroupListLogic>().memberJoin(
           groupId: gid,
           userId: userId,
           userIdSum: userIdSum,
@@ -316,7 +316,6 @@ class MessageService extends GetxService {
         String did = payload['did'] ?? '';
         if (did != deviceId) {
           int serverTs = data['server_ts'] ?? 0;
-          WebSocketService.to.closeSocket(exit: true);
           UserRepoLocal.to.logout();
           Get.off(() => PassportPage(), arguments: {
             "msg_type": "logged_another_device",
@@ -328,9 +327,9 @@ class MessageService extends GetxService {
       case 'please_refresh_token': // 服务端通知客户端刷新token
         iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId,$autoAck");
         MessageService.to.sendAckMsg('S2C', msgId);
-        await (UserProvider()).refreshAccessTokenApi(
-            UserRepoLocal.to.refreshToken,
-            checkNewToken: true);
+        String rtk = await UserRepoLocal.to.refreshToken;
+
+        await (UserProvider()).refreshAccessTokenApi(rtk, checkNewToken: true);
         break;
       case 'app_upgrade':
         final AppVersionProvider p = AppVersionProvider();

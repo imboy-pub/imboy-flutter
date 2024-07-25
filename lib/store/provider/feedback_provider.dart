@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 
 import 'package:imboy/config/const.dart';
@@ -22,6 +24,7 @@ class FeedbackProvider extends HttpClient {
 
   /// 添加用户反馈
   Future<bool> add(Map<String, dynamic> data) async {
+    data['sys_version'] = Platform.operatingSystemVersion;
     IMBoyHttpResponse resp = await post(API.feedbackAdd, data: data);
     debugPrint("> on Provider/feedbackAdd resp: ${resp.toString()}");
     return resp.ok ? true : false;

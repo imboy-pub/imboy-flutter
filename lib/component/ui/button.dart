@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/config/theme.dart';
 import 'package:niku/namespace.dart' as n;
-
-import 'package:imboy/config/const.dart';
 
 class ButtonRow extends StatelessWidget {
   final EdgeInsetsGeometry? margin;

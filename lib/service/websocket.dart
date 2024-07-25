@@ -5,6 +5,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -15,7 +16,6 @@ import 'package:imboy/component/http/http_client.dart';
 
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/passport/passport_view.dart';
-import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// WebSocket状态
@@ -119,32 +119,46 @@ class WebSocketService {
       iPrint('> ws openSocket 网络连接异常ws');
       return;
     }
-    if (UserRepoLocal.to.isLogin == false) {
-      iPrint('> ws openSocket is not login');
-      return;
-    }
-
     // 链接状态正常，不需要任何处理
     if (isConnected) {
       iPrint('> ws openSocket _socketStatus: $_socketStatus;');
       return;
     }
+
+    String tk = await UserRepoLocal.to.accessToken;
+    iPrint("Get.currentRoute ${Get.currentRoute}");
+    if (tk.isEmpty) {
+      iPrint('> ws openSocket tk isEmpty ${tk.isEmpty};');
+      if (Get.currentRoute != '/PassportPage') {
+        UserRepoLocal.to.logout();
+        Get.offAll(() => PassportPage());
+      }
+      return;
+    }
+    if (tokenExpired(tk) == false) {
+      String rtk = await UserRepoLocal.to.refreshToken;
+      tk = await (UserProvider()).refreshAccessTokenApi(
+        rtk,
+        checkNewToken: false,
+      );
+    }
+    Map<String, dynamic> headers = await defaultHeaders();
+
+    headers[Keys.tokenKey] = tk;
+    iPrint("openSocket_headers ${headers.toString()}");
+
     if (wsConnectLock) {
       return;
     }
     wsConnectLock = true;
     try {
-      Map<String, dynamic> headers = await defaultHeaders();
-      String tk = UserRepoLocal.to.accessToken;
-      if (tokenExpired(tk) == false) {
-        tk = await (UserProvider()).refreshAccessTokenApi(
-            UserRepoLocal.to.refreshToken,
-            checkNewToken: false);
+      String? url = Env.wsUrl;
+      if (strEmpty(url)) {
+        await initConfig();
+        url = Env.wsUrl;
       }
-      headers[Keys.tokenKey] = tk;
-
       _webSocketChannel = IOWebSocketChannel.connect(
-        WS_URL,
+        url!,
         headers: headers,
         pingInterval: Duration(milliseconds: _heartTimes),
         protocols: protocols,
@@ -178,7 +192,7 @@ class WebSocketService {
     } catch (e) {
       closeSocket();
       _socketStatus = SocketStatus.SocketStatusFailed;
-      iPrint("> openSocket $WS_URL error ${e.toString()}");
+      iPrint("> openSocket ${Env.wsUrl} error ${e.toString()}");
     } finally {
       wsConnectLock = false;
     }
@@ -214,8 +228,7 @@ class WebSocketService {
 
       switch (closeCode) {
         case 4006:
-          closeSocket(exit: true);
-          await StorageService.to.remove(Keys.tokenKey);
+          UserRepoLocal.to.logout();
           Get.offAll(() => PassportPage());
           break;
         default:
@@ -249,7 +262,7 @@ class WebSocketService {
     iPrint('> ws closeSocket ${DateTime.now()}');
     // destroyHeartBeat();
     destroyReconnectTimer();
-    iPrint('> ws WebSocket连接关闭 $WS_URL');
+    iPrint('> ws WebSocket连接关闭 ${Env.wsUrl}');
     _webSocketChannel?.sink.close();
     _webSocketChannel = null;
     _socketStatus = SocketStatus.SocketStatusClosed;

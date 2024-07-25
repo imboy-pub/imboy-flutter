@@ -10,6 +10,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart' as getx;
 
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
@@ -25,15 +26,16 @@ import 'http_response.dart';
 import 'http_transformer.dart';
 
 Future<Map<String, dynamic>> defaultHeaders() async {
-  iPrint("appVsnMajor $appVsnMajor");
+  String key = await Env.signKey();
+  String cos = Platform.operatingSystem;
   return {
-    'cos': Platform.operatingSystem, // device_type: iso android macos web
-    'cosv': Platform.operatingSystemVersion,
+    'cos': cos, // device_type: iso android macos web
     'vsn': appVsn,
+    'pkg': packageName,
     'did': deviceId,
+    'tz_offset': DateTime.now().timeZoneOffset.inMilliseconds,
     'method': 'sha512',
-    'tzoffset': DateTime.now().timeZoneOffset.inMilliseconds,
-    'sign': EncrypterService.sha512("$deviceId|$appVsnMajor", SOLIDIFIED_KEY)
+    'sign': EncrypterService.sha512("$deviceId|$appVsn|$cos|$packageName", key)
   };
 }
 
@@ -41,20 +43,24 @@ class HttpClient {
   static HttpClient get client => getx.Get.find();
   late Dio _dio;
 
-  HttpClient({BaseOptions? options, HttpConfig? dioConfig}) {
+  HttpClient({BaseOptions? options, HttpConfig? conf}) {
     options ??= BaseOptions(
-      baseUrl: dioConfig?.baseUrl ?? "",
+      baseUrl: conf?.baseUrl ?? "",
       contentType: 'application/json',
+      validateStatus: (int? status) {
+        return status != null;
+        // return status != null && status >= 200 && status < 300;
+      },
       connectTimeout: Duration(
-          milliseconds:
-              dioConfig?.connectTimeout ?? Duration.millisecondsPerMinute),
+        milliseconds: conf?.connectTimeout ?? Duration.millisecondsPerMinute,
+      ),
       sendTimeout: Duration(
-          milliseconds:
-              dioConfig?.sendTimeout ?? Duration.millisecondsPerMinute),
+        milliseconds: conf?.sendTimeout ?? Duration.millisecondsPerMinute,
+      ),
       receiveTimeout: Duration(
-          milliseconds:
-              dioConfig?.receiveTimeout ?? Duration.millisecondsPerMinute),
-    )..headers = dioConfig?.headers;
+        milliseconds: conf?.receiveTimeout ?? Duration.millisecondsPerMinute,
+      ),
+    )..headers = conf?.headers;
 
     _dio = Dio(options);
 
@@ -67,8 +73,8 @@ class HttpClient {
           request: false,
           requestBody: true));
     }
-    if (dioConfig?.interceptors?.isNotEmpty ?? false) {
-      _dio.interceptors.addAll(dioConfig!.interceptors!);
+    if (conf?.interceptors?.isNotEmpty ?? false) {
+      _dio.interceptors.addAll(conf!.interceptors!);
     }
     _dio.httpClientAdapter = Http2Adapter(
       ConnectionManager(
@@ -77,8 +83,8 @@ class HttpClient {
       ),
     );
 
-    if (dioConfig?.proxy?.isNotEmpty ?? false) {
-      setProxy(dioConfig!.proxy!);
+    if (conf?.proxy?.isNotEmpty ?? false) {
+      setProxy(conf!.proxy!);
     }
   }
 
@@ -96,13 +102,14 @@ class HttpClient {
 
   Future<void> _setDefaultConfig() async {
     if (_dio.options.baseUrl == "") {
-      _dio.options.baseUrl = API_BASE_URL;
+      _dio.options.baseUrl = Env.apiBaseUrl;
     }
-    String tk = UserRepoLocal.to.accessToken;
+    String tk = await UserRepoLocal.to.accessToken;
+    // iPrint("_setDefaultConfig tk: $tk");
     if (tokenExpired(tk) == false) {
-      tk = await (UserProvider()).refreshAccessTokenApi(
-          UserRepoLocal.to.refreshToken,
-          checkNewToken: false);
+      String rtk = await UserRepoLocal.to.refreshToken;
+      tk = await (UserProvider())
+          .refreshAccessTokenApi(rtk, checkNewToken: false);
     }
     bool notRTK = !_dio.options.headers.containsKey(Keys.refreshTokenKey);
     if (strNoEmpty(tk) && notRTK) {
@@ -122,10 +129,10 @@ class HttpClient {
     HttpTransformer? httpTransformer,
   }) async {
     try {
-      _setDefaultConfig();
+      await _setDefaultConfig();
       var connectivityResult = await (Connectivity().checkConnectivity());
       if (connectivityResult.contains(ConnectivityResult.none)) {
-        return handleException(NetworkException());
+        return handleException(uri, NetworkException());
       }
       var response = await _dio.get(
         uri,
@@ -137,9 +144,11 @@ class HttpClient {
       iPrint("http_client/get/resp ${response.toString()}");
       IMBoyHttpResponse resp = handleResponse(
         response,
+        uri: uri,
         httpTransformer: httpTransformer,
       );
       if (resp.code == 707) {
+        EasyLoading.showInfo(resp.msg);
         response = await _dio.get(
           uri,
           queryParameters: queryParameters,
@@ -149,13 +158,14 @@ class HttpClient {
         );
         resp = handleResponse(
           response,
+          uri: uri,
           httpTransformer: httpTransformer,
         );
       }
       return resp;
     } on Exception catch (e) {
-      debugPrint("> on Exception: $e");
-      return handleException(e);
+      debugPrint("> $uri on Exception: $e");
+      return handleException(uri, e);
     }
   }
 
@@ -172,7 +182,7 @@ class HttpClient {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult.contains(ConnectivityResult.none)) {
       EasyLoading.showError('network_exception'.tr);
-      return handleException(NetworkException());
+      return handleException(uri, NetworkException());
     }
     try {
       await _setDefaultConfig();
@@ -188,12 +198,13 @@ class HttpClient {
       // debugPrint("http_post response ${response.toString()}");
       IMBoyHttpResponse resp = handleResponse(
         response,
+        uri: uri,
         httpTransformer: httpTransformer,
       );
       return resp;
     } on Exception catch (e) {
-      debugPrint("http_post e ${e.toString()}");
-      return handleException(e);
+      debugPrint("$uri http_post e ${e.toString()}");
+      return handleException(uri, e);
     }
   }
 
@@ -208,7 +219,7 @@ class HttpClient {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult.contains(ConnectivityResult.none)) {
       EasyLoading.showError('network_exception'.tr);
-      return handleException(NetworkException());
+      return handleException(uri, NetworkException());
     }
     try {
       await _setDefaultConfig();
@@ -221,11 +232,12 @@ class HttpClient {
       );
       IMBoyHttpResponse resp = handleResponse(
         response,
+        uri: uri,
         httpTransformer: httpTransformer,
       );
       return resp;
     } on Exception catch (e) {
-      return handleException(e);
+      return handleException(uri, e);
     }
   }
 
@@ -242,7 +254,7 @@ class HttpClient {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult.contains(ConnectivityResult.none)) {
       EasyLoading.showError('network_exception'.tr);
-      return handleException(NetworkException());
+      return handleException(uri, NetworkException());
     }
     try {
       await _setDefaultConfig();
@@ -255,9 +267,10 @@ class HttpClient {
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
-      return handleResponse(response, httpTransformer: httpTransformer);
+      return handleResponse(response,
+          uri: uri, httpTransformer: httpTransformer);
     } on Exception catch (e) {
-      return handleException(e);
+      return handleException(uri, e);
     }
   }
 
@@ -272,7 +285,7 @@ class HttpClient {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult.contains(ConnectivityResult.none)) {
       EasyLoading.showError('network_exception'.tr);
-      return handleException(NetworkException());
+      return handleException(uri, NetworkException());
     }
     try {
       await _setDefaultConfig();
@@ -283,9 +296,10 @@ class HttpClient {
         options: options,
         cancelToken: cancelToken,
       );
-      return handleResponse(response, httpTransformer: httpTransformer);
+      return handleResponse(response,
+          uri: uri, httpTransformer: httpTransformer);
     } on Exception catch (e) {
-      return handleException(e);
+      return handleException(uri, e);
     }
   }
 

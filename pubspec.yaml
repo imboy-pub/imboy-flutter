@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.4.4
+version: 0.5.0
 
 environment:
   sdk: ">=3.0.0 <=4.0.0"
@@ -14,9 +14,9 @@ dependencies:
     sdk: flutter
 
   # Network
-  dio: ^5.4.3+1 # 网络请求框架
-  dio_http2_adapter: ^2.5.2
-  web_socket_channel: ^3.0.0
+  dio: ^5.5.0+1 # 网络请求框架
+  dio_http2_adapter: ^2.5.3
+  web_socket_channel: ^3.0.1
   mime: ^1.0.4
   connectivity_plus: ^6.0.3 # 是否联网及网络类型
 
@@ -28,7 +28,7 @@ dependencies:
     # git:
   #   url: https://gitee.com/imboy-tripartite-deps/niku.git
   #   ref: main
-  cupertino_icons: ^1.0.6 # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.8 # Use with the CupertinoIcons class for iOS style icons.
   lpinyin: ^2.0.3 #
   #azlistview: ^2.0.0
   azlistview:
@@ -82,18 +82,16 @@ dependencies:
   #  Flutter Secure Storage 提供 API 将数据存储在安全存储中。iOS 中使用 Keychain，Android 中使用基于 KeyStore 的解决方案。
   #flutter_secure_storage: ^9.0.0
   cached_network_image: ^3.3.1
-  flutter_cache_manager: ^3.3.2
-  # 在运行时从文件加载环境变量.env
-  flutter_dotenv: ^5.1.0
+  flutter_cache_manager: ^3.3.3
 
   camera: ^0.11.0+1
   #wechat_camera_picker: ^4.2.0-dev.3
-  wechat_camera_picker: ^4.2.2
+  wechat_camera_picker: ^4.3.1
   wechat_assets_picker: ^9.0.4
   # Photo View provides a gesture sensitive zoomable widget. Photo View is largely used to show interactive images and other stuff such as SVG.
   photo_view: ^0.15.0 #
   # 照片管理器
-  photo_manager: ^3.2.0
+  photo_manager: ^3.2.2
   # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
   video_compress: ^3.1.2
   # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
@@ -102,7 +100,7 @@ dependencies:
   image_picker_macos: ^0.2.1+1
   image_picker_platform_interface: ^2.10.0
   #file_picker: ^6.2.0
-  file_picker: ^8.0.5
+  file_picker: ^8.0.6
   open_file: ^3.3.2
   # image_crop: ^0.4.1
   # image_crop:
@@ -114,7 +112,7 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/image_crop.git
       ref: leeyi
 
-  logger: ^2.3.0
+  logger: ^2.4.0
   #sentry_flutter: ^7.18.0
 
   # 用于访问加速度计、陀螺仪和磁力计传感器的 Flutter 插件。
@@ -123,7 +121,7 @@ dependencies:
   # 页面刷新
   easy_refresh: ^3.4.0
   # https://github.com/letsar/flutter_slidjable
-  flutter_slidable: ^3.1.0
+  flutter_slidable: ^3.1.1
   # 消息提醒的红点效果
   badges: ^3.1.2
   # 聊天气泡
@@ -147,7 +145,7 @@ dependencies:
   # 一个干净和轻量级的加载/吐司小部件
   flutter_easyloading: ^3.0.5
   # 生成闪屏页
-  flutter_native_splash: ^2.3.13
+  flutter_native_splash: ^2.4.1
   flutter_chat_ui: ^1.6.14
   feedback: ^3.1.0
   #flutter_chat_ui:
@@ -177,13 +175,13 @@ dependencies:
   sqflite_common_ffi: ^2.3.3
   #sqlite3: ^1.11.2
   # 一个跨平台插件，用于显示和安排 Flutter 应用程序的本地通知，并能够针对每个平台进行自定义。
-  flutter_local_notifications: ^17.1.2
+  flutter_local_notifications: ^17.2.1+2
   #桌面图标提醒
   flutter_app_badger: ^1.5.0
   # 录音
-  flutter_sound: ^9.6.0
-  flutter_sound_platform_interface: ^9.6.0
-  audio_session: ^0.1.19
+  flutter_sound: ^9.8.1
+  flutter_sound_platform_interface: ^9.8.1
+  audio_session: ^0.1.21
   # 语音消息播放器
   #voice_message_package: ^2.1.4
   voice_message_package:
@@ -192,7 +190,7 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/voice_message_player.git
       ref: leeyi
   # 一对一音视频通话等
-  flutter_webrtc: ^0.11.1
+  flutter_webrtc: ^0.11.5
   #flutter_webrtc:
   #    path: plugin/flutter-webrtc
   #    git:
@@ -205,11 +203,11 @@ dependencies:
   # 提供了一个Clock类，它封装了“当前时间”的概念，并提供了对相对于当前时间的点的简单访问
   clock: ^1.1.1
   # 用于 HTTP 请求的可组合、多平台、基于Future的 API。
-  http: ^1.2.1
+  http: ^1.2.2
   device_info_plus: ^10.1.0
   package_info_plus: ^8.0.0
   # Flutter 的 Markdown 渲染器
-  flutter_markdown: ^0.7.2
+  flutter_markdown: ^0.7.3
   # 滑动吸顶
   sliding_up_panel: ^2.0.0+1
   # 用于 Flutter 的 SVG 渲染和小部件库，允许绘制和显示可缩放矢量图形 1.1 文件。
@@ -227,10 +225,13 @@ dependencies:
   # 加载动画库
   flutter_spinkit: ^5.2.1
   # 视频播放器插件
-  video_player: ^2.8.7
+  video_player: ^2.9.1
   # video_player的插件，支持所有桌面/移动平台。硬件解码器，最佳渲染。通过 FFmpeg 支持大多数格式
-  fvp: ^0.19.0
-  #fvp: ^0.12.0
+  #fvp: ^0.20.2
+  fvp:
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/fvp.git
+      ref: master
   # 标签编辑框
   textfield_tags: ^3.0.1
   #filter_list: ^1.0.2
@@ -272,6 +273,12 @@ dependencies:
       ref: leeyi
   nine_grid_view: ^2.0.0
   synchronized: ^3.1.0+1
+  # 一个支持通过 Keychain 和 Keystore 支持字符串安全存储的 Flutter 插件
+  flutter_keychain: ^2.5.0
+  # A flutter plugin which could read image,files from clipboard and write files to clipboard.
+  pasteboard: ^0.2.0
+  # 一个实现加密算法和原语的 Dart 库
+  pointycastle: ^3.9.1
 
   # https://pub-web.flutter-io.cn/packages/rtmp_broadcaster
   #rtmp_broadcaster:
@@ -295,20 +302,27 @@ dependencies:
 dependency_overrides:
   #package_info_plus: ^8.0.0
   intl: ^0.19.0 # dep by jiffy: ^6.3.0
-  #jiffy: ^6.3.0
+  jiffy: ^6.3.0
   camera: ^0.11.0+1 # dep by wechat_camera_picker
   #wechat_camera_picker: ^4.2.2
   #sensors_plus: ^5.0.1 # dep by wechat_camera_picker
   js: ^0.7.1
-  meta: ^1.12.0 # flutter_sound_platform_interface dep 1.12.0
+  #meta: ^1.12.0 # flutter_sound_platform_interface dep 1.12.0
   #photo_view: ^0.15.0 # dep by flutter_chat_ui
   #web_socket_channel: ^3.0.0
 
 dev_dependencies:
   build_runner: ^2.4.11
   flutter_lints: ^4.0.0
+  # ffigen: ^12.0.0
   flutter_test:
     sdk: flutter
+
+# ffigen:
+#   output: 'lib/native/sign_key.dart'
+#   headers:
+#     entry-points:
+#       - 'native/sign_key.h'
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -322,12 +336,11 @@ flutter:
   uses-material-design: true
 
   assets:
-    - .env
-    - .dev.env
     - assets/example.db
     - assets/data/region.json
     - assets/images/splash_bg.png
     - assets/images/logo.png
+    - assets/images/login_logo.png
     - assets/images/ic_index_bar_bubble_gray.png
 
     - assets/images/chat/voice_volume_1.png

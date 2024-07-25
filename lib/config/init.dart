@@ -1,18 +1,24 @@
 import 'dart:async';
 import 'dart:io' as io;
+import 'dart:io';
+import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fvp/fvp.dart';
 import 'package:get/get.dart' as getx;
+import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/page/group/group_list/group_list_logic.dart';
+import 'package:imboy/service/encrypter.dart';
+import 'package:imboy/service/rsa.dart';
 import 'package:logger/logger.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import 'package:imboy/config/const.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -66,46 +72,123 @@ List<AvailableMap> availableMaps = [];
 
 // JPush push = JPush();
 
+String currentEnv = '';
+
 String packageName = '';
 String appName = '';
 String appVsn = '';
 String appVsnMajor = '';
 String deviceId = '';
+String solidifiedKeyEnv = '';
+String solidifiedKeyIvEnv = 'C8JackYpWfNb7kG8';
 
-Future<void> init() async {
+Future<Map<String, dynamic>> initConfig() async {
+  IMBoyHttpResponse resp1 = await HttpClient.client.get(API.initConfig);
+  debugPrint("initConfig ${resp1.payload.toString()}");
+  if (!resp1.ok) {
+    return {"error": "网络故障或服务故障"};
+  }
+  String encrypted = resp1.payload['res'] ?? '';
+  if (encrypted.isEmpty) {
+    return {"error": "服务故障协议有误"};
+  }
+  String key = await Env.signKey();
+  iPrint("initConfig signKey $key ;");
+  Map<String, dynamic> payload = jsonDecode(EncrypterService.aesDecrypt(
+    encrypted,
+    EncrypterService.md5(key),
+    solidifiedKeyIvEnv,
+  ));
+  if (payload.containsKey('error')) {
+    return payload;
+  }
+  await StorageService.to.setString(
+      Keys.wsUrl,
+      payload['ws_url']);
+  await StorageService.to.setString(
+      Keys.uploadUrl,
+      payload['upload_url']);
+
+  await StorageService.to.setString(
+      Keys.uploadKey,
+      payload['upload_key']);
+
+  await StorageService.to.setString(
+      Keys.uploadScene,
+      payload['upload_scene']);
+
+  await StorageService.to.setString(
+      Keys.apiPublicKey,
+      payload['login_rsa_pub_key']);
+
+  return payload;
+}
+
+Future<void> init({required String env, required String solidifiedKey}) async {
+  // step 1
   WakelockPlus.enable();
-
+  // step 2
   await StorageService.init();
   // 放在 UserRepoLocal 前面
+  // getx.Get.put(StorageService());
   getx.Get.lazyPut(() => StorageService());
 
-  // 解决使用自签证书报错问题
-  io.HttpOverrides.global = GlobalHttpOverrides();
+  solidifiedKeyEnv = solidifiedKey;
+  // step 3
+  if (Platform.isAndroid || Platform.isIOS) {
+    await RSAService.publicKey();
+  }
+  // step 4
+  currentEnv = StorageService.to.getString('env') ?? '';
+  if (currentEnv.isEmpty) {
+    currentEnv = env;
+  }
+  if (currentEnv.isEmpty) {
+    currentEnv = 'pro';
+  }
+  iPrint("init env 2 $env, currentEnv $currentEnv;");
+
+  // step 5
   // Get.put(DeviceExt()); 需要放到靠前
   getx.Get.lazyPut(() => DeviceExt());
-
-  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  final PackageInfo packageInfo = await PackageInfo.fromPlatform();
   packageName = packageInfo.packageName;
   appVsn = packageInfo.version;
   appName = packageInfo.appName;
   List<String> li = appVsn.split(RegExp(r"(\.)"));
   appVsnMajor = li[0].toString();
-  iPrint("packageInfo appVsnMajor $appVsnMajor ${packageInfo.toString()}");
+  // iPrint("packageInfo appVsnMajor $appVsnMajor ${packageInfo.toString()}");
   deviceId = await DeviceExt.did;
   iPrint("init deviceId $deviceId");
-  // iPrint("> on UP_AUTH_KEY: ${dotenv.get('UP_AUTH_KEY')}");
 
-  getx.Get.put(UserRepoLocal(), permanent: true);
-
-  // Get.put<AuthController>(AuthController());
+  // step 6
+  // 解决使用自签证书报错问题
+  io.HttpOverrides.global = GlobalHttpOverrides();
   HttpConfig dioConfig = HttpConfig(
-    baseUrl: API_BASE_URL,
+    baseUrl: Env.apiBaseUrl,
     // proxy: '192.168.100.19:8888',
     interceptors: [IMBoyInterceptor()],
   );
 
-  getx.Get.put(HttpClient(dioConfig: dioConfig));
+  getx.Get.put(HttpClient(conf: dioConfig));
 
+  // step 7
+  getx.Get.put(UserRepoLocal(), permanent: true);
+  // UserRepoLocal().onInit(); 放在 put UserRepoLocal()后面
+  UserRepoLocal().onInit();
+
+  // step 8
+  String? v = Env.apiPublicKey;
+  if (strEmpty(v)) {
+    await initConfig();
+  }
+
+
+  // iPrint("> on UP_AUTH_KEY: ${dotEnv.get('UP_AUTH_KEY')}");
+
+  // Get.put<AuthController>(AuthController());
+
+  // step 9
   // 需要放在 Get.put(MessageService()); 前
   final bnLogic = getx.Get.put(BottomNavigationLogic());
   bnLogic.countNewFriendRemindCounter();
@@ -120,27 +203,30 @@ Future<void> init() async {
   // GroupListLogic 不能用 lazyPut
   getx.Get.put(GroupListLogic());
 
+  // step 10
   ntpOffset = await DateTimeHelper.getNtpOffset();
   AMapHelper.setApiKey();
 
   // 初始化单例 WebSocketService
   // WebSocketService.to.init();
 
+  // step 11
   // fvp libary register
   registerWith(options: {
     'platforms': ['windows', 'macos', 'linux']
   }); // only these platforms will use this plugin implementation
 
+  // step 12
   WidgetsBinding.instance.addObserver(
     LifecycleEventHandler(
       resumeCallBack: () async {
         // app 恢复
-        String? token = UserRepoLocal.to.accessToken;
-        if (tokenExpired(token)) {
+        String tk = await UserRepoLocal.to.accessToken;
+        if (tokenExpired(tk)) {
+          String? rtk = await UserRepoLocal.to.refreshToken;
+
           iPrint('LifecycleEventHandler tokenExpired true');
-          await (UserProvider()).refreshAccessTokenApi(
-            UserRepoLocal.to.refreshToken,
-          );
+          await (UserProvider()).refreshAccessTokenApi(rtk);
         }
         // 统计新申请好友数量
         bnLogic.countNewFriendRemindCounter();
@@ -159,6 +245,8 @@ Future<void> init() async {
       },
     ),
   );
+
+  // step 13
   // 监听网络状态
   Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
     iPrint("onConnectivityChanged ${r.toString()}");

@@ -121,7 +121,10 @@ class ConversationLogic extends GetxController {
 
   /// 移除会话
   Future<bool> removeConversation(ConversationModel cm) async {
-    Database db = await SqliteService.to.db;
+    Database? db = await SqliteService.to.db;
+    if (db == null) {
+      return false;
+    }
     String tb = MessageRepo.getTableName(cm.type);
     return await db.transaction((txn) async {
       await txn.execute(
@@ -152,7 +155,10 @@ class ConversationLogic extends GetxController {
       data[ConversationRepo.payload] =
           jsonEncode(data[ConversationRepo.payload]);
     }
-    Database db = await SqliteService.to.db;
+    Database? db = await SqliteService.to.db;
+    if (db == null) {
+      return [];
+    }
     String where =
         "${ConversationRepo.userId}=? and ${ConversationRepo.lastMsgId}=?";
     List<String> whereArgs = [

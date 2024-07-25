@@ -3,14 +3,16 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart' as getx;
+import 'package:imboy/component/helper/func.dart';
 
 import 'http_exceptions.dart';
 import 'http_response.dart';
 import 'http_transformer.dart';
 
 IMBoyHttpResponse handleResponse(Response? response,
-    {HttpTransformer? httpTransformer}) {
+    {required String uri, HttpTransformer? httpTransformer}) {
   httpTransformer ??= DefaultHttpTransformer.getInstance();
 
   // 返回值异常
@@ -20,8 +22,15 @@ IMBoyHttpResponse handleResponse(Response? response,
 
   // 接口调用成功
   if (_isRequestSuccess(response.statusCode)) {
-    return httpTransformer.parse(response);
+    return httpTransformer.parse(response, uri);
   } else {
+    iPrint("handleResponse_response $uri : ${response.toString()==''} ${response.toString()}; ");
+    if (response.toString()=='') {
+      return IMBoyHttpResponse.failureFromError();
+    }
+    if (int.tryParse(response.data['code']) == 429) {
+      EasyLoading.showError(response.data['msg']);
+    }
     // 接口调用失败
     return IMBoyHttpResponse.failure(
       errMsg: response.data['msg'],
@@ -31,9 +40,9 @@ IMBoyHttpResponse handleResponse(Response? response,
   }
 }
 
-IMBoyHttpResponse handleException(Exception exception) {
+IMBoyHttpResponse handleException(String uri, Exception exception) {
   var parseException = _parseException(exception);
-  debugPrint("> on handleException: ${parseException.message.toString()}");
+  debugPrint("> on handleException $uri: ${parseException.message.toString()}");
   return IMBoyHttpResponse.failureFromError(error: parseException);
 }
 
