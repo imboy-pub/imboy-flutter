@@ -159,7 +159,7 @@ class AMapApi {
     int size,
   ) async {
     Map<String, dynamic> queryParameters = {
-      "key": Env.amapWebsKey,
+      "key": Env.amapWebKey,
       "location": location,
       "types": types,
       "page_size": page.toString(),
@@ -181,7 +181,7 @@ class AMapApi {
     int size,
   ) async {
     Map<String, dynamic> queryParameters = {
-      "key": Env.amapWebsKey,
+      "key": Env.amapWebKey,
       "keywords": keywords,
       "types": types,
       "region": region,

@@ -9,7 +9,13 @@
 下面这个 需要把 ./android/app/build.gradle ndk 去掉才不会保存
 
 ```
-flutter build apk --obfuscate --split-debug-info=debugInfo  --target-platform android-arm,android-arm64,android-x64 --split-per-abi
+
+flutter build apk --release \
+  --obfuscate \
+  --split-debug-info=debugInfo \
+  --target-platform=android-arm,android-arm64,android-x64 \
+  --split-per-abi \
+  -t lib/main_pro.dart
 
 💪 Building with sound null safety 💪
 

@@ -1,3 +1,7 @@
+# 0.5.1
+* 修复“环境切换”bug（3个环境使用同样的 solidifiedKey 和 iv）
+* 新增 changedEnv 变量控制 currentEnv 变了初始化的逻辑；
+
 # 0.5.0
 * 引入 flutter_keychain 存储用户登录token等信息
 * 添加 Env 模型，从服务动态端加载一些配置，硬编码一些配置（删除 flutter_dotenv，删除 .env 文件），调整相关代码；

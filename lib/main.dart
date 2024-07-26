@@ -10,8 +10,12 @@ import 'run.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // solidifiedKey 不能为空的
-  await init(env:'dev', solidifiedKey:'');
-  
+  await init(
+    env: 'pro',
+    solidifiedKey: '',
+    iv: '',
+  );
+
   // var v = SignKeyFFI.signKey("input");
   // debugPrint("signKey $v ;");
   // await initJPush();
