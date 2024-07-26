@@ -11,7 +11,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // solidifiedKey 不能为空的
   await init(
-    env: 'pro',
+    env: 'dev',
     solidifiedKey: '',
     iv: '',
   );

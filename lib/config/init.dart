@@ -109,8 +109,10 @@ Future<Map<String, dynamic>> initConfig() async {
 
   await StorageService.to.setString(Keys.uploadScene, payload['upload_scene']);
 
-  await StorageService.to
-      .setString(Keys.apiPublicKey, payload['login_rsa_pub_key']);
+  await StorageService.to.setString(
+    Keys.apiPublicKey,
+    payload['login_rsa_pub_key'],
+  );
 
   return payload;
 }

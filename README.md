@@ -126,6 +126,8 @@ cd imboyflutter
 // 0.5.0 开始已经删除了.env
 cp ./example.env ./.env.dev && cp ./example.env ./.env.pro
 
+cp example_main.dart main.dart
+
 dart run build_runner build --verbose
 
 //修改.env文件时
