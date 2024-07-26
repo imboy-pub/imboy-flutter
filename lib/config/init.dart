@@ -102,29 +102,23 @@ Future<Map<String, dynamic>> initConfig() async {
   if (payload.containsKey('error')) {
     return payload;
   }
-  await StorageService.to.setString(
-      Keys.wsUrl,
-      payload['ws_url']);
-  await StorageService.to.setString(
-      Keys.uploadUrl,
-      payload['upload_url']);
+  await StorageService.to.setString(Keys.wsUrl, payload['ws_url']);
+  await StorageService.to.setString(Keys.uploadUrl, payload['upload_url']);
 
-  await StorageService.to.setString(
-      Keys.uploadKey,
-      payload['upload_key']);
+  await StorageService.to.setString(Keys.uploadKey, payload['upload_key']);
 
-  await StorageService.to.setString(
-      Keys.uploadScene,
-      payload['upload_scene']);
+  await StorageService.to.setString(Keys.uploadScene, payload['upload_scene']);
 
-  await StorageService.to.setString(
-      Keys.apiPublicKey,
-      payload['login_rsa_pub_key']);
+  await StorageService.to
+      .setString(Keys.apiPublicKey, payload['login_rsa_pub_key']);
 
   return payload;
 }
 
-Future<void> init({required String env, required String solidifiedKey}) async {
+Future<void> init(
+    {required String env,
+    required String solidifiedKey,
+    required String iv}) async {
   // step 1
   WakelockPlus.enable();
   // step 2
@@ -134,19 +128,22 @@ Future<void> init({required String env, required String solidifiedKey}) async {
   getx.Get.lazyPut(() => StorageService());
 
   solidifiedKeyEnv = solidifiedKey;
+  solidifiedKeyIvEnv = iv;
   // step 3
   if (Platform.isAndroid || Platform.isIOS) {
     await RSAService.publicKey();
   }
   // step 4
-  currentEnv = StorageService.to.getString('env') ?? '';
-  if (currentEnv.isEmpty) {
+  bool changedEnv = StorageService.to.getBool('changedEnv') ?? false;
+  if (changedEnv) {
+    currentEnv = StorageService.to.getString('env') ?? '';
+    if (currentEnv.isEmpty) {
+      currentEnv = env;
+    }
+  } else {
     currentEnv = env;
   }
-  if (currentEnv.isEmpty) {
-    currentEnv = 'pro';
-  }
-  iPrint("init env 2 $env, currentEnv $currentEnv;");
+  // iPrint("init env 2 $env, currentEnv $currentEnv;");
 
   // step 5
   // Get.put(DeviceExt()); 需要放到靠前
@@ -182,7 +179,6 @@ Future<void> init({required String env, required String solidifiedKey}) async {
   if (strEmpty(v)) {
     await initConfig();
   }
-
 
   // iPrint("> on UP_AUTH_KEY: ${dotEnv.get('UP_AUTH_KEY')}");
 

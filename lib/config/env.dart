@@ -14,7 +14,6 @@ Map<String, dynamic> envMap = {
   "pro": {
     "apiBaseUrl": "https://pro.imboy.pub",
     "wsUrl": "wss://pro.imboy.pub/ws/",
-    "iosAppId": "",
   },
   "local": {
     "apiBaseUrl": "http://192.168.2.226:9800",
@@ -37,8 +36,11 @@ class Env {
     // return StorageService.to.getString(Keys.wsUrl);
   }
 
-  static Future<String> get solidifiedKey async {
+  static String get solidifiedKey {
     return solidifiedKeyEnv;
+  }
+  static String get solidifiedKeyIv {
+    return solidifiedKeyIvEnv;
   }
 
   static String? get apiPublicKey {
@@ -58,31 +60,36 @@ class Env {
   }
 
   static String get amapAndroidKey {
-    String encrypted = 'akJ4pU5x9rTBZi3LIFvaiV2qI2jzfFcHxPGYUtsOlxFvyIOUkx7BZvvzVywmGoMx';
-    return EncrypterService.aesDecrypt(encrypted,
-        solidifiedKeyEnv,
-        solidifiedKeyIvEnv);
+    return EncrypterService.aesDecrypt(
+      'kwhyJCFmJXyPYCto3DucDKJu3902sN6owIF44buQM3fQK7CwTFa+dHEeJbCt13aV',
+      Env.solidifiedKey,
+      Env.solidifiedKeyIv,
+    );
   }
 
   static String get amapIosKey {
-    String encrypted = 'ARW4aC8jrXtXleB0tDi6BbH/wRXXae+V5W04R4t+Xz3EIdKOfXiYPi6z9WPAJVvs';
-    return EncrypterService.aesDecrypt(encrypted,
-        solidifiedKeyEnv,
-        solidifiedKeyIvEnv);
+    return EncrypterService.aesDecrypt(
+      'JivlGIsYLqTqaPRQ+izX2SveLpQasUlAJpKiCdJ5XlMbaKyI0fP+hAZjxyuM9LaP',
+      Env.solidifiedKey,
+      Env.solidifiedKeyIv,
+    );
   }
 
-  static String get amapWebsKey {
-    String encrypted = 'nlONpLwzmYJeQwgjfg9a7JWYU1PAa+FkvLiwutUDxsDFQzqqd+wPBQvyC93OtcdQ';
-    return EncrypterService.aesDecrypt(encrypted,
-        solidifiedKeyEnv,
-        solidifiedKeyIvEnv);
+  static String get amapWebKey {
+    return EncrypterService.aesDecrypt(
+      'Q4lYiZqNp5gp6/IOS4FfRGuzQIV7Ec6fH2ahPqneZiAfBoGgRQlGrazVOdG8KtxX',
+      Env.solidifiedKey,
+      Env.solidifiedKeyIv,
+    );
   }
 
   static String get jpushKey {
     String encrypted = 'vuYigRb1o+lUF9hQr06hJUWuAuJiRurw6bLvrl4Qpi4=';
-    return EncrypterService.aesDecrypt(encrypted,
-        solidifiedKeyEnv,
-        solidifiedKeyIvEnv);
+    return EncrypterService.aesDecrypt(
+      encrypted,
+      Env.solidifiedKey,
+      Env.solidifiedKeyIv,
+    );
   }
 
   /// iso 的 buildSignature 未空字符串
@@ -90,7 +97,7 @@ class Env {
     String key = (await PackageInfo.fromPlatform()).buildSignature;
     // iPrint("aesDecrypt key 1 $key ;");
     if (key.isEmpty) {
-      key = await Env.solidifiedKey;
+      key = Env.solidifiedKey;
     }
     // iPrint("aesDecrypt key 2 $key ;");
     return key;

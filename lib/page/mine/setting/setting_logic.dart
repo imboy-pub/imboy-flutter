@@ -25,6 +25,7 @@ class SettingLogic extends GetxController {
 
   Future<void> switchEnvironment(String env) async {
     await StorageService.to.setString('env', env);
+    await StorageService.to.setBool('changedEnv', true);
     await UserRepoLocal.to.logout();
     // 重启应用
     _restartApp();
