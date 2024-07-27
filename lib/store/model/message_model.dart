@@ -255,7 +255,7 @@ class MessageModel {
         remoteId: toId,
         text: payload?['text'],
         status: typesStatus,
-        metadata: metadata,
+        metadata: {...metadata, ...?payload},
       );
     } else if (payload!['msg_type'] == 'image') {
       message = types.ImageMessage(
@@ -269,7 +269,7 @@ class MessageModel {
         width: payload!['width'] / 1.0,
         height: payload!['height'] / 1.0,
         status: typesStatus,
-        metadata: metadata,
+        metadata: {...metadata, ...?payload},
       );
     } else if (payload!['msg_type'] == 'file') {
       message = types.FileMessage(
@@ -281,7 +281,7 @@ class MessageModel {
         size: payload!['size'],
         uri: payload!['uri'],
         status: typesStatus,
-        metadata: metadata,
+        metadata: {...metadata, ...?payload},
       );
     } else if (payload!['custom_type'] == 'revoked' ||
         payload!['custom_type'] == 'peer_revoked' ||
@@ -312,9 +312,7 @@ class MessageModel {
       );
     }
 
-    if (message == null) {
-      debugPrint("> on toTypeMessage md ${toJson().toString()}");
-    }
+    debugPrint("> on toTypeMessage md ${toJson().toString()}");
     return message!;
   }
 }
