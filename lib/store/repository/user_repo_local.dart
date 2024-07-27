@@ -107,11 +107,14 @@ class UserRepoLocal extends GetxController {
   Future<bool> logout() async {
     WebSocketService.to.sendMessage("logout");
     await StorageService.to.remove(Keys.currentUid);
+    await StorageService.to.remove(Keys.wsUrl);
+    await StorageService.to.remove(Keys.uploadUrl);
+    await StorageService.to.remove(Keys.uploadKey);
+    await StorageService.to.remove(Keys.uploadScene);
 
     await FlutterKeychain.remove(key:Keys.tokenKey);
     await FlutterKeychain.remove(key:Keys.currentUid);
     await FlutterKeychain.remove(key:Keys.currentUser);
-
     WebSocketService.to.closeSocket(exit: true);
     SqliteService.to.close();
     return true;

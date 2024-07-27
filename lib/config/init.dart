@@ -104,9 +104,7 @@ Future<Map<String, dynamic>> initConfig() async {
   }
   await StorageService.to.setString(Keys.wsUrl, payload['ws_url']);
   await StorageService.to.setString(Keys.uploadUrl, payload['upload_url']);
-
   await StorageService.to.setString(Keys.uploadKey, payload['upload_key']);
-
   await StorageService.to.setString(Keys.uploadScene, payload['upload_scene']);
 
   await StorageService.to.setString(

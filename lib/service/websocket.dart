@@ -124,12 +124,23 @@ class WebSocketService {
       iPrint('> ws openSocket _socketStatus: $_socketStatus;');
       return;
     }
+    if (wsConnectLock) {
+      return;
+    }
+    wsConnectLock = true;
+
+    String? url = Env.wsUrl;
+    if (strEmpty(url)) {
+      await initConfig();
+      url = Env.wsUrl;
+    }
+    iPrint("currentEnv $currentEnv wsUrl $url");
 
     String tk = await UserRepoLocal.to.accessToken;
     iPrint("Get.currentRoute ${Get.currentRoute}");
     if (tk.isEmpty) {
       iPrint('> ws openSocket tk isEmpty ${tk.isEmpty};');
-      if (Get.currentRoute != '/PassportPage') {
+      if (Get.currentRoute != '/PassportPage' && Get.currentRoute != '/Hnb') {
         UserRepoLocal.to.logout();
         Get.offAll(() => PassportPage());
       }
@@ -147,16 +158,7 @@ class WebSocketService {
     headers[Keys.tokenKey] = tk;
     iPrint("openSocket_headers ${headers.toString()}");
 
-    if (wsConnectLock) {
-      return;
-    }
-    wsConnectLock = true;
     try {
-      String? url = Env.wsUrl;
-      if (strEmpty(url)) {
-        await initConfig();
-        url = Env.wsUrl;
-      }
       _webSocketChannel = IOWebSocketChannel.connect(
         url!,
         headers: headers,

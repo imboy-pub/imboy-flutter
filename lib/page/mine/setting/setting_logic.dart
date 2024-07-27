@@ -46,9 +46,11 @@ class SettingLogic extends GetxController {
             content: const Text('Please restart the app to apply the changes.'),
             actions: <Widget>[
               TextButton(
-                child: const Text(
-                  'OK',
-                  style: TextStyle(color: Colors.black),
+                child: Text(
+                  'button_confirm'.tr,
+                  style: TextStyle(
+                    color: Get.isDarkMode ? Colors.white : Colors.black,
+                  ),
                 ),
                 onPressed: () {
                   exit(0);

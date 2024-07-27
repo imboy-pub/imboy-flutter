@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -18,7 +17,7 @@ class GroupMemberProvider extends HttpClient {
 
     // debugPrint("GroupMemberProvider/page resp: ${resp.payload.toString()}");
     if (!resp.ok) {
-      EasyLoading.showError(resp.msg);
+      // EasyLoading.showError(resp.msg);
       return null;
     }
     return resp.payload;

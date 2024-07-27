@@ -94,6 +94,12 @@ HttpException _parseException(Exception error) {
                 message: 'error_request_forbidden'.tr,
                 code: errCode,
               );
+            case 429:
+              return BadRequestException(
+                message: 'Too Many Requests'.tr,
+                code: errCode,
+              );
+
             case 500:
               // 服务器内部错误
               return BadServiceException(

@@ -132,8 +132,12 @@ class HttpClient {
       await _setDefaultConfig();
       var connectivityResult = await (Connectivity().checkConnectivity());
       if (connectivityResult.contains(ConnectivityResult.none)) {
-        return handleException(uri, NetworkException());
+        return handleException(
+          uri,
+          NetworkException(message: 'tip_connect_desc'.tr),
+        );
       }
+      // iPrint("http_client/get $uri ?   queryParameters ${queryParameters.toString()}");
       var response = await _dio.get(
         uri,
         queryParameters: queryParameters,
@@ -141,7 +145,7 @@ class HttpClient {
         cancelToken: cancelToken,
         onReceiveProgress: onReceiveProgress,
       );
-      iPrint("http_client/get/resp ${response.toString()}");
+      // iPrint("http_client/get/resp ${response.toString()}");
       IMBoyHttpResponse resp = handleResponse(
         response,
         uri: uri,
@@ -162,11 +166,12 @@ class HttpClient {
           httpTransformer: httpTransformer,
         );
       }
+
       return resp;
     } on Exception catch (e) {
       debugPrint("> $uri on Exception: $e");
       return handleException(uri, e);
-    }
+    } finally {}
   }
 
   Future<IMBoyHttpResponse> post(
@@ -181,8 +186,11 @@ class HttpClient {
   }) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      EasyLoading.showError('network_exception'.tr);
-      return handleException(uri, NetworkException());
+      // EasyLoading.showError('tip_connect_desc'.tr);
+      return handleException(
+        uri,
+        NetworkException(message: 'tip_connect_desc'.tr),
+      );
     }
     try {
       await _setDefaultConfig();
@@ -218,8 +226,11 @@ class HttpClient {
   }) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      EasyLoading.showError('network_exception'.tr);
-      return handleException(uri, NetworkException());
+      EasyLoading.showError('tip_connect_desc'.tr);
+      return handleException(
+        uri,
+        NetworkException(message: 'tip_connect_desc'.tr),
+      );
     }
     try {
       await _setDefaultConfig();
@@ -253,8 +264,11 @@ class HttpClient {
   }) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      EasyLoading.showError('network_exception'.tr);
-      return handleException(uri, NetworkException());
+      EasyLoading.showError('tip_connect_desc'.tr);
+      return handleException(
+        uri,
+        NetworkException(message: 'tip_connect_desc'.tr),
+      );
     }
     try {
       await _setDefaultConfig();
@@ -284,8 +298,11 @@ class HttpClient {
   }) async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      EasyLoading.showError('network_exception'.tr);
-      return handleException(uri, NetworkException());
+      EasyLoading.showError('tip_connect_desc'.tr);
+      return handleException(
+        uri,
+        NetworkException(message: 'tip_connect_desc'.tr),
+      );
     }
     try {
       await _setDefaultConfig();

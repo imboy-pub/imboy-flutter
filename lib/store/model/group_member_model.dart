@@ -49,7 +49,7 @@ class GroupMemberModel {
       groupId: json[GroupMemberRepo.groupId],
       userId: json[GroupMemberRepo.userId],
       nickname: "${json[GroupMemberRepo.nickname]}",
-      avatar: json[GroupMemberRepo.avatar],
+      avatar: "${json[GroupMemberRepo.avatar] ?? ''}",
       sign: "${json[GroupMemberRepo.sign] ?? ''}",
       account: json[GroupMemberRepo.account].toString(),
       inviteCode: json[GroupMemberRepo.inviteCode],

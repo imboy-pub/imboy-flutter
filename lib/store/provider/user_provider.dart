@@ -42,7 +42,6 @@ class UserProvider extends HttpClient {
     var response = await Dio(BaseOptions(baseUrl: Env.apiBaseUrl)).post(
       API.refreshToken,
       options: Options(
-        // contentType: "application/x-www-form-urlencoded",
         headers: headers,
       ),
     );

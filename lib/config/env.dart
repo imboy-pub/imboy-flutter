@@ -31,16 +31,17 @@ class Env {
     return envMap[currentEnv]['iosAppId'].toString();
   }
 
-  static String? get wsUrl {
-    return envMap[currentEnv]['wsUrl'].toString();
-    // return StorageService.to.getString(Keys.wsUrl);
-  }
-
   static String get solidifiedKey {
     return solidifiedKeyEnv;
   }
+
   static String get solidifiedKeyIv {
     return solidifiedKeyIvEnv;
+  }
+
+
+  static String? get wsUrl {
+    return StorageService.to.getString(Keys.wsUrl);
   }
 
   static String? get apiPublicKey {

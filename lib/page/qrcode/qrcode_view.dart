@@ -248,16 +248,28 @@ class GroupQrCodePage extends StatelessWidget {
 
   GroupQrCodePage({super.key, required this.group});
 
-
+  final QrCodeLogic logic = Get.put(QrCodeLogic());
   final QrCodeState state = Get.find<QrCodeLogic>().state;
 
   Future<void> _initData() async {
     // API_BASE_URL=https://dev.imboy.pub
-    int expiredAt  = DateTimeHelper.utc() + dayNum * 86400 * 1000;
-    String key = await Env.signKey();
-    String tk = EncrypterService.sha256("$expiredAt", key);
+    int expiredAt = DateTimeHelper.utc() + dayNum * 86400 * 1000;
+    String key = Env.solidifiedKey;
+    String tk = EncrypterService.md5("${expiredAt}_$key");
+    Map<String, dynamic> query = {
+      'id': group.groupId,
+      'exp': expiredAt,
+      'tk': tk
+    };
+    String queryStr = query.entries
+        .map((entry) =>
+            '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value.toString())}')
+        .join('&');
     state.qrcodeData.value =
-        "${Env.apiBaseUrl}/group/qrcode?id=${group.groupId}&exp=$expiredAt&tk=$tk&$qrcodeDataSuffix";
+        "${Env.apiBaseUrl}/group/qrcode?$queryStr&$qrcodeDataSuffix";
+    // iPrint("qrcodeData $expiredAt, $key, $tk; : ${expiredAt}_$key");
+    // iPrint("qrcodeData ${state.qrcodeData.value}");
+
     state.expiredAt.value = expiredAt;
   }
 
@@ -454,7 +466,7 @@ class GroupQrCodePage extends StatelessWidget {
                             dayNum.toString(),
                             Jiffy.parseFromDateTime(
                                     Jiffy.parseFromMillisecondsSinceEpoch(
-                                        state.expiredAt.value)
+                                            state.expiredAt.value)
                                         .dateTime)
                                 .format(pattern: 'y-MM-dd')
                           ]),
