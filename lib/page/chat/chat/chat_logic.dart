@@ -62,6 +62,7 @@ class ChatLogic extends GetxController {
       state.nextAutoId,
       size,
     );
+    debugPrint("> on getMessages isEmpty: ${items.isEmpty}");
     if (items.isEmpty) {
       return [];
     }
@@ -81,7 +82,7 @@ class ChatLogic extends GetxController {
   Future<bool> sendWsMsg(MessageModel obj) async {
     if (obj.status == IMBoyMessageStatus.sending) {
       Map<String, dynamic> msg = {
-        'ts': DateTimeHelper.utc(),
+        // 'ts': DateTimeHelper.utc(),
         'id': obj.id,
         'type': obj.type,
         'from': obj.fromId,
@@ -89,7 +90,7 @@ class ChatLogic extends GetxController {
         'payload': obj.payload,
         'created_at': obj.createdAt,
       };
-      // debugPrint("> on msg check sending ${msg.toString()}");
+      debugPrint("> chat_logic_sendWsMsg ${msg.toString()}");
       return await WebSocketService.to.sendMessage(json.encode(msg));
     }
     return true;
@@ -256,16 +257,9 @@ class ChatLogic extends GetxController {
     return true;
   }
 
-  /// 撤回消息 type C2C | C2G
-  Future<bool> revokeMessage(String type, types.Message obj) async {
-    Map<String, dynamic> msg = {
-      'ts': DateTimeHelper.utc(),
-      'id': obj.id,
-      'type': '${type.toUpperCase()}_REVOKE',
-      'from': obj.author.id,
-      'to': obj.remoteId,
-    };
-
+  ///
+  Future<bool> sendMessage(Map<String, dynamic> msg) async {
+    // debugPrint("> chat_logic_sendMessage ${msg.toString()}");
     return WebSocketService.to.sendMessage(json.encode(msg));
   }
 

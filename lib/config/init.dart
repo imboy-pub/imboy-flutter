@@ -229,7 +229,7 @@ Future<void> init(
         iPrint("> on LifecycleEventHandler resumeCallBack");
         ntpOffset = await DateTimeHelper.getNtpOffset();
         // 检查WS链接状态
-        WebSocketService.to.openSocket();
+        await WebSocketService.to.openSocket(from: 'resumeCallBack');
       },
       suspendingCallBack: () async {
         // app 挂起
@@ -244,14 +244,14 @@ Future<void> init(
 
   // step 13
   // 监听网络状态
-  Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
+  Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) async {
     iPrint("onConnectivityChanged ${r.toString()}");
     if (r.contains(ConnectivityResult.none)) {
       // 关闭网络的情况下，没有必要开启WS服务了
-      WebSocketService.to.closeSocket();
+      await WebSocketService.to.closeSocket();
     } else {
       // 检查WS链接状态
-      WebSocketService.to.openSocket();
+      await WebSocketService.to.openSocket(from: 'onConnectivityChanged');
     }
   });
   // iPrint("> on currentTimeMillis init ${ntpOffset}");

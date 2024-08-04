@@ -65,7 +65,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   double offset = 0.0;
   bool isUp = false;
   String textShow = 'chat_hold_down_talk'.tr;
-  String toastShow = 'slide_up_cancle_sending'.tr;
+  String toastShow = 'slide_up_cancel_sending'.tr;
   String voiceIco = "assets/images/chat/voice_volume_1.png";
 
   Duration recordingDuration = const Duration();
@@ -206,7 +206,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         toastShow = textShow;
       } else {
         textShow = 'release_end'.tr;
-        toastShow = 'slide_up_cancle_sending'.tr;
+        toastShow = 'slide_up_cancel_sending'.tr;
       }
     });
   }
@@ -228,7 +228,6 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     path = '${join(tmpDir.path, name)}.aac';
     final parent = dirname(path);
     await Directory(parent).create(recursive: true);
-
     return path;
   }
 
@@ -239,10 +238,13 @@ class _VoiceWidgetState extends State<VoiceWidget> {
       try {
         var status = await Permission.microphone.request();
         if (status != PermissionStatus.granted) {
-          // throw RecordingPermissionException('Microphone permission not granted');
+          throw RecordingPermissionException('Microphone permission not granted');
         }
-      } catch (e) {
-        //
+      } catch (e, stack) {
+        // 也可以使用 print 语句打印异常信息
+        iPrint('openTheRecorder_login_error: $e');
+        iPrint('openTheRecorder_Stack trace:\n${stack.toString()}');
+        // return e.toString();
       }
     }
     session ??= await AudioSession.instance;
@@ -278,10 +280,21 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         throw RecordingPermissionException(
             'microphone_permission_not_obtained'.tr);
       }
+
+      //判断如果还没拥有读写权限就申请获取权限
+      if (await Permission.storage.request().isDenied) {
+        await Permission.storage.request();
+        if ((await Permission.storage.status) != PermissionStatus.granted) {
+          Get.snackbar("", 'microphone_permission_not_obtained'.tr);
+          throw RecordingPermissionException(
+              'storage_permission_not_obtained'.tr);
+        }
+      }
+
       await recorderModule.openRecorder();
 
       // String name = "${Xid().toString()}";
-      String name = "record_tmp";
+      String name = "voice_tmp";
       if (kIsWeb) {
         if (await recorderModule.isEncoderSupported(Codec.opusWebM)) {
           filePath = '$name.webm';
@@ -382,7 +395,8 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     try {
       String? filepath = await recorder.stopRecorder();
       cancelRecorderSubscriptions();
-
+      iPrint("recorderStop $filepath");
+      iPrint("recorderStop ${File(filepath!).readAsBytesSync()}");
       if (mounted) {
         setState(() {
           dbLevel = 0.0;

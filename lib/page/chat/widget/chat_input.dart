@@ -122,7 +122,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   final _textController = TextEditingController();
   late AnimationController _bottomHeightController;
 
-  double iconSize = 30;
+  double iconSize = 40;
   bool emojiShowing = false;
   bool sendButtonVisible = false;
   InputType inputType = _initType;
@@ -463,6 +463,8 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   Widget buildLeftButton() {
     return ImageButton(
+      width: 48,
+      height: 48,
       onPressed: () {
         if (inputType == InputType.voice) {
           _voiceBtnOnPressed(InputType.text);

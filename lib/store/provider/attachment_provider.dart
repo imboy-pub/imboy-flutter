@@ -45,6 +45,7 @@ class AttachmentProvider {
     data['s'] = authData['s'];
     // debugPrint("> on upload param ${data.toString()}");
     debugPrint("> on upload param ${(data['file'] as MultipartFile).filename}");
+    debugPrint("> on upload param ${data.toString()}");
     FormData formData = FormData.fromMap(data);
 
     debugPrint("> on upload UPLOAD_BASE_URL ${Env.uploadUrl}");
@@ -289,6 +290,7 @@ class AttachmentProvider {
     } else {
       throw Exception('unsupported_file_type'.tr);
     }
+
     String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
     if (name == "") {
       name = "${Xid().toString()}.$ext";
@@ -299,7 +301,7 @@ class AttachmentProvider {
     Map<String, dynamic> data = {
       'file': await MultipartFile.fromFile(path, filename: name),
     };
-    // debugPrint("> on uploadFile path $path, name: $name, ext: $ext");
+    debugPrint("> on uploadFile path1 $path, name: $name, ext: $ext");
     await _upload(prefix, data, callback, errorCallback, process: process);
   }
 

@@ -124,7 +124,7 @@ class UserCollectDetailPage extends StatelessWidget {
             Get.closeAllBottomSheets();
             Get.to(
               () => UpdatePage(
-                  title: 'set_remark'.tr,
+                  title: 'set_param'.trArgs(['remark'.tr]),
                   value: obj.remark,
                   field: 'text',
                   maxLength: 100,
@@ -149,7 +149,7 @@ class UserCollectDetailPage extends StatelessWidget {
             });
           },
           child: Text(
-            'set_remark'.tr,
+            'set_param'.trArgs(['remark'.tr]),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Theme.of(txt).colorScheme.onPrimary,

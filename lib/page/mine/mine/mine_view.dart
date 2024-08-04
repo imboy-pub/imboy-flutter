@@ -14,7 +14,6 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../denylist/denylist_view.dart';
 import '../user_collect/user_collect_view.dart';
-import '../user_device/user_device_view.dart';
 import 'mine_logic.dart';
 
 // ignore: must_be_immutable
@@ -186,31 +185,6 @@ class MinePage extends StatelessWidget {
                 onTap: () {
                   Get.to(
                     () => UserCollectPage(),
-                    transition: Transition.rightToLeft,
-                    popGesture: true, // 右滑，返回上一页
-                  );
-                },
-              ),
-              n.Padding(
-                  left: 40,
-                  child: HorizontalLine(
-                    height: 1.0,
-                    color: Theme.of(context).colorScheme.primary,
-                  )),
-              n.ListTile(
-                leading: const Icon(
-                  Icons.devices,
-                  color: Colors.green,
-                  size: 22,
-                ),
-                title: Transform(
-                  transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text('device_list'.tr),
-                ),
-                trailing: navigateNextIcon,
-                onTap: () {
-                  Get.to(
-                    () => UserDevicePage(),
                     transition: Transition.rightToLeft,
                     popGesture: true, // 右滑，返回上一页
                   );

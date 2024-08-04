@@ -113,7 +113,7 @@ class WebRTCMessageBuilder extends StatelessWidget {
     } else if (state == 2) {
       title = 'unanswered'.tr; // 发送者收到未应答
     } else if (state == 3) {
-      title = 'peer_has_hungup'.tr;
+      title = 'peer_has_hung_up'.tr;
     } else if (state == 4) {
       title = 'cancelled'.tr;
     } else if (state == 5) {

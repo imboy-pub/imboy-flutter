@@ -129,7 +129,7 @@ class ApplyFriendPage extends StatelessWidget {
                     contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                   ),
                   TitleTextField(
-                    title: 'set_remark'.tr,
+                    title: 'set_param'.trArgs(['remark'.tr]),
                     controller: _remarkController,
                     minLines: 1,
                     maxLines: 1,
@@ -173,7 +173,7 @@ class ApplyFriendPage extends StatelessWidget {
                     padding: const EdgeInsets.only(
                       top: 14,
                     ),
-                    child: Text('set_moment'.tr),
+                    child: Text('set_param'.trArgs(['moment'.tr])),
                   ),
                   Card(
                     color: Get.isDarkMode

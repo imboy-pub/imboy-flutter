@@ -112,7 +112,7 @@ class UserCollectPage extends StatelessWidget {
     return n.Wrap(items);
   }
 
-  Future<void> sendToDialog(BuildContext ctx, UserCollectModel model) async {
+  Future<void> sendToDialog(UserCollectModel model) async {
     types.Message msg = await MessageModel.fromJson(model.info).toTypeMessage();
     Get.defaultDialog(
       title: 'send_to'.tr,
@@ -128,14 +128,14 @@ class UserCollectPage extends StatelessWidget {
           'button_cancel'.tr,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: Theme.of(ctx).colorScheme.onPrimary,
+            color: Theme.of(Get.context!).colorScheme.onPrimary,
           ),
         ),
       ),
       confirm: TextButton(
         onPressed: () async {
           // Navigator.pop(context, model); //这里的url在上一页调用的result可以拿到
-          var nav = Navigator.of(ctx);
+          var nav = Navigator.of(Get.context!);
           nav.pop();
           nav.pop(model);
           // bool res = await sendToLogic.sendMsg(conversation!, msg);
@@ -155,7 +155,7 @@ class UserCollectPage extends StatelessWidget {
           'button_send'.tr,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: Theme.of(ctx).colorScheme.onPrimary,
+            color: Theme.of(Get.context!).colorScheme.onPrimary,
           ),
         ),
       ),
@@ -422,7 +422,7 @@ class UserCollectPage extends StatelessWidget {
                                       onTap: () async {
                                         if (isSelect) {
                                           // 转发消息
-                                          sendToDialog(context, obj);
+                                          sendToDialog(obj);
                                         } else {
                                           // 收藏详情
                                           Get.to(

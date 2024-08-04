@@ -1,9 +1,9 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/page/mine/account_security/account_security_view.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/config/const.dart';
@@ -47,23 +47,19 @@ class _SettingPageState extends State<SettingPage> {
               title: Text('account_security'.tr),
               trailing: navigateNextIcon,
               onTap: () {
-                // Get.to(
-                //       () => MarkdownPage(
-                //     title: 'update_log'.tr,
-                //     url:
-                //     "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
-                //   ),
-                //   transition: Transition.rightToLeft,
-                //   popGesture: true, // 右滑，返回上一页
-                // );
+                Get.to(
+                  () => AccountSecurityPage(),
+                  transition: Transition.rightToLeft,
+                  popGesture: true, // 右滑，返回上一页
+                );
               },
             ),
-            n.Padding(
-                left: 18,
-                child: HorizontalLine(
-                  height: Get.isDarkMode ? 0.5 : 1.0,
-                  color: Theme.of(context).colorScheme.primary,
-                )),
+
+            HorizontalLine(
+              height: 10,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+
             n.ListTile(
               title: Text('language_setting'.tr),
               trailing: navigateNextIcon,
@@ -84,7 +80,10 @@ class _SettingPageState extends State<SettingPage> {
             n.ListTile(
               title: n.Row([
                 Text('dark_model'.tr),
-                Text(logic.themeTypeTips()),
+                SizedBox(
+                  width: 120,
+                  child: Text(logic.themeTypeTips(), textAlign:TextAlign.right),
+                ),
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
@@ -101,6 +100,7 @@ class _SettingPageState extends State<SettingPage> {
               height: 10,
               color: Theme.of(context).colorScheme.primary,
             ),
+            /*
             n.ListTile(
               title: Text('message_notification'.tr),
               trailing: navigateNextIcon,
@@ -116,6 +116,7 @@ class _SettingPageState extends State<SettingPage> {
                 // );
               },
             ),
+            */
             n.Padding(
                 left: 18,
                 child: HorizontalLine(
@@ -197,7 +198,7 @@ class _SettingPageState extends State<SettingPage> {
             n.ListTile(
               title: n.Row([
                 Text('about_app'.tr),
-                Text("${'version'.tr} $appVsn"),
+                Text("${'version'.tr} $appVsn", textAlign:TextAlign.right),
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
@@ -253,55 +254,55 @@ class _SettingPageState extends State<SettingPage> {
                 );
               },
             ),
-            n.Padding(
-                left: 18,
-                child: HorizontalLine(
-                  height: Get.isDarkMode ? 0.5 : 1.0,
-                  color: Theme.of(context).colorScheme.primary,
-                )),
-            n.ListTile(
-              title: n.Row([
-                Text('切换环境'.tr),
-                // Text("${'当前环境'.tr} $currentEnv"),
-                DropdownButton<String>(
-                  value: currentEnv,
-                  items: const [
-                     DropdownMenuItem(
-                      value: 'local',
-                      child: Text('Local'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'dev',
-                      child: Text('Development'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'pro',
-                      child: Text('Production'),
-                    ),
-                  ],
-                  onChanged: (String? value) {
-                    // setState(() {
-                    //   currentEnv = value!;
-                    // });
-                    if (strNoEmpty(value)) {
-                      currentEnv = value!;
-                      logic.switchEnvironment(currentEnv);
-                    }
-                  },
-                )
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
-              // trailing: navigateNextIcon,
-              // trailing: navigateNextIcon,
-              // onTap: () {
-              //   Get.to(
-              //     () => ChangeEnvPage(),
-              //     transition: Transition.rightToLeft,
-              //     popGesture: true, // 右滑，返回上一页
-              //   );
-              // },
-            ),
+
+            if (currentEnv != 'pro')
+              HorizontalLine(
+                height: 10,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            if (currentEnv != 'pro')
+              n.ListTile(
+                title: n.Row([
+                  Text('switch_environment'.tr),
+                  DropdownButton<String>(
+                    value: currentEnv,
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'local',
+                        child: Text('Local'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'dev',
+                        child: Text('Development'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'pro',
+                        child: Text('Production'),
+                      ),
+                    ],
+                    onChanged: (String? value) {
+                      // setState(() {
+                      //   currentEnv = value!;
+                      // });
+                      if (strNoEmpty(value)) {
+                        currentEnv = value!;
+                        logic.switchEnvironment(currentEnv);
+                      }
+                    },
+                  )
+                ])
+                  // 两端对齐
+                  ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+                // trailing: navigateNextIcon,
+                // trailing: navigateNextIcon,
+                // onTap: () {
+                //   Get.to(
+                //     () => ChangeEnvPage(),
+                //     transition: Transition.rightToLeft,
+                //     popGesture: true, // 右滑，返回上一页
+                //   );
+                // },
+              ),
           ]),
           /*
           ButtonRow(
@@ -331,7 +332,7 @@ class _SettingPageState extends State<SettingPage> {
             ),
             isBorder: false,
             onPressed: () async {
-              bool result = await UserRepoLocal.to.logout();
+              bool result = await UserRepoLocal.to.quitLogin();
               if (result) {
                 Get.offAll(() => PassportPage());
               }

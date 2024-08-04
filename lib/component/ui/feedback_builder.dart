@@ -89,188 +89,186 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
     return GestureDetector(
       child: n.Column([
         Expanded(
-          child: n.Stack(
-            [
-              if (widget.scrollController != null)
-                const FeedbackSheetDragHandle(),
-              ListView(
-                controller: widget.scrollController,
-                // Pad the top by 20 to match the corner radius if drag enabled.
-                padding: EdgeInsets.fromLTRB(
-                  16,
-                  widget.scrollController != null ? 20 : 16,
-                  16,
-                  0,
-                ),
-                children: [
-                  // 请留下您宝贵的意见和建议
-                  Text('leave_your_suggestions'.tr),
-                  n.Row([
-                    n.Padding(
-                      right: 8,
-                      child: const Text(
-                        '*',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    Flexible(
-                      child: DropdownButton<FeedbackType>(
-                        value: _feedback.feedbackType,
-                        items: FeedbackType.values
-                            .map(
-                              (type) => DropdownMenuItem<FeedbackType>(
-                                value: type,
-                                child: Text(type
-                                    .toString()
-                                    .split('.')
-                                    .last
-                                    .replaceAll('_', ' ')
-                                    .tr),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (feedbackType) => setState(
-                            () => _feedback.feedbackType = feedbackType),
-                      ),
-                    ),
-                  ], mainAxisAlignment: MainAxisAlignment.start),
-                  const SizedBox(height: 16),
-                  n.Row([
-                    n.Padding(
-                      right: 8,
-                      child: const Text(
-                        '*',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    // 你的反馈是什么?
-                    Text('what_your_feedback'.tr),
-                  ]),
-                  TextField(
-                    cursorColor: Colors.black54,
-                    decoration: const InputDecoration(
-                      labelText: "",
-                      labelStyle: TextStyle(
-                        fontSize: 14,
-                        // color: AppColors.MainTextColor,
-                      ),
-                      contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      fillColor: Color.fromARGB(255, 247, 247, 247),
-                      filled: true,
-                      enabledBorder: OutlineInputBorder(
-                        /*边角*/
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(5), //边角为5
-                        ),
-                        borderSide: BorderSide(
-                          color: Colors.white, //边线颜色为白色
-                          width: 1, //边线宽度为2
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.white, //边框颜色为白色
-                          width: 1, //宽度为5
-                        ),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(5), //边角为30
-                        ),
-                      ),
-                    ),
-                    maxLength: 400,
-                    maxLines: 16,
-                    minLines: 6,
-                    // 长按是否展示【剪切/复制/粘贴菜单LengthLimitingTextInputFormatter】
-                    enableInteractiveSelection: true,
-                    keyboardType: TextInputType.multiline,
-                    textCapitalization: TextCapitalization.sentences,
-                    textInputAction: TextInputAction.newline,
-                    focusNode: descFocusNode,
-                    onChanged: (newFeedback) =>
-                        _feedback.feedbackText = newFeedback,
-                  ),
-                  const SizedBox(height: 16),
-                  // 你的联系方式
-                  Text('your_contact_information'.tr),
-                  TextField(
-                    cursorColor: Colors.black54,
-                    decoration: const InputDecoration(
-                      labelText: "",
-                      labelStyle: TextStyle(
-                        fontSize: 14,
-                        // color: AppColors.MainTextColor,
-                      ),
-                      contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      fillColor: Color.fromARGB(255, 247, 247, 247),
-                      filled: true,
-                      enabledBorder: OutlineInputBorder(
-                        /*边角*/
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(5), //边角为5
-                        ),
-                        borderSide: BorderSide(
-                          color: Colors.white, //边线颜色为白色
-                          width: 1, //边线宽度为2
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.white, //边框颜色为白色
-                          width: 1, //宽度为5
-                        ),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(5), //边角为30
-                        ),
-                      ),
-                    ),
-                    // 长按是否展示【剪切/复制/粘贴菜单LengthLimitingTextInputFormatter】
-                    enableInteractiveSelection: true,
-                    keyboardType: TextInputType.multiline,
-                    textCapitalization: TextCapitalization.sentences,
-                    textInputAction: TextInputAction.newline,
-                    focusNode: contactFocusNode,
-                    onChanged: (val) => _feedback.contactDetail = val,
-                  ),
-                  const SizedBox(height: 16),
-                  // const Text('How does this make you feel?'),
-                  // 这让你感觉如何
-                  Text('your_feel'.tr),
+          child: n.Stack([
+            if (widget.scrollController != null)
+              const FeedbackSheetDragHandle(),
+            ListView(
+              controller: widget.scrollController,
+              // Pad the top by 20 to match the corner radius if drag enabled.
+              padding: EdgeInsets.fromLTRB(
+                16,
+                widget.scrollController != null ? 20 : 16,
+                16,
+                0,
+              ),
+              children: [
+                // 请留下您宝贵的意见和建议
+                Text('leave_your_suggestions'.tr),
+                n.Row([
                   n.Padding(
-                    top: 12,
-                    bottom: 12,
-                    child: n.Row([
-                      // 评级
-                      Text('rating'.tr),
-                      Text(': ${_feedback.rating}    '),
-                      Text(_feedback.ratingDesc),
-                    ])
-                      // 内容居中
-                      ..mainAxisAlignment = MainAxisAlignment.center,
-                  ),
-                  n.Row([
-                    RatingBar.builder(
-                      initialRating: 3,
-                      minRating: 1,
-                      direction: Axis.horizontal,
-                      allowHalfRating: true,
-                      itemCount: 5,
-                      itemPadding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      itemBuilder: (context, _) => const Icon(
-                        Icons.star,
-                        color: Colors.amber,
-                      ),
-                      onRatingUpdate: (rating) {
-                        iPrint(rating.toString());
-                        setState(() => _feedback.rating = rating.toString());
-                      },
+                    right: 8,
+                    child: const Text(
+                      '*',
+                      style: TextStyle(color: Colors.red),
                     ),
+                  ),
+                  Flexible(
+                    child: DropdownButton<FeedbackType>(
+                      value: _feedback.feedbackType,
+                      items: FeedbackType.values
+                          .map(
+                            (type) => DropdownMenuItem<FeedbackType>(
+                              value: type,
+                              child: Text(type
+                                  .toString()
+                                  .split('.')
+                                  .last
+                                  .replaceAll('_', ' ')
+                                  .tr),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (feedbackType) =>
+                          setState(() => _feedback.feedbackType = feedbackType),
+                    ),
+                  ),
+                ], mainAxisAlignment: MainAxisAlignment.start),
+                const SizedBox(height: 16),
+                n.Row([
+                  n.Padding(
+                    right: 8,
+                    child: const Text(
+                      '*',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                  // 你的反馈是什么?
+                  Text('what_your_feedback'.tr),
+                ]),
+                TextField(
+                  cursorColor: Colors.black54,
+                  decoration: const InputDecoration(
+                    labelText: "",
+                    labelStyle: TextStyle(
+                      fontSize: 14,
+                      // color: AppColors.MainTextColor,
+                    ),
+                    contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                    fillColor: Color.fromARGB(255, 247, 247, 247),
+                    filled: true,
+                    enabledBorder: OutlineInputBorder(
+                      /*边角*/
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(5), //边角为5
+                      ),
+                      borderSide: BorderSide(
+                        color: Colors.white, //边线颜色为白色
+                        width: 1, //边线宽度为2
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.white, //边框颜色为白色
+                        width: 1, //宽度为5
+                      ),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(5), //边角为30
+                      ),
+                    ),
+                  ),
+                  maxLength: 400,
+                  maxLines: 16,
+                  minLines: 6,
+                  // 长按是否展示【剪切/复制/粘贴菜单LengthLimitingTextInputFormatter】
+                  enableInteractiveSelection: true,
+                  keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
+                  textInputAction: TextInputAction.newline,
+                  focusNode: descFocusNode,
+                  onChanged: (newFeedback) =>
+                      _feedback.feedbackText = newFeedback,
+                ),
+                const SizedBox(height: 16),
+                // 你的联系方式
+                Text('your_contact_information'.tr),
+                TextField(
+                  cursorColor: Colors.black54,
+                  decoration: const InputDecoration(
+                    labelText: "",
+                    labelStyle: TextStyle(
+                      fontSize: 14,
+                      // color: AppColors.MainTextColor,
+                    ),
+                    contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                    fillColor: Color.fromARGB(255, 247, 247, 247),
+                    filled: true,
+                    enabledBorder: OutlineInputBorder(
+                      /*边角*/
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(5), //边角为5
+                      ),
+                      borderSide: BorderSide(
+                        color: Colors.white, //边线颜色为白色
+                        width: 1, //边线宽度为2
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.white, //边框颜色为白色
+                        width: 1, //宽度为5
+                      ),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(5), //边角为30
+                      ),
+                    ),
+                  ),
+                  // 长按是否展示【剪切/复制/粘贴菜单LengthLimitingTextInputFormatter】
+                  enableInteractiveSelection: true,
+                  keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
+                  textInputAction: TextInputAction.newline,
+                  focusNode: contactFocusNode,
+                  onChanged: (val) => _feedback.contactDetail = val,
+                ),
+                const SizedBox(height: 16),
+                // const Text('How does this make you feel?'),
+                // 这让你感觉如何
+                Text('your_feel'.tr),
+                n.Padding(
+                  top: 12,
+                  bottom: 12,
+                  child: n.Row([
+                    // 评级
+                    Text('rating'.tr),
+                    Text(': ${_feedback.rating}    '),
+                    Text(_feedback.ratingDesc),
                   ])
                     // 内容居中
                     ..mainAxisAlignment = MainAxisAlignment.center,
-                ],
-              ),
-            ],
-          ),
+                ),
+                n.Row([
+                  RatingBar.builder(
+                    initialRating: 3,
+                    minRating: 1,
+                    direction: Axis.horizontal,
+                    allowHalfRating: true,
+                    itemCount: 5,
+                    itemPadding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    itemBuilder: (context, _) => const Icon(
+                      Icons.star,
+                      color: Colors.amber,
+                    ),
+                    onRatingUpdate: (rating) {
+                      iPrint(rating.toString());
+                      setState(() => _feedback.rating = rating.toString());
+                    },
+                  ),
+                ])
+                  // 内容居中
+                  ..mainAxisAlignment = MainAxisAlignment.center,
+              ],
+            ),
+          ]),
         ),
         TextButton(
           // disable this button until the user has specified a feedback type

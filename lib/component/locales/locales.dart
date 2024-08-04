@@ -46,6 +46,25 @@ String jiffyLocal(String local) {
   // 'zh_cn': ZhCnLocale(),
   // 'zh_hk': ZhHkLocale(),
   // 'zh_tw': ZhTwLocale(),
+
+  // from ./jiffy-6.3.1/lib/src/locale/supported_locales.dart
+  // 'en': EnLocale(),
+  // 'en_us': EnUsLocale(),
+  // 'en_sg': EnSgLocale(),
+  // 'en_au': EnAuLocale(),
+  // 'en_ca': EnCaLocale(),
+  // 'en_gb': EnGbLocale(),
+  // 'en_ie': EnIeLocale(),
+  // 'en_il': EnIlLocale(),
+  // 'en_nz': EnNzLocale(),
+  // ...
+  // 'zh': ZhLocale(),
+  // 'zh_cn': ZhCnLocale(),
+  // 'zh_hk': ZhHkLocale(),
+  // 'zh_tw': ZhTwLocale(),
+  // ...
+  // 'ru': RuLocale(),
+
   if (local.startsWith('zh_Hans') || local.startsWith('zh-Hans')) {
     local = 'zh_CN';
   } else if (local.startsWith('zh-Hant')) {

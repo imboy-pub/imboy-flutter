@@ -184,7 +184,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         case WebRTCCallState.CallStateBye:
           setState(() {
             counter.cleanUp();
-            stateTips = 'peer_has_hungup'.tr;
+            stateTips = 'peer_has_hung_up'.tr;
           });
 
           Future.delayed(const Duration(seconds: 2), () {

@@ -39,7 +39,7 @@ class P2pCallScreenLogic {
   )? onDataChannelMessage;
   Function(WebRTCSession session, RTCDataChannel dc)? onDataChannel;
 
-  final Map<String, dynamic> iceConfiguration;
+  final Map<String, dynamic> iceConf;
 
   final Map<String, dynamic> offerSdpConstraints = {
     'mandatory': {},
@@ -63,7 +63,7 @@ class P2pCallScreenLogic {
 
   P2pCallScreenLogic(
     this.session,
-    this.iceConfiguration, {
+    this.iceConf, {
     // 主叫者，发起通话人
     this.caller = true,
     // video audio data
@@ -265,7 +265,7 @@ class P2pCallScreenLogic {
     required bool screenSharing,
   }) async {
     iPrint(
-        "> rtc _createSession media $media, sid ${newSession?.sid}, ${newSession?.pc.toString()}, ${DateTime.now()}");
+        "> rtc createSession media $media, sid ${newSession?.sid}, ${newSession?.pc.toString()}, ${DateTime.now()}");
     if (media != 'data') {
       _localStream ??= await _createStream(media, screenSharing);
     }
@@ -273,9 +273,9 @@ class P2pCallScreenLogic {
       return newSession;
     }
 
-    iPrint("> rtc iceConfiguration ${iceConfiguration.toString()}");
+    iPrint("> rtc createSession iceConfiguration ${iceConf.toString()}");
     RTCPeerConnection pc = await createPeerConnection(
-      iceConfiguration,
+      iceConf,
       offerSdpConstraints,
     );
     // 该方法在收到的信令指示一个transceiver将从远端接收媒体时被调用，实际就是在调用 SetRemoteDescription 时被触发。

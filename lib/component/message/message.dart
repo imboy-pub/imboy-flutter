@@ -57,12 +57,12 @@ class CustomMessageBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // debugPrint(
-    //     "> on CustomMessageBuilder ${message.type}, msg: ${message.toJson().toString()}");
+    debugPrint(
+        "> on CustomMessageBuilder ${message.type}, msg: ${message.toJson().toString()}");
     Widget w = const SizedBox.shrink();
     try {
       String customType = message.metadata?['custom_type'] ?? '';
-      if (customType == 'revoked') {
+      if (customType == 'revoked' || customType == 'peer_revoked' || customType == 'my_revoked') {
         w = RevokedMessageBuilder(
           message: message,
           user: InheritedUser.of(context).user,

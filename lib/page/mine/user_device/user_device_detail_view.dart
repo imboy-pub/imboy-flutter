@@ -67,7 +67,7 @@ class UserDeviceDetailPage extends StatelessWidget {
               onPressed: () {
                 Get.to(
                   () => ChangeNamePage(
-                      title: 'set_device_name'.tr,
+                      title: 'set_param'.trArgs(['device_name'.tr]),
                       value: model.deviceName,
                       field: 'input',
                       callback: (newName) async {

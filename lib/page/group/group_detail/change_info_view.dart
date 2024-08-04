@@ -138,7 +138,7 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
                 maxLength: 80,
                 decoration: InputDecoration(
                   counterText: '', // 这行代码会隐藏字符计数器
-                  hintText: widget.group.title.isEmpty ? '未命名'.tr : '',
+                  hintText: widget.group.title.isEmpty ? 'unnamed'.tr : '',
                   contentPadding: const EdgeInsets.only(
                     top: 28,
                     bottom: 10,

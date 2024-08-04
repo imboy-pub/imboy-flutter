@@ -72,7 +72,7 @@ class ContactSettingPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: n.Column([
           LabelRow(
-            label: 'set_remarks_tags'.tr,
+            label: 'set_param'.trArgs(['remarks_tags'.tr]),
             isLine: true,
             onPressed: () {
               Get.to(

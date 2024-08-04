@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -8,37 +7,29 @@ import 'package:get/get.dart';
 import 'package:xid/xid.dart';
 
 import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
-import 'package:imboy/page/group/group_list/group_list_logic.dart';
-import 'package:imboy/store/model/group_extend_model.dart';
 import 'package:imboy/store/model/group_model.dart';
-import 'package:imboy/store/model/people_model.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
-import 'package:imboy/page/contact/contact/contact_logic.dart';
-import 'package:imboy/page/contact/new_friend/new_friend_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/passport/passport_view.dart';
-import 'package:imboy/page/single/upgrade.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
-import 'package:imboy/store/provider/app_version_provider.dart';
-import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
+import 'message_s2c.dart';
+
 class MessageService extends GetxService {
   static MessageService get to => Get.find();
-  final ContactLogic contactLogic = Get.find();
-  final NewFriendLogic newFriendLogic = Get.find();
   final ConversationLogic conversationLogic = Get.find();
   List<String> webrtcMsgIdLi = [];
   bool addMessageLock = false;
@@ -145,7 +136,7 @@ class MessageService extends GetxService {
           case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
             break;
           case 'S2C':
-            await switchS2C(data);
+            await MessageS2CService.switchS2C(data);
             break;
           case 'ERROR': //
             await switchError(data);
@@ -169,7 +160,7 @@ class MessageService extends GetxService {
       //   String content = data['payload']['content'] ?? '';
       //   break;
       case '706': // 需要重新登录
-        UserRepoLocal.to.logout();
+        UserRepoLocal.to.quitLogin();
         Get.offAll(() => PassportPage());
         break;
     }
@@ -178,198 +169,6 @@ class MessageService extends GetxService {
   /// type is ['C2C' | 'S2C' | 'C2G' | 'C2S | 'WEBRTC']
   void sendAckMsg(String type, String msgId) {
     WebSocketService.to.sendMessage("CLIENT_ACK,$type,$msgId,$deviceId");
-  }
-
-  Future<void> switchS2C(Map data) async {
-    iPrint("switchS2C ${data.toString()}");
-    var payload = data['payload'] ?? {};
-    if (payload is String) {
-      payload = json.decode(payload);
-    }
-    String msgId = data['id'] ?? '';
-    String msgType = payload['msg_type'] ?? '';
-    bool autoAck = true;
-    // try {
-    switch (msgType.toString().toLowerCase()) {
-      case 'group_member_join':
-        // {id: , type: S2C, from: vyb9xb, to: 7b4v1b, payload: {msg_type: group_member_join}, server_ts: 1713334354767}
-        String userId = data['from'];
-        String nickname = payload['nickname'];
-        String avatar = payload['avatar'];
-        String account = payload['account'];
-        String gid = payload['gid'];
-        int userIdSum = payload['user_id_sum'] ?? 0;
-        Map<String, dynamic>? joinRes =
-            await Get.find<GroupListLogic>().memberJoin(
-          groupId: gid,
-          userId: userId,
-          userIdSum: userIdSum,
-        );
-        eventBus.fire(JoinGroupModel(
-          groupId: gid,
-          userId: userId,
-          isFirst: joinRes?['isFirst'] ?? false,
-          people: PeopleModel(
-            id: userId,
-            account: account,
-            nickname: nickname,
-            avatar: avatar,
-          ),
-        ));
-        break;
-      case 'group_dissolve':
-        // String userId = data['from'];
-        String gid = payload['gid'];
-        await GroupDetailLogic().cleanData(gid);
-        break;
-      case 'group_member_leave':
-        String userId = payload['leave_uid'];
-        String gid = payload['gid'];
-        int userIdSum = payload['user_id_sum'] ?? 0;
-        await Get.find<GroupListLogic>().memberLeave(
-          groupId: gid,
-          userId: userId,
-          userIdSum: userIdSum,
-        );
-        eventBus.fire(LeaveGroupModel(
-          groupId: gid,
-          userId: userId,
-          people: PeopleModel(
-            id: userId,
-            account: '',
-          ),
-        ));
-        break;
-      case 'group_member_alias':
-        // payload:{alias:, description:, updated_at:, gid:}
-        break;
-      case 'user_cancel':
-        // 当前用户的朋友user_id注销了
-        // TODO
-        // String userId = data['from'];
-        break;
-      case 'apply_friend': // 添加朋友申请
-        newFriendLogic.receivedAddFriend(data);
-        break;
-      case 'apply_friend_confirm': // 添加朋友申请确认
-        // 接受消息人（to）新增联系人
-        /*
-             {
-                "id": "afc_jp24wa_pjyv83",
-                "type": "S2C",
-                "from": "pjyv83",
-                "to": "jp24wa",
-                "payload": {
-                    "from": {
-                        "source": "people_nearby",
-                        "msg": "我是 leeyi109",
-                        "remark": "leeyi10000",
-                        "avatar": "http://a.imboy.pub/avatar/jp24wa.jpg?s=dev&a=2d098a62371bef21&v=175730",
-                        "nickname": "leeyi109",
-                        "role": "all",
-                        "donotlookhim": false,
-                        "donotlethimlook": false
-                    },
-                    "to": {
-                        "remark": "leeyi109",
-                        "avatar": "http://a.imboy.pub/avatar/0_pjyv83.jpg?s=dev&a=6273f2e63037bbaa&v=660682",
-                        "nickname": "leeyi10000",
-                        "role": "all",
-                        "donotlookhim": false,
-                        "donotlethimlook": false
-                    },
-                    "msg_type": "apply_friend_confirm"
-                },
-                "server_ts": "1681980840528"
-            }
-        */
-
-        // 对端 的个人信息
-        Map<String, dynamic> json = {
-          'id': data['from'], // 服务端对调了 from to，离线消息需要对调
-          'account': payload['to']['account'],
-          'nickname': payload['to']['nickname'],
-          'avatar': payload['to']['avatar'],
-          'sign': payload['to']['sign'],
-          'gender': payload['to']['gender'],
-          ContactRepo.tag: payload['to'][ContactRepo.tag] ?? '',
-          'region': payload['to']['region'],
-          'remark': payload['from']['remark'] ?? '', // from 给对方的备注
-          'source': payload['from']['source'],
-        };
-        contactLogic.receivedConfirmFriend(json);
-        // 修正好友申请状态
-        newFriendLogic.receivedConfirmFriend(true, data);
-        break;
-      case 'in_denylist':
-        // 对方将我加入黑名单后： 消息已发出，但被对方拒收了。
-        // String msgId = payload['content'] ?? '';
-        Get.find<ChatLogic>()
-            .setSysPrompt(MessageRepo.c2cTable, msgId, 'in_denylist');
-        break;
-      case 'not_a_friend':
-        // String msgId = payload['content'] ?? '';
-        Get.find<ChatLogic>()
-            .setSysPrompt(MessageRepo.c2cTable, msgId, 'not_a_friend');
-        break;
-      case 'logged_another_device': // 在其他设备登录了
-        String did = payload['did'] ?? '';
-        if (did != deviceId) {
-          int serverTs = data['server_ts'] ?? 0;
-          UserRepoLocal.to.logout();
-          Get.off(() => PassportPage(), arguments: {
-            "msg_type": "logged_another_device",
-            "server_ts": serverTs,
-            "dname": payload['dname'] ?? '', // 设备名称
-          });
-        }
-        break;
-      case 'please_refresh_token': // 服务端通知客户端刷新token
-        iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId,$autoAck");
-        MessageService.to.sendAckMsg('S2C', msgId);
-        String rtk = await UserRepoLocal.to.refreshToken;
-
-        await (UserProvider()).refreshAccessTokenApi(rtk, checkNewToken: true);
-        break;
-      case 'app_upgrade':
-        final AppVersionProvider p = AppVersionProvider();
-        final Map<String, dynamic> info = await p.check(
-          appVsn,
-        );
-        final String downLoadUrl = info['download_url'] ?? '';
-        bool updatable = info['updatable'] ?? false;
-        updatable = downLoadUrl.isEmpty ? false : updatable;
-        if (updatable) {
-          await Navigator.of(Get.context!).push(
-            CupertinoPageRoute(
-              // “右滑返回上一页”功能
-              builder: (_) => UpgradePage(
-                version: info['vsn'],
-                downLoadUrl: downLoadUrl,
-                message: info['description'] ?? '',
-                isForce: 1 == (info['force_update'] ?? 2) ? true : false,
-              ),
-            ),
-          );
-        }
-        break;
-      case 'online': // 好友上线提醒
-        // TODO
-        break;
-      case 'offline': // 好友下线提醒
-        // TODO
-        break;
-      case 'hide': // 好友hide提醒
-        // TODO
-        // String uid = data['from'] ?? '';
-        break;
-    }
-    // } catch (e) {}
-    // 确认消息
-    if (autoAck) {
-      iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId");
-      MessageService.to.sendAckMsg('S2C', msgId);
-    }
   }
 
   /// Called before [onDelete] method. [onClose] might be used to
@@ -459,6 +258,7 @@ class MessageService extends GetxService {
 
     eventBus.fire(conversation);
     types.Message tMsg = await msg.toTypeMessage();
+    iPrint("chat_view/listen eventBus.fire ${msg.id}; ${DateTime.now()}");
     eventBus.fire(tMsg);
   }
 
@@ -508,12 +308,13 @@ class MessageService extends GetxService {
       'status': IMBoyMessageStatus.send,
       'payload': json.encode({
         "msg_type": "custom",
-        "custom_type": "revoked",
+        "custom_type": "peer_revoked",
         "peer_name": contact!.nickname
       }),
     });
     // msg = null 的时候数据已经被删除了
     MessageModel? msg = await repo.find(id);
+    iPrint("changeConversation tb $tb, ${msg?.toJson().toString()}");
     if (msg != null) {
       // 更新会话里面的消息列表的特定消息状态
       eventBus.fire([await msg.toTypeMessage()]);
@@ -539,9 +340,10 @@ class MessageService extends GetxService {
     if (msg == null) {
       return;
     }
+    String customType = 'my_revoked';
     msg.payload = {
       "msg_type": "custom",
-      "custom_type": "revoked",
+      "custom_type": customType,
       'text': msg.payload!['text'],
     };
     await repo.update({
@@ -555,17 +357,24 @@ class MessageService extends GetxService {
     // 确认消息
     String ackType = dType == 'C2G_REVOKE_ACK' ? 'C2G' : 'C2C';
     MessageService.to.sendAckMsg(ackType, data['id']);
-    changeConversation(msg, 'my_revoked');
+    // ack消息不需要修改回话信息了
+    // changeConversation(msg, customType);
   }
 
   /// 撤回消息修正相应会话记录
   Future<void> changeConversation(MessageModel msg, String msgType) async {
     String peerId = '';
-    if (msg.fromId == UserRepoLocal.to.currentUid) {
+    if (msg.type == 'C2C') {
+      if (msg.fromId == UserRepoLocal.to.currentUid) {
+        peerId = msg.toId ?? '';
+      } else if (msg.toId == UserRepoLocal.to.currentUid) {
+        peerId = msg.fromId ?? '';
+      }
+    } else if (msg.type == 'C2G') {
       peerId = msg.toId ?? '';
-    } else if (msg.toId == UserRepoLocal.to.currentUid) {
-      peerId = msg.fromId ?? '';
     }
+    iPrint(
+        "changeConversation $peerId, msgType $msgType, ${msg.toJson().toString()}");
     if (peerId.isEmpty) {
       return;
     }
@@ -582,10 +391,11 @@ class MessageService extends GetxService {
     }
     //msgType = peerId == UserRepoLocal.to.currentUid ? 'peer_revoked' : 'my_revoked';
     conversation.msgType = msgType;
-    conversation.subtitle = '';
+    // conversation.subtitle = '';
     int res2 = await repo.updateById(conversation.id, {
       ConversationRepo.msgType: conversation.msgType,
       ConversationRepo.subtitle: '',
+      ConversationRepo.payload: msg.payload
     });
 
     if (res2 > 0) {

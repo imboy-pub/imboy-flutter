@@ -111,7 +111,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
             ),
             child: Obx(() => n.Column([
                   TitleTextField(
-                    title: 'set_remark'.tr,
+                    title: 'set_param'.trArgs(['remark'.tr]),
                     controller: _remarkController,
                     minLines: 1,
                     maxLines: 1,
@@ -161,7 +161,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                     padding: const EdgeInsets.only(
                       top: 14,
                     ),
-                    child: Text('set_moment'.tr),
+                    child: Text('set_param'.trArgs(['moment'.tr])),
                   ),
                   Card(
                     color: Get.isDarkMode

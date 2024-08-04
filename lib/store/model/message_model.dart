@@ -285,6 +285,7 @@ class MessageModel {
       );
     } else if (payload!['custom_type'] == 'revoked' ||
         payload!['custom_type'] == 'peer_revoked' ||
+        payload!['custom_type'] == 'my_revoked' ||
         payload!['custom_type'] == 'c2c_revoke') {
       message = types.CustomMessage(
         author: author,

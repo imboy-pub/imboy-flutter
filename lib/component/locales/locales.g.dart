@@ -22,6 +22,12 @@ class LocaleKeys {
   static const on = 'on';
   static const off = 'off';
   static const you = 'you';
+  static const set_param = 'set_param';
+  static const apply_param = 'apply_param';
+  static const read_agree_param = 'read_agree_param';
+  static const logout_notice = 'logout_notice';
+  static const cancel_logout_title = 'cancel_logout_title';
+  static const cancel_logout_body = 'cancel_logout_body';
   static const button_cancel = 'button_cancel';
   static const button_accomplish = 'button_accomplish';
   static const button_taking_pictures = 'button_taking_pictures';
@@ -37,16 +43,15 @@ class LocaleKeys {
   static const button_close = 'button_close';
   static const button_resend_code = 'button_resend_code';
   static const button_invite_code = 'button_invite_code';
-  static const button_forgotpassword = 'button_forgotpassword';
-  static const button_recoverpassword = 'button_recoverpassword';
+  static const forgot_password = 'forgot_password';
+  static const recover_password = 'recover_password';
   static const button_back = 'button_back';
   static const button_copy = 'button_copy';
   static const button_submit = 'button_submit';
-  static const button_setpassword = 'button_setpassword';
   static const button_sign_in_fb = 'button_sign_in_fb';
   static const button_sign_in_google = 'button_sign_in_google';
   static const button_sign_in_apple = 'button_sign_in_apple';
-  static const title_termofservices = 'title_termofservices';
+  static const term_of_services = 'term_of_services';
   static const selected_items = 'selected_items';
   static const title_mine = 'title_mine';
   static const title_contact = 'title_contact';
@@ -58,17 +63,17 @@ class LocaleKeys {
   static const tip_title = 'tip_title';
   static const tip_success = 'tip_success';
   static const tip_failed = 'tip_failed';
-  static const tip_resendcode_success = 'tip_resendcode_success';
-  static const tip_recoverpassword_success = 'tip_recoverpassword_success';
-  static const tip_recoverpassword_desc = 'tip_recoverpassword_desc';
-  static const tip_recoverpassword_intro = 'tip_recoverpassword_intro';
-  static const tip_recovercodepassword_desc = 'tip_recovercodepassword_desc';
-  static const tip_sigup_form_desc = 'tip_sigup_form_desc';
-  static const tip_sigup_intro = 'tip_sigup_intro';
-  static const tip_confirmationcode_error = 'tip_confirmationcode_error';
-  static const tip_confirmationcode_success = 'tip_confirmationcode_success';
-  static const tip_confirmrecover_intro = 'tip_confirmrecover_intro';
-  static const tip_confirmrecover_success = 'tip_confirmrecover_success';
+  static const resend_code_success = 'resend_code_success';
+  static const recover_password_success = 'recover_password_success';
+  static const recover_password_desc = 'recover_password_desc';
+  static const recover_password_intro = 'recover_password_intro';
+  static const recover_code_password_desc = 'recover_code_password_desc';
+  static const signup_form_desc = 'signup_form_desc';
+  static const signup_intro = 'signup_intro';
+  static const confirm_code_error = 'confirm_code_error';
+  static const confirm_code_success = 'confirm_code_success';
+  static const confirm_recover_intro = 'confirm_recover_intro';
+  static const confirm_recover_success = 'confirm_recover_success';
   static const tip_connect_desc = 'tip_connect_desc';
   static const tip_providers_title_first = 'tip_providers_title_first';
   static const tip_login_true = 'tip_login_true';
@@ -78,15 +83,15 @@ class LocaleKeys {
   static const tip_delete_contact = 'tip_delete_contact';
   static const tip_empty_chat_placeholder = 'tip_empty_chat_placeholder';
   static const hint_login_account = 'hint_login_account';
-  static const hint_login_phone = 'hint_login_phone';
-  static const hint_login_email = 'hint_login_email';
-  static const hint_login_confirmationcode = 'hint_login_confirmationcode';
-  static const hint_login_recoverycode = 'hint_login_recoverycode';
-  static const hint_login_password = 'hint_login_password';
-  static const hint_login_confirmpassword = 'hint_login_confirmpassword';
+  static const confirm_code = 'confirm_code';
+  static const password = 'password';
+  static const retype_password = 'retype_password';
+  static const existing_password = 'existing_password';
+  static const new_password = 'new_password';
   static const chat_hold_down_talk = 'chat_hold_down_talk';
   static const incoming_call = 'incoming_call';
-  static const error_confirmpassword = 'error_confirmpassword';
+  static const error_password = 'error_password';
+  static const error_retype_password = 'error_retype_password';
   static const error_incorrect_phone = 'error_incorrect_phone';
   static const error_failed_to_connect = 'error_failed_to_connect';
   static const error_no_valid_file_or_url = 'error_no_valid_file_or_url';
@@ -95,6 +100,7 @@ class LocaleKeys {
       'error_unnecessary_parameter_plural';
   static const error_nonexistent_directory = 'error_nonexistent_directory';
   static const error_empty_directory = 'error_empty_directory';
+  static const error_same = 'error_same';
   static const error_invalid = 'error_invalid';
   static const error_length_between = 'error_length_between';
   static const error_required = 'error_required';
@@ -120,6 +126,7 @@ class LocaleKeys {
   static const error_server_refused = 'error_server_refused';
   static const error_failed_connect_server = 'error_failed_connect_server';
   static const error_request_forbidden = 'error_request_forbidden';
+  static const error_many_request = 'error_many_request';
   static const error_internal_server = 'error_internal_server';
   static const unsupported_file_type = 'unsupported_file_type';
   static const no_permission = 'no_permission';
@@ -138,6 +145,8 @@ class LocaleKeys {
   static const search_location = 'search_location';
   static const nickname = 'nickname';
   static const account = 'account';
+  static const email = 'email';
+  static const mobile = 'mobile';
   static const region = 'region';
   static const selected_region = 'selected_region';
   static const uploading = 'uploading';
@@ -150,16 +159,17 @@ class LocaleKeys {
   static const you_withdrew_a_message = 'you_withdrew_a_message';
   static const personal_card = 'personal_card';
   static const unanswered = 'unanswered';
-  static const peer_has_hungup = 'peer_has_hungup';
+  static const peer_has_hung_up = 'peer_has_hung_up';
   static const cancelled = 'cancelled';
   static const call_duration = 'call_duration';
-  static const set_region = 'set_region';
   static const all = 'all';
   static const revoke = 'revoke';
   static const forward = 'forward';
   static const quote = 'quote';
+  static const delete_for_me = 'delete_for_me';
+  static const delete_for_everyone = 'delete_for_everyone';
   static const complaint = 'complaint';
-  static const slide_up_cancle_sending = 'slide_up_cancle_sending';
+  static const slide_up_cancel_sending = 'slide_up_cancel_sending';
   static const release_end = 'release_end';
   static const speaking_too_short = 'speaking_too_short';
   static const release_finger_cancel_sending = 'release_finger_cancel_sending';
@@ -247,9 +257,7 @@ class LocaleKeys {
   static const apply_add_friend = 'apply_add_friend';
   static const send_friend_request = 'send_friend_request';
   static const remark = 'remark';
-  static const set_remark = 'set_remark';
   static const moment = 'moment';
-  static const set_moment = 'set_moment';
   static const chat_moment_sport_data_etc = 'chat_moment_sport_data_etc';
   static const just_chat = 'just_chat';
   static const moment_status = 'moment_status';
@@ -261,7 +269,6 @@ class LocaleKeys {
   static const profile_settings = 'profile_settings';
   static const tags = 'tags';
   static const remarks_tags = 'remarks_tags';
-  static const set_remarks_tags = 'set_remarks_tags';
   static const friend_permissions = 'friend_permissions';
   static const recommend_to_friend = 'recommend_to_friend';
   static const blacklist = 'blacklist';
@@ -371,7 +378,6 @@ class LocaleKeys {
   static const type = 'type';
   static const device_details = 'device_details';
   static const device_name = 'device_name';
-  static const set_device_name = 'set_device_name';
   static const device_type = 'device_type';
   static const last_active_time = 'last_active_time';
   static const last_active_tips = 'last_active_tips';
@@ -388,15 +394,15 @@ class LocaleKeys {
   static const login_email = 'login_email';
   static const personal_information = 'personal_information';
   static const choose_from_album = 'choose_from_album';
-  static const set_nickname = 'set_nickname';
   static const male = 'male';
   static const female = 'female';
   static const gender = 'gender';
   static const keep_secret = 'keep_secret';
-  static const set_gender = 'set_gender';
   static const signature = 'signature';
-  static const set_signature = 'set_signature';
   static const not_filled = 'not_filled';
+  static const not_bound = 'not_bound';
+  static const not_set = 'not_set';
+  static const have_set = 'have_set';
   static const scan_result = 'scan_result';
   static const user_not_exist = 'user_not_exist';
   static const user_disabled_or_deleted = 'user_disabled_or_deleted';
@@ -421,11 +427,10 @@ class LocaleKeys {
   static const speed = 'speed';
   static const play = 'play';
   static const save_qr_code = 'save_qr_code';
-  static const change_tag_name = 'change_tag_name';
   static const delete_tag_tips = 'delete_tag_tips';
   static const remove_contact_from_tag = 'remove_contact_from_tag';
   static const no_members_in_current_tag = 'no_members_in_current_tag';
-  static const modify_name = 'modify_name';
+  static const change_param = 'change_param';
   static const contact_tags = 'contact_tags';
   static const need_submit_effect = 'need_submit_effect';
   static const already_entered = 'already_entered';
@@ -444,9 +449,19 @@ class LocaleKeys {
   static const options_rename = 'options_rename';
   static const setting = 'setting';
   static const language_setting = 'language_setting';
-  static const bugReport = 'bugReport';
-  static const featureRequest = 'featureRequest';
   static const ios_app_id_unknown = 'ios_app_id_unknown';
+  static const enter_the_group = 'enter_the_group';
+  static const security_center = 'security_center';
+  static const logout_account = 'logout_account';
+  static const switch_environment = 'switch_environment';
+  static const name = 'name';
+  static const unnamed = 'unnamed';
+  static const group_announcement = 'group_announcement';
+  static const search_chat_content = 'search_chat_content';
+  static const pin_chat = 'pin_chat';
+  static const change_group_chat_name = 'change_group_chat_name';
+  static const nickname_change_visibility = 'nickname_change_visibility';
+  static const group_remark_visibility = 'group_remark_visibility';
   static const about_app = 'about_app';
   static const zh_tw = 'zh_tw';
 }
@@ -462,6 +477,13 @@ class Locales {
     'on': '已开启',
     'off': '已关闭',
     'you': '你',
+    'set_param': '设置%s',
+    'apply_param': '申请%s',
+    'read_agree_param': '已经阅读并同意《%s》',
+    'logout_notice': '注销须知',
+    'cancel_logout_title': '是否终止注销流程？',
+    'cancel_logout_body':
+        '此账号处于注销反悔期，若登录成功则视作终止注销流程。如需继续注销，请在注销申请提交后的15天内不要登录IMBoy。',
     'button_cancel': '取消',
     'button_accomplish': '完成',
     'button_taking_pictures': '拍照',
@@ -477,16 +499,15 @@ class Locales {
     'button_close': '关闭',
     'button_resend_code': '重发验证码',
     'button_invite_code': '邀请码',
-    'button_forgotpassword': '忘记密码？',
-    'button_recoverpassword': '找回密码',
+    'forgot_password': '忘记密码？',
+    'recover_password': '找回密码',
     'button_back': '返回',
     'button_copy': '复制',
     'button_submit': '提交',
-    'button_setpassword': '设置密码',
     'button_sign_in_fb': '用 Facebook 登录',
     'button_sign_in_google': '用 Google 登录',
     'button_sign_in_apple': '用 Apple 登录',
-    'title_termofservices': '服务条款',
+    'term_of_services': '服务条款',
     'selected_items': '%s 个选定项目',
     'title_mine': '我的',
     'title_contact': '联系人',
@@ -497,17 +518,17 @@ class Locales {
     'tip_title': '喔！',
     'tip_success': '操作成功！',
     'tip_failed': '操作失败！',
-    'tip_resendcode_success': '已发送新邮件。',
-    'tip_recoverpassword_success': '验证码发送成功',
-    'tip_recoverpassword_desc': '',
-    'tip_recoverpassword_intro': '不要感觉不好，这是常有的事。',
-    'tip_recovercodepassword_desc': '我们会将密码恢复码发送到您的邮箱。',
-    'tip_sigup_form_desc': '请填写此表格以完成注册',
-    'tip_sigup_intro': '确认码已发送到您的邮箱，\n请输入确认码确认您的帐户。',
-    'tip_confirmationcode_error': '确认码为空',
-    'tip_confirmationcode_success': '账户已确认。',
-    'tip_confirmrecover_intro': '验证码已发送到您的邮箱。',
-    'tip_confirmrecover_success': '密码修改成功。',
+    'resend_code_success': '已发送新邮件。',
+    'recover_password_success': '验证码发送成功',
+    'recover_password_desc': '',
+    'recover_password_intro': '不要感觉不好，这是常有的事。',
+    'recover_code_password_desc': '我们会将密码恢复码发送到您的邮箱。',
+    'signup_form_desc': '请填写此表格以完成注册',
+    'signup_intro': '确认码已发送到您的邮箱，\n请输入确认码确认您的帐户。',
+    'confirm_code_error': '确认码为空',
+    'confirm_code_success': '账户已确认。',
+    'confirm_recover_intro': '验证码已发送到您的邮箱。',
+    'confirm_recover_success': '密码修改成功。',
     'tip_connect_desc': '无网络',
     'tip_providers_title_first': '或用以下账号登录',
     'tip_login_true': '已经有账号了？',
@@ -517,15 +538,15 @@ class Locales {
     'tip_delete_contact': '将联系人"%s"删除，同时删除与该联系人的聊天记录',
     'tip_empty_chat_placeholder': '这里还没有消息',
     'hint_login_account': '账号/邮箱/手机号',
-    'hint_login_phone': '手机号',
-    'hint_login_email': '邮箱',
-    'hint_login_confirmationcode': '确认码',
-    'hint_login_recoverycode': '找回密码验证码',
-    'hint_login_password': '密码',
-    'hint_login_confirmpassword': '确认密码',
+    'confirm_code': '确认码',
+    'password': '密码',
+    'retype_password': '重新输入密码',
+    'existing_password': '现有密码',
+    'new_password': '新的密码',
     'chat_hold_down_talk': '按住说话',
     'incoming_call': '%s呼入',
-    'error_confirmpassword': '两次输入密码不一致',
+    'error_password': '密码错误',
+    'error_retype_password': '两次输入密码不一致',
     'error_incorrect_phone': '手机号码格式有误',
     'error_failed_to_connect': '连接到 %s 失败',
     'error_no_valid_file_or_url': '%s 不是有效的文件或URL',
@@ -533,8 +554,9 @@ class Locales {
     'error_unnecessary_parameter_plural': '参数 %s 是多余的',
     'error_nonexistent_directory': '%s 不存在',
     'error_empty_directory': '%s 是空的',
+    'error_same': '%s 和 %s 是同样的',
     'error_invalid': '%s 是无效的',
-    'error_length_between': '%s长度为%d-%d的任意字符',
+    'error_length_between': '%s长度为%s-%s的任意字符',
     'error_required': '%s 是必须的',
     'error_invalid_json': '%s 不是个有效的json文件',
     'error_special_characters_in_key': 'key中包含不允许的特殊字符. \n key: %s',
@@ -556,6 +578,7 @@ class Locales {
     'error_server_refused': '服务器拒绝执行',
     'error_failed_connect_server': '无法连接服务器',
     'error_request_forbidden': '请求方法被禁止',
+    'error_many_request': '请求过多',
     'error_internal_server': '服务器内部错误',
     'unsupported_file_type': '不支持的文件类型',
     'no_permission': '没有权限',
@@ -573,6 +596,8 @@ class Locales {
     'search_location': '搜索地点',
     'nickname': '昵称',
     'account': '账号',
+    'email': '邮箱',
+    'mobile': '手机',
     'region': '地区',
     'selected_region': '已选地区',
     'uploading': '上传中',
@@ -585,16 +610,17 @@ class Locales {
     'you_withdrew_a_message': '你撤回了一条消息',
     'personal_card': '个人名片',
     'unanswered': '未应答',
-    'peer_has_hungup': '对方已挂断',
+    'peer_has_hung_up': '对方已挂断',
     'cancelled': '已取消',
     'call_duration': '通话时长',
-    'set_region': '设置地区',
     'all': '全部',
     'revoke': '撤回',
     'forward': '转发',
     'quote': '引用',
+    'delete_for_me': '删除我的消息',
+    'delete_for_everyone': '删除所有人的消息',
     'complaint': '投诉',
-    'slide_up_cancle_sending': '手指上滑,取消发送',
+    'slide_up_cancel_sending': '手指上滑,取消发送',
     'release_end': '松开结束',
     'speaking_too_short': '说话时间太短',
     'release_finger_cancel_sending': '松开手指,取消发送',
@@ -682,9 +708,7 @@ class Locales {
     'apply_add_friend': '申请添加朋友',
     'send_friend_request': '发送添加朋友申请',
     'remark': '备注',
-    'set_remark': '设置备注',
     'moment': '朋友圈',
-    'set_moment': '设置朋友圈',
     'chat_moment_sport_data_etc': '聊天、朋友圈、运动数据等',
     'just_chat': '仅聊天',
     'moment_status': '朋友圈和状态',
@@ -696,7 +720,6 @@ class Locales {
     'profile_settings': '资料设置',
     'tags': '标签',
     'remarks_tags': '备注和标签',
-    'set_remarks_tags': '设置备注和标签',
     'friend_permissions': '朋友权限',
     'recommend_to_friend': '把他推荐给朋友',
     'blacklist': '黑名单',
@@ -748,7 +771,7 @@ class Locales {
     'device_list': '设备列表',
     'storage_space_data': '存储空间和数据',
     'tell_friend': '告诉朋友',
-    'account_security': '账号与安全',
+    'account_security': '账号安全',
     'update_log': '更新日志',
     'message_notification': '消息通知',
     'storage_space': '存储空间',
@@ -805,7 +828,6 @@ class Locales {
     'type': '类型',
     'device_details': '设备详情',
     'device_name': '设备名称',
-    'set_device_name': '设置设备名',
     'device_type': '设备类型',
     'last_active_time': '最近活跃时间',
     'last_active_tips': '当设备处于安全状态时，会自动延长登录时间以保持朋友消息的及时收发，此时会更新最近活跃时问。',
@@ -822,15 +844,15 @@ class Locales {
     'login_email': '登录邮箱',
     'personal_information': '个人信息',
     'choose_from_album': '从相册选择',
-    'set_nickname': '设置昵称',
     'male': '男',
     'female': '女',
     'gender': '性别',
     'keep_secret': '保密',
-    'set_gender': '设置性别',
     'signature': '个性签名',
-    'set_signature': '设置个性签名',
     'not_filled': '未填写',
+    'not_bound': '未绑定',
+    'not_set': '未设置',
+    'have_set': '已设置',
     'scan_result': '扫描结果',
     'user_not_exist': '用户不存在',
     'user_disabled_or_deleted': '用户被禁用或已删除',
@@ -855,11 +877,10 @@ class Locales {
     'speed': '速度',
     'play': '播放',
     'save_qr_code': '保存二维码',
-    'change_tag_name': '更改标签名称',
     'delete_tag_tips': '删除标签后，标签中的联系人不会被删除',
     'remove_contact_from_tag': '从标签中移除联系人',
     'no_members_in_current_tag': '当前标签无成员',
-    'modify_name': '修改名称',
+    'change_param': '修改%s',
     'contact_tags': '联系人标签',
     'need_submit_effect': '需要确认提交，该操作才生效',
     'already_entered': '你已经输入过了',
@@ -878,9 +899,19 @@ class Locales {
     'options_rename': '我想重命名',
     'setting': '设置',
     'language_setting': '语言设置',
-    'bugReport': '错误报告',
-    'featureRequest': '功能要求',
     'ios_app_id_unknown': 'AppStore未上架或AppID[%s]不存在',
+    'enter_the_group': '进入该群',
+    'security_center': '安全中心',
+    'logout_account': '注销账号',
+    'switch_environment': '切换环境',
+    'name': '名称',
+    'unnamed': '未命名',
+    'group_announcement': '群公告',
+    'search_chat_content': '查找聊天内容',
+    'pin_chat': '置顶聊天',
+    'change_group_chat_name': '修改群聊名称后，将在群内通知其他成员。',
+    'nickname_change_visibility': '昵称修改后，只会在此群内显示，群内成员都可以看见。',
+    'group_remark_visibility': '群聊的备注仅自己可见',
     'about_app': '关于应用',
   };
   static const en_US = {
@@ -894,6 +925,13 @@ class Locales {
     'on': 'Enabled',
     'off': 'Disabled',
     'you': 'You',
+    'set_param': 'Set %s',
+    'apply_param': 'Apply %s',
+    'read_agree_param': 'Have read and agree to the《%s》',
+    'logout_notice': 'Logout Notice',
+    'cancel_logout_title': 'Cancel the Logout Process?',
+    'cancel_logout_body':
+        'This account is in the revocation period of the cancellation. If you log in successfully, it will be considered as terminating the logout process. If you wish to continue with the cancellation, please do not log in to IMBoy within 15 days after submitting the cancellation application.',
     'button_cancel': 'Cancel',
     'button_accomplish': 'Accomplish',
     'button_taking_pictures': 'Take Photo',
@@ -909,16 +947,15 @@ class Locales {
     'button_close': 'Close',
     'button_resend_code': 'Resend Verification Code',
     'button_invite_code': 'Invitation Code',
-    'button_forgotpassword': 'Forgot Password?',
-    'button_recoverpassword': 'Recover Password',
+    'forgot_password': 'Forgot Password?',
+    'recover_password': 'Recover Password',
     'button_back': 'Back',
     'button_copy': 'Copy',
     'button_submit': 'Submit',
-    'button_setpassword': 'Set Password',
     'button_sign_in_fb': 'Sign in with Facebook',
     'button_sign_in_google': 'Sign in with Google',
     'button_sign_in_apple': 'Sign in with Apple',
-    'title_termofservices': 'Terms of Service',
+    'term_of_services': 'Terms of Service',
     'selected_items': '%s selected items',
     'title_mine': 'Mine',
     'title_contact': 'Contacts',
@@ -930,21 +967,21 @@ class Locales {
     'tip_title': 'Oops!',
     'tip_success': 'Successful!',
     'tip_failed': 'Failed!',
-    'tip_resendcode_success': 'New email has been sent.',
-    'tip_recoverpassword_success': 'Verification code sent successfully',
-    'tip_recoverpassword_desc': '',
-    'tip_recoverpassword_intro': 'Don\'t feel bad, it happens.',
-    'tip_recovercodepassword_desc':
+    'resend_code_success': 'New email has been sent.',
+    'recover_password_success': 'Verification code sent successfully',
+    'recover_password_desc': '',
+    'recover_password_intro': 'Don\'t feel bad, it happens.',
+    'recover_code_password_desc':
         'We will send the password recovery code to your email.',
-    'tip_sigup_form_desc':
+    'signup_form_desc':
         'Please fill out this form to complete the registration',
-    'tip_sigup_intro':
+    'signup_intro':
         'The confirmation code has been sent to your email,\nPlease enter the confirmation code to confirm your account.',
-    'tip_confirmationcode_error': 'Confirmation code is empty',
-    'tip_confirmationcode_success': 'Account confirmed.',
-    'tip_confirmrecover_intro':
+    'confirm_code_error': 'Confirmation code is empty',
+    'confirm_code_success': 'Account confirmed.',
+    'confirm_recover_intro':
         'The verification code has been sent to your email.',
-    'tip_confirmrecover_success': 'Password changed successfully.',
+    'confirm_recover_success': 'Password changed successfully.',
     'tip_connect_desc': 'No internet connection',
     'tip_providers_title_first': 'Or sign in with',
     'tip_login_true': 'Already have an account?',
@@ -955,15 +992,13 @@ class Locales {
         'Delete contact "%s" and chat history with this contact',
     'tip_empty_chat_placeholder': 'No messages here yet',
     'hint_login_account': 'Account/Email/Phone Number',
-    'hint_login_phone': 'Phone Number',
-    'hint_login_email': 'Email',
-    'hint_login_confirmationcode': 'Confirmation Code',
-    'hint_login_recoverycode': 'Verification Code',
-    'hint_login_password': 'Password',
-    'hint_login_confirmpassword': 'Confirm Password',
+    'confirm_code': 'Confirmation Code',
+    'password': 'Password',
+    'retype_password': 'Retype Password',
     'chat_hold_down_talk': 'Press to talk',
     'incoming_call': '%s incoming call',
-    'error_confirmpassword': 'The two passwords entered do not match',
+    'error_password': 'Incorrect password',
+    'error_retype_password': 'The two passwords entered do not match',
     'error_incorrect_phone': 'Incorrect phone number format',
     'error_failed_to_connect': 'Failed to connect to %s',
     'error_no_valid_file_or_url': '%s is not a valid file or URL',
@@ -971,8 +1006,9 @@ class Locales {
     'error_unnecessary_parameter_plural': 'Parameters %s are unnecessary',
     'error_nonexistent_directory': '%s does not exist',
     'error_empty_directory': '%s is empty',
+    'error_same': '%s and %s are the same',
     'error_invalid': '%s is invalid',
-    'error_length_between': '%s length should be between %d-%d characters',
+    'error_length_between': '%s length should be between %s-%s characters',
     'error_required': '%s is required',
     'error_invalid_json': '%s is not a valid json file',
     'error_special_characters_in_key':
@@ -996,6 +1032,7 @@ class Locales {
     'error_server_refused': 'The server refused to execute',
     'error_failed_connect_server': 'Failed to connect to the server',
     'error_request_forbidden': 'Request method is forbidden',
+    'error_many_request': 'Too Many Requests',
     'error_internal_server': 'Internal server error',
     'unsupported_file_type': 'Unsupported file type',
     'no_permission': 'No permission',
@@ -1014,6 +1051,8 @@ class Locales {
     'search_location': 'Search location',
     'nickname': 'Nickname',
     'account': 'Account',
+    'email': 'Email',
+    'mobile': 'Mobile',
     'region': 'Region',
     'selected_region': 'Selected Region',
     'uploading': 'Uploading',
@@ -1026,16 +1065,17 @@ class Locales {
     'you_withdrew_a_message': 'You withdrew a message',
     'personal_card': 'Contact Card',
     'unanswered': 'Unanswered',
-    'peer_has_hungup': 'The other party has hung up',
+    'peer_has_hung_up': 'The other party has hung up',
     'cancelled': 'Cancelled',
     'call_duration': 'Call Duration',
-    'set_region': 'Set Region',
     'all': 'All',
     'revoke': 'Revoke',
     'forward': 'Forward',
     'quote': 'Quote',
+    'delete_for_me': 'Delete for me',
+    'delete_for_everyone': 'Delete for everyone',
     'complaint': 'Complaint',
-    'slide_up_cancle_sending': 'Slide up to cancel sending',
+    'slide_up_cancel_sending': 'Slide up to cancel sending',
     'release_end': 'Release to end',
     'speaking_too_short': 'Speaking time is too short',
     'release_finger_cancel_sending': 'Release finger to cancel sending',
@@ -1128,9 +1168,7 @@ class Locales {
     'apply_add_friend': 'Apply to add friend',
     'send_friend_request': 'Send friend request',
     'remark': 'Remark',
-    'set_remark': 'Set remark',
     'moment': 'Moments',
-    'set_moment': 'Set Moments',
     'chat_moment_sport_data_etc': 'Chat, Moments, sports data, etc.',
     'just_chat': 'Chat only',
     'moment_status': 'Moments & Status',
@@ -1142,7 +1180,6 @@ class Locales {
     'profile_settings': 'Profile settings',
     'tags': 'Tags',
     'remarks_tags': 'Remarks & Tags',
-    'set_remarks_tags': 'Set remarks & tags',
     'friend_permissions': 'Friend permissions',
     'recommend_to_friend': 'Recommend to a friend',
     'blacklist': 'Blacklist',
@@ -1259,7 +1296,6 @@ class Locales {
     'type': 'Type',
     'device_details': 'Device Details',
     'device_name': 'Device Name',
-    'set_device_name': 'Set Device Name',
     'device_type': 'Device Type',
     'last_active_time': 'Last Active Time',
     'last_active_tips':
@@ -1279,15 +1315,15 @@ class Locales {
     'login_email': 'Login Email',
     'personal_information': 'Personal Information',
     'choose_from_album': 'Choose from Album',
-    'set_nickname': 'Set Nickname',
     'male': 'Male',
     'female': 'Female',
     'gender': 'Gender',
     'keep_secret': 'Keep Secret',
-    'set_gender': 'Set Gender',
     'signature': 'Signature',
-    'set_signature': 'Set Signature',
-    'not_filled': 'Not filled',
+    'not_filled': 'Not yet filled',
+    'not_bound': 'Not yet bound',
+    'not_set': 'Not yet set',
+    'have_set': 'Have set',
     'scan_result': 'Scan Result',
     'user_not_exist': 'User does not exist',
     'user_disabled_or_deleted': 'User is disabled or deleted',
@@ -1313,11 +1349,10 @@ class Locales {
     'speed': 'Speed',
     'play': 'Play',
     'save_qr_code': 'Save QR Code',
-    'change_tag_name': 'Change Tag Name',
     'delete_tag_tips': 'Deleting a tag will not delete the contacts in the tag',
     'remove_contact_from_tag': 'Remove Contact from Tag',
     'no_members_in_current_tag': 'No members in the current tag',
-    'modify_name': 'Modify Name',
+    'change_param': 'Change %s',
     'contact_tags': 'Contact Tags',
     'need_submit_effect':
         'Need to confirm submission for the operation to take effect',
@@ -1339,10 +1374,22 @@ class Locales {
     'options_rename': 'I want to rename',
     'setting': 'Settings',
     'language_setting': 'Language setting',
-    'bugReport': 'Bug Report',
-    'featureRequest': 'Feature Request',
     'ios_app_id_unknown':
         'Not listed on the AppStore or AppID[%s] does not exist',
+    'enter_the_group': 'Enter the group',
+    'security_center': 'Security Center',
+    'logout_account': 'Log out Account',
+    'switch_environment': 'Switch Environment',
+    'name': 'Name',
+    'unnamed': 'Unnamed',
+    'group_announcement': 'Group Announcement',
+    'search_chat_content': 'Search Chat Content',
+    'pin_chat': 'Pin Chat',
+    'change_group_chat_name':
+        'After modifying the group chat name, other members will be notified in the group.',
+    'nickname_change_visibility':
+        'After the nickname is modified, it will only be displayed in this group, and all members in the group can see it.',
+    'group_remark_visibility': 'Group chat remarks are visible only to oneself',
     'about_app': 'About app',
   };
   static const ru_RU = {
@@ -1356,6 +1403,13 @@ class Locales {
     'on': 'Включено',
     'off': 'Выключено',
     'you': 'ты',
+    'set_param': 'настройка %s',
+    'apply_param': 'Заявление %s',
+    'read_agree_param': 'Прочитано и согласие с《%s》',
+    'logout_notice': 'Уведомление об выходе из системы',
+    'cancel_logout_title': 'Отменить процесс выхода?',
+    'cancel_logout_body':
+        'Эта учетная запись находится в период отсрочки отмены. Если вы успешно войти, это будет считаться прекращением процесса выхода. Если вы хотите продолжить отмену, пожалуйста, не входите в IMBoy в течение 15 дней после подачи заявки на отмену.',
     'button_cancel': 'Отмена',
     'button_accomplish': 'Завершить',
     'button_taking_pictures': 'Фотографировать',
@@ -1371,16 +1425,15 @@ class Locales {
     'button_close': 'Закрыть',
     'button_resend_code': 'Повторно отправить код подтверждения',
     'button_invite_code': 'Пригласительный код',
-    'button_forgotpassword': 'Забыли пароль?',
-    'button_recoverpassword': 'Восстановить пароль',
+    'forgot_password': 'Забыли пароль?',
+    'recover_password': 'Восстановить пароль',
     'button_back': 'Назад',
     'button_copy': 'Копировать',
     'button_submit': 'Отправить',
-    'button_setpassword': 'Установить пароль',
     'button_sign_in_fb': 'Войти через Facebook',
     'button_sign_in_google': 'Войти через Google',
     'button_sign_in_apple': 'Войти через Apple',
-    'title_termofservices': 'Условия обслуживания',
+    'term_of_services': 'Условия обслуживания',
     'selected_items': '%s выбранных элементов',
     'title_mine': 'Мой',
     'title_contact': 'Контакты',
@@ -1392,21 +1445,20 @@ class Locales {
     'tip_title': 'Ура!',
     'tip_success': 'Операция успешна!',
     'tip_failed': 'Операция не удалась!',
-    'tip_resendcode_success': 'Новый код был отправлен на вашу почту.',
-    'tip_recoverpassword_success':
+    'resend_code_success': 'Новый код был отправлен на вашу почту.',
+    'recover_password_success':
         'Код подтверждения был отправлен на вашу почту.',
-    'tip_recoverpassword_desc': '',
-    'tip_recoverpassword_intro': 'Не переживайте, это происходит.',
-    'tip_recovercodepassword_desc':
+    'recover_password_desc': '',
+    'recover_password_intro': 'Не переживайте, это происходит.',
+    'recover_code_password_desc':
         'Мы отправим вам код восстановления пароля на почту.',
-    'tip_sigup_form_desc': 'Заполните эту форму, чтобы завершить регистрацию',
-    'tip_sigup_intro':
+    'signup_form_desc': 'Заполните эту форму, чтобы завершить регистрацию',
+    'signup_intro':
         'Код подтверждения был отправлен на вашу почту,\nвведите код, чтобы подтвердить вашу учетную запись.',
-    'tip_confirmationcode_error': 'Код подтверждения пуст',
-    'tip_confirmationcode_success': 'Учетная запись подтверждена.',
-    'tip_confirmrecover_intro':
-        'Код подтверждения был отправлен на вашу почту.',
-    'tip_confirmrecover_success': 'Пароль успешно изменен.',
+    'confirm_code_error': 'Код подтверждения пуст',
+    'confirm_code_success': 'Учетная запись подтверждена.',
+    'confirm_recover_intro': 'Код подтверждения был отправлен на вашу почту.',
+    'confirm_recover_success': 'Пароль успешно изменен.',
     'tip_connect_desc': 'Нет подключения к интернету',
     'tip_providers_title_first': 'Или войти через',
     'tip_login_true': 'Уже есть учетная запись?',
@@ -1416,15 +1468,13 @@ class Locales {
     'tip_delete_contact': 'Удалить контакт "%s" и сообщения с ним',
     'tip_empty_chat_placeholder': 'десь пока нет сообщений',
     'hint_login_account': 'Учетная запись/почта/телефон',
-    'hint_login_phone': 'Номер телефона',
-    'hint_login_email': 'Электронная почта',
-    'hint_login_confirmationcode': 'Код подтверждения',
-    'hint_login_recoverycode': 'Код подтверждения',
-    'hint_login_password': 'Пароль',
-    'hint_login_confirmpassword': 'Подтвердить пароль',
+    'confirm_code': 'Код подтверждения',
+    'password': 'Пароль',
+    'retype_password': 'Пароль для восстановления пароля',
     'chat_hold_down_talk': 'Зажмите, чтобы говорить',
     'incoming_call': 'Входящий звонок от %s',
-    'error_confirmpassword': 'Пароли не совпадают',
+    'error_password': 'Неверный пароль',
+    'error_retype_password': 'Пароли не совпадают',
     'error_incorrect_phone': 'Неверный формат телефона',
     'error_failed_to_connect': 'Не удалось подключиться к %s',
     'error_no_valid_file_or_url':
@@ -1433,8 +1483,9 @@ class Locales {
     'error_unnecessary_parameter_plural': 'Параметры %s лишние',
     'error_nonexistent_directory': '%s не существует',
     'error_empty_directory': '%s пуст',
+    'error_same': '%s и %s одинаковы',
     'error_invalid': '%s недействителен',
-    'error_length_between': 'Длина %s от %d до %d произвольных символов',
+    'error_length_between': 'Длина %s от %s до %s произвольных символов',
     'error_required': '%s обязателен',
     'error_invalid_json': '%s не является действительным файлу JSON',
     'error_special_characters_in_key':
@@ -1459,6 +1510,7 @@ class Locales {
     'error_server_refused': 'Сервер отказался выполнить запрос',
     'error_failed_connect_server': 'Не удалось подключиться к серверу',
     'error_request_forbidden': 'Запрошенный метод запрещен',
+    'error_many_request': 'Слишком много запросов',
     'error_internal_server': 'Внутренняя ошибка сервера',
     'unsupported_file_type': 'Неподдерживаемый тип файла',
     'no_permission': 'Нет прав',
@@ -1477,6 +1529,8 @@ class Locales {
     'search_location': 'Поиск места',
     'nickname': 'Псевдоним',
     'account': 'Учетная запись',
+    'email': 'Почтов ящик',
+    'mobile': 'Мобильный',
     'region': 'Регион',
     'selected_region': 'Выбранный регион',
     'uploading': 'Загрузка...',
@@ -1490,16 +1544,17 @@ class Locales {
     'you_withdrew_a_message': 'Вы отменили сообщение',
     'personal_card': 'Свяжись с визиткой',
     'unanswered': 'Не отвечено',
-    'peer_has_hungup': 'Сообещаемый заблокировал соединение',
+    'peer_has_hung_up': 'Сообещаемый заблокировал соединение',
     'cancelled': 'Отменено',
     'call_duration': 'Длительность звонка',
-    'set_region': 'Установить регион',
     'all': 'Все',
     'revoke': 'отозва',
     'forward': 'Переслать',
     'quote': 'Цитата',
+    'delete_for_me': 'Удалить для меня',
+    'delete_for_everyone': 'Удалить для всех',
     'complaint': 'Жалоба',
-    'slide_up_cancle_sending': 'Проведите пальцем вверх, отмените отправку',
+    'slide_up_cancel_sending': 'Проведите пальцем вверх, отмените отправку',
     'release_end': 'Отпустите, чтобы закончить',
     'speaking_too_short': 'Вы говорите слишком коротко',
     'release_finger_cancel_sending': 'Отпустите палец, отмените отправку',
@@ -1597,9 +1652,7 @@ class Locales {
     'apply_add_friend': 'Подать заявление на добавление в друзья',
     'send_friend_request': 'Отправить запрос на добавление в друзья',
     'remark': 'Заметка',
-    'set_remark': 'Установить заметку',
     'moment': 'Друзья',
-    'set_moment': 'Установить друзья',
     'chat_moment_sport_data_etc': 'Чат, моменты, данные спорта и т.д.',
     'just_chat': 'Только чат',
     'moment_status': 'Моменты и статус',
@@ -1611,7 +1664,6 @@ class Locales {
     'profile_settings': 'Настройки профиля',
     'tags': 'Метки',
     'remarks_tags': 'Примечания и метки',
-    'set_remarks_tags': 'Установить примечания и метки',
     'friend_permissions': 'Права друзей',
     'recommend_to_friend': 'Рекомендовать его другу',
     'blacklist': 'Черный список',
@@ -1727,7 +1779,6 @@ class Locales {
     'type': 'Тип',
     'device_details': 'Подробности устройства',
     'device_name': 'Имя устройства',
-    'set_device_name': 'Установить имя устройства',
     'device_type': 'Тип устройства',
     'last_active_time': 'Последнее время активности',
     'last_active_tips':
@@ -1747,15 +1798,15 @@ class Locales {
     'login_email': 'Адрес электронной почты для входа',
     'personal_information': 'Личная информация',
     'choose_from_album': 'Выбрать из альбома',
-    'set_nickname': 'Установить псевдоним',
     'male': 'Мужчина',
     'female': 'Женщина',
     'gender': 'Пол',
     'keep_secret': 'Сохранить в тайне',
-    'set_gender': 'Установить пол',
     'signature': 'Персональная подпись',
-    'set_signature': 'Установить персональную подпись',
-    'not_filled': 'Не заполнено',
+    'not_filled': 'Еще не заполнено',
+    'not_bound': 'Еще не связано',
+    'not_set': 'Еще не установлено',
+    'have_set': 'Уже установлено',
     'scan_result': 'Результат сканирования',
     'user_not_exist': 'Пользователь не существует',
     'user_disabled_or_deleted': 'Пользователь заблокирован или удален',
@@ -1781,11 +1832,10 @@ class Locales {
     'speed': 'Скорость',
     'play': 'Воспроизвести',
     'save_qr_code': 'Сохранить QR-код',
-    'change_tag_name': 'Изменить название тега',
     'delete_tag_tips': 'После удаления тега, контакты в теге не будут удалены',
     'remove_contact_from_tag': 'Удалить контакт из тега',
     'no_members_in_current_tag': 'В текущем теге нет участников',
-    'modify_name': 'Изменить название',
+    'change_param': 'модификац %s',
     'contact_tags': 'Теги контактов',
     'need_submit_effect':
         'Необходимо подтвердить отправку, чтобы изменения вступили в силу',
@@ -1807,10 +1857,22 @@ class Locales {
     'options_rename': 'Я хочу переименовать',
     'setting': 'Настройки',
     'language_setting': 'Настройка языка',
-    'bugReport': 'Сообщить об ошибке',
-    'featureRequest': 'Запросить функцию',
     'ios_app_id_unknown':
         'Приложение не доступно в AppStore или AppID[%s] не существует',
+    'enter_the_group': 'Войти в группу',
+    'security_center': 'Центр безопасности',
+    'logout_account': 'Отменить учетную запись',
+    'switch_environment': 'Переключение среды',
+    'name': 'назван',
+    'unnamed': 'Безымянный',
+    'group_announcement': 'Групповое объявление',
+    'search_chat_content': 'Поиск чат-контента',
+    'pin_chat': 'Закрепить чат',
+    'change_group_chat_name':
+        'После изменения имени группы другие участники будут уведомлены в группе.',
+    'nickname_change_visibility':
+        'После изменения ника изменение будет видно только в этой группе, и все участники группы могут видеть это.',
+    'group_remark_visibility': 'Примечания к групповому чату видны только вам',
     'about_app': 'О приложении',
   };
   static const zh_Hant = {
@@ -1823,6 +1885,13 @@ class Locales {
     'on': '已開啟',
     'off': '已關閉',
     'you': '你',
+    'set_param': '設置%s',
+    'apply_param': '申請%s',
+    'read_agree_param': '已經閱讀並同意《%s》',
+    'logout_notice': '註銷須知',
+    'cancel_logout_title': '是否終止註銷流程？',
+    'cancel_logout_body':
+        '此賬號處於註銷後悔期，若登錄成功則視作終止註銷流程。如需繼續註銷，請在註銷申請提交後的15天內不要登錄IMBoy。',
     'button_cancel': '取消',
     'button_accomplish': '完成',
     'button_taking_pictures': '拍照',
@@ -1830,7 +1899,7 @@ class Locales {
     'button_send': '發送',
     'button_login': '登錄',
     'button_signup': '註帳',
-    'button_logout': '登出',
+    'button_logout': '註銷',
     'button_set_empty': '置空',
     'button_confirm': '確認',
     'button_add': '新增',
@@ -1838,16 +1907,15 @@ class Locales {
     'button_close': '關閉',
     'button_resend_code': '重新發送驗證碼',
     'button_invite_code': '邀請碼',
-    'button_forgotpassword': '忘記密碼？',
-    'button_recoverpassword': '找回密碼',
+    'forgot_password': '忘記密碼？',
+    'recover_password': '找回密碼',
     'button_back': '返回',
     'button_copy': '複製',
     'button_submit': '提交',
-    'button_setpassword': '設置密碼',
     'button_sign_in_fb': '用 Facebook 登錄',
     'button_sign_in_google': '用 Google 登錄',
     'button_sign_in_apple': '用 Apple 登錄',
-    'title_termofservices': '服務條款',
+    'term_of_services': '服務條款',
     'selected_items': '%s 個選定項目',
     'title_mine': '我的',
     'title_contact': '聯繫人',
@@ -1858,17 +1926,17 @@ class Locales {
     'tip_title': '喔！',
     'tip_success': '操作成功！',
     'tip_failed': '操作失敗！',
-    'tip_resendcode_success': '已發送新郵件。',
-    'tip_recoverpassword_success': '驗證碼發送成功',
-    'tip_recoverpassword_desc': '',
-    'tip_recoverpassword_intro': '不要感覺不好，這是常有的事。',
-    'tip_recovercodepassword_desc': '我們會將密碼恢復碼發送到您的郵箱。',
-    'tip_sigup_form_desc': '請填寫此表格以完成註帳',
-    'tip_sigup_intro': '確認碼已發送到您的郵箱，\n請輸入確認碼確認您的帳戶。',
-    'tip_confirmationcode_error': '確認碼為空',
-    'tip_confirmationcode_success': '帳戶已確認。',
-    'tip_confirmrecover_intro': '驗證碼已發送到您的郵箱。',
-    'tip_confirmrecover_success': '密碼修改成功。',
+    'resend_code_success': '已發送新郵件。',
+    'recover_password_success': '驗證碼發送成功',
+    'recover_password_desc': '',
+    'recover_password_intro': '不要感覺不好，這是常有的事。',
+    'recover_code_password_desc': '我們會將密碼恢復碼發送到您的郵箱。',
+    'signup_form_desc': '請填寫此表格以完成註帳',
+    'signup_intro': '確認碼已發送到您的郵箱，\n請輸入確認碼確認您的帳戶。',
+    'confirm_code_error': '確認碼為空',
+    'confirm_code_success': '帳戶已確認。',
+    'confirm_recover_intro': '驗證碼已發送到您的郵箱。',
+    'confirm_recover_success': '密碼修改成功。',
     'tip_connect_desc': '無網路',
     'tip_providers_title_first': '或用以下帳號登錄',
     'tip_login_true': '已經有帳號了？',
@@ -1878,15 +1946,13 @@ class Locales {
     'tip_delete_contact': '將聯繫人"%s"刪除，同時刪除與該聯繫人的聊天記錄',
     'tip_empty_chat_placeholder': '這裡還沒有消息',
     'hint_login_account': '帳號/郵箱/手機號',
-    'hint_login_phone': '手機號',
-    'hint_login_email': '郵箱',
-    'hint_login_confirmationcode': '確認碼',
-    'hint_login_recoverycode': '找回密碼驗證碼',
-    'hint_login_password': '密碼',
-    'hint_login_confirmpassword': '確認密碼',
+    'confirm_code': '確認碼',
+    'password': '密碼',
+    'retype_password': '重新輸入密碼',
     'chat_hold_down_talk': '按住說話',
     'incoming_call': '%s呼入',
-    'error_confirmpassword': '兩次輸入密碼不一致',
+    'error_password': '密碼錯誤',
+    'error_retype_password': '兩次輸入密碼不一致',
     'error_incorrect_phone': '手機號碼格式有誤',
     'error_failed_to_connect': '連線到 %s 失敗',
     'error_no_valid_file_or_url': '%s 不是有效的檔案或URL',
@@ -1894,8 +1960,9 @@ class Locales {
     'error_unnecessary_parameter_plural': '參數 %s 是多餘的',
     'error_nonexistent_directory': '%s 不存在',
     'error_empty_directory': '%s 是空的',
+    'error_same': '%s 和 %s 是一樣的',
     'error_invalid': '%s 是無效的',
-    'error_length_between': '%s長度為%d-%d的任意字元',
+    'error_length_between': '%s長度為%s-%s的任意字元',
     'error_required': '%s 是必須的',
     'error_invalid_json': '%s 不是個有效的json檔案',
     'error_special_characters_in_key': 'key中包含不允許的特殊字元. \n key: %s',
@@ -1917,6 +1984,7 @@ class Locales {
     'error_server_refused': '伺服器拒絕執行',
     'error_failed_connect_server': '無法連線伺服器',
     'error_request_forbidden': '請求方法被禁止',
+    'error_many_request': '請求過多',
     'error_internal_server': '伺服器內部錯誤',
     'unsupported_file_type': '不支援的檔案類型',
     'no_permission': '沒有權限',
@@ -1934,6 +2002,8 @@ class Locales {
     'search_location': '搜尋地點',
     'nickname': '暱稱',
     'account': '帳號',
+    'email': '郵箱',
+    'mobile': '手機',
     'region': '地區',
     'selected_region': '已選地區',
     'uploading': '上傳中',
@@ -1946,16 +2016,17 @@ class Locales {
     'you_withdrew_a_message': '你撤回了一條訊息',
     'personal_card': '個人名片',
     'unanswered': '未應答',
-    'peer_has_hungup': '對方已掛斷',
+    'peer_has_hung_up': '對方已掛斷',
     'cancelled': '已取消',
     'call_duration': '通話時長',
-    'set_region': '設置地區',
     'all': '全部',
     'revoke': '撤回',
     'forward': '轉發',
     'quote': '引用',
+    'delete_for_me': '刪除我的訊息',
+    'delete_for_everyone': '刪除所有人的訊息',
     'complaint': '投訴',
-    'slide_up_cancle_sending': '手指上滑,取消發送',
+    'slide_up_cancel_sending': '手指上滑,取消發送',
     'release_end': '鬆開結束',
     'speaking_too_short': '說話時間太短',
     'release_finger_cancel_sending': '鬆開手指,取消發送',
@@ -2043,9 +2114,7 @@ class Locales {
     'apply_add_friend': '申請添加朋友',
     'send_friend_request': '發送添加朋友申請',
     'remark': '備註',
-    'set_remark': '設置備註',
     'moment': '朋友圈',
-    'set_moment': '設置朋友圈',
     'chat_moment_sport_data_etc': '聊天、朋友圈、運動數據等',
     'just_chat': '僅聊天',
     'moment_status': '朋友圈和狀態',
@@ -2057,7 +2126,6 @@ class Locales {
     'profile_settings': '資料設置',
     'tags': '標籤',
     'remarks_tags': '備註和標籤',
-    'set_remarks_tags': '設置備註和標籤',
     'friend_permissions': '朋友權限',
     'recommend_to_friend': '把他推薦給朋友',
     'blacklist': '黑名單',
@@ -2109,7 +2177,7 @@ class Locales {
     'device_list': '設備列表',
     'storage_space_data': '存儲空間和數據',
     'tell_friend': '告訴朋友',
-    'account_security': '帳號與安全',
+    'account_security': '帳號安全',
     'update_log': '更新日誌',
     'message_notification': '消息通知',
     'storage_space': '存儲空間',
@@ -2166,7 +2234,6 @@ class Locales {
     'type': '類型',
     'device_details': '設備詳情',
     'device_name': '設備名稱',
-    'set_device_name': '設置設備名',
     'device_type': '設備類型',
     'last_active_time': '最近活躍時間',
     'last_active_tips': '當設備處於安全狀態時，會自動延長登錄時間以保持朋友消息的及時收發，此時會更新最近活躍時間。',
@@ -2183,15 +2250,15 @@ class Locales {
     'login_email': '登入郵箱',
     'personal_information': '個人資訊',
     'choose_from_album': '從相簿選擇',
-    'set_nickname': '設置暱稱',
     'male': '男',
     'female': '女',
     'gender': '性別',
     'keep_secret': '保密',
-    'set_gender': '設置性別',
     'signature': '個性簽名',
-    'set_signature': '設置個性簽名',
     'not_filled': '未填寫',
+    'not_bound': '未綁定',
+    'not_set': '未設定',
+    'have_set': '已設定',
     'scan_result': '掃描結果',
     'user_not_exist': '用戶不存在',
     'user_disabled_or_deleted': '用戶被禁用或已刪除',
@@ -2216,11 +2283,10 @@ class Locales {
     'speed': '速度',
     'play': '播放',
     'save_qr_code': '保存二維碼',
-    'change_tag_name': '更改標籤名稱',
     'delete_tag_tips': '刪除標籤後，標籤中的聯繫人不會被刪除',
     'remove_contact_from_tag': '從標籤中移除聯繫人',
     'no_members_in_current_tag': '當前標籤無成員',
-    'modify_name': '修改名稱',
+    'change_param': '修改%s',
     'contact_tags': '聯繫人標籤',
     'need_submit_effect': '需要確認提交，該操作才生效',
     'already_entered': '你已經輸入過了',
@@ -2239,9 +2305,19 @@ class Locales {
     'options_rename': '我想重命名',
     'setting': '設置',
     'language_setting': '語言設定',
-    'bugReport': '錯誤報告',
-    'featureRequest': '功能要求',
     'ios_app_id_unknown': 'AppStore未上架或AppID[%s]不存在',
+    'enter_the_group': '進入該群',
+    'security_center': '安全中心',
+    'logout_account': '注銷帳號',
+    'switch_environment': '切換環境',
+    'name': '名稱',
+    'unnamed': '未命名',
+    'group_announcement': '群公告',
+    'search_chat_content': '查找聊天內容',
+    'pin_chat': '置頂聊天',
+    'change_group_chat_name': '修改群聊名稱後，將在群內通知其他成員。',
+    'nickname_change_visibility': '昵稱修改後，只會在此群內顯示，群內成員都可以看見。',
+    'group_remark_visibility': '群聊的備註僅自己可見',
     'about_app': '關於應用',
   };
 }

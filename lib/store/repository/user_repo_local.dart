@@ -39,7 +39,7 @@ class UserRepoLocal extends GetxController {
     Map<String, dynamic> user = StorageService.getMap(Keys.currentUser);
     iPrint("current user ${user.toString()}");
     if (user.isEmpty) {
-      WebSocketService.to.closeSocket(exit: true);
+       WebSocketService.to.closeSocket(exit: true);
       Get.offAll(() => PassportPage());
     }
     return UserModel.fromJson(user);
@@ -71,7 +71,6 @@ class UserRepoLocal extends GetxController {
 
   Future<bool> loginAfter(Map<String, dynamic> payload) async {
     await StorageService.to.setString(Keys.currentUid, payload['uid']);
-
     await FlutterKeychain.put(
       key: Keys.tokenKey,
       value: payload['token'],
@@ -104,7 +103,7 @@ class UserRepoLocal extends GetxController {
     return true;
   }
 
-  Future<bool> logout() async {
+  Future<bool> quitLogin() async {
     WebSocketService.to.sendMessage("logout");
     await StorageService.to.remove(Keys.currentUid);
     await StorageService.to.remove(Keys.wsUrl);
@@ -115,7 +114,7 @@ class UserRepoLocal extends GetxController {
     await FlutterKeychain.remove(key:Keys.tokenKey);
     await FlutterKeychain.remove(key:Keys.currentUid);
     await FlutterKeychain.remove(key:Keys.currentUser);
-    WebSocketService.to.closeSocket(exit: true);
+    await WebSocketService.to.closeSocket(exit: true);
     SqliteService.to.close();
     return true;
   }

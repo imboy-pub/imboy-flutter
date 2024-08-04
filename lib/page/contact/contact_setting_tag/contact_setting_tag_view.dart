@@ -58,7 +58,7 @@ class ContactSettingTagPage extends StatelessWidget {
         titleWidget: n.Row([
           Expanded(
             child: Text(
-              'set_remarks_tags'.tr,
+              'set_param'.trArgs(['remarks_tags'.tr]),
               textAlign: TextAlign.center,
               style: AppStyle.navAppBarTitleStyle,
             ),

@@ -5,7 +5,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/page/qrcode/qrcode_view.dart';
-import 'package:imboy/store/model/group_extend_model.dart';
+import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:niku/namespace.dart' as n;
@@ -138,37 +138,34 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
     // title = g!.title;
 
     setState(() {});
-    // 监听新成员加入
-    eventBus.on<JoinGroupModel>().listen((JoinGroupModel obj) async {
+    eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
       iPrint(
-          "face_to_face_confirm widget.gid ${obj.groupId} = ${widget.groupId} - uid ${obj.userId}; obj.isFirst ${obj.isFirst}");
-      if (obj.groupId == widget.groupId && obj.isFirst) {
+          "face_to_face_confirm widget.gid ${obj.toString()}");
+      // if (obj.groupId == widget.groupId && obj.isFirst) {
+      // 监听新成员加入
+      if (obj.type == 'join_group' &&
+          obj.payload['groupId'] == widget.groupId &&
+          (obj.payload['isFirst'] ?? false)) {
         // 使用锁来保护消息处理逻辑
         await _lock.synchronized(() async {
           // GroupModel? g = await (GroupRepo()).findById(widget.groupId);
           // final i = memberList.indexWhere((e) => e.id == obj.people.id);
           // if (i == -1) {
           memberCount += 1;
-          memberList.insert(0, obj.people);
+          memberList.insert(0, obj.payload['people']);
           backDoRefresh = true;
           if (mounted) {
             setState(() {});
           }
           // }
         });
-      }
-    });
-    // 监听成员退出
-    eventBus.on<LeaveGroupModel>().listen((LeaveGroupModel obj) async {
-      iPrint(
-          "face_to_face_confirm widget.gid ${obj.groupId} = ${widget.groupId} - uid ${obj.userId}; $mounted");
-      if (obj.groupId == widget.groupId) {
+      } else if (obj.type == 'leave_group' && obj.payload['groupId'] == widget.groupId) {
+        // 监听成员退出
+
         // 使用锁来保护消息处理逻辑
         await _lock.synchronized(() async {
           // GroupModel? g = await (GroupRepo()).findById(widget.groupId);
-
-          final i =
-              memberList.indexWhere((PeopleModel p) => p.id == obj.userId);
+          final i = memberList.indexWhere((PeopleModel p) => p.id == obj.payload['userId']);
           if (i > -1) {
             memberCount -= 1;
             memberList.removeAt(i);
@@ -274,7 +271,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 Text('group_name'.tr),
                 Flexible(
                   child: Text(
-                    title.isEmpty ? '未命名'.tr : title,
+                    title.isEmpty ? 'unnamed'.tr : title,
                   ),
                 ),
               ])
@@ -286,8 +283,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 Get.to(
                   () => ChangeInfoPage(
                     group: group,
-                    title: '修改群聊名称'.tr,
-                    subtitle: '修改群聊名称后，将在群内通知其他成员。'.tr,
+                    title: 'change_param'.trArgs(['group_name'.tr]), // 修改群聊名称,
+                    subtitle: 'change_group_chat_name'.tr,
                   ),
                   transition: Transition.rightToLeft,
                   popGesture: true, // 右滑，返回上一页
@@ -331,7 +328,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             n.ListTile(
               title: n.Row([
                 Text('群公告'.tr),
-                Text(strEmpty(groupNotification) ? '未设置'.tr : '')
+                Text(strEmpty(groupNotification) ? 'not_set'.tr : '')
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
@@ -392,7 +389,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             ),
             n.ListTile(
               title: n.Row([
-                Text('查找聊天内容'.tr),
+                Text('search_chat_content'.tr),
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
@@ -439,7 +436,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 )),
             n.ListTile(
               title: n.Row([
-                Text('置顶聊天'.tr),
+                Text('pin_chat'.tr),
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,

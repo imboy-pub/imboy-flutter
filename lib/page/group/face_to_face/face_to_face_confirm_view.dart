@@ -3,6 +3,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/page/group/face_to_face/face_to_face_logic.dart';
+import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -12,7 +13,6 @@ import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/store/model/group_extend_model.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/config/theme.dart';
 
@@ -59,15 +59,20 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
     memberList.add(PeopleModel(id: 'last', account: ''));
 
     // 接收到新的消息订阅
-    eventBus.on<JoinGroupModel>().listen((JoinGroupModel obj) async {
-      final i = memberList
-          .indexWhere((e) => e.id == obj.userId && widget.gid == obj.groupId);
-      iPrint(
-          "face_to_face_confirm widget.gid ${obj.groupId} = ${widget.gid} - uid ${obj.userId}; i $i;} $mounted");
-      if (i == -1) {
-        memberList.insert(0, obj.people);
-        if (mounted) {
-          setState(() {});
+    eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
+
+      // 监听新成员加入
+      if (obj.type == 'join_group') {
+        final i = memberList
+            .indexWhere((e) => e.id == obj.payload['userId'] && widget.gid == obj.payload['groupId']);
+        iPrint(
+            "face_to_face_confirm widget.gid ${obj.payload['groupId']} = ${widget
+                .gid} - uid ${obj.payload['userId']}; i $i;} $mounted");
+        if (i == -1) {
+          memberList.insert(0, obj.payload['people']);
+          if (mounted) {
+            setState(() {});
+          }
         }
       }
     });
@@ -123,7 +128,7 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
           ),
           const Spacer(),
           RoundedElevatedButton(
-            text: '进入该群'.tr,
+            text: 'enter_the_group'.tr,
             highlighted: true,
             size: Size(Get.width, 48),
             borderRadius: BorderRadius.circular(4.0),

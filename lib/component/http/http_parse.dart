@@ -96,7 +96,7 @@ HttpException _parseException(Exception error) {
               );
             case 429:
               return BadRequestException(
-                message: 'Too Many Requests'.tr,
+                message: 'error_many_request'.tr,
                 code: errCode,
               );
 

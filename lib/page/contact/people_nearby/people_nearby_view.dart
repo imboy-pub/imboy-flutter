@@ -166,13 +166,19 @@ class PeopleNearbyPage extends StatelessWidget {
                           itemCount: state.peopleList.length,
                           itemBuilder: (BuildContext context, int index) {
                             PeopleModel model = state.peopleList[index];
+                            String distance = '';
+                            if (model.distanceUnit == 'm' && model.distance > 1000) {
+                              distance = "${(model.distance/1000).toStringAsFixed(3)} km";
+                            } else {
+                              distance =
+                              '${model.distance.toStringAsFixed(3)} ${model.distanceUnit}';
+                            }
                             return n.Column([
                               ListTile(
                                 leading: Avatar(imgUri: model.avatar),
                                 contentPadding: const EdgeInsets.only(left: 0),
                                 title: Text(model.nickname),
-                                subtitle: Text(
-                                    '${model.distance.toStringAsFixed(3)} ${model.distanceUnit}'),
+                                subtitle: Text(distance),
                                 onTap: () {
                                   Get.to(
                                     () => PeopleInfoPage(

@@ -63,7 +63,7 @@ class ConversationModel {
   }
   /// 会话内容计算
   String get content {
-    // debugPrint("ConversationModel_content ${payload.toString()}");
+    iPrint("ConversationModel_content msgType $msgType;  ${payload.toString()}");
     // 处理系统提示信息
     String sysPrompt = Get.find<ChatLogic>().parseSysPrompt(
       payload?['sys_prompt'] ?? '',
@@ -102,7 +102,15 @@ class ConversationModel {
       str = 'location'.tr;
       return "[$str]$subtitle";
     } else if (msgType == 'peer_revoked') {
-      return '"$title"${'message_was_withdrawn'.tr}';
+      if (title.isEmpty) {
+        title = payload?['peer_name'] ?? '';
+      }
+      String suffix = '';
+      if (title.length > 12) {
+        title = title.substring(0, 12);
+        suffix = '...';
+      }
+      return '"$title$suffix"${'message_was_withdrawn'.tr}';
     } else if (msgType == 'my_revoked') {
       return 'you_withdrew_a_message'.tr;
     } else if (msgType == 'custom') {
@@ -118,9 +126,11 @@ class ConversationModel {
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
     var payload = json[ConversationRepo.payload];
+    iPrint("ConversationModel_payload 1 $payload");
     if (payload is String) {
       payload = jsonDecode(payload);
     }
+    iPrint("ConversationModel_payload 2 $payload");
     return ConversationModel(
       id: json['id'] ?? 0,
       peerId: json['peer_id'],

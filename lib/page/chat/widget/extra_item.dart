@@ -138,7 +138,7 @@ class _ExtraItemsState extends State<ExtraItems> {
               if (l != null) {
                 // ignore: use_build_context_synchronously
                 Navigator.push(
-                  context,
+                  Get.context!,
                   MaterialPageRoute(
                     builder: (context) => MapLocationPicker(arguments: {
                       "lat": double.parse(l.latLng.latitude.toString()),

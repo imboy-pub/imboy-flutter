@@ -47,7 +47,7 @@ class MoreView extends StatelessWidget {
           onPressed: () {
             Get.to(
               () => UpdatePage(
-                  title: 'set_gender'.tr,
+                  title: 'set_param'.trArgs(['gender'.tr]),
                   value: UserRepoLocal.to.current.gender.toString(),
                   field: 'gender',
                   callback: (gender) async {
@@ -90,7 +90,7 @@ class MoreView extends StatelessWidget {
           onPressed: () {
             Get.to(
               () => UpdatePage(
-                  title: 'set_region'.tr,
+                  title: 'set_param'.trArgs(['region'.tr]),
                   value: logic.region.value,
                   field: 'region',
                   callback: (region) async {
@@ -164,7 +164,7 @@ class MoreView extends StatelessWidget {
           onPressed: () {
             Get.to(
               () => UpdatePage(
-                  title: 'set_signature'.tr,
+                  title: 'set_param'.trArgs(['signature'.tr]),
                   value: UserRepoLocal.to.current.sign,
                   field: 'text',
                   callback: (sign) async {

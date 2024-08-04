@@ -88,6 +88,9 @@ class API {
   static const userShow = '/user/show';
   static const turnCredential = '/user/credential';
   static const userUpdate = '/user/update';
+  static const userChangePassword = '/user/change_password';
+  static const userApplyLogout = '/user/apply_logout';
+  static const userCancelLogout = '/user/cancel_logout';
 
   static const ftsRecentlyUser = '/fts/recently_user';
   static const ftsUserSearch = '/fts/user_search';

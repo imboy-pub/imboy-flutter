@@ -55,9 +55,9 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
 
   String get label {
     if (widget.groupInfoType == GroupInfoType.name) {
-      return '修改群聊名称';
+      return 'change_param'.trArgs(['group_name'.tr]); // 修改群聊名称
     } else if (widget.groupInfoType == GroupInfoType.cardName) {
-      return '我在本群的昵称';
+      return 'group_alias'.tr;
     } else {
       return 'remark'.tr;
     }
@@ -65,11 +65,11 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
 
   String get des {
     if (widget.groupInfoType == GroupInfoType.name) {
-      return '修改群聊名称后，将在群内通知其他成员';
+      return 'change_group_chat_name'.tr;
     } else if (widget.groupInfoType == GroupInfoType.cardName) {
-      return '昵称修改后，只会在此群内显示，群内成员都可以看见。';
+      return 'nickname_change_visibility'.tr;
     } else {
-      return '群聊的备注仅自己可见';
+      return 'group_remark_visibility'.tr;
     }
   }
 

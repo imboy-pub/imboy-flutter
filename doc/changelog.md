@@ -1,3 +1,13 @@
+# 0.5.3
+* 附近的人距离显示优化；
+* 新增“账号安全”页面；
+* 新增 删除消息区分”Delete for me, Delete for everyone”功能； 
+* 优化“当websocket 服务出现故障的时候，按 _ts(t)返回的毫秒时间间隔最多重试 _reconnectMax 次”，简化 lib/service/websocket.dart 逻辑；
+* 新增修改EMail功能；
+* 新增修改密码功能；
+* 新增注销账号流程功能
+* 升级一些依赖；
+
 # 0.5.2
 * 修复转发图片的时候，丢失md5信息的问题
 * 修复申请群二维码报错问题；

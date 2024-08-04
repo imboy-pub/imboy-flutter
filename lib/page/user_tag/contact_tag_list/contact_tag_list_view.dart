@@ -84,7 +84,7 @@ class ContactTagListPage extends StatelessWidget {
               );
             },
             // icon: Icons.delete_forever_sharp,
-            label: 'modify_name'.tr,
+            label: 'change_param'.trArgs(['name'.tr]),
             spacing: 1,
           ),
           SlidableAction(

@@ -230,7 +230,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             onPressed: () {
               Get.to(
                 () => UpdatePage(
-                    title: 'set_nickname'.tr,
+                    title: 'set_param'.trArgs(['nickname'.tr]),
                     value: UserRepoLocal.to.current.nickname,
                     field: 'input',
                     callback: (nickname) async {

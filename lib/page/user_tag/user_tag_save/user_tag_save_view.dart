@@ -43,7 +43,7 @@ class UserTagSavePage extends StatelessWidget {
           },
           child: const Icon(Icons.close),
         ),
-        title: tag == null ? 'add_tag'.tr : 'change_tag_name'.tr,
+        title: tag == null ? 'add_tag'.tr : 'change_param'.trArgs(['tags'.tr]),
         // rightDMActions: [],
       ),
       body: SizedBox(

@@ -15,10 +15,12 @@ class MarkdownPage extends StatelessWidget {
     required this.title,
     required this.url,
     this.rightDMActions,
+    this.selectable = false,
   });
 
   String title;
   String url;
+  bool selectable = false;
   RxString content = "".obs;
   final List<Widget>? rightDMActions;
 
@@ -28,6 +30,7 @@ class MarkdownPage extends StatelessWidget {
       key: EncrypterService.md5(url),
     );
     content.value = await tmpF.readAsString();
+    // iPrint("MarkdownPage_content ${content.value} ;;;;");
   }
 
   @override
@@ -43,7 +46,10 @@ class MarkdownPage extends StatelessWidget {
       body: Container(
           color: Theme.of(context).colorScheme.surface,
           child: Obx(
-            () => Markdown(data: content.value),
+            () => Markdown(
+              data: content.value,
+              selectable: selectable,
+            ),
           )),
     );
   }

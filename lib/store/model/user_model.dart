@@ -32,6 +32,7 @@ class UserModel {
   String account;
   String nickname;
   String email;
+  String mobile;
   String avatar;
   int gender;
   String region;
@@ -43,6 +44,7 @@ class UserModel {
     required this.uid,
     required this.account,
     this.email = '',
+    this.mobile = '',
     this.nickname = '',
     this.avatar = '',
     this.gender = 0,
@@ -69,6 +71,7 @@ class UserModel {
       uid: json["uid"] ?? json["id"],
       account: json["account"] ?? '',
       email: json["email"] ?? '',
+      mobile: json["mobile"] ?? '',
       nickname: json["nickname"],
       avatar: json["avatar"] ?? '',
       role: json["role"]?.toInt(),
@@ -84,6 +87,7 @@ class UserModel {
     data["uid"] = uid;
     data["nickname"] = nickname;
     data["email"] = email;
+    data["mobile"] = mobile;
     data["avatar"] = avatar;
     data["account"] = account;
     data["role"] = role;

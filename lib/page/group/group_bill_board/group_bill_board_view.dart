@@ -70,16 +70,16 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
     // );
 
     return Scaffold(
-      appBar: const NavAppBar(
+      appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: '群公告',
+        title: 'group_announcement'.tr,
         // rightDMActions: <Widget>[rWidget],
       ),
       body: TextField(
         decoration: const InputDecoration(
           filled: true,
           fillColor: Colors.white,
-          hintText: '请编辑群公告',
+          hintText: '', // 请编辑群公告
         ),
         autofocus: true,
         focusNode: _focusNode,

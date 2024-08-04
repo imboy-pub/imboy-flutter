@@ -12,20 +12,20 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart' as getx;
 import 'package:image/image.dart' as img;
+import 'package:imboy/component/ui/line.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:mime/mime.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:open_file/open_file.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:popup_menu/popup_menu.dart' as popupmenu;
-import 'package:synchronized/synchronized.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:xid/xid.dart';
 
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/store/model/conversation_model.dart';
-import 'package:imboy/store/model/group_extend_model.dart';
+import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/picker_method.dart';
@@ -118,7 +118,6 @@ class ChatPageState extends State<ChatPage> {
   // ignore: prefer_typing_uninitialized_variables
   late var currentUser;
   late ConversationModel conversation;
-  final Lock _lock = Lock();
 
   @override
   void initState() {
@@ -189,74 +188,81 @@ class ChatPageState extends State<ChatPage> {
         connected = true.obs;
       }
     });
-    if (widget.type == 'C2G') {
+
+    // 一些异步操作事件的监听
+    eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
+      iPrint("face_to_face_confirm ${obj.toString()}; $mounted");
       // 监听新成员加入
-      eventBus.on<JoinGroupModel>().listen((JoinGroupModel obj) async {
-        iPrint(
-            "face_to_face_confirm widget.gid ${obj.groupId} = ${widget.peerId} - uid ${obj.userId}; $mounted");
-        if (obj.groupId == widget.peerId && obj.isFirst) {
-          // 使用锁来保护消息处理逻辑
-          await _lock.synchronized(() async {
-            logic.state.memberCount += 1;
-            newGroupName = await logic.groupTitle(
-              widget.peerId,
-              widget.peerTitle,
-              logic.state.memberCount,
-            );
-            if (mounted) {
-              setState(() {});
-            }
-          });
+      if (obj.type == 'join_group' &&
+          obj.payload['groupId'] == widget.peerId &&
+          (obj.payload['isFirst'] ?? false)) {
+        logic.state.memberCount += 1;
+        newGroupName = await logic.groupTitle(
+          widget.peerId,
+          widget.peerTitle,
+          logic.state.memberCount,
+        );
+        if (mounted) {
+          setState(() {});
         }
-      });
-    }
-    // 接收到新的消息订阅
+      } else if (obj.type == 'delete_msg') {
+        //   removeMessage
+        if (obj.payload['conversation'].id == conversation.id) {
+          final i = logic.state.messages
+              .indexWhere((element) => element.id == obj.payload['msg'].id);
+          if (mounted) {
+            setState(() {
+              logic.state.messages.removeAt(i);
+            });
+          }
+        }
+      }
+    });
+
+    // 接收到新的消息订阅 for c2c
     eventBus.on<types.Message>().listen((types.Message msg) async {
-      // 使用锁来保护消息处理逻辑
-      await _lock.synchronized(() async {
-        iPrint(
-            "chat_view/listen  ${msg.id}; ${msg.toString()} ${DateTime.now()}");
-        final String conversationUk3 = msg.metadata?['conversation_uk3'] ?? '';
-        iPrint("chat_view/listen  $conversationUk3");
-        iPrint(
-            "chat_view/listen  ${conversation.uk3}, ${conversationUk3 != conversation.uk3}");
-        if (conversationUk3 != conversation.uk3) {
-          return;
-        }
-        final i = logic.state.messages.indexWhere((e) => e.id == msg.id);
-        iPrint("changeMessageState 4 ${msg.id}; i $i; mounted $mounted");
-        if (i == -1) {
-          iPrint("decreaseConversationRemind ${conversation.uk3}");
+      iPrint("chat_view/listen one ${msg.id}; ${DateTime.now()}");
+      final String conversationUk3 = msg.metadata?['conversation_uk3'] ?? '';
+      iPrint("chat_view/listen one $conversationUk3");
+      iPrint("chat_view/listen one ${conversationUk3 != conversation.uk3}");
+      if (conversationUk3 != conversation.uk3) {
+        return;
+      }
+      final i = logic.state.messages.indexWhere((e) => e.id == msg.id);
+      iPrint("changeMessageState 4 ${msg.id}; i $i; mounted $mounted");
+      if (i == -1) {
+        iPrint("decreaseConversationRemind ${conversation.uk3}");
+        String tb = MessageRepo.getTableName(widget.type);
+        MessageModel? m = await MessageService.to.changeStatus(
+          tb,
+          msg.id,
+          IMBoyMessageStatus.seen,
+        );
+        conversationLogic.decreaseConversationRemind(
+          conversation,
+          1,
+        );
+        if (m != null) {
+          msg = await m.toTypeMessage();
+          logic.state.messages.insert(0, msg);
+
           if (msg is types.ImageMessage) {
-            galleryLogic.pushToLast(msg.id, (msg as types.ImageMessage).uri);
+            galleryLogic.pushToLast(msg.id, msg.uri);
           }
-          String tb = MessageRepo.getTableName(widget.type);
-          MessageModel? m = await MessageService.to.changeStatus(
-            tb,
-            msg.id,
-            IMBoyMessageStatus.seen,
-          );
-          conversationLogic.decreaseConversationRemind(
-            conversation,
-            1,
-          );
-          if (m != null) {
-            msg = await m.toTypeMessage();
-            logic.state.messages.insert(0, msg);
-            if (mounted) {
-              setState(() {});
-            }
+          if (mounted) {
+            setState(() {});
           }
         }
-      });
+      }
     });
     // debugPrint("> rtc msg S_RECEIVED listen list");
-    // 消息状态更新订阅, 这里无需用锁
+
+    // 消息状态更新订阅, 这里无需用锁 for c2g
     eventBus.on<List<types.Message>>().listen((e) async {
       types.Message msg = e.first;
 
       final i = logic.state.messages.indexWhere((e) => e.id == msg.id);
-      debugPrint("chat_view listen list $i ${msg.toJson().toString()}");
+      debugPrint("chat_view/listen list $i ${msg.toJson().toString()}");
       if (i > -1) {
         logic.state.messages.setRange(i, i + 1, e);
         if (mounted) {
@@ -653,13 +659,19 @@ class ChatPageState extends State<ChatPage> {
     if (obj == null) {
       return;
     }
+    debugPrint(
+        "> on _handleVoiceSelection1 file ${await obj.file.readAsBytes()} ${obj.file.toString()}");
+    if ((await obj.file.readAsBytes()).isEmpty) {
+      return;
+    }
     final List<double> waveform = obj.waveform;
-    debugPrint("> on _handleVoiceSelection1 ${obj.waveform.toString()}");
+    debugPrint(
+        "> on _handleVoiceSelection1 waveform ${obj.waveform.toString()}");
     await AttachmentProvider.uploadFile('audio', obj.file, (
       Map<String, dynamic> resp,
       String uri,
     ) async {
-      debugPrint("> on _handleVoiceSelection2 ${waveform.toString()}");
+      debugPrint("> on _handleVoiceSelection2 waveform ${waveform.toString()}");
       Map<String, dynamic> metadata = {
         'custom_type': 'audio',
         'uri': uri,
@@ -830,15 +842,191 @@ class ChatPageState extends State<ChatPage> {
     String itemId = it.userInfo['id'] ?? '';
     debugPrint("> on onClickMenu $itemId, ${msg.id}");
     if (itemId == "delete") {
-      // 删除消息
-      bool res = await logic.removeMessage(conversation, msg);
-      if (res) {
-        final i =
-            logic.state.messages.indexWhere((element) => element.id == msg.id);
-        setState(() {
-          logic.state.messages.removeAt(i);
-        });
-      }
+      n.showDialog(
+        context: getx.Get.context!,
+        builder: (context) => n.Alert()
+          ..contentPadding = n.NikuEdgeInsets.all(0)
+          ..backgroundColor = const Color(0xff232323)
+          ..content = n.Column([
+            ListTile(
+              title: Text(
+                'delete_for_me'.tr,
+                style: const TextStyle(color: Colors.white),
+              ),
+              onTap: () async {
+                final nav = Navigator.of(context);
+                if (widget.type == 'C2G') {
+                  // 仅仅删除线上的 for 的数据
+                  Map<String, dynamic> msg2 = {
+                    'id': Xid().toString(),
+                    'from': msg.author.id,
+                    'to': msg.remoteId, // group id | or user id
+                    'type': 'S2C',
+                    'payload': {
+                      'old_msg_id': msg.id,
+                      'to': msg.remoteId,
+                      // c2g 的时候为 group id
+                      'msg_type': '${widget.type}_DEL_FOR_ME',
+                      // c2g_del_for_me
+                    },
+                    'created_at': DateTimeHelper.utc()
+                  };
+                  await logic.sendMessage(msg2);
+                }
+                // 删除消息
+                bool res = await logic.removeMessage(conversation, msg);
+                if (res) {
+                  final i = logic.state.messages
+                      .indexWhere((element) => element.id == msg.id);
+                  setState(() {
+                    logic.state.messages.removeAt(i);
+                  });
+                  // 关闭AlertDialog
+                  nav.pop();
+                }
+              },
+            ),
+            if (msg.author.id == UserRepoLocal.to.currentUid)
+              n.Padding(
+                left: 16,
+                right: 16,
+                child: HorizontalLine(height: getx.Get.isDarkMode ? 0.5 : 1.0),
+              ),
+            if (msg.author.id == UserRepoLocal.to.currentUid)
+              ListTile(
+                title: Text(
+                  'delete_for_everyone'.tr,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                onTap: () async {
+                  final nav = Navigator.of(context);
+                  Map<String, dynamic> msg2 = {
+                    'id': Xid().toString(),
+                    'from': msg.author.id,
+                    'to': msg.remoteId, // group id | or user id
+                    'type': 'S2C',
+                    'payload': {
+                      'old_msg_id': msg.id,
+                      'to': msg.remoteId, // c2g 的时候为 group id
+                      'msg_type': '${widget.type}_DEL_EVERYONE',
+                    },
+                    'created_at': DateTimeHelper.utc()
+                  };
+                  await logic.sendMessage(msg2);
+                  // 关闭AlertDialog
+                  nav.pop();
+                },
+              ),
+          ]),
+        // ..actions = [
+        //   n.Button('button_cancel'.tr.n)
+        //     ..style = n.NikuButtonStyle(
+        //       foregroundColor:
+        //       Theme.of(context).colorScheme.onSurface,
+        //     )
+        //     ..onPressed = () {
+        //       Navigator.of(context).pop();
+        //     },
+        //   n.Button('button_delete'.tr.n)
+        //     ..style = n.NikuButtonStyle(
+        //       foregroundColor:
+        //       Theme.of(context).colorScheme.onSurface,
+        //     )
+        //     ..onPressed = () async {
+        //       var nav = Navigator.of(context);
+        //
+        //       bool res = await logic.deleteDevice(
+        //         model.deviceId,
+        //       );
+        //       if (res) {
+        //         state.deviceList.removeAt(
+        //           state.deviceList.indexWhere(
+        //                   (e) => e.deviceId == model.deviceId),
+        //         );
+        //         EasyLoading.showSuccess('tip_success'.tr);
+        //         nav.pop();
+        //         Get.back(times: 1);
+        //       } else {
+        //         EasyLoading.showError('tip_failed'.tr);
+        //       }
+        //     },
+        // ],
+        barrierDismissible: true,
+      );
+      /*
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            // title: Text('Delete Message'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ListTile(
+                  title: Text('delete_for_me'.tr),
+                  onTap: () async {
+                    final nav = Navigator.of(context);
+                    if (widget.type == 'C2G') {
+                      // 仅仅删除线上的 for 的数据
+                      Map<String, dynamic> msg2 = {
+                        'id': Xid().toString(),
+                        'from': msg.author.id,
+                        'to': msg.remoteId, // group id | or user id
+                        'type': 'S2C',
+                        'payload': {
+                          'old_msg_id': msg.id,
+                          'to': msg.remoteId,
+                          // c2g 的时候为 group id
+                          'msg_type': '${widget.type}_DEL_FOR_ME',
+                          // c2g_del_for_me
+                        },
+                        'created_at': DateTimeHelper.utc()
+                      };
+                      await logic.sendMessage(msg2);
+                    }
+                    // 删除消息
+                    bool res = await logic.removeMessage(conversation, msg);
+                    if (res) {
+                      final i = logic.state.messages
+                          .indexWhere((element) => element.id == msg.id);
+                      setState(() {
+                        logic.state.messages.removeAt(i);
+                      });
+                      // 关闭AlertDialog
+                      nav.pop();
+                    }
+                  },
+                ),
+                if (msg.author.id == UserRepoLocal.to.currentUid)
+                  HorizontalLine(height: getx.Get.isDarkMode ? 0.5 : 1.0),
+                if (msg.author.id == UserRepoLocal.to.currentUid)
+                  ListTile(
+                    title: Text('delete_for_everyone'.tr),
+                    onTap: () async {
+                      final nav = Navigator.of(context);
+                      Map<String, dynamic> msg2 = {
+                        'id': Xid().toString(),
+                        'from': msg.author.id,
+                        'to': msg.remoteId, // group id | or user id
+                        'type': 'S2C',
+                        'payload': {
+                          'old_msg_id': msg.id,
+                          'to': msg.remoteId, // c2g 的时候为 group id
+                          'msg_type': '${widget.type}_DEL_EVERYONE',
+                        },
+                        'created_at': DateTimeHelper.utc()
+                      };
+                      await logic.sendMessage(msg2);
+                      // 关闭AlertDialog
+                      nav.pop();
+                    },
+                  ),
+              ],
+            ),
+          );
+        },
+      );
+      */
     } else if (itemId == "copy" && msg is types.TextMessage) {
       // 复制消息
       Clipboard.setData(ClipboardData(text: msg.text));
@@ -854,7 +1042,15 @@ class ChatPageState extends State<ChatPage> {
       }
     } else if (itemId == "revoke") {
       // 撤回消息
-      await logic.revokeMessage(widget.type, msg);
+
+      Map<String, dynamic> msg2 = {
+        'ts': DateTimeHelper.utc(),
+        'id': msg.id,
+        'type': '${widget.type.toUpperCase()}_REVOKE',
+        'from': msg.author.id,
+        'to': msg.remoteId,
+      };
+      await logic.sendMessage(msg2);
     } else if (itemId == "quote") {
       // 引用消息
       updateQuoteMessage(msg);

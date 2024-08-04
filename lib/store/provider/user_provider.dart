@@ -1,5 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_keychain/flutter_keychain.dart';
 import 'package:get/get.dart';
 
@@ -33,7 +34,7 @@ class UserProvider extends HttpClient {
     bool checkNewToken = true,
   }) async {
     if (strEmpty(refreshToken)) {
-      UserRepoLocal.to.logout();
+      UserRepoLocal.to.quitLogin();
       Get.offAll(() => PassportPage());
       return "";
     }
@@ -55,7 +56,7 @@ class UserProvider extends HttpClient {
     }
     String newToken = resp.payload?['token'] ?? '';
     if (checkNewToken && strEmpty(newToken)) {
-      UserRepoLocal.to.logout();
+      UserRepoLocal.to.quitLogin();
       Get.offAll(() => PassportPage());
       return "";
     }
@@ -77,10 +78,50 @@ class UserProvider extends HttpClient {
       'keyword': keyword,
     });
 
-    iPrint("> on UserTagProvider/page resp: ${resp.payload.toString()}");
+    iPrint("> on UserProvider/ftsRecentlyUser resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }
     return resp.payload;
+  }
+
+  Future<bool> changeEmail(String email) async {
+    IMBoyHttpResponse resp = await put(API.userUpdate, data: {
+      "field": "email",
+      "value": email,
+    });
+    return resp.ok;
+  }
+
+  Future<bool> changePassword({required String newPwd, required String existingPwd}) async {
+    IMBoyHttpResponse resp = await post(API.userChangePassword, data: {
+      'new_pwd': newPwd,
+      'existing_pwd': existingPwd,
+    });
+
+    iPrint("> on UserProvider/changePassword resp: ${resp.payload.toString()}");
+    if (resp.ok) {
+      return true;
+    }
+    EasyLoading.showError(resp.msg.tr);
+    return false;
+  }
+
+  Future<bool> applyLogout() async {
+    IMBoyHttpResponse resp = await post(API.userApplyLogout);
+    iPrint("> on UserProvider/applyLogout resp: ${resp.payload.toString()}");
+    if (!resp.ok) {
+      return false;
+    }
+    return true;
+  }
+
+  Future<bool> cancelLogout() async {
+    IMBoyHttpResponse resp = await post(API.userCancelLogout);
+    iPrint("> on UserProvider/cancelLogout resp: ${resp.payload.toString()}");
+    if (!resp.ok) {
+      return false;
+    }
+    return true;
   }
 }

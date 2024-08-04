@@ -40,7 +40,7 @@ class SelectRegionPage extends StatelessWidget {
         titleWidget: n.Row([
           Expanded(
             child: Text(
-              'set_region'.tr,
+              'set_param'.trArgs(['region'.tr]),
               textAlign: TextAlign.center,
               style: AppStyle.navAppBarTitleStyle,
             ),

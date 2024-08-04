@@ -75,7 +75,7 @@ class ContactTagDetailPage extends StatelessWidget {
                     Center(
                       child: TextButton(
                         child: Text(
-                          'change_tag_name'.tr,
+                          'change_param'.trArgs(['tags'.tr]),
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             // color: Colors.white,

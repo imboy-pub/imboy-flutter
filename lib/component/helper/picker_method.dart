@@ -3,6 +3,7 @@
 // [Date] 2020-05-30 20:56
 //
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 
@@ -318,7 +319,7 @@ class PickMethod {
         onPermission(ps);
         // ignore: use_build_context_synchronously
         return AssetPicker.pickAssetsWithDelegate(
-          context,
+          Get.context!,
           delegate: delegate(),
         );
       },

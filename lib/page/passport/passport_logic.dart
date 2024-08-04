@@ -2,10 +2,13 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
+import 'package:imboy/store/provider/user_provider.dart';
+import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/extension/device_ext.dart';
@@ -28,21 +31,21 @@ class PassportLogic extends GetxController {
   /// 账号验证
   String? userValidator(LoginUserType userType, String value) {
     if (userType == LoginUserType.phone && !isPhone(value)) {
-      return 'error_invalid'.trArgs(['hint_login_phone'.tr]);
+      return 'error_invalid'.trArgs(['mobile'.tr]);
     } else if (userType == LoginUserType.email && !isEmail(value)) {
-      return 'error_invalid'.trArgs(['hint_login_email'.tr]);
+      return 'error_invalid'.trArgs(['email'.tr]);
     }
     return null;
   }
 
   /// 密码格式验证
-  String? passwordValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'error_empty_directory'.trArgs(['hint_login_password'.tr]);
+  String? passwordValidator(String? val) {
+    if (strEmpty(val)) {
+      return 'error_empty_directory'.trArgs(['password'.tr]);
     }
-    if (value.length < 4 || value.length > 32) {
+    if (val!.length < 4 || val.length > 32) {
       return 'error_length_between'.trArgs([
-        'hint_login_password'.tr,
+        'password'.tr,
         '4',
         '32',
       ]);
@@ -54,11 +57,67 @@ class PassportLogic extends GetxController {
   Future<String?> loginUser(LoginData data) async {
     // Get.loading();
     try {
-      bool loginSuccess = await login(data.name.trim(), data.password.trim());
+      int status = await _login(data.name.trim(), data.password.trim());
       Get.dismiss();
-      if (loginSuccess) {
+      if (status == 1) {
         return null;
         // Get.off(() => BottomNavigationPage());
+      } else if ( status == 2){
+        Get.defaultDialog(
+          title: 'cancel_logout_title'.tr,
+          backgroundColor: Get.isDarkMode
+              ? const Color.fromRGBO(80, 80, 80, 1)
+              : const Color.fromRGBO(240, 240, 240, 1),
+          radius: 6,
+          cancel: TextButton(
+            onPressed: () {
+              Get.close();
+            },
+            child: Text(
+              'button_cancel'.tr,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(Get.context!).colorScheme.onPrimary,
+              ),
+            ),
+          ),
+          confirm: TextButton(
+            onPressed: () async {
+              // var nav = Navigator.of(Get.context!);
+              // nav.pop();
+              // nav.pop(model);
+              await UserProvider().cancelLogout();
+              Get.off(() => BottomNavigationPage());
+            },
+            child: Text(
+              'button_login'.tr,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Theme.of(Get.context!).colorScheme.onPrimary),
+            ),
+          ),
+          content: SizedBox(
+            height: 108,
+            child: n.Column([
+                Expanded(
+                  child: n.Padding(
+                    left: 10,
+                    child: Text(
+                      'cancel_logout_body'.tr,
+                      style: const TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.normal,
+                      ),
+                      maxLines: 6,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ])
+              ..crossAxisAlignment = CrossAxisAlignment.start,
+
+        ));
+
+        return 'cancel_logout_title'.tr;
       } else {
         return _error;
       }
@@ -91,12 +150,12 @@ class PassportLogic extends GetxController {
     };
   }
 
-  Future<bool> login(String account, String password) async {
+  Future<int> _login(String account, String password) async {
     try {
       Map<String, dynamic> data = await encryptPassword(password);
       if (strNoEmpty(data['error'])) {
         _error = data['error'];
-        return false;
+        return 0;
       }
       Map<String, dynamic>? dinfo = await DeviceExt.to.detail;
       Map<String, dynamic> postData = {
@@ -116,21 +175,26 @@ class PassportLogic extends GetxController {
         postData["dname"] = dinfo["deviceName"];
         postData["dvsn"] = dinfo["deviceVersion"];
       }
-      debugPrint("> on doLogin postData: ${postData.toString()}");
+      debugPrint("> on doLogin $currentEnv postData: ${postData.toString()}");
       IMBoyHttpResponse resp2 = await HttpClient.client.post(
         API.login,
         data: postData,
       );
       if (!resp2.ok) {
         _error = resp2.error?.message;
-        return false;
+        return 0;
       } else {
         StorageService.to.setString(Keys.lastLoginAccount, account);
-        return await (UserRepoLocal()).loginAfter(resp2.payload);
+
+        int status = (resp2.payload['status'] ?? 1).toInt();
+        if (status == 1 || status == 2) {
+          await (UserRepoLocal()).loginAfter(resp2.payload);
+        }
+        return status;
       }
     } on PlatformException {
       _error = '网络故障，请稍后重试';
-      return false;
+      return 0;
     }
   }
 
@@ -177,7 +241,7 @@ class PassportLogic extends GetxController {
 
   Future<String?> doSendEmail(String email) async {
     if (!isEmail(email)) {
-      return 'error_invalid'.trArgs(['hint_login_email'.tr]);
+      return 'error_invalid'.trArgs(['email'.tr]);
     }
 
     IMBoyHttpResponse resp2 = await HttpClient.client.post(

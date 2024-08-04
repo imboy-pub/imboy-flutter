@@ -42,9 +42,9 @@ class PassportPage extends StatelessWidget {
       }
     });
     LoginUserType userType = LoginUserType.email;
-    String userHint = 'hint_login_email'.tr;
+    String userHint = 'email'.tr;
     if (userType == LoginUserType.phone) {
-      userHint = 'hint_login_phone'.tr;
+      userHint = 'mobile'.tr;
     } else if (userType == LoginUserType.name) {
       userHint = 'hint_login_account'.tr;
     }
@@ -114,34 +114,34 @@ class PassportPage extends StatelessWidget {
             goBackButton: 'button_back'.tr,
             confirmSignupButton: 'button_confirm'.tr,
             resendCodeButton: 'button_resend_code'.tr,
-            forgotPasswordButton: 'button_forgotpassword'.tr,
-            recoverPasswordButton: 'button_recoverpassword'.tr,
+            forgotPasswordButton: 'forgot_password'.tr,
+            recoverPasswordButton: 'recover_password'.tr,
             additionalSignUpSubmitButton: 'button_submit'.tr,
-            setPasswordButton: 'button_setpassword'.tr,
+            setPasswordButton: 'set_param'.trArgs(['password'.tr]),
             // hint
             userHint: userHint,
-            passwordHint: 'hint_login_password'.tr,
-            confirmPasswordHint: 'hint_login_confirmpassword'.tr,
-            confirmationCodeHint: 'hint_login_confirmationcode'.tr,
-            recoveryCodeHint: 'hint_login_recoverycode'.tr,
+            passwordHint: 'password'.tr,
+            confirmPasswordHint: 'retype_password'.tr,
+            confirmationCodeHint: 'confirm_code'.tr,
+            recoveryCodeHint: 'confirm_code'.tr,
             // tip
-            confirmSignupIntro: 'tip_sigup_intro'.tr,
-            confirmationCodeValidationError: 'tip_confirmationcode_error'.tr,
-            confirmSignupSuccess: 'tip_confirmationcode_success'.tr,
-            resendCodeSuccess: 'tip_resendcode_success'.tr,
+            confirmSignupIntro: 'signup_intro'.tr,
+            confirmationCodeValidationError: 'confirm_code_error'.tr,
+            confirmSignupSuccess: 'confirm_code_success'.tr,
+            resendCodeSuccess: 'resend_code_success'.tr,
             providersTitleFirst: 'tip_providers_title_first'.tr,
-            confirmRecoverIntro: 'tip_confirmrecover_intro'.tr,
-            confirmPasswordError: 'error_confirmpassword'.tr,
-            recoverPasswordDescription: 'tip_recoverpassword_desc'.tr,
-            recoverPasswordSuccess: 'tip_recoverpassword_success'.tr,
-            recoverCodePasswordDescription: 'tip_recovercodepassword_desc'.tr,
-            additionalSignUpFormDescription: 'tip_sigup_form_desc'.tr,
+            confirmRecoverIntro: 'confirm_recover_intro'.tr,
+            confirmPasswordError: 'error_retype_password'.tr,
+            recoverPasswordDescription: 'recover_password_desc'.tr,
+            recoverPasswordSuccess: 'recover_password_success'.tr,
+            recoverCodePasswordDescription: 'recover_code_password_desc'.tr,
+            additionalSignUpFormDescription: 'signup_form_desc'.tr,
             flushbarTitleError: 'tip_title'.tr,
             flushbarTitleSuccess: 'tip_success'.tr,
-            recoverPasswordIntro: 'tip_recoverpassword_intro'.tr,
+            recoverPasswordIntro: 'recover_password_intro'.tr,
             recoveryCodeValidationError:
-                'error_empty_directory'.trArgs(['hint_login_recoverycode'.tr]),
-            confirmRecoverSuccess: 'tip_confirmrecover_success'.tr,
+                'error_empty_directory'.trArgs(['confirm_code'.tr]),
+            confirmRecoverSuccess: 'confirm_recover_success'.tr,
           ),
           userValidator: (value) {
             return logic.userValidator(userType, value ?? '');
@@ -207,9 +207,9 @@ class PassportPage extends StatelessWidget {
             TermOfService(
               id: 'general-term',
               mandatory: true,
-              text: 'title_termofservices'.tr,
+              text: 'term_of_services'.tr,
               validationErrorMessage:
-                  'error_required'.trArgs(['title_termofservices'.tr]),
+                  'error_required'.trArgs(['term_of_services'.tr]),
               linkUrl: 'http://www.imboy.pub/',
             ),
           ],
