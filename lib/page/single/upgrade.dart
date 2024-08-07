@@ -316,6 +316,7 @@ class UpgradeCard extends StatefulWidget {
   final upgradeCardState = UpgradeCardState();
 
   @override
+  // ignore: no_logic_in_create_state
   UpgradeCardState createState() => upgradeCardState;
 
   /// 外部更新函数

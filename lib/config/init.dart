@@ -143,6 +143,7 @@ Future<void> init(
   } else {
     currentEnv = env;
   }
+  // currentEnv = 'local';
   // iPrint("init env 2 $env, currentEnv $currentEnv;");
 
   // step 5

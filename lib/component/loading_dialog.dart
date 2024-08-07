@@ -6,7 +6,7 @@ class LoadingDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      onPopInvoked: (bool didPop) async {},
+      // onPopInvoked: (bool didPop) async {},
       child: SimpleDialog(
         key: key,
         backgroundColor: Colors.white,

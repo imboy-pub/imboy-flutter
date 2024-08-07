@@ -342,7 +342,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
           String txt = DateFormat('mm:ss.SSS').format(date);
           if (date.second >= _countTotal) {
             recorderStop(recorderModule);
-            hideVoiceView(ctx);
+            hideVoiceView(Get.context!);
           }
 
           double voiceData = ((dbLevel * 100.0).floor()) / 3500;

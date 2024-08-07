@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:typed_data';
-
+import 'package:flutter/services.dart';
+import 'package:niku/namespace.dart' as n;
 import 'package:amap_flutter_base/amap_flutter_base.dart';
 import 'package:amap_flutter_map/amap_flutter_map.dart';
 import 'package:easy_refresh/easy_refresh.dart';
@@ -56,10 +56,10 @@ class _MapLocationPickerState extends State<MapLocationPicker>
   final _iconSize = 50.0;
   double _fabHeightSend = 40.0;
   double _fabHeight = 16.0;
-  bool _iskeyword = false;
+  bool _isKeyword = false;
   bool _animate = false;
   int page = 1;
-  int _selindex = 0;
+  int _seLindex = 0;
   bool _moveByUser = true;
 
   final _searchQueryController = TextEditingController();
@@ -82,7 +82,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
   final poiStream = StreamController<List<AMapPosition>>();
   List<AMapPosition> poiInfoList = [];
 
-  String searchtype =
+  String searchType =
       "010000|020000|030000|040000|050000|060000|070000|080000|090000|100000|110000|120201|120300|140000|150400|190600|190301";
   final Map<String, Marker> _markers = <String, Marker>{};
   AMapPosition? _sendMsg;
@@ -117,7 +117,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
         hasShow: true,
         hasAgree: true,
       ),
-      apiKey:  AMapApiKey(
+      apiKey: AMapApiKey(
         iosKey: Env.amapIosKey,
         androidKey: Env.amapAndroidKey,
       ),
@@ -129,7 +129,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       // 是否指南针
       labelsEnabled: true,
       // 是否显示底图文字
-      scaleEnabled: false,
+      scaleEnabled: true,
       // 比例尺是否显示
       touchPoiEnabled: true,
       rotateGesturesEnabled: true,
@@ -165,37 +165,36 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                     pos * (maxPanelHeight - minPanelHeight) * .5 + 30;
                 _fabHeight = pos * (maxPanelHeight - minPanelHeight) * .5 + 16;
               }),
-          body: Column(
-            children: <Widget>[
+          body: n.Column(
+            [
               Flexible(
-                child: Stack(
-                  children: <Widget>[
+                child: n.Stack(
+                  [
                     amap,
                     Center(
-                      child: AnimatedBuilder(
-                        animation: _tween,
-                        builder: (context, child) {
-                          return Transform.translate(
-                            offset: Offset(
-                              _tween.value.dx,
-                              _tween.value.dy - _iconSize / 2,
-                            ),
-                            child: child,
-                          );
-                        },
-                        child: const Icon(
-                          Icons.location_on,
-                          size: 40,
-                          color: Colors.green,
-                        ),
+                        child: AnimatedBuilder(
+                      animation: _tween,
+                      builder: (context, child) {
+                        return Transform.translate(
+                          offset: Offset(
+                            _tween.value.dx,
+                            _tween.value.dy - _iconSize / 2,
+                          ),
+                          child: child,
+                        );
+                      },
+                      child: const Icon(
+                        Icons.location_on,
+                        size: 40,
+                        color: Colors.green,
                       ),
-                    ),
+                    )),
                     Positioned(
                       right: 16.0,
                       bottom: _fabHeight,
                       child: FloatingActionButton(
                         onPressed: _showMyLocation,
-                        backgroundColor: Colors.white,
+                        // backgroundColor: Colors.white,
                         child: StreamBuilder<bool>(
                           stream: _onMyLocation.stream,
                           initialData: true,
@@ -212,62 +211,75 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                       ),
                     ),
                     Positioned(
-                      right: 16.0,
+                      left: 16.0,
                       top: _fabHeightSend,
-                      child: SizedBox(
-                        width: 60,
-                        child: TextButton(
-                          style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.all<Color>(
-                              Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                          child: Text(
-                            'button_send'.tr,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          onPressed: () async {
-                            Map<String, dynamic>? map;
-                            if (_sendMsg != null) {
-                              map = {
-                                "id": _sendMsg!.id,
-                                "image": null,
-                                "address": _sendMsg!.address,
-                                "title": _sendMsg!.name,
-                                "latitude": _sendMsg!.latLng.latitude,
-                                "longitude": _sendMsg!.latLng.longitude,
-                                // "provinceCode": _sendMsg!.pcode,
-                                "adCode": _sendMsg!.adCode
-                              };
-                            }
-                            debugPrint("sendLocation ${map.toString()}");
-                            if (widget.isMapImage && _sendMsg != null) {
-                              final Marker marker = Marker(
-                                anchor: const Offset(0.5, 1),
-                                position: LatLng(
-                                  _sendMsg!.latLng.latitude,
-                                  _sendMsg!.latLng.longitude,
-                                ),
-                                // icon: BitmapDescriptor.fromIconPath(
-                                //     'assets/images/location_on.png'),
-                                //使用默认hue的方式设置Marker的图标
-                              );
-                              setState(() {
-                                //将新的marker添加到map里
-                                _markers[marker.id] = marker;
-                              });
-                              Future.delayed(const Duration(milliseconds: 500),
-                                  () {
-                                takeSnapshotReturn(map!);
-                              });
-                            }
-                          },
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Icon(
+                          Icons.arrow_back_ios,
+                          size: 40,
+                          color: Colors.green,
                         ),
                       ),
-                    )
+                    ),
+                    Positioned(
+                        right: 16.0,
+                        top: _fabHeightSend,
+                        child: SizedBox(
+                          width: 60,
+                          child: TextButton(
+                            style: ButtonStyle(
+                              backgroundColor: WidgetStateProperty.all<Color>(
+                                Colors.green,
+                              ),
+                            ),
+                            child: Text(
+                              'button_send'.tr,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            onPressed: () async {
+                              Map<String, dynamic>? map;
+                              if (_sendMsg != null) {
+                                map = {
+                                  "id": _sendMsg!.id,
+                                  "image": null,
+                                  "address": _sendMsg!.address,
+                                  "title": _sendMsg!.name,
+                                  "latitude": _sendMsg!.latLng.latitude,
+                                  "longitude": _sendMsg!.latLng.longitude,
+                                  // "provinceCode": _sendMsg!.pcode,
+                                  "adCode": _sendMsg!.adCode
+                                };
+                              }
+                              debugPrint("sendLocation ${map.toString()}");
+                              if (widget.isMapImage && _sendMsg != null) {
+                                final Marker marker = Marker(
+                                  anchor: const Offset(0.5, 1),
+                                  position: LatLng(
+                                    _sendMsg!.latLng.latitude,
+                                    _sendMsg!.latLng.longitude,
+                                  ),
+                                  // icon: BitmapDescriptor.fromIconPath(
+                                  //     'assets/images/location_on.png'),
+                                  //使用默认hue的方式设置Marker的图标
+                                );
+                                setState(() {
+                                  //将新的marker添加到map里
+                                  _markers[marker.id] = marker;
+                                });
+                                Future.delayed(
+                                    const Duration(milliseconds: 500), () {
+                                  takeSnapshotReturn(map!);
+                                });
+                              }
+                            },
+                          ),
+                        ))
                   ],
                 ),
               ),
@@ -382,7 +394,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                               return GestureDetector(
                                 onTap: () {
                                   setState(() {
-                                    _selindex = index;
+                                    _seLindex = index;
                                     _sendMsg = data[index];
                                     _changeCameraPosition(data[index].latLng);
                                   });
@@ -391,7 +403,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                   title: Text(data[index].name),
                                   subtitle:
                                       Text("$distance${data[index].address}"),
-                                  trailing: _selindex == index
+                                  trailing: _seLindex == index
                                       ? Icon(
                                           Icons.check,
                                           color: Theme.of(context)
@@ -470,7 +482,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
 
   Future<void> _showMyLocation() async {
     _changeCameraPosition(widget.latLng!); //我的位置
-    if (!_iskeyword) {
+    if (!_isKeyword) {
       //如果不在文字搜索中
       _search(widget.latLng!);
     }
@@ -500,21 +512,21 @@ class _MapLocationPickerState extends State<MapLocationPicker>
 
   void _cancel() {
     _animate = false;
-    _iskeyword = false;
-    _selindex = 0;
+    _isKeyword = false;
+    _seLindex = 0;
     focusNode.unfocus();
     _panelController.close();
   }
 
   _onTextChanged(String newText) async {
-    _searchkeyword(newText);
+    _searchKeyword(newText);
     _animate = true;
   }
 
   Future<void> _search(LatLng location, {bool more = false}) async {
     var response = await AMapApi.getAmapPoi(
       "${location.latitude},${location.longitude}",
-      searchtype,
+      searchType,
       10,
       page,
     );
@@ -556,20 +568,20 @@ class _MapLocationPickerState extends State<MapLocationPicker>
     poiStream.add(poiInfoList);
   }
 
-  Future<void> _searchkeyword(String keyword, {bool more = false}) async {
+  Future<void> _searchKeyword(String keyword, {bool more = false}) async {
     if (keyword.isEmpty) {
-      _iskeyword = true;
+      _isKeyword = true;
       return;
     }
 
     if (!more) {
       poiInfoList = [];
-      _selindex = -1;
+      _seLindex = -1;
     }
 
     var response = await AMapApi.getMapByKeyword(
       keyword,
-      searchtype,
+      searchType,
       widget.citycode,
       true,
       10,
@@ -605,9 +617,9 @@ class _MapLocationPickerState extends State<MapLocationPicker>
   }
 
   Future<void> _handleLoadMore() async {
-    if (_iskeyword) {
+    if (_isKeyword) {
       page++;
-      _searchkeyword(_searchQueryController.text, more: true);
+      _searchKeyword(_searchQueryController.text, more: true);
     } else {
       page++;
       _search(_currentCenterCoordinate, more: true);

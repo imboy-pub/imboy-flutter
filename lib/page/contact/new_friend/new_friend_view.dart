@@ -19,7 +19,7 @@ import 'new_friend_logic.dart';
 
 // ignore: must_be_immutable
 class NewFriendPage extends StatelessWidget {
-  final NewFriendLogic logic = Get.find();
+  final NewFriendLogic logic = Get.put(NewFriendLogic());
 
   bool isSearch = false;
   bool showBtn = false;

@@ -6,7 +6,6 @@ import 'package:imboy/page/contact/contact/contact_view.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/conversation/conversation_view.dart';
 import 'package:imboy/page/mine/mine/mine_view.dart';
-import 'package:imboy/service/websocket.dart';
 
 import 'bottom_navigation_logic.dart';
 import 'bottom_navigation_state.dart';
@@ -132,7 +131,7 @@ class BottomNavigationPage extends StatelessWidget {
                 showBadge: true,
                 position: badges.BadgePosition.topStart(top: 36, start: 40),
                 badgeStyle: badges.BadgeStyle(
-                  badgeColor: WebSocketService.to.isConnected
+                  badgeColor: state.isConnected.isTrue
                       ? Colors.green
                       : Colors.red,
                 ),

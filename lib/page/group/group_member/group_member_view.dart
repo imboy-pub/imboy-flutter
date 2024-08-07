@@ -92,15 +92,15 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
     );
   }
   */
-  Future _gerData() async {
-    // return GroupModel.getGroupMembersListModel(widget.groupId,
-    //     callback: (result) {
-    //   setState(() {
-    //     memberList.insertAll(
-    //         0, json.decode(result.toString().replaceAll("'", '"')));
-    //   });
-    // });
-  }
+  // Future _getData() async {
+  // return GroupModel.getGroupMembersListModel(widget.groupId,
+  //     callback: (result) {
+  //   setState(() {
+  //     memberList.insertAll(
+  //         0, json.decode(result.toString().replaceAll("'", '"')));
+  //   });
+  // });
+  // }
 
   /*
   Widget titleWidget() {
@@ -124,12 +124,12 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
 
     return Scaffold(
       appBar: NavAppBar(
-          automaticallyImplyLeading: true,
+        automaticallyImplyLeading: true,
         // titleWidget: titleWidget(),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(10),
-        children: <Widget>[
+        padding:  EdgeInsets.all(10),
+        children: [
           // Wrap(
           //   alignment: WrapAlignment.start,
           //   // ignore: sort_child_properties_last

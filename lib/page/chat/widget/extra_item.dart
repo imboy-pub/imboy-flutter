@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:carousel_slider_plus/carousel_slider_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -111,7 +112,7 @@ class ExtraItems extends StatefulWidget {
 
 class _ExtraItemsState extends State<ExtraItems> {
   int _current = 0;
-  final CarouselController _controller = CarouselController();
+  final CarouselControllerPlus _controller = CarouselControllerPlus();
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +140,8 @@ class _ExtraItemsState extends State<ExtraItems> {
                 // ignore: use_build_context_synchronously
                 Navigator.push(
                   Get.context!,
-                  MaterialPageRoute(
+                  CupertinoPageRoute(
+                    // “右滑返回上一页”功能
                     builder: (context) => MapLocationPicker(arguments: {
                       "lat": double.parse(l.latLng.latitude.toString()),
                       "lng": double.parse(l.latLng.longitude.toString()),
@@ -152,7 +154,7 @@ class _ExtraItemsState extends State<ExtraItems> {
                   if (value != null) {
                     if (value["image"] == null) {
                       EasyLoading.showError('failed_get_map_try_again'.tr);
-                      FocusScope.of(context).requestFocus(FocusNode());
+                      FocusScope.of(Get.context!).requestFocus(FocusNode());
                       return;
                     }
                     if (widget.handleLocationSelection != null &&
@@ -178,40 +180,42 @@ class _ExtraItemsState extends State<ExtraItems> {
           ),
         ]),
         n.Row([
-          if (widget.type != 'C2G') ExtraItem(
-            title: 'voice_call'.tr,
-            image: const Icon(Icons.phone, size: iconSize),
-            onPressed: () {
-              openCallScreen(
-                ContactModel.fromMap({
-                  "id": widget.options["to"],
-                  "nickname": widget.options["title"],
-                  "avatar": widget.options["avatar"],
-                  "sign": widget.options["sign"],
-                }),
-                {
-                  'media': 'audio',
-                },
-              );
-            },
-          ),
-          if (widget.type != 'C2G') ExtraItem(
-            title: 'video_call'.tr,
-            image: const Icon(Icons.videocam, size: iconSize),
-            onPressed: () {
-              openCallScreen(
-                ContactModel.fromMap({
-                  "id": widget.options["to"],
-                  "nickname": widget.options["title"],
-                  "avatar": widget.options["avatar"],
-                  "sign": widget.options["sign"],
-                }),
-                {
-                  'media': 'video',
-                },
-              );
-            },
-          ),
+          if (widget.type != 'C2G')
+            ExtraItem(
+              title: 'voice_call'.tr,
+              image: const Icon(Icons.phone, size: iconSize),
+              onPressed: () {
+                openCallScreen(
+                  ContactModel.fromMap({
+                    "id": widget.options["to"],
+                    "nickname": widget.options["title"],
+                    "avatar": widget.options["avatar"],
+                    "sign": widget.options["sign"],
+                  }),
+                  {
+                    'media': 'audio',
+                  },
+                );
+              },
+            ),
+          if (widget.type != 'C2G')
+            ExtraItem(
+              title: 'video_call'.tr,
+              image: const Icon(Icons.videocam, size: iconSize),
+              onPressed: () {
+                openCallScreen(
+                  ContactModel.fromMap({
+                    "id": widget.options["to"],
+                    "nickname": widget.options["title"],
+                    "avatar": widget.options["avatar"],
+                    "sign": widget.options["sign"],
+                  }),
+                  {
+                    'media': 'video',
+                  },
+                );
+              },
+            ),
           // const SizedBox(width: 86, height: 56,),
           ExtraItem(
             title: 'favorites'.tr,
@@ -245,6 +249,7 @@ class _ExtraItemsState extends State<ExtraItems> {
     return n.Column([
       Expanded(
         child: CarouselSlider(
+          controller: _controller,
           options: CarouselOptions(
             height: Get.height,
             viewportFraction: 1.0,

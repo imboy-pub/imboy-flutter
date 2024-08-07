@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 // ignore: depend_on_referenced_packages
@@ -60,9 +61,15 @@ class IMBoyImageGallery extends StatelessWidget {
     //     iPrint('IMBoyImageGallery didPop: $didPop');
     //     // var canPop = await controller.confirmDiscard();
     //   },
-    return WillPopScope(
-      onWillPop: () async {
-        return false;
+    return PopScope(
+      canPop: false, // 允许返回
+      // 防止连续点击两次退出
+      onPopInvokedWithResult: (bool didPop, String? res) async {
+        if (didPop) {
+          return;
+        }
+        // 系统级别导航栈 退出程序
+        SystemNavigator.pop();
       },
       child: GestureDetector(
         onTap: () => onClosePressed(),

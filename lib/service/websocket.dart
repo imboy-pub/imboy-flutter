@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -56,6 +57,10 @@ class WebSocketService {
 
   bool get isConnected => _socketStatus == SocketStatus.SocketStatusConnected;
 
+  _changeSocketStatus(s) {
+    _socketStatus = s;
+    Get.find<BottomNavigationLogic>().state.isConnected.value = isConnected;
+  }
   ///
   Future<void> _init() async {
     await openSocket(from: 'init');
@@ -88,7 +93,7 @@ class WebSocketService {
       await initConfig();
       url = Env.wsUrl;
     }
-    iPrint("currentEnv $currentEnv wsUrl $url");
+    iPrint("> ws openSocket currentEnv $currentEnv wsUrl $url");
 
     try {
       String tk = await UserRepoLocal.to.accessToken;
@@ -111,7 +116,7 @@ class WebSocketService {
       Map<String, dynamic> headers = await defaultHeaders();
 
       headers[Keys.tokenKey] = tk;
-      iPrint("openSocket_headers ${headers.toString()}");
+      iPrint("> ws openSocket_headers ${headers.toString()}");
 
       _wsChannel = IOWebSocketChannel.connect(
         url!,
@@ -120,13 +125,13 @@ class WebSocketService {
         protocols: protocols,
       );
 
+      iPrint('> ws openSocket _wsChannel ${DateTime.now()}');
       // https://github.com/dart-lang/web_socket_channel/issues/182
       // ready property to make sure that connection is either completed or failed, then a try-catch will work.
       await _wsChannel?.ready;
       // 连接成功，设置socket状态
-      _socketStatus = SocketStatus.SocketStatusConnected;
-
-      iPrint('> ws openSocket onOpen');
+      _changeSocketStatus(SocketStatus.SocketStatusConnected);
+      iPrint('> ws openSocket onOpen ${DateTime.now()}');
       // onOpen onMessage onError onClose
       // 接收消息
       _wsChannel?.stream.listen(
@@ -140,11 +145,11 @@ class WebSocketService {
         cancelOnError: true,
       );
     } catch (e) {
-      await closeSocket();
-      _socketStatus = SocketStatus.SocketStatusFailed;
-      iPrint("> openSocket ${Env.wsUrl} error ${e.toString()}");
+      await _reconnect();
+      _changeSocketStatus(SocketStatus.SocketStatusFailed);
+      iPrint("> openSocket ${Env.wsUrl} error ${e.toString()} ${DateTime.now()}");
     } finally {
-      iPrint("> openSocket finally ${Env.wsUrl} ");
+      iPrint("> openSocket finally ${Env.wsUrl} ${DateTime.now()}");
       wsConnectLock = false;
     }
   }
@@ -160,7 +165,8 @@ class WebSocketService {
 
   /// WebSocket关闭连接回调
   _onClose() async {
-    _socketStatus = SocketStatus.SocketStatusClosed;
+    iPrint('> ws _onClose ${DateTime.now()}');
+    _changeSocketStatus(SocketStatus.SocketStatusClosed);
     // https://developer.mozilla.org/zh-CN/docs/Web/API/CloseEvent
     // closeCode 1000 正常关闭; 无论为何目的而创建, 该链接都已成功完成任务.
     if (_wsChannel != null && _wsChannel!.closeCode != null) {
@@ -196,8 +202,8 @@ class WebSocketService {
 
   /// WebSocket连接错误回调
   _onError(e) async {
-    iPrint('> ws _onError ${e.toString()}');
-    _socketStatus = SocketStatus.SocketStatusFailed;
+    iPrint('> ws _onError ${e.toString()}  ${DateTime.now()}');
+    _changeSocketStatus(SocketStatus.SocketStatusFailed);
     // await closeSocket();
     await _reconnect();
   }
@@ -205,7 +211,7 @@ class WebSocketService {
   /// 关闭WebSocket
   Future<void> closeSocket({bool exit = false}) async {
     iPrint('> ws closeSocket ${DateTime.now()}');
-    _socketStatus = SocketStatus.SocketStatusClosed;
+    _changeSocketStatus(SocketStatus.SocketStatusClosed);
     // destroyHeartBeat();
     iPrint('> ws WebSocket连接关闭 ${Env.wsUrl}');
     await _wsChannel?.sink.close();
@@ -240,7 +246,7 @@ class WebSocketService {
 
   /// 重连机制
   Future<void> _reconnect() async {
-    iPrint('> ws _reconnect _reconnectTimes $_reconnectTimes');
+    iPrint('> ws _reconnect _reconnectTimes $_reconnectTimes  ${DateTime.now()}');
     if (_reconnectTimes > _reconnectMax) {
       // 如果达到最大重连次数，停止重连并关闭 WebSocket
       iPrint('> ws 达到最大重连次数，停止重连');

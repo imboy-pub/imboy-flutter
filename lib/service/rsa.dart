@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:imboy/component/helper/string.dart';
 import 'package:pointycastle/export.dart';
 import 'package:pointycastle/pointycastle.dart';
+// ignore: implementation_imports
 import 'package:pointycastle/src/platform_check/platform_check.dart';
 import 'package:flutter_keychain/flutter_keychain.dart';
 

@@ -169,7 +169,6 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     // 解决"重新进入聊天页面的时候_bottomHeightController在开启状态"的问题
     _bottomHeightController.animateBack(0);
 
-
     String? draft = StorageService.to.getString(draftKey);
     if (strNoEmpty(draft)) {
       _setText(draft!);
@@ -526,9 +525,15 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final query = MediaQuery.of(context);
 
-    return WillPopScope(
-      onWillPop: () async {
-        return true;
+    return PopScope(
+      canPop: false, // 允许返回
+      // 防止连续点击两次退出
+      onPopInvokedWithResult: (bool didPop, String? res) async {
+        if (didPop) {
+          return;
+        }
+        // 系统级别导航栈 退出程序
+        SystemNavigator.pop();
       },
       child: InkWell(
         child: Focus(
