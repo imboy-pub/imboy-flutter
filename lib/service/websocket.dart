@@ -101,7 +101,7 @@ class WebSocketService {
       if (tk.isEmpty) {
         iPrint('> ws openSocket tk isEmpty ${tk.isEmpty};');
         wsConnectLock = false;
-        if (Get.currentRoute != '/PassportPage' && Get.currentRoute != '/Hnb') {
+        if (checkRoute) {
           UserRepoLocal.to.quitLogin();
           Get.offAll(() => PassportPage());
         }
@@ -244,6 +244,8 @@ class WebSocketService {
     return true;
   }
 
+  bool get checkRoute => Get.currentRoute != '/PassportPage' && Get.currentRoute != '/Hnb';
+
   /// 重连机制
   Future<void> _reconnect() async {
     iPrint('> ws _reconnect _reconnectTimes $_reconnectTimes  ${DateTime.now()}');
@@ -251,7 +253,7 @@ class WebSocketService {
       // 如果达到最大重连次数，停止重连并关闭 WebSocket
       iPrint('> ws 达到最大重连次数，停止重连');
       await closeSocket();
-    } else {
+    } else if (checkRoute) {
       int ms = _ts(_reconnectTimes);
       iPrint('> ws _reconnect _reconnectTimes $_reconnectTimes; ms $ms');
       Future.delayed(Duration(milliseconds: ms), () async {

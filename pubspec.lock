@@ -283,10 +283,10 @@ packages:
     dependency: "direct main"
     description:
       name: carousel_slider_plus
-      sha256: c3104d287c4aea3e83bbe87fe40ad29909ee5815bc75f2499585941392d0c11a
+      sha256: c5ec436ab9245b8350ad8517ead85726c433ea0594c22811fed3623072095a05
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.0.0+1"
+    version: "7.0.0"
   characters:
     dependency: transitive
     description:
@@ -1635,10 +1635,10 @@ packages:
     dependency: "direct main"
     description:
       name: photo_manager
-      sha256: "2f98fed8fede27eaf55021a1ce382609a715b52096a94a315f99ae33b6d2eaab"
+      sha256: "1e8bbe46a6858870e34c976aafd85378bed221ce31c1201961eba9ad3d94df9f"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.2.2"
+    version: "3.2.3"
   photo_manager_image_provider:
     dependency: transitive
     description:
@@ -2129,10 +2129,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_linux
-      sha256: ab360eb661f8879369acac07b6bb3ff09d9471155357da8443fd5d3cf7363811
+      sha256: e2b9622b4007f97f504cd64c0128309dfb978ae66adbe944125ed9e1750f06af
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.1.1"
+    version: "3.2.0"
   url_launcher_macos:
     dependency: transitive
     description:

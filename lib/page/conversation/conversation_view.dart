@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -28,6 +30,8 @@ class ConversationPage extends StatefulWidget {
 }
 
 class _ConversationPageState extends State<ConversationPage> {
+  late StreamSubscription ssMsg;
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +39,12 @@ class _ConversationPageState extends State<ConversationPage> {
       return;
     }
     initData();
+  }
+
+  @override
+  void dispose() {
+    ssMsg.cancel();
+    super.dispose();
   }
 
   final ConversationLogic logic = Get.find();
@@ -59,7 +69,7 @@ class _ConversationPageState extends State<ConversationPage> {
     });
 
     // 监听会话消息
-    eventBus.on<ConversationModel>().listen((obj) async {
+    ssMsg = eventBus.on<ConversationModel>().listen((obj) async {
       if (obj.type == 'C2G' && obj.avatar.isEmpty) {
         obj.computeAvatar = await Get.find<GroupListLogic>().computeAvatar(
           obj.peerId,

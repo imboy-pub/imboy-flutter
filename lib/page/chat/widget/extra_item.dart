@@ -112,7 +112,7 @@ class ExtraItems extends StatefulWidget {
 
 class _ExtraItemsState extends State<ExtraItems> {
   int _current = 0;
-  final CarouselControllerPlus _controller = CarouselControllerPlus();
+  final CarouselSliderController _controller = CarouselSliderController();
 
   @override
   Widget build(BuildContext context) {

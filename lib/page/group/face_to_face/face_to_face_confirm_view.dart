@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -37,6 +39,8 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
   // [{"nickname": "", "avatar":"", "user_id":""}]
   List<PeopleModel> memberList = [];
 
+  late StreamSubscription ssMsg;
+
   @override
   void initState() {
     //监听Widget是否绘制完毕
@@ -50,6 +54,7 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
   void dispose() {
     EasyLoading.dismiss();
     memberList = [];
+    ssMsg.cancel();
     super.dispose();
   }
 
@@ -59,15 +64,14 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
     memberList.add(PeopleModel(id: 'last', account: ''));
 
     // 接收到新的消息订阅
-    eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
-
+    ssMsg = eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
       // 监听新成员加入
       if (obj.type == 'join_group') {
-        final i = memberList
-            .indexWhere((e) => e.id == obj.payload['userId'] && widget.gid == obj.payload['groupId']);
+        final i = memberList.indexWhere((e) =>
+            e.id == obj.payload['userId'] &&
+            widget.gid == obj.payload['groupId']);
         iPrint(
-            "face_to_face_confirm widget.gid ${obj.payload['groupId']} = ${widget
-                .gid} - uid ${obj.payload['userId']}; i $i;} $mounted");
+            "face_to_face_confirm widget.gid ${obj.payload['groupId']} = ${widget.gid} - uid ${obj.payload['userId']}; i $i;} $mounted");
         if (i == -1) {
           memberList.insert(0, obj.payload['people']);
           if (mounted) {

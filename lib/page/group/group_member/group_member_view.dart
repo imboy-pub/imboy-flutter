@@ -123,13 +123,13 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
     // }
 
     return Scaffold(
-      appBar: NavAppBar(
+      appBar: const NavAppBar(
         automaticallyImplyLeading: true,
         // titleWidget: titleWidget(),
       ),
       body: ListView(
-        padding:  EdgeInsets.all(10),
-        children: [
+        padding:  const EdgeInsets.all(10),
+        children: const [
           // Wrap(
           //   alignment: WrapAlignment.start,
           //   // ignore: sort_child_properties_last

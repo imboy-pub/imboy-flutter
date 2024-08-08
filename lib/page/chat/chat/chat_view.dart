@@ -115,10 +115,16 @@ class ChatPageState extends State<ChatPage> {
 
   types.Message? quoteMessage;
 
+  // 消息重复投递导致的聊天列表消息重复显示问题
+  // 只需要再 ssMsg listen 的时候 add(msg.id)就可以了
+  Set<String> msgIds = {};
   // ignore: prefer_typing_uninitialized_variables
   late var currentUser;
   late ConversationModel conversation;
 
+  late StreamSubscription ssMsgExt;
+  late StreamSubscription ssMsg;
+  late StreamSubscription ssMsgState;
   @override
   void initState() {
     // 初始化的时候置空数据，放在该位置（initData之前），不会出现闪屏
@@ -133,6 +139,7 @@ class ChatPageState extends State<ChatPage> {
 
   /// 初始化一些数据
   Future<void> initData() async {
+    msgIds = {};
     currentUser = types.User(
       id: UserRepoLocal.to.currentUid,
       firstName: UserRepoLocal.to.current.nickname,
@@ -190,7 +197,7 @@ class ChatPageState extends State<ChatPage> {
     });
 
     // 一些异步操作事件的监听
-    eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
+    ssMsgExt = eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
       iPrint("face_to_face_confirm ${obj.toString()}; $mounted");
       // 监听新成员加入
       if (obj.type == 'join_group' &&
@@ -220,7 +227,7 @@ class ChatPageState extends State<ChatPage> {
     });
 
     // 接收到新的消息订阅 for c2c
-    eventBus.on<types.Message>().listen((types.Message msg) async {
+    ssMsg = eventBus.on<types.Message>().listen((types.Message msg) async {
       iPrint("chat_view/listen one ${msg.id}; ${DateTime.now()}");
       final String conversationUk3 = msg.metadata?['conversation_uk3'] ?? '';
       iPrint("chat_view/listen one $conversationUk3");
@@ -228,6 +235,13 @@ class ChatPageState extends State<ChatPage> {
       if (conversationUk3 != conversation.uk3) {
         return;
       }
+
+      // 消息重复投递导致的聊天列表消息重复显示问题
+      if (msgIds.contains(msg.id)) {
+        return;
+      }
+      msgIds.add(msg.id);
+
       final i = logic.state.messages.indexWhere((e) => e.id == msg.id);
       iPrint("changeMessageState 4 ${msg.id}; i $i; mounted $mounted");
       if (i == -1) {
@@ -254,11 +268,15 @@ class ChatPageState extends State<ChatPage> {
           }
         }
       }
+      // 为节省内存，5秒后从 msgIds 移出 msg.id
+      Future.delayed(const Duration(seconds: 5), () {
+        msgIds.remove(msg.id);
+      });
     });
     // debugPrint("> rtc msg S_RECEIVED listen list");
 
     // 消息状态更新订阅, 这里无需用锁 for c2g
-    eventBus.on<List<types.Message>>().listen((e) async {
+    ssMsgState = eventBus.on<List<types.Message>>().listen((e) async {
       types.Message msg = e.first;
 
       final i = logic.state.messages.indexWhere((e) => e.id == msg.id);
@@ -277,7 +295,10 @@ class ChatPageState extends State<ChatPage> {
   @override
   void dispose() {
     getx.Get.delete<ImageGalleryLogic>();
-
+    ssMsgExt.cancel();
+    ssMsg.cancel();
+    ssMsgState.cancel();
+    msgIds = {};
     super.dispose();
   }
 

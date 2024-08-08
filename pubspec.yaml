@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.5.3
+version: 0.5.4
 
 environment:
   sdk: ">=3.0.0 <=4.0.0"
@@ -91,7 +91,7 @@ dependencies:
   # Photo View provides a gesture sensitive zoomable widget. Photo View is largely used to show interactive images and other stuff such as SVG.
   photo_view: ^0.15.0 #
   # 照片管理器
-  photo_manager: ^3.2.2
+  photo_manager: ^3.2.3
   # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
   video_compress: ^3.1.2
   # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
@@ -137,7 +137,7 @@ dependencies:
   # Flutter 的表情符号选择器
   emoji_picker_flutter: ^2.1.1
   # 轮播滑块小部件
-  carousel_slider_plus: ^6.0.0+1
+  carousel_slider_plus: ^7.0.0
 
   # 具有登录/注册功能的登录小部件，有助于加快开发速度
   flutter_login: ^5.0.0

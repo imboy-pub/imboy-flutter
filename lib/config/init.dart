@@ -61,7 +61,7 @@ OverlayEntry? p2pEntry;
 Map<String, dynamic>? iceConfiguration;
 
 /// The global [EventBus] object.
-EventBus eventBus = EventBus();
+EventBus eventBus = EventBus(sync:true);
 // 全局timer
 Timer? gTimer;
 GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

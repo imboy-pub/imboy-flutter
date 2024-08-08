@@ -127,6 +127,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   bool sendButtonVisible = false;
   InputType inputType = _initType;
   late String draftKey;
+  late StreamSubscription ssMsg;
 
   /// https://stackoverflow.com/questions/60057840/flutter-how-to-insert-text-in-middle-of-text-field-text
   void _setText(String val) {
@@ -174,7 +175,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       _setText(draft!);
     }
     // 接收到新的消息订阅
-    eventBus.on<ReEditMessage>().listen((msg) async {
+    ssMsg = eventBus.on<ReEditMessage>().listen((msg) async {
       if (_textController.text.toString() != msg.text) {
         _setText(msg.text);
       }
@@ -194,6 +195,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     _inputFocusNode.dispose();
     _textController.dispose();
     _bottomHeightController.dispose();
+    ssMsg.cancel();
     super.dispose();
   }
 

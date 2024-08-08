@@ -34,10 +34,12 @@ class MessageService extends GetxService {
   List<String> webrtcMsgIdLi = [];
   bool addMessageLock = false;
 
+  late StreamSubscription ssMsg;
+
   @override
   void onInit() {
     super.onInit();
-    eventBus.on<Map>().listen((Map data) async {
+    ssMsg = eventBus.on<Map>().listen((Map data) async {
       // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
       String type = data['type'] ?? 'error';
       type = type.toUpperCase();
@@ -179,6 +181,7 @@ class MessageService extends GetxService {
   /// Might be useful as well to persist some data on disk.
   @override
   void onClose() {
+    ssMsg.cancel();
     super.onClose();
   }
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -78,6 +80,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
   // ];
   List? dataGroup;
 
+  late StreamSubscription ssMsgExt;
+
   @override
   void initState() {
     super.initState();
@@ -138,9 +142,9 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
     // title = g!.title;
 
     setState(() {});
-    eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
-      iPrint(
-          "face_to_face_confirm widget.gid ${obj.toString()}");
+    ssMsgExt =
+        eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
+      iPrint("face_to_face_confirm widget.gid ${obj.toString()}");
       // if (obj.groupId == widget.groupId && obj.isFirst) {
       // 监听新成员加入
       if (obj.type == 'join_group' &&
@@ -159,13 +163,15 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
           }
           // }
         });
-      } else if (obj.type == 'leave_group' && obj.payload['groupId'] == widget.groupId) {
+      } else if (obj.type == 'leave_group' &&
+          obj.payload['groupId'] == widget.groupId) {
         // 监听成员退出
 
         // 使用锁来保护消息处理逻辑
         await _lock.synchronized(() async {
           // GroupModel? g = await (GroupRepo()).findById(widget.groupId);
-          final i = memberList.indexWhere((PeopleModel p) => p.id == obj.payload['userId']);
+          final i = memberList
+              .indexWhere((PeopleModel p) => p.id == obj.payload['userId']);
           if (i > -1) {
             memberCount -= 1;
             memberList.removeAt(i);
@@ -283,7 +289,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 Get.to(
                   () => ChangeInfoPage(
                     group: group,
-                    title: 'change_param'.trArgs(['group_name'.tr]), // 修改群聊名称,
+                    title: 'change_param'.trArgs(['group_name'.tr]),
+                    // 修改群聊名称,
                     subtitle: 'change_group_chat_name'.tr,
                   ),
                   transition: Transition.rightToLeft,
@@ -611,6 +618,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
 
   @override
   void dispose() {
+    ssMsgExt.cancel();
     Get.delete<GroupDetailLogic>();
     super.dispose();
   }
