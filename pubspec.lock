@@ -25,18 +25,20 @@ packages:
   amap_flutter_location:
     dependency: "direct main"
     description:
-      name: amap_flutter_location
-      sha256: f35ff00e196d579608e0bc28ccbc1f6f53787644702f947de941f775769cc701
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: leeyi
+      resolved-ref: a63fdb0509a67c88862e20e2e1d002ce261f308b
+      url: "https://gitee.com/imboy-tripartite-deps/flutter_amap_location.git"
+    source: git
     version: "3.0.0"
   amap_flutter_map:
     dependency: "direct main"
     description:
-      name: amap_flutter_map
-      sha256: "9cebb0b2f5fc7d3ae0427e99c41edc883e8f5459f6a28bc850f0f9e16918cf2f"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: leeyi
+      resolved-ref: "0d67362032486b97dd271e878d47c465563054af"
+      url: "https://gitee.com/imboy-tripartite-deps/amap_flutter_map.git"
+    source: git
     version: "3.0.0"
   analyzer:
     dependency: transitive
@@ -519,14 +521,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.0"
-  exif:
-    dependency: "direct main"
-    description:
-      name: exif
-      sha256: a7980fdb3b7ffcd0b035e5b8a5e1eef7cadfe90ea6a4e85ebb62f87b96c7a172
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.3.0"
   extended_image:
     dependency: transitive
     description:
@@ -645,14 +639,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.5.0"
-  flutter_app_badger:
-    dependency: "direct main"
-    description:
-      name: flutter_app_badger
-      sha256: "64d4a279bab862ed28850431b9b446b9820aaae0bf363322d51077419f930fa8"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.5.0"
   flutter_cache_manager:
     dependency: "direct main"
     description:
@@ -877,10 +863,11 @@ packages:
   flutter_sound:
     dependency: "direct main"
     description:
-      name: flutter_sound
-      sha256: "5164c67e2788db9bf1a08cf588c6819b6465dd097c7c6eeacde6a135a6dba47e"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: flutter_sound
+      ref: leeyi
+      resolved-ref: c95aec8a61fac401c644890208918261461ea2bf
+      url: "https://gitee.com/imboy-tripartite-deps/flutter_sound.git"
+    source: git
     version: "9.9.5"
   flutter_sound_platform_interface:
     dependency: "direct main"
@@ -956,15 +943,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.0"
-  fvp:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: master
-      resolved-ref: b953bac6e6d089b3d77a5fcaa791848264d03894
-      url: "https://gitee.com/imboy-tripartite-deps/fvp.git"
-    source: git
-    version: "0.20.2"
   get:
     dependency: "direct main"
     description:
@@ -1042,7 +1020,7 @@ packages:
     description:
       path: "."
       ref: leeyi
-      resolved-ref: "3b2a585e434e2edcb12c47fa7beb563a5bb2487d"
+      resolved-ref: ac8b3a0cab12ba84076065687c3c777e66b36f23
       url: "https://gitee.com/imboy-tripartite-deps/IcStorageSpace.git"
     source: git
     version: "0.0.3"
@@ -1059,17 +1037,18 @@ packages:
     description:
       path: "."
       ref: leeyi
-      resolved-ref: "7614dfdfd749535d87c66aaee6f1e02683f231f0"
+      resolved-ref: "01a4ea97d2cc753445311e579da7466fcd941331"
       url: "https://gitee.com/imboy-tripartite-deps/image_crop.git"
     source: git
     version: "0.4.1"
   image_gallery_saver:
     dependency: "direct main"
     description:
-      name: image_gallery_saver
-      sha256: "0aba74216a4d9b0561510cb968015d56b701ba1bd94aace26aacdd8ae5761816"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: leeyi
+      resolved-ref: "33125b240cede39efd10b66ef86306b955fccc86"
+      url: "https://gitee.com/imboy-tripartite-deps/image_gallery_saver.git"
+    source: git
     version: "2.0.3"
   image_picker:
     dependency: "direct main"
@@ -1279,46 +1258,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.0"
-  local_auth:
-    dependency: "direct main"
-    description:
-      name: local_auth
-      sha256: "434d854cf478f17f12ab29a76a02b3067f86a63a6d6c4eb8fbfdcfe4879c1b7b"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.3.0"
-  local_auth_android:
-    dependency: transitive
-    description:
-      name: local_auth_android
-      sha256: e99c44ca0bce08f26f25e2a2e07d3b443d69986e1c3acf67c1449f7d847e3625
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.43"
-  local_auth_darwin:
-    dependency: transitive
-    description:
-      name: local_auth_darwin
-      sha256: "7ba5738c874ca2b910d72385d00d2bebad9d4e807612936cf5e32bc01a048c71"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.4.0"
-  local_auth_platform_interface:
-    dependency: transitive
-    description:
-      name: local_auth_platform_interface
-      sha256: "1b842ff177a7068442eae093b64abe3592f816afd2a533c0ebcdbe40f9d2075a"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.10"
-  local_auth_windows:
-    dependency: transitive
-    description:
-      name: local_auth_windows
-      sha256: bc4e66a29b0fdf751aafbec923b5bed7ad6ed3614875d8151afe2578520b2ab5
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.11"
   logger:
     dependency: "direct main"
     description:
@@ -1487,14 +1426,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.0.1"
-  pasteboard:
-    dependency: "direct main"
-    description:
-      name: pasteboard
-      sha256: "1c8b6a8b3f1d12e55d4e9404433cda1b4abe66db6b17bc2d2fb5965772c04674"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.2.0"
   path:
     dependency: transitive
     description:
@@ -1655,14 +1586,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.15.0"
-  pinput:
-    dependency: "direct main"
-    description:
-      name: pinput
-      sha256: "7bf9aa7d0eeb3da9f7d49d2087c7bc7d36cd277d2e94cc31c6da52e1ebb048d0"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "5.0.0"
   platform:
     dependency: transitive
     description:
@@ -2093,14 +2016,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.2.2"
-  universal_platform:
-    dependency: transitive
-    description:
-      name: universal_platform
-      sha256: "64e16458a0ea9b99260ceb5467a214c1f298d647c659af1bff6d3bf82536b1ec"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.1.0"
   url_launcher:
     dependency: "direct main"
     description:

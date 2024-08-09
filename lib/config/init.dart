@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:fvp/fvp.dart';
+// import 'package:fvp/fvp.dart';
 import 'package:get/get.dart' as getx;
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
@@ -209,9 +209,9 @@ Future<void> init(
 
   // step 11
   // fvp libary register
-  registerWith(options: {
-    'platforms': ['windows', 'macos', 'linux']
-  }); // only these platforms will use this plugin implementation
+  // registerWith(options: {
+  //   'platforms': ['windows', 'macos', 'linux']
+  // }); // only these platforms will use this plugin implementation
 
   // step 12
   WidgetsBinding.instance.addObserver(

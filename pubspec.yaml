@@ -49,9 +49,7 @@ dependencies:
   webview_flutter: ^4.8.0 # Show web page (CGU)
   flutter_inappwebview: ^6.0.0 # 它允许你将WebView小部件整合到你的Flutter应用中，使用无头WebViews，或者使用In-App浏览器。
 
-
   qr_flutter: ^4.1.0 # 二维码生成
-
 
   event_bus: ^2.0.0
   jose: ^0.3.4 # jwt 插件
@@ -103,14 +101,13 @@ dependencies:
   file_picker: ^8.0.7
   open_file: ^3.3.2
   # image_crop: ^0.4.1
-  # image_crop:
-  #  path: plugin/image_crop
-  #
-  image: ^4.2.0
   image_crop:
+    #path: plugin/image_crop
     git:
       url: https://gitee.com/imboy-tripartite-deps/image_crop.git
       ref: leeyi
+  #
+  image: ^4.2.0
 
   logger: ^2.4.0
   #sentry_flutter: ^7.18.0
@@ -147,8 +144,8 @@ dependencies:
   flutter_easyloading: ^3.0.5
   # 生成闪屏页
   flutter_native_splash: ^2.4.1
-  flutter_chat_ui: ^1.6.14
   feedback: ^3.1.0
+  flutter_chat_ui: ^1.6.14
   #flutter_chat_ui:
   #  #path: plugin/flutter_chat_ui
   #  git:
@@ -170,7 +167,13 @@ dependencies:
   #      url: https://gitee.com/imboy-tripartite-deps/mobile_scanner.git
   #      ref: master
   # 将图像保存到图库的 flutter 插件
-  image_gallery_saver: ^2.0.2
+  #image_gallery_saver: ^2.0.2
+  image_gallery_saver:
+    #path: plugin/image_gallery_saver
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/image_gallery_saver.git
+      ref: leeyi
+
   # SQLite 的 Flutter 插件，一个独立的、高可靠性的嵌入式 SQL 数据库引擎。
   sqflite: ^2.3.3+1
   sqflite_common_ffi: ^2.3.3
@@ -178,9 +181,16 @@ dependencies:
   # 一个跨平台插件，用于显示和安排 Flutter 应用程序的本地通知，并能够针对每个平台进行自定义。
   flutter_local_notifications: ^17.2.1+2
   #桌面图标提醒
-  flutter_app_badger: ^1.5.0
+  #flutter_app_badger: ^1.5.0
   # 录音
-  flutter_sound: ^9.9.5
+  #  flutter_sound: ^9.9.5
+  flutter_sound:
+    #path: plugin/flutter_sound/flutter_sound
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/flutter_sound.git
+      ref: leeyi
+      path: flutter_sound
+
   flutter_sound_platform_interface: ^9.9.5
   audio_session: ^0.1.21
   # 语音消息播放器
@@ -228,11 +238,11 @@ dependencies:
   # 视频播放器插件
   video_player: ^2.9.1
   # video_player的插件，支持所有桌面/移动平台。硬件解码器，最佳渲染。通过 FFmpeg 支持大多数格式
-  #fvp: ^0.20.2
-  fvp:
-    git:
-      url: https://gitee.com/imboy-tripartite-deps/fvp.git
-      ref: master
+  #  fvp: ^0.23.0
+  #  fvp:
+  #    git:
+  #      url: https://gitee.com/imboy-tripartite-deps/fvp.git
+  #      ref: master
   # 标签编辑框
   textfield_tags: ^3.0.1
   #filter_list: ^1.0.2
@@ -246,8 +256,22 @@ dependencies:
 
   # 高德地图
   amap_flutter_base: ^3.0.0
-  amap_flutter_location: ^3.0.0
-  amap_flutter_map: ^3.0.0
+  #amap_flutter_location: ^3.0.0
+  #amap_flutter_map: ^3.0.0
+  amap_flutter_location:
+    git:
+      #url: https://github.com/xia-weiyang/flutter_amap_location.git
+      url: https://gitee.com/imboy-tripartite-deps/flutter_amap_location.git
+      ref: leeyi
+  amap_flutter_map:
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/amap_flutter_map.git
+      ref: leeyi
+  #  amap_flutter_location:
+  #      path: plugin/amap_flutter_location
+  #  amap_flutter_map:
+  #      path: plugin/amap_flutter_map
+
   # Flutter 插件，可让您在 Android、iOS、macOS、Windows 和 Web 上保持设备屏幕处于唤醒状态。
   wakelock_plus: ^1.2.7
   # 类似于 Iphone 上的 AssistiveTouch 的 Flutter 包。
@@ -263,12 +287,12 @@ dependencies:
   # 允许跨多个平台处理文件的抽象。
   cross_file: ^0.3.4+2
   # Dart 包用于解码 TIFF、JPEG、HEIC、PNG 和 WebP 文件中的 Exif 数据。
-  exif: ^3.3.0
+  #exif: ^3.3.0
   # Get the information about free and total disk space for you device. It is an update to the disk_space plugin.
   #disk_space_plus: ^0.2.3
   #ic_storage_space: ^0.0.2
-  #path: plugin/ic_storage_space
   ic_storage_space:
+    #path: plugin/ic_storage_space
     git:
       url: https://gitee.com/imboy-tripartite-deps/IcStorageSpace.git
       ref: leeyi
@@ -276,12 +300,12 @@ dependencies:
   synchronized: ^3.1.0+1
   # 一个支持通过 Keychain 和 Keystore 支持字符串安全存储的 Flutter 插件
   flutter_keychain: ^2.5.0
-  # A flutter plugin which could read image,files from clipboard and write files to clipboard.
-  pasteboard: ^0.2.0
   # 一个实现加密算法和原语的 Dart 库
   pointycastle: ^3.9.1
-  pinput: ^5.0.0
-  local_auth: ^2.3.0
+  # A flutter plugin which could read image,files from clipboard and write files to clipboard.
+  #pasteboard: ^0.2.0
+  #pinput: ^5.0.0
+  #local_auth: ^2.3.0
 
   # https://pub-web.flutter-io.cn/packages/rtmp_broadcaster
   #rtmp_broadcaster:
