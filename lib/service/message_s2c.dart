@@ -52,7 +52,8 @@ class MessageS2CService {
 
         MessageRepo messageRepo = MessageRepo(tableName: MessageRepo.c2cTable);
         MessageModel? oldMsg = await messageRepo.find(oldMsgId);
-
+        iPrint("switchS2C m ${m?.toJson().toString()} ;");
+        iPrint("switchS2C oldMsg ${oldMsg?.toJson().toString()} ;");
         if (m == null || oldMsg == null) {
           break;
         }

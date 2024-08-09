@@ -8,7 +8,6 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:xid/xid.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -69,10 +68,11 @@ Future<bool> initIceServers({String from = 'incomingCallScreen'}) async {
 }
 
 /// 发送WebRTC 消息
-sendWebRTCMsg(String event, Map payload, {String? to, String? debug}) {
+sendWebRTCMsg(String event, Map payload,
+    {required String msgId, required String to, String? debug}) {
   Map request = {};
   request["ts"] = DateTimeHelper.utc();
-  request["id"] = Xid().toString();
+  request["id"] = msgId;
   request["to"] = to;
   request["from"] = UserRepoLocal.to.currentUid; // currentUid
   request["type"] = "webrtc_$event";
@@ -158,7 +158,7 @@ Future<void> incomingCallScreen(
     p2pCallScreenOn = false;
   });
 
-  sendWebRTCMsg('ringing', {}, to: peer.peerId);
+  sendWebRTCMsg('ringing', {}, msgId: msgId, to: peer.peerId);
   Get.defaultDialog(
     title: '',
     backgroundColor: Get.isDarkMode
@@ -238,7 +238,7 @@ Future<void> incomingCallScreen(
                   );
                   gTimer?.cancel();
                   gTimer = null;
-                  sendWebRTCMsg('busy', {}, to: peer.peerId);
+                  sendWebRTCMsg('busy', {}, msgId: msgId, to: peer.peerId);
                   p2pCallScreenOn = false;
                   Get.closeAllDialogs();
                 },

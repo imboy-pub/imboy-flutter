@@ -79,9 +79,9 @@ class P2pCallScreenLogic {
   Future<void> onMessageP2P(WebRTCSignalingModel msg) async {
     // Map<String, dynamic> mapData = message;
     // var data = mapData['data'];
-    iPrint("> rtc onMessageP2P ${msg.webrtctype} ${DateTime.now()}");
+    iPrint("> rtc onMessageP2P ${msg.webRtcType} ${DateTime.now()}");
     // iPrint("> rtc onMessageP2P ${msg.toJson().toString()}");
-    switch (msg.webrtctype) {
+    switch (msg.webRtcType) {
       case 'peers':
         // List<dynamic> peers = data;
         // if (onPeersUpdate != null) {
@@ -100,7 +100,7 @@ class P2pCallScreenLogic {
         var sd = msg.payload['sd'];
         var newSession = webRTCSessions[sid];
         iPrint(
-            "> rtc onMessageP2P 1 ${msg.webrtctype} ${newSession.toString()}, pc ${newSession?.pc.toString()}");
+            "> rtc onMessageP2P 1 ${msg.webRtcType} ${newSession.toString()}, pc ${newSession?.pc.toString()}");
         // newSession = await createSession(
         //   newSession,
         //   media: m,
@@ -126,7 +126,7 @@ class P2pCallScreenLogic {
         var sd = msg.payload['sd'];
         var newSession = webRTCSessions[sid];
         iPrint(
-            "> rtc onMessageP2P 2 ${msg.webrtctype} ${newSession.toString()}, pc ${newSession?.pc.toString()}");
+            "> rtc onMessageP2P 2 ${msg.webRtcType} ${newSession.toString()}, pc ${newSession?.pc.toString()}");
 
         makingOffer = false;
         newSession!.pc?.setRemoteDescription(
@@ -175,7 +175,8 @@ class P2pCallScreenLogic {
     return s;
   }
 
-  Future<void> _createAnswer(WebRTCSession session, String media) async {
+  Future<void> _createAnswer(
+      WebRTCSession session, String msgId, String media) async {
     // 是否接受视频数据
     privateDcConstraints['mandatory']['OfferToReceiveVideo'] =
         media == 'video' ? true : false;
@@ -193,6 +194,7 @@ class P2pCallScreenLogic {
           // sd = session description
           'sd': {'sdp': description!.sdp, 'type': description.type},
         },
+        msgId: msgId,
         to: session.pid,
         debug: 'from_createAnswer',
       );
@@ -261,6 +263,7 @@ class P2pCallScreenLogic {
 
   Future<WebRTCSession> createSession(
     WebRTCSession? newSession, {
+    required String msgId,
     required String media,
     required bool screenSharing,
   }) async {
@@ -344,6 +347,7 @@ class P2pCallScreenLogic {
             'candidate': candidate.candidate,
           },
         },
+        msgId: msgId,
         to: session.pid,
       );
     };
@@ -355,7 +359,7 @@ class P2pCallScreenLogic {
       iPrint(
           '> rtc pc onSignalingState: ${state.toString()} ${DateTime.now()}');
       if (state == RTCSignalingState.RTCSignalingStateHaveRemoteOffer) {
-        _createAnswer(newSession!, media);
+        _createAnswer(newSession!, msgId, media);
       }
       onSignalingStateChange?.call(state);
     };
@@ -394,7 +398,7 @@ class P2pCallScreenLogic {
       iPrint(
           '> rtc pc onRenegotiationNeeded pc state ${pc.signalingState.toString()} ');
       if (caller) {
-        _createOffer(media);
+        _createOffer(msgId, media);
       }
       // else {
       //   _createAnswer(newSession!, media);
@@ -418,7 +422,10 @@ class P2pCallScreenLogic {
   }
 
   /// 邀请对端通话
-  Future<void> invitePeer(String peer, String media) async {
+  Future<void> invitePeer(
+      {required String msgId,
+      required String peer,
+      required String media}) async {
     iPrint("> rtc invitePeer $peer, ${UserRepoLocal.to.currentUid} $media");
     if (peer == UserRepoLocal.to.currentUid) {
       return;
@@ -427,6 +434,7 @@ class P2pCallScreenLogic {
     iPrint("> rtc invitePeer _createSession ${session.toString()}");
     session = await createSession(
       session,
+      msgId: msgId,
       media: media,
       screenSharing: false,
     );
@@ -436,11 +444,11 @@ class P2pCallScreenLogic {
       _createDataChannel(session);
     }
     iPrint("> rtc invitePeer _createOffer pc ${session.pc.toString()}");
-    await _createOffer(media);
+    await _createOffer(msgId, media);
     onCallStateChange?.call(session, WebRTCCallState.CallStateNew);
   }
 
-  Future<void> _createOffer(String m) async {
+  Future<void> _createOffer(String msgId, String m) async {
     iPrint(
         "> rtc _createOffer media $m sid ${session.sid}, makingOffer $makingOffer, ${DateTime.now()}");
     if (makingOffer) {
@@ -455,13 +463,13 @@ class P2pCallScreenLogic {
     // 此方法触发 onIceCandidate
     await session.pc!.setLocalDescription(_fixSdp(sd));
     final description = await session.pc!.getLocalDescription();
-    await sendWebRTCMsg(
-      'offer',
+    await sendWebRTCMsg('offer',
       {
         // sd = session description
         'sd': {'sdp': description!.sdp, 'type': description.type},
         'media': m,
       },
+      msgId: msgId,
       to: session.pid,
       debug: 'from_createOffer',
     );
@@ -483,8 +491,8 @@ class P2pCallScreenLogic {
     _addDataChannel(session, channel);
   }
 
-  sendBusy(String to) {
-    sendWebRTCMsg('busy', {}, to: to);
+  sendBusy(String msgId, String to) {
+    sendWebRTCMsg('busy', {}, msgId: msgId, to: to);
   }
 
   _stopLocalStream() async {
@@ -557,12 +565,13 @@ class P2pCallScreenLogic {
     p2pCallScreenOn = false;
   }
 
-  void sendBye() {
+  void sendBye(String msgId) {
     sendWebRTCMsg(
       'bye',
       {
         'sid': session.sid,
       },
+      msgId: msgId,
       to: session.pid,
     );
     var s = webRTCSessions[session.sid];

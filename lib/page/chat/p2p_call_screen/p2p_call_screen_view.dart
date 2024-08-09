@@ -101,7 +101,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     await subscription?.cancel();
     await disposeRenderer();
     counter.cleanUp();
-    logic?.sendBye();
+    logic?.sendBye(msgId);
     logic = null;
   }
 
@@ -244,6 +244,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     if (widget.session.pc == null) {
       widget.session = await logic!.createSession(
         widget.session,
+        msgId: msgId,
         media: widget.option['media'] ?? 'video',
         screenSharing: false,
       );
@@ -264,12 +265,14 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     if (widget.caller) {
       // 发起通话
       await logic?.invitePeer(
-        widget.peer.peerId,
-        media,
+        msgId: msgId,
+        peer: widget.peer.peerId,
+        media: media,
       );
     } else {
       await logic?.onMessageP2P(
         WebRTCSignalingModel(
+          msgId: msgId,
           type: 'WEBRTC_OFFER',
           from: widget.peer.peerId,
           to: UserRepoLocal.to.currentUid,
@@ -535,7 +538,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
   }) async {
     debugPrint("> rtc hangUp 1");
     if (sendBye) {
-      logic?.sendBye();
+      logic?.sendBye(msgId);
     }
 
     MessageService.to.changeLocalMsgState(

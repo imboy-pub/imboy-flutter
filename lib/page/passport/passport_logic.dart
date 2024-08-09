@@ -181,7 +181,7 @@ class PassportLogic extends GetxController {
         data: postData,
       );
       if (!resp2.ok) {
-        _error = resp2.error?.message;
+        _error = resp2.error?.message.tr;
         return 0;
       } else {
         StorageService.to.setString(Keys.lastLoginAccount, account);

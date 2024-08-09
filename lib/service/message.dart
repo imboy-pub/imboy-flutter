@@ -4,7 +4,6 @@ import 'dart:convert';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
-import 'package:xid/xid.dart';
 
 import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -41,8 +40,9 @@ class MessageService extends GetxService {
     super.onInit();
     ssMsg = eventBus.on<Map>().listen((Map data) async {
       // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
-      String type = data['type'] ?? 'error';
-      type = type.toUpperCase();
+      final msgId = data['id'] ?? '';
+      final type = (data['type'] ?? 'error').toString().toUpperCase();
+      // type = type.toUpperCase();
       iPrint(
           "rtc_msg listen: $type , $p2pCallScreenOn, ${DateTime.now()} $data");
       if (data.containsKey('ts')) {
@@ -54,11 +54,9 @@ class MessageService extends GetxService {
         iPrint("rtc_msg CLIENT_ACK,WEBRTC,${data['id']},$deviceId");
         MessageService.to.sendAckMsg('WEBRTC', data['id']);
 
-        String msgId = '';
         if (type == 'WEBRTC_OFFER' ||
             type == 'WEBRTC_BUSY' ||
             type == 'WEBRTC_BYE') {
-          msgId = Xid().toString();
           webrtcMsgIdLi.add(msgId);
         }
         if (p2pCallScreenOn == false && type == 'WEBRTC_OFFER') {
@@ -79,12 +77,13 @@ class MessageService extends GetxService {
           }
         } else {
           WebRTCSignalingModel msgModel = WebRTCSignalingModel(
+            msgId: msgId,
             type: data['type'],
             from: data['from'],
             to: data['to'],
             payload: data['payload'],
           );
-          if (msgModel.webrtctype == 'busy' || msgModel.webrtctype == 'bye') {
+          if (msgModel.webRtcType == 'busy' || msgModel.webRtcType == 'bye') {
             for (var id in webrtcMsgIdLi) {
               changeLocalMsgState(id, 4);
             }
@@ -282,10 +281,7 @@ class MessageService extends GetxService {
   }
 
   Future<MessageModel?> changeStatus(
-    String tb,
-    String msgId,
-    int status,
-  ) async {
+      String tb, String msgId, int status) async {
     iPrint("changeStatus tb $tb, msgId, $msgId, status $status");
     MessageRepo repo = MessageRepo(tableName: tb);
     await repo.update({
@@ -478,15 +474,15 @@ class MessageService extends GetxService {
   }) async {
     iPrint(
         "changeLocalMsgState state $state, $msgId, startAt $startAt, endAt $endAt;");
-    MessageRepo repo = MessageRepo(tableName: MessageRepo.c2cTable);
-    MessageModel? msg = await repo.find(msgId);
+    final repo = MessageRepo(tableName: MessageRepo.c2cTable);
+    final msg = await repo.find(msgId);
     iPrint(
         "changeLocalMsgState 2 $msgId, ${msg?.payload?.toString()}; webrtcMsgIdLi ${webrtcMsgIdLi.toString()}");
     if (msg == null) {
       return;
     }
     webrtcMsgIdLi = [];
-    String customType = msg.payload?['custom_type'] ?? '';
+    final customType = msg.payload?['custom_type'] ?? '';
     if (customType != 'webrtc_video' && customType != 'webrtc_audio') {
       return;
     }

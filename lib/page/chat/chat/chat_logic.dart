@@ -218,17 +218,17 @@ class ChatLogic extends GetxController {
     ConversationModel cm,
     types.Message msg,
   ) async {
-    ConversationRepo repo = ConversationRepo();
-    MessageModel? lastMsg;
-    String tb = MessageRepo.getTableName(cm.type);
-    MessageRepo mRepo = MessageRepo(tableName: tb);
+    final repo = ConversationRepo();
+    final tb = MessageRepo.getTableName(cm.type);
+    final mRepo = MessageRepo(tableName: tb);
     // 获取lastMsg，以更新会话lastMsg信息
-    List<MessageModel> items = await mRepo.findByConversation(
+    final items = await mRepo.findByConversation(
       cm.uk3,
       2,
       1,
     );
-    lastMsg = items.isEmpty ? null : items[0];
+    final lastMsg = items.isEmpty ? null : items[0];
+    iPrint("removeMessage items ${items.length};");
     await mRepo.delete(msg.id);
     if (lastMsg == null) {
       await repo.updateById(cm.id, {
