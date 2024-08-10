@@ -116,6 +116,8 @@
   "up_to_words": "До %s слов",
   "num_unit": "%s шт",
   "search_no_found": "Поиск не дал результатов :(",
+  "allow_search_me": "Разрешить поиск меня",
+  "can_not_add_yourself_friend": "Вы не можете добавить себя в друзья",
   "no_data": "Нет данных",
   "avatar": "Аватар",
   "no_avatar": "Без аватара",

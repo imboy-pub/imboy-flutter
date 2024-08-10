@@ -58,4 +58,14 @@ class PeopleModel {
     data['remark'] = remark;
     return data;
   }
+
+  String get title {
+    if (remark.isNotEmpty) {
+      return remark;
+    }
+    if (nickname.isNotEmpty) {
+      return nickname;
+    }
+    return account;
+  }
 }

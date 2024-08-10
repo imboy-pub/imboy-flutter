@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 
 class UserSettingModel {
+  // allow_search 用户允许被搜索 1 是  2 否
+  bool allowSearch;
   // 附近的人可见
   bool peopleNearbyVisible;
 
@@ -8,12 +10,14 @@ class UserSettingModel {
   String chatState; //
 
   UserSettingModel({
+    required this.allowSearch,
     required this.peopleNearbyVisible,
     this.chatState = '',
   });
 
   factory UserSettingModel.fromJson(Map<String, dynamic> json) {
     return UserSettingModel(
+      allowSearch: json['allow_search'] ?? true,
       peopleNearbyVisible: json['people_nearby_visible'] ?? false,
       chatState: json['chat_state'] ?? 'hide',
     );
@@ -21,6 +25,7 @@ class UserSettingModel {
 
   Map<String, dynamic> toMap() {
     return {
+      'allow_search': allowSearch,
       'people_nearby_visible': peopleNearbyVisible,
       'chat_state': chatState,
     };

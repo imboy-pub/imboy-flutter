@@ -77,6 +77,8 @@ class PeopleInfoPage extends StatelessWidget {
       } else if (scene == 'contact_page' || scene == 'denylist') {
         source.value = '';
       } else if (scene == 'group_member') {
+      } else if (scene == 'user_search') {
+        source.value = 'search'.tr;
         // } else if (scene == '') {
         // } else if (scene == '') {
         // } else if (scene == '') {

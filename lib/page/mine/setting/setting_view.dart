@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/mine/account_security/account_security_view.dart';
+import 'package:imboy/store/provider/user_provider.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/config/const.dart';
@@ -82,7 +83,8 @@ class _SettingPageState extends State<SettingPage> {
                 Text('dark_model'.tr),
                 SizedBox(
                   width: 120,
-                  child: Text(logic.themeTypeTips(), textAlign:TextAlign.right),
+                  child:
+                      Text(logic.themeTypeTips(), textAlign: TextAlign.right),
                 ),
               ])
                 // 两端对齐
@@ -123,6 +125,36 @@ class _SettingPageState extends State<SettingPage> {
                   height: Get.isDarkMode ? 0.5 : 1.0,
                   color: Theme.of(context).colorScheme.primary,
                 )),
+
+            n.ListTile(
+              title: Text('allow_search_me'.tr),
+              trailing: SizedBox(
+                height: 32.0,
+                child: Obx(
+                  () => CupertinoSwitch(
+                    value: logic.allowSearch.value,
+                    onChanged: (v) async {
+                      iPrint("allowSearch v $v;");
+                      bool res = await UserProvider().allowSearch(v ? 1 : 2);
+                      iPrint("allowSearch res $res;");
+
+                      if (res) {
+                        UserRepoLocal.to.setting.allowSearch = v;
+                        UserRepoLocal.to
+                            .changeSetting(UserRepoLocal.to.setting);
+                        logic.allowSearch.value = v;
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
+
+            HorizontalLine(
+              height: 10,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+
             n.ListTile(
               title: Text('storage_space'.tr),
               trailing: navigateNextIcon,
@@ -198,7 +230,7 @@ class _SettingPageState extends State<SettingPage> {
             n.ListTile(
               title: n.Row([
                 Text('about_app'.tr),
-                Text("${'version'.tr} $appVsn", textAlign:TextAlign.right),
+                Text("${'version'.tr} $appVsn", textAlign: TextAlign.right),
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,

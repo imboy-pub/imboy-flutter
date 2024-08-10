@@ -5,7 +5,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
-import 'package:imboy/page/search/search_view.dart';
+import 'package:imboy/page/contact/new_friend/add_friend_view.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:niku/namespace.dart' as n;
@@ -38,7 +38,7 @@ class ContactPage extends StatelessWidget {
           InkWell(
             onTap: () {
               Get.to(
-                () => const SearchPage(),
+                () => AddFriendPage(),
                 transition: Transition.rightToLeft,
                 popGesture: true, // 右滑，返回上一页
               );
@@ -48,7 +48,7 @@ class ContactPage extends StatelessWidget {
                 bottom: 10,
                 child: const SizedBox(
                   width: 60.0,
-                  child: Icon(Icons.search_outlined),
+                  child: Icon(Icons.person_add_alt_outlined),
                 )),
           ),
         ],

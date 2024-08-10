@@ -137,6 +137,8 @@ class LocaleKeys {
   static const up_to_words = 'up_to_words';
   static const num_unit = 'num_unit';
   static const search_no_found = 'search_no_found';
+  static const allow_search_me = 'allow_search_me';
+  static const can_not_add_yourself_friend = 'can_not_add_yourself_friend';
   static const no_data = 'no_data';
   static const avatar = 'avatar';
   static const no_avatar = 'no_avatar';
@@ -588,6 +590,8 @@ class Locales {
     'up_to_words': '最多%s个字',
     'num_unit': '%s个',
     'search_no_found': '搜索结果为空 :(',
+    'allow_search_me': '允许搜索我',
+    'can_not_add_yourself_friend': '你不能添加自己为好友',
     'no_data': '暂无数据',
     'avatar': '头像',
     'no_avatar': '无头像',
@@ -1043,6 +1047,8 @@ class Locales {
     'up_to_words': 'Up to %s characters',
     'num_unit': '%s units',
     'search_no_found': 'No search results found :(',
+    'allow_search_me': 'Allow searching me',
+    'can_not_add_yourself_friend': 'You can`t add yourself as a friend',
     'no_data': 'No data',
     'avatar': 'Avatar',
     'no_avatar': 'No avatar',
@@ -1521,6 +1527,8 @@ class Locales {
     'up_to_words': 'До %s слов',
     'num_unit': '%s шт',
     'search_no_found': 'Поиск не дал результатов :(',
+    'allow_search_me': 'Разрешить поиск меня',
+    'can_not_add_yourself_friend': 'Вы не можете добавить себя в друзья',
     'no_data': 'Нет данных',
     'avatar': 'Аватар',
     'no_avatar': 'Без аватара',
@@ -1994,6 +2002,8 @@ class Locales {
     'up_to_words': '最多%s個字',
     'num_unit': '%s個',
     'search_no_found': '搜尋結果為空 :(',
+    'allow_search_me': '允許搜索我',
+    'can_not_add_yourself_friend': '你不能添加自己為好友',
     'no_data': '暫無資料',
     'avatar': '頭像',
     'no_avatar': '無頭像',

@@ -116,6 +116,8 @@
   "up_to_words": "最多%s個字",
   "num_unit": "%s個",
   "search_no_found": "搜尋結果為空 :(",
+  "allow_search_me": "允許搜索我",
+  "can_not_add_yourself_friend": "你不能添加自己為好友",
   "no_data": "暫無資料",
   "avatar": "頭像",
   "no_avatar": "無頭像",

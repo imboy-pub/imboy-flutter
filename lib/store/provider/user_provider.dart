@@ -78,7 +78,26 @@ class UserProvider extends HttpClient {
       'keyword': keyword,
     });
 
-    iPrint("> on UserProvider/ftsRecentlyUser resp: ${resp.payload.toString()}");
+    iPrint(
+        "> on UserProvider/ftsRecentlyUser resp: ${resp.payload.toString()}");
+    if (!resp.ok) {
+      return null;
+    }
+    return resp.payload;
+  }
+
+  Future<Map<String, dynamic>?> userSearch({
+    int page = 1,
+    int size = 10,
+    String keyword = '',
+  }) async {
+    IMBoyHttpResponse resp = await get(API.userSearch, queryParameters: {
+      'page': page,
+      'size': size,
+      'keyword': keyword,
+    });
+
+    iPrint("> on UserProvider/ftsUserSearch resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }
@@ -93,7 +112,17 @@ class UserProvider extends HttpClient {
     return resp.ok;
   }
 
-  Future<bool> changePassword({required String newPwd, required String existingPwd}) async {
+  /// 用户允许被搜索 1 是  2 否
+  Future<bool> allowSearch(int val) async {
+    IMBoyHttpResponse resp = await put(API.userUpdate, data: {
+      "field": "allow_search",
+      "value": val,
+    });
+    return resp.ok;
+  }
+
+  Future<bool> changePassword(
+      {required String newPwd, required String existingPwd}) async {
     IMBoyHttpResponse resp = await post(API.userChangePassword, data: {
       'new_pwd': newPwd,
       'existing_pwd': existingPwd,

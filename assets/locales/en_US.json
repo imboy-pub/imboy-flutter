@@ -116,6 +116,8 @@
   "up_to_words": "Up to %s characters",
   "num_unit": "%s units",
   "search_no_found": "No search results found :(",
+  "allow_search_me": "Allow searching me",
+  "can_not_add_yourself_friend": "You can`t add yourself as a friend",
   "no_data": "No data",
   "avatar": "Avatar",
   "no_avatar": "No avatar",

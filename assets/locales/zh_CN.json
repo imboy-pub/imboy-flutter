@@ -118,6 +118,8 @@
   "up_to_words":"最多%s个字",
   "num_unit":"%s个",
   "search_no_found": "搜索结果为空 :(",
+  "allow_search_me": "允许搜索我",
+  "can_not_add_yourself_friend": "你不能添加自己为好友",
   "no_data":"暂无数据",
   "avatar": "头像",
   "no_avatar": "无头像",

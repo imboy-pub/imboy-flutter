@@ -11,6 +11,14 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class SettingLogic extends GetxController {
+  RxBool allowSearch = true.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    allowSearch.value = UserRepoLocal.to.setting.allowSearch;
+  }
+
   String themeTypeTips() {
     int themeType = StorageService.to.getInt(Keys.themeType) ?? 0;
     if (themeType == 2) {

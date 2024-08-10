@@ -1,19 +1,29 @@
 import 'dart:convert';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/common.dart';
+import 'package:imboy/page/single/people_info.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
+import 'package:imboy/store/model/people_model.dart';
+import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class NewFriendLogic extends GetxController {
   FocusNode searchF = FocusNode();
   TextEditingController searchC = TextEditingController();
+  String searchKwd = '';
 
   final BottomNavigationLogic bottomLogic = Get.find<BottomNavigationLogic>();
 
@@ -104,5 +114,102 @@ class NewFriendLogic extends GetxController {
       items.insert(0, obj);
     }
     update([items]);
+  }
+
+  Future<List> userSearch({
+    int page = 1,
+    int size = 10,
+    String? kwd,
+  }) async {
+    searchKwd = kwd ?? '';
+    Map<String, dynamic>? payload = await UserProvider().userSearch(
+      page: page,
+      size: size,
+      keyword: kwd ?? '',
+    );
+    iPrint("NewFriendLogic_userSearch ${payload.toString()};");
+    if (payload?['list'] == null) {
+      return [];
+    }
+    List<PeopleModel> list = [];
+    for (var vo in payload?['list']) {
+      list.add(PeopleModel.fromJson(vo));
+    }
+    return list;
+  }
+
+  Widget doBuildUserSearchResults(List<dynamic> items) {
+    if (items.isEmpty) {
+      return Center(child: Text('user_not_exist'.tr));
+    }
+    PeopleModel model = items[0];
+    if (model.id == UserRepoLocal.to.currentUid) {
+      EasyLoading.showInfo('can_not_add_yourself_friend'.tr);
+    } else {
+      return n.ListTile(
+        leading: Avatar(
+          imgUri: model.avatar,
+          width: 56,
+          height: 56,
+        ),
+        title: Text('${model.title}($searchKwd)'),
+        subtitle: n.Row([
+          genderIcon(model.gender),
+          const Space(width: 10),
+          if (model.region.isNotEmpty)
+            Text(model.region),
+        ]),
+        trailing: Container(
+          width: 80,
+          alignment: Alignment.centerRight,
+          child: (model.isFriend ?? false) ? Text('added'.tr) : Text('button_add'.tr),
+        ),
+        onTap: () {
+          Get.to(
+            () => PeopleInfoPage(
+              id: model.id,
+              scene: 'user_search',
+            ),
+            transition: Transition.rightToLeft,
+            popGesture: true, // 右滑，返回上一页
+          );
+        },
+      );
+    }
+
+    if (strNoEmpty(model.id)) {
+      return n.Padding(
+        top: 10,
+        child: n.ListTile(
+          leading: Container(
+            width: 48, // 设置方块的宽度
+            height: 48, // 设置方块的高度
+            decoration: BoxDecoration(
+              // 背景
+              color: Colors.green,
+              // 设置四周圆角 角度
+              borderRadius: const BorderRadius.all(Radius.circular(6.0)),
+              // 设置四周边框
+              border: Border.all(width: 1, color: Colors.green),
+            ), // 背景颜色为绿色
+            child: const Icon(
+              Icons.search,
+              color: Colors.white,
+              size: 40,
+            ),
+          ),
+          title: n.Row([
+            Text('search'.tr),
+            Text(
+              searchKwd,
+              style: const TextStyle(color: Colors.green),
+            ),
+          ]),
+          onTap: () {},
+        ),
+      );
+    } else {
+      return Center(child: Text('user_not_exist'.tr));
+    }
   }
 }

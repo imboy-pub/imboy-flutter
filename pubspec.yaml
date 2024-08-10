@@ -18,7 +18,7 @@ dependencies:
   dio_http2_adapter: ^2.5.3
   web_socket_channel: ^3.0.1
   mime: ^1.0.4
-  connectivity_plus: ^6.0.4 # 是否联网及网络类型
+  connectivity_plus: ^6.0.5 # 是否联网及网络类型
 
   # UI
   # 从实用程序 Widget 和带有点级联的扩展中构建 Flutter UI。流畅地开发，没有头痛和嵌套地狱。
@@ -145,7 +145,7 @@ dependencies:
   # 生成闪屏页
   flutter_native_splash: ^2.4.1
   feedback: ^3.1.0
-  flutter_chat_ui: ^1.6.14
+  flutter_chat_ui: ^1.6.15
   #flutter_chat_ui:
   #  #path: plugin/flutter_chat_ui
   #  git:
@@ -153,7 +153,7 @@ dependencies:
   #    ref: leeyi
 
   # Flutter 的弹出窗口。弹出窗口是一种瞬态视图，当您点击某个控件或某个区域时，它会出现在屏幕上其他内容的上方。
-  popover: ^0.3.0+1
+  popover: ^0.3.1
   # popup_menu: ^1.0.5
   popup_menu:
     git:
@@ -179,11 +179,11 @@ dependencies:
   sqflite_common_ffi: ^2.3.3
   #sqlite3: ^1.11.2
   # 一个跨平台插件，用于显示和安排 Flutter 应用程序的本地通知，并能够针对每个平台进行自定义。
-  flutter_local_notifications: ^17.2.1+2
+  flutter_local_notifications: ^17.2.2
   #桌面图标提醒
   #flutter_app_badger: ^1.5.0
   # 录音
-  #  flutter_sound: ^9.9.5
+  #flutter_sound: ^9.10.4
   flutter_sound:
     #path: plugin/flutter_sound/flutter_sound
     git:
@@ -215,10 +215,10 @@ dependencies:
   clock: ^1.1.1
   # 用于 HTTP 请求的可组合、多平台、基于Future的 API。
   http: ^1.2.2
-  device_info_plus: ^10.1.1
-  package_info_plus: ^8.0.1
+  device_info_plus: ^10.1.2
+  package_info_plus: ^8.0.2
   # Flutter 的 Markdown 渲染器
-  flutter_markdown: ^0.7.3
+  flutter_markdown: ^0.7.3+1
   # 滑动吸顶
   sliding_up_panel: ^2.0.0+1
   # 用于 Flutter 的 SVG 渲染和小部件库，允许绘制和显示可缩放矢量图形 1.1 文件。

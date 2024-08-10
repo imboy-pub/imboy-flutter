@@ -91,9 +91,9 @@ class API {
   static const userChangePassword = '/user/change_password';
   static const userApplyLogout = '/user/apply_logout';
   static const userCancelLogout = '/user/cancel_logout';
+  static const userSearch = '/user/search';
 
   static const ftsRecentlyUser = '/fts/recently_user';
-  static const ftsUserSearch = '/fts/user_search';
 
   static const userDevicePage = '/user_device/page';
   static const userDeviceChangeName = '/user_device/change_name';

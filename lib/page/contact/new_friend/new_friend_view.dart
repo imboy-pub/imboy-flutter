@@ -13,17 +13,13 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:niku/namespace.dart' as n;
 
-import '../add_friend/add_friend_view.dart';
 import '../confirm_new_friend/confirm_new_friend_view.dart';
+import 'add_friend_view.dart';
 import 'new_friend_logic.dart';
 
 // ignore: must_be_immutable
 class NewFriendPage extends StatelessWidget {
   final NewFriendLogic logic = Get.put(NewFriendLogic());
-
-  bool isSearch = false;
-  bool showBtn = false;
-  bool isResult = false;
 
   NewFriendPage({super.key});
 
@@ -71,29 +67,15 @@ class NewFriendPage extends StatelessWidget {
               bottom: 10,
               child: searchBar(
                 context,
-                hintText: '账号/Email/手机号',
-                queryTips: '',
+                hintText: 'hint_login_account'.tr,
+                queryTips: 'hint_login_account'.tr,
                 doSearch: ((query) async {
-                  // debugPrint(
-                  //     "> on search doSearch ${query.toString()}");
-                  // return logic.search(kwd: query);
-                  return [];
+                  return logic.userSearch(kwd: query);
                 }),
+                doBuildResults: logic.doBuildUserSearchResults,
                 onTapForItem: (value) {
-                  // debugPrint(
-                  //     "> on search value ${value is UserCollectModel}, ${value.toString()}");
-                  if (true) {
-                    // Get.to(
-                    //   () => PeopleInfoPage(
-                    //     id: value.deniedUid,
-                    //     sence: 'denylist',
-                    //   ),
-                    //   transition: Transition.rightToLeft,
-                    //   popGesture: true, // 右滑，返回上一页
-                    // );
-                  }
+                  debugPrint("> on search value ${value.toString()}");
                 },
-                // isBorder: true,
                 // onTap: () {
                 //   isSearch = true;
                 //   logic.searchF.requestFocus();

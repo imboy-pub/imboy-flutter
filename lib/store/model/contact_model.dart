@@ -29,6 +29,9 @@ String getSourceTr(String? source) {
     case 'recently_user':
       sourceTr = 'newly_registered_people'.tr;
       break;
+    case 'user_search':
+      sourceTr = 'search'.tr;
+      break;
     case 'null':
       sourceTr = '';
       break;
@@ -81,7 +84,7 @@ class ContactModel extends ISuspensionBean {
   final String sign;
 
   // source 可能的值
-  // visit_card | qrcode | people_nearby
+  // visit_card | qrcode | people_nearby | user_search
   // recently_user
   final String source;
   final int updatedAt;

@@ -34,6 +34,7 @@ Widget searchBar(
   final ValueChanged<String>? onChanged,
   final Null Function(dynamic value)? onTapForItem,
   Future<List<dynamic>> Function(dynamic query)? doSearch,
+  Widget Function(List<dynamic>)? doBuildResults,
 }) {
   return SearchBar(
     leading: leading ?? const Icon(Icons.search),
@@ -49,7 +50,8 @@ Widget searchBar(
       fontSize: 14,
       // color: AppColors.LineColor.withOpacity(0.7),
     )),
-
+    backgroundColor:
+        WidgetStatePropertyAll<Color>(Theme.of(context).colorScheme.primary),
     controller: controller,
     focusNode: focusNode,
     onChanged: onChanged,
@@ -58,11 +60,12 @@ Widget searchBar(
         : () {
             showSearch(
               context: context,
-              // useRootNavigator: true,
+              useRootNavigator: true,
               delegate: SearchBarDelegate(
                 searchLabel: searchLabel,
                 queryTips: queryTips,
                 doSearch: doSearch,
+                doBuildResults: doBuildResults,
                 onTapForItem: onTapForItem,
               ),
             );
@@ -77,6 +80,7 @@ class SearchBarDelegate extends SearchDelegate {
   final String? queryTips;
 
   final Future<dynamic> Function(dynamic arg1)? doSearch;
+  final Widget Function(List<dynamic>)? doBuildResults;
 
   /// 点击搜索结果项是触发的方法
   /// Clicking on a search result item is the trigger method
@@ -85,6 +89,7 @@ class SearchBarDelegate extends SearchDelegate {
   SearchBarDelegate({
     required this.onTapForItem,
     this.doSearch,
+    this.doBuildResults,
     this.searchLabel,
     this.queryTips,
   }) : super(
@@ -151,58 +156,67 @@ class SearchBarDelegate extends SearchDelegate {
       );
     }
 
-    return FutureBuilder(
-      future: doSearchFuture(),
-      builder: (context, AsyncSnapshot snapshot) {
-        if (snapshot.hasData) {
-          List<dynamic> items = snapshot.data;
-          if (items.isEmpty) {
-            return Center(child: Text('search_no_found'.tr));
-          }
-          return n.Padding(
-            top: 16,
-            child: ListView(
-              children: <Widget>[
-                for (int i = 0; i < items.length; i++)
-                  n.Column([
-                    n.ListTile(
-                      // selected: true,
-                      onTap: () {
-                        onTapForItem(items[i]);
-                      },
-                      leading: Avatar(
-                        imgUri: items[i].avatar,
-                        onTap: () {},
-                      ),
-                      title: n.Row([
-                        Expanded(
-                          child: Text(
-                            // 会话对象标题
-                            items[i].title,
-                            style: const TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.normal,
-                            ),
-                            maxLines: 6,
-                            overflow: TextOverflow.ellipsis,
+    return Container(
+      margin: const EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 10),
+      color: Get.isDarkMode ? Colors.black : Colors.white,
+      child: FutureBuilder(
+        future: doSearchFuture(),
+        builder: (context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            List<dynamic> items = snapshot.data;
+
+            if (doBuildResults != null) {
+              return doBuildResults!(items);
+            } else {
+              if (items.isEmpty) {
+                return Center(child: Text('search_no_found'.tr));
+              }
+              return n.Padding(
+                top: 16,
+                child: ListView(
+                  children: <Widget>[
+                    for (int i = 0; i < items.length; i++)
+                      n.Column([
+                        n.ListTile(
+                          // selected: true,
+                          onTap: () {
+                            onTapForItem(items[i]);
+                          },
+                          leading: Avatar(
+                            imgUri: items[i].avatar,
+                            onTap: () {},
                           ),
+                          title: n.Row([
+                            Expanded(
+                              child: Text(
+                                // 会话对象标题
+                                items[i].title,
+                                style: const TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                                maxLines: 6,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ]),
+                        ),
+                        n.Padding(
+                          left: 16,
+                          right: 16,
+                          bottom: 10,
+                          child: const HorizontalLine(height: 1.0),
                         ),
                       ]),
-                    ),
-                    n.Padding(
-                      left: 16,
-                      right: 16,
-                      bottom: 10,
-                      child: const HorizontalLine(height: 1.0),
-                    ),
-                  ]),
-              ],
-            ),
-          );
-        }
+                  ],
+                ),
+              );
+            }
+          }
 
-        return const Center(child: CircularProgressIndicator());
-      },
+          return const Center(child: CircularProgressIndicator());
+        },
+      ),
     );
   }
 
