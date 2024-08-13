@@ -130,14 +130,10 @@ class ContactLogic extends GetxController {
         nickname: 'tags'.tr,
         nameIndex: '↑',
         bgColor: Colors.blue,
-        // icon 翻转
-        iconData: Transform.scale(
-          scaleX: -1,
-          child: const Icon(
-            Icons.local_offer,
-            color: Colors.white,
-            size: 24,
-          ),
+        iconData: const Icon(
+          Icons.local_offer,
+          color: Colors.white,
+          size: 24,
         ),
         onPressed: () {
           Get.to(

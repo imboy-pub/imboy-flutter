@@ -863,28 +863,27 @@ packages:
   flutter_sound:
     dependency: "direct main"
     description:
-      path: flutter_sound
-      ref: leeyi
-      resolved-ref: c95aec8a61fac401c644890208918261461ea2bf
-      url: "https://gitee.com/imboy-tripartite-deps/flutter_sound.git"
-    source: git
-    version: "9.9.5"
+      name: flutter_sound
+      sha256: "843454344b15d7c3b4661f543c1bc7d8e246f40b064a8197068b311b1f454f9a"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "9.10.4"
   flutter_sound_platform_interface:
     dependency: "direct main"
     description:
       name: flutter_sound_platform_interface
-      sha256: "31895be7f8d0eb6f20a8353525c5a85498fabe7ed1cbf90f704db9158e22f313"
+      sha256: af69b9da85bc97bdb9300b5ed2423c168318a6e5b18d93dd035fc6ae3a84e2f0
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.9.5"
+    version: "9.10.4"
   flutter_sound_web:
     dependency: transitive
     description:
       name: flutter_sound_web
-      sha256: "9382f2212728819c85effc3f44eb87889d2c00009d3d7445c7b123b9d71978a8"
+      sha256: "907ae99a4905936ff128a531bd8400eb71d247519cd8f1e66c984d0db7fb66c8"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.9.5"
+    version: "9.10.4"
   flutter_spinkit:
     dependency: "direct main"
     description:
@@ -2197,10 +2196,10 @@ packages:
     dependency: "direct main"
     description:
       name: wakelock_plus
-      sha256: "4fa83a128b4127619e385f686b4f080a5d2de46cff8e8c94eccac5fcf76550e5"
+      sha256: bf4ee6f17a2fa373ed3753ad0e602b7603f8c75af006d5b9bdade263928c0484
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.2.7"
+    version: "1.2.8"
   wakelock_plus_platform_interface:
     dependency: transitive
     description:
