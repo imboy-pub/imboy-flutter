@@ -60,13 +60,13 @@ Widget searchBar(
         : () {
             showSearch(
               context: context,
-              useRootNavigator: true,
               delegate: SearchBarDelegate(
                 searchLabel: searchLabel,
                 queryTips: queryTips,
                 doSearch: doSearch,
                 doBuildResults: doBuildResults,
                 onTapForItem: onTapForItem,
+
               ),
             );
           },
@@ -100,12 +100,16 @@ class SearchBarDelegate extends SearchDelegate {
   List<Widget> buildActions(BuildContext context) {
     return [
       AnimatedOpacity(
-        opacity: query.isNotEmpty ? 1.0 : 0.0,
+        opacity: query.isEmpty ? 0.0 : 1.0,
         duration: kThemeAnimationDuration,
         curve: Curves.easeInOutCubic,
         child: IconButton(
           tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-          icon: const Center(child: Icon(Icons.clear)),
+          icon: const Center(
+              child: Icon(
+            Icons.clear,
+            size: 28,
+          )),
           onPressed: () {
             query = '';
           },
@@ -156,67 +160,66 @@ class SearchBarDelegate extends SearchDelegate {
       );
     }
 
-    return Container(
-      margin: const EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 10),
-      color: Get.isDarkMode ? Colors.black : Colors.white,
-      child: FutureBuilder(
-        future: doSearchFuture(),
-        builder: (context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData) {
-            List<dynamic> items = snapshot.data;
+    return FutureBuilder(
+      future: doSearchFuture(),
+      builder: (context, AsyncSnapshot snapshot) {
+        if (snapshot.hasData) {
+          List<dynamic> items = snapshot.data;
 
-            if (doBuildResults != null) {
-              return doBuildResults!(items);
-            } else {
-              if (items.isEmpty) {
-                return Center(child: Text('search_no_found'.tr));
-              }
-              return n.Padding(
-                top: 16,
-                child: ListView(
-                  children: <Widget>[
-                    for (int i = 0; i < items.length; i++)
-                      n.Column([
-                        n.ListTile(
-                          // selected: true,
-                          onTap: () {
-                            onTapForItem(items[i]);
-                          },
-                          leading: Avatar(
-                            imgUri: items[i].avatar,
-                            onTap: () {},
-                          ),
-                          title: n.Row([
-                            Expanded(
-                              child: Text(
-                                // 会话对象标题
-                                items[i].title,
-                                style: const TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                                maxLines: 6,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ]),
-                        ),
-                        n.Padding(
-                          left: 16,
-                          right: 16,
-                          bottom: 10,
-                          child: const HorizontalLine(height: 1.0),
-                        ),
-                      ]),
-                  ],
-                ),
-              );
+          if (doBuildResults != null) {
+            return doBuildResults!(items);
+          } else {
+            if (items.isEmpty) {
+              return Center(child: Text('search_no_found'.tr));
             }
+            return n.Padding(
+              top: 16,
+              child: ListView(
+                children: <Widget>[
+                  for (int i = 0; i < items.length; i++)
+                    n.Column([
+                      n.ListTile(
+                        // selected: true,
+                        onTap: () {
+                          onTapForItem(items[i]);
+                        },
+                        leading: Avatar(
+                          imgUri: items[i].avatar,
+                          onTap: () {},
+                        ),
+                        title: n.Row([
+                          Expanded(
+                            child: Text(
+                              // 会话对象标题
+                              items[i].title,
+                              style: const TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              maxLines: 6,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ]),
+                      ),
+                      n.Padding(
+                        left: 16,
+                        right: 16,
+                        bottom: 10,
+                        child: const HorizontalLine(height: 1.0),
+                      ),
+                    ]),
+                ],
+              ),
+            );
           }
+        }
 
-          return const Center(child: CircularProgressIndicator());
-        },
-      ),
+        return const Center(
+          child: CircularProgressIndicator(),
+          // child: Text('Filter people by name, surname or age'),
+        );
+      },
     );
   }
 

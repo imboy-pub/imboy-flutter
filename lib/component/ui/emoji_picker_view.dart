@@ -44,7 +44,8 @@ class EmojiCategoryViewState extends State<EmojiCategoryView>
   }
 
   Widget _buildBackspaceButton() {
-    if (widget.config.categoryViewConfig.showBackspaceButton) {
+    if (widget.config.categoryViewConfig.extraTab != null &&
+        widget.config.categoryViewConfig.extraTab != CategoryExtraTab.NONE) {
       return BackspaceButton(
         widget.config,
         widget.state.onBackspacePressed,
@@ -163,7 +164,7 @@ class EmojiSearchViewState extends SearchViewState {
               children: [
                 IconButton(
                   onPressed: widget.showEmojiView,
-                  color: widget.config.searchViewConfig.buttonColor,
+                  // color: widget.config.searchViewConfig.buttonColor,
                   icon: Icon(
                     Icons.arrow_back,
                     color: widget.config.searchViewConfig.buttonIconColor,

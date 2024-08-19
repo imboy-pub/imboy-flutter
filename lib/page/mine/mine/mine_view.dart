@@ -95,18 +95,19 @@ class MinePage extends StatelessWidget {
                         width: 200.0,
                         child: n.Column([
                           Text(
+                            // c.current.nickname+c.current.nickname,
                             c.current.nickname,
                             style: const TextStyle(
                               fontSize: 18.0,
                               fontWeight: FontWeight.w500,
                             ),
-                            maxLines: 4,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.left,
                           ),
                           n.Padding(
                             top: 8.0,
-                            bottom: 8.0,
+                            bottom: 4.0,
                             child: Text(
                               // '',
                               "${'account'.tr}：${c.current.account}",

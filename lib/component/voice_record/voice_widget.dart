@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:audio_session/audio_session.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:logger/logger.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -10,9 +12,6 @@ import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform
 import 'package:get/get.dart';
 
 import 'package:imboy/component/helper/func.dart';
-
-// ignore: depend_on_referenced_packages
-import 'package:intl/intl.dart' show DateFormat;
 
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
@@ -60,7 +59,7 @@ class VoiceWidget extends StatefulWidget {
 
 class _VoiceWidgetState extends State<VoiceWidget> {
   // 倒计时总时长
-  final int _countTotal = 300;
+  final _countTotal = const Duration(minutes: 3);
   double start = 0.0;
   double offset = 0.0;
   bool isUp = false;
@@ -68,34 +67,74 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   String toastShow = 'slide_up_cancel_sending'.tr;
   String voiceIco = "assets/images/chat/voice_volume_1.png";
 
-  Duration recordingDuration = const Duration();
   final List<double> waveform = [];
   String recordingMimeType = 'audio/aac';
   late Codec recordCodec;
 
-  Timer? _timer;
-  int _count = 0;
   OverlayEntry? overlayEntry;
 
-  final FlutterSoundRecorder recorderModule = FlutterSoundRecorder();
+  final recorder = FlutterSoundRecorder(logLevel: Level.error);
   String recorderTxt = '00:00.000';
+  Duration recordingDuration = const Duration();
 
   String filePath = '';
-  StreamSubscription? recorderSubscription;
-  int pos = 0;
-  double dbLevel = 0;
-
-  AudioSession? session;
+  StreamSubscription? recordStream;
 
   @override
   void initState() {
     super.initState();
-    try {
-      openTheRecorder();
-    } catch (e) {
-      //
+    debugPrint("> on _VoiceWidgetState initState");
+    init();
+  }
+
+  /// 在iOS真机上面依赖该方法
+  /// https://github.com/Canardoux/flutter_sound/issues/868
+  Future<void> init() async {
+    if (!kIsWeb) {
+      try {
+        var status = await Permission.microphone.request();
+        if (status != PermissionStatus.granted) {
+          Get.snackbar("", 'microphone_permission_not_obtained'.tr);
+          throw RecordingPermissionException(
+              'microphone_permission_not_obtained'.tr);
+        }
+
+        //判断如果还没拥有读写权限就申请获取权限
+        if (await Permission.storage.request().isDenied) {
+          await Permission.storage.request();
+          if ((await Permission.storage.status) != PermissionStatus.granted) {
+            Get.snackbar("", 'microphone_permission_not_obtained'.tr);
+            throw RecordingPermissionException(
+                'storage_permission_not_obtained'.tr);
+          }
+        }
+      } catch (e, stack) {
+        // 也可以使用 print 语句打印异常信息
+        iPrint('init_login_error: $e');
+        iPrint('init_Stack trace:\n${stack.toString()}');
+        // return e.toString();
+      }
     }
-    debugPrint("> on chat _VoiceWidgetState initState");
+    await recorder.openRecorder();
+
+    final session = await AudioSession.instance;
+    await session.configure(AudioSessionConfiguration(
+      avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+      avAudioSessionCategoryOptions:
+          AVAudioSessionCategoryOptions.allowBluetooth |
+              AVAudioSessionCategoryOptions.defaultToSpeaker,
+      avAudioSessionMode: AVAudioSessionMode.spokenAudio,
+      avAudioSessionRouteSharingPolicy:
+          AVAudioSessionRouteSharingPolicy.defaultPolicy,
+      avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none,
+      androidAudioAttributes: const AndroidAudioAttributes(
+        contentType: AndroidAudioContentType.speech,
+        flags: AndroidAudioFlags.none,
+        usage: AndroidAudioUsage.voiceCommunication,
+      ),
+      androidAudioFocusGainType: AndroidAudioFocusGainType.gain,
+      androidWillPauseWhenDucked: true,
+    ));
   }
 
   ///显示录音悬浮布局
@@ -106,25 +145,12 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         icon: n.Column([
           Container(
             margin: const EdgeInsets.only(top: 10),
-            child: _countTotal - _count < 11
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 15.0),
-                      child: Text(
-                        (_countTotal - _count).toString(),
-                        style: const TextStyle(
-                          fontSize: 70.0,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  )
-                : Image.asset(
-                    voiceIco,
-                    width: 100,
-                    height: 100,
-                    // package: 'flutter_plugin_record',
-                  ),
+            child: Image.asset(
+              voiceIco,
+              width: 100,
+              height: 100,
+              // package: 'flutter_plugin_record',
+            ),
           ),
           Text(
             "$toastShow\n$recorderTxt",
@@ -141,42 +167,43 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     Overlay.of(context).insert(overlayEntry!);
   }
 
+  /// 设置订阅周期
+  Future<void> setSubscriptionDuration(
+      double d) async // d is between 0.0 and 2000 (milliseconds)
+  {
+    setState(() {});
+    await recorder.setSubscriptionDuration(
+      Duration(milliseconds: d.floor()),
+    );
+  }
+
   showVoiceView(BuildContext ctx) {
     setState(() {
       textShow = 'release_end'.tr;
     });
 
+    if (recordingDuration.inMilliseconds > _countTotal.inMilliseconds) {
+      hideVoiceView(ctx);
+    }
+
     ///显示录音悬浮布局
     buildOverLayView(ctx);
-
     // debugPrint("> on record showVoiceView");
     recorderStart(ctx);
   }
 
-  hideVoiceView(BuildContext ctx) async {
-    if (_timer!.isActive) {
-      if (_count < 1) {
-        Toast.showView(
-            context: ctx,
-            msg: 'speaking_too_short'.tr,
-            icon: const Text(
-              '!',
-              style: TextStyle(
-                fontSize: 60,
-                color: Colors.white,
-              ),
-            ));
-        isUp = true;
-      }
-      _timer?.cancel();
-      _count = 0;
+  Future<void> hideVoiceView(BuildContext ctx) async {
+    iPrint("hideVoiceView ${DateTime.now()}");
+    filePath = (await recorderStop(recorder))!;
+    if (recordingDuration.inMilliseconds < 1000) {
+      EasyLoading.showToast('speaking_too_short'.tr);
+      isUp = true;
     }
 
     setState(() {
       textShow = 'chat_hold_down_talk'.tr;
     });
 
-    filePath = (await recorderStop(recorderModule))!;
     if (overlayEntry != null) {
       overlayEntry?.remove();
       overlayEntry = null;
@@ -185,7 +212,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
       // print("取消发送");
     } else if (strNoEmpty(filePath)) {
       debugPrint("进行发送 $filePath waveform ${waveform.toString()}");
-      widget.stopRecord!.call(
+      await widget.stopRecord!.call(
         AudioFile(
           file: File(filePath),
           duration: recordingDuration,
@@ -193,14 +220,17 @@ class _VoiceWidgetState extends State<VoiceWidget> {
           mimeType: recordingMimeType,
         ),
       );
-      waveform.clear();
+      setState(() {
+        recordingDuration = const Duration();
+        waveform.clear();
+      });
     }
   }
 
   moveVoiceView() {
-    // print(offset - start);
+    iPrint("moveVoiceView ${DateTime.now()}");
     setState(() {
-      isUp = start - offset > 100 ? true : false;
+      isUp = start - offset > 120 ? true : false;
       if (isUp) {
         textShow = 'release_finger_cancel_sending'.tr;
         toastShow = textShow;
@@ -211,92 +241,48 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     });
   }
 
-  void cancelRecorderSubscriptions() {
-    recorderSubscription?.cancel();
-    recorderSubscription = null;
+  Future<void> cancelRecorderSubscriptions({String from = ''}) async {
+    iPrint("cancelRecorderSubscriptions $from");
+    await recordStream?.cancel();
+    recordStream = null;
   }
 
   /// Creates an path to a temporary file.
-  Future<String> _createTempAacFilePath(String name) async {
+  Future<String> _createTempAacFilePath(String name,
+      {String ext = 'aac'}) async {
     if (kIsWeb) {
       throw Exception(
         'This method only works for mobile as it creates a temporary AAC file',
       );
     }
-    String path;
     final tmpDir = await getTemporaryDirectory();
-    path = '${join(tmpDir.path, name)}.aac';
+    final path = '${join(tmpDir.path, name)}.$ext';
     final parent = dirname(path);
     await Directory(parent).create(recursive: true);
     return path;
   }
 
-  /// 在iOS真机上面依赖该方法
-  /// https://github.com/Canardoux/flutter_sound/issues/868
-  Future<void> openTheRecorder() async {
-    if (!kIsWeb) {
-      try {
-        var status = await Permission.microphone.request();
-        if (status != PermissionStatus.granted) {
-          throw RecordingPermissionException('Microphone permission not granted');
-        }
-      } catch (e, stack) {
-        // 也可以使用 print 语句打印异常信息
-        iPrint('openTheRecorder_login_error: $e');
-        iPrint('openTheRecorder_Stack trace:\n${stack.toString()}');
-        // return e.toString();
-      }
-    }
-    session ??= await AudioSession.instance;
-    await session?.configure(
-      AudioSessionConfiguration(
-        avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
-        avAudioSessionCategoryOptions:
-            AVAudioSessionCategoryOptions.allowBluetooth |
-                AVAudioSessionCategoryOptions.defaultToSpeaker,
-        avAudioSessionMode: AVAudioSessionMode.spokenAudio,
-        avAudioSessionRouteSharingPolicy:
-            AVAudioSessionRouteSharingPolicy.defaultPolicy,
-        avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none,
-        androidAudioAttributes: const AndroidAudioAttributes(
-          contentType: AndroidAudioContentType.speech,
-          flags: AndroidAudioFlags.none,
-          usage: AndroidAudioUsage.voiceCommunication,
-        ),
-        androidAudioFocusGainType: AndroidAudioFocusGainType.gain,
-        androidWillPauseWhenDucked: true,
-      ),
-    );
+  String formatDuration(int milliseconds) {
+    const oneDigit = '0';
+    int totalSeconds = milliseconds ~/ 1000;
+    int seconds = totalSeconds % 60;
+    int minutes = (totalSeconds - seconds) ~/ 60;
+
+    String minuteStr = '$minutes'.padLeft(2, oneDigit); // 确保分钟是两位数
+    String secondStr = '$seconds'.padLeft(2, oneDigit); // 确保秒是两位数
+    String msStr = '${milliseconds % 1000}'.padLeft(3, oneDigit); // 毫秒
+
+    return '$minuteStr:$secondStr.$msStr';
   }
 
-  // -------  Here is the code to playback  -----------------------
   /// 开始录音
   void recorderStart(BuildContext ctx) async {
     debugPrint("> on record start");
     try {
-      var status = await Permission.microphone.request();
-      if (status != PermissionStatus.granted) {
-        Get.snackbar("", 'microphone_permission_not_obtained'.tr);
-        throw RecordingPermissionException(
-            'microphone_permission_not_obtained'.tr);
-      }
-
-      //判断如果还没拥有读写权限就申请获取权限
-      if (await Permission.storage.request().isDenied) {
-        await Permission.storage.request();
-        if ((await Permission.storage.status) != PermissionStatus.granted) {
-          Get.snackbar("", 'microphone_permission_not_obtained'.tr);
-          throw RecordingPermissionException(
-              'storage_permission_not_obtained'.tr);
-        }
-      }
-
-      await recorderModule.openRecorder();
-
       // String name = "${Xid().toString()}";
       String name = "voice_tmp";
       if (kIsWeb) {
-        if (await recorderModule.isEncoderSupported(Codec.opusWebM)) {
+        if (await recorder.isEncoderSupported(Codec.opusWebM)) {
           filePath = '$name.webm';
           recordCodec = Codec.opusWebM;
           recordingMimeType = 'audio/webm;codecs="opus"';
@@ -311,42 +297,30 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         recordingMimeType = 'audio/aac';
       }
       // 必须要设置，才能够监听 振幅大小
-      setSubscriptionDuration(40);
-
-      await recorderModule.startRecorder(
+      setSubscriptionDuration(1);
+      await recorder.startRecorder(
         toFile: filePath,
         codec: recordCodec,
-        bitRate: 8000,
+        // bitRate: 8000 | 10000 | 11000 不行
+        bitRate: 12000,
         // sampleRate: 8000,
         audioSource: AudioSource.microphone,
       );
 
-      waveform.clear();
+      await cancelRecorderSubscriptions();
 
       /// 监听录音
-      recorderSubscription = recorderModule.onProgress!.listen((e) {
-        debugPrint("> on record listen e ${e.toString()} ${DateTime.now()}");
-        setState(() {
-          pos = e.duration.inMilliseconds;
-        });
-        // debugPrint("> on record listen pos: $pos, dbLevel: ${e.decibels};");
+      recordStream ??= recorder.onProgress!.listen((e) {
+        // debugPrint("> on record listen e ${e.toString()} ${DateTime.now()}");
         if (e.decibels != null) {
-          recordingDuration = e.duration;
-          dbLevel = e.decibels as double;
+          // 分贝
+          double dbLevel = e.decibels as double;
           waveform.add(dbLevel);
 
-          DateTime date = DateTime.fromMillisecondsSinceEpoch(
-            e.duration.inMilliseconds,
-            isUtc: true,
-          );
-          String txt = DateFormat('mm:ss.SSS').format(date);
-          if (date.second >= _countTotal) {
-            recorderStop(recorderModule);
-            hideVoiceView(Get.context!);
-          }
+          double voiceData = dbLevel / 10.0 - 0.2;
 
-          double voiceData = ((dbLevel * 100.0).floor()) / 3500;
-          // debugPrint("> on voiceData $voiceData;");
+          debugPrint(
+              "> on record listen voiceData $voiceData ; dbLevel $dbLevel; e ${e.toString()} ${DateTime.now()}");
           if (voiceData > 0 && voiceData < 0.1) {
             voiceIco = "assets/images/chat/voice_volume_1.png";
           } else if (voiceData > 0.2 && voiceData < 0.3) {
@@ -369,12 +343,9 @@ class _VoiceWidgetState extends State<VoiceWidget> {
           if (overlayEntry != null) {
             overlayEntry!.markNeedsBuild();
           }
-          // debugPrint(
-          //     "> on record 振幅大小   " + voiceData.toString() + "  " + voiceIco);
           setState(() {
-            recorderTxt = txt.substring(0, 9);
-            // debugPrint("> on record 当前振幅：$dbLevel");
-            dbLevel = dbLevel;
+            recordingDuration = e.duration;
+            recorderTxt = formatDuration(recordingDuration.inMilliseconds);
             voiceIco = voiceIco;
           });
         }
@@ -383,62 +354,40 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         filePath = filePath;
       });
     } catch (err) {
+      iPrint("on record start err ${err.toString()}");
       setState(() {
-        recorderStop(recorderModule);
-        cancelRecorderSubscriptions();
+        recorderStop(recorder);
       });
     }
   }
 
   /// 结束录音
   Future<String?> recorderStop(FlutterSoundRecorder recorder) async {
+    iPrint("recorderStop ${DateTime.now()}");
     try {
       String? filepath = await recorder.stopRecorder();
-      cancelRecorderSubscriptions();
-      iPrint("recorderStop $filepath");
+      await cancelRecorderSubscriptions(from: 'recorderStop');
+      iPrint("recorderStop $filepath ${DateTime.now()}");
       iPrint("recorderStop ${File(filepath!).readAsBytesSync()}");
+      recorderTxt = '00:00.000';
       if (mounted) {
         setState(() {
-          dbLevel = 0.0;
-          pos = 0;
-          recorderTxt = '00:00.000';
+          recorderTxt;
         });
-      } else {
-        dbLevel = 0.0;
-        pos = 0;
-        recorderTxt = '00:00.000';
       }
       // _getDuration();
       return filepath;
     } catch (err) {
-      debugPrint('stopRecorder error: $err');
+      debugPrint('recorderStop error: $err');
     }
     return null;
   }
-
-  /// 设置订阅周期
-  Future<void> setSubscriptionDuration(
-      double d) async // d is between 0.0 and 2000 (milliseconds)
-  {
-    setState(() {});
-    await recorderModule.setSubscriptionDuration(
-      Duration(milliseconds: d.floor()),
-    );
-  }
-
-  // --------------------- UI -------------------
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onLongPressStart: (details) {
         start = details.globalPosition.dy;
-        _timer = Timer.periodic(const Duration(milliseconds: 500), (t) {
-          _count++;
-          if (_count == _countTotal) {
-            hideVoiceView(context);
-          }
-        });
         showVoiceView(context);
       },
       onLongPressEnd: (details) {
@@ -475,79 +424,11 @@ class _VoiceWidgetState extends State<VoiceWidget> {
 
   @override
   void dispose() {
-    recorderStop(recorderModule);
+    recorderStop(recorder);
     cancelRecorderSubscriptions();
     // Be careful : you must `close` the audio session when you have finished with it.
-    recorderModule.closeRecorder();
-    session = null;
+    recorder.closeRecorder();
     // recordPlugin?.dispose();
-    _timer?.cancel();
     super.dispose();
-  }
-}
-
-class Toast {
-  static showView({
-    BuildContext? context,
-    String? msg,
-    TextStyle? style,
-    Widget? icon,
-    Duration duration = const Duration(seconds: 1),
-    int count = 3,
-    Function? onTap,
-  }) {
-    OverlayEntry? overlayEntry;
-    // ignore: no_leading_underscores_for_local_identifiers
-    int _count = 0;
-
-    void removeOverlay() {
-      overlayEntry?.remove();
-      overlayEntry = null;
-    }
-
-    if (overlayEntry == null) {
-      overlayEntry = OverlayEntry(builder: (content) {
-        return GestureDetector(
-          onTap: () {
-            if (onTap != null) {
-              removeOverlay();
-              onTap();
-            }
-          },
-          child: CustomOverlay(
-            height: 200,
-            icon: n.Row([
-              // Padding(
-              //   // ignore: sort_child_properties_last
-              //   child: icon,
-              //   padding: const EdgeInsets.only(
-              //     bottom: 10.0,
-              //   ),
-              // ),
-              Expanded(
-                  child: Text(
-                msg ?? '',
-                style: style ??
-                    const TextStyle(
-                      fontStyle: FontStyle.normal,
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-              ))
-            ]),
-          ),
-        );
-      });
-      Overlay.of(context!).insert(overlayEntry!);
-      if (onTap != null) return;
-      Timer.periodic(duration, (timer) {
-        _count++;
-        if (_count == count) {
-          _count = 0;
-          timer.cancel();
-          removeOverlay();
-        }
-      });
-    }
   }
 }

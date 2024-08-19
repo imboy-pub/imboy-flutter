@@ -33,7 +33,7 @@ class MessageService extends GetxService {
   List<String> webrtcMsgIdLi = [];
   bool addMessageLock = false;
 
-  late StreamSubscription ssMsg;
+  StreamSubscription? ssMsg;
 
   @override
   void onInit() {
@@ -180,7 +180,7 @@ class MessageService extends GetxService {
   /// Might be useful as well to persist some data on disk.
   @override
   void onClose() {
-    ssMsg.cancel();
+    ssMsg?.cancel();
     super.onClose();
   }
 

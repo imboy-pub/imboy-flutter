@@ -19,6 +19,7 @@ import 'package:niku/namespace.dart' as n;
 import 'package:open_file/open_file.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:popup_menu/popup_menu.dart' as popupmenu;
+import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:xid/xid.dart';
 
@@ -68,6 +69,7 @@ class ChatPage extends StatefulWidget {
   final String peerAvatar;
   final String peerTitle;
   final String peerSign;
+  final String msgId;
 
   // final String computeTitle;
   // final int popTime;
@@ -88,6 +90,7 @@ class ChatPage extends StatefulWidget {
     required this.peerTitle,
     required this.peerAvatar,
     required this.peerSign,
+    this.msgId = '',
     this.options,
   });
 
@@ -96,12 +99,12 @@ class ChatPage extends StatefulWidget {
 }
 
 class ChatPageState extends State<ChatPage> {
-  // 网络状态描述
-  getx.RxBool connected = true.obs;
 
   final galleryLogic = getx.Get.put(ImageGalleryLogic());
-  final ChatLogic logic = getx.Get.find();
-  final ConversationLogic conversationLogic = getx.Get.find();
+  final logic = getx.Get.find<ChatLogic>();
+  final state = getx.Get.find<ChatLogic>().state;
+
+  final conversationLogic = getx.Get.find<ConversationLogic>();
 
   bool _showAppBar = true;
 
@@ -118,13 +121,11 @@ class ChatPageState extends State<ChatPage> {
   // 消息重复投递导致的聊天列表消息重复显示问题
   // 只需要再 ssMsg listen 的时候 add(msg.id)就可以了
   Set<String> msgIds = {};
+
   // ignore: prefer_typing_uninitialized_variables
   late var currentUser;
   late ConversationModel conversation;
 
-  late StreamSubscription ssMsgExt;
-  late StreamSubscription ssMsg;
-  late StreamSubscription ssMsgState;
   @override
   void initState() {
     // 初始化的时候置空数据，放在该位置（initData之前），不会出现闪屏
@@ -148,9 +149,9 @@ class ChatPageState extends State<ChatPage> {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      connected = false.obs;
+      state.connected = false.obs;
     } else {
-      connected = true.obs;
+      state.connected = true.obs;
     }
     bool showConversation = widget.options?['showConversation'] ?? true;
     conversation = await conversationLogic.createConversation(
@@ -164,15 +165,15 @@ class ChatPageState extends State<ChatPage> {
     if (showConversation) {
       eventBus.fire(conversation);
     }
-    logic.state.nextAutoId = 0;
+    state.nextAutoId = 0;
 
     if (widget.type == 'C2G') {
-      logic.state.memberCount = widget.options?['memberCount'] ?? 0;
-      iPrint("logic.state.selects chat_vew ${widget.options.toString()}");
+      state.memberCount = widget.options?['memberCount'] ?? 0;
+      iPrint("state.selects chat_vew ${widget.options.toString()}");
       newGroupName = await logic.groupTitle(
         widget.peerId,
         widget.peerTitle,
-        logic.state.memberCount,
+        state.memberCount,
       );
     }
 
@@ -185,41 +186,87 @@ class ChatPageState extends State<ChatPage> {
     }
 
     // 获取本地聊天记录
-    unawaited(_handleEndReached());
+    _handleEndReached();
+    // 处理查找消息再次进入聊天会话页面
+    int msgIndex = -1;
+    if (widget.msgId.isNotEmpty) {
+      while (msgIndex == -1) {
+        msgIndex =
+            state.messages.indexWhere((msg) => msg.id == widget.msgId);
+        iPrint(
+            "scrollToIndex i 1 $msgIndex, len ${state.messages.length}");
+        if (msgIndex == -1) {
+          final items = await _handleEndReached();
+          if (items.isEmpty) {
+            break;
+          }
+        }
+        msgIndex =
+            state.messages.indexWhere((msg) => msg.id == widget.msgId);
+        iPrint(
+            "scrollToIndex i 2 $msgIndex, len ${state.messages.length}");
+        if (msgIndex > -1) {
+          break;
+        }
+      }
+      iPrint("scrollToIndex i 3 $msgIndex, msgId ${widget.msgId}, len ${state.messages.length}");
+
+      if (msgIndex > -1) {
+        const d = Duration(milliseconds: 2500);
+        await state.scrollController.scrollToIndex(
+          msgIndex,
+          duration: d,
+          preferPosition: AutoScrollPosition.begin,
+        );
+        if (mounted) {
+          setState(() {
+            state.messages;
+          });
+        }
+        state.scrollController.cancelAllHighlights();
+      }
+    }
+    // 处理查找消息再次进入聊天会话页面 end
 
     // 监听网络状态
     Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
       if (r.contains(ConnectivityResult.none)) {
-        connected = false.obs;
+        state.connected = false.obs;
       } else {
-        connected = true.obs;
+        state.connected = true.obs;
       }
     });
 
     // 一些异步操作事件的监听
-    ssMsgExt = eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
+    state.ssMsgExt =
+        eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
       iPrint("face_to_face_confirm ${obj.toString()}; $mounted");
       // 监听新成员加入
       if (obj.type == 'join_group' &&
           obj.payload['groupId'] == widget.peerId &&
           (obj.payload['isFirst'] ?? false)) {
-        logic.state.memberCount += 1;
+        state.memberCount += 1;
         newGroupName = await logic.groupTitle(
           widget.peerId,
           widget.peerTitle,
-          logic.state.memberCount,
+          state.memberCount,
         );
         if (mounted) {
           setState(() {});
         }
+      } else if (obj.type == 'clean_msg' &&
+          ((obj.payload['uk3'] ?? '') == conversation.uk3)) {
+        // 重新获取本地聊天记录
+        state.nextAutoId = 0;
+        _handleEndReached();
       } else if (obj.type == 'delete_msg') {
         //   removeMessage
         if (obj.payload['conversation'].id == conversation.id) {
-          final i = logic.state.messages
+          final i = state.messages
               .indexWhere((element) => element.id == obj.payload['msg'].id);
           if (mounted) {
             setState(() {
-              logic.state.messages.removeAt(i);
+              state.messages.removeAt(i);
             });
           }
         }
@@ -227,7 +274,8 @@ class ChatPageState extends State<ChatPage> {
     });
 
     // 接收到新的消息订阅 for c2c
-    ssMsg = eventBus.on<types.Message>().listen((types.Message msg) async {
+    state.ssMsg =
+        eventBus.on<types.Message>().listen((types.Message msg) async {
       iPrint("chat_view/listen one ${msg.id}; ${DateTime.now()}");
       final String conversationUk3 = msg.metadata?['conversation_uk3'] ?? '';
       iPrint("chat_view/listen one $conversationUk3");
@@ -242,7 +290,7 @@ class ChatPageState extends State<ChatPage> {
       }
       msgIds.add(msg.id);
 
-      final i = logic.state.messages.indexWhere((e) => e.id == msg.id);
+      final i = state.messages.indexWhere((e) => e.id == msg.id);
       iPrint("changeMessageState 4 ${msg.id}; i $i; mounted $mounted");
       if (i == -1) {
         iPrint("decreaseConversationRemind ${conversation.uk3}");
@@ -258,7 +306,7 @@ class ChatPageState extends State<ChatPage> {
         );
         if (m != null) {
           msg = await m.toTypeMessage();
-          logic.state.messages.insert(0, msg);
+          state.messages.insert(0, msg);
 
           if (msg is types.ImageMessage) {
             galleryLogic.pushToLast(msg.id, msg.uri);
@@ -276,16 +324,17 @@ class ChatPageState extends State<ChatPage> {
     // debugPrint("> rtc msg S_RECEIVED listen list");
 
     // 消息状态更新订阅, 这里无需用锁 for c2g
-    ssMsgState = eventBus.on<List<types.Message>>().listen((e) async {
+    state.ssMsgState =
+        eventBus.on<List<types.Message>>().listen((e) async {
       types.Message msg = e.first;
 
-      final i = logic.state.messages.indexWhere((e) => e.id == msg.id);
+      final i = state.messages.indexWhere((e) => e.id == msg.id);
       debugPrint("chat_view/listen list $i ${msg.toJson().toString()}");
       if (i > -1) {
-        logic.state.messages.setRange(i, i + 1, e);
+        state.messages.setRange(i, i + 1, e);
         if (mounted) {
           setState(() {
-            logic.state.messages;
+            state.messages;
           });
         }
       }
@@ -295,43 +344,50 @@ class ChatPageState extends State<ChatPage> {
   @override
   void dispose() {
     getx.Get.delete<ImageGalleryLogic>();
-    ssMsgExt.cancel();
-    ssMsg.cancel();
-    ssMsgState.cancel();
+    state.ssMsgExt?.cancel();
+    state.ssMsg?.cancel();
+    state.ssMsgState?.cancel();
     msgIds = {};
     super.dispose();
   }
 
   /// 用于分页(无限滚动)。当用户滚动时调用
   /// 到列表的最后(减去[onEndReachedThreshold])。
-  Future<void> _handleEndReached() async {
+  Future<List<types.Message>> _handleEndReached() async {
     // 初始化 当前会话新增消息
-    List<types.Message>? items = await logic.pageMessages(
+    final items = await logic.pageMessages(
       conversation,
       _size,
     );
-    if (items != null && items.isNotEmpty) {
-      for (var msg in items) {
-        if (msg is types.ImageMessage) {
-          galleryLogic.pushToGallery(msg.id, msg.uri);
-        }
-      }
+    if (items.isNotEmpty) {
       // 消除消息提醒
       countConversationRemind(items);
       if (mounted) {
+        // 使用Set来存储所有现有的消息id，以便快速查找
+        Set<String> existingIds =
+            Set.from(state.messages.map((msg) => msg.id));
+        // 过滤出那些不在existingIds中的新消息
+        final items2 =
+            items.where((item) => !existingIds.contains(item.id)).toList();
+        for (var msg in items2) {
+          if (msg is types.ImageMessage) {
+            galleryLogic.pushToGallery(msg.id, msg.uri);
+          }
+        }
         setState(() {
-          logic.state.messages = [
-            ...logic.state.messages,
-            ...items,
+          state.messages = [
+            ...state.messages,
+            ...items2,
           ];
         });
       }
-    } else if (logic.state.nextAutoId == 0 && mounted) {
+    } else if (state.nextAutoId == 0 && mounted) {
       setState(() {
-        logic.state.messages = [];
+        state.messages = [];
       });
     }
-    // debugPrint("ChatSettingPage then 3 ${logic.state.messages.length}");
+    return items;
+    // debugPrint("ChatSettingPage then 3 ${state.messages.length}");
   }
 
   /// 消除消息提醒
@@ -375,7 +431,7 @@ class ChatPageState extends State<ChatPage> {
         message,
       );
       setState(() {
-        logic.state.messages.insert(0, message);
+        state.messages.insert(0, message);
       });
       return true;
     } catch (e) {
@@ -742,14 +798,14 @@ class ChatPageState extends State<ChatPage> {
     types.TextMessage message,
     types.PreviewData previewData,
   ) {
-    final index = logic.state.messages.indexWhere((e) => e.id == message.id);
+    final index = state.messages.indexWhere((e) => e.id == message.id);
     final updatedMessage =
-        (logic.state.messages[index] as types.TextMessage).copyWith(
+        (state.messages[index] as types.TextMessage).copyWith(
       previewData: previewData,
     );
 
     setState(() {
-      logic.state.messages[index] = updatedMessage;
+      state.messages[index] = updatedMessage;
     });
   }
 
@@ -813,7 +869,7 @@ class ChatPageState extends State<ChatPage> {
         msg,
       ));
       setState(() {
-        logic.state.messages;
+        state.messages;
       });
     }
   }
@@ -897,10 +953,10 @@ class ChatPageState extends State<ChatPage> {
                 // 删除消息
                 bool res = await logic.removeMessage(conversation, msg);
                 if (res) {
-                  final i = logic.state.messages
+                  final i = state.messages
                       .indexWhere((element) => element.id == msg.id);
                   setState(() {
-                    logic.state.messages.removeAt(i);
+                    state.messages.removeAt(i);
                   });
                   // 关闭AlertDialog
                   nav.pop();
@@ -1008,10 +1064,10 @@ class ChatPageState extends State<ChatPage> {
                     // 删除消息
                     bool res = await logic.removeMessage(conversation, msg);
                     if (res) {
-                      final i = logic.state.messages
+                      final i = state.messages
                           .indexWhere((element) => element.id == msg.id);
                       setState(() {
-                        logic.state.messages.removeAt(i);
+                        state.messages.removeAt(i);
                       });
                       // 关闭AlertDialog
                       nav.pop();
@@ -1096,45 +1152,54 @@ class ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     final topRightWidget = [
       InkWell(
-        onTap: () => getx.Get.to(
-          () => widget.type == 'C2G'
-              ? GroupDetailPage(
-                  groupId: widget.peerId,
-                  memberCount: logic.state.memberCount,
-                  title: widget.peerTitle,
-                  callBack: (v) {},
-                )
-              : ChatSettingPage(widget.peerId, type: widget.type, options: {
-                  "peerId": widget.peerId,
-                  "avatar": widget.peerAvatar,
-                  "nickname": widget.peerTitle,
-                }),
-          transition: getx.Transition.rightToLeft,
-          popGesture: true, // 右滑，返回上一页
-        )?.then((value) async {
-          debugPrint("ChatSettingPage then $value, $mounted");
-          bool flush = false;
-          if (value != null && value == false) {
-            logic.state.nextAutoId = 0;
-            _handleEndReached();
-            if (mounted) setState(() {});
-          }
-          debugPrint(
-              "ChatSettingPage then flush $flush, memberCount ${logic.state.memberCount}; mounted $mounted");
-          if (value is Map<String, dynamic>) {
-            int num = value['memberCount'] ?? 0;
-            if (num > 0) {
-              logic.state.memberCount = num;
-              flush = true;
-              newGroupName = await logic.groupTitle(
-                widget.peerId,
-                widget.peerTitle,
-                logic.state.memberCount,
-              );
+        onTap: () {
+          final options = {
+            "peerId": widget.peerId,
+            "peerAvatar": widget.peerAvatar,
+            "peerTitle": widget.peerTitle,
+            "peerSign": widget.peerSign,
+            "conversationUk3": conversation.uk3,
+          };
+          getx.Get.to(
+            () => widget.type == 'C2G'
+                ? GroupDetailPage(
+                    groupId: widget.peerId,
+                    memberCount: state.memberCount,
+                    title: widget.peerTitle,
+                    options: options,
+                    callBack: (v) {})
+                : ChatSettingPage(
+                    widget.peerId,
+                    type: widget.type,
+                    options: options,
+                  ),
+            transition: getx.Transition.rightToLeft,
+            popGesture: true, // 右滑，返回上一页
+          )?.then((value) async {
+            debugPrint("ChatSettingPage then $value, $mounted");
+            bool flush = false;
+            if (value != null && value == false) {
+              state.nextAutoId = 0;
+              _handleEndReached();
               if (mounted) setState(() {});
             }
-          }
-        }),
+            debugPrint(
+                "ChatSettingPage then flush $flush, memberCount ${state.memberCount}; mounted $mounted");
+            if (value is Map<String, dynamic>) {
+              int num = value['memberCount'] ?? 0;
+              if (num > 0) {
+                state.memberCount = num;
+                flush = true;
+                newGroupName = await logic.groupTitle(
+                  widget.peerId,
+                  widget.peerTitle,
+                  state.memberCount,
+                );
+                if (mounted) setState(() {});
+              }
+            }
+          });
+        },
         // 三点更多 more icon
         child: n.Padding(
           left: 10,
@@ -1160,15 +1225,19 @@ class ChatPageState extends State<ChatPage> {
           : null,
       body: n.Column([
         getx.Obx(() {
-          return connected.isTrue
+          return state.connected.isTrue
               ? const SizedBox.shrink()
               : NetworkFailureTips();
         }),
         Expanded(
           child: n.Stack([
             Chat(
+              // scrollToUnreadOptions:ScrollToUnreadOptions(
+              //     lastReadMessageId: widget.msgId,
+              //     scrollOnOpen:true,
+              // ),
               user: currentUser,
-              messages: logic.state.messages,
+              messages: state.messages,
               showUserAvatars: true,
               avatarBuilder: (types.User author) {
                 return n.Padding(
@@ -1240,7 +1309,7 @@ class ChatPageState extends State<ChatPage> {
                   message: msg,
                 );
               },
-              scrollController: logic.state.scrollController,
+              scrollController: state.scrollController,
               onEndReachedThreshold: 0.9,
               // 300000 = 5分钟 默认 900000 = 15 分钟
               dateHeaderThreshold: 300000,

@@ -35,6 +35,8 @@ Future<Map<String, dynamic>> defaultHeaders() async {
     'did': deviceId,
     'tz_offset': DateTime.now().timeZoneOffset.inMilliseconds,
     'method': 'sha512',
+    // signKeyVsn 告知服务端用哪个签名key 不同设备类型签名不一样
+    'sk': globalSignKeyVsn,
     'sign': EncrypterService.sha512("$deviceId|$appVsn|$cos|$packageName", key)
   };
 }

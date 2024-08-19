@@ -250,6 +250,8 @@ class LocaleKeys {
   static const scan_qr_code_business_card = 'scan_qr_code_business_card';
   static const source_qrcode = 'source_qrcode';
   static const scan_qrcode_add_friend = 'scan_qrcode_add_friend';
+  static const group_qrcode_tips = 'group_qrcode_tips';
+  static const share = 'share';
   static const newly_registered_people = 'newly_registered_people';
   static const people_nearby = 'people_nearby';
   static const allowed_be_searched = 'allowed_be_searched';
@@ -310,6 +312,7 @@ class LocaleKeys {
   static const group_join = 'group_join';
   static const group_alias = 'group_alias';
   static const group_add_local = 'group_add_local';
+  static const group_search_tips = 'group_search_tips';
   static const chat_message = 'chat_message';
   static const live_broadcast = 'live_broadcast';
   static const feedback_details = 'feedback_details';
@@ -408,7 +411,6 @@ class LocaleKeys {
   static const scan_result = 'scan_result';
   static const user_not_exist = 'user_not_exist';
   static const user_disabled_or_deleted = 'user_disabled_or_deleted';
-  static const search_specific_content = 'search_specific_content';
   static const add_to_contacts = 'add_to_contacts';
   static const added_to_blacklist_tips = 'added_to_blacklist_tips';
   static const other_party = 'other_party';
@@ -703,6 +705,8 @@ class Locales {
     'scan_qr_code_business_card': '扫描二维码名片',
     'source_qrcode': '通过扫一扫添加',
     'scan_qrcode_add_friend': '扫一扫上面的二维码图案，加我为朋友',
+    'group_qrcode_tips': '该二维码%s天内（%s前）有效，重新进入将更新',
+    'share': '分享',
     'newly_registered_people': '新注册的人',
     'people_nearby': '附近的人',
     'allowed_be_searched': '最近新注册的并且允许被搜索到的朋友',
@@ -763,6 +767,7 @@ class Locales {
     'group_join': '加入群聊',
     'group_alias': '我在本群的昵称',
     'group_add_local': '保存到通讯录',
+    'group_search_tips': '群名称和群简介',
     'chat_message': '聊天消息',
     'live_broadcast': '直播',
     'feedback_details': '反馈建议明细',
@@ -860,7 +865,6 @@ class Locales {
     'scan_result': '扫描结果',
     'user_not_exist': '用户不存在',
     'user_disabled_or_deleted': '用户被禁用或已删除',
-    'search_specific_content': '搜索指定内容',
     'add_to_contacts': '添加到通讯录',
     'added_to_blacklist_tips': '已添加至黑名单，你将不再收到对方的消息',
     'other_party': '对方',
@@ -1165,6 +1169,9 @@ class Locales {
     'scan_qr_code_business_card': 'Scan QR Code Business Card',
     'source_qrcode': 'Added by scanning QR code',
     'scan_qrcode_add_friend': 'Scan the QR code above to add me as a friend',
+    'group_qrcode_tips':
+        'group_qrcode_tips":"This QR code is valid for %s days (expires on %s), re-entering will update it.',
+    'share': 'Share',
     'newly_registered_people': 'Newly people',
     'people_nearby': 'People nearby',
     'allowed_be_searched': 'Newly registered friends who allow to be searched',
@@ -1229,6 +1236,7 @@ class Locales {
     'group_join': ' Join group',
     'group_alias': ' My alias in this group ',
     'group_add_local': ' Save to address book ',
+    'group_search_tips': 'Group Name and Group Introduction',
     'chat_message': 'Chat message',
     'live_broadcast': 'Live broadcast',
     'feedback_details': 'Feedback details',
@@ -1333,7 +1341,6 @@ class Locales {
     'scan_result': 'Scan Result',
     'user_not_exist': 'User does not exist',
     'user_disabled_or_deleted': 'User is disabled or deleted',
-    'search_specific_content': 'Search for specific content',
     'add_to_contacts': 'Add to Contacts',
     'added_to_blacklist_tips':
         'Added to blacklist, you will no longer receive messages from the other party',
@@ -1650,6 +1657,9 @@ class Locales {
     'scan_qr_code_business_card': 'Сканировать QR-код визитки',
     'source_qrcode': 'Добавлено через сканирование QR-кода',
     'scan_qrcode_add_friend': 'Сканируйте QR-код выше и добавьте меня в друзья',
+    'group_qrcode_tips':
+        'Этот QR-код действителен в течение %s дней (истекает %s), повторный вход обновит его.',
+    'share': 'Поделиться',
     'newly_registered_people': 'Новые друзья',
     'people_nearby': 'Люди поблизости',
     'allowed_be_searched':
@@ -1715,6 +1725,7 @@ class Locales {
     'group_join': ' присоединяйтесь к группам разговоров ',
     'group_alias': ' мое прозвище в этой группе ',
     'group_add_local': ' сохранена в адресной книге ',
+    'group_search_tips': 'Название группы и краткое описание группы',
     'chat_message': 'Поболтать',
     'live_broadcast': 'Прямая трансляция',
     'feedback_details': 'Подробности обратной связи',
@@ -1818,7 +1829,6 @@ class Locales {
     'scan_result': 'Результат сканирования',
     'user_not_exist': 'Пользователь не существует',
     'user_disabled_or_deleted': 'Пользователь заблокирован или удален',
-    'search_specific_content': 'Поиск определенного контента',
     'add_to_contacts': 'Добавить в контакты',
     'added_to_blacklist_tips':
         'Добавлено в черный список, вы больше не будете получать сообщения от этого пользователя',
@@ -2115,6 +2125,8 @@ class Locales {
     'scan_qr_code_business_card': '掃描二維碼名片',
     'source_qrcode': '通過掃一掃添加',
     'scan_qrcode_add_friend': '掃一掃上面的二維碼圖案，加我為朋友',
+    'group_qrcode_tips': '該二維碼%s天內（%s前）有效，重新進入將更新',
+    'share': '分享',
     'newly_registered_people': '新註冊的人',
     'people_nearby': '附近的人',
     'allowed_be_searched': '最近新註壘的並且允許被搜索到的朋友',
@@ -2175,6 +2187,7 @@ class Locales {
     'group_join': '加入群聊',
     'group_alias': '我在本群的昵稱',
     'group_add_local': '保存到通訊錄',
+    'group_search_tips': '群名稱和群簡介',
     'chat_message': '聊天訊息',
     'live_broadcast': '直播',
     'feedback_details': '反饋建議明細',
@@ -2272,7 +2285,6 @@ class Locales {
     'scan_result': '掃描結果',
     'user_not_exist': '用戶不存在',
     'user_disabled_or_deleted': '用戶被禁用或已刪除',
-    'search_specific_content': '搜尋指定內容',
     'add_to_contacts': '添加到通訊錄',
     'added_to_blacklist_tips': '已添加至黑名單，你將不再收到對方的訊息',
     'other_party': '對方',

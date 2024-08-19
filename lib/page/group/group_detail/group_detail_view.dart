@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/conversation/conversation_logic.dart';
+import 'package:imboy/page/search/search_chat_view.dart';
 import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/page/qrcode/qrcode_view.dart';
 import 'package:imboy/store/model/chat_extend_model.dart';
@@ -34,6 +35,7 @@ class GroupDetailPage extends StatefulWidget {
   final String title;
   final int memberCount;
   final Callback? callBack;
+  final Map<String, dynamic>? options;
 
   const GroupDetailPage({
     super.key,
@@ -41,6 +43,7 @@ class GroupDetailPage extends StatefulWidget {
     required this.title,
     required this.memberCount,
     this.callBack,
+    this.options,
   });
 
   @override
@@ -64,7 +67,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
   String? groupRemark;
   String? myGroupAlias;
 
-  bool _top = false;
+  // bool _top = false;
 
   // bool _showName = false;
 
@@ -72,7 +75,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
   // bool _dnd = false;
 
   String? time;
-  String cardName = '默认';
+
+  // String cardName = '默认';
 
   // List memberList = [
   //   {'user': '+'},
@@ -80,7 +84,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
   // ];
   List? dataGroup;
 
-  late StreamSubscription ssMsgExt;
+  StreamSubscription? ssMsgExt;
 
   @override
   void initState() {
@@ -142,7 +146,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
     // title = g!.title;
 
     setState(() {});
-    ssMsgExt =
+    ssMsgExt ??=
         eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
       iPrint("face_to_face_confirm widget.gid ${obj.toString()}");
       // if (obj.groupId == widget.groupId && obj.isFirst) {
@@ -332,6 +336,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   height: 1.0,
                   color: Theme.of(context).colorScheme.primary,
                 )),
+            /* TODO 2024-08-15 15:22:59 群公告、备注、
             n.ListTile(
               title: n.Row([
                 Text('群公告'.tr),
@@ -390,6 +395,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 // );
               },
             ),
+            */
             HorizontalLine(
               height: 10,
               color: Theme.of(context).colorScheme.primary,
@@ -402,13 +408,21 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
               trailing: navigateNextIcon,
               onTap: () {
-                // Get.to(
-                //       () => DenylistPage(),
-                //   transition: Transition.rightToLeft,
-                //   popGesture: true, // 右滑，返回上一页
-                // );
+                Get.to(
+                  () => SearchChatPage(
+                    type: 'C2G',
+                    peerId: widget.groupId,
+                    peerTitle: widget.title,
+                    peerAvatar: widget.options?['peerAvatar'],
+                    peerSign: widget.options?['peerSign'],
+                    conversationUk3: widget.options?['conversationUk3'],
+                  ),
+                  transition: Transition.rightToLeft,
+                  popGesture: true, // 右滑，返回上一页
+                );
               },
             ),
+            /* TODO 2024-08-15 15:21:42  消息免打扰 置顶
             HorizontalLine(
               height: 10,
               color: Theme.of(context).colorScheme.primary,
@@ -491,6 +505,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 // );
               },
             ),
+            */
             HorizontalLine(
               height: 10,
               color: Theme.of(context).colorScheme.primary,
@@ -537,11 +552,52 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
               onTap: () {
-                // Get.to(
-                //       () => DenylistPage(),
-                //   transition: Transition.rightToLeft,
-                //   popGesture: true, // 右滑，返回上一页
-                // );
+                String tips = 'confirm_delete_chat_record'.tr;
+                n.showDialog(
+                  context: Get.context!,
+                  builder: (context) => n.Alert()
+                    // ..title = Text("Session Expired")
+                    ..content = SizedBox(
+                      height: 40,
+                      child: Center(
+                          child: Text(
+                        tips,
+                        style: const TextStyle(color: Colors.red),
+                      )),
+                    )
+                    ..actions = [
+                      n.Button('button_cancel'.tr.n)
+                        ..style = n.NikuButtonStyle(
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onPrimary)
+                        ..onPressed = () {
+                          Navigator.of(context).pop();
+                        },
+                      n.Button('button_confirm'.tr.n)
+                        ..style = n.NikuButtonStyle(
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onPrimary)
+                        ..onPressed = () async {
+                          Navigator.of(context).pop();
+
+                          int cid = await logic.cleanMessageByPeerId(
+                              'C2G', widget.groupId);
+                          if (cid > 0) {
+                            backDoRefresh = true;
+                            // 刷新会话列表
+                            await Get.find<ConversationLogic>()
+                                .hideConversation(cid);
+                            // 刷新会话列表
+                            await Get.find<ConversationLogic>()
+                                .conversationsList();
+                            EasyLoading.showSuccess('tip_success'.tr);
+                          } else {
+                            EasyLoading.showError('tip_failed'.tr);
+                          }
+                        },
+                    ],
+                  barrierDismissible: true,
+                );
               },
             ),
             HorizontalLine(
@@ -618,7 +674,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
 
   @override
   void dispose() {
-    ssMsgExt.cancel();
+    ssMsgExt?.cancel();
     Get.delete<GroupDetailLogic>();
     super.dispose();
   }

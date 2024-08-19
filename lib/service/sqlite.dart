@@ -3,14 +3,16 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/init.dart';
-import 'package:imboy/store/repository/sqlite_ddl.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/config/init.dart';
+import 'package:imboy/store/repository/sqlite_ddl.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// 参考 https://www.javacodegeeks.com/2020/06/using-sqlite-in-flutter-tutorial.html
 /// Sqlite 只负责维护表结构
@@ -25,6 +27,18 @@ class SqliteService {
 
   Future<Database?> get db async {
     _db ??= await _initDatabase();
+
+    // https://developer.android.com/reference/android/database/sqlite/package-summary
+    /*
+    // 查询 SQLite 版本
+    final versionResult =
+        await _db?.database.rawQuery('select sqlite_version();');
+    if (versionResult!.isNotEmpty) {
+      iPrint('SQLite version: $versionResult');
+      // ios [  +55 ms] flutter: iPrint SQLite version: [{sqlite_version(): 3.46.1}]
+      // andriod [ +225 ms] I/flutter (19060): iPrint SQLite version: [{sqlite_version(): 3.46.0}]
+    }
+    */
     return _db;
   }
 
@@ -40,7 +54,12 @@ class SqliteService {
   }
 
   Future<Database?> _initDatabase() async {
-    debugPrint(" UserRepoLocal.to.currentUid isEmpty ${UserRepoLocal.to.currentUid.isEmpty};");
+    // Init ffi loader if needed.
+    sqfliteFfiInit();
+    // Use the database
+    // db.dispose();
+    debugPrint(
+        " UserRepoLocal.to.currentUid isEmpty ${UserRepoLocal.to.currentUid.isEmpty};");
     if (UserRepoLocal.to.currentUid.isEmpty) {
       // Get.offAll(() => PassportPage());
       return null;
@@ -52,7 +71,6 @@ class SqliteService {
     if (!exists) {
       // Should happen only the first time you launch your application
       iPrint("Creating new copy from asset");
-
       // Make sure the parent directory exists
       try {
         await Directory(dirname(path)).create(recursive: true);
@@ -64,7 +82,6 @@ class SqliteService {
         data.offsetInBytes,
         data.lengthInBytes,
       );
-
       // Write and flush the bytes written
       await File(path).writeAsBytes(bytes, flush: true);
     } else {
@@ -72,15 +89,17 @@ class SqliteService {
     }
 
     // debugPrint("> on open db path {$path}");
-    return await openDatabase(
+    return await databaseFactoryFfi.openDatabase(
       path,
-      version: _dbVersion,
-      onConfigure: _onConfigure,
-      onCreate: _onCreate,
-      onUpgrade: _onUpgrade,
-      onDowngrade: _onDowngrade,
-      readOnly: false,
-      singleInstance: true, // 重新打开相同的文件是安全的，它会给你相同的数据库。
+      options: OpenDatabaseOptions(
+        version: _dbVersion,
+        onConfigure: _onConfigure,
+        onCreate: _onCreate,
+        onUpgrade: _onUpgrade,
+        onDowngrade: _onDowngrade,
+        readOnly: false,
+        singleInstance: true,
+      ), // 重新打开相同的文件是安全的，它会给你相同的数据库。
     );
   }
 

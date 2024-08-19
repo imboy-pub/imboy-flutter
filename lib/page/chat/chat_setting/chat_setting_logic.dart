@@ -1,4 +1,6 @@
 import 'package:get/get.dart';
+import 'package:imboy/config/init.dart';
+import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -17,6 +19,10 @@ class ChatSettingLogic extends GetxController {
     }
     String tb = MessageRepo.getTableName(model.type);
     await MessageRepo(tableName: tb).deleteByConversationId(model.uk3);
+
+    eventBus.fire(ChatExtendModel(type: 'clean_msg', payload: {
+      'uk3': model.uk3,
+    }));
     return model.id;
   }
 }

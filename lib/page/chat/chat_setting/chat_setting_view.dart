@@ -2,12 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
-
 import 'package:imboy/page/conversation/conversation_logic.dart';
-import 'package:imboy/page/search/search_view.dart';
-import 'package:niku/namespace.dart' as n;
+import 'package:imboy/page/search/search_chat_view.dart';
 
 import 'chat_setting_logic.dart';
 import 'chat_setting_state.dart';
@@ -61,11 +61,11 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
 
   List<Widget> body() {
     List switchItems = [
-      {
-        'label': 'no_disturbing',
-        'title': 'message_mute'.tr,
-        'value': isDoNotDisturb
-      },
+      // { // TODO 2024-08-15 15:19:33 聊天设置-消息免打扰
+      //   'label': 'no_disturbing',
+      //   'title': 'message_mute'.tr,
+      //   'value': isDoNotDisturb
+      // },
       // {'label': 'chat_on_top', 'title': 'top_chat'.tr, 'value': isTop},
       // {'label': 'strong_reminder', 'title': 'strong_reminder'.tr, 'value': isRemind},
     ];
@@ -77,7 +77,14 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
         isLine: true,
         onPressed: () {
           Get.to(
-            () => const SearchPage(),
+            () => SearchChatPage(
+              type: widget.type,
+              peerId: widget.options?['peerId'],
+              peerTitle: widget.options?['peerTitle'],
+              peerAvatar: widget.options?['peerAvatar'],
+              peerSign:widget.options?['peerSign'] ?? '',
+              conversationUk3: widget.options?['conversationUk3'],
+            ),
             transition: Transition.rightToLeft,
             popGesture: true, // 右滑，返回上一页
           );
@@ -161,6 +168,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
     ];
   }
 
+
   @override
   void initState() {
     super.initState();
@@ -189,7 +197,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
         automaticallyImplyLeading: true,
       ),
       body: SingleChildScrollView(
-        child: Column(children: body()),
+        child: n.Column(body()),
       ),
     );
   }

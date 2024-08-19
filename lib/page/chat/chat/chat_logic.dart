@@ -52,22 +52,25 @@ class ChatLogic extends GetxController {
     }
   }
 
-  Future<List<types.Message>?> pageMessages(
+  Future<List<types.Message>> pageMessages(
       ConversationModel obj, int size) async {
     // final response = await rootBundle.loadString('assets/data/messages.json');
-    String tb = MessageRepo.getTableName(obj.type);
-    MessageRepo repo = MessageRepo(tableName: tb);
-    List<MessageModel> items = await repo.pageForConversation(
+    final tb = MessageRepo.getTableName(obj.type);
+    final repo = MessageRepo(tableName: tb);
+    final items = await repo.pageForConversation(
       obj,
       state.nextAutoId,
       size,
     );
-    debugPrint("> on getMessages isEmpty: ${items.isEmpty}");
+    debugPrint("> on pageMessages items ${items.length}");
     if (items.isEmpty) {
       return [];
     }
     List<types.Message> messages = [];
+    // items 的 msg 为 autoId asc 排序，所以要取 first的值
     state.nextAutoId = items.first.autoId;
+    iPrint("pageMessages items.first ${items.first.autoId}");
+    iPrint("pageMessages items.last ${items.last.autoId}");
     // 重发在发送中状态的消息
     for (MessageModel obj in items) {
       debugPrint("> on getMessages obj: ${obj.toJson().toString()}");
@@ -112,6 +115,7 @@ class ChatLogic extends GetxController {
       payload = {
         "msg_type": "image",
         "name": message.name,
+        "text": message.name, // for search
         "size": message.size,
         "uri": message.uri,
         "width": message.width,
@@ -122,6 +126,7 @@ class ChatLogic extends GetxController {
       payload = {
         "msg_type": "file",
         "name": message.name,
+        "text": message.name, // for search
         "size": message.size,
         "uri": message.uri,
         "mimeType": message.mimeType,
@@ -222,10 +227,10 @@ class ChatLogic extends GetxController {
     final tb = MessageRepo.getTableName(cm.type);
     final mRepo = MessageRepo(tableName: tb);
     // 获取lastMsg，以更新会话lastMsg信息
-    final items = await mRepo.findByConversation(
-      cm.uk3,
-      2,
-      1,
+    final items = await mRepo.page(
+      conversationUk3:cm.uk3,
+      page:2,
+      size: 1,
     );
     final lastMsg = items.isEmpty ? null : items[0];
     iPrint("removeMessage items ${items.length};");

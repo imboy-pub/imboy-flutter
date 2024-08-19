@@ -1,7 +1,9 @@
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/group/group_list/group_list_logic.dart';
+import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -157,5 +159,21 @@ class GroupDetailLogic extends GetxController {
       g = await GroupRepo().save(gid, data);
     }
     return g;
+  }
+
+  /// 清空会话聊天记录
+  Future<int> cleanMessageByPeerId(String type, String peerId) async {
+    ConversationModel? model =
+    await ConversationRepo().findByPeerId(type, peerId);
+    if (model == null) {
+      return 0;
+    }
+    String tb = MessageRepo.getTableName(model.type);
+    await MessageRepo(tableName: tb).deleteByConversationId(model.uk3);
+
+    eventBus.fire(ChatExtendModel(type: 'clean_msg', payload: {
+      'uk3': model.uk3,
+    }));
+    return model.id;
   }
 }

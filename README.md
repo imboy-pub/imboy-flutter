@@ -26,8 +26,8 @@ imboy 的Flutter项目
 ## 功能树
 
 * 大概的大大小小功能实现情况：
-    * TODO 62
-    * OK 134
+    * TODO 59
+    * OK 138
 
 [查看](./doc/feature_tree.md)
 
@@ -37,6 +37,7 @@ imboy 的Flutter项目
 Strive to implement version management based on "Specification for Semantic version Control"([Semantic Versioning 2.0.0](https://semver.org/)).
 
 ## 已知待修复待完善的功能
+* “查找聊天记录”列表定位到具体的聊天记录（不在当前页面）的情况下没法定义（暂时没见到解决版本）
 * 聊天界面表情符弹框没法像键盘一样"点击页面其他空白处收缩回去" （已解决）
 * 拍摄视频、上传视频功能（体验不是很好，一分半的视频大小为11M，有待优化）filesize":11649618,"width":640,"height":360,"duration":86876.0
 * 红米A5手机，拍摄视频问题

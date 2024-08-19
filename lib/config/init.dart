@@ -83,6 +83,9 @@ String deviceId = '';
 String solidifiedKeyEnv = '';
 String solidifiedKeyIvEnv = 'C8JackYpWfNb7kG8';
 
+// signKeyVsn 告知服务端用哪个签名key 不同设备类型签名不一样
+String globalSignKeyVsn = '1';
+
 Future<Map<String, dynamic>> initConfig() async {
   IMBoyHttpResponse resp1 = await HttpClient.client.get(API.initConfig);
   debugPrint("initConfig ${resp1.payload.toString()}");
@@ -118,7 +121,8 @@ Future<Map<String, dynamic>> initConfig() async {
 
 Future<void> init(
     {required String env,
-    required String solidifiedKey,
+      required String signKeyVsn,
+      required String solidifiedKey,
     required String iv}) async {
   // step 1
   WakelockPlus.enable();
@@ -128,6 +132,7 @@ Future<void> init(
   // getx.Get.put(StorageService());
   getx.Get.lazyPut(() => StorageService());
 
+  globalSignKeyVsn = signKeyVsn;
   solidifiedKeyEnv = solidifiedKey;
   solidifiedKeyIvEnv = iv;
   // step 3
@@ -144,7 +149,8 @@ Future<void> init(
   } else {
     currentEnv = env;
   }
-  // currentEnv = 'local';
+  // currentEnv = 'dev';
+  // StorageService.to.setString('env', currentEnv);
   // iPrint("init env 2 $env, currentEnv $currentEnv;");
 
   // step 5

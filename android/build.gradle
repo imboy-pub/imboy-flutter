@@ -1,23 +1,13 @@
 
 allprojects {
     repositories {
-         google()
-         mavenCentral()
         maven {
             allowInsecureProtocol = true
-            url 'https://maven.aliyun.com/repository/public'
+            url 'https://maven.aliyun.com/repository/public/'
         }
         maven {
             allowInsecureProtocol = true
-            url 'https://maven.aliyun.com/repository/jcenter'
-        }
-        maven {
-            allowInsecureProtocol = true
-            url 'https://maven.aliyun.com/repository/google'
-        }
-        maven {
-            allowInsecureProtocol = true
-            url 'https://maven.aliyun.com/repository/gradle-plugin'
+            url 'https://maven.aliyun.com/repository/central'
         }
         // hms
         maven {
@@ -29,6 +19,8 @@ allprojects {
             allowInsecureProtocol = true
             url "https://maven.google.com"
         }
+        google()
+        mavenCentral()
     }
 }
 

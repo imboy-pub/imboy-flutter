@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:jiffy/jiffy.dart';
+import 'package:niku/namespace.dart' as n;
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/theme.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/model/group_model.dart';
-import 'package:jiffy/jiffy.dart';
-import 'package:niku/namespace.dart' as n;
-import 'package:qr_flutter/qr_flutter.dart';
-
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/repaint_boundary.dart';
@@ -35,6 +37,7 @@ class UserQrCodePage extends StatelessWidget {
 
     int gender = UserRepoLocal.to.current.gender;
 
+    String filename = "${UserRepoLocal.to.currentUid}_qrcode";
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
@@ -60,8 +63,43 @@ class UserQrCodePage extends StatelessWidget {
                     : const Color.fromRGBO(240, 240, 240, 1),
                 SizedBox(
                   width: Get.width,
-                  height: 172,
+                  height: 240,
                   child: n.Wrap([
+                    Center(
+                      child: TextButton(
+                        onPressed: () async {
+                          // 使用addPostFrameCallback延迟截图操作到下一个frame
+                          WidgetsBinding.instance
+                              .addPostFrameCallback((_) async {
+                            final res = await RepaintBoundaryHelper()
+                                .image(context, globalKey);
+                            if (res != null) {
+                              final result = await Share.shareXFiles(
+                                [XFile.fromData(res, mimeType: 'png')],
+                                text: 'scan_qrcode_add_friend'.tr,
+                              );
+                              if (result.status == ShareResultStatus.success) {}
+                            }
+                          });
+                          Get.closeAllBottomSheets();
+                          // Get.to(
+                          //       () => const ScannerPage(),
+                          //   transition: Transition.rightToLeft,
+                          //   popGesture: true, // 右滑，返回上一页
+                          // );
+                        },
+                        child: Text(
+                          'share'.tr,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Divider(),
                     Center(
                       child: TextButton(
                         child: Text(
@@ -74,16 +112,23 @@ class UserQrCodePage extends StatelessWidget {
                           ),
                         ),
                         onPressed: () async {
-                          String filename =
-                              "${UserRepoLocal.to.currentUid}_qrcode.png";
                           // 使用addPostFrameCallback延迟截图操作到下一个frame
                           WidgetsBinding.instance
                               .addPostFrameCallback((_) async {
-                            RepaintBoundaryHelper().savePhoto(
+                            final res = await RepaintBoundaryHelper().savePhoto(
                               context,
                               globalKey,
                               filename,
                             );
+                            iPrint("savePhoto res ${res.toString()}");
+                            bool isSuccess = res != null &&
+                                    res is Map &&
+                                    (res['isSuccess'] ?? false)
+                                ? true
+                                : false;
+                            if (isSuccess) {
+                              EasyLoading.showSuccess("save_success".tr);
+                            }
                           });
                           Get.closeAllBottomSheets();
                         },
@@ -301,8 +346,47 @@ class GroupQrCodePage extends StatelessWidget {
                     : const Color.fromRGBO(240, 240, 240, 1),
                 SizedBox(
                   width: Get.width,
-                  height: 172,
+                  height: 240,
                   child: n.Wrap([
+                    Center(
+                      child: TextButton(
+                        onPressed: () async {
+                          // 使用addPostFrameCallback延迟截图操作到下一个frame
+                          WidgetsBinding.instance
+                              .addPostFrameCallback((_) async {
+                            final res = await RepaintBoundaryHelper()
+                                .image(context, globalKey);
+                            if (res != null) {
+                              // 该二维码%s天内（%s前）有效，重新进入将更新
+                              final txt = 'group_qrcode_tips'.trArgs([
+                                dayNum.toString(),
+                                Jiffy.parseFromDateTime(
+                                        Jiffy.parseFromMillisecondsSinceEpoch(
+                                  state.expiredAt.value,
+                                ).dateTime)
+                                    .format(pattern: 'y-MM-dd')
+                              ]);
+                              final result = await Share.shareXFiles(
+                                [XFile.fromData(res, mimeType: 'png')],
+                                text: txt,
+                              );
+                              if (result.status == ShareResultStatus.success) {}
+                            }
+                          });
+                          Get.closeAllBottomSheets();
+                        },
+                        child: Text(
+                          'share'.tr,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Divider(),
                     Center(
                       child: TextButton(
                         child: Text(
@@ -319,11 +403,20 @@ class GroupQrCodePage extends StatelessWidget {
                           // 使用addPostFrameCallback延迟截图操作到下一个frame
                           WidgetsBinding.instance
                               .addPostFrameCallback((_) async {
-                            RepaintBoundaryHelper().savePhoto(
+                            final res = await RepaintBoundaryHelper().savePhoto(
                               context,
                               globalKey,
                               filename,
                             );
+                            iPrint("savePhoto res ${res.toString()}");
+                            bool isSuccess = res != null &&
+                                    res is Map &&
+                                    (res['isSuccess'] ?? false)
+                                ? true
+                                : false;
+                            if (isSuccess) {
+                              EasyLoading.showSuccess("save_success".tr);
+                            }
                           });
                           Get.closeAllBottomSheets();
                         },
@@ -462,7 +555,7 @@ class GroupQrCodePage extends StatelessWidget {
                         bottom: 10,
                         child: Text(
                           // 该二维码%s天内（%s前）有效，重新进入将更新
-                          '该二维码%s天内（%s前）有效，重新进入将更新'.trArgs([
+                          'group_qrcode_tips'.trArgs([
                             dayNum.toString(),
                             Jiffy.parseFromDateTime(
                                     Jiffy.parseFromMillisecondsSinceEpoch(
@@ -482,28 +575,75 @@ class GroupQrCodePage extends StatelessWidget {
             ),
           ),
           Center(
-            child: TextButton(
-              child: Text(
-                'save_qr_code'.tr,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.normal,
+            child: n.Row([
+              TextButton(
+                child: Text(
+                  'save_qr_code'.tr,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
+                onPressed: () async {
+                  String filename = "${group.groupId}_qrcode.png";
+                  // 使用addPostFrameCallback延迟截图操作到下一个frame
+                  WidgetsBinding.instance.addPostFrameCallback((_) async {
+                    final res = await RepaintBoundaryHelper().savePhoto(
+                      context,
+                      globalKey,
+                      filename,
+                    );
+                    iPrint("savePhoto group res ${res.toString()}");
+                    bool isSuccess =
+                    res != null && res is Map && (res['isSuccess'] ?? false)
+                        ? true
+                        : false;
+                    if (isSuccess) {
+                      EasyLoading.showSuccess("save_success".tr);
+                    }
+                  });
+                },
               ),
-              onPressed: () async {
-                String filename = "${group.groupId}_qrcode.png";
-                // 使用addPostFrameCallback延迟截图操作到下一个frame
-                WidgetsBinding.instance.addPostFrameCallback((_) async {
-                  RepaintBoundaryHelper().savePhoto(
-                    context,
-                    globalKey,
-                    filename,
-                  );
-                });
-              },
-            ),
+              TextButton(
+                child: Text(
+                  'share'.tr,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                onPressed: () async {
+                  // 使用addPostFrameCallback延迟截图操作到下一个frame
+                  WidgetsBinding.instance
+                      .addPostFrameCallback((_) async {
+                    final res = await RepaintBoundaryHelper()
+                        .image(context, globalKey);
+                    if (res != null) {
+                      // 该二维码%s天内（%s前）有效，重新进入将更新
+                      final txt = 'group_qrcode_tips'.trArgs([
+                        dayNum.toString(),
+                        Jiffy.parseFromDateTime(
+                            Jiffy.parseFromMillisecondsSinceEpoch(
+                              state.expiredAt.value,
+                            ).dateTime)
+                            .format(pattern: 'y-MM-dd')
+                      ]);
+                      final result = await Share.shareXFiles(
+                        [XFile.fromData(res, mimeType: 'png')],
+                        text: txt,
+                      );
+                      if (result.status == ShareResultStatus.success) {}
+                    }
+                  });
+                },
+              )
+            ])
+            // 两端对齐
+              ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
           )
         ]),
       ),

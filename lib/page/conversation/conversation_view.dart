@@ -30,7 +30,7 @@ class ConversationPage extends StatefulWidget {
 }
 
 class _ConversationPageState extends State<ConversationPage> {
-  late StreamSubscription ssMsg;
+  StreamSubscription? ssMsg;
 
   @override
   void initState() {
@@ -43,7 +43,7 @@ class _ConversationPageState extends State<ConversationPage> {
 
   @override
   void dispose() {
-    ssMsg.cancel();
+    ssMsg?.cancel();
     super.dispose();
   }
 

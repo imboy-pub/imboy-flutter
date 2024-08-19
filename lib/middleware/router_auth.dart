@@ -9,7 +9,7 @@ class RouteAuthMiddleware extends GetMiddleware {
   // priority 数字小优先级高
   @override
   // ignore: overridden_fields
-  int? priority = 0;
+  final int priority;
 
   RouteAuthMiddleware({required this.priority});
 

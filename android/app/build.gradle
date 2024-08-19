@@ -46,6 +46,9 @@ android {
         //搜索功能
         implementation "com.amap.api:search:9.5.0"
         // 高德 end
+
+        // 添加sqlite的依赖
+        //implementation files('lib/sqlite-android-3460100.aar')
     }
 
     signingConfigs {

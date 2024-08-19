@@ -69,6 +69,7 @@ class NewFriendPage extends StatelessWidget {
                 context,
                 hintText: 'hint_login_account'.tr,
                 queryTips: 'hint_login_account'.tr,
+                searchLabel: 'hint_login_account'.tr,
                 doSearch: ((query) async {
                   return logic.userSearch(kwd: query);
                 }),

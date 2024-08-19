@@ -87,8 +87,9 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
               return const Center(child: CircularProgressIndicator());
             }
             final audioPath = audioPathSnapshot.data!;
-            Duration duration =
-                Duration(milliseconds: msg.metadata!["duration_ms"]);
+            Duration duration = Duration(
+              milliseconds: msg.metadata!["duration_ms"],
+            );
 
             return _buildVoiceMessageView(
                 audioPath, duration, msg, userIsAuthor);
@@ -100,12 +101,13 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
 
   Widget _buildVoiceMessageView(String audioPath, Duration duration,
       types.CustomMessage msg, bool userIsAuthor) {
+    iPrint("_buildVoiceMessageView duration ${duration.inMilliseconds}");
     return VoiceMessageView(
       controller: VoiceController(
         audioSrc: audioPath,
         maxDuration: duration,
         isFile: true,
-        // noiseWidth: 36.0,
+        noiseCount: 32,
         onComplete: () => iPrint('VoiceMessageView onComplete'),
         onPause: () => iPrint('VoiceMessageView onPause'),
         onPlaying: () => _handleOnPlaying(msg),
@@ -123,8 +125,9 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
               ? ChatColor.ChatSendMessageBgColor
               : Theme.of(context).colorScheme.surface.withOpacity(0.2))
           : (userIsAuthor ? ChatColor.ChatSendMessageBgColor : Colors.white),
-      activeSliderColor:
-          Get.isDarkMode ? (userIsAuthor? Colors.black :Colors.white) : const Color.fromRGBO(34, 34, 34, 1.0),
+      activeSliderColor: Get.isDarkMode
+          ? (userIsAuthor ? Colors.black : Colors.white)
+          : const Color.fromRGBO(34, 34, 34, 1.0),
     );
   }
 

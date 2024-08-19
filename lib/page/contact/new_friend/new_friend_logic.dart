@@ -139,77 +139,98 @@ class NewFriendLogic extends GetxController {
   }
 
   Widget doBuildUserSearchResults(List<dynamic> items) {
-    if (items.isEmpty) {
-      return Center(child: Text('user_not_exist'.tr));
-    }
-    PeopleModel model = items[0];
-    if (model.id == UserRepoLocal.to.currentUid) {
-      EasyLoading.showInfo('can_not_add_yourself_friend'.tr);
-    } else {
-      return n.ListTile(
-        leading: Avatar(
-          imgUri: model.avatar,
-          width: 56,
-          height: 56,
-        ),
-        title: Text('${model.title}($searchKwd)'),
-        subtitle: n.Row([
-          genderIcon(model.gender),
-          const Space(width: 10),
-          if (model.region.isNotEmpty)
-            Text(model.region),
-        ]),
-        trailing: Container(
-          width: 80,
-          alignment: Alignment.centerRight,
-          child: (model.isFriend ?? false) ? Text('added'.tr) : Text('button_add'.tr),
-        ),
-        onTap: () {
-          Get.to(
-            () => PeopleInfoPage(
-              id: model.id,
-              scene: 'user_search',
-            ),
-            transition: Transition.rightToLeft,
-            popGesture: true, // 右滑，返回上一页
-          );
-        },
-      );
+    if (items.isNotEmpty) {
+      PeopleModel model = items[0];
+      if (model.id == UserRepoLocal.to.currentUid) {
+        EasyLoading.showInfo('can_not_add_yourself_friend'.tr);
+      } else {
+        return Container(
+            margin:
+                const EdgeInsets.only(top: 10, left: 0, right: 0, bottom: 10),
+            color: Get.isDarkMode ? Colors.black87 : Colors.white,
+            child: n.ListTile(
+              leading: Avatar(
+                imgUri: model.avatar,
+                width: 56,
+                height: 56,
+              ),
+              title: Text('${model.title}($searchKwd)'),
+              subtitle: n.Row([
+                genderIcon(model.gender),
+                const Space(width: 10),
+                if (model.region.isNotEmpty) Text(model.region),
+              ]),
+              trailing: Container(
+                width: 80,
+                alignment: Alignment.centerRight,
+                child: (model.isFriend ?? false)
+                    ? Text('added'.tr)
+                    : Text('button_add'.tr),
+              ),
+              onTap: () {
+                Get.to(
+                  () => PeopleInfoPage(
+                    id: model.id,
+                    scene: 'user_search',
+                  ),
+                  transition: Transition.rightToLeft,
+                  popGesture: true, // 右滑，返回上一页
+                );
+              },
+            ));
+      }
     }
 
-    if (strNoEmpty(model.id)) {
-      return n.Padding(
-        top: 10,
-        child: n.ListTile(
-          leading: Container(
-            width: 48, // 设置方块的宽度
-            height: 48, // 设置方块的高度
-            decoration: BoxDecoration(
-              // 背景
-              color: Colors.green,
-              // 设置四周圆角 角度
-              borderRadius: const BorderRadius.all(Radius.circular(6.0)),
-              // 设置四周边框
-              border: Border.all(width: 1, color: Colors.green),
-            ), // 背景颜色为绿色
-            child: const Icon(
-              Icons.search,
-              color: Colors.white,
-              size: 40,
+    return n.Column([
+      if (items.isEmpty)
+        Container(
+          margin: const EdgeInsets.only(top: 10, left: 0, right: 0, bottom: 0),
+          padding:
+              const EdgeInsets.only(top: 40, left: 0, right: 0, bottom: 40),
+          color: Get.isDarkMode ? Colors.black87 : Colors.white,
+          child: Center(
+            child: Text(
+              'user_not_exist'.tr,
+              style: const TextStyle(fontSize: 18),
             ),
           ),
-          title: n.Row([
-            Text('search'.tr),
-            Text(
-              searchKwd,
-              style: const TextStyle(color: Colors.green),
-            ),
-          ]),
-          onTap: () {},
         ),
-      );
-    } else {
-      return Center(child: Text('user_not_exist'.tr));
-    }
+      Container(
+          margin: const EdgeInsets.only(top: 10, left: 0, right: 0, bottom: 10),
+          padding:
+              const EdgeInsets.only(top: 10, left: 0, right: 0, bottom: 10),
+          color: Get.isDarkMode ? Colors.black87 : Colors.white,
+          child: n.ListTile(
+            leading: Container(
+              width: 48, // 设置方块的宽度
+              height: 48, // 设置方块的高度
+              decoration: BoxDecoration(
+                // 背景
+                color: Colors.green,
+                // 设置四周圆角 角度
+                borderRadius: const BorderRadius.all(Radius.circular(6.0)),
+                // 设置四周边框
+                border: Border.all(width: 1, color: Colors.green),
+              ), // 背景颜色为绿色
+              child: const Icon(
+                Icons.search,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+            title: n.Row([
+              Text('search'.tr),
+              const Space(width: 10),
+              Expanded(
+                  child: Text(
+                searchKwd,
+                style: const TextStyle(color: Colors.green),
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
+              )),
+            ]),
+            onTap: () {},
+          )),
+    ]);
   }
 }

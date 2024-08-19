@@ -12,6 +12,7 @@ void main() async {
   // solidifiedKey 不能为空的
   await init(
     env: 'dev',
+    signKeyVsn: '1',
     solidifiedKey: '',
     iv: '',
   );

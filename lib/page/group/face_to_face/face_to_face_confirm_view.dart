@@ -39,7 +39,7 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
   // [{"nickname": "", "avatar":"", "user_id":""}]
   List<PeopleModel> memberList = [];
 
-  late StreamSubscription ssMsg;
+  StreamSubscription? ssMsg;
 
   @override
   void initState() {
@@ -54,7 +54,7 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
   void dispose() {
     EasyLoading.dismiss();
     memberList = [];
-    ssMsg.cancel();
+    ssMsg?.cancel();
     super.dispose();
   }
 
@@ -64,7 +64,8 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
     memberList.add(PeopleModel(id: 'last', account: ''));
 
     // 接收到新的消息订阅
-    ssMsg = eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
+    ssMsg ??=
+        eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
       // 监听新成员加入
       if (obj.type == 'join_group') {
         final i = memberList.indexWhere((e) =>

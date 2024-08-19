@@ -73,7 +73,7 @@ class GroupListPage extends StatelessWidget {
                 context,
                 searchLabel: 'search'.tr,
                 hintText: 'search'.tr,
-                queryTips: 'search_friends_tips'.tr,
+                queryTips: 'group_search_tips'.tr,
                 doSearch: ((query) {
                   // debugPrint(
                   //     "> on search doSearch ${query.toString()}");

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -147,7 +148,7 @@ class MessageRepo {
   }
 
   Future<List<MessageModel>> pageForConversation(
-      ConversationModel obj,
+    ConversationModel obj,
     int nextAutoId,
     int size,
   ) async {
@@ -186,17 +187,35 @@ class MessageRepo {
 
     List<MessageModel> messages = [];
     for (int i = 0; i < maps.length; i++) {
+      // 使得 msg asc 排序
       int j = maps.length - i - 1;
       messages.add(MessageModel.fromJson(maps[j]));
     }
     return messages;
   }
 
-  Future<List<MessageModel>> findByConversation(
-    String conversationUk3,
-    int page,
-    int size,
-  ) async {
+  Future<List<MessageModel>> page({
+    required int page,
+    required int size,
+    String? kwd,
+    String? conversationUk3,
+    String? orderBy,
+  }) async {
+    page = page > 1 ? page : 1;
+    int offset = (page - 1) * size;
+    String where = "1=1";
+    List<Object?> whereArgs = [];
+    if (strNoEmpty(kwd)) {
+      kwd = kwd!.trim();
+      // where = "$where and (${MessageRepo.payload} like '%$kwd%')";
+      where =
+          "$where AND (json_extract(payload, '\$.text') LIKE '%$kwd%' or json_extract(payload, '\$.quote_text') LIKE '%$kwd%' or json_extract(payload, '\$.title') LIKE '%$kwd%')";
+    }
+    if (strNoEmpty(conversationUk3)) {
+      where = "$where and ${MessageRepo.conversationUk3}=?";
+      whereArgs.add(conversationUk3);
+    }
+    iPrint("searchLeading_tag where $where");
     List<Map<String, dynamic>> maps = await _db.query(
       tableName,
       columns: [
@@ -212,22 +231,21 @@ class MessageRepo {
         MessageRepo.status,
         MessageRepo.conversationUk3,
       ],
-      where: "${MessageRepo.conversationUk3} = ?",
-      whereArgs: [conversationUk3],
-      orderBy: "${MessageRepo.createdAt} DESC",
-      offset: ((page - 1) > 0 ? (page - 1) : 0) * size,
+      where: where,
+      whereArgs: whereArgs,
+      orderBy: orderBy ?? "${MessageRepo.createdAt} desc",
       limit: size,
+      offset: offset,
     );
-    // debugPrint(
-    //     "> on findByConversation  $conversationId, $page, ${maps.length}; ${maps.toList().toString()}");
+    debugPrint(
+        "> on MessageRepo_page tb $tableName, $conversationUk3, kwd $kwd, page $page, len ${maps.length}; ${maps.toList().toString()}");
     if (maps.isEmpty) {
       return [];
     }
 
     List<MessageModel> messages = [];
     for (int i = 0; i < maps.length; i++) {
-      int j = maps.length - i - 1;
-      messages.add(MessageModel.fromJson(maps[j]));
+      messages.add(MessageModel.fromJson(maps[i]));
     }
     return messages;
   }
