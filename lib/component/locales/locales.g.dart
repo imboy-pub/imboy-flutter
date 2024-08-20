@@ -48,9 +48,7 @@ class LocaleKeys {
   static const button_back = 'button_back';
   static const button_copy = 'button_copy';
   static const button_submit = 'button_submit';
-  static const button_sign_in_fb = 'button_sign_in_fb';
-  static const button_sign_in_google = 'button_sign_in_google';
-  static const button_sign_in_apple = 'button_sign_in_apple';
+  static const sign_in_with = 'sign_in_with';
   static const term_of_services = 'term_of_services';
   static const selected_items = 'selected_items';
   static const title_mine = 'title_mine';
@@ -508,9 +506,7 @@ class Locales {
     'button_back': '返回',
     'button_copy': '复制',
     'button_submit': '提交',
-    'button_sign_in_fb': '用 Facebook 登录',
-    'button_sign_in_google': '用 Google 登录',
-    'button_sign_in_apple': '用 Apple 登录',
+    'sign_in_with': '用%s登录',
     'term_of_services': '服务条款',
     'selected_items': '%s 个选定项目',
     'title_mine': '我的',
@@ -960,9 +956,7 @@ class Locales {
     'button_back': 'Back',
     'button_copy': 'Copy',
     'button_submit': 'Submit',
-    'button_sign_in_fb': 'Sign in with Facebook',
-    'button_sign_in_google': 'Sign in with Google',
-    'button_sign_in_apple': 'Sign in with Apple',
+    'sign_in_with': 'Sign in with %s',
     'term_of_services': 'Terms of Service',
     'selected_items': '%s selected items',
     'title_mine': 'Mine',
@@ -1443,9 +1437,7 @@ class Locales {
     'button_back': 'Назад',
     'button_copy': 'Копировать',
     'button_submit': 'Отправить',
-    'button_sign_in_fb': 'Войти через Facebook',
-    'button_sign_in_google': 'Войти через Google',
-    'button_sign_in_apple': 'Войти через Apple',
+    'sign_in_with': 'Войти через %s',
     'term_of_services': 'Условия обслуживания',
     'selected_items': '%s выбранных элементов',
     'title_mine': 'Мой',
@@ -1930,9 +1922,7 @@ class Locales {
     'button_back': '返回',
     'button_copy': '複製',
     'button_submit': '提交',
-    'button_sign_in_fb': '用 Facebook 登錄',
-    'button_sign_in_google': '用 Google 登錄',
-    'button_sign_in_apple': '用 Apple 登錄',
+    'sign_in_with': '用 %s 登錄',
     'term_of_services': '服務條款',
     'selected_items': '%s 個選定項目',
     'title_mine': '我的',

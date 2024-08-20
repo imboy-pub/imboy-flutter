@@ -194,6 +194,7 @@ https://pub.flutter-io.cn/packages/flutter_dotenv
 ```
 cd imboy-flutter
 cp -f assets/example.env assets/.env
+
 // 手动修改相应的配置
 
 ```

@@ -30,11 +30,13 @@ dependencies:
   #   ref: main
   cupertino_icons: ^1.0.8 # Use with the CupertinoIcons class for iOS style icons.
   lpinyin: ^2.0.3 #
-  #azlistview: ^2.0.0
+  #azlistview: ^2.0.3
+  #azlistview_plus: ^3.0.0
   azlistview:
+    #path: plugin/azlistview
     git:
-      url: https://gitee.com/imboy-tripartite-deps/azlistview.git
-      ref: leeyi
+        url: https://gitee.com/imboy-tripartite-deps/azlistview.git
+        ref: leeyi
 
   #get: ^4.6.6 # getx 状态管理框架
   get: ^5.0.0-release-candidate-9
@@ -160,7 +162,7 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/popup_menu.git
       ref: master
   # 二维码扫描
-  mobile_scanner: ^5.1.1
+  mobile_scanner: ^5.2.0
   #  mobile_scanner: ^4.0.1
   #  mobile_scanner:
   #    git:
@@ -194,14 +196,14 @@ dependencies:
   #flutter_app_badger: ^1.5.0
   # 录音
   #record: ^5.1.2
-  flutter_sound: ^9.11.0
+  flutter_sound: ^9.11.2
   #  flutter_sound:
   #    #path: plugin/flutter_sound/flutter_sound
   #    git:
   #      url: https://gitee.com/imboy-tripartite-deps/flutter_sound.git
   #      ref: leeyi
   #      path: flutter_sound
-  flutter_sound_platform_interface: ^9.11.0
+  flutter_sound_platform_interface: ^9.11.2
   audio_session: ^0.1.21
 
   # 语音消息播放器
@@ -321,6 +323,10 @@ dependencies:
   pointycastle: ^3.9.1
   share_plus: ^10.0.2
   highlight_text: ^1.8.0
+#  huawei_account: ^6.12.0+301
+#  agconnect_crash: ^1.9.0+300
+#  agconnect_auth: ^1.9.0+300
+
   # A flutter plugin which could read image,files from clipboard and write files to clipboard.
   #pasteboard: ^0.2.0
   #pinput: ^5.0.0
@@ -343,7 +349,6 @@ dependencies:
   #json_serializable: ^6.7.1
   # 外部打开app识别uri
   #uni_links: ^0.5.1
-  #huawei_account: ^6.1.0+304
 
 dependency_overrides:
   web: ^0.5.1 #   share_plus 10.0.1 depends on web ^1.0.0 and flutter_webrtc 0.11.6+hotfix.1 depends on web ^0.5.1
@@ -385,14 +390,17 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-
+  # https://book.flutterchina.club/chapter3/img_and_icon.html#_3-3-2-icon
+  # https://www.iconfont.cn/manage/index?manage_type=myprojects&projectId=4659205
+  fonts:
+    - family: IMBoyIcon  #指定一个字体名
+      fonts:
+        - asset: assets/fonts/iconfont.ttf
   assets:
     - assets/example.db
     - assets/data/region.json
     - assets/images/splash_bg.png
-    - assets/images/logo.png
-    - assets/images/login_logo.png
-    - assets/images/ic_index_bar_bubble_gray.png
+    - assets/images/index_bar_bubble_gray.png
 
     - assets/images/chat/voice_volume_1.png
     - assets/images/chat/voice_volume_2.png
@@ -401,5 +409,3 @@ flutter:
     - assets/images/chat/voice_volume_5.png
     - assets/images/chat/voice_volume_6.png
     - assets/images/chat/voice_volume_7.png
-
-    - assets/images/conversation/sending.png

@@ -117,10 +117,10 @@ packages:
     description:
       path: "."
       ref: leeyi
-      resolved-ref: "791f1ea68127c99bed84d762450adad6c064b9f0"
+      resolved-ref: "11e310c6b383f1c40aec73a6b90e9d55037dca47"
       url: "https://gitee.com/imboy-tripartite-deps/azlistview.git"
     source: git
-    version: "2.0.0"
+    version: "3.0.0"
   badges:
     dependency: "direct main"
     description:
@@ -864,26 +864,26 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_sound
-      sha256: "07cf78aa4b60068a1e0626828f43182a567b22c33730b12adcb042ed2acffa3b"
+      sha256: "719f6f511c5a1ce9b38031d1ba430f1ac5ca644a9bdcc757990349db9591b82e"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.11.0"
+    version: "9.11.2"
   flutter_sound_platform_interface:
     dependency: "direct main"
     description:
       name: flutter_sound_platform_interface
-      sha256: "74f5744501675ccbb526455668eb468109489920bba537829238266177b9969e"
+      sha256: f75db77bf9fec46c70b284d7628d545ef7ba4164177e53f9dd14c48d0f557615
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.11.0"
+    version: "9.11.2"
   flutter_sound_web:
     dependency: transitive
     description:
       name: flutter_sound_web
-      sha256: ae7bb01a2181533ba0754df99fb9e9d56f683a5d14e1a9c3855aa639b70d414b
+      sha256: "45811ad00142ff33d7e3c1ff47eb8c3fb1a3d363f9a3a60ccd7d240ee1139d14"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.11.0"
+    version: "9.11.2"
   flutter_spinkit:
     dependency: "direct main"
     description:
@@ -1349,10 +1349,10 @@ packages:
     dependency: "direct main"
     description:
       name: mobile_scanner
-      sha256: b8c0e9afcfd52534f85ec666f3d52156f560b5e6c25b1e3d4fe2087763607926
+      sha256: "2c0ef17891f98cbb08f483e4078821eb2b5424d37cca1fc5cbf3c1465326ad9f"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "5.1.1"
+    version: "5.2.0"
   nested:
     dependency: transitive
     description:

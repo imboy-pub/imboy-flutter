@@ -1,3 +1,18 @@
+buildscript {
+    repositories {
+        google()
+        jcenter()
+        maven {
+            allowInsecureProtocol = true
+            url 'https://developer.huawei.com/repo/'
+        }
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.3.2'
+        classpath 'com.huawei.agconnect:agcp:1.4.0.300'
+    }
+}
 
 allprojects {
     repositories {
@@ -12,7 +27,7 @@ allprojects {
         // hms
         maven {
             allowInsecureProtocol = true
-            url 'http://developer.huawei.com/repo/'
+            url 'https://developer.huawei.com/repo/'
         }
         // fcm
         maven {

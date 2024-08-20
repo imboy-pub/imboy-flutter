@@ -2,16 +2,18 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/icon_image_provider.dart';
+import 'package:imboy/component/ui/imboy_icon.dart';
+import 'package:jiffy/jiffy.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/config/init.dart';
-
 import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:jiffy/jiffy.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'passport_logic.dart';
 
@@ -105,7 +107,11 @@ class PassportPage extends StatelessWidget {
       Expanded(
         child: FlutterLogin(
           title: appName,
-          logo: const AssetImage('assets/images/3.0x/login_logo.png'),
+          logo: IconImageProvider(
+            IMBoyIcon.imboyLogo,
+            size: 80,
+            color: Colors.white,
+          ),
           userType: userType,
           messages: LoginMessages(
             // button
@@ -169,17 +175,42 @@ class PassportPage extends StatelessWidget {
           navigateBackAfterRecovery: true,
           // showDebugButtons: true,
           loginProviders: const [
-            // LoginProvider(
-            //   button: Buttons.LinkedIn,
-            //   label: 'Sign in with LinkedIn',
-            //   callback: () async {
-            //     return null;
-            //   },
-            //   providerNeedsSignUpCallback: () {
-            //     // put here your logic to conditionally show the additional fields
-            //     return Future.value(true);
-            //   },
-            // ),
+            /*
+            LoginProvider(
+              // button: Buttons.microsoft,
+              icon: Icons.phone_iphone,
+              label: 'sign_in_with'.trArgs(['mobile'.tr]),
+              callback: () async {
+                return null;
+              },
+              providerNeedsSignUpCallback: () {
+                // put here your logic to conditionally show the additional fields
+                return Future.value(true);
+              },
+            ),
+            LoginProvider(
+              button: Buttons.email,
+              label: 'sign_in_with'.trArgs(['email'.tr]),
+              callback: () async {
+                return null;
+              },
+              providerNeedsSignUpCallback: () {
+                // put here your logic to conditionally show the additional fields
+                return Future.value(true);
+              },
+            ),
+            LoginProvider(
+              icon: IMBoyIcon.huawei,
+              label: 'sign_in_with'.trArgs(['Huawei'.tr]),
+              callback: () async {
+                return null;
+              },
+              providerNeedsSignUpCallback: () {
+                // put here your logic to conditionally show the additional fields
+                return Future.value(true);
+              },
+            ),
+            */
             // LoginProvider(
             //   icon: FontAwesomeIcons.google,
             //   label: 'Google',

@@ -493,7 +493,7 @@ class ContactTagDetailPage extends StatelessWidget {
                           image: DecorationImage(
                             image: AssetImage(
                               AssetsService.getImgPath(
-                                  'ic_index_bar_bubble_gray'),
+                                  'index_bar_bubble_gray'),
                             ),
                             fit: BoxFit.contain,
                           ),
@@ -782,7 +782,7 @@ class SelectFriendPage extends StatelessWidget {
                 indexHintDecoration: BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage(
-                      AssetsService.getImgPath('ic_index_bar_bubble_gray'),
+                      AssetsService.getImgPath('index_bar_bubble_gray'),
                     ),
                     fit: BoxFit.contain,
                   ),

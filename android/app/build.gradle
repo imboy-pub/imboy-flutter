@@ -3,6 +3,7 @@ plugins {
     id "kotlin-android"
     id "org.jetbrains.kotlin.android"
     id "dev.flutter.flutter-gradle-plugin"
+    //id "com.huawei.agconnect"
 }
 
 def localProperties = new Properties()
@@ -13,16 +14,6 @@ if (localPropertiesFile.exists()) {
     }
 }
 
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
-}
-
-def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
-}
-
 android {
     namespace "pub.imboy.apk"
     compileSdkVersion 34
@@ -30,14 +21,20 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "pub.imboy.apk"
-        minSdkVersion 23
-        targetSdkVersion 34
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
+        // You can update the following values to match your application needs.
+        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
+        // minSdk = flutter.minSdkVersion
+        // targetSdk = flutter.targetSdkVersion
+        minSdk 23
+        targetSdk 34
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
         multiDexEnabled true
     }
     dependencies {
         implementation "androidx.multidex:multidex:2.0.1"
+        //implementation  'com.huawei.agconnect:agconnect-crash:1.9.0.300'
+
         // 高德
         //定位功能
         implementation "com.amap.api:location:6.2.0"
@@ -83,6 +80,9 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 }
 

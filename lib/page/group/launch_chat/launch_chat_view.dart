@@ -281,7 +281,7 @@ class LaunchChatPage extends StatelessWidget {
                                 image: DecorationImage(
                                   image: AssetImage(
                                     AssetsService.getImgPath(
-                                        'ic_index_bar_bubble_gray'),
+                                        'index_bar_bubble_gray'),
                                   ),
                                   fit: BoxFit.contain,
                                 ),

@@ -323,7 +323,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
                 indexHintDecoration: BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage(
-                      AssetsService.getImgPath('ic_index_bar_bubble_gray'),
+                      AssetsService.getImgPath('index_bar_bubble_gray'),
                     ),
                     fit: BoxFit.contain,
                   ),

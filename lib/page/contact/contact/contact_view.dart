@@ -3,12 +3,15 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/service/assets.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/icon_image_provider.dart';
+import 'package:imboy/component/ui/imboy_icon.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/contact/new_friend/add_friend_view.dart';
-import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'contact_logic.dart';
 
@@ -117,15 +120,14 @@ class ContactPage extends StatelessWidget {
                       indexHintDecoration: BoxDecoration(
                         image: DecorationImage(
                           image: AssetImage(
-                            AssetsService.getImgPath(
-                                'ic_index_bar_bubble_gray'),
+                            AssetsService.getImgPath('index_bar_bubble_gray'),
                           ),
                           fit: BoxFit.contain,
                         ),
                       ),
                       indexHintAlignment: Alignment.centerRight,
-                      indexHintChildAlignment: const Alignment(-0.25, 0.0),
-                      indexHintOffset: const Offset(-20, 0),
+                      indexHintChildAlignment: const Alignment(-0.15, 0.0),
+                      indexHintOffset: const Offset(-20.0, 0),
                     ),
                   )),
             ),

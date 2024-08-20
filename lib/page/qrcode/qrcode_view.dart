@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/icon_image_provider.dart';
+import 'package:imboy/component/ui/imboy_icon.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:qr_flutter/qr_flutter.dart';
@@ -542,11 +544,12 @@ class GroupQrCodePage extends StatelessWidget {
                           ),
                           embeddedImage: Get.height < 640
                               ? null
-                              : const AssetImage('assets/images/3.0x/logo.png'),
-                          embeddedImageStyle: const QrEmbeddedImageStyle(
-                            size: Size.square(64),
-                            // color: Colors.pink,
-                          ),
+                              : IconImageProvider(
+                                  IMBoyIcon.imboyLogo,
+                                  size: 64,
+                                  color: Colors.green,
+                                  bgColor: Colors.white,
+                                ),
                         ),
                       ),
                       n.Padding(
@@ -597,9 +600,9 @@ class GroupQrCodePage extends StatelessWidget {
                     );
                     iPrint("savePhoto group res ${res.toString()}");
                     bool isSuccess =
-                    res != null && res is Map && (res['isSuccess'] ?? false)
-                        ? true
-                        : false;
+                        res != null && res is Map && (res['isSuccess'] ?? false)
+                            ? true
+                            : false;
                     if (isSuccess) {
                       EasyLoading.showSuccess("save_success".tr);
                     }
@@ -618,18 +621,17 @@ class GroupQrCodePage extends StatelessWidget {
                 ),
                 onPressed: () async {
                   // 使用addPostFrameCallback延迟截图操作到下一个frame
-                  WidgetsBinding.instance
-                      .addPostFrameCallback((_) async {
-                    final res = await RepaintBoundaryHelper()
-                        .image(context, globalKey);
+                  WidgetsBinding.instance.addPostFrameCallback((_) async {
+                    final res =
+                        await RepaintBoundaryHelper().image(context, globalKey);
                     if (res != null) {
                       // 该二维码%s天内（%s前）有效，重新进入将更新
                       final txt = 'group_qrcode_tips'.trArgs([
                         dayNum.toString(),
                         Jiffy.parseFromDateTime(
-                            Jiffy.parseFromMillisecondsSinceEpoch(
-                              state.expiredAt.value,
-                            ).dateTime)
+                                Jiffy.parseFromMillisecondsSinceEpoch(
+                          state.expiredAt.value,
+                        ).dateTime)
                             .format(pattern: 'y-MM-dd')
                       ]);
                       final result = await Share.shareXFiles(
@@ -642,7 +644,7 @@ class GroupQrCodePage extends StatelessWidget {
                 },
               )
             ])
-            // 两端对齐
+              // 两端对齐
               ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
           )
         ]),

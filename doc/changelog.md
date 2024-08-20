@@ -1,3 +1,9 @@
+
+* 新增 ./lib/component/ui/imboy_icon.dart (删除一些assets图片)
+* IconImageProvider 添加 bgColor 参数；
+* 一些多语言文案调整，升级一些依赖；
+* 
+
 # 0.5.5
 * 新增 globalSignKeyVsn ，解决频繁发布版本需要频繁设置签名秘钥的问题；
 * 优化搜索用户样式；

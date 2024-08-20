@@ -1,6 +1,7 @@
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/imboy_icon.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/datetime.dart';
@@ -33,14 +34,12 @@ class ConversationItem extends StatelessWidget {
     if (model.lastMsgStatus == IMBoyMessageStatus.sending) {
       icon.add(
         const Padding(
-          padding: EdgeInsets.only(right: 4),
-          child: Image(
-            image: AssetImage('assets/images/conversation/sending.png'),
-            width: 15,
-            height: 14,
-            fit: BoxFit.fill,
-          ),
-        ),
+            padding: EdgeInsets.only(right: 4),
+            child: Icon(
+              IMBoyIcon.sending,
+              color: Colors.grey,
+              size: 15,
+            )),
       );
     }
     // debugPrint("> on imgUri ${imgUri!}");
