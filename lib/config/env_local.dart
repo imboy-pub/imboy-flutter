@@ -27,10 +27,10 @@ final class EnvLocal implements Env, EnvField {
   final String aMapIosKey = _Env.aMapIosKey;
 
   @override
-  @EnviedField(varName: 'A_MAP_IOS_KEY')
+  @EnviedField(varName: 'A_MAP_ANDROID_KEY')
   final String aMapAndroidKey = _Env.aMapAndroidKey;
 
   @override
-  @EnviedField(varName: 'A_MAP_IOS_KEY')
+  @EnviedField(varName: 'A_MAP_WEBS_KEY')
   final String aMapWebKey = _Env.aMapWebKey;
 }
