@@ -61,7 +61,7 @@ macos/Flutter/ephemeral/flutter_export_environment.sh
 macos/Pods
 emoji_picker_flutter
 .run
-linux/flutter/ephemeral/.plugin_symlinks
+
 google-services.json
 agconnect-services.json
 *.
@@ -81,5 +81,10 @@ pro_env.dart
 main_dev.dart
 main_pro.dart
 main_local.dart
-main.dart
 *bak*
+.env.local
+lib/config/env_dev.dart
+lib/config/env_pro.dart
+lib/config/env_local.g.dart
+lib/config/env_dev.g.dart
+lib/config/env_pro.g.dart

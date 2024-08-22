@@ -1,13 +1,26 @@
 
 # 
 ```
-flutter build apk --release \
-  --obfuscate \
-  --split-debug-info=debugInfo \
-  --target-platform=android-arm,android-arm64,android-x64 \
-  --split-per-abi \
-  -t lib/main_pro.dart
-  
+// on fish shell
+
+env IMBOYENV=pro && flutter build apk --release \
+      --obfuscate \
+      --split-debug-info=debugInfo \
+      --target-platform=android-arm,android-arm64,android-x64 \
+      --split-per-abi \
+      -t lib/main.dart
+
+IMBOYENV=pro && flutter build apk --release \
+      --obfuscate \
+      --split-debug-info=debugInfo \
+      --target-platform=android-arm,android-arm64,android-x64 \
+      --split-per-abi \
+      -t lib/main.dart
+
+
+    
+      
+
 ```
 
 ### getAppBytes得到应用APP大小 [link](https://developer.android.com/reference/android/app/usage/StorageStats#getAppBytes())
@@ -101,3 +114,9 @@ keytool -export -rfc -keystore upload-keystore.jks -alias upload -file upload_ce
 * 一篇文章搞懂android存储目录结构 https://zhuanlan.zhihu.com/p/165140637
 
 
+### up to gradle 8.7
+
+```
+./gradlew wrapper --gradle-version=8.7 --distribution-type=bin
+
+```

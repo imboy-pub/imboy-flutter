@@ -35,7 +35,7 @@ class UserQrCodePage extends StatelessWidget {
   Widget build(BuildContext context) {
     // API_BASE_URL=https://dev.imboy.pub
     String qrcodeData =
-        "${Env.apiBaseUrl}/user/qrcode?id=${UserRepoLocal.to.currentUid}&$qrcodeDataSuffix";
+        "${Env().apiBaseUrl}/user/qrcode?id=${UserRepoLocal.to.currentUid}&$qrcodeDataSuffix";
 
     int gender = UserRepoLocal.to.current.gender;
 
@@ -301,7 +301,7 @@ class GroupQrCodePage extends StatelessWidget {
   Future<void> _initData() async {
     // API_BASE_URL=https://dev.imboy.pub
     int expiredAt = DateTimeHelper.utc() + dayNum * 86400 * 1000;
-    String key = Env.solidifiedKey;
+    String key = Env().solidifiedKey;
     String tk = EncrypterService.md5("${expiredAt}_$key");
     Map<String, dynamic> query = {
       'id': group.groupId,
@@ -313,7 +313,7 @@ class GroupQrCodePage extends StatelessWidget {
             '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value.toString())}')
         .join('&');
     state.qrcodeData.value =
-        "${Env.apiBaseUrl}/group/qrcode?$queryStr&$qrcodeDataSuffix";
+        "${Env().apiBaseUrl}/group/qrcode?$queryStr&$qrcodeDataSuffix";
     // iPrint("qrcodeData $expiredAt, $key, $tk; : ${expiredAt}_$key");
     // iPrint("qrcodeData ${state.qrcodeData.value}");
 

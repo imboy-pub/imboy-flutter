@@ -40,7 +40,7 @@ class UserProvider extends HttpClient {
     }
     Map<String, dynamic> headers = await defaultHeaders();
     headers[Keys.refreshTokenKey] = refreshToken;
-    var response = await Dio(BaseOptions(baseUrl: Env.apiBaseUrl)).post(
+    var response = await Dio(BaseOptions(baseUrl: Env().apiBaseUrl)).post(
       API.refreshToken,
       options: Options(
         headers: headers,

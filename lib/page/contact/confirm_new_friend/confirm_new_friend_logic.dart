@@ -57,7 +57,7 @@ class ConfirmNewFriendLogic extends GetxController {
       status: 'sending'.tr,
     );
     IMBoyHttpResponse resp = await HttpClient.client.post(
-      "${Env.apiBaseUrl}${API.confirmFriend}",
+      "${Env().apiBaseUrl}${API.confirmFriend}",
       data: msg,
       options: Options(
         contentType: "application/x-www-form-urlencoded",

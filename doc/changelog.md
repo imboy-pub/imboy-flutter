@@ -1,5 +1,7 @@
 
-* 新增 ./lib/component/ui/imboy_icon.dart (删除一些assets图片)
+# 0.5.6
+* 引入 envied 管理配置调整相关代码；
+* 新增 ./lib/component/ui/imboy_icon.dart (删除一些assets图片)；
 * IconImageProvider 添加 bgColor 参数；
 * 一些多语言文案调整，升级一些依赖；
 * 

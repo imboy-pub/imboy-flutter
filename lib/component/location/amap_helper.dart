@@ -32,7 +32,7 @@ class AMapHelper {
   /// 设置Android和iOS的apikey
   static void setApiKey() {
     if (Platform.isAndroid || Platform.isIOS) {
-      AMapFlutterLocation.setApiKey(Env.amapAndroidKey, Env.amapIosKey);
+      AMapFlutterLocation.setApiKey(Env().aMapAndroidKey, Env().aMapIosKey);
     }
   }
 
@@ -159,7 +159,7 @@ class AMapApi {
     int size,
   ) async {
     Map<String, dynamic> queryParameters = {
-      "key": Env.amapWebKey,
+      "key": Env().aMapWebKey,
       "location": location,
       "types": types,
       "page_size": page.toString(),
@@ -181,7 +181,7 @@ class AMapApi {
     int size,
   ) async {
     Map<String, dynamic> queryParameters = {
-      "key": Env.amapWebKey,
+      "key": Env().aMapWebKey,
       "keywords": keywords,
       "types": types,
       "region": region,

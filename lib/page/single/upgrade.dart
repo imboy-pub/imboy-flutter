@@ -195,11 +195,11 @@ class UpgradePageState extends State<UpgradePage> {
   // ios 点击立即更新调整到 applly APP Store
   void upgradeFromAppStore() async {
     bool? isSuccess = await RUpgrade.upgradeFromAppStore(
-      Env.iosAppId,
+      Env().iosAppId,
     );
     if (isSuccess == false) {
       EasyLoading.showError(
-        'ios_app_id_unknown'.trArgs([Env.iosAppId]),
+        'ios_app_id_unknown'.trArgs([Env().iosAppId]),
       );
       return;
     }

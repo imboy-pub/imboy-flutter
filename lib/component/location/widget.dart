@@ -118,8 +118,8 @@ class _MapLocationPickerState extends State<MapLocationPicker>
         hasAgree: true,
       ),
       apiKey: AMapApiKey(
-        iosKey: Env.amapIosKey,
-        androidKey: Env.amapAndroidKey,
+        iosKey: Env().aMapIosKey,
+        androidKey: Env().aMapAndroidKey,
       ),
       initialCameraPosition: _kInitialPosition,
       mapType: MapType.normal,

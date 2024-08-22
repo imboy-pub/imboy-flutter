@@ -6,11 +6,11 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
+
 // import 'package:fvp/fvp.dart';
 import 'package:get/get.dart' as getx;
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/config/env.dart';
 import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
@@ -41,6 +41,8 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+
+import 'env.dart';
 
 // ignore: prefer_generic_function_type_aliases
 typedef Callback(data);
@@ -81,7 +83,6 @@ String appVsn = '';
 String appVsnMajor = '';
 String deviceId = '';
 String solidifiedKeyEnv = '';
-String solidifiedKeyIvEnv = 'C8JackYpWfNb7kG8';
 
 // signKeyVsn 告知服务端用哪个签名key 不同设备类型签名不一样
 String globalSignKeyVsn = '1';
@@ -92,20 +93,27 @@ Future<Map<String, dynamic>> initConfig() async {
   if (!resp1.ok) {
     return {"error": "网络故障或服务故障"};
   }
-  String encrypted = resp1.payload['res'] ?? '';
+  final encrypted = resp1.payload['res'] ?? '';
   if (encrypted.isEmpty) {
     return {"error": "服务故障协议有误"};
   }
-  String key = await Env.signKey();
-  iPrint("initConfig signKey $key ;");
+  final key = await Env.signKey();
+  // iPrint("initConfig signKey $key ;");
+  // final jsonStr = EncrypterService.aesDecrypt(
+  //   encrypted,
+  //   EncrypterService.md5(key),
+  //   Env().solidifiedKeyIv,
+  // );
+  // iPrint("initConfig_jsonStr $jsonStr");
   Map<String, dynamic> payload = jsonDecode(EncrypterService.aesDecrypt(
     encrypted,
     EncrypterService.md5(key),
-    solidifiedKeyIvEnv,
+    Env().solidifiedKeyIv,
   ));
   if (payload.containsKey('error')) {
     return payload;
   }
+  // iPrint("initConfig_payload ${payload.toString()}");
   await StorageService.to.setString(Keys.wsUrl, payload['ws_url']);
   await StorageService.to.setString(Keys.uploadUrl, payload['upload_url']);
   await StorageService.to.setString(Keys.uploadKey, payload['upload_key']);
@@ -119,11 +127,7 @@ Future<Map<String, dynamic>> initConfig() async {
   return payload;
 }
 
-Future<void> init(
-    {required String env,
-      required String signKeyVsn,
-      required String solidifiedKey,
-    required String iv}) async {
+Future<void> init({required String signKeyVsn}) async {
   // step 1
   WakelockPlus.enable();
   // step 2
@@ -133,8 +137,6 @@ Future<void> init(
   getx.Get.lazyPut(() => StorageService());
 
   globalSignKeyVsn = signKeyVsn;
-  solidifiedKeyEnv = solidifiedKey;
-  solidifiedKeyIvEnv = iv;
   // step 3
   if (Platform.isAndroid || Platform.isIOS) {
     await RSAService.publicKey();
@@ -143,12 +145,12 @@ Future<void> init(
   bool changedEnv = StorageService.to.getBool('changedEnv') ?? false;
   if (changedEnv) {
     currentEnv = StorageService.to.getString('env') ?? '';
-    if (currentEnv.isEmpty) {
-      currentEnv = env;
-    }
   } else {
-    currentEnv = env;
+    currentEnv = const String.fromEnvironment('IMBOYENV', defaultValue: 'pro');
   }
+  iPrint(
+      "currentEnv $currentEnv, IMBOYENV ${const String.fromEnvironment('IMBOYENV')};");
+
   // currentEnv = 'dev';
   // StorageService.to.setString('env', currentEnv);
   // iPrint("init env 2 $env, currentEnv $currentEnv;");
@@ -170,7 +172,7 @@ Future<void> init(
   // 解决使用自签证书报错问题
   io.HttpOverrides.global = GlobalHttpOverrides();
   HttpConfig dioConfig = HttpConfig(
-    baseUrl: Env.apiBaseUrl,
+    baseUrl: Env().apiBaseUrl,
     // proxy: '192.168.100.19:8888',
     interceptors: [IMBoyInterceptor()],
   );
@@ -252,7 +254,9 @@ Future<void> init(
 
   // step 13
   // 监听网络状态
-  Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) async {
+  Connectivity()
+      .onConnectivityChanged
+      .listen((List<ConnectivityResult> r) async {
     iPrint("onConnectivityChanged ${r.toString()}");
     if (r.contains(ConnectivityResult.none)) {
       // 关闭网络的情况下，没有必要开启WS服务了

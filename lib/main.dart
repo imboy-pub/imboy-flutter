@@ -1,4 +1,3 @@
-//import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 //import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -9,13 +8,7 @@ import 'run.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // solidifiedKey 不能为空的
-  await init(
-    env: 'dev',
-    signKeyVsn: '1',
-    solidifiedKey: '',
-    iv: '',
-  );
+  await init(signKeyVsn: '1');
 
   // var v = SignKeyFFI.signKey("input");
   // debugPrint("signKey $v ;");

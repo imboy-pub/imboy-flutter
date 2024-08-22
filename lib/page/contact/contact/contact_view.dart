@@ -7,8 +7,6 @@ import 'package:imboy/service/assets.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/icon_image_provider.dart';
-import 'package:imboy/component/ui/imboy_icon.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/contact/new_friend/add_friend_view.dart';
 import 'package:imboy/store/model/contact_model.dart';

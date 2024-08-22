@@ -104,7 +104,7 @@ class HttpClient {
 
   Future<void> _setDefaultConfig() async {
     if (_dio.options.baseUrl == "") {
-      _dio.options.baseUrl = Env.apiBaseUrl;
+      _dio.options.baseUrl = Env().apiBaseUrl;
     }
     String tk = await UserRepoLocal.to.accessToken;
     // iPrint("_setDefaultConfig tk: $tk");

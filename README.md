@@ -124,12 +124,13 @@ Lib
 ```
 git clone https://gitee.com/imboy-pub/imboy-flutter.git imboyflutter
 cd imboyflutter
-// 0.5.0 开始已经删除了.env
 cp ./example.env ./.env.dev && cp ./example.env ./.env.pro
 
 cp example_main.dart main.dart
 
 dart run build_runner build --verbose
+dart run build_runner build --delete-conflicting-outputs
+
 
 //修改.env文件时
 dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs

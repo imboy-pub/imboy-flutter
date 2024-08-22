@@ -57,7 +57,7 @@ class ApplyFriendLogic extends GetxController {
     );
 
     IMBoyHttpResponse resp = await HttpClient.client.post(
-      "${Env.apiBaseUrl}${API.addFriend}",
+      "${Env().apiBaseUrl}${API.addFriend}",
       data: msg,
       options: Options(
         contentType: "application/x-www-form-urlencoded",
