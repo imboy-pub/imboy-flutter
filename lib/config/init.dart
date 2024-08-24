@@ -113,7 +113,7 @@ Future<Map<String, dynamic>> initConfig() async {
   if (payload.containsKey('error')) {
     return payload;
   }
-  // iPrint("initConfig_payload ${payload.toString()}");
+  iPrint("initConfig_payload ${payload.toString()}");
   await StorageService.to.setString(Keys.wsUrl, payload['ws_url']);
   await StorageService.to.setString(Keys.uploadUrl, payload['upload_url']);
   await StorageService.to.setString(Keys.uploadKey, payload['upload_key']);
@@ -151,9 +151,9 @@ Future<void> init({required String signKeyVsn}) async {
   iPrint(
       "currentEnv $currentEnv, IMBOYENV ${const String.fromEnvironment('IMBOYENV')};");
 
-  // currentEnv = 'dev';
+  // currentEnv = 'local';
   // StorageService.to.setString('env', currentEnv);
-  // iPrint("init env 2 $env, currentEnv $currentEnv;");
+  // iPrint("init currentEnv $currentEnv;");
 
   // step 5
   // Get.put(DeviceExt()); 需要放到靠前
@@ -225,21 +225,23 @@ Future<void> init({required String signKeyVsn}) async {
   // step 12
   WidgetsBinding.instance.addObserver(
     LifecycleEventHandler(
-      resumeCallBack: () async {
-        // app 恢复
-        String tk = await UserRepoLocal.to.accessToken;
-        if (tokenExpired(tk)) {
-          String? rtk = await UserRepoLocal.to.refreshToken;
-
-          iPrint('LifecycleEventHandler tokenExpired true');
-          await (UserProvider()).refreshAccessTokenApi(rtk);
-        }
-        // 统计新申请好友数量
-        bnLogic.countNewFriendRemindCounter();
+      resumeCallBack: () async { // app 恢复
         iPrint("> on LifecycleEventHandler resumeCallBack");
         ntpOffset = await DateTimeHelper.getNtpOffset();
-        // 检查WS链接状态
-        await WebSocketService.to.openSocket(from: 'resumeCallBack');
+        if (UserRepoLocal.to.isLogin) {
+          String tk = await UserRepoLocal.to.accessToken;
+          if (tokenExpired(tk)) {
+            String? rtk = await UserRepoLocal.to.refreshToken;
+
+            iPrint('LifecycleEventHandler tokenExpired true');
+            await (UserProvider()).refreshAccessTokenApi(rtk);
+          }
+          // 统计新申请好友数量
+          bnLogic.countNewFriendRemindCounter();
+
+          // 检查WS链接状态
+          await WebSocketService.to.openSocket(from: 'resumeCallBack');
+        }
       },
       suspendingCallBack: () async {
         // app 挂起
@@ -261,7 +263,7 @@ Future<void> init({required String signKeyVsn}) async {
     if (r.contains(ConnectivityResult.none)) {
       // 关闭网络的情况下，没有必要开启WS服务了
       await WebSocketService.to.closeSocket();
-    } else {
+    } else if (UserRepoLocal.to.isLogin) {
       // 检查WS链接状态
       await WebSocketService.to.openSocket(from: 'onConnectivityChanged');
     }

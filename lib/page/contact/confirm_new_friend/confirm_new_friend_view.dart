@@ -1,9 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/icon_text.dart';
+import 'package:imboy/component/ui/label_row.dart';
+import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/radio_list_title.dart';
 import 'package:imboy/component/ui/title_text_field.dart';
 import 'package:imboy/config/theme.dart';
@@ -174,7 +177,13 @@ class ConfirmNewFriendPage extends StatelessWidget {
                     child: n.Column([
                       IMBoyRadioListTile(
                         value: "all",
-                        title: n.Text('chat_moment_sport_data_etc'.tr),
+                        title: Text(
+                          'chat_moment_sport_data_etc'.tr,
+                          style: TextStyle(
+                            fontSize: 17.0,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                        ),
                         selected: false,
                         secondary: logic.role.value == "all" ? secondary : null,
                         controlAffinity: ListTileControlAffinity.leading,
@@ -189,9 +198,20 @@ class ConfirmNewFriendPage extends StatelessWidget {
                               "> on logic.visibilityLook1 ${logic.visibilityLook}");
                         },
                       ),
+                      n.Padding(
+                        left: 8,
+                        right: 8,
+                        child: const HorizontalLine(height: 0.5),
+                      ),
                       IMBoyRadioListTile(
                         value: "just_chat",
-                        title: n.Text('just_chat'.tr),
+                        title: Text(
+                          'just_chat'.tr,
+                          style: TextStyle(
+                            fontSize: 17.0,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                        ),
                         selected: false,
                         secondary:
                             logic.role.value == "just_chat" ? secondary : null,
@@ -214,47 +234,60 @@ class ConfirmNewFriendPage extends StatelessWidget {
                     ]),
                   ),
                   Visibility(
-                    visible: logic.visibilityLook.isTrue,
-                    child: n.Padding(
-                      top: 10,
-                      bottom: 50,
-                      child: n.Column([
-                        Text('moment_status'.tr),
-                        Card(
-                          color: Get.isDarkMode
-                              ? darkInputFillColor
-                              : lightInputFillColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadiusDirectional.circular(5),
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: n.Column(
-                            [
-                              SwitchListTile(
-                                title: Text('not_let_him_see'.tr),
-                                value: logic.donotlethimlook.isTrue,
-                                activeColor: Colors.green,
-                                onChanged: (val) {
-                                  logic.donotlethimlook.value = val;
-                                  logic.update([logic.donotlethimlook]);
-                                },
+                      visible: logic.visibilityLook.isTrue,
+                      child: n.Padding(
+                          top: 10,
+                          bottom: 50,
+                          child: n.Column([
+                            Text('moment_status'.tr),
+                            Card(
+                              color: Get.isDarkMode
+                                  ? darkInputFillColor
+                                  : lightInputFillColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadiusDirectional.circular(5),
                               ),
-                              SwitchListTile(
-                                title: Text('not_see_him'.tr),
-                                value: logic.donotlookhim.isTrue,
-                                activeColor: Colors.green,
-                                onChanged: (val) {
-                                  logic.donotlookhim.value = val;
-                                  logic.update([logic.donotlookhim]);
-                                },
+                              clipBehavior: Clip.antiAlias,
+                              child: n.Column(
+                                [
+                                  LabelRow(
+                                    title: 'not_let_him_see'.tr,
+                                    isLine: true,
+                                    isRight: false,
+                                    trailing: SizedBox(
+                                      height: 32.0,
+                                      child: Obx(
+                                        () => CupertinoSwitch(
+                                          value: logic.donotlethimlook.isTrue,
+                                          onChanged: (val) {
+                                            logic.donotlethimlook.value = val;
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  LabelRow(
+                                    title: 'not_see_him'.tr,
+                                    isLine: true,
+                                    isRight: false,
+                                    trailing: SizedBox(
+                                      height: 32.0,
+                                      child: Obx(
+                                        () => CupertinoSwitch(
+                                          value: logic.donotlookhim.isTrue,
+                                          onChanged: (val) {
+                                            logic.donotlookhim.value = val;
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ),
-                      ])
-                        ..crossAxisAlignment = CrossAxisAlignment.start,
-                    ),
-                  ),
+                            ),
+                          ])
+                            ..crossAxisAlignment = CrossAxisAlignment.start)),
                 ])
                   ..crossAxisAlignment = CrossAxisAlignment.start
                   ..mainAxisSize = MainAxisSize.min),

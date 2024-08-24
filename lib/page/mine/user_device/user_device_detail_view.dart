@@ -46,10 +46,10 @@ class UserDeviceDetailPage extends StatelessWidget {
           height: Get.height,
           child: n.Column([
             LabelRow(
-              label: 'device_name'.tr,
+              title: 'device_name'.tr,
               isLine: true,
               isRight: true,
-              rightW: SizedBox(
+              trailing: SizedBox(
                 child: Obx(() => Text(
                       deviceName.value,
                       maxLines: 1,
@@ -90,10 +90,10 @@ class UserDeviceDetailPage extends StatelessWidget {
               },
             ),
             LabelRow(
-              label: 'device_type'.tr,
+              title: 'device_type'.tr,
               isLine: false,
               isRight: false,
-              rightW: SizedBox(
+              trailing: SizedBox(
                 child: Text(
                   model.showType,
                   maxLines: 1,
@@ -114,10 +114,10 @@ class UserDeviceDetailPage extends StatelessWidget {
               height: 4,
             ),
             LabelRow(
-              label: 'last_active_time'.tr,
+              title: 'last_active_time'.tr,
               isLine: false,
               isRight: false,
-              rightW: SizedBox(
+              trailing: SizedBox(
                 child: Text(
                   Jiffy.parseFromMillisecondsSinceEpoch(model.lastActiveAtLocal)
                       .format(pattern: 'yyyy-MM-dd HH:mm:ss'),

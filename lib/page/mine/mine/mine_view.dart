@@ -224,7 +224,7 @@ class MinePage extends StatelessWidget {
                 ),
                 title: Transform(
                   transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                  child: Text('blacklist'.tr),
+                  child: Text('denylist'.tr),
                 ),
                 trailing: navigateNextIcon,
                 onTap: () {

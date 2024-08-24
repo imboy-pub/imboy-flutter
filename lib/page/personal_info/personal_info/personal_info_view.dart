@@ -90,13 +90,13 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
   Widget buildContent(item) {
     return LabelRow(
-      label: item['title'],
+      title: item['title'],
       rValue: item['value'],
       isLine:
           item['label'] == 'address' || item['label'] == 'more' ? false : true,
       isRight: item['isRight'] ?? true,
       margin: EdgeInsets.only(bottom: item['label'] == 'more' ? 10.0 : 0.0),
-      rightW: item['label'] == 'user_qrcode'
+      trailing: item['label'] == 'user_qrcode'
           ? Icon(
               Icons.qr_code_2,
               color: Get.isDarkMode ? Colors.white70 : Colors.black,
@@ -134,10 +134,10 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       body: SingleChildScrollView(
           child: n.Column([
         LabelRow(
-          label: 'avatar'.tr,
+          title: 'avatar'.tr,
           isLine: true,
           isRight: true,
-          rightW: SizedBox(
+          trailing: SizedBox(
             width: 55.0,
             height: 55.0,
             child: ClipRRect(
@@ -212,10 +212,10 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           ),
         ),
         LabelRow(
-            label: 'nickname'.tr,
+            title: 'nickname'.tr,
             isLine: true,
             isRight: true,
-            rightW: SizedBox(
+            trailing: SizedBox(
               width: Get.width - 160,
               child: Text(
                 UserRepoLocal.to.current.nickname,

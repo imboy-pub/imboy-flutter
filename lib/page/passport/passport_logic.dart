@@ -32,8 +32,12 @@ class PassportLogic extends GetxController {
   String? userValidator(LoginUserType userType, String value) {
     if (userType == LoginUserType.phone && !isPhone(value)) {
       return 'error_invalid'.trArgs(['mobile'.tr]);
+    } else if (userType == LoginUserType.intlPhone && !isPhone(value)) {
+      return 'error_invalid'.trArgs(['mobile'.tr]);
     } else if (userType == LoginUserType.email && !isEmail(value)) {
       return 'error_invalid'.trArgs(['email'.tr]);
+    } else if (userType == LoginUserType.name) {
+      // return 'error_invalid'.trArgs(['email'.tr]);
     }
     return null;
   }
@@ -198,24 +202,49 @@ class PassportLogic extends GetxController {
     }
   }
 
-  /// 用户注册
-  Future<String?> signupUser(SignupData data) {
+  /// 用户注册 发送验证码
+  Future<String?>? onSendCode(LoginUserType userType, SignupData data) {
+    final account = data.name ?? '';
     // return null;
-    // debugPrint("> on signupUser data: ${data.name}, ${data.password}");
-    return doSendEmail(data.name ?? '');
+    debugPrint("> on signupUser data: $account, ${data.additionalSignupData.toString()}");
+
+    if (userType == LoginUserType.phone) {
+      return doSendSmsCode(account);
+    } else if (userType == LoginUserType.intlPhone) {
+      return doSendSmsCode(account);
+    } else if (userType == LoginUserType.name && isPhone(account)) {
+      return doSendSmsCode(account);
+    } else if (userType == LoginUserType.email) {
+      return doSendEmail(account);
+    } else if (userType == LoginUserType.name && isEmail(account)) {
+      return doSendEmail(account);
+    }
+    return null;
   }
 
   /// 确认注册
-  Future<String?> onConfirmSignup(String code, LoginData data) async {
+  Future<String?> onConfirmSignup(LoginUserType userType, String code, LoginData data) async {
     Map<String, dynamic> data1 = await encryptPassword(data.password);
     if (strNoEmpty(data1['error'])) {
       _error = '';
       return data1['error'];
     }
+    String type = '';
+    if (userType == LoginUserType.phone) {
+      type = 'mobile';
+    } else if (userType == LoginUserType.intlPhone) {
+      type = 'mobile';
+    } else if (userType == LoginUserType.name && isPhone(data.name)) {
+      type = 'mobile';
+    } else if (userType == LoginUserType.email) {
+      type = 'email';
+    } else if (userType == LoginUserType.name && isEmail(data.name)) {
+      type = 'email';
+    }
     IMBoyHttpResponse resp2 = await HttpClient.client.post(
       API.signup,
       data: {
-        "type": "email",
+        "type": type,
         "account": data.name,
         "pwd": data1["password"],
         "rsa_encrypt": data1["rsa_encrypt"],
@@ -232,11 +261,27 @@ class PassportLogic extends GetxController {
     }
   }
 
-  /// 重新发送验证码
-  Future<String?>? onResendCode(SignupData data) {
-    debugPrint("> on onResendCode data: ${data.name}, ${data.password}");
-    // 验证码已发送
-    return doSendEmail(data.name ?? '');
+  Future<String?> doSendSmsCode(String mobile) async {
+    if (!isPhone(mobile)) {
+      return 'error_invalid'.trArgs(['mobile'.tr]);
+    }
+
+    IMBoyHttpResponse resp2 = await HttpClient.client.post(
+      API.getCode,
+      data: {
+        "account": mobile,
+        "type": "sms",
+      },
+      options: Options(
+        contentType: "application/x-www-form-urlencoded",
+      ),
+    );
+    if (resp2.ok) {
+      return null;
+    } else {
+      _error = resp2.error?.message ?? 'error';
+      return _error;
+    }
   }
 
   Future<String?> doSendEmail(String email) async {

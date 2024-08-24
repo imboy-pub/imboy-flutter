@@ -61,6 +61,7 @@ class WebSocketService {
     _socketStatus = s;
     Get.find<BottomNavigationLogic>().state.isConnected.value = isConnected;
   }
+
   ///
   Future<void> _init() async {
     await openSocket(from: 'init');
@@ -86,22 +87,22 @@ class WebSocketService {
     if (wsConnectLock) {
       return;
     }
-    wsConnectLock = true;
-
     String? url = Env.wsUrl;
-    if (strEmpty(url)) {
-      await initConfig();
-      url = Env.wsUrl;
+    iPrint(
+        "> ws openSocket currentEnv $currentEnv wsUrl $url, login ${UserRepoLocal.to.isLogin}");
+    if (strEmpty(url) || UserRepoLocal.to.isLogin == false) {
+      return;
     }
-    iPrint("> ws openSocket currentEnv $currentEnv wsUrl $url");
+    wsConnectLock = true;
 
     try {
       String tk = await UserRepoLocal.to.accessToken;
       iPrint("Get.currentRoute ${Get.currentRoute}");
       if (tk.isEmpty) {
-        iPrint('> ws openSocket tk isEmpty ${tk.isEmpty};');
+        iPrint('> ws openSocket tk isEmpty ${tk.isEmpty}, checkRoute $checkRoute;');
         wsConnectLock = false;
         if (checkRoute) {
+          closeSocket(exit: true);
           UserRepoLocal.to.quitLogin();
           Get.offAll(() => PassportPage());
         }
@@ -147,7 +148,8 @@ class WebSocketService {
     } catch (e) {
       await _reconnect();
       _changeSocketStatus(SocketStatus.SocketStatusFailed);
-      iPrint("> openSocket ${Env.wsUrl} error ${e.toString()} ${DateTime.now()}");
+      iPrint(
+          "> openSocket ${Env.wsUrl} error ${e.toString()} ${DateTime.now()}");
     } finally {
       iPrint("> openSocket finally ${Env.wsUrl} ${DateTime.now()}");
       wsConnectLock = false;
@@ -244,11 +246,16 @@ class WebSocketService {
     return true;
   }
 
-  bool get checkRoute => Get.currentRoute != '/PassportPage' && Get.currentRoute != '/Hnb';
+  bool get checkRoute =>
+      Get.currentRoute != '/PassportPage' && Get.currentRoute != '/Hnb';
 
   /// 重连机制
   Future<void> _reconnect() async {
-    iPrint('> ws _reconnect _reconnectTimes $_reconnectTimes  ${DateTime.now()}');
+    iPrint(
+        '> ws _reconnect _reconnectTimes $_reconnectTimes  ${DateTime.now()}');
+    if (strEmpty(Env.wsUrl) || UserRepoLocal.to.isLogin == false) {
+      return;
+    }
     if (_reconnectTimes > _reconnectMax) {
       // 如果达到最大重连次数，停止重连并关闭 WebSocket
       iPrint('> ws 达到最大重连次数，停止重连');

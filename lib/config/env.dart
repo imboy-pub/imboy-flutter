@@ -43,8 +43,8 @@ abstract interface class Env implements EnvField {
   static String uploadUrl = StorageService.to.getString(Keys.uploadUrl)!;
 
   @EnviedField(defaultValue: '')
-  static String uploadScene = StorageService.to.getString(Keys.uploadScene)!;
+  static String? uploadScene = StorageService.to.getString(Keys.uploadScene);
 
   @EnviedField(defaultValue: '')
-  static String uploadKey = StorageService.to.getString(Keys.uploadKey)!;
+  static String? uploadKey = StorageService.to.getString(Keys.uploadKey);
 }

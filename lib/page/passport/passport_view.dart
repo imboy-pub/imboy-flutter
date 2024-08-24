@@ -44,9 +44,14 @@ class PassportPage extends StatelessWidget {
       }
     });
     LoginUserType userType = LoginUserType.email;
-    String userHint = 'email'.tr;
+    String userHint = 'hint_login_account'.tr;
+    // String userHint = 'email'.tr;
     if (userType == LoginUserType.phone) {
       userHint = 'mobile'.tr;
+    } else if (userType == LoginUserType.email) {
+      userHint = 'email'.tr;
+    } else if (userType == LoginUserType.intlPhone) {
+      userHint = '';
     } else if (userType == LoginUserType.name) {
       userHint = 'hint_login_account'.tr;
     }
@@ -57,8 +62,8 @@ class PassportPage extends StatelessWidget {
     }
     if (msgType == "logged_another_device" && args is Map<String, dynamic>) {
       String deviceName = args['dname'] ?? '';
-      if (deviceName == "") {
-        deviceName = "其他".tr;
+      if (deviceName.isEmpty) {
+        deviceName = 'unknown'.tr;
       } else {
         deviceName = "[$deviceName]";
       }
@@ -94,164 +99,177 @@ class PassportPage extends StatelessWidget {
       });
     }
     return Scaffold(
-        body: n.Column([
-      // const SizedBox(height: 40),
-      Obx(() {
-        return logic.connectDesc.isEmpty
-            ? const SizedBox.shrink()
-            : n.Padding(
-                top: 0,
-                child: NetworkFailureTips(backgroundColor: Colors.green),
-              );
-      }),
-      Expanded(
-        child: FlutterLogin(
-          title: appName,
-          logo: IconImageProvider(
-            IMBoyIcon.imboyLogo,
-            size: 80,
-            color: Colors.white,
-          ),
-          userType: userType,
-          messages: LoginMessages(
-            // button
-            loginButton: 'button_login'.tr,
-            signupButton: 'button_signup'.tr,
-            goBackButton: 'button_back'.tr,
-            confirmSignupButton: 'button_confirm'.tr,
-            resendCodeButton: 'button_resend_code'.tr,
-            forgotPasswordButton: 'forgot_password'.tr,
-            recoverPasswordButton: 'recover_password'.tr,
-            additionalSignUpSubmitButton: 'button_submit'.tr,
-            setPasswordButton: 'set_param'.trArgs(['password'.tr]),
-            // hint
-            userHint: userHint,
-            passwordHint: 'password'.tr,
-            confirmPasswordHint: 'retype_password'.tr,
-            confirmationCodeHint: 'confirm_code'.tr,
-            recoveryCodeHint: 'confirm_code'.tr,
-            // tip
-            confirmSignupIntro: 'signup_intro'.tr,
-            confirmationCodeValidationError: 'confirm_code_error'.tr,
-            confirmSignupSuccess: 'confirm_code_success'.tr,
-            resendCodeSuccess: 'resend_code_success'.tr,
-            providersTitleFirst: 'tip_providers_title_first'.tr,
-            confirmRecoverIntro: 'confirm_recover_intro'.tr,
-            confirmPasswordError: 'error_retype_password'.tr,
-            recoverPasswordDescription: 'recover_password_desc'.tr,
-            recoverPasswordSuccess: 'recover_password_success'.tr,
-            recoverCodePasswordDescription: 'recover_code_password_desc'.tr,
-            additionalSignUpFormDescription: 'signup_form_desc'.tr,
-            flushbarTitleError: 'tip_title'.tr,
-            flushbarTitleSuccess: 'tip_success'.tr,
-            recoverPasswordIntro: 'recover_password_intro'.tr,
-            recoveryCodeValidationError:
-                'error_empty_directory'.trArgs(['confirm_code'.tr]),
-            confirmRecoverSuccess: 'confirm_recover_success'.tr,
-          ),
-          userValidator: (value) {
-            return logic.userValidator(userType, value ?? '');
-          },
-          savedEmail: UserRepoLocal.to.lastLoginAccount,
-          savedPassword: "",
-          passwordValidator: logic.passwordValidator,
-          onLogin: logic.loginUser,
-          onSignup: logic.signupUser,
-          // 注册确认码
-          onConfirmSignup: logic.onConfirmSignup,
-          // 重新发送确认码
-          onResendCode: logic.onResendCode,
-          // 确认找回密码
-          onConfirmRecover: logic.onConfirmRecover,
-          onSubmitAnimationCompleted: () {
-            // debugPrint("> on login onSubmitAnimationCompleted");
-            Get.off(() => BottomNavigationPage());
-          },
-          onRecoverPassword: logic.onRecoverPassword,
-          hideForgotPasswordButton: false,
-          theme: loginTheme,
-          scrollable: true,
-          loginAfterSignUp: false,
-          navigateBackAfterRecovery: true,
-          // showDebugButtons: true,
-          loginProviders: const [
+      body: n.Column([
+        // const SizedBox(height: 40),
+        Obx(() {
+          return logic.connectDesc.isEmpty
+              ? const SizedBox.shrink()
+              : n.Padding(
+                  top: 0,
+                  child: NetworkFailureTips(backgroundColor: Colors.green),
+                );
+        }),
+
+        Expanded(
+          child: FlutterLogin(
+            title: appName,
+            logo: IconImageProvider(
+              IMBoyIcon.imboyLogo,
+              size: 88,
+              color: Colors.white,
+            ),
+            userType: userType,
+            messages: LoginMessages(
+              // button
+              loginButton: 'button_login'.tr,
+              signupButton: 'button_signup'.tr,
+              goBackButton: 'button_back'.tr,
+              confirmSignupButton: 'button_confirm'.tr,
+              resendCodeButton: 'button_resend_code'.tr,
+              forgotPasswordButton: 'forgot_password'.tr,
+              recoverPasswordButton: 'recover_password'.tr,
+              additionalSignUpSubmitButton: 'button_submit'.tr,
+              setPasswordButton: 'set_param'.trArgs(['password'.tr]),
+              // hint
+              userHint: userHint,
+              passwordHint: 'password'.tr,
+              confirmPasswordHint: 'retype_password'.tr,
+              confirmationCodeHint: 'confirm_code'.tr,
+              recoveryCodeHint: 'confirm_code'.tr,
+              // tip
+              confirmSignupIntro: 'signup_intro'.tr,
+              confirmationCodeValidationError: 'confirm_code_error'.tr,
+              confirmSignupSuccess: 'confirm_code_success'.tr,
+              resendCodeSuccess: 'resend_code_success'.tr,
+              providersTitleFirst: 'tip_providers_title_first'.tr,
+              confirmRecoverIntro: 'confirm_recover_intro'.tr,
+              confirmPasswordError: 'error_retype_password'.tr,
+              recoverPasswordDescription: 'recover_password_desc'.tr,
+              recoverPasswordSuccess: 'recover_password_success'.tr,
+              recoverCodePasswordDescription: 'recover_code_password_desc'.tr,
+              additionalSignUpFormDescription: 'signup_form_desc'.tr,
+              flushbarTitleError: 'tip_title'.tr,
+              flushbarTitleSuccess: 'tip_success'.tr,
+              recoverPasswordIntro: 'recover_password_intro'.tr,
+              recoveryCodeValidationError:
+                  'error_empty_directory'.trArgs(['confirm_code'.tr]),
+              confirmRecoverSuccess: 'confirm_recover_success'.tr,
+            ),
+            userValidator: (value) {
+              return logic.userValidator(userType, value ?? '');
+            },
+            savedEmail: UserRepoLocal.to.lastLoginAccount,
+            savedPassword: "",
+            passwordValidator: logic.passwordValidator,
+            onLogin: logic.loginUser,
+            onSignup: (data) {
+              return logic.onSendCode(userType, data);
+            },
+            // 重新发送确认码
+            onResendCode: (data) {
+              return logic.onSendCode(userType, data);
+            },
+            // 注册确认码
+            onConfirmSignup: (code, data) {
+              return logic.onConfirmSignup(userType, code, data);
+            },
+            // 确认找回密码
+            onConfirmRecover: logic.onConfirmRecover,
+            onSubmitAnimationCompleted: () {
+              debugPrint("> on login onSubmitAnimationCompleted");
+              Get.off(() => BottomNavigationPage());
+            },
+            onRecoverPassword: logic.onRecoverPassword,
+            hideProvidersTitle: true,
+            hideForgotPasswordButton: false,
+            theme: loginTheme,
+            scrollable: true,
+            loginAfterSignUp: false,
+            navigateBackAfterRecovery: true,
+            // showDebugButtons: true,
+            loginProviders: [
+              // LoginProvider(
+              //   // button: Buttons.microsoft,
+              //   icon: Icons.phone_iphone,
+              //   label: 'sign_in_with'.trArgs(['mobile'.tr]),
+              //   callback: () async {
+              //     return "mobile";
+              //     // return null;// for success
+              //   },
+              //   providerNeedsSignUpCallback: () {
+              //     // put here your logic to conditionally show the additional fields
+              //     return Future.value(true);
+              //   },
+              // ),
+
+              // LoginProvider(
+              //   button: Buttons.email,
+              //   label: 'sign_in_with'.trArgs(['email'.tr]),
+              //   callback: () async {
+              //     return "email";
+              //   },
+              //   providerNeedsSignUpCallback: () {
+              //     // put here your logic to conditionally show the additional fields
+              //     return Future.value(true);
+              //   },
+              // ),
+
+              // LoginProvider(
+              //   icon: IMBoyIcon.huawei,
+              //   label: 'sign_in_with'.trArgs(['Huawei'.tr]),
+              //   callback: () async {
+              //     return "Huawei";
+              //   },
+              //   providerNeedsSignUpCallback: () {
+              //     // put here your logic to conditionally show the additional fields
+              //     return Future.value(true);
+              //   },
+              // ),
+
+              // LoginProvider(
+              //   icon: FontAwesomeIcons.google,
+              //   label: 'Google',
+              //   callback: () async {
+              //     return null;
+              //   },
+              // ),
+              // LoginProvider(
+              //   icon: FontAwesomeIcons.githubAlt,
+              //   label: 'Github',
+              //   callback: () async {
+              //     debugPrint('start github sign in');
+              //     await Future.delayed(loginTime);
+              //     debugPrint('stop github sign in');
+              //     return null;
+              //   },
+              // ),
+            ],
+            termsOfService: [
+              // TermOfService(
+              //   id: 'newsletter',
+              //   mandatory: false,
+              //   text: 'Newsletter subscription',
+              // ),
+              TermOfService(
+                id: 'general-term',
+                mandatory: true,
+                text: 'term_of_services'.tr,
+                validationErrorMessage:
+                    'error_required'.trArgs(['term_of_services'.tr]),
+                linkUrl: 'http://www.imboy.pub/',
+              ),
+            ],
             /*
-            LoginProvider(
-              // button: Buttons.microsoft,
-              icon: Icons.phone_iphone,
-              label: 'sign_in_with'.trArgs(['mobile'.tr]),
-              callback: () async {
-                return null;
-              },
-              providerNeedsSignUpCallback: () {
-                // put here your logic to conditionally show the additional fields
-                return Future.value(true);
-              },
-            ),
-            LoginProvider(
-              button: Buttons.email,
-              label: 'sign_in_with'.trArgs(['email'.tr]),
-              callback: () async {
-                return null;
-              },
-              providerNeedsSignUpCallback: () {
-                // put here your logic to conditionally show the additional fields
-                return Future.value(true);
-              },
-            ),
-            LoginProvider(
-              icon: IMBoyIcon.huawei,
-              label: 'sign_in_with'.trArgs(['Huawei'.tr]),
-              callback: () async {
-                return null;
-              },
-              providerNeedsSignUpCallback: () {
-                // put here your logic to conditionally show the additional fields
-                return Future.value(true);
-              },
-            ),
-            */
-            // LoginProvider(
-            //   icon: FontAwesomeIcons.google,
-            //   label: 'Google',
-            //   callback: () async {
-            //     return null;
-            //   },
-            // ),
-            // LoginProvider(
-            //   icon: FontAwesomeIcons.githubAlt,
-            //   label: 'Github',
-            //   callback: () async {
-            //     debugPrint('start github sign in');
-            //     await Future.delayed(loginTime);
-            //     debugPrint('stop github sign in');
-            //     return null;
-            //   },
-            // ),
-          ],
-          termsOfService: [
-            // TermOfService(
-            //   id: 'newsletter',
-            //   mandatory: false,
-            //   text: 'Newsletter subscription',
-            // ),
-            TermOfService(
-              id: 'general-term',
-              mandatory: true,
-              text: 'term_of_services'.tr,
-              validationErrorMessage:
-                  'error_required'.trArgs(['term_of_services'.tr]),
-              linkUrl: 'http://www.imboy.pub/',
+          additionalSignupFields: [
+            UserFormField(
+              keyName: 'invite_code',
+              displayName: 'button_invite_code'.tr,
             ),
           ],
-          // additionalSignupFields: [
-          //   UserFormField(
-          //     keyName: 'invite_code',
-          //     displayName: 'button_invite_code'.tr,
-          //   ),
-          // ],
-        ),
-      ),
-    ]));
+          */
+          ),
+        )
+      ]),
+    );
   }
 }

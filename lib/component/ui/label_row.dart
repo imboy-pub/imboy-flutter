@@ -4,34 +4,34 @@ import 'package:niku/namespace.dart' as n;
 import 'package:imboy/config/theme.dart';
 
 class LabelRow extends StatelessWidget {
-  final String? label;
+  final String? title;
+  final Widget? leading;
   final VoidCallback? onPressed;
-  final double? labelWidth;
+  final double? titleWidth;
   final bool? isRight;
   final bool? isLine;
   final bool? isSpacer;
   final String? value;
   final String? rValue;
-  final Widget? rightW;
+  final Widget? trailing;
   final EdgeInsetsGeometry? margin;
   final EdgeInsetsGeometry? padding;
-  final Widget? headW;
   final double? lineWidth;
 
   const LabelRow({
     super.key,
-    this.label,
+    this.title,
     this.onPressed,
     this.value,
-    this.labelWidth,
+    this.titleWidth,
     this.isRight = true,
     this.isLine = false,
     this.isSpacer = true,
-    this.rightW,
+    this.trailing,
     this.rValue,
     this.margin,
     this.padding = const EdgeInsets.only(top: 15.0, bottom: 15.0, right: 5.0),
-    this.headW,
+    this.leading,
     this.lineWidth,
   });
 
@@ -63,14 +63,15 @@ class LabelRow extends StatelessWidget {
                 : null,
           ),
           child: n.Row([
-            if (headW != null) headW!,
+            if (leading != null) leading!,
             SizedBox(
-              width: labelWidth,
+              width: titleWidth,
               child: Text(
-                label ?? '',
+                title ?? '',
                 style: TextStyle(
-                    fontSize: 17.0,
-                    color: Theme.of(context).colorScheme.onPrimary),
+                  fontSize: 17.0,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
               ),
             ),
             value != null
@@ -98,7 +99,7 @@ class LabelRow extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                     ))
                 : const SizedBox.shrink(),
-            rightW != null ? Center(child: rightW!) : Container(),
+            trailing != null ? Center(child: trailing!) : Container(),
             isRight!
                 ? Icon(
                     Icons.navigate_next,

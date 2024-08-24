@@ -41,14 +41,14 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
 
   Widget buildSwitch(item) {
     return LabelRow(
-      label: item['title'],
+      title: item['title'],
       margin: item['label'] == 'no_disturbing'
           ? const EdgeInsets.only(top: 10.0)
           : null,
       isLine: item['id'] != 'strong_reminder',
       // '强提醒',
       isRight: false,
-      rightW: SizedBox(
+      trailing: SizedBox(
         height: 25.0,
         child: CupertinoSwitch(
           value: item['value'],
@@ -72,7 +72,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
 
     return [
       LabelRow(
-        label: 'search_chat_record'.tr,
+        title: 'search_chat_record'.tr,
         margin: const EdgeInsets.only(top: 10.0),
         isLine: true,
         onPressed: () {
@@ -105,7 +105,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
       //   },
       // ),
       LabelRow(
-        label: 'clear_chat_record'.tr,
+        title: 'clear_chat_record'.tr,
         margin: const EdgeInsets.only(top: 10.0),
         isLine: true,
         onPressed: () {

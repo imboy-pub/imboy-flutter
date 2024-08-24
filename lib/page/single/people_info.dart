@@ -166,12 +166,12 @@ class PeopleInfoPage extends StatelessWidget {
             Visibility(
               visible: !isSelf && id != 'bot_qian_fan',
               child: LabelRow(
-                label: tag.value.isEmpty ? 'remarks_tags'.tr : 'tags'.tr,
-                labelWidth: tag.value.isEmpty ? 96 : 40,
+                title: tag.value.isEmpty ? 'remarks_tags'.tr : 'tags'.tr,
+                titleWidth: tag.value.isEmpty ? 96 : 40,
                 // rValue: tag.value.isEmpty ? null : tag.value,
                 isLine: true,
                 lineWidth: 1.0,
-                rightW: SizedBox(
+                trailing: SizedBox(
                   width: Get.width - 140,
                   child: Text(
                     (tag.value.endsWith(',')
@@ -240,7 +240,7 @@ class PeopleInfoPage extends StatelessWidget {
           */
             if (isFriend.value == 1 || scene == 'denylist')
               LabelRow(
-                label: 'more_info'.tr,
+                title: 'more_info'.tr,
                 isLine: false,
                 onPressed: () => Navigator.push(
                   context,
@@ -356,7 +356,7 @@ class PeopleInfoPage extends StatelessWidget {
                   const Space(width: 4),
                   Expanded(
                       child: Text(
-                    'added_to_blacklist_tips'.tr,
+                    'added_to_denylist_tips'.tr,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
@@ -410,7 +410,7 @@ class PeopleInfoMorePage extends StatelessWidget {
         child: Obx(
           () => n.Column([
             LabelRow(
-              label: 'mutual_groups_with_her'.tr,
+              title: 'mutual_groups_with_her'.tr,
               // 10个
               rValue: 'num_unit'.trArgs(['$groupCount']),
               isLine: true,
@@ -423,9 +423,9 @@ class PeopleInfoMorePage extends StatelessWidget {
             Visibility(
               visible: strNoEmpty(sign.value),
               child: LabelRow(
-                label: 'signature'.tr,
+                title: 'signature'.tr,
                 // rValue: sign,
-                rightW: SizedBox(
+                trailing: SizedBox(
                   width: Get.width - 100,
                   child: n.Row([
                     const SizedBox(width: 20),
@@ -454,7 +454,7 @@ class PeopleInfoMorePage extends StatelessWidget {
             ),
             if (source.value.isNotEmpty)
               LabelRow(
-                label: 'source'.tr,
+                title: 'source'.tr,
                 rValue: '$sourcePrefix ${source.value}',
                 // rValue: getSourceTr(source.value),
                 isLine: true,

@@ -89,3 +89,5 @@ post_install do |installer|
      end
   end
 end
+
+pod 'PhoneNumberKit', '~> 3.8.0'

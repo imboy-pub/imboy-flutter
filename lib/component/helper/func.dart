@@ -202,7 +202,7 @@ ImageProvider<Object> cachedImageProvider(String url, {double w = 400}) {
 }
 
 DecorationImage dynamicAvatar(String? avatar, {double w = 400}) {
-  // iPrint("dynamicAvatar $avatar; w $w");
+  iPrint("dynamicAvatar_avatar $avatar; w $w");
   if (strEmpty(avatar)) {
     return DecorationImage(
       image: IconImageProvider(Icons.person, size: w.toInt()),

@@ -72,7 +72,7 @@ class ContactSettingPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: n.Column([
           LabelRow(
-            label: 'set_param'.trArgs(['remarks_tags'.tr]),
+            title: 'set_param'.trArgs(['remarks_tags'.tr]),
             isLine: true,
             onPressed: () {
               Get.to(
@@ -114,8 +114,7 @@ class ContactSettingPage extends StatelessWidget {
             child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
           ),
           LabelRow(
-            label: 'recommend_to_friend'.tr,
-            // isLine: false,
+            title: 'recommend_to_friend'.tr,
             isLine: false,
             onPressed: () async {
               Map<String, String> peer = {
@@ -176,41 +175,16 @@ class ContactSettingPage extends StatelessWidget {
             right: 16,
             child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
           ),
-          Container(
-            padding: const EdgeInsets.only(
-              left: 0,
-              top: 0.0,
-              bottom: 0.0,
-              right: 0.0,
-            ),
-            margin: const EdgeInsets.only(left: 16.0, right: 16),
-            decoration: BoxDecoration(
-              // color: Colors.white,
-              border: Border(
-                bottom: BorderSide(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  width: 0.5,
-                ),
-              ),
-            ),
-            child: Obx(() => SwitchListTile(
-                  title: Text('add_to_blacklist'.tr),
-                  // value: false,
+
+          LabelRow(
+            title: 'add_to_denylist'.tr,
+            isLine: true,
+            isRight: false,
+            trailing: SizedBox(
+              height: 32.0,
+              child: Obx(
+                () => CupertinoSwitch(
                   value: inDenylist.isTrue,
-                  contentPadding: const EdgeInsets.only(
-                    left: 0,
-                    top: 0.0,
-                    bottom: 0.0,
-                    right: 0.0,
-                  ),
-                  activeColor: Colors.green,
-                  inactiveThumbColor: Theme.of(context).colorScheme.onPrimary,
-                  trackColor: WidgetStateProperty.all<Color>(
-                    Get.isDarkMode
-                        ? const Color.fromRGBO(100, 100, 100, 1.0)
-                        : const Color.fromRGBO(230, 230, 230, 1.0),
-                  ),
-                  // activeColor: Theme.of(context).colorScheme.onPrimary,
                   onChanged: (val) async {
                     debugPrint("addDenylist val $val, $inDenylist");
 
@@ -236,7 +210,9 @@ class ContactSettingPage extends StatelessWidget {
                       inDenylist.value = val;
                     }
                   },
-                )),
+                ),
+              ),
+            ),
           ),
           // LabelRow(
           //   label: 'complaint'.tr,

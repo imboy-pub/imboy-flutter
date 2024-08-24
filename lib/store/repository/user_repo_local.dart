@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_keychain/flutter_keychain.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -11,7 +12,6 @@ import 'package:imboy/store/model/user_model.dart';
 
 class UserRepoLocal extends GetxController {
   static UserRepoLocal get to => Get.find();
-
 
   String get currentUid => StorageService.to.getString(Keys.currentUid) ?? '';
 
@@ -27,19 +27,29 @@ class UserRepoLocal extends GetxController {
 
   // 令牌 token
   Future<String> get accessToken async {
-    return await FlutterKeychain.get(key: Keys.tokenKey) ?? '';
+    try {
+      return await FlutterKeychain.get(key: Keys.tokenKey) ?? '';
+    } catch (e) {
+      debugPrint("accessToken on Exception: $e");
+    }
+    return '';
   }
 
   Future<String> get refreshToken async {
-    // StorageService.to.getString(Keys.refreshTokenKey) ?? '';
-    return await FlutterKeychain.get(key: Keys.refreshTokenKey) ?? '';
+    try {
+      // StorageService.to.getString(Keys.refreshTokenKey) ?? '';
+      return await FlutterKeychain.get(key: Keys.refreshTokenKey) ?? '';
+    } catch (e) {
+      debugPrint("refreshToken on Exception: $e");
+    }
+    return '';
   }
 
   UserModel get current {
     Map<String, dynamic> user = StorageService.getMap(Keys.currentUser);
     iPrint("current user ${user.toString()}");
     if (user.isEmpty) {
-       WebSocketService.to.closeSocket(exit: true);
+      WebSocketService.to.closeSocket(exit: true);
       Get.offAll(() => PassportPage());
     }
     return UserModel.fromJson(user);
@@ -104,16 +114,22 @@ class UserRepoLocal extends GetxController {
   }
 
   Future<bool> quitLogin() async {
-    WebSocketService.to.sendMessage("logout");
+    if (to.isLogin) {
+      WebSocketService.to.sendMessage("logout");
+    }
     await StorageService.to.remove(Keys.currentUid);
     await StorageService.to.remove(Keys.wsUrl);
     await StorageService.to.remove(Keys.uploadUrl);
     await StorageService.to.remove(Keys.uploadKey);
     await StorageService.to.remove(Keys.uploadScene);
 
-    await FlutterKeychain.remove(key:Keys.tokenKey);
-    await FlutterKeychain.remove(key:Keys.currentUid);
-    await FlutterKeychain.remove(key:Keys.currentUser);
+    try {
+      await FlutterKeychain.remove(key: Keys.tokenKey);
+      await FlutterKeychain.remove(key: Keys.currentUid);
+      await FlutterKeychain.remove(key: Keys.currentUser);
+    } catch (e) {
+      // FlutterKeychain 不支持 macos
+    }
     await WebSocketService.to.closeSocket(exit: true);
     SqliteService.to.close();
     return true;

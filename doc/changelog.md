@@ -1,4 +1,7 @@
 
+* 资料设置-加入黑名单、申请添加好友、接受好友申请等3个爷们的 Switch UI 调整；
+* 其他一些细节及文案调整；
+
 # 0.5.6
 * 引入 envied 管理配置调整相关代码；
 * 新增 ./lib/component/ui/imboy_icon.dart (删除一些assets图片)；

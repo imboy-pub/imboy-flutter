@@ -140,6 +140,8 @@ dependencies:
 
   # 具有登录/注册功能的登录小部件，有助于加快开发速度
   flutter_login: ^5.0.0
+  #flutter_login:
+  #  path: plugin/flutter_login
   # 进度条
   #percent_indicator: ^4.2.3
   # 一个干净和轻量级的加载/吐司小部件
@@ -196,14 +198,14 @@ dependencies:
   #flutter_app_badger: ^1.5.0
   # 录音
   #record: ^5.1.2
-  flutter_sound: ^9.11.2
+  flutter_sound: ^9.11.3
   #  flutter_sound:
   #    #path: plugin/flutter_sound/flutter_sound
   #    git:
   #      url: https://gitee.com/imboy-tripartite-deps/flutter_sound.git
   #      ref: leeyi
   #      path: flutter_sound
-  flutter_sound_platform_interface: ^9.11.2
+  flutter_sound_platform_interface: ^9.11.3
   audio_session: ^0.1.21
 
   # 语音消息播放器

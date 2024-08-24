@@ -273,8 +273,8 @@ class LocaleKeys {
   static const remarks_tags = 'remarks_tags';
   static const friend_permissions = 'friend_permissions';
   static const recommend_to_friend = 'recommend_to_friend';
-  static const blacklist = 'blacklist';
-  static const add_to_blacklist = 'add_to_blacklist';
+  static const denylist = 'denylist';
+  static const add_to_denylist = 'add_to_denylist';
   static const delete_contact = 'delete_contact';
   static const no_new_friends = 'no_new_friends';
   static const awaiting_verification = 'awaiting_verification';
@@ -410,7 +410,7 @@ class LocaleKeys {
   static const user_not_exist = 'user_not_exist';
   static const user_disabled_or_deleted = 'user_disabled_or_deleted';
   static const add_to_contacts = 'add_to_contacts';
-  static const added_to_blacklist_tips = 'added_to_blacklist_tips';
+  static const added_to_denylist_tips = 'added_to_denylist_tips';
   static const other_party = 'other_party';
   static const social_profile = 'social_profile';
   static const mutual_groups_with_her = 'mutual_groups_with_her';
@@ -726,8 +726,8 @@ class Locales {
     'remarks_tags': '备注和标签',
     'friend_permissions': '朋友权限',
     'recommend_to_friend': '把他推荐给朋友',
-    'blacklist': '黑名单',
-    'add_to_blacklist': '加入黑名单',
+    'denylist': '黑名单',
+    'add_to_denylist': '加入黑名单',
     'delete_contact': '删除联系人',
     'no_new_friends': '没有新的好友',
     'awaiting_verification': '等待验证',
@@ -862,7 +862,7 @@ class Locales {
     'user_not_exist': '用户不存在',
     'user_disabled_or_deleted': '用户被禁用或已删除',
     'add_to_contacts': '添加到通讯录',
-    'added_to_blacklist_tips': '已添加至黑名单，你将不再收到对方的消息',
+    'added_to_denylist_tips': '已添加至黑名单，你将不再收到对方的消息',
     'other_party': '对方',
     'social_profile': '社交资料',
     'mutual_groups_with_her': '我和他的共同群聊',
@@ -993,7 +993,7 @@ class Locales {
     'tip_delete_contact':
         'Delete contact "%s" and chat history with this contact',
     'tip_empty_chat_placeholder': 'No messages here yet',
-    'hint_login_account': 'Account/Email/Phone Number',
+    'hint_login_account': 'Account/Email/Phone',
     'confirm_code': 'Confirmation Code',
     'password': 'Password',
     'retype_password': 'Retype Password',
@@ -1189,8 +1189,8 @@ class Locales {
     'remarks_tags': 'Remarks & Tags',
     'friend_permissions': 'Friend permissions',
     'recommend_to_friend': 'Recommend to a friend',
-    'blacklist': 'Blacklist',
-    'add_to_blacklist': 'Add to blacklist',
+    'denylist': 'denylist',
+    'add_to_denylist': 'Add to denylist',
     'delete_contact': 'Delete contact',
     'no_new_friends': 'No new friends',
     'awaiting_verification': 'Awaiting verification',
@@ -1336,8 +1336,8 @@ class Locales {
     'user_not_exist': 'User does not exist',
     'user_disabled_or_deleted': 'User is disabled or deleted',
     'add_to_contacts': 'Add to Contacts',
-    'added_to_blacklist_tips':
-        'Added to blacklist, you will no longer receive messages from the other party',
+    'added_to_denylist_tips':
+        'Added to denylist, you will no longer receive messages from the other party',
     'other_party': 'Other Party',
     'social_profile': 'Social Profile',
     'mutual_groups_with_her': 'My mutual groups with him/her',
@@ -1676,8 +1676,8 @@ class Locales {
     'remarks_tags': 'Примечания и метки',
     'friend_permissions': 'Права друзей',
     'recommend_to_friend': 'Рекомендовать его другу',
-    'blacklist': 'Черный список',
-    'add_to_blacklist': 'Добавить в черный список',
+    'denylist': 'Черный список',
+    'add_to_denylist': 'Добавить в черный список',
     'delete_contact': 'Удалить контакт',
     'no_new_friends': 'Нет новых друзей',
     'awaiting_verification': 'Ожидание верификации',
@@ -1822,7 +1822,7 @@ class Locales {
     'user_not_exist': 'Пользователь не существует',
     'user_disabled_or_deleted': 'Пользователь заблокирован или удален',
     'add_to_contacts': 'Добавить в контакты',
-    'added_to_blacklist_tips':
+    'added_to_denylist_tips':
         'Добавлено в черный список, вы больше не будете получать сообщения от этого пользователя',
     'other_party': 'Другая сторона',
     'social_profile': 'Социальный профиль',
@@ -2140,8 +2140,8 @@ class Locales {
     'remarks_tags': '備註和標籤',
     'friend_permissions': '朋友權限',
     'recommend_to_friend': '把他推薦給朋友',
-    'blacklist': '黑名單',
-    'add_to_blacklist': '加入黑名單',
+    'denylist': '黑名單',
+    'add_to_denylist': '加入黑名單',
     'delete_contact': '刪除聯繫人',
     'no_new_friends': '沒有新的好友',
     'awaiting_verification': '等待驗證',
@@ -2276,7 +2276,7 @@ class Locales {
     'user_not_exist': '用戶不存在',
     'user_disabled_or_deleted': '用戶被禁用或已刪除',
     'add_to_contacts': '添加到通訊錄',
-    'added_to_blacklist_tips': '已添加至黑名單，你將不再收到對方的訊息',
+    'added_to_denylist_tips': '已添加至黑名單，你將不再收到對方的訊息',
     'other_party': '對方',
     'social_profile': '社交資料',
     'mutual_groups_with_her': '我和他的共同群聊',

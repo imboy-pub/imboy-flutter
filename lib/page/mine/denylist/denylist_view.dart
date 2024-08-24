@@ -43,7 +43,7 @@ class DenylistPage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'blacklist'.tr,
+        title: 'denylist'.tr,
       ),
       body: SingleChildScrollView(
         child: Container(

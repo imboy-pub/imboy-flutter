@@ -34,11 +34,11 @@ class MoreView extends StatelessWidget {
       appBar: NavAppBar(automaticallyImplyLeading: true, title: 'more_info'.tr),
       body: n.Column([
         LabelRow(
-          label: 'gender'.tr,
+          title: 'gender'.tr,
           isLine: true,
           lineWidth: Get.isDarkMode ? 0.5 : 1.0,
           isRight: true,
-          rightW: Obx(() => Text(
+          trailing: Obx(() => Text(
                 logic.genderTitle.value,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onPrimary,
@@ -75,11 +75,11 @@ class MoreView extends StatelessWidget {
           },
         ),
         LabelRow(
-          label: 'region'.tr,
+          title: 'region'.tr,
           isLine: true,
           lineWidth: Get.isDarkMode ? 0.5 : 1.0,
           isRight: true,
-          rightW: Obx(
+          trailing: Obx(
             () => Text(
               deleteFirst(logic.region.value),
               style: TextStyle(
