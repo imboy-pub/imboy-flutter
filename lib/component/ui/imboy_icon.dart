@@ -9,11 +9,10 @@ class IMBoyIcon {
     matchTextDirection: true,
   );
 
-  // book 图标
   static const IconData huawei = IconData(
-    0xe67d,
+    0xe612,
     fontFamily: 'IMBoyIcon',
-    matchTextDirection: true,
+    // matchTextDirection: true,
   );
 
   static const IconData sending = IconData(
@@ -24,6 +23,12 @@ class IMBoyIcon {
 
   static const IconData rightBubble = IconData(
     0xe613,
+    fontFamily: 'IMBoyIcon',
+    matchTextDirection: true,
+  );
+
+  static const IconData jiguang = IconData(
+    0xe64d,
     fontFamily: 'IMBoyIcon',
     matchTextDirection: true,
   );
