@@ -84,6 +84,8 @@ class API {
   static const groupMemberPage = '/group_member/page';
   static const groupMemberJoin = '/group_member/join';
   static const groupMemberLeave = '/group_member/leave';
+  static const groupMemberSameGroup = '/group_member/same_group';
+
 
   static const userShow = '/user/show';
   static const turnCredential = '/user/credential';

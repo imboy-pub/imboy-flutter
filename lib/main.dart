@@ -8,7 +8,7 @@ import 'run.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await init(signKeyVsn: '1');
+  await init(env: 'pro', signKeyVsn: '1');
 
   // var v = SignKeyFFI.signKey("input");
   // debugPrint("signKey $v ;");

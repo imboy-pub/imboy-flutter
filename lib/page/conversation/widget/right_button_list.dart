@@ -34,7 +34,7 @@ class RightButton extends StatelessWidget {
           // barrierDismissible: false,
           // shadow: const [BoxShadow(color: Colors.white, blurRadius: 5)],
           width: 110,
-          height: 260,
+          height: 280,
           arrowHeight: 6,
           arrowWidth: 20,
           arrowDxOffset: 0,
@@ -179,3 +179,4 @@ class RightButtonList extends StatelessWidget {
     );
   }
 }
+

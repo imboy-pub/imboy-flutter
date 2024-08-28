@@ -8,7 +8,7 @@ import 'package:niku/namespace.dart' as n;
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
-import 'package:imboy/page/single/people_info.dart';
+import 'package:imboy/page/contact/people_info/people_info_view.dart';
 import 'package:imboy/store/model/people_model.dart';
 
 import 'people_nearby_logic.dart';

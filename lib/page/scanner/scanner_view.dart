@@ -11,7 +11,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
-import 'package:imboy/page/single/people_info.dart';
+import 'package:imboy/page/contact/people_info/people_info_view.dart';
 import 'scanner_logic.dart';
 import 'scanner_result_view.dart';
 

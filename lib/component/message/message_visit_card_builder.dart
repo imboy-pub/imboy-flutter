@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/page/contact/people_info/people_info_view.dart';
 
-import 'package:imboy/page/single/people_info.dart';
 import 'package:imboy/store/model/message_model.dart';
 
 class VisitCardMessageBuilder extends StatefulWidget {
@@ -90,7 +90,8 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              msg.metadata?['title'] ?? (msg.metadata?['account'] ?? ''),
+                              msg.metadata?['title'] ??
+                                  (msg.metadata?['account'] ?? ''),
                               textAlign: TextAlign.left,
                               style: TextStyle(
                                 color:

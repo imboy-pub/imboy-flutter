@@ -127,7 +127,7 @@ Future<Map<String, dynamic>> initConfig() async {
   return payload;
 }
 
-Future<void> init({required String signKeyVsn}) async {
+Future<void> init({required String env, required String signKeyVsn}) async {
   // step 1
   WakelockPlus.enable();
   // step 2
@@ -146,10 +146,11 @@ Future<void> init({required String signKeyVsn}) async {
   if (changedEnv) {
     currentEnv = StorageService.to.getString('env') ?? '';
   } else {
-    currentEnv = const String.fromEnvironment('IMBOYENV', defaultValue: 'pro');
+    currentEnv = String.fromEnvironment('IMBOYENV', defaultValue: env);
+    // currentEnv = Platform.environment['IMBOYENV'] ?? 'pro';
   }
   iPrint(
-      "currentEnv $currentEnv, IMBOYENV ${const String.fromEnvironment('IMBOYENV')};");
+      "currentEnv $currentEnv, IMBOYENV ${const String.fromEnvironment('IMBOYENV')}, ${Platform.environment['IMBOYENV']};");
 
   // currentEnv = 'local';
   // StorageService.to.setString('env', currentEnv);
@@ -225,7 +226,8 @@ Future<void> init({required String signKeyVsn}) async {
   // step 12
   WidgetsBinding.instance.addObserver(
     LifecycleEventHandler(
-      resumeCallBack: () async { // app 恢复
+      resumeCallBack: () async {
+        // app 恢复
         iPrint("> on LifecycleEventHandler resumeCallBack");
         ntpOffset = await DateTimeHelper.getNtpOffset();
         if (UserRepoLocal.to.isLogin) {

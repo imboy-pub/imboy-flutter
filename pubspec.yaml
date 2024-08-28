@@ -17,7 +17,7 @@ dependencies:
   dio: ^5.6.0 # 网络请求框架
   dio_http2_adapter: ^2.5.3
   web_socket_channel: ^3.0.1
-  mime: ^1.0.4
+  mime: ^1.0.6
   connectivity_plus: ^6.0.5 # 是否联网及网络类型
 
   # UI
@@ -101,7 +101,7 @@ dependencies:
   image_picker_platform_interface: ^2.10.0
   #file_picker: ^6.2.0
   file_picker: ^8.1.2
-  open_file: ^3.3.2
+  open_file: ^3.5.0+1
   # image_crop: ^0.4.1
   image_crop:
     #path: plugin/image_crop
@@ -249,7 +249,7 @@ dependencies:
   # dart 对象比较
   equatable: ^2.0.5
   # 用于查找设备上安装的可用地图并使用标记启动它们或显示方向。
-  map_launcher: ^3.4.0
+  map_launcher: ^3.5.0
   # 基础的点击
   tapped: ^2.0.0
   # map取值
@@ -321,14 +321,27 @@ dependencies:
   synchronized: ^3.2.0
   # 一个支持通过 Keychain 和 Keystore 支持字符串安全存储的 Flutter 插件
   flutter_keychain: ^2.5.0
+#  flutter_keychain:
+#    path: plugin/flutter_keychain
   # 一个实现加密算法和原语的 Dart 库
   pointycastle: ^3.9.1
   share_plus: ^10.0.2
   highlight_text: ^1.8.0
   envied: ^0.5.4+1
-#  huawei_account: ^6.12.0+301
+
+  #dropdown_button2: ^3.0.0-beta.16
+
+  #jverify: ^3.0.0
+#  jverify:
+#    path: plugin/jverify
+#    git:
+#      url: https://gitee.com/imboy-tripartite-deps/IcStorageSpace.git
+#      ref: leeyi
+  #huawei_account: ^6.12.0+301
 #  agconnect_crash: ^1.9.0+300
-#  agconnect_auth: ^1.9.0+300
+#  agconnect_auth: ^1.9.0+3000
+#  huawei_account:
+#    path: plugin/hms-flutter-plugin/flutter-hms-account
 
   # A flutter plugin which could read image,files from clipboard and write files to clipboard.
   #pasteboard: ^0.2.0

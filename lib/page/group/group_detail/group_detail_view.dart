@@ -6,7 +6,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/search/search_chat_view.dart';
-import 'package:imboy/page/single/people_info.dart';
+import 'package:imboy/page/contact/people_info/people_info_view.dart';
 import 'package:imboy/page/qrcode/qrcode_view.dart';
 import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/store/model/group_member_model.dart';

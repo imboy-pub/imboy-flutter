@@ -46,4 +46,15 @@ class GroupMemberProvider extends HttpClient {
     }
     return resp.payload;
   }
+
+  Future<Map<String, dynamic>?> sameGroup(String uid1, String uid2) async {
+    IMBoyHttpResponse resp = await get(API.groupMemberSameGroup,
+        queryParameters: {'uid1': uid1, 'uid2': uid2});
+
+    debugPrint("GroupMemberProvider/sameGroup resp: ${resp.payload.toString()}");
+    if (!resp.ok) {
+      return null;
+    }
+    return resp.payload;
+  }
 }

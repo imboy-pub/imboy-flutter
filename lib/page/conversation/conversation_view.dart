@@ -14,7 +14,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/page/group/group_list/group_list_logic.dart';
-import 'package:imboy/page/single/people_info.dart';
+import 'package:imboy/page/contact/people_info/people_info_view.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 
 import 'conversation_logic.dart';

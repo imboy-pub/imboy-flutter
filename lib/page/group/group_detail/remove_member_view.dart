@@ -7,7 +7,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/page/group/launch_chat/launch_chat_logic.dart';
-import 'package:imboy/page/single/people_info.dart';
+import 'package:imboy/page/contact/people_info/people_info_view.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/component/helper/func.dart';
