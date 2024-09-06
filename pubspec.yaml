@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.5.6
+version: 0.5.7
 
 environment:
   sdk: ">=3.0.0 <=4.0.0"
@@ -14,7 +14,7 @@ dependencies:
     sdk: flutter
 
   # Network
-  dio: ^5.6.0 # 网络请求框架
+  dio: ^5.7.0 # 网络请求框架
   dio_http2_adapter: ^2.5.3
   web_socket_channel: ^3.0.1
   mime: ^1.0.6
@@ -39,7 +39,7 @@ dependencies:
         ref: leeyi
 
   #get: ^4.6.6 # getx 状态管理框架
-  get: ^5.0.0-release-candidate-9
+  get: ^5.0.0-release-candidate-9.2
   #get:
   #  #path: plugin/getx
   #  git:
@@ -80,9 +80,15 @@ dependencies:
   # 缓存
   shared_preferences: ^2.3.2
   #  Flutter Secure Storage 提供 API 将数据存储在安全存储中。iOS 中使用 Keychain，Android 中使用基于 KeyStore 的解决方案。
-  #flutter_secure_storage: ^9.0.0
+  flutter_secure_storage: ^9.2.2
   cached_network_image: ^3.4.1
   flutter_cache_manager: ^3.4.1
+  # 一个支持通过 Keychain 和 Keystore 支持字符串安全存储的 Flutter 插件
+#  flutter_keychain: ^2.5.0
+  #  flutter_keychain:
+  #    path: plugin/flutter_keychain
+  # 一个实现加密算法和原语的 Dart 库
+  pointycastle: ^3.9.1
 
   camera: ^0.11.0+2
   #wechat_camera_picker: ^4.2.0-dev.3
@@ -91,7 +97,7 @@ dependencies:
   # Photo View provides a gesture sensitive zoomable widget. Photo View is largely used to show interactive images and other stuff such as SVG.
   photo_view: ^0.15.0 #
   # 照片管理器
-  photo_manager: ^3.2.3
+  photo_manager: ^3.3.0
   # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
   video_compress: ^3.1.3
   # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
@@ -101,7 +107,7 @@ dependencies:
   image_picker_platform_interface: ^2.10.0
   #file_picker: ^6.2.0
   file_picker: ^8.1.2
-  open_file: ^3.5.0+1
+  open_file: ^3.5.3
   # image_crop: ^0.4.1
   image_crop:
     #path: plugin/image_crop
@@ -136,10 +142,10 @@ dependencies:
   # Flutter 的表情符号选择器
   emoji_picker_flutter: ^3.0.0
   # 轮播滑块小部件
-  carousel_slider_plus: ^7.0.0
+  carousel_slider_plus: ^7.0.1
 
   # 具有登录/注册功能的登录小部件，有助于加快开发速度
-  flutter_login: ^5.0.0
+  #flutter_login: ^5.0.0
   #flutter_login:
   #  path: plugin/flutter_login
   # 进度条
@@ -164,7 +170,7 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/popup_menu.git
       ref: master
   # 二维码扫描
-  mobile_scanner: ^5.2.1
+  mobile_scanner: ^5.2.2
   #  mobile_scanner: ^4.0.1
   #  mobile_scanner:
   #    git:
@@ -198,14 +204,14 @@ dependencies:
   #flutter_app_badger: ^1.5.0
   # 录音
   #record: ^5.1.2
-  flutter_sound: ^9.11.3
+  flutter_sound: ^9.12.0
   #  flutter_sound:
   #    #path: plugin/flutter_sound/flutter_sound
   #    git:
   #      url: https://gitee.com/imboy-tripartite-deps/flutter_sound.git
   #      ref: leeyi
   #      path: flutter_sound
-  flutter_sound_platform_interface: ^9.11.3
+  flutter_sound_platform_interface: ^9.12.0
   audio_session: ^0.1.21
 
   # 语音消息播放器
@@ -216,7 +222,7 @@ dependencies:
   #      url: https://gitee.com/imboy-tripartite-deps/voice_message_player.git
   #      ref: leeyi
   # 一对一音视频通话等
-  flutter_webrtc: ^0.11.6+hotfix.1
+  flutter_webrtc: ^0.11.7
   #flutter_webrtc:
   #    path: plugin/flutter-webrtc
   #    git:
@@ -319,30 +325,27 @@ dependencies:
     #  ref: leeyi
   nine_grid_view: ^2.0.0
   synchronized: ^3.2.0
-  # 一个支持通过 Keychain 和 Keystore 支持字符串安全存储的 Flutter 插件
-  flutter_keychain: ^2.5.0
-#  flutter_keychain:
-#    path: plugin/flutter_keychain
-  # 一个实现加密算法和原语的 Dart 库
-  pointycastle: ^3.9.1
   share_plus: ^10.0.2
   highlight_text: ^1.8.0
   envied: ^0.5.4+1
 
   #dropdown_button2: ^3.0.0-beta.16
 
-  #jverify: ^3.0.0
+  jverify: ^3.0.0
 #  jverify:
 #    path: plugin/jverify
-#    git:
-#      url: https://gitee.com/imboy-tripartite-deps/IcStorageSpace.git
-#      ref: leeyi
+  #    git:
+  #      url: https://gitee.com/imboy-tripartite-deps/IcStorageSpace.git
+  #      ref: leeyi
+  local_auth: ^2.3.0
+  pin_code_fields: ^8.0.1
+  intl_phone_number_input: ^0.7.4
+  #simple_animations: ^5.0.2
   #huawei_account: ^6.12.0+301
 #  agconnect_crash: ^1.9.0+300
 #  agconnect_auth: ^1.9.0+3000
 #  huawei_account:
 #    path: plugin/hms-flutter-plugin/flutter-hms-account
-
   # A flutter plugin which could read image,files from clipboard and write files to clipboard.
   #pasteboard: ^0.2.0
   #pinput: ^5.0.0

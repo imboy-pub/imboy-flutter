@@ -6,13 +6,12 @@ class IMBoyIcon {
   static const IconData imboyLogo = IconData(
     0xe635,
     fontFamily: 'IMBoyIcon',
-    matchTextDirection: true,
+    // matchTextDirection: true,
   );
 
   static const IconData huawei = IconData(
     0xe612,
     fontFamily: 'IMBoyIcon',
-    // matchTextDirection: true,
   );
 
   static const IconData sending = IconData(

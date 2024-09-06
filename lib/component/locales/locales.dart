@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart';
 
 import 'package:imboy/config/const.dart';
 
@@ -11,6 +12,8 @@ import 'package:imboy/service/storage.dart';
 class IMBoyTranslations extends Translations {
   @override
   Map<String, Map<String, String>> get keys => AppTranslation.translations;
+
+  static List langList = [];
 }
 
 /* 使用window.locale读取系统语言
@@ -33,13 +36,33 @@ String sysLang(String pkg) {
   /// See https://en.wikipedia.org/wiki/Locale_(computer_software)
   /// LANG=kitten dart myfile.dart  # localeName is "kitten"
   String local = Platform.localeName;
-  debugPrint("> on main $local");
+  debugPrint("> sysLang $local");
   // zh_Hans_CN ui.window.locale.toString();
   if (pkg == 'jiffy') {
     local = jiffyLocal(local);
+  } else if (pkg == 'intl_phone_number_input') {
+    local = intlPhoneNumberInput(local);
   }
   return StorageService.to.getString(Keys.currentLang) ?? local;
 }
+
+
+// https://github.com/natintosh/intl_phone_number_input/blob/develop/lib/src/models/country_list.dart
+String intlPhoneNumberInput(String local) {
+  iPrint('intlPhoneNumberInput 1 $local');
+  if (local.startsWith('zh_Hans') || local.startsWith('zh-Hans')) { // Hans：代表简体中文（Simplified Chinese）
+    local = 'zh';
+  } else if (local.startsWith('zh-Hant')) { // Hant，代表繁体中文（Traditional Chinese）
+    local = 'zh_TW';
+  } else if (local.startsWith('zh_')) {
+    local = 'zh';
+  } else if (local.startsWith('ru_')) {
+    local = 'ru';
+  }
+  iPrint('intlPhoneNumberInput 2 $local');
+  return local;
+}
+
 
 String jiffyLocal(String local) {
   // from ./jiffy-6.1.0/lib/src/locale/available_locales.dart
@@ -65,9 +88,9 @@ String jiffyLocal(String local) {
   // ...
   // 'ru': RuLocale(),
 
-  if (local.startsWith('zh_Hans') || local.startsWith('zh-Hans')) {
+  if (local.startsWith('zh_Hans') || local.startsWith('zh-Hans')) { // Hans：代表简体中文（Simplified Chinese）
     local = 'zh_CN';
-  } else if (local.startsWith('zh-Hant')) {
+  } else if (local.startsWith('zh-Hant')) { // Hant，代表繁体中文（Traditional Chinese）
     local = 'zh_Hant';
   } else if (local.startsWith('ru_')) {
     local = 'ru';

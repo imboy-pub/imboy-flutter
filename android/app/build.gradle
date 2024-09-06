@@ -3,7 +3,6 @@ plugins {
     id "kotlin-android"
     id "org.jetbrains.kotlin.android"
     id "dev.flutter.flutter-gradle-plugin"
-    //id "com.huawei.agconnect"
 }
 
 def localProperties = new Properties()
@@ -32,10 +31,18 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled true
+        manifestPlaceholders = [
+                JPUSH_PKGNAME : defaultConfig.applicationId,
+                JPUSH_APPKEY : localProperties['jpush.appKey'], // NOTE: JPush 上注册的包名对应的 Appkey.
+                JPUSH_CHANNEL : "developer-default", //暂时填写默认值即可.
+        ]
+
     }
     dependencies {
         implementation "androidx.multidex:multidex:2.0.1"
-        //implementation  'com.huawei.agconnect:agconnect-crash:1.9.0.300'
+        implementation 'cn.jiguang.sdk:jverification:3.2.5'
+        //implementation 'com.huawei.agconnect:agcp:1.9.1.301'
+        //implementation 'com.huawei.agconnect:agconnect-crash:1.9.0.300'
 
         // 高德
         //定位功能

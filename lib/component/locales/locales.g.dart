@@ -33,15 +33,15 @@ class LocaleKeys {
   static const button_taking_pictures = 'button_taking_pictures';
   static const button_select_from_album = 'button_select_from_album';
   static const button_send = 'button_send';
-  static const button_login = 'button_login';
-  static const button_signup = 'button_signup';
+  static const login = 'login';
+  static const signup = 'signup';
   static const button_logout = 'button_logout';
   static const button_set_empty = 'button_set_empty';
   static const button_confirm = 'button_confirm';
   static const button_add = 'button_add';
   static const button_delete = 'button_delete';
   static const button_close = 'button_close';
-  static const button_resend_code = 'button_resend_code';
+  static const resend_code = 'resend_code';
   static const button_invite_code = 'button_invite_code';
   static const forgot_password = 'forgot_password';
   static const recover_password = 'recover_password';
@@ -58,9 +58,24 @@ class LocaleKeys {
       'verification_message_sent_by_peer_is';
   static const tip_draft = 'tip_draft';
   static const tip_tips = 'tip_tips';
-  static const tip_title = 'tip_title';
   static const tip_success = 'tip_success';
   static const tip_failed = 'tip_failed';
+  static const please_input_param = 'please_input_param';
+  static const param_format_error = 'param_format_error';
+  static const param_login = 'param_login';
+  static const mobile_quick_login = 'mobile_quick_login';
+  static const button_continue = 'button_continue';
+  static const try_again_q = 'try_again_q';
+  static const not_receive_coe_q = 'not_receive_coe_q';
+  static const next_step = 'next_step';
+  static const existing_password = 'existing_password';
+  static const new_password = 'new_password';
+  static const region_search_tips = 'region_search_tips';
+  static const license_agreement = 'license_agreement';
+  static const agree_continue = 'agree_continue';
+  static const pin_code_fill_tips = 'pin_code_fill_tips';
+  static const per_minute_once = 'per_minute_once';
+  static const param_already_exist = 'param_already_exist';
   static const resend_code_success = 'resend_code_success';
   static const recover_password_success = 'recover_password_success';
   static const recover_password_desc = 'recover_password_desc';
@@ -70,12 +85,12 @@ class LocaleKeys {
   static const signup_intro = 'signup_intro';
   static const confirm_code_error = 'confirm_code_error';
   static const confirm_code_success = 'confirm_code_success';
-  static const confirm_recover_intro = 'confirm_recover_intro';
+  static const code_sent_to_param = 'code_sent_to_param';
   static const confirm_recover_success = 'confirm_recover_success';
   static const tip_connect_desc = 'tip_connect_desc';
   static const tip_providers_title_first = 'tip_providers_title_first';
-  static const tip_login_true = 'tip_login_true';
-  static const tip_login_false = 'tip_login_false';
+  static const sigin_q = 'sigin_q';
+  static const no_sigin_q = 'no_sigin_q';
   static const tip_greeting = 'tip_greeting';
   static const tip_device_space = 'tip_device_space';
   static const tip_delete_contact = 'tip_delete_contact';
@@ -84,13 +99,10 @@ class LocaleKeys {
   static const confirm_code = 'confirm_code';
   static const password = 'password';
   static const retype_password = 'retype_password';
-  static const existing_password = 'existing_password';
-  static const new_password = 'new_password';
   static const chat_hold_down_talk = 'chat_hold_down_talk';
   static const incoming_call = 'incoming_call';
   static const error_password = 'error_password';
   static const error_retype_password = 'error_retype_password';
-  static const error_incorrect_phone = 'error_incorrect_phone';
   static const error_failed_to_connect = 'error_failed_to_connect';
   static const error_no_valid_file_or_url = 'error_no_valid_file_or_url';
   static const error_unnecessary_parameter = 'error_unnecessary_parameter';
@@ -481,8 +493,8 @@ class Locales {
     'you': '你',
     'set_param': '设置%s',
     'apply_param': '申请%s',
-    'read_agree_param': '已经阅读并同意《%s》',
-    'logout_notice': '注销须知',
+    'read_agree_param': '已经阅读并同意%s',
+    'logout_notice': '《注销须知》',
     'cancel_logout_title': '是否终止注销流程？',
     'cancel_logout_body':
         '此账号处于注销反悔期，若登录成功则视作终止注销流程。如需继续注销，请在注销申请提交后的15天内不要登录IMBoy。',
@@ -491,15 +503,15 @@ class Locales {
     'button_taking_pictures': '拍照',
     'button_select_from_album': '从相册选择',
     'button_send': '发送',
-    'button_login': '登录',
-    'button_signup': '注册',
+    'login': '登录',
+    'signup': '注册',
     'button_logout': '注销',
     'button_set_empty': '置空',
     'button_confirm': '确认',
     'button_add': '添加',
     'button_delete': '删除',
     'button_close': '关闭',
-    'button_resend_code': '重发验证码',
+    'resend_code': '重发验证码',
     'button_invite_code': '邀请码',
     'forgot_password': '忘记密码？',
     'recover_password': '找回密码',
@@ -515,9 +527,24 @@ class Locales {
     'verification_message_sent_by_peer_is': '对方发来的验证消息为：%s',
     'tip_draft': '草稿',
     'tip_tips': '小贴士',
-    'tip_title': '喔！',
     'tip_success': '操作成功！',
     'tip_failed': '操作失败！',
+    'please_input_param': '请输入%s',
+    'param_format_error': '%s格式有误',
+    'param_login': '%s登录',
+    'mobile_quick_login': '一键登录',
+    'button_continue': '继续',
+    'try_again_q': '想再试一次吗？',
+    'not_receive_coe_q': '没有收到验证码？',
+    'next_step': '下一步',
+    'existing_password': '现有密码',
+    'new_password': '新的密码',
+    'region_search_tips': '按地区名称或区域编码搜索',
+    'license_agreement': '《软件许可及服务协议》',
+    'agree_continue': '同意并继续',
+    'pin_code_fill_tips': '请把方格填满',
+    'per_minute_once': '每分钟只能请求一次',
+    'param_already_exist': '%s已存在',
     'resend_code_success': '已发送新邮件。',
     'recover_password_success': '验证码发送成功',
     'recover_password_desc': '',
@@ -527,12 +554,12 @@ class Locales {
     'signup_intro': '确认码已发送到您的邮箱，\n请输入确认码确认您的帐户。',
     'confirm_code_error': '确认码为空',
     'confirm_code_success': '账户已确认。',
-    'confirm_recover_intro': '验证码已发送到您的邮箱。',
+    'code_sent_to_param': '验证码已发送到%s',
     'confirm_recover_success': '密码修改成功。',
     'tip_connect_desc': '无网络',
     'tip_providers_title_first': '或用以下账号登录',
-    'tip_login_true': '已经有账号了？',
-    'tip_login_false': '还没有账号？',
+    'sigin_q': '已经有账号了？',
+    'no_sigin_q': '还没有账号？',
     'tip_greeting': '欢迎使用',
     'tip_device_space': '占设备 %s‰ 存储空间(%s)',
     'tip_delete_contact': '将联系人"%s"删除，同时删除与该联系人的聊天记录',
@@ -541,13 +568,10 @@ class Locales {
     'confirm_code': '确认码',
     'password': '密码',
     'retype_password': '重新输入密码',
-    'existing_password': '现有密码',
-    'new_password': '新的密码',
     'chat_hold_down_talk': '按住说话',
     'incoming_call': '%s呼入',
     'error_password': '密码错误',
     'error_retype_password': '两次输入密码不一致',
-    'error_incorrect_phone': '手机号码格式有误',
     'error_failed_to_connect': '连接到 %s 失败',
     'error_no_valid_file_or_url': '%s 不是有效的文件或URL',
     'error_unnecessary_parameter': '参数 %s 是多余的',
@@ -931,8 +955,8 @@ class Locales {
     'you': 'You',
     'set_param': 'Set %s',
     'apply_param': 'Apply %s',
-    'read_agree_param': 'Have read and agree to the《%s》',
-    'logout_notice': 'Logout Notice',
+    'read_agree_param': 'Have read and agree to the%s',
+    'logout_notice': '《Logout Notice》',
     'cancel_logout_title': 'Cancel the Logout Process?',
     'cancel_logout_body':
         'This account is in the revocation period of the cancellation. If you log in successfully, it will be considered as terminating the logout process. If you wish to continue with the cancellation, please do not log in to IMBoy within 15 days after submitting the cancellation application.',
@@ -941,15 +965,15 @@ class Locales {
     'button_taking_pictures': 'Take Photo',
     'button_select_from_album': 'Select from Album',
     'button_send': 'Send',
-    'button_login': 'Log in',
-    'button_signup': 'Sign up',
+    'login': 'Log in',
+    'signup': 'Sign up',
     'button_logout': 'Log out',
     'button_set_empty': 'Set Empty',
     'button_confirm': 'Confirm',
     'button_add': 'Add',
     'button_delete': 'Delete',
     'button_close': 'Close',
-    'button_resend_code': 'Resend Verification Code',
+    'resend_code': 'Resend Verification Code',
     'button_invite_code': 'Invitation Code',
     'forgot_password': 'Forgot Password?',
     'recover_password': 'Recover Password',
@@ -966,9 +990,24 @@ class Locales {
         'The verification message sent by the peer party is: %s',
     'tip_draft': 'Draft',
     'tip_tips': 'Tips',
-    'tip_title': 'Oops!',
     'tip_success': 'Successful!',
     'tip_failed': 'Failed!',
+    'please_input_param': 'Please enter %s',
+    'param_format_error': 'The format of %s is incorrect',
+    'param_login': '%s Login',
+    'mobile_quick_login': 'Quick Login',
+    'button_continue': 'Continue',
+    'try_again_q': 'Want to try again?',
+    'not_receive_coe_q': 'Didn\'t receive the code?',
+    'next_step': 'Next Step',
+    'existing_password': 'Existing Password',
+    'new_password': 'New Password',
+    'region_search_tips': 'Search by region name or region code',
+    'license_agreement': '《Software license and Service Agreement》',
+    'agree_continue': 'Agree and Continue',
+    'pin_code_fill_tips': 'Please fill in the grid',
+    'per_minute_once': 'Can only request once per minute',
+    'param_already_exist': '%s already exists',
     'resend_code_success': 'New email has been sent.',
     'recover_password_success': 'Verification code sent successfully',
     'recover_password_desc': '',
@@ -981,13 +1020,12 @@ class Locales {
         'The confirmation code has been sent to your email,\nPlease enter the confirmation code to confirm your account.',
     'confirm_code_error': 'Confirmation code is empty',
     'confirm_code_success': 'Account confirmed.',
-    'confirm_recover_intro':
-        'The verification code has been sent to your email.',
+    'code_sent_to_param': 'Проверочный код был отправлен на %s',
     'confirm_recover_success': 'Password changed successfully.',
     'tip_connect_desc': 'No internet connection',
     'tip_providers_title_first': 'Or sign in with',
-    'tip_login_true': 'Already have an account?',
-    'tip_login_false': 'Don\'t have an account?',
+    'sigin_q': 'Already have an account?',
+    'no_sigin_q': 'Don\'t have an account?',
     'tip_greeting': 'Welcome to use',
     'tip_device_space': 'Occupying device %s‰ storage space(%s)',
     'tip_delete_contact':
@@ -1001,7 +1039,6 @@ class Locales {
     'incoming_call': '%s incoming call',
     'error_password': 'Incorrect password',
     'error_retype_password': 'The two passwords entered do not match',
-    'error_incorrect_phone': 'Incorrect phone number format',
     'error_failed_to_connect': 'Failed to connect to %s',
     'error_no_valid_file_or_url': '%s is not a valid file or URL',
     'error_unnecessary_parameter': 'Parameter %s is unnecessary',
@@ -1412,8 +1449,8 @@ class Locales {
     'you': 'ты',
     'set_param': 'настройка %s',
     'apply_param': 'Заявление %s',
-    'read_agree_param': 'Прочитано и согласие с《%s》',
-    'logout_notice': 'Уведомление об выходе из системы',
+    'read_agree_param': 'Прочитано и согласие с%s',
+    'logout_notice': '《Уведомление об выходе из системы》',
     'cancel_logout_title': 'Отменить процесс выхода?',
     'cancel_logout_body':
         'Эта учетная запись находится в период отсрочки отмены. Если вы успешно войти, это будет считаться прекращением процесса выхода. Если вы хотите продолжить отмену, пожалуйста, не входите в IMBoy в течение 15 дней после подачи заявки на отмену.',
@@ -1422,15 +1459,15 @@ class Locales {
     'button_taking_pictures': 'Фотографировать',
     'button_select_from_album': 'Выбрать из альбома',
     'button_send': 'Отправить',
-    'button_login': 'Войти',
-    'button_signup': 'Зарегистрироваться',
+    'login': 'Войти',
+    'signup': 'Зарегистрироваться',
     'button_logout': 'Выйти',
     'button_set_empty': 'Очистить',
     'button_confirm': 'Подтвердить',
     'button_add': 'Добавить',
     'button_delete': 'Удалить',
     'button_close': 'Закрыть',
-    'button_resend_code': 'Повторно отправить код подтверждения',
+    'resend_code': 'Повторно отправить код подтверждения',
     'button_invite_code': 'Пригласительный код',
     'forgot_password': 'Забыли пароль?',
     'recover_password': 'Восстановить пароль',
@@ -1447,9 +1484,24 @@ class Locales {
         'Подтвержденное сообщение от другой стороны: %s',
     'tip_draft': '草稿',
     'tip_tips': 'Советы',
-    'tip_title': 'Ура!',
     'tip_success': 'Операция успешна!',
     'tip_failed': 'Операция не удалась!',
+    'please_input_param': 'Пожалуйста, введите %s',
+    'param_format_error': 'Неверный формат %s',
+    'param_login': '%s залогин',
+    'mobile_quick_login': 'Быстрый вход',
+    'button_continue': 'Продолжить',
+    'try_again_q': 'Хотите попробовать снова?',
+    'not_receive_coe_q': 'Не получили код?',
+    'next_step': 'Следующий шаг',
+    'existing_password': 'Текущий пароль',
+    'new_password': 'Новый пароль',
+    'region_search_tips': 'Поиск по назначению или коду области',
+    'license_agreement': '《Лицензионное соглашение и соглашение об услугах》',
+    'agree_continue': 'Согласен и продолжить',
+    'pin_code_fill_tips': 'Пожалуйста, заполните все клеточки',
+    'per_minute_once': 'Можно запросить только один раз в минуту',
+    'param_already_exist': '%s уже существует',
     'resend_code_success': 'Новый код был отправлен на вашу почту.',
     'recover_password_success':
         'Код подтверждения был отправлен на вашу почту.',
@@ -1462,12 +1514,12 @@ class Locales {
         'Код подтверждения был отправлен на вашу почту,\nвведите код, чтобы подтвердить вашу учетную запись.',
     'confirm_code_error': 'Код подтверждения пуст',
     'confirm_code_success': 'Учетная запись подтверждена.',
-    'confirm_recover_intro': 'Код подтверждения был отправлен на вашу почту.',
+    'code_sent_to_param': 'Код подтверждения был отправлен на вашу почту.',
     'confirm_recover_success': 'Пароль успешно изменен.',
     'tip_connect_desc': 'Нет подключения к интернету',
     'tip_providers_title_first': 'Или войти через',
-    'tip_login_true': 'Уже есть учетная запись?',
-    'tip_login_false': 'Еще нет учетной записи?',
+    'sigin_q': 'Уже есть учетная запись?',
+    'no_sigin_q': 'Еще нет учетной записи?',
     'tip_greeting': 'Добро пожаловать в использование',
     'tip_device_space': 'Занимает %s‰ пространства на устройстве (%s)',
     'tip_delete_contact': 'Удалить контакт "%s" и сообщения с ним',
@@ -1480,7 +1532,6 @@ class Locales {
     'incoming_call': 'Входящий звонок от %s',
     'error_password': 'Неверный пароль',
     'error_retype_password': 'Пароли не совпадают',
-    'error_incorrect_phone': 'Неверный формат телефона',
     'error_failed_to_connect': 'Не удалось подключиться к %s',
     'error_no_valid_file_or_url':
         '%s не является действительным файлом или URL',
@@ -1897,8 +1948,8 @@ class Locales {
     'you': '你',
     'set_param': '設置%s',
     'apply_param': '申請%s',
-    'read_agree_param': '已經閱讀並同意《%s》',
-    'logout_notice': '註銷須知',
+    'read_agree_param': '已經閱讀並同意%s',
+    'logout_notice': '《註銷須知》',
     'cancel_logout_title': '是否終止註銷流程？',
     'cancel_logout_body':
         '此賬號處於註銷後悔期，若登錄成功則視作終止註銷流程。如需繼續註銷，請在註銷申請提交後的15天內不要登錄IMBoy。',
@@ -1907,15 +1958,15 @@ class Locales {
     'button_taking_pictures': '拍照',
     'button_select_from_album': '從相簿選擇',
     'button_send': '發送',
-    'button_login': '登錄',
-    'button_signup': '註帳',
+    'login': '登錄',
+    'signup': '註冊',
     'button_logout': '註銷',
     'button_set_empty': '置空',
     'button_confirm': '確認',
     'button_add': '新增',
     'button_delete': '刪除',
     'button_close': '關閉',
-    'button_resend_code': '重新發送驗證碼',
+    'resend_code': '重新發送驗證碼',
     'button_invite_code': '邀請碼',
     'forgot_password': '忘記密碼？',
     'recover_password': '找回密碼',
@@ -1931,9 +1982,24 @@ class Locales {
     'verification_message_sent_by_peer_is': '對方發來的驗證消息為：%s',
     'tip_draft': '草稿',
     'tip_tips': '小貼士',
-    'tip_title': '喔！',
     'tip_success': '操作成功！',
     'tip_failed': '操作失敗！',
+    'please_input_param': '請輸入%s',
+    'param_format_error': '%s格式不正確',
+    'param_login': '%s登入',
+    'mobile_quick_login': '一鍵登入',
+    'button_continue': '繼續',
+    'try_again_q': '想再試一次嗎？',
+    'not_receive_coe_q': '沒有收到驗證碼？',
+    'next_step': '下一階段',
+    'existing_password': '現有密碼',
+    'new_password': '新密碼',
+    'region_search_tips': '按地區名稱或區域編碼搜尋',
+    'license_agreement': '《軟體許可及服務協議》',
+    'agree_continue': '同意並繼續',
+    'pin_code_fill_tips': '請將方格填滿',
+    'per_minute_once': '每分鐘只能請求一次',
+    'param_already_exist': '%s已經存在',
     'resend_code_success': '已發送新郵件。',
     'recover_password_success': '驗證碼發送成功',
     'recover_password_desc': '',
@@ -1943,12 +2009,12 @@ class Locales {
     'signup_intro': '確認碼已發送到您的郵箱，\n請輸入確認碼確認您的帳戶。',
     'confirm_code_error': '確認碼為空',
     'confirm_code_success': '帳戶已確認。',
-    'confirm_recover_intro': '驗證碼已發送到您的郵箱。',
+    'code_sent_to_param': '驗證碼已發送到%s',
     'confirm_recover_success': '密碼修改成功。',
     'tip_connect_desc': '無網路',
     'tip_providers_title_first': '或用以下帳號登錄',
-    'tip_login_true': '已經有帳號了？',
-    'tip_login_false': '還沒有帳號？',
+    'sigin_q': '已經有帳號了？',
+    'no_sigin_q': '還沒有帳號？',
     'tip_greeting': '歡迎使用',
     'tip_device_space': '占設備 %s‰ 存儲空間(%s)',
     'tip_delete_contact': '將聯繫人"%s"刪除，同時刪除與該聯繫人的聊天記錄',
@@ -1961,7 +2027,6 @@ class Locales {
     'incoming_call': '%s呼入',
     'error_password': '密碼錯誤',
     'error_retype_password': '兩次輸入密碼不一致',
-    'error_incorrect_phone': '手機號碼格式有誤',
     'error_failed_to_connect': '連線到 %s 失敗',
     'error_no_valid_file_or_url': '%s 不是有效的檔案或URL',
     'error_unnecessary_parameter': '參數 %s 是多餘的',

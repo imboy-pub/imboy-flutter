@@ -62,6 +62,22 @@
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         tools:replace="android:label">
+        <!-- 极光服务 SDK 一键接入指南 Required -->
+        <activity
+            android:name="com.cmic.sso.sdk.activity.LoginAuthActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="unspecified"
+            android:theme="@style/ActivityDialogStyle"/>
+        <!-- Required -->
+        <activity
+            android:name="cn.jiguang.verifysdk.CtLoginActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="unspecified"
+            android:theme="@style/ActivityDialogStyle"/>
+      <!-- Required -->
+
         <activity
             android:exported="true"
             android:name=".MainActivity"
@@ -96,7 +112,6 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-
 
             <!-- Deep Links -->
             <intent-filter>
@@ -136,6 +151,7 @@
                 <data android:scheme="imboy" />
             </intent-filter>
         </activity>
+
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

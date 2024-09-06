@@ -28,6 +28,7 @@ class SearchField extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onClear;
   double? top;
   double? left;
+
   SearchField({
     super.key,
     required this.controller,
@@ -41,16 +42,16 @@ class SearchField extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return n.Padding(
-      top: top??0.0,
-      left: left??0.0,
+      top: top ?? 0.0,
+      left: left ?? 0.0,
       child: n.Row([
         Expanded(
           child: TextField(
             controller: controller,
-            autofocus:true,
+            autofocus: true,
             keyboardType: TextInputType.text,
+            // TextField 垂直居中光标
             textAlignVertical: TextAlignVertical.center,
-            // 垂直居中光标
             decoration: InputDecoration(
               filled: true,
               // 设置为true以启用填充背景
@@ -97,5 +98,5 @@ class SearchField extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   @override
-  Size get preferredSize => Size(120, 50+(top??0.0));
+  Size get preferredSize => Size(120, 50 + (top ?? 0.0));
 }

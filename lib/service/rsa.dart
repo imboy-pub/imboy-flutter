@@ -2,11 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:imboy/component/helper/string.dart';
+import 'package:imboy/service/storage_secure.dart';
 import 'package:pointycastle/export.dart';
 import 'package:pointycastle/pointycastle.dart';
+
 // ignore: implementation_imports
 import 'package:pointycastle/src/platform_check/platform_check.dart';
-import 'package:flutter_keychain/flutter_keychain.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
@@ -19,33 +20,33 @@ class RSAService {
   static const END_PUBLIC_KEY = '-----END PUBLIC KEY-----';
 
   static Future<String> publicKey() async {
-    String? k = await FlutterKeychain.get(key: Keys.publicKey);
+    String? k = await StorageSecureService().read(key: Keys.publicKey);
     if (strNoEmpty(k)) {
       return k!;
     }
     await _init();
-    k = await FlutterKeychain.get(key: Keys.publicKey);
+    k = await StorageSecureService().read(key: Keys.publicKey);
     return k!;
   }
 
   static Future<String?> privateKey() async {
-    String? k = await FlutterKeychain.get(key: Keys.privateKey);
+    String? k = await StorageSecureService().read(key: Keys.privateKey);
     if (strNoEmpty(k)) {
       return k;
     }
     await _init();
-    k = await FlutterKeychain.get(key: Keys.privateKey);
+    k = await StorageSecureService().read(key: Keys.privateKey);
     return k;
   }
 
   static Future<void> _init() async {
     AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> p = generateRSAKeyPair();
     // FlutterKeychain.put(key: Keys.publicKey, value: publicPEM);
-    await FlutterKeychain.put(
+    await StorageSecureService().write(
       key: Keys.publicKey,
       value: encodeRSAPublicKeyToPem(p.publicKey),
     );
-    await FlutterKeychain.put(
+    await StorageSecureService().write(
       key: Keys.privateKey,
       value: encodeRSAPrivateKeyToPem(p.privateKey),
     );

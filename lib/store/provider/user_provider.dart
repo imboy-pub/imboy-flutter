@@ -1,7 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_keychain/flutter_keychain.dart';
 import 'package:get/get.dart';
 
 import 'package:imboy/config/const.dart';
@@ -10,8 +9,8 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_parse.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/env.dart';
-
-import 'package:imboy/page/passport/passport_view.dart';
+import 'package:imboy/page/passport/login_view.dart';
+import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class UserProvider extends HttpClient {
@@ -35,7 +34,7 @@ class UserProvider extends HttpClient {
   }) async {
     if (strEmpty(refreshToken)) {
       UserRepoLocal.to.quitLogin();
-      Get.offAll(() => PassportPage());
+      Get.offAll(() => const LoginPage());
       return "";
     }
     Map<String, dynamic> headers = await defaultHeaders();
@@ -57,10 +56,10 @@ class UserProvider extends HttpClient {
     String newToken = resp.payload?['token'] ?? '';
     if (checkNewToken && strEmpty(newToken)) {
       UserRepoLocal.to.quitLogin();
-      Get.offAll(() => PassportPage());
+      Get.offAll(() => const LoginPage());
       return "";
     }
-    await FlutterKeychain.put(
+    await StorageSecureService().write(
       key: Keys.tokenKey,
       value: newToken,
     );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
-import 'package:flutter_login/flutter_login.dart';
 import 'package:get/get.dart';
 
 //调用的时候需要把hex改一下，比如#223344 needs change to 0xFF223344
@@ -112,42 +111,6 @@ final ThemeData darkTheme = ThemeData(
   useMaterial3: true,
   colorScheme: darkColorScheme,
   // inputDecorationTheme: InputDecorationTheme(),
-);
-
-final LoginTheme loginTheme = LoginTheme(
-  // background
-  // primaryColor: Get.isDarkMode ? darkPrimaryColor : lightPrimaryColor,
-  primaryColor: Colors.green,
-  accentColor: Theme.of(Get.context!).colorScheme.onPrimary,
-  footerBackgroundColor: Colors.green,
-  logoWidth: 1.0,
-  headerMargin: 20,
-  titleStyle: const TextStyle(
-    color: Colors.white,
-  ),
-  buttonTheme: LoginButtonTheme(
-    // splashColor: Theme.of(Get.context!).colorScheme.onPrimary,
-    splashColor: Colors.red,
-    backgroundColor: Colors.green,
-    highlightColor: Colors.lightGreen,
-    elevation: 10.0,
-    shape: BeveledRectangleBorder(
-      borderRadius: BorderRadius.circular(2),
-    ),
-  ),
-  cardTheme: CardTheme(
-    // color: Colors.yellow.shade100,
-    elevation: 8,
-    margin: const EdgeInsets.only(top: 8, left: 0, right: 0),
-    shape: ContinuousRectangleBorder(
-      borderRadius: BorderRadius.circular(40.0),
-    ),
-  ),
-  inputTheme: const InputDecorationTheme(
-    filled: true,
-    // iconColor: Colors.red,
-    // suffixIconColor: AppColors.primaryElement,
-  ),
 );
 
 @immutable

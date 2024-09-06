@@ -11,9 +11,11 @@ import device_info_plus
 import emoji_picker_flutter
 import file_selector_macos
 import flutter_inappwebview_macos
+import flutter_secure_storage_macos
 import flutter_webrtc
 import ic_storage_space
 import just_audio
+import local_auth_darwin
 import mobile_scanner
 import open_file_mac
 import package_info_plus
@@ -36,9 +38,11 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   EmojiPickerFlutterPlugin.register(with: registry.registrar(forPlugin: "EmojiPickerFlutterPlugin"))
   FileSelectorPlugin.register(with: registry.registrar(forPlugin: "FileSelectorPlugin"))
   InAppWebViewFlutterPlugin.register(with: registry.registrar(forPlugin: "InAppWebViewFlutterPlugin"))
+  FlutterSecureStoragePlugin.register(with: registry.registrar(forPlugin: "FlutterSecureStoragePlugin"))
   FlutterWebRTCPlugin.register(with: registry.registrar(forPlugin: "FlutterWebRTCPlugin"))
   IcStorageSpacePlugin.register(with: registry.registrar(forPlugin: "IcStorageSpacePlugin"))
   JustAudioPlugin.register(with: registry.registrar(forPlugin: "JustAudioPlugin"))
+  FLALocalAuthPlugin.register(with: registry.registrar(forPlugin: "FLALocalAuthPlugin"))
   MobileScannerPlugin.register(with: registry.registrar(forPlugin: "MobileScannerPlugin"))
   OpenFilePlugin.register(with: registry.registrar(forPlugin: "OpenFilePlugin"))
   FPPPackageInfoPlusPlugin.register(with: registry.registrar(forPlugin: "FPPPackageInfoPlusPlugin"))

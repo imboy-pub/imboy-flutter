@@ -9,6 +9,7 @@ import 'package:image/image.dart' as img;
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/feedback_builder.dart';
+import 'package:imboy/page/passport/welcome_view.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:jiffy/jiffy.dart';
@@ -28,7 +29,6 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'component/locales/locales.dart';
 import 'config/init.dart';
 import 'config/theme.dart';
-import 'page/passport/passport_view.dart';
 
 void run() async {
   await Jiffy.setLocale(jiffyLocal(sysLang('jiffy')));
@@ -174,7 +174,7 @@ class _IMBoyAppState extends State<IMBoyApp> {
           // 底部导航组件
           home: UserRepoLocal.to.currentUid.isNotEmpty
               ? BottomNavigationPage()
-              : PassportPage(),
+              : const WelcomePage(),
           debugShowCheckedModeBanner: false,
           // getPages: AppPages.routes,
           // initialRoute: AppPages.INITIAL,

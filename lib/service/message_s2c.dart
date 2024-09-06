@@ -9,6 +9,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
 import 'package:imboy/page/group/group_list/group_list_logic.dart';
+import 'package:imboy/page/passport/login_view.dart';
 import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/people_model.dart';
@@ -18,7 +19,6 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:imboy/page/contact/new_friend/new_friend_logic.dart';
-import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/page/single/upgrade.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/provider/app_version_provider.dart';
@@ -239,7 +239,7 @@ class MessageS2CService {
         if (did != deviceId) {
           int serverTs = data['server_ts'] ?? 0;
           UserRepoLocal.to.quitLogin();
-          Get.off(() => PassportPage(), arguments: {
+          Get.off(() => const LoginPage(), arguments: {
             "msg_type": "logged_another_device",
             "server_ts": serverTs,
             "dname": payload['dname'] ?? '', // 设备名称

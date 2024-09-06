@@ -90,4 +90,6 @@ post_install do |installer|
   end
 end
 
+
+pod 'JVerification'
 pod 'PhoneNumberKit', '~> 3.8.0'

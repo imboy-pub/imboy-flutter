@@ -7,6 +7,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
+import 'package:imboy/page/passport/login_view.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -14,7 +15,6 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
 
 import 'package:imboy/config/init.dart';
-import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// WebSocket状态
@@ -27,6 +27,8 @@ enum SocketStatus {
 class WebSocketService {
   WebSocketService._();
 
+  static WebSocketService? _self;
+
   static WebSocketService get to {
     _self ??= WebSocketService._();
     iPrint("WebSocketService_init ${_self.hashCode} ${_self.toString()}");
@@ -38,8 +40,6 @@ class WebSocketService {
 
   // wsConnectLock 防止token过期的时候产生多个WS链接
   bool wsConnectLock = false;
-  static WebSocketService? _self;
-
   Iterable<String> protocols = ['text', 'sip'];
 
   // String pingMsg = 'ping';
@@ -99,12 +99,13 @@ class WebSocketService {
       String tk = await UserRepoLocal.to.accessToken;
       iPrint("Get.currentRoute ${Get.currentRoute}");
       if (tk.isEmpty) {
-        iPrint('> ws openSocket tk isEmpty ${tk.isEmpty}, checkRoute $checkRoute;');
+        iPrint(
+            '> ws openSocket tk isEmpty ${tk.isEmpty}, checkRoute $checkRoute;');
         wsConnectLock = false;
         if (checkRoute) {
           closeSocket(exit: true);
           UserRepoLocal.to.quitLogin();
-          Get.offAll(() => PassportPage());
+          Get.offAll(() => const LoginPage());
         }
       }
       if (tokenExpired(tk) == false) {
@@ -190,7 +191,7 @@ class WebSocketService {
       switch (closeCode) {
         case 4006:
           UserRepoLocal.to.quitLogin();
-          Get.offAll(() => PassportPage());
+          Get.offAll(() => const LoginPage());
           break;
         default:
           await closeSocket();

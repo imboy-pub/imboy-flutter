@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/passport/login_view.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/password.dart';
-import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/common_bar.dart';
 
@@ -44,7 +45,7 @@ class ChangePasswordPage extends StatelessWidget {
             ),
             Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
+                horizontal: 0.0,
                 vertical: 8.0,
               ),
               decoration: const BoxDecoration(
@@ -75,7 +76,7 @@ class ChangePasswordPage extends StatelessWidget {
             ),
             Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
+                horizontal: 0.0,
                 vertical: 8.0,
               ),
               decoration: const BoxDecoration(
@@ -106,7 +107,7 @@ class ChangePasswordPage extends StatelessWidget {
             ),
             Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
+                horizontal: 0.0,
                 vertical: 8.0,
               ),
               decoration: const BoxDecoration(
@@ -149,7 +150,7 @@ class ChangePasswordPage extends StatelessWidget {
                   if (res) {
                     EasyLoading.showSuccess('confirm_recover_success'.tr);
                     UserRepoLocal.to.quitLogin();
-                    Get.offAll(() => PassportPage());
+                    Get.offAll(() =>  const LoginPage());
                   }
                 },
                 highlighted: true,

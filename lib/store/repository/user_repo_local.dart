@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_keychain/flutter_keychain.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/passport/passport_view.dart';
+import 'package:imboy/page/passport/login_view.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/user_model.dart';
 
@@ -28,7 +28,7 @@ class UserRepoLocal extends GetxController {
   // 令牌 token
   Future<String> get accessToken async {
     try {
-      return await FlutterKeychain.get(key: Keys.tokenKey) ?? '';
+      return await StorageSecureService().read(key: Keys.tokenKey) ?? '';
     } catch (e) {
       debugPrint("accessToken on Exception: $e");
     }
@@ -38,7 +38,7 @@ class UserRepoLocal extends GetxController {
   Future<String> get refreshToken async {
     try {
       // StorageService.to.getString(Keys.refreshTokenKey) ?? '';
-      return await FlutterKeychain.get(key: Keys.refreshTokenKey) ?? '';
+      return await StorageSecureService().read(key: Keys.refreshTokenKey) ?? '';
     } catch (e) {
       debugPrint("refreshToken on Exception: $e");
     }
@@ -50,7 +50,7 @@ class UserRepoLocal extends GetxController {
     iPrint("current user ${user.toString()}");
     if (user.isEmpty) {
       WebSocketService.to.closeSocket(exit: true);
-      Get.offAll(() => PassportPage());
+      Get.offAll(() => const LoginPage());
     }
     return UserModel.fromJson(user);
   }
@@ -79,13 +79,25 @@ class UserRepoLocal extends GetxController {
     return true;
   }
 
-  Future<bool> loginAfter(Map<String, dynamic> payload) async {
+  Future<bool> loginAfter(String account, Map<String, dynamic> payload) async {
+
+    StorageService.to.setString(Keys.lastLoginAccount, account);
+    List<String>? li = StorageService.to.getStringList(Keys.loginHistory);
+    if (li == null) {
+      li = [account];
+      StorageService.to.setStringList(Keys.loginHistory, li);
+    } else if(li.contains(account) == false) {
+      li.insert(0, account);
+      StorageService.to.setStringList(Keys.loginHistory, li);
+    }
+
     await StorageService.to.setString(Keys.currentUid, payload['uid']);
-    await FlutterKeychain.put(
+
+    await StorageSecureService().write(
       key: Keys.tokenKey,
       value: payload['token'],
     );
-    await FlutterKeychain.put(
+    await StorageSecureService().write(
       key: Keys.refreshTokenKey,
       value: payload['refreshtoken'],
     );
@@ -124,9 +136,9 @@ class UserRepoLocal extends GetxController {
     await StorageService.to.remove(Keys.uploadScene);
 
     try {
-      await FlutterKeychain.remove(key: Keys.tokenKey);
-      await FlutterKeychain.remove(key: Keys.currentUid);
-      await FlutterKeychain.remove(key: Keys.currentUser);
+      await StorageSecureService().delete(key: Keys.tokenKey);
+      await StorageSecureService().delete(key: Keys.currentUid);
+      await StorageSecureService().delete(key: Keys.currentUser);
     } catch (e) {
       // FlutterKeychain 不支持 macos
     }

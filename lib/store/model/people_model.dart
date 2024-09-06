@@ -10,6 +10,7 @@ class PeopleModel {
   String distanceUnit;
   bool? isFriend;
   String remark;
+  int createdAt;
 
   PeopleModel({
     required this.id, // userId or other
@@ -23,6 +24,7 @@ class PeopleModel {
     this.region = '',
     this.isFriend,
     this.remark = '',
+    this.createdAt = 0,
   });
 
   factory PeopleModel.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class PeopleModel {
       distanceUnit: json["unit"] ?? "m",
       isFriend: json['is_friend'],
       remark: json['remark'] ?? '',
+      createdAt: json['created_at'] ?? 0,
     );
   }
 
@@ -56,6 +59,7 @@ class PeopleModel {
     data["unit"] = distanceUnit;
     data['is_friend'] = isFriend;
     data['remark'] = remark;
+    data['created_at'] = createdAt;
     return data;
   }
 

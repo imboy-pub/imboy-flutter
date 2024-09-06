@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:get/get.dart';
+
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-
 import 'package:imboy/service/encrypter.dart';
 
 // ignore: must_be_immutable
@@ -14,6 +14,7 @@ class MarkdownPage extends StatelessWidget {
     super.key,
     required this.title,
     required this.url,
+    this.leading,
     this.rightDMActions,
     this.selectable = false,
   });
@@ -22,9 +23,11 @@ class MarkdownPage extends StatelessWidget {
   String url;
   bool selectable = false;
   RxString content = "".obs;
+  final Widget? leading;
   final List<Widget>? rightDMActions;
 
   void initData() async {
+    // iPrint("MarkdownPage_url $url ;;;;");
     File tmpF = await IMBoyCacheManager().getSingleFile(
       url,
       key: EncrypterService.md5(url),
@@ -39,6 +42,7 @@ class MarkdownPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
+        leading: leading,
         automaticallyImplyLeading: true,
         title: title,
         rightDMActions: rightDMActions,

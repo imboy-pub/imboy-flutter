@@ -31,7 +31,7 @@ class LanguageLogic extends GetxController {
     BuildContext context,
     Map<String, String> model,
   ) {
-    String id = model["id"] ?? "";
+    String id = model['id'] ?? '';
     return Obx(
       () => Container(
         height: 52,
@@ -76,5 +76,13 @@ class LanguageLogic extends GetxController {
         ),
       ),
     );
+  }
+
+  /// 获取系统支持的regionCode列表
+  /// pkg = intl_phone_number_input
+  List<String> regionCodeList(String? pkg) {
+    return state.languageList
+        .map((lang) => lang['regionCode'] ?? 'CN')
+        .toList();
   }
 }

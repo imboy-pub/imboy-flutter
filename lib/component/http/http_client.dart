@@ -15,7 +15,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
-import 'package:imboy/page/passport/passport_view.dart';
+import 'package:imboy/page/passport/login_view.dart';
 
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/provider/user_provider.dart';
@@ -156,7 +156,7 @@ class HttpClient {
       );
       if (resp.code == 706) {
         UserRepoLocal.to.quitLogin();
-        getx.Get.offAll(() => PassportPage());
+        getx.Get.offAll(() => const LoginPage());
       } else if (resp.code == 707) {
         EasyLoading.showInfo(resp.msg);
         response = await _dio.get(

@@ -28,18 +28,18 @@ class RightButton extends StatelessWidget {
         showPopover(
           context: context,
           bodyBuilder: (context) => const RightButtonList(),
-          direction: PopoverDirection.left,
           barrierColor: Theme.of(context).colorScheme.onSurface,
           backgroundColor: Theme.of(context).colorScheme.onSurface,
           // barrierDismissible: false,
           // shadow: const [BoxShadow(color: Colors.white, blurRadius: 5)],
-          width: 110,
-          height: 280,
+          direction: PopoverDirection.bottom,
+          width: 128,
+          height: 288,
           arrowHeight: 6,
-          arrowWidth: 20,
+          arrowWidth: 12,
           arrowDxOffset: 0,
           contentDxOffset: 0,
-          arrowDyOffset: 0,
+          arrowDyOffset: -4,
         );
       },
     );
@@ -58,125 +58,119 @@ class RightButtonList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black87,
-      // padding: EdgeInsets.symmetric(vertical: GetPlatform.isDesktop ? 24 : 8),
-      // width: 80,
-      child: n.ListView.children([
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-            Get.to(
-              () => LaunchChatPage(),
-              transition: Transition.rightToLeft,
-              popGesture: true, // 右滑，返回上一页
-            );
-          },
-          child: n.Row([
-            n.Padding(
-              right: 8,
-              child: n.Icon(Icons.chat_bubble_outlined)
-                ..size = 18
-                ..color = Colors.white.withOpacity(0.9),
-            ),
-            Expanded(
+    return n.ListView.children([
+      TextButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+          Get.to(
+            () => LaunchChatPage(),
+            transition: Transition.rightToLeft,
+            popGesture: true, // 右滑，返回上一页
+          );
+        },
+        child: n.Row([
+          n.Padding(
+            right: 8,
+            child: n.Icon(Icons.chat_bubble_outlined)
+              ..size = 18
+              ..color = Colors.white.withOpacity(0.9),
+          ),
+          Expanded(
+            child: n.Text(
+              'initiate_chat'.tr,
+            )..apply = ItemTitleStyle.style,
+          ),
+        ]),
+      ),
+      TextButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+          Get.to(
+            () => AddFriendPage(),
+            transition: Transition.rightToLeft,
+            popGesture: true, // 右滑，返回上一页
+          );
+        },
+        child: n.Row([
+          n.Padding(
+            right: 8,
+            child: n.Icon(Icons.person_add_alt_1)
+              ..size = 18
+              ..color = Colors.white.withOpacity(0.9),
+          ),
+          Expanded(
+            child: n.Text(
+              'add_friend'.tr,
+            )..apply = ItemTitleStyle.style,
+          ),
+        ]),
+      ),
+      TextButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+          Get.to(
+            () => RecentlyRegisteredUserPage(),
+            transition: Transition.rightToLeft,
+            popGesture: true, // 右滑，返回上一页
+          );
+        },
+        child: n.Row([
+          n.Padding(
+            right: 8,
+            child: n.Icon(Icons.person)
+              ..size = 18
+              ..color = Colors.white.withOpacity(0.9),
+          ),
+          Expanded(
               child: n.Text(
-                'initiate_chat'.tr,
-              )..apply = ItemTitleStyle.style,
-            ),
-          ]),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-            Get.to(
-                  () => AddFriendPage(),
-              transition: Transition.rightToLeft,
-              popGesture: true, // 右滑，返回上一页
-            );
-          },
-          child: n.Row([
-            n.Padding(
-              right: 8,
-              child: n.Icon(Icons.person_add_alt_1)
-                ..size = 18
-                ..color = Colors.white.withOpacity(0.9),
-            ),
-            Expanded(
+            'newly_registered_people'.tr,
+          )..apply = ItemTitleStyle.style),
+        ]),
+      ),
+      TextButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+          Get.to(
+            () => UserQrCodePage(),
+            transition: Transition.rightToLeft,
+            popGesture: true, // 右滑，返回上一页
+          );
+        },
+        child: n.Row([
+          n.Padding(
+            right: 8,
+            child: n.Icon(Icons.qr_code_2)
+              ..size = 18
+              ..color = Colors.white.withOpacity(0.9),
+          ),
+          Expanded(
               child: n.Text(
-                'add_friend'.tr,
-              )..apply = ItemTitleStyle.style,
-            ),
-          ]),
-        ),
-        TextButton(
-          onPressed:  () {
-            Navigator.of(context).pop();
-            Get.to(
-              () => RecentlyRegisteredUserPage(),
-              transition: Transition.rightToLeft,
-              popGesture: true, // 右滑，返回上一页
-            );
-          },
-          child: n.Row([
-            n.Padding(
-              right: 8,
-              child: n.Icon(Icons.person)
-                ..size = 18
-                ..color = Colors.white.withOpacity(0.9),
-            ),
-            Expanded(
-                child: n.Text(
-              'newly_registered_people'.tr,
-            )..apply = ItemTitleStyle.style),
-          ]),
-        ),
-        TextButton(
-          onPressed:  () {
-            Navigator.of(context).pop();
-            Get.to(
-              () => UserQrCodePage(),
-              transition: Transition.rightToLeft,
-              popGesture: true, // 右滑，返回上一页
-            );
-          },
-          child: n.Row([
-            n.Padding(
-              right: 8,
-              child: n.Icon(Icons.qr_code_2)
-                ..size = 18
-                ..color = Colors.white.withOpacity(0.9),
-            ),
-            Expanded(
-                child: n.Text(
-              'my_qrcode'.tr,
-            )..apply = ItemTitleStyle.style),
-          ]),
-        ),
-        TextButton(
-          onPressed:  () {
-            Navigator.of(context).pop();
-            Get.to(
-              () => const ScannerPage(),
-              transition: Transition.rightToLeft,
-              popGesture: true, // 右滑，返回上一页
-            );
-          },
-          child: n.Row([
-            n.Padding(
-              right: 8,
-              child: n.Icon(Icons.qr_code_scanner_outlined)
-                ..size = 18
-                ..color = Colors.white.withOpacity(0.9),
-            ),
-            Expanded(
-                child: n.Text(
-              'scan_qr_code'.tr,
-            )..apply = ItemTitleStyle.style),
-          ]),
-        ),
-      ]),
-    );
+            'my_qrcode'.tr,
+          )..apply = ItemTitleStyle.style),
+        ]),
+      ),
+      TextButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+          Get.to(
+            () => const ScannerPage(),
+            transition: Transition.rightToLeft,
+            popGesture: true, // 右滑，返回上一页
+          );
+        },
+        child: n.Row([
+          n.Padding(
+            right: 8,
+            child: n.Icon(Icons.qr_code_scanner_outlined)
+              ..size = 18
+              ..color = Colors.white.withOpacity(0.9),
+          ),
+          Expanded(
+              child: n.Text(
+            'scan_qr_code'.tr,
+          )..apply = ItemTitleStyle.style),
+        ]),
+      ),
+    ]);
   }
 }
-

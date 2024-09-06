@@ -6,6 +6,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 
 import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
+import 'package:imboy/page/passport/login_view.dart';
 import 'package:imboy/store/model/group_model.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
@@ -14,7 +15,7 @@ import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
-import 'package:imboy/page/passport/passport_view.dart';
+
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -162,7 +163,7 @@ class MessageService extends GetxService {
       //   break;
       case '706': // 需要重新登录
         UserRepoLocal.to.quitLogin();
-        Get.offAll(() => PassportPage());
+        Get.offAll(() => const LoginPage());
         break;
     }
   }

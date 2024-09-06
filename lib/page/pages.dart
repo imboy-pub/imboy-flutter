@@ -2,13 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/middleware/router_auth.dart';
-import 'package:imboy/page/passport/passport_view.dart';
 
 import 'contact/contact/contact_view.dart';
 import 'mine/mine/mine_binding.dart';
 import 'mine/mine/mine_view.dart';
-import 'welcome/welcome_binding.dart';
-import 'welcome/welcome_view.dart';
+import 'passport/login_view.dart';
+import 'passport/welcome_view.dart';
 
 class AppPages {
   static const INITIAL = AppRoutes.INITIAL;
@@ -19,15 +18,15 @@ class AppPages {
     // 免登陆
     GetPage(
       name: AppRoutes.INITIAL,
-      page: () => WelcomePage(),
-      binding: WelcomeBinding(),
+      page: () => const WelcomePage(),
+      // binding: WelcomeBinding(),
       middlewares: const [
         // RouteWelcomeMiddleware(priority: 1),
       ],
     ),
     GetPage(
       name: AppRoutes.SIGN_IN,
-      page: () => PassportPage(),
+      page: () => const LoginPage(),
     ),
     // GetPage(
     //   name: AppRoutes.SIGN_UP,

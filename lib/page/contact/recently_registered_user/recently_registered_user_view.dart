@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/avatar.dart';
@@ -57,7 +58,9 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
-          automaticallyImplyLeading: true, title: 'newly_registered_people'.tr),
+        automaticallyImplyLeading: true,
+        title: 'newly_registered_people'.tr,
+      ),
       body: SlidableAutoCloseBehavior(
           child: n.Column([
         Expanded(
@@ -82,12 +85,21 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
                             ? model.account
                             : model.nickname),
                         subtitle: n.Row([
+                          if (model.createdAt > 0) Text(
+                            "${DateTimeHelper.lastTimeFmt(model.createdAt)}  ",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              // color: AppColors.MainTextColor,
+                              fontSize: 14.0,
+                            ),
+                          ),
                           Expanded(
                               child: Text(
                             model.sign,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                          ))
+                          )),
                         ]),
                         onTap: () {
                           Get.to(

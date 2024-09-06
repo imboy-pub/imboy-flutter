@@ -1,6 +1,7 @@
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/page/contact/contact/contact_logic.dart';
 
 import 'package:imboy/page/contact/contact/contact_view.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
@@ -15,7 +16,7 @@ class BottomNavigationPage extends StatelessWidget {
   //全局状态控制器
   final BottomNavigationLogic logic = Get.find();
   final ConversationLogic conversationLogic = Get.find();
-
+  final contactLogic = Get.put(ContactLogic());
   final BottomNavigationState state = Get.find<BottomNavigationLogic>().state;
 
   List<Widget> pageList = [
@@ -131,9 +132,8 @@ class BottomNavigationPage extends StatelessWidget {
                 showBadge: true,
                 position: badges.BadgePosition.topStart(top: 36, start: 40),
                 badgeStyle: badges.BadgeStyle(
-                  badgeColor: state.isConnected.isTrue
-                      ? Colors.green
-                      : Colors.red,
+                  badgeColor:
+                      state.isConnected.isTrue ? Colors.green : Colors.red,
                 ),
                 child: const Icon(Icons.person),
               ),

@@ -7,6 +7,7 @@ import 'package:imboy/component/web_view.dart';
 import 'package:imboy/page/mine/change_password/change_password_view.dart';
 import 'package:imboy/page/mine/logout_account/logout_account_view.dart';
 import 'package:imboy/page/mine/user_device/user_device_view.dart';
+import 'package:imboy/page/passport/welcome_view.dart';
 import 'package:imboy/page/personal_info/update/update_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
@@ -131,7 +132,7 @@ class AccountSecurityPage extends StatelessWidget {
                       field: 'input',
                       callback: (val) async {
                         if (isPhone(val) == false) {
-                          EasyLoading.showError('error_incorrect_phone'.tr);
+                          EasyLoading.showError('param_format_error'.trArgs(['mobile'.tr]));
                           return false;
                         }
                         iPrint("set_param val $val");
@@ -227,6 +228,25 @@ class AccountSecurityPage extends StatelessWidget {
                 transition: Transition.rightToLeft,
                 popGesture: true, // 右滑，返回上一页
               );
+            },
+          ),
+          HorizontalLine(
+            height: 10,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          ButtonRow(
+            text: 'log_out'.tr,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimary,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+            isBorder: false,
+            onPressed: () async {
+              bool result = await UserRepoLocal.to.quitLogin();
+              if (result) {
+                Get.offAll(() => const WelcomePage());
+              }
             },
           ),
           HorizontalLine(

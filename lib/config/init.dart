@@ -131,8 +131,8 @@ Future<void> init({required String env, required String signKeyVsn}) async {
   // step 1
   WakelockPlus.enable();
   // step 2
-  await StorageService.init();
   // 放在 UserRepoLocal 前面
+  await StorageService.init();
   // getx.Get.put(StorageService());
   getx.Get.lazyPut(() => StorageService());
 

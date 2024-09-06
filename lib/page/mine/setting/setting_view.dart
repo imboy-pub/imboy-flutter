@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:niku/namespace.dart' as n;
+
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/mine/account_security/account_security_view.dart';
 import 'package:imboy/store/provider/user_provider.dart';
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/page/mine/dark_model/dark_model_view.dart';
@@ -17,8 +17,8 @@ import 'package:imboy/store/provider/app_version_provider.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/page/passport/passport_view.dart';
 import 'package:imboy/page/single/markdown.dart';
+
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'setting_logic.dart';
@@ -351,25 +351,6 @@ class _SettingPageState extends State<SettingPage> {
             onPressed: () async {},
           ),
           */
-          HorizontalLine(
-            height: 10,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          ButtonRow(
-            text: 'log_out'.tr,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onPrimary,
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
-            isBorder: false,
-            onPressed: () async {
-              bool result = await UserRepoLocal.to.quitLogin();
-              if (result) {
-                Get.offAll(() => PassportPage());
-              }
-            },
-          ),
           HorizontalLine(
             height: 10,
             color: Theme.of(context).colorScheme.primary,

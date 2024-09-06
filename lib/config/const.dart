@@ -45,6 +45,7 @@ class Keys {
   static const refreshTokenKey = 'imboy-refreshtoken';
 
   static String lastLoginAccount = 'lastLoginAccount';
+  static String loginHistory = 'loginHistory';
   static String themeType = 'theme_type';
 }
 

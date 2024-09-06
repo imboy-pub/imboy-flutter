@@ -24,6 +24,8 @@ class PasswordTextField extends StatelessWidget {
       obscureText: obscureText,
       enableSuggestions: false,
       autocorrect: false,
+      // TextField 垂直居中光标
+      textAlignVertical: TextAlignVertical.center,
       decoration: InputDecoration(
         border: InputBorder.none,
         hintText: hintText,

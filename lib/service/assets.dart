@@ -53,8 +53,8 @@ class AssetsService {
     Map<String, dynamic> data = authData();
     Map<String, String> q = Map<String, String>.from(u.queryParameters)
       ..addAll({
-        's': data['s'],
-        'a': data['a'],
+        's': data['s']??'',
+        'a': data['a']?? '',
         'v': data['v'].toString(),
       });
     // debugPrint("viewUrl 2 ${Uri(

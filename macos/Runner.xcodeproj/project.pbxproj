@@ -326,7 +326,7 @@
 		3399D490228B24CF009A79C7 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			files = (
 			);
 			inputFileListPaths = (
@@ -340,6 +340,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "echo \"$PRODUCT_NAME.app\" > \"$PROJECT_DIR\"/Flutter/ephemeral/.app_filename && \"$FLUTTER_ROOT\"/packages/flutter_tools/bin/macos_assemble.sh embed\n";
+			showEnvVarsInLog = 0;
 		};
 		33CC111E2044C6BF0003C045 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -482,7 +483,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = pub.imboy.imboyflutter.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/imboyflutter.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/imboyflutter";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IMBoy.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/IMBoy";
 			};
 			name = Debug;
 		};
@@ -497,7 +498,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = pub.imboy.imboyflutter.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/imboyflutter.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/imboyflutter";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IMBoy.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/IMBoy";
 			};
 			name = Release;
 		};
@@ -512,7 +513,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = pub.imboy.imboyflutter.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/imboyflutter.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/imboyflutter";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IMBoy.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/IMBoy";
 			};
 			name = Profile;
 		};

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:imboy/config/theme.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -79,14 +80,6 @@ class RoundedElevatedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
-      // ignore: sort_child_properties_last
-      child: n.Padding(
-          left: 10,
-          right: 10,
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-          )),
       style: highlighted
           ? ButtonStyle(
               backgroundColor: WidgetStateProperty.all<Color>(
@@ -101,10 +94,11 @@ class RoundedElevatedButton extends StatelessWidget {
               visualDensity: VisualDensity.compact,
               padding: WidgetStateProperty.all(EdgeInsets.zero),
               shape: WidgetStateProperty.all<OutlinedBorder>(
-                  RoundedRectangleBorder(
-                borderRadius:
-                    borderRadius ?? BorderRadius.circular(30.0), // 设置圆角大小
-              )),
+                RoundedRectangleBorder(
+                  borderRadius:
+                      borderRadius ?? BorderRadius.circular(30.0), // 设置圆角大小
+                ),
+              ),
             )
           : ButtonStyle(
               backgroundColor: WidgetStateProperty.all<Color>(
@@ -122,6 +116,60 @@ class RoundedElevatedButton extends StatelessWidget {
                     borderRadius ?? BorderRadius.circular(30.0), // 设置圆角大小
               )),
             ),
+      child: n.Padding(
+          left: 10,
+          right: 10,
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+          )),
     );
   }
+}
+
+ButtonStyle lightGreenButtonStyle(Size? s) {
+  return ButtonStyle(
+    backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+      (Set<WidgetState> states) {
+        if (states.contains(WidgetState.pressed)) {
+          return Colors.lightGreen[700]; // 按下时的背景颜色
+        }
+        return Colors.lightGreen; // 默认背景颜色
+      },
+    ),
+    foregroundColor: WidgetStateProperty.all<Color>(
+      Colors.white,
+    ),
+    minimumSize: WidgetStateProperty.all(
+      s ?? Size(Get.width - 10, 58),
+    ),
+    visualDensity: VisualDensity.compact,
+    padding: WidgetStateProperty.all(EdgeInsets.zero),
+    shape: WidgetStateProperty.all<OutlinedBorder>(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5.0), // 设置圆角大小
+      ),
+    ),
+  );
+}
+
+ButtonStyle whiteGreenButtonStyle(Size? s) {
+  return ButtonStyle(
+    backgroundColor: WidgetStateProperty.all<Color>(
+      Colors.white,
+    ),
+    foregroundColor: WidgetStateProperty.all<Color>(
+      Colors.green,
+    ),
+    minimumSize: WidgetStateProperty.all(
+      s ?? const Size(88, 58),
+    ),
+    visualDensity: VisualDensity.compact,
+    padding: WidgetStateProperty.all(EdgeInsets.zero),
+    shape: WidgetStateProperty.all<OutlinedBorder>(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5.0), // 设置圆角大小
+      ),
+    ),
+  );
 }
