@@ -9,7 +9,6 @@ import 'package:niku/namespace.dart' as n;
 import 'login_view.dart';
 import 'signup_view.dart';
 import 'passport_logic.dart';
-import 'widget/bezier_container.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key, this.title});
@@ -187,6 +186,7 @@ class WelcomePageState extends State<WelcomePage> {
                     flex: 1,
                     child: n.Padding(
                       left: 10,
+                      right: 10,
                       child: ElevatedButton(
                         style: lightGreenButtonStyle(const Size(80, 48)),
                         onPressed: () async {
@@ -196,30 +196,38 @@ class WelcomePageState extends State<WelcomePage> {
                             popGesture: true, // 右滑，返回上一页
                           );
                         },
-                        child: Text(
-                          'signup'.tr,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 20),
+                        child: n.Padding(
+                          left: 8,
+                          right: 8,
+                          child: Text(
+                            'signup'.tr,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 20),
+                          ),
                         ),
                       ),
                     )),
                 Flexible(
                     child: n.Padding(
+                  left: 10,
                   right: 10,
                   child: ElevatedButton(
-                    style: whiteGreenButtonStyle(const Size(80, 48)),
-                    onPressed: () {
-                      Get.to(
-                        () => const LoginPage(),
-                        transition: Transition.rightToLeft,
-                        popGesture: true, // 右滑，返回上一页
-                      );
-                    },
-                    child: Text(
-                      'param_login'.trArgs(['account'.tr]),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
+                      style: whiteGreenButtonStyle(const Size(80, 48)),
+                      onPressed: () {
+                        Get.to(
+                          () => const LoginPage(),
+                          transition: Transition.rightToLeft,
+                          popGesture: true, // 右滑，返回上一页
+                        );
+                      },
+                      child: n.Padding(
+                        left: 8,
+                        right: 8,
+                        child: Text(
+                          'param_login'.trArgs(['account'.tr]),
+                          textAlign: TextAlign.center,
+                        ),
+                      )),
                 )),
               ])
                 // 两端对齐

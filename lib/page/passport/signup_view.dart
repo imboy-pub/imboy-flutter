@@ -268,6 +268,11 @@ class SignupPageState extends State<SignupPage> {
                     width: width,
                     child: Obx(() => ElevatedButton(
                           onPressed: () async {
+                            if (state.showSignupContinue.isFalse) {
+                              logic.snackBar('param_format_error'.trArgs(['mobile'.tr]));
+                              return;
+                            }
+
                             if (state.showSignupContinue.isTrue &&
                                 state.mobile.isNotEmpty) {
                               const accountType = 'mobile';
