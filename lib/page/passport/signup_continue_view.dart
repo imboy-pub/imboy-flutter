@@ -137,7 +137,8 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                           animationType: AnimationType.fade,
                           validator: (v) {
                             if (v!.length < 3) {
-                              return "Validate me";
+                              // please_input_param
+                              return "Validate me".tr;
                             } else {
                               return null;
                             }
@@ -207,7 +208,10 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                             child: TextButton(
                           onPressed: () async {
                             String? res = await logic.sendCode(
-                                widget.accountType, widget.account, 'signup');
+                              widget.accountType,
+                              widget.account,
+                              'signup',
+                            );
                             // EasyLoading.dismiss();
                             if (res == null) {
                               logic.snackBar(

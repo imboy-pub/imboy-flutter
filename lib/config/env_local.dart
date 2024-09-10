@@ -33,4 +33,8 @@ final class EnvLocal implements Env, EnvField {
   @override
   @EnviedField(varName: 'A_MAP_WEBS_KEY')
   final String aMapWebKey = _Env.aMapWebKey;
+
+  @override
+  @EnviedField(varName: 'JPUSH_APPKEY', obfuscate: false)
+  final String jiguangAppKey = _Env.jiguangAppKey;
 }

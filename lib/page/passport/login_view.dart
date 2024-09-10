@@ -1,7 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/ui/imboy_icon.dart';
+import 'package:imboy/component/ui/button.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/network_failure_tips.dart';
@@ -48,6 +48,14 @@ class LoginPageState extends State<LoginPage>
     super.initState();
     _pageController = PageController();
 
+    logic.initPlatformState();
+
+    // final AccountAuthParamsHelper authParamsHelper = AccountAuthParamsHelper()
+    //   ..setProfile()
+    //   ..setAccessToken();
+    // final AccountAuthParams authParams = authParamsHelper.createParams();
+    // state.authServiceHW = AccountAuthManager.getService(authParams);
+
     if (widget.account == null) {
       state.loginAccountCtl.text =
           StorageService.to.getString(Keys.lastLoginAccount) ?? '';
@@ -90,8 +98,8 @@ class LoginPageState extends State<LoginPage>
           height: height,
           child: n.Stack([
             Positioned(
-              top: -height * .15,
-              right: -Get.width * .4,
+              top: -height * .10,
+              right: -Get.width * .68,
               child: const BezierContainer(),
             ),
             SingleChildScrollView(
@@ -102,14 +110,14 @@ class LoginPageState extends State<LoginPage>
                 },
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width,
-                  height: 760,
+                  height: 700,
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     children: <Widget>[
-                      const SizedBox(height: 80),
+                      const SizedBox(height: 40),
                       logic.title(),
                       Padding(
-                        padding: const EdgeInsets.only(top: 40.0, bottom: 20),
+                        padding: const EdgeInsets.only(top: 20.0, bottom: 20),
                         child: _buildMenuBar(context),
                       ),
                       Flexible(
@@ -143,7 +151,6 @@ class LoginPageState extends State<LoginPage>
                           ],
                         ),
                       ),
-                      /*
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
@@ -189,6 +196,24 @@ class LoginPageState extends State<LoginPage>
                           ),
                         ],
                       ),
+                      if (GetPlatform.isAndroid || GetPlatform.isIOS)
+                        n.Column([
+                          const SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: () async {
+                              logic.loginAuth(false);
+                            },
+                            // ignore: sort_child_properties_last
+                            child: Text(
+                              'mobile_quick_login'.tr,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+
+                            style: lightGreenButtonStyle(Size(Get.width - 40, 40)),
+                          ),
+                        ]),
+                      /*
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
@@ -196,7 +221,7 @@ class LoginPageState extends State<LoginPage>
                             padding:
                                 const EdgeInsets.only(top: 10.0, right: 40.0),
                             child: GestureDetector(
-                              onTap: () {
+                              onTap: () async {
                                 logic.loginAuth(false);
                               },
                               child: Container(
@@ -217,6 +242,10 @@ class LoginPageState extends State<LoginPage>
                             child: GestureDetector(
                               // onTap: () => CustomSnackBar(
                               //     context, const Text('Google button pressed')),
+                              onTap: () {
+                                // logic.silentSignInHW();
+                                logic.signInHW();
+                              },
                               child: Container(
                                 padding: const EdgeInsets.all(15.0),
                                 decoration: const BoxDecoration(

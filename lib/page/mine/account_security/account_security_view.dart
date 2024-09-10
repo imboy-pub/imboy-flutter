@@ -5,10 +5,12 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/page/mine/change_password/change_password_view.dart';
+import 'package:imboy/page/mine/change_password/set_password_view.dart';
 import 'package:imboy/page/mine/logout_account/logout_account_view.dart';
 import 'package:imboy/page/mine/user_device/user_device_view.dart';
 import 'package:imboy/page/passport/welcome_view.dart';
 import 'package:imboy/page/personal_info/update/update_view.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -25,6 +27,7 @@ class AccountSecurityPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool needSet = StorageService.to.getBool(Keys.needSetPwd) ?? false;
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
@@ -151,14 +154,16 @@ class AccountSecurityPage extends StatelessWidget {
             n.ListTile(
               title: n.Row([
                 Text('password'.tr),
-                Text('have_set'.tr),
+                if (needSet == false) Text('have_set'.tr),
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
               trailing: navigateNextIcon,
               onTap: () {
                 Get.to(
-                  () => ChangePasswordPage(),
+                  () => needSet == false
+                      ? ChangePasswordPage()
+                      : SetPasswordPage(),
                   transition: Transition.rightToLeft,
                   popGesture: true, // 右滑，返回上一页
                 );

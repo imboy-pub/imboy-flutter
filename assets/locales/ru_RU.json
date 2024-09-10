@@ -80,7 +80,7 @@
   "tip_device_space": "Занимает %s‰ пространства на устройстве (%s)",
   "tip_delete_contact": "Удалить контакт \"%s\" и сообщения с ним",
   "tip_empty_chat_placeholder":"десь пока нет сообщений",
-  "hint_login_account": "Учетная запись/почта/телефон",
+  "hint_login_account": "Учетная запись/почта",
   "confirm_code": "Код подтверждения",
   "password": "Пароль",
   "retype_password": "Пароль для восстановления пароля",

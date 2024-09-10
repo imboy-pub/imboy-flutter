@@ -27,22 +27,37 @@ class LoginAccountPage extends StatefulWidget {
 class LoginAccountPageState extends State<LoginAccountPage> {
   final PassportLogic logic = Get.put(PassportLogic());
   final state = Get.find<PassportLogic>().state;
+  List<String> loginHistory = [];
 
   @override
   void initState() {
     super.initState();
-    if (widget.account == null) {
+    if (widget.account != null) {
       state.loginAccountCtl.text =
           StorageService.to.getString(Keys.lastLoginAccount) ?? '';
     } else {
-      state.loginAccountCtl.text = widget.account!;
+      state.loginAccountCtl.text = widget.account ?? '';
     }
 
-    state.loginAccount.value = state.loginAccountCtl.text;
-    state.error.value = '';
 
     state.loginHistory.value =
         StorageService.to.getStringList(Keys.loginHistory) ?? [];
+    if (state.loginHistory.isNotEmpty) {
+      for (final item in state.loginHistory.value) {
+        if (item.startsWith('+') == false) {
+          loginHistory.add(item);
+        }
+      }
+      setState(() {
+        // mobile;
+        loginHistory;
+      });
+    }
+    if (state.loginAccountCtl.text.startsWith('+')) {
+      state.loginAccountCtl.text = loginHistory.isNotEmpty ? loginHistory[0] : '';
+    }
+    state.loginAccount.value = state.loginAccountCtl.text;
+    state.error.value = '';
   }
 
   @override
@@ -75,7 +90,7 @@ class LoginAccountPageState extends State<LoginAccountPage> {
                     hintText: 'hint_login_account'.tr,
                     hintStyle: const TextStyle(fontSize: 14.0),
                     prefixIcon: const Icon(Icons.account_box),
-                    suffixIcon: state.loginHistory.isEmpty
+                    suffixIcon: loginHistory.isEmpty
                         ? null
                         : InkWell(
                             onTap: () {
@@ -83,12 +98,11 @@ class LoginAccountPageState extends State<LoginAccountPage> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return ListView.builder(
-                                    itemCount: state.loginHistory.length,
+                                    itemCount: loginHistory.length,
                                     // Number of items
                                     itemBuilder:
                                         (BuildContext context, int index) {
-                                      final item =
-                                          state.loginHistory.value[index];
+                                      final item = loginHistory[index];
                                       return ListTile(
                                         title: Text(item),
                                         onTap: () {

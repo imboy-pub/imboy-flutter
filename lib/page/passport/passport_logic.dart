@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/locales/locales.dart';
 import 'package:imboy/component/ui/imboy_icon.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
+import 'package:imboy/page/mine/change_password/set_password_view.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:jverify/jverify.dart';
 import 'package:niku/namespace.dart' as n;
@@ -81,8 +83,7 @@ class PassportLogic extends GetxController {
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Row(
-          children: <Widget>[
+        child: n.Row([
             Container(
               padding: const EdgeInsets.only(left: 0, top: 10, bottom: 10),
               child: const Icon(Icons.keyboard_arrow_left, color: Colors.white),
@@ -295,7 +296,7 @@ class PassportLogic extends GetxController {
 
   /// 确认注册
   Future<String?> confirmSignup({
-    required String accountType,
+    required String accountType, // mobile | email
     required String code,
     required String nickname,
     required String account,
@@ -305,16 +306,6 @@ class PassportLogic extends GetxController {
     if (strNoEmpty(data1['error'])) {
       state.error.value = '';
       return data1['error'];
-    }
-    String type = '';
-    if (accountType == 'mobile') {
-      type = 'mobile';
-    } else if (accountType == 'name' && isPhone(account)) {
-      type = 'mobile';
-    } else if (accountType == 'email') {
-      type = 'email';
-    } else if (accountType == 'name' && isEmail(account)) {
-      type = 'email';
     }
     final data = {
       "type": accountType,
@@ -439,6 +430,24 @@ class PassportLogic extends GetxController {
     );
   }
 
+  // void signInHW() async {
+  //   try {
+  //     final AuthAccount account = await state.authServiceHW.signIn();
+  //     iPrint('FROM SIGN IN: ${account.toMap()}');
+  //   } on Exception catch (e) {
+  //     iPrint("FROM SIGN IN err: $e");
+  //   }
+  // }
+
+  // void silentSignInHW() async {
+  //   try {
+  //     final AuthAccount account = await state.authServiceHW.silentSignIn();
+  //     iPrint('FROM SILENT SIGN IN: ${account.displayName}');
+  //   } on Exception catch (e) {
+  //     iPrint("FROM SILENT SIGN IN err: $e");
+  //   }
+  // }
+
   /// Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     // 初始化 SDK 之前添加监听
@@ -449,7 +458,7 @@ class PassportLogic extends GetxController {
     jverify.setDebugMode(true); // 打开调试模式
     jverify.setCollectionAuth(true);
     jverify.setup(
-        appKey: "6455334942815947cdbcbfed", //"你自己应用的 AppKey",
+        appKey: Env().jiguangAppKey, //"你自己应用的 AppKey",
         channel: "devloper-default"); // 初始化sdk,  appKey 和 channel 只对ios设置有效
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
@@ -458,63 +467,7 @@ class PassportLogic extends GetxController {
 
     /// 授权页面点击时间监听
     jverify.addAuthPageEventListener((JVAuthPageEvent event) {
-      print("receive auth page event :${event.toMap()}");
-    });
-  }
-
-  /// sdk 初始化是否完成
-  void isInitSuccess() {
-    jverify.isInitSuccess().then((map) {
-      bool result = map[fResultKey];
-      // setState(() {
-      //   if (result) {
-      //     _result = "sdk 初始换成功";
-      //   } else {
-      //     _result = "sdk 初始换失败";
-      //   }
-      // });
-    });
-  }
-
-  /// 判断当前网络环境是否可以发起认证
-  void checkVerifyEnable() {
-    jverify.checkVerifyEnable().then((map) {
-      bool result = map[fResultKey];
-      // setState(() {
-      //   if (result) {
-      //     _result = "当前网络环境【支持认证】！";
-      //   } else {
-      //     _result = "当前网络环境【不支持认证】！";
-      //   }
-      // });
-    });
-  }
-
-  /// 获取号码认证token
-  void getToken() {
-    // setState(() {
-    //   _showLoading(context);
-    // });
-    jverify.checkVerifyEnable().then((map) {
-      bool result = map[fResultKey];
-      iPrint("getToken_checkVerifyEnable 1 ${map.toString()} ");
-      if (result) {
-        jverify.getToken().then((map) {
-          iPrint("getToken_checkVerifyEnable 2 ${map.toString()} ");
-          int code = map[fCodeKey];
-          String _token = map[fMsgKey];
-          String operator = map[fOprKey];
-          // setState(() {
-          //   _hideLoading();
-          //   _result = "[$code] message = $_token, operator = $operator";
-          // });
-        });
-      } else {
-        // setState(() {
-        //   _hideLoading();
-        //   _result = "[2016],msg = 当前网络环境不支持认证";
-        // });
-      }
+      debugPrint("receive auth page event :${event.toMap()}");
     });
   }
 
@@ -525,8 +478,8 @@ class PassportLogic extends GetxController {
     iPrint("checkVerifyEnable_res ${res.toString()}");
     bool result = res[fResultKey];
     if (result == false) {
-      EasyLoading.showError('当前网络环境不支持，或者手机没有绑定电话卡'.tr);
-      return '当前网络环境不支持，或者手机没有绑定电话卡'.tr;
+      snackBar('当前网络环境不支持，或者手机没有绑定电话卡'.tr);
+      return null;
     }
 
     final screenWidth = Get.width;
@@ -554,16 +507,16 @@ class PassportLogic extends GetxController {
 
     uiConfig.logoWidth = 100;
     uiConfig.logoHeight = 100;
-    //uiConfig.logoOffsetX = isiOS ? 0 : null;//(screenWidth/2 - uiConfig.logoWidth/2).toInt();
-    uiConfig.logoOffsetY = (screenHeight / 2).toInt() - 200;
+    uiConfig.logoOffsetX = isiOS ? 0 : null;//(screenWidth/2 - uiConfig.logoWidth/2).toInt();
+    uiConfig.logoOffsetY = isiOS ? (screenHeight / 2).toInt() - 200 : null;
     uiConfig.logoVerticalLayoutItem = JVIOSLayoutItem.ItemSuper;
     uiConfig.logoHidden = false;
-    uiConfig.logoImgPath = "logo";
+    // uiConfig.logoImgPath = "logo";
 
     uiConfig.numberFieldWidth = 200;
     uiConfig.numberFieldHeight = 40;
     //uiConfig.numFieldOffsetX = isiOS ? 0 : null;//(screenWidth/2 - uiConfig.numberFieldWidth/2).toInt();
-    uiConfig.numFieldOffsetY = isiOS ? 20 : 120;
+    uiConfig.numFieldOffsetY = isiOS ? 20 : 180;
     uiConfig.numberVerticalLayoutItem = JVIOSLayoutItem.ItemLogo;
     uiConfig.numberColor = Colors.black.value;
     uiConfig.numberSize = 18;
@@ -575,13 +528,15 @@ class PassportLogic extends GetxController {
     //uiConfig.slogan
     //uiConfig.sloganHidden = 0;
 
+    debugPrint("Colors.green.value ${Colors.green.value}");
     uiConfig.logBtnWidth = 220;
     uiConfig.logBtnHeight = 50;
-    //uiConfig.logBtnOffsetX = isiOS ? 0 : null;//(screenWidth/2 - uiConfig.logBtnWidth/2).toInt();
-    uiConfig.logBtnOffsetY = isiOS ? 20 : 230;
+    // uiConfig.logBtnOffsetX = isiOS ? 0 : null;//(screenWidth/2 - uiConfig.logBtnWidth/2).toInt();
+    uiConfig.logBtnOffsetY = isiOS ? 20 : 280;
     uiConfig.logBtnVerticalLayoutItem = JVIOSLayoutItem.ItemSlogan;
-    uiConfig.logBtnText = "一键登录".tr;
-    uiConfig.logBtnTextColor = Colors.black.value;
+    uiConfig.logBtnText = 'mobile_quick_login'.tr;
+    uiConfig.logBtnTextColor = isiOS ? Colors.black.value : Colors.white.value;
+    // uiConfig.logBtnBackgroundColor = Colors.green.value;// logBtnBackgroundColor 不存在
     uiConfig.logBtnTextSize = 16;
     uiConfig.logBtnTextBold = true;
     // uiConfig.loginBtnNormalImage = "login_btn_normal"; //图片必须存在
@@ -598,21 +553,26 @@ class PassportLogic extends GetxController {
     uiConfig.privacyCheckboxHidden = false;
     uiConfig.isAlertPrivacyVc = true;
 
-    // uiConfig.privacyOffsetX = isiOS ? (20 + uiConfig.privacyCheckboxSize!) : null;
-    uiConfig.privacyOffsetY = 15; // 距离底部距离
+    uiConfig.privacyOffsetX = isiOS ? (20 + uiConfig.privacyCheckboxSize!) : null;
+    uiConfig.privacyOffsetX = 10;
+    uiConfig.privacyOffsetY = 10; // 距离底部距离
     uiConfig.privacyVerticalLayoutItem = JVIOSLayoutItem.ItemSuper;
-    uiConfig.clauseName = "用户服务协议";
-    uiConfig.clauseUrl = "http://www.baidu.com";
+    uiConfig.clauseName = 'license_agreement'.tr;
+    uiConfig.clauseUrl = licenseAgreementUrl(ext: 'html');
     uiConfig.clauseBaseColor = Colors.black87.value;
-    uiConfig.clauseNameTwo = "隐私保护政策";
-    uiConfig.clauseUrlTwo = "http://www.hao123.com";
+
+    // uiConfig.clauseNameTwo = "隐私保护政策";
+    // uiConfig.clauseUrlTwo = "http://www.hao123.com";
+
     uiConfig.clauseColor = Colors.black87.value;
-    uiConfig.privacyText = ["我已阅读并同意", ""];
+    // uiConfig.privacyText = ["我已阅读并同意", ""];
     uiConfig.privacyTextSize = 13;
     uiConfig.privacyItem = [
-      JVPrivacy("用户服务协议", "http://www.baidu.com",
+      JVPrivacy('license_agreement'.tr.replaceAll('《', '').replaceAll('》', ''),
+          licenseAgreementUrl(ext: 'html'),
           beforeName: "==", afterName: "++", separator: "、"),
-      JVPrivacy("隐私保护政策", "http://www.hao123.com", separator: "、"),
+      // JVPrivacy("用户服务协议", "http://www.baidu.com", beforeName: "==", afterName: "++", separator: "、"),
+      // JVPrivacy("隐私保护政策", "http://www.hao123.com", separator: "、"),
     ];
     uiConfig.textVerAlignment = 1;
     //uiConfig.privacyWithBookTitleMark = true;
@@ -646,21 +606,22 @@ class PassportLogic extends GetxController {
         const Color.fromARGB(255, 28, 27, 32).value;
     uiConfig.agreementAlertViewTitleTextColor = Colors.white.value;
     uiConfig.agreementAlertViewTitleText =
-        "Please Read And Agree to The Following Terms".tr;
+        "请阅读并同意以下条款".tr;
     uiConfig.agreementAlertViewTitleTexSize = 16;
     uiConfig.agreementAlertViewContentTextAlignment =
         JVTextAlignmentType.center;
     uiConfig.agreementAlertViewContentTextFontSize = 13;
-    uiConfig.agreementAlertViewLoginBtnNormalImagePath = "login_btn_normal";
-    uiConfig.agreementAlertViewLoginBtnPressedImagePath = "login_btn_press";
-    uiConfig.agreementAlertViewLoginBtnUnableImagePath = "login_btn_unable";
-    uiConfig.agreementAlertViewLoginBtnNormalImagePath =
-        "login_btn_normal_dark";
-    uiConfig.agreementAlertViewLoginBtnPressedImagePath =
-        "login_btn_normal_dark";
-    uiConfig.agreementAlertViewLoginBtnUnableImagePath =
-        "login_btn_normal_dark";
-    uiConfig.agreementAlertViewLogBtnText = "同意";
+    // uiConfig.agreementAlertViewLoginBtnNormalImagePath = "login_btn_normal";
+    // uiConfig.agreementAlertViewLoginBtnPressedImagePath = "login_btn_press";
+    // uiConfig.agreementAlertViewLoginBtnUnableImagePath = "login_btn_unable";
+    // uiConfig.agreementAlertViewLoginBtnNormalImagePath =
+    //     "login_btn_normal_dark";
+    // uiConfig.agreementAlertViewLoginBtnPressedImagePath =
+    //     "login_btn_normal_dark";
+    // uiConfig.agreementAlertViewLoginBtnUnableImagePath =
+    //     "login_btn_normal_dark";
+    // uiConfig.agreementAlertViewLogBtnText = "同意";
+    uiConfig.agreementAlertViewLogBtnText = 'agree_continue'.tr;
     uiConfig.agreementAlertViewLogBtnTextFontSize = 13;
     uiConfig.agreementAlertViewLogBtnTextColor =
         const Color.fromARGB(255, 128, 120, 89).value;
@@ -668,18 +629,19 @@ class PassportLogic extends GetxController {
     //协议二次弹窗内容设置 -Android
     JVPrivacyCheckDialogConfig privacyCheckDialogConfig =
         JVPrivacyCheckDialogConfig();
-    // privacyCheckDialogConfig.width = 250;
-    // privacyCheckDialogConfig.height = 100;
-    privacyCheckDialogConfig.title = "测试协议标题";
+    privacyCheckDialogConfig.width = 250;
+    privacyCheckDialogConfig.height = 100;
+    // privacyCheckDialogConfig.title = "测试协议标题";
+    privacyCheckDialogConfig.title = '';
     privacyCheckDialogConfig.offsetX = 0;
     privacyCheckDialogConfig.offsetY = 0;
-    privacyCheckDialogConfig.logBtnText = "同11意";
+    privacyCheckDialogConfig.logBtnText = 'agree_continue'.tr;
     privacyCheckDialogConfig.titleTextSize = 22;
     privacyCheckDialogConfig.gravity = "center";
     privacyCheckDialogConfig.titleTextColor = Colors.black.value;
     privacyCheckDialogConfig.contentTextGravity = "left";
     privacyCheckDialogConfig.contentTextSize = 14;
-    privacyCheckDialogConfig.logBtnImgPath = "login_btn_normal";
+    // privacyCheckDialogConfig.logBtnImgPath = "login_btn_normal";
     privacyCheckDialogConfig.logBtnTextColor = Colors.black.value;
     privacyCheckDialogConfig.logBtnMarginT = 20;
     privacyCheckDialogConfig.logBtnMarginB = 20;
@@ -689,26 +651,28 @@ class PassportLogic extends GetxController {
 
     /// 添加自定义的 控件 到dialog
     List<JVCustomWidget> dialogWidgetList = [];
-    final String btn_dialog_widgetId = "jv_add_custom_dialog_button"; // 标识控件 id
-    JVCustomWidget buttonDialogWidget =
-        JVCustomWidget(btn_dialog_widgetId, JVCustomWidgetType.button);
-    buttonDialogWidget.title = "取消";
+    const btnDialogWidgetId = "jv_add_custom_dialog_button"; // 标识控件 id
+    JVCustomWidget buttonDialogWidget = JVCustomWidget(
+      btnDialogWidgetId,
+      JVCustomWidgetType.button,
+    );
+    buttonDialogWidget.title = 'button_cancel'.tr;
     buttonDialogWidget.titleColor = Colors.white.value;
     buttonDialogWidget.left = 0;
     buttonDialogWidget.top = 160;
     buttonDialogWidget.width = 140;
     buttonDialogWidget.height = 40;
     buttonDialogWidget.textAlignment = JVTextAlignmentType.center;
-    buttonDialogWidget.btnNormalImageName = "main_btn_other";
-    buttonDialogWidget.btnPressedImageName = "main_btn_other";
+    // buttonDialogWidget.btnNormalImageName = "main_btn_other";
+    // buttonDialogWidget.btnPressedImageName = "main_btn_other";
     // buttonDialogWidget.backgroundColor = Colors.yellow.value;
     //buttonWidget.textAlignment = JVTextAlignmentType.left;
 
     // 添加点击事件监听
-    jverify.addClikWidgetEventListener(btn_dialog_widgetId, (eventId) {
-      print("receive listener - click dialog widget event :$eventId");
-      if (btn_dialog_widgetId == eventId) {
-        print("receive listener - 点击【新加 dialog button】");
+    jverify.addClikWidgetEventListener(btnDialogWidgetId, (eventId) {
+      debugPrint("receive listener - click dialog widget event :$eventId");
+      if (btnDialogWidgetId == eventId) {
+        debugPrint("receive listener - 点击【新加 dialog button】");
       }
     });
     dialogWidgetList.add(buttonDialogWidget);
@@ -716,20 +680,20 @@ class PassportLogic extends GetxController {
     uiConfig.privacyCheckDialogConfig = privacyCheckDialogConfig;
 
     //sms
-    JVSMSUIConfig smsConfig = JVSMSUIConfig();
-    smsConfig.smsPrivacyBeanList = [
-      JVPrivacy("自定义协议1", "http://www.baidu.com",
-          beforeName: "==", afterName: "++", separator: "*")
-    ];
-    smsConfig.enableSMSService = true;
-    uiConfig.smsUIConfig = smsConfig;
+    // JVSMSUIConfig smsConfig = JVSMSUIConfig();
+    // smsConfig.smsPrivacyBeanList = [
+    //   JVPrivacy("自定义协议1", "http://www.baidu.com",
+    //       beforeName: "==", afterName: "++", separator: "*")
+    // ];
+    // smsConfig.enableSMSService = true;
+    // uiConfig.smsUIConfig = smsConfig;
 
     uiConfig.setIsPrivacyViewDarkMode = false; //协议页面是否支持暗黑模式
 
     //弹框模式
-    // JVPopViewConfig popViewConfig = JVPopViewConfig();
-    // popViewConfig.width = (screenWidth - 100.0).toInt();
-    // popViewConfig.height = (screenHeight - 150.0).toInt();
+    JVPopViewConfig popViewConfig = JVPopViewConfig();
+    popViewConfig.width = (screenWidth - 100.0).toInt();
+    popViewConfig.height = (screenHeight - 150.0).toInt();
 
     // uiConfig.popViewConfig = popViewConfig;
 
@@ -752,9 +716,9 @@ class PassportLogic extends GetxController {
 
     // 添加点击事件监听
     jverify.addClikWidgetEventListener(text_widgetId, (eventId) {
-      print("receive listener - click widget event :$eventId");
+      debugPrint("receive listener - click widget event :$eventId");
       if (text_widgetId == eventId) {
-        print("receive listener - 点击【新加 text】");
+        debugPrint("receive listener - 点击【新加 text】");
       }
     });
     widgetList.add(textWidget);
@@ -777,9 +741,9 @@ class PassportLogic extends GetxController {
 
     // 添加点击事件监听
     jverify.addClikWidgetEventListener(btn_widgetId, (eventId) {
-      print("receive listener - click widget event :$eventId");
+      debugPrint("receive listener - click widget event :$eventId");
       if (btn_widgetId == eventId) {
-        print("receive listener - 点击【新加 button】");
+        debugPrint("receive listener - 点击【新加 button】");
       }
     });
     widgetList.add(buttonWidget);
@@ -806,33 +770,38 @@ class PassportLogic extends GetxController {
       landscapeConfig: uiConfig,
       widgets: widgetList,
     );
-    if (!isSms) {
-      /// 步骤 2：调用一键登录接口
-      jverify.loginAuthSyncApi2(
-          autoDismiss: true,
-          enableSms: true,
-          loginAuthcallback: (event) {
-            // setState(() {
-            //   _hideLoading();
-            final _result = "获取返回数据：[${event.code}] message = ${event.message}";
-
-            // });
-            print(
-                "获取到 loginAuthSyncApi 接口返回数据，code=${event.code},message = ${event.message},operator = ${event.operator}");
-          });
-    } else {
-      /// 步骤 2：调用短信登录接口
-      jverify.smsAuth(
-          autoDismiss: true,
-          smsCallback: (event) {
-            // setState(() {
-            //   _hideLoading();
-            //   _result = "获取返回数据：[${event.code}] message = ${event.message}";
-            // });
-            print(
-                "获取到 smsAuth 接口返回数据，code=${event.code},message = ${event.message},phone = ${event.phone}");
-          });
-    }
+    // if (!isSms) {
+    /// 步骤 2：调用一键登录接口
+    jverify.loginAuthSyncApi2(
+        autoDismiss: true,
+        enableSms: true,
+        loginAuthcallback: (event) {
+          // * @param event
+          // *          code     ：返回码，6000 代表loginToken获取成功，6001 代表loginToken获取失败，其他返回码详见描述
+          // *          message  ：返回码的解释信息，若获取成功，内容信息代表loginToken。
+          // *          operator ：成功时为对应运营商，CM代表中国移动，CU代表中国联通，CT代表中国电信。失败时可能为 null
+          // *
+          if (event.code == 6000) {
+            quickLogin(operator: event.operator!, token: event.message!, service:'jverify');
+          } else {
+            snackBar(event.message);
+          }
+          // debugPrint(
+          //     "获取到 loginAuthSyncApi 接口返回数据，code=${event.code},message = ${event.message},operator = ${event.operator}");
+        });
+    // } else {
+    //   /// 步骤 2：调用短信登录接口
+    //   jverify.smsAuth(
+    //       autoDismiss: true,
+    //       smsCallback: (event) {
+    //         // setState(() {
+    //         //   _hideLoading();
+    //         //   _result = "获取返回数据：[${event.code}] message = ${event.message}";
+    //         // });
+    //         debugPrint(
+    //             "获取到 smsAuth 接口返回数据，code=${event.code},message = ${event.message},phone = ${event.phone}");
+    //       });
+    // }
     return "jverify";
     /*
     //需要使用sms的时候不检查result
@@ -866,7 +835,7 @@ class PassportLogic extends GetxController {
            _hideLoading();
             _result = "接口异步返回数据：[$code] message = $content";
           });
-          print("通过接口异步返回，获取到 loginAuth 接口返回数据，code=$code,message = $content,operator = $operator");
+          debugPrint("通过接口异步返回，获取到 loginAuth 接口返回数据，code=$code,message = $content,operator = $operator");
         });
 
         */
@@ -890,5 +859,57 @@ class PassportLogic extends GetxController {
     // iPrint("checkSignupContinue_3 ${state.selectedAgreement.value == 'on'} ");
     // iPrint("checkSignupContinue_4 $pwdValidated ");
     // iPrint("checkSignupContinue_5 ${state.showSignupContinue.toString()} ");
+  }
+
+  /// ext md | html
+  String licenseAgreementUrl({String ext = 'md'}) {
+    String lang = 'cn';
+    String code = sysLang('').toLowerCase();
+    // license_agreement 目前只配置 cn ru en 3个文件
+    if (code.contains('en')) {
+      lang = 'en';
+    } else if (code.contains('ru')) {
+      lang = 'ru';
+    }
+    return "https://imboy.pub/doc/license_agreement_$lang.$ext?vsn=$appVsn";
+  }
+
+  /// 快速登录
+  /// service jverify | huawei
+  /// token 返回码的解释信息，若获取成功，内容信息代表loginToken。
+  /// operator ：成功时为对应运营商，CM代表中国移动，CU代表中国联通，CT代表中国电信。失败时可能为 null
+  Future<String?> quickLogin({required String operator, required String token, required String service}) async {
+    Map<String, dynamic> postData = {
+      "service": service,
+      "operator": operator,
+      "token": token,
+      "sys_version": Platform.operatingSystemVersion,
+    };
+
+    IMBoyHttpResponse resp2 = await HttpClient.client.post(
+      API.quickLogin,
+      data: postData,
+    );
+    if (!resp2.ok) {
+      state.error.value = resp2.error!.message;
+      return state.error.value;
+    } else {
+      int status = (resp2.payload['status'] ?? 1).toInt();
+      String account = resp2.payload['account'] ?? '';
+      if (account.isNotEmpty) {
+        await StorageService.to.setString(Keys.lastLoginAccount, account);
+      }
+      if (status == 1 || status == 2) {
+        await (UserRepoLocal()).loginAfter(account, resp2.payload);
+      }
+      String action = resp2.payload['action'] ?? '';
+      if (action == 'need_set_password') {
+        await StorageService.to.setBool(Keys.needSetPwd, true);
+        Get.off(() => SetPasswordPage());
+      } else {
+        Get.off(() => BottomNavigationPage());
+      }
+      return null;
+    }
   }
 }

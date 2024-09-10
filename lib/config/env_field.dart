@@ -8,4 +8,5 @@ abstract interface class EnvField {
   abstract final String aMapIosKey;
   abstract final String aMapAndroidKey;
   abstract final String aMapWebKey;
+  abstract final String jiguangAppKey;
 }

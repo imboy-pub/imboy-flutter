@@ -141,7 +141,7 @@
                 <data
                     android:scheme="imboy"
                     android:host="imboy.pub"
-                    android:pathPrefix="/path/subpath" />
+                    android:pathPrefix="/" />
             </intent-filter>
             <!-- Scheme-only filter -->
             <intent-filter>

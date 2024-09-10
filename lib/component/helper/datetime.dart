@@ -54,8 +54,8 @@ class DateTimeHelper {
   }
 
   static String lastTimeFmt(int lastTime) {
-    // DateTime dt = Jiffy.unixFromMillisecondsSinceEpoch(lastTime).dateTime;
-    DateTime dt = Jiffy.parseFromMillisecondsSinceEpoch(lastTime).dateTime;
+    DateTime dt = Jiffy.parseFromMillisecondsSinceEpoch(lastTime +
+        DateTime.now().timeZoneOffset.inMilliseconds).dateTime;
     int diff = Jiffy.now().diff(
       Jiffy.parseFromDateTime(dt),
       unit: Unit.day,

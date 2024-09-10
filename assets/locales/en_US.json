@@ -80,7 +80,7 @@
   "tip_device_space": "Occupying device %s‰ storage space(%s)",
   "tip_delete_contact": "Delete contact \"%s\" and chat history with this contact",
   "tip_empty_chat_placeholder":"No messages here yet",
-  "hint_login_account": "Account/Email/Phone",
+  "hint_login_account": "Account/Email",
   "confirm_code": "Confirmation Code",
   "password": "Password",
   "retype_password": "Retype Password",

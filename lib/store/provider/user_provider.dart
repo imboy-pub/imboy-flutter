@@ -10,6 +10,7 @@ import 'package:imboy/component/http/http_parse.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/page/passport/login_view.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -130,6 +131,23 @@ class UserProvider extends HttpClient {
     iPrint("> on UserProvider/changePassword resp: ${resp.payload.toString()}");
     if (resp.ok) {
       return true;
+    }
+    EasyLoading.showError(resp.msg.tr);
+    return false;
+  }
+
+  Future<bool> setPassword({required String newPwd}) async {
+    IMBoyHttpResponse resp = await post(API.userSetPassword, data: {
+      'new_pwd': newPwd,
+    });
+
+    iPrint("> on UserProvider/setPassword resp: ${resp.payload.toString()}");
+    if (resp.ok) {
+      StorageService.to.remove(Keys.needSetPwd);
+      return true;
+    }
+    if (resp.msg == 'have_set') {
+      StorageService.to.remove(Keys.needSetPwd);
     }
     EasyLoading.showError(resp.msg.tr);
     return false;

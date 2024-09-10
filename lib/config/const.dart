@@ -47,6 +47,7 @@ class Keys {
   static String lastLoginAccount = 'lastLoginAccount';
   static String loginHistory = 'loginHistory';
   static String themeType = 'theme_type';
+  static String needSetPwd = 'need_set_password';
 }
 
 
@@ -56,6 +57,7 @@ class API {
   static const login = '/passport/login';
   static const signup = '/passport/signup';
   static const getCode = '/passport/getcode';
+  static const quickLogin = '/passport/quick_login';
   static const findPassword = '/passport/findpassword';
   static const assetsToken = '/auth/get_token';
   static const appVersionCheck = '/app_version/check';
@@ -92,6 +94,7 @@ class API {
   static const turnCredential = '/user/credential';
   static const userUpdate = '/user/update';
   static const userChangePassword = '/user/change_password';
+  static const userSetPassword = '/user/set_password';
   static const userApplyLogout = '/user/apply_logout';
   static const userCancelLogout = '/user/cancel_logout';
   static const userSearch = '/user/search';

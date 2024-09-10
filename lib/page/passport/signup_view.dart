@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/config/init.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -28,8 +27,6 @@ class SignupPageState extends State<SignupPage> {
   final state = Get.find<PassportLogic>().state;
   final LanguageLogic langLogic = Get.put(LanguageLogic());
 
-  String lang = 'cn';
-
   @override
   void initState() {
     super.initState();
@@ -38,14 +35,6 @@ class SignupPageState extends State<SignupPage> {
     state.mobileValidated.value = false;
     state.selectedAgreement.value = 'off';
     state.newPwd.value = '';
-
-    String code = sysLang('').toLowerCase();
-    // license_agreement 目前只配置 cn ru en 3个文件
-    if (code.contains('en')) {
-      lang = 'en';
-    } else if (code.contains('ru')) {
-      lang = 'ru';
-    }
   }
 
   @override
@@ -67,9 +56,9 @@ class SignupPageState extends State<SignupPage> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: SingleChildScrollView(
               child: n.Column([
-                const SizedBox(height: 80),
-                logic.title(),
                 const SizedBox(height: 40),
+                logic.title(),
+                const SizedBox(height: 20),
                 n.Column([
                   // nickname
                   Container(
@@ -243,7 +232,7 @@ class SignupPageState extends State<SignupPage> {
                               logic.checkSignupContinue();
                               Get.dialog(MarkdownPage(
                                 title: 'license_agreement'.tr,
-                                url: "https://imboy.pub/doc/license_agreement_$lang.md?vsn=$appVsn",
+                                url: logic.licenseAgreementUrl(),
                                 leading: IconButton(
                                   icon: const Icon(Icons.close,
                                       size: 24, color: Colors.black),
@@ -269,7 +258,8 @@ class SignupPageState extends State<SignupPage> {
                     child: Obx(() => ElevatedButton(
                           onPressed: () async {
                             if (state.showSignupContinue.isFalse) {
-                              logic.snackBar('param_format_error'.trArgs(['mobile'.tr]));
+                              logic.snackBar(
+                                  'param_format_error'.trArgs(['mobile'.tr]));
                               return;
                             }
 
@@ -277,7 +267,10 @@ class SignupPageState extends State<SignupPage> {
                                 state.mobile.isNotEmpty) {
                               const accountType = 'mobile';
                               String? res = await logic.sendCode(
-                                  accountType, state.mobile.value, 'signup');
+                                accountType,
+                                state.mobile.value,
+                                'signup',
+                              );
                               // EasyLoading.dismiss();
                               if (res == null) {
                                 logic.snackBar(

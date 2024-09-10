@@ -35,6 +35,8 @@ class PassportState {
   RxString selectedAgreement = ''.obs;
 
 
+  // late AccountAuthService authServiceHW;
+
   PassportState() {
     ///Initialize variables
   }

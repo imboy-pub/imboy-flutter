@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.5.7
+version: 0.5.8
 
 environment:
   sdk: ">=3.0.0 <=4.0.0"
@@ -70,7 +70,7 @@ dependencies:
   permission_handler: ^11.3.1
   permission_handler_apple: ^9.4.5
   permission_handler_android: ^12.0.12
-  permission_handler_platform_interface: ^4.2.2
+  permission_handler_platform_interface: ^4.2.3
     #any permission_handler:
     #  git:
     #    url: https://gitee.com/imboy-tripartite-deps/flutter-permission-handler.git
@@ -170,7 +170,7 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/popup_menu.git
       ref: master
   # 二维码扫描
-  mobile_scanner: ^5.2.2
+  mobile_scanner: ^5.2.3
   #  mobile_scanner: ^4.0.1
   #  mobile_scanner:
   #    git:
@@ -204,14 +204,14 @@ dependencies:
   #flutter_app_badger: ^1.5.0
   # 录音
   #record: ^5.1.2
-  flutter_sound: ^9.12.0
+  flutter_sound: ^9.12.44
   #  flutter_sound:
   #    #path: plugin/flutter_sound/flutter_sound
   #    git:
   #      url: https://gitee.com/imboy-tripartite-deps/flutter_sound.git
   #      ref: leeyi
   #      path: flutter_sound
-  flutter_sound_platform_interface: ^9.12.0
+  flutter_sound_platform_interface: ^9.12.44
   audio_session: ^0.1.21
 
   # 语音消息播放器
@@ -331,15 +331,16 @@ dependencies:
 
   #dropdown_button2: ^3.0.0-beta.16
 
-  jverify: ^3.0.0
-#  jverify:
-#    path: plugin/jverify
+  #jverify: ^3.0.0
+  jverify:
+    path: plugin/jverify
   #    git:
   #      url: https://gitee.com/imboy-tripartite-deps/IcStorageSpace.git
   #      ref: leeyi
   local_auth: ^2.3.0
   pin_code_fields: ^8.0.1
   intl_phone_number_input: ^0.7.4
+  #app_links: ^6.3.2
   #simple_animations: ^5.0.2
   #huawei_account: ^6.12.0+301
 #  agconnect_crash: ^1.9.0+300

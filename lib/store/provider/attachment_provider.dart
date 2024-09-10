@@ -1,7 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xid/xid.dart';
@@ -47,17 +51,21 @@ class AttachmentProvider {
     debugPrint("> on upload param ${(data['file'] as MultipartFile).filename}");
     debugPrint("> on upload param ${data.toString()}");
     FormData formData = FormData.fromMap(data);
-
-    debugPrint("> on upload UPLOAD_BASE_URL ${Env.uploadUrl}");
+    String baseUrl = Env.uploadUrl;
+    if (strEmpty(baseUrl)) {
+      await initConfig();
+      baseUrl = StorageService.to.getString(Keys.uploadUrl)!;
+    }
+    debugPrint("> on upload UPLOAD_BASE_URL $baseUrl ;");
     var options = BaseOptions(
-      baseUrl: Env.uploadUrl,
+      baseUrl: baseUrl,
       contentType: 'application/x-www-form-urlencoded',
       connectTimeout: const Duration(milliseconds: 30000),
       sendTimeout: const Duration(milliseconds: 60000),
       receiveTimeout: const Duration(milliseconds: 30000),
     );
     await Dio(options).post(
-      "${Env.uploadUrl}/upload",
+      "$baseUrl/upload",
       data: formData,
       onSendProgress: (int sent, int total) {
         // debugPrint('> on upload $sent / $total');
@@ -301,7 +309,7 @@ class AttachmentProvider {
     Map<String, dynamic> data = {
       'file': await MultipartFile.fromFile(path, filename: name),
     };
-    debugPrint("> on uploadFile path1 $path, name: $name, ext: $ext");
+    debugPrint("> on uploadFile ${Env.uploadUrl}; path1 $path, name: $name, ext: $ext");
     await _upload(prefix, data, callback, errorCallback, process: process);
   }
 

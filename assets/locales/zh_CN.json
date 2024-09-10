@@ -80,7 +80,7 @@
   "tip_device_space":"占设备 %s‰ 存储空间(%s)",
   "tip_delete_contact":"将联系人\"%s\"删除，同时删除与该联系人的聊天记录",
   "tip_empty_chat_placeholder":"这里还没有消息",
-  "hint_login_account": "账号/邮箱/手机号",
+  "hint_login_account": "账号/邮箱",
   "confirm_code": "确认码",
   "password": "密码",
   "retype_password": "重新输入密码",

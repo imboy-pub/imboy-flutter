@@ -872,26 +872,26 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_sound
-      sha256: "024ffa8bfc4d8980a3c840895536c7fb71f455f187ef68220f6d1c3dbe539d77"
+      sha256: "8987ddb736c701d08afaff46552a4f8065cf6745f7f0473307ec8c2c1b8682d5"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.12.0"
+    version: "9.12.44"
   flutter_sound_platform_interface:
     dependency: "direct main"
     description:
       name: flutter_sound_platform_interface
-      sha256: "4b149538ec7882883e54b9659948f050010f05a330865e663fe8ed16faa4eafa"
+      sha256: "54d7b3fafb4763df94447a1a37c2f53623208c1b35d774f2f15c5edf26bfdad3"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.12.0"
+    version: "9.12.44"
   flutter_sound_web:
     dependency: transitive
     description:
       name: flutter_sound_web
-      sha256: "997c6b317970753efad87a7101ff3d2e034474bf529f0a5253fb99785c6a200b"
+      sha256: c922877ee5a0698db120432c4ccfbd2f4b6c7581bae4cd6fffb6111a211673e4
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.12.0"
+    version: "9.12.44"
   flutter_spinkit:
     dependency: "direct main"
     description:
@@ -1202,10 +1202,9 @@ packages:
   jverify:
     dependency: "direct main"
     description:
-      name: jverify
-      sha256: "26d1667d8c71403b77a2620a8c618625f8b4bfc950dac285b8f35ebc5e60fa5a"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "plugin/jverify"
+      relative: true
+    source: path
     version: "3.0.0"
   leak_tracker:
     dependency: transitive
@@ -1395,10 +1394,10 @@ packages:
     dependency: "direct main"
     description:
       name: mobile_scanner
-      sha256: "82c9beb863705831a779e02e80398e61a86a48d1fcfdf4241ebd4292605acd9b"
+      sha256: d234581c090526676fd8fab4ada92f35c6746e3fb4f05a399665d75a399fb760
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "5.2.2"
+    version: "5.2.3"
   nested:
     dependency: transitive
     description:
@@ -1643,10 +1642,10 @@ packages:
     dependency: "direct main"
     description:
       name: permission_handler_platform_interface
-      sha256: fe0ffe274d665be8e34f9c59705441a7d248edebbe5d9e3ec2665f88b79358ea
+      sha256: e9c8eadee926c4532d0305dff94b85bf961f16759c3af791486613152af4b4f9
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.2.2"
+    version: "4.2.3"
   permission_handler_windows:
     dependency: transitive
     description:

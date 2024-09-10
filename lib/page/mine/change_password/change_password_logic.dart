@@ -49,7 +49,8 @@ class ChangePasswordLogic extends GetxController {
       return false;
     }
     if (newPwd == existingPwd) {
-      EasyLoading.showError('error_same'.trArgs(['existing_password'.tr, 'new_password'.tr]));
+      EasyLoading.showError(
+          'error_same'.trArgs(['existing_password'.tr, 'new_password'.tr]));
       return false;
     }
 
@@ -69,5 +70,30 @@ class ChangePasswordLogic extends GetxController {
     final encryptor = Encrypter(RSA(publicKey: publicKey));
     final encrypted = encryptor.encrypt(password);
     return encrypted.base64.toString();
+  }
+
+  Future<bool> setPassword(
+      {required String newPwd, required String rePwd}) async {
+    String? error = passwordValidator(newPwd);
+    if (error != null) {
+      EasyLoading.showError(error);
+      return false;
+    }
+    if (strEmpty(newPwd)) {
+      EasyLoading.showError('error_required'.trArgs(['new_password'.tr]));
+      return false;
+    }
+    if (rePwd != newPwd) {
+      EasyLoading.showError('error_retype_password'.tr);
+      return false;
+    }
+
+    String? pubKey = StorageService.to.getString(Keys.apiPublicKey);
+    // iPrint("pubKey $pubKey; ");
+    bool res = await UserProvider().setPassword(
+      newPwd: await _encryptPassword(pubKey!, newPwd),
+    );
+
+    return res;
   }
 }

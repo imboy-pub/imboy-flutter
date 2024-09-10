@@ -9,7 +9,6 @@ allprojects {
             allowInsecureProtocol = true
             url 'https://maven.aliyun.com/repository/central'
         }
-        // hms
         maven {
             allowInsecureProtocol = true
             url 'https://developer.huawei.com/repo/'

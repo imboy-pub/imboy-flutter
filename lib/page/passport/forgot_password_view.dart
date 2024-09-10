@@ -63,7 +63,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             right: 20,
             child: SingleChildScrollView(
               child: n.Column([
-                const SizedBox(height: 80),
+                const SizedBox(height: 40),
                 logic.title(),
                 const SizedBox(height: 40),
                 Card(

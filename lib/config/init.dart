@@ -9,9 +9,11 @@ import 'package:flutter/cupertino.dart';
 
 // import 'package:fvp/fvp.dart';
 import 'package:get/get.dart' as getx;
+import 'package:get/get.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/group/group_list/group_list_logic.dart';
+import 'package:imboy/page/mine/change_password/set_password_view.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
 import 'package:logger/logger.dart';
@@ -243,6 +245,11 @@ Future<void> init({required String env, required String signKeyVsn}) async {
 
           // 检查WS链接状态
           await WebSocketService.to.openSocket(from: 'resumeCallBack');
+
+          bool needSet = StorageService.to.getBool(Keys.needSetPwd) ?? false;
+          if (needSet) {
+            Get.off(() => SetPasswordPage());
+          }
         }
       },
       suspendingCallBack: () async {

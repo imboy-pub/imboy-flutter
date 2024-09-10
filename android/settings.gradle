@@ -22,13 +22,33 @@ pluginManagement {
         maven { url 'https://maven.aliyun.com/repository/gradle-plugin'}
         maven { url 'https://maven.aliyun.com/repository/public'}
     }
+    plugins {}
+    // https://stackoverflow.com/questions/71121109/com-huawei-agconnect-plugin-not-found
+    resolutionStrategy {
+        eachPlugin {
+            if (it.requested.id.getNamespace() == 'com.huawei.agconnect') {
+                println ">> ${it.requested.id.id}"
+                if (it.requested.id.id == 'com.huawei.agconnect.agcp') {
+                    it.useModule('com.huawei.agconnect:agcp:1.9.1.301')
+                }
+                //if (it.requested.id.id == 'com.huawei.agconnect.apms') {
+                //    it.useModule('com.huawei.agconnect:agconnect-apms-plugin:1.6.1.300')
+                //}
+                println ">> ${it.target}"
+            } else {
+                println ">  ${it.target}"
+            }
+        }
+    }
 }
 
 
 plugins {
     id "dev.flutter.flutter-plugin-loader" version "1.0.0"
-    id "com.android.application" version "7.3.0" apply false
+    id "com.android.application" version "7.3.1" apply false
+    id "com.android.library" version "7.3.1" apply false
     id "org.jetbrains.kotlin.android" version "1.9.25" apply false
+    //id "com.huawei.agconnect.agcp" version "1.9.1.301" apply false
 }
 
 include ":app"
