@@ -65,7 +65,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
               ),
             ),
             Text(
-              DateTimeHelper.lastTimeFmt(msg.createdAt!),
+              DateTimeHelper.lastTimeFmt(msg.createdAt! + DateTime.now().timeZoneOffset.inMilliseconds),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(

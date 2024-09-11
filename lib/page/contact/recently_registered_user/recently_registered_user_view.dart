@@ -86,7 +86,7 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
                             : model.nickname),
                         subtitle: n.Row([
                           if (model.createdAt > 0) Text(
-                            "${DateTimeHelper.lastTimeFmt(model.createdAt)}  ",
+                            "${DateTimeHelper.lastTimeFmt(model.createdAtLocal)}  ",
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
