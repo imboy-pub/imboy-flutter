@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.5.8
+version: 0.5.7
 
 environment:
   sdk: ">=3.0.0 <=4.0.0"
@@ -304,7 +304,12 @@ dependencies:
   # 类似于 Iphone 上的 AssistiveTouch 的 Flutter 包。
   drag_ball: ^2.0.0
   # Flutter应用升级/ Flutter App Upgrade /Flutter App Update/Flutter Update / 下载插件（有提示栏进度），支持全量升级、热更新和增量升级
-  r_upgrade: ^0.4.2
+  #r_upgrade: ^0.4.2
+  r_upgrade:
+    #path: plugin/r_upgrade
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/r_upgrade.git
+      ref: leeyi
   flutter_rating_bar: ^4.0.1
   octo_image: ^2.1.0 # 多功能 Flutter 图像小部件
 
@@ -340,6 +345,7 @@ dependencies:
   local_auth: ^2.3.0
   pin_code_fields: ^8.0.1
   intl_phone_number_input: ^0.7.4
+  #upgrader: ^11.0.0
   #app_links: ^6.3.2
   #simple_animations: ^5.0.2
   #huawei_account: ^6.12.0+301

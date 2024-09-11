@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -51,6 +52,7 @@ class UpgradePageState extends State<UpgradePage> {
   @override
   void initState() {
     super.initState();
+    // RUpgrade.setDebug(true);
     if (Platform.isAndroid) {
       RUpgrade.stream.listen((DownloadInfo info) {
         iPrint("RUpgrade.stream.listen info ${info.toString()}");
@@ -122,14 +124,35 @@ class UpgradePageState extends State<UpgradePage> {
       EasyLoading.show(status: "Permission 只支持 Android 和 IOS");
       return false;
     }
-    //判断如果还没拥有读写权限就申请获取权限
-    if (await Permission.storage.request().isDenied) {
-      await Permission.storage.request();
-      if ((await Permission.storage.status) != PermissionStatus.granted) {
-        return false;
+    PermissionStatus status;
+    if (Platform.isAndroid) {
+      final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+      final AndroidDeviceInfo info = await deviceInfoPlugin.androidInfo;
+      iPrint("_checkPermission info.version.sdkInt ${info.version.sdkInt}");
+      if ((info.version.sdkInt) >= 30) {
+        status = await Permission.manageExternalStorage.request();
+      } else {
+        status = await Permission.storage.request();
       }
+    } else {
+      status = await Permission.storage.request();
     }
-    return true;
+    iPrint("_checkPermission status ${status.toString()}");
+
+    switch(status) {
+      case PermissionStatus.denied:
+        return false;
+      case PermissionStatus.granted:
+        return true;
+      case PermissionStatus.restricted:
+        return false;
+      case PermissionStatus.limited:
+        return true;
+      case PermissionStatus.permanentlyDenied:
+        return false;
+      case PermissionStatus.provisional:
+        return true;
+    }
   }
 
   // 停止下载器运行（注销当前taskID）
@@ -161,6 +184,7 @@ class UpgradePageState extends State<UpgradePage> {
   Future<bool> upgradeApk(String url, [bool showNotification = true]) async {
     bool isDownloadFinish = false; //判断是否已经下载完成
     int? lastId = await RUpgrade.getLastUpgradedId();
+    iPrint("upgradeApk_ $lastId;");
     if (lastId != null) {
       downloadId = lastId;
       final status = await RUpgrade.getDownloadStatus(downloadId);

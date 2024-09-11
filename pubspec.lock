@@ -1802,11 +1802,12 @@ packages:
   r_upgrade:
     dependency: "direct main"
     description:
-      name: r_upgrade
-      sha256: "14337dd29cf67265ec86e1d518212cb6b6eafe9167fd366b050ccb1656461c55"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.4.2"
+      path: "."
+      ref: leeyi
+      resolved-ref: "2ea0e4f5a1d08d4740bfe5e6c60554c3789365b8"
+      url: "https://gitee.com/imboy-tripartite-deps/r_upgrade.git"
+    source: git
+    version: "0.4.3"
   recase:
     dependency: transitive
     description:
