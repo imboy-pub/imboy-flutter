@@ -671,62 +671,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.0.5"
-  flutter_inappwebview:
-    dependency: "direct main"
-    description:
-      name: flutter_inappwebview
-      sha256: "3e9a443a18ecef966fb930c3a76ca5ab6a7aafc0c7b5e14a4a850cf107b09959"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "6.0.0"
-  flutter_inappwebview_android:
-    dependency: transitive
-    description:
-      name: flutter_inappwebview_android
-      sha256: d247f6ed417f1f8c364612fa05a2ecba7f775c8d0c044c1d3b9ee33a6515c421
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.13"
-  flutter_inappwebview_internal_annotations:
-    dependency: transitive
-    description:
-      name: flutter_inappwebview_internal_annotations
-      sha256: "5f80fd30e208ddded7dbbcd0d569e7995f9f63d45ea3f548d8dd4c0b473fb4c8"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.1.1"
-  flutter_inappwebview_ios:
-    dependency: transitive
-    description:
-      name: flutter_inappwebview_ios
-      sha256: f363577208b97b10b319cd0c428555cd8493e88b468019a8c5635a0e4312bd0f
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.13"
-  flutter_inappwebview_macos:
-    dependency: transitive
-    description:
-      name: flutter_inappwebview_macos
-      sha256: b55b9e506c549ce88e26580351d2c71d54f4825901666bd6cfa4be9415bb2636
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.11"
-  flutter_inappwebview_platform_interface:
-    dependency: transitive
-    description:
-      name: flutter_inappwebview_platform_interface
-      sha256: "545fd4c25a07d2775f7d5af05a979b2cac4fbf79393b0a7f5d33ba39ba4f6187"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.10"
-  flutter_inappwebview_web:
-    dependency: transitive
-    description:
-      name: flutter_inappwebview_web
-      sha256: d8c680abfb6fec71609a700199635d38a744df0febd5544c5a020bd73de8ee07
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.8"
   flutter_link_previewer:
     dependency: transitive
     description:
@@ -872,26 +816,26 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_sound
-      sha256: "8987ddb736c701d08afaff46552a4f8065cf6745f7f0473307ec8c2c1b8682d5"
+      sha256: "009322e3138f8690f3c8d84d17549df3e8c22c1641dac0bca880030ea06a50fd"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.12.44"
+    version: "9.16.0"
   flutter_sound_platform_interface:
     dependency: "direct main"
     description:
       name: flutter_sound_platform_interface
-      sha256: "54d7b3fafb4763df94447a1a37c2f53623208c1b35d774f2f15c5edf26bfdad3"
+      sha256: ce7ac9a9bec6c5582851a83bb89aec698436f725da60d7ca7e831fc02e1ead09
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.12.44"
+    version: "9.16.0"
   flutter_sound_web:
     dependency: transitive
     description:
       name: flutter_sound_web
-      sha256: c922877ee5a0698db120432c4ccfbd2f4b6c7581bae4cd6fffb6111a211673e4
+      sha256: e4c0418457bf62f5937424cd43bcc7121f9531d75f11cdfde3a2d63a21a3ae37
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.12.44"
+    version: "9.16.0"
   flutter_spinkit:
     dependency: "direct main"
     description:
@@ -921,10 +865,9 @@ packages:
   flutter_webrtc:
     dependency: "direct main"
     description:
-      name: flutter_webrtc
-      sha256: f6800cc2af79018c12e955ddf8ad007891fdfbb8199b0ce3dccd0977ed2add9c
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "plugin/flutter-webrtc"
+      relative: true
+    source: path
     version: "0.11.7"
   fps_monitor:
     dependency: "direct main"
@@ -1450,10 +1393,10 @@ packages:
     dependency: "direct main"
     description:
       name: open_file
-      sha256: de371f549b1320a48980952473fae1903d4927975506534c8ea4643642eb5f98
+      sha256: a5ef7162fb9b72955d42abab9f3159b2fd3ee81a27187535c8038dcd5d1fa7f2
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.5.3"
+    version: "3.5.4"
   open_file_android:
     dependency: transitive
     description:
@@ -2082,10 +2025,10 @@ packages:
     dependency: "direct main"
     description:
       name: synchronized
-      sha256: a824e842b8a054f91a728b783c177c1e4731f6b124f9192468457a8913371255
+      sha256: "51b08572b9f091f8c3eb4d9d4be253f196ff0075d5ec9b10a884026d5b55d7bc"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.2.0"
+    version: "3.3.0+2"
   tapped:
     dependency: "direct main"
     description:
@@ -2410,10 +2353,10 @@ packages:
     dependency: "direct main"
     description:
       name: wechat_assets_picker
-      sha256: "04b695235aba08aafc1eda255d65582d555c1515fd46d1766a6df063aa5c047a"
+      sha256: aea82a6b523e118197187c6371301de5d15ce5572f353b575b5dcdeb2d17d44a
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "9.2.1"
+    version: "9.2.2"
   wechat_camera_picker:
     dependency: "direct main"
     description:

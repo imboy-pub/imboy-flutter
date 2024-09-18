@@ -155,6 +155,7 @@ Future<void> init({required String env, required String signKeyVsn}) async {
       "currentEnv $currentEnv, IMBOYENV ${const String.fromEnvironment('IMBOYENV')}, ${Platform.environment['IMBOYENV']};");
 
   // currentEnv = 'local';
+  // currentEnv = 'pro';
   // StorageService.to.setString('env', currentEnv);
   // iPrint("init currentEnv $currentEnv;");
 

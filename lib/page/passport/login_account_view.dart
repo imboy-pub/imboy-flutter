@@ -159,7 +159,7 @@ class LoginAccountPageState extends State<LoginAccountPage> {
             ElevatedButton(
               onPressed: () async {
                 String? err1 =
-                    logic.userValidator('email', state.loginAccount.value);
+                    logic.userValidator('account', state.loginAccount.value);
                 if (err1 != null) {
                   logic.snackBar(err1);
                   return;

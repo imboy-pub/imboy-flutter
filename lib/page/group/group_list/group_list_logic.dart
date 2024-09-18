@@ -29,8 +29,8 @@ class GroupListLogic extends GetxController {
       return [];
     }
     List<Map> list = await db.rawQuery(sql);
-    iPrint("computeAvatar l $gid, ${list.length} $sql");
-    iPrint("computeAvatar $gid, ${list.toString()}");
+    // iPrint("computeAvatar l $gid, ${list.length} $sql");
+    // iPrint("computeAvatar $gid, ${list.toString()}");
     List<String> li = [UserRepoLocal.to.current.avatar];
     // List<String> li = [];
     if (list.isNotEmpty) {

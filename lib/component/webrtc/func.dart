@@ -43,6 +43,8 @@ Future<bool> initIceServers({String from = 'incomingCallScreen'}) async {
       'iceServers': [
         {
           'urls': turnCredential['stun_urls'], // stun urls
+          'username': turnCredential['username'],
+          'credential': turnCredential['credential']
         },
         {
           'urls': turnCredential['turn_urls'], // turn urls
@@ -51,12 +53,13 @@ Future<bool> initIceServers({String from = 'incomingCallScreen'}) async {
           'credential': turnCredential['credential']
         },
       ],
-      "iceCandidatePoolSize": 0,
+      // ceCandidatePoolSize默认值是0，表示不限制候选数量。5，来限制ICE候选的数量。
+      "iceCandidatePoolSize": 5,
       "bundlePolicy": "balanced",
       "encodedInsertableStreams": false,
       // all:可以使用任何类型的候选者(表示host类型、srflx反射、relay中继都支持)
-      // relay: 只使用中继候选者（在真实的网络情况下一般都使用relay，因为Nat穿越在中国很困难）
-      'iceTransportPolicy': 'all',
+      // relay: 只使用中继候选者（在真实的网络情况下一般都使用 relay，因为Nat穿越在中国很困难）
+      'iceTransportPolicy': 'relay',
       "rtcpMuxPolicy": "require",
       'sdpSemantics': 'unified-plan',
     };

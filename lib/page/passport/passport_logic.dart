@@ -111,7 +111,7 @@ class PassportLogic extends GetxController {
       return 'error_invalid'.trArgs(['mobile'.tr]);
     } else if (accountType == 'email' && !isEmail(value)) {
       return 'error_invalid'.trArgs(['email'.tr]);
-    } else if (accountType == 'name' && value.length < 5) {
+    } else if (accountType == 'account' && value.length < 5) {
       return 'error_invalid'.trArgs(['account'.tr]);
     }
     return null;
@@ -284,11 +284,11 @@ class PassportLogic extends GetxController {
   Future<String?>? sendCode(String accountType, String account, String scene) {
     if (accountType == 'mobile') {
       return doSendCode(account, type: 'sms', scene: scene);
-    } else if (accountType == 'name' && isPhone(account)) {
+    } else if (accountType == 'account' && isPhone(account)) {
       return doSendCode(account, type: 'sms', scene: scene);
     } else if (accountType == 'email') {
       return doSendCode(account, type: 'email', scene: scene);
-    } else if (accountType == 'name' && isEmail(account)) {
+    } else if (accountType == 'account' && isEmail(account)) {
       return doSendCode(account, type: 'email', scene: scene);
     }
     return null;

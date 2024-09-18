@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.5.9
+version: 0.5.10
 
 environment:
   sdk: ">=3.0.0 <=4.0.0"
@@ -49,7 +49,7 @@ dependencies:
   url_launcher: ^6.3.0 # 打开url 拨打电话 发短信
   # https://juejin.cn/post/6869291513508659213
   webview_flutter: ^4.9.0 # Show web page (CGU)
-  flutter_inappwebview: ^6.0.0 # 它允许你将WebView小部件整合到你的Flutter应用中，使用无头WebViews，或者使用In-App浏览器。
+  #flutter_inappwebview: ^6.0.0 # 它允许你将WebView小部件整合到你的Flutter应用中，使用无头WebViews，或者使用In-App浏览器。
 
   qr_flutter: ^4.1.0 # 二维码生成
 
@@ -93,7 +93,7 @@ dependencies:
   camera: ^0.11.0+2
   #wechat_camera_picker: ^4.2.0-dev.3
   wechat_camera_picker: ^4.3.2
-  wechat_assets_picker: ^9.2.1
+  wechat_assets_picker: ^9.2.2
   # Photo View provides a gesture sensitive zoomable widget. Photo View is largely used to show interactive images and other stuff such as SVG.
   photo_view: ^0.15.0 #
   # 照片管理器
@@ -107,7 +107,7 @@ dependencies:
   image_picker_platform_interface: ^2.10.0
   #file_picker: ^6.2.0
   file_picker: ^8.1.2
-  open_file: ^3.5.3
+  open_file: ^3.5.4
   # image_crop: ^0.4.1
   image_crop:
     #path: plugin/image_crop
@@ -204,14 +204,14 @@ dependencies:
   #flutter_app_badger: ^1.5.0
   # 录音
   #record: ^5.1.2
-  flutter_sound: ^9.12.44
+  flutter_sound_platform_interface: ^9.16.0
+  flutter_sound: ^9.16.0
   #  flutter_sound:
   #    #path: plugin/flutter_sound/flutter_sound
   #    git:
   #      url: https://gitee.com/imboy-tripartite-deps/flutter_sound.git
   #      ref: leeyi
   #      path: flutter_sound
-  flutter_sound_platform_interface: ^9.12.44
   audio_session: ^0.1.21
 
   # 语音消息播放器
@@ -222,9 +222,9 @@ dependencies:
   #      url: https://gitee.com/imboy-tripartite-deps/voice_message_player.git
   #      ref: leeyi
   # 一对一音视频通话等
-  flutter_webrtc: ^0.11.7
-  #flutter_webrtc:
-  #    path: plugin/flutter-webrtc
+  #flutter_webrtc: ^0.11.7
+  flutter_webrtc:
+      path: plugin/flutter-webrtc
   #    git:
   #      url: https://gitee.com/imboy-tripartite-deps/flutter-webrtc.git
   #      ref: main
@@ -329,7 +329,7 @@ dependencies:
     #  url: https://gitee.com/imboy-tripartite-deps/IcStorageSpace.git
     #  ref: leeyi
   nine_grid_view: ^2.0.0
-  synchronized: ^3.2.0
+  synchronized: ^3.3.0+2
   share_plus: ^10.0.2
   highlight_text: ^1.8.0
   envied: ^0.5.4+1

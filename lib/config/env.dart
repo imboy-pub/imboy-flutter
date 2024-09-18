@@ -1,4 +1,5 @@
 import 'package:envied/envied.dart';
+import 'package:flutter/foundation.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -25,11 +26,11 @@ abstract interface class Env implements EnvField {
   @EnviedField(obfuscate: true)
   static Future<String> signKey() async {
     String key = (await PackageInfo.fromPlatform()).buildSignature;
-    // iPrint("aesDecrypt key 1 $key ;");
+    // debugPrint("aesDecrypt key 1 $key ;");
     if (key.isEmpty) {
       key = _to.solidifiedKey;
     }
-    // iPrint("aesDecrypt key 2 $key ;");
+    // debugPrint("aesDecrypt key 2 $key ;");
     return key;
   }
 

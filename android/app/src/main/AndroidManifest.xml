@@ -6,7 +6,7 @@
     <!--(如果需要上架到google store ,不能添加这个权限 , 也无法使用应用内更新功能)-->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!--(静默安装需要添加这个权限，并且需要系统应用-->
-    <uses-permission android:name="android.permission.INSTALL_PACKAGES" tools:ignore="ProtectedPermissions"/>
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES"/>
     <!--允许访问网络，必选权限-->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -46,8 +46,8 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <!--用于申请获取蓝牙信息进行室内定位-->
-    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
     <!--huawei_permission_start-->
@@ -56,14 +56,14 @@
 
     <application
         android:label="IMBoy"
+        android:name="androidx.multidex.MultiDexApplication"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:requestLegacyExternalStorage="true"
-        android:name="androidx.multidex.MultiDexApplication"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
-        tools:replace="android:label">
+        tools:replace="android:icon, android:label">
         <!-- 极光服务 SDK 一键接入指南 Required -->
         <activity
             android:name="com.cmic.sso.sdk.activity.LoginAuthActivity"

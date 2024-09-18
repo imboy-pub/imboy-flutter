@@ -87,9 +87,9 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     super.initState();
     msgId = widget.option['msgId'] ?? Xid().toString();
     counter.cleanUp();
-    if (!mounted) {
-      return;
-    }
+    // if (!mounted) {
+    //   return;
+    // }
     initData();
   }
 
@@ -159,9 +159,11 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         case WebRTCCallState.CallStateInvite:
           break;
         case WebRTCCallState.CallStateNew:
-          setState(() {
-            stateTips = 'waiting_peer_accept'.tr;
-          });
+          if (mounted) {
+            setState(() {
+              stateTips = 'waiting_peer_accept'.tr;
+            });
+          }
           answerTimer = Timer(const Duration(seconds: 60), () {
             if (mounted) {
               setState(() {
@@ -182,10 +184,12 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
           }
           break;
         case WebRTCCallState.CallStateBye:
-          setState(() {
-            counter.cleanUp();
-            stateTips = 'peer_has_hung_up'.tr;
-          });
+          if (mounted) {
+            setState(() {
+              counter.cleanUp();
+              stateTips = 'peer_has_hung_up'.tr;
+            });
+          }
 
           Future.delayed(const Duration(seconds: 2), () {
             _hangUp(
@@ -218,9 +222,11 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       debugPrint(
           "> rtc stream onLocalStream view ${localRenderer.srcObject.toString()} ${DateTime.now()}");
 
-      setState(() {
-        localRenderer.srcObject = stream;
-      });
+      if (mounted) {
+        setState(() {
+          localRenderer.srcObject = stream;
+        });
+      }
     });
 
     logic?.onAddRemoteStream = ((_, stream) {
@@ -229,14 +235,16 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       debugPrint(
           "> rtc stream onAddRemoteStream view ${remoteRenderer.srcObject.toString()}");
       remoteRenderer.srcObject = stream;
-      setState(() {});
+      if (mounted) setState(() {});
     });
 
     logic?.onRemoveRemoteStream = ((_, stream) {
       debugPrint("> rtc onRemoveRemoteStream ${DateTime.now()}");
-      setState(() {
-        remoteRenderer.srcObject = null;
-      });
+      if (mounted) {
+        setState(() {
+          remoteRenderer.srcObject = null;
+        });
+      }
     });
 
     debugPrint(
@@ -253,9 +261,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         "> rtc initData view pc ${widget.session.pc.toString()} ${DateTime.now()}");
 
     // 接收到新的消息订阅
-    subscription ??= eventBus
-        .on<WebRTCSignalingModel>()
-        .listen((WebRTCSignalingModel obj) async {
+    subscription = eventBus.on<WebRTCSignalingModel>().listen((WebRTCSignalingModel obj) async {
       await logic?.onMessageP2P(obj);
     });
 
@@ -302,7 +308,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       // 更新界面
       stateTips = counter.show();
       if (mounted) {
-        setState(() {});
+        if (mounted) setState(() {});
       }
     });
   }
@@ -349,9 +355,11 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
             onPressed: () {
               var res = logic?.turnMicrophone();
               if (res != null) {
-                setState(() {
-                  microphoneOff = res;
-                });
+                if (mounted) {
+                  setState(() {
+                    microphoneOff = res;
+                  });
+                }
               }
             },
             child: microphoneOff
@@ -376,10 +384,12 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
             heroTag: 'loudspeaker',
             tooltip: 'loudspeaker'.tr,
             onPressed: () {
-              setState(() {
-                speakerOn = !speakerOn;
-                logic?.switchSpeaker(speakerOn);
-              });
+              if (mounted) {
+                setState(() {
+                  speakerOn = !speakerOn;
+                  logic?.switchSpeaker(speakerOn);
+                });
+              }
             },
             // child: const Icon(Icons.volume_up),
             child: speakerOn
@@ -507,7 +517,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         onTap: () {
           switchTools();
           // 点击切换 本地和远端 RTCVideoRenderer
-          if (connected && media == 'video') {
+          if (connected && media == 'video' && mounted) {
             setState(() {
               switchRenderer = !switchRenderer;
             });
@@ -580,7 +590,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
                         childWhenDragging: const SizedBox.shrink(),
                         // 拖动中的回调
                         onDragEnd: (details) {
-                          if (connected) {
+                          if (connected && mounted) {
                             setState(() {
                               localX = details.offset.dx;
                               localY = details.offset.dy;

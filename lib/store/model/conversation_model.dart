@@ -63,7 +63,7 @@ class ConversationModel {
   }
   /// 会话内容计算
   String get content {
-    iPrint("ConversationModel_content msgType $msgType;  ${payload.toString()}");
+    // iPrint("ConversationModel_content msgType $msgType;  ${payload.toString()}");
     // 处理系统提示信息
     String sysPrompt = Get.find<ChatLogic>().parseSysPrompt(
       payload?['sys_prompt'] ?? '',
@@ -126,11 +126,11 @@ class ConversationModel {
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
     var payload = json[ConversationRepo.payload];
-    iPrint("ConversationModel_payload 1 $payload");
+    // iPrint("ConversationModel_payload 1 $payload");
     if (payload is String) {
       payload = jsonDecode(payload);
     }
-    iPrint("ConversationModel_payload 2 $payload");
+    // iPrint("ConversationModel_payload 2 $payload");
     return ConversationModel(
       id: json['id'] ?? 0,
       peerId: json['peer_id'],
