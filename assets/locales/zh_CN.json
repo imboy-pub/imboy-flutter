@@ -14,6 +14,7 @@
   "logout_notice": "《注销须知》",
   "cancel_logout_title": "是否终止注销流程？",
   "cancel_logout_body": "此账号处于注销反悔期，若登录成功则视作终止注销流程。如需继续注销，请在注销申请提交后的15天内不要登录IMBoy。",
+  "button_save":"保存",
   "button_cancel": "取消",
   "button_accomplish": "完成",
   "button_taking_pictures": "拍照",

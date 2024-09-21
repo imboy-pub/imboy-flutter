@@ -1,17 +1,27 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:popup_menu/popup_menu.dart' as popupmenu;
+import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:sqflite/sqflite.dart';
+
+import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/helper/string.dart';
 import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_logic.dart';
+import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -20,9 +30,6 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:popup_menu/popup_menu.dart' as popupmenu;
-import 'package:scroll_to_index/scroll_to_index.dart';
-import 'package:sqflite/sqflite.dart';
 
 import 'chat_state.dart';
 
@@ -181,13 +188,13 @@ class ChatLogic extends GetxController {
     ConversationRepo repo = ConversationRepo();
     ConversationModel? conversation = await repo.findByPeerId(type, toId);
     conversation ??= await Get.find<ConversationLogic>().createConversation(
-        type: type,
-        peerId: toId,
-        avatar: avatar ?? '',
-        title: title,
-        subtitle: "",
-        lastTime: DateTimeHelper.utc(),
-      );
+      type: type,
+      peerId: toId,
+      avatar: avatar ?? '',
+      title: title,
+      subtitle: "",
+      lastTime: DateTimeHelper.utc(),
+    );
     // 保存会话
     await repo.updateById(conversation.id, {
       ConversationRepo.title: title,
@@ -228,8 +235,8 @@ class ChatLogic extends GetxController {
     final mRepo = MessageRepo(tableName: tb);
     // 获取lastMsg，以更新会话lastMsg信息
     final items = await mRepo.page(
-      conversationUk3:cm.uk3,
-      page:2,
+      conversationUk3: cm.uk3,
+      page: 2,
       size: 1,
     );
     final lastMsg = items.isEmpty ? null : items[0];
@@ -395,6 +402,32 @@ class ChatLogic extends GetxController {
       ));
     }
 
+    bool canSave = false;
+    if (message.type == types.MessageType.image) {
+      canSave = true;
+    } else if (message.type == types.MessageType.file) {
+      canSave = true;
+    } else if (customType == 'video') {
+      canSave = true;
+    } else if (customType == 'audio') {
+      canSave = true;
+    }
+    if (canSave) {
+      items.add(popupmenu.MenuItem(
+        title: 'button_save'.tr,
+        userInfo: {"id": "save", "msg": message},
+        textAlign: TextAlign.center,
+        textStyle: const TextStyle(
+          color: Color(0xffc5c5c5),
+          fontSize: 10.0,
+        ),
+        image: const Icon(
+          Icons.save_alt,
+          size: 16,
+          color: Color(0xffc5c5c5),
+        ),
+      ));
+    }
     bool canCollect =
         UserCollectLogic.getCollectKind(message) > 0 ? true : false;
     if (canCollect) {
@@ -475,5 +508,26 @@ class ChatLogic extends GetxController {
       ),
     ));
     return items;
+  }
+
+  Future<void> saveFile(String name, String uri) async {
+    File? tmpF = await IMBoyCacheManager().getSingleFile(
+      uri,
+      key: EncrypterService.md5(uri),
+    );
+
+    String ext = StringHelper.ext(uri);
+    MimeType? mt =  MimeType.get(ext.toUpperCase());
+    // String? mimeType = lookupMimeType(uri);
+    String? path = await FileSaver.instance.saveAs(
+      name: name,
+      file: tmpF,
+      ext: ext,
+      mimeType: mt ?? MimeType.get('Other')!,
+    );
+    if (path != null) {
+      EasyLoading.showToast('save_success'.tr);
+    }
+    // iPrint("save_path $path");
   }
 }

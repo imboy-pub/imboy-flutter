@@ -14,6 +14,7 @@
   "logout_notice": "《Logout Notice》",
   "cancel_logout_title": "Cancel the Logout Process?",
   "cancel_logout_body": "This account is in the revocation period of the cancellation. If you log in successfully, it will be considered as terminating the logout process. If you wish to continue with the cancellation, please do not log in to IMBoy within 15 days after submitting the cancellation application.",
+  "button_save":"Save",
   "button_cancel": "Cancel",
   "button_accomplish": "Accomplish",
   "button_taking_pictures": "Take Photo",

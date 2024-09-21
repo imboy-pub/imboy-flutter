@@ -28,6 +28,7 @@ class LocaleKeys {
   static const logout_notice = 'logout_notice';
   static const cancel_logout_title = 'cancel_logout_title';
   static const cancel_logout_body = 'cancel_logout_body';
+  static const button_save = 'button_save';
   static const button_cancel = 'button_cancel';
   static const button_accomplish = 'button_accomplish';
   static const button_taking_pictures = 'button_taking_pictures';
@@ -498,6 +499,7 @@ class Locales {
     'cancel_logout_title': '是否终止注销流程？',
     'cancel_logout_body':
         '此账号处于注销反悔期，若登录成功则视作终止注销流程。如需继续注销，请在注销申请提交后的15天内不要登录IMBoy。',
+    'button_save': '保存',
     'button_cancel': '取消',
     'button_accomplish': '完成',
     'button_taking_pictures': '拍照',
@@ -960,6 +962,7 @@ class Locales {
     'cancel_logout_title': 'Cancel the Logout Process?',
     'cancel_logout_body':
         'This account is in the revocation period of the cancellation. If you log in successfully, it will be considered as terminating the logout process. If you wish to continue with the cancellation, please do not log in to IMBoy within 15 days after submitting the cancellation application.',
+    'button_save': 'Save',
     'button_cancel': 'Cancel',
     'button_accomplish': 'Accomplish',
     'button_taking_pictures': 'Take Photo',
@@ -1454,6 +1457,7 @@ class Locales {
     'cancel_logout_title': 'Отменить процесс выхода?',
     'cancel_logout_body':
         'Эта учетная запись находится в период отсрочки отмены. Если вы успешно войти, это будет считаться прекращением процесса выхода. Если вы хотите продолжить отмену, пожалуйста, не входите в IMBoy в течение 15 дней после подачи заявки на отмену.',
+    'button_save': 'сохран',
     'button_cancel': 'Отмена',
     'button_accomplish': 'Завершить',
     'button_taking_pictures': 'Фотографировать',
@@ -1953,6 +1957,7 @@ class Locales {
     'cancel_logout_title': '是否終止註銷流程？',
     'cancel_logout_body':
         '此賬號處於註銷後悔期，若登錄成功則視作終止註銷流程。如需繼續註銷，請在註銷申請提交後的15天內不要登錄IMBoy。',
+    'button_save': '儲存',
     'button_cancel': '取消',
     'button_accomplish': '完成',
     'button_taking_pictures': '拍照',

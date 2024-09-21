@@ -54,9 +54,12 @@ Future<bool> initIceServers({String from = 'incomingCallScreen'}) async {
         },
       ],
       // ceCandidatePoolSize默认值是0，表示不限制候选数量。5，来限制ICE候选的数量。
-      "iceCandidatePoolSize": 5,
-      "bundlePolicy": "balanced",
+      "iceCandidatePoolSize": 3,
       "encodedInsertableStreams": false,
+      // balanced：默认值，尝试在减少传输层连接数和保持足够的灵活性之间找到平衡。这通常意味着音频和视频流会捆绑在一起，但不会强制捆绑所有媒体类型。
+      // max-bundle：尽可能地将所有媒体流捆绑到一个RTP会话中。这减少了建立的连接数，可以减少总体的连接建立时间，因为只需要进行一次ICE协商。
+      // max-compat：不强制捆绑媒体流，以保持最大的兼容性。这可能会增加建立连接所需的时间，因为每个媒体流可能需要单独的ICE协商。
+      "bundlePolicy": "balanced",
       // all:可以使用任何类型的候选者(表示host类型、srflx反射、relay中继都支持)
       // relay: 只使用中继候选者（在真实的网络情况下一般都使用 relay，因为Nat穿越在中国很困难）
       'iceTransportPolicy': 'relay',

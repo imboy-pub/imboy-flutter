@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.5.10
+version: 0.5.11
 
 environment:
   sdk: ">=3.0.0 <=4.0.0"
@@ -107,7 +107,7 @@ dependencies:
   image_picker_platform_interface: ^2.10.0
   #file_picker: ^6.2.0
   file_picker: ^8.1.2
-  open_file: ^3.5.4
+  open_file: ^3.5.5
   # image_crop: ^0.4.1
   image_crop:
     #path: plugin/image_crop
@@ -345,6 +345,10 @@ dependencies:
   local_auth: ^2.3.0
   pin_code_fields: ^8.0.1
   intl_phone_number_input: ^0.7.4
+  file_saver: ^0.2.14
+  # receive_sharing_intent 使 Flutter 应用能够接收来自其他应用的共享照片、文本或 url
+  #receive_sharing_intent: ^1.8.0
+  #flutter_foreground_task: ^8.8.1+1
   #upgrader: ^11.0.0
   #app_links: ^6.3.2
   #simple_animations: ^5.0.2

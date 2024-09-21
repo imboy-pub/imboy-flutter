@@ -16,7 +16,6 @@ import 'package:imboy/component/ui/line.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:mime/mime.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:open_file/open_file.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:popup_menu/popup_menu.dart' as popupmenu;
 import 'package:scroll_to_index/scroll_to_index.dart';
@@ -46,7 +45,6 @@ import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/group/group_detail/group_detail_view.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_logic.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_view.dart';
-import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
@@ -99,7 +97,6 @@ class ChatPage extends StatefulWidget {
 }
 
 class ChatPageState extends State<ChatPage> {
-
   final galleryLogic = getx.Get.put(ImageGalleryLogic());
   final logic = getx.Get.find<ChatLogic>();
   final state = getx.Get.find<ChatLogic>().state;
@@ -191,25 +188,22 @@ class ChatPageState extends State<ChatPage> {
     int msgIndex = -1;
     if (widget.msgId.isNotEmpty) {
       while (msgIndex == -1) {
-        msgIndex =
-            state.messages.indexWhere((msg) => msg.id == widget.msgId);
-        iPrint(
-            "scrollToIndex i 1 $msgIndex, len ${state.messages.length}");
+        msgIndex = state.messages.indexWhere((msg) => msg.id == widget.msgId);
+        iPrint("scrollToIndex i 1 $msgIndex, len ${state.messages.length}");
         if (msgIndex == -1) {
           final items = await _handleEndReached();
           if (items.isEmpty) {
             break;
           }
         }
-        msgIndex =
-            state.messages.indexWhere((msg) => msg.id == widget.msgId);
-        iPrint(
-            "scrollToIndex i 2 $msgIndex, len ${state.messages.length}");
+        msgIndex = state.messages.indexWhere((msg) => msg.id == widget.msgId);
+        iPrint("scrollToIndex i 2 $msgIndex, len ${state.messages.length}");
         if (msgIndex > -1) {
           break;
         }
       }
-      iPrint("scrollToIndex i 3 $msgIndex, msgId ${widget.msgId}, len ${state.messages.length}");
+      iPrint(
+          "scrollToIndex i 3 $msgIndex, msgId ${widget.msgId}, len ${state.messages.length}");
 
       if (msgIndex > -1) {
         const d = Duration(milliseconds: 2500);
@@ -324,8 +318,7 @@ class ChatPageState extends State<ChatPage> {
     // debugPrint("> rtc msg S_RECEIVED listen list");
 
     // 消息状态更新订阅, 这里无需用锁 for c2g
-    state.ssMsgState =
-        eventBus.on<List<types.Message>>().listen((e) async {
+    state.ssMsgState = eventBus.on<List<types.Message>>().listen((e) async {
       types.Message msg = e.first;
 
       final i = state.messages.indexWhere((e) => e.id == msg.id);
@@ -364,8 +357,7 @@ class ChatPageState extends State<ChatPage> {
       countConversationRemind(items);
       if (mounted) {
         // 使用Set来存储所有现有的消息id，以便快速查找
-        Set<String> existingIds =
-            Set.from(state.messages.map((msg) => msg.id));
+        Set<String> existingIds = Set.from(state.messages.map((msg) => msg.id));
         // 过滤出那些不在existingIds中的新消息
         final items2 =
             items.where((item) => !existingIds.contains(item.id)).toList();
@@ -875,10 +867,6 @@ class ChatPageState extends State<ChatPage> {
   }
 
   void _onMessageLongPress(BuildContext c1, types.Message message) async {
-    if (message is types.FileMessage) {
-      await OpenFile.open(AssetsService.viewUrl(message.uri).toString());
-    }
-
     if (!context.mounted) return;
     // ignore: use_build_context_synchronously
     popupmenu.PopupMenu menu = popupmenu.PopupMenu(
@@ -1108,6 +1096,12 @@ class ChatPageState extends State<ChatPage> {
       // 复制消息
       Clipboard.setData(ClipboardData(text: msg.text));
       EasyLoading.showToast('copied'.tr);
+    } else if (itemId == "save" && msg is types.CustomMessage) {
+      await logic.saveFile(msg.metadata!['md5'], msg.metadata!['uri']);
+    } else if (itemId == "save" && msg is types.ImageMessage) {
+      await logic.saveFile(msg.name, msg.uri);
+    } else if (itemId == "save" && msg is types.FileMessage) {
+      await logic.saveFile(msg.name, msg.uri);
     } else if (itemId == "collect") {
       String tb = MessageRepo.getTableName(widget.type);
       // 添加收藏
@@ -1330,8 +1324,6 @@ class ChatPageState extends State<ChatPage> {
                   setState(() {
                     _showAppBar = false;
                   });
-                } else if (message is types.FileMessage) {
-                  confirmOpenFile(message.uri);
                 }
               },
               onMessageLongPress: _onMessageLongPress,

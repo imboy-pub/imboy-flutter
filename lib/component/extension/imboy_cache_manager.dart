@@ -5,6 +5,7 @@ import 'package:flutter_cache_manager/file.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:http/http.dart' as http;
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/helper/string.dart';
 import 'package:imboy/service/assets.dart';
 
 import 'mime_converter.dart';
@@ -64,18 +65,7 @@ class IMBoyHttpFileService extends FileService {
     if (headers != null) {
       req.headers.addAll(headers);
     }
-    String ext = "";
-
-    iPrint("imboy_cache_manager_get url $url");
-    if (url.isNotEmpty && url.lastIndexOf(".") != -1) {
-      Uri u1 = Uri.dataFromString(url);
-      ext = u1.path.substring(
-          u1.path.lastIndexOf("."),
-          u1.path.lastIndexOf("?") > 0
-              ? u1.path.lastIndexOf("?")
-              : u1.path.length);
-    }
-    iPrint("imboy_cache_manager_get ext $ext");
+    String ext = StringHelper.ext(url);
     final httpResponse = await _httpClient.send(req);
     return IMBoyHttpGetResponse(httpResponse, ext: ext);
   }
