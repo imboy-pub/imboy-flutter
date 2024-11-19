@@ -31,7 +31,7 @@ class WebSocketService {
 
   static WebSocketService get to {
     _self ??= WebSocketService._();
-    iPrint("WebSocketService_init ${_self.hashCode} ${_self.toString()}");
+    // iPrint("WebSocketService_init ${_self.hashCode} ${_self.toString()}");
     if (_self != null) {
       _self!._init();
     }
@@ -74,12 +74,12 @@ class WebSocketService {
       iPrint('> ws openSocket 网络连接异常ws');
       return;
     }
-    iPrint(
-        '> ws openSocket _socketStatus: $_socketStatus, isConnected $isConnected;');
-    iPrint(
-        '> ws openSocket _reconnectTimes ${_reconnectTimes > 0} $_reconnectTimes');
-
-    iPrint('> ws openSocket wsConnectLock: $wsConnectLock; from $from;');
+    // iPrint(
+    //     '> ws openSocket _socketStatus: $_socketStatus, isConnected $isConnected;');
+    // iPrint(
+    //     '> ws openSocket _reconnectTimes ${_reconnectTimes > 0} $_reconnectTimes');
+    //
+    // iPrint('> ws openSocket wsConnectLock: $wsConnectLock; from $from;');
     // 链接状态正常，不需要任何处理
     if (isConnected && from.startsWith('_reconnect_') == false) {
       return;

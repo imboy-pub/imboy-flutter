@@ -5,7 +5,6 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/counter.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/dragable.dart';
 import 'package:imboy/component/webrtc/enum.dart';
@@ -54,8 +53,10 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
 
   final double localWidth = 114.0;
   final double localHeight = 72.0;
-  String media = "";
-  var stateTips = "";
+
+  // option['media'] = video audio data
+  String media = 'video';
+  var stateTips = '';
   double localX = 0.0;
   double localY = 0.0;
 
@@ -87,6 +88,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     super.initState();
     msgId = widget.option['msgId'] ?? Xid().toString();
     counter.cleanUp();
+
     // if (!mounted) {
     //   return;
     // }
@@ -106,6 +108,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
   }
 
   Future<void> disposeRenderer() async {
+    // try {
     if (localRenderer.textureId != null) {
       localRenderer.srcObject = null;
       await localRenderer.dispose();
@@ -114,20 +117,24 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       remoteRenderer.srcObject = null;
       await remoteRenderer.dispose();
     }
+    // } catch (e) {
+    //
+    // }
   }
 
   initData() async {
     media = widget.option['media'] ?? 'video';
     debugPrint("> rtc initData view ${DateTime.now()}");
+
     // 设置Renderers
     await localRenderer.initialize();
     await remoteRenderer.initialize();
-    logic ??= P2pCallScreenLogic(
+
+    logic = P2pCallScreenLogic(
       widget.session,
-      iceConfiguration!,
       caller: widget.caller,
       media: media,
-    )..signalingConnect();
+    )..initState();
 
     if (widget.caller && (media == 'video' || media == 'audio')) {
       // 需要放在前面，避免更新的时候插入没有成功，导致消息状态异常
@@ -138,9 +145,11 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         peer: widget.peer,
       );
     }
-    switchRenderer = widget.caller ? false : true;
 
-    logic!.onSignalingStateChange = (RTCSignalingState state) {
+    debugPrint(
+        "> rtc initData view pc ${widget.session.pc.toString()} ${DateTime.now()}");
+
+    logic?.onSignalingStateChange = (RTCSignalingState state) {
       debugPrint(
           "> rtc onSignalingStateChange view ${state.toString()} ${DateTime.now()}");
       // switch (state) {
@@ -224,18 +233,26 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
 
       if (mounted) {
         setState(() {
+          // localRenderer.setSrcObject(stream: stream);
           localRenderer.srcObject = stream;
         });
       }
     });
 
     logic?.onAddRemoteStream = ((_, stream) {
+      // if (remoteRenderer.srcObject != null) {
+      //   return;
+      // }
+
       debugPrint(
-          "> rtc stream onAddRemoteStream view ${stream.toString()} ${DateTime.now()}");
+          "> rtc stream onAddRemoteStream view $mounted, ${stream.toString()} ${DateTime.now()}");
       debugPrint(
-          "> rtc stream onAddRemoteStream view ${remoteRenderer.srcObject.toString()}");
-      remoteRenderer.srcObject = stream;
-      if (mounted) setState(() {});
+          "> rtc stream onAddRemoteStream view ${DateTime.now()}, ${remoteRenderer.srcObject.toString()}");
+
+      setState(() {
+        remoteRenderer.srcObject = stream;
+        // remoteRenderer.setSrcObject(stream: stream);
+      });
     });
 
     logic?.onRemoveRemoteStream = ((_, stream) {
@@ -249,20 +266,19 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
 
     debugPrint(
         "> rtc initData view pc ${widget.session.pc.toString()} ${DateTime.now()}");
-    if (widget.session.pc == null) {
-      widget.session = await logic!.createSession(
-        widget.session,
-        msgId: msgId,
-        media: widget.option['media'] ?? 'video',
-        screenSharing: false,
-      );
-    }
-    debugPrint(
-        "> rtc initData view pc ${widget.session.pc.toString()} ${DateTime.now()}");
+
+    widget.session = await logic!.createSession(
+      widget.session,
+      msgId: msgId,
+      media: widget.option['media'] ?? 'video',
+      screenSharing: false,
+    );
 
     // 接收到新的消息订阅
-    subscription = eventBus.on<WebRTCSignalingModel>().listen((WebRTCSignalingModel obj) async {
-      await logic?.onMessageP2P(obj);
+    subscription = eventBus
+        .on<WebRTCSignalingModel>()
+        .listen((WebRTCSignalingModel obj) async {
+      await logic?.onMessageP2P(widget.session, obj);
     });
 
     debugPrint("> rtc view widget.caller ${widget.caller} ${DateTime.now()}");
@@ -277,6 +293,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       );
     } else {
       await logic?.onMessageP2P(
+        widget.session,
         WebRTCSignalingModel(
           msgId: msgId,
           type: 'WEBRTC_OFFER',
@@ -307,14 +324,12 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       counter.count += 1;
       // 更新界面
       stateTips = counter.show();
-      if (mounted) {
-        if (mounted) setState(() {});
-      }
+      if (mounted) setState(() {});
     });
   }
 
   Widget _buildPeerInfo() {
-    iPrint('_buildPeerInfo media $media');
+    // iPrint('_buildPeerInfo media $media');
     return Center(
       child: n.Padding(
         top: Get.height * 0.3,
@@ -482,9 +497,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
   Widget _buildRemoteVideo() {
     return Positioned(
       left: 0.0,
-      right: 0.0,
       top: 0.0,
-      bottom: 0.0,
       child: Container(
         margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
         width: Get.width,
@@ -494,6 +507,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
           onTap: switchTools,
           child: RTCVideoView(
             switchRenderer ? remoteRenderer : localRenderer,
+            // remoteRenderer,
             objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
             mirror: true,
           ),
@@ -517,7 +531,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         onTap: () {
           switchTools();
           // 点击切换 本地和远端 RTCVideoRenderer
-          if (connected && media == 'video' && mounted) {
+          if (connected && media == 'video') {
             setState(() {
               switchRenderer = !switchRenderer;
             });
@@ -557,6 +571,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       startAt: startAt,
       endAt: endAt,
     );
+
     logic?.cleanUpP2P();
     await disposeRenderer();
     widget.closePage?.call();
@@ -582,8 +597,8 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
 
               // local video
               Positioned(
-                left: connected ? localX : 0,
-                top: connected ? localY : 0,
+                left: localX,
+                top: localY,
                 child: connected
                     ? Draggable(
                         feedback: localVideo,

@@ -76,11 +76,11 @@ class ChatLogic extends GetxController {
     List<types.Message> messages = [];
     // items 的 msg 为 autoId asc 排序，所以要取 first的值
     state.nextAutoId = items.first.autoId;
-    iPrint("pageMessages items.first ${items.first.autoId}");
-    iPrint("pageMessages items.last ${items.last.autoId}");
+    // iPrint("pageMessages items.first ${items.first.autoId}");
+    // iPrint("pageMessages items.last ${items.last.autoId}");
     // 重发在发送中状态的消息
     for (MessageModel obj in items) {
-      debugPrint("> on getMessages obj: ${obj.toJson().toString()}");
+      // debugPrint("> on getMessages obj: ${obj.toJson().toString()}");
       if (obj.status == IMBoyMessageStatus.sending) {
         await sendWsMsg(obj);
       }

@@ -17,11 +17,18 @@ IMBOYENV=pro && flutter build apk --release \
       --split-per-abi \
       -t lib/main.dart
 
-
-    
-      
-
 ```
+
+
+### USB 数据线速度检测
+
+https://developer.android.com/studio/releases?hl=zh-cn#usb-check
+
+Android Studio 提供的信息与 根据您的操作系统，使用以下任一工具：
+
+Mac：从终端运行 system_profiler SPUSBDataType
+Linux：从终端运行 lsusb -vvv
+
 
 ### getAppBytes得到应用APP大小 [link](https://developer.android.com/reference/android/app/usage/StorageStats#getAppBytes())
 * getAppBytes得到应用程序的大小。这包括 APK 文件、优化的编译器输出和解压的原生库。

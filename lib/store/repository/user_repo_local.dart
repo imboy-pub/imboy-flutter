@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/func.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/passport/login_view.dart';
@@ -47,7 +46,7 @@ class UserRepoLocal extends GetxController {
 
   UserModel get current {
     Map<String, dynamic> user = StorageService.getMap(Keys.currentUser);
-    iPrint("current user ${user.toString()}");
+    // iPrint("current user ${user.toString()}");
     if (user.isEmpty) {
       WebSocketService.to.closeSocket(exit: true);
       Get.offAll(() => const LoginPage());

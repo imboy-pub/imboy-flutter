@@ -39,7 +39,7 @@ class ConversationLogic extends GetxController {
 
   /// 更新会话
   replace(ConversationModel obj) async {
-    iPrint("ConversationRepo_Logic_replace ${obj.toJson().toString()}");
+    // iPrint("ConversationRepo_Logic_replace ${obj.toJson().toString()}");
     // 第一次会话的时候 i 为 -1
     final i = conversations.indexWhere((ConversationModel m) => m.uk3 == obj.uk3);
     if (i > -1) {

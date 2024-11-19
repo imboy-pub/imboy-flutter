@@ -1,5 +1,4 @@
 import 'package:envied/envied.dart';
-import 'package:flutter/foundation.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 

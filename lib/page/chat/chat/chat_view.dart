@@ -270,10 +270,10 @@ class ChatPageState extends State<ChatPage> {
     // 接收到新的消息订阅 for c2c
     state.ssMsg =
         eventBus.on<types.Message>().listen((types.Message msg) async {
-      iPrint("chat_view/listen one ${msg.id}; ${DateTime.now()}");
+      // iPrint("chat_view/listen one ${msg.id}; ${DateTime.now()}");
       final String conversationUk3 = msg.metadata?['conversation_uk3'] ?? '';
-      iPrint("chat_view/listen one $conversationUk3");
-      iPrint("chat_view/listen one ${conversationUk3 != conversation.uk3}");
+      // iPrint("chat_view/listen one $conversationUk3");
+      // iPrint("chat_view/listen one ${conversationUk3 != conversation.uk3}");
       if (conversationUk3 != conversation.uk3) {
         return;
       }
@@ -285,9 +285,9 @@ class ChatPageState extends State<ChatPage> {
       msgIds.add(msg.id);
 
       final i = state.messages.indexWhere((e) => e.id == msg.id);
-      iPrint("changeMessageState 4 ${msg.id}; i $i; mounted $mounted");
+      // iPrint("changeMessageState 4 ${msg.id}; i $i; mounted $mounted");
       if (i == -1) {
-        iPrint("decreaseConversationRemind ${conversation.uk3}");
+        // iPrint("decreaseConversationRemind ${conversation.uk3}");
         String tb = MessageRepo.getTableName(widget.type);
         MessageModel? m = await MessageService.to.changeStatus(
           tb,
@@ -322,7 +322,7 @@ class ChatPageState extends State<ChatPage> {
       types.Message msg = e.first;
 
       final i = state.messages.indexWhere((e) => e.id == msg.id);
-      debugPrint("chat_view/listen list $i ${msg.toJson().toString()}");
+      // debugPrint("chat_view/listen list $i ${msg.toJson().toString()}");
       if (i > -1) {
         state.messages.setRange(i, i + 1, e);
         if (mounted) {

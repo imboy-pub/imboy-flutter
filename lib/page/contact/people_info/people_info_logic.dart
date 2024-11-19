@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
@@ -9,9 +8,9 @@ class PeopleInfoLogic extends GetxController {
   final PeopleInfoState state = PeopleInfoState();
 
   Future<void> initData(String id, String scene) async {
-    iPrint("people_info.initData 10 ${DateTime.now()}");
+    // iPrint("people_info.initData 10 ${DateTime.now()}");
     ContactModel? ct = await ContactRepo().findByUid(id);
-    iPrint("people_info.initData 20 ${DateTime.now()}");
+    // iPrint("people_info.initData 20 ${DateTime.now()}");
     // debugPrint("> on cdv initData $id");
     // debugPrint("> on cdv initData ${ct?.toJson().toString()}");
     if (ct != null) {

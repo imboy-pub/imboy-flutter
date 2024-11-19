@@ -44,15 +44,14 @@ class MessageService extends GetxService {
       final msgId = data['id'] ?? '';
       final type = (data['type'] ?? 'error').toString().toUpperCase();
       // type = type.toUpperCase();
-      iPrint(
-          "rtc_msg listen: $type , $p2pCallScreenOn, ${DateTime.now()} $data");
+      iPrint("> msg listen: $type, ${DateTime.now()} $data");
       if (data.containsKey('ts')) {
         int now = DateTimeHelper.utc();
-        iPrint("> rtc msg now: $now elapsed: ${now - data['ts']}");
+        iPrint("> msg now: $now elapsed: ${now - data['ts']}");
       }
       if (type.startsWith('WEBRTC_')) {
         // 确认消息
-        iPrint("rtc_msg CLIENT_ACK,WEBRTC,${data['id']},$deviceId");
+        iPrint("> msg CLIENT_ACK,WEBRTC,${data['id']},$deviceId");
         MessageService.to.sendAckMsg('WEBRTC', data['id']);
 
         if (type == 'WEBRTC_OFFER' ||
@@ -60,10 +59,10 @@ class MessageService extends GetxService {
             type == 'WEBRTC_BYE') {
           webrtcMsgIdLi.add(msgId);
         }
-        if (p2pCallScreenOn == false && type == 'WEBRTC_OFFER') {
+        if (type == 'WEBRTC_OFFER') {
           String peerId = data['from'];
           ContactModel? obj = await ContactRepo().findByUid(peerId);
-          iPrint("rtc_msg obj ${obj?.toJson().toString()}");
+          // iPrint("rtc_msg obj ${obj?.toJson().toString()}");
           if (obj != null) {
             await incomingCallScreen(
               msgId,
@@ -410,8 +409,8 @@ class MessageService extends GetxService {
     required String msgId,
     required ContactModel peer,
   }) async {
-    iPrint(
-        "changeLocalMsgState_addMessageLock $addMessageLock $msgId, ${peer.peerId == UserRepoLocal.to.currentUid}; peer.peerId ${peer.toJson().toString()} ;");
+    // iPrint(
+    //     "changeLocalMsgState_addMessageLock $addMessageLock $msgId, ${peer.peerId == UserRepoLocal.to.currentUid}; peer.peerId ${peer.toJson().toString()} ;");
     if (msgId.isEmpty) {
       return;
     }
@@ -473,12 +472,12 @@ class MessageService extends GetxService {
     int startAt = -1,
     int endAt = -1,
   }) async {
-    iPrint(
-        "changeLocalMsgState state $state, $msgId, startAt $startAt, endAt $endAt;");
+    // iPrint(
+    //     "changeLocalMsgState state $state, $msgId, startAt $startAt, endAt $endAt;");
     final repo = MessageRepo(tableName: MessageRepo.c2cTable);
     final msg = await repo.find(msgId);
-    iPrint(
-        "changeLocalMsgState 2 $msgId, ${msg?.payload?.toString()}; webrtcMsgIdLi ${webrtcMsgIdLi.toString()}");
+    // iPrint(
+    //     "changeLocalMsgState 2 $msgId, ${msg?.payload?.toString()}; webrtcMsgIdLi ${webrtcMsgIdLi.toString()}");
     if (msg == null) {
       return;
     }
@@ -495,7 +494,7 @@ class MessageService extends GetxService {
     if (endAt > -1) {
       payload['end_at'] = endAt;
     }
-    iPrint("changeLocalMsgState 3 $msgId, ${payload.toString()};");
+    // iPrint("changeLocalMsgState 3 $msgId, ${payload.toString()};");
     int res = await repo.update({
       MessageRepo.id: msgId,
       MessageRepo.payload: payload,

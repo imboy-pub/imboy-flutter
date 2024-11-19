@@ -3,16 +3,18 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 // ignore: must_be_immutable
 class WebRTCSession {
   WebRTCSession({
-    required this.pid,
+    required this.peerId,
     required this.sid,
+    this.pc,
+    this.dc,
     // required this.media, // TODO 2022-11-16 00:08:17
   });
 
   // peerId
-  String pid;
+  final String peerId;
 
   // sessionId
-  String sid;
+  final String sid;
 
   // video audio data
   // String media;

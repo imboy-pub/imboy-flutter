@@ -13,7 +13,10 @@ import 'package:imboy/page/single/markdown.dart';
 
 import 'logout_account_logic.dart';
 
+
+// ignore: must_be_immutable
 class LogoutAccountPage extends StatelessWidget {
+
   LogoutAccountPage({super.key});
 
   final logic = Get.put(LogoutAccountLogic());

@@ -329,7 +329,7 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                   ? const Color.fromRGBO(34, 34, 34, 1.0)
                   : const Color.fromRGBO(246, 246, 246, 1.0),
             ),
-            swapCategoryAndBottomBar: true,
+            // swapCategoryAndBottomBar: true,
             skinToneConfig: SkinToneConfig(
               indicatorColor: Get.isDarkMode
                   ? const Color.fromRGBO(34, 34, 34, 1.0)

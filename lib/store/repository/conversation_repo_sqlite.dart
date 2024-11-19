@@ -55,8 +55,8 @@ class ConversationRepo {
   }
 
   Future<int> updateById(int id, Map<String, dynamic> data) async {
-    iPrint(
-        "ConversationRepo_updateById $id, ${data.toString()} ${DateTime.now()}");
+    // iPrint(
+    //     "ConversationRepo_updateById $id, ${data.toString()} ${DateTime.now()}");
     if (data.containsKey(ConversationRepo.payload) &&
         data[ConversationRepo.payload] is Map<String, dynamic>) {
       data[ConversationRepo.payload] =
@@ -260,8 +260,8 @@ class ConversationRepo {
           '${ConversationRepo.type} = ? and ${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',
       whereArgs: [type, UserRepoLocal.to.currentUid, peerId],
     );
-    iPrint(
-        "> on pageMessages findByPeerId $type, ${UserRepoLocal.to.currentUid}, pid $peerId, ${maps.toString()}");
+    // iPrint(
+        // "> on pageMessages findByPeerId $type, ${UserRepoLocal.to.currentUid}, pid $peerId, ${maps.toString()}");
     if (maps.isNotEmpty) {
       return ConversationModel.fromJson(maps.first);
     }

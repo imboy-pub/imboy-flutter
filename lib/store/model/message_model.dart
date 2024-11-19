@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
-
 // ignore: depend_on_referenced_packages
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:imboy/store/model/contact_model.dart';
@@ -313,7 +311,7 @@ class MessageModel {
       );
     }
 
-    debugPrint("> on toTypeMessage md ${toJson().toString()}");
+    // debugPrint("> on toTypeMessage md ${toJson().toString()}");
     return message!;
   }
 }

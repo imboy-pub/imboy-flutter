@@ -1,10 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:niku/namespace.dart' as n;
@@ -19,59 +16,7 @@ import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_view.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
-import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-
-/// 初始化 ice 配置信息
-Future<bool> initIceServers({String from = 'incomingCallScreen'}) async {
-  debugPrint(
-      "> rtc initIceServers iceConfiguration == null: ${iceConfiguration == null}, ${UserRepoLocal.to.isLogin}, ${iceConfiguration.toString()}");
-
-  if (iceConfiguration != null) {
-    return true;
-  }
-  try {
-    Map<String, dynamic> turnCredential = await UserProvider().turnCredential();
-    debugPrint("getIceServers _turnCredential ${turnCredential.toString()}");
-    if (turnCredential.isEmpty && from == 'openCallScreen') {
-      EasyLoading.showError('failed_request_please_check_network'.tr);
-      return false;
-    } else if (turnCredential.isEmpty) {
-      return false;
-    }
-    iceConfiguration = {
-      'iceServers': [
-        {
-          'urls': turnCredential['stun_urls'], // stun urls
-          'username': turnCredential['username'],
-          'credential': turnCredential['credential']
-        },
-        {
-          'urls': turnCredential['turn_urls'], // turn urls
-          "ttl": turnCredential['ttl'] ?? 86400,
-          'username': turnCredential['username'],
-          'credential': turnCredential['credential']
-        },
-      ],
-      // ceCandidatePoolSize默认值是0，表示不限制候选数量。5，来限制ICE候选的数量。
-      "iceCandidatePoolSize": 3,
-      "encodedInsertableStreams": false,
-      // balanced：默认值，尝试在减少传输层连接数和保持足够的灵活性之间找到平衡。这通常意味着音频和视频流会捆绑在一起，但不会强制捆绑所有媒体类型。
-      // max-bundle：尽可能地将所有媒体流捆绑到一个RTP会话中。这减少了建立的连接数，可以减少总体的连接建立时间，因为只需要进行一次ICE协商。
-      // max-compat：不强制捆绑媒体流，以保持最大的兼容性。这可能会增加建立连接所需的时间，因为每个媒体流可能需要单独的ICE协商。
-      "bundlePolicy": "balanced",
-      // all:可以使用任何类型的候选者(表示host类型、srflx反射、relay中继都支持)
-      // relay: 只使用中继候选者（在真实的网络情况下一般都使用 relay，因为Nat穿越在中国很困难）
-      'iceTransportPolicy': 'relay',
-      "rtcpMuxPolicy": "require",
-      'sdpSemantics': 'unified-plan',
-    };
-    return true;
-  } catch (e) {
-    //
-  }
-  return false;
-}
 
 /// 发送WebRTC 消息
 sendWebRTCMsg(String event, Map payload,
@@ -83,8 +28,8 @@ sendWebRTCMsg(String event, Map payload,
   request["from"] = UserRepoLocal.to.currentUid; // currentUid
   request["type"] = "webrtc_$event";
   request["payload"] = payload;
-  debugPrint(
-      '> rtc _send $event, debug $debug, ${DateTime.now()} ${request.toString()}');
+  // debugPrint(
+  //     '> rtc _send $event, debug $debug, ${DateTime.now()} ${request.toString()}');
   WebSocketService.to.sendMessage(json.encode(request));
 }
 
@@ -93,32 +38,6 @@ String sessionId(String peerId) {
   List<String> li = [UserRepoLocal.to.currentUid, peerId];
   li.sort();
   return "${li[0]}-${li[1]}";
-}
-
-/// 接受暂存候选消息
-Future<void> receiveCandidate(String peerId, Map<String, dynamic> data) async {
-  RTCIceCandidate candidate = RTCIceCandidate(
-    data['candidate'],
-    data['sdpMid'],
-    data['sdpMLineIndex'],
-  );
-  // String pid = data['from'];
-  String sid = sessionId(peerId);
-  var s = webRTCSessions[sid];
-  if (s != null) {
-    final description = await s.pc?.getRemoteDescription();
-    if (description != null) {
-      await s.pc?.addCandidate(candidate);
-    } else {
-      s.remoteCandidates.add(candidate);
-    }
-    webRTCSessions[sid] = s;
-  } else {
-    webRTCSessions[sid] = WebRTCSession(
-      pid: peerId,
-      sid: sid,
-    )..remoteCandidates.add(candidate);
-  }
 }
 
 /// 音视频会话弹窗
@@ -133,19 +52,11 @@ Future<void> incomingCallScreen(
     return;
   }
   p2pCallScreenOn = true;
-  bool res = await initIceServers();
-  iPrint("rtc_msg incomingCallScreen msgid $msgId, res $res,");
-  if (res == false) {
-    sleep(const Duration(seconds: 2));
-    res = await initIceServers();
-  }
-  if (res == false) {
-    return;
-  }
 
-  String sid = sessionId(peer.peerId);
-  var s = webRTCSessions[sid];
-  s ??= WebRTCSession(pid: peer.peerId, sid: sid);
+  final sid = sessionId(peer.peerId);
+  WebRTCSession? s = webRTCSessions[sid];
+  // 在 openCallScreen 方法有把 session 放入 webRTCSessions 中
+  s ??= WebRTCSession(peerId: peer.peerId, sid: sid);
   option['msgId'] = msgId;
   await MessageService.to.addLocalMsg(
     media: option['media'],
@@ -273,6 +184,7 @@ Future<void> incomingCallScreen(
                   gTimer = null;
                   Get.closeAllDialogs();
                   option['msgId'] = msgId;
+                  //
                   openCallScreen(peer, session: s, option, caller: false);
                 },
                 child: option['media'] == 'video'
@@ -300,14 +212,11 @@ Future<void> openCallScreen(
   if (p2pEntry != null) {
     return;
   }
-  bool res = await initIceServers(from: 'openCallScreen');
-  if (res == false) {
-    return;
-  }
+
   p2pCallScreenOn = true;
 
-  String sid = sessionId(peer.peerId);
-  session ??= WebRTCSession(pid: peer.peerId, sid: sid);
+  final sid = sessionId(peer.peerId);
+  session ??= WebRTCSession(peerId: peer.peerId, sid: sid);
   webRTCSessions[sid] = session;
   p2pEntry = OverlayEntry(builder: (context) {
     return P2pCallScreenPage(

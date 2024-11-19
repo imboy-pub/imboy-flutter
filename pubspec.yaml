@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.5.11
+version: 0.5.12
 
 environment:
   sdk: ">=3.0.0 <=4.0.0"
@@ -17,7 +17,7 @@ dependencies:
   dio: ^5.7.0 # 网络请求框架
   dio_http2_adapter: ^2.5.3
   web_socket_channel: ^3.0.1
-  mime: ^1.0.6
+  mime: ^2.0.0
   connectivity_plus: ^6.0.5 # 是否联网及网络类型
 
   # UI
@@ -39,7 +39,7 @@ dependencies:
         ref: leeyi
 
   #get: ^4.6.6 # getx 状态管理框架
-  get: ^5.0.0-release-candidate-9.2
+  get: ^5.0.0-release-candidate-9.2.1
   #get:
   #  #path: plugin/getx
   #  git:
@@ -53,7 +53,7 @@ dependencies:
 
   qr_flutter: ^4.1.0 # 二维码生成
 
-  event_bus: ^2.0.0
+  event_bus: ^2.0.1
   jose: ^0.3.4 # jwt 插件
   encrypt: ^5.0.3 # 一组基于 PointyCastle 的高级 API，用于双向加密。 RSA AES
   # 在纯 Dart 中实现的一组加密函数。  SHA-* MD5 HMAC
@@ -78,7 +78,7 @@ dependencies:
     #    tag: permission_handler_android_v10.2.1
   #ref: master
   # 缓存
-  shared_preferences: ^2.3.2
+  shared_preferences: ^2.3.3
   #  Flutter Secure Storage 提供 API 将数据存储在安全存储中。iOS 中使用 Keychain，Android 中使用基于 KeyStore 的解决方案。
   flutter_secure_storage: ^9.2.2
   cached_network_image: ^3.4.1
@@ -93,21 +93,21 @@ dependencies:
   camera: ^0.11.0+2
   #wechat_camera_picker: ^4.2.0-dev.3
   wechat_camera_picker: ^4.3.2
-  wechat_assets_picker: ^9.2.2
+  wechat_assets_picker: ^9.4.0
   # Photo View provides a gesture sensitive zoomable widget. Photo View is largely used to show interactive images and other stuff such as SVG.
   photo_view: ^0.15.0 #
   # 照片管理器
-  photo_manager: ^3.3.0
+  photo_manager: ^3.6.2
   # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
   video_compress: ^3.1.3
   # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
-  path_provider: ^2.1.4
+  path_provider: ^2.1.5
   image_picker: ^1.1.2
   image_picker_macos: ^0.2.1+1
   image_picker_platform_interface: ^2.10.0
   #file_picker: ^6.2.0
-  file_picker: ^8.1.2
-  open_file: ^3.5.5
+  file_picker: ^8.1.4
+  open_file: ^3.5.10
   # image_crop: ^0.4.1
   image_crop:
     #path: plugin/image_crop
@@ -117,7 +117,7 @@ dependencies:
   #
   image: ^4.2.0
 
-  logger: ^2.4.0
+  logger: ^2.5.0
   #sentry_flutter: ^7.18.0
 
   # 用于访问加速度计、陀螺仪和磁力计传感器的 Flutter 插件。
@@ -140,9 +140,9 @@ dependencies:
   # 用于校正本地系统与时钟源服务器之前的时间
   ntp: ^2.0.0
   # Flutter 的表情符号选择器
-  emoji_picker_flutter: ^3.0.0
+  emoji_picker_flutter: ^3.1.0
   # 轮播滑块小部件
-  carousel_slider_plus: ^7.0.1
+  carousel_slider_plus: ^7.0.2
 
   # 具有登录/注册功能的登录小部件，有助于加快开发速度
   #flutter_login: ^5.0.0
@@ -153,9 +153,10 @@ dependencies:
   # 一个干净和轻量级的加载/吐司小部件
   flutter_easyloading: ^3.0.5
   # 生成闪屏页
-  flutter_native_splash: ^2.4.1
+  flutter_native_splash: ^2.4.3
   feedback: ^3.1.0
-  flutter_chat_ui: ^1.6.15
+  flutter_chat_ui: 1.6.15
+  #flutter_chat_ui: ^2.0.0-dev.1
   #flutter_chat_ui:
   #  #path: plugin/flutter_chat_ui
   #  git:
@@ -170,7 +171,7 @@ dependencies:
       url: https://gitee.com/imboy-tripartite-deps/popup_menu.git
       ref: master
   # 二维码扫描
-  mobile_scanner: ^5.2.3
+  mobile_scanner: ^7.0.0-beta.3
   #  mobile_scanner: ^4.0.1
   #  mobile_scanner:
   #    git:
@@ -185,17 +186,17 @@ dependencies:
       ref: leeyi
 
   # SQLite 的 Flutter 插件，一个独立的、高可靠性的嵌入式 SQL 数据库引擎。
-  sqflite: ^2.3.3+1
-  sqflite_common_ffi: ^2.3.3
+  sqflite: ^2.4.1
+  sqflite_common_ffi: ^2.3.4
   #  sqflite_common_ffi:
   #    git:
   #      url: https://gitee.com/imboy-tripartite-deps/sqflite.git
   #      ref: master
   #      path: sqflite_common_ffi
   #  json1 扩展至少需要 SQLite 3.38.0 (2021-02-09) (https://www.sqlite.org/json1.html)
-  sqlite3_flutter_libs: ^0.5.24
-  #sqlite3: ^2.4.6
+  sqlite3_flutter_libs: ^0.5.26
   #sqlcipher_flutter_libs: ^0.6.4
+  #sqlite3: ^2.4.6
   #sqflite_sqlcipher: ^3.1.0+1
 
   # 一个跨平台插件，用于显示和安排 Flutter 应用程序的本地通知，并能够针对每个平台进行自定义。
@@ -204,8 +205,8 @@ dependencies:
   #flutter_app_badger: ^1.5.0
   # 录音
   #record: ^5.1.2
-  flutter_sound_platform_interface: ^9.16.0
-  flutter_sound: ^9.16.0
+  flutter_sound_platform_interface: ^9.17.0
+  flutter_sound: ^9.17.0
   #  flutter_sound:
   #    #path: plugin/flutter_sound/flutter_sound
   #    git:
@@ -222,9 +223,11 @@ dependencies:
   #      url: https://gitee.com/imboy-tripartite-deps/voice_message_player.git
   #      ref: leeyi
   # 一对一音视频通话等
-  #flutter_webrtc: ^0.11.7
-  flutter_webrtc:
-      path: plugin/flutter-webrtc
+  flutter_webrtc: ^0.12.1+hotfix.1
+#  flutter_webrtc: 0.9.47
+#  flutter_webrtc:
+#    path: plugin/flutter-webrtc
+  #flutter_callkit_incoming:^2.0.4+2
   #    git:
   #      url: https://gitee.com/imboy-tripartite-deps/flutter-webrtc.git
   #      ref: main
@@ -239,17 +242,17 @@ dependencies:
   # 封装了基本的图形样式，矩形、圆角矩形、圆形、椭圆形，以及自定义虚线框
   dotted_border: ^2.1.0
   # 提供了一个Clock类，它封装了“当前时间”的概念，并提供了对相对于当前时间的点的简单访问
-  clock: ^1.1.1
+  clock: ^1.1.2
   # 用于 HTTP 请求的可组合、多平台、基于Future的 API。
   http: ^1.2.2
-  device_info_plus: ^10.1.2
-  package_info_plus: ^8.0.2
+  device_info_plus: ^11.1.1
+  package_info_plus: ^8.1.1
   # Flutter 的 Markdown 渲染器
-  flutter_markdown: ^0.7.3+1
+  flutter_markdown: ^0.7.3+2
   # 滑动吸顶
   sliding_up_panel: ^2.0.0+1
   # 用于 Flutter 的 SVG 渲染和小部件库，允许绘制和显示可缩放矢量图形 1.1 文件。
-  flutter_svg: ^2.0.10+1
+  flutter_svg: ^2.0.14
   # 动画效果
   flutter_animate: ^4.5.0
   # dart 对象比较
@@ -263,7 +266,7 @@ dependencies:
   # 加载动画库
   flutter_spinkit: ^5.2.1
   # 视频播放器插件
-  video_player: ^2.9.1
+  video_player: ^2.9.2
   # video_player的插件，支持所有桌面/移动平台。硬件解码器，最佳渲染。通过 FFmpeg 支持大多数格式
   #  fvp: ^0.23.0
   #  fvp:
@@ -329,10 +332,10 @@ dependencies:
     #  url: https://gitee.com/imboy-tripartite-deps/IcStorageSpace.git
     #  ref: leeyi
   nine_grid_view: ^2.0.0
-  synchronized: ^3.3.0+2
-  share_plus: ^10.0.2
+  synchronized: ^3.3.0+3
+  share_plus: ^10.1.2
   highlight_text: ^1.8.0
-  envied: ^0.5.4+1
+  envied: ^1.0.0
 
   #dropdown_button2: ^3.0.0-beta.16
 
@@ -340,12 +343,16 @@ dependencies:
   jverify:
     path: plugin/jverify
   #    git:
-  #      url: https://gitee.com/imboy-tripartite-deps/IcStorageSpace.git
+  #      url: https://gitee.com/imboy-tripartite-deps/jverify.git
   #      ref: leeyi
   local_auth: ^2.3.0
   pin_code_fields: ^8.0.1
   intl_phone_number_input: ^0.7.4
   file_saver: ^0.2.14
+  #flutter_tex: ^4.0.9
+  #flame: ^1.19.0
+  # 面向 Dart 开发人员的 IMAP、POP3 和 SMTP 客户端。包含低级 API 和高级 API。
+  #enough_mail: ^2.1.5
   # receive_sharing_intent 使 Flutter 应用能够接收来自其他应用的共享照片、文本或 url
   #receive_sharing_intent: ^1.8.0
   #flutter_foreground_task: ^8.8.1+1
@@ -381,6 +388,8 @@ dependencies:
   #uni_links: ^0.5.1
 
 dependency_overrides:
+  clock: ^1.1.2
+  #mime: ^2.0.0
   web: ^0.5.1 #   share_plus 10.0.1 depends on web ^1.0.0 and flutter_webrtc 0.11.6+hotfix.1 depends on web ^0.5.1
   #package_info_plus: ^8.0.0
   intl: ^0.19.0 # dep by jiffy: ^6.3.0
@@ -399,8 +408,8 @@ dependency_overrides:
 
 dev_dependencies:
   build_runner: ^2.4.12
-  envied_generator: ^0.5.4+1
-  flutter_lints: ^4.0.0
+  envied_generator: ^1.0.0
+  flutter_lints: ^5.0.0
   # ffigen: ^12.0.0
   flutter_test:
     sdk: flutter
