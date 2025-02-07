@@ -300,7 +300,7 @@ class GroupQrCodePage extends StatelessWidget {
 
   Future<void> _initData() async {
     // API_BASE_URL=https://dev.imboy.pub
-    int expiredAt = DateTimeHelper.utc() + dayNum * 86400 * 1000;
+    int expiredAt = DateTimeHelper.millisecond() + dayNum * 86400 * 1000;
     String key = Env().solidifiedKey;
     String tk = EncrypterService.md5("${expiredAt}_$key");
     Map<String, dynamic> query = {

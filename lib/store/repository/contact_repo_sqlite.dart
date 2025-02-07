@@ -294,7 +294,7 @@ class ContactRepo {
     }
     // debugPrint("> on ContactRepo/update/1 data: ${data.toString()}");
     if (strNoEmpty(peerId)) {
-      data[ContactRepo.updatedAt] = DateTimeHelper.utc();
+      data[ContactRepo.updatedAt] = DateTimeHelper.millisecond();
       return await _db.update(
         ContactRepo.tableName,
         data,

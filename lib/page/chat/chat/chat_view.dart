@@ -157,7 +157,7 @@ class ChatPageState extends State<ChatPage> {
       avatar: widget.peerAvatar,
       title: widget.peerTitle,
       subtitle: "",
-      lastTime: showConversation ? DateTimeHelper.utc() : 0,
+      lastTime: showConversation ? DateTimeHelper.millisecond() : 0,
     );
     if (showConversation) {
       eventBus.fire(conversation);
@@ -413,7 +413,7 @@ class ChatPageState extends State<ChatPage> {
     //   发送成功后，更新conversation、更新消息状态
     //   发送失败后，放入异步队列，重新发送
     String type = widget.type == 'null' ? 'C2C' : widget.type;
-    try {
+    // try {
       await logic.addMessage(
         UserRepoLocal.to.currentUid,
         widget.peerId,
@@ -426,10 +426,10 @@ class ChatPageState extends State<ChatPage> {
         state.messages.insert(0, message);
       });
       return true;
-    } catch (e) {
-      debugPrint("_addMessage $e");
-    }
-    return false;
+    // } catch (e) {
+    //   debugPrint("_addMessage $e");
+    // }
+    // return false;
     // _msgService.update();
   }
 
@@ -447,7 +447,7 @@ class ChatPageState extends State<ChatPage> {
         final message = types.FileMessage(
             id: Xid().toString(),
             author: currentUser,
-            createdAt: DateTimeHelper.currentTimeMillis(),
+            createdAt: DateTimeHelper.millisecond(),
             mimeType: lookupMimeType(result.files.single.path!),
             name: result.files.single.name,
             size: result.files.single.size,
@@ -493,7 +493,7 @@ class ChatPageState extends State<ChatPage> {
         if (entity.type == AssetType.image) {
           final message = types.ImageMessage(
               author: currentUser,
-              createdAt: DateTimeHelper.currentTimeMillis(),
+              createdAt: DateTimeHelper.millisecond(),
               id: Xid().toString(),
               name: await entity.titleAsync,
               height: entity.height * 1.0,
@@ -515,7 +515,7 @@ class ChatPageState extends State<ChatPage> {
           debugPrint("> on upload metadata: ${metadata.toString()}");
           final message = types.CustomMessage(
             author: currentUser,
-            createdAt: DateTimeHelper.currentTimeMillis(),
+            createdAt: DateTimeHelper.millisecond(),
             id: Xid().toString(),
             remoteId: widget.peerId,
             status: types.Status.sending,
@@ -572,7 +572,7 @@ class ChatPageState extends State<ChatPage> {
       data[MessageRepo.to] = widget.peerId;
       data[MessageRepo.status] = 10;
       data[MessageRepo.conversationUk3] = conversation.uk3;
-      data[MessageRepo.createdAt] = DateTimeHelper.currentTimeMillis();
+      data[MessageRepo.createdAt] = DateTimeHelper.millisecond();
 
       types.Message msg = await MessageModel.fromJson(data).toTypeMessage();
 
@@ -614,7 +614,7 @@ class ChatPageState extends State<ChatPage> {
       debugPrint("> location metadata: ${metadata.toString()}");
       final message = types.CustomMessage(
         author: currentUser,
-        createdAt: DateTimeHelper.currentTimeMillis(),
+        createdAt: DateTimeHelper.millisecond(),
         id: Xid().toString(),
         remoteId: widget.peerId,
         status: types.Status.sending,
@@ -654,7 +654,7 @@ class ChatPageState extends State<ChatPage> {
       debugPrint("> location metadata: ${metadata.toString()}");
       final message = types.CustomMessage(
         author: currentUser,
-        createdAt: DateTimeHelper.currentTimeMillis(),
+        createdAt: DateTimeHelper.millisecond(),
         id: Xid().toString(),
         remoteId: widget.peerId,
         status: types.Status.sending,
@@ -684,7 +684,7 @@ class ChatPageState extends State<ChatPage> {
 
           final message = types.ImageMessage(
               author: currentUser,
-              createdAt: DateTimeHelper.currentTimeMillis(),
+              createdAt: DateTimeHelper.millisecond(),
               id: Xid().toString(),
               name: await entity.titleAsync,
               height: entity.height * 1.0,
@@ -707,7 +707,7 @@ class ChatPageState extends State<ChatPage> {
           debugPrint("> on upload metadata: ${metadata.toString()}");
           final message = types.CustomMessage(
             author: currentUser,
-            createdAt: DateTimeHelper.currentTimeMillis(),
+            createdAt: DateTimeHelper.millisecond(),
             id: Xid().toString(),
             remoteId: widget.peerId,
             status: types.Status.sending,
@@ -753,7 +753,7 @@ class ChatPageState extends State<ChatPage> {
       debugPrint("> on upload metadata: ${metadata.toString()}");
       final message = types.CustomMessage(
         author: currentUser,
-        createdAt: DateTimeHelper.currentTimeMillis(),
+        createdAt: DateTimeHelper.millisecond(),
         id: Xid().toString(),
         remoteId: widget.peerId,
         status: types.Status.sending,
@@ -810,10 +810,10 @@ class ChatPageState extends State<ChatPage> {
 
   Future<bool> _handleSendPressed(types.PartialText msg) async {
     if (quoteMessage == null) {
-      iPrint("_handleSendPressed 1 ${DateTimeHelper.currentTimeMillis()}");
+      iPrint("_handleSendPressed 1 ${DateTimeHelper.millisecond()}");
       final textMessage = types.TextMessage(
         author: currentUser,
-        createdAt: DateTimeHelper.currentTimeMillis(),
+        createdAt: DateTimeHelper.millisecond(),
         id: Xid().toString(),
         text: msg.text,
         remoteId: widget.peerId,
@@ -833,7 +833,7 @@ class ChatPageState extends State<ChatPage> {
       // debugPrint("> on upload metadata: ${metadata.toString()}");
       final message = types.CustomMessage(
         author: currentUser,
-        createdAt: DateTimeHelper.currentTimeMillis(),
+        createdAt: DateTimeHelper.millisecond(),
         id: Xid().toString(),
         remoteId: widget.peerId,
         status: types.Status.sending,
@@ -852,7 +852,7 @@ class ChatPageState extends State<ChatPage> {
     if (msg.status != types.Status.sending) {
       return;
     }
-    int diff = DateTimeHelper.utc() - msg.createdAt!;
+    int diff = DateTimeHelper.millisecond() - msg.createdAt!;
     if (diff > 1000) {
       // 检查为发送消息
       logic.sendWsMsg(logic.getMsgFromTMsg(
@@ -934,7 +934,7 @@ class ChatPageState extends State<ChatPage> {
                       'msg_type': '${widget.type}_DEL_FOR_ME',
                       // c2g_del_for_me
                     },
-                    'created_at': DateTimeHelper.utc()
+                    'created_at': DateTimeHelper.millisecond()
                   };
                   await logic.sendMessage(msg2);
                 }
@@ -975,7 +975,7 @@ class ChatPageState extends State<ChatPage> {
                       'to': msg.remoteId, // c2g 的时候为 group id
                       'msg_type': '${widget.type}_DEL_EVERYONE',
                     },
-                    'created_at': DateTimeHelper.utc()
+                    'created_at': DateTimeHelper.millisecond()
                   };
                   await logic.sendMessage(msg2);
                   // 关闭AlertDialog
@@ -1045,7 +1045,7 @@ class ChatPageState extends State<ChatPage> {
                           'msg_type': '${widget.type}_DEL_FOR_ME',
                           // c2g_del_for_me
                         },
-                        'created_at': DateTimeHelper.utc()
+                        'created_at': DateTimeHelper.millisecond()
                       };
                       await logic.sendMessage(msg2);
                     }
@@ -1079,7 +1079,7 @@ class ChatPageState extends State<ChatPage> {
                           'to': msg.remoteId, // c2g 的时候为 group id
                           'msg_type': '${widget.type}_DEL_EVERYONE',
                         },
-                        'created_at': DateTimeHelper.utc()
+                        'created_at': DateTimeHelper.millisecond()
                       };
                       await logic.sendMessage(msg2);
                       // 关闭AlertDialog
@@ -1115,7 +1115,7 @@ class ChatPageState extends State<ChatPage> {
       // 撤回消息
 
       Map<String, dynamic> msg2 = {
-        'ts': DateTimeHelper.utc(),
+        'ts': DateTimeHelper.millisecond(),
         'id': msg.id,
         'type': '${widget.type.toUpperCase()}_REVOKE',
         'from': msg.author.id,
@@ -1272,6 +1272,7 @@ class ChatPageState extends State<ChatPage> {
                 required int messageWidth,
                 required bool showName,
               }) {
+                iPrint("str ${message.createdAt}");
                 return IgnorePointer(
                   child: TextMessage(
                     emojiEnlargementBehavior: EmojiEnlargementBehavior.multi,
@@ -1307,8 +1308,9 @@ class ChatPageState extends State<ChatPage> {
               onEndReachedThreshold: 0.9,
               // 300000 = 5分钟 默认 900000 = 15 分钟
               dateHeaderThreshold: 300000,
+              dateIsUtc: true,
               customDateHeaderText: (DateTime dt) =>
-                  DateTimeHelper.customDateHeader(dt),
+                  DateTimeHelper.dateTimeFmt(dt),
               onEndReached: _handleEndReached,
               onBackgroundTap: () {
                 // 收起输聊天底部弹出框

@@ -1,3 +1,9 @@
+# 0.6.0
+* 修正 jwt 的exp参数问题，以秒为单位；
+* 修正 DateTimeHelper.utc/0 修改为 DateTimeHelper.millisecond/0;
+* 修正 取消模型 xxxAtLocal  的属性；
+* use flutter_chat_ui: ^2.0.0-dev.6;
+* 升级一些依赖；
 
 # 0.5.12
 * 升级一些依赖；

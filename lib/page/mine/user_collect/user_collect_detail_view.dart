@@ -295,7 +295,7 @@ class UserCollectDetailPage extends StatelessWidget {
             Expanded(
                 flex: 2,
                 child: Text(
-                  "${'from'.tr} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAtLocal)}",
+                  "${'from'.tr} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAt)}",
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 12),
                 )),

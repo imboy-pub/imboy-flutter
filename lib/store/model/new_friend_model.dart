@@ -31,12 +31,6 @@ class NewFriendModel {
   final int createdAt;
   final String payload;
 
-  int get updatedAtLocal =>
-      updatedAt + DateTime.now().timeZoneOffset.inMilliseconds;
-
-  int get createdAtLocal =>
-      createdAt + DateTime.now().timeZoneOffset.inMilliseconds;
-
   String get uk {
     return from + to;
   }
@@ -53,7 +47,7 @@ class NewFriendModel {
       status: status is String ? int.parse(status) : status,
       msg: json[NewFriendRepo.msg].toString(),
       // 单位毫秒，13位时间戳  1561021145560
-      updatedAt: json[NewFriendRepo.updatedAt] ?? DateTimeHelper.utc(),
+      updatedAt: json[NewFriendRepo.updatedAt] ?? DateTimeHelper.millisecond(),
       createdAt: json[NewFriendRepo.createdAt],
       payload: json["payload"],
     );

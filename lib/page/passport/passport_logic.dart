@@ -41,7 +41,8 @@ class PassportLogic extends GetxController {
 
   /// 运营商信息
   final String fOprKey = "operator";
-  final Jverify jverify = Jverify();
+  // final Jverify jverify = Jverify();
+  late Jverify jverify;
 
   Widget title() {
     return Column(
@@ -450,25 +451,30 @@ class PassportLogic extends GetxController {
 
   /// Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    // 初始化 SDK 之前添加监听
-    jverify.addSDKSetupCallBackListener((JVSDKSetupEvent event) {
-      iPrint("receive sdk setup call back event :${event.toMap()}");
-    });
+    try {
+      jverify = Jverify();
+      // 初始化 SDK 之前添加监听
+      jverify.addSDKSetupCallBackListener((JVSDKSetupEvent event) {
+        iPrint("receive sdk setup call back event :${event.toMap()}");
+      });
 
-    jverify.setDebugMode(true); // 打开调试模式
-    jverify.setCollectionAuth(true);
-    jverify.setup(
-        appKey: Env().jiguangAppKey, //"你自己应用的 AppKey",
-        channel: "devloper-default"); // 初始化sdk,  appKey 和 channel 只对ios设置有效
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    // if (!mounted) return;
+      jverify.setDebugMode(true); // 打开调试模式
+      jverify.setCollectionAuth(true);
+      jverify.setup(
+          appKey: Env().jiguangAppKey, //"你自己应用的 AppKey",
+          channel: "devloper-default"); // 初始化sdk,  appKey 和 channel 只对ios设置有效
+      // If the widget was removed from the tree while the asynchronous platform
+      // message was in flight, we want to discard the reply rather than calling
+      // setState to update our non-existent appearance.
+      // if (!mounted) return;
 
-    /// 授权页面点击时间监听
-    jverify.addAuthPageEventListener((JVAuthPageEvent event) {
-      debugPrint("receive auth page event :${event.toMap()}");
-    });
+      /// 授权页面点击时间监听
+      jverify.addAuthPageEventListener((JVAuthPageEvent event) {
+        debugPrint("receive auth page event :${event.toMap()}");
+      });
+    } catch (e){
+      //
+    }
   }
 
   /// SDK 请求授权一键登录

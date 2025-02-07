@@ -22,7 +22,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 sendWebRTCMsg(String event, Map payload,
     {required String msgId, required String to, String? debug}) {
   Map request = {};
-  request["ts"] = DateTimeHelper.utc();
+  request["ts"] = DateTimeHelper.millisecond();
   request["id"] = msgId;
   request["to"] = to;
   request["from"] = UserRepoLocal.to.currentUid; // currentUid

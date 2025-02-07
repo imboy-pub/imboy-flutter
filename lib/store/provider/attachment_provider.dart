@@ -18,7 +18,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart' as getx;
 
-import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
@@ -31,8 +30,7 @@ class AttachmentProvider {
     Function errorCallback, {
     bool process = true,
   }) async {
-    int ts = DateTimeHelper.utc();
-    DateTime dt = DateTime.fromMillisecondsSinceEpoch(ts);
+    DateTime dt = DateTime.now();
     String savePath = "/$prefix/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";
     if (prefix == "avatar") {
       savePath = "/$prefix/";
@@ -93,8 +91,7 @@ class AttachmentProvider {
 
   static Future<dynamic> preUpload(
       String prefix, Map<String, dynamic> data) async {
-    int ts = DateTimeHelper.utc();
-    DateTime dt = DateTime.fromMillisecondsSinceEpoch(ts);
+    DateTime dt = DateTime.now();
     String savePath = "/$prefix/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";
 
     Map<String, dynamic> authData = AssetsService.authData();

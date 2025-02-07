@@ -46,7 +46,7 @@ class MessageService extends GetxService {
       // type = type.toUpperCase();
       iPrint("> msg listen: $type, ${DateTime.now()} $data");
       if (data.containsKey('ts')) {
-        int now = DateTimeHelper.utc();
+        int now = DateTimeHelper.millisecond();
         iPrint("> msg now: $now elapsed: ${now - data['ts']}");
       }
       if (type.startsWith('WEBRTC_')) {
@@ -189,7 +189,7 @@ class MessageService extends GetxService {
     var msgType = data['payload']['msg_type'] ?? '';
     var subtitle = data['payload']['text'] ?? '';
     iPrint("> rtc msg receiveMessage $data");
-    int now = DateTimeHelper.utc();
+    int now = DateTimeHelper.millisecond();
     iPrint("> rtc msg now: $now elapsed: ${data['created_at'] - now}");
 
     String peerId = '';
@@ -225,7 +225,7 @@ class MessageService extends GetxService {
       type: data['type'],
       msgType: msgType,
       lastMsgId: data['id'],
-      lastTime: data['created_at'] ?? DateTimeHelper.utc(),
+      lastTime: data['created_at'] ?? DateTimeHelper.millisecond(),
       unreadNum: 1,
       id: 0,
     );
@@ -436,7 +436,7 @@ class MessageService extends GetxService {
       }
       types.CustomMessage msg = types.CustomMessage(
         author: author,
-        createdAt: DateTimeHelper.currentTimeMillis(),
+        createdAt: DateTimeHelper.millisecond(),
         id: msgId,
         remoteId: peer.peerId,
         status: types.Status.delivered,

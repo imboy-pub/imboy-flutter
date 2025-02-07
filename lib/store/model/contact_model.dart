@@ -105,12 +105,6 @@ class ContactModel extends ISuspensionBean {
   final VoidCallback? onPressed;
   final VoidCallback? onLongPressed;
 
-  int get updatedAtLocal =>
-      updatedAt + DateTime.now().timeZoneOffset.inMilliseconds;
-
-  // int get createdAtLocal =>
-  //     createdAt + DateTime.now().timeZoneOffset.inMilliseconds;
-
   /// 联系人来源描述
   String get sourceTr {
     return getSourceTr(source);
@@ -150,7 +144,7 @@ class ContactModel extends ISuspensionBean {
       source: json["source"].toString(),
       sign: json["sign"].toString(),
       // 单位毫秒，13位时间戳  1561021145560
-      updatedAt: json[ContactRepo.updatedAt] ?? DateTimeHelper.utc(),
+      updatedAt: json[ContactRepo.updatedAt] ?? DateTimeHelper.millisecond(),
       isFriend: json[ContactRepo.isFriend] ?? 0,
       categoryId: json[ContactRepo.categoryId] ?? 0,
       isFrom: int.tryParse('$isFrom') ?? 0,

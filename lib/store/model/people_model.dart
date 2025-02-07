@@ -12,10 +12,6 @@ class PeopleModel {
   String remark;
   int createdAt;
 
-
-  int get createdAtLocal =>
-      createdAt + DateTime.now().timeZoneOffset.inMilliseconds;
-
   PeopleModel({
     required this.id, // userId or other
     this.distance = -1,

@@ -204,7 +204,7 @@ class UserDenylistRepo {
 
     debugPrint("> on UserDenylistRepo/update/1 data: ${data.toString()}");
     if (strNoEmpty(uid)) {
-      data[UserDenylistRepo.createdAt] = DateTimeHelper.utc();
+      data[UserDenylistRepo.createdAt] = DateTimeHelper.millisecond();
       return await _db.update(
         UserDenylistRepo.tableName,
         data,

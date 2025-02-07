@@ -61,7 +61,7 @@ class FeedbackDetailPage extends StatelessWidget {
               Text('submitted_at'.tr),
               const Space(width: 10),
               Text(
-                DateTimeHelper.lastTimeFmt(model.createdAtLocal),
+                DateTimeHelper.lastTimeFmt(model.createdAt),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -171,7 +171,7 @@ class FeedbackDetailPage extends StatelessWidget {
                                           const Space(width: 10),
                                           Text(
                                             DateTimeHelper.lastTimeFmt(
-                                                model.createdAtLocal),
+                                                model.createdAt),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(

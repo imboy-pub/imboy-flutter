@@ -185,7 +185,7 @@ class UserDevicePage extends StatelessWidget {
                                     if (model.lastActiveAt > 0)
                                       Text(
                                         DateTimeHelper.lastTimeFmt(
-                                            model.lastActiveAtLocal),
+                                            model.lastActiveAt),
                                       ),
                                   ]),
                                   trailing: navigateNextIcon,

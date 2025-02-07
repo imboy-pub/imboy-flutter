@@ -38,7 +38,7 @@ class NewFriendRepo {
       NewFriendRepo.payload: obj.payload,
       // 单位毫秒，13位时间戳  1561021145560
       NewFriendRepo.updatedAt: obj.updatedAt,
-      NewFriendRepo.createdAt: DateTimeHelper.utc(),
+      NewFriendRepo.createdAt: DateTimeHelper.millisecond(),
     };
     debugPrint("> on NewFriendRepo/insert/1 $insert");
 
@@ -152,7 +152,7 @@ class NewFriendRepo {
     }
 
     if (strNoEmpty(from) && strNoEmpty(to)) {
-      data[NewFriendRepo.updatedAt] = DateTimeHelper.utc();
+      data[NewFriendRepo.updatedAt] = DateTimeHelper.millisecond();
       return await _db.update(
         NewFriendRepo.tableName,
         data,

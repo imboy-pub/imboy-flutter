@@ -92,13 +92,13 @@ class ChatLogic extends GetxController {
   Future<bool> sendWsMsg(MessageModel obj) async {
     if (obj.status == IMBoyMessageStatus.sending) {
       Map<String, dynamic> msg = {
-        // 'ts': DateTimeHelper.utc(),
+        // 'ts': DateTimeHelper.millisecond(),
         'id': obj.id,
         'type': obj.type,
         'from': obj.fromId,
         'to': obj.toId,
         'payload': obj.payload,
-        'created_at': obj.createdAt,
+        'created_at': obj.createdAt, // 使用utc时间戳，更简洁
       };
       debugPrint("> chat_logic_sendWsMsg ${msg.toString()}");
       return await WebSocketService.to.sendMessage(json.encode(msg));
@@ -158,8 +158,7 @@ class ChatLogic extends GetxController {
       fromId: message.author.id,
       toId: message.remoteId,
       payload: payload,
-      createdAt:
-          message.createdAt! - DateTime.now().timeZoneOffset.inMilliseconds,
+      createdAt: message.createdAt!,
       isAuthor: message.author.id == UserRepoLocal.to.currentUid ? 1 : 0,
       conversationUk3: conversationUk3,
       status: IMBoyMessageStatus.sending,
@@ -180,7 +179,7 @@ class ChatLogic extends GetxController {
   }) async {
     String subtitle = MessageModel.conversationSubtitle(message);
     String msgType = MessageModel.conversationMsgType(message);
-    int createdAt = DateTimeHelper.utc();
+    int createdAt = DateTimeHelper.millisecond();
     if (toId == UserRepoLocal.to.currentUid) {
       throw Exception('not send message to myself');
     }
@@ -193,7 +192,7 @@ class ChatLogic extends GetxController {
       avatar: avatar ?? '',
       title: title,
       subtitle: "",
-      lastTime: DateTimeHelper.utc(),
+      lastTime: createdAt,
     );
     // 保存会话
     await repo.updateById(conversation.id, {

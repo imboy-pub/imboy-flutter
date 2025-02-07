@@ -111,7 +111,7 @@ class DenylistLogic extends GetxController {
     Map? payload = await api.add(deniedUserUid: model.deniedUid);
     bool res = payload == null ? false : true;
     if (res) {
-      model.createdAt = payload['created_at'] ?? DateTimeHelper.utc();
+      model.createdAt = payload['created_at']?? DateTimeHelper.millisecond();
       await repo.insert(model);
       // 隐藏联系人
       await ContactRepo().update({

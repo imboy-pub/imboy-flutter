@@ -34,7 +34,7 @@ class SendToLogic extends GetxController {
           imageUrl: UserRepoLocal.to.current.avatar,
         ),
         status: types.Status.sending,
-        createdAt: DateTimeHelper.currentTimeMillis(),
+        createdAt: DateTimeHelper.millisecond(),
         metadata: msg.metadata,
         remoteId: conversation.peerId,
         roomId: msg.roomId,

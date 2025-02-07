@@ -455,9 +455,9 @@ class UserCollectPage extends StatelessWidget {
                                             state.kind == state.recentUse &&
                                                     obj.updatedAt > 0
                                                 ? DateTimeHelper.lastTimeFmt(
-                                                    obj.updatedAtLocal)
+                                                    obj.updatedAt)
                                                 : DateTimeHelper.lastTimeFmt(
-                                                    obj.createdAtLocal),
+                                                    obj.createdAt),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(

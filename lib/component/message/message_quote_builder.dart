@@ -34,7 +34,7 @@ class QuoteMessageBuilder extends StatelessWidget {
     Map<String, dynamic> quoteMsgMap = message.metadata?['quote_msg'] ?? {};
     types.Message quoteMsg = types.Message.fromJson(quoteMsgMap);
 
-    // int now = DateTimeHelper.utc();
+    // int now = DateTimeHelper.millisecond();
     String text = message.metadata?['quote_text'] ?? '';
     Color txtColor = userIsAuthor
         ? (Get.isDarkMode

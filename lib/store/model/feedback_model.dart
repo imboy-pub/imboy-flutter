@@ -22,12 +22,6 @@ class FeedbackModel {
   int updatedAt;
   int createdAt;
 
-  int get updatedAtLocal =>
-      updatedAt + DateTime.now().timeZoneOffset.inMilliseconds;
-
-  int get createdAtLocal =>
-      createdAt + DateTime.now().timeZoneOffset.inMilliseconds;
-
   FeedbackModel({
     required this.feedbackId,
     // required this.deviceId,

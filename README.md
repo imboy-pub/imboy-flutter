@@ -233,3 +233,17 @@ cd ..
 mkdir -p plugin && cd plugin/
 git clone https://gitee.com/imboy-tripartite-deps/voice_message_player.git voice_message_package
 ```
+
+### 使用 freezed 来生成 fromJson/toJson
+https://github.com/rrousselGit/freezed/blob/master/resources/translations/zh_CN/README.md#%E5%AE%89%E8%A3%85
+
+```agsl
+dart run build_runner build
+
+```
+### 转为创建使用 Freezed 和 isar的schema 的模型 
+
+用了 Freezed 应该不需要 定义 fromJson 和 toMap之类的方法了吧
+
+flutter pub run build_runner build --delete-conflicting-outputs
+

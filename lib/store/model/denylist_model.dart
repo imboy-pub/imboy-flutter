@@ -54,12 +54,6 @@ class DenylistModel extends ISuspensionBean {
   final VoidCallback? onPressed;
   final VoidCallback? onLongPressed;
 
-  // int get updatedAtLocal =>
-  //     updatedAt + DateTime.now().timeZoneOffset.inMilliseconds;
-
-  int get createdAtLocal =>
-      createdAt + DateTime.now().timeZoneOffset.inMilliseconds;
-
   /// 联系人来源描述
   String get sourceTr {
     return getSourceTr(source);
@@ -87,7 +81,7 @@ class DenylistModel extends ISuspensionBean {
 
       sign: json[UserDenylistRepo.sign].toString(),
       // 单位毫秒，13位时间戳  1561021145560
-      createdAt: json[UserDenylistRepo.createdAt] ?? DateTimeHelper.utc(),
+      createdAt: json[UserDenylistRepo.createdAt] ?? DateTimeHelper.millisecond(),
 
       gender: json[UserDenylistRepo.gender] ?? 0,
       region: json[UserDenylistRepo.region].toString(),

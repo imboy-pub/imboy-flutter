@@ -6,8 +6,8 @@ import 'package:jose/jose.dart';
 bool tokenExpired(String? token) {
   try {
     var jwt = JsonWebToken.unverified(token ?? '');
-    // 极端情况下扣除1.5秒
-    return (jwt.claims['exp'] ?? 0) - 1500 > DateTimeHelper.utc()
+    // 极端情况下扣除2秒
+    return (jwt.claims['exp'] ?? 0) - 2 > (DateTimeHelper.second())
         ? true
         : false;
   } on Exception catch (e) {

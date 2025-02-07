@@ -204,7 +204,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
             _hangUp(
               sendBye: false,
               state: connected ? 1 : 3,
-              endAt: DateTimeHelper.utc() - 2000,
+              endAt: DateTimeHelper.millisecond() - 2000,
             );
           });
 
@@ -317,7 +317,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     MessageService.to.changeLocalMsgState(
       msgId,
       1,
-      startAt: DateTimeHelper.utc(),
+      startAt: DateTimeHelper.millisecond(),
     );
     counter.start((Timer tm) {
       // 秒数+1，因为一秒回调一次
@@ -388,7 +388,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
               onPressed: () {
                 _hangUp(
                   state: connected ? 1 : 4,
-                  endAt: DateTimeHelper.utc(),
+                  endAt: DateTimeHelper.millisecond(),
                 );
               },
               backgroundColor: Colors.pink,
@@ -430,7 +430,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
                 onPressed: () {
                   _hangUp(
                     state: connected ? 1 : 4,
-                    endAt: DateTimeHelper.utc(),
+                    endAt: DateTimeHelper.millisecond(),
                   );
                 },
                 backgroundColor: Colors.pink,

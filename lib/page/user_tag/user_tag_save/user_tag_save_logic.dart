@@ -60,7 +60,7 @@ class UserTagUpdateLogic extends GetxController {
         subtitle: '',
         refererTime: 0,
         updatedAt: 0,
-        createdAt: DateTimeHelper.utc(),
+        createdAt: DateTimeHelper.millisecond(),
       );
       await UserTagRepo().insert(tag);
       Get.find<ContactTagListLogic>().state.items.insert(0, tag);

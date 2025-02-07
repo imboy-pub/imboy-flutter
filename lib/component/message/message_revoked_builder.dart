@@ -26,8 +26,8 @@ class RevokedMessageBuilder extends StatelessWidget {
     bool userIsAuthor = user.id == message.author.id;
 
     String nickname = userIsAuthor ? 'you'.tr : '"${message.author.firstName}"';
-    int now = DateTimeHelper.utc();
-    bool canEdit = userIsAuthor && (now - message.createdAt!) < 300000;
+    int now = DateTimeHelper.millisecond();
+    bool canEdit = userIsAuthor && (now - message.createdAt! < 300000);
     String text = message.metadata?['text'] ?? '';
     if (text.isEmpty) {
       canEdit = false;

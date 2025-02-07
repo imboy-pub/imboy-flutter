@@ -68,12 +68,6 @@ class MessageModel {
     this.createdAt = 0,
   });
 
-  // int get updatedAtLocal =>
-  //     updatedAt + DateTime.now().timeZoneOffset.inMilliseconds;
-
-  int get createdAtLocal =>
-      createdAt + DateTime.now().timeZoneOffset.inMilliseconds;
-
   factory MessageModel.fromJson(Map<String, dynamic> data) {
     Map<String, dynamic>? p;
     if (data['payload'] == null || data['payload'] == "") {
@@ -248,7 +242,7 @@ class MessageModel {
     if (payload!['msg_type'] == 'text') {
       message = types.TextMessage(
         author: author,
-        createdAt: createdAtLocal,
+        createdAt: createdAt,
         id: id!,
         remoteId: toId,
         text: payload?['text'],
@@ -258,7 +252,7 @@ class MessageModel {
     } else if (payload!['msg_type'] == 'image') {
       message = types.ImageMessage(
         author: author,
-        createdAt: createdAtLocal,
+        createdAt: createdAt,
         id: id!,
         remoteId: toId,
         name: payload!['name'],
@@ -272,7 +266,7 @@ class MessageModel {
     } else if (payload!['msg_type'] == 'file') {
       message = types.FileMessage(
         author: author,
-        createdAt: createdAtLocal,
+        createdAt: createdAt,
         id: id!,
         remoteId: toId,
         name: payload!['name'],
@@ -288,7 +282,7 @@ class MessageModel {
       message = types.CustomMessage(
         author: author,
         id: id!,
-        createdAt: createdAtLocal,
+        createdAt: createdAt,
         remoteId: toId,
         metadata: {...metadata, ...?payload},
       );
@@ -296,7 +290,7 @@ class MessageModel {
       message = types.CustomMessage(
         author: author,
         id: id!,
-        createdAt: createdAtLocal,
+        createdAt: createdAt,
         remoteId: toId,
         metadata: {...metadata, ...?payload},
       );
@@ -304,7 +298,7 @@ class MessageModel {
       message = types.CustomMessage(
         author: author,
         id: id!,
-        createdAt: createdAtLocal,
+        createdAt: createdAt,
         remoteId: toId,
         status: typesStatus,
         metadata: {...metadata, ...?payload},

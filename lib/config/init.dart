@@ -231,10 +231,11 @@ Future<void> init({required String env, required String signKeyVsn}) async {
     LifecycleEventHandler(
       resumeCallBack: () async {
         // app 恢复
-        iPrint("> on LifecycleEventHandler resumeCallBack");
+        iPrint("> on LifecycleEventHandler resumeCallBack ${UserRepoLocal.to.isLogin};");
         ntpOffset = await DateTimeHelper.getNtpOffset();
         if (UserRepoLocal.to.isLogin) {
           String tk = await UserRepoLocal.to.accessToken;
+          // TODO 这里需要判断网络链接的情况下再去刷新token
           if (tokenExpired(tk)) {
             String? rtk = await UserRepoLocal.to.refreshToken;
 

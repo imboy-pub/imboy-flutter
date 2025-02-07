@@ -89,7 +89,7 @@ class WebSocketService {
     }
     String? url = Env.wsUrl;
     iPrint(
-        "> ws openSocket currentEnv $currentEnv wsUrl $url, login ${UserRepoLocal.to.isLogin}");
+        "> ws openSocket currentEnv $currentEnv ws_url $url, login ${UserRepoLocal.to.isLogin}");
     if (strEmpty(url) || UserRepoLocal.to.isLogin == false) {
       return;
     }

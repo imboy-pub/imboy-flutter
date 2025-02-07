@@ -185,7 +185,7 @@ class GroupListLogic extends GetxController {
         avatar: c?.avatar ?? '',
         account: c?.account ?? '',
         sign: c?.sign ?? '',
-        createdAt: DateTimeHelper.utc(),
+        createdAt: DateTimeHelper.millisecond(),
       ));
       // int? memberCount = await gmRepo.countByGid(groupId);
       await gRepo.save(groupId, {
