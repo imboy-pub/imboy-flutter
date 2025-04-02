@@ -3,6 +3,7 @@
 * 修正 DateTimeHelper.utc/0 修改为 DateTimeHelper.millisecond/0;
 * 修正 取消模型 xxxAtLocal  的属性；
 * use flutter_chat_ui: ^2.0.0-dev.6;
+* 优化 isPhone/1  hiddenPhone/1 方法；
 * 升级一些依赖；
 
 # 0.5.12

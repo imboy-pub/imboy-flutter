@@ -18,21 +18,6 @@ iPrint(String str) {
   return debugPrint("iPrint $str");
 }
 
-// This alphabet uses `A-Za-z0-9_-` symbols. The genetic algorithm helped
-// optimize the gzip compression for this alphabet.
-const _alphabet =
-    'ModuleSymbhasOwnPr-0123456789ABCDEFGHNRVfgctiUvz_KqYTJkLxpZXIjQW';
-
-/// Generates a random String id
-/// Adopted from: https://github.com/ai/nanoid/blob/main/non-secure/index.js
-String randomId({int size = 21}) {
-  var id = '';
-  for (var i = 0; i < size; i++) {
-    id += _alphabet[(math.Random().nextDouble() * 64).floor() | 0];
-  }
-  return id;
-}
-
 ///验证网页URl
 bool isUrl(String value) {
   RegExp url = RegExp(r"^((https|http|ftp|rtsp|mms)?://)\S+");
@@ -128,17 +113,129 @@ void clearMemoryImageCache() {
 }
 
 String hiddenPhone(String phone) {
-  String sub = phone.substring(0, 3);
-  String end = phone.substring(phone.length - 3, phone.length);
-  return '$sub****$end';
+  if (phone.isEmpty) return phone;
+
+  // 去除所有非数字字符
+  String cleaned = phone.replaceAll(RegExp(r'[^0-9+]'), '');
+
+  // 处理中国国际号码（+86开头，11位手机号）
+  if (cleaned.startsWith('+86') && cleaned.length == 14) {
+    // +8613812345678 → +86138****5678
+    return '${cleaned.substring(0, 6)}****${cleaned.substring(10)}';
+  } else if (cleaned.length == 13) {
+    return '${cleaned.substring(0, 5)}****${cleaned.substring(9)}';
+  } else if (cleaned.length == 12) {
+    return '${cleaned.substring(0, 4)}****${cleaned.substring(8)}';
+  }
+
+  // 处理带0086前缀的中国号码
+  if (cleaned.startsWith('0086') && cleaned.length == 15) {
+    // 008613812345678 → 0086138****5678
+    return '${cleaned.substring(0, 7)}****${cleaned.substring(11)}';
+  }
+
+  // 处理普通中国手机号（1开头，11位）
+  if (cleaned.startsWith('1') && cleaned.length == 11) {
+    return '${cleaned.substring(0, 3)}****${cleaned.substring(7)}';
+  }
+
+  // 处理其他国际号码（以+开头）
+  if (cleaned.startsWith('+')) {
+    if (cleaned.length <= 8) {
+      // 短国际号码：显示前3位和最后2位
+      return '${cleaned.substring(0, 3)}${'*' * (cleaned.length - 5)}${cleaned.substring(cleaned.length - 2)}';
+    } else {
+      // 长国际号码：显示前4位和最后4位
+      return '${cleaned.substring(0, 5)}${'*' * (cleaned.length - 9)}${cleaned.substring(cleaned.length - 4)}';
+    }
+  }
+
+  // 默认处理：显示前3位和最后4位
+  if (cleaned.length > 7) {
+    return '${cleaned.substring(0, 3)}${'*' * (cleaned.length - 7)}${cleaned.substring(cleaned.length - 4)}';
+  }
+
+  // 短号码处理
+  if (cleaned.length > 3) {
+    return '${cleaned.substring(0, 1)}${'*' * (cleaned.length - 2)}${cleaned.substring(cleaned.length - 1)}';
+  }
+
+  // 非常短的号码：显示首字符
+  return cleaned.isNotEmpty ? '${cleaned[0]}****' : '';
 }
 
+
+// bool isPhone(String? value) {
+//   if (strEmpty(value)) {
+//     return false;
+//   }
+//
+//   // 去除所有非数字字符和加号
+//   String cleaned = value!.replaceAll(RegExp(r'[^0-9+]'), '');
+//
+//   // 国际号码正则（以+开头，后跟5-14位数字）
+//   String internationalPattern = r'^\+\d{5,14}$';
+//
+//   // 中国手机号码正则（支持所有1[3-9]开头的11位号码，包含国际前缀）
+//   String chinaPattern = r'^(?:(?:\+|00)86)?1[3-9]\d{9}$';
+//
+//   // 检查是否是国际号码或中国号码
+//   return RegExp(internationalPattern).hasMatch(cleaned) ||
+//       RegExp(chinaPattern).hasMatch(cleaned);
+// }
+
+
+// 预编译所有正则表达式
+// final RegExp _digitRegExp = RegExp(r'\d');
+final RegExp _plusRegExp = RegExp(r'\+');
+final RegExp _internationalRegExp = RegExp(r'^\+\d{5,15}$');
+final RegExp _chinaRegExp = RegExp(
+  r'^(?:\+?(86)|0086)?(?!.*?(86|0086))1[3-9]\d{9}$',
+  caseSensitive: false,
+);
+final RegExp _cleanRegExp = RegExp(r'[^\d+]'); // 清理正则
+final RegExp _fullWidthDigitRegExp = RegExp(r'[０-９]'); // 全角数字正则
+
 bool isPhone(String? value) {
-  if (strEmpty(value) || value!.length != 11) {
-    return false;
+  if (value == null || value.isEmpty) return false;
+  // Step 1: 全角转半角
+  String normalized = value.replaceAllMapped(_fullWidthDigitRegExp,
+          (m) => String.fromCharCode(m.group(0)!.codeUnitAt(0) - 65248));
+
+  // Step 2: 清理非数字和加号字符
+  String cleaned = normalized.replaceAll(_cleanRegExp, '');
+
+  // Step 3: 处理加号（只保留首个加号）
+  final plusMatches = _plusRegExp.allMatches(cleaned);
+  if (plusMatches.length > 1) {
+    final firstPlusIndex = plusMatches.first.start;
+    cleaned = cleaned[firstPlusIndex] +
+        cleaned.substring(firstPlusIndex + 1).replaceAll('+', '');
   }
-  String pt = '^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{4}\$';
-  return RegExp(pt).hasMatch(value);
+
+  // Step 4: 有效性验证
+  return _validateInternational(cleaned) || _validateChina(cleaned);
+}
+
+bool _validateInternational(String s) {
+  if (!s.startsWith('+')) return false;
+  // 快速长度筛查
+  if (s.length < 6 || s.length > 16) return false;
+  return _internationalRegExp.hasMatch(s);
+}
+
+bool _validateChina(String s) {
+  // 长度快速筛查
+  final len = s.startsWith('+') ? s.length - 3 : s.length - 4;
+  if (len != 11) return false;
+
+  // 前缀处理
+  if (s.startsWith('+86')) {
+    s = s.substring(3);
+  } else if (s.startsWith('0086')) {
+    s = s.substring(4);
+  }
+  return _chinaRegExp.hasMatch(s);
 }
 
 bool isEmail(String value) {
