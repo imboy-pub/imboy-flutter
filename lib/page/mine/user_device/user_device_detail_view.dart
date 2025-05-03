@@ -117,20 +117,18 @@ class UserDeviceDetailPage extends StatelessWidget {
               title: 'last_active_time'.tr,
               isLine: false,
               isRight: false,
-              trailing: SizedBox(
-                child: Text(
-                  Jiffy.parseFromMillisecondsSinceEpoch(model.lastActiveAt)
-                      .format(pattern: 'yyyy-MM-dd HH:mm:ss'),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.right,
-                  style: TextStyle(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onPrimary
-                        .withOpacity(0.8),
-                    fontWeight: FontWeight.w400,
-                  ),
+              trailing: Text(
+                Jiffy.parseFromMillisecondsSinceEpoch(model.lastActiveAt)
+                    .format(pattern: 'yyyy-MM-dd HH:mm:ss'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.right,
+                style: TextStyle(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onPrimary
+                      .withValues(alpha: 0.8 * 255),
+                  fontWeight: FontWeight.w400,
                 ),
               ),
               onPressed: () {},

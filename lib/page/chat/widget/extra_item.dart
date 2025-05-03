@@ -46,20 +46,14 @@ class ExtraItem extends StatelessWidget {
           SizedBox(
             width: width ?? 56,
             height: height ?? 56,
-            // margin: EdgeInsets.symmetric(horizontal: 10),
             child: Material(
               color: InheritedChatTheme.of(context).theme.inputBackgroundColor,
-              // INK可以实现装饰容器
               child: Ink(
-                // 用ink圆角矩形
                 decoration: BoxDecoration(
-                  // 背景
                   color: Get.isDarkMode
                       ? const Color.fromRGBO(38, 38, 38, 1.0)
                       : const Color.fromRGBO(255, 255, 255, 1.0),
-                  // 设置四周圆角 角度
                   borderRadius: const BorderRadius.all(Radius.circular(16.0)),
-                  // 设置四周边框
                   border: Border.all(
                     width: 1,
                     color: Get.isDarkMode
@@ -69,8 +63,8 @@ class ExtraItem extends StatelessWidget {
                 ),
                 child: image is ImageProvider
                     ? Image(
-                        image: image as ImageProvider,
-                      )
+                  image: image as ImageProvider,
+                )
                     : image,
               ),
             ),
@@ -101,16 +95,15 @@ class ExtraItems extends StatefulWidget {
   final void Function()? handleFileSelection;
   final void Function()? handlePickerSelection;
   final void Function(String, Uint8List, String, String, String, String)?
-      handleLocationSelection;
+  handleLocationSelection;
   final void Function()? handleVisitCardSelection;
   final void Function()? handleCollectSelection;
 
   @override
-  // ignore: library_private_types_in_public_api
-  _ExtraItemsState createState() => _ExtraItemsState();
+  ExtraItemsState createState() => ExtraItemsState();
 }
 
-class _ExtraItemsState extends State<ExtraItems> {
+class ExtraItemsState extends State<ExtraItems> {
   int _current = 0;
   final CarouselSliderController _controller = CarouselSliderController();
 
@@ -119,131 +112,122 @@ class _ExtraItemsState extends State<ExtraItems> {
     const double iconSize = 30;
     var items = [
       n.Column([
-        n.Row([
-          ExtraItem(
-            title: 'album'.tr,
-            image: const Icon(Icons.photo, size: iconSize),
-            onPressed: widget.handleImageSelection,
-          ),
-          ExtraItem(
-            title: 'camera'.tr,
-            image: const Icon(Icons.camera_alt, size: iconSize),
-            onPressed: widget.handlePickerSelection,
-          ),
-          ExtraItem(
-            title: 'location'.tr,
-            image: const Icon(Icons.location_on, size: iconSize),
-            onPressed: () async {
-              AMapPosition? l = await AMapHelper().startLocation();
-              debugPrint("getLocation ${l?.latLng.toJson().toString()}");
-              if (l != null) {
-                // ignore: use_build_context_synchronously
-                Navigator.push(
-                  Get.context!,
-                  CupertinoPageRoute(
-                    // “右滑返回上一页”功能
-                    builder: (context) => MapLocationPicker(arguments: {
-                      "lat": double.parse(l.latLng.latitude.toString()),
-                      "lng": double.parse(l.latLng.longitude.toString()),
-                      "citycode": AMapApi.getCityNameByGaoDe(l.adCode),
-                      "isMapImage": true
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            ExtraItem(
+              title: 'album'.tr,
+              image: const Icon(Icons.photo, size: iconSize),
+              onPressed: widget.handleImageSelection,
+            ),
+            ExtraItem(
+              title: 'camera'.tr,
+              image: const Icon(Icons.camera_alt, size: iconSize),
+              onPressed: widget.handlePickerSelection,
+            ),
+            ExtraItem(
+              title: 'location'.tr,
+              image: const Icon(Icons.location_on, size: iconSize),
+              onPressed: () async {
+                AMapPosition? l = await AMapHelper().startLocation();
+                debugPrint("getLocation ${l?.latLng.toJson().toString()}");
+                if (l != null) {
+                  Navigator.push(
+                    Get.context!,
+                    CupertinoPageRoute(
+                      builder: (context) => MapLocationPicker(arguments: {
+                        "lat": double.parse(l.latLng.latitude.toString()),
+                        "lng": double.parse(l.latLng.longitude.toString()),
+                        "citycode": AMapApi.getCityNameByGaoDe(l.adCode),
+                        "isMapImage": true
+                      }),
+                    ),
+                  ).then((value) {
+                    if (value != null) {
+                      if (value["image"] == null) {
+                        EasyLoading.showError('failed_get_map_try_again'.tr);
+                        FocusScope.of(Get.context!).requestFocus(FocusNode());
+                        return;
+                      }
+                      if (widget.handleLocationSelection != null &&
+                          value["image"] != null) {
+                        widget.handleLocationSelection!(
+                          value["id"],
+                          value["image"],
+                          value["address"],
+                          value["title"],
+                          value["latitude"].toString(),
+                          value["longitude"].toString(),
+                        );
+                      }
+                    }
+                  });
+                }
+              },
+            ),
+            ExtraItem(
+              title: 'personal_card'.tr,
+              image: const Icon(Icons.person, size: iconSize),
+              onPressed: widget.handleVisitCardSelection,
+            ),
+            if (widget.type != 'C2G')
+              ExtraItem(
+                title: 'voice_call'.tr,
+                image: const Icon(Icons.phone, size: iconSize),
+                onPressed: () {
+                  openCallScreen(
+                    ContactModel.fromMap({
+                      "id": widget.options["to"],
+                      "nickname": widget.options["title"],
+                      "avatar": widget.options["avatar"],
+                      "sign": widget.options["sign"],
                     }),
-                  ),
-                ).then((value) {
-                  // debugPrint("getLocation MapLocationPicker_reslut $value");
-                  if (value != null) {
-                    if (value["image"] == null) {
-                      EasyLoading.showError('failed_get_map_try_again'.tr);
-                      FocusScope.of(Get.context!).requestFocus(FocusNode());
-                      return;
-                    }
-                    if (widget.handleLocationSelection != null &&
-                        value["image"] != null) {
-                      widget.handleLocationSelection!(
-                        value["id"],
-                        value["image"],
-                        value["address"],
-                        value["title"],
-                        value["latitude"].toString(),
-                        value["longitude"].toString(),
-                      );
-                    }
-                  }
-                });
-              }
-            },
-          ),
-          ExtraItem(
-            title: 'personal_card'.tr, // visit card
-            image: const Icon(Icons.person, size: iconSize),
-            onPressed: widget.handleVisitCardSelection,
-          ),
-        ]),
-        n.Row([
-          if (widget.type != 'C2G')
+                    {
+                      'media': 'audio',
+                    },
+                  );
+                },
+              ),
+            if (widget.type != 'C2G')
+              ExtraItem(
+                title: 'video_call'.tr,
+                image: const Icon(Icons.videocam, size: iconSize),
+                onPressed: () {
+                  openCallScreen(
+                    ContactModel.fromMap({
+                      "id": widget.options["to"],
+                      "nickname": widget.options["title"],
+                      "avatar": widget.options["avatar"],
+                      "sign": widget.options["sign"],
+                    }),
+                    {
+                      'media': 'video',
+                    },
+                  );
+                },
+              ),
             ExtraItem(
-              title: 'voice_call'.tr,
-              image: const Icon(Icons.phone, size: iconSize),
-              onPressed: () {
-                openCallScreen(
-                  ContactModel.fromMap({
-                    "id": widget.options["to"],
-                    "nickname": widget.options["title"],
-                    "avatar": widget.options["avatar"],
-                    "sign": widget.options["sign"],
-                  }),
-                  {
-                    'media': 'audio',
-                  },
-                );
-              },
+              title: 'favorites'.tr,
+              image: const Icon(Icons.collections_bookmark, size: iconSize),
+              onPressed: widget.handleCollectSelection,
             ),
-          if (widget.type != 'C2G')
-            ExtraItem(
-              title: 'video_call'.tr,
-              image: const Icon(Icons.videocam, size: iconSize),
-              onPressed: () {
-                openCallScreen(
-                  ContactModel.fromMap({
-                    "id": widget.options["to"],
-                    "nickname": widget.options["title"],
-                    "avatar": widget.options["avatar"],
-                    "sign": widget.options["sign"],
-                  }),
-                  {
-                    'media': 'video',
-                  },
-                );
-              },
-            ),
-          // const SizedBox(width: 86, height: 56,),
-          ExtraItem(
-            title: 'favorites'.tr,
-            image: const Icon(Icons.collections_bookmark, size: iconSize),
-            onPressed: widget.handleCollectSelection,
-          ),
-        ])
+          ],
+        ),
       ]),
       n.Column([
-        n.Row([
-          ExtraItem(
-            title: 'file'.tr,
-            image: const Icon(Icons.file_copy, size: iconSize),
-            onPressed: widget.handleFileSelection,
-          ),
-          /**
-              ExtraItem(
-              title: 'voice_input'.tr,
-              image: const Icon(Icons.keyboard_voice, size: iconSize),
-              onPressed: null,
-              ),
-              ExtraItem(
-              title: 'coupon'.tr,
-              image: const AssetImage('assets/images/chat/extra_wallet.png'),
-              onPressed: null,
-              ),
-           */
-        ])
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            ExtraItem(
+              title: 'file'.tr,
+              image: const Icon(Icons.file_copy, size: iconSize),
+              onPressed: widget.handleFileSelection,
+            ),
+            // 后面你如果需要继续加其他 ExtraItem，可以继续加在这里
+          ],
+        ),
       ]),
     ];
     return n.Column([
@@ -284,8 +268,9 @@ class _ExtraItemsState extends State<ExtraItems> {
               ),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: (Get.isDarkMode ? Colors.white : Colors.black)
-                    .withOpacity(_current == entry.key ? 0.7 : 0.2),
+                color: (Get.isDarkMode ? Colors.white : Colors.black).withAlpha(
+                  (_current == entry.key ? (0.7 * 255) : (0.2 * 255)).round(),
+                ),
               ),
             ),
           );

@@ -180,13 +180,14 @@ class _ConversationPageState extends State<ConversationPage> {
                                   flex: 3,
                                   backgroundColor: Colors.amber,
                                   onPressed: (_) async {
+                                    final uk3 = model.uk3;
                                     await logic.hideConversation(model.id);
-                                    logic.update([
-                                      logic.conversations.removeAt(index),
-                                      logic.conversationRemind[model.uk3] =
-                                          0.obs,
-                                      logic.chatMsgRemindCounter,
-                                    ]);
+                                    // 从 Map 中移除对应会话
+                                    logic.conversationMap.remove(uk3);
+                                    // 清空提醒计数
+                                    logic.conversationRemind[uk3] = 0;
+                                    // 通知 UI 更新（GetX 会自动响应）
+                                    logic.update();
                                   },
                                   label: 'not_show'.tr,
                                   spacing: 1,
@@ -197,13 +198,14 @@ class _ConversationPageState extends State<ConversationPage> {
                                   backgroundColor: Colors.red,
                                   foregroundColor: Colors.white,
                                   onPressed: (_) async {
+                                    final uk3 = model.uk3;
                                     await logic.removeConversation(model);
-                                    logic.update([
-                                      logic.conversations.removeAt(index),
-                                      logic.conversationRemind[model.uk3] =
-                                          0.obs,
-                                      logic.chatMsgRemindCounter,
-                                    ]);
+                                    // 从 Map 中移除对应会话
+                                    logic.conversationMap.remove(uk3);
+                                    // 清空提醒计数
+                                    logic.conversationRemind[uk3] = 0;
+                                    // 通知 UI 更新（GetX 会自动响应）
+                                    logic.update();
                                   },
                                   label: 'button_delete'.tr,
                                   spacing: 1,

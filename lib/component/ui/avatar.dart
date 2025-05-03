@@ -30,8 +30,8 @@ class Avatar extends StatelessWidget {
       onTap: onTap,
       child: n.Column([
         Container(
-          width: width ?? 49,
-          height: height ?? 49,
+          width: width ?? 50,
+          height: height ?? 50,
           decoration: BoxDecoration(
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(4.0),
@@ -46,7 +46,7 @@ class Avatar extends StatelessWidget {
         ),
         if (title != null)
           SizedBox(
-            width: width ?? 49,
+            width: width ?? 50,
             child: n.Row([Expanded(child: title!)]),
           )
       ]),
@@ -77,8 +77,8 @@ class ComputeAvatar extends StatelessWidget {
       child: computeAvatar != null && computeAvatar!.length < 2
           ? Avatar(imgUri: imgUri, width: width, height: height)
           : NineGridView(
-              width: width ?? 56,
-              height: height ?? 56,
+              width: width ?? 50,
+              height: height ?? 50,
               padding: const EdgeInsets.all(0),
               space: 1,
               type: NineGridType.weChatGp,
@@ -89,7 +89,7 @@ class ComputeAvatar extends StatelessWidget {
                 // iPrint("computeAvatar i $i");
                 // return Avatar(imgUri: i);
                 return OctoImage(
-                  width: 56,
+                  width: 50,
                   fit: BoxFit.cover,
                   image: cachedImageProvider(
                     i,

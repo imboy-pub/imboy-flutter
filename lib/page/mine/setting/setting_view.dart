@@ -47,6 +47,10 @@ class _SettingPageState extends State<SettingPage> {
             n.ListTile(
               title: Text('account_security'.tr),
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 Get.to(
                   () => AccountSecurityPage(),
@@ -64,6 +68,10 @@ class _SettingPageState extends State<SettingPage> {
             n.ListTile(
               title: Text('language_setting'.tr),
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 Get.to(
                   () => LanguagePage(),
@@ -80,16 +88,20 @@ class _SettingPageState extends State<SettingPage> {
                 )),
             n.ListTile(
               title: n.Row([
-                Text('dark_model'.tr),
-                SizedBox(
+                Expanded(child: Text('dark_model'.tr)),
+                Expanded(child: SizedBox(
                   width: 120,
                   child:
-                      Text(logic.themeTypeTips(), textAlign: TextAlign.right),
-                ),
+                  Text(logic.themeTypeTips(), textAlign: TextAlign.right),
+                )),
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 Get.to(
                   () => DarkModelPage(),
@@ -106,6 +118,10 @@ class _SettingPageState extends State<SettingPage> {
             n.ListTile(
               title: Text('message_notification'.tr),
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 // Get.to(
                 //       () => MarkdownPage(
@@ -148,6 +164,10 @@ class _SettingPageState extends State<SettingPage> {
                   ),
                 ),
               ),
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
             ),
 
             HorizontalLine(
@@ -158,6 +178,10 @@ class _SettingPageState extends State<SettingPage> {
             n.ListTile(
               title: Text('storage_space'.tr),
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 Get.to(
                   () => StorageSpacePage(),
@@ -188,6 +212,10 @@ class _SettingPageState extends State<SettingPage> {
             n.ListTile(
               title: Text('update_log'.tr),
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 Get.to(
                   () => MarkdownPage(
@@ -209,6 +237,10 @@ class _SettingPageState extends State<SettingPage> {
             n.ListTile(
               title: Text('help_document'.tr),
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 Get.to(
                   () => MarkdownPage(
@@ -229,12 +261,16 @@ class _SettingPageState extends State<SettingPage> {
                 )),
             n.ListTile(
               title: n.Row([
-                Text('about_app'.tr),
-                Text("${'version'.tr} $appVsn", textAlign: TextAlign.right),
+                Expanded(child: Text('about_app'.tr)),
+                Expanded(child: Text("${'version'.tr} $appVsn", textAlign: TextAlign.right)),
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 final rightDMActions = [
                   n.Padding(
@@ -325,6 +361,10 @@ class _SettingPageState extends State<SettingPage> {
                 ])
                   // 两端对齐
                   ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+                contentPadding: n.EdgeInsets.only(
+                  left: 16,
+                  right: 8.0,
+                ),
                 // trailing: navigateNextIcon,
                 // trailing: navigateNextIcon,
                 // onTap: () {

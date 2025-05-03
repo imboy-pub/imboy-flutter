@@ -39,7 +39,6 @@ class LoginAccountPageState extends State<LoginAccountPage> {
       state.loginAccountCtl.text = widget.account ?? '';
     }
 
-
     state.loginHistory.value =
         StorageService.to.getStringList(Keys.loginHistory) ?? [];
     if (state.loginHistory.isNotEmpty) {
@@ -54,7 +53,8 @@ class LoginAccountPageState extends State<LoginAccountPage> {
       });
     }
     if (state.loginAccountCtl.text.startsWith('+')) {
-      state.loginAccountCtl.text = loginHistory.isNotEmpty ? loginHistory[0] : '';
+      state.loginAccountCtl.text =
+          loginHistory.isNotEmpty ? loginHistory[0] : '';
     }
     state.loginAccount.value = state.loginAccountCtl.text;
     state.error.value = '';
@@ -62,11 +62,13 @@ class LoginAccountPageState extends State<LoginAccountPage> {
 
   @override
   Widget build(BuildContext context) {
+    final focusNode = FocusNode();
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         color: Colors.green,
         height: Get.height,
+        width: Get.width,
         child: SingleChildScrollView(
           child: n.Column([
             n.Column([
@@ -85,43 +87,47 @@ class LoginAccountPageState extends State<LoginAccountPage> {
                   autocorrect: false,
                   // TextField 垂直居中光标
                   textAlignVertical: TextAlignVertical.center,
+                  focusNode:focusNode,
                   decoration: InputDecoration(
+                    isDense: true, // 关键属性：压缩默认高度
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10), // 调整垂直内边距
                     border: InputBorder.none,
                     hintText: 'hint_login_account'.tr,
                     hintStyle: const TextStyle(fontSize: 14.0),
                     prefixIcon: const Icon(Icons.account_box),
-                    suffixIcon: loginHistory.isEmpty
-                        ? null
-                        : InkWell(
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return ListView.builder(
-                                    itemCount: loginHistory.length,
-                                    // Number of items
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      final item = loginHistory[index];
-                                      return ListTile(
-                                        title: Text(item),
-                                        onTap: () {
-                                          state.loginAccountCtl.text = item;
-                                          state.loginAccount.value =
-                                              state.loginAccountCtl.text;
-                                          // Handle item selection
-                                          // print('Selected Option $index');
-                                          Navigator.pop(
-                                              context); // Close the bottom sheet
-                                        },
-                                      );
+                      suffixIcon: loginHistory.isEmpty
+                          ? null
+                          : IconButton(
+                        icon: const Icon(Icons.menu_open_outlined, size: 26),
+                        padding: EdgeInsets.all(12), // 增加内边距
+                        constraints: BoxConstraints(
+                          minWidth: 48,
+                          minHeight: 48,
+                        ),
+                        onPressed: () {
+                          // 保持焦点
+                          focusNode.requestFocus();
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return ListView.builder(
+                                itemCount: loginHistory.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final item = loginHistory[index];
+                                  return ListTile(
+                                    title: Text(item),
+                                    onTap: () {
+                                      state.loginAccountCtl.text = item;
+                                      state.loginAccount.value = state.loginAccountCtl.text;
+                                      Navigator.pop(context);
                                     },
                                   );
                                 },
                               );
                             },
-                            child: const Icon(Icons.menu_open_outlined),
-                          ),
+                          );
+                        },
+                      ),
                   ),
                   onChanged: (String? val) {
                     if (strNoEmpty(val)) {

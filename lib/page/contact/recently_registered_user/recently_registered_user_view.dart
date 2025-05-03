@@ -81,25 +81,29 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
                       ListTile(
                         leading: Avatar(imgUri: model.avatar),
                         contentPadding: const EdgeInsets.only(left: 0),
-                        title: Text(model.nickname.isEmpty
-                            ? model.account
-                            : model.nickname),
+                        title: n.Row([
+                          Expanded(child: Text(model.nickname.isEmpty
+                              ? model.account
+                              : model.nickname)),
+                          if (model.createdAt > 0)
+                            Expanded(child: Text(
+                              DateTimeHelper.lastTimeFmt(model.createdAt, pattern: 'y-MM-dd'),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign:TextAlign.right,
+                              style: const TextStyle(
+                                // color: AppColors.MainTextColor,
+                                fontSize: 14.0,
+                              ),
+                            )),
+                        ]),
                         subtitle: n.Row([
-                          if (model.createdAt > 0) Text(
-                            "${DateTimeHelper.lastTimeFmt(model.createdAt)}  ",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              // color: AppColors.MainTextColor,
-                              fontSize: 14.0,
-                            ),
-                          ),
                           Expanded(
                               child: Text(
-                            model.sign,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          )),
+                                model.sign,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              )),
                         ]),
                         onTap: () {
                           Get.to(

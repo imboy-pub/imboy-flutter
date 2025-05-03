@@ -63,11 +63,14 @@ class LoginMobilePageState extends State<LoginMobilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final focusNode = FocusNode();
+
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         color: Colors.green,
         height: Get.height,
+        width: Get.width,
         child: SingleChildScrollView(
           child: n.Column([
             n.Column([
@@ -101,6 +104,8 @@ class LoginMobilePageState extends State<LoginMobilePage> {
                     ),
                     searchBoxDecoration:
                         InputDecoration(labelText: 'region_search_tips'.tr),
+                    autoFocus: true,
+                    focusNode:focusNode,
                     inputDecoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: 'please_input_param'.trArgs(['mobile'.tr]),
@@ -113,6 +118,8 @@ class LoginMobilePageState extends State<LoginMobilePage> {
                           ? null
                           : InkWell(
                         onTap: () {
+                          // 保持焦点
+                          focusNode.requestFocus();
                           showModalBottomSheet(
                             context: context,
                             builder: (BuildContext context) {
@@ -144,7 +151,7 @@ class LoginMobilePageState extends State<LoginMobilePage> {
                             },
                           );
                         },
-                        child: const Icon(Icons.menu_open_outlined),
+                        child: const Icon(Icons.menu_open_outlined, size: 26),
                       ),
                     ),
                     ignoreBlank: false,

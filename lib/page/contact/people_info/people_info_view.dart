@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/button.dart';
-import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/contact_card.dart';
 import 'package:imboy/component/ui/label_row.dart';
@@ -82,8 +81,10 @@ class PeopleInfoPage extends StatelessWidget {
                       });
                     },
                     child: n.Padding(
+                      top: 10,
                       left: 10,
                       right: 10,
+                      bottom: 10,
                       child: Icon(
                         Icons.more_horiz,
                         color: Theme.of(context).colorScheme.onPrimary,
@@ -118,12 +119,12 @@ class PeopleInfoPage extends StatelessWidget {
               visible: !isSelf && id != 'bot_qian_fan',
               child: LabelRow(
                 title: state.tag.value.isEmpty ? 'remarks_tags'.tr : 'tags'.tr,
-                titleWidth: state.tag.value.isEmpty ? 96 : 40,
+                titleWidth: state.tag.value.isEmpty ? 90 : 40,
                 // rValue: tag.value.isEmpty ? null : tag.value,
                 isLine: true,
                 lineWidth: 1.0,
                 trailing: SizedBox(
-                  width: Get.width - 140,
+                  width: Get.width - 160,
                   child: Text(
                     (state.tag.value.endsWith(',')
                         ? state.tag.value
@@ -298,25 +299,29 @@ class PeopleInfoPage extends StatelessWidget {
                     ),
                   ),
             if (scene == 'denylist')
-              n.Padding(
-                top: 20,
-                child: n.Row([
-                  Icon(
-                    Icons.warning_amber_rounded,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const Space(width: 4),
-                  Expanded(
-                      child: Text(
-                    'added_to_denylist_tips'.tr,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
+              Padding(
+                padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
+                child: Center(
+                  child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,  // 主轴居中
+                  crossAxisAlignment: CrossAxisAlignment.center,  // 交叉轴居中
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: Theme.of(context).colorScheme.error,
                     ),
-                  )),
-                ])
-                  // 内容居中
-                  ..mainAxisAlignment = MainAxisAlignment.center,
-              ),
+                    const SizedBox(width: 4),  // 使用 SizedBox 替代 Space 更常见
+                    Expanded(
+                      child: Text(
+                        'added_to_denylist_tips'.tr,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ))
           ]),
         ),
       ),

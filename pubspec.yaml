@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.6.0
+version: 0.6.1
 
 environment:
   sdk: ">=3.0.0 <=4.0.0"
@@ -16,9 +16,9 @@ dependencies:
   # Network
   dio: ^5.8.0+1 # 网络请求框架
   dio_http2_adapter: ^2.6.0
-  web_socket_channel: ^3.0.2
+  web_socket_channel: ^3.0.3
   mime: ^2.0.0
-  connectivity_plus: ^6.1.3 # 是否联网及网络类型
+  connectivity_plus: ^6.1.4 # 是否联网及网络类型
 
   # UI
   # 从实用程序 Widget 和带有点级联的扩展中构建 Flutter UI。流畅地开发，没有头痛和嵌套地狱。
@@ -48,7 +48,7 @@ dependencies:
 
   url_launcher: ^6.3.0 # 打开url 拨打电话 发短信
   # https://juejin.cn/post/6869291513508659213
-  webview_flutter: ^4.9.0 # Show web page (CGU)
+  webview_flutter: ^4.11.0 # Show web page (CGU)
   #flutter_inappwebview: ^6.0.0 # 它允许你将WebView小部件整合到你的Flutter应用中，使用无头WebViews，或者使用In-App浏览器。
 
   qr_flutter: ^4.1.0 # 二维码生成
@@ -67,8 +67,8 @@ dependencies:
   #webcrypto: ^0.5.2
   #json序列化和反序列化用的
   #json_annotation: ^4.8.1
-  permission_handler: ^11.4.0
-  permission_handler_apple: ^9.4.6
+  permission_handler: ^12.0.0+1
+  permission_handler_apple: ^9.4.7
   permission_handler_android: ^13.0.1
   permission_handler_platform_interface: ^4.3.0
     #any permission_handler:
@@ -105,7 +105,7 @@ dependencies:
   image_picker: ^1.1.2
   image_picker_macos: ^0.2.1+2
   image_picker_platform_interface: ^2.10.1
-  file_picker: ^10.0.0
+  file_picker: ^10.1.2
   open_file: ^3.5.10
   # image_crop: ^0.4.1
   image_crop:
@@ -135,7 +135,7 @@ dependencies:
   # 一个能在 profile/debug 模式下，直观帮助我们评估页面流畅度的工具
   fps_monitor: ^2.0.0
   # 时间处理
-  jiffy: ^6.4.2
+  jiffy: ^6.4.3
   # 用于校正本地系统与时钟源服务器之前的时间
   ntp: ^2.0.0
   # Flutter 的表情符号选择器
@@ -152,7 +152,7 @@ dependencies:
   # 一个干净和轻量级的加载/吐司小部件
   flutter_easyloading: ^3.0.5
   # 生成闪屏页
-  flutter_native_splash: ^2.4.5
+  flutter_native_splash: ^2.4.6
   feedback: ^3.1.0
   flutter_chat_ui: 1.6.15
   #flutter_chat_types: ^3.6.2
@@ -181,7 +181,7 @@ dependencies:
   #    url: https://gitee.com/imboy-tripartite-deps/popup_menu.git
   #    ref: master
   # 二维码扫描
-  mobile_scanner: ^7.0.0-beta.8
+  mobile_scanner: ^7.0.0
   #  mobile_scanner: ^4.0.1
   #  mobile_scanner:
   #    git:
@@ -210,7 +210,7 @@ dependencies:
   #flutter_app_badger: ^1.5.0
   # 录音
   #record: ^5.1.2
-  flutter_sound_platform_interface: ^10.2.5
+  flutter_sound_platform_interface: ^10.3.0
   flutter_sound: ^9.28.0
   #  flutter_sound:
   #    #path: plugin/flutter_sound/flutter_sound
@@ -218,7 +218,7 @@ dependencies:
   #      url: https://gitee.com/imboy-tripartite-deps/flutter_sound.git
   #      ref: leeyi
   #      path: flutter_sound
-  audio_session: ^0.1.25
+  audio_session: ^0.2.1
 
   # 语音消息播放器
   voice_message_package: ^2.2.1
@@ -228,7 +228,8 @@ dependencies:
   #      url: https://gitee.com/imboy-tripartite-deps/voice_message_player.git
   #      ref: leeyi
   # 一对一音视频通话等
-  flutter_webrtc: ^0.13.0
+  flutter_webrtc: ^0.13.1+hotfix.1
+  #flutter_webrtc: 0.13.2
   #  flutter_webrtc: 0.9.47
 #  flutter_webrtc:
 #    path: plugin/flutter-webrtc
@@ -250,14 +251,14 @@ dependencies:
   clock: ^1.1.2
   # 用于 HTTP 请求的可组合、多平台、基于Future的 API。
   http: ^1.3.0
-  device_info_plus: ^11.3.3
+  device_info_plus: ^11.4.0
   package_info_plus: ^8.3.0
   # Flutter 的 Markdown 渲染器
-  flutter_markdown: ^0.7.6+2
+  flutter_markdown: ^0.7.7
   # 滑动吸顶
   sliding_up_panel: ^2.0.0+1
   # 用于 Flutter 的 SVG 渲染和小部件库，允许绘制和显示可缩放矢量图形 1.1 文件。
-  flutter_svg: ^2.0.17
+  flutter_svg: ^2.1.0
   # 动画效果
   flutter_animate: ^4.5.2
   # dart 对象比较
@@ -309,7 +310,7 @@ dependencies:
     path: plugin/amap_flutter_map
 
   # Flutter 插件，可让您在 Android、iOS、macOS、Windows 和 Web 上保持设备屏幕处于唤醒状态。
-  wakelock_plus: ^1.2.11
+  wakelock_plus: ^1.3.2
   # 类似于 Iphone 上的 AssistiveTouch 的 Flutter 包。
   drag_ball: ^2.0.1
   # Flutter应用升级/ Flutter App Upgrade /Flutter App Update/Flutter Update / 下载插件（有提示栏进度），支持全量升级、热更新和增量升级
@@ -339,7 +340,7 @@ dependencies:
     #  ref: leeyi
   nine_grid_view: ^2.0.0
   synchronized: ^3.3.1
-  share_plus: ^10.1.4
+  share_plus: ^11.0.0
   highlight_text: ^1.8.0
   envied: ^1.1.1
 
@@ -355,6 +356,9 @@ dependencies:
   pin_code_fields: ^8.0.1
   intl_phone_number_input: ^0.7.4
   file_saver: ^0.2.14
+  buttons_tabbar: ^1.3.15
+  #flutter_gemini: ^3.0.0
+  #appflowy_editor: ^5.2.0
 #  isar: ^4.0.0-dev.14
 #  isar_flutter_libs: ^4.0.0-dev.14
 #  freezed_annotation: ^2.4.4
@@ -401,10 +405,10 @@ dependencies:
   #uni_links: ^0.5.1
 
 dependency_overrides:
+  audio_session: ^0.2.1
   intl: ^0.20.2
-  jiffy: ^6.4.2
-  permission_handler_android: ^13.0.1
-  flutter_sound_platform_interface: ^10.2.5
+  #permission_handler_android: ^13.0.1
+  flutter_sound_platform_interface: ^10.3.0
   pointycastle: ^4.0.0
   #mime: ^2.0.0
   #package_info_plus: ^8.0.0

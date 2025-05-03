@@ -23,8 +23,10 @@ class ContactPage extends StatelessWidget {
 
   void loadData() async {
     // 加载联系人列表
-    var list = await logic.listFriend(false);
+    List<ContactModel> list = await logic.listFriend(false);
     logic.handleList(list);
+    logic.update(logic.contactList);
+    // iPrint("loadData ${logic.contactList.isEmpty}");
     contactIsEmpty.value = logic.contactList.isEmpty;
   }
 

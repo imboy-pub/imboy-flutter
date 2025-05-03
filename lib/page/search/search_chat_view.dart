@@ -109,7 +109,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: SearchField(
-          top: 30,
+          top: 40,
           left: 10,
           controller: _searchC,
           onSubmitted: (txt) async {

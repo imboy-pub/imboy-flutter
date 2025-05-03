@@ -1,8 +1,15 @@
+# 0.6.1
+* 会话管理优化；
+* 优化 websocket 服务，支持 APP 异常退出或重启后恢复未发送消息，提升消息可靠性；
+* 优化 jwt 过期逻辑；
+* 优化 getNtpOffset() 方法；
+* 其他一些样式调整；
+* 升级一些依赖；
+
 # 0.6.0
 * 修正 jwt 的exp参数问题，以秒为单位；
 * 修正 DateTimeHelper.utc/0 修改为 DateTimeHelper.millisecond/0;
 * 修正 取消模型 xxxAtLocal  的属性；
-* use flutter_chat_ui: ^2.0.0-dev.6;
 * 优化 isPhone/1  hiddenPhone/1 方法；
 * 升级一些依赖；
 

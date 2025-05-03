@@ -72,6 +72,7 @@ class PeopleInfoMorePage extends StatelessWidget {
                         child: Text(
                       state.sign.value,
                       maxLines: 8,
+                      textAlign: TextAlign.right,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Theme.of(context)

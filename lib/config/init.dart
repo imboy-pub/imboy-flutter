@@ -10,12 +10,14 @@ import 'package:flutter/cupertino.dart';
 // import 'package:fvp/fvp.dart';
 import 'package:get/get.dart' as getx;
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/ntp.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/page/mine/change_password/set_password_view.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
+import 'package:imboy/service/websocket_message_queue.dart';
 import 'package:logger/logger.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -23,7 +25,6 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
-import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -160,6 +161,7 @@ Future<void> init({required String env, required String signKeyVsn}) async {
   // iPrint("init currentEnv $currentEnv;");
 
   // step 5
+  ntpOffset = await NtpHelper.getOffset();
   // Get.put(DeviceExt()); 需要放到靠前
   getx.Get.lazyPut(() => DeviceExt());
   final PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -202,19 +204,24 @@ Future<void> init({required String env, required String signKeyVsn}) async {
   // 需要放在 Get.put(MessageService()); 前
   final bnLogic = getx.Get.put(BottomNavigationLogic());
   bnLogic.countNewFriendRemindCounter();
-  getx.Get.lazyPut(() => ContactLogic());
-  getx.Get.lazyPut(() => NewFriendLogic());
-  getx.Get.lazyPut(() => ConversationLogic());
+
+  // 注册消息队列服务
+  getx.Get.put(PersistentMessageQueue());
+  // 把 Service 注册到 GetX
+  getx.Get.put<WebSocketService>(WebSocketService());
 
   // ChatLogic 不能用 lazyPut
   getx.Get.put(ChatLogic());
-  // MessageService 不能用 lazyPut
-  getx.Get.put(MessageService());
   // GroupListLogic 不能用 lazyPut
   getx.Get.put(GroupListLogic());
 
+  getx.Get.lazyPut(() => ConversationLogic());
+
+  // MessageService 不能用 lazyPut
+  getx.Get.put(MessageService());
+  getx.Get.lazyPut(() => ContactLogic());
+  getx.Get.lazyPut(() => NewFriendLogic());
   // step 10
-  ntpOffset = await DateTimeHelper.getNtpOffset();
   AMapHelper.setApiKey();
 
   // 初始化单例 WebSocketService
@@ -231,9 +238,9 @@ Future<void> init({required String env, required String signKeyVsn}) async {
     LifecycleEventHandler(
       resumeCallBack: () async {
         // app 恢复
-        iPrint("> on LifecycleEventHandler resumeCallBack ${UserRepoLocal.to.isLogin};");
-        ntpOffset = await DateTimeHelper.getNtpOffset();
-        if (UserRepoLocal.to.isLogin) {
+        iPrint("> on LifecycleEventHandler resumeCallBack ${UserRepoLocal.to.isLoggedIn};");
+        ntpOffset = await NtpHelper.getOffset();
+        if (UserRepoLocal.to.isLoggedIn) {
           String tk = await UserRepoLocal.to.accessToken;
           // TODO 这里需要判断网络链接的情况下再去刷新token
           if (tokenExpired(tk)) {
@@ -274,7 +281,7 @@ Future<void> init({required String env, required String signKeyVsn}) async {
     if (r.contains(ConnectivityResult.none)) {
       // 关闭网络的情况下，没有必要开启WS服务了
       await WebSocketService.to.closeSocket();
-    } else if (UserRepoLocal.to.isLogin) {
+    } else if (UserRepoLocal.to.isLoggedIn) {
       // 检查WS链接状态
       await WebSocketService.to.openSocket(from: 'onConnectivityChanged');
     }

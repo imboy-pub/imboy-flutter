@@ -53,7 +53,7 @@ class MinePage extends StatelessWidget {
                   child: n.Column([
                     // avatar
                     n.Row([
-                      Container(
+                      Expanded(child: Container(
                         margin: const EdgeInsets.only(top: 32.0),
                         // color: Colors.red,
                         width: 180.0,
@@ -66,7 +66,7 @@ class MinePage extends StatelessWidget {
                             onTap: () {
                               if (c.current.avatar.isEmpty) {
                                 Get.to(
-                                  () => const PersonalInfoPage(),
+                                      () => const PersonalInfoPage(),
                                   transition: Transition.rightToLeft,
                                   popGesture: true, // 右滑，返回上一页
                                 );
@@ -85,7 +85,7 @@ class MinePage extends StatelessWidget {
                             ),
                           ),
                         ),
-                      )
+                      ))
                     ])
                       ..mainAxisAlignment = MainAxisAlignment.center,
                     n.Row([
@@ -183,6 +183,10 @@ class MinePage extends StatelessWidget {
                   child: Text('my_favorites'.tr),
                 ),
                 trailing: navigateNextIcon,
+                contentPadding: n.EdgeInsets.only(
+                  left: 16,
+                  right: 8.0,
+                ),
                 onTap: () {
                   Get.to(
                     () => UserCollectPage(),
@@ -227,6 +231,10 @@ class MinePage extends StatelessWidget {
                   child: Text('denylist'.tr),
                 ),
                 trailing: navigateNextIcon,
+                contentPadding: n.EdgeInsets.only(
+                  left: 16,
+                  right: 8.0,
+                ),
                 onTap: () {
                   Get.to(
                     () => DenylistPage(),
@@ -254,6 +262,10 @@ class MinePage extends StatelessWidget {
                   ]),
                 ),
                 trailing: navigateNextIcon,
+                contentPadding: n.EdgeInsets.only(
+                  left: 16,
+                  right: 8.0,
+                ),
                 onTap: () {
                   Get.to(
                     () => FeedbackPage(),
@@ -290,6 +302,10 @@ class MinePage extends StatelessWidget {
                   child: Text('setting'.tr),
                 ),
                 trailing: navigateNextIcon,
+                contentPadding: n.EdgeInsets.only(
+                  left: 16,
+                  right: 8.0,
+                ),
                 onTap: () {
                   Get.to(
                     () => const SettingPage(),

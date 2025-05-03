@@ -162,7 +162,8 @@ class ContactSettingTagPage extends StatelessWidget {
                 },
               )
                 ..usePrefixStyle((v) => v..color = Colors.white)
-                ..suffixIcon = const Icon(Icons.chevron_right)),
+                ..suffixIcon = n.Padding(left: 20, child: const Icon(Icons.chevron_right),),
+          ),
         ],
             // 内容文本左对齐
             crossAxisAlignment: CrossAxisAlignment.start),

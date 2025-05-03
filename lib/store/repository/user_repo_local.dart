@@ -3,18 +3,20 @@ import 'package:get/get.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/passport/login_view.dart';
+import 'package:imboy/service/secure_key_service.dart' show SecureKeyService;
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
-import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/user_model.dart';
+
+import '../../service/secure_token_storage_service.dart' show SecureTokenStorageService;
 
 class UserRepoLocal extends GetxController {
   static UserRepoLocal get to => Get.find();
 
   String get currentUid => StorageService.to.getString(Keys.currentUid) ?? '';
 
-  bool get isLogin {
+  bool get isLoggedIn {
     return currentUid.isNotEmpty;
   }
 
@@ -27,19 +29,18 @@ class UserRepoLocal extends GetxController {
   // 令牌 token
   Future<String> get accessToken async {
     try {
-      return await StorageSecureService().read(key: Keys.tokenKey) ?? '';
-    } catch (e) {
-      debugPrint("accessToken on Exception: $e");
+      return await SecureTokenStorageService.getToken();
+    } catch (e, s) {
+      debugPrint("accessToken on Exception: $e; $s");
     }
     return '';
   }
 
   Future<String> get refreshToken async {
     try {
-      // StorageService.to.getString(Keys.refreshTokenKey) ?? '';
-      return await StorageSecureService().read(key: Keys.refreshTokenKey) ?? '';
-    } catch (e) {
-      debugPrint("refreshToken on Exception: $e");
+      return await SecureTokenStorageService.getRefreshToken();
+    } catch (e, s) {
+      debugPrint("refreshToken on Exception: $e; $s");
     }
     return '';
   }
@@ -48,7 +49,7 @@ class UserRepoLocal extends GetxController {
     Map<String, dynamic> user = StorageService.getMap(Keys.currentUser);
     // iPrint("current user ${user.toString()}");
     if (user.isEmpty) {
-      WebSocketService.to.closeSocket(exit: true);
+      WebSocketService.to.closeSocket(permanent: true);
       Get.offAll(() => const LoginPage());
     }
     return UserModel.fromJson(user);
@@ -92,14 +93,9 @@ class UserRepoLocal extends GetxController {
 
     await StorageService.to.setString(Keys.currentUid, payload['uid']);
 
-    await StorageSecureService().write(
-      key: Keys.tokenKey,
-      value: payload['token'],
-    );
-    await StorageSecureService().write(
-      key: Keys.refreshTokenKey,
-      value: payload['refreshtoken'],
-    );
+    await SecureTokenStorageService.saveToken(payload['token']);
+    await SecureTokenStorageService.saveRefreshToken(payload['refreshtoken']);
+
     payload.remove('token');
     payload.remove('refreshtoken');
 
@@ -125,7 +121,7 @@ class UserRepoLocal extends GetxController {
   }
 
   Future<bool> quitLogin() async {
-    if (to.isLogin) {
+    if (to.isLoggedIn) {
       WebSocketService.to.sendMessage("logout");
     }
     await StorageService.to.remove(Keys.currentUid);
@@ -135,13 +131,13 @@ class UserRepoLocal extends GetxController {
     await StorageService.to.remove(Keys.uploadScene);
 
     try {
-      await StorageSecureService().delete(key: Keys.tokenKey);
-      await StorageSecureService().delete(key: Keys.currentUid);
-      await StorageSecureService().delete(key: Keys.currentUser);
-    } catch (e) {
+      await SecureTokenStorageService.clear();
+      await SecureKeyService.clear();
+    } catch (e, s) {
+      debugPrint("$e; $s");
       // FlutterKeychain 不支持 macos
     }
-    await WebSocketService.to.closeSocket(exit: true);
+    await WebSocketService.to.closeSocket(permanent: true);
     SqliteService.to.close();
     return true;
   }

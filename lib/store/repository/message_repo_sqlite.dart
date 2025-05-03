@@ -121,6 +121,7 @@ class MessageRepo {
         data[MessageRepo.payload] is Map<String, dynamic>) {
       data[MessageRepo.payload] = jsonEncode(data[MessageRepo.payload]);
     }
+    iPrint("message_repo/update $tableName ;");
     return await _db.update(
       tableName,
       data,

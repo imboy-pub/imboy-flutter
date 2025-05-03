@@ -17,8 +17,6 @@
 ///     print(randomAlphaNumeric(10)); // random sequence of 10 alpha numeric i.e. aRztC1y32B
 /// }
 
-library random_string;
-
 import 'dart:math';
 
 const ASCII_START = 33;

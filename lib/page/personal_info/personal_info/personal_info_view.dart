@@ -72,7 +72,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       ),
     );
 
-    debugPrint("> cropImage url $url;");
+    // debugPrint("> cropImage url $url;");
     if (strNoEmpty(url)) {
       Get.closeAllBottomSheets();
       bool ok = await logic.changeInfo({"field": "avatar", "value": url});
@@ -92,6 +92,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     return LabelRow(
       title: item['title'],
       rValue: item['value'],
+      isSpacer: false,
       isLine:
           item['label'] == 'address' || item['label'] == 'more' ? false : true,
       isRight: item['isRight'] ?? true,

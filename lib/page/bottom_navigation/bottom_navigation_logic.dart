@@ -15,7 +15,7 @@ class BottomNavigationLogic extends GetxController {
 
   /// 重新计算 新的好友提醒计数器
   Future<void> countNewFriendRemindCounter() async {
-    if (UserRepoLocal.to.isLogin == false) {
+    if (UserRepoLocal.to.isLoggedIn == false) {
       return;
     }
     List<Map<String, dynamic>> items = await SqliteService.to.query(
@@ -50,6 +50,6 @@ class BottomNavigationLogic extends GetxController {
     // 检查WS链接状态
     WebSocketService.to.openSocket(from:'changeBottomBarIndex_$index');
     state.bottomBarIndex.value = index;
-    iPrint("changeBottomBarIndex index $index");
+    // iPrint("changeBottomBarIndex index $index");
   }
 }

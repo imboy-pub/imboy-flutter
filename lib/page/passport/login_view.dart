@@ -1,3 +1,4 @@
+import 'package:buttons_tabbar/buttons_tabbar.dart' show ButtonsTabBar;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,7 +14,6 @@ import 'login_mobile_view.dart';
 import 'passport_logic.dart';
 import 'signup_view.dart';
 import 'widget/bezier_container.dart';
-import 'widget/bubble_indicator_painter.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key, this.account, this.refUid});
@@ -34,8 +34,11 @@ class LoginPageState extends State<LoginPage>
 
   late PageController _pageController;
 
-  Color left = Colors.black;
-  Color right = Colors.white;
+  Color leftColor = Colors.black;
+  Color rightColor = Colors.white;
+
+  Color leftBgColor = Colors.white;
+  Color rightBgColor = Color(0x552B2B2B).withAlpha(0);
 
   @override
   void dispose() {
@@ -118,7 +121,69 @@ class LoginPageState extends State<LoginPage>
                       logic.title(),
                       Padding(
                         padding: const EdgeInsets.only(top: 20.0, bottom: 20),
-                        child: _buildMenuBar(context),
+                        child: Container(
+                          width: Get.width - 40,
+                          height: 60.0,
+                          decoration: const BoxDecoration(
+                            color: Color(0x552B2B2B),
+                            borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                          ),
+                          child: DefaultTabController(
+                            length: 2,
+                            child: Column(
+                              children: <Widget>[
+                                Flexible(child: ButtonsTabBar(
+                                  radius: 25.0,
+                                  height: 60,
+                                  width: (Get.width - 40) / 2,
+                                  contentCenter: true,
+                                  duration: 800,
+                                  buttonMargin : const EdgeInsets.all(2),
+                                  backgroundColor: leftBgColor,
+                                  unselectedBackgroundColor: rightBgColor,
+                                  labelStyle: TextStyle(color: leftColor, fontWeight: FontWeight.bold),
+                                  unselectedLabelStyle: TextStyle(color: rightColor),
+                                  tabs: [
+                                    Tab(
+                                      child: TextButton(
+                                        style: ButtonStyle(
+                                          overlayColor: WidgetStateProperty.all(Colors.transparent),
+                                        ),
+                                        onPressed: _onSignInButtonPress,
+                                        child: Text(
+                                          'param_login'.trArgs(['mobile'.tr]),
+                                          style: TextStyle(
+                                            color: leftColor,
+                                            fontSize: 16.0,
+                                            fontFamily: 'WorkSansSemiBold',
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Tab(
+                                      // icon: Icon(Icons.directions_transit),
+                                      // text: "transit",
+                                      child: TextButton(
+                                        style: ButtonStyle(
+                                          overlayColor: WidgetStateProperty.all(Colors.transparent),
+                                        ),
+                                        onPressed: _onSignUpButtonPress,
+                                        child: Text(
+                                          'param_login'.trArgs(['account'.tr]),
+                                          style: TextStyle(
+                                            color: rightColor,
+                                            fontSize: 16.0,
+                                            fontFamily: 'WorkSansSemiBold',
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                       Flexible(
                         flex: 2,
@@ -129,32 +194,38 @@ class LoginPageState extends State<LoginPage>
                             FocusScope.of(context).requestFocus(FocusNode());
                             if (i == 0) {
                               setState(() {
-                                right = Colors.white;
-                                left = Colors.black;
+                                leftColor = Colors.black;
+                                leftBgColor = Colors.white;
+                                rightColor = Colors.white;
+                                rightBgColor = Color(0x552B2B2B).withAlpha(0);
                               });
                             } else if (i == 1) {
                               setState(() {
-                                right = Colors.black;
-                                left = Colors.white;
+                                leftColor = Colors.white;
+                                leftBgColor = Color(0x552B2B2B).withAlpha(0);
+                                rightColor = Colors.black;
+                                rightBgColor = Colors.white;
                               });
                             }
                           },
                           children: <Widget>[
-                            ConstrainedBox(
+                            Center(
+                                child: ConstrainedBox(
                               constraints: const BoxConstraints.expand(),
                               child: const LoginMobilePage(),
-                            ),
-                            ConstrainedBox(
+                            )),
+                            Center(
+                                child: ConstrainedBox(
                               constraints: const BoxConstraints.expand(),
                               child: const LoginAccountPage(),
-                            ),
+                            )),
                           ],
                         ),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Container(
+                          Expanded(child: Container(
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
                                   colors: <Color>[
@@ -168,7 +239,7 @@ class LoginPageState extends State<LoginPage>
                             ),
                             width: 100.0,
                             height: 1.0,
-                          ),
+                          )),
                           const Padding(
                             padding: EdgeInsets.only(left: 15.0, right: 15.0),
                             child: Text(
@@ -179,7 +250,7 @@ class LoginPageState extends State<LoginPage>
                                   fontFamily: 'WorkSansMedium'),
                             ),
                           ),
-                          Container(
+                          Expanded(child: Container(
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
                                   colors: <Color>[
@@ -193,25 +264,26 @@ class LoginPageState extends State<LoginPage>
                             ),
                             width: 100.0,
                             height: 1.0,
-                          ),
+                          )),
                         ],
                       ),
                       if (GetPlatform.isAndroid || GetPlatform.isIOS)
                         n.Column([
                           const SizedBox(height: 10),
-                          ElevatedButton(
-                            onPressed: () async {
-                              logic.loginAuth(false);
-                            },
-                            // ignore: sort_child_properties_last
-                            child: Text(
-                              'mobile_quick_login'.tr,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 16),
-                            ),
+                          Expanded(child:  ElevatedButton(
+                           onPressed: () async {
+                             logic.loginAuth(false);
+                           },
+                           // ignore: sort_child_properties_last
+                           child: Text(
+                             'mobile_quick_login'.tr,
+                             textAlign: TextAlign.center,
+                             style: const TextStyle(fontSize: 16),
+                           ),
 
-                            style: lightGreenButtonStyle(Size(Get.width - 40, 40)),
-                          ),
+                           style:
+                           lightGreenButtonStyle(Size(Get.width - 40, 40)),
+                         )),
                         ]),
                       /*
                       Row(
@@ -284,56 +356,6 @@ class LoginPageState extends State<LoginPage>
               ),
             ),
           ])),
-    );
-  }
-
-  Widget _buildMenuBar(BuildContext context) {
-    return Container(
-      width: Get.width - 40,
-      height: 50.0,
-      decoration: const BoxDecoration(
-        color: Color(0x552B2B2B),
-        borderRadius: BorderRadius.all(Radius.circular(25.0)),
-      ),
-      child: CustomPaint(
-        painter: BubbleIndicatorPainter(pageController: _pageController),
-        child: n.Row([
-          Expanded(
-            child: TextButton(
-              style: ButtonStyle(
-                overlayColor: WidgetStateProperty.all(Colors.transparent),
-              ),
-              onPressed: _onSignInButtonPress,
-              child: Text(
-                'param_login'.trArgs(['mobile'.tr]),
-                style: TextStyle(
-                  color: left,
-                  fontSize: 16.0,
-                  fontFamily: 'WorkSansSemiBold',
-                ),
-              ),
-            ),
-          ),
-          //Container(height: 33.0, width: 1.0, color: Colors.white),
-          Expanded(
-            child: TextButton(
-              style: ButtonStyle(
-                overlayColor: WidgetStateProperty.all(Colors.transparent),
-              ),
-              onPressed: _onSignUpButtonPress,
-              child: Text(
-                'param_login'.trArgs(['account'.tr]),
-                style: TextStyle(
-                  color: right,
-                  fontSize: 16.0,
-                  fontFamily: 'WorkSansSemiBold',
-                ),
-              ),
-            ),
-          ),
-        ])
-          ..mainAxisAlignment = MainAxisAlignment.spaceEvenly,
-      ),
     );
   }
 

@@ -86,7 +86,7 @@ class PeopleNearbyPage extends StatelessWidget {
                     : const Color.fromRGBO(240, 240, 240, 1),
                 child: n.Column([
                   n.Row([
-                    Container(
+                    Expanded(child: Container(
                       margin: const EdgeInsets.only(top: 2),
                       width: Get.width * 0.9,
                       child: TextButton(
@@ -115,9 +115,9 @@ class PeopleNearbyPage extends StatelessWidget {
                         },
                         style: ButtonStyle(
                           overlayColor:
-                              WidgetStateProperty.all(Colors.transparent),
+                          WidgetStateProperty.all(Colors.transparent),
                           backgroundColor:
-                              WidgetStateProperty.resolveWith((states) {
+                          WidgetStateProperty.resolveWith((states) {
                             // return states.contains(WidgetState.pressed)
                             //     ? Colors.black12
                             //     : Colors.white;
@@ -131,30 +131,30 @@ class PeopleNearbyPage extends StatelessWidget {
                         ),
                         child: n.Row([
                           Obx(() => Icon(
-                                state.peopleNearbyVisible.isFalse
-                                    ? Icons.location_on
-                                    : Icons.location_off,
-                                size: 28.0,
-                                color: Colors.lightBlue,
-                              )),
+                            state.peopleNearbyVisible.isFalse
+                                ? Icons.location_on
+                                : Icons.location_off,
+                            size: 28.0,
+                            color: Colors.lightBlue,
+                          )),
                           const SizedBox(
                             width: 8,
                             height: 32,
                           ),
                           Obx(() => Text(
-                                state.peopleNearbyVisible.isFalse
-                                    ? 'make_yourself_visible'.tr
-                                    : 'make_yourself_invisible'.tr,
-                                // Stop Showing Me
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.lightBlue,
-                                ),
-                              ))
+                            state.peopleNearbyVisible.isFalse
+                                ? 'make_yourself_visible'.tr
+                                : 'make_yourself_invisible'.tr,
+                            // Stop Showing Me
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.lightBlue,
+                            ),
+                          ))
                         ], mainAxisAlignment: MainAxisAlignment.start),
                       ),
-                    ),
+                    )),
                   ])
                     ..mainAxisAlignment = MainAxisAlignment.spaceEvenly,
                   Expanded(

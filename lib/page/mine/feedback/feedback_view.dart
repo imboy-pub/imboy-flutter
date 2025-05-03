@@ -129,16 +129,16 @@ class FeedbackPage extends StatelessWidget {
                                       const EdgeInsets.only(left: 0),
                                   title: n.Column([
                                     n.Row([
-                                      Text(
+                                      Expanded(child: Text(
                                         "${model.type.tr} | ${'submitted_at'.tr}",
                                         style: const TextStyle(
                                           // color: AppColors.MainTextColor,
                                           fontSize: 14.0,
                                         ),
-                                      ),
+                                      )),
                                     ]),
                                     n.Row([
-                                      Text(
+                                      Expanded(child: Text(
                                         DateTimeHelper.lastTimeFmt(
                                             model.createdAt),
                                         maxLines: 1,
@@ -147,7 +147,7 @@ class FeedbackPage extends StatelessWidget {
                                           // color: AppColors.MainTextColor,
                                           fontSize: 14.0,
                                         ),
-                                      ),
+                                      )),
                                       const Expanded(child: SizedBox()),
                                       Text(
                                         model.statusDesc,

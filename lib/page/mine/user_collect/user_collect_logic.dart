@@ -324,7 +324,7 @@ class UserCollectLogic extends GetxController {
               n.Column(
                 [
                   n.Row([
-                    Text(
+                    Expanded(child: Text(
                       obj.info['payload']['name'] ?? '',
                       style: const TextStyle(
                         fontSize: 16.0,
@@ -332,7 +332,7 @@ class UserCollectLogic extends GetxController {
                       ),
                       maxLines: 8,
                       overflow: TextOverflow.ellipsis,
-                    ),
+                    )),
                   ]),
                   n.Row([
                     Text(

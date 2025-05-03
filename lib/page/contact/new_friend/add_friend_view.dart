@@ -56,8 +56,7 @@ class AddFriendPage extends StatelessWidget {
                 ),
               ),
               n.Padding(
-                child: n.Row(
-                  [
+                child: n.Row([
                     Text("${'my_account'.tr}："),
                     Text(UserRepoLocal.to.current.account),
                     const Space(),

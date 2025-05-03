@@ -39,7 +39,7 @@ class ChatLogic extends GetxController {
   ChatLogic();
 
   void initState() {
-    state.messages = [];
+    state.messages.value = [];
     state.scrollController = AutoScrollController();
   }
 
@@ -50,7 +50,7 @@ class ChatLogic extends GetxController {
       return "$prefix2($num)";
     } else {
       GroupModel? g = await GroupDetailLogic().detail(gid: gid);
-      state.memberCount = g?.memberCount ?? 0;
+      state.memberCount.value = g?.memberCount ?? 0;
       // iPrint('logic.state.selects chat_logic/groupTitle $gid, $prefix2, ${g?.memberCount}');
       if (state.memberCount > 0) {
         return "$prefix2(${state.memberCount})";
@@ -66,27 +66,28 @@ class ChatLogic extends GetxController {
     final repo = MessageRepo(tableName: tb);
     final items = await repo.pageForConversation(
       obj,
-      state.nextAutoId,
+      state.nextAutoId.value,
       size,
     );
     debugPrint("> on pageMessages items ${items.length}");
     if (items.isEmpty) {
       return [];
     }
-    List<types.Message> messages = [];
+    // 并行处理消息转换
+    final messages = await Future.wait(
+      items.map((item) async {
+        if (item.status == IMBoyMessageStatus.sending) {
+          await sendWsMsg(item);
+        }
+        return await item.toTypeMessage();
+      }),
+    );
+
     // items 的 msg 为 autoId asc 排序，所以要取 first的值
-    state.nextAutoId = items.first.autoId;
+    state.nextAutoId.value = items.first.autoId;
     // iPrint("pageMessages items.first ${items.first.autoId}");
     // iPrint("pageMessages items.last ${items.last.autoId}");
-    // 重发在发送中状态的消息
-    for (MessageModel obj in items) {
-      // debugPrint("> on getMessages obj: ${obj.toJson().toString()}");
-      if (obj.status == IMBoyMessageStatus.sending) {
-        await sendWsMsg(obj);
-      }
-      messages.insert(0, await obj.toTypeMessage());
-    }
-    return messages;
+    return messages.reversed.toList(); // 反转列表以保持正确顺序
   }
 
   Future<bool> sendWsMsg(MessageModel obj) async {
@@ -180,9 +181,9 @@ class ChatLogic extends GetxController {
     String subtitle = MessageModel.conversationSubtitle(message);
     String msgType = MessageModel.conversationMsgType(message);
     int createdAt = DateTimeHelper.millisecond();
-    if (toId == UserRepoLocal.to.currentUid) {
-      throw Exception('not send message to myself');
-    }
+    // if (toId == UserRepoLocal.to.currentUid) {
+    //   throw Exception('not send message to myself');
+    // }
     // message.status = types.Status.sent;
     ConversationRepo repo = ConversationRepo();
     ConversationModel? conversation = await repo.findByPeerId(type, toId);

@@ -38,15 +38,19 @@ class AccountSecurityPage extends StatelessWidget {
           n.Column([
             n.ListTile(
               title: n.Row([
-                Text('account'.tr),
-                n.Padding(
-                  right: 12,
-                  child: Text(UserRepoLocal.to.current.account),
-                ),
+                Expanded(child: Text('account'.tr)),
+                Expanded(child: n.Padding(
+                  right: 10,
+                  child: Text(UserRepoLocal.to.current.account, textAlign: TextAlign.right),
+                )),
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
               // trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 // Get.to(
                 //       () => const AccountSecurityPage(),
@@ -64,17 +68,22 @@ class AccountSecurityPage extends StatelessWidget {
             n.ListTile(
               title: n.Row([
                 Text('email'.tr),
-                Text(UserRepoLocal.to.current.email.isEmpty
+                const SizedBox(width: 8), // 可选的小间距
+                Expanded(child: Text(UserRepoLocal.to.current.email.isEmpty
                     ? 'not_bound'.tr
                     : UserRepoLocal.to.current.email.replaceRange(
-                        4,
-                        UserRepoLocal.to.current.email.length - 8,
-                        '*' * (UserRepoLocal.to.current.email.length - 12),
-                      )),
+                  4,
+                  UserRepoLocal.to.current.email.length - 8,
+                  '*' * (UserRepoLocal.to.current.email.length - 12),
+                ), textAlign: TextAlign.right)),
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 Get.to(
                   () => UpdatePage(
@@ -127,6 +136,10 @@ class AccountSecurityPage extends StatelessWidget {
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 Get.to(
                   () => UpdatePage(
@@ -153,12 +166,17 @@ class AccountSecurityPage extends StatelessWidget {
             ),
             n.ListTile(
               title: n.Row([
-                Text('password'.tr),
-                if (needSet == false) Text('have_set'.tr),
+                Expanded(child: Text('password'.tr)),
+
+                if (needSet == false) Expanded(child: Text('have_set'.tr, textAlign: TextAlign.right)),
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 Get.to(
                   () => needSet == false
@@ -191,6 +209,10 @@ class AccountSecurityPage extends StatelessWidget {
               // ),
               title: Text('device_list'.tr),
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 Get.to(
                   () => UserDevicePage(),
@@ -224,6 +246,10 @@ class AccountSecurityPage extends StatelessWidget {
           n.ListTile(
             title: Text('security_center'.tr),
             trailing: navigateNextIcon,
+            contentPadding: n.EdgeInsets.only(
+              left: 16,
+              right: 8.0,
+            ),
             onTap: () {
               Get.to(
                 () => WebViewPage(

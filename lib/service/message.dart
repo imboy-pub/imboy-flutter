@@ -7,15 +7,12 @@ import 'package:get/get.dart';
 
 import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
 import 'package:imboy/page/passport/login_view.dart';
-import 'package:imboy/store/model/group_model.dart';
-
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
-
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -25,203 +22,206 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-
 import 'message_s2c.dart';
 
+/// MessageService
+/// 负责消息处理的核心服务，包括可靠传递、状态同步、UI 通知。
+/// Core service for message handling: reliable delivery, state sync, UI updates.
 class MessageService extends GetxService {
   static MessageService get to => Get.find();
-  final ConversationLogic conversationLogic = Get.find();
-  List<String> webrtcMsgIdLi = [];
-  bool addMessageLock = false;
 
-  StreamSubscription? ssMsg;
+  final ConversationLogic _conversationLogic = Get.find();
+
+  // 缓存常用仓库实例，避免重复 new。
+  // Cache repository instances to avoid repeated instantiation.
+  final ConversationRepo _conversationRepo = ConversationRepo();
+  final ContactRepo _contactRepo = ContactRepo();
+
+  /// 根据消息类型获取对应的 MessageRepo
+  /// Helper: get MessageRepo by message type.
+  MessageRepo _getMessageRepo(String type) =>
+      MessageRepo(tableName: MessageRepo.getTableName(type));
+
+  /// 正在进行的 WebRTC 消息 ID 集合，用于去重和批量操作
+  /// Track ongoing WebRTC message IDs for dedupe and batch state changes.
+  final Set<String> _webrtcMsgIds = <String>{};
+
+  /// 本地添加消息锁，防止并发重复添加
+  /// Lock to prevent concurrent duplicate local messages.
+  bool _addMessageLock = false;
+
+  StreamSubscription? _ssMsg;
 
   @override
   void onInit() {
     super.onInit();
-    ssMsg = eventBus.on<Map>().listen((Map data) async {
-      // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
-      final msgId = data['id'] ?? '';
-      final type = (data['type'] ?? 'error').toString().toUpperCase();
-      // type = type.toUpperCase();
-      iPrint("> msg listen: $type, ${DateTime.now()} $data");
-      if (data.containsKey('ts')) {
-        int now = DateTimeHelper.millisecond();
-        iPrint("> msg now: $now elapsed: ${now - data['ts']}");
-      }
-      if (type.startsWith('WEBRTC_')) {
-        // 确认消息
-        iPrint("> msg CLIENT_ACK,WEBRTC,${data['id']},$deviceId");
-        MessageService.to.sendAckMsg('WEBRTC', data['id']);
+    // 订阅事件总线，集中分发并捕获错误，防止订阅 silently 断开。
+    // Listen to eventBus with error handling to avoid silent drop.
+    _ssMsg = eventBus.on<Map>().listen(_handleIncomingEvent,
+        onError: (e, s) => iPrint('EventBus error: $e - $s'));
+  }
 
-        if (type == 'WEBRTC_OFFER' ||
-            type == 'WEBRTC_BUSY' ||
-            type == 'WEBRTC_BYE') {
-          webrtcMsgIdLi.add(msgId);
-        }
-        if (type == 'WEBRTC_OFFER') {
-          String peerId = data['from'];
-          ContactModel? obj = await ContactRepo().findByUid(peerId);
-          // iPrint("rtc_msg obj ${obj?.toJson().toString()}");
-          if (obj != null) {
-            await incomingCallScreen(
-              msgId,
-              ContactModel.fromMap({
-                "id": obj.peerId,
-                "nickname": obj.title,
-                "avatar": obj.avatar,
-                "sign": obj.sign,
-              }),
-              data['payload'],
-            );
-          }
-        } else {
-          WebRTCSignalingModel msgModel = WebRTCSignalingModel(
-            msgId: msgId,
-            type: data['type'],
-            from: data['from'],
-            to: data['to'],
-            payload: data['payload'],
-          );
-          if (msgModel.webRtcType == 'busy' || msgModel.webRtcType == 'bye') {
-            for (var id in webrtcMsgIdLi) {
-              changeLocalMsgState(id, 4);
-            }
-            if (Get.isDialogOpen ?? false) {
-              Get.closeAllDialogs();
-            }
-            gTimer?.cancel();
-            gTimer = null;
-            p2pCallScreenOn = false;
-          }
-          eventBus.fire(msgModel);
-        }
+  @override
+  void onClose() {
+    _ssMsg?.cancel();
+    super.onClose();
+  }
+
+  /// Central dispatcher for all incoming events
+  /// 消息统一分发入口
+  Future<void> _handleIncomingEvent(Map data) async {
+    try {
+      final msgId = (data['id'] ?? '').toString();
+      if (msgId.isEmpty) return;
+
+      final rawType = (data['type'] ?? 'ERROR').toString();
+      final type = rawType.toUpperCase();
+      data['type'] = type;
+
+      iPrint("> msg listen: $type, ${DateTime.now()} $data");
+
+      // 如果有 ts 字段，则打印延迟
+      // Log latency if timestamp provided
+      if (data.containsKey('ts')) {
+        iPrint("> msg latency: ${DateTimeHelper.millisecond() - (data['ts'] as int)} ms");
+      }
+
+      // 所有消息均需回执 ACK
+      // Always send ACK for receipt
+      if (type.startsWith('WEBRTC_')) {
+        sendAckMsg('WEBRTC', msgId);
+        await _handleWebRTC(type, data);
+      } else if (type.endsWith('_SERVER_ACK')) {
+        await _receiveServerAck(data);
+      } else if (type.contains('REVOKE')) {
+        await _receiveRevoke(type, data);
       } else {
-        data['type'] = type;
         switch (type) {
           case 'C2C':
-            await receiveMessage(data);
-            break;
-          case 'C2C_SERVER_ACK': // C2C 服务端消息确认
-            await receiveServerAckMessage(data);
-            break;
-          case 'C2C_REVOKE': // 对端撤回消息
-            await receiveRevokeMessage(data);
-            break;
-          case 'C2C_REVOKE_ACK': // 对端撤回消息ACK
-            await receiveRevokeAckMessage(type, data);
-            break;
-
-          //
           case 'C2G':
-            await receiveMessage(data);
-            break;
-          case 'C2G_SERVER_ACK': // C2G 服务端消息确认
-            await receiveServerAckMessage(data);
-            break;
-          case 'C2G_REVOKE': // 对端撤回消息
-            await receiveRevokeMessage(data);
-            break;
-          case 'C2G_REVOKE_ACK': // 对端撤回消息ACK
-            await receiveRevokeAckMessage(type, data);
-            break;
-
-          //
           case 'C2S':
-            await receiveMessage(data);
-            break;
-          case 'C2S_SERVER_ACK': // C2S 服务端消息确认
-            await receiveServerAckMessage(data);
-            break;
-
-          case 'SERVER_ACK_GROUP': // 服务端消息确认 GROUP TODO
+            await _receiveMessage(data);
             break;
           case 'S2C':
             await MessageS2CService.switchS2C(data);
             break;
-          case 'ERROR': //
-            await switchError(data);
+          case 'ERROR':
+            await _handleError(data);
             break;
+          default:
+            iPrint('Unhandled message type: $type');
         }
       }
-    });
-  }
-
-  Future<void> switchError(Map data) async {
-    var code = data['code'] ?? '';
-    // * Msg2.code = 1 无需弹窗错误，可以记录日志后直接忽略错误 Msg2.payload 可能为空，不需要处理
-    // * Msg2.code = 2 带title弹窗，Msg2.payload 不能为空 必须包含 title content 字段
-    // * Msg2.code = 3 无title弹窗，Msg2.payload 不能为空 必须包含 content 字段
-    switch (code.toString()) {
-      // case '2':
-      //   String title = data['payload']['title'] ?? '';
-      //   String content = data['payload']['content'] ?? '';
-      //   break;
-      // case '3':
-      //   String content = data['payload']['content'] ?? '';
-      //   break;
-      case '706': // 需要重新登录
-        UserRepoLocal.to.quitLogin();
-        Get.offAll(() => const LoginPage());
-        break;
+    } catch (e, s) {
+      iPrint('Error processing message: $e - $s');
     }
   }
 
+  /// Handle WebRTC-specific messages
+  /// 处理 WebRTC 信令：OFFER, BUSY, BYE 等
+  Future<void> _handleWebRTC(String type, Map data) async {
+    final msgId = data['id'];
+    if (['WEBRTC_OFFER', 'WEBRTC_BUSY', 'WEBRTC_BYE'].contains(type)) {
+      _webrtcMsgIds.add(msgId);
+    }
+
+    if (type == 'WEBRTC_OFFER') {
+      final peerId = data['from'];
+      final contact = await _contactRepo.findByUid(peerId);
+      if (contact != null) {
+        await incomingCallScreen(
+          msgId,
+          ContactModel.fromMap({
+            'id': contact.peerId,
+            'nickname': contact.title,
+            'avatar': contact.avatar,
+            'sign': contact.sign,
+          }),
+          data['payload'],
+        );
+      }
+    } else {
+      final msgModel = WebRTCSignalingModel(
+        msgId: data['id'],
+        type: data['type'],
+        from: data['from'],
+        to: data['to'],
+        payload: data['payload'],
+      );
+      if (['WEBRTC_BUSY', 'WEBRTC_BYE'].contains(type)) {
+        // 批量更新本地消息状态为结束/忙碌
+        // Batch update local WebRTC message state
+        for (var id in _webrtcMsgIds) {
+          changeLocalMsgState(id, 4);
+        }
+        _webrtcMsgIds.clear();
+        if (Get.isDialogOpen ?? false) Get.closeAllDialogs();
+        gTimer?.cancel();
+        gTimer = null;
+        p2pCallScreenOn = false;
+      }
+      eventBus.fire(msgModel);
+    }
+  }
+
+  /// Send reliable ACK back to server/peer
+  /// 发送消息回执
   /// type is ['C2C' | 'S2C' | 'C2G' | 'C2S | 'WEBRTC']
   void sendAckMsg(String type, String msgId) {
-    WebSocketService.to.sendMessage("CLIENT_ACK,$type,$msgId,$deviceId");
+    WebSocketService.to.sendMessage('CLIENT_ACK,$type,$msgId,$deviceId');
   }
 
-  /// Called before [onDelete] method. [onClose] might be used to
-  /// dispose resources used by the controller. Like closing events,
-  /// or streams before the controller is destroyed.
-  /// Or dispose objects that can potentially create some memory leaks,
-  /// like TextEditingControllers, AnimationControllers.
-  /// Might be useful as well to persist some data on disk.
-  @override
-  void onClose() {
-    ssMsg?.cancel();
-    super.onClose();
-  }
+  /// Process incoming chat messages (C2C/C2G/C2S)
+  /// 处理文本/自定义/位置等消息
+  Future<void> _receiveMessage(Map data) async {
+    // 强制 cast 为 Map<String, dynamic>
+    // Safely cast payload to Map<String, dynamic>
+    final payload = (data['payload'] as Map?)?.cast<String, dynamic>();
+    if (payload == null) return;
 
-  /// 收到消息  C2C | C2G | C2S
-  Future<void> receiveMessage(data) async {
-    var msgType = data['payload']['msg_type'] ?? '';
-    var subtitle = data['payload']['text'] ?? '';
-    iPrint("> rtc msg receiveMessage $data");
-    int now = DateTimeHelper.millisecond();
-    iPrint("> rtc msg now: $now elapsed: ${data['created_at'] - now}");
+    // 归一化 created_at 时间戳
+    // Normalize timestamp field
+    var createdAt = data['created_at'];
+    if (createdAt is String) {
+      createdAt = DateTimeHelper.rfc3339ToMillisecond(createdAt);
+      data['created_at'] = createdAt;
+    }
 
-    String peerId = '';
-    String avatar = '';
-    String title = '';
+    // 区分单聊/群聊，获取 peer 信息
+    // Determine peer info for C2C or C2G
+    String peerId, avatar, title;
     if (data['type'] == 'C2G') {
       peerId = data['to'];
-      GroupModel? g = await GroupDetailLogic().detail(gid: peerId);
+      final g = await GroupDetailLogic().detail(gid: peerId);
       avatar = g?.avatar ?? '';
       title = g?.title ?? '';
     } else {
-      ContactModel? ct = await ContactRepo().findByUid(data['from']);
+      final ct = await _contactRepo.findByUid(data['from']);
       peerId = data['from'];
-      avatar = ct!.avatar;
-      title = ct.title;
-    }
-    if (msgType == 'custom') {
-      msgType = data['payload']['custom_type'] ?? '';
-      subtitle = '';
-    }
-    if (msgType == 'quote') {
-      subtitle = data['payload']['quote_text'] ?? '';
-    } else if (msgType == 'location') {
-      subtitle = data['payload']['title'] ?? '';
+      avatar = ct?.avatar ?? '';
+      title = ct?.title ?? '';
     }
 
-    ConversationModel conversation = ConversationModel(
+    // 构造会话列表要显示的 subtitle
+    // Derive subtitle based on msg_type
+    String msgType = payload['msg_type'] ?? '';
+    String subtitle = payload['text'] ?? '';
+    if (msgType == 'custom') {
+      msgType = payload['custom_type'] ?? '';
+      subtitle = '';
+    } else if (msgType == 'quote') {
+      subtitle = payload['quote_text'] ?? '';
+    } else if (msgType == 'location') {
+      subtitle = payload['title'] ?? '';
+    }
+
+    // 保存或更新会话
+    // Persist conversation record
+    var conv = ConversationModel(
       peerId: peerId,
       avatar: avatar,
       title: title,
       subtitle: subtitle,
-      // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
       type: data['type'],
       msgType: msgType,
       lastMsgId: data['id'],
@@ -229,212 +229,205 @@ class MessageService extends GetxService {
       unreadNum: 1,
       id: 0,
     );
-    conversation = await (ConversationRepo()).save(conversation);
-    MessageModel msg = MessageModel(
+    conv = await _conversationRepo.save(conv);
+
+    // 保存消息到 sqlite
+    // Persist message to local DB
+    final msg = MessageModel(
       data['id'],
       autoId: 0,
       type: data['type'],
       fromId: data['from'],
       toId: data['to'],
-      payload: data['payload'],
+      payload: payload,
       createdAt: data['created_at'],
       isAuthor: data['from'] == UserRepoLocal.to.currentUid ? 1 : 0,
       topicId: data['topic_id'] ?? 0,
-      conversationUk3: conversation.uk3,
-      status: IMBoyMessageStatus.delivered, // 未读 已投递
+      conversationUk3: conv.uk3,
+      status: IMBoyMessageStatus.delivered,
     );
-    String tb = MessageRepo.getTableName(data['type']);
-    MessageRepo repo = MessageRepo(tableName: tb);
-    int? exited = await repo.save(msg);
-    // 确认消息
-    iPrint(
-        "380> rtc msg CLIENT_ACK,${data['type']},${data['id']},$deviceId, exited $exited, ${DateTime.now()}");
+    final repo = _getMessageRepo(data['type']);
+    final existed = await repo.save(msg);
+
+    // 发送 ACK 给服务端或对端
+    // Send ACK back
     // data['type'] C2C | C2G | C2S
-    MessageService.to.sendAckMsg(data['type'], data['id']);
-    if (exited != null && exited > 0) {
-      return;
-    }
+    sendAckMsg(data['type'], data['id']);
 
-    // 收到一个消息，步增会话消息 1
-    await conversationLogic.increaseConversationRemind(conversation, 1);
+    // 如果已存在则不再触发通知
+    // If duplicate, skip UI update
+    if (existed != null && existed > 0) return;
 
-    eventBus.fire(conversation);
-    types.Message tMsg = await msg.toTypeMessage();
-    iPrint("chat_view/listen eventBus.fire ${msg.id}; ${DateTime.now()}");
+    // 增加会话未读计数并通知 UI
+    // Increase unread count & notify UI
+    await _conversationLogic.increaseConversationRemind(conv, 1);
+    eventBus.fire(conv);
+    final tMsg = await msg.toTypeMessage();
     eventBus.fire(tMsg);
   }
 
-  /// 收到服务端确认消息 C2C_SERVER_ACK C2G_SERVER_ACK
-  Future<void> receiveServerAckMessage(Map data) async {
-    iPrint("> rtc msg S_RECEIVED: data:$data");
-    String tb = MessageRepo.getTableName(data['type']);
-    MessageModel? msg = await changeStatus(
-      tb,
-      data['id'],
-      IMBoyMessageStatus.send,
-    );
-    iPrint("> rtc msg S_RECEIVED: msg:${msg?.toJson().toString()} ;");
+  /// 收到撤回消息 C2C_REVOKE C2G_REVOKE
+  /// Handle server-side ACK for sent messages
+  /// 处理服务端发送确认
+  Future<void> _receiveServerAck(Map data) async {
+    final repo = _getMessageRepo(data['type']);
+    final msg = await _updateStatus(repo, data['id'], IMBoyMessageStatus.send);
+    // iPrint("> rtc msg S_RECEIVED: msg:${msg?.toJson().toString()} ;");
     if (msg != null) {
       // 更新会话里面的消息列表的特定消息状态
       eventBus.fire([await msg.toTypeMessage()]);
     }
   }
 
-  Future<MessageModel?> changeStatus(
-      String tb, String msgId, int status) async {
-    iPrint("changeStatus tb $tb, msgId, $msgId, status $status");
-    MessageRepo repo = MessageRepo(tableName: tb);
+  /// 对外保留：改变消息状态（兼容旧调用）
+  /// Public API: change message status (for backward compatibility)
+  Future<MessageModel?> changeStatus(String tb, String msgId, int status) {
+    final repo = MessageRepo(tableName: tb);
+    return _updateStatus(repo, msgId, status);
+  }
+
+  /// Internal: update message status and conversation state
+  /// 内部：更新消息状态并同步会话
+  Future<MessageModel?> _updateStatus(
+      MessageRepo repo, String msgId, int status) async {
     await repo.update({
       'id': msgId,
       'status': status,
     });
-    // 更新会话状态
-    conversationLogic.updateConversationByMsgId(
+    _conversationLogic.updateConversationByMsgId(
       msgId,
       {ConversationRepo.lastMsgStatus: status},
     );
-    return await repo.find(msgId);
+    return repo.find(msgId);
   }
 
-  /// 收到撤回消息 C2C_REVOKE C2G_REVOKE
-  Future<void> receiveRevokeMessage(data) async {
-    String tb = MessageRepo.getTableName(data['type']);
-    MessageRepo repo = MessageRepo(tableName: tb);
-    ContactModel? contact = await ContactRepo().findByUid(data['from']);
-    String id = data['id'];
-    await repo.update({
-      'id': id,
-      'status': IMBoyMessageStatus.send,
-      'payload': json.encode({
-        "msg_type": "custom",
-        "custom_type": "peer_revoked",
-        "peer_name": contact!.nickname
-      }),
-    });
-    // msg = null 的时候数据已经被删除了
-    MessageModel? msg = await repo.find(id);
-    iPrint("changeConversation tb $tb, ${msg?.toJson().toString()}");
-    if (msg != null) {
+  /// Handle revoke & revoke-ACK for C2C/C2G
+  /// 处理消息撤回及撤回确认
+  /// 收到撤回ACK消息 C2C_REVOKE_ACK C2G_REVOKE_ACK
+  Future<void> _receiveRevoke(String type, Map data) async {
+    if (type.endsWith('REVOKE_ACK')) {
+      // 对方确认了我们的撤回
+      // Peer acknowledged our revoke
+      final baseType = type.replaceAll('_REVOKE_ACK', '');
+      final repo = _getMessageRepo(baseType);
+      final msg = await repo.find(data['id']);
+      if (msg == null) return;
+      final metadata =
+          (msg.payload as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+      metadata.addAll({
+        'msg_type': 'custom',
+        'custom_type': 'my_revoked',
+      });
+      await repo.update({
+        'id': data['id'],
+        'type': type,
+        'payload': json.encode(metadata),
+        'status': IMBoyMessageStatus.send,
+      });
       // 更新会话里面的消息列表的特定消息状态
       eventBus.fire([await msg.toTypeMessage()]);
-      changeConversation(msg, 'peer_revoked');
-    }
-
-    // 通知服务器已撤销
-    Map<String, dynamic> msg2 = {
-      'id': id,
-      'type':
-          data['type'] == 'C2G_REVOKE' ? 'C2G_REVOKE_ACK' : 'C2C_REVOKE_ACK',
-      'from': data["to"],
-      'to': data["from"],
-    };
-    WebSocketService.to.sendMessage(json.encode(msg2));
-  }
-
-  /// 收到撤回ACK消息 C2C_REVOKE_ACK C2G_REVOKE_ACK
-  Future<void> receiveRevokeAckMessage(dType, data) async {
-    String tb = MessageRepo.getTableName(dType);
-    MessageRepo repo = MessageRepo(tableName: tb);
-    MessageModel? msg = await repo.find(data['id']);
-    if (msg == null) {
-      return;
-    }
-    String customType = 'my_revoked';
-    msg.payload = {
-      "msg_type": "custom",
-      "custom_type": customType,
-      'text': msg.payload!['text'],
-    };
-    await repo.update({
-      'id': data['id'],
-      'type': dType,
-      'status': IMBoyMessageStatus.send,
-      'payload': json.encode(msg.payload),
-    });
-    // 更新会话里面的消息列表的特定消息状态
-    eventBus.fire([await msg.toTypeMessage()]);
-    // 确认消息
-    String ackType = dType == 'C2G_REVOKE_ACK' ? 'C2G' : 'C2C';
-    MessageService.to.sendAckMsg(ackType, data['id']);
-    // ack消息不需要修改回话信息了
-    // changeConversation(msg, customType);
-  }
-
-  /// 撤回消息修正相应会话记录
-  Future<void> changeConversation(MessageModel msg, String msgType) async {
-    String peerId = '';
-    if (msg.type == 'C2C') {
-      if (msg.fromId == UserRepoLocal.to.currentUid) {
-        peerId = msg.toId ?? '';
-      } else if (msg.toId == UserRepoLocal.to.currentUid) {
-        peerId = msg.fromId ?? '';
+      sendAckMsg(baseType.startsWith('C2G') ? 'C2G' : 'C2C', data['id']);
+    } else {
+      // 接收到对端撤回
+      // Received revoke from peer
+      final baseType = type.replaceAll('_REVOKE', '');
+      final repo = _getMessageRepo(baseType);
+      final contact = await _contactRepo.findByUid(data['from']);
+      final newPayload = <String, dynamic>{
+        'msg_type': 'custom',
+        'custom_type': 'peer_revoked',
+        'peer_name': contact?.nickname ?? ''
+      };
+      await repo.update({
+        'id': data['id'],
+        'status': IMBoyMessageStatus.send,
+        'payload': json.encode(newPayload),
+      });
+      final msg = await repo.find(data['id']);
+      if (msg != null) {
+        eventBus.fire([await msg.toTypeMessage()]);
+        _updateConversationAfterRevoke(msg, 'peer_revoked');
       }
-    } else if (msg.type == 'C2G') {
-      peerId = msg.toId ?? '';
-    }
-    iPrint(
-        "changeConversation $peerId, msgType $msgType, ${msg.toJson().toString()}");
-    if (peerId.isEmpty) {
-      return;
-    }
-    ConversationRepo repo = ConversationRepo();
-    ConversationModel? conversation = await repo.findByPeerId(
-      msg.type ?? '',
-      peerId,
-    );
-    if (conversation == null) {
-      return;
-    }
-    if (conversation.lastMsgId != msg.id) {
-      return;
-    }
-    //msgType = peerId == UserRepoLocal.to.currentUid ? 'peer_revoked' : 'my_revoked';
-    conversation.msgType = msgType;
-    // conversation.subtitle = '';
-    int res2 = await repo.updateById(conversation.id, {
-      ConversationRepo.msgType: conversation.msgType,
-      ConversationRepo.subtitle: '',
-      ConversationRepo.payload: msg.payload
-    });
-
-    if (res2 > 0) {
-      eventBus.fire(conversation);
+      // 回复服务端我们已处理撤回
+      // Notify server we've processed revoke
+      WebSocketService.to.sendMessage(json.encode({
+        'id': data['id'],
+        'type': '${baseType}_REVOKE_ACK',
+        'from': data['to'],
+        'to': data['from'],
+      }));
     }
   }
 
-  /// 一对一通话添加本地消息
+  /// Update conversation record after revoke
+  /// 撤回后同步更新会话列表
+  Future<void> _updateConversationAfterRevoke(
+      MessageModel msg, String customType) async {
+    String peerId;
+    if (msg.type == 'C2C') {
+      peerId = msg.fromId == UserRepoLocal.to.currentUid ? msg.toId! : msg.fromId!;
+    } else if (msg.type == 'C2G') {
+      peerId = msg.toId!;
+    } else {
+      peerId = msg.toId??'';
+    }
+    if (peerId == '') {
+      return;
+    }
+    final conv = await _conversationRepo.findByPeerId(msg.type!, peerId);
+    if (conv != null && conv.lastMsgId == msg.id) {
+      conv.msgType = customType;
+      conv.subtitle = '';
+      conv.payload = msg.payload;
+      await _conversationRepo.updateById(conv.id, {
+        ConversationRepo.msgType: conv.msgType,
+        ConversationRepo.subtitle: '',
+        ConversationRepo.payload: conv.payload
+      });
+      eventBus.fire(conv);
+    }
+  }
+
+  /// Handle error codes from server
+  /// 处理服务端错误通知
+  Future<void> _handleError(Map data) async {
+    final code = data['code']?.toString() ?? '';
+    // * Msg2.code = 1 无需弹窗错误，可以记录日志后直接忽略错误 Msg2.payload 可能为空，不需要处理
+    // * Msg2.code = 2 带title弹窗，Msg2.payload 不能为空 必须包含 title content 字段
+    // * Msg2.code = 3 无title弹窗，Msg2.payload 不能为空 必须包含 content 字段
+    if (code == '706') {
+      UserRepoLocal.to.quitLogin();
+      Get.offAll(() => const LoginPage());
+    }
+  }
+
+  /// Add a local WebRTC message record (UI only)
+  /// 本地添加一条 WebRTC 消息记录，仅更新 UI
   Future<void> addLocalMsg({
     required String media,
     required bool caller,
     required String msgId,
     required ContactModel peer,
   }) async {
-    // iPrint(
-    //     "changeLocalMsgState_addMessageLock $addMessageLock $msgId, ${peer.peerId == UserRepoLocal.to.currentUid}; peer.peerId ${peer.toJson().toString()} ;");
-    if (msgId.isEmpty) {
-      return;
-    }
-    if (peer.peerId == UserRepoLocal.to.currentUid) {
-      throw Exception('not send message to myself');
-    }
-    if (addMessageLock) {
-      return;
-    }
-    addMessageLock = true;
+    if (msgId.isEmpty || peer.peerId == UserRepoLocal.to.currentUid) return;
+    if (_addMessageLock) return;
+    _addMessageLock = true;
     try {
-      types.User author = types.User(
-        id: peer.peerId,
-        firstName: peer.nickname,
-        imageUrl: peer.avatar,
-      );
+      types.User author;
       if (caller) {
         author = types.User(
           id: UserRepoLocal.to.currentUid,
           firstName: UserRepoLocal.to.current.nickname,
           imageUrl: UserRepoLocal.to.current.avatar,
         );
+      } else {
+        author = types.User(
+          id: peer.peerId,
+          firstName: peer.nickname,
+          imageUrl: peer.avatar,
+        );
       }
-      types.CustomMessage msg = types.CustomMessage(
+      final msg = types.CustomMessage(
         author: author,
         createdAt: DateTimeHelper.millisecond(),
         id: msgId,
@@ -457,81 +450,47 @@ class MessageService extends GetxService {
         msg,
         sendToServer: false,
       );
-    } catch (e) {
-      iPrint("addLocalMsg_error ${e.toString()}");
+    } catch (e, s) {
+      iPrint('addLocalMsg error: $e; $s');
       rethrow;
     } finally {
-      addMessageLock = false;
+      _addMessageLock = false;
     }
   }
 
-  /// 更新消息状态
+  /// Update local WebRTC message state (UI only)
+  /// 更新本地 WebRTC 消息状态，仅更新 UI
   Future<void> changeLocalMsgState(
-    String msgId,
-    int state, {
-    int startAt = -1,
-    int endAt = -1,
-  }) async {
-    // iPrint(
-    //     "changeLocalMsgState state $state, $msgId, startAt $startAt, endAt $endAt;");
+      String msgId,
+      int state, {
+        int startAt = -1,
+        int endAt = -1,
+      }) async {
     final repo = MessageRepo(tableName: MessageRepo.c2cTable);
     final msg = await repo.find(msgId);
-    // iPrint(
-    //     "changeLocalMsgState 2 $msgId, ${msg?.payload?.toString()}; webrtcMsgIdLi ${webrtcMsgIdLi.toString()}");
-    if (msg == null) {
-      return;
-    }
-    webrtcMsgIdLi = [];
-    final customType = msg.payload?['custom_type'] ?? '';
-    if (customType != 'webrtc_video' && customType != 'webrtc_audio') {
-      return;
-    }
-    Map<String, dynamic> payload = msg.payload ?? {};
-    payload['state'] = state;
-    if (startAt > -1 && payload['start_at'] == 0) {
-      payload['start_at'] = startAt;
-    }
-    if (endAt > -1) {
-      payload['end_at'] = endAt;
-    }
-    // iPrint("changeLocalMsgState 3 $msgId, ${payload.toString()};");
-    int res = await repo.update({
+    if (msg == null) return;
+    _webrtcMsgIds.clear();
+
+    final metadata = (msg.payload as Map?)?.cast<String, dynamic>() ?? {};
+    final customType = metadata['custom_type'] ?? '';
+    if (!['webrtc_video', 'webrtc_audio'].contains(customType)) return;
+
+    metadata['state'] = state;
+    if (startAt >= 0 && metadata['start_at'] == 0) metadata['start_at'] = startAt;
+    if (endAt >= 0) metadata['end_at'] = endAt;
+
+    final res = await repo.update({
       MessageRepo.id: msgId,
-      MessageRepo.payload: payload,
+      MessageRepo.payload: metadata,
     });
     if (res > 0) {
-      msg.payload = payload;
-      types.Message msg2 = await msg.toTypeMessage();
+      msg.payload = metadata;
+      final updated = await msg.toTypeMessage();
       // 更新会话里面的消息列表的特定消息状态
-      eventBus.fire([msg2]);
-      // 通话完成，加入到消息列表
-      if (endAt > -1 || state > 0) {
-        eventBus.fire(msg2);
+      eventBus.fire([updated]);
+      if (endAt >= 0 || state > 0) {
+        eventBus.fire(updated);
       }
     }
   }
-
-  /// 清理无效的本地消息
-/*
-  Future<void> cleanInvalidLocalMsg({
-    required String tableName,
-    required String msgId,
-    types.Message? message,
-  }) async {
-    if (msgId.isEmpty) {
-      MessageModel? m = await MessageRepo(tableName: tableName).lastMsg();
-      message = await m?.toTypeMessage();
-    }
-    if (message == null) {
-      MessageModel? m = await MessageRepo(tableName: tableName).find(msgId);
-      message = await m?.toTypeMessage();
-    }
-    int startAt = message?.metadata?['start_at'] ?? 0;
-    int endAt = message?.metadata?['end_at'] ?? 0;
-    int state = message?.metadata?['state'] ?? 0;
-    if (state == 0 && startAt == 0 && endAt == 0 && message != null) {
-      Get.find<ChatLogic>().removeMessage(0, message);
-    }
-  }
-  */
 }

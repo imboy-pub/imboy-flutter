@@ -5,10 +5,7 @@ import 'package:imboy/component/helper/string.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:pointycastle/export.dart';
 import 'package:pointycastle/pointycastle.dart';
-
-// ignore: implementation_imports
 import 'package:pointycastle/src/platform_check/platform_check.dart';
-
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 
@@ -19,39 +16,54 @@ class RSAService {
   static const BEGIN_PUBLIC_KEY = '-----BEGIN PUBLIC KEY-----';
   static const END_PUBLIC_KEY = '-----END PUBLIC KEY-----';
 
+  // === 内存缓存 ===
+  static String? _cachedPublicKey;
+  static String? _cachedPrivateKey;
+
   static Future<String> publicKey() async {
+    if (strNoEmpty(_cachedPublicKey)) {
+      return _cachedPublicKey!;
+    }
     String? k = await StorageSecureService().read(key: Keys.publicKey);
     if (strNoEmpty(k)) {
+      _cachedPublicKey = k;
       return k!;
     }
     await _init();
     k = await StorageSecureService().read(key: Keys.publicKey);
+    if (strNoEmpty(k)) {
+      _cachedPublicKey = k;
+    }
     return k!;
   }
 
   static Future<String?> privateKey() async {
+    if (strNoEmpty(_cachedPrivateKey)) {
+      return _cachedPrivateKey;
+    }
     String? k = await StorageSecureService().read(key: Keys.privateKey);
     if (strNoEmpty(k)) {
+      _cachedPrivateKey = k;
       return k;
     }
     await _init();
     k = await StorageSecureService().read(key: Keys.privateKey);
+    if (strNoEmpty(k)) {
+      _cachedPrivateKey = k;
+    }
     return k;
   }
 
   static Future<void> _init() async {
     AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> p = generateRSAKeyPair();
-    // FlutterKeychain.put(key: Keys.publicKey, value: publicPEM);
-    await StorageSecureService().write(
-      key: Keys.publicKey,
-      value: encodeRSAPublicKeyToPem(p.publicKey),
-    );
-    await StorageSecureService().write(
-      key: Keys.privateKey,
-      value: encodeRSAPrivateKeyToPem(p.privateKey),
-    );
-    // iPrint("RSAService/initRsaKey  key ${encodeRSAPrivateKeyToPem(p.privateKey)}\n");
-    // iPrint("RSAService/initRsaKey  key ${encodeRSAPublicKeyToPem(p.publicKey)}\n");
+    final publicPem = encodeRSAPublicKeyToPem(p.publicKey);
+    final privatePem = encodeRSAPrivateKeyToPem(p.privateKey);
+
+    await StorageSecureService().write(key: Keys.publicKey, value: publicPem);
+    await StorageSecureService().write(key: Keys.privateKey, value: privatePem);
+
+    _cachedPublicKey = publicPem;
+    _cachedPrivateKey = privatePem;
   }
 
   static AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> generateRSAKeyPair(
@@ -61,19 +73,13 @@ class RSAService {
     final secureRandom = SecureRandom('Fortuna')
       ..seed(KeyParameter(entropySource.getBytes(32)));
 
-    // Create an RSA key generator and initialize it
-    // final keyGen = KeyGenerator('RSA'); // Get using registry
     final keyGen = RSAKeyGenerator();
 
     keyGen.init(ParametersWithRandom(
         RSAKeyGeneratorParameters(BigInt.parse('65537'), bitLength, 64),
         secureRandom));
 
-    // Use the generator
-
     final pair = keyGen.generateKeyPair();
-
-    // Cast the generated key pair into the RSA key types
 
     final myPublic = pair.publicKey as RSAPublicKey;
     final myPrivate = pair.privateKey as RSAPrivateKey;
@@ -82,10 +88,8 @@ class RSAService {
   }
 
   Uint8List rsaSign(RSAPrivateKey privateKey, Uint8List dataToSign) {
-    //final signer = Signer('SHA-256/RSA'); // Get using registry
     final signer = RSASigner(SHA256Digest(), '0609608648016503040201');
 
-    // initialize with true, which means sign
     signer.init(true, PrivateKeyParameter<RSAPrivateKey>(privateKey));
 
     final sig = signer.generateSignature(dataToSign);
@@ -94,22 +98,20 @@ class RSAService {
   }
 
   bool rsaVerify(
-    RSAPublicKey publicKey,
-    Uint8List signedData,
-    Uint8List signature,
-  ) {
-    //final signer = Signer('SHA-256/RSA'); // Get using registry
+      RSAPublicKey publicKey,
+      Uint8List signedData,
+      Uint8List signature,
+      ) {
     final sig = RSASignature(signature);
 
     final verifier = RSASigner(SHA256Digest(), '0609608648016503040201');
 
-    // initialize with false, which means verify
     verifier.init(false, PublicKeyParameter<RSAPublicKey>(publicKey));
 
     try {
       return verifier.verifySignature(signedData, sig);
     } on ArgumentError {
-      return false; // for Pointy Castle 1.0.2 when signature has been modified
+      return false;
     }
   }
 
@@ -122,8 +124,7 @@ class RSAService {
 
   Uint8List rsaDecrypt(RSAPrivateKey myPrivate, Uint8List cipherText) {
     final decryptor = OAEPEncoding(RSAEngine())
-      ..init(false,
-          PrivateKeyParameter<RSAPrivateKey>(myPrivate)); // false=decrypt
+      ..init(false, PrivateKeyParameter<RSAPrivateKey>(myPrivate)); // false=decrypt
 
     return _processInBlocks(decryptor, cipherText);
   }
@@ -174,18 +175,6 @@ class RSAService {
     return Uint8List.fromList(base64Decode(base64));
   }
 
-  ///
-  /// Enode the given [rsaPrivateKey] to PEM format using the PKCS#8 standard.
-  ///
-  /// The ASN1 structure is decripted at <https://tools.ietf.org/html/rfc5208>.
-  /// ```
-  /// PrivateKeyInfo ::= SEQUENCE {
-  ///   version         Version,
-  ///   algorithm       AlgorithmIdentifier,
-  ///   PrivateKey      BIT STRING
-  /// }
-  /// ```
-  ///
   static String encodeRSAPrivateKeyToPem(RSAPrivateKey rsaPrivateKey) {
     var version = ASN1Integer(BigInt.from(0));
 
@@ -202,11 +191,9 @@ class RSAService {
     var privateExponent = ASN1Integer(rsaPrivateKey.privateExponent);
     var p = ASN1Integer(rsaPrivateKey.p);
     var q = ASN1Integer(rsaPrivateKey.q);
-    var dP =
-        rsaPrivateKey.privateExponent! % (rsaPrivateKey.p! - BigInt.from(1));
+    var dP = rsaPrivateKey.privateExponent! % (rsaPrivateKey.p! - BigInt.from(1));
     var exp1 = ASN1Integer(dP);
-    var dQ =
-        rsaPrivateKey.privateExponent! % (rsaPrivateKey.q! - BigInt.from(1));
+    var dQ = rsaPrivateKey.privateExponent! % (rsaPrivateKey.q! - BigInt.from(1));
     var exp2 = ASN1Integer(dQ);
     var iQ = rsaPrivateKey.q!.modInverse(rsaPrivateKey.p!);
     var co = ASN1Integer(iQ);
@@ -221,7 +208,7 @@ class RSAService {
     privateKeySeq.add(exp2);
     privateKeySeq.add(co);
     var publicKeySeqOctetString =
-        ASN1OctetString(octets: Uint8List.fromList(privateKeySeq.encode()));
+    ASN1OctetString(octets: Uint8List.fromList(privateKeySeq.encode()));
 
     var topLevelSeq = ASN1Sequence();
     topLevelSeq.add(version);
@@ -232,9 +219,6 @@ class RSAService {
     return '$BEGIN_PRIVATE_KEY\n${chunks.join('\n')}\n$END_PRIVATE_KEY';
   }
 
-  ///
-  /// Enode the given [publicKey] to PEM format using the PKCS#8 standard.
-  ///
   static String encodeRSAPublicKeyToPem(RSAPublicKey publicKey) {
     var algorithmSeq = ASN1Sequence();
     var paramsAsn1Obj = ASN1Object.fromBytes(Uint8List.fromList([0x5, 0x0]));
@@ -245,7 +229,7 @@ class RSAService {
     publicKeySeq.add(ASN1Integer(publicKey.modulus));
     publicKeySeq.add(ASN1Integer(publicKey.exponent));
     var publicKeySeqBitString =
-        ASN1BitString(stringValues: Uint8List.fromList(publicKeySeq.encode()));
+    ASN1BitString(stringValues: Uint8List.fromList(publicKeySeq.encode()));
 
     var topLevelSeq = ASN1Sequence();
     topLevelSeq.add(algorithmSeq);

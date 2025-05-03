@@ -130,6 +130,12 @@ class UserDevicePage extends StatelessWidget {
                                                   Navigator.of(context).pop();
                                                 },
                                               n.Button('button_delete'.tr.n)
+                                                ..style = n.NikuButtonStyle(
+                                                  foregroundColor:
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
+                                                )
                                                 ..onPressed = () async {
                                                   Navigator.of(context).pop();
                                                   bool res =
@@ -163,30 +169,31 @@ class UserDevicePage extends StatelessWidget {
                                   contentPadding:
                                       const EdgeInsets.only(left: 0),
                                   title: n.Row([
-                                    Text(model.deviceName),
+                                    Expanded(child: Text(model.deviceName)),
                                     const Space(width: 10),
                                     if (currentDid.value == model.deviceId)
-                                      Text(
+                                      Expanded(child: Text(
                                         'current_device'.tr,
+                                        textAlign: TextAlign.right,
                                         style: TextStyle(
                                           color: Theme.of(context)
                                               .colorScheme
                                               .onPrimary
-                                              .withOpacity(0.7),
+                                              .withValues(alpha: 0.7 * 255),
                                           fontSize: 14,
                                         ),
-                                      ),
+                                      )),
                                   ]),
                                   subtitle: n.Row([
-                                    Text(model.online
+                                    Expanded(child: Text(model.online
                                         ? 'online'.tr
-                                        : 'offline'.tr),
+                                        : 'offline'.tr, textAlign: TextAlign.right)),
                                     const Space(width: 10),
                                     if (model.lastActiveAt > 0)
-                                      Text(
+                                      Expanded(child: Text(
                                         DateTimeHelper.lastTimeFmt(
                                             model.lastActiveAt),
-                                      ),
+                                        textAlign: TextAlign.right)),
                                   ]),
                                   trailing: navigateNextIcon,
                                   onTap: () {

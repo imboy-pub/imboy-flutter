@@ -122,27 +122,46 @@ class ConversationModel {
   }
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
-    var payload = json[ConversationRepo.payload];
     // iPrint("ConversationModel_payload 1 $payload");
+    dynamic payload = json[ConversationRepo.payload] ?? json[ConversationRepo.payload];
+
+    // Handle payload parsing
     if (payload is String) {
-      payload = jsonDecode(payload);
+      try {
+        payload = jsonDecode(payload);
+      } catch (e) {
+        payload = null;
+      }
     }
+    // 处理 last_time（可以是 int 或 ISO8601 字符串）
+    int lastTime = 0;
+    final rawLastTime = json['last_time'] ?? json[ConversationRepo.lastTime];
+    if (rawLastTime is int) {
+      lastTime = rawLastTime;
+    } else if (rawLastTime is String) {
+      try {
+        lastTime = DateTime.parse(rawLastTime).millisecondsSinceEpoch;
+      } catch (e) {
+        lastTime = 0;
+      }
+    }
+
     // iPrint("ConversationModel_payload 2 $payload");
     return ConversationModel(
-      id: json['id'] ?? 0,
-      peerId: json['peer_id'],
-      avatar: strEmpty(json['avatar']) ? '' : json['avatar'],
-      title: json['title'].toString(),
-      region: json['region'].toString(),
-      sign: json['sign'].toString(),
-      subtitle: json['subtitle'] ?? '',
-      lastTime: json[ConversationRepo.lastTime] ?? 0,
-      lastMsgId: json['last_msg_id'] ?? '',
-      lastMsgStatus: json['last_msg_status'] ?? 11,
-      unreadNum: json['unread_num'] ?? 0,
-      type: json['type'].toString(),
-      msgType: json[ConversationRepo.msgType].toString(),
-      isShow: json['is_show'] ?? 1,
+      id: json['id']?.toInt() ?? 0,
+      peerId: json['peer_id']?.toString() ?? '',
+      avatar: (json['avatar']?.toString() ?? '').isEmpty ? '' : json['avatar'].toString(),
+      title: json['title']?.toString() ?? '',
+      region: json['region']?.toString() ?? '',
+      sign: json['sign']?.toString() ?? '',
+      subtitle: json['subtitle']?.toString() ?? '',
+      lastTime: lastTime,
+      lastMsgId: json['last_msg_id']?.toString() ?? '',
+      lastMsgStatus: json['last_msg_status']?.toInt() ?? 11,
+      unreadNum: json['unread_num']?.toInt() ?? 0,
+      type: json['type']?.toString() ?? '',
+      msgType: json[ConversationRepo.msgType] ?? json[ConversationRepo.msgType]?.toString() ?? '',
+      isShow: json['is_show']?.toInt() ?? 1,
       payload: payload != null ? Map<String, dynamic>.from(payload) : null,
     );
   }
@@ -164,4 +183,50 @@ class ConversationModel {
         ConversationRepo.isShow: isShow,
         ConversationRepo.payload: payload,
       };
+
+  factory ConversationModel.empty() => ConversationModel.fromJson({
+    "id": 0,
+    "peer_id": "",
+    "type": "",
+    "title": "",
+    "subtitle": "",
+    "avatar": "",
+    "last_time": 0,
+    "last_msg_id": "",
+    "last_msg_status": 0,
+    "unread_num": 0,
+    "msg_type": "",
+    "is_show": 0,
+    "payload": {},
+  });
+
+  ConversationModel copyWith({
+    String? peerId,
+    String? avatar,
+    String? title,
+    String? subtitle,
+    int? lastTime,
+    String? lastMsgId,
+    int? lastMsgStatus,
+    int? unreadNum,
+    String? type,
+    String? msgType,
+    int? isShow,
+    Map<String, dynamic>? payload,
+  }) {
+    return ConversationModel.fromJson({
+      ConversationRepo.peerId: peerId ?? this.peerId,
+      ConversationRepo.avatar: avatar ?? this.avatar,
+      ConversationRepo.title: title ?? this.title,
+      ConversationRepo.subtitle: subtitle ?? this.subtitle,
+      ConversationRepo.lastTime: lastTime ?? this.lastTime,
+      ConversationRepo.lastMsgId: lastMsgId ?? this.lastMsgId,
+      ConversationRepo.lastMsgStatus: lastMsgStatus ?? this.lastMsgStatus,
+      ConversationRepo.unreadNum: unreadNum ?? this.unreadNum,
+      ConversationRepo.type: type ?? this.type,
+      ConversationRepo.msgType: msgType ?? this.msgType,
+      ConversationRepo.isShow: isShow ?? this.isShow,
+      ConversationRepo.payload: payload ?? this.payload,
+    });
+  }
 }

@@ -116,14 +116,14 @@ class _IMBoyAppState extends State<IMBoyApp> {
           ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
       ),
       initialPosition: DragballPosition(
-        top: Get.height - 120,
+        top: Get.height / 3 + 120,
         isRight: true,
         ballState: BallState.show,
       ),
       onTap: () {
         BetterFeedback.of(context).show((UserFeedback feedback) async {
           iPrint(
-              "BetterFeedback show extra ${feedback.extra.toString()} isLogin ${UserRepoLocal.to.isLogin}");
+              "BetterFeedback show extra ${feedback.extra.toString()} isLogin ${UserRepoLocal.to.isLoggedIn}");
           // Uint8List feedbackScreenshot = feedback.screenshot
           if (feedback.text.isEmpty) {
             EasyLoading.showError('feedback_content_required'.tr);

@@ -10,8 +10,8 @@ import 'package:imboy/component/http/http_parse.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/page/passport/login_view.dart';
+import 'package:imboy/service/secure_token_storage_service.dart' show SecureTokenStorageService;
 import 'package:imboy/service/storage.dart';
-import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class UserProvider extends HttpClient {
@@ -60,10 +60,7 @@ class UserProvider extends HttpClient {
       Get.offAll(() => const LoginPage());
       return "";
     }
-    await StorageSecureService().write(
-      key: Keys.tokenKey,
-      value: newToken,
-    );
+    await SecureTokenStorageService.saveToken(newToken);
     return newToken;
   }
 

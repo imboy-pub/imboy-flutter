@@ -278,16 +278,21 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             ),
             n.ListTile(
               title: n.Row([
-                Text('group_name'.tr),
+                Flexible(child: Text('group_name'.tr)),
                 Flexible(
                   child: Text(
                     title.isEmpty ? 'unnamed'.tr : title,
+                    textAlign: TextAlign.right,
                   ),
                 ),
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () async {
                 GroupModel group = (await logic.find(widget.groupId))!;
                 Get.to(
@@ -317,10 +322,17 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   // color: Colors.red,
                 )),
             n.ListTile(
-              title: n.Row([Text('group_qrcode'.tr), const Icon(Icons.qr_code)])
+              title: n.Row([
+                Expanded(child: Text('group_qrcode'.tr)),
+                const Icon(Icons.qr_code)
+              ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () async {
                 GroupModel group = (await logic.find(widget.groupId))!;
                 Get.to(
@@ -348,6 +360,10 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   ? null
                   : n.Row([Text(groupNotification!)]),
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 // Get.to(
                 //       () => DenylistPage(),
@@ -366,7 +382,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               visible: isAdmin,
               child: n.ListTile(
                 title: n.Row([
-                  Text('group_management'.tr),
+                  Expanded(child:Text('group_management'.tr)),
                 ])
                   // 两端对齐
                   ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
@@ -402,11 +418,15 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             ),
             n.ListTile(
               title: n.Row([
-                Text('search_chat_content'.tr),
+                Expanded(child: Text('search_chat_content'.tr)),
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 Get.to(
                   () => SearchChatPage(
@@ -512,12 +532,11 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             ),
             n.ListTile(
               title: n.Row([
-                Text('group_alias'.tr),
-                const Space(),
+                Expanded(child: Text('group_alias'.tr)),
                 Expanded(
                     child: Text(strEmpty(myGroupAlias)
                         ? UserRepoLocal.to.current.nickname.tr
-                        : ''))
+                        : '', textAlign: TextAlign.right,))
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
@@ -525,6 +544,10 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   ? null
                   : n.Row([Text(groupNotification!)]),
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 // Get.to(
                 //       () => DenylistPage(),
@@ -611,6 +634,10 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
               trailing: navigateNextIcon,
+              contentPadding: n.EdgeInsets.only(
+                left: 16,
+                right: 8.0,
+              ),
               onTap: () {
                 // Get.to(
                 //       () => DenylistPage(),

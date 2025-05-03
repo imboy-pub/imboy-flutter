@@ -48,14 +48,14 @@ class UserQrCodePage extends StatelessWidget {
         rightDMActions: <Widget>[
           InkWell(
             child: n.Padding(
-              left: 20,
-              right: 20,
-              bottom: 20,
-              child: const Text(
-                "...",
-                style: TextStyle(
-                  fontSize: 28,
-                ),
+              top: 10,
+              left: 10,
+              right: 10,
+              bottom: 10,
+              child: Icon(
+                Icons.more_horiz,
+                color: Theme.of(context).colorScheme.onPrimary,
+                // size: 40,
               ),
             ),
             onTap: () {
@@ -76,10 +76,10 @@ class UserQrCodePage extends StatelessWidget {
                             final res = await RepaintBoundaryHelper()
                                 .image(context, globalKey);
                             if (res != null) {
-                              final result = await Share.shareXFiles(
-                                [XFile.fromData(res, mimeType: 'png')],
-                                text: 'scan_qrcode_add_friend'.tr,
+                              final result = await SharePlus.instance.share(
+                                  ShareParams(files: [XFile.fromData(res, mimeType: 'png')], text: 'scan_qrcode_add_friend'.tr)
                               );
+
                               if (result.status == ShareResultStatus.success) {}
                             }
                           });
@@ -331,14 +331,14 @@ class GroupQrCodePage extends StatelessWidget {
         rightDMActions: <Widget>[
           InkWell(
             child: n.Padding(
-              left: 20,
-              right: 20,
-              bottom: 20,
-              child: const Text(
-                "...",
-                style: TextStyle(
-                  fontSize: 28,
-                ),
+              top: 10,
+              left: 10,
+              right: 10,
+              bottom: 10,
+              child: Icon(
+                Icons.more_horiz,
+                color: Theme.of(context).colorScheme.onPrimary,
+                // size: 40,
               ),
             ),
             onTap: () {
@@ -368,9 +368,8 @@ class GroupQrCodePage extends StatelessWidget {
                                 ).dateTime)
                                     .format(pattern: 'y-MM-dd')
                               ]);
-                              final result = await Share.shareXFiles(
-                                [XFile.fromData(res, mimeType: 'png')],
-                                text: txt,
+                              final result = await SharePlus.instance.share(
+                                  ShareParams(files: [XFile.fromData(res, mimeType: 'png')], text: txt)
                               );
                               if (result.status == ShareResultStatus.success) {}
                             }
@@ -634,10 +633,10 @@ class GroupQrCodePage extends StatelessWidget {
                         ).dateTime)
                             .format(pattern: 'y-MM-dd')
                       ]);
-                      final result = await Share.shareXFiles(
-                        [XFile.fromData(res, mimeType: 'png')],
-                        text: txt,
+                      final result = await SharePlus.instance.share(
+                          ShareParams(files: [XFile.fromData(res, mimeType: 'png')], text: txt)
                       );
+
                       if (result.status == ShareResultStatus.success) {}
                     }
                   });

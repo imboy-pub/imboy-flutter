@@ -126,7 +126,7 @@ class MoreView extends StatelessWidget {
             ),
           ),
           child: Container(
-            padding: const EdgeInsets.only(top: 15.0, bottom: 15.0, right: 5.0),
+            padding: const EdgeInsets.only(top: 15.0, bottom: 15.0, right: 16.0),
             margin: const EdgeInsets.only(
               left: 20.0,
             ),
@@ -149,7 +149,7 @@ class MoreView extends StatelessWidget {
                         // color: AppColors.MainTextColor,
                         fontSize: 14.0,
                       ),
-                      maxLines: 3,
+                      maxLines: 4,
                       overflow: TextOverflow.ellipsis,
                       textAlign: logic.sign.value == ""
                           ? TextAlign.right

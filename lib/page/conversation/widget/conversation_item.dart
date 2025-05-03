@@ -29,7 +29,7 @@ class ConversationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 当前会话未读消息数量
-    RxInt remindCounter = logic.conversationRemind[model.uk3] ?? 0.obs;
+    RxInt remindCounter = RxInt(logic.conversationRemind[model.uk3] ?? 0);
     var icon = <Widget>[];
     if (model.lastMsgStatus == IMBoyMessageStatus.sending) {
       icon.add(
@@ -139,13 +139,14 @@ class ConversationItem extends StatelessWidget {
                 ..crossAxisAlignment = CrossAxisAlignment.start,
             ),
             // Space(width: mainSpace),
-            n.Column([
+            Expanded(child: n.Column([
               // 最近会话时间
               if (model.lastTime > 0)
                 Text(
                   DateTimeHelper.lastTimeFmt(model.lastTime),
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.right,
                   style: const TextStyle(
                     // color: AppColors.MainTextColor,
                     fontSize: 14.0,
@@ -153,6 +154,7 @@ class ConversationItem extends StatelessWidget {
                 ),
               const Icon(Icons.flag, color: Colors.transparent),
             ])
+              ..crossAxisAlignment = CrossAxisAlignment.end)
           ]),
         )
       ])

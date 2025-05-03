@@ -162,15 +162,15 @@ class ChatPageState extends State<ChatPage> {
     if (showConversation) {
       eventBus.fire(conversation);
     }
-    state.nextAutoId = 0;
+    state.nextAutoId.value = 0;
 
     if (widget.type == 'C2G') {
-      state.memberCount = widget.options?['memberCount'] ?? 0;
+      state.memberCount.value = widget.options?['memberCount'] ?? 0;
       iPrint("state.selects chat_vew ${widget.options.toString()}");
       newGroupName = await logic.groupTitle(
         widget.peerId,
         widget.peerTitle,
-        state.memberCount,
+        state.memberCount.value,
       );
     }
 
@@ -239,11 +239,11 @@ class ChatPageState extends State<ChatPage> {
       if (obj.type == 'join_group' &&
           obj.payload['groupId'] == widget.peerId &&
           (obj.payload['isFirst'] ?? false)) {
-        state.memberCount += 1;
+        state.memberCount.value += 1;
         newGroupName = await logic.groupTitle(
           widget.peerId,
           widget.peerTitle,
-          state.memberCount,
+          state.memberCount.value,
         );
         if (mounted) {
           setState(() {});
@@ -251,7 +251,7 @@ class ChatPageState extends State<ChatPage> {
       } else if (obj.type == 'clean_msg' &&
           ((obj.payload['uk3'] ?? '') == conversation.uk3)) {
         // 重新获取本地聊天记录
-        state.nextAutoId = 0;
+        state.nextAutoId.value = 0;
         _handleEndReached();
       } else if (obj.type == 'delete_msg') {
         //   removeMessage
@@ -270,7 +270,7 @@ class ChatPageState extends State<ChatPage> {
     // 接收到新的消息订阅 for c2c
     state.ssMsg =
         eventBus.on<types.Message>().listen((types.Message msg) async {
-      // iPrint("chat_view/listen one ${msg.id}; ${DateTime.now()}");
+      iPrint("chat_view/listen one ${msg.id}; ${DateTime.now()}");
       final String conversationUk3 = msg.metadata?['conversation_uk3'] ?? '';
       // iPrint("chat_view/listen one $conversationUk3");
       // iPrint("chat_view/listen one ${conversationUk3 != conversation.uk3}");
@@ -287,8 +287,8 @@ class ChatPageState extends State<ChatPage> {
       final i = state.messages.indexWhere((e) => e.id == msg.id);
       // iPrint("changeMessageState 4 ${msg.id}; i $i; mounted $mounted");
       if (i == -1) {
-        // iPrint("decreaseConversationRemind ${conversation.uk3}");
         String tb = MessageRepo.getTableName(widget.type);
+        iPrint("decreaseConversationRemind ${conversation.uk3}; $tb;");
         MessageModel? m = await MessageService.to.changeStatus(
           tb,
           msg.id,
@@ -367,15 +367,15 @@ class ChatPageState extends State<ChatPage> {
           }
         }
         setState(() {
-          state.messages = [
+          state.messages.value = [
             ...state.messages,
             ...items2,
           ];
         });
       }
-    } else if (state.nextAutoId == 0 && mounted) {
+    } else if (state.nextAutoId.value == 0 && mounted) {
       setState(() {
-        state.messages = [];
+        state.messages.value = [];
       });
     }
     return items;
@@ -413,7 +413,7 @@ class ChatPageState extends State<ChatPage> {
     //   发送成功后，更新conversation、更新消息状态
     //   发送失败后，放入异步队列，重新发送
     String type = widget.type == 'null' ? 'C2C' : widget.type;
-    // try {
+    try {
       await logic.addMessage(
         UserRepoLocal.to.currentUid,
         widget.peerId,
@@ -426,10 +426,10 @@ class ChatPageState extends State<ChatPage> {
         state.messages.insert(0, message);
       });
       return true;
-    // } catch (e) {
-    //   debugPrint("_addMessage $e");
-    // }
-    // return false;
+    } catch (e, stack) {
+      debugPrint("_addMessage $e : $stack");
+    }
+    return false;
     // _msgService.update();
   }
 
@@ -1158,7 +1158,7 @@ class ChatPageState extends State<ChatPage> {
             () => widget.type == 'C2G'
                 ? GroupDetailPage(
                     groupId: widget.peerId,
-                    memberCount: state.memberCount,
+                    memberCount: state.memberCount.value,
                     title: widget.peerTitle,
                     options: options,
                     callBack: (v) {})
@@ -1173,7 +1173,7 @@ class ChatPageState extends State<ChatPage> {
             debugPrint("ChatSettingPage then $value, $mounted");
             bool flush = false;
             if (value != null && value == false) {
-              state.nextAutoId = 0;
+              state.nextAutoId.value = 0;
               _handleEndReached();
               if (mounted) setState(() {});
             }
@@ -1182,12 +1182,12 @@ class ChatPageState extends State<ChatPage> {
             if (value is Map<String, dynamic>) {
               int num = value['memberCount'] ?? 0;
               if (num > 0) {
-                state.memberCount = num;
+                state.memberCount.value = num;
                 flush = true;
                 newGroupName = await logic.groupTitle(
                   widget.peerId,
                   widget.peerTitle,
-                  state.memberCount,
+                  state.memberCount.value,
                 );
                 if (mounted) setState(() {});
               }
@@ -1272,7 +1272,7 @@ class ChatPageState extends State<ChatPage> {
                 required int messageWidth,
                 required bool showName,
               }) {
-                iPrint("str ${message.createdAt}");
+                // iPrint("str ${message.createdAt}");
                 return IgnorePointer(
                   child: TextMessage(
                     emojiEnlargementBehavior: EmojiEnlargementBehavior.multi,

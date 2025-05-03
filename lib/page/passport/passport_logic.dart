@@ -202,10 +202,9 @@ class PassportLogic extends GetxController {
       } else {
         return state.error.value;
       }
-    } catch (e, stack) {
+    } catch (e, s) {
       // 也可以使用 print 语句打印异常信息
-      iPrint('state.error: $e');
-      iPrint('Stack trace:\n${stack.toString()}');
+      iPrint('state.error: $e; ${s.toString()}');
       return e.toString();
     }
   }

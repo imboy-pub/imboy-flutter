@@ -181,7 +181,7 @@ class ConversationRepo {
         ConversationRepo.payload,
         ConversationRepo.type,
         ConversationRepo.msgType,
-        // ConversationRepo.isShow,
+        ConversationRepo.isShow,
       ],
       where: where,
       whereArgs: whereArgs,
@@ -197,7 +197,11 @@ class ConversationRepo {
     List<ConversationModel> item2 = [];
     for (var e in items) {
       // if(e['t'])
-      item2.add(ConversationModel.fromJson(e));
+      try {
+        item2.add(ConversationModel.fromJson(e));
+      } catch(e,s) {
+        iPrint("ConversationRepo/list err $e; $s");
+      }
     }
     return item2;
   }

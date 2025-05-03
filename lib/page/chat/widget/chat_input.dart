@@ -287,10 +287,16 @@ class _ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   Widget _buildBottomContainer({required Widget child}) {
     return SizeTransition(
       sizeFactor: _bottomHeightController,
-      child: SizedBox(
-        // ignore: sort_child_properties_last
-        child: child,
-        height: _softKeyHeight,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: _softKeyHeight,
+        ),
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(), // 防止 bouncing
+          child: IntrinsicHeight(
+            child: child,
+          ),
+        ),
       ),
     );
   }
