@@ -5,6 +5,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/counter.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/dragable.dart';
 import 'package:imboy/component/webrtc/enum.dart';
@@ -108,18 +109,18 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
   }
 
   Future<void> disposeRenderer() async {
-    // try {
-    if (localRenderer.textureId != null) {
-      localRenderer.srcObject = null;
-      await localRenderer.dispose();
+    try {
+      if (localRenderer.textureId != null) {
+        localRenderer.srcObject = null;
+        await localRenderer.dispose();
+      }
+      if (remoteRenderer.textureId != null) {
+        remoteRenderer.srcObject = null;
+        await remoteRenderer.dispose();
+      }
+    } catch (e, s) {
+      iPrint("disposeRenderer $e, $s");
     }
-    if (remoteRenderer.textureId != null) {
-      remoteRenderer.srcObject = null;
-      await remoteRenderer.dispose();
-    }
-    // } catch (e) {
-    //
-    // }
   }
 
   initData() async {
@@ -147,11 +148,13 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     }
 
     debugPrint(
-        "> rtc initData view pc ${widget.session.pc.toString()} ${DateTime.now()}");
+      "> rtc initData view pc ${widget.session.pc.toString()} ${DateTime.now()}",
+    );
 
     logic?.onSignalingStateChange = (RTCSignalingState state) {
       debugPrint(
-          "> rtc onSignalingStateChange view ${state.toString()} ${DateTime.now()}");
+        "> rtc onSignalingStateChange view ${state.toString()} ${DateTime.now()}",
+      );
       // switch (state) {
       //   case SignalingState.ConnectionClosed:
       //   case SignalingState.ConnectionError:
@@ -160,10 +163,11 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       // }
     };
 
-    logic?.onCallStateChange =
-        (WebRTCSession? s1, WebRTCCallState state) async {
+    logic
+        ?.onCallStateChange = (WebRTCSession? s1, WebRTCCallState state) async {
       debugPrint(
-          "> rtc onCallStateChange view ${state.toString()} ${DateTime.now()}");
+        "> rtc onCallStateChange view ${state.toString()} ${DateTime.now()}",
+      );
       switch (state) {
         case WebRTCCallState.CallStateInvite:
           break;
@@ -221,7 +225,8 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
           break;
         case WebRTCCallState.CallStateConnected:
           debugPrint(
-              "> rtc onCallStateChange view showTool $showTool; ${DateTime.now()}");
+            "> rtc onCallStateChange view showTool $showTool; ${DateTime.now()}",
+          );
           connectedAfter();
           break;
       }
@@ -229,7 +234,8 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
 
     logic?.onLocalStream = ((stream) {
       debugPrint(
-          "> rtc stream onLocalStream view ${localRenderer.srcObject.toString()} ${DateTime.now()}");
+        "> rtc stream onLocalStream view ${localRenderer.srcObject.toString()} ${DateTime.now()}",
+      );
 
       if (mounted) {
         setState(() {
@@ -245,9 +251,11 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       // }
 
       debugPrint(
-          "> rtc stream onAddRemoteStream view $mounted, ${stream.toString()} ${DateTime.now()}");
+        "> rtc stream onAddRemoteStream view $mounted, ${stream.toString()} ${DateTime.now()}",
+      );
       debugPrint(
-          "> rtc stream onAddRemoteStream view ${DateTime.now()}, ${remoteRenderer.srcObject.toString()}");
+        "> rtc stream onAddRemoteStream view ${DateTime.now()}, ${remoteRenderer.srcObject.toString()}",
+      );
 
       setState(() {
         remoteRenderer.srcObject = stream;
@@ -265,7 +273,8 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     });
 
     debugPrint(
-        "> rtc initData view pc ${widget.session.pc.toString()} ${DateTime.now()}");
+      "> rtc initData view pc ${widget.session.pc.toString()} ${DateTime.now()}",
+    );
 
     widget.session = await logic!.createSession(
       widget.session,
@@ -275,9 +284,9 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     );
 
     // 接收到新的消息订阅
-    subscription = eventBus
-        .on<WebRTCSignalingModel>()
-        .listen((WebRTCSignalingModel obj) async {
+    subscription = eventBus.on<WebRTCSignalingModel>().listen((
+      WebRTCSignalingModel obj,
+    ) async {
       await logic?.onMessageP2P(widget.session, obj);
     });
 
@@ -334,21 +343,14 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       child: n.Padding(
         top: Get.height * 0.3,
         child: n.Column([
-          Avatar(
-            imgUri: widget.peer.avatar,
-            width: 80,
-            height: 80,
-          ),
+          Avatar(imgUri: widget.peer.avatar, width: 80, height: 80),
           n.Padding(
             top: 12,
             left: 12,
             right: 12,
             child: Text(
               widget.peer.nickname,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 24),
             ),
           ),
         ]),
@@ -417,8 +419,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
               onPressed: logic?.switchCamera,
               child: const Icon(Icons.switch_camera, color: Colors.white),
             ),
-        ])
-          ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+        ])..mainAxisAlignment = MainAxisAlignment.spaceBetween,
         if (media == 'video')
           n.Row([
             n.Padding(
@@ -437,8 +438,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
                 child: const Icon(Icons.call_end, color: Colors.white),
               ),
             ),
-          ])
-            ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+          ])..mainAxisAlignment = MainAxisAlignment.spaceBetween,
       ]),
     );
   }
@@ -457,17 +457,14 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
           child: n.Row([
             n.Column([
               n.Row([
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: 4,
-                    right: 4,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4, right: 4),
+                    child: Icon(
+                      media == 'video' ? Icons.videocam : Icons.phone,
+                      color: Colors.green,
+                    ),
                   ),
-                  child: Icon(
-                    media == 'video' ? Icons.videocam : Icons.phone,
-                    color: Colors.green,
-                  ),
-                ),
-              ])
+                ])
                 ..crossAxisAlignment = CrossAxisAlignment.center
                 ..height = 20,
             ]),
@@ -475,20 +472,14 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
               n.Row([
                 Text(
                   counter.show(),
-                  style: const TextStyle(
-                    color: Colors.green,
-                  ),
-                )
-              ]),
-              n.Row([
-                Text(
-                  'calling'.tr,
                   style: const TextStyle(color: Colors.green),
                 ),
               ]),
+              n.Row([
+                Text('calling'.tr, style: const TextStyle(color: Colors.green)),
+              ]),
             ]),
-          ])
-            ..crossAxisAlignment = CrossAxisAlignment.start,
+          ])..crossAxisAlignment = CrossAxisAlignment.start,
         ),
       ),
     );
@@ -579,79 +570,80 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
 
   @override
   Widget build(BuildContext context) {
-    return IndexedStack(index: minimized ? 1 : 0, children: [
-      Scaffold(
-        backgroundColor: const Color.fromRGBO(80, 80, 80, 1),
-        floatingActionButtonLocation:
-            FloatingActionButtonLocation.miniCenterFloat,
-        floatingActionButton: showTool ? _buildTools() : null,
-        body: OrientationBuilder(
-          builder: (context, Orientation orientation) {
-            double w = orientation == Orientation.portrait ? 90.0 : 120.0;
-            double h = orientation == Orientation.portrait ? 120.0 : 90.0;
+    return IndexedStack(
+      index: minimized ? 1 : 0,
+      children: [
+        Scaffold(
+          backgroundColor: const Color.fromRGBO(80, 80, 80, 1),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.miniCenterFloat,
+          floatingActionButton: showTool ? _buildTools() : null,
+          body: OrientationBuilder(
+            builder: (context, Orientation orientation) {
+              double w = orientation == Orientation.portrait ? 90.0 : 120.0;
+              double h = orientation == Orientation.portrait ? 120.0 : 90.0;
 
-            Widget localVideo = _buildLocalVideo(w, h);
-            return n.Stack([
-              // remote video
-              _buildRemoteVideo(),
+              Widget localVideo = _buildLocalVideo(w, h);
+              return n.Stack([
+                // remote video
+                _buildRemoteVideo(),
 
-              // local video
-              Positioned(
-                left: localX,
-                top: localY,
-                child: connected
-                    ? Draggable(
-                        feedback: localVideo,
-                        childWhenDragging: const SizedBox.shrink(),
-                        // 拖动中的回调
-                        onDragEnd: (details) {
-                          if (connected && mounted) {
-                            setState(() {
-                              localX = details.offset.dx;
-                              localY = details.offset.dy;
-                            });
-                          }
-                        },
-                        child: localVideo,
-                      )
-                    : localVideo,
-              ),
-
-              if (showTool)
+                // local video
                 Positioned(
-                  top: 32,
-                  left: 8,
-                  child: InkWell(
-                    onTap: _zoom,
-                    child: const Icon(
-                      Icons.fullscreen_exit_rounded,
-                      color: Colors.white,
-                      size: 30.0,
-                    ),
-                    // child: const Icon(Icons.zoom_in_map_rounded, color:Colors.white,),
-                  ),
-                ),
-              if (showTool)
-                Positioned(
-                  top: 40,
-                  left: (Get.width - 160) / 2,
-                  width: 160,
-                  child: Text(
-                    stateTips,
-                    style: const TextStyle(
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+                  left: localX,
+                  top: localY,
+                  child: connected
+                      ? Draggable(
+                          feedback: localVideo,
+                          childWhenDragging: const SizedBox.shrink(),
+                          // 拖动中的回调
+                          onDragEnd: (details) {
+                            if (connected && mounted) {
+                              setState(() {
+                                localX = details.offset.dx;
+                                localY = details.offset.dy;
+                              });
+                            }
+                          },
+                          child: localVideo,
+                        )
+                      : localVideo,
                 ),
 
-              if ((connected == false && showTool) || media == 'audio')
-                _buildPeerInfo(),
-            ]);
-          },
+                if (showTool)
+                  Positioned(
+                    top: 32,
+                    left: 8,
+                    child: InkWell(
+                      onTap: _zoom,
+                      child: const Icon(
+                        Icons.fullscreen_exit_rounded,
+                        color: Colors.white,
+                        size: 30.0,
+                      ),
+                      // child: const Icon(Icons.zoom_in_map_rounded, color:Colors.white,),
+                    ),
+                  ),
+                if (showTool)
+                  Positioned(
+                    top: 40,
+                    left: (Get.width - 160) / 2,
+                    width: 160,
+                    child: Text(
+                      stateTips,
+                      style: const TextStyle(color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
+                if ((connected == false && showTool) || media == 'audio')
+                  _buildPeerInfo(),
+              ]);
+            },
+          ),
         ),
-      ),
-      _buildDragArea(),
-    ]);
+        _buildDragArea(),
+      ],
+    );
   }
 }

@@ -131,6 +131,9 @@ class ContactModel extends ISuspensionBean {
     if (peerId.isEmpty) {
       throw Exception('ContactModel peerId is empty');
     }
+    var updateAt = (json[ContactRepo.updatedAt] is int && (json[ContactRepo.updatedAt] as int) > 0)
+        ? json[ContactRepo.updatedAt]
+        : DateTimeHelper.millisecond();
     return ContactModel(
       peerId: peerId,
       account: json["account"].toString(),
@@ -144,7 +147,7 @@ class ContactModel extends ISuspensionBean {
       source: json["source"].toString(),
       sign: json["sign"].toString(),
       // 单位毫秒，13位时间戳  1561021145560
-      updatedAt: json[ContactRepo.updatedAt] ?? DateTimeHelper.millisecond(),
+      updatedAt: updateAt,
       isFriend: json[ContactRepo.isFriend] ?? 0,
       categoryId: json[ContactRepo.categoryId] ?? 0,
       isFrom: int.tryParse('$isFrom') ?? 0,

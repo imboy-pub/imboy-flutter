@@ -5,9 +5,12 @@
 *.swp
 .DS_Store
 .atom/
+.build/
 .buildlog/
 .history
 .svn/
+.swiftpm/
+migrate_working_dir/
 
 # IntelliJ related
 *.iml
@@ -26,13 +29,9 @@
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
-.packages
 .pub-cache/
 .pub/
 /build/
-
-# Web related
-lib/generated_plugin_registrant.dart
 
 # Symbolication related
 app.*.symbols
@@ -44,38 +43,10 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-
-# Ignore Gradle project-specific cache directory
-.gradle
-
-# Ignore Gradle build output directory
-build
-Podfile.lock
-connectivity_plus_linux
-package_info_plus_linux
-linux/flutter/ephemeral/.plugin_symlinks
-macos/flutter/ephemeral/.symlinks/plugins
-macos/Flutter/ephemeral/.symlinks/plugins
-macos/Flutter/ephemeral/Flutter-Generated.xcconfig
-macos/Flutter/ephemeral/flutter_export_environment.sh
-macos/Pods
-emoji_picker_flutter
-.run
-
-google-services.json
-agconnect-services.json
-*.
-FlutterInputs.xcfilelist
-FlutterOutputs.xcfilelist
-tripwire
-UserInterfaceState.xcuserstate
-.app_filename
-FlutterMacOS.podspec
-.env
-.env.dev
-.env.pro
-pro_env.g.dart
-libkey.dylib
+.env*
+plugin/build
+ios/build
+macos/build
 *.jks
 pro_env.dart
 main_dev.dart
@@ -89,3 +60,4 @@ lib/config/env_local.g.dart
 lib/config/env_dev.g.dart
 lib/config/env_pro.g.dart
 IDEWorkspaceChecks.plist
+android/build

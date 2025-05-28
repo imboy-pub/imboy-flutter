@@ -150,15 +150,19 @@ class AvatarList extends StatelessWidget {
           for (int j = i; j < i + column && j < memberList.length; j++)
             if (memberList[j].id == 'last')
               DottedBorder(
-                borderType: BorderType.RRect,
-                radius: const Radius.circular(12),
-                // padding: const EdgeInsets.all(6),
+                options: RoundedRectDottedBorderOptions(
+                  // borderType: BorderType.RRect,
+                  radius: const Radius.circular(12),
+                  // padding: EdgeInsets.all(6),  // Uncomment if needed
+                  // strokeWidth: 2,             // Add if you want custom stroke width
+                  // color: Colors.black,        // Add if you want custom color
+                ),
                 child: ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(12)),
                   child: SizedBox(
                     height: height ?? 56,
                     width: width ?? 56,
-                    // color: darkBgColor,
+                    // color: darkBgColor,       // Uncomment if needed
                   ),
                 ),
               )
@@ -168,8 +172,13 @@ class AvatarList extends StatelessWidget {
                 child: n.Padding(
                   right: 10,
                   child: DottedBorder(
-                    borderType: BorderType.RRect,
-                    radius: const Radius.circular(12),
+                    options: RoundedRectDottedBorderOptions(
+                      // borderType: BorderType.RRect,
+                      radius: const Radius.circular(12),
+                      // padding: EdgeInsets.all(6),  // Uncomment if needed
+                      // strokeWidth: 2,             // Add if you want custom stroke width
+                      // color: Colors.black,        // Add if you want custom color
+                    ),
                     child: ClipRRect(
                       borderRadius: const BorderRadius.all(Radius.circular(12)),
                       child: SizedBox(
@@ -188,8 +197,13 @@ class AvatarList extends StatelessWidget {
                 child: n.Padding(
                   right: 10,
                   child: DottedBorder(
-                    borderType: BorderType.RRect,
-                    radius: const Radius.circular(12),
+                    options: RoundedRectDottedBorderOptions(
+                      // borderType: BorderType.RRect,
+                      radius: const Radius.circular(12),
+                      // padding: EdgeInsets.all(6),  // Uncomment if needed
+                      // strokeWidth: 2,             // Add if you want custom stroke width
+                      // color: Colors.black,        // Add if you want custom color
+                    ),
                     // padding: const EdgeInsets.all(6),
                     child: ClipRRect(
                       borderRadius: const BorderRadius.all(Radius.circular(12)),

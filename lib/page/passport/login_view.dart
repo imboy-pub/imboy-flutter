@@ -94,279 +94,251 @@ class LoginPageState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
-    final height = Get.height;
-    return Scaffold(
-      body: Container(
-          color: Colors.green,
-          height: height,
-          child: n.Stack([
-            Positioned(
-              top: -height * .10,
-              right: -Get.width * .68,
-              child: const BezierContainer(),
-            ),
-            SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              child: GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                },
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: 700,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      const SizedBox(height: 40),
-                      logic.title(),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20.0, bottom: 20),
-                        child: Container(
-                          width: Get.width - 40,
-                          height: 60.0,
-                          decoration: const BoxDecoration(
-                            color: Color(0x552B2B2B),
-                            borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                          ),
-                          child: DefaultTabController(
-                            length: 2,
-                            child: Column(
-                              children: <Widget>[
-                                Flexible(child: ButtonsTabBar(
-                                  radius: 25.0,
-                                  height: 60,
-                                  width: (Get.width - 40) / 2,
-                                  contentCenter: true,
-                                  duration: 800,
-                                  buttonMargin : const EdgeInsets.all(2),
-                                  backgroundColor: leftBgColor,
-                                  unselectedBackgroundColor: rightBgColor,
-                                  labelStyle: TextStyle(color: leftColor, fontWeight: FontWeight.bold),
-                                  unselectedLabelStyle: TextStyle(color: rightColor),
-                                  tabs: [
-                                    Tab(
-                                      child: TextButton(
-                                        style: ButtonStyle(
-                                          overlayColor: WidgetStateProperty.all(Colors.transparent),
-                                        ),
-                                        onPressed: _onSignInButtonPress,
-                                        child: Text(
-                                          'param_login'.trArgs(['mobile'.tr]),
-                                          style: TextStyle(
-                                            color: leftColor,
-                                            fontSize: 16.0,
-                                            fontFamily: 'WorkSansSemiBold',
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Tab(
-                                      // icon: Icon(Icons.directions_transit),
-                                      // text: "transit",
-                                      child: TextButton(
-                                        style: ButtonStyle(
-                                          overlayColor: WidgetStateProperty.all(Colors.transparent),
-                                        ),
-                                        onPressed: _onSignUpButtonPress,
-                                        child: Text(
-                                          'param_login'.trArgs(['account'.tr]),
-                                          style: TextStyle(
-                                            color: rightColor,
-                                            fontSize: 16.0,
-                                            fontFamily: 'WorkSansSemiBold',
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Flexible(
-                        flex: 2,
-                        child: PageView(
-                          controller: _pageController,
-                          physics: const ClampingScrollPhysics(),
-                          onPageChanged: (int i) {
-                            FocusScope.of(context).requestFocus(FocusNode());
-                            if (i == 0) {
-                              setState(() {
-                                leftColor = Colors.black;
-                                leftBgColor = Colors.white;
-                                rightColor = Colors.white;
-                                rightBgColor = Color(0x552B2B2B).withAlpha(0);
-                              });
-                            } else if (i == 1) {
-                              setState(() {
-                                leftColor = Colors.white;
-                                leftBgColor = Color(0x552B2B2B).withAlpha(0);
-                                rightColor = Colors.black;
-                                rightBgColor = Colors.white;
-                              });
-                            }
-                          },
-                          children: <Widget>[
-                            Center(
-                                child: ConstrainedBox(
-                              constraints: const BoxConstraints.expand(),
-                              child: const LoginMobilePage(),
-                            )),
-                            Center(
-                                child: ConstrainedBox(
-                              constraints: const BoxConstraints.expand(),
-                              child: const LoginAccountPage(),
-                            )),
-                          ],
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Expanded(child: Container(
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                  colors: <Color>[
-                                    Colors.white10,
-                                    Colors.white,
-                                  ],
-                                  begin: FractionalOffset(0.0, 0.0),
-                                  end: FractionalOffset(1.0, 1.0),
-                                  stops: <double>[0.0, 1.0],
-                                  tileMode: TileMode.clamp),
-                            ),
-                            width: 100.0,
-                            height: 1.0,
-                          )),
-                          const Padding(
-                            padding: EdgeInsets.only(left: 15.0, right: 15.0),
-                            child: Text(
-                              'Or',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0,
-                                  fontFamily: 'WorkSansMedium'),
-                            ),
-                          ),
-                          Expanded(child: Container(
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                  colors: <Color>[
-                                    Colors.white,
-                                    Colors.white10,
-                                  ],
-                                  begin: FractionalOffset(0.0, 0.0),
-                                  end: FractionalOffset(1.0, 1.0),
-                                  stops: <double>[0.0, 1.0],
-                                  tileMode: TileMode.clamp),
-                            ),
-                            width: 100.0,
-                            height: 1.0,
-                          )),
-                        ],
-                      ),
-                      if (GetPlatform.isAndroid || GetPlatform.isIOS)
-                        n.Column([
-                          const SizedBox(height: 10),
-                          Expanded(child:  ElevatedButton(
-                           onPressed: () async {
-                             logic.loginAuth(false);
-                           },
-                           // ignore: sort_child_properties_last
-                           child: Text(
-                             'mobile_quick_login'.tr,
-                             textAlign: TextAlign.center,
-                             style: const TextStyle(fontSize: 16),
-                           ),
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
-                           style:
-                           lightGreenButtonStyle(Size(Get.width - 40, 40)),
-                         )),
-                        ]),
-                      /*
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(top: 10.0, right: 40.0),
-                            child: GestureDetector(
-                              onTap: () async {
-                                logic.loginAuth(false);
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(15.0),
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                ),
-                                child: const Icon(
-                                  IMBoyIcon.jiguang,
-                                  color: Color(0xFF0084ff),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10.0),
-                            child: GestureDetector(
-                              // onTap: () => CustomSnackBar(
-                              //     context, const Text('Google button pressed')),
-                              onTap: () {
-                                // logic.silentSignInHW();
-                                logic.signInHW();
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(15.0),
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                ),
-                                child: const Icon(
-                                  IMBoyIcon.huawei,
-                                  color: Colors.redAccent,
-                                ),
-                              ),
-                            ),
+    return Scaffold(
+      backgroundColor: Colors.green,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            children: [
+              // 背景装饰
+              Positioned(
+                top: -screenHeight * .10,
+                right: -screenWidth * .68,
+                child: const BezierContainer(),
+              ),
+
+              // 主内容区域
+              Positioned.fill(
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  padding: EdgeInsets.only(
+                    top: 80,
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                  child: GestureDetector(
+                    onTap: () => FocusScope.of(context).unfocus(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          logic.title(),
+                          _buildTabBar(screenWidth),
+                          _buildPageView(),
+                          _buildOrDivider(),
+                          if (GetPlatform.isMobile) _buildQuickLoginButton(),
+                          _createAccountLabel(),
+                          SizedBox(
+                            height: MediaQuery.of(context).viewInsets.bottom,
                           ),
                         ],
                       ),
-                      */
-                      _createAccountLabel(),
-                    ],
+                    ),
                   ),
                 ),
               ),
+
+              // 返回按钮
+              Positioned(top: 40, left: 0, child: logic.backButton()),
+
+              // 网络状态提示
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Obx(
+                  () => state.connectDesc.isEmpty
+                      ? const SizedBox.shrink()
+                      : NetworkFailureTips(backgroundColor: Colors.white),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildTabBar(double screenWidth) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      child: Container(
+        height: 60,
+        decoration: const BoxDecoration(
+          color: Color(0x552B2B2B),
+          borderRadius: BorderRadius.all(Radius.circular(25)),
+        ),
+        child: DefaultTabController(
+          length: 2,
+          child: ButtonsTabBar(
+            radius: 25,
+            height: 60,
+            width: (screenWidth - 40) / 2,
+            contentCenter: true,
+            duration: 800,
+            buttonMargin: const EdgeInsets.all(2),
+            backgroundColor: leftBgColor,
+            unselectedBackgroundColor: rightBgColor,
+            labelStyle: TextStyle(
+              color: leftColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              fontFamily: 'WorkSansSemiBold',
             ),
-            Positioned(top: 40, left: 0, child: logic.backButton()),
-            // 使用Align组件将NetworkFailureTips固定在底部并垂直居中
-            Positioned(
-              bottom: 0, // 固定在底部
-              left: 0,
-              right: 0,
-              child: Align(
-                alignment: Alignment.center, // 垂直和水平居中
-                child: Obx(() {
-                  return state.connectDesc.isEmpty
-                      ? const SizedBox.shrink() // 如果没有连接描述，则不显示
-                      : NetworkFailureTips(backgroundColor: Colors.white);
-                }),
+            unselectedLabelStyle: TextStyle(
+              color: rightColor,
+              fontSize: 16,
+              fontFamily: 'WorkSansSemiBold',
+            ),
+            tabs: [
+              Tab(
+                child: TextButton(
+                  style: ButtonStyle(
+                    overlayColor: WidgetStateProperty.all(Colors.transparent),
+                  ),
+                  onPressed: _onSignInButtonPress,
+
+                  child: Text(
+                    'param_login'.trArgs(['mobile'.tr]),
+                    style: TextStyle(
+                      color: leftColor,
+                      fontSize: 16.0,
+                      fontFamily: 'WorkSansSemiBold',
+                    ),
+                  ),
+                ),
+              ),
+              Tab(
+                child: TextButton(
+                  style: ButtonStyle(
+                    overlayColor: WidgetStateProperty.all(Colors.transparent),
+                  ),
+                  onPressed: _onSignUpButtonPress,
+                  child: Text(
+                    'param_login'.trArgs(['account'.tr]),
+                    style: TextStyle(
+                      color: rightColor,
+                      fontSize: 16.0,
+                      fontFamily: 'WorkSansSemiBold',
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPageView() {
+    return SizedBox(
+      height: 240, // 适当的高度
+      child: PageView(
+        controller: _pageController,
+        physics: const ClampingScrollPhysics(),
+        onPageChanged: (int i) {
+          FocusScope.of(context).unfocus();
+          setState(() {
+            if (i == 0) {
+              leftColor = Colors.black;
+              leftBgColor = Colors.white;
+              rightColor = Colors.white;
+              rightBgColor = const Color(0x552B2B2B).withAlpha(0);
+            } else {
+              leftColor = Colors.white;
+              leftBgColor = const Color(0x552B2B2B).withAlpha(0);
+              rightColor = Colors.black;
+              rightBgColor = Colors.white;
+            }
+          });
+        },
+        children: const [LoginMobilePage(), LoginAccountPage()],
+      ),
+    );
+  }
+
+  Widget _buildOrDivider() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Container(
+              height: 1,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.white10, Colors.white],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
               ),
             ),
-          ])),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15),
+            child: Text(
+              'Or',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontFamily: 'WorkSansMedium',
+              ),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              height: 1,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.white, Colors.white10],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickLoginButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: ElevatedButton(
+        onPressed: () => logic.loginAuth(false),
+        style: lightGreenButtonStyle(
+          Size(MediaQuery.of(context).size.width - 40, 40),
+        ),
+        child: Text(
+          'mobile_quick_login'.tr,
+          style: const TextStyle(fontSize: 16),
+        ),
+      ),
     );
   }
 
   void _onSignInButtonPress() {
-    _pageController.animateToPage(0,
-        duration: const Duration(milliseconds: 500), curve: Curves.decelerate);
+    _pageController.animateToPage(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.decelerate,
+    );
   }
 
   void _onSignUpButtonPress() {
-    _pageController.animateToPage(1,
-        duration: const Duration(milliseconds: 500), curve: Curves.decelerate);
+    _pageController.animateToPage(
+      1,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.decelerate,
+    );
   }
 
   Widget _createAccountLabel() {
@@ -400,8 +372,7 @@ class LoginPageState extends State<LoginPage>
               fontWeight: FontWeight.w600,
             ),
           ),
-        ])
-          ..mainAxisAlignment = MainAxisAlignment.center,
+        ])..mainAxisAlignment = MainAxisAlignment.center,
       ),
     );
   }
