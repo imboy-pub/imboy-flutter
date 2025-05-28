@@ -1,0 +1,370 @@
+PODS:
+  - AMap3DMap (8.1.0):
+    - AMapFoundation (~> 1.6.9)
+  - amap_flutter_location (0.0.1):
+    - AMapLocation
+    - Flutter
+  - amap_flutter_map (0.0.1):
+    - AMap3DMap (= 8.1.0)
+    - Flutter
+  - AMapFoundation (1.6.9)
+  - AMapLocation (2.8.0):
+    - AMapFoundation (~> 1.6.9)
+  - audio_session (0.0.1):
+    - Flutter
+  - camera_avfoundation (0.0.1):
+    - Flutter
+  - connectivity_plus (0.0.1):
+    - Flutter
+  - device_info_plus (0.0.1):
+    - Flutter
+  - DKImagePickerController/Core (4.3.9):
+    - DKImagePickerController/ImageDataManager
+    - DKImagePickerController/Resource
+  - DKImagePickerController/ImageDataManager (4.3.9)
+  - DKImagePickerController/PhotoGallery (4.3.9):
+    - DKImagePickerController/Core
+    - DKPhotoGallery
+  - DKImagePickerController/Resource (4.3.9)
+  - DKPhotoGallery (0.0.19):
+    - DKPhotoGallery/Core (= 0.0.19)
+    - DKPhotoGallery/Model (= 0.0.19)
+    - DKPhotoGallery/Preview (= 0.0.19)
+    - DKPhotoGallery/Resource (= 0.0.19)
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Core (0.0.19):
+    - DKPhotoGallery/Model
+    - DKPhotoGallery/Preview
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Model (0.0.19):
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Preview (0.0.19):
+    - DKPhotoGallery/Model
+    - DKPhotoGallery/Resource
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Resource (0.0.19):
+    - SDWebImage
+    - SwiftyGif
+  - emoji_picker_flutter (0.0.1):
+    - Flutter
+  - file_picker (0.0.1):
+    - DKImagePickerController/PhotoGallery
+    - Flutter
+  - file_saver (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+  - flutter_native_splash (2.4.3):
+    - Flutter
+  - flutter_secure_storage_darwin (10.0.0):
+    - Flutter
+    - FlutterMacOS
+  - flutter_sound (9.28.0):
+    - Flutter
+    - flutter_sound_core (= 9.28.0)
+  - flutter_sound_core (9.28.0)
+  - flutter_webrtc (0.14.0):
+    - Flutter
+    - WebRTC-SDK (= 125.6422.07)
+  - ic_storage_space (0.1.1):
+    - Flutter
+  - image_crop (0.0.1):
+    - Flutter
+  - image_gallery_saver (2.0.2):
+    - Flutter
+  - image_picker_ios (0.0.1):
+    - Flutter
+  - JCore (5.0.2)
+  - just_audio (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - JVerification (3.2.4):
+    - JCore (>= 2.1.6)
+  - jverify (0.0.1):
+    - Flutter
+    - JCore (>= 4.6.2)
+    - JVerification (= 3.2.4)
+  - libphonenumber_plugin (0.0.1):
+    - Flutter
+    - PhoneNumberKit
+  - local_auth_darwin (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - map_launcher (0.0.1):
+    - Flutter
+  - mobile_scanner (7.0.0):
+    - Flutter
+    - FlutterMacOS
+  - open_file_ios (0.0.1):
+    - Flutter
+  - package_info_plus (0.4.5):
+    - Flutter
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - permission_handler_apple (9.3.0):
+    - Flutter
+  - PhoneNumberKit (3.8.0):
+    - PhoneNumberKit/PhoneNumberKitCore (= 3.8.0)
+    - PhoneNumberKit/UIKit (= 3.8.0)
+  - PhoneNumberKit/PhoneNumberKitCore (3.8.0)
+  - PhoneNumberKit/UIKit (3.8.0):
+    - PhoneNumberKit/PhoneNumberKitCore
+  - photo_manager (3.7.1):
+    - Flutter
+    - FlutterMacOS
+  - r_upgrade (0.0.1):
+    - Flutter
+  - SDWebImage (5.21.0):
+    - SDWebImage/Core (= 5.21.0)
+  - SDWebImage/Core (5.21.0)
+  - sensors_plus (0.0.1):
+    - Flutter
+  - share_plus (0.0.1):
+    - Flutter
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - sqflite_darwin (0.0.4):
+    - Flutter
+    - FlutterMacOS
+  - sqlite3 (3.49.2):
+    - sqlite3/common (= 3.49.2)
+  - sqlite3/common (3.49.2)
+  - sqlite3/dbstatvtab (3.49.2):
+    - sqlite3/common
+  - sqlite3/fts5 (3.49.2):
+    - sqlite3/common
+  - sqlite3/math (3.49.2):
+    - sqlite3/common
+  - sqlite3/perf-threadsafe (3.49.2):
+    - sqlite3/common
+  - sqlite3/rtree (3.49.2):
+    - sqlite3/common
+  - sqlite3_flutter_libs (0.0.1):
+    - Flutter
+    - FlutterMacOS
+    - sqlite3 (~> 3.49.1)
+    - sqlite3/dbstatvtab
+    - sqlite3/fts5
+    - sqlite3/math
+    - sqlite3/perf-threadsafe
+    - sqlite3/rtree
+  - SwiftyGif (5.4.5)
+  - url_launcher_ios (0.0.1):
+    - Flutter
+  - video_compress (0.3.0):
+    - Flutter
+  - video_player_avfoundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - wakelock_plus (0.0.1):
+    - Flutter
+  - WebRTC-SDK (125.6422.07)
+  - webview_flutter_wkwebview (0.0.1):
+    - Flutter
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - amap_flutter_location (from `.symlinks/plugins/amap_flutter_location/ios`)
+  - amap_flutter_map (from `.symlinks/plugins/amap_flutter_map/ios`)
+  - audio_session (from `.symlinks/plugins/audio_session/ios`)
+  - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
+  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
+  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
+  - emoji_picker_flutter (from `.symlinks/plugins/emoji_picker_flutter/ios`)
+  - file_picker (from `.symlinks/plugins/file_picker/ios`)
+  - file_saver (from `.symlinks/plugins/file_saver/ios`)
+  - Flutter (from `Flutter`)
+  - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
+  - flutter_secure_storage_darwin (from `.symlinks/plugins/flutter_secure_storage_darwin/darwin`)
+  - flutter_sound (from `.symlinks/plugins/flutter_sound/ios`)
+  - flutter_webrtc (from `.symlinks/plugins/flutter_webrtc/ios`)
+  - ic_storage_space (from `.symlinks/plugins/ic_storage_space/ios`)
+  - image_crop (from `.symlinks/plugins/image_crop/ios`)
+  - image_gallery_saver (from `.symlinks/plugins/image_gallery_saver/ios`)
+  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - just_audio (from `.symlinks/plugins/just_audio/darwin`)
+  - JVerification
+  - jverify (from `.symlinks/plugins/jverify/ios`)
+  - libphonenumber_plugin (from `.symlinks/plugins/libphonenumber_plugin/ios`)
+  - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
+  - map_launcher (from `.symlinks/plugins/map_launcher/ios`)
+  - mobile_scanner (from `.symlinks/plugins/mobile_scanner/darwin`)
+  - open_file_ios (from `.symlinks/plugins/open_file_ios/ios`)
+  - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+  - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - PhoneNumberKit (~> 3.8.0)
+  - photo_manager (from `.symlinks/plugins/photo_manager/ios`)
+  - r_upgrade (from `.symlinks/plugins/r_upgrade/ios`)
+  - sensors_plus (from `.symlinks/plugins/sensors_plus/ios`)
+  - share_plus (from `.symlinks/plugins/share_plus/ios`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
+  - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/darwin`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+  - video_compress (from `.symlinks/plugins/video_compress/ios`)
+  - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/darwin`)
+  - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
+  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
+
+SPEC REPOS:
+  https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git:
+    - AMap3DMap
+    - AMapFoundation
+    - AMapLocation
+    - DKImagePickerController
+    - DKPhotoGallery
+    - flutter_sound_core
+    - JCore
+    - JVerification
+    - PhoneNumberKit
+    - SDWebImage
+    - sqlite3
+    - SwiftyGif
+    - WebRTC-SDK
+
+EXTERNAL SOURCES:
+  amap_flutter_location:
+    :path: ".symlinks/plugins/amap_flutter_location/ios"
+  amap_flutter_map:
+    :path: ".symlinks/plugins/amap_flutter_map/ios"
+  audio_session:
+    :path: ".symlinks/plugins/audio_session/ios"
+  camera_avfoundation:
+    :path: ".symlinks/plugins/camera_avfoundation/ios"
+  connectivity_plus:
+    :path: ".symlinks/plugins/connectivity_plus/ios"
+  device_info_plus:
+    :path: ".symlinks/plugins/device_info_plus/ios"
+  emoji_picker_flutter:
+    :path: ".symlinks/plugins/emoji_picker_flutter/ios"
+  file_picker:
+    :path: ".symlinks/plugins/file_picker/ios"
+  file_saver:
+    :path: ".symlinks/plugins/file_saver/ios"
+  Flutter:
+    :path: Flutter
+  flutter_native_splash:
+    :path: ".symlinks/plugins/flutter_native_splash/ios"
+  flutter_secure_storage_darwin:
+    :path: ".symlinks/plugins/flutter_secure_storage_darwin/darwin"
+  flutter_sound:
+    :path: ".symlinks/plugins/flutter_sound/ios"
+  flutter_webrtc:
+    :path: ".symlinks/plugins/flutter_webrtc/ios"
+  ic_storage_space:
+    :path: ".symlinks/plugins/ic_storage_space/ios"
+  image_crop:
+    :path: ".symlinks/plugins/image_crop/ios"
+  image_gallery_saver:
+    :path: ".symlinks/plugins/image_gallery_saver/ios"
+  image_picker_ios:
+    :path: ".symlinks/plugins/image_picker_ios/ios"
+  just_audio:
+    :path: ".symlinks/plugins/just_audio/darwin"
+  jverify:
+    :path: ".symlinks/plugins/jverify/ios"
+  libphonenumber_plugin:
+    :path: ".symlinks/plugins/libphonenumber_plugin/ios"
+  local_auth_darwin:
+    :path: ".symlinks/plugins/local_auth_darwin/darwin"
+  map_launcher:
+    :path: ".symlinks/plugins/map_launcher/ios"
+  mobile_scanner:
+    :path: ".symlinks/plugins/mobile_scanner/darwin"
+  open_file_ios:
+    :path: ".symlinks/plugins/open_file_ios/ios"
+  package_info_plus:
+    :path: ".symlinks/plugins/package_info_plus/ios"
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
+  permission_handler_apple:
+    :path: ".symlinks/plugins/permission_handler_apple/ios"
+  photo_manager:
+    :path: ".symlinks/plugins/photo_manager/ios"
+  r_upgrade:
+    :path: ".symlinks/plugins/r_upgrade/ios"
+  sensors_plus:
+    :path: ".symlinks/plugins/sensors_plus/ios"
+  share_plus:
+    :path: ".symlinks/plugins/share_plus/ios"
+  shared_preferences_foundation:
+    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+  sqflite_darwin:
+    :path: ".symlinks/plugins/sqflite_darwin/darwin"
+  sqlite3_flutter_libs:
+    :path: ".symlinks/plugins/sqlite3_flutter_libs/darwin"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
+  video_compress:
+    :path: ".symlinks/plugins/video_compress/ios"
+  video_player_avfoundation:
+    :path: ".symlinks/plugins/video_player_avfoundation/darwin"
+  wakelock_plus:
+    :path: ".symlinks/plugins/wakelock_plus/ios"
+  webview_flutter_wkwebview:
+    :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
+
+SPEC CHECKSUMS:
+  AMap3DMap: 135eaaf64a29aeb2f0bca07670db26fbf3271245
+  amap_flutter_location: f033c983c2d4319203ff7b523775579534d0d557
+  amap_flutter_map: 9076ee1972cca801d737b1b19f7dc1dd68e67588
+  AMapFoundation: 8d8ecbb0b2e9ce5487995360d26c885d94642bfd
+  AMapLocation: 5ef44a1117be7dc541cb7a7d43d03c5ee91e4387
+  audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
+  camera_avfoundation: be3be85408cd4126f250386828e9b1dfa40ab436
+  connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
+  device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
+  DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
+  DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
+  emoji_picker_flutter: ece213fc274bdddefb77d502d33080dc54e616cc
+  file_picker: a0560bc09d61de87f12d246fc47d2119e6ef37be
+  file_saver: 6cdbcddd690cb02b0c1a0c225b37cd805c2bf8b6
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
+  flutter_secure_storage_darwin: ce237a8775b39723566dc72571190a3769d70468
+  flutter_sound: b9236a5875299aaa4cef1690afd2f01d52a3f890
+  flutter_sound_core: 427465f72d07ab8c3edbe8ffdde709ddacd3763c
+  flutter_webrtc: fd0d3bdef8766a0736dbbe2e5b7e85f1f3c52117
+  ic_storage_space: d2c12892dec7eabbf6757df81e72539a16aa7dc6
+  image_crop: d83cf4373d8a94b985477cb57af0a050274a9c8c
+  image_gallery_saver: 14711d79da40581063e8842a11acf1969d781ed7
+  image_picker_ios: 7fe1ff8e34c1790d6fff70a32484959f563a928a
+  JCore: 3effa468af29935edb53e6460ef81fd3c03ee1a8
+  just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
+  JVerification: 0774807f44dd788c78d50303a14e133735807856
+  jverify: 59d8e9a5835616c1deed9cf67dbd9679aa1ca244
+  libphonenumber_plugin: a9fa13d009da249b397e3184a2bfe71202adc522
+  local_auth_darwin: 553ce4f9b16d3fdfeafce9cf042e7c9f77c1c391
+  map_launcher: fe43bda6720bb73c12fcc1bdd86123ff49a4d4d6
+  mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93
+  open_file_ios: 5ff7526df64e4394b4fe207636b67a95e83078bb
+  package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
+  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
+  permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
+  PhoneNumberKit: ec00ab8cef5342c1dc49fadb99d23fa7e66cf0ef
+  photo_manager: 1d80ae07a89a67dfbcae95953a1e5a24af7c3e62
+  r_upgrade: 5c37115e210f79501aa194b0146f7c1866c39e8c
+  SDWebImage: f84b0feeb08d2d11e6a9b843cb06d75ebf5b8868
+  sensors_plus: 6a11ed0c2e1d0bd0b20b4029d3bad27d96e0c65b
+  share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
+  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
+  sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
+  sqlite3: 3c950dc86011117c307eb0b28c4a7bb449dce9f1
+  sqlite3_flutter_libs: f6acaa2172e6bb3e2e70c771661905080e8ebcf2
+  SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
+  url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
+  video_compress: f2133a07762889d67f0711ac831faa26f956980e
+  video_player_avfoundation: 2cef49524dd1f16c5300b9cd6efd9611ce03639b
+  wakelock_plus: e29112ab3ef0b318e58cfa5c32326458be66b556
+  WebRTC-SDK: dff00a3892bc570b6014e046297782084071657e
+  webview_flutter_wkwebview: 1821ceac936eba6f7984d89a9f3bcb4dea99ebb2
+
+PODFILE CHECKSUM: 086a662e9535e1d71c6189e03dc8ac2c17182f05
+
+COCOAPODS: 1.16.2

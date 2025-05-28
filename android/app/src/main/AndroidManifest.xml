@@ -1,130 +1,64 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="pub.imboy.apk">
-    <uses-permission
-        android:name="android.permission.PACKAGE_USAGE_STATS"/>
-    <uses-permission
-        android:name="android.permission.GET_PACKAGE_SIZE"/>
-    <!--(如果需要上架到google store ,不能添加这个权限 , 也无法使用应用内更新功能)-->
-    <uses-permission
-        android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
-    <!--(静默安装需要添加这个权限，并且需要系统应用-->
-    <uses-permission
-        android:name="android.permission.INSTALL_PACKAGES"/>
-    <!--允许访问网络，必选权限-->
-    <uses-permission
-        android:name="android.permission.INTERNET"/>
-    <uses-permission
-        android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission
-        android:name="android.permission.FOREGROUND_SERVICE"/>
-    <!-- foregroundServiceType: dataSync -->
-    <uses-permission
-        android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
-    <!-- foregroundServiceType: remoteMessaging -->
-    <uses-permission
-        android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING"/>
-    <!-- Warning: Do not change service name. -->
-    <!-- <service
-        android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
-        android:foregroundServiceType="dataSync|remoteMessaging"
-        android:exported="false" /> -->
-    <!--后台获取位置信息，若需后台定位则必选-->
-    <uses-permission
-        android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
-    <uses-permission
-        android:name="android.permission.ACCESS_MEDIA_LOCATION"/>
-    <!--允许读设备等信息，用于问题排查-->
-    <uses-permission
-        android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <!--允许写入扩展存储，用于写入缓存定位数据-->
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission
-        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
-    <uses-permission
-        android:name="android.permission.GET_COMMON_DATA"/>
-    <!--允许获取精确位置，精准定位必选-->
-    <uses-permission
-        android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <!--允许获取粗略位置，粗略定位必选-->
-    <uses-permission
-        android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <!--允许获取设备和运营商信息，用于问题排查和网络定位（无gps情况下的定位），若需网络定位功能则必选-->
-    <uses-permission
-        android:name="android.permission.READ_PHONE_STATE"/>
-    <!--允许获取网络状态，用于网络定位（无gps情况下的定位），若需网络定位功能则必选-->
-    <uses-permission
-        android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <!--允许获取wifi网络信息，用于网络定位（无gps情况下的定位），若需网络定位功能则必选-->
-    <uses-permission
-        android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <!--允许获取wifi状态改变，用于网络定位（无gps情况下的定位），若需网络定位功能则必选-->
-    <uses-permission
-        android:name="android.permission.CHANGE_WIFI_STATE"/>
-    <!--用于申请调用A-GPS模块,卫星定位加速-->
-    <uses-permission
-        android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"/>
-    <!--允许写设备缓存，用于问题排查-->
-    <uses-permission
-        android:name="android.permission.WRITE_SETTINGS"/>
-    <uses-feature
-        android:name="android.hardware.camera"/>
-    <uses-feature
-        android:name="android.hardware.camera.autofocus"/>
-    <uses-permission
-        android:name="android.permission.CAMERA"/>
-    <uses-permission
-        android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission
-        android:name="android.permission.CHANGE_NETWORK_STATE"/>
-    <uses-permission
-        android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
-    <!--用于申请获取蓝牙信息进行室内定位-->
-    <uses-permission
-        android:name="android.permission.BLUETOOTH"/>
-    <uses-permission
-        android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <uses-permission
-        android:name="android.permission.BLUETOOTH_CONNECT"/>
-    <!--huawei_permission_start-->
-    <uses-permission
-        android:name="com.huawei.android.launcher.permission.CHANGE_BADGE"/>
-    <!--huawei_permission_end-->
+
+    <!-- 核心权限 -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+    <!-- Android 10+ Scoped Storage -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
+
+    <!-- Android 11+ Foreground service types -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING"/>
+
+    <!-- 定位相关权限 -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"/>
+
+    <!-- 推送/通知权限 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <!-- 安装 APK 权限（系统应用/非 Google Play） -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES" tools:node="remove" />
+    <uses-permission android:name="android.permission.GET_PACKAGE_SIZE"/>
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"/>
+
+    <!-- 蓝牙权限 -->
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+
+    <!-- 厂商扩展 -->
+    <uses-permission android:name="com.huawei.android.launcher.permission.CHANGE_BADGE"/>
+
+    <uses-feature android:name="android.hardware.camera"/>
+    <uses-feature android:name="android.hardware.camera.autofocus"/>
+
     <application
         android:label="IMBoy"
-        android:name="androidx.multidex.MultiDexApplication"
-        android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="true"
-        android:networkSecurityConfig="@xml/network_security_config"
-        android:requestLegacyExternalStorage="true"
-        android:allowBackup="true"
-        android:hardwareAccelerated="true"
-        tools:replace="android:icon, android:label">
-        <!-- 极光服务 SDK 一键接入指南 Required -->
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
         <activity
-            android:name="com.cmic.sso.sdk.activity.LoginAuthActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:launchMode="singleTop"
-            android:theme="@style/ActivityDialogStyle"/>
-        <!-- Required -->
-        <activity
-            android:name="cn.jiguang.verifysdk.CtLoginActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:launchMode="singleTop"
-            android:screenOrientation="unspecified"
-            android:theme="@style/ActivityDialogStyle"/>
-        <!-- Required -->
-        <activity
-            android:exported="true"
             android:name=".MainActivity"
+            android:exported="true"
             android:launchMode="singleTop"
+            android:taskAffinity=""
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-            android:showWhenLocked="true"
-            android:turnScreenOn="true"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
             <!-- Specifies an Android theme to apply to this Activity as soon as
@@ -132,116 +66,82 @@
                  while the Flutter UI initializes. After that, this theme continues
                  to determine the Window background behind the Flutter UI. -->
             <meta-data
-                android:name="io.flutter.embedding.android.NormalTheme"
-                android:resource="@style/NormalTheme"/>
-            <!-- Displays an Android View that continues showing the launch screen
-                 Drawable until Flutter paints its first frame, then this splash
-                 screen fades out. A splash screen is useful to avoid any visual
-                 gap between the end of Android's launch screen and the painting of
-                 Flutter's first frame. -->
-            <meta-data
-                android:name="io.flutter.embedding.android.SplashScreenDrawable"
-                android:resource="@drawable/launch_background"/>
-            <meta-data
-                android:name="io.flutter.app.android.SplashScreenUntilFirstFrame"
-                android:value="true"/>
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <!-- Deep Links -->
+
+
+            <!-- Deep Link -->
             <intent-filter>
-                <action
-                    android:name="android.intent.action.VIEW"/>
-                <category
-                    android:name="android.intent.category.DEFAULT"/>
-                <category
-                    android:name="android.intent.category.BROWSABLE"/>
-                <!-- Accepts URIs that begin with YOUR_SCHEME://YOUR_HOST -->
-                <data
-                    android:scheme="imboy"
-                    android:host="imboy.pub"/>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="imboy" android:host="imboy.pub"/>
             </intent-filter>
-            <!-- App Links -->
-            <intent-filter
-                android:autoVerify="true">
-                <action
-                    android:name="android.intent.action.VIEW"/>
-                <category
-                    android:name="android.intent.category.DEFAULT"/>
-                <category
-                    android:name="android.intent.category.BROWSABLE"/>
-                <!-- Accepts URIs that begin with https://YOUR_HOST -->
-                <data
-                    android:scheme="https"
-                    android:host="imboy.pub"/>
+
+            <!-- App Link -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="imboy.pub"/>
             </intent-filter>
-            <!-- Scheme+host+pathPrefix filter -->
+
+            <!-- Scheme+pathPrefix -->
             <intent-filter>
-                <action
-                    android:name="android.intent.action.VIEW"/>
-                <category
-                    android:name="android.intent.category.DEFAULT"/>
-                <category
-                    android:name="android.intent.category.BROWSABLE"/>
-                <data
-                    android:scheme="imboy"
-                    android:host="imboy.pub"
-                    android:pathPrefix="/"/>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="imboy" android:host="imboy.pub" android:pathPrefix="/"/>
             </intent-filter>
-            <!-- Scheme-only filter -->
+
+            <!-- Scheme-only -->
             <intent-filter>
-                <action
-                    android:name="android.intent.action.VIEW"/>
-                <category
-                    android:name="android.intent.category.DEFAULT"/>
-                <category
-                    android:name="android.intent.category.BROWSABLE"/>
-                <data
-                    android:scheme="imboy"/>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="imboy"/>
             </intent-filter>
+
         </activity>
+        <!-- Plugin 注册 -->
+        <meta-data android:name="flutterEmbedding" android:value="2"/>
+
+        <!-- 高德定位服务 -->
+        <service android:name="com.amap.api.location.APSService"/>
+
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
             android:name="flutterEmbedding"
-            android:value="2"/>
-        <!-- 高德定位Service -->
-        <service
-            android:name="com.amap.api.location.APSService"/>
-        <!-- https://firebase.google.com/docs/cloud-messaging/flutter/client?hl=zh-cn&authuser=0  -->
-        <!-- 停用 Analytics 数据收集和 FCM 自动初始化功能
-            防止自动初始化，此值一经设置便会持久保存，不受应用重启的影响。
-            await FirebaseMessaging.instance.setAutoInitEnabled(true);
-        -->
-        <meta-data
-            android:name="firebase_messaging_auto_init_enabled"
-            android:value="false"/>
-        <meta-data
-            android:name="firebase_analytics_collection_enabled"
-            android:value="false"/>
+            android:value="2" />
     </application>
+    <!-- Required to query activities that can process text, see:
+         https://developer.android.com/training/package-visibility and
+         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
+
+         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    <!-- 用于动态查询其他 app 能力 -->
     <queries>
-        <!-- If your app opens https URLs -->
         <intent>
-            <action
-                android:name="android.intent.action.VIEW"/>
-            <data
-                android:scheme="https"/>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
         </intent>
-        <!-- If your app checks for SMS support -->
         <intent>
-            <action
-                android:name="android.intent.action.VIEW"/>
-            <data
-                android:scheme="sms"/>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="sms"/>
         </intent>
-        <!-- If your app checks for call support -->
         <intent>
-            <action
-                android:name="android.intent.action.VIEW"/>
-            <data
-                android:scheme="tel"/>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="tel"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
         </intent>
     </queries>
 </manifest>

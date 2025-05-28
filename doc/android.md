@@ -17,6 +17,33 @@ IMBOYENV=pro && flutter build apk --release \
       --split-per-abi \
       -t lib/main.dart
 
+rm -rf ~/.gradle/caches/ && rm -rf ~/.flutter && ./gradlew --refresh-dependencies && ./gradlew build --stacktrace
+
+./gradlew --stop
+
+flutter build apk --release --verbose
+
+flutter create --platforms android .
+
+
+cd android
+清除旧的构建缓存
+./gradlew clean
+
+构建 Debug APK
+./gradlew assembleDebug
+
+构建 Release APK（需签名）
+
+./gradlew assembleRelease
+
+你需要重新生成本地 Flutter 的 .aar 缓存。
+flutter precache --android --force
+
+为 JDK 17 创建系统链接
+sudo ln -sfn /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
+
+
 ```
 
 

@@ -12,7 +12,7 @@ import emoji_picker_flutter
 import file_picker
 import file_saver
 import file_selector_macos
-import flutter_secure_storage_macos
+import flutter_secure_storage_darwin
 import flutter_webrtc
 import ic_storage_space
 import just_audio
@@ -40,7 +40,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FilePickerPlugin.register(with: registry.registrar(forPlugin: "FilePickerPlugin"))
   FileSaverPlugin.register(with: registry.registrar(forPlugin: "FileSaverPlugin"))
   FileSelectorPlugin.register(with: registry.registrar(forPlugin: "FileSelectorPlugin"))
-  FlutterSecureStoragePlugin.register(with: registry.registrar(forPlugin: "FlutterSecureStoragePlugin"))
+  FlutterSecureStorageDarwinPlugin.register(with: registry.registrar(forPlugin: "FlutterSecureStorageDarwinPlugin"))
   FlutterWebRTCPlugin.register(with: registry.registrar(forPlugin: "FlutterWebRTCPlugin"))
   IcStorageSpacePlugin.register(with: registry.registrar(forPlugin: "IcStorageSpacePlugin"))
   JustAudioPlugin.register(with: registry.registrar(forPlugin: "JustAudioPlugin"))

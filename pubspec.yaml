@@ -1,466 +1,269 @@
 name: imboy
 description: A new Flutter project for IM.
-
 # The following line prevents the package from being accidentally published to
-# pub.dev using `pub publish`. This is preferred for private packages.
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
 version: 0.6.1
 
 environment:
-  sdk: ">=3.0.0 <=4.0.0"
+  sdk: ^3.8.0
 
 dependencies:
   flutter:
     sdk: flutter
 
-  # Network
-  dio: ^5.8.0+1 # 网络请求框架
-  dio_http2_adapter: ^2.6.0
-  web_socket_channel: ^3.0.3
-  mime: ^2.0.0
-  connectivity_plus: ^6.1.4 # 是否联网及网络类型
-
-  # UI
-  # 从实用程序 Widget 和带有点级联的扩展中构建 Flutter UI。流畅地开发，没有头痛和嵌套地狱。
-  niku: ^2.4.3
-    #niku:
-    # path: plugin/niku
-    # git:
-  #   url: https://gitee.com/imboy-tripartite-deps/niku.git
-  #   ref: main
-  cupertino_icons: ^1.0.8 # Use with the CupertinoIcons class for iOS style icons.
-  lpinyin: ^2.0.3 #
-  #azlistview: ^2.0.3
-  #azlistview_plus: ^3.0.0
-  azlistview:
-    #path: plugin/azlistview
-    git:
-        url: https://gitee.com/imboy-tripartite-deps/azlistview.git
-        ref: leeyi
-
-  #get: ^4.6.6 # getx 状态管理框架
+  ##############################################
+  # Core Flutter & UI Framework
+  ##############################################
+  cupertino_icons: ^1.0.8 # iOS style icons
+  niku: ^2.4.3            # Utility widgets for cleaner UI code
+  flutter_screenutil: ^5.9.3 # Screen adaptation
+  flutter_animate: ^4.5.2  # Animation library
+  octo_image: ^2.1.0      # 多功能 Flutter 图像小部件
+  flutter_svg: ^2.1.0     # SVG rendering
+  dotted_border: ^3.0.1   # Custom border styles
+  flutter_spinkit: ^5.2.1  # Loading animations
+  flutter_easyloading: ^3.0.5 # Toast/loading widgets
+  flutter_native_splash: ^2.4.6 # Splash screen generation
+  fps_monitor: ^2.0.0     # Performance monitoring
   get: ^5.0.0-release-candidate-9.3.2
-  #get:
-  #  #path: plugin/getx
-  #  git:
-  #    url: https://gitee.com/imboy-tripartite-deps/getx.git
-  #      ref: master
 
-  url_launcher: ^6.3.0 # 打开url 拨打电话 发短信
-  # https://juejin.cn/post/6869291513508659213
-  webview_flutter: ^4.11.0 # Show web page (CGU)
-  #flutter_inappwebview: ^6.0.0 # 它允许你将WebView小部件整合到你的Flutter应用中，使用无头WebViews，或者使用In-App浏览器。
+  ##############################################
+  # Network & Web
+  ##############################################
+  dio: ^5.8.0+1           # HTTP client
+  dio_http2_adapter: ^2.6.0 # HTTP/2 support
+  web_socket_channel: ^3.0.3 # WebSocket support
+  http: ^1.3.0            # Additional HTTP utilities
+  connectivity_plus: ^6.1.4 # Network status
+  webview_flutter: ^4.13.0 # WebView integration
+  url_launcher: ^6.3.0    # URL handling
+  mime: ^2.0.0            # MIME type handling
 
-  qr_flutter: ^4.1.0 # 二维码生成
+  ##############################################
+  # Data & Storage
+  ##############################################
+  shared_preferences: ^2.5.3 # Local storage
+  flutter_secure_storage: ^9.2.4 # Secure storage
+  sqflite: ^2.4.2         # SQLite database
+  sqflite_common_ffi: ^2.3.5 # SQLite FFI support
+  sqlite3_flutter_libs: ^0.5.33 # SQLite libraries
+  cached_network_image: ^3.4.1 # Image caching
+  flutter_cache_manager: ^3.4.1 # Cache management
+  pointycastle: ^4.0.0    # Cryptography
 
-  event_bus: ^2.0.1
-  jose: ^0.3.4 # jwt 插件
-  encrypt: ^5.0.3 # 一组基于 PointyCastle 的高级 API，用于双向加密。 RSA AES
-  # 在纯 Dart 中实现的一组加密函数。  SHA-* MD5 HMAC
-  # crypto: ^3.0.2
-  # Flutter 开发者的密码学：加密、数字签名、密钥协议等。
-  # AES, Chacha20, ED25519, X25519, and more. Web Crypto support.
-  # https://github.com/dint-dev/cryptography
-  # cryptography: ^2.0.5
-  # cryptography_flutter: ^2.0.2
-  # e2ee
-  #webcrypto: ^0.5.2
-  #json序列化和反序列化用的
-  #json_annotation: ^4.8.1
-  permission_handler: ^12.0.0+1
-  permission_handler_apple: ^9.4.7
-  permission_handler_android: ^13.0.1
-  permission_handler_platform_interface: ^4.3.0
-    #any permission_handler:
-    #  git:
-    #    url: https://gitee.com/imboy-tripartite-deps/flutter-permission-handler.git
-    #    path: permission_handler
-    #    tag: permission_handler_android_v10.2.1
-  #ref: master
-  # 缓存
-  shared_preferences: ^2.5.3
-  #  Flutter Secure Storage 提供 API 将数据存储在安全存储中。iOS 中使用 Keychain，Android 中使用基于 KeyStore 的解决方案。
-  flutter_secure_storage: ^9.2.4
-  cached_network_image: ^3.4.1
-  flutter_cache_manager: ^3.4.1
-  # 一个支持通过 Keychain 和 Keystore 支持字符串安全存储的 Flutter 插件
-#  flutter_keychain: ^2.5.0
-  #  flutter_keychain:
-  #    path: plugin/flutter_keychain
-  # 一个实现加密算法和原语的 Dart 库
-  pointycastle: ^4.0.0
-
-  camera: ^0.11.1
-  #wechat_camera_picker: ^4.2.0-dev.3
-  wechat_camera_picker: ^4.3.7
-  wechat_assets_picker: ^9.5.0
-  # Photo View provides a gesture sensitive zoomable widget. Photo View is largely used to show interactive images and other stuff such as SVG.
-  photo_view: ^0.15.0 #
-  # 照片管理器
-  photo_manager: ^3.6.4
-  # Flutter视频处理之光库。压缩视频、删除音频、从 dart 代码获取视频缩略图。
-  video_compress: ^3.1.4
-  # 用于获取主机平台文件系统上常用位置的 Flutter 插件，例如临时和应用程序数据目录。
-  path_provider: ^2.1.5
-  image_picker: ^1.1.2
-  image_picker_macos: ^0.2.1+2
-  image_picker_platform_interface: ^2.10.1
-  file_picker: ^10.1.2
-  open_file: ^3.5.10
-  # image_crop: ^0.4.1
-  image_crop:
-    #path: plugin/image_crop
+  ##############################################
+  # Media & Camera
+  ##############################################
+  camera: ^0.11.1         # Camera access
+  wechat_camera_picker: ^4.3.7 # Camera picker
+  wechat_assets_picker: ^9.5.1 # Asset picker
+  photo_view: ^0.15.0     # Interactive image viewer
+  photo_manager: ^3.7.1   # Media management
+  video_compress: ^3.1.4  # Video compression
+  image_picker: ^1.1.2    # Image picker
+  file_picker: ^10.1.9    # File picker
+  open_file: ^3.5.10      # File opening
+  image_crop:             # Image cropping
     git:
       url: https://gitee.com/imboy-tripartite-deps/image_crop.git
       ref: leeyi
-  #
-  image: ^4.5.4
-
-  logger: ^2.5.0
-  #sentry_flutter: ^7.18.0
-
-  # 用于访问加速度计、陀螺仪和磁力计传感器的 Flutter 插件。
-  sensors_plus: ^6.1.1
-  flutter_screenutil: ^5.9.3
-  # 页面刷新
-  easy_refresh: ^3.4.0
-  # https://github.com/letsar/flutter_slidjable
-  flutter_slidable: ^4.0.0
-  # 消息提醒的红点效果
-  badges: ^3.1.2
-  # 聊天气泡
-  bubble: ^1.2.1
-  # 全球唯一 ID 生成器
-  xid: ^1.2.1
-  # 一个能在 profile/debug 模式下，直观帮助我们评估页面流畅度的工具
-  fps_monitor: ^2.0.0
-  # 时间处理
-  jiffy: ^6.4.3
-  # 用于校正本地系统与时钟源服务器之前的时间
-  ntp: ^2.0.0
-  # Flutter 的表情符号选择器
-  emoji_picker_flutter: ^4.3.0
-  # 轮播滑块小部件
-  carousel_slider_plus: ^7.1.0
-
-  # 具有登录/注册功能的登录小部件，有助于加快开发速度
-  #flutter_login: ^5.0.0
-  #flutter_login:
-  #  path: plugin/flutter_login
-  # 进度条
-  #percent_indicator: ^4.2.3
-  # 一个干净和轻量级的加载/吐司小部件
-  flutter_easyloading: ^3.0.5
-  # 生成闪屏页
-  flutter_native_splash: ^2.4.6
-  feedback: ^3.1.0
-  flutter_chat_ui: 1.6.15
-  #flutter_chat_types: ^3.6.2
-  #cross_cache: ^0.0.7
-  #flutter_chat_core: ^0.0.7
-  #flutter_chat_ui: ^2.0.0-dev.6
-  #flyer_chat_audio_message: ^0.0.7
-  #flyer_chat_custom_message: ^0.0.7
-  #flyer_chat_file_message: ^0.0.7
-  #flyer_chat_image_message: ^0.0.7
-  #flyer_chat_location_message: ^0.0.7
-  #flyer_chat_system_message: ^0.0.7
-  #flyer_chat_text_message: ^0.0.7
-  #flyer_chat_video_message: ^0.0.7
-  #flutter_chat_ui:
-  #  path: plugin/flutter_chat_ui/packages/flutter_chat_ui
-  #  git:
-  #    url: https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git
-  #    ref: leeyi
-
-  # Flutter 的弹出窗口。弹出窗口是一种瞬态视图，当您点击某个控件或某个区域时，它会出现在屏幕上其他内容的上方。
-  popover: ^0.3.1
-  popup_menu: ^2.1.0
-  #popup_menu:
-  #  git:
-  #    url: https://gitee.com/imboy-tripartite-deps/popup_menu.git
-  #    ref: master
-  # 二维码扫描
-  mobile_scanner: ^7.0.0
-  #  mobile_scanner: ^4.0.1
-  #  mobile_scanner:
-  #    git:
-  #      url: https://gitee.com/imboy-tripartite-deps/mobile_scanner.git
-  #      ref: master
-  # 将图像保存到图库的 flutter 插件
-  #image_gallery_saver: ^2.0.2
-  image_gallery_saver:
-    #path: plugin/image_gallery_saver
+  image: ^4.5.4           # Image manipulation
+  image_gallery_saver:    # Save to gallery
     git:
       url: https://gitee.com/imboy-tripartite-deps/image_gallery_saver.git
       ref: leeyi
+  video_player: ^2.9.5    # Video playback
 
-  # SQLite 的 Flutter 插件，一个独立的、高可靠性的嵌入式 SQL 数据库引擎。
-  sqflite: ^2.4.2
-  sqflite_common_ffi: ^2.3.5
-  #  json1 扩展至少需要 SQLite 3.38.0 (2021-02-09) (https://www.sqlite.org/json1.html)
-  sqlite3_flutter_libs: ^0.5.32
-  #sqlcipher_flutter_libs: ^0.6.4
-  #sqlite3: ^2.4.6
-  #sqflite_sqlcipher: ^3.1.0+1
+  ##############################################
+  # Audio
+  ##############################################
+  flutter_sound: ^9.28.0  # Audio recording/playback
+  audio_session: ^0.2.2   # Audio session management
+  voice_message_package: ^2.2.1 # Voice message player
+  flutter_webrtc: ^0.14.1 # WebRTC for audio/video calls
 
-  # 一个跨平台插件，用于显示和安排 Flutter 应用程序的本地通知，并能够针对每个平台进行自定义。
-  #flutter_local_notifications: ^17.2.2
-  #桌面图标提醒
-  #flutter_app_badger: ^1.5.0
-  # 录音
-  #record: ^5.1.2
-  flutter_sound_platform_interface: ^10.3.0
-  flutter_sound: ^9.28.0
-  #  flutter_sound:
-  #    #path: plugin/flutter_sound/flutter_sound
-  #    git:
-  #      url: https://gitee.com/imboy-tripartite-deps/flutter_sound.git
-  #      ref: leeyi
-  #      path: flutter_sound
-  audio_session: ^0.2.1
+  ##############################################
+  # Chat & Messaging
+  ##############################################
+  flutter_chat_ui: 1.6.15 # Chat UI components
+  bubble: ^1.2.1          # Chat bubbles
+  emoji_picker_flutter: ^4.3.0 # Emoji picker
+  highlight_text: ^1.8.0  # Text highlighting
+  flutter_markdown: ^0.7.7 # Markdown rendering
 
-  # 语音消息播放器
-  voice_message_package: ^2.2.1
-  #  voice_message_package:
-  #    #  path: plugin/voice_message_package
-  #    git:
-  #      url: https://gitee.com/imboy-tripartite-deps/voice_message_player.git
-  #      ref: leeyi
-  # 一对一音视频通话等
-  flutter_webrtc: ^0.13.1+hotfix.1
-  #flutter_webrtc: 0.13.2
-  #  flutter_webrtc: 0.9.47
-#  flutter_webrtc:
-#    path: plugin/flutter-webrtc
-  #flutter_callkit_incoming:^2.0.4+2
-  #    git:
-  #      url: https://gitee.com/imboy-tripartite-deps/flutter-webrtc.git
-  #      ref: main
-  # 可滚动小部件的固定/可变行高提供了滚动到索引的机制
-  #scroll_to_index: ^3.0.1
-  scroll_to_index:
-    #path: plugin/scroll_to_index
+  ##############################################
+  # Lists & Navigation
+  ##############################################
+  azlistview:             # Alphabetical list view
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/azlistview.git
+      ref: leeyi
+  easy_refresh: ^3.4.0    # Pull-to-refresh
+  flutter_slidable: ^4.0.0 # Slidable list items
+  scroll_to_index:        # Scroll to index
     git:
       url: https://github.com/quire-io/scroll-to-index.git
-      #url: https://gitee.com/imboy-tripartite-deps/scroll-to-index_scroll_with_keep_alives_fix.git
-      #ref: scroll_with_keep_alives_fix
-  # 封装了基本的图形样式，矩形、圆角矩形、圆形、椭圆形，以及自定义虚线框
-  dotted_border: ^2.1.0
-  # 提供了一个Clock类，它封装了“当前时间”的概念，并提供了对相对于当前时间的点的简单访问
-  clock: ^1.1.2
-  # 用于 HTTP 请求的可组合、多平台、基于Future的 API。
-  http: ^1.3.0
-  device_info_plus: ^11.4.0
-  package_info_plus: ^8.3.0
-  # Flutter 的 Markdown 渲染器
-  flutter_markdown: ^0.7.7
-  # 滑动吸顶
-  sliding_up_panel: ^2.0.0+1
-  # 用于 Flutter 的 SVG 渲染和小部件库，允许绘制和显示可缩放矢量图形 1.1 文件。
-  flutter_svg: ^2.1.0
-  # 动画效果
-  flutter_animate: ^4.5.2
-  # dart 对象比较
-  equatable: ^2.0.7
-  # 用于查找设备上安装的可用地图并使用标记启动它们或显示方向。
-  map_launcher: ^3.5.0
-  # 基础的点击
-  tapped: ^2.0.0
-  # map取值
-  safemap: ^2.1.0
-  # 加载动画库
-  flutter_spinkit: ^5.2.1
-  # 视频播放器插件
-  video_player: ^2.9.5
-  # video_player的插件，支持所有桌面/移动平台。硬件解码器，最佳渲染。通过 FFmpeg 支持大多数格式
-  #  fvp: ^0.23.0
-  #  fvp:
-  #    git:
-  #      url: https://gitee.com/imboy-tripartite-deps/fvp.git
-  #      ref: master
-  # 标签编辑框
-  textfield_tags: ^3.0.1
-  #filter_list: ^1.0.2
-  #filter_list:
-  #  path: plugin/flutter_plugin_filter_list
-  # 标签列表
-  filter_list:
+  sliding_up_panel: ^2.0.0+1 # Sliding panels
+  buttons_tabbar: ^1.3.15 # Tab bar
+
+  ##############################################
+  # Maps & Location
+  ##############################################
+  amap_flutter_base: ^3.0.0 # AMap base
+  amap_flutter_location: ^3.0.0 # AMap location
+  amap_flutter_map: ^3.0.0 # AMap maps
+  map_launcher: ^3.5.0    # Map apps launcher
+
+  ##############################################
+  # QR Code
+  ##############################################
+  qr_flutter: ^4.1.0      # QR code generation
+  mobile_scanner: ^7.0.0  # QR code scanning
+
+  ##############################################
+  # Utilities
+  ##############################################
+  logger: ^2.5.0          # Logging
+  event_bus: ^2.0.1       # Event bus
+  jose: ^0.3.4            # JWT handling
+  encrypt: ^5.0.3         # Encryption
+  permission_handler: ^12.0.0+1 # Permissions
+  path_provider: ^2.1.5   # File system paths
+  xid: ^1.2.1             # Unique ID generation
+  jiffy: ^6.4.3           # Date/time handling
+  ntp: ^2.0.0             # Network time protocol
+  clock: ^1.1.2           # Time utilities
+  equatable: ^2.0.7       # Object equality
+  safemap: ^2.1.0         # Safe map access
+  synchronized: ^3.3.1    # Synchronization
+  share_plus: ^11.0.0     # Sharing
+  wakelock_plus: ^1.3.2   # Keep screen awake
+  drag_ball: ^2.0.1       # Assistive touch ball
+  r_upgrade:              # App upgrade
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/r_upgrade.git
+      ref: leeyi
+  ic_storage_space:       # Storage space info
+    path: plugin/ic_storage_space
+  nine_grid_view: ^2.0.0  # 9-grid view
+  badges: ^3.1.2          # Badge indicators
+  carousel_slider_plus: ^7.1.0 # Carousel slider
+  textfield_tags: ^3.0.1  # Tag input field
+  flutter_rating_bar: ^4.0.1
+  filter_list:            # Filterable lists
     git:
       url: https://gitee.com/imboy-tripartite-deps/flutter_plugin_filter_list.git
       ref: leeyi
 
-  # 高德地图
-  #amap_flutter_base: ^3.0.0
-  amap_flutter_base:
-    git:
-      # url: https://github.com/IAMSUPERMONKEY/amap_flutter_base.git
-      url: https://gitee.com/imboy-tripartite-deps/amap_flutter_base.git
-      ref: main
-  #amap_flutter_location: ^3.0.0
-  #amap_flutter_map: ^3.0.0
-#  amap_flutter_location:
-#    git:
-#      #url: https://github.com/xia-weiyang/flutter_amap_location.git
-#      url: https://gitee.com/imboy-tripartite-deps/flutter_amap_location.git
-#      ref: leeyi
-  amap_flutter_location:
-    path: plugin/amap_flutter_location
-  amap_flutter_map:
-    path: plugin/amap_flutter_map
-
-  # Flutter 插件，可让您在 Android、iOS、macOS、Windows 和 Web 上保持设备屏幕处于唤醒状态。
-  wakelock_plus: ^1.3.2
-  # 类似于 Iphone 上的 AssistiveTouch 的 Flutter 包。
-  drag_ball: ^2.0.1
-  # Flutter应用升级/ Flutter App Upgrade /Flutter App Update/Flutter Update / 下载插件（有提示栏进度），支持全量升级、热更新和增量升级
-  #r_upgrade: ^0.4.2
-  r_upgrade:
-    #path: plugin/r_upgrade
-    git:
-      url: https://gitee.com/imboy-tripartite-deps/r_upgrade.git
-      ref: leeyi
-  flutter_rating_bar: ^4.0.1
-  octo_image: ^2.1.0 # 多功能 Flutter 图像小部件
-
-  # 通过 RTMP 用于相机和麦克风流媒体库的 Flutter 插件。
-  # haishin_kit: ^0.11.1
-  #flutter_whip: ^0.5.5
-  # 允许跨多个平台处理文件的抽象。
-  cross_file: ^0.3.4+2
-  # Dart 包用于解码 TIFF、JPEG、HEIC、PNG 和 WebP 文件中的 Exif 数据。
-  #exif: ^3.3.0
-  # Get the information about free and total disk space for you device. It is an update to the disk_space plugin.
-  #disk_space_plus: ^0.2.3
-  #ic_storage_space: ^0.0.2
-  ic_storage_space:
-    path: plugin/ic_storage_space
-    #git:
-    #  url: https://gitee.com/imboy-tripartite-deps/IcStorageSpace.git
-    #  ref: leeyi
-  nine_grid_view: ^2.0.0
-  synchronized: ^3.3.1
-  share_plus: ^11.0.0
-  highlight_text: ^1.8.0
+  ##############################################
+  # Authentication & Security
+  ##############################################
   envied: ^1.1.1
-
-  #dropdown_button2: ^3.0.0-beta.16
-
-  #jverify: ^3.0.0
-  jverify:
+  local_auth: ^2.3.0      # Local authentication
+  pin_code_fields: ^8.0.1 # PIN code input
+  intl_phone_number_input: ^0.7.4 # Phone number input
+  jverify:                # JVerification
     path: plugin/jverify
-  #    git:
-  #      url: https://gitee.com/imboy-tripartite-deps/jverify.git
-  #      ref: leeyi
-  local_auth: ^2.3.0
-  pin_code_fields: ^8.0.1
-  intl_phone_number_input: ^0.7.4
-  file_saver: ^0.2.14
-  buttons_tabbar: ^1.3.15
-  #flutter_gemini: ^3.0.0
-  #appflowy_editor: ^5.2.0
-#  isar: ^4.0.0-dev.14
-#  isar_flutter_libs: ^4.0.0-dev.14
-#  freezed_annotation: ^2.4.4
-#  json_annotation: ^4.9.0
-#  freezed: ^2.5.8
-  #flutter_tts: ^4.2.2
 
-  #flutter_tex: ^4.0.9
-  #flame: ^1.19.0
-  # 面向 Dart 开发人员的 IMAP、POP3 和 SMTP 客户端。包含低级 API 和高级 API。
-  #enough_mail: ^2.1.5
-  # receive_sharing_intent 使 Flutter 应用能够接收来自其他应用的共享照片、文本或 url
-  #receive_sharing_intent: ^1.8.0
-  #flutter_foreground_task: ^8.8.1+1
-  #upgrader: ^11.0.0
-  #app_links: ^6.3.2
-  #simple_animations: ^5.0.2
-  #huawei_account: ^6.12.0+301
-#  agconnect_crash: ^1.9.0+300
-#  agconnect_auth: ^1.9.0+3000
-#  huawei_account:
-#    path: plugin/hms-flutter-plugin/flutter-hms-account
-  # A flutter plugin which could read image,files from clipboard and write files to clipboard.
-  #pasteboard: ^0.2.0
-  #pinput: ^5.0.0
-  #local_auth: ^2.3.0
+  ##############################################
+  # Internationalization
+  ##############################################
+  lpinyin: ^2.0.3         # Chinese pinyin
+  intl: ^0.20.2           # Internationalization
+  feedback: ^3.1.0
+  # Flutter 的弹出窗口。弹出窗口是一种瞬态视图，当您点击某个控件或某个区域时，它会出现在屏幕上其他内容的上方。
+  popover: ^0.3.1
+  popup_menu: ^2.1.0
 
-  # https://pub-web.flutter-io.cn/packages/rtmp_broadcaster
-  #rtmp_broadcaster:
-  #  git:
-  #    url: https://github.com/emiliodallatorre/flutter_rtmp_publisher.git
-  #    ref: master
-
-  # 还没有直接应用的库
-  # 反射功能
-  #reflectable: ^4.0.5
-  # 图像占位符的紧凑表示
-  #flutter_blurhash: ^0.7.0
-  # 下载更新
-  #flutter_downloader: ^1.10.4
-  # 通过注释 Dart 类自动生成与 JSON 相互转换的代码。
-  #json_serializable: ^6.7.1
-  # 外部打开app识别uri
-  #uni_links: ^0.5.1
 
 dependency_overrides:
-  audio_session: ^0.2.1
+  camera_android_camerax: ^0.6.18
+  # camera_android_camerax:
+  #   path: plugin/packages/packages/camera/camera_android_camerax
+  flutter_plugin_android_lifecycle:
+    path: plugin/packages/packages/flutter_plugin_android_lifecycle
+  webview_flutter_android:
+    path: plugin/packages/packages/webview_flutter/webview_flutter_android
+  image_picker_android:
+    path: plugin/packages/packages/image_picker/image_picker_android/
+
+  connectivity_plus:
+    path: plugin/plus_plugins/packages/connectivity_plus/connectivity_plus
+  device_info_plus:
+    path: plugin/plus_plugins/packages/device_info_plus/device_info_plus
+  #
+  flutter_secure_storage:
+    path: plugin/flutter_secure_storage/flutter_secure_storage
+  file_saver:
+    path: plugin/file_saver
+  file_picker:
+    path: plugin/flutter_file_picker
+  flutter_native_splash:
+    path: plugin/flutter_native_splash
+  emoji_picker_flutter:
+    path: plugin/emoji_picker_flutter
+  audio_session:
+    path: plugin/audio_session
+  mobile_scanner:
+    path: plugin/mobile_scanner
+  permission_handler_android:
+    path: plugin/flutter-permission-handler/permission_handler_android
+  image_crop:             # Image cropping
+    path: plugin/image_crop
+  r_upgrade:
+    path: plugin/r_upgrade
+  image_gallery_saver:
+    path: plugin/image_gallery_saver
+  sqlite3_flutter_libs:
+    path: plugin/sqlite3.dart/sqlite3_flutter_libs
+  libphonenumber_plugin:
+    path: plugin/plugin_libphonenumber/libphonenumber_plugin
+
+  flutter_sound:
+    path: plugin/flutter_sound
+
+  amap_flutter_base:
+    path: plugin/amap_flutter_base
+  amap_flutter_map:
+    path: plugin/amap_flutter_map
+  amap_flutter_location:
+    path: plugin/amap_flutter_location
+
   intl: ^0.20.2
-  #permission_handler_android: ^13.0.1
-  flutter_sound_platform_interface: ^10.3.0
-  pointycastle: ^4.0.0
-  #mime: ^2.0.0
-  #package_info_plus: ^8.0.0
+  pointycastle: ^4.0.0    # Cryptography 一个实现加密算法和原语的 Dart 库
   camera: ^0.11.1 # dep by wechat_camera_picker
-  #wechat_camera_picker: ^4.2.2
-  #sensors_plus: ^6.0.1 # dep by wechat_camera_picker
-  #meta: ^1.12.0 # flutter_sound_platform_interface dep 1.12.0
-  #photo_view: ^0.15.0 # dep by flutter_chat_ui
-  #web_socket_channel: ^3.0.0
+
   scroll_to_index:
     git:
       url: https://gitee.com/imboy-tripartite-deps/scroll-to-index_scroll_with_keep_alives_fix.git
       ref: scroll_with_keep_alives_fix
 
 dev_dependencies:
-  #  analyzer: ^7.3.0
-  #  freezed: ^2.5.8
-  #  json_serializable: ^6.9.3
-  build_runner: ^2.4.13
-  #isar_generator: ^3.1.0+1
-  envied_generator: ^1.1.1
-  flutter_lints: ^5.0.0
-  # ffigen: ^12.0.0
   flutter_test:
     sdk: flutter
+  build_runner: ^2.4.14
 
-targets:
-  $default:
-    builders:
-      envied_generator|envied:
-        options:
-          path: .env.dev
-          override: true
-
-# ffigen:
-#   output: 'lib/native/sign_key.dart'
-#   headers:
-#     entry-points:
-#       - 'native/sign_key.h'
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
-# The following section is specific to Flutter.
+# The following section is specific to Flutter packages.
 flutter:
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-  # https://book.flutterchina.club/chapter3/img_and_icon.html#_3-3-2-icon
-  # https://www.iconfont.cn/manage/index?manage_type=myprojects&projectId=4659205
+
+  # To add assets to your application, add an assets section, like this:
   fonts:
     - family: IMBoyIcon  #指定一个字体名
       fonts:
