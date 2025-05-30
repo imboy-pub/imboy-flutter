@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/provider/group_member_provider.dart';
@@ -42,9 +41,6 @@ class PeopleInfoMoreLogic extends GetxController {
 
       for (var json in p['list']) {
         GroupModel m = await repo.save('', json);
-        m.computeAvatar = await Get.find<GroupListLogic>().computeAvatar(
-          m.groupId,
-        );
         list.add(m);
         // for test
         // for (int i = 0; i < 50; i++) {

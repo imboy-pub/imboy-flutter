@@ -33,11 +33,7 @@ class Counter {
     int minute = seconds % 3600 ~/ 60;
     int second = seconds % 60;
     // ignore: prefer_interpolation_to_compose_strings
-    return formatTime(hour) +
-        ":" +
-        formatTime(minute) +
-        ":" +
-        formatTime(second);
+    return "${formatTime(hour)}:${formatTime(minute)}:${formatTime(second)}";
   }
 
   void start(Function callback) {

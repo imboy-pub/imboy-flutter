@@ -48,7 +48,7 @@ class RightButton extends StatelessWidget {
 
 class ItemTitleStyle {
   static final style = n.Text('')
-    ..color = Colors.white.withOpacity(0.9)
+    ..color = Colors.white.withValues(alpha: 0.9)
     ..fontSize = 14
     ..bold;
 }
@@ -73,7 +73,7 @@ class RightButtonList extends StatelessWidget {
             right: 8,
             child: n.Icon(Icons.chat_bubble_outlined)
               ..size = 18
-              ..color = Colors.white.withOpacity(0.9),
+              ..color = Colors.white.withValues(alpha: 0.9),
           ),
           Expanded(
             child: n.Text(
@@ -96,7 +96,7 @@ class RightButtonList extends StatelessWidget {
             right: 8,
             child: n.Icon(Icons.person_add_alt_1)
               ..size = 18
-              ..color = Colors.white.withOpacity(0.9),
+              ..color = Colors.white.withValues(alpha: 0.9),
           ),
           Expanded(
             child: n.Text(
@@ -119,7 +119,7 @@ class RightButtonList extends StatelessWidget {
             right: 8,
             child: n.Icon(Icons.person)
               ..size = 18
-              ..color = Colors.white.withOpacity(0.9),
+              ..color = Colors.white.withValues(alpha: 0.9),
           ),
           Expanded(
               child: n.Text(
@@ -141,7 +141,7 @@ class RightButtonList extends StatelessWidget {
             right: 8,
             child: n.Icon(Icons.qr_code_2)
               ..size = 18
-              ..color = Colors.white.withOpacity(0.9),
+              ..color = Colors.white.withValues(alpha: 0.9),
           ),
           Expanded(
               child: n.Text(
@@ -163,7 +163,7 @@ class RightButtonList extends StatelessWidget {
             right: 8,
             child: n.Icon(Icons.qr_code_scanner_outlined)
               ..size = 18
-              ..color = Colors.white.withOpacity(0.9),
+              ..color = Colors.white.withValues(alpha: 0.9),
           ),
           Expanded(
               child: n.Text(

@@ -1,11 +1,11 @@
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/imboy_icon.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
 
 import 'package:imboy/page/conversation/conversation_logic.dart';
@@ -63,11 +63,11 @@ class ConversationItem extends StatelessWidget {
               ),
             ),
             // 会话头像
-            child: ComputeAvatar(
-              imgUri: model.avatar,
-              computeAvatar: model.computeAvatar,
+            child: model.type == 'C2G' ? SmartGroupAvatar(
+              avatar: model.avatar,
+              groupId: model.peerId,
               onTap: onTapAvatar,
-            ),
+            ): Avatar(imgUri: model.avatar),
           ),
         ),
         Container(

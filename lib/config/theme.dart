@@ -64,7 +64,7 @@ final ColorScheme lightColorScheme = ColorScheme.fromSeed(
   // 主色调，用于突出显示和主要操作
   onPrimary: lightOnPrimaryColor,
   // 主色调上的文字或图标颜色
-  primaryContainer: lightPrimaryColor.withOpacity(0.8),
+  primaryContainer: lightPrimaryColor.withValues(alpha: 0.8),
   // 主色调的容器背景色，更淡一些以提供对比
   onPrimaryContainer: Colors.black54,
   // 主色调容器上的文字或图标颜色
@@ -83,7 +83,7 @@ final ColorScheme darkColorScheme = ColorScheme.fromSeed(
   // 主色调保持不变，以确保品牌一致性
   onPrimary: darkOnPrimaryColor,
   // 主色调上的文字颜色改为黑色或深色
-  primaryContainer: darkPrimaryColor.withOpacity(0.8),
+  primaryContainer: darkPrimaryColor.withValues(alpha: 0.8),
   // 主色调的容器背景色，更淡一些以提供对比
   onPrimaryContainer: Colors.black54,
   // 主色调容器上的文字或图标颜色

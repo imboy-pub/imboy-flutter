@@ -70,11 +70,6 @@ class _ConversationPageState extends State<ConversationPage> {
 
     // 监听会话消息
     ssMsg = eventBus.on<ConversationModel>().listen((obj) async {
-      if (obj.type == 'C2G' && obj.avatar.isEmpty) {
-        obj.computeAvatar = await Get.find<GroupListLogic>().computeAvatar(
-          obj.peerId,
-        );
-      }
       if (obj.type == 'C2G' && obj.title.trim().isEmpty) {
         obj.computeTitle = await Get.find<GroupListLogic>().computeTitle(
           obj.peerId,

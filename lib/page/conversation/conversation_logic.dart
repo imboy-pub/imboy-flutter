@@ -95,9 +95,6 @@ class ConversationLogic extends GetxController {
       await Future.wait(li.map((obj) async {
         if (obj.type == 'C2G') {
           final futures = <Future>[];
-          if (obj.avatar.isEmpty) {
-            futures.add(_groupListLogic.computeAvatar(obj.peerId).then((v) => obj.computeAvatar = v));
-          }
           if (obj.title.isEmpty) {
             futures.add(_groupListLogic.computeTitle(obj.peerId).then((v) => obj.computeTitle = v));
           }

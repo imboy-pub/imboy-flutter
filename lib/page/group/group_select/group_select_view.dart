@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -46,13 +46,11 @@ class GroupSelectPage extends StatelessWidget {
                   itemCount: state.items.length,
                   itemBuilder: (BuildContext context, int index) {
                     ConversationModel model = state.items[index];
-                    debugPrint(
-                        "computeAvatar ${model.computeAvatar.length} ${model.computeAvatar.toString()}");
                     return n.Column([
                       ListTile(
-                        leading: ComputeAvatar(
-                          imgUri: model.avatar,
-                          computeAvatar: model.computeAvatar,
+                        leading: SmartGroupAvatar(
+                          avatar: model.avatar,
+                          groupId: model.peerId,
                         ),
                         contentPadding: const EdgeInsets.only(
                           left: 10,

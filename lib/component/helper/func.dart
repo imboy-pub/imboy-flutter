@@ -14,7 +14,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
-iPrint(String str) {
+void iPrint(String str) {
   return debugPrint("iPrint $str");
 }
 
@@ -249,7 +249,7 @@ bool isEmail(String value) {
 }
 
 ///去除后面的0
-String stringDisposeWithDouble(v, [fix = 2]) {
+String stringDisposeWithDouble(int v, [int fix = 2]) {
   double b = double.parse(v.toString());
   String vStr = b.toStringAsFixed(fix);
   int len = vStr.length;
@@ -265,12 +265,6 @@ String stringDisposeWithDouble(v, [fix = 2]) {
     vStr = vStr.substring(0, vStr.length - 1);
   }
 
-  return vStr;
-}
-
-///去除小数点
-String removeDot(v) {
-  String vStr = v.toString().replaceAll('.', '');
   return vStr;
 }
 
@@ -386,7 +380,7 @@ String formatBytes(int size, {int fractionDigits = 2, int num = 1024}) {
 /// 0 白色
 /// 1 黑色
 /// 2 跟随系统
-getLocalProfileAboutThemeModel({
+ThemeMode getLocalProfileAboutThemeModel({
   bool isUserCache = true,
   int themeType = 0,
 }) {
@@ -398,6 +392,8 @@ getLocalProfileAboutThemeModel({
   } else if (type == 1) {
     return ThemeMode.dark;
   } else if (type == 2) {
+    return ThemeMode.system;
+  } else {
     return ThemeMode.system;
   }
 }

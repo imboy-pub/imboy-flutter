@@ -23,7 +23,7 @@ class DarkModelPage extends StatelessWidget {
         automaticallyImplyLeading: true,
         title: 'dark_model'.tr,
       ),
-      backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+      backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
       body: n.Column([
         Expanded(
           child: ListView.separated(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
 import 'package:imboy/component/ui/icon_image_provider.dart';
 import 'package:imboy/component/ui/imboy_icon.dart';
 import 'package:jiffy/jiffy.dart';
@@ -9,7 +10,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/theme.dart';
 import 'package:imboy/service/encrypter.dart';
@@ -500,9 +500,9 @@ class GroupQrCodePage extends StatelessWidget {
                       n.Padding(
                         // top: 10,
                         bottom: 10,
-                        child: ComputeAvatar(
-                          imgUri: group.avatar,
-                          computeAvatar: group.computeAvatar,
+                        child: SmartGroupAvatar(
+                          avatar: group.avatar,
+                          groupId: group.groupId,
                         ),
                       ),
                       Flexible(

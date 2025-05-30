@@ -77,16 +77,16 @@ class QuoteMessageBuilder extends StatelessWidget {
         decoration: BoxDecoration(
           // 背景
           color: userIsAuthor
-              ? Colors.green.withOpacity(0.15)
-              : Theme.of(context).colorScheme.surface.withOpacity(0.7),
+              ? Colors.green.withValues(alpha: 0.15)
+              : Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
           // 设置四周圆角 角度
           borderRadius: const BorderRadius.all(Radius.circular(8.0)),
           // 设置四周边框
           border: Border.all(
             width: 1,
             color: userIsAuthor
-                ? Colors.green.withOpacity(0.15)
-                : Theme.of(context).colorScheme.surface.withOpacity(0.7),
+                ? Colors.green.withValues(alpha: 0.15)
+                : Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
           ),
         ),
         child: n.Column([

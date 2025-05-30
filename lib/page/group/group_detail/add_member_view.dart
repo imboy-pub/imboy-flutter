@@ -84,7 +84,7 @@ class AddMemberPageState extends State<AddMemberPage> {
                   right: 8,
                   child: memberUserIds.contains(model.peerId)
                       ? Icon(CupertinoIcons.check_mark_circled_solid,
-                          color: Colors.green.withOpacity(0.6))
+                          color: Colors.green.withValues(alpha: 0.6))
                       : Icon(
                           model.selected.isTrue
                               ? CupertinoIcons.check_mark_circled_solid

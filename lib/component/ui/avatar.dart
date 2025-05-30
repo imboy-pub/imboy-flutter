@@ -1,12 +1,99 @@
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:octo_image/octo_image.dart';
+import 'package:imboy/page/group/group_list/group_list_logic.dart'
+    show GroupListLogic;
 import 'package:niku/namespace.dart' as n;
-import 'package:nine_grid_view/nine_grid_view.dart';
 
-import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/component/helper/func.dart';
+
+import 'avatar_group.dart';
+
+/// 头像形状类型
+enum AvatarShape {
+  circle, // 圆形
+  square, // 方形
+  roundedSquare, // 圆角方形
+}
+
+// 2. 创建智能容器组件
+class SmartGroupAvatar extends StatefulWidget {
+  final String groupId;
+  final String? avatar;
+  final double size;
+  final VoidCallback? onTap;
+
+  const SmartGroupAvatar({
+    super.key,
+    required this.groupId,
+    this.avatar,
+    this.size = 50,
+    this.onTap,
+  });
+
+  @override
+  State<SmartGroupAvatar> createState() => _SmartGroupAvatarState();
+}
+
+class _SmartGroupAvatarState extends State<SmartGroupAvatar> {
+  late Future<List<String>> _membersFuture;
+  final _avatarCache = <String, List<String>>{};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  void _loadData() {
+    if (widget.avatar != null && widget.avatar!.isNotEmpty) {
+      return;
+    }
+
+    if (widget.groupId == "") {
+      return;
+    }
+
+    // 使用缓存避免重复查询
+    if (_avatarCache.containsKey(widget.groupId)) {
+      return;
+    }
+
+    _membersFuture = GroupListLogic().computeAvatar(widget.groupId).then((
+      avatars,
+    ) {
+      _avatarCache[widget.groupId] = avatars;
+      return avatars;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 有自定义头像直接显示
+    if (widget.avatar != null && widget.avatar!.isNotEmpty) {
+      return GroupAvatar(
+        avatar: widget.avatar,
+        size: widget.size,
+        onTap: widget.onTap,
+      );
+    }
+
+    // 没有groupId显示默认
+    if (widget.groupId == "") {
+      return GroupAvatar(size: widget.size, onTap: widget.onTap);
+    }
+
+    // 异步加载成员头像
+    return FutureBuilder<List<String>>(
+      future: _membersFuture,
+      builder: (context, snapshot) {
+        return GroupAvatar(
+          memberAvatars: snapshot.data ?? [],
+          size: widget.size,
+          onTap: widget.onTap,
+        );
+      },
+    );
+  }
+}
 
 class Avatar extends StatelessWidget {
   const Avatar({
@@ -38,9 +125,9 @@ class Avatar extends StatelessWidget {
             border: Border.all(
               width: 0.5,
               style: BorderStyle.solid,
-              color: Colors.grey.withOpacity(0.25),
+              color: Colors.grey.withValues(alpha: 0.5),
             ),
-            color: Colors.grey.withOpacity(0.25),
+            color: Colors.grey.withValues(alpha: 0.5),
             image: dynamicAvatar(imgUri),
           ),
         ),
@@ -48,198 +135,8 @@ class Avatar extends StatelessWidget {
           SizedBox(
             width: width ?? 50,
             child: n.Row([Expanded(child: title!)]),
-          )
+          ),
       ]),
     );
-  }
-}
-
-class ComputeAvatar extends StatelessWidget {
-  const ComputeAvatar({
-    super.key,
-    required this.imgUri,
-    this.computeAvatar,
-    this.onTap,
-    this.width,
-    this.height,
-  });
-
-  final String imgUri;
-  final List<String>? computeAvatar;
-  final void Function()? onTap;
-  final double? width;
-  final double? height;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: computeAvatar != null && computeAvatar!.length < 2
-          ? Avatar(imgUri: imgUri, width: width, height: height)
-          : NineGridView(
-              width: width ?? 50,
-              height: height ?? 50,
-              padding: const EdgeInsets.all(0),
-              space: 1,
-              type: NineGridType.weChatGp,
-              //NineGridType.weChatGp, NineGridType.dingTalkGp
-              itemCount: computeAvatar!.length,
-              itemBuilder: (BuildContext context, int index) {
-                String i = computeAvatar![index];
-                // iPrint("computeAvatar i $i");
-                // return Avatar(imgUri: i);
-                return OctoImage(
-                  width: 50,
-                  fit: BoxFit.cover,
-                  image: cachedImageProvider(
-                    i,
-                    w: Get.width,
-                  ),
-                  errorBuilder: (context, error, stacktrace) =>
-                      const Icon(Icons.error),
-                );
-              },
-            ),
-    );
-  }
-}
-
-class AvatarList extends StatelessWidget {
-  const AvatarList({
-    super.key,
-    required this.memberList,
-    this.onTapAdd,
-    this.onTapRemove,
-    this.onTapAvatar,
-    this.width,
-    this.height,
-    this.titleMaxLines,
-    this.titleStyle,
-    this.column = 5,
-  });
-
-  // [{"nickname": "", "avatar":"", "id":""}]
-  final List<PeopleModel> memberList;
-
-  // memberList.add(PeopleModel(id: 'add', account: ''));
-  // memberList.add(PeopleModel(id: 'remove', account: ''));
-  final void Function()? onTapAdd;
-  final void Function()? onTapRemove;
-  final void Function(PeopleModel m)? onTapAvatar;
-
-  // 头像宽度
-  final double? width;
-
-  // 头像高度
-  final double? height;
-
-  final TextStyle? titleStyle;
-
-  // 用户昵称最大显示多少行
-  final int? titleMaxLines;
-  final int column;
-
-  @override
-  Widget build(BuildContext context) {
-    return n.Column([
-      // _buildMemberList(),
-      // 使用 List.generate 来创建多行，每行5个成员
-      for (int i = 0; i < memberList.length; i += column)
-        n.Row([
-          // 确保每行不超过数组的长度
-          for (int j = i; j < i + column && j < memberList.length; j++)
-            if (memberList[j].id == 'last')
-              DottedBorder(
-                options: RoundedRectDottedBorderOptions(
-                  // borderType: BorderType.RRect,
-                  radius: const Radius.circular(12),
-                  // padding: EdgeInsets.all(6),  // Uncomment if needed
-                  // strokeWidth: 2,             // Add if you want custom stroke width
-                  // color: Colors.black,        // Add if you want custom color
-                ),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                  child: SizedBox(
-                    height: height ?? 56,
-                    width: width ?? 56,
-                    // color: darkBgColor,       // Uncomment if needed
-                  ),
-                ),
-              )
-            else if (memberList[j].id == 'add')
-              InkWell(
-                onTap: onTapAdd,
-                child: n.Padding(
-                  right: 10,
-                  child: DottedBorder(
-                    options: RoundedRectDottedBorderOptions(
-                      // borderType: BorderType.RRect,
-                      radius: const Radius.circular(12),
-                      // padding: EdgeInsets.all(6),  // Uncomment if needed
-                      // strokeWidth: 2,             // Add if you want custom stroke width
-                      // color: Colors.black,        // Add if you want custom color
-                    ),
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.all(Radius.circular(12)),
-                      child: SizedBox(
-                        height: (height ?? 56) - 4,
-                        width: (width ?? 56) - 4,
-                        child: const Icon(Icons.add),
-                        // color: darkBgColor,
-                      ),
-                    ),
-                  ),
-                ),
-              )
-            else if (memberList[j].id == 'remove')
-              InkWell(
-                onTap: onTapRemove,
-                child: n.Padding(
-                  right: 10,
-                  child: DottedBorder(
-                    options: RoundedRectDottedBorderOptions(
-                      // borderType: BorderType.RRect,
-                      radius: const Radius.circular(12),
-                      // padding: EdgeInsets.all(6),  // Uncomment if needed
-                      // strokeWidth: 2,             // Add if you want custom stroke width
-                      // color: Colors.black,        // Add if you want custom color
-                    ),
-                    // padding: const EdgeInsets.all(6),
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.all(Radius.circular(12)),
-                      child: SizedBox(
-                        height: (height ?? 56) - 4,
-                        width: (width ?? 56) - 4,
-                        child: const Icon(Icons.remove),
-                        // color: darkBgColor,
-                      ),
-                    ),
-                  ),
-                ),
-              )
-            else
-              Flexible(
-                  child: n.Padding(
-                right: 10,
-                bottom: 10,
-                child: Avatar(
-                  imgUri: memberList[j].avatar,
-                  height: height ?? 56,
-                  width: width ?? 56,
-                  onTap: onTapAvatar == null ? null : () {
-                    onTapAvatar!(memberList[j]);
-                  },
-                  title: Text(
-                    memberList[j].nickname,
-                    style: titleStyle,
-                    // style: ,
-                    maxLines: titleMaxLines ?? 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              )),
-        ])
-          ..crossAxisAlignment = CrossAxisAlignment.start,
-    ]);
   }
 }

@@ -37,7 +37,7 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
   String? _publishTime;
 
   TextStyle styleLabel =
-      TextStyle(fontSize: 12.0, color: Colors.black.withOpacity(0.8));
+      TextStyle(fontSize: 12.0, color: Colors.black.withValues(alpha: 0.8));
 
   @override
   void initState() {

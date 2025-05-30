@@ -14,7 +14,6 @@ import 'package:imboy/page/passport/welcome_view.dart';
 // ignore: depend_on_referenced_packages
 import 'package:jiffy/jiffy.dart';
 import 'package:feedback/feedback.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/log.dart';
 import 'package:imboy/component/locales/locales.g.dart';
@@ -33,8 +32,9 @@ import 'config/theme.dart';
 void run() async {
   await Jiffy.setLocale(jiffyLocal(sysLang('jiffy')));
   // 强制竖屏 DeviceOrientation.portraitUp
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-      .then((_) {
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((
+    _,
+  ) {
     runApp(
       BetterFeedback(
         theme: FeedbackThemeData(
@@ -52,9 +52,9 @@ void run() async {
         ),
         feedbackBuilder: (context, onSubmit, scrollController) =>
             IMBoyFeedbackForm(
-          onSubmit: onSubmit,
-          scrollController: scrollController,
-        ),
+              onSubmit: onSubmit,
+              scrollController: scrollController,
+            ),
         child: const IMBoyApp(),
       ),
     );
@@ -97,23 +97,22 @@ class _IMBoyAppState extends State<IMBoyApp> {
         ),
         child: const Padding(
           padding: EdgeInsets.all(2),
-          child: Icon(
-            Icons.navigate_before_rounded,
-            size: 24,
-          ),
+          child: Icon(Icons.navigate_before_rounded, size: 24),
         ),
       ),
       ball: SizedBox(
         width: 50,
         height: 28,
-        child: n.Row(const [
-          Space(width: 16),
-          Expanded(child: Text('FB')),
-          Space(width: 16)
-        ])
-          ..backgroundColor = Theme.of(context).colorScheme.surface
+        child: Row(
           // 垂直居中
-          ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Space(width: 16),
+            Expanded(child: Text('FB')),
+            Space(width: 16),
+          ],
+        ),
+        // ..backgroundColor = Theme.of(context).colorScheme.surface
       ),
       initialPosition: DragballPosition(
         top: Get.height / 3 + 120,
@@ -123,7 +122,8 @@ class _IMBoyAppState extends State<IMBoyApp> {
       onTap: () {
         BetterFeedback.of(context).show((UserFeedback feedback) async {
           iPrint(
-              "BetterFeedback show extra ${feedback.extra.toString()} isLogin ${UserRepoLocal.to.isLoggedIn}");
+            "BetterFeedback show extra ${feedback.extra.toString()} isLogin ${UserRepoLocal.to.isLoggedIn}",
+          );
           // Uint8List feedbackScreenshot = feedback.screenshot
           if (feedback.text.isEmpty) {
             EasyLoading.showError('feedback_content_required'.tr);
@@ -133,30 +133,33 @@ class _IMBoyAppState extends State<IMBoyApp> {
           img.Image image = img.decodeImage(feedback.screenshot)!;
           final result = img.encodeJpg(image, quality: 70);
 
-          await AttachmentProvider.uploadBytes("feedback", result, (
-            Map<String, dynamic> resp,
-            String uri,
-          ) async {
-            FeedbackProvider p = FeedbackProvider();
-            var type = feedback.extra?['feedback_type'] ?? '';
-            var rating = feedback.extra?['rating'] ?? '';
+          await AttachmentProvider.uploadBytes(
+            "feedback",
+            result,
+            (Map<String, dynamic> resp, String uri) async {
+              FeedbackProvider p = FeedbackProvider();
+              var type = feedback.extra?['feedback_type'] ?? '';
+              var rating = feedback.extra?['rating'] ?? '';
 
-            Map<String, dynamic> data = {
-              'rating': rating,
-              'type': type.toString().split('.').last.replaceAll('_', ' '),
-              'contact_detail': feedback.extra?['contact_detail'] ?? '',
-              'description': feedback.text,
-              'screenshot': [uri],
-            };
-            bool res = await p.add(data);
-            if (res) {
-              EasyLoading.showSuccess('feedback_success_msg'.tr);
-            } else {
-              EasyLoading.showError('tip_failed'.tr);
-            }
-          }, (Error error) {
-            debugPrint("> on upload ${error.toString()}");
-          }, process: false);
+              Map<String, dynamic> data = {
+                'rating': rating,
+                'type': type.toString().split('.').last.replaceAll('_', ' '),
+                'contact_detail': feedback.extra?['contact_detail'] ?? '',
+                'description': feedback.text,
+                'screenshot': [uri],
+              };
+              bool res = await p.add(data);
+              if (res) {
+                EasyLoading.showSuccess('feedback_success_msg'.tr);
+              } else {
+                EasyLoading.showError('tip_failed'.tr);
+              }
+            },
+            (Error error) {
+              debugPrint("> on upload ${error.toString()}");
+            },
+            process: false,
+          );
         });
       },
       onPositionChanged: (DragballPosition position) {

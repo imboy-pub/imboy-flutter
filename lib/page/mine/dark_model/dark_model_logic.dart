@@ -34,7 +34,7 @@ class DarkModelLogic extends GetxController {
     changeTheme(type: value ? 2 : 0);
   }
 
-  tapDarkItem({required int index}) async {
+  Future<void> tapDarkItem({required int index}) async {
     int type = 0;
     if (index == 2) {
       type = 0;

@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/avatar_list.dart' show AvatarList;
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/page/group/face_to_face/face_to_face_logic.dart';
 import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:niku/namespace.dart' as n;
 
-import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/helper/func.dart';

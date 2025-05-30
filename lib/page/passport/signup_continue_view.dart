@@ -82,7 +82,7 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                 const SizedBox(height: 20),
                 Card(
                   elevation: 5,
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   child: Container(
                     width: 500,
                     padding: const EdgeInsets.all(30.0),
@@ -316,7 +316,7 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                         child: Text(
                           'login'.tr,
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,
                             fontSize: 14,

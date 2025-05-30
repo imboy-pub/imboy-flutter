@@ -72,7 +72,7 @@ class SearchTileView extends StatelessWidget {
             // color: strNoEmpty(text) ? Colors.white : AppColors.AppBarColor,
             border: Border(
                 top: BorderSide(
-                    color: Colors.grey.withOpacity(0.2), width: 0.5))),
+                    color: Colors.grey.withValues(alpha: 0.2), width: 0.5))),
         width: Get.width,
         height: 65.0,
         child: strNoEmpty(text) ? bt : Container(),
@@ -82,7 +82,7 @@ class SearchTileView extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border(
-            top: BorderSide(color: Colors.grey.withOpacity(0.2), width: 0.5),
+            top: BorderSide(color: Colors.grey.withValues(alpha: 0.2), width: 0.5),
           ),
         ),
         width: Get.width,

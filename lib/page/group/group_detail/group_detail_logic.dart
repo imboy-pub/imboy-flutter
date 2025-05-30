@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
-import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_member_model.dart';
@@ -139,16 +138,12 @@ class GroupDetailLogic extends GetxController {
   Future<GroupModel?> find(String gid) async {
     GroupModel? group = await GroupRepo().findById(gid);
 
-    if (group!.avatar.isEmpty) {
-      group.computeAvatar = await Get.find<GroupListLogic>().computeAvatar(
-        group.groupId,
-      );
-    }
-    if (group.title.isEmpty) {
-      group.computeTitle = await Get.find<GroupListLogic>().computeTitle(
-        group.groupId,
-      );
-    }
+
+    // if (group.title.isEmpty) {
+    //   group.computeTitle = await Get.find<GroupListLogic>().computeTitle(
+    //     group.groupId,
+    //   );
+    // }
     return group;
   }
 

@@ -21,8 +21,6 @@ class GroupModel {
   // 如果 title 为空，零时计算title
   String computeTitle = '';
 
-  // 如果 avatar 为空，零时计算avatar
-  List<String> computeAvatar = [];
 
   GroupModel({
     required this.groupId,

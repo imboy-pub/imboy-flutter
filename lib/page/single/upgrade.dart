@@ -107,7 +107,7 @@ class UpgradePageState extends State<UpgradePage> {
   }
 
   // 初始化弹框文案
-  initGeneral() {
+  void initGeneral() {
     _upgradeCard?.updateProgress(
       title: 'new_version_detected'.tr + widget.version,
       message: widget.message,
@@ -156,7 +156,7 @@ class UpgradePageState extends State<UpgradePage> {
   }
 
   // 停止下载器运行（注销当前taskID）
-  closeCallback() {
+  void closeCallback() {
     Navigator.of(context).pop();
     if (downloadId > 0) cancel(downloadId);
   }
@@ -168,7 +168,7 @@ class UpgradePageState extends State<UpgradePage> {
   }
 
   //第一步：点击更新按钮
-  _updateApplication() async {
+  void _updateApplication() async {
     if (await _checkPermission()) {
       if (Platform.isAndroid) {
         initGeneral();
@@ -236,13 +236,13 @@ class UpgradePageState extends State<UpgradePage> {
     downloadId = (await RUpgrade.getLastUpgradedId())!;
   }
 
-  install() async {
+  void install() async {
     bool? isSuccess = await RUpgrade.install(downloadId);
     iPrint("upgrade_install $downloadId isSuccess $isSuccess");
   }
 
   // 使用文件路径进行安装应用
-  installByPath(String path) async {
+  void installByPath(String path) async {
     bool? isSuccess = await RUpgrade.installByPath(path);
     iPrint("upgrade_installByPath $downloadId isSuccess $isSuccess");
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
@@ -79,13 +79,11 @@ class PeopleInfoSameGroupPage extends StatelessWidget {
                       itemCount: groupList.length,
                       itemBuilder: (BuildContext context, int index) {
                         GroupModel model = groupList[index];
-                        debugPrint(
-                            "computeAvatar ${model.computeAvatar.length} ${model.computeAvatar.toString()}");
                         return n.Column([
                           ListTile(
-                            leading: ComputeAvatar(
-                              imgUri: model.avatar,
-                              computeAvatar: model.computeAvatar,
+                            leading: SmartGroupAvatar(
+                              avatar: model.avatar,
+                              groupId: model.groupId,
                             ),
                             contentPadding:
                                 const EdgeInsets.only(left: 10, right: 10),

@@ -524,7 +524,7 @@ class UserCollectLogic extends GetxController {
                 return Theme.of(Get.context!)
                     .colorScheme
                     .surface
-                    .withOpacity(0.75);
+                    .withValues(alpha: 0.75);
               }
               // Use the component's default.
               return Theme.of(Get.context!).colorScheme.surface;
@@ -558,7 +558,7 @@ class UserCollectLogic extends GetxController {
             Icons.close,
             size: 16,
             color:
-                Theme.of(Get.context!).colorScheme.onPrimary.withOpacity(0.75),
+                Theme.of(Get.context!).colorScheme.onPrimary.withValues(alpha: 0.75),
           ),
         ]),
       )
@@ -643,7 +643,7 @@ class UserCollectLogic extends GetxController {
             Icons.close,
             size: 16,
             color:
-                Theme.of(Get.context!).colorScheme.onPrimary.withOpacity(0.7),
+                Theme.of(Get.context!).colorScheme.onPrimary.withValues(alpha: 0.7),
           ),
         ]),
       )

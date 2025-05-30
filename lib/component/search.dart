@@ -48,7 +48,7 @@ Widget searchBar(
     )),
     hintStyle: WidgetStateProperty.all(const TextStyle(
       fontSize: 14,
-      // color: AppColors.LineColor.withOpacity(0.7),
+      // color: AppColors.LineColor.withValues(alpha: 0.7),
     )),
     backgroundColor:
         WidgetStatePropertyAll<Color>(Theme.of(context).colorScheme.primary),

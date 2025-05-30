@@ -551,7 +551,7 @@ class UserCollectPage extends StatelessWidget {
                     const Icon(
                       Icons.grid_view,
                       size: 18,
-                      // color: AppColors.MainTextColor.withOpacity(0.8),
+                      // color: AppColors.MainTextColor.withValues(alpha: 0.8),
                     ),
                     const SizedBox(width: 10),
                     Text('type'.tr),
@@ -660,7 +660,7 @@ class UserCollectPage extends StatelessWidget {
                       const Icon(
                         Icons.sell_outlined,
                         size: 18,
-                        // color: AppColors.MainTextColor.withOpacity(0.8),
+                        // color: AppColors.MainTextColor.withValues(alpha: 0.8),
                       ),
                       const SizedBox(width: 10),
                       Text('tags'.tr),

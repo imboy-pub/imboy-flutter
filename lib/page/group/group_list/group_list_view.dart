@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
 import 'package:imboy/config/theme.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/search.dart';
-import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -34,9 +34,6 @@ class GroupListPage extends StatelessWidget {
       for (GroupModel m in list) {
         if (strEmpty(m.title)) {
           m.computeTitle = await logic.computeTitle(m.groupId);
-        }
-        if (strEmpty(m.avatar)) {
-          m.computeAvatar = await logic.computeAvatar(m.groupId);
         }
         list2.add(m);
       }
@@ -110,13 +107,11 @@ class GroupListPage extends StatelessWidget {
                         itemCount: state.groupList.length,
                         itemBuilder: (BuildContext context, int index) {
                           GroupModel model = state.groupList[index];
-                          debugPrint(
-                              "computeAvatar ${model.computeAvatar.length} ${model.computeAvatar.toString()}");
                           return n.Column([
                             ListTile(
-                              leading: ComputeAvatar(
-                                imgUri: model.avatar,
-                                computeAvatar: model.computeAvatar,
+                              leading: SmartGroupAvatar(
+                                avatar: model.avatar,
+                                groupId: model.groupId,
                               ),
                               contentPadding:
                                   const EdgeInsets.only(left: 10, right: 10),

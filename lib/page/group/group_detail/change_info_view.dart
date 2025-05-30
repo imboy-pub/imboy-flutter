@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:niku/namespace.dart' as n;
 
-import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/store/model/group_model.dart';
 
@@ -118,10 +118,10 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
             ..mainAxisAlignment = MainAxisAlignment.center,
           SizedBox(height: 20, width: Get.width),
           n.Row([
-            ComputeAvatar(
-              imgUri: widget.group.avatar,
-              computeAvatar: widget.group.computeAvatar,
-              width: 44, height: 44,
+            SmartGroupAvatar(
+              avatar: widget.group.avatar,
+              groupId: widget.group.groupId,
+              // size: 44,
               // onTap: onTapAvatar,
             ),
             const Space(

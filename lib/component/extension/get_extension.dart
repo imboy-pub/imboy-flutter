@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/loading_dialog.dart';
 
 extension GetExtension on GetInterface {
-  dismiss() {
+  void dismiss() {
     if (Get.isDialogOpen ?? false) {
       Get.closeAllDialogs();
     } else if (Get.isOverlaysOpen) {
@@ -12,7 +12,7 @@ extension GetExtension on GetInterface {
     }
   }
 
-  loading() {
+  void loading() {
     if (Get.isDialogOpen ?? false) {
       Get.closeAllDialogs();
     } else if (Get.isOverlaysOpen) {
