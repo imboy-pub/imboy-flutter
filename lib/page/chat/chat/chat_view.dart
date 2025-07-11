@@ -28,6 +28,7 @@ import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/helper/permission.dart';
 import 'package:imboy/component/helper/picker_method.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
@@ -468,6 +469,12 @@ class ChatPageState extends State<ChatPage> {
   /// 拍摄
   Future<void> _handlePickerSelection() async {
     try {
+      // Request camera permission before accessing camera
+      bool hasPermission = await requestCameraPermission();
+      if (!hasPermission) {
+        return; // Permission denied, exit early
+      }
+      
       final AssetEntity? entity = await CameraPicker.pickFromCamera(
         context,
         pickerConfig: const CameraPickerConfig(
@@ -669,6 +676,12 @@ class ChatPageState extends State<ChatPage> {
   }
 
   void _handleImageSelection() async {
+    // Request photo permission before accessing assets
+    bool hasPermission = await requestPhotoPermission();
+    if (!hasPermission) {
+      return; // Permission denied, exit early
+    }
+    
     await _selectAssets(PickMethod.cameraAndStay(maxAssetsCount: 9));
     for (var entity in assets) {
       await AttachmentProvider.uploadVideo("img", entity, (

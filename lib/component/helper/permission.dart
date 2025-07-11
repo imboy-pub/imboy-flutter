@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 /// 申请定位权限
 /// 授予定位权限返回true， 否则返回false
@@ -16,7 +17,7 @@ Future<bool> requestLocationPermission() async {
   debugPrint("getLocation location.serviceStatus $isEnabled");
   if (isEnabled == false && isEnabled2 == false) {
     // "您还没有打开位置信息服务"
-    EasyLoading.showInfo('location_service_required'.tr);
+    EasyLoading.showInfo('not_turned_location_service'.tr);
     // openAppSettings();
     return false;
   }
@@ -33,5 +34,47 @@ Future<bool> requestLocationPermission() async {
     } else {
       return false;
     }
+  }
+}
+
+/// 申请照片/存储权限
+/// 授予权限返回true, 否则返回false
+Future<bool> requestPhotoPermission() async {
+  try {
+    final PermissionState ps = await PhotoManager.requestPermissionExtend();
+    if (ps == PermissionState.authorized || ps == PermissionState.limited) {
+      return true;
+    } else {
+      // 权限被拒绝，提示用户
+      EasyLoading.showInfo('no_permission'.tr);
+      return false;
+    }
+  } catch (e) {
+    debugPrint("requestPhotoPermission error: $e");
+    EasyLoading.showInfo('permission_acquisition_failed'.tr);
+    return false;
+  }
+}
+
+/// 申请相机权限
+/// 授予权限返回true, 否则返回false
+Future<bool> requestCameraPermission() async {
+  try {
+    var status = await Permission.camera.status;
+    if (status == PermissionStatus.granted) {
+      return true;
+    } else {
+      status = await Permission.camera.request();
+      if (status == PermissionStatus.granted) {
+        return true;
+      } else {
+        EasyLoading.showInfo('no_permission'.tr);
+        return false;
+      }
+    }
+  } catch (e) {
+    debugPrint("requestCameraPermission error: $e");
+    EasyLoading.showInfo('permission_acquisition_failed'.tr);
+    return false;
   }
 }
