@@ -16,6 +16,8 @@ PODS:
     - Flutter
   - connectivity_plus (0.0.1):
     - Flutter
+  - dart_duckdb (1.2.2):
+    - Flutter
   - device_info_plus (0.0.1):
     - Flutter
   - DKImagePickerController/Core (4.3.9):
@@ -59,9 +61,8 @@ PODS:
   - Flutter (1.0.0)
   - flutter_native_splash (2.4.3):
     - Flutter
-  - flutter_secure_storage_darwin (10.0.0):
+  - flutter_secure_storage (6.0.0):
     - Flutter
-    - FlutterMacOS
   - flutter_sound (9.28.0):
     - Flutter
     - flutter_sound_core (= 9.28.0)
@@ -77,7 +78,7 @@ PODS:
     - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
-  - JCore (5.0.2)
+  - JCore (5.1.0)
   - just_audio (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -118,9 +119,9 @@ PODS:
     - FlutterMacOS
   - r_upgrade (0.0.1):
     - Flutter
-  - SDWebImage (5.21.0):
-    - SDWebImage/Core (= 5.21.0)
-  - SDWebImage/Core (5.21.0)
+  - SDWebImage (5.21.1):
+    - SDWebImage/Core (= 5.21.1)
+  - SDWebImage/Core (5.21.1)
   - sensors_plus (0.0.1):
     - Flutter
   - share_plus (0.0.1):
@@ -131,23 +132,23 @@ PODS:
   - sqflite_darwin (0.0.4):
     - Flutter
     - FlutterMacOS
-  - sqlite3 (3.49.2):
-    - sqlite3/common (= 3.49.2)
-  - sqlite3/common (3.49.2)
-  - sqlite3/dbstatvtab (3.49.2):
+  - sqlite3 (3.50.2):
+    - sqlite3/common (= 3.50.2)
+  - sqlite3/common (3.50.2)
+  - sqlite3/dbstatvtab (3.50.2):
     - sqlite3/common
-  - sqlite3/fts5 (3.49.2):
+  - sqlite3/fts5 (3.50.2):
     - sqlite3/common
-  - sqlite3/math (3.49.2):
+  - sqlite3/math (3.50.2):
     - sqlite3/common
-  - sqlite3/perf-threadsafe (3.49.2):
+  - sqlite3/perf-threadsafe (3.50.2):
     - sqlite3/common
-  - sqlite3/rtree (3.49.2):
+  - sqlite3/rtree (3.50.2):
     - sqlite3/common
   - sqlite3_flutter_libs (0.0.1):
     - Flutter
     - FlutterMacOS
-    - sqlite3 (~> 3.49.1)
+    - sqlite3 (~> 3.50.1)
     - sqlite3/dbstatvtab
     - sqlite3/fts5
     - sqlite3/math
@@ -174,13 +175,14 @@ DEPENDENCIES:
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
+  - dart_duckdb (from `.symlinks/plugins/dart_duckdb/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - emoji_picker_flutter (from `.symlinks/plugins/emoji_picker_flutter/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - file_saver (from `.symlinks/plugins/file_saver/ios`)
   - Flutter (from `Flutter`)
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
-  - flutter_secure_storage_darwin (from `.symlinks/plugins/flutter_secure_storage_darwin/darwin`)
+  - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - flutter_sound (from `.symlinks/plugins/flutter_sound/ios`)
   - flutter_webrtc (from `.symlinks/plugins/flutter_webrtc/ios`)
   - ic_storage_space (from `.symlinks/plugins/ic_storage_space/ios`)
@@ -239,6 +241,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/camera_avfoundation/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
+  dart_duckdb:
+    :path: ".symlinks/plugins/dart_duckdb/ios"
   device_info_plus:
     :path: ".symlinks/plugins/device_info_plus/ios"
   emoji_picker_flutter:
@@ -251,8 +255,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_native_splash:
     :path: ".symlinks/plugins/flutter_native_splash/ios"
-  flutter_secure_storage_darwin:
-    :path: ".symlinks/plugins/flutter_secure_storage_darwin/darwin"
+  flutter_secure_storage:
+    :path: ".symlinks/plugins/flutter_secure_storage/ios"
   flutter_sound:
     :path: ".symlinks/plugins/flutter_sound/ios"
   flutter_webrtc:
@@ -319,6 +323,7 @@ SPEC CHECKSUMS:
   audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
   camera_avfoundation: be3be85408cd4126f250386828e9b1dfa40ab436
   connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
+  dart_duckdb: 1f53d112566dab211342dc668ee26be875807300
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
@@ -327,7 +332,7 @@ SPEC CHECKSUMS:
   file_saver: 6cdbcddd690cb02b0c1a0c225b37cd805c2bf8b6
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
-  flutter_secure_storage_darwin: ce237a8775b39723566dc72571190a3769d70468
+  flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
   flutter_sound: b9236a5875299aaa4cef1690afd2f01d52a3f890
   flutter_sound_core: 427465f72d07ab8c3edbe8ffdde709ddacd3763c
   flutter_webrtc: fd0d3bdef8766a0736dbbe2e5b7e85f1f3c52117
@@ -335,11 +340,11 @@ SPEC CHECKSUMS:
   image_crop: d83cf4373d8a94b985477cb57af0a050274a9c8c
   image_gallery_saver: 14711d79da40581063e8842a11acf1969d781ed7
   image_picker_ios: 7fe1ff8e34c1790d6fff70a32484959f563a928a
-  JCore: 3effa468af29935edb53e6460ef81fd3c03ee1a8
+  JCore: fcad36c11a5c70518322770db33408c23ff1ba7a
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   JVerification: 0774807f44dd788c78d50303a14e133735807856
   jverify: 59d8e9a5835616c1deed9cf67dbd9679aa1ca244
-  libphonenumber_plugin: a9fa13d009da249b397e3184a2bfe71202adc522
+  libphonenumber_plugin: d134f173b22bfa5ede50887071f087f309277f8c
   local_auth_darwin: 553ce4f9b16d3fdfeafce9cf042e7c9f77c1c391
   map_launcher: fe43bda6720bb73c12fcc1bdd86123ff49a4d4d6
   mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93
@@ -350,13 +355,13 @@ SPEC CHECKSUMS:
   PhoneNumberKit: ec00ab8cef5342c1dc49fadb99d23fa7e66cf0ef
   photo_manager: 1d80ae07a89a67dfbcae95953a1e5a24af7c3e62
   r_upgrade: 5c37115e210f79501aa194b0146f7c1866c39e8c
-  SDWebImage: f84b0feeb08d2d11e6a9b843cb06d75ebf5b8868
+  SDWebImage: f29024626962457f3470184232766516dee8dfea
   sensors_plus: 6a11ed0c2e1d0bd0b20b4029d3bad27d96e0c65b
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
-  sqlite3: 3c950dc86011117c307eb0b28c4a7bb449dce9f1
-  sqlite3_flutter_libs: f6acaa2172e6bb3e2e70c771661905080e8ebcf2
+  sqlite3: 3e82a2daae39ba3b41ae6ee84a130494585460fc
+  sqlite3_flutter_libs: e7fc8c9ea2200ff3271f08f127842131746b70e2
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
   video_compress: f2133a07762889d67f0711ac831faa26f956980e

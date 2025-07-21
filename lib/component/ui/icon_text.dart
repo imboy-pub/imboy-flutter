@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/config/theme.dart';
 
 class IconTextView extends StatefulWidget {
   // 左侧 图标
@@ -59,7 +58,7 @@ class IconTextView extends StatefulWidget {
 }
 
 class _IconTextViewState extends State<IconTextView> {
-  bool _isClickDown = false;
+  bool isClickDown = false;
 
   @override
   Widget build(BuildContext context) {
@@ -125,19 +124,19 @@ class _IconTextViewState extends State<IconTextView> {
     // ignore: no_leading_underscores_for_local_identifiers
     void onViewClickDown(TapDownDetails d) {
       setState(() {
-        _isClickDown = true;
+        isClickDown = true;
       });
     }
 
     void onViewClickUp(TapUpDetails d) {
       setState(() {
-        _isClickDown = false;
+        isClickDown = false;
       });
     }
 
     void onViewClickCancel() {
       setState(() {
-        _isClickDown = false;
+        isClickDown = false;
       });
     }
 
@@ -151,11 +150,11 @@ class _IconTextViewState extends State<IconTextView> {
           height: widget.height,
           decoration: widget.decoration ??
               (BoxDecoration(
-                color: _isClickDown
-                    ? const Color(0xFFEEEEEE)
-                    : (Get.isDarkMode
-                        ? darkInputFillColor
-                        : lightInputFillColor),
+                // color: isClickDown
+                //     ? const Color(0xFFEEEEEE)
+                //     : (Get.isDarkMode
+                //         ? darkInputFillColor
+                //         : lightInputFillColor),
               )),
           child: Stack(
             children: <Widget>[

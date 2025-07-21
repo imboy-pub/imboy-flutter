@@ -38,7 +38,7 @@ class NewFriendRepo {
       NewFriendRepo.payload: obj.payload,
       // 单位毫秒，13位时间戳  1561021145560
       NewFriendRepo.updatedAt: obj.updatedAt,
-      NewFriendRepo.createdAt: DateTimeHelper.millisecond(),
+      NewFriendRepo.createdAt: DateTimeHelper.now(),
     };
     debugPrint("> on NewFriendRepo/insert/1 $insert");
 

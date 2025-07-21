@@ -21,8 +21,8 @@ dependencies:
   flutter_screenutil: ^5.9.3 # Screen adaptation
   flutter_animate: ^4.5.2  # Animation library
   octo_image: ^2.1.0      # 多功能 Flutter 图像小部件
-  flutter_svg: ^2.1.0     # SVG rendering
-  dotted_border: ^3.0.1   # Custom border styles
+  flutter_svg: ^2.2.0     # SVG rendering
+  dotted_border: ^3.1.0   # Custom border styles
   flutter_spinkit: ^5.2.1  # Loading animations
   flutter_easyloading: ^3.0.5 # Toast/loading widgets
   flutter_native_splash: ^2.4.6 # Splash screen generation
@@ -47,11 +47,12 @@ dependencies:
   shared_preferences: ^2.5.3 # Local storage
   flutter_secure_storage: ^9.2.4 # Secure storage
   sqflite: ^2.4.2         # SQLite database
-  sqflite_common_ffi: ^2.3.5 # SQLite FFI support
-  sqlite3_flutter_libs: ^0.5.33 # SQLite libraries
+  sqflite_common_ffi: ^2.3.6 # SQLite FFI support
+  sqlite3_flutter_libs: ^0.5.34 # SQLite libraries
   cached_network_image: ^3.4.1 # Image caching
   flutter_cache_manager: ^3.4.1 # Cache management
   pointycastle: ^4.0.0    # Cryptography
+  device_info_plus: ^11.5.0
 
   ##############################################
   # Media & Camera
@@ -74,7 +75,7 @@ dependencies:
     git:
       url: https://gitee.com/imboy-tripartite-deps/image_gallery_saver.git
       ref: leeyi
-  video_player: ^2.9.5    # Video playback
+  video_player: ^2.10.0    # Video playback
 
   ##############################################
   # Audio
@@ -82,12 +83,24 @@ dependencies:
   flutter_sound: ^9.28.0  # Audio recording/playback
   audio_session: ^0.2.2   # Audio session management
   voice_message_package: ^2.2.1 # Voice message player
-  flutter_webrtc: ^0.14.1 # WebRTC for audio/video calls
+  flutter_webrtc: ^0.14.2 # WebRTC for audio/video calls
 
   ##############################################
   # Chat & Messaging
   ##############################################
-  flutter_chat_ui: 1.6.15 # Chat UI components
+  flutter_chat_core: any
+  flutter_chat_ui: any
+  flyer_chat_audio_message: any
+  flyer_chat_custom_message: any
+  flyer_chat_file_message: any
+  flyer_chat_image_message: any
+  flyer_chat_location_message: any
+  flyer_chat_system_message: any
+  flyer_chat_text_message: any
+  flyer_chat_text_stream_message: any
+
+  flyer_chat_video_message: any
+
   bubble: ^1.2.1          # Chat bubbles
   emoji_picker_flutter: ^4.3.0 # Emoji picker
   highlight_text: ^1.8.0  # Text highlighting
@@ -102,9 +115,9 @@ dependencies:
       ref: leeyi
   easy_refresh: ^3.4.0    # Pull-to-refresh
   flutter_slidable: ^4.0.0 # Slidable list items
-  scroll_to_index:        # Scroll to index
-    git:
-      url: https://github.com/quire-io/scroll-to-index.git
+#  scroll_to_index:        # Scroll to index 打算弃用
+#    git:
+#      url: https://github.com/quire-io/scroll-to-index.git
   sliding_up_panel: ^2.0.0+1 # Sliding panels
   buttons_tabbar: ^1.3.15 # Tab bar
 
@@ -120,24 +133,25 @@ dependencies:
   # QR Code
   ##############################################
   qr_flutter: ^4.1.0      # QR code generation
-  mobile_scanner: ^7.0.0  # QR code scanning
+  mobile_scanner: ^7.0.1  # QR code scanning
 
   ##############################################
   # Utilities
   ##############################################
-  logger: ^2.5.0          # Logging
+  logger: ^2.6.0          # Logging
   event_bus: ^2.0.1       # Event bus
   jose: ^0.3.4            # JWT handling
   encrypt: ^5.0.3         # Encryption
   permission_handler: ^12.0.0+1 # Permissions
   path_provider: ^2.1.5   # File system paths
+  file_saver: ^0.3.0
   xid: ^1.2.1             # Unique ID generation
   jiffy: ^6.4.3           # Date/time handling
   ntp: ^2.0.0             # Network time protocol
   clock: ^1.1.2           # Time utilities
   equatable: ^2.0.7       # Object equality
   safemap: ^2.1.0         # Safe map access
-  synchronized: ^3.3.1    # Synchronization
+  synchronized: ^3.4.0    # Synchronization
   share_plus: ^11.0.0     # Sharing
   wakelock_plus: ^1.3.2   # Keep screen awake
   drag_ball: ^2.0.1       # Assistive touch ball
@@ -149,7 +163,7 @@ dependencies:
     path: plugin/ic_storage_space
   nine_grid_view: ^2.0.0  # 9-grid view
   badges: ^3.1.2          # Badge indicators
-  carousel_slider_plus: ^7.1.0 # Carousel slider
+  carousel_slider_plus: ^7.1.1 # Carousel slider
   textfield_tags: ^3.0.1  # Tag input field
   flutter_rating_bar: ^4.0.1
   filter_list:            # Filterable lists
@@ -176,54 +190,44 @@ dependencies:
   # Flutter 的弹出窗口。弹出窗口是一种瞬态视图，当您点击某个控件或某个区域时，它会出现在屏幕上其他内容的上方。
   popover: ^0.3.1
   popup_menu: ^2.1.0
+  characters: ^1.4.1
+  provider: ^6.1.5
+  visibility_detector: ^0.4.0+2
+  dart_duckdb: ^1.2.2
 
 
 dependency_overrides:
-  camera_android_camerax: ^0.6.18
-  # camera_android_camerax:
-  #   path: plugin/packages/packages/camera/camera_android_camerax
-  flutter_plugin_android_lifecycle:
-    path: plugin/packages/packages/flutter_plugin_android_lifecycle
-  webview_flutter_android:
-    path: plugin/packages/packages/webview_flutter/webview_flutter_android
-  image_picker_android:
-    path: plugin/packages/packages/image_picker/image_picker_android/
+  flutter_chat_core:
+    path: plugin/flutter_chat_ui/packages/flutter_chat_core
+  flutter_chat_ui:
+    path: plugin/flutter_chat_ui/packages/flutter_chat_ui
+  flyer_chat_custom_message:
+    path: plugin/flutter_chat_ui/packages/flyer_chat_custom_message
+  flyer_chat_text_stream_message:
+    path: plugin/flutter_chat_ui/packages/flyer_chat_text_stream_message
+  flyer_chat_text_message:
+    path: plugin/flutter_chat_ui/packages/flyer_chat_text_message
+  flyer_chat_image_message:
+    path: plugin/flutter_chat_ui/packages/flyer_chat_image_message
+  flyer_chat_video_message:
+    path: plugin/flutter_chat_ui/packages/flyer_chat_video_message
+  flyer_chat_file_message:
+    path: plugin/flutter_chat_ui/packages/flyer_chat_file_message
+  flyer_chat_system_message:
+    path: plugin/flutter_chat_ui/packages/flyer_chat_system_message
+  flyer_chat_audio_message:
+    path: plugin/flutter_chat_ui/packages/flyer_chat_audio_message
+  flyer_chat_location_message:
+    path: plugin/flutter_chat_ui/packages/flyer_chat_location_message
 
-  connectivity_plus:
-    path: plugin/plus_plugins/packages/connectivity_plus/connectivity_plus
   device_info_plus:
     path: plugin/plus_plugins/packages/device_info_plus/device_info_plus
-  #
-  flutter_secure_storage:
-    path: plugin/flutter_secure_storage/flutter_secure_storage
-  file_saver:
-    path: plugin/file_saver
-  file_picker:
-    path: plugin/flutter_file_picker
-  flutter_native_splash:
-    path: plugin/flutter_native_splash
   emoji_picker_flutter:
     path: plugin/emoji_picker_flutter
-  audio_session:
-    path: plugin/audio_session
-  mobile_scanner:
-    path: plugin/mobile_scanner
-  permission_handler_android:
-    path: plugin/flutter-permission-handler/permission_handler_android
-  image_crop:             # Image cropping
-    path: plugin/image_crop
-  r_upgrade:
-    path: plugin/r_upgrade
   image_gallery_saver:
     path: plugin/image_gallery_saver
-  sqlite3_flutter_libs:
-    path: plugin/sqlite3.dart/sqlite3_flutter_libs
-  libphonenumber_plugin:
-    path: plugin/plugin_libphonenumber/libphonenumber_plugin
-
-  flutter_sound:
-    path: plugin/flutter_sound
-
+  r_upgrade:
+    path: plugin/r_upgrade
   amap_flutter_base:
     path: plugin/amap_flutter_base
   amap_flutter_map:
@@ -231,19 +235,21 @@ dependency_overrides:
   amap_flutter_location:
     path: plugin/amap_flutter_location
 
+  characters: ^1.4.1
+  audio_session: ^0.2.2
   intl: ^0.20.2
   pointycastle: ^4.0.0    # Cryptography 一个实现加密算法和原语的 Dart 库
   camera: ^0.11.1 # dep by wechat_camera_picker
 
-  scroll_to_index:
-    git:
-      url: https://gitee.com/imboy-tripartite-deps/scroll-to-index_scroll_with_keep_alives_fix.git
-      ref: scroll_with_keep_alives_fix
+#  scroll_to_index: // 打算弃用
+#    git:
+#      url: https://gitee.com/imboy-tripartite-deps/scroll-to-index_scroll_with_keep_alives_fix.git
+#      ref: scroll_with_keep_alives_fix
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner: ^2.4.14
+  build_runner: ^2.5.4
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -251,6 +257,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  envied_generator: ^1.1.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -273,6 +280,7 @@ flutter:
     - assets/data/region.json
     - assets/images/splash_bg.png
     - assets/images/index_bar_bubble_gray.png
+    - assets/images/pattern.png
 
     - assets/images/chat/voice_volume_1.png
     - assets/images/chat/voice_volume_2.png

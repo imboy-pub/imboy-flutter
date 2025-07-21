@@ -16,7 +16,6 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/people_model.dart';
-import 'package:imboy/config/theme.dart';
 
 class FaceToFaceConfirmPage extends StatefulWidget {
   final String gid;
@@ -86,7 +85,7 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: darkBgColor,
+      // backgroundColor: darkBgColor,
       appBar: NavAppBar(
         leading: IconButton(
           icon: const Icon(Icons.close, size: 24, color: Colors.white),
@@ -95,7 +94,7 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
             nav.pop();
           },
         ),
-        backgroundColor: darkBgColor,
+        // backgroundColor: darkBgColor,
       ),
       // backgroundColor: Get.isDarkMode ? darkBgColor : lightBgColor,
       body: Container(

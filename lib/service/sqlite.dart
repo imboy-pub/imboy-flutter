@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:synchronized/synchronized.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
@@ -27,10 +28,17 @@ class SqliteService {
 
   static Database? _db;
 
+  // 全局数据库锁，确保所有写操作串行执行
+  final Lock _dbLock = Lock();
+
+  // 初始化锁，确保数据库只被初始化一次
+  final Lock _initLock = Lock();
+
   /// 获取数据库连接实例
   /// Get the database connection instance
   Future<Database?> get db async {
-    _db ??= await _initDatabase();
+
+    if (_db != null) return _db;
     // https://developer.android.com/reference/android/database/sqlite/package-summary
     /*
     // 查询 SQLite 版本
@@ -42,7 +50,10 @@ class SqliteService {
       // andriod [ +225 ms] I/flutter (19060): iPrint SQLite version: [{sqlite_version(): 3.46.0}]
     }
     */
-    return _db;
+    return await _initLock.synchronized(() async {
+      _db = await _initDatabase();
+      return _db;
+    });
   }
 
   /// 关闭数据库连接
@@ -116,7 +127,6 @@ class SqliteService {
 
     ///  请记住，回调onCreate onUpgrade onDowngrade已经内部包装在事务中，
     ///  因此无需将语句包装在这些回调内的事务中。
-
   }
 
   ///
@@ -142,45 +152,83 @@ class SqliteService {
     await SqliteDdl.onDowngrade(db, oldVsn, newVsn);
   }
 
-  /// 插入数据
-  /// Insert data
-  Future<int> insert(String table, Map<String, dynamic> data) async {
-    try {
-      final db = await this.db;
-      if (db == null) return 0;
-      return await db.insert(table, data, conflictAlgorithm: ConflictAlgorithm.replace);
-    } catch (e, s) {
-      debugPrint('Insert error: $e; $s');
+  /// 插入数据（带重试机制）
+  /// Insert data (with retry logic)
+  Future<int> insert(String table, Map<String, dynamic> data, {int retries = 3}) async {
+    return await _dbLock.synchronized(() async {
+      for (var attempt = 0; attempt < retries; attempt++) {
+        try {
+          final db = await this.db;
+          if (db == null) return 0;
+          return await db.insert(table, data, conflictAlgorithm: ConflictAlgorithm.replace);
+        } catch (e) {
+          if (_isDatabaseLockedError(e) && attempt < retries - 1) {
+            await Future.delayed(Duration(milliseconds: 100 * (attempt + 1)));
+            continue;
+          }
+          debugPrint('Insert error: $e');
+          rethrow;
+        }
+      }
       return 0;
-    }
+    });
   }
 
-  /// 更新数据
-  /// Update data
+  /// 更新数据（带重试机制）
+  /// Update data (with retry logic)
   Future<int> update(
       String table,
       Map<String, Object?> values, {
         String? where,
         List<Object?>? whereArgs,
         ConflictAlgorithm? conflictAlgorithm,
+        int retries = 3,
       }) async {
-    final db = await this.db;
-    if (db == null) return 0;
-    return await db.update(
-      table,
-      values,
-      where: where,
-      whereArgs: whereArgs,
-      conflictAlgorithm: conflictAlgorithm,
-    );
+    return await _dbLock.synchronized(() async {
+      for (var attempt = 0; attempt < retries; attempt++) {
+        try {
+          final db = await this.db;
+          if (db == null) return 0;
+          return await db.update(
+            table,
+            values,
+            where: where,
+            whereArgs: whereArgs,
+            conflictAlgorithm: conflictAlgorithm,
+          );
+        } catch (e) {
+          if (_isDatabaseLockedError(e) && attempt < retries - 1) {
+            await Future.delayed(Duration(milliseconds: 100 * (attempt + 1)));
+            continue;
+          }
+          debugPrint('Update error: $e');
+          rethrow;
+        }
+      }
+      return 0;
+    });
   }
 
-  /// 执行原始 SQL 更新语句
-  /// Execute raw update SQL
-  Future<int> execute(String sql, [List<Object?>? arguments]) async {
-    final db = await this.db;
-    if (db == null) return 0;
-    return await db.rawUpdate(sql, arguments);
+  /// 执行原始 SQL 更新语句（带重试机制）
+  /// Execute raw update SQL (with retry logic)
+  Future<int> execute(String sql, [List<Object?>? arguments, int retries = 3]) async {
+    return await _dbLock.synchronized(() async {
+      for (var attempt = 0; attempt < retries; attempt++) {
+        try {
+          final db = await this.db;
+          if (db == null) return 0;
+          return await db.rawUpdate(sql, arguments);
+        } catch (e) {
+          if (_isDatabaseLockedError(e) && attempt < retries - 1) {
+            await Future.delayed(Duration(milliseconds: 100 * (attempt + 1)));
+            continue;
+          }
+          debugPrint('Execute error: $e');
+          rethrow;
+        }
+      }
+      return 0;
+    });
   }
 
   /// 执行查询操作
@@ -264,33 +312,64 @@ class SqliteService {
     return null;
   }
 
-  /// 删除记录
-  /// Delete records
-  Future<int> delete(String table, {String? where, List<Object?>? whereArgs}) async {
-    final db = await this.db;
-    if (db == null) return 0;
-    return await db.delete(
-      table,
-      where: where,
-      whereArgs: whereArgs,
-    );
+  /// 删除记录（带重试机制）
+  /// Delete records (with retry logic)
+  Future<int> delete(
+      String table, {
+        String? where,
+        List<Object?>? whereArgs,
+        int retries = 3,
+      }) async {
+    return await _dbLock.synchronized(() async {
+      for (var attempt = 0; attempt < retries; attempt++) {
+        try {
+          final db = await this.db;
+          if (db == null) return 0;
+          return await db.delete(
+            table,
+            where: where,
+            whereArgs: whereArgs,
+          );
+        } catch (e) {
+          if (_isDatabaseLockedError(e) && attempt < retries - 1) {
+            await Future.delayed(Duration(milliseconds: 100 * (attempt + 1)));
+            continue;
+          }
+          debugPrint('Delete error: $e');
+          rethrow;
+        }
+      }
+      return 0;
+    });
   }
 
-  /// 使用事务进行批处理操作
-  /// Execute batch operations within a transaction
+  /// 使用事务进行批处理操作（带全局锁）
+  /// Execute batch operations within a transaction (with global lock)
   Future<T> transaction<T>(Future<T> Function(Transaction txn) action) async {
-    final db = await this.db;
-    return await db!.transaction(action);
+    return await _dbLock.synchronized(() async {
+      final db = await this.db;
+      if (db == null) throw Exception('Database is null');
+      return await db.transaction(action);
+    });
   }
 
-  /// 批量插入
-  /// Insert multiple records in batch
+  /// 批量插入（带全局锁）
+  /// Insert multiple records in batch (with global lock)
   Future<void> batchInsert(String table, List<Map<String, dynamic>> dataList) async {
-    final db = await this.db;
-    final batch = db!.batch();
-    for (var data in dataList) {
-      batch.insert(table, data, conflictAlgorithm: ConflictAlgorithm.replace);
-    }
-    await batch.commit(noResult: true);
+    await _dbLock.synchronized(() async {
+      final db = await this.db;
+      if (db == null) return;
+      final batch = db.batch();
+      for (var data in dataList) {
+        batch.insert(table, data, conflictAlgorithm: ConflictAlgorithm.replace);
+      }
+      await batch.commit(noResult: true);
+    });
+  }
+
+  /// 判断数据库被锁定错误
+  /// Check if error is 'database is locked'
+  bool _isDatabaseLockedError(dynamic e) {
+    return e.toString().contains('database is locked');
   }
 }

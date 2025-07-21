@@ -35,6 +35,14 @@ class DateTimeHelper {
     DateTime dt = DateTime.fromMillisecondsSinceEpoch(millis, isUtc: isUtc);
     return toRfc3339(dt);
   }
+  static DateTime millisecondToDateTime(int millis, {bool isUtc = true}) {
+    // 如果时间戳代表的是 UTC 时间，则设置 isUtc: true
+    return DateTime.fromMillisecondsSinceEpoch(millis, isUtc: isUtc);
+  }
+
+  static DateTime now() {
+    return DateTime.now();
+  }
 
   static String rfc3339() {
     return toRfc3339(DateTime.now());

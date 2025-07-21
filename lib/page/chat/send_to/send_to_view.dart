@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart' show Message;
 
-// ignore: depend_on_referenced_packages
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/list.dart';
-import 'package:imboy/component/message/message.dart';
+import 'package:imboy/component/chat/message.dart';
 import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
@@ -17,13 +16,12 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'send_to_logic.dart';
 
 /// 发送给 页面
 class SendToPage extends StatelessWidget {
-  final types.Message msg;
+  final Message msg;
   final Function()? callback;
 
   SendToPage({super.key, required this.msg, this.callback});
@@ -45,30 +43,26 @@ class SendToPage extends StatelessWidget {
       Widget btn;
       if (state.multipleChoice.isTrue) {
         btn = InkWell(
-          onTap: () {
-            state.multipleChoice.value = !state.multipleChoice.value;
-            state.selects.value = [];
-            for (var element in state.conversations) {
-              element.selected.value = false;
-            }
-          },
-          child: n.Padding(
-            top: 14,
-            left: 16,
-            child: Text('button_cancel'.tr),
-          ),
-        );
+            onTap: () {
+              state.multipleChoice.value = !state.multipleChoice.value;
+              state.selects.value = [];
+              for (var element in state.conversations) {
+                element.selected.value = false;
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(top: 14, left: 16),
+              child: Text('button_cancel'.tr),
+            ));
       } else {
         btn = InkWell(
-          onTap: () {
-            Get.back();
-          },
-          child: n.Padding(
-            top: 14,
-            left: 16,
-            child: Text('button_close'.tr),
-          ),
-        );
+            onTap: () {
+              Get.back();
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(top: 14, left: 16),
+              child: Text('button_close'.tr),
+            ));
       }
       return btn;
     });
@@ -86,16 +80,13 @@ class SendToPage extends StatelessWidget {
           }
         },
         child: Obx(
-          () {
+              () {
             String suffix = '';
             if (state.selects.isNotEmpty) {
               suffix = '(${state.selects.length})';
             }
-            return n.Padding(
-              top: 14,
-              left: 10,
-              right: 10,
-              bottom: 14,
+            return Padding(
+              padding: const EdgeInsets.only(top: 14, left: 10, right: 10, bottom: 14),
               child: state.multipleChoice.isTrue
                   ? Text("${'button_accomplish'.tr}$suffix")
                   : Text('multi_select'.tr),
@@ -114,76 +105,49 @@ class SendToPage extends StatelessWidget {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
       floatingActionButton: searchBoxBuild(context),
-      body: n.Column([
-        Container(
-          width: Get.width,
-          height: 8,
-          color: Theme.of(context).colorScheme.surface,
-          // color: Colors.red,
-          margin: const EdgeInsets.only(top: 53.0),
-        ),
-        /*
-        SizedBox(
-          width: Get.width,
-          child: n.Column(
-            [
-              ListTile(
-                title: Text('recent_forwards'.tr),
-              ),
-              n.Row([])
-            ],
-          ),
-        ),
-        // line
-        Container(
-          // margin: const EdgeInsets.only(top: 53.0),
-          width: Get.width,
-          height: 8,
-          color: AppColors.ChatBg,
-        ),
-        */
-        Expanded(
-          flex: 1,
-          child: SizedBox(
+      body: Column(
+        children: [
+          Container(
             width: Get.width,
-            // height: 460,
-            // color: AppColors.ChatBg,
-            // color: Colors.red,
-            child: n.Column([
-              ListTile(
-                title: Text(
-                  'recent_chats'.tr,
-                ),
-              ),
-              Expanded(
-                child: n.Padding(
-                  left: 16,
-                  child: Obx(
-                    () => n.ListView(
-                      itemCount: state.conversations.length,
-                      children: state.conversations
-                          .map((conversation) => _buildListItem(
-                                context,
-                                conversation,
-                              ))
-                          .toList(),
+            height: 8,
+            color: Theme.of(context).colorScheme.surface,
+            margin: const EdgeInsets.only(top: 53.0),
+          ),
+          Expanded(
+            flex: 1,
+            child: SizedBox(
+              width: Get.width,
+              child: Column(
+                children: [
+                  ListTile(
+                    title: Text('recent_chats'.tr),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Obx(
+                            () => ListView.builder(
+                          itemCount: state.conversations.length,
+                          itemBuilder: (context, index) => _buildListItem(
+                            context,
+                            state.conversations[index],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ]),
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 
   Widget searchBoxBuild(BuildContext ctx) {
-    // TODO leeyi 2023-01-29 16:56:14
     return Container(
       margin: const EdgeInsets.only(top: 58.0, left: 12),
-      // color: Colors.white,
-      // color: Colors.red,
       width: Get.width - 20,
       height: 48.0,
       child: InkWell(
@@ -213,12 +177,10 @@ class SendToPage extends StatelessWidget {
                     lastMsgId: '',
                     lastTime: 0,
                     lastMsgStatus: 11,
-                    // astMsgStatus 10 发送中 sending;  11 已发送 send;
                     unreadNum: 0,
                     isShow: 1,
                     id: 0,
                   );
-                  // 保存会话
                   obj = await (ConversationRepo()).save(obj);
                   sendToDialog(Get.context!, obj, 3);
                 }
@@ -226,25 +188,26 @@ class SendToPage extends StatelessWidget {
             ),
           );
         },
-        child: n.Row([
-          FloatingActionButton(
-            mini: true,
-            // backgroundColor: Colors.white,
-            shape: const CircleBorder(),
-            elevation: 0,
-            tooltip: 'search'.tr,
-            onPressed: () {},
-            child: Icon(
-              Icons.search,
-              color: Theme.of(ctx).colorScheme.onPrimary,
-              size: 20,
+        child: Row(
+          children: [
+            FloatingActionButton(
+              mini: true,
+              shape: const CircleBorder(),
+              elevation: 0,
+              tooltip: 'search'.tr,
+              onPressed: () {},
+              child: Icon(
+                Icons.search,
+                color: Theme.of(ctx).colorScheme.onPrimary,
+                size: 20,
+              ),
             ),
-          ),
-          n.Padding(
-            left: 0,
-            child: Text('search'.tr),
-          ),
-        ]),
+            Padding(
+              padding: const EdgeInsets.only(left: 0),
+              child: Text('search'.tr),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -292,32 +255,34 @@ class SendToPage extends StatelessWidget {
       ),
       content: SizedBox(
         height: 128.0 * towD.length,
-        child: n.Column([
-          Expanded(
-            child: n.Padding(
-              left: 4,
-              child: n.Column(
-                towD.map<Widget>((row4) {
-                  return n.Row(row4.map<Widget>(((item) {
-                    return n.Padding(
-                      right: 6,
-                      top: 6,
-                      child: Avatar(
-                        imgUri: item.avatar,
-                        onTap: () {},
-                      ),
+        child: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: Column(
+                  children: towD.map<Widget>((row4) {
+                    return Row(
+                      children: row4.map<Widget>(((item) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 6, top: 6),
+                          child: Avatar(
+                            imgUri: item.avatar,
+                            onTap: () {},
+                          ),
+                        );
+                      })).toList(),
                     );
-                  })).toList());
-                  // ..mainAxisAlignment = MainAxisAlignment.center;
-                }).toList(),
+                  }).toList(),
+                ),
               ),
             ),
-          ),
-          const HorizontalLine(height: 1.0),
-          Expanded(
-            child: messageMsgWidget(msg),
-          ),
-        ]),
+            const HorizontalLine(height: 1.0),
+            Expanded(
+              child: messageMsgWidget(msg),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -346,8 +311,7 @@ class SendToPage extends StatelessWidget {
           bool res = await logic.sendMsg(model, msg);
           if (res) {
             EasyLoading.showSuccess('tip_success'.tr);
-            debugPrint(
-                "send_to_view callback before 2 ${callback.toString()};");
+            debugPrint("send_to_view callback before 2 ${callback.toString()};");
             if (callback != null) {
               callback!();
             }
@@ -369,102 +333,100 @@ class SendToPage extends StatelessWidget {
       ),
       content: SizedBox(
         height: 200,
-        child: n.Column([
-          n.Row([
-            Avatar(
-              imgUri: model.avatar,
-              onTap: () {},
-            ),
-            Expanded(
-              child: n.Padding(
-                left: 10,
-                child: Text(
-                  // 会话对象标题
-                  model.title,
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Avatar(
+                  imgUri: model.avatar,
+                  onTap: () {},
                 ),
-              ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Text(
+                      model.title,
+                      style: const TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.normal,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ]),
-          const Divider(),
-          Expanded(
-            child: Center(child: messageMsgWidget(msg)),
-          ),
-        ]),
+            const Divider(),
+            Expanded(
+              child: Center(child: messageMsgWidget(msg)),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildListItem(BuildContext context, ConversationModel model) {
-    // String susTag = model.getSuspensionTag();
-    return n.Column([
-      // Offstage(
-      //   offstage: model.isSelect != true,
-      //   child: _buildSusWidget(susTag),
-      // ),
-      SizedBox(
-        height: _itemHeight.toDouble(),
-        child: InkWell(
-          onTap: () {
-            // debugPrint(" item_onTap multipleChoice ${state.multipleChoice}");
-            if (state.multipleChoice.isTrue) {
-              // debugPrint(" item_onTap ${model.isSelect}");
-              model.selected.value = !model.selected.value;
-              if (model.selected.isTrue) {
-                state.selects.insert(0, model);
+    return Column(
+      children: [
+        SizedBox(
+          height: _itemHeight.toDouble(),
+          child: InkWell(
+            onTap: () {
+              if (state.multipleChoice.isTrue) {
+                model.selected.value = !model.selected.value;
+                if (model.selected.isTrue) {
+                  state.selects.insert(0, model);
+                } else {
+                  state.selects.remove(model);
+                }
               } else {
-                state.selects.remove(model);
+                sendToDialog(context, model, 2);
               }
-              // setState(() {});
-            } else {
-              sendToDialog(context, model, 2);
-            }
-          },
-          child: n.Row([
-            if (state.multipleChoice.isTrue)
-              n.Padding(
-                right: 8,
-                child: Icon(
-                  model.selected.isTrue
-                      ? CupertinoIcons.check_mark_circled_solid
-                      : CupertinoIcons.check_mark_circled,
-                  color: model.selected.isTrue ? Colors.green : Colors.grey,
+            },
+            child: Row(
+              children: [
+                if (state.multipleChoice.isTrue)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Icon(
+                      model.selected.isTrue
+                          ? CupertinoIcons.check_mark_circled_solid
+                          : CupertinoIcons.check_mark_circled,
+                      color: model.selected.isTrue ? Colors.green : Colors.grey,
+                    ),
+                  ),
+                Avatar(
+                  imgUri: model.avatar,
+                  width: 49,
+                  height: 49,
                 ),
-              ),
-            Avatar(
-              imgUri: model.avatar,
-              width: 49,
-              height: 49,
-            ),
-            const Space(),
-            Expanded(
-              child: Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.only(right: 30),
-                height: _itemHeight.toDouble(),
-                decoration: BoxDecoration(
-                  border: Border(
-                    top: BorderSide(
-                      width: Get.isDarkMode ? 0.5 : 1.0,
-                      color:
-                          Theme.of(Get.context!).colorScheme.primaryContainer,
+                const Space(),
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.only(right: 30),
+                    height: _itemHeight.toDouble(),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          width: Get.isDarkMode ? 0.5 : 1.0,
+                          color: Theme.of(Get.context!).colorScheme.primaryContainer,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      model.title,
+                      style: const TextStyle(fontSize: 14.0),
                     ),
                   ),
                 ),
-                child: Text(
-                  model.title,
-                  style: const TextStyle(fontSize: 14.0),
-                ),
-              ),
+              ],
             ),
-          ]),
-        ),
-      )
-    ]);
+          ),
+        )
+      ],
+    );
   }
 }

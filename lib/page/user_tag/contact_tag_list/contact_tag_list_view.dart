@@ -10,7 +10,6 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/user_tag/contact_tag_detail/contact_tag_detail_view.dart';
 import 'package:imboy/page/user_tag/user_tag_save/user_tag_save_view.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'contact_tag_list_logic.dart';
 
@@ -37,8 +36,6 @@ class ContactTagListPage extends StatelessWidget {
     controller.addListener(() async {
       double pixels = controller.position.pixels;
       double maxScrollExtent = controller.position.maxScrollExtent;
-      // debugPrint("RefreshIndicator_collect_ $pixels; $maxScrollExtent; ");
-      // 滑动到底部，执行加载更多操作
       if (pixels == maxScrollExtent) {
         var list = await logic.page(
           page: state.page,
@@ -68,22 +65,17 @@ class ContactTagListPage extends StatelessWidget {
             key: ValueKey("change_name_$index"),
             flex: 2,
             backgroundColor: Colors.black87,
-            // foregroundColor: Colors.white,
             onPressed: (_) async {
               Get.bottomSheet(
+                UserTagSavePage(
+                  tag: obj,
+                  scene: 'friend',
+                ),
                 backgroundColor: Get.isDarkMode
                     ? const Color.fromRGBO(80, 80, 80, 1)
                     : const Color.fromRGBO(240, 240, 240, 1),
-                n.Padding(
-                  // top: 80,
-                  child: UserTagSavePage(
-                    tag: obj,
-                    scene: 'friend',
-                  ),
-                ),
               );
             },
-            // icon: Icons.delete_forever_sharp,
             label: 'change_param'.trArgs(['name'.tr]),
             spacing: 1,
           ),
@@ -91,76 +83,74 @@ class ContactTagListPage extends StatelessWidget {
             key: ValueKey("delete_$index"),
             flex: 1,
             backgroundColor: Colors.red,
-            // foregroundColor: Colors.white,
             onPressed: (_) async {
               Get.bottomSheet(
                 SizedBox(
                   width: Get.width,
                   height: 172,
-                  child: n.Wrap([
-                    Center(
-                      child: n.Padding(
-                        top: 16,
-                        bottom: 16,
-                        child: Text(
-                          'delete_tag_tips'.tr,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            // color: Colors.white,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.normal,
+                  child: Column(
+                    children: [
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Text(
+                            'delete_tag_tips'.tr,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.normal,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const Divider(),
-                    Center(
-                      child: TextButton(
-                        onPressed: () async {
-                          const String scene = 'friend';
-                          bool res = await logic.deleteTag(
-                            tagId: obj.tagId,
-                            tagName: obj.name,
-                            scene: scene,
-                          );
-                          if (res) {
-                            Get.closeAllBottomSheets();
-                            EasyLoading.showSuccess('tip_success'.tr);
-                          } else {
-                            EasyLoading.showError('tip_failed'.tr);
-                          }
-                        },
-                        child: Text(
-                          'button_delete'.tr,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.normal,
+                      const Divider(),
+                      Center(
+                        child: TextButton(
+                          onPressed: () async {
+                            const String scene = 'friend';
+                            bool res = await logic.deleteTag(
+                              tagId: obj.tagId,
+                              tagName: obj.name,
+                              scene: scene,
+                            );
+                            if (res) {
+                              Get.closeAllBottomSheets();
+                              EasyLoading.showSuccess('tip_success'.tr);
+                            } else {
+                              EasyLoading.showError('tip_failed'.tr);
+                            }
+                          },
+                          child: Text(
+                            'button_delete'.tr,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.normal,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const HorizontalLine(height: 6),
-                    Center(
-                      child: TextButton(
-                        onPressed: () => Get.close(),
-                        child: Text(
-                          'button_cancel'.tr,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            // color: Colors.white,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.normal,
+                      const HorizontalLine(height: 6),
+                      Center(
+                        child: TextButton(
+                          onPressed: () => Get.close(),
+                          child: Text(
+                            'button_cancel'.tr,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.normal,
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                  ]),
+                      )
+                    ],
+                  ),
                 ),
                 backgroundColor: Get.isDarkMode
                     ? const Color.fromRGBO(80, 80, 80, 1)
-                    : const Color.fromRGBO(240, 240, 240, 1), //改变shape这里即可
+                    : const Color.fromRGBO(240, 240, 240, 1),
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(20.0),
@@ -169,64 +159,54 @@ class ContactTagListPage extends StatelessWidget {
                 ),
               );
             },
-            // icon: Icons.delete_forever_sharp,
             label: 'button_delete'.tr,
             spacing: 1,
           ),
         ],
       ),
       child: Container(
-        // width: Get.width - 24,
-        // height: Get.height - 125,
-        // color: Colors.white,
         margin: const EdgeInsets.fromLTRB(0, 0, 0, 2),
         padding: const EdgeInsets.all(10),
-        // decoration: BoxDecoration(
-        //   color: Colors.white,
-        //   borderRadius:
-        //   BorderRadius.circular(8),
-        // ),
         child: InkWell(
           onTap: () {
-            // Tag详情
             Get.to(
               () => ContactTagDetailPage(tag: obj),
               transition: Transition.rightToLeft,
-              popGesture: true, // 右滑，返回上一页
+              popGesture: true,
             );
           },
-          child: n.Column([
-            // logic.buildItemBody(obj, 'page'),
-            // n.Row(const [SizedBox(height: 16)]),
-            n.Row([
-              Text(
-                obj.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              Text(
-                ' (${obj.refererTime})',
-                // style: const TextStyle(
-                //   color: AppColors.MainTextColor,
-                //   // fontSize: 14.0,
-                // ),
-              ),
-            ]),
-            n.Row([
-              Expanded(
-                  flex: 1,
-                  child: Text(
-                    obj.subtitle,
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Text(
+                    obj.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      // color: AppColors.MainTextColor,
-                      fontSize: 14.0,
+                  ),
+                  Text(
+                    ' (${obj.refererTime})',
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      obj.subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 14.0,
+                      ),
                     ),
-                  )),
-            ]),
-            const HorizontalLine(height: 1.0)
-          ]),
+                  ),
+                ],
+              ),
+              const HorizontalLine(height: 1.0)
+            ],
+          ),
         ),
       ),
     );
@@ -242,30 +222,25 @@ class ContactTagListPage extends StatelessWidget {
         title: 'contact_tags'.tr,
         rightDMActions: <Widget>[
           InkWell(
-            child: SizedBox(
+            child: const SizedBox(
               width: 46.0,
-              child: n.Padding(
-                top: 10,
-                bottom: 10,
-                child: const Icon(Icons.add),
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Icon(Icons.add),
               ),
             ),
             onTap: () {
               Get.bottomSheet(
+                UserTagSavePage(scene: 'friend'),
                 backgroundColor: Get.isDarkMode
                     ? const Color.fromRGBO(80, 80, 80, 1)
                     : const Color.fromRGBO(240, 240, 240, 1),
-                n.Padding(
-                  // top: 80,
-                  child: UserTagSavePage(scene: 'friend'),
-                ),
               );
             },
           ),
         ],
       ),
       body: RefreshIndicator(
-        // color: Colors.white,
         onRefresh: () async {
           state.page = 1;
           var list = await logic.page(
@@ -279,50 +254,46 @@ class ContactTagListPage extends StatelessWidget {
             state.page += 1;
           }
         },
-        child: Obx(() => n.Column([
-              n.Padding(
-                left: 8,
-                top: 2,
-                right: 8,
-                bottom: 2,
-                child: searchBar(
-                  context,
-                  leading: state.searchLeading?.value ??
-                      InkWell(
-                        onTap: () {
-                          logic.doSearch(state.kwd.value);
-                        },
-                        child: const Icon(Icons.search),
-                      ),
-                  trailing: state.kwd.isEmpty
-                      ? null
-                      : [
-                          InkWell(
-                            onTap: () {
-                              state.kwd.value = '';
-                              state.searchController.text = '';
-                              logic.doSearch(state.kwd.value);
-                            },
-                            child: const Icon(Icons.close),
-                          )
-                        ],
-                  controller: state.searchController,
-                  searchLabel: 'search'.tr,
-                  hintText: 'search'.tr,
-                  // queryTips: 'favorite_group_tags_etc'.tr,
-                  onChanged: ((query) async {
-                    state.kwd.value = query;
-                    debugPrint(
-                        "contact_tag_view_onChanged ${query.toString()}");
-                    await logic.doSearch(query);
-                  }),
+        child: Obx(() => Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 2, 8, 2),
+                  child: searchBar(
+                    context,
+                    leading: state.searchLeading?.value ??
+                        InkWell(
+                          onTap: () {
+                            logic.doSearch(state.kwd.value);
+                          },
+                          child: const Icon(Icons.search),
+                        ),
+                    trailing: state.kwd.isEmpty
+                        ? null
+                        : [
+                            InkWell(
+                              onTap: () {
+                                state.kwd.value = '';
+                                state.searchController.text = '';
+                                logic.doSearch(state.kwd.value);
+                              },
+                              child: const Icon(Icons.close),
+                            )
+                          ],
+                    controller: state.searchController,
+                    searchLabel: 'search'.tr,
+                    hintText: 'search'.tr,
+                    onChanged: ((query) async {
+                      state.kwd.value = query;
+                      debugPrint("contact_tag_view_onChanged ${query.toString()}");
+                      await logic.doSearch(query);
+                    }),
+                  ),
                 ),
-              ),
-              Expanded(
-                child: n.Padding(
-                  left: 8,
-                  right: 8,
-                  child: SlidableAutoCloseBehavior(
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: SlidableAutoCloseBehavior(
                       child: state.items.isEmpty
                           ? NoDataView(text: 'no_data'.tr)
                           : ListView.builder(
@@ -333,10 +304,12 @@ class ContactTagListPage extends StatelessWidget {
                                 UserTagModel obj = state.items[index];
                                 return buildItem(index, obj);
                               },
-                            )),
+                            ),
+                    ),
+                  ),
                 ),
-              ),
-            ], mainAxisSize: MainAxisSize.min)),
+              ],
+            )),
       ),
     );
   }

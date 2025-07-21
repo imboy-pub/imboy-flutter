@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/config/app_theme.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/theme.dart';
 import 'package:imboy/service/storage.dart';
 
 import 'dark_model_state.dart';
@@ -13,7 +13,7 @@ class DarkModelLogic extends GetxController {
   final DarkModelState state = DarkModelState();
 
   /// 配置本地主题配置
-  configLocalTheme() {
+  void configLocalTheme() {
     ThemeMode themeMode = getLocalProfileAboutThemeModel();
     if (themeMode == ThemeMode.system) {
       state.switchValue.value = true;
@@ -28,7 +28,7 @@ class DarkModelLogic extends GetxController {
   }
 
   /// 点击开关 回调
-  configSwitchOnChanged(bool value) {
+  void configSwitchOnChanged(bool value) {
     iPrint("configSwitchOnChanged $value");
     state.switchValue.value = value;
     changeTheme(type: value ? 2 : 0);
@@ -53,7 +53,7 @@ class DarkModelLogic extends GetxController {
   /// 0 白色
   /// 1 黑色
   /// 2 系统跟随
-  changeTheme({
+  Future<void> changeTheme({
     int type = 0,
     bool isUserCache = false,
   }) async {
@@ -84,7 +84,7 @@ class DarkModelLogic extends GetxController {
     }
   }
 
-  updateTheme() {
+  void updateTheme() {
     Future.delayed(const Duration(milliseconds: 250), () {
       Get.forceAppUpdate();
     });
@@ -98,11 +98,11 @@ class DarkModelLogic extends GetxController {
     return StorageService.to.getInt(Keys.themeType) ?? 0;
   }
 
-  saveThemeType(int type) {
+  void saveThemeType(int type) {
     StorageService.to.setInt(Keys.themeType, type);
   }
 
-  getLocalProfileAboutThemeData({
+  ThemeData getLocalProfileAboutThemeData({
     bool isUserCache = true,
     int themeType = 0,
   }) {
@@ -117,6 +117,8 @@ class DarkModelLogic extends GetxController {
       } else {
         return lightTheme;
       }
+    } else {
+      return lightTheme;
     }
   }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
-import 'package:imboy/config/theme.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/func.dart';
@@ -51,7 +50,7 @@ class GroupListPage extends StatelessWidget {
         // title: "${'group_chat'.tr}(${state.groupList.length})",
         titleWidget: Obx(() => Text(
               "${'group_chat'.tr}(${state.groupList.length})",
-              style: AppStyle.navAppBarTitleStyle,
+              // style: AppStyle.navAppBarTitleStyle,
             )),
         automaticallyImplyLeading: true,
       ),

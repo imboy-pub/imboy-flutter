@@ -9,7 +9,6 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/numeric_keypad.dart';
-import 'package:imboy/config/theme.dart';
 
 import 'face_to_face_confirm_view.dart';
 import 'face_to_face_logic.dart';
@@ -23,7 +22,7 @@ class FaceToFacePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: darkBgColor,
+      // backgroundColor: darkBgColor,
       appBar: NavAppBar(
         leading: IconButton(
           icon: const Icon(Icons.close, size: 24, color: Colors.white),
@@ -35,9 +34,9 @@ class FaceToFacePage extends StatelessWidget {
         // title: 'create_group_f2f'.tr,
         titleWidget: Text(
           'create_group_f2f'.tr,
-          style: AppStyle.navAppBarTitleStyle,
+          // style: AppStyle.navAppBarTitleStyle,
         ),
-        backgroundColor: darkBgColor,
+        // backgroundColor: darkBgColor,
       ),
       // backgroundColor: Get.isDarkMode ? darkBgColor : lightBgColor,
       body: n.Column([

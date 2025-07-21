@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
+  dart_duckdb
   emoji_picker_flutter
   file_saver
   file_selector_windows

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:get/get.dart';
 import 'package:highlight_text/highlight_text.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
+import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:niku/namespace.dart' as n;
 
-// ignore: depend_on_referenced_packages
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/line.dart';
@@ -47,8 +48,10 @@ class _SearchChatPageState extends State<SearchChatPage> {
   List items = [];
   Map<String, HighlightedWord> words = {};
 
-  Widget wordView(item) {
-    final msg = item as types.Message;
+  Future<Widget> wordView(item) async {
+    final msg = item as Message;
+
+    ContactModel? author = await ContactRepo().findByUid(msg.authorId);
     String subtitle = msg.metadata?['text'] ?? '';
     return InkWell(
       child: Container(
@@ -57,15 +60,15 @@ class _SearchChatPageState extends State<SearchChatPage> {
         color: Theme.of(context).colorScheme.onSecondary,
         margin: const EdgeInsets.only(top: 10),
         child: n.ListTile(
-          leading: Avatar(imgUri: msg.author.imageUrl ?? ''),
+          leading: Avatar(imgUri: author!.avatar),
           title: n.Row([
             Flexible(
               child: Text(
-                msg.author.firstName ?? '',
+                author.nickname,
               ),
             ),
             Text(
-              DateTimeHelper.lastTimeFmt(msg.createdAt! + DateTime.now().timeZoneOffset.inMilliseconds),
+              DateTimeHelper.lastTimeFmt(msg.createdAt!.millisecondsSinceEpoch + DateTime.now().timeZoneOffset.inMilliseconds),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
@@ -160,7 +163,16 @@ class _SearchChatPageState extends State<SearchChatPage> {
                       ]),
               ),
             Wrap(
-              children: items.map(wordView).toList(),
+              children: items.map((item) => FutureBuilder<Widget>(
+                future: wordView(item),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return snapshot.data!;
+                  } else {
+                    return const SizedBox.shrink(); // 或者返回一个加载指示器
+                  }
+                },
+              )).toList(),
             )
           ])
             ..crossAxisAlignment = CrossAxisAlignment.center,

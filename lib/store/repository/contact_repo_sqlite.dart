@@ -307,12 +307,13 @@ class ContactRepo {
   }
 
   /// checkIsFriend = true 的时候，保留旧的 isFriend 值
-  Future<ContactModel> save(Map<String, dynamic> json) async {
+  Future<ContactModel?> save(Map<String, dynamic> json) async {
     // debugPrint("contact_repo_save $checkIsFriend, ${json.toString()}");
     // json['id'] 兼容 api响应的数据
     String uid = json['id'] ?? (json[ContactRepo.peerId] ?? "");
     if (uid == UserRepoLocal.to.currentUid) {
-      throw Exception('Add yourself as a friend');
+      return null;
+      // throw Exception('Add yourself as a friend');
     }
     ContactModel? old = await findByUid(uid, autoFetch: false);
     if (old is ContactModel) {

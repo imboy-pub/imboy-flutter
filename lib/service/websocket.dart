@@ -29,8 +29,9 @@ class WebSocketService extends GetxService {
 
   // 网络与连接
   final Connectivity _connectivity = Connectivity();
-  final _ExponentialBackoff _backoff = _ExponentialBackoff();
+  final ExponentialBackoff _backoff = ExponentialBackoff(maxRetries: 16);
   WebSocketChannel? _channel;
+  bool _isFlushing = false;
 
   // 订阅管理
   StreamSubscription<List<ConnectivityResult>>? _netSub;
@@ -39,7 +40,6 @@ class WebSocketService extends GetxService {
 
   // 配置参数
   static const _pingInterval = Duration(seconds: 120);
-  static const _maxRetries = 16;
   bool _connecting = false;
 
   @override
@@ -63,7 +63,6 @@ class WebSocketService extends GetxService {
     _cleanupResources();
     super.onClose();
   }
-
 
   /// 处理网络恢复事件
   void _handleNetworkRestored() {
@@ -127,46 +126,37 @@ class WebSocketService extends GetxService {
 
     try {
       if (!await _checkNetworkConnectivity()) return;
+
       final token = await _getValidToken();
       if (token.isEmpty) return;
 
       _channel = IOWebSocketChannel.connect(
         Env.wsUrl ?? 'wss://pro.imboy.pub/ws/',
-        // Uri.parse('wss://pro.imboy.pub/ws/'),
-        headers: {
-          ...await defaultHeaders(),
-          Keys.tokenKey: token,
-        },
+        headers: {...await defaultHeaders(), Keys.tokenKey: token},
         protocols: ['text', 'sip'],
         pingInterval: _pingInterval,
       );
-      // https://github.com/dart-lang/web_socket_channel/issues/182
-      // ready property to make sure that connection is either completed or failed, then a try-catch will work.
       await _channel!.ready;
 
       _updateStatus(SocketStatus.connected);
       _backoff.reset();
       _cancelReconnectTimer();
-      _flushMessageQueue();
+      await _flushMessageQueue();
 
       _wsSub?.cancel();
       final start = DateTime.now();
 
       _wsSub = _channel?.stream.listen(
-        //监听服务器消息 onMessage
-            (data) => _onMessage(data),
-        // onError: (e) => _onConnectionLost(e),
-        // onDone: () => _onConnectionLost(),
-        //连接错误时调用 onError
+        (data) => _onMessage(data),
         onError: _onError,
-        //关闭时调用 onClose
         onDone: () {
           final end = DateTime.now();
-          iPrint('Connection closed after ${end.difference(start).inSeconds} seconds');
+          iPrint(
+            'Connection closed after ${end.difference(start).inSeconds} seconds',
+          );
           _onClose();
-        },        //设置错误时取消订阅
+        },
         cancelOnError: true,
-
       );
       iPrint('> ws: 连接成功');
     } catch (e, s) {
@@ -185,11 +175,7 @@ class WebSocketService extends GetxService {
 
   /// 处理接收到的消息
   void _onMessage(dynamic message) {
-    // ping/pong 是 WebSocket 的控制帧，在大多数 WebSocket 实现中，这些控制帧不会作为 message 事件传递到客户端的数据流中（stream.listen 的回调）
     iPrint("ws_onMessage ${DateTime.now()} : $message");
-    // if (message == "pong" || message == "pong2") {
-    //   return;
-    // }
     try {
       final payload = message is String ? jsonDecode(message) : message;
       eventBus.fire(payload);
@@ -198,7 +184,6 @@ class WebSocketService extends GetxService {
     }
   }
 
-
   /// 清理所有资源
   void _cleanupResources() {
     _netSub?.cancel();
@@ -206,13 +191,39 @@ class WebSocketService extends GetxService {
     _cancelReconnectTimer();
   }
 
-  /// 发送积压消息
-  void _flushMessageQueue() {
-    while (!_messageQueue.isEmpty && status.value == SocketStatus.connected) {
-      final message = _messageQueue.dequeue();
-      if (message != null) {
-        _channel?.sink.add(message);
+  /// 发送积压消息（优化版：加边界、异常、速率限制、并发防护）
+  Future<void> _flushMessageQueue() async {
+    if (_isFlushing) return;
+    _isFlushing = true;
+    try {
+      const int maxBatch = 10;
+      const Duration minDelay = Duration(milliseconds: 30);
+
+      int sentCount = 0;
+
+      while (!_messageQueue.isEmpty && status.value == SocketStatus.connected) {
+        if (_channel == null) break;
+        final message = _messageQueue.dequeue();
+        if (message == null) continue;
+
+        try {
+          _channel!.sink.add(message);
+          sentCount++;
+          if (sentCount >= maxBatch) {
+            await Future.delayed(Duration(milliseconds: 300));
+            sentCount = 0;
+          } else {
+            await Future.delayed(minDelay);
+          }
+        } catch (e, s) {
+          iPrint('> ws: flushMessageQueue failed: $e\n$s');
+          _messageQueue.enqueue(message);
+          break;
+        }
+        if (status.value != SocketStatus.connected) break;
       }
+    } finally {
+      _isFlushing = false;
     }
   }
 
@@ -220,15 +231,12 @@ class WebSocketService extends GetxService {
   Future<String> _getValidToken() async {
     try {
       if (!UserRepoLocal.to.isLoggedIn) return '';
-
       String token = await UserRepoLocal.to.accessToken;
       if (!tokenExpired(token)) return token;
-
       return await _refreshAccessToken();
     } catch (e, s) {
       iPrint("$e; $s");
       UserRepoLocal.to.quitLogin();
-
       Get.offAll(() => const LoginPage());
       return '';
     }
@@ -243,9 +251,8 @@ class WebSocketService extends GetxService {
     return newToken;
   }
 
-
   /// 处理连接丢失
-  void _onError(e) {
+  void _onError(Object e) {
     iPrint("_onError $e;");
     if (status.value == SocketStatus.disconnected) return;
     iPrint('> ws_onError: 连接丢失');
@@ -256,16 +263,6 @@ class WebSocketService extends GetxService {
 
   void _onClose() {
     if (status.value == SocketStatus.disconnected) return;
-
-    // 1000 CLOSE_NORMAL 正常关闭；无论为何目的而创建，该链接都已成功完成任务
-    // 1001 CLOSE_GOING_AWAY	终端离开，可能因为服务端错误，也可能因为浏览器正从打开连接的页面跳转离开
-    // 1002	CLOSE_PROTOCOL_ERROR	由于协议错误而中断连接。
-    // 1003	CLOSE_UNSUPPORTED	由于接收到不允许的数据类型而断开连接 (如仅接收文本数据的终端接收到了二进制数据).
-    // 1005	CLOSE_NO_STATUS	保留。 表示没有收到预期的状态码。
-    // 1007	Unsupported Data	由于收到了格式不符的数据而断开连接 (如文本消息中包含了非 UTF-8 数据).
-    // 1009	CLOSE_TOO_LARGE	由于收到过大的数据帧而断开连接。
-    // 4000–4999		可以由应用使用。
-    // 4006 服务端通知客户端刷新token消息没有得到确认，系统主动关闭连接
     int closeCode = _channel?.closeCode ?? 0;
     String closeReason = _channel?.closeReason ?? '';
     iPrint('> ws_onClose: 连接丢失 $closeCode: $closeReason;');
@@ -289,10 +286,8 @@ class WebSocketService extends GetxService {
       iPrint('> ws: 停止重试（尝试次数: ${_backoff.attempts}）');
       return;
     }
-
-    final delay = _backoff.nextDelay(jitter: true, maxRetries:_maxRetries,) ;
+    final delay = _backoff.nextDelay();
     iPrint('> ws: 将在 ${delay.inSeconds} 秒后尝试重连');
-
     _cancelReconnectTimer();
     _reconnectTimer = Timer(delay, () => openSocket(from: 'reconnect'));
   }
@@ -300,7 +295,7 @@ class WebSocketService extends GetxService {
   /// 判断是否需要调度重连
   bool _shouldScheduleReconnect() {
     return _shouldReconnect() &&
-        _backoff.attempts < _maxRetries &&
+        _backoff.attempts < _backoff.maxRetries &&
         status.value != SocketStatus.connected;
   }
 
@@ -376,31 +371,97 @@ class WebSocketService extends GetxService {
   }
 }
 
-/// 指数退避重试策略
-class _ExponentialBackoff {
-  static const _baseDelay = Duration(seconds: 1);
-  static const _maxDelay = Duration(minutes: 2);
-  static const _jitterFactor = 0.3;
+/// 可配置的指数退避工具类，支持多种 jitter 算法与详细参数控制。
+class ExponentialBackoff {
+  /// 初始延迟
+  final Duration baseDelay;
 
+  /// 最大延迟
+  final Duration maxDelay;
+
+  /// 最大重试次数
+  final int maxRetries;
+
+  /// 抖动因子（0.0 ~ 1.0），0为无抖动，1为最大抖动
+  final double jitterFactor;
+
+  /// 抖动算法类型
+  final JitterType jitterType;
+
+  /// 当前已重试次数
   int attempts = 0;
-  Duration _current = _baseDelay;
 
-  Duration nextDelay({bool jitter = true, int maxRetries = 20}) {
-    attempts = min(attempts + 1, maxRetries);
-    final nextMs = (_current.inMilliseconds * 2)
-        .clamp(_baseDelay.inMilliseconds, _maxDelay.inMilliseconds);
-    _current = Duration(milliseconds: nextMs);
-    return jitter ? _applyJitter(nextMs) : _current;
+  ExponentialBackoff({
+    this.baseDelay = const Duration(seconds: 1),
+    this.maxDelay = const Duration(minutes: 2),
+    this.maxRetries = 20,
+    this.jitterFactor = 0.3,
+    this.jitterType = JitterType.full,
+  });
+
+  /// 获取下一次重试的延迟
+  Duration nextDelay() {
+    attempts = (attempts + 1).clamp(0, maxRetries);
+    final int expMs = baseDelay.inMilliseconds * (1 << (attempts - 1));
+    final int cappedMs = expMs.clamp(
+      baseDelay.inMilliseconds,
+      maxDelay.inMilliseconds,
+    );
+    Duration rawDelay = Duration(milliseconds: cappedMs);
+
+    switch (jitterType) {
+      case JitterType.none:
+        return rawDelay;
+      case JitterType.full:
+        return _fullJitter(rawDelay);
+      case JitterType.equal:
+        return _equalJitter(rawDelay);
+      case JitterType.deviation:
+        return _deviationJitter(rawDelay);
+    }
   }
 
-  Duration _applyJitter(int baseMs) {
-    final variation = (baseMs * _jitterFactor).toInt();
-    final jitterValue = Random().nextInt(variation * 2 + 1) - variation;
-    return _current + Duration(milliseconds: jitterValue);
+  /// 完全随机 jitter：[0, delay * jitterFactor]
+  Duration _fullJitter(Duration base) {
+    int maxMs = (base.inMilliseconds * jitterFactor).toInt();
+    if (maxMs <= 0) return base;
+    return Duration(milliseconds: Random().nextInt(maxMs + 1));
   }
 
+  /// 抖动范围为 [delay * (1-jitter), delay]
+  Duration _equalJitter(Duration base) {
+    int range = (base.inMilliseconds * jitterFactor).toInt();
+    int minMs = base.inMilliseconds - range;
+    int delayMs = minMs + Random().nextInt(range + 1);
+    return Duration(milliseconds: delayMs);
+  }
+
+  /// ±jitterFactor * delay
+  Duration _deviationJitter(Duration base) {
+    int deviation = (base.inMilliseconds * jitterFactor).toInt();
+    int jitterValue = deviation > 0
+        ? Random().nextInt(deviation * 2 + 1) - deviation
+        : 0;
+    return Duration(milliseconds: base.inMilliseconds + jitterValue);
+  }
+
+  /// 重置重试状态
   void reset() {
     attempts = 0;
-    _current = _baseDelay;
   }
+}
+
+/// 抖动类型枚举
+enum JitterType {
+  /// 不做抖动
+  none,
+
+  /// 完全抖动（full jitter，Google/Netflix 推荐）
+  full,
+
+  /// 区间抖动（equal jitter，AWS 推荐）
+  equal,
+
+  /// 偏差抖动（±jitterFactor * delay）
+  deviation,
 }

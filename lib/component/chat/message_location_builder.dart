@@ -1,12 +1,9 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 
-// ignore: depend_on_referenced_packages
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:map_launcher/map_launcher.dart';
-import 'package:niku/namespace.dart' as n;
 import 'package:octo_image/octo_image.dart';
 
 import 'package:imboy/component/helper/func.dart';
@@ -14,10 +11,9 @@ import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/message_model.dart';
 
-
 class LocationMessageBuilder extends StatefulWidget {
-  final types.User user;
-  final types.CustomMessage? message;
+  final User user;
+  final CustomMessage? message;
   final Map<String, dynamic>? info;
 
   final Function()? onPlay;
@@ -38,7 +34,7 @@ class LocationMessageBuilder extends StatefulWidget {
 }
 
 class LocationMessageBuilderState extends State<LocationMessageBuilder> {
-  late Future<types.CustomMessage?> messageFuture;
+  late Future<CustomMessage?> messageFuture;
 
   @override
   void initState() {
@@ -46,18 +42,18 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
     messageFuture = _getMessage();
   }
 
-  Future<types.CustomMessage?> _getMessage() async {
+  Future<CustomMessage?> _getMessage() async {
     if (widget.message != null) {
       return widget.message;
     } else if (widget.info != null) {
-      return await MessageModel.fromJson(widget.info!).toTypeMessage() as types.CustomMessage;
+      return await MessageModel.fromJson(widget.info!).toTypeMessage() as CustomMessage;
     }
     return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<types.CustomMessage?>(
+    return FutureBuilder<CustomMessage?>(
       future: messageFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
@@ -73,20 +69,22 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
     );
   }
 
-  Widget _buildMessageView(types.CustomMessage msg) {
+  Widget _buildMessageView(CustomMessage msg) {
     // bool userIsAuthor = user.id == message.author.id;
     String thumb = msg.metadata?['thumb'];
-    return Container(
-        width: widget.width ?? Get.width * 0.618,
-        height: widget.height ?? 240,
-        color: const Color.fromRGBO(230, 230, 230, 1.0),
-        child: n.Column([
+    return SizedBox(
+      width: widget.width ?? Get.width * 0.618,
+      height: widget.height ?? 240,
+      // color: const Color(0xFFF5F5F8), // 优化：统一背景色，可根据需求调整
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           InkWell(
             onTap: () {
+              // 优化：支持选择地图APP打开位置
               Get.bottomSheet(
-                backgroundColor: Get.isDarkMode
-                    ? const Color.fromRGBO(80, 80, 80, 1)
-                    : const Color.fromRGBO(240, 240, 240, 1),
                 Container(
                   color: Theme.of(Get.context!).colorScheme.surface,
                   child: availableMaps.isEmpty
@@ -95,7 +93,6 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
                   )
                       : SingleChildScrollView(
                     child: Wrap(
-                      //使用 ListTile 平铺布局即可
                       children: availableMaps.map<Widget>((map) {
                         return ListTile(
                           onTap: () {
@@ -121,41 +118,37 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
                 ),
               );
             },
-            child: n.Column([
-              n.Padding(
-                left: 8,
-                right: 8,
-                top: 8,
-                child: Text(
-                  // '大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发',
-                  msg.metadata?['title'],
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(
-                    color: Color.fromRGBO(44, 44, 44, 1.0),
-                    fontSize: 15.0,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start, // 内容文本左对齐
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, right: 8, top: 8),
+                  child: Text(
+                    msg.metadata?['title'],
+                    textAlign: TextAlign.left,
+                    // style: const TextStyle(
+                    //   color: Color.fromRGBO(44, 44, 44, 1.0),
+                    //   fontSize: 15.0,
+                    // ),
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 4,
-                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              n.Padding(
-                left: 8,
-                bottom: 8,
-                child: Text(
-                  msg.metadata?['address'],
-                  // '大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发大声道发生的发生的发生大发是打发',
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(
-                    color: Color.fromRGBO(56, 56, 56, 1.0),
-                    fontSize: 13.0,
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, bottom: 8),
+                  child: Text(
+                    msg.metadata?['address'],
+                    textAlign: TextAlign.left,
+                    // style: const TextStyle(
+                    //   color: Color.fromRGBO(56, 56, 56, 1.0),
+                    //   fontSize: 13.0,
+                    // ),
+                    maxLines: 8,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 8,
-                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ])
-            // 内容文本左对齐
-              ..crossAxisAlignment = CrossAxisAlignment.start,
+              ],
+            ),
           ),
           Expanded(
             flex: 2,
@@ -175,9 +168,8 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
               ),
             ),
           ),
-        ])
-          ..mainAxisSize = MainAxisSize.min
-          ..mainAxisAlignment = MainAxisAlignment.start
-          ..crossAxisAlignment = CrossAxisAlignment.start);
+        ],
+      ),
+    );
   }
 }

@@ -168,7 +168,9 @@ class LoginMobilePageState extends State<LoginMobilePage> {
                           "signup_page_onInputChanged 2 ${state.mobile.value};");
                     },
                     onInputValidated: (bool value) {
+                      // TOTO: 手机号码格式验证
                       state.mobileValidated.value = value;
+                      state.mobileValidated.value = true;
                     },
                     onSaved: (PhoneNumber number) {
                       iPrint(

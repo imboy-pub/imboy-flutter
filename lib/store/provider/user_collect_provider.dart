@@ -42,7 +42,7 @@ class UserCollectProvider extends HttpClient {
     String source,
     Map<String, dynamic> info,
   ) async {
-    // debugPrint("> on Provider/userDeviceAdd info: ${info.toString()}");
+    // debugPrint("> on UserCollectProvider ass info: ${info.toString()}");
     IMBoyHttpResponse resp = await post(API.userCollectAdd,
         data: {
           'kind': kind,
@@ -55,7 +55,7 @@ class UserCollectProvider extends HttpClient {
           receiveTimeout: const Duration(minutes: 50),
         ));
     debugPrint(
-        "> on Provider/userDeviceAdd resp: ${resp.error}; ${resp.payload.toString()}");
+        "> on UserCollectProvider add resp: ${resp.error}; ${resp.payload.toString()}");
     EasyLoading.dismiss();
     return resp.ok ? true : false;
   }

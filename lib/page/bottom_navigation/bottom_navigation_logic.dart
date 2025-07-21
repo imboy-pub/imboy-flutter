@@ -10,39 +10,58 @@ class BottomNavigationLogic extends GetxController {
   final state = BottomNavigationState();
 
   // 新的好友提醒计数器
-  RxSet newFriendRemindCounter = <String>{}.obs;
+  RxSet<String> newFriendRemindCounter = <String>{}.obs;
 
-  /// 重新计算 新的好友提醒计数器
   Future<void> countNewFriendRemindCounter() async {
-    if (UserRepoLocal.to.isLoggedIn == false) {
-      return;
-    }
-    List<Map<String, dynamic>> items = await SqliteService.to.query(
+    if (!UserRepoLocal.to.isLoggedIn) return;
+
+    final items = await SqliteService.to.query(
       NewFriendRepo.tableName,
-      columns: [
-        NewFriendRepo.from,
-      ],
-      // 0 待验证  1 已添加  2 已过期
-      where:
-          '${NewFriendRepo.status}=? and ${NewFriendRepo.uid}=? and ${NewFriendRepo.to}=?',
+      columns: [NewFriendRepo.from],
+      where: '${NewFriendRepo.status}=? AND ${NewFriendRepo.uid}=? AND ${NewFriendRepo.to}=?',
       whereArgs: [0, UserRepoLocal.to.currentUid, UserRepoLocal.to.currentUid],
       orderBy: "${NewFriendRepo.createdAt} desc",
       limit: 1000,
     );
-    // iPrint(
-    //     "> on countNewFriendRemindCounter1 ${newFriendRemindCounter.toString()}");
-    // iPrint("> on countNewFriendRemindCounter2 ${items.toString()}");
-    newFriendRemindCounter = <String>{}.obs;
-    if (items.isNotEmpty) {
-      for (Map<String, dynamic> e in items) {
-        String from = e[NewFriendRepo.from] ?? "";
-        newFriendRemindCounter.add(from);
-      }
-    }
-    update([newFriendRemindCounter]);
-    // iPrint(
-    //     "> on countNewFriendRemindCounter3 ${newFriendRemindCounter.toString()}");
+
+    final Set<String> newFroms = {
+      for (var e in items) if (e[NewFriendRepo.from] != null) e[NewFriendRepo.from]
+    };
+
+    newFriendRemindCounter.value = newFroms;
   }
+
+  /// 重新计算 新的好友提醒计数器
+  // Future<void> countNewFriendRemindCounter() async {
+  //   if (UserRepoLocal.to.isLoggedIn == false) {
+  //     return;
+  //   }
+  //   List<Map<String, dynamic>> items = await SqliteService.to.query(
+  //     NewFriendRepo.tableName,
+  //     columns: [
+  //       NewFriendRepo.from,
+  //     ],
+  //     // 0 待验证  1 已添加  2 已过期
+  //     where:
+  //         '${NewFriendRepo.status}=? and ${NewFriendRepo.uid}=? and ${NewFriendRepo.to}=?',
+  //     whereArgs: [0, UserRepoLocal.to.currentUid, UserRepoLocal.to.currentUid],
+  //     orderBy: "${NewFriendRepo.createdAt} desc",
+  //     limit: 1000,
+  //   );
+  //   // iPrint(
+  //   //     "> on countNewFriendRemindCounter1 ${newFriendRemindCounter.toString()}");
+  //   // iPrint("> on countNewFriendRemindCounter2 ${items.toString()}");
+  //   newFriendRemindCounter = <String>{}.obs;
+  //   if (items.isNotEmpty) {
+  //     for (Map<String, dynamic> e in items) {
+  //       String from = e[NewFriendRepo.from] ?? "";
+  //       newFriendRemindCounter.add(from);
+  //     }
+  //   }
+  //   update([newFriendRemindCounter]);
+  //   // iPrint(
+  //   //     "> on countNewFriendRemindCounter3 ${newFriendRemindCounter.toString()}");
+  // }
 
   //改变底部导航栏索引
   void changeBottomBarIndex(int index) {

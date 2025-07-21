@@ -11,7 +11,6 @@ import 'package:share_plus/share_plus.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/config/env.dart';
-import 'package:imboy/config/theme.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/config/const.dart';
@@ -220,14 +219,14 @@ class UserQrCodePage extends StatelessWidget {
                   ),
                   title: Text(
                     UserRepoLocal.to.current.nickname,
-                    style: const TextStyle(
-                      color: lightOnPrimaryColor,
+                    style:  TextStyle(
+                      // color: AppColor.primaryLight,
                     ),
                   ),
                   subtitle: Text(
                     UserRepoLocal.to.current.region,
                     style: const TextStyle(
-                      color: lightOnPrimaryColor,
+                      // color: AppColor.primaryLight,
                     ),
                   ),
                   trailing: genderIcon(gender),
@@ -272,7 +271,7 @@ class UserQrCodePage extends StatelessWidget {
                   child: Text(
                     'scan_qrcode_add_friend'.tr,
                     style: const TextStyle(
-                      color: lightOnPrimaryColor,
+                      // color: AppColor.primaryLight,
                     ),
                   ),
                 ),
@@ -514,7 +513,7 @@ class GroupQrCodePage extends StatelessWidget {
                               child: Text(
                                 "${'group_chat'.tr}: ${group.title.isEmpty ? group.computeTitle : group.title}",
                                 style: const TextStyle(
-                                  color: lightOnPrimaryColor,
+                                  // color: AppColor.primaryLight,
                                   fontSize: 16.0,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -565,8 +564,8 @@ class GroupQrCodePage extends StatelessWidget {
                                         .dateTime)
                                 .format(pattern: 'y-MM-dd')
                           ]),
-                          style: const TextStyle(
-                            color: lightOnPrimaryColor,
+                          style:  TextStyle(
+                            // color: AppColor.primary,
                           ),
                         ),
                       ),

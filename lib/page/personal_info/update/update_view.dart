@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/line.dart';
-import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/mine/select_region/select_region_logic.dart';
 import 'package:niku/namespace.dart' as n;
 
@@ -74,7 +73,7 @@ class UpdatePage extends StatelessWidget {
             child: Text(
               title,
               textAlign: TextAlign.center,
-              style: AppStyle.navAppBarTitleStyle,
+              // style: AppStyle.navAppBarTitleStyle,
             ),
             // 中间用Expanded控件
           ),

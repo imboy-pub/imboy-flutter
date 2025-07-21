@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 
-// ignore: depend_on_referenced_packages
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -21,24 +20,18 @@ class SendToLogic extends GetxController {
   }
 
   /// type
-  Future<bool> sendMsg(
-    ConversationModel conversation,
-    types.Message msg,
-  ) async {
+  Future<bool> sendMsg(ConversationModel conversation, Message msg) async {
     try {
-      types.Message msg2 = msg.copyWith(
+      Map<String, dynamic> metadata = Map<String, dynamic>.from(msg.metadata ?? {});
+      metadata['peer_id'] = conversation.peerId;
+      Message msg2 = msg.copyWith(
         id: Xid().toString(),
-        author: types.User(
-          id: UserRepoLocal.to.currentUid,
-          firstName: UserRepoLocal.to.current.nickname,
-          imageUrl: UserRepoLocal.to.current.avatar,
-        ),
-        status: types.Status.sending,
-        createdAt: DateTimeHelper.millisecond(),
-        metadata: msg.metadata,
-        remoteId: conversation.peerId,
-        roomId: msg.roomId,
-        showStatus: msg.showStatus,
+        authorId: UserRepoLocal.to.currentUid,
+        status: MessageStatus.sending,
+        createdAt: DateTimeHelper.now(),
+        metadata: metadata,
+        // roomId: msg.roomId,
+        // status: msg.status ?? MessageStatus.sending,
       );
       await ChatLogic().addMessage(
         UserRepoLocal.to.currentUid,
@@ -49,8 +42,8 @@ class SendToLogic extends GetxController {
         msg2,
       );
       return true;
-    } catch (e) {
-      debugPrint("> on sendMsg ${e.toString()}");
+    } catch (e, s) {
+      debugPrint("> on sendMsg ${e.toString()} ${s.toString()}");
     }
     return false;
   }

@@ -1,13 +1,12 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 
-// ignore: depend_on_referenced_packages
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/message/message.dart';
+import 'package:imboy/component/chat/message.dart';
 import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -113,7 +112,7 @@ class UserCollectPage extends StatelessWidget {
   }
 
   Future<void> sendToDialog(UserCollectModel model) async {
-    types.Message msg = await MessageModel.fromJson(model.info).toTypeMessage();
+    Message msg = await MessageModel.fromJson(model.info).toTypeMessage();
     Get.defaultDialog(
       title: 'send_to'.tr,
       backgroundColor: Get.isDarkMode
@@ -516,13 +515,13 @@ class UserCollectPage extends StatelessWidget {
                 return Theme.of(Get.context!)
                     .colorScheme
                     .primary
-                    .withOpacity(0.75);
+                    .withValues(alpha: 0.75);
               }
               // Use the component's default.
               return Theme.of(Get.context!)
                   .colorScheme
                   .primary
-                  .withOpacity(0.95);
+                  .withValues(alpha: 0.95);
             },
           ),
         ),

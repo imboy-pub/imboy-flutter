@@ -6,9 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 
-// ignore: implementation_imports
-import 'package:flutter_chat_ui/src/widgets/state/inherited_chat_theme.dart'
-    show InheritedChatTheme;
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/location/amap_helper.dart';
@@ -47,7 +44,7 @@ class ExtraItem extends StatelessWidget {
             width: width ?? 56,
             height: height ?? 56,
             child: Material(
-              color: InheritedChatTheme.of(context).theme.inputBackgroundColor,
+              // color: InheritedChatTheme.of(context).theme.inputBackgroundColor,
               child: Ink(
                 decoration: BoxDecoration(
                   color: Get.isDarkMode

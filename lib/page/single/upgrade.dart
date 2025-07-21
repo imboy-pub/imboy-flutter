@@ -6,7 +6,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/env.dart';
 import 'package:r_upgrade/r_upgrade.dart';
-import 'package:niku/namespace.dart' as n;
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:imboy/component/helper/func.dart';
@@ -493,21 +492,27 @@ class UpgradeCardState extends State<UpgradeCard> {
               // margin: const EdgeInsets.only(bottom: 0),
               child: widget.planTime == null
                   ? const SizedBox.shrink()
-                  : n.Column([
-                      n.Row([
-                        Text(
-                            "${'package_size'.tr} ${(widget.maxLength / 1024 / 1024).toStringAsFixed(3)}MB"),
-                        const Expanded(child: SizedBox()),
-                        Text(
-                            "${'still_needed'.tr} ${(widget.planTime!).toStringAsFixed(3)}秒"),
-                      ]),
-                      n.Row([
-                        Text(
-                            "${'downloaded'.tr} ${(widget.currentLength / 1024 / 1024).toStringAsFixed(3)}MB"),
-                        const Expanded(child: SizedBox()),
-                        Text('speed'.tr + widget.speed!),
-                      ]),
-                    ]),
+                  : Column(
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                                "${'package_size'.tr} ${(widget.maxLength / 1024 / 1024).toStringAsFixed(3)}MB"),
+                            const Spacer(),
+                            Text(
+                                "${'still_needed'.tr} ${(widget.planTime!).toStringAsFixed(3)}秒"),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                                "${'downloaded'.tr} ${(widget.currentLength / 1024 / 1024).toStringAsFixed(3)}MB"),
+                            const Spacer(),
+                            Text('speed'.tr + widget.speed!),
+                          ],
+                        ),
+                      ],
+                    ),
             ),
 
             // 进度条

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 
-// ignore: depend_on_referenced_packages
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 import 'package:imboy/component/webrtc/func.dart';
 
@@ -10,7 +9,6 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 // ignore: depend_on_referenced_packages
-import 'package:intl/intl.dart' show DateFormat;
 import 'package:niku/namespace.dart' as n;
 
 class WebRTCMessageBuilder extends StatelessWidget {
@@ -20,8 +18,8 @@ class WebRTCMessageBuilder extends StatelessWidget {
     required this.message,
   });
 
-  final types.User user;
-  final types.CustomMessage message;
+  final User user;
+  final CustomMessage message;
 
   Widget _buildBody(BuildContext context, String customType, String title,
       bool userIsAuthor) {
@@ -89,8 +87,8 @@ class WebRTCMessageBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool userIsAuthor = UserRepoLocal.to.currentUid == message.author.id;
-    String peerId = userIsAuthor ? message.remoteId! : message.author.id;
+    bool userIsAuthor = UserRepoLocal.to.currentUid == message.authorId;
+    String peerId = userIsAuthor ? (message.metadata?['peer_id']??'') : message.authorId;
     int state = message.metadata?['state'] ?? 0;
     String media = message.metadata?['media'] ?? 'audio';
     String customType = message.metadata?['custom_type'] ?? '';

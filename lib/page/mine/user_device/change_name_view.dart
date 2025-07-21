@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/button.dart';
-import 'package:imboy/config/theme.dart';
 import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/func.dart';
@@ -47,7 +46,7 @@ class ChangeNamePage extends StatelessWidget {
             child: Text(
               title,
               textAlign: TextAlign.center,
-              style: AppStyle.navAppBarTitleStyle,
+              // style: AppStyle.navAppBarTitleStyle,
             ),
             // 中间用Expanded控件
           ),

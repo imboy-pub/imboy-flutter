@@ -134,8 +134,7 @@ class PassportLogic extends GetxController {
   }
 
   /// 用户登录
-  Future<String?> loginUser(
-      String accountType, String account, String password) async {
+  Future<String?> loginUser(String accountType, String account, String password) async {
     try {
       int status = await _login(accountType, account, password);
       Get.dismiss();
@@ -231,8 +230,7 @@ class PassportLogic extends GetxController {
   }
 
   /// accountType = mobile | email | account
-  Future<int> _login(
-      String accountType, String account, String password) async {
+  Future<int> _login(String accountType, String account, String password) async {
     try {
       Map<String, dynamic> data = await _encryptPassword(password);
       if (strNoEmpty(data['error'])) {
@@ -848,7 +846,7 @@ class PassportLogic extends GetxController {
     */
   }
 
-  checkSignupContinue() {
+  void checkSignupContinue() {
     bool pwdValidated =
         passwordValidator(state.newPwd.value) == null ? true : false;
     if (state.nickname.value.length > 1 &&
@@ -859,11 +857,11 @@ class PassportLogic extends GetxController {
     } else {
       state.showSignupContinue.value = false;
     }
-    // iPrint("checkSignupContinue_1 ${state.nickname.value.length > 1} ");
-    // iPrint("checkSignupContinue_2 ${state.mobileValidated.isTrue} ");
-    // iPrint("checkSignupContinue_3 ${state.selectedAgreement.value == 'on'} ");
-    // iPrint("checkSignupContinue_4 $pwdValidated ");
-    // iPrint("checkSignupContinue_5 ${state.showSignupContinue.toString()} ");
+    iPrint("checkSignupContinue_1 ${state.nickname.value.length > 1} ");
+    iPrint("checkSignupContinue_2 ${state.mobileValidated.isTrue} ");
+    iPrint("checkSignupContinue_3 ${state.selectedAgreement.value == 'on'} ");
+    iPrint("checkSignupContinue_4 $pwdValidated ");
+    iPrint("checkSignupContinue_5 ${state.showSignupContinue.toString()} ");
   }
 
   /// ext md | html

@@ -1,17 +1,17 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart' hide AudioMessageBuilder;
 
 // ignore: depend_on_referenced_packages
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
-import 'package:imboy/component/message/message_audio_builder.dart';
-import 'package:imboy/component/message/message_location_builder.dart';
-import 'package:imboy/component/message/message_visit_card_builder.dart';
+import 'package:imboy/component/chat/message_audio_builder.dart' show AudioMessageBuilder;
+import 'package:imboy/component/chat/message_location_builder.dart';
+import 'package:imboy/component/chat/message_visit_card_builder.dart';
 
 import 'package:imboy/page/single/video_viewer.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_logic.dart';
@@ -183,7 +183,7 @@ class UserCollectLogic extends GetxController {
         // 内容文本左对齐
         ..crossAxisAlignment = CrossAxisAlignment.start;
     } else if (obj.kind == 3) {
-      int durationMS = obj.info['payload']['duration_ms'] ?? 0;
+      int durationMS = obj.info['payload']['durationMs'] ?? 0;
       // row > expand > column > text 换行有效
       body = scene == 'page'
           ? n.Row([
@@ -219,10 +219,10 @@ class UserCollectLogic extends GetxController {
                 height: 80,
                 child: AudioMessageBuilder(
                   type: obj.info['type'],
-                  user: types.User(
+                  user: User(
                     id: UserRepoLocal.to.currentUid,
-                    firstName: UserRepoLocal.to.current.nickname,
-                    imageUrl: UserRepoLocal.to.current.avatar,
+                    name: UserRepoLocal.to.current.nickname,
+                    imageSource: UserRepoLocal.to.current.avatar,
                   ),
                   info: obj.info,
                   // message: MessageModel.fromJson(obj.info).toTypeMessage()
@@ -308,7 +308,7 @@ class UserCollectLogic extends GetxController {
     } else if (obj.kind == 5) {
       // String uri = obj.info['payload']['uri'] ?? '';
       String mimeType =
-          (obj.info['payload']['mimeType'] ?? '').toString().toLowerCase();
+          (obj.info['payload']['mime_type'] ?? '').toString().toLowerCase();
       // Widget fileIcon = const Icon(
       //   Icons.quiz_outlined,
       //   size: 40,
@@ -444,10 +444,10 @@ class UserCollectLogic extends GetxController {
                   child: LocationMessageBuilder(
                     width: Get.width - 20,
                     height: Get.height - 160,
-                    user: types.User(
+                    user: User(
                       id: UserRepoLocal.to.currentUid,
-                      firstName: UserRepoLocal.to.current.nickname,
-                      imageUrl: UserRepoLocal.to.current.avatar,
+                      name: UserRepoLocal.to.current.nickname,
+                      imageSource: UserRepoLocal.to.current.avatar,
                     ),
                     info: obj.info,
                     // message: MessageModel.fromJson(obj.info).toTypeMessage()
@@ -459,10 +459,10 @@ class UserCollectLogic extends GetxController {
       body = n.Row([
         Expanded(
             child: VisitCardMessageBuilder(
-          user: types.User(
+          user: User(
             id: UserRepoLocal.to.currentUid,
-            firstName: UserRepoLocal.to.current.nickname,
-            imageUrl: UserRepoLocal.to.current.avatar,
+            name: UserRepoLocal.to.current.nickname,
+            imageSource: UserRepoLocal.to.current.avatar,
           ),
           info: obj.info,
         ))
@@ -543,7 +543,7 @@ class UserCollectLogic extends GetxController {
                 color: Theme.of(Get.context!)
                     .colorScheme
                     .onPrimary
-                    .withOpacity(0.75),
+                    .withValues(alpha: 0.75),
               ),
             ),
           ),
@@ -610,7 +610,7 @@ class UserCollectLogic extends GetxController {
                 return Theme.of(Get.context!)
                     .colorScheme
                     .surface
-                    .withOpacity(0.75);
+                    .withValues(alpha: 0.75);
               }
               // Use the component's default.
               return Theme.of(Get.context!).colorScheme.surface;
@@ -628,7 +628,7 @@ class UserCollectLogic extends GetxController {
                 color: Theme.of(Get.context!)
                     .colorScheme
                     .onPrimary
-                    .withOpacity(0.8),
+                    .withValues(alpha: 0.8),
               ),
             ),
           ),
@@ -678,17 +678,17 @@ class UserCollectLogic extends GetxController {
   }
 
   /// Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息  7 个人名片
-  static int getCollectKind(types.Message message) {
+  static int getCollectKind(Message message) {
     String customType = message.metadata?['custom_type'] ?? '';
-    if (message.type == types.MessageType.text) {
+    if (message is TextMessage) {
       return 1;
-    } else if (message.type == types.MessageType.image) {
+    } else if (message is ImageMessage) {
       return 2;
     } else if (customType == 'audio') {
       return 3;
     } else if (customType == 'video') {
       return 4;
-    } else if (message.type == types.MessageType.file) {
+    } else if (message is FileMessage) {
       return 5;
     } else if (customType == 'location') {
       return 6;
@@ -712,9 +712,9 @@ class UserCollectLogic extends GetxController {
   }
 
   /// 添加收藏
-  Future<bool> add({required String tb, required types.Message msg}) async {
+  Future<bool> add({required String tb, required Message msg}) async {
     int kind = getCollectKind(msg);
-    String source = await getCollectSource(msg.author.id);
+    String source = await getCollectSource(msg.authorId);
     MessageModel? msg2 = await MessageRepo(tableName: tb).find(msg.id);
     if (msg2 == null) {
       return false;
@@ -806,13 +806,13 @@ class UserCollectLogic extends GetxController {
                 return Theme.of(Get.context!)
                     .colorScheme
                     .primary
-                    .withOpacity(0.75);
+                    .withValues(alpha: 0.75);
               }
               // Use the component's default.
               return Theme.of(Get.context!)
                   .colorScheme
                   .primary
-                  .withOpacity(0.95);
+                  .withValues(alpha: 0.95);
             },
           ),
         ),

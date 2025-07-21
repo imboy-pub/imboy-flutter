@@ -146,20 +146,20 @@ class ConversationModel {
 
     // iPrint("ConversationModel_payload 2 $payload");
     return ConversationModel(
-      id: json['id']?.toInt() ?? 0,
-      peerId: json['peer_id']?.toString() ?? '',
-      avatar: (json['avatar']?.toString() ?? '').isEmpty ? '' : json['avatar'].toString(),
-      title: json['title']?.toString() ?? '',
-      region: json['region']?.toString() ?? '',
-      sign: json['sign']?.toString() ?? '',
-      subtitle: json['subtitle']?.toString() ?? '',
+      id: json[ConversationRepo.id]?.toInt() ?? 0,
+      peerId: json[ConversationRepo.peerId]?.toString() ?? '',
+      avatar: (json[ConversationRepo.avatar]?.toString() ?? '').isEmpty ? '' : json['avatar'].toString(),
+      title: json[ConversationRepo.title]?.toString() ?? '',
+      region: json[ConversationRepo.region]?.toString() ?? '',
+      sign: json[ConversationRepo.sign]?.toString() ?? '',
+      subtitle: json[ConversationRepo.subtitle]?.toString() ?? '',
       lastTime: lastTime,
-      lastMsgId: json['last_msg_id']?.toString() ?? '',
-      lastMsgStatus: json['last_msg_status']?.toInt() ?? 11,
-      unreadNum: json['unread_num']?.toInt() ?? 0,
-      type: json['type']?.toString() ?? '',
+      lastMsgId: json[ConversationRepo.lastMsgId]?.toString() ?? '',
+      lastMsgStatus: json[ConversationRepo.lastMsgStatus]?.toInt() ?? 11,
+      unreadNum: json[ConversationRepo.unreadNum]?.toInt() ?? 0,
+      type: json[ConversationRepo.type]?.toString() ?? '',
       msgType: json[ConversationRepo.msgType] ?? json[ConversationRepo.msgType]?.toString() ?? '',
-      isShow: json['is_show']?.toInt() ?? 1,
+      isShow: json[ConversationRepo.isShow]?.toInt() ?? 1,
       payload: payload != null ? Map<String, dynamic>.from(payload) : null,
     );
   }
@@ -183,19 +183,19 @@ class ConversationModel {
       };
 
   factory ConversationModel.empty() => ConversationModel.fromJson({
-    "id": 0,
-    "peer_id": "",
-    "type": "",
-    "title": "",
-    "subtitle": "",
-    "avatar": "",
-    "last_time": 0,
-    "last_msg_id": "",
-    "last_msg_status": 0,
-    "unread_num": 0,
-    "msg_type": "",
-    "is_show": 0,
-    "payload": {},
+    ConversationRepo.id: 0,
+    ConversationRepo.peerId: "",
+    ConversationRepo.avatar: "",
+    ConversationRepo.title: "",
+    ConversationRepo.region: "",
+    ConversationRepo.sign: "",
+    ConversationRepo.subtitle: 0,
+    ConversationRepo.lastTime: "",
+    ConversationRepo.lastMsgId: 0,
+    ConversationRepo.lastMsgStatus: 0,
+    ConversationRepo.unreadNum: "",
+    ConversationRepo.type: 0,
+    ConversationRepo.msgType: {},
   });
 
   ConversationModel copyWith({

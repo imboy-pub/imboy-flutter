@@ -7,6 +7,7 @@
 #include "generated_plugin_registrant.h"
 
 #include <connectivity_plus/connectivity_plus_windows_plugin.h>
+#include <dart_duckdb/dart_duckdb_plugin_c_api.h>
 #include <emoji_picker_flutter/emoji_picker_flutter_plugin_c_api.h>
 #include <file_saver/file_saver_plugin.h>
 #include <file_selector_windows/file_selector_windows.h>
@@ -21,6 +22,8 @@
 void RegisterPlugins(flutter::PluginRegistry* registry) {
   ConnectivityPlusWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("ConnectivityPlusWindowsPlugin"));
+  DartDuckdbPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("DartDuckdbPluginCApi"));
   EmojiPickerFlutterPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("EmojiPickerFlutterPluginCApi"));
   FileSaverPluginRegisterWithRegistrar(

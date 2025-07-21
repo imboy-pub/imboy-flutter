@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:niku/namespace.dart' as n;
 
-import 'package:imboy/config/theme.dart';
+import '../../config/theme.dart' show mainLineWidth;
 
 class LabelRow extends StatelessWidget {
   final String? title;
@@ -59,17 +58,25 @@ class LabelRow extends StatelessWidget {
             )
                 : null,
           ),
-          child: n.Row([
-            if (leading != null) leading!,
-            _buildTitle(context),
-            if (value != null) _buildValue(context),
-            if (isSpacer == true) const Spacer(),
-            if (rValue != null) _buildRValue(context),
-            if (trailing != null) Center(child: trailing),
-            isRight == true
-                ? n.Padding(right: 10,child: Icon(Icons.navigate_next, color: Theme.of(context).colorScheme.onSurface),)
-                : const SizedBox(width: 10.0),
-          ]),
+          child: Row(
+            children: [
+              if (leading != null) leading!,
+              _buildTitle(context),
+              if (value != null) _buildValue(context),
+              if (isSpacer == true) const Spacer(),
+              if (rValue != null) _buildRValue(context),
+              if (trailing != null) Center(child: trailing),
+              isRight == true
+                  ? Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: Icon(
+                  Icons.navigate_next,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              )
+                  : const SizedBox(width: 10.0),
+            ],
+          ),
         ),
       ),
     );
@@ -92,7 +99,7 @@ class LabelRow extends StatelessWidget {
     final fadedColor = Theme.of(context)
         .colorScheme
         .onPrimary
-        .withValues(alpha: 0.7 * 255);
+        .withValues(alpha: 0.7);
 
     return Expanded(
       child: Text(
@@ -111,7 +118,7 @@ class LabelRow extends StatelessWidget {
     final fadedColor = Theme.of(context)
         .colorScheme
         .onPrimary
-        .withValues(alpha: 0.7 * 255);
+        .withValues(alpha: 0.7);
 
     return Expanded(
       child: Text(

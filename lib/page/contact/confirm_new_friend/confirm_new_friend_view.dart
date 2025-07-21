@@ -9,7 +9,6 @@ import 'package:imboy/component/ui/label_row.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/radio_list_title.dart';
 import 'package:imboy/component/ui/title_text_field.dart';
-import 'package:imboy/config/theme.dart';
 
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -152,9 +151,9 @@ class ConfirmNewFriendPage extends StatelessWidget {
                           });
                         },
                         decoration: ShapeDecoration(
-                          color: Get.isDarkMode
-                              ? darkInputFillColor
-                              : lightInputFillColor,
+                          // color: Get.isDarkMode
+                          //     ? darkInputFillColor
+                          //     : lightInputFillColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadiusDirectional.circular(5),
                           ),
@@ -167,9 +166,9 @@ class ConfirmNewFriendPage extends StatelessWidget {
                     child: Text('set_param'.trArgs(['moment'.tr])),
                   ),
                   Card(
-                    color: Get.isDarkMode
-                        ? darkInputFillColor
-                        : lightInputFillColor,
+                    // color: Get.isDarkMode
+                    //     ? darkInputFillColor
+                    //     : lightInputFillColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadiusDirectional.circular(5),
                     ),
@@ -241,9 +240,9 @@ class ConfirmNewFriendPage extends StatelessWidget {
                           child: n.Column([
                             Text('moment_status'.tr),
                             Card(
-                              color: Get.isDarkMode
-                                  ? darkInputFillColor
-                                  : lightInputFillColor,
+                              // color: Get.isDarkMode
+                              //     ? darkInputFillColor
+                              //     : lightInputFillColor,
                               shape: RoundedRectangleBorder(
                                 borderRadius:
                                     BorderRadiusDirectional.circular(5),

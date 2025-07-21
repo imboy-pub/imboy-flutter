@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 // ignore: depend_on_referenced_packages
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:get/get.dart';
 
 import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
@@ -57,8 +57,10 @@ class MessageService extends GetxService {
     super.onInit();
     // 订阅事件总线，集中分发并捕获错误，防止订阅 silently 断开。
     // Listen to eventBus with error handling to avoid silent drop.
-    _ssMsg = eventBus.on<Map>().listen(_handleIncomingEvent,
-        onError: (e, s) => iPrint('EventBus error: $e - $s'));
+    _ssMsg = eventBus.on<Map>().listen(
+      _handleIncomingEvent,
+      onError: (e, s) => iPrint('EventBus error: $e - $s'),
+    );
   }
 
   @override
@@ -83,7 +85,9 @@ class MessageService extends GetxService {
       // 如果有 ts 字段，则打印延迟
       // Log latency if timestamp provided
       if (data.containsKey('ts')) {
-        iPrint("> msg latency: ${DateTimeHelper.millisecond() - (data['ts'] as int)} ms");
+        iPrint(
+          "> msg latency: ${DateTimeHelper.millisecond() - (data['ts'] as int)} ms",
+        );
       }
 
       // 所有消息均需回执 ACK
@@ -271,7 +275,7 @@ class MessageService extends GetxService {
   /// 处理服务端发送确认
   Future<void> _receiveServerAck(Map data) async {
     final repo = _getMessageRepo(data['type']);
-    final msg = await _updateStatus(repo, data['id'], IMBoyMessageStatus.send);
+    final msg = await _updateStatus(repo, data['id'], IMBoyMessageStatus.sent);
     // iPrint("> rtc msg S_RECEIVED: msg:${msg?.toJson().toString()} ;");
     if (msg != null) {
       // 更新会话里面的消息列表的特定消息状态
@@ -289,15 +293,14 @@ class MessageService extends GetxService {
   /// Internal: update message status and conversation state
   /// 内部：更新消息状态并同步会话
   Future<MessageModel?> _updateStatus(
-      MessageRepo repo, String msgId, int status) async {
-    await repo.update({
-      'id': msgId,
-      'status': status,
+    MessageRepo repo,
+    String msgId,
+    int status,
+  ) async {
+    await repo.update({'id': msgId, 'status': status});
+    _conversationLogic.updateConversationByMsgId(msgId, {
+      ConversationRepo.lastMsgStatus: status,
     });
-    _conversationLogic.updateConversationByMsgId(
-      msgId,
-      {ConversationRepo.lastMsgStatus: status},
-    );
     return repo.find(msgId);
   }
 
@@ -314,15 +317,12 @@ class MessageService extends GetxService {
       if (msg == null) return;
       final metadata =
           (msg.payload as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
-      metadata.addAll({
-        'msg_type': 'custom',
-        'custom_type': 'my_revoked',
-      });
+      metadata.addAll({'msg_type': 'custom', 'custom_type': 'my_revoked'});
       await repo.update({
         'id': data['id'],
         'type': type,
         'payload': json.encode(metadata),
-        'status': IMBoyMessageStatus.send,
+        'status': IMBoyMessageStatus.sent,
       });
       // 更新会话里面的消息列表的特定消息状态
       eventBus.fire([await msg.toTypeMessage()]);
@@ -336,11 +336,11 @@ class MessageService extends GetxService {
       final newPayload = <String, dynamic>{
         'msg_type': 'custom',
         'custom_type': 'peer_revoked',
-        'peer_name': contact?.nickname ?? ''
+        'peer_name': contact?.nickname ?? '',
       };
       await repo.update({
         'id': data['id'],
-        'status': IMBoyMessageStatus.send,
+        'status': IMBoyMessageStatus.sent,
         'payload': json.encode(newPayload),
       });
       final msg = await repo.find(data['id']);
@@ -350,26 +350,32 @@ class MessageService extends GetxService {
       }
       // 回复服务端我们已处理撤回
       // Notify server we've processed revoke
-      WebSocketService.to.sendMessage(json.encode({
-        'id': data['id'],
-        'type': '${baseType}_REVOKE_ACK',
-        'from': data['to'],
-        'to': data['from'],
-      }));
+      WebSocketService.to.sendMessage(
+        json.encode({
+          'id': data['id'],
+          'type': '${baseType}_REVOKE_ACK',
+          'from': data['to'],
+          'to': data['from'],
+        }),
+      );
     }
   }
 
   /// Update conversation record after revoke
   /// 撤回后同步更新会话列表
   Future<void> _updateConversationAfterRevoke(
-      MessageModel msg, String customType) async {
+    MessageModel msg,
+    String customType,
+  ) async {
     String peerId;
     if (msg.type == 'C2C') {
-      peerId = msg.fromId == UserRepoLocal.to.currentUid ? msg.toId! : msg.fromId!;
+      peerId = msg.fromId == UserRepoLocal.to.currentUid
+          ? msg.toId!
+          : msg.fromId!;
     } else if (msg.type == 'C2G') {
       peerId = msg.toId!;
     } else {
-      peerId = msg.toId??'';
+      peerId = msg.toId ?? '';
     }
     if (peerId == '') {
       return;
@@ -382,7 +388,7 @@ class MessageService extends GetxService {
       await _conversationRepo.updateById(conv.id, {
         ConversationRepo.msgType: conv.msgType,
         ConversationRepo.subtitle: '',
-        ConversationRepo.payload: conv.payload
+        ConversationRepo.payload: conv.payload,
       });
       eventBus.fire(conv);
     }
@@ -413,27 +419,27 @@ class MessageService extends GetxService {
     if (_addMessageLock) return;
     _addMessageLock = true;
     try {
-      types.User author;
+      User author;
       if (caller) {
-        author = types.User(
+        author = User(
           id: UserRepoLocal.to.currentUid,
-          firstName: UserRepoLocal.to.current.nickname,
-          imageUrl: UserRepoLocal.to.current.avatar,
+          name: UserRepoLocal.to.current.nickname,
+          imageSource: UserRepoLocal.to.current.avatar,
         );
       } else {
-        author = types.User(
+        author = User(
           id: peer.peerId,
-          firstName: peer.nickname,
-          imageUrl: peer.avatar,
+          name: peer.nickname,
+          imageSource: peer.avatar,
         );
       }
-      final msg = types.CustomMessage(
-        author: author,
-        createdAt: DateTimeHelper.millisecond(),
+      final msg = CustomMessage(
+        authorId: author.id,
+        createdAt: DateTimeHelper.now(),
         id: msgId,
-        remoteId: peer.peerId,
-        status: types.Status.delivered,
+        status: MessageStatus.delivered,
         metadata: {
+          'peer_id': peer.peerId,
           'custom_type': media == 'video' ? 'webrtc_video' : 'webrtc_audio',
           'media': media,
           'start_at': 0,
@@ -461,11 +467,11 @@ class MessageService extends GetxService {
   /// Update local WebRTC message state (UI only)
   /// 更新本地 WebRTC 消息状态，仅更新 UI
   Future<void> changeLocalMsgState(
-      String msgId,
-      int state, {
-        int startAt = -1,
-        int endAt = -1,
-      }) async {
+    String msgId,
+    int state, {
+    int startAt = -1,
+    int endAt = -1,
+  }) async {
     final repo = MessageRepo(tableName: MessageRepo.c2cTable);
     final msg = await repo.find(msgId);
     if (msg == null) return;
@@ -476,7 +482,9 @@ class MessageService extends GetxService {
     if (!['webrtc_video', 'webrtc_audio'].contains(customType)) return;
 
     metadata['state'] = state;
-    if (startAt >= 0 && metadata['start_at'] == 0) metadata['start_at'] = startAt;
+    if (startAt >= 0 && metadata['start_at'] == 0) {
+      metadata['start_at'] = startAt;
+    }
     if (endAt >= 0) metadata['end_at'] = endAt;
 
     final res = await repo.update({

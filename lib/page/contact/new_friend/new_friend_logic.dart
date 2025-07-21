@@ -61,7 +61,7 @@ class NewFriendLogic extends GetxController {
       NewFriendRepo.msg: payload["from"]["msg"] ?? "",
       NewFriendRepo.payload: json.encode(payload),
       NewFriendRepo.status: NewFriendStatus.waiting_for_validation.index,
-      NewFriendRepo.createdAt: DateTimeHelper.millisecond(),
+      NewFriendRepo.createdAt: DateTimeHelper.now(),
     };
     debugPrint("> on receivedAddFriend ${saveData.toString()}");
     (NewFriendRepo()).save(saveData);

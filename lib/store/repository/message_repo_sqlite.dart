@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
-import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -91,7 +90,7 @@ class MessageRepo {
     int? count = await _db.count(
       tableName,
       where: "id=?",
-      whereArgs: [MessageRepo.id],
+      whereArgs: [msg.id],
     );
     if (count == 0) {
       Map<String, dynamic> insert = {
@@ -107,10 +106,10 @@ class MessageRepo {
         MessageRepo.conversationUk3: msg.conversationUk3,
         MessageRepo.status: msg.status,
       };
-      debugPrint("> on MessgeMode/insert tb $tableName : $insert");
+      debugPrint("> on MessageModel/insert tb $tableName : $insert");
       await _db.insert(tableName, insert);
     } else {
-      debugPrint("> on MessgeMode/insert count $count : $insert");
+      debugPrint("> on MessageModel/insert count $count : $insert");
     }
     return msg;
   }
@@ -149,16 +148,16 @@ class MessageRepo {
   }
 
   Future<List<MessageModel>> pageForConversation(
-    ConversationModel obj,
+    String uk3,
     int nextAutoId,
     int size,
   ) async {
     String where =
         "${MessageRepo.conversationUk3} = ? AND ${MessageRepo.autoId} < ?";
-    List args = [obj.uk3, nextAutoId];
+    List args = [uk3, nextAutoId];
     if (nextAutoId <= 0) {
       where = "${MessageRepo.conversationUk3} = ?";
-      args = [obj.uk3];
+      args = [uk3];
     }
     List<Map<String, dynamic>> maps = await _db.query(
       tableName,
@@ -271,6 +270,7 @@ class MessageRepo {
       where: '${MessageRepo.id} = ?',
       whereArgs: [id],
     );
+    // iPrint("> on MessageRepo/find tb $tableName, id $id, len ${maps.length}; ${maps.toList().toString()}");
     if (maps.isNotEmpty) {
       return MessageModel.fromJson(maps.first);
     }

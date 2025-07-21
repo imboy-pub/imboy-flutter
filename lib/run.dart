@@ -6,6 +6,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:image/image.dart' as img;
+import 'package:provider/provider.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/feedback_builder.dart';
@@ -26,11 +27,13 @@ import 'package:imboy/store/provider/feedback_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'component/locales/locales.dart';
+import 'config/app_theme.dart';
 import 'config/init.dart';
-import 'config/theme.dart';
 
 void run() async {
   await Jiffy.setLocale(jiffyLocal(sysLang('jiffy')));
+  Provider.debugCheckInvalidValueType = null; // ⛔ 忽略 Provider 的类型安全检查
+
   // 强制竖屏 DeviceOrientation.portraitUp
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((
     _,

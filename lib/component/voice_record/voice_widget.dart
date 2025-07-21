@@ -8,7 +8,6 @@ import 'package:niku/namespace.dart' as n;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
-import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
 import 'package:get/get.dart';
 
 import 'package:imboy/component/helper/func.dart';
@@ -108,11 +107,9 @@ class _VoiceWidgetState extends State<VoiceWidget> {
                 'storage_permission_not_obtained'.tr);
           }
         }
-      } catch (e, stack) {
+      } catch (e, s) {
         // 也可以使用 print 语句打印异常信息
-        iPrint('init_login_error: $e');
-        iPrint('init_Stack trace:\n${stack.toString()}');
-        // return e.toString();
+        iPrint('init_login_error: $e trace:\n${s.toString()}');
       }
     }
     await recorder.openRecorder();

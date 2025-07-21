@@ -7,7 +7,6 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/user_tag/contact_tag_detail/contact_tag_detail_logic.dart';
 import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_logic.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'user_tag_save_logic.dart';
 
@@ -47,14 +46,13 @@ class UserTagSavePage extends StatelessWidget {
         // rightDMActions: [],
       ),
       body: SizedBox(
-          width: Get.width,
-          height: 120,
-          child: n.Column([
-            n.Padding(
-              top: 10,
-              bottom: 10,
-              left: 10,
-              right: 10,
+        width: Get.width,
+        height: 120,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10),
               child: TextFormField(
                 autofocus: true,
                 focusNode: state.inputFocusNode,
@@ -116,67 +114,69 @@ class UserTagSavePage extends StatelessWidget {
                 },
               ),
             ),
-            n.Row([
-              Obx(
-                () => RoundedElevatedButton(
-              text: 'button_accomplish'.tr,
-              highlighted: state.valueChanged.isTrue,
-                  onPressed: () async {
-                    String trimmedText = state.textController.text.trim();
-                    if (trimmedText == '') {
-                      state.valueChanged.value = false;
-                    } else if (tag == null && state.valueChanged.isTrue) {
-                      tag = await logic.addTag(
-                        scene: scene,
-                        tagName: trimmedText,
-                      );
-                      if (tag != null) {
-                        if (Get.isBottomSheetOpen ?? false) {
-                          Get.closeAllBottomSheets();
-                        } else {
-                          Get.back();
-                        }
-                      }
-                    } else if (state.valueChanged.isTrue) {
-                      debugPrint("submit_trimmedText $trimmedText");
-                      bool res = await logic.changeName(
-                        scene: scene,
-                        tagId: tag?.tagId ?? 0,
-                        tagName: trimmedText,
-                      );
-                      if (res) {
-                        Get.find<ContactTagListLogic>().replaceObjectTag(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Obx(
+                  () => RoundedElevatedButton(
+                    text: 'button_accomplish'.tr,
+                    highlighted: state.valueChanged.isTrue,
+                    onPressed: () async {
+                      String trimmedText = state.textController.text.trim();
+                      if (trimmedText == '') {
+                        state.valueChanged.value = false;
+                      } else if (tag == null && state.valueChanged.isTrue) {
+                        tag = await logic.addTag(
                           scene: scene,
-                          oldName: tag?.name ?? '',
-                          newName: trimmedText,
+                          tagName: trimmedText,
                         );
-                        tag?.name = trimmedText;
-                        Get.find<ContactTagListLogic>().updateTag(tag);
-                        try {
-                          Get.find<ContactTagDetailLogic>()
-                              .state
-                              .tagName
-                              .value = trimmedText;
-                        } catch (e) {
-                          //
+                        if (tag != null) {
+                          if (Get.isBottomSheetOpen ?? false) {
+                            Get.closeAllBottomSheets();
+                          } else {
+                            Get.back();
+                          }
                         }
-                        EasyLoading.showSuccess('tip_success'.tr);
+                      } else if (state.valueChanged.isTrue) {
+                        debugPrint("submit_trimmedText $trimmedText");
+                        bool res = await logic.changeName(
+                          scene: scene,
+                          tagId: tag?.tagId ?? 0,
+                          tagName: trimmedText,
+                        );
+                        if (res) {
+                          Get.find<ContactTagListLogic>().replaceObjectTag(
+                            scene: scene,
+                            oldName: tag?.name ?? '',
+                            newName: trimmedText,
+                          );
+                          tag?.name = trimmedText;
+                          Get.find<ContactTagListLogic>().updateTag(tag);
+                          try {
+                            Get.find<ContactTagDetailLogic>()
+                                .state
+                                .tagName
+                                .value = trimmedText;
+                          } catch (e) {
+                            //
+                          }
+                          EasyLoading.showSuccess('tip_success'.tr);
 
-                        if (Get.isBottomSheetOpen ?? false) {
-                          Get.closeAllBottomSheets();
-                        } else {
-                          Get.back();
+                          if (Get.isBottomSheetOpen ?? false) {
+                            Get.closeAllBottomSheets();
+                          } else {
+                            Get.back();
+                          }
                         }
                       }
-                    }
-                  },),
-              )
-            ])
-              // 内容居中
-              ..mainAxisAlignment = MainAxisAlignment.center
+                    },
+                  ),
+                )
+              ],
+            )
           ],
-              // 顶部对齐
-              mainAxisAlignment: MainAxisAlignment.start)),
+        ),
+      ),
     );
   }
 }

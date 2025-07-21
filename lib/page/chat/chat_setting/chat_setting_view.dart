@@ -79,7 +79,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
           Get.to(
             () => SearchChatPage(
               type: widget.type,
-              peerId: widget.options?['peerId'],
+              peerId: widget.options?['peer_id'],
               peerTitle: widget.options?['peerTitle'],
               peerAvatar: widget.options?['peerAvatar'],
               peerSign:widget.options?['peerSign'] ?? '',

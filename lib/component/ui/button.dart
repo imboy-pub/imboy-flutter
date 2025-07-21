@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/config/theme.dart';
 import 'package:niku/namespace.dart' as n;
+
+import '../../config/theme.dart' show mainLineWidth;
 
 class ButtonRow extends StatelessWidget {
   final EdgeInsetsGeometry? margin;

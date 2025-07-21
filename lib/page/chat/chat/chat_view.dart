@@ -1,15 +1,22 @@
 import 'dart:async';
+import 'package:imboy/component/helper/func.dart' show iPrint;
+import 'package:imboy/component/helper/permission.dart';
+import 'package:imboy/page/chat/widget/chat_input_height_listener.dart';
+import 'package:provider/provider.dart';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-// ignore: depend_on_referenced_packages
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:flutter_chat_core/flutter_chat_core.dart'
+    hide CustomMessageBuilder;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flyer_chat_file_message/flyer_chat_file_message.dart';
+import 'package:flyer_chat_image_message/flyer_chat_image_message.dart';
+import 'package:flyer_chat_system_message/flyer_chat_system_message.dart';
+import 'package:flyer_chat_text_message/flyer_chat_text_message.dart';
 import 'package:get/get.dart' as getx;
 import 'package:image/image.dart' as img;
 import 'package:imboy/component/ui/line.dart';
@@ -18,27 +25,22 @@ import 'package:mime/mime.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:photo_view/photo_view.dart';
 import 'package:popup_menu/popup_menu.dart' as popupmenu;
-import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:xid/xid.dart';
 
-import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/picker_method.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
-import 'package:imboy/component/message/message.dart';
-import 'package:imboy/component/message/message_image_builder.dart';
+import 'package:imboy/component/chat/message.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/voice_record/voice_widget.dart';
 
 import 'package:imboy/config/init.dart';
-import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/chat/chat_setting/chat_setting_view.dart';
 import 'package:imboy/page/chat/send_to/send_to_view.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
@@ -60,27 +62,28 @@ import '../widget/quote_tips.dart';
 import '../widget/select_friend.dart';
 import 'chat_logic.dart';
 
+// 聊天页面主Widget
 // ignore: must_be_immutable
 class ChatPage extends StatefulWidget {
-  final String type; // [C2C | C2G | C2S]
-  final String peerId; // 用户ID | GroupId | SID
-  final String peerAvatar;
-  final String peerTitle;
-  final String peerSign;
-  final String msgId;
+  final String type; // 聊���类型 [C2C | C2G | C2S]
+  final String peerId; // 对方ID (用户ID/群组ID/服务ID)
+  final String peerAvatar; // 对方头像
+  final String peerTitle; // 对方标题/名称
+  final String peerSign; // 对方签名
+  final String msgId; // 消息ID (用于定位特定消息)
 
-  // final String computeTitle;
-  // final int popTime;
+  // 可选配置参数
   final Map<String, dynamic>? options;
 
   /*
+    options可能包含的字段:
     {
       'memberCount':1, // 成员数量，C2G 群聊消息用的
       'popTime':1, // 通过设置 popTime 控制回退几次
       'computeTitle':'', // 计算标题
       'showConversation': true // 面对面建群的时候为false
-     }
-   */
+    }
+  */
   const ChatPage({
     super.key,
     this.type = 'C2C',
@@ -103,53 +106,89 @@ class ChatPageState extends State<ChatPage> {
 
   final conversationLogic = getx.Get.find<ConversationLogic>();
 
-  bool _showAppBar = true;
+  bool _showAppBar = true; // 控制顶部导航栏显示/隐藏
+  String newGroupName = ""; // 新群组名称
+  int get maxAssetsCount => 9; // 最大可选资源数量
 
-  String newGroupName = "";
+  List<AssetEntity> assets = <AssetEntity>[]; // 选择的资源列表
+  Message? quoteMessage; // 引用的消息
+  final GlobalKey<ChatInputState> chatInputKey = GlobalKey<ChatInputState>();
 
-  final int _size = 16;
+  // 消息ID集合，用于防止 eventBus 重复渲染消息
+  final Set<String> msgIds = {};
+  final User currentUser = User(
+    id: UserRepoLocal.to.currentUid,
+    name: UserRepoLocal.to.current.nickname,
+    imageSource: UserRepoLocal.to.current.avatar,
+  );
 
-  int get maxAssetsCount => 9;
+  late ConversationModel conversation; // 当前会话
+  late User peer; // 对方用户信息
+  // StreamSubscription<ConnectivityResult>? _connectivitySubscription; // 网络状态监听
 
-  List<AssetEntity> assets = <AssetEntity>[];
-
-  types.Message? quoteMessage;
-
-  // 消息重复投递导致的聊天列表消息重复显示问题
-  // 只需要再 ssMsg listen 的时候 add(msg.id)就可以了
-  Set<String> msgIds = {};
-
-  // ignore: prefer_typing_uninitialized_variables
-  late var currentUser;
-  late ConversationModel conversation;
-
+  // 页面初始化
   @override
   void initState() {
-    // 初始化的时候置空数据，放在该位置（initData之前），不会出现闪屏
-    logic.initState();
-
-    //监听Widget是否绘制完毕
     super.initState();
+    msgIds.clear();
+    state.nextAutoId.value = 0;
+    state.hasMoreMessage.value = true;
+    state.isLoading.value = false;
 
-    initData();
-    // 异步检查是否有离线数据 TODO leeyi 2023-01-29 16:43:47
+    _initChat();
+    _initData();
   }
 
-  /// 初始化一些数据
-  Future<void> initData() async {
-    msgIds = {};
-    currentUser = types.User(
-      id: UserRepoLocal.to.currentUid,
-      firstName: UserRepoLocal.to.current.nickname,
-      imageUrl: UserRepoLocal.to.current.avatar,
+  /// 初始化聊天相关数据
+  Future<void> _initChat() async {
+    logic.initChatController(widget.type);
+
+    // 创建或获取会话
+    await _setupConversation();
+    await logic.loadMoreMessages(conversation, isInitial: true);
+    _setupEventListeners();
+  }
+
+
+  // 初始化数据
+  Future<void> _initData() async {
+    peer = User(
+      id: widget.peerId,
+      name: widget.peerTitle,
+      imageSource: widget.peerAvatar,
     );
-    // 检查网络状态
-    var connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult.contains(ConnectivityResult.none)) {
-      state.connected = false.obs;
-    } else {
-      state.connected = true.obs;
+
+    // 监听网络状态
+    Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
+      if (r.contains(ConnectivityResult.none)) {
+        // ignore: prefer_interpolation_to_compose_strings
+        // state.connected.value = '(${'tip_connect_desc'.tr})';
+        state.connected.value = false;
+      } else {
+        state.connected.value = true;
+      }
+    });
+    if (availableMaps.isEmpty) {
+      try {
+        availableMaps = await MapLauncher.installedMaps;
+      } catch (e) {
+        //
+      }
     }
+
+    // 初始化群组信息
+    await _initGroupInfo();
+
+    // 加载消息
+    if (widget.msgId.isNotEmpty) {
+      logic.scrollToMessage(widget.type, widget.msgId);
+    }
+    // 设置消息监听
+    _setupEventListeners();
+  }
+
+  /// 设置会话
+  Future<void> _setupConversation() async {
     bool showConversation = widget.options?['showConversation'] ?? true;
     conversation = await conversationLogic.createConversation(
       type: widget.type,
@@ -159,82 +198,30 @@ class ChatPageState extends State<ChatPage> {
       subtitle: "",
       lastTime: showConversation ? DateTimeHelper.millisecond() : 0,
     );
+
     if (showConversation) {
       eventBus.fire(conversation);
     }
     state.nextAutoId.value = 0;
+  }
 
+  // 初始化群组信息
+  Future<void> _initGroupInfo() async {
     if (widget.type == 'C2G') {
       state.memberCount.value = widget.options?['memberCount'] ?? 0;
-      iPrint("state.selects chat_vew ${widget.options.toString()}");
       newGroupName = await logic.groupTitle(
         widget.peerId,
         widget.peerTitle,
         state.memberCount.value,
       );
     }
+  }
 
-    if (availableMaps.isEmpty) {
-      try {
-        availableMaps = await MapLauncher.installedMaps;
-      } catch (e) {
-        //
-      }
-    }
-
-    // 获取本地聊天记录
-    _handleEndReached();
-    // 处理查找消息再次进入聊天会话页面
-    int msgIndex = -1;
-    if (widget.msgId.isNotEmpty) {
-      while (msgIndex == -1) {
-        msgIndex = state.messages.indexWhere((msg) => msg.id == widget.msgId);
-        iPrint("scrollToIndex i 1 $msgIndex, len ${state.messages.length}");
-        if (msgIndex == -1) {
-          final items = await _handleEndReached();
-          if (items.isEmpty) {
-            break;
-          }
-        }
-        msgIndex = state.messages.indexWhere((msg) => msg.id == widget.msgId);
-        iPrint("scrollToIndex i 2 $msgIndex, len ${state.messages.length}");
-        if (msgIndex > -1) {
-          break;
-        }
-      }
-      iPrint(
-          "scrollToIndex i 3 $msgIndex, msgId ${widget.msgId}, len ${state.messages.length}");
-
-      if (msgIndex > -1) {
-        const d = Duration(milliseconds: 2500);
-        await state.scrollController.scrollToIndex(
-          msgIndex,
-          duration: d,
-          preferPosition: AutoScrollPosition.begin,
-        );
-        if (mounted) {
-          setState(() {
-            state.messages;
-          });
-        }
-        state.scrollController.cancelAllHighlights();
-      }
-    }
-    // 处理查找消息再次进入聊天会话页面 end
-
-    // 监听网络状态
-    Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
-      if (r.contains(ConnectivityResult.none)) {
-        state.connected = false.obs;
-      } else {
-        state.connected = true.obs;
-      }
-    });
-
+  void _setupEventListeners() {
     // 一些异步操作事件的监听
-    state.ssMsgExt =
-        eventBus.on<ChatExtendModel>().listen((ChatExtendModel obj) async {
-      iPrint("face_to_face_confirm ${obj.toString()}; $mounted");
+    state.ssMsgExt = eventBus.on<ChatExtendModel>().listen((
+      ChatExtendModel obj,
+    ) async {
       // 监听新成员加入
       if (obj.type == 'join_group' &&
           obj.payload['groupId'] == widget.peerId &&
@@ -245,229 +232,161 @@ class ChatPageState extends State<ChatPage> {
           widget.peerTitle,
           state.memberCount.value,
         );
-        if (mounted) {
-          setState(() {});
-        }
+        if (mounted) setState(() {});
       } else if (obj.type == 'clean_msg' &&
           ((obj.payload['uk3'] ?? '') == conversation.uk3)) {
-        // 重新获取本地聊天记录
         state.nextAutoId.value = 0;
-        _handleEndReached();
-      } else if (obj.type == 'delete_msg') {
-        //   removeMessage
-        if (obj.payload['conversation'].id == conversation.id) {
-          final i = state.messages
-              .indexWhere((element) => element.id == obj.payload['msg'].id);
-          if (mounted) {
-            setState(() {
-              state.messages.removeAt(i);
-            });
-          }
-        }
+        await logic.loadMoreMessages(conversation, isInitial: true);
+      } else if (obj.type == 'delete_msg' &&
+          obj.payload['conversation'].id == conversation.id) {
+        logic.chatController.removeMessageById(obj.payload['msg'].id);
       }
     });
 
-    // 接收到新的消息订阅 for c2c
-    state.ssMsg =
-        eventBus.on<types.Message>().listen((types.Message msg) async {
-      iPrint("chat_view/listen one ${msg.id}; ${DateTime.now()}");
+    // 接收到新的消息订阅 for c2c c2g
+    state.ssMsg = eventBus.on<Message>().listen((Message msg) async {
       final String conversationUk3 = msg.metadata?['conversation_uk3'] ?? '';
-      // iPrint("chat_view/listen one $conversationUk3");
-      // iPrint("chat_view/listen one ${conversationUk3 != conversation.uk3}");
-      if (conversationUk3 != conversation.uk3) {
+      if (conversationUk3 != conversation.uk3 || msgIds.contains(msg.id)) {
         return;
       }
 
-      // 消息重复投递导致的聊天列表消息重复显示问题
-      if (msgIds.contains(msg.id)) {
-        return;
-      }
       msgIds.add(msg.id);
+      final i = logic.chatController.messages.indexWhere((e) => e.id == msg.id);
 
-      final i = state.messages.indexWhere((e) => e.id == msg.id);
-      // iPrint("changeMessageState 4 ${msg.id}; i $i; mounted $mounted");
       if (i == -1) {
         String tb = MessageRepo.getTableName(widget.type);
-        iPrint("decreaseConversationRemind ${conversation.uk3}; $tb;");
         MessageModel? m = await MessageService.to.changeStatus(
           tb,
           msg.id,
           IMBoyMessageStatus.seen,
         );
-        conversationLogic.decreaseConversationRemind(
-          conversation,
-          1,
-        );
+        conversationLogic.decreaseConversationRemind(conversation, 1);
+
         if (m != null) {
           msg = await m.toTypeMessage();
-          state.messages.insert(0, msg);
+          logic.chatController.insertMessage(
+            msg,
+            index: logic.chatController.messages.length,
+          );
+          _markMessagesAsRead([msg]);
 
-          if (msg is types.ImageMessage) {
-            galleryLogic.pushToLast(msg.id, msg.uri);
-          }
-          if (mounted) {
-            setState(() {});
+          if (msg is ImageMessage) {
+            galleryLogic.pushToLast(msg.id, msg.source);
           }
         }
       }
+
       // 为节省内存，5秒后从 msgIds 移出 msg.id
-      Future.delayed(const Duration(seconds: 5), () {
-        msgIds.remove(msg.id);
-      });
+      Future.delayed(const Duration(seconds: 5), () => msgIds.remove(msg.id));
     });
-    // debugPrint("> rtc msg S_RECEIVED listen list");
 
     // 消息状态更新订阅, 这里无需用锁 for c2g
-    state.ssMsgState = eventBus.on<List<types.Message>>().listen((e) async {
-      types.Message msg = e.first;
-
-      final i = state.messages.indexWhere((e) => e.id == msg.id);
-      // debugPrint("chat_view/listen list $i ${msg.toJson().toString()}");
-      if (i > -1) {
-        state.messages.setRange(i, i + 1, e);
-        if (mounted) {
-          setState(() {
-            state.messages;
-          });
-        }
+    state.ssMsgState = eventBus.on<List<Message>>().listen((e) {
+      if (e.isEmpty) return;
+      Message msg = e.first;
+      final i = logic.chatController.messages.indexWhere((e) => e.id == msg.id);
+      if (i > -1 && mounted) {
+        logic.chatController.updateMessage(logic.chatController.messages[i], msg);
       }
     });
   }
 
   @override
   void dispose() {
-    getx.Get.delete<ImageGalleryLogic>();
     state.ssMsgExt?.cancel();
     state.ssMsg?.cancel();
     state.ssMsgState?.cancel();
-    msgIds = {};
+    msgIds.clear();
+    logic.chatController.setMessages([]);
+    logic.chatController.dispose();
+    getx.Get.delete<ImageGalleryLogic>();
     super.dispose();
   }
 
-  /// 用于分页(无限滚动)。当用户滚动时调用
-  /// 到列表的最后(减去[onEndReachedThreshold])。
-  Future<List<types.Message>> _handleEndReached() async {
-    // 初始化 当前会话新增消息
-    final items = await logic.pageMessages(
-      conversation,
-      _size,
-    );
-    if (items.isNotEmpty) {
-      // 消除消息提醒
-      countConversationRemind(items);
-      if (mounted) {
-        // 使用Set来存储所有现有的消息id，以便快速查找
-        Set<String> existingIds = Set.from(state.messages.map((msg) => msg.id));
-        // 过滤出那些不在existingIds中的新消息
-        final items2 =
-            items.where((item) => !existingIds.contains(item.id)).toList();
-        for (var msg in items2) {
-          if (msg is types.ImageMessage) {
-            galleryLogic.pushToGallery(msg.id, msg.uri);
-          }
-        }
-        setState(() {
-          state.messages.value = [
-            ...state.messages,
-            ...items2,
-          ];
-        });
-      }
-    } else if (state.nextAutoId.value == 0 && mounted) {
-      setState(() {
-        state.messages.value = [];
-      });
-    }
-    return items;
-    // debugPrint("ChatSettingPage then 3 ${state.messages.length}");
-  }
+  // 标记消息为已读
+  Future<void> _markMessagesAsRead(List<Message> items) async {
+    final unreadMsgIds = items
+        .where(
+          (msg) =>
+              msg.authorId != UserRepoLocal.to.currentUid &&
+              msg.status != MessageStatus.seen,
+        )
+        .map((msg) => msg.id)
+        .toList();
 
-  /// 消除消息提醒
-  Future<void> countConversationRemind(List<types.Message> items) async {
-    List<String> msgIds = [];
-    for (var msg in items) {
-      //enum Status { delivered, error, seen, sending, sent }
-      if (msg.author.id != UserRepoLocal.to.currentUid &&
-          msg.status != types.Status.seen) {
-        msgIds.add(msg.id);
-      }
-    } // end for items
-    iPrint(
-        "countConversationRemind msgIds.len ${msgIds.length} type ${widget.type}");
-    if (msgIds.isEmpty) {
-      // 重新计算会话消息提醒数量
+    if (unreadMsgIds.isEmpty) {
       conversationLogic.recalculateConversationRemind(conversation);
     } else {
-      await logic.markAsRead(
-        widget.type,
-        widget.peerId,
-        msgIds,
-      );
+      await logic.markAsRead(widget.type, widget.peerId, unreadMsgIds);
     }
   }
 
-  Future<bool> _addMessage(types.Message message) async {
-    // 先显示在聊天UI里面
-    // 异步发送WS消息
-    // 异步存储sqlite消息(未发送成功）
-    //   发送成功后，更新conversation、更新消息状态
-    //   发送失败后，放入异步队列，重新发送
-    String type = widget.type == 'null' ? 'C2C' : widget.type;
+  // 添加消息
+  Future<bool> _addMessage(Message message) async {
     try {
       await logic.addMessage(
         UserRepoLocal.to.currentUid,
         widget.peerId,
         widget.peerAvatar,
         widget.peerTitle,
-        type,
+        widget.type == 'null' ? 'C2C' : widget.type,
         message,
       );
-      setState(() {
-        state.messages.insert(0, message);
-      });
+
+      await logic.chatController.insertMessage(
+        message,
+        index: logic.chatController.messages.length,
+      );
       return true;
     } catch (e, stack) {
-      debugPrint("_addMessage $e : $stack");
+      debugPrint("_addMessage error: $e : $stack");
+      return false;
     }
-    return false;
-    // _msgService.update();
   }
 
-  /// 选择文件
-  void _handleFileSelection() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.any,
-    );
+  // 选择文件
+  Future<void> _handleFileSelection() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.any);
+    if (result == null || result.files.single.path == null) return;
 
-    if (result != null && result.files.single.path != null) {
-      await AttachmentProvider.uploadFile("files", result.files.single, (
-        Map<String, dynamic> resp,
-        String uri,
-      ) async {
-        final message = types.FileMessage(
-            id: Xid().toString(),
-            author: currentUser,
-            createdAt: DateTimeHelper.millisecond(),
-            mimeType: lookupMimeType(result.files.single.path!),
-            name: result.files.single.name,
-            size: result.files.single.size,
-            uri: uri,
-            remoteId: widget.peerId,
-            status: types.Status.sending,
-            metadata: {
-              'md5': resp['data']['md5'].toString(),
-            });
-        // 上传现有的附件，是不需要清理临时文件的
+    await _uploadFile(result.files.single);
+  }
+
+  // 上传文件
+  Future<void> _uploadFile(PlatformFile file) async {
+    await AttachmentProvider.uploadFile(
+      "files",
+      file,
+      (Map<String, dynamic> resp, String uri) async {
+        final message = FileMessage(
+          id: Xid().toString(),
+          authorId: currentUser.id,
+          createdAt: DateTimeHelper.now(),
+          mimeType: lookupMimeType(file.path!),
+          name: file.name,
+          size: file.size,
+          source: uri,
+          status: MessageStatus.sending,
+          metadata: {
+            'peer_id': widget.peerId,
+            'md5': resp['data']['md5'].toString(),
+          },
+        );
         _addMessage(message);
-      }, (Error error) {
-        debugPrint("> on upload ${error.toString()}");
-      });
-    }
+      },
+      (Error error) => debugPrint("File upload error: ${error.toString()}"),
+    );
   }
 
-  /// 拍摄
+  // 拍摄照片或视频
   Future<void> _handlePickerSelection() async {
     try {
+      // Request camera permission before accessing camera
+      bool hasPermission = await requestCameraPermission();
+      if (!hasPermission) {
+        return; // Permission denied, exit early
+      }
+
       final AssetEntity? entity = await CameraPicker.pickFromCamera(
         context,
         pickerConfig: const CameraPickerConfig(
@@ -477,724 +396,623 @@ class ChatPageState extends State<ChatPage> {
           maximumRecordingDuration: Duration(seconds: 24),
         ),
       );
-      if (entity == null) {
-        return;
-      }
-      if (mounted) {
-        setState(() {});
-      }
-      await AttachmentProvider.uploadVideo("camera", entity, (
-        Map<String, dynamic> resp,
-        String imgUrl,
-      ) async {
-        double w = getx.Get.width;
-        imgUrl += "&width=${w.toInt()}";
+      if (entity == null) return;
 
-        if (entity.type == AssetType.image) {
-          final message = types.ImageMessage(
-              author: currentUser,
-              createdAt: DateTimeHelper.millisecond(),
-              id: Xid().toString(),
-              name: await entity.titleAsync,
-              height: entity.height * 1.0,
-              width: entity.width * 1.0,
-              size: resp["data"]["size"],
-              uri: imgUrl,
-              remoteId: widget.peerId,
-              status: types.Status.sending,
-              metadata: {
-                'md5': resp['data']['md5'].toString(),
-              });
-          _addMessage(message);
-        } else if (entity.type == AssetType.video) {
-          Map<String, dynamic> metadata = {
-            'custom_type': 'video',
-            'thumb': (resp['thumb'] as EntityImage).toJson(),
-            'video': (resp['video'] as EntityVideo).toJson(),
-          };
-          debugPrint("> on upload metadata: ${metadata.toString()}");
-          final message = types.CustomMessage(
-            author: currentUser,
-            createdAt: DateTimeHelper.millisecond(),
-            id: Xid().toString(),
-            remoteId: widget.peerId,
-            status: types.Status.sending,
-            metadata: metadata,
-          );
-          _addMessage(message);
-        }
-      }, (Error error) {
-        debugPrint("> on upload error ${error.toString()}");
-      }, uploadOriginalImage: true);
-      if (mounted) {
-        setState(() {});
-      }
-      // 上传成功，删除本地临时文件
-      (await entity.file)?.deleteSync();
+      await _uploadCameraAsset(entity);
     } catch (e) {
-      rethrow;
+      debugPrint("Camera picker error: $e");
     }
   }
 
+  // 上传拍摄的资源
+  Future<void> _uploadCameraAsset(AssetEntity entity) async {
+    await AttachmentProvider.uploadVideo(
+      "camera",
+      entity,
+      (Map<String, dynamic> resp, String imgUrl) async {
+        imgUrl += "&width=${getx.Get.width.toInt()}";
+
+        if (entity.type == AssetType.image) {
+          await _handleImageUpload(resp, imgUrl, entity);
+        } else if (entity.type == AssetType.video) {
+          await _handleVideoUpload(resp);
+        }
+      },
+      (Error error) => debugPrint("Camera upload error: ${error.toString()}"),
+      uploadOriginalImage: true,
+    );
+
+    // 上传后删除临时文件
+    (await entity.file)?.deleteSync();
+  }
+
+  // 处理图片上传
+  Future<void> _handleImageUpload(
+    Map<String, dynamic> resp,
+    String imgUrl,
+    AssetEntity entity,
+  ) async {
+    final message = ImageMessage(
+      authorId: currentUser.id,
+      createdAt: DateTimeHelper.now(),
+      id: Xid().toString(),
+      text: await entity.titleAsync,
+      height: entity.height * 1.0,
+      width: entity.width * 1.0,
+      size: resp["data"]["size"],
+      source: imgUrl,
+      metadata: {
+        'peer_id': widget.peerId,
+        'md5': resp['data']['md5'].toString(),
+      },
+    );
+    _addMessage(message);
+  }
+
+  // 处理视频上传
+  Future<void> _handleVideoUpload(Map<String, dynamic> resp) async {
+    final message = CustomMessage(
+      authorId: currentUser.id,
+      createdAt: DateTimeHelper.now(),
+      id: Xid().toString(),
+      metadata: {
+        'custom_type': 'video',
+        'peer_id': widget.peerId,
+        'thumb': (resp['thumb'] as EntityImage).toJson(),
+        'video': (resp['video'] as EntityVideo).toJson(),
+      },
+    );
+    _addMessage(message);
+  }
+
+  // 选择资源(图片/视频)
   Future<void> _selectAssets(PickMethod model) async {
     final List<AssetEntity>? result = await model.method(context, assets);
     if (result != null) {
       assets = List<AssetEntity>.from(result);
-      if (mounted) {
-        setState(() {});
-      }
+      if (mounted) setState(() {});
     }
   }
 
-  /// 发送收藏消息
+  // 发送收藏消息
   Future<void> _handleCollectSelection() async {
-    Map<String, String> peer = {
-      'peerId': widget.peerId,
+    final peer = {
+      'peer_id': widget.peerId,
       'avatar': widget.peerAvatar,
       'title': widget.peerTitle,
     };
 
-    UserCollectModel? c1 = await Navigator.push(
+    final collect = await Navigator.push(
       context,
       CupertinoPageRoute(
-        // “右滑返回上一页”功能
-        builder: (_) => UserCollectPage(
-          peer: peer,
-          isSelect: true,
-        ),
+        builder: (_) => UserCollectPage(peer: peer, isSelect: true),
       ),
     );
-    debugPrint("_handleCollectSelection ${c1?.toMap().toString()}");
-    if (c1 != null) {
-      Map<String, dynamic> data = c1.info;
-      data[MessageRepo.id] = Xid().toString();
-      data[MessageRepo.from] = UserRepoLocal.to.currentUid;
-      data[MessageRepo.to] = widget.peerId;
-      data[MessageRepo.status] = 10;
-      data[MessageRepo.conversationUk3] = conversation.uk3;
-      data[MessageRepo.createdAt] = DateTimeHelper.millisecond();
 
-      types.Message msg = await MessageModel.fromJson(data).toTypeMessage();
-
-      bool res = await _addMessage(msg);
-      if (res) {
-        getx.Get.find<UserCollectLogic>().change(c1.kindId);
-        EasyLoading.showSuccess('tip_success'.tr);
-      } else {
-        EasyLoading.showError('tip_failed'.tr);
-      }
+    if (collect != null) {
+      await _sendCollectMessage(collect);
     }
   }
 
-  /// 发送个人名片
+  // 发送收藏消息
+  Future<void> _sendCollectMessage(UserCollectModel collect) async {
+    final data = collect.info
+      ..addAll({
+        MessageRepo.id: Xid().toString(),
+        MessageRepo.from: UserRepoLocal.to.currentUid,
+        MessageRepo.to: widget.peerId,
+        MessageRepo.status: 10,
+        MessageRepo.conversationUk3: conversation.uk3,
+        MessageRepo.createdAt: DateTimeHelper.millisecond(),
+      });
+
+    final msg = await MessageModel.fromJson(data).toTypeMessage();
+    final res = await _addMessage(msg);
+
+    if (res) {
+      getx.Get.find<UserCollectLogic>().change(collect.kindId);
+      EasyLoading.showSuccess('tip_success'.tr);
+    } else {
+      EasyLoading.showError('tip_failed'.tr);
+    }
+  }
+
+  // 发送个人名片
   Future<void> _handleVisitCardSelection() async {
-    Map<String, String> peer = {
-      'peerId': widget.peerId,
+    final peer = {
+      'peer_id': widget.peerId,
       'avatar': widget.peerAvatar,
       'title': widget.peerTitle,
     };
 
-    ContactModel? c1 = await Navigator.push(
+    final contact = await Navigator.push(
       context,
-      CupertinoPageRoute(
-        // “右滑返回上一页”功能
-        builder: (_) => SelectFriendPage(
-          peer: peer,
-        ),
-      ),
+      CupertinoPageRoute(builder: (_) => SelectFriendPage(peer: peer)),
     );
-    // debugPrint("handleVisitCardSelection ${c1?.toJson().toString()}");
-    if (c1 != null) {
-      Map<String, dynamic> metadata = {
+
+    if (contact != null) {
+      await _sendVisitCardMessage(contact);
+    }
+  }
+
+  // 发送个人名片消息
+  Future<void> _sendVisitCardMessage(ContactModel contact) async {
+    final message = CustomMessage(
+      authorId: currentUser.id,
+      createdAt: DateTimeHelper.now(),
+      id: Xid().toString(),
+      metadata: {
         'custom_type': 'visit_card',
-        'uid': c1.peerId,
-        'title': c1.nickname,
-        'avatar': c1.avatar,
-      };
-      debugPrint("> location metadata: ${metadata.toString()}");
-      final message = types.CustomMessage(
-        author: currentUser,
-        createdAt: DateTimeHelper.millisecond(),
-        id: Xid().toString(),
-        remoteId: widget.peerId,
-        status: types.Status.sending,
-        metadata: metadata,
-      );
-      bool res = await _addMessage(message);
-      if (res) {
-        EasyLoading.showSuccess('tip_success'.tr);
-      } else {
-        EasyLoading.showError('tip_failed'.tr);
-      }
+        'peer_id': widget.peerId,
+        'uid': contact.peerId,
+        'title': contact.title,
+        'avatar': contact.avatar,
+      },
+    );
+
+    final res = await _addMessage(message);
+    if (res) {
+      EasyLoading.showSuccess('tip_success'.tr);
+    } else {
+      EasyLoading.showError('tip_failed'.tr);
     }
   }
 
-  /// 发送位置消息
-  void _handleLocationSelection(String id, Uint8List? imageBytes,
-      String address, String title, String latitude, String longitude) async {
-    img.Image image = img.decodeImage(imageBytes!)!;
+  // 发送位置消息
+  Future<void> _handleLocationSelection(
+    String id,
+    Uint8List? imageBytes,
+    String address,
+    String title,
+    String latitude,
+    String longitude,
+  ) async {
+    if (imageBytes == null) return;
+
+    final image = img.decodeImage(imageBytes)!;
     final result = img.encodeJpg(image, quality: 65);
-    AttachmentProvider.uploadBytes("location", result, (
-      Map<String, dynamic> resp,
-      String imgUrl,
-    ) async {
-      double w = getx.Get.width;
-      imgUrl += "&width=${w.toInt()}";
-      Map<String, dynamic> metadata = {
-        'custom_type': 'location',
-        'title': title,
-        'address': address,
-        'latitude': latitude,
-        'longitude': longitude,
-        'thumb': imgUrl,
-        'size': resp['data']['size'],
-        'md5': resp['data']['md5'].toString(),
-      };
 
-      debugPrint("> location metadata: ${metadata.toString()}");
-      final message = types.CustomMessage(
-        author: currentUser,
-        createdAt: DateTimeHelper.millisecond(),
-        id: Xid().toString(),
-        remoteId: widget.peerId,
-        status: types.Status.sending,
-        metadata: metadata,
-      );
-      _addMessage(message);
-      // 上传成功，删除本地临时文件
-      // file.deleteSync();
-    }, (Error error) {
-      debugPrint("> on upload ${error.toString()}");
-    }, process: false);
-  }
+    await AttachmentProvider.uploadBytes(
+      "location",
+      result,
+      (Map<String, dynamic> resp, String imgUrl) async {
+        double w = getx.Get.width;
+        imgUrl += "&width=${w.toInt()}";
 
-  void _handleImageSelection() async {
-    await _selectAssets(PickMethod.cameraAndStay(maxAssetsCount: 9));
-    for (var entity in assets) {
-      await AttachmentProvider.uploadVideo("img", entity, (
-        Map<String, dynamic> resp,
-        String imgUrl,
-      ) async {
-        if (entity.type == AssetType.image) {
-          double w = getx.Get.width;
-          imgUrl += "&width=${w.toInt()}";
-
-          debugPrint("> on upload imgUrl $imgUrl");
-          debugPrint("> on upload $resp.toString()");
-
-          final message = types.ImageMessage(
-              author: currentUser,
-              createdAt: DateTimeHelper.millisecond(),
-              id: Xid().toString(),
-              name: await entity.titleAsync,
-              height: entity.height * 1.0,
-              width: entity.width * 1.0,
-              size: resp["data"]["size"],
-              uri: imgUrl,
-              remoteId: widget.peerId,
-              status: types.Status.sending,
-              metadata: {
-                'md5': resp['data']['md5'].toString(),
-              });
-
-          _addMessage(message);
-        } else if (entity.type == AssetType.video) {
-          Map<String, dynamic> metadata = {
-            'custom_type': 'video',
-            'thumb': (resp['thumb'] as EntityImage).toJson(),
-            'video': (resp['video'] as EntityVideo).toJson(),
-          };
-          debugPrint("> on upload metadata: ${metadata.toString()}");
-          final message = types.CustomMessage(
-            author: currentUser,
-            createdAt: DateTimeHelper.millisecond(),
-            id: Xid().toString(),
-            remoteId: widget.peerId,
-            status: types.Status.sending,
-            metadata: metadata,
-          );
-          _addMessage(message);
-        }
-        assets.removeAt(
-          assets.indexWhere((element) => element.id == entity.id),
+        final message = CustomMessage(
+          authorId: currentUser.id,
+          createdAt: DateTimeHelper.now(),
+          id: Xid().toString(),
+          metadata: {
+            'custom_type': 'location',
+            'peer_id': widget.peerId,
+            'title': title,
+            'address': address,
+            'latitude': latitude,
+            'longitude': longitude,
+            'thumb': imgUrl,
+            'size': resp['data']['size'],
+            'md5': resp['data']['md5'].toString(),
+          },
         );
-      }, (Error error) {
-        debugPrint("> on upload ${error.toString()}");
-      }, uploadOriginalImage: true);
-    }
+        _addMessage(message);
+      },
+      (Error error) => debugPrint("Location upload error: ${error.toString()}"),
+      process: false,
+    );
   }
 
-  void _handleVoiceSelection(AudioFile? obj) async {
-    if (obj == null) {
-      return;
+  // 选择图片/视频
+  Future<void> _handleImageSelection() async {
+    // Request photo permission before accessing assets
+    bool hasPermission = await requestPhotoPermission();
+    if (!hasPermission) {
+      return; // Permission denied, exit early
     }
-    debugPrint(
-        "> on _handleVoiceSelection1 file ${await obj.file.readAsBytes()} ${obj.file.toString()}");
-    if ((await obj.file.readAsBytes()).isEmpty) {
-      return;
-    }
-    final List<double> waveform = obj.waveform;
-    debugPrint(
-        "> on _handleVoiceSelection1 waveform ${obj.waveform.toString()}");
-    await AttachmentProvider.uploadFile('audio', obj.file, (
-      Map<String, dynamic> resp,
-      String uri,
-    ) async {
-      debugPrint("> on _handleVoiceSelection2 waveform ${waveform.toString()}");
-      Map<String, dynamic> metadata = {
-        'custom_type': 'audio',
-        'uri': uri,
-        'size': (await obj.file.readAsBytes()).length,
-        'duration_ms': obj.duration.inMilliseconds,
-        'waveform': waveform,
-        'mime_type': obj.mimeType,
-        'md5': resp['data']['md5'].toString(),
-      };
-      debugPrint("> on upload metadata: ${metadata.toString()}");
-      final message = types.CustomMessage(
-        author: currentUser,
-        createdAt: DateTimeHelper.millisecond(),
-        id: Xid().toString(),
-        remoteId: widget.peerId,
-        status: types.Status.sending,
-        metadata: metadata,
+    await _selectAssets(
+      PickMethod.cameraAndStay(maxAssetsCount: maxAssetsCount),
+    );
+    await _uploadSelectedAssets();
+  }
+
+  // 上传选择的资源
+  Future<void> _uploadSelectedAssets() async {
+    for (var entity in assets) {
+      await AttachmentProvider.uploadVideo(
+        "img",
+        entity,
+        (Map<String, dynamic> resp, String imgUrl) async {
+          if (entity.type == AssetType.image) {
+            await _handleSelectedImageUpload(resp, imgUrl, entity);
+          } else if (entity.type == AssetType.video) {
+            await _handleSelectedVideoUpload(resp);
+          }
+          _removeUploadedAsset(entity);
+        },
+        (Error error) => debugPrint("Asset upload error: ${error.toString()}"),
+        uploadOriginalImage: true,
       );
-
-      obj.file.delete(recursive: true);
-      _addMessage(message);
-    }, (Error error) {
-      debugPrint("> on upload ${error.toString()}");
-    }, process: false);
+    }
   }
 
-  void _onMessageDoubleTap(BuildContext c1, types.Message message) async {
-    if (message is types.TextMessage) {
+  // 处理选择的图片上传
+  Future<void> _handleSelectedImageUpload(
+    Map<String, dynamic> resp,
+    String imgUrl,
+    AssetEntity entity,
+  ) async {
+    double w = getx.Get.width;
+    imgUrl += "&width=${w.toInt()}";
+
+    final message = ImageMessage(
+      authorId: currentUser.id,
+      createdAt: DateTimeHelper.now(),
+      id: Xid().toString(),
+      text: await entity.titleAsync,
+      height: entity.height * 1.0,
+      width: entity.width * 1.0,
+      size: resp["data"]["size"],
+      source: imgUrl,
+      metadata: {
+        'peer_id': widget.peerId,
+        'md5': resp['data']['md5'].toString(),
+      },
+    );
+    _addMessage(message);
+  }
+
+  // 处理选择的视频上传
+  Future<void> _handleSelectedVideoUpload(Map<String, dynamic> resp) async {
+    final message = CustomMessage(
+      authorId: currentUser.id,
+      createdAt: DateTimeHelper.now(),
+      id: Xid().toString(),
+      metadata: {
+        'custom_type': 'video',
+        'peer_id': widget.peerId,
+        'thumb': (resp['thumb'] as EntityImage).toJson(),
+        'video': (resp['video'] as EntityVideo).toJson(),
+      },
+    );
+    _addMessage(message);
+  }
+
+  // 移除已上传的资源
+  void _removeUploadedAsset(AssetEntity entity) {
+    assets.removeWhere((element) => element.id == entity.id);
+    if (mounted) setState(() {});
+  }
+
+  // 发送语音消息
+  Future<void> _handleVoiceSelection(AudioFile? obj) async {
+    if (obj == null || (await obj.file.readAsBytes()).isEmpty) return;
+
+    await AttachmentProvider.uploadFile(
+      'audio',
+      obj.file,
+      (Map<String, dynamic> resp, String uri) async {
+        final message = CustomMessage(
+          authorId: currentUser.id,
+          createdAt: DateTimeHelper.now(),
+          id: Xid().toString(),
+          metadata: {
+            'custom_type': 'audio',
+            'peer_id': widget.peerId,
+            'uri': uri,
+            'size': (await obj.file.readAsBytes()).length,
+            'duration_ms': obj.duration.inMilliseconds,
+            'waveform': obj.waveform,
+            'mime_type': obj.mimeType,
+            'md5': resp['data']['md5'].toString(),
+          },
+        );
+        obj.file.delete(recursive: true);
+        _addMessage(message);
+      },
+      (Error error) => debugPrint("Voice upload error: ${error.toString()}"),
+      process: false,
+    );
+  }
+
+  // 消息双击事件
+  void _onMessageDoubleTap(BuildContext c1, Message message, {int? index}) {
+    if (message is TextMessage) {
       showTextMessage(message.text);
-    } else if (message is types.FileMessage) {
-      confirmOpenFile(message.uri);
-    } else if (message is types.ImageMessage) {
-      galleryLogic.onImagePressed(message);
+    } else if (message is FileMessage) {
+      confirmOpenFile(message.source);
+    } else if (message is ImageMessage) {
+      // 打开图片查看器
+      galleryLogic.onImagePressed(message.id, message.source);
+      iPrint('onImagePressed tapped: ${message.id} ${message.source}');
       setState(() {
         _showAppBar = false;
       });
-    } else if (message is types.CustomMessage) {
-      // String customType = message.metadata?['custom_type'] ?? '';
+    } else if (message is CustomMessage) {
       String txt = message.metadata?['quote_text'] ?? '';
-      if (txt.isNotEmpty) {
-        showTextMessage(txt);
-      }
+      if (txt.isNotEmpty) showTextMessage(txt);
     }
   }
 
-  void _handlePreviewDataFetched(
-    types.TextMessage message,
-    types.PreviewData previewData,
-  ) {
-    final index = state.messages.indexWhere((e) => e.id == message.id);
-    final updatedMessage =
-        (state.messages[index] as types.TextMessage).copyWith(
-      previewData: previewData,
-    );
-
-    setState(() {
-      state.messages[index] = updatedMessage;
-    });
+  // 更新引用消息
+  Future<void> updateQuoteMessage(Message? msg) async {
+    setState(() => quoteMessage = msg);
   }
 
-  Future<void> updateQuoteMessage(types.Message? msg) async {
-    // debugPrint('> on updateQuoteMessage ${msg.toString()}');
-    setState(() {
-      quoteMessage = msg;
-    });
-  }
-
-  Future<bool> _handleSendPressed(types.PartialText msg) async {
+  // 发送文本消息
+  Future<bool> _handleSendPressed(String text) async {
+    iPrint('handleSendPressed: $text');
     if (quoteMessage == null) {
-      iPrint("_handleSendPressed 1 ${DateTimeHelper.millisecond()}");
-      final textMessage = types.TextMessage(
-        author: currentUser,
-        createdAt: DateTimeHelper.millisecond(),
-        id: Xid().toString(),
-        text: msg.text,
-        remoteId: widget.peerId,
-        status: types.Status.sending,
-      );
-      return await _addMessage(textMessage);
+      return await _sendTextMessage(text);
     } else {
-      String quoteMsgAuthorName = quoteMessage!.author.id == widget.peerId
-          ? widget.peerTitle
-          : UserRepoLocal.to.current.nickname;
-      Map<String, dynamic> metadata = {
+      return await _sendQuoteMessage(text);
+    }
+  }
+
+  // 发送普通文本消息
+  Future<bool> _sendTextMessage(String text) async {
+    final textMessage = TextMessage(
+      authorId: currentUser.id,
+      createdAt: DateTimeHelper.now(),
+      id: Xid().toString(),
+      text: text,
+      metadata: {'peer_id': widget.peerId},
+    );
+    return await _addMessage(textMessage);
+  }
+
+  // 发送引用消息
+  Future<bool> _sendQuoteMessage(String text) async {
+    String quoteMsgAuthorName = quoteMessage!.authorId == widget.peerId
+        ? widget.peerTitle
+        : UserRepoLocal.to.current.nickname;
+
+    final message = CustomMessage(
+      authorId: currentUser.id,
+      createdAt: DateTimeHelper.now(),
+      id: Xid().toString(),
+      metadata: {
         'custom_type': 'quote',
+        'peer_id': widget.peerId,
         'quote_msg': quoteMessage?.toJson(),
         'quote_msg_author_name': quoteMsgAuthorName,
-        'quote_text': msg.text,
-      };
-      // debugPrint("> on upload metadata: ${metadata.toString()}");
-      final message = types.CustomMessage(
-        author: currentUser,
-        createdAt: DateTimeHelper.millisecond(),
-        id: Xid().toString(),
-        remoteId: widget.peerId,
-        status: types.Status.sending,
-        metadata: metadata,
-      );
-      bool res = await _addMessage(message);
-      if (res) {
-        // 消息发送成功，取消被引用的消息提示
-        updateQuoteMessage(null);
-      }
-      return res;
-    }
+        'quote_text': text,
+      },
+    );
+
+    bool res = await _addMessage(message);
+    if (res) updateQuoteMessage(null);
+    return res;
   }
 
-  void _onMessageStatusTap(BuildContext ctx, types.Message msg) {
-    if (msg.status != types.Status.sending) {
+  // 消息状态点击事件
+  void _onMessageStatusTap(BuildContext ctx, Message msg) {
+    if (msg.status != MessageStatus.sent && msg.status != MessageStatus.sending) {
       return;
     }
-    int diff = DateTimeHelper.millisecond() - msg.createdAt!;
+
+    int diff =
+        DateTimeHelper.millisecond() - msg.createdAt!.millisecondsSinceEpoch;
     if (diff > 1000) {
-      // 检查为发送消息
-      logic.sendWsMsg(logic.getMsgFromTMsg(
-        widget.type,
-        conversation.uk3,
-        msg,
-      ));
-      setState(() {
-        state.messages;
-      });
+      logic.sendWsMsg(logic.getMsgFromTMsg(widget.type, conversation.uk3, msg));
+      // setState(() => logic.chatController.messages = logic.chatController.messages);
     }
   }
 
-  void _onMessageLongPress(BuildContext c1, types.Message message) async {
-    if (!context.mounted) return;
-    // ignore: use_build_context_synchronously
-    popupmenu.PopupMenu menu = popupmenu.PopupMenu(
-      // ignore: must_be_immutable
+  // 消息长按事件
+  void _onMessageLongPress(
+    BuildContext c1,
+    Message message, {
+    int? index,
+    LongPressStartDetails? details,
+  }) {
+    iPrint('_onMessageLongPress');
+    // BuildContext c1 = getx.Get.context!;
+    final menu = popupmenu.PopupMenu(
       context: c1,
       items: logic.getPopupMenuItems(message),
       onClickMenu: onClickMenu,
-      // stateChanged: stateChanged,
-      // onDismiss: onDismiss,
     );
-    // ignore: use_build_context_synchronously
-    RenderBox renderBox = c1.findRenderObject() as RenderBox;
-    Offset offset = renderBox.localToGlobal(Offset.zero);
+
+    final renderBox = c1.findRenderObject() as RenderBox;
+    final offset = renderBox.localToGlobal(Offset.zero);
+
     double l = offset.dx / 2 - renderBox.size.width / 2 + 75.0;
     double r = renderBox.size.width / 2 - 75.0;
-    double dx = message.author.id == UserRepoLocal.to.currentUid ? r : l;
-    double dy = offset.dy;
-    double h = renderBox.size.height;
-    if (dy < 0 || dy > getx.Get.height) {
-      dy = getx.Get.height / 2;
+    double dx = message.authorId == UserRepoLocal.to.currentUid ? r : l;
+    double dy = offset.dy.clamp(0, getx.Get.height);
+    double h = renderBox.size.height > getx.Get.height
+        ? getx.Get.height
+        : renderBox.size.height;
+
+    menu.show(rect: Rect.fromLTWH(dx, dy, renderBox.size.width, h));
+  }
+
+  // 菜单项点击事件
+  void onClickMenu(popupmenu.MenuItemProvider item) async {
+    final it = item as popupmenu.MenuItem;
+    final msg = it.userInfo['msg'] as Message;
+    final itemId = it.userInfo['id'] ?? '';
+
+    switch (itemId) {
+      case "delete":
+        if (msg.authorId == UserRepoLocal.to.currentUid) {
+          _showDeleteMessageDialog(msg);
+        } else {
+          // 仅删除自己看到的消息
+          _deleteMessageForMe(context, msg, pop: false);
+        }
+        break;
+      case "copy":
+        _copyMessageText(msg as TextMessage);
+        break;
+      case "save":
+        _saveMessageContent(msg);
+        break;
+      case "collect":
+        _collectMessage(msg);
+        break;
+      case "revoke":
+        _revokeMessage(msg);
+        break;
+      case "quote":
+        updateQuoteMessage(msg);
+        break;
+      case "transpond":
+        _forwardMessage(msg);
+        break;
     }
-    if (h > getx.Get.height) {
-      dy = getx.Get.height / 2;
-    }
-    menu.show(
-      rect: Rect.fromLTWH(
-        dx,
-        dy,
-        renderBox.size.width,
-        h,
-      ),
+  }
+
+  // 显示删除消息对话框
+  void _showDeleteMessageDialog(Message msg) {
+    n.showDialog(
+      context: getx.Get.context!,
+      builder: (context) => n.Alert()
+        ..contentPadding = n.NikuEdgeInsets.all(0)
+        ..backgroundColor = const Color(0xff232323)
+        ..content = n.Column([
+          ListTile(
+            title: Text(
+              'delete_for_me'.tr,
+              style: const TextStyle(color: Colors.white),
+            ),
+            onTap: () => _deleteMessageForMe(context, msg),
+          ),
+          if (msg.authorId == UserRepoLocal.to.currentUid)
+            n.Padding(
+              left: 16,
+              right: 16,
+              child: HorizontalLine(height: getx.Get.isDarkMode ? 0.5 : 1.0),
+            ),
+          if (msg.authorId == UserRepoLocal.to.currentUid)
+            ListTile(
+              title: Text(
+                'delete_for_everyone'.tr,
+                style: const TextStyle(color: Colors.white),
+              ),
+              onTap: () => _deleteMessageForEveryone(context, msg),
+            ),
+        ]),
+      barrierDismissible: true,
     );
   }
 
-  void onClickMenu(popupmenu.MenuItemProvider item) async {
-    popupmenu.MenuItem it = item as popupmenu.MenuItem;
-    types.Message msg = it.userInfo['msg'] as types.Message;
-    String itemId = it.userInfo['id'] ?? '';
-    debugPrint("> on onClickMenu $itemId, ${msg.id}");
-    if (itemId == "delete") {
-      n.showDialog(
-        context: getx.Get.context!,
-        builder: (context) => n.Alert()
-          ..contentPadding = n.NikuEdgeInsets.all(0)
-          ..backgroundColor = const Color(0xff232323)
-          ..content = n.Column([
-            ListTile(
-              title: Text(
-                'delete_for_me'.tr,
-                style: const TextStyle(color: Colors.white),
-              ),
-              onTap: () async {
-                final nav = Navigator.of(context);
-                if (widget.type == 'C2G') {
-                  // 仅仅删除线上的 for 的数据
-                  Map<String, dynamic> msg2 = {
-                    'id': Xid().toString(),
-                    'from': msg.author.id,
-                    'to': msg.remoteId, // group id | or user id
-                    'type': 'S2C',
-                    'payload': {
-                      'old_msg_id': msg.id,
-                      'to': msg.remoteId,
-                      // c2g 的时候为 group id
-                      'msg_type': '${widget.type}_DEL_FOR_ME',
-                      // c2g_del_for_me
-                    },
-                    'created_at': DateTimeHelper.millisecond()
-                  };
-                  await logic.sendMessage(msg2);
-                }
-                // 删除消息
-                bool res = await logic.removeMessage(conversation, msg);
-                if (res) {
-                  final i = state.messages
-                      .indexWhere((element) => element.id == msg.id);
-                  setState(() {
-                    state.messages.removeAt(i);
-                  });
-                  // 关闭AlertDialog
-                  nav.pop();
-                }
-              },
-            ),
-            if (msg.author.id == UserRepoLocal.to.currentUid)
-              n.Padding(
-                left: 16,
-                right: 16,
-                child: HorizontalLine(height: getx.Get.isDarkMode ? 0.5 : 1.0),
-              ),
-            if (msg.author.id == UserRepoLocal.to.currentUid)
-              ListTile(
-                title: Text(
-                  'delete_for_everyone'.tr,
-                  style: const TextStyle(color: Colors.white),
-                ),
-                onTap: () async {
-                  final nav = Navigator.of(context);
-                  Map<String, dynamic> msg2 = {
-                    'id': Xid().toString(),
-                    'from': msg.author.id,
-                    'to': msg.remoteId, // group id | or user id
-                    'type': 'S2C',
-                    'payload': {
-                      'old_msg_id': msg.id,
-                      'to': msg.remoteId, // c2g 的时候为 group id
-                      'msg_type': '${widget.type}_DEL_EVERYONE',
-                    },
-                    'created_at': DateTimeHelper.millisecond()
-                  };
-                  await logic.sendMessage(msg2);
-                  // 关闭AlertDialog
-                  nav.pop();
-                },
-              ),
-          ]),
-        // ..actions = [
-        //   n.Button('button_cancel'.tr.n)
-        //     ..style = n.NikuButtonStyle(
-        //       foregroundColor:
-        //       Theme.of(context).colorScheme.onSurface,
-        //     )
-        //     ..onPressed = () {
-        //       Navigator.of(context).pop();
-        //     },
-        //   n.Button('button_delete'.tr.n)
-        //     ..style = n.NikuButtonStyle(
-        //       foregroundColor:
-        //       Theme.of(context).colorScheme.onSurface,
-        //     )
-        //     ..onPressed = () async {
-        //       var nav = Navigator.of(context);
-        //
-        //       bool res = await logic.deleteDevice(
-        //         model.deviceId,
-        //       );
-        //       if (res) {
-        //         state.deviceList.removeAt(
-        //           state.deviceList.indexWhere(
-        //                   (e) => e.deviceId == model.deviceId),
-        //         );
-        //         EasyLoading.showSuccess('tip_success'.tr);
-        //         nav.pop();
-        //         Get.back(times: 1);
-        //       } else {
-        //         EasyLoading.showError('tip_failed'.tr);
-        //       }
-        //     },
-        // ],
-        barrierDismissible: true,
-      );
-      /*
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            // title: Text('Delete Message'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                ListTile(
-                  title: Text('delete_for_me'.tr),
-                  onTap: () async {
-                    final nav = Navigator.of(context);
-                    if (widget.type == 'C2G') {
-                      // 仅仅删除线上的 for 的数据
-                      Map<String, dynamic> msg2 = {
-                        'id': Xid().toString(),
-                        'from': msg.author.id,
-                        'to': msg.remoteId, // group id | or user id
-                        'type': 'S2C',
-                        'payload': {
-                          'old_msg_id': msg.id,
-                          'to': msg.remoteId,
-                          // c2g 的时候为 group id
-                          'msg_type': '${widget.type}_DEL_FOR_ME',
-                          // c2g_del_for_me
-                        },
-                        'created_at': DateTimeHelper.millisecond()
-                      };
-                      await logic.sendMessage(msg2);
-                    }
-                    // 删除消息
-                    bool res = await logic.removeMessage(conversation, msg);
-                    if (res) {
-                      final i = state.messages
-                          .indexWhere((element) => element.id == msg.id);
-                      setState(() {
-                        state.messages.removeAt(i);
-                      });
-                      // 关闭AlertDialog
-                      nav.pop();
-                    }
-                  },
-                ),
-                if (msg.author.id == UserRepoLocal.to.currentUid)
-                  HorizontalLine(height: getx.Get.isDarkMode ? 0.5 : 1.0),
-                if (msg.author.id == UserRepoLocal.to.currentUid)
-                  ListTile(
-                    title: Text('delete_for_everyone'.tr),
-                    onTap: () async {
-                      final nav = Navigator.of(context);
-                      Map<String, dynamic> msg2 = {
-                        'id': Xid().toString(),
-                        'from': msg.author.id,
-                        'to': msg.remoteId, // group id | or user id
-                        'type': 'S2C',
-                        'payload': {
-                          'old_msg_id': msg.id,
-                          'to': msg.remoteId, // c2g 的时候为 group id
-                          'msg_type': '${widget.type}_DEL_EVERYONE',
-                        },
-                        'created_at': DateTimeHelper.millisecond()
-                      };
-                      await logic.sendMessage(msg2);
-                      // 关闭AlertDialog
-                      nav.pop();
-                    },
-                  ),
-              ],
-            ),
-          );
-        },
-      );
-      */
-    } else if (itemId == "copy" && msg is types.TextMessage) {
-      // 复制消息
-      Clipboard.setData(ClipboardData(text: msg.text));
-      EasyLoading.showToast('copied'.tr);
-    } else if (itemId == "save" && msg is types.CustomMessage) {
-      await logic.saveFile(msg.metadata!['md5'], msg.metadata!['uri']);
-    } else if (itemId == "save" && msg is types.ImageMessage) {
-      await logic.saveFile(msg.name, msg.uri);
-    } else if (itemId == "save" && msg is types.FileMessage) {
-      await logic.saveFile(msg.name, msg.uri);
-    } else if (itemId == "collect") {
-      String tb = MessageRepo.getTableName(widget.type);
-      // 添加收藏
-      bool res = await UserCollectLogic().add(tb: tb, msg: msg);
-      if (res) {
-        EasyLoading.showSuccess('collected'.tr);
-      } else {
-        EasyLoading.showError('operation_failed_again_later'.tr);
-      }
-    } else if (itemId == "revoke") {
-      // 撤回消息
-
-      Map<String, dynamic> msg2 = {
-        'ts': DateTimeHelper.millisecond(),
-        'id': msg.id,
-        'type': '${widget.type.toUpperCase()}_REVOKE',
-        'from': msg.author.id,
-        'to': msg.remoteId,
-      };
-      await logic.sendMessage(msg2);
-    } else if (itemId == "quote") {
-      // 引用消息
-      updateQuoteMessage(msg);
-    } else if (itemId == "transpond") {
-      // 转发消息
-      getx.Get.bottomSheet(
-        backgroundColor: getx.Get.isDarkMode
-            ? const Color.fromRGBO(80, 80, 80, 1)
-            : const Color.fromRGBO(240, 240, 240, 1),
-        n.Padding(
-          top: 24,
-          child: SendToPage(msg: msg),
-        ),
-        // 是否支持全屏弹出，默认false
-        isScrollControlled: true,
-        // enableDrag: false,
-      );
+  // 删除消息(仅自己)
+  Future<void> _deleteMessageForMe(
+    BuildContext context,
+    Message msg, {
+    bool pop = true,
+  }) async {
+    final nav = Navigator.of(context);
+    if (widget.type == 'C2G') {
+      await _sendDeleteForMeMessage(msg);
     }
+
+    bool res = await logic.removeMessage(conversation, msg);
+    if (res && mounted) {
+      await logic.chatController.removeMessageById(msg.id);
+    }
+    if (pop) {
+      nav.pop();
+    }
+  }
+
+  // 发送删除消息请求(仅自己)
+  Future<void> _sendDeleteForMeMessage(Message msg) async {
+    final msg2 = {
+      'id': Xid().toString(),
+      'from': msg.authorId,
+      'to': msg.metadata?['peer_id'],
+      'type': 'S2C',
+      'payload': {
+        'old_msg_id': msg.id,
+        'to': msg.metadata?['peer_id'],
+        'msg_type': '${widget.type}_DEL_FOR_ME',
+      },
+      'created_at': DateTimeHelper.millisecond(),
+    };
+    await logic.sendMessage(msg2);
+  }
+
+  // 删除消息(所有人)
+  Future<void> _deleteMessageForEveryone(
+    BuildContext context,
+    Message msg,
+  ) async {
+    final nav = Navigator.of(context);
+
+    final msg2 = {
+      'id': Xid().toString(),
+      'from': msg.authorId,
+      'to': msg.metadata?['peer_id'],
+      'type': 'S2C',
+      'payload': {
+        'old_msg_id': msg.id,
+        'to': msg.metadata?['peer_id'],
+        'msg_type': '${widget.type}_DEL_EVERYONE',
+      },
+      'created_at': DateTimeHelper.millisecond(),
+    };
+    await logic.sendMessage(msg2);
+    await logic.chatController.removeMessageById(msg.id);
+    nav.pop();
+  }
+
+  // 复制消息文本
+  void _copyMessageText(TextMessage msg) {
+    Clipboard.setData(ClipboardData(text: msg.text));
+    EasyLoading.showToast('copied'.tr);
+  }
+
+  // 保存消息内容
+  Future<void> _saveMessageContent(Message msg) async {
+    if (msg is CustomMessage) {
+      await logic.saveFile(msg.metadata!['md5'], msg.metadata!['uri']);
+    } else if (msg is ImageMessage) {
+      await logic.saveFile(msg.text ?? Xid().toString(), msg.source);
+    } else if (msg is FileMessage) {
+      await logic.saveFile(msg.name, msg.source);
+    }
+  }
+
+  // 收藏消息
+  Future<void> _collectMessage(Message msg) async {
+    String tb = MessageRepo.getTableName(widget.type);
+    bool res = await UserCollectLogic().add(tb: tb, msg: msg);
+    EasyLoading.showToast(
+      res ? 'collected'.tr : 'operation_failed_again_later'.tr,
+    );
+  }
+
+  // 撤回消息
+  Future<void> _revokeMessage(Message msg) async {
+    final msg2 = {
+      'ts': DateTimeHelper.millisecond(),
+      'id': msg.id,
+      'type': '${widget.type.toUpperCase()}_REVOKE',
+      'from': msg.authorId,
+      'to': msg.metadata?['peer_id'],
+    };
+    await logic.sendMessage(msg2);
+  }
+
+  // 转发消息
+  void _forwardMessage(Message msg) {
+    getx.Get.bottomSheet(
+      backgroundColor: getx.Get.isDarkMode
+          ? const Color.fromRGBO(80, 80, 80, 1)
+          : const Color.fromRGBO(240, 240, 240, 1),
+      n.Padding(top: 24, child: SendToPage(msg: msg)),
+      isScrollControlled: true,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final topRightWidget = [
       InkWell(
-        onTap: () {
-          final options = {
-            "peerId": widget.peerId,
-            "peerAvatar": widget.peerAvatar,
-            "peerTitle": widget.peerTitle,
-            "peerSign": widget.peerSign,
-            "conversationUk3": conversation.uk3,
-          };
-          getx.Get.to(
-            () => widget.type == 'C2G'
-                ? GroupDetailPage(
-                    groupId: widget.peerId,
-                    memberCount: state.memberCount.value,
-                    title: widget.peerTitle,
-                    options: options,
-                    callBack: (v) {})
-                : ChatSettingPage(
-                    widget.peerId,
-                    type: widget.type,
-                    options: options,
-                  ),
-            transition: getx.Transition.rightToLeft,
-            popGesture: true, // 右滑，返回上一页
-          )?.then((value) async {
-            debugPrint("ChatSettingPage then $value, $mounted");
-            bool flush = false;
-            if (value != null && value == false) {
-              state.nextAutoId.value = 0;
-              _handleEndReached();
-              if (mounted) setState(() {});
-            }
-            debugPrint(
-                "ChatSettingPage then flush $flush, memberCount ${state.memberCount}; mounted $mounted");
-            if (value is Map<String, dynamic>) {
-              int num = value['memberCount'] ?? 0;
-              if (num > 0) {
-                state.memberCount.value = num;
-                flush = true;
-                newGroupName = await logic.groupTitle(
-                  widget.peerId,
-                  widget.peerTitle,
-                  state.memberCount.value,
-                );
-                if (mounted) setState(() {});
-              }
-            }
-          });
-        },
-        // 三点更多 more icon
+        onTap: _navigateToChatSettings,
         child: n.Padding(
           left: 10,
           right: 10,
@@ -1203,257 +1021,370 @@ class ChatPageState extends State<ChatPage> {
           child: Icon(
             Icons.more_horiz,
             color: Theme.of(context).colorScheme.onPrimary,
-            // size: 40,
           ),
         ),
-      )
+      ),
     ];
+
     return Scaffold(
       appBar: _showAppBar
           ? NavAppBar(
-              title: newGroupName == "" ? widget.peerTitle : newGroupName,
+              title: newGroupName.isEmpty ? widget.peerTitle : newGroupName,
               rightDMActions: topRightWidget,
               automaticallyImplyLeading: true,
               popTime: widget.options?['popTime'] ?? 1,
             )
           : null,
       body: n.Column([
-        getx.Obx(() {
-          return state.connected.isTrue
+        getx.Obx(
+          () => state.connected.isTrue
               ? const SizedBox.shrink()
-              : NetworkFailureTips();
-        }),
+              : NetworkFailureTips(),
+        ),
         Expanded(
           child: n.Stack([
-            Chat(
-              // scrollToUnreadOptions:ScrollToUnreadOptions(
-              //     lastReadMessageId: widget.msgId,
-              //     scrollOnOpen:true,
-              // ),
-              user: currentUser,
-              messages: state.messages,
-              showUserAvatars: true,
-              avatarBuilder: (types.User author) {
-                return n.Padding(
-                    right: 4,
-                    child: Avatar(
-                      imgUri: author.imageUrl ?? '',
-                      width: 44,
-                      height: 44,
-                    ));
-              },
-              showUserNames: widget.type == 'C2G',
-              emptyState: Container(
-                alignment: Alignment.center,
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                ),
-                child: Text(
-                  'tip_empty_chat_placeholder'.tr,
-                  textAlign: TextAlign.center,
+            // 优化2：Provider 注入你的 onMessageLongPress 回调
+            GestureDetector(
+              onTap: () => chatInputKey.currentState?.hideAllPanel(),
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (sn) {
+                  if (sn is UserScrollNotification) {
+                    chatInputKey.currentState?.hideAllPanel();
+                  }
+                  return false;
+                },
+                child: MultiProvider(
+                  providers: [
+                    Provider<OnMessageLongPressCallback>.value(
+                      value: _onMessageLongPress,
+                    ),
+                    Provider<OnMessageDoubleTapCallback>.value(
+                      value: _onMessageDoubleTap,
+                    ),
+                    // Provider<OnMessageTapCallback>.value(
+                    //   value: ,
+                    // ),
+                    Provider<OnMessageSendCallback>.value(
+                      value: _handleSendPressed,
+                    ),
+                    // Provider<OnAttachmentTapCallback>.value(
+                    //   value: _onAttachmentTap,
+                    // ),
+                    // 你还可以注入 OnMessageTapCallback、UserID 等 Provider
+                    Provider<UserID>.value(value: currentUser.id),
+                  ],
+                  child: _buildChatWidget(theme), // 保持原有 _buildChatWidget 不变
                 ),
               ),
-              // bubbleBuilder: (
-              //   Widget child, {
-              //   required types.Message message,
-              //   required bool nextMessageInGroup,
-              // }) {
-              //   bool isAuthor = message.author.id == UserRepoLocal.to.currentUid;
-              //   return n.Column([
-              //     Bubble(nip: isAuthor ? BubbleNip.rightCenter : BubbleNip.leftBottom, child: child),
-              //     if (strNoEmpty(message.author.firstName) && isAuthor == false)
-              //       n.Row([Text(message.author.firstName!)]),
-              //   ])
-              //     // 内容文本左对齐
-              //     ..crossAxisAlignment = isAuthor ? CrossAxisAlignment.end : CrossAxisAlignment.start;
-              // },
-              textMessageBuilder: (
-                types.TextMessage message, {
-                required int messageWidth,
-                required bool showName,
-              }) {
-                // iPrint("str ${message.createdAt}");
-                return IgnorePointer(
-                  child: TextMessage(
-                    emojiEnlargementBehavior: EmojiEnlargementBehavior.multi,
-                    hideBackgroundOnEmojiMessages: true,
-                    message: message,
-                    showName: showName,
-                    usePreviewData: true,
-                    // nameBuilder: nameBuilder,
-                    onPreviewDataFetched: _handlePreviewDataFetched,
-                    // options: textMessageOptions,
-                    // usePreviewData: usePreviewData,
-                    // userAgent: userAgent,
-                  ),
-                );
-              },
-              imageMessageBuilder: (types.ImageMessage message,
-                  {required int messageWidth}) {
-                return ImageMessageBuilder(
-                  message: message,
-                  messageWidth: messageWidth,
-                );
-              },
-              // showUserAvatars: true,
-              // showUserNames: true,
-              customMessageBuilder: (types.CustomMessage msg,
-                  {required int messageWidth}) {
-                return CustomMessageBuilder(
-                  type: widget.type,
-                  message: msg,
-                );
-              },
-              scrollController: state.scrollController,
-              onEndReachedThreshold: 0.9,
-              // 300000 = 5分钟 默认 900000 = 15 分钟
-              dateHeaderThreshold: 300000,
-              dateIsUtc: true,
-              customDateHeaderText: (DateTime dt) =>
-                  DateTimeHelper.dateTimeFmt(dt),
-              onEndReached: _handleEndReached,
-              onBackgroundTap: () {
-                // 收起输聊天底部弹出框
-                AnimationController bottomHeightController = getx.Get.find();
-                bottomHeightController.animateBack(0);
-                setState(() {
-                  quoteMessage = null;
-                });
-              },
-              onMessageTap: (BuildContext c1, types.Message message) async {
-                if (message is types.ImageMessage) {
-                  galleryLogic.onImagePressed(message);
-                  setState(() {
-                    _showAppBar = false;
-                  });
-                }
-              },
-              onMessageLongPress: _onMessageLongPress,
-              onMessageDoubleTap: _onMessageDoubleTap,
-              onPreviewDataFetched: _handlePreviewDataFetched,
-              onSendPressed: _handleSendPressed,
-              onMessageStatusTap: _onMessageStatusTap,
-              onMessageStatusLongPress: _onMessageStatusTap,
-              hideBackgroundOnEmojiMessages: false,
-              theme: getx.Get.isDarkMode
-                  ? const AppDarkChatTheme()
-                  : const LightChatTheme(),
-              // onTextFieldTap: () {
-              // debugPrint("> on chatinput onTextFieldTap");
-              // },
-              slidableMessageBuilder: (types.Message msg, Widget msgWidget) {
-                // String sysPrompt = "消息已发出，但被对方拒收了。";
-                // 处理系统提示信息
-                String sysPrompt = logic.parseSysPrompt(
-                  msg.metadata?['sys_prompt'] ?? '',
-                );
-                return GestureDetector(
-                  onLongPress: () {
-                    debugPrint("> on GestureDetector");
-                    // _onMessageLongPress(getx.Get.context!, msg);
-                  },
-                  onPanEnd: (DragEndDetails details) {
-                    updateQuoteMessage(msg);
-                  },
-                  child: n.Column([
-                    msgWidget,
-                    if (strNoEmpty(sysPrompt))
-                      n.Row([
-                        // row > expand > column > text 换行有效
-                        Expanded(
-                            child: n.Column([
-                          n.Padding(
-                            left: 20,
-                            right: 10,
-                            bottom: 16,
-                            child: Text(
-                              sysPrompt,
-                              // style: const TextStyle(color: AppColors.TipColor),
-                              maxLines: 4,
-                              softWrap: true,
-                              overflow: TextOverflow.fade,
-                            ),
-                          ),
-                        ])),
-                      ])
-                        // 内容居中
-                        ..mainAxisAlignment = MainAxisAlignment.spaceBetween
-                  ]),
-                );
-              },
-              customBottomWidget: widget.type == 'C2S'
-                  ? null
-                  : ChatInput(
-                      type: widget.type,
-                      peerId: widget.peerId,
-                      // 发送触发事件
-                      onSendPressed: _handleSendPressed,
-                      sendButtonVisibilityMode:
-                          SendButtonVisibilityMode.editing,
-                      // voiceWidget: VoiceRecord(),
-                      voiceWidget: VoiceWidget(
-                        startRecord: () {},
-                        stopRecord: _handleVoiceSelection,
-                        // 加入定制化Container的相关属性
-                        height: 60.0,
-                        margin: EdgeInsets.zero,
-                      ),
-                      extraWidget: ExtraItems(
-                          type: widget.type,
-                          // 照片
-                          handleImageSelection: _handleImageSelection,
-                          // 文件
-                          handleFileSelection: _handleFileSelection,
-                          // 拍摄
-                          handlePickerSelection: _handlePickerSelection,
-                          // 位置消息
-                          handleLocationSelection: _handleLocationSelection,
-                          // 个人名片
-                          handleVisitCardSelection: _handleVisitCardSelection,
-                          // 收藏
-                          handleCollectSelection: _handleCollectSelection,
-                          options: {
-                            "to": widget.peerId,
-                            "title": widget.peerTitle,
-                            "avatar": widget.peerAvatar,
-                            "sign": widget.peerSign,
-                          }),
-                      // 引用消息
-                      quoteTipsWidget: QuoteTipsWidget(
-                        title: (quoteMessage != null &&
-                                quoteMessage?.author.id ==
-                                    UserRepoLocal.to.currentUid)
-                            ? UserRepoLocal.to.current.nickname
-                            : widget.peerTitle,
-                        message: quoteMessage,
-                        close: () {
-                          updateQuoteMessage(null);
-                        },
-                      ),
-                    ),
-              // 禁用 flutter_chat_ui 的相册
-              disableImageGallery: true,
             ),
+            // _buildChatInput(),
             if (galleryLogic.isImageViewVisible.isTrue)
               IMBoyImageGallery(
-                // ignore: invalid_use_of_protected_member
                 images: galleryLogic.gallery.value,
                 pageController: galleryLogic.galleryPageController!,
-                onClosePressed: () {
-                  iPrint("IMBoyImageGallery onClosePressed ");
-                  galleryLogic.onCloseGalleryPressed();
-                  setState(() {
-                    _showAppBar = true;
-                  });
-                },
+                onClosePressed: _closeImageGallery,
                 options: const IMBoyImageGalleryOptions(
                   maxScale: PhotoViewComputedScale.covered,
                   minScale: PhotoViewComputedScale.contained,
                 ),
-              )
+              ),
           ]),
-        )
+        ),
       ]),
     );
+  }
+
+  /// 导航到聊天设置页面
+  Widget _buildChatInput() {
+    return ChatInput(
+      key: chatInputKey,
+      composerHeight: state.composerHeight, // 使用可动画的高度
+      type: widget.type,
+      peerId: widget.peerId,
+      onSendPressed: _handleSendPressed,
+      // sendButtonVisibilityMode: SendButtonVisibilityMode.editing,
+      voiceWidget: VoiceWidget(
+        startRecord: () {},
+        stopRecord: _handleVoiceSelection,
+        height: state.composerHeight.value,
+        margin: EdgeInsets.zero,
+      ),
+      extraWidget: ExtraItems(
+        type: widget.type,
+        handleImageSelection: _handleImageSelection,
+        handleFileSelection: _handleFileSelection,
+        handlePickerSelection: _handlePickerSelection,
+        handleLocationSelection: _handleLocationSelection,
+        handleVisitCardSelection: _handleVisitCardSelection,
+        handleCollectSelection: _handleCollectSelection,
+        options: {
+          "to": widget.peerId,
+          "title": widget.peerTitle,
+          "avatar": widget.peerAvatar,
+          "sign": widget.peerSign,
+        },
+      ),
+      quoteTipsWidget: QuoteTipsWidget(
+        title:
+            (quoteMessage != null &&
+                quoteMessage?.authorId == UserRepoLocal.to.currentUid)
+            ? UserRepoLocal.to.current.nickname
+            : widget.peerTitle,
+        message: quoteMessage,
+        close: () => updateQuoteMessage(null),
+      ),
+    );
+  }
+
+  /// 构建聊天主界面
+  Widget _buildChatWidget(ThemeData theme) {
+    return Chat(
+      currentUserId: currentUser.id,
+      backgroundColor: Colors.transparent,
+      chatController: logic.chatController,
+      onMessageSend: _handleSendPressed,
+      onMessageLongPress: _onMessageLongPress,
+      decoration: BoxDecoration(
+        color: theme.brightness == Brightness.dark
+            ? ChatColors.dark().surface
+            : ChatColors.light().surface,
+        image: DecorationImage(
+          image: AssetImage('assets/images/pattern.png'),
+          repeat: ImageRepeat.repeat,
+          colorFilter: ColorFilter.mode(
+            theme.brightness == Brightness.dark
+                ? ChatColors.dark().surfaceContainerLow
+                : ChatColors.light().surfaceContainerLow,
+            BlendMode.srcIn,
+          ),
+        ),
+      ),
+      resolveUser: (id) => Future.value(switch (id) {
+        'me' => currentUser,
+        'recipient' => peer,
+        _ => null,
+      }),
+      timeFormat: DateFormat("y-MM-dd HH:mm"),
+      theme: ChatTheme.fromThemeData(theme),
+      builders: Builders(
+        chatAnimatedListBuilder: (context, itemBuilder) {
+          return getx.Obx(
+            () => AnimatedPadding(
+              // 用动画包裹消息列表
+              padding: EdgeInsets.only(bottom: state.composerHeight.value),
+              duration: const Duration(milliseconds: 0),
+              curve: Curves.easeInOut,
+              child: ChatAnimatedList(
+                scrollController: logic.scrollController,
+                bottomPadding: state.composerHeight.value, // 让消息列表底部有输入区空间
+                scrollToEndAnimationDuration: Duration(
+                  milliseconds: 0,
+                ), // <--- 动画时长
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.manual,
+                itemBuilder: itemBuilder,
+                onEndReached: () => logic.loadMoreMessages(conversation),
+                insertAnimationDurationResolver: (message) {
+                  if (message is SystemMessage) return Duration.zero;
+                  return null;
+                },
+              ),
+            ),
+          );
+        },
+
+        // composerBuilder: (context) => SizedBox.shrink(),
+        composerBuilder: (context) => Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: ChatInputHeightListener(
+            composerHeight: state.composerHeight,
+            child: _buildChatInput(),
+          ),
+        ),
+        customMessageBuilder:
+            (
+              context,
+              message,
+              index, {
+              required bool isSentByMe,
+              MessageGroupStatus? groupStatus,
+            }) => CustomMessageBuilder(type: widget.type, message: message),
+        imageMessageBuilder:
+            (
+              context,
+              message,
+              index, {
+              required bool isSentByMe,
+              MessageGroupStatus? groupStatus,
+            }) => FlyerChatImageMessage(
+              message: message,
+              index: index,
+              showStatus: true,
+              showTime: true,
+              // timeStyle: const TextStyle(
+              //   fontSize: 12,
+              //   color: Colors.green,
+              // ),
+            ),
+        systemMessageBuilder:
+            (
+              context,
+              message,
+              index, {
+              required bool isSentByMe,
+              MessageGroupStatus? groupStatus,
+            }) => FlyerChatSystemMessage(message: message, index: index),
+        textMessageBuilder:
+            (
+              context,
+              message,
+              index, {
+              required bool isSentByMe,
+              MessageGroupStatus? groupStatus,
+            }) => FlyerChatTextMessage(
+              message: message,
+              index: index,
+              showStatus: true,
+              showTime: true,
+            ),
+        fileMessageBuilder:
+            (
+              context,
+              message,
+              index, {
+              required bool isSentByMe,
+              MessageGroupStatus? groupStatus,
+            }) => FlyerChatFileMessage(
+              message: message,
+              index: index,
+              showStatus: true,
+              showTime: true,
+            ),
+        chatMessageBuilder:
+            (
+              context,
+              message,
+              index,
+              animation,
+              child, {
+              bool? isRemoved,
+              required bool isSentByMe,
+              MessageGroupStatus? groupStatus,
+            }) {
+              final isSystemMessage = message.authorId == 'system';
+              final isFirstInGroup = groupStatus?.isFirst ?? true;
+              final isLastInGroup = groupStatus?.isLast ?? true;
+              final shouldShowAvatar =
+                  !isSystemMessage && isLastInGroup && isRemoved != true;
+              final isCurrentUser = message.authorId == currentUser.id;
+              final shouldShowUsername =
+                  !isSystemMessage && isFirstInGroup && isRemoved != true;
+
+              Widget? avatar;
+              if (shouldShowAvatar) {
+                avatar = Padding(
+                  padding: EdgeInsets.only(
+                    left: isCurrentUser ? 8 : 0,
+                    right: isCurrentUser ? 0 : 8,
+                  ),
+                  child: Avatar(userId: message.authorId),
+                );
+              } else if (!isSystemMessage) {
+                avatar = const SizedBox(width: 40);
+              }
+
+              return ChatMessage(
+                message: message,
+                index: index,
+                animation: animation,
+                isRemoved: isRemoved,
+                groupStatus: groupStatus,
+
+                topWidget: shouldShowUsername
+                    ? Padding(
+                        padding: EdgeInsets.only(
+                          bottom: 4,
+                          left: isCurrentUser ? 0 : 48,
+                          right: isCurrentUser ? 48 : 0,
+                        ),
+                        child: Username(userId: message.authorId),
+                      )
+                    : null,
+                leadingWidget: !isCurrentUser
+                    ? avatar
+                    : isSystemMessage
+                    ? null
+                    : const SizedBox(width: 40),
+                trailingWidget: isCurrentUser
+                    ? avatar
+                    : isSystemMessage
+                    ? null
+                    : const SizedBox(width: 40),
+                receivedMessageScaleAnimationAlignment:
+                    (message is SystemMessage)
+                    ? Alignment.center
+                    : Alignment.centerLeft,
+                receivedMessageAlignment: (message is SystemMessage)
+                    ? AlignmentDirectional.center
+                    : AlignmentDirectional.centerStart,
+                horizontalPadding: (message is SystemMessage) ? 0 : 8,
+                child: child,
+              );
+            },
+      ),
+    );
+  }
+
+  // 导航到聊天设置
+  void _navigateToChatSettings() {
+    final options = {
+      "peer_id": widget.peerId,
+      "peerAvatar": widget.peerAvatar,
+      "peerTitle": widget.peerTitle,
+      "peerSign": widget.peerSign,
+      "conversationUk3": conversation.uk3,
+    };
+
+    getx.Get.to(
+      () => widget.type == 'C2G'
+          ? GroupDetailPage(
+              groupId: widget.peerId,
+              memberCount: state.memberCount.value,
+              title: widget.peerTitle,
+              options: options,
+              callBack: (v) {},
+            )
+          : ChatSettingPage(widget.peerId, type: widget.type, options: options),
+      transition: getx.Transition.rightToLeft,
+      popGesture: true,
+    )?.then((value) => _handleChatSettingsResult(value));
+  }
+
+  // 处理聊天设置返回结果
+  Future<void> _handleChatSettingsResult(dynamic value) async {
+    if (value == false) {
+      state.nextAutoId.value = 0;
+      await logic.loadMoreMessages(conversation, isInitial: true);
+    }
+
+    if (value is Map<String, dynamic>) {
+      int num = value['memberCount'] ?? 0;
+      if (num > 0) {
+        state.memberCount.value = num;
+        newGroupName = await logic.groupTitle(
+          widget.peerId,
+          widget.peerTitle,
+          state.memberCount.value,
+        );
+        if (mounted) setState(() {});
+      }
+    }
+  }
+
+  // 关闭图片画廊
+  void _closeImageGallery() {
+    galleryLogic.onCloseGalleryPressed();
+    setState(() => _showAppBar = true);
   }
 }

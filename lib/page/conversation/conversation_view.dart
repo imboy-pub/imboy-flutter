@@ -11,7 +11,6 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/config/theme.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/page/contact/people_info/people_info_view.dart';
@@ -77,8 +76,6 @@ class _ConversationPageState extends State<ConversationPage> {
       }
       // 更新会话
       await logic.replace(obj);
-      // 重新排序会话列表
-      await logic.sortConversationsList();
     });
     // 加载会话记录
     if (logic.conversations.isEmpty) {
@@ -91,11 +88,9 @@ class _ConversationPageState extends State<ConversationPage> {
     return Scaffold(
       appBar: NavAppBar(
         leading: const SizedBox.shrink(),
-        titleWidget: Obx(
-          () => Text(
-            'title_message'.tr + logic.connectDesc.value,
-            style: AppStyle.navAppBarTitleStyle,
-          ),
+        titleWidget: Text(
+          'title_message'.tr + logic.connectDesc.value,
+          // style: AppStyle.navAppBarTitleStyle, // 传入BuildContext
         ),
         rightDMActions: <Widget>[
           n.Padding(

@@ -157,8 +157,9 @@ Future<void> init({required String env, required String signKeyVsn}) async {
 
   // currentEnv = 'local';
   // currentEnv = 'pro';
-  // StorageService.to.setString('env', currentEnv);
-  // iPrint("init currentEnv $currentEnv;");
+  currentEnv = 'dev';
+  StorageService.to.setString('env', currentEnv);
+  iPrint("init currentEnv $currentEnv;");
 
   // step 5
   ntpOffset = await NtpHelper.getOffset();
@@ -309,7 +310,7 @@ Future<void> initJPush() async {
 
       String type = extra2['type'] ?? '';
       String msgType = extra2['msgType'] ?? '';
-      String peerId = extra2['peerId'] ?? '';
+      String peerId = extra2['peer_id'] ?? '';
       type = type.toLowerCase();
       msgType = msgType.toLowerCase();
       if (type == 'c2c' || type == 'c2g') {

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:imboy/component/ui/common.dart';
-import 'package:imboy/config/theme.dart';
+
+import '../config/theme.dart';
+
 
 class MoreItemCard extends StatelessWidget {
   final String? name, icon;
@@ -30,9 +32,7 @@ class MoreItemCard extends StatelessWidget {
           Container(
             width: 50,
             decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(
-                Radius.circular(10.0),
-              ),
+              borderRadius: BorderRadius.all(Radius.circular(10.0)),
             ),
             child: TextButton(
               style: TextButton.styleFrom(
@@ -56,7 +56,7 @@ class MoreItemCard extends StatelessWidget {
               ),
             ),
           ),
-          const Space(width: mainSpace / 2),
+          Space(width: mainSpace / 2),
           Text(
             name ?? '',
             style: const TextStyle(

@@ -1,7 +1,9 @@
 import 'dart:convert';
 
-// ignore: depend_on_referenced_packages
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/component/chat/enum.dart' show CustomMessageType;
+import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/service/assets.dart' show AssetsService;
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -16,7 +18,7 @@ class IMBoyMessageStatus {
   static const int sending = 10;
 
   //  已发送
-  static const int send = 11;
+  static const int sent = 11;
 
   // 未读 已投递
   static const int delivered = 20;
@@ -50,7 +52,7 @@ class MessageModel {
   int topicId;
 
   // enum Status { delivered, error, seen, sending, sent }
-  // types.Status status;
+  // MessageStatus status;
   // 10 发送中 sending;  11 已发送 send; 20 (未读 已投递) delivered;  21 已读 seen; 41 错误（发送失败） error;
   int? status;
 
@@ -111,59 +113,61 @@ class MessageModel {
     return data;
   }
 
-  /// 10 发送中 sending;  11 已发送 send;
+  /// 10 发送中 sending;  11 已发送 sent;
   /// 20 未读 delivered;  21 已读 seen;
   /// 41 错误（发送失败） error;
-  ///  types.Status { delivered, error, seen, sending, sent }
-  types.Status get typesStatus {
+  ///  enum MessageStatus { delivered, error, seen, sending, sent }
+  MessageStatus get typesStatus {
     if (status == IMBoyMessageStatus.sending) {
-      return types.Status.sending;
-    } else if (status == IMBoyMessageStatus.send) {
-      return types.Status.sent;
+      return MessageStatus.sending;
+    } else if (status == IMBoyMessageStatus.sent) {
+      return MessageStatus.sent;
     } else if (status == IMBoyMessageStatus.delivered) {
-      return types.Status.delivered;
+      return MessageStatus.delivered;
     } else if (status == IMBoyMessageStatus.seen) {
-      return types.Status.seen;
+      return MessageStatus.seen;
     } else if (status == IMBoyMessageStatus.error) {
-      return types.Status.error;
+      return MessageStatus.error;
     }
-    return types.Status.error;
+    return MessageStatus.error;
   }
 
-  types.MessageType get msgType {
+  CustomMessageType get msgType {
     if (payload == null) {
-      types.MessageType.unsupported;
+      CustomMessageType.unsupported;
     }
     if (payload!['msg_type'] == 'text') {
-      return types.MessageType.text;
+      return CustomMessageType.text;
+    } else if (payload!['msg_type'] == 'text_stream') {
+      return CustomMessageType.textStream;
     } else if (payload!['msg_type'] == 'image') {
-      return types.MessageType.image;
+      return CustomMessageType.image;
     } else if (payload!['msg_type'] == 'file') {
-      return types.MessageType.file;
+      return CustomMessageType.file;
     } else if (payload!['msg_type'] == 'custom') {
-      return types.MessageType.custom;
+      return CustomMessageType.custom;
     } else if (payload!['msg_type'] == 'location') {
-      return types.MessageType.custom;
+      return CustomMessageType.custom;
     } else if (payload!['msg_type'] == 'visit_card') {
-      return types.MessageType.custom;
+      return CustomMessageType.custom;
     } else if (payload!['msg_type'] == 'revoked') {
-      return types.MessageType.custom;
+      return CustomMessageType.custom;
     }
 
-    return types.MessageType.unsupported;
+    return CustomMessageType.unsupported;
   }
 
-  static String conversationMsgType(types.Message message) {
-    if (message.type == types.MessageType.text) {
+  static String conversationMsgType(Message message) {
+    if (message is TextMessage) {
       return 'text';
-    } else if (message.type == types.MessageType.image) {
+    } else if (message is ImageMessage) {
       return 'image';
-    } else if (message.type == types.MessageType.file) {
+    } else if (message is FileMessage) {
       return 'file';
-    } else if (message.type == types.MessageType.custom) {
+    } else if (message is CustomMessage) {
       String msgType = message.metadata?['custom_type'] ?? 'unsupported';
       if (msgType == 'revoked') {
-        return UserRepoLocal.to.currentUid == message.author.id
+        return UserRepoLocal.to.currentUid == message.authorId
             ? 'my_revoked'
             : 'peer_revoked';
       }
@@ -172,13 +176,13 @@ class MessageModel {
     return 'unsupported';
   }
 
-  static String conversationSubtitle(types.Message message) {
+  static String conversationSubtitle(Message message) {
     String subtitle = '';
     String customType = '';
-    if (message is types.CustomMessage) {
+    if (message is CustomMessage) {
       customType = message.metadata?['custom_type'] ?? '';
     }
-    if (message is types.TextMessage) {
+    if (message is TextMessage) {
       subtitle = message.text;
     } else if (customType == "quote") {
       subtitle = message.metadata?['quote_text'] ?? '';
@@ -190,16 +194,16 @@ class MessageModel {
     return subtitle;
   }
 
-  int toStatus(types.Status status) {
-    if (status == types.Status.sending) {
+  int toStatus(MessageStatus status) {
+    if (status == MessageStatus.sending) {
       return IMBoyMessageStatus.sending;
-    } else if (status == types.Status.sent) {
-      return IMBoyMessageStatus.send;
-    } else if (status == types.Status.delivered) {
+    } else if (status == MessageStatus.sent) {
+      return IMBoyMessageStatus.sent;
+    } else if (status == MessageStatus.delivered) {
       return IMBoyMessageStatus.delivered;
-    } else if (status == types.Status.seen) {
+    } else if (status == MessageStatus.seen) {
       return IMBoyMessageStatus.seen;
-    } else if (status == types.Status.error) {
+    } else if (status == MessageStatus.error) {
       return IMBoyMessageStatus.error;
     }
     return IMBoyMessageStatus.error;
@@ -213,13 +217,14 @@ class MessageModel {
     return await ContactRepo().findByUid(fromId!);
   }
 
-  Future<types.Message> toTypeMessage() async {
+  Future<Message> toTypeMessage() async {
     String sysPrompt = payload?['sys_prompt'] ?? '';
-    types.Message? message;
+    Message? message;
     // enum MessageType { custom, file, image, text, unsupported }
     Map<String, dynamic> metadata = {
       'conversation_uk3': conversationUk3,
       'sys_prompt': sysPrompt,
+      'peer_id': toId,
     };
     String nickname = '';
     String avatar = '';
@@ -231,47 +236,48 @@ class MessageModel {
       nickname = cm?.nickname ?? '';
       avatar = cm?.avatar ?? '';
     }
-    types.User author = types.User(
+    User author = User(
       id: fromId!,
-      imageUrl: avatar,
+      imageSource: avatar,
       // payload!['peer_name'] 目前只在收到撤回消息的时候才存在 peer_name
-      firstName: nickname.isEmpty
+      name: nickname.isEmpty
           ? (payload?['peer_name'] ?? (payload?['quote_msg_author_name'] ?? ''))
           : nickname,
     );
+    DateTime createdDt = DateTimeHelper.millisecondToDateTime(createdAt);
     if (payload!['msg_type'] == 'text') {
-      message = types.TextMessage(
-        author: author,
-        createdAt: createdAt,
+      message = TextMessage(
+        authorId: author.id,
+        createdAt: createdDt,
         id: id!,
-        remoteId: toId,
+        // peerId: toId,
         text: payload?['text'],
         status: typesStatus,
         metadata: {...metadata, ...?payload},
       );
     } else if (payload!['msg_type'] == 'image') {
-      message = types.ImageMessage(
-        author: author,
-        createdAt: createdAt,
+      message = ImageMessage(
+        authorId: author.id,
+        createdAt: createdDt,
         id: id!,
-        remoteId: toId,
-        name: payload!['name'],
+        // peerId: toId,
+        text: payload!['name'],
         size: payload!['size'],
-        uri: payload!['uri'],
+        source: AssetsService.viewUrl(payload!['uri']).toString(),
         width: payload!['width'] / 1.0,
         height: payload!['height'] / 1.0,
         status: typesStatus,
         metadata: {...metadata, ...?payload},
       );
     } else if (payload!['msg_type'] == 'file') {
-      message = types.FileMessage(
-        author: author,
-        createdAt: createdAt,
+      message = FileMessage(
+        authorId: author.id,
+        createdAt: createdDt,
         id: id!,
-        remoteId: toId,
+        // peerId: toId,
         name: payload!['name'],
         size: payload!['size'],
-        uri: payload!['uri'],
+        source: AssetsService.viewUrl(payload!['uri']).toString(),
         status: typesStatus,
         metadata: {...metadata, ...?payload},
       );
@@ -279,33 +285,88 @@ class MessageModel {
         payload!['custom_type'] == 'peer_revoked' ||
         payload!['custom_type'] == 'my_revoked' ||
         payload!['custom_type'] == 'c2c_revoke') {
-      message = types.CustomMessage(
-        author: author,
+      message = CustomMessage(
+        authorId: author.id,
         id: id!,
-        createdAt: createdAt,
-        remoteId: toId,
+        createdAt: createdDt,
+        // peerId: toId,
         metadata: {...metadata, ...?payload},
       );
     } else if (payload!['custom_type'] == 'quote') {
-      message = types.CustomMessage(
-        author: author,
+      message = CustomMessage(
+        authorId: author.id,
         id: id!,
-        createdAt: createdAt,
-        remoteId: toId,
+        createdAt: createdDt,
+        // peerId: toId,
         metadata: {...metadata, ...?payload},
       );
     } else if (payload!['msg_type'] == 'custom') {
-      message = types.CustomMessage(
-        author: author,
+      message = CustomMessage(
+        authorId: author.id,
         id: id!,
-        createdAt: createdAt,
-        remoteId: toId,
-        status: typesStatus,
+        createdAt: createdDt,
+        // peerId: toId,
+        // status: typesStatus,
         metadata: {...metadata, ...?payload},
       );
     }
 
     // debugPrint("> on toTypeMessage md ${toJson().toString()}");
     return message!;
+  }
+
+  static MessageModel fromMessage(Message message) {
+    final Map<String, dynamic> payload = {};
+
+    // 根据不同类型的消息提取特定字段
+    if (message is TextMessage) {
+      payload['msg_type'] = 'text';
+      payload['text'] = message.text;
+      payload.addAll(message.metadata ?? {});
+    }
+    else if (message is ImageMessage) {
+      payload['msg_type'] = 'image';
+      payload['name'] = message.text;
+      payload['size'] = message.size;
+      payload['uri'] = message.source;
+      payload['width'] = message.width;
+      payload['height'] = message.height;
+      payload.addAll(message.metadata ?? {});
+    }
+    else if (message is FileMessage) {
+      payload['msg_type'] = 'file';
+      payload['name'] = message.name;
+      payload['size'] = message.size;
+      payload['uri'] = message.source;
+      payload.addAll(message.metadata ?? {});
+    }
+    else if (message is CustomMessage) {
+      payload['msg_type'] = 'custom';
+      if (message.metadata?['custom_type'] != null) {
+        payload['custom_type'] = message.metadata!['custom_type'];
+      }
+      payload.addAll(message.metadata ?? {});
+    }
+
+    // 从metadata中提取可能存在的额外字段
+    final metadata = message.metadata ?? {};
+    // final sysPrompt = metadata['sys_prompt'] ?? '';
+    final peerId = metadata['peer_id'] ?? '';
+    final conversationUk3 = metadata['conversation_uk3'] ?? '';
+
+    return MessageModel(
+      message.id,
+      autoId: 0,
+      type: payload['type'], // 需要根据实际情况设置，可能是从metadata获取
+      fromId: message.authorId,
+      toId: peerId,
+      payload: payload,
+      createdAt: message.createdAt!.millisecondsSinceEpoch,
+      isAuthor: message.authorId == UserRepoLocal.to.currentUid ? 1 : 0, // 需要根据实际情况设置
+      topicId: payload['topic_id'] ?? 0, // 需要根据实际情况设置
+      conversationUk3: conversationUk3,
+      status: 0, // 默认状态
+      // sysPrompt: sysPrompt,
+    );
   }
 }

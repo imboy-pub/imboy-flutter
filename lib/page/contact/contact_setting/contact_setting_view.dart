@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 
-// ignore: depend_on_referenced_packages
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -118,7 +117,7 @@ class ContactSettingPage extends StatelessWidget {
             isLine: false,
             onPressed: () async {
               Map<String, String> peer = {
-                'peerId': peerId,
+                'peer_id': peerId,
                 'avatar': peerAvatar,
                 'title': peerTitle,
                 'nickname': peerNickname,
@@ -143,16 +142,13 @@ class ContactSettingPage extends StatelessWidget {
                   'avatar': peerAvatar,
                 };
                 debugPrint("> location metadata: ${metadata.toString()}");
-                final message = types.CustomMessage(
-                  author: types.User(
-                    id: UserRepoLocal.to.currentUid,
-                    firstName: UserRepoLocal.to.current.nickname,
-                    imageUrl: UserRepoLocal.to.current.avatar,
-                  ),
-                  createdAt: DateTimeHelper.millisecond(),
+                final message = CustomMessage(
+                  authorId: UserRepoLocal.to.currentUid,
+                  createdAt: DateTimeHelper.now(),
                   id: Xid().toString(),
-                  remoteId: c1.peerId,
-                  status: types.Status.sending,
+                  // peerId: c1.peerId,
+                  // TODO Status
+                  // status: MessageStatus.sending,
                   metadata: metadata,
                 );
                 final logic2 = Get.put(ChatLogic());

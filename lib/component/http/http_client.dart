@@ -91,7 +91,7 @@ class HttpClient {
     }
   }
 
-  setProxy(String proxy) {
+  void setProxy(String proxy) {
     _dio.httpClientAdapter = Http2Adapter(
       ConnectionManager(
         idleTimeout: const Duration(seconds: 10),
@@ -199,6 +199,7 @@ class HttpClient {
       );
     }
     try {
+      debugPrint("http_post $uri request ${queryParameters.toString()}");
       await _setDefaultConfig();
       var response = await _dio.post(
         uri,
@@ -209,7 +210,7 @@ class HttpClient {
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
-      // debugPrint("http_post response ${response.toString()}");
+      debugPrint("http_post response ${response.toString()}");
       IMBoyHttpResponse resp = handleResponse(
         response,
         uri: uri,

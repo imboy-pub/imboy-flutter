@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 // ignore: depend_on_referenced_packages
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/func.dart' show formatBytes;
 import 'package:imboy/component/ui/image_view.dart';
 
 import 'package:niku/namespace.dart' as n;
@@ -19,7 +19,7 @@ class QuoteTipsWidget extends StatelessWidget {
 
   final String title;
 
-  final types.Message? message;
+  final Message? message;
 
   final void Function()? close;
 
@@ -37,24 +37,24 @@ class QuoteTipsWidget extends StatelessWidget {
       return animatedBuilder(false, const SizedBox.shrink());
     }
     Widget? body;
-    if (message is types.TextMessage) {
+    if (message is TextMessage) {
       body = Text(
-        (message as types.TextMessage).text,
+        (message as TextMessage).text,
         style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
         maxLines: 8,
         overflow: TextOverflow.ellipsis,
       );
-    } else if (message is types.ImageMessage) {
+    } else if (message is ImageMessage) {
       body = ImageView(
-        uri: (message as types.ImageMessage).uri,
+        uri: (message as ImageMessage).source,
         height: 40,
       );
-    } else if (message is types.FileMessage) {
-      types.FileMessage fileMsg = message as types.FileMessage;
+    } else if (message is FileMessage) {
+      FileMessage fileMsg = message as FileMessage;
       body = n.Column([
         n.Row([
           Text(
-            "[${'file'.tr}] (${formatBytes(fileMsg.size.truncate())})",
+            "[${'file'.tr}] (${formatBytes(fileMsg.size!.truncate())})",
             style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
           ),
         ]),
@@ -67,7 +67,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
         ])
       ]);
-    } else if (message is types.AudioMessage) {
+    } else if (message is AudioMessage) {
       //
     }
 

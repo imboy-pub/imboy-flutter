@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 
-import 'package:imboy/config/theme.dart';
 import 'package:imboy/store/model/message_model.dart';
 
-// ignore: depend_on_referenced_packages
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:get/get.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
@@ -17,8 +15,8 @@ import 'package:voice_message_package/voice_message_package.dart';
 
 class AudioMessageBuilder extends StatefulWidget {
   final String type;
-  final types.User user;
-  final types.CustomMessage? message;
+  final User user;
+  final CustomMessage? message;
   final Map<String, dynamic>? info;
   final Function()? onPlay;
 
@@ -38,7 +36,7 @@ class AudioMessageBuilder extends StatefulWidget {
 
 class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
   late Future<String> audioPathFuture;
-  late Future<types.CustomMessage?> messageFuture;
+  late Future<CustomMessage?> messageFuture;
 
   @override
   void initState() {
@@ -47,12 +45,12 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
     audioPathFuture = _initAudioPath();
   }
 
-  Future<types.CustomMessage?> _initMessage() async {
+  Future<CustomMessage?> _initMessage() async {
     if (widget.message != null) {
       return widget.message;
     } else if (widget.info != null) {
       return await MessageModel.fromJson(widget.info!).toTypeMessage()
-          as types.CustomMessage;
+          as CustomMessage;
     }
     return null;
   }
@@ -71,14 +69,14 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<types.CustomMessage?>(
+    return FutureBuilder<CustomMessage?>(
       future: messageFuture,
       builder: (context, messageSnapshot) {
         if (!messageSnapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
         final msg = messageSnapshot.data!;
-        final bool userIsAuthor = widget.user.id == msg.author.id;
+        final bool userIsAuthor = widget.user.id == msg.authorId;
 
         return FutureBuilder<String>(
           future: audioPathFuture,
@@ -100,7 +98,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
   }
 
   Widget _buildVoiceMessageView(String audioPath, Duration duration,
-      types.CustomMessage msg, bool userIsAuthor) {
+      CustomMessage msg, bool userIsAuthor) {
     iPrint("_buildVoiceMessageView duration ${duration.inMilliseconds}");
     return VoiceMessageView(
       controller: VoiceController(
@@ -120,18 +118,18 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder> {
           fontSize: 11,
           fontWeight: FontWeight.w500,
           color: Get.isDarkMode ? Colors.white : Colors.black54),
-      backgroundColor: Get.isDarkMode
-          ? (userIsAuthor
-              ? ChatColor.ChatSendMessageBgColor
-              : Theme.of(context).colorScheme.surface.withAlpha((0.2 * 255).round()))
-          : (userIsAuthor ? ChatColor.ChatSendMessageBgColor : Colors.white),
+      // backgroundColor: Get.isDarkMode
+      //     ? (userIsAuthor
+      //         ? AppColor.ChatSendMessageBgColor
+      //         : Theme.of(context).colorScheme.surface.withAlpha((0.2 * 255).round()))
+      //     : (userIsAuthor ? AppColor.ChatSendMessageBgColor : Colors.white),
       activeSliderColor: Get.isDarkMode
           ? (userIsAuthor ? Colors.black : Colors.white)
           : const Color.fromRGBO(34, 34, 34, 1.0),
     );
   }
 
-  void _handleOnPlaying(types.CustomMessage msg) {
+  void _handleOnPlaying(CustomMessage msg) {
     iPrint('VoiceMessageView onPlaying');
     widget.onPlay?.call();
     if (msg.metadata!['played'] != true) {

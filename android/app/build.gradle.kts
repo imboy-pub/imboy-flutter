@@ -9,6 +9,7 @@ plugins {
 val localProperties = gradleLocalProperties(rootDir, providers)
 val flutterVersionCode = localProperties.getProperty("flutter.versionCode")?.toIntOrNull() ?: 1
 val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
+val localNdkVersion = localProperties.getProperty("flutter.ndkVersion") ?: "27.0.12077973"
 
 // cat /Users/leeyi/dev/flutter/bin/internal/engine.version
 //val flutterEngineVersion = "18818009497c581ede5d8a3b8b833b81d00cebb7"
@@ -16,7 +17,7 @@ val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "
 android {
     namespace = "pub.imboy.apk"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = localNdkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

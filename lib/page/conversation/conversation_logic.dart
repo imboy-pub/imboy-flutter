@@ -112,9 +112,9 @@ class ConversationLogic extends GetxController {
     }
   }
 
-  Future<void> sortConversationsList() async {
-    // 排序通过 getter 实现，不再修改 Map 内部结构
-  }
+  // Future<void> sortConversationsList() async {
+  //   // 排序通过 getter 实现，不再修改 Map 内部结构
+  // }
 
   Future<bool> removeConversation(ConversationModel cm) async {
     if (cm.uk3.isEmpty) return false;
