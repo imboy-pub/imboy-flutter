@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' as io;
 import 'dart:io';
 import 'dart:convert';
 
@@ -16,7 +15,6 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/page/mine/change_password/set_password_view.dart';
 import 'package:imboy/service/encrypter.dart';
-import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/websocket_message_queue.dart';
 import 'package:logger/logger.dart';
 import 'package:map_launcher/map_launcher.dart';
@@ -90,251 +88,236 @@ String solidifiedKeyEnv = '';
 // signKeyVsn 告知服务端用哪个签名key 不同设备类型签名不一样
 String globalSignKeyVsn = '1';
 
-Future<Map<String, dynamic>> initConfig() async {
-  IMBoyHttpResponse resp1 = await HttpClient.client.get(API.initConfig);
-  debugPrint("initConfig ${resp1.payload.toString()}");
-  if (!resp1.ok) {
-    return {"error": "网络故障或服务故障"};
+
+class AppInitializer {
+  static bool _initialized = false;
+
+  static Future<void> initialize({
+    required String env,
+    required String signKeyVsn,
+  }) async {
+    if (_initialized) return;
+    _initialized = true;
+
+    try {
+      await _initializeCore(env: env, signKeyVsn: signKeyVsn);
+      await _initializeServices();
+      await _initializeListeners();
+    } catch (e, stack) {
+      logger.e("Initialization failed", error: e, stackTrace: stack);
+      rethrow;
+    }
   }
-  final encrypted = resp1.payload['res'] ?? '';
-  if (encrypted.isEmpty) {
-    return {"error": "服务故障协议有误"};
+
+  static Future<void> _initializeCore({
+    required String env,
+    required String signKeyVsn,
+  }) async {
+    // 保持屏幕常亮
+    await WakelockPlus.enable();
+
+    // 初始化存储
+    await StorageService.init();
+
+    // 设置环境变量
+    await _setupEnvironment(env);
+
+    // 获取NTP时间偏移
+    ntpOffset = await NtpHelper.getOffset();
+
+    // 获取设备信息
+    await _setupDeviceInfo();
+
+    // 配置HTTP客户端
+    _setupHttpClient();
   }
-  final key = await Env.signKey();
-  // iPrint("initConfig signKey $key ;");
-  // final jsonStr = EncrypterService.aesDecrypt(
-  //   encrypted,
-  //   EncrypterService.md5(key),
-  //   Env().solidifiedKeyIv,
-  // );
-  // iPrint("initConfig_jsonStr $jsonStr");
-  Map<String, dynamic> payload = jsonDecode(EncrypterService.aesDecrypt(
-    encrypted,
-    EncrypterService.md5(key),
-    Env().solidifiedKeyIv,
-  ));
-  if (payload.containsKey('error')) {
+
+  static Future<void> _setupEnvironment(String env) async {
+    final changedEnv = StorageService.to.getBool('changedEnv') ?? false;
+    currentEnv = changedEnv
+        ? StorageService.to.getString('env') ?? ''
+        : String.fromEnvironment('IMBOYENV', defaultValue: env);
+
+    // 避免硬编码覆盖
+    if (currentEnv.isEmpty) {
+      currentEnv = env;
+    }
+
+    await StorageService.to.setString('env', currentEnv);
+    logger.i("Running in environment: $currentEnv");
+  }
+
+  static Future<void> _setupDeviceInfo() async {
+    Get.put(DeviceExt());
+    deviceId = await DeviceExt.did;
+
+    final packageInfo = await PackageInfo.fromPlatform();
+    packageName = packageInfo.packageName;
+    appVsn = packageInfo.version;
+    appName = packageInfo.appName;
+
+    final versionParts = appVsn.split(RegExp(r"(\.)"));
+    appVsnMajor = versionParts.isNotEmpty ? versionParts[0] : '1';
+  }
+
+  static void _setupHttpClient() {
+    HttpOverrides.global = GlobalHttpOverrides();
+    final dioConfig = HttpConfig(
+      baseUrl: Env().apiBaseUrl,
+      interceptors: [IMBoyInterceptor()],
+    );
+    Get.put(HttpClient(conf: dioConfig));
+  }
+
+  static Future<Map<String, dynamic>> initConfig() async {
+    IMBoyHttpResponse resp1 = await HttpClient.client.get(API.initConfig);
+    debugPrint("initConfig ${resp1.payload.toString()}");
+    if (!resp1.ok) {
+      return {"error": "网络故障或服务故障"};
+    }
+    final encrypted = resp1.payload['res'] ?? '';
+    if (encrypted.isEmpty) {
+      return {"error": "服务故障协议有误"};
+    }
+    final key = await Env.signKey();
+    // iPrint("initConfig signKey $key ;");
+    // final jsonStr = EncrypterService.aesDecrypt(
+    //   encrypted,
+    //   EncrypterService.md5(key),
+    //   Env().solidifiedKeyIv,
+    // );
+    // iPrint("initConfig_jsonStr $jsonStr");
+    Map<String, dynamic> payload = jsonDecode(EncrypterService.aesDecrypt(
+      encrypted,
+      EncrypterService.md5(key),
+      Env().solidifiedKeyIv,
+    ));
+    if (payload.containsKey('error')) {
+      return payload;
+    }
+    iPrint("initConfig_payload ${payload.toString()}");
+    await StorageService.to.setString(Keys.wsUrl, payload['ws_url']);
+    await StorageService.to.setString(Keys.uploadUrl, payload['upload_url']);
+    await StorageService.to.setString(Keys.uploadKey, payload['upload_key']);
+    await StorageService.to.setString(Keys.uploadScene, payload['upload_scene']);
+
+    await StorageService.to.setString(
+      Keys.apiPublicKey,
+      payload['login_rsa_pub_key'],
+    );
+
     return payload;
   }
-  iPrint("initConfig_payload ${payload.toString()}");
-  await StorageService.to.setString(Keys.wsUrl, payload['ws_url']);
-  await StorageService.to.setString(Keys.uploadUrl, payload['upload_url']);
-  await StorageService.to.setString(Keys.uploadKey, payload['upload_key']);
-  await StorageService.to.setString(Keys.uploadScene, payload['upload_scene']);
 
-  await StorageService.to.setString(
-    Keys.apiPublicKey,
-    payload['login_rsa_pub_key'],
-  );
+  static Future<void> _initializeServices() async {
+    // 初始化用户仓库
+    Get.put(UserRepoLocal(), permanent: true);
+    UserRepoLocal().onInit();
 
-  return payload;
-}
+    // 检查API公钥
+    if (strEmpty(Env.apiPublicKey)) {
+      await initConfig();
+    }
 
-Future<void> init({required String env, required String signKeyVsn}) async {
-  // step 1
-  WakelockPlus.enable();
-  // step 2
-  // 放在 UserRepoLocal 前面
-  await StorageService.init();
-  // getx.Get.put(StorageService());
-  getx.Get.lazyPut(() => StorageService());
+    // 初始化WebSocket和相关服务
+    await _initializeWebSocketServices();
 
-  globalSignKeyVsn = signKeyVsn;
-  // step 3
-  if (Platform.isAndroid || Platform.isIOS) {
-    await RSAService.publicKey();
-  }
-  // step 4
-  bool changedEnv = StorageService.to.getBool('changedEnv') ?? false;
-  if (changedEnv) {
-    currentEnv = StorageService.to.getString('env') ?? '';
-  } else {
-    currentEnv = String.fromEnvironment('IMBOYENV', defaultValue: env);
-    // currentEnv = Platform.environment['IMBOYENV'] ?? 'pro';
-  }
-  iPrint(
-      "currentEnv $currentEnv, IMBOYENV ${const String.fromEnvironment('IMBOYENV')}, ${Platform.environment['IMBOYENV']};");
-
-  // currentEnv = 'local';
-  // currentEnv = 'pro';
-  currentEnv = 'dev';
-  StorageService.to.setString('env', currentEnv);
-  iPrint("init currentEnv $currentEnv;");
-
-  // step 5
-  ntpOffset = await NtpHelper.getOffset();
-  // Get.put(DeviceExt()); 需要放到靠前
-  getx.Get.lazyPut(() => DeviceExt());
-  final PackageInfo packageInfo = await PackageInfo.fromPlatform();
-  packageName = packageInfo.packageName;
-  appVsn = packageInfo.version;
-  appName = packageInfo.appName;
-  List<String> li = appVsn.split(RegExp(r"(\.)"));
-  appVsnMajor = li[0].toString();
-  // iPrint("packageInfo appVsnMajor $appVsnMajor ${packageInfo.toString()}");
-  deviceId = await DeviceExt.did;
-  iPrint("init deviceId $deviceId");
-
-  // step 6
-  // 解决使用自签证书报错问题
-  io.HttpOverrides.global = GlobalHttpOverrides();
-  HttpConfig dioConfig = HttpConfig(
-    baseUrl: Env().apiBaseUrl,
-    // proxy: '192.168.100.19:8888',
-    interceptors: [IMBoyInterceptor()],
-  );
-
-  getx.Get.put(HttpClient(conf: dioConfig));
-
-  // step 7
-  getx.Get.put(UserRepoLocal(), permanent: true);
-  // UserRepoLocal().onInit(); 放在 put UserRepoLocal()后面
-  UserRepoLocal().onInit();
-
-  // step 8
-  String? v = Env.apiPublicKey;
-  if (strEmpty(v)) {
-    await initConfig();
+    // 初始化地图服务
+    AMapHelper.setApiKey();
   }
 
-  // iPrint("> on UP_AUTH_KEY: ${dotEnv.get('UP_AUTH_KEY')}");
+  static Future<void> _initializeWebSocketServices() async {
+    // 初始化底部导航逻辑
+    final bnLogic = Get.put(BottomNavigationLogic());
+    await bnLogic.countNewFriendRemindCounter();
 
-  // Get.put<AuthController>(AuthController());
+    // 注册消息队列服务
+    Get.put(PersistentMessageQueue());
 
-  // step 9
-  // 需要放在 Get.put(MessageService()); 前
-  final bnLogic = getx.Get.put(BottomNavigationLogic());
-  bnLogic.countNewFriendRemindCounter();
+    // 初始化WebSocket服务
+    final wsService = Get.put<WebSocketService>(WebSocketService());
 
-  // 注册消息队列服务
-  getx.Get.put(PersistentMessageQueue());
-  // 把 Service 注册到 GetX
-  getx.Get.put<WebSocketService>(WebSocketService());
+    // 初始化各种逻辑控制器
+    Get.put(ChatLogic());
+    Get.put(GroupListLogic());
+    Get.lazyPut(() => ConversationLogic());
+    Get.put(MessageService());
+    Get.lazyPut(() => ContactLogic());
+    Get.lazyPut(() => NewFriendLogic());
 
-  // ChatLogic 不能用 lazyPut
-  getx.Get.put(ChatLogic());
-  // GroupListLogic 不能用 lazyPut
-  getx.Get.put(GroupListLogic());
+    // 如果已登录，尝试连接WebSocket
+    if (UserRepoLocal.to.isLoggedIn) {
+      await wsService.openSocket(from: 'initialization');
+    }
+  }
 
-  getx.Get.lazyPut(() => ConversationLogic());
+  static Future<void> _initializeListeners() async {
+    // 应用生命周期监听
+    WidgetsBinding.instance.addObserver(
+      LifecycleEventHandler(
+        resumeCallBack: _onAppResume,
+        suspendingCallBack: () async {
+          // app 挂起
+          iPrint("> on LifecycleEventHandler suspendingCallBack");
+        },
+        pausedCallBack: () async {
+          iPrint("> on LifecycleEventHandler pausedCallBack");
+          // 已暂停的
+        },
+      ),
+    );
 
-  // MessageService 不能用 lazyPut
-  getx.Get.put(MessageService());
-  getx.Get.lazyPut(() => ContactLogic());
-  getx.Get.lazyPut(() => NewFriendLogic());
-  // step 10
-  AMapHelper.setApiKey();
+    // 网络连接状态监听
+    Connectivity().onConnectivityChanged.listen(_onConnectivityChanged);
+  }
 
-  // 初始化单例 WebSocketService
-  // WebSocketService.to.init();
+  static Future<void> _onAppResume() async {
+    logger.i("App resumed");
 
-  // step 11
-  // fvp libary register
-  // registerWith(options: {
-  //   'platforms': ['windows', 'macos', 'linux']
-  // }); // only these platforms will use this plugin implementation
+    // 更新NTP时间偏移
+    ntpOffset = await NtpHelper.getOffset();
 
-  // step 12
-  WidgetsBinding.instance.addObserver(
-    LifecycleEventHandler(
-      resumeCallBack: () async {
-        // app 恢复
-        iPrint("> on LifecycleEventHandler resumeCallBack ${UserRepoLocal.to.isLoggedIn};");
-        ntpOffset = await NtpHelper.getOffset();
-        if (UserRepoLocal.to.isLoggedIn) {
-          String tk = await UserRepoLocal.to.accessToken;
-          // TODO 这里需要判断网络链接的情况下再去刷新token
-          if (tokenExpired(tk)) {
-            String? rtk = await UserRepoLocal.to.refreshToken;
+    if (UserRepoLocal.to.isLoggedIn) {
+      final token = await UserRepoLocal.to.accessToken;
+      if (tokenExpired(token)) {
+        await _refreshToken();
+      }
 
-            iPrint('LifecycleEventHandler tokenExpired true');
-            await (UserProvider()).refreshAccessTokenApi(rtk);
-          }
-          // 统计新申请好友数量
-          bnLogic.countNewFriendRemindCounter();
+      // 更新好友提醒计数
+      final bnLogic = Get.find<BottomNavigationLogic>();
+      await bnLogic.countNewFriendRemindCounter();
 
-          // 检查WS链接状态
-          await WebSocketService.to.openSocket(from: 'resumeCallBack');
+      // 检查WebSocket连接
+      await WebSocketService.to.openSocket(from: 'resumeCallBack');
 
-          bool needSet = StorageService.to.getBool(Keys.needSetPwd) ?? false;
-          if (needSet) {
-            Get.off(() => SetPasswordPage());
-          }
-        }
-      },
-      suspendingCallBack: () async {
-        // app 挂起
-        iPrint("> on LifecycleEventHandler suspendingCallBack");
-      },
-      pausedCallBack: () async {
-        iPrint("> on LifecycleEventHandler pausedCallBack");
-        // 已暂停的
-      },
-    ),
-  );
+      // 检查是否需要设置密码
+      final needSetPwd = StorageService.to.getBool(Keys.needSetPwd) ?? false;
+      if (needSetPwd) {
+        Get.off(() => SetPasswordPage());
+      }
+    }
+  }
 
-  // step 13
-  // 监听网络状态
-  Connectivity()
-      .onConnectivityChanged
-      .listen((List<ConnectivityResult> r) async {
-    iPrint("onConnectivityChanged ${r.toString()}");
-    if (r.contains(ConnectivityResult.none)) {
-      // 关闭网络的情况下，没有必要开启WS服务了
+  static Future<void> _refreshToken() async {
+    try {
+      logger.i('Refreshing expired token');
+      final refreshToken = await UserRepoLocal.to.refreshToken;
+      if (refreshToken != "") {
+        await UserProvider().refreshAccessTokenApi(refreshToken);
+      }
+    } catch (e) {
+      logger.e("Failed to refresh token", error: e);
+      // 可以考虑在这里处理token刷新失败的情况，比如退出登录
+    }
+  }
+
+  static Future<void> _onConnectivityChanged(List<ConnectivityResult> results) async {
+    logger.i("Connectivity changed: $results");
+
+    if (results.contains(ConnectivityResult.none)) {
       await WebSocketService.to.closeSocket();
     } else if (UserRepoLocal.to.isLoggedIn) {
-      // 检查WS链接状态
-      await WebSocketService.to.openSocket(from: 'onConnectivityChanged');
+      await WebSocketService.to.openSocket(from: 'connectivityChanged');
     }
-  });
-  // iPrint("> on currentTimeMillis init ${ntpOffset}");
+  }
 }
-
-/*
-Future<void> initJPush() async {
-  push.addEventHandler(
-    // 接收通知回调方法。
-    onReceiveNotification: (Map<String, dynamic> message) async {
-      iPrint("push onReceiveNotification: $message");
-      // Map<dynamic, dynamic> extra = message['extras'];
-      // String androidExtra = extra['cn.jpush.android.EXTRA'] ?? '';
-      // Map<String, dynamic> extra2 = jsonDecode(androidExtra);
-    },
-
-    // 点击通知回调方法。
-    onOpenNotification: (Map<String, dynamic> message) async {
-      // iPrint("push onOpenNotification: $message");
-      Map<dynamic, dynamic> extra = message['extras'];
-      String androidExtra = extra['cn.jpush.android.EXTRA'] ?? '';
-      Map<String, dynamic> extra2 = jsonDecode(androidExtra);
-
-      String type = extra2['type'] ?? '';
-      String msgType = extra2['msgType'] ?? '';
-      String peerId = extra2['peer_id'] ?? '';
-      type = type.toLowerCase();
-      msgType = msgType.toLowerCase();
-      if (type == 'c2c' || type == 'c2g') {
-        toChatPage(peerId, type);
-      }
-    },
-    // 接收自定义消息回调方法。
-    onReceiveMessage: (Map<String, dynamic> message) async {
-      iPrint("push onReceiveMessage: $message");
-    },
-  );
-  // https://docs.jiguang.cn/jpush/practice/compliance
-  // push.setAuth(enable: false); // 后续初始化过程将被拦截
-
-  // 调整点二：隐私政策授权获取成功后调用
-  // push.setAuth(enable: true); //如初始化被拦截过，将重试初始化过程
-
-  // https://github.com/jpush/jpush-flutter-plugin/blob/master/documents/APIs.md
-  // addEventHandler 方法建议放到 setup 之前，其他方法需要在 setup 方法之后调用
-  push.setup(
-    appKey: JPUSH_APPKEY,
-    channel: "theChannel", //
-    production: false,
-    debug: kDebugMode ? true : false, // 设置是否打印 debug 日志
-  );
-}
-*/

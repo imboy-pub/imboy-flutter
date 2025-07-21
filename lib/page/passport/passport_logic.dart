@@ -210,7 +210,7 @@ class PassportLogic extends GetxController {
 
   Future<Map<String, dynamic>> _encryptPassword(String password) async {
     password = EncrypterService.md5(password);
-    Map<String, dynamic> payload = await initConfig();
+    Map<String, dynamic> payload = await AppInitializer.initConfig();
     if (payload.containsKey('error')) {
       return payload;
     }

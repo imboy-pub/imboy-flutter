@@ -8,13 +8,21 @@ import 'run.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await init(env: 'pro', signKeyVsn: '1');
 
+  try {
+    await AppInitializer.initialize(
+      env: 'pro',  // 默认环境
+      signKeyVsn: '1',
+    );
+    run();
+  } catch (e) {
+    logger.e("Application initialization failed", error: e);
+  }
   // var v = SignKeyFFI.signKey("input");
   // debugPrint("signKey $v ;");
   // await initJPush();
   // if (kDebugMode) {
-  run();
+  // run();
   // } else {
   //   await SentryFlutter.init(
   //     (options) {

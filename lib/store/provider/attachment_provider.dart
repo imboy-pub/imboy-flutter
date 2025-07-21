@@ -51,7 +51,7 @@ class AttachmentProvider {
     FormData formData = FormData.fromMap(data);
     String baseUrl = Env.uploadUrl;
     if (strEmpty(baseUrl)) {
-      await initConfig();
+      await AppInitializer.initConfig();
       baseUrl = StorageService.to.getString(Keys.uploadUrl)!;
     }
     debugPrint("> on upload UPLOAD_BASE_URL $baseUrl ;");
