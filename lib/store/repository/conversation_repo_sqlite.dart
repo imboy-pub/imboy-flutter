@@ -283,7 +283,7 @@ class ConversationRepo {
   }
 
   // 记得及时关闭数据库，防止内存泄漏
-  close() async {
+  Future<void> close() async {
     //await _db.close();
   }
 }

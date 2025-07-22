@@ -55,7 +55,7 @@ class UserDeviceLogic extends GetxController {
     return true;
   }
 
-  changeName({required String deviceId, required String name}) async {
+  Future<bool> changeName({required String deviceId, required String name}) async {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {

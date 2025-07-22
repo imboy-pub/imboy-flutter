@@ -33,7 +33,7 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
 
   final TextEditingController _textController = TextEditingController();
 
-  handle() {
+  void handle() {
     if (!strNoEmpty(_textController.text)) {
       Get.snackbar('Error', "请输入内容");
       return;

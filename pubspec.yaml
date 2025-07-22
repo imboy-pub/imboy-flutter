@@ -53,6 +53,7 @@ dependencies:
   flutter_cache_manager: ^3.4.1 # Cache management
   pointycastle: ^4.0.0    # Cryptography
   device_info_plus: ^11.5.0
+  package_info_plus: ^8.3.0 # Package information
 
   ##############################################
   # Media & Camera
@@ -193,7 +194,7 @@ dependencies:
   characters: ^1.4.1
   provider: ^6.1.5
   visibility_detector: ^0.4.0+2
-  dart_duckdb: ^1.2.2
+  #dart_duckdb: ^1.2.2
 
 
 dependency_overrides:

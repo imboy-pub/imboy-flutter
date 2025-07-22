@@ -88,7 +88,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     }
   }
 
-  Widget buildContent(item) {
+  Widget buildContent(Map item) {
     return LabelRow(
       title: item['title'],
       rValue: item['value'],

@@ -90,7 +90,7 @@ class ContactTagListLogic extends GetxController {
     );
   }
 
-  Future<List<dynamic>> doSearch(query) async {
+  Future<List<dynamic>> doSearch(String query) async {
     iPrint("user_collect_s_doSearch ${query.toString()}");
     state.page = 1;
     var list = await page(

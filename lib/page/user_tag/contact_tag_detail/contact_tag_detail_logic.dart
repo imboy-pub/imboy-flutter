@@ -38,7 +38,7 @@ class ContactTagDetailLogic extends GetxController {
     state.contactList.value = list;
   }
 
-  pageRelation(
+  Future<List<ContactModel>> pageRelation(
     bool onRefresh, {
     required int tagId,
     int page = 1,
@@ -150,7 +150,7 @@ class ContactTagDetailLogic extends GetxController {
     return res;
   }
 
-  replaceContactList(ContactModel e) {
+  void replaceContactList(ContactModel e) {
     final index = Get.find<ContactLogic>()
         .contactList
         .indexWhere((e2) => e2.peerId == e.peerId);

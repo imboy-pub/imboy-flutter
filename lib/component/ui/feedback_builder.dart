@@ -40,7 +40,7 @@ class IMBoyFeedback {
   }
 
   // 评级描述
-  get ratingDesc {
+  String get ratingDesc {
     if (double.parse(rating) == 5.0) {
       return 'great'.tr;
     } else if (double.parse(rating) >= 4.0) {

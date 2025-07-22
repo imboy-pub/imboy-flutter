@@ -17,16 +17,16 @@ class RouteAuthMiddleware extends GetMiddleware {
   RouteSettings? redirect(String? route) {
     bool isLogin = UserRepoLocal.to.isLoggedIn;
     if (isLogin ||
-        route == AppRoutes.SIGN_IN ||
-        route == AppRoutes.SIGN_UP ||
-        route == AppRoutes.INITIAL) {
+        route == AppRoutes.signIn ||
+        route == AppRoutes.signUp ||
+        route == AppRoutes.initial) {
       return null;
     } else {
       Future.delayed(
         const Duration(seconds: 1),
         () => Get.snackbar("提示", "登录过期,请重新登录"),
       );
-      return const RouteSettings(name: AppRoutes.SIGN_IN);
+      return const RouteSettings(name: AppRoutes.signIn);
     }
   }
 }

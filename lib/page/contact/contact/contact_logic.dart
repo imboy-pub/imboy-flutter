@@ -187,7 +187,7 @@ class ContactLogic extends GetxController {
     contactList.value = list;
   }
 
-  listFriend(bool onRefresh) async {
+  Future<List<ContactModel>> listFriend(bool onRefresh) async {
     List<ContactModel> contact = [];
     if (onRefresh == false) {
       contact = await (ContactRepo()).findFriend();

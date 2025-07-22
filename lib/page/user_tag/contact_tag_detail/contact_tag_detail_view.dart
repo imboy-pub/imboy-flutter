@@ -490,6 +490,15 @@ class ContactTagDetailPage extends StatelessWidget {
                       onPressed: () async {
                         addContact(context);
                       },
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all<Color>(
+                          Theme.of(context).colorScheme.surface,
+                        ),
+                        minimumSize:
+                            WidgetStateProperty.all(const Size(60, 40)),
+                        visualDensity: VisualDensity.compact,
+                        padding: WidgetStateProperty.all(EdgeInsets.zero),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 40),
                         child: Text(
@@ -500,15 +509,6 @@ class ContactTagDetailPage extends StatelessWidget {
                             fontWeight: FontWeight.normal,
                           ),
                         ),
-                      ),
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all<Color>(
-                          Theme.of(context).colorScheme.surface,
-                        ),
-                        minimumSize:
-                            WidgetStateProperty.all(const Size(60, 40)),
-                        visualDensity: VisualDensity.compact,
-                        padding: WidgetStateProperty.all(EdgeInsets.zero),
                       ),
                     )
                   ],
@@ -548,7 +548,7 @@ class SelectFriendPage extends StatelessWidget {
 
   RxList<ContactModel> contactList = RxList<ContactModel>();
   RxList<ContactModel> selectedContact = RxList<ContactModel>();
-  RxSet currIndexBarData = Set().obs;
+  RxSet currIndexBarData = <dynamic>{}.obs;
 
   void loadData() async {
     selectedContact.value = List<ContactModel>.from(tagContactList);

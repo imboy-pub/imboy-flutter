@@ -650,7 +650,7 @@ class UserCollectLogic extends GetxController {
     ]).obs;
   }
 
-  Future<List<dynamic>> doSearch(query) async {
+  Future<List<dynamic>> doSearch(dynamic query) async {
     debugPrint("user_collect_s_doSearch ${query.toString()}");
 
     state.page = 1;

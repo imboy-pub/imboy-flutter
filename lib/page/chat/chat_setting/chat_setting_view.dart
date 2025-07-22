@@ -175,7 +175,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
     getInfo();
   }
 
-  getInfo() async {
+  void getInfo() async {
     // final info = await getUsersProfile([widget.id]);
     // List infoList = json.decode(info);
     // setState(() {

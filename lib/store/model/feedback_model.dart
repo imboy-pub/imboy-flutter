@@ -77,7 +77,7 @@ class FeedbackModel {
     return data;
   }
 
-  get statusDesc {
+  String get statusDesc {
     // 1 启用 (待回复）  2 已回复  3 已完结
     if (status == 1) {
       return 'awaiting_reply'.tr;
@@ -91,7 +91,7 @@ class FeedbackModel {
   }
 
   // 评级描述
-  get ratingDesc {
+  String get ratingDesc {
     return IMBoyFeedback(rating: rating).ratingDesc;
   }
 }

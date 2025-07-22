@@ -27,7 +27,7 @@ class MoreView extends StatelessWidget {
       if (items.length < 3) {
         return val;
       }
-      return items[items.length - 2] + " " + items[items.length - 1];
+      return "${items[items.length - 2]} ${items[items.length - 1]}";
     };
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,

@@ -518,7 +518,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
     _panelController.close();
   }
 
-  _onTextChanged(String newText) async {
+  void _onTextChanged(String newText) async {
     _searchKeyword(newText);
     _animate = true;
   }

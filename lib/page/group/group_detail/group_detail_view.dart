@@ -92,7 +92,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
     // getCardName();
   }
 
-  initData() async {
+  void initData() async {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     bool connected =
@@ -188,7 +188,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
     });
   }
 
-  getCardName() async {
+  void getCardName() async {
     // await InfoModel.getSelfGroupNameCardModel(widget.peer, callback: (str) {
     //   cardName = str.toString();
     //   setState(() {});

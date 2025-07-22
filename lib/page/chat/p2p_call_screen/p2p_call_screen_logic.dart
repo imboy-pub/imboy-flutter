@@ -251,7 +251,7 @@ class P2pCallScreenLogic {
     // await session.pc!.setLocalDescription(_fixSdp(s));
 
     // final s2 = await session.pc!.getLocalDescription();
-    await sendWebRTCMsg(
+    sendWebRTCMsg(
       'answer',
       {
         'media': media,
@@ -539,7 +539,7 @@ class P2pCallScreenLogic {
     // await session.pc!.setLocalDescription(_fixSdp(sd));
     await session.pc!.setLocalDescription(sd);
     final description = await session.pc!.getLocalDescription();
-    await sendWebRTCMsg(
+    sendWebRTCMsg(
       'offer',
       {
         // sd = session description
@@ -568,11 +568,11 @@ class P2pCallScreenLogic {
     _addDataChannel(session, channel);
   }
 
-  sendBusy(String msgId, String to) {
+  void sendBusy(String msgId, String to) {
     sendWebRTCMsg('busy', {}, msgId: msgId, to: to);
   }
 
-  _stopLocalStream() async {
+  Future<void> _stopLocalStream() async {
     iPrint("> rtc _stopLocalStream start ${_localStream.toString()}");
     if (_localStream == null) {
       return;

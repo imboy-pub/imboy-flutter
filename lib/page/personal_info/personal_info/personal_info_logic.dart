@@ -22,7 +22,7 @@ class PersonalInfoLogic extends GetxController {
     return resp.ok;
   }
 
-  labelOnPressed(String label) {
+  void labelOnPressed(String label) {
     if (label == 'more') {
       Get.to(
         () => const MoreView(),

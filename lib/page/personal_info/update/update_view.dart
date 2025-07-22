@@ -171,14 +171,14 @@ class UpdatePage extends StatelessWidget {
     );
   }
 
-  onChanged(val) {
+  void onChanged(String? val) {
     iPrint("onChanged ${logic.val.value} = $val");
     if (val == '' || val == value) {
       logic.valueOnChange(false);
     } else {
       logic.valueOnChange(true);
     }
-    logic.setVal(val);
+    logic.setVal(val ?? '');
   }
 
   Widget textField(BuildContext context) {

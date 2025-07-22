@@ -20,7 +20,7 @@ class PeopleNearbyPage extends StatelessWidget {
   ValueAdapter adapter = ValueAdapter(0.0, animated: true);
   bool changedAdapter = true;
 
-  rotateCompass() {
+  void rotateCompass() {
     adapter.value = changedAdapter ? 1.0 : 0.0;
     changedAdapter = !changedAdapter;
   }

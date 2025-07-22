@@ -1,4 +1,5 @@
 /// All possible message types.
+library;
 
 enum CustomMessageType {
   file,

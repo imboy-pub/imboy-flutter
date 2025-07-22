@@ -59,7 +59,7 @@ class UserDeviceDetailPage extends StatelessWidget {
                         color: Theme.of(context)
                             .colorScheme
                             .onPrimary
-                            .withOpacity(0.8),
+                            .withValues(alpha: 0.8),
                         fontWeight: FontWeight.w400,
                       ),
                     )),
@@ -103,7 +103,7 @@ class UserDeviceDetailPage extends StatelessWidget {
                     color: Theme.of(context)
                         .colorScheme
                         .onPrimary
-                        .withOpacity(0.8),
+                        .withValues(alpha: 0.8),
                     fontWeight: FontWeight.w400,
                   ),
                 ),

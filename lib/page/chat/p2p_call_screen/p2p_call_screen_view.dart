@@ -123,7 +123,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     }
   }
 
-  initData() async {
+  void initData() async {
     media = widget.option['media'] ?? 'video';
     debugPrint("> rtc initData view ${DateTime.now()}");
 

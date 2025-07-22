@@ -6,7 +6,9 @@ import 'package:get/get.dart';
 MaterialColor createMaterialColor(Color color) {
   List strengths = <double>[.05];
   Map<int, Color> swatch = <int, Color>{};
-  final int r = color.red, g = color.green, b = color.blue;
+  final int r = (color.r * 255.0).round() & 0xFF;
+  final int g = (color.g * 255.0).round() & 0xFF;
+  final int b = (color.b * 255.0).round() & 0xFF;
 
   for (int i = 1; i < 10; i++) {
     strengths.add(0.1 * i);
@@ -20,7 +22,7 @@ MaterialColor createMaterialColor(Color color) {
       1,
     );
   }
-  return MaterialColor(color.value, swatch);
+  return MaterialColor(color.toARGB32(), swatch);
 }
 
 const mainSpace = 10.0;
@@ -42,15 +44,15 @@ const Color darkInputFillColor = Color.fromRGBO(44, 44, 44, 1.0);
 
 class ChatColor {
   // for chat
-  // static const ChatBg = Color.fromRGBO(243, 243, 243, 1.0);
-  static const ChatSendMessageBgColor = Color.fromRGBO(178, 236, 114, 1.0);
-  static const ChatSentMessageBodyTextColor = Color.fromRGBO(19, 29, 13, 1.0);
+  // static const chatBg = Color.fromRGBO(243, 243, 243, 1.0);
+  static const chatSendMessageBgColor = Color.fromRGBO(178, 236, 114, 1.0);
+  static const chatSentMessageBodyTextColor = Color.fromRGBO(19, 29, 13, 1.0);
 
-  static const ChatReceivedMessageBodyTextColor =
+  static const chatReceivedMessageBodyTextColor =
       Color.fromRGBO(255, 255, 255, 1.0);
-  static const ChatReceivedMessageBodyBgColor = Color.fromRGBO(48, 48, 48, 1.0);
+  static const chatReceivedMessageBodyBgColor = Color.fromRGBO(48, 48, 48, 1.0);
 
-  static const ChatInputFillGgColor = Color.fromRGBO(220, 220, 220, 1.0);
+  static const chatInputFillGgColor = Color.fromRGBO(220, 220, 220, 1.0);
 
 // static const MainTextColor = Color.fromRGBO(115, 115, 115, 1.0);
 // end for chat

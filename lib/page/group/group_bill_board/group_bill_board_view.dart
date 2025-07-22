@@ -45,7 +45,7 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
     _textController.text = widget.groupNotice!;
   }
 
-  onChange() {
+  void onChange() {
     if (inputState) {
       _publishTime =
           "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day} ${DateTime.now().hour}:${DateTime.now().minute}";

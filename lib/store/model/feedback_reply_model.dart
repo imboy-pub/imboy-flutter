@@ -51,7 +51,7 @@ class FeedbackReplyModel {
     return data;
   }
 
-  get statusDesc {
+  String get statusDesc {
     // 状态: -1 删除  0 禁用  1 启用
     if (status == 1) {
       return 'enable'.tr;

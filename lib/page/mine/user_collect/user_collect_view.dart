@@ -243,7 +243,7 @@ class UserCollectPage extends StatelessWidget {
                   leading: state.searchLeading?.value ??
                       InkWell(
                         onTap: () {
-                          logic.doSearch(state.kwd);
+                          logic.doSearch(state.kwd.value);
                         },
                         child: const Icon(Icons.search),
                       ),
@@ -252,10 +252,10 @@ class UserCollectPage extends StatelessWidget {
                   searchLabel: 'search'.tr,
                   hintText: 'search'.tr,
                   queryTips: 'favorite_group_tags_etc'.tr,
-                  onChanged: ((query) {
+                  onChanged: ((dynamic query) {
                     state.kwd = query.obs;
                     debugPrint("user_collect_s_onChanged ${query.toString()}");
-                    logic.doSearch(state.kwd);
+                    logic.doSearch(state.kwd.value);
                   }),
                   doSearch: logic.doSearch,
                 ),

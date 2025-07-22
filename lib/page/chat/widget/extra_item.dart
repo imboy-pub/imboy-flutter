@@ -90,7 +90,7 @@ class ExtraItems extends StatefulWidget {
   final Map options;
   final void Function()? handleImageSelection;
   final void Function()? handleFileSelection;
-  final void Function()? handlePickerSelection;
+  final void Function(BuildContext)? handlePickerSelection;
   final void Function(String, Uint8List, String, String, String, String)?
   handleLocationSelection;
   final void Function()? handleVisitCardSelection;
@@ -121,7 +121,11 @@ class ExtraItemsState extends State<ExtraItems> {
             ExtraItem(
               title: 'camera'.tr,
               image: const Icon(Icons.camera_alt, size: iconSize),
-              onPressed: widget.handlePickerSelection,
+              onPressed: () {
+                if (widget.handlePickerSelection != null) {
+                  widget.handlePickerSelection!(context);
+                }
+              },
             ),
             ExtraItem(
               title: 'location'.tr,

@@ -135,7 +135,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   }
 
   ///显示录音悬浮布局
-  buildOverLayView(BuildContext context) {
+  void buildOverLayView(BuildContext context) {
     overlayEntry ??= OverlayEntry(builder: (content) {
       return CustomOverlay(
         height: 200,
@@ -174,7 +174,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     );
   }
 
-  showVoiceView(BuildContext ctx) {
+  void showVoiceView(BuildContext ctx) {
     setState(() {
       textShow = 'release_end'.tr;
     });
@@ -224,7 +224,7 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     }
   }
 
-  moveVoiceView() {
+  void moveVoiceView() {
     iPrint("moveVoiceView ${DateTime.now()}");
     setState(() {
       isUp = start - offset > 120 ? true : false;

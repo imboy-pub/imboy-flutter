@@ -13,7 +13,7 @@ class WebRTCSignalingModel {
     required this.payload,
   });
 
-  get webRtcType {
+  String get webRtcType {
     type = type.toLowerCase();
     if (type.startsWith('webrtc_')) {
       return type.replaceFirst('webrtc_', '');

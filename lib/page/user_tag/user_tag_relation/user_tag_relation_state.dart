@@ -21,7 +21,7 @@ class UserTagRelationState {
   String lastInputTag = '';
 
   // ignore: non_constant_identifier_names
-  TagAddState() {
-    ///Initialize variables
-  }
+  // TagAddState() {
+  //   ///Initialize variables
+  // }
 }

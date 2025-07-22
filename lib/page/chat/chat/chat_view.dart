@@ -379,12 +379,17 @@ class ChatPageState extends State<ChatPage> {
   }
 
   // 拍摄照片或视频
-  Future<void> _handlePickerSelection() async {
+  Future<void> _handlePickerSelection(BuildContext context) async {
+    // 在异步操作前检查 context 是否已挂载
+    if (!context.mounted) {
+      return;
+    }
+
     try {
-      // Request camera permission before accessing camera
+      // 请求相机权限
       bool hasPermission = await requestCameraPermission();
-      if (!hasPermission) {
-        return; // Permission denied, exit early
+      if (!hasPermission || !context.mounted) {  // 添加 mounted 检查
+        return;
       }
 
       final AssetEntity? entity = await CameraPicker.pickFromCamera(
@@ -396,11 +401,18 @@ class ChatPageState extends State<ChatPage> {
           maximumRecordingDuration: Duration(seconds: 24),
         ),
       );
-      if (entity == null) return;
+
+      // 检查上下文是否仍然有效
+      if (!context.mounted || entity == null) return;
 
       await _uploadCameraAsset(entity);
     } catch (e) {
       debugPrint("Camera picker error: $e");
+      if (context.mounted) {  // 错误处理时检查 mounted
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('拍摄失败: $e')),
+        );
+      }
     }
   }
 
@@ -1073,7 +1085,7 @@ class ChatPageState extends State<ChatPage> {
                     // 你还可以注入 OnMessageTapCallback、UserID 等 Provider
                     Provider<UserID>.value(value: currentUser.id),
                   ],
-                  child: _buildChatWidget(theme), // 保持原有 _buildChatWidget 不变
+                  child: _buildChatWidget(context, theme), // 保持原有 _buildChatWidget 不变
                 ),
               ),
             ),
@@ -1095,7 +1107,7 @@ class ChatPageState extends State<ChatPage> {
   }
 
   /// 导航到聊天设置页面
-  Widget _buildChatInput() {
+  Widget _buildChatInput(BuildContext context) {
     return ChatInput(
       key: chatInputKey,
       composerHeight: state.composerHeight, // 使用可动画的高度
@@ -1137,7 +1149,7 @@ class ChatPageState extends State<ChatPage> {
   }
 
   /// 构建聊天主界面
-  Widget _buildChatWidget(ThemeData theme) {
+  Widget _buildChatWidget(BuildContext context, ThemeData theme) {
     return Chat(
       currentUserId: currentUser.id,
       backgroundColor: Colors.transparent,
@@ -1199,7 +1211,7 @@ class ChatPageState extends State<ChatPage> {
           bottom: 0,
           child: ChatInputHeightListener(
             composerHeight: state.composerHeight,
-            child: _buildChatInput(),
+            child: _buildChatInput(context),
           ),
         ),
         customMessageBuilder:

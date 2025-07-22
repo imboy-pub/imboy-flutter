@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:imboy/page/pages.dart';
 
 class AppRoutes {
-  static const INITIAL = '/';
-  static const SIGN_IN = '/sign_in';
-  static const SIGN_UP = '/sign_up';
-  static const NotFound = '/not_found';
+  static const initial = '/';
+  static const signIn = '/sign_in';
+  static const signUp = '/sign_up';
+  static const notFound = '/not_found';
 
-  static const Mine = '/mine';
-  static const Contact = '/contact';
-  static const ContactDetail = '/contact_detail';
-  static const Conversation = "/conversation";
+  static const mine = '/mine';
+  static const contact = '/contact';
+  static const contactDetail = '/contact_detail';
+  static const conversation = "/conversation";
 }
 
 class RouteObservers<R extends Route<dynamic>> extends RouteObserver<R> {

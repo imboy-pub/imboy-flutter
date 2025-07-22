@@ -45,11 +45,11 @@ class _SearchChatPageState extends State<SearchChatPage> {
 
   final TextEditingController _searchC = TextEditingController();
 
-  List items = [];
+  List<Message> items = [];
   Map<String, HighlightedWord> words = {};
 
-  Future<Widget> wordView(item) async {
-    final msg = item as Message;
+  Future<Widget> wordView(Message item) async {
+    final msg = item;
 
     ContactModel? author = await ContactRepo().findByUid(msg.authorId);
     String subtitle = msg.metadata?['text'] ?? '';
@@ -57,7 +57,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
       child: Container(
         width: Get.width,
         alignment: Alignment.center,
-        color: Theme.of(context).colorScheme.onSecondary,
+        color: Theme.of(Get.context!).colorScheme.onSecondary,
         margin: const EdgeInsets.only(top: 10),
         child: n.ListTile(
           leading: Avatar(imgUri: author!.avatar),

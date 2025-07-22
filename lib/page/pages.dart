@@ -10,14 +10,13 @@ import 'passport/login_view.dart';
 import 'passport/welcome_view.dart';
 
 class AppPages {
-  static const INITIAL = AppRoutes.INITIAL;
   static final RouteObserver<Route> observer = RouteObservers();
   static List<String> history = [];
 
   static final List<GetPage> routes = [
     // 免登陆
     GetPage(
-      name: AppRoutes.INITIAL,
+      name: AppRoutes.initial,
       page: () => const WelcomePage(),
       // binding: WelcomeBinding(),
       middlewares: const [
@@ -25,7 +24,7 @@ class AppPages {
       ],
     ),
     GetPage(
-      name: AppRoutes.SIGN_IN,
+      name: AppRoutes.signIn,
       page: () => const LoginPage(),
     ),
     // GetPage(
@@ -36,7 +35,7 @@ class AppPages {
 
     // 需要登录
     GetPage(
-      name: AppRoutes.Mine,
+      name: AppRoutes.mine,
       page: () => MinePage(),
       binding: MineBinding(),
       middlewares: [
@@ -44,7 +43,7 @@ class AppPages {
       ],
     ),
     GetPage(
-      name: AppRoutes.Contact,
+      name: AppRoutes.contact,
       page: () => ContactPage(),
       middlewares: [
         RouteAuthMiddleware(priority: 1),
