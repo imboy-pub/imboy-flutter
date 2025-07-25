@@ -921,7 +921,7 @@ class ChatPageState extends State<ChatPage> {
     }
 
     bool res = await logic.removeMessage(conversation, msg);
-    if (res && mounted) {
+    if (res) {
       await logic.chatController.removeMessageById(msg.id);
     }
     if (pop) {
@@ -966,7 +966,11 @@ class ChatPageState extends State<ChatPage> {
       'created_at': DateTimeHelper.millisecond(),
     };
     await logic.sendMessage(msg2);
-    await logic.chatController.removeMessageById(msg.id);
+
+    bool res = await logic.removeMessage(conversation, msg);
+    if (res) {
+      await logic.chatController.removeMessageById(msg.id);
+    }
     nav.pop();
   }
 
