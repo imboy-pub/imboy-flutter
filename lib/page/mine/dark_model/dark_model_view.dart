@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
 
-import 'package:niku/namespace.dart' as n;
+
 
 import 'dark_model_logic.dart';
 
@@ -24,7 +24,8 @@ class DarkModelPage extends StatelessWidget {
         title: 'dark_model'.tr,
       ),
       backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
-      body: n.Column([
+      body: Column(
+        children: [
         Expanded(
           child: ListView.separated(
             itemBuilder: createItemBuilder,
@@ -41,11 +42,8 @@ class DarkModelPage extends StatelessWidget {
     if (index == 0) {
       body = createFirstWidget(context);
     } else if (index == 1) {
-      body = n.Padding(
-          left: 20,
-          right: 20,
-          top: 10,
-          bottom: 10,
+      body = Padding(
+          padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
           child: Text(
             'manually'.tr,
             style: const TextStyle(
@@ -70,9 +68,8 @@ class DarkModelPage extends StatelessWidget {
 
   Widget createSeparatorBuilder(BuildContext context, int index) {
     if (index == 2) {
-      return n.Padding(
-        left: 20,
-        right: 20,
+      return Padding(
+        padding: const EdgeInsets.only(left: 20, right: 20),
         child: const HorizontalLine(height: 0.5),
       );
     } else {
@@ -91,9 +88,14 @@ class DarkModelPage extends StatelessWidget {
       ),
       color: Theme.of(context).colorScheme.surface,
       // color: Colors.white,
-      child: n.Row([
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
         Expanded(
-          child: n.Column([
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             Text(
               'follow_system'.tr,
               style: const TextStyle(
@@ -111,9 +113,7 @@ class DarkModelPage extends StatelessWidget {
                 // color: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
-          ])
-            ..mainAxisAlignment = MainAxisAlignment.center
-            ..crossAxisAlignment = CrossAxisAlignment.start,
+          ]),
         ),
         CupertinoSwitch(
           value: state.switchValue.value,
@@ -122,8 +122,7 @@ class DarkModelPage extends StatelessWidget {
             logic.configSwitchOnChanged(value);
           },
         )
-      ])
-        ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+      ]),
     );
   }
 
@@ -142,7 +141,9 @@ class DarkModelPage extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(Get.context!).colorScheme.surface,
         ),
-        child: n.Row([
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
           Expanded(
             child: Text(
               text,
@@ -156,8 +157,7 @@ class DarkModelPage extends StatelessWidget {
                   color: Colors.green,
                 )
               : Container(),
-        ])
-          ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+        ]),
       ),
     );
   }

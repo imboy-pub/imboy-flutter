@@ -3,7 +3,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/button.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/config/const.dart';
@@ -354,25 +353,28 @@ class LoginPageState extends State<LoginPage>
         margin: const EdgeInsets.symmetric(vertical: 20),
         padding: const EdgeInsets.all(15),
         alignment: Alignment.bottomCenter,
-        child: n.Row([
-          Text(
-            'no_sigin_q'.tr,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'no_sigin_q'.tr,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
             ),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            'signup'.tr,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+            const SizedBox(width: 4),
+            Text(
+              'signup'.tr,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-        ])..mainAxisAlignment = MainAxisAlignment.center,
+          ],
+        ),
       ),
     );
   }

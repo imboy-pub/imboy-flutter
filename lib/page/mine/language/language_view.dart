@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/button.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
@@ -26,41 +26,45 @@ class LanguagePage extends StatelessWidget {
       // backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        titleWidget: n.Row([
-          Expanded(
-            child: Text(
-              'language_setting'.tr,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimary,
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
+        titleWidget: Row(
+          children: [
+            Expanded(
+              child: Text(
+                'language_setting'.tr,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
+              // 中间用Expanded控件
             ),
-            // 中间用Expanded控件
-          ),
-          Obx(
-            () => RoundedElevatedButton(
-                text: 'button_accomplish'.tr,
-                highlighted: state.valueChanged.isTrue,
-                onPressed: () async {
-                  logic.changeLanguage(state.selectedLanguage.value);
-                }),
-          ),
-        ]),
-      ),
-      body: n.Column([
-        Expanded(
-          child: ListView.builder(
-            itemBuilder: (BuildContext context, int index) {
-              var model = state.languageList[index];
-              return logic.getListItem(context, model);
-            },
-            itemCount: state.languageList.length,
-          ),
+            Obx(
+              () => RoundedElevatedButton(
+                  text: 'button_accomplish'.tr,
+                  highlighted: state.valueChanged.isTrue,
+                  onPressed: () async {
+                    logic.changeLanguage(state.selectedLanguage.value);
+                  }),
+            ),
+          ],
         ),
-      ], mainAxisSize: MainAxisSize.min)
-        ..useParent((v) => v..bg = Theme.of(context).colorScheme.surface),
+      ),
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemBuilder: (BuildContext context, int index) {
+                var model = state.languageList[index];
+                return logic.getListItem(context, model);
+              },
+              itemCount: state.languageList.length,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -585,7 +585,7 @@ class ChatLogic extends GetxController {
     String? path = await FileSaver.instance.saveAs(
       name: name,
       file: tmpF,
-      ext: ext,
+      fileExtension: ext,
       mimeType: mt ?? MimeType.get('Other')!,
     );
 

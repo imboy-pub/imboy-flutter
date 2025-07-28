@@ -3,7 +3,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/line.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -61,160 +60,184 @@ class UserDevicePage extends StatelessWidget {
           width: Get.width,
           height: Get.height,
           color: Theme.of(context).colorScheme.surface,
-          child: n.Column([
-            n.Column([
-              Container(
-                width: Get.width,
-                color: Theme.of(context).colorScheme.surface,
-                padding: const EdgeInsets.only(
-                  top: 10.0,
-                  left: 15,
-                  right: 10,
-                  bottom: 20,
-                ),
-                child: Text(
-                  'login_device_management_tips'.tr,
-                  maxLines: 6,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              )
-            ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
-            Expanded(
-              child: n.Padding(
-                left: 15,
-                right: 10,
-                child: Obx(() {
-                  return state.deviceList.isEmpty
-                      ? NoDataView(text: 'no_data'.tr)
-                      : ListView.builder(
-                          itemCount: state.deviceList.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            UserDeviceModel model = state.deviceList[index];
-                            return n.Column([
-                              Slidable(
-                                key: ValueKey(model.deviceId),
-                                groupTag: '0',
-                                closeOnScroll: true,
-                                endActionPane: ActionPane(
-                                  extentRatio:
-                                      currentDid.value == model.deviceId
-                                          ? 0.001
-                                          : 0.25,
-                                  motion: const BehindMotion(),
-                                  children: [
-                                    SlidableAction(
-                                      key: ValueKey("delete_$index"),
-                                      flex: 2,
-                                      backgroundColor: Colors.red,
-                                      // foregroundColor: Colors.white,
-                                      onPressed: (_) async {
-                                        n.showDialog(
-                                          context: Get.context!,
-                                          builder: (context) => n.Alert()
-                                            ..content = SizedBox(
-                                              height: 40,
-                                              child: Center(
-                                                  child: Text(
-                                                      'delete_this_device_tips'
-                                                          .tr)),
-                                            )
-                                            ..actions = [
-                                              n.Button('button_cancel'.tr.n)
-                                                ..style = n.NikuButtonStyle(
-                                                  foregroundColor:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .onSurface,
-                                                )
-                                                ..onPressed = () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                              n.Button('button_delete'.tr.n)
-                                                ..style = n.NikuButtonStyle(
-                                                  foregroundColor:
-                                                  Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurface,
-                                                )
-                                                ..onPressed = () async {
-                                                  Navigator.of(context).pop();
-                                                  bool res =
-                                                      await logic.deleteDevice(
-                                                    model.deviceId,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Container(
+                    width: Get.width,
+                    color: Theme.of(context).colorScheme.surface,
+                    padding: const EdgeInsets.only(
+                      top: 10.0,
+                      left: 15,
+                      right: 10,
+                      bottom: 20,
+                    ),
+                    child: Text(
+                      'login_device_management_tips'.tr,
+                      maxLines: 6,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  )
+                ],
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 15, right: 10),
+                  child: Obx(() {
+                    return state.deviceList.isEmpty
+                        ? NoDataView(text: 'no_data'.tr)
+                        : ListView.builder(
+                      itemCount: state.deviceList.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        UserDeviceModel model = state.deviceList[index];
+                        return Column(
+                          children: [
+                            Slidable(
+                              key: ValueKey(model.deviceId),
+                              groupTag: '0',
+                              closeOnScroll: true,
+                              endActionPane: ActionPane(
+                                extentRatio:
+                                currentDid.value == model.deviceId
+                                    ? 0.001
+                                    : 0.25,
+                                motion: const BehindMotion(),
+                                children: [
+                                  SlidableAction(
+                                    key: ValueKey("delete_$index"),
+                                    flex: 2,
+                                    backgroundColor: Colors.red,
+                                    onPressed: (_) async {
+                                      showDialog(
+                                        context: Get.context!,
+                                        builder: (context) => AlertDialog(
+                                          content: SizedBox(
+                                            height: 40,
+                                            child: Center(
+                                                child: Text(
+                                                    'delete_this_device_tips'
+                                                        .tr)),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              style: TextButton.styleFrom(
+                                                foregroundColor:
+                                                Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface,
+                                              ),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text('button_cancel'.tr),
+                                            ),
+                                            TextButton(
+                                              style: TextButton.styleFrom(
+                                                foregroundColor:
+                                                Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface,
+                                              ),
+                                              onPressed: () async {
+                                                Navigator.of(context).pop();
+                                                bool res =
+                                                await logic.deleteDevice(
+                                                  model.deviceId,
+                                                );
+                                                if (res) {
+                                                  state.deviceList.removeAt(
+                                                    state.deviceList
+                                                        .indexWhere((e) =>
+                                                    e.deviceId ==
+                                                        model.deviceId),
                                                   );
-                                                  if (res) {
-                                                    state.deviceList.removeAt(
-                                                      state.deviceList
-                                                          .indexWhere((e) =>
-                                                              e.deviceId ==
-                                                              model.deviceId),
-                                                    );
-                                                    EasyLoading.showSuccess(
-                                                        'tip_success'.tr);
-                                                  } else {
-                                                    EasyLoading.showError(
-                                                        'tip_failed'.tr);
-                                                  }
-                                                },
-                                            ],
-                                          barrierDismissible: true,
-                                        );
-                                      },
-                                      label: 'button_delete'.tr,
-                                      spacing: 1,
-                                    ),
-                                  ],
-                                ),
-                                child: ListTile(
-                                  contentPadding:
-                                      const EdgeInsets.only(left: 0),
-                                  title: n.Row([
+                                                  EasyLoading.showSuccess(
+                                                      'tip_success'.tr);
+                                                } else {
+                                                  EasyLoading.showError(
+                                                      'tip_failed'.tr);
+                                                }
+                                              },
+                                              child: Text('button_delete'.tr),
+                                            ),
+                                          ],
+                                        ),
+                                        barrierDismissible: true,
+                                      );
+                                    },
+                                    label: 'button_delete'.tr,
+                                    spacing: 1,
+                                  ),
+                                ],
+                              ),
+                              child: ListTile(
+                                contentPadding:
+                                const EdgeInsets.only(left: 0),
+                                title: Row(
+                                  children: [
                                     Expanded(child: Text(model.deviceName)),
                                     const Space(width: 10),
                                     if (currentDid.value == model.deviceId)
-                                      Expanded(child: Text(
-                                        'current_device'.tr,
-                                        textAlign: TextAlign.right,
-                                        style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary
-                                              .withValues(alpha: 0.7 * 255),
-                                          fontSize: 14,
+                                      Expanded(
+                                        child: Text(
+                                          'current_device'.tr,
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary
+                                                .withValues(alpha: 0.7),
+                                            fontSize: 14,
+                                          ),
                                         ),
-                                      )),
-                                  ]),
-                                  subtitle: n.Row([
-                                    Expanded(child: Text(model.online
-                                        ? 'online'.tr
-                                        : 'offline'.tr, textAlign: TextAlign.right)),
+                                      ),
+                                  ],
+                                ),
+                                subtitle: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                          model.online
+                                              ? 'online'.tr
+                                              : 'offline'.tr,
+                                          textAlign: TextAlign.right),
+                                    ),
                                     const Space(width: 10),
                                     if (model.lastActiveAt > 0)
-                                      Expanded(child: Text(
-                                        DateTimeHelper.lastTimeFmt(
-                                            model.lastActiveAt),
-                                        textAlign: TextAlign.right)),
-                                  ]),
-                                  trailing: navigateNextIcon,
-                                  onTap: () {
-                                    Get.to(
-                                      () => UserDeviceDetailPage(
-                                        model: model,
+                                      Expanded(
+                                        child: Text(
+                                          DateTimeHelper.lastTimeFmt(
+                                              model.lastActiveAt),
+                                          textAlign: TextAlign.right,
+                                        ),
                                       ),
-                                      transition: Transition.rightToLeft,
-                                      popGesture: true, // 右滑，返回上一页
-                                    );
-                                  },
+                                  ],
                                 ),
+                                trailing: navigateNextIcon,
+                                onTap: () {
+                                  Get.to(
+                                        () => UserDeviceDetailPage(
+                                      model: model,
+                                    ),
+                                    transition: Transition.rightToLeft,
+                                    popGesture: true, // 右滑，返回上一页
+                                  );
+                                },
                               ),
-                              const HorizontalLine(height: 1.0),
-                            ]);
-                          },
+                            ),
+                            const HorizontalLine(height: 1.0),
+                          ],
                         );
-                }),
-              ),
-            )
-          ], mainAxisSize: MainAxisSize.min),
+                      },
+                    );
+                  }),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

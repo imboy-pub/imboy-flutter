@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:lpinyin/lpinyin.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
@@ -132,112 +131,122 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
       ),
       content: SizedBox(
         height: 164,
-        child: n.Column([
-          widget.peerIsReceiver
-              ? n.Row([
-                  Avatar(
-                    imgUri: model.avatar,
-                    onTap: () {},
-                  ),
-                  Expanded(
-                    child: n.Padding(
-                      left: 10,
-                      child: Text(
-                        model.title,
-                        style: const TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.normal,
-                        ),
-                        maxLines: 6,
-                        overflow: TextOverflow.ellipsis,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            widget.peerIsReceiver
+                ? Row(
+              children: [
+                Avatar(
+                  imgUri: model.avatar,
+                  onTap: () {},
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Text(
+                      model.title,
+                      style: const TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.normal,
                       ),
+                      maxLines: 6,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ])
-              : n.Row([
-                  Avatar(
-                    imgUri: widget.peer['avatar']!,
-                    onTap: () {},
-                  ),
-                  Expanded(
-                    child: n.Padding(
-                      left: 10,
-                      child: Text(
-                        widget.peer['title']!,
-                        style: const TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.normal,
-                        ),
-                        maxLines: 6,
-                        overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            )
+                : Row(
+              children: [
+                Avatar(
+                  imgUri: widget.peer['avatar']!,
+                  onTap: () {},
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Text(
+                      widget.peer['title']!,
+                      style: const TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.normal,
                       ),
+                      maxLines: 6,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ]),
-          const Divider(),
-          Expanded(
-            child: Text(
-              // visit_card
-              widget.peerIsReceiver
-                  ? "[${'personal_card'.tr}]${widget.peer['nickname']}"
-                  : "[${'personal_card'.tr}]${model.nickname}",
-              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+                ),
+              ],
             ),
-          ),
-        ])
-          ..crossAxisAlignment = CrossAxisAlignment.start,
+            const Divider(),
+            Expanded(
+              child: Text(
+                // visit_card
+                widget.peerIsReceiver
+                    ? "[${'personal_card'.tr}]${widget.peer['nickname']}"
+                    : "[${'personal_card'.tr}]${model.nickname}",
+                style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildListItem(ContactModel model) {
     // String susTag = model.getSuspensionTag();
-    return n.Column([
-      SizedBox(
-        height: _itemHeight.toDouble(),
-        child: InkWell(
-          onTap: () {
-            sendToDialog(model);
-            // model.selected = !model.selected;
-            // if (model.selected) {
-            //   selects.insert(0, model);
-            // } else {
-            //   selects.remove(model);
-            // }
-            // setState(() {});
-          },
-          child: n.Row([
-            n.Padding(
-              left: 16,
-              child: Avatar(
-                imgUri: model.avatar,
-                width: 49,
-                height: 49,
-              ),
-            ),
-            const Space(),
-            Expanded(
-              child: Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.only(right: 30),
-                height: _itemHeight.toDouble(),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    top: BorderSide(
-                      width: 0.5,
+    return Column(
+      children: [
+        SizedBox(
+          height: _itemHeight.toDouble(),
+          child: InkWell(
+            onTap: () {
+              sendToDialog(model);
+              // model.selected = !model.selected;
+              // if (model.selected) {
+              //   selects.insert(0, model);
+              // } else {
+              //   selects.remove(model);
+              // }
+              // setState(() {});
+            },
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16),
+                  child: Avatar(
+                    imgUri: model.avatar,
+                    width: 49,
+                    height: 49,
+                  ),
+                ),
+                const Space(),
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.only(right: 30),
+                    height: _itemHeight.toDouble(),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          width: 0.5,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      model.title,
+                      style: const TextStyle(fontSize: 14.0),
                     ),
                   ),
                 ),
-                child: Text(
-                  model.title,
-                  style: const TextStyle(fontSize: 14.0),
-                ),
-              ),
+              ],
             ),
-          ]),
-        ),
-      )
-    ]);
+          ),
+        )
+      ],
+    );
   }
 
   @override
@@ -245,7 +254,8 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
     return Scaffold(
       appBar: NavAppBar(
         title: 'select_friends'.tr,
-        leading: n.Padding(
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
           child: InkWell(
             onTap: () {
               Navigator.of(context).pop();
@@ -269,72 +279,74 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
         // ],
       ),
       body: Obx(
-        () => n.Stack([
-          RefreshIndicator(
-            onRefresh: () async {
-              debugPrint(">>> contact onRefresh");
-              // 检查网络状态
-              var connectivityResult = await Connectivity().checkConnectivity();
-              if (connectivityResult.contains(ConnectivityResult.none)) {
-                String msg = 'tip_connect_desc'.tr;
-                EasyLoading.showInfo(' $msg        ');
-                return;
-              }
-              List<ContactModel> contact =
-                  await Get.find<ContactLogic>().listFriend(true);
-              if (contact.isNotEmpty) {
-                contactList.value = contact;
-                // contactIsEmpty.value = contactList.isEmpty;
-                _handleList(contactList);
-              }
-            },
-            child: AzListView(
-              data: contactList,
-              itemCount: contactList.length,
-              itemBuilder: (context, i) => _buildListItem(contactList[i]),
-              // 解决联系人数据量少的情况下无法刷新的问题
-              // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
-              physics: const AlwaysScrollableScrollPhysics(),
-              susItemBuilder: (BuildContext context, int index) {
-                ContactModel model = contactList[index];
-                if ('↑' == model.getSuspensionTag()) {
-                  return Container();
+            () => Stack(
+          children: [
+            RefreshIndicator(
+              onRefresh: () async {
+                debugPrint(">>> contact onRefresh");
+                // 检查网络状态
+                var connectivityResult = await Connectivity().checkConnectivity();
+                if (connectivityResult.contains(ConnectivityResult.none)) {
+                  String msg = 'tip_connect_desc'.tr;
+                  EasyLoading.showInfo(' $msg        ');
+                  return;
                 }
-
-                return Get.find<ContactLogic>()
-                    .getSusItem(context, model.getSuspensionTag());
+                List<ContactModel> contact =
+                await Get.find<ContactLogic>().listFriend(true);
+                if (contact.isNotEmpty) {
+                  contactList.value = contact;
+                  // contactIsEmpty.value = contactList.isEmpty;
+                  _handleList(contactList);
+                }
               },
-              // indexBarData: const ['↑', ...kIndexBarData],
-              indexBarData:
-                  contactList.isNotEmpty ? ['↑', ...currIndexBarData] : [],
-              indexBarOptions: IndexBarOptions(
-                needRebuild: true,
-                ignoreDragCancel: true,
-                downTextStyle: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.white,
-                ),
-                downItemDecoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.green,
-                ),
-                indexHintWidth: 128 / 2,
-                indexHintHeight: 128 / 2,
-                indexHintDecoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(
-                      AssetsService.getImgPath('index_bar_bubble_gray'),
-                    ),
-                    fit: BoxFit.contain,
+              child: AzListView(
+                data: contactList,
+                itemCount: contactList.length,
+                itemBuilder: (context, i) => _buildListItem(contactList[i]),
+                // 解决联系人数据量少的情况下无法刷新的问题
+                // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
+                physics: const AlwaysScrollableScrollPhysics(),
+                susItemBuilder: (BuildContext context, int index) {
+                  ContactModel model = contactList[index];
+                  if ('↑' == model.getSuspensionTag()) {
+                    return Container();
+                  }
+
+                  return Get.find<ContactLogic>()
+                      .getSusItem(context, model.getSuspensionTag());
+                },
+                // indexBarData: const ['↑', ...kIndexBarData],
+                indexBarData:
+                contactList.isNotEmpty ? ['↑', ...currIndexBarData] : [],
+                indexBarOptions: IndexBarOptions(
+                  needRebuild: true,
+                  ignoreDragCancel: true,
+                  downTextStyle: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
                   ),
+                  downItemDecoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.green,
+                  ),
+                  indexHintWidth: 128 / 2,
+                  indexHintHeight: 128 / 2,
+                  indexHintDecoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(
+                        AssetsService.getImgPath('index_bar_bubble_gray'),
+                      ),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  indexHintAlignment: Alignment.centerRight,
+                  indexHintChildAlignment: const Alignment(-0.25, 0.0),
+                  indexHintOffset: const Offset(-20, 0),
                 ),
-                indexHintAlignment: Alignment.centerRight,
-                indexHintChildAlignment: const Alignment(-0.25, 0.0),
-                indexHintOffset: const Offset(-20, 0),
               ),
-            ),
-          )
-        ]),
+            )
+          ],
+        ),
       ),
     );
   }

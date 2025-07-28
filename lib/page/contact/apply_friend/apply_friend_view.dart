@@ -9,7 +9,6 @@ import 'package:imboy/component/ui/radio_list_title.dart';
 import 'package:imboy/component/ui/title_text_field.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'apply_friend_logic.dart';
 
@@ -22,13 +21,13 @@ class ApplyFriendPage extends StatelessWidget {
   String source;
 
   ApplyFriendPage(
-    this.uid,
-    this.remark,
-    this.avatar,
-    this.region, {
-    required this.source,
-    super.key,
-  });
+      this.uid,
+      this.remark,
+      this.avatar,
+      this.region, {
+        required this.source,
+        super.key,
+      });
 
   final ApplyFriendLogic logic = Get.put(ApplyFriendLogic());
 
@@ -116,75 +115,75 @@ class ApplyFriendPage extends StatelessWidget {
           width: Get.width,
           height: Get.height + 200,
           color: Theme.of(context).colorScheme.surface,
-          child: n.Padding(
-            left: 30,
-            top: 10,
-            right: 30,
-            child: Obx(() => n.Column([
-                  TitleTextField(
-                    title: 'send_friend_request'.tr,
-                    controller: _msgController,
-                    minLines: 3,
-                    maxLines: 4,
-                    maxLength: 100,
-                    contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                  ),
-                  TitleTextField(
-                    title: 'set_param'.trArgs(['remark'.tr]),
-                    controller: _remarkController,
-                    minLines: 1,
-                    maxLines: 1,
-                    maxLength: 80,
-                    contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                  ),
-                  Text('tags'.tr),
-                  Obx(() => IconTextView(
-                        // leftText: 'add_tag'.tr,
-                        leftText: logic.peerTag.isEmpty
-                            ? 'add_tag'.tr
+          child: Padding(
+            padding: const EdgeInsets.only(left: 30, top: 10, right: 30),
+            child: Obx(() => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TitleTextField(
+                  title: 'send_friend_request'.tr,
+                  controller: _msgController,
+                  minLines: 3,
+                  maxLines: 4,
+                  maxLength: 100,
+                  contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                ),
+                TitleTextField(
+                  title: 'set_param'.trArgs(['remark'.tr]),
+                  controller: _remarkController,
+                  minLines: 1,
+                  maxLines: 1,
+                  maxLength: 80,
+                  contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                ),
+                Text('tags'.tr),
+                Obx(() => IconTextView(
+                  // leftText: 'add_tag'.tr,
+                  leftText: logic.peerTag.isEmpty
+                      ? 'add_tag'.tr
+                      : logic.peerTag.value,
+                  paddingLeft: 10,
+                  onPressed: () {
+                    Get.to(
+                          () => UserTagRelationPage(
+                        peerId: uid,
+                        peerTag: logic.peerTag.isEmpty
+                            ? ''
                             : logic.peerTag.value,
-                        paddingLeft: 10,
-                        onPressed: () {
-                          Get.to(
-                            () => UserTagRelationPage(
-                              peerId: uid,
-                              peerTag: logic.peerTag.isEmpty
-                                  ? ''
-                                  : logic.peerTag.value,
-                              scene: 'friend',
-                            ),
-                            transition: Transition.rightToLeft,
-                            popGesture: true, // 右滑，返回上一页
-                          )?.then((value) {
-                            if (value != null && value is String) {
-                              logic.peerTag.value = value.toString();
-                            }
-                          });
-                        },
-                        decoration: ShapeDecoration(
-                          // color: Get.isDarkMode
-                          //     ? darkInputFillColor
-                          //     : lightInputFillColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadiusDirectional.circular(5),
-                          ),
-                        ),
-                      )),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 14,
-                    ),
-                    child: Text('set_param'.trArgs(['moment'.tr])),
-                  ),
-                  Card(
+                        scene: 'friend',
+                      ),
+                      transition: Transition.rightToLeft,
+                      popGesture: true, // 右滑，返回上一页
+                    )?.then((value) {
+                      if (value != null && value is String) {
+                        logic.peerTag.value = value.toString();
+                      }
+                    });
+                  },
+                  decoration: ShapeDecoration(
                     // color: Get.isDarkMode
                     //     ? darkInputFillColor
                     //     : lightInputFillColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadiusDirectional.circular(5),
                     ),
-                    clipBehavior: Clip.antiAlias,
-                    child: n.Column([
+                  ),
+                )),
+                Padding(
+                  padding: const EdgeInsets.only(top: 14),
+                  child: Text('set_param'.trArgs(['moment'.tr])),
+                ),
+                Card(
+                  // color: Get.isDarkMode
+                  //     ? darkInputFillColor
+                  //     : lightInputFillColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadiusDirectional.circular(5),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
                       IMBoyRadioListTile(
                         value: "all",
                         title: Text(
@@ -213,9 +212,8 @@ class ApplyFriendPage extends StatelessWidget {
                               "> on logic.visibilityLook1 ${logic.visibilityLook}");
                         },
                       ),
-                      n.Padding(
-                        left: 8,
-                        right: 8,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8, right: 8),
                         child: const HorizontalLine(height: 0.5),
                       ),
                       IMBoyRadioListTile(
@@ -229,7 +227,7 @@ class ApplyFriendPage extends StatelessWidget {
                         ),
                         selected: false,
                         secondary:
-                            logic.role.value == "just_chat" ? secondary : null,
+                        logic.role.value == "just_chat" ? secondary : null,
                         controlAffinity: ListTileControlAffinity.leading,
                         activeColor: Colors.green,
                         groupValue: logic.role.value,
@@ -246,16 +244,16 @@ class ApplyFriendPage extends StatelessWidget {
                               "> on logic.donotlethimlook3 ${logic.donotlethimlook}");
                         },
                       ),
-                    ]),
+                    ],
                   ),
-                  Visibility(
-                    visible: logic.visibilityLook.isTrue,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 10,
-                        bottom: 50,
-                      ),
-                      child: n.Column([
+                ),
+                Visibility(
+                  visible: logic.visibilityLook.isTrue,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 10, bottom: 50),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text('moment_status'.tr),
                         Card(
                           // color: Get.isDarkMode
@@ -265,48 +263,49 @@ class ApplyFriendPage extends StatelessWidget {
                             borderRadius: BorderRadiusDirectional.circular(5),
                           ),
                           clipBehavior: Clip.antiAlias,
-                          child: n.Column([
-                            LabelRow(
-                              title: 'not_let_him_see'.tr,
-                              isLine: true,
-                              isRight: false,
-                              trailing: SizedBox(
-                                height: 32.0,
-                                child: Obx(
-                                  () => CupertinoSwitch(
-                                    value: logic.donotlethimlook.isTrue,
-                                    onChanged: (val) {
-                                      logic.donotlethimlook.value = val;
-                                    },
+                          child: Column(
+                            children: [
+                              LabelRow(
+                                title: 'not_let_him_see'.tr,
+                                isLine: true,
+                                isRight: false,
+                                trailing: SizedBox(
+                                  height: 32.0,
+                                  child: Obx(
+                                        () => CupertinoSwitch(
+                                      value: logic.donotlethimlook.isTrue,
+                                      onChanged: (val) {
+                                        logic.donotlethimlook.value = val;
+                                      },
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            LabelRow(
-                              title: 'not_see_him'.tr,
-                              isLine: true,
-                              isRight: false,
-                              trailing: SizedBox(
-                                height: 32.0,
-                                child: Obx(
-                                  () => CupertinoSwitch(
-                                    value: logic.donotlookhim.isTrue,
-                                    onChanged: (val) {
-                                      logic.donotlookhim.value = val;
-                                    },
+                              LabelRow(
+                                title: 'not_see_him'.tr,
+                                isLine: true,
+                                isRight: false,
+                                trailing: SizedBox(
+                                  height: 32.0,
+                                  child: Obx(
+                                        () => CupertinoSwitch(
+                                      value: logic.donotlookhim.isTrue,
+                                      onChanged: (val) {
+                                        logic.donotlookhim.value = val;
+                                      },
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ]),
+                            ],
+                          ),
                         ),
-                      ])
-                        ..crossAxisAlignment = CrossAxisAlignment.start,
+                      ],
                     ),
                   ),
-                ])
-                  ..crossAxisAlignment = CrossAxisAlignment.start
-                  ..mainAxisSize = MainAxisSize.min),
+                ),
+              ],
+            )),
           ),
         ),
       ),

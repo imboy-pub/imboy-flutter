@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/page/group/group_list/group_list_logic.dart'
     show GroupListLogic;
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/func.dart';
 
@@ -115,28 +114,30 @@ class Avatar extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: n.Column([
-        Container(
-          width: width ?? 50,
-          height: height ?? 50,
-          decoration: BoxDecoration(
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(4.0),
-            border: Border.all(
-              width: 0.5,
-              style: BorderStyle.solid,
-              color: Colors.grey.withValues(alpha: 0.5),
-            ),
-            color: Colors.grey.withValues(alpha: 0.5),
-            image: dynamicAvatar(imgUri),
-          ),
-        ),
-        if (title != null)
-          SizedBox(
+      child: Column(
+        children: [
+          Container(
             width: width ?? 50,
-            child: n.Row([Expanded(child: title!)]),
+            height: height ?? 50,
+            decoration: BoxDecoration(
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(4.0),
+              border: Border.all(
+                width: 0.5,
+                style: BorderStyle.solid,
+                color: Colors.grey.withValues(alpha: 0.5),
+              ),
+              color: Colors.grey.withValues(alpha: 0.5),
+              image: dynamicAvatar(imgUri),
+            ),
           ),
-      ]),
+          if (title != null)
+            SizedBox(
+              width: width ?? 50,
+              child: Row(children: [Expanded(child: title!)]),
+            ),
+        ],
+      ),
     );
   }
 }

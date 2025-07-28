@@ -12,7 +12,7 @@ import 'package:imboy/page/passport/welcome_view.dart';
 import 'package:imboy/page/personal_info/update/update_view.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/config/const.dart';
@@ -34,20 +34,22 @@ class AccountSecurityPage extends StatelessWidget {
         title: 'account_security'.tr,
       ),
       body: SingleChildScrollView(
-        child: n.Column([
-          n.Column([
-            n.ListTile(
-              title: n.Row([
+        child: Column(
+          children: [
+          Column(
+            children: [
+            ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                 Expanded(child: Text('account'.tr)),
-                Expanded(child: n.Padding(
-                  right: 10,
+                Expanded(child: Padding(
+                  padding: const EdgeInsets.only(right: 10),
                   child: Text(UserRepoLocal.to.current.account, textAlign: TextAlign.right),
                 )),
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+              ]),
               // trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -59,14 +61,16 @@ class AccountSecurityPage extends StatelessWidget {
                 // );
               },
             ),
-            n.Padding(
-                left: 18,
+            Padding(
+                padding: const EdgeInsets.only(left: 18),
                 child: HorizontalLine(
                   height: Get.isDarkMode ? 0.5 : 1.0,
                   color: Theme.of(context).colorScheme.primary,
                 )),
-            n.ListTile(
-              title: n.Row([
+            ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                 Text('email'.tr),
                 const SizedBox(width: 8), // 可选的小间距
                 Expanded(child: Text(UserRepoLocal.to.current.email.isEmpty
@@ -76,11 +80,9 @@ class AccountSecurityPage extends StatelessWidget {
                   UserRepoLocal.to.current.email.length - 8,
                   '*' * (UserRepoLocal.to.current.email.length - 12),
                 ), textAlign: TextAlign.right)),
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+              ]),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -116,14 +118,16 @@ class AccountSecurityPage extends StatelessWidget {
               },
             ),
             /*
-            n.Padding(
-                left: 18,
+            Padding(
+                padding: const EdgeInsets.only(left: 18),
                 child: HorizontalLine(
                   height: Get.isDarkMode ? 0.5 : 1.0,
                   color: Theme.of(context).colorScheme.primary,
                 )),
-            n.ListTile(
-              title: n.Row([
+            ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                 Text('mobile'.tr),
                 Text(UserRepoLocal.to.current.mobile.isEmpty
                     ? 'not_bound'.tr
@@ -132,11 +136,9 @@ class AccountSecurityPage extends StatelessWidget {
                         7,
                         '****',
                       )),
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+              ]),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -164,16 +166,16 @@ class AccountSecurityPage extends StatelessWidget {
               height: 10,
               color: Theme.of(context).colorScheme.primary,
             ),
-            n.ListTile(
-              title: n.Row([
+            ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                 Expanded(child: Text('password'.tr)),
 
                 if (needSet == false) Expanded(child: Text('have_set'.tr, textAlign: TextAlign.right)),
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+              ]),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -191,13 +193,13 @@ class AccountSecurityPage extends StatelessWidget {
               height: 10,
               color: Theme.of(context).colorScheme.primary,
             ),
-            n.Padding(
-                left: 40,
+            Padding(
+                padding: const EdgeInsets.only(left: 40),
                 child: HorizontalLine(
                   height: 1.0,
                   color: Theme.of(context).colorScheme.primary,
                 )),
-            n.ListTile(
+            ListTile(
               // leading: const Icon(
               //   Icons.devices,
               //   color: Colors.green,
@@ -209,7 +211,7 @@ class AccountSecurityPage extends StatelessWidget {
               // ),
               title: Text('device_list'.tr),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -237,16 +239,16 @@ class AccountSecurityPage extends StatelessWidget {
             onPressed: () async {},
           ),
           */
-          n.Padding(
-              left: 18,
+          Padding(
+              padding: const EdgeInsets.only(left: 18),
               child: HorizontalLine(
                 height: Get.isDarkMode ? 0.5 : 1.0,
                 color: Theme.of(context).colorScheme.primary,
               )),
-          n.ListTile(
+          ListTile(
             title: Text('security_center'.tr),
             trailing: navigateNextIcon,
-            contentPadding: n.EdgeInsets.only(
+            contentPadding: const EdgeInsets.only(
               left: 16,
               right: 8.0,
             ),

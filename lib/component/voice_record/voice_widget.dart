@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:audio_session/audio_session.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:logger/logger.dart';
-import 'package:niku/namespace.dart' as n;
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -95,7 +95,8 @@ class _VoiceWidgetState extends State<VoiceWidget> {
         if (status != PermissionStatus.granted) {
           Get.snackbar("", 'microphone_permission_not_obtained'.tr);
           throw RecordingPermissionException(
-              'microphone_permission_not_obtained'.tr);
+            'microphone_permission_not_obtained'.tr,
+          );
         }
 
         //判断如果还没拥有读写权限就申请获取权限
@@ -104,7 +105,8 @@ class _VoiceWidgetState extends State<VoiceWidget> {
           if ((await Permission.storage.status) != PermissionStatus.granted) {
             Get.snackbar("", 'microphone_permission_not_obtained'.tr);
             throw RecordingPermissionException(
-                'storage_permission_not_obtained'.tr);
+              'storage_permission_not_obtained'.tr,
+            );
           }
         }
       } catch (e, s) {
@@ -115,63 +117,68 @@ class _VoiceWidgetState extends State<VoiceWidget> {
     await recorder.openRecorder();
 
     final session = await AudioSession.instance;
-    await session.configure(AudioSessionConfiguration(
-      avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
-      avAudioSessionCategoryOptions:
-          AVAudioSessionCategoryOptions.allowBluetooth |
-              AVAudioSessionCategoryOptions.defaultToSpeaker,
-      avAudioSessionMode: AVAudioSessionMode.spokenAudio,
-      avAudioSessionRouteSharingPolicy:
-          AVAudioSessionRouteSharingPolicy.defaultPolicy,
-      avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none,
-      androidAudioAttributes: const AndroidAudioAttributes(
-        contentType: AndroidAudioContentType.speech,
-        flags: AndroidAudioFlags.none,
-        usage: AndroidAudioUsage.voiceCommunication,
+    await session.configure(
+      AudioSessionConfiguration(
+        avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+        avAudioSessionCategoryOptions:
+            AVAudioSessionCategoryOptions.allowBluetooth |
+            AVAudioSessionCategoryOptions.defaultToSpeaker,
+        avAudioSessionMode: AVAudioSessionMode.spokenAudio,
+        avAudioSessionRouteSharingPolicy:
+            AVAudioSessionRouteSharingPolicy.defaultPolicy,
+        avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none,
+        androidAudioAttributes: const AndroidAudioAttributes(
+          contentType: AndroidAudioContentType.speech,
+          flags: AndroidAudioFlags.none,
+          usage: AndroidAudioUsage.voiceCommunication,
+        ),
+        androidAudioFocusGainType: AndroidAudioFocusGainType.gain,
+        androidWillPauseWhenDucked: true,
       ),
-      androidAudioFocusGainType: AndroidAudioFocusGainType.gain,
-      androidWillPauseWhenDucked: true,
-    ));
+    );
   }
 
   ///显示录音悬浮布局
   void buildOverLayView(BuildContext context) {
-    overlayEntry ??= OverlayEntry(builder: (content) {
-      return CustomOverlay(
-        height: 200,
-        icon: n.Column([
-          Container(
-            margin: const EdgeInsets.only(top: 10),
-            child: Image.asset(
-              voiceIco,
-              width: 100,
-              height: 100,
-              // package: 'flutter_plugin_record',
-            ),
+    overlayEntry ??= OverlayEntry(
+      builder: (content) {
+        return CustomOverlay(
+          height: 200,
+          icon: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 10),
+                child: Image.asset(
+                  voiceIco,
+                  width: 100,
+                  height: 100,
+                  // package: 'flutter_plugin_record',
+                ),
+              ),
+              Text(
+                "$toastShow\n$recorderTxt",
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontStyle: FontStyle.normal,
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
+              ),
+            ],
           ),
-          Text(
-            "$toastShow\n$recorderTxt",
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontStyle: FontStyle.normal,
-              color: Colors.white,
-              fontSize: 14,
-            ),
-          )
-        ]),
-      );
-    });
+        );
+      },
+    );
     Overlay.of(context).insert(overlayEntry!);
   }
 
   /// 设置订阅周期
   Future<void> setSubscriptionDuration(
-      double d) async // d is between 0.0 and 2000 (milliseconds)
+    double d,
+  ) async // d is between 0.0 and 2000 (milliseconds)
   {
     setState(() {});
-    await recorder.setSubscriptionDuration(
-      Duration(milliseconds: d.floor()),
-    );
+    await recorder.setSubscriptionDuration(Duration(milliseconds: d.floor()));
   }
 
   void showVoiceView(BuildContext ctx) {
@@ -245,8 +252,10 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   }
 
   /// Creates an path to a temporary file.
-  Future<String> _createTempAacFilePath(String name,
-      {String ext = 'aac'}) async {
+  Future<String> _createTempAacFilePath(
+    String name, {
+    String ext = 'aac',
+  }) async {
     if (kIsWeb) {
       throw Exception(
         'This method only works for mobile as it creates a temporary AAC file',
@@ -317,7 +326,8 @@ class _VoiceWidgetState extends State<VoiceWidget> {
           double voiceData = dbLevel / 10.0 - 0.2;
 
           debugPrint(
-              "> on record listen voiceData $voiceData ; dbLevel $dbLevel; e ${e.toString()} ${DateTime.now()}");
+            "> on record listen voiceData $voiceData ; dbLevel $dbLevel; e ${e.toString()} ${DateTime.now()}",
+          );
           if (voiceData > 0 && voiceData < 0.1) {
             voiceIco = "assets/images/chat/voice_volume_1.png";
           } else if (voiceData > 0.2 && voiceData < 0.3) {
@@ -396,7 +406,8 @@ class _VoiceWidgetState extends State<VoiceWidget> {
       },
       child: Container(
         height: widget.height ?? 60,
-        decoration: widget.decoration ??
+        decoration:
+            widget.decoration ??
             BoxDecoration(
               borderRadius: BorderRadius.circular(6.0),
               border: Border.all(
@@ -411,10 +422,8 @@ class _VoiceWidgetState extends State<VoiceWidget> {
             ),
         margin: widget.margin ?? const EdgeInsets.fromLTRB(50, 0, 50, 20),
         child: Center(
-            child: Text(
-          textShow,
-          style: const TextStyle(fontSize: 20),
-        )),
+          child: Text(textShow, style: const TextStyle(fontSize: 20)),
+        ),
       ),
     );
   }

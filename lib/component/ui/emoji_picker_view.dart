@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 
@@ -28,18 +27,20 @@ class EmojiCategoryViewState extends State<EmojiCategoryView>
   Widget build(BuildContext context) {
     return Container(
       color: widget.config.categoryViewConfig.backgroundColor,
-      child: n.Row([
-        Expanded(
-          child: EmojiTabBar(
-            widget.config,
-            widget.tabController,
-            widget.pageController,
-            widget.state.categoryEmoji,
-            closeSkinToneOverlay,
+      child: Row(
+        children: [
+          Expanded(
+            child: EmojiTabBar(
+              widget.config,
+              widget.tabController,
+              widget.pageController,
+              widget.state.categoryEmoji,
+              closeSkinToneOverlay,
+            ),
           ),
-        ),
-        _buildBackspaceButton(),
-      ]),
+          _buildBackspaceButton(),
+        ],
+      ),
     );
   }
 
@@ -82,10 +83,6 @@ class EmojiTabBar extends StatelessWidget {
     return SizedBox(
       height: config.categoryViewConfig.tabBarHeight,
       child: TabBar(
-        // labelColor: config.categoryViewConfig.iconColorSelected,
-        // indicatorColor: config.categoryViewConfig.indicatorColor,
-        // unselectedLabelColor: config.categoryViewConfig.iconColor,
-        // dividerColor: config.categoryViewConfig.dividerColor,
         controller: tabController,
         labelPadding: const EdgeInsets.only(top: 1.0),
         indicatorSize: TabBarIndicatorSize.label,
@@ -101,7 +98,8 @@ class EmojiTabBar extends StatelessWidget {
             .asMap()
             .entries
             .map<Widget>(
-                (item) => _buildCategory(item.key, item.value.category))
+              (item) => _buildCategory(item.key, item.value.category),
+            )
             .toList(),
       ),
     );
@@ -112,10 +110,7 @@ class EmojiTabBar extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(6.0),
         child: Icon(
-          getIconForCategory(
-            config.categoryViewConfig.categoryIcons,
-            category,
-          ),
+          getIconForCategory(config.categoryViewConfig.categoryIcons, category),
           size: 28,
         ),
       ),
@@ -125,8 +120,12 @@ class EmojiTabBar extends StatelessWidget {
 
 /// Custom IMBoy Search view implementation
 class EmojiSearchView extends SearchView {
-  const EmojiSearchView(super.config, super.state, super.showEmojiView,
-      {super.key});
+  const EmojiSearchView(
+    super.config,
+    super.state,
+    super.showEmojiView, {
+    super.key,
+  });
 
   @override
   EmojiSearchViewState createState() => EmojiSearchViewState();
@@ -135,71 +134,73 @@ class EmojiSearchView extends SearchView {
 class EmojiSearchViewState extends SearchViewState {
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final emojiSize =
-          widget.config.emojiViewConfig.getEmojiSize(constraints.maxWidth);
-      final emojiBoxSize =
-          widget.config.emojiViewConfig.getEmojiBoxSize(constraints.maxWidth);
-      return Container(
-        color: widget.config.searchViewConfig.backgroundColor,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              height: emojiBoxSize + 8.0,
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                scrollDirection: Axis.horizontal,
-                itemCount: results.length,
-                itemBuilder: (context, index) {
-                  return buildEmoji(
-                    results[index],
-                    emojiSize,
-                    emojiBoxSize,
-                  );
-                },
-              ),
-            ),
-            Row(
-              children: [
-                IconButton(
-                  onPressed: widget.showEmojiView,
-                  // color: widget.config.searchViewConfig.buttonColor,
-                  icon: Icon(
-                    Icons.arrow_back,
-                    color: widget.config.searchViewConfig.buttonIconColor,
-                    size: 28.0,
-                  ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final emojiSize = widget.config.emojiViewConfig.getEmojiSize(
+          constraints.maxWidth,
+        );
+        final emojiBoxSize = widget.config.emojiViewConfig.getEmojiBoxSize(
+          constraints.maxWidth,
+        );
+        return Container(
+          color: widget.config.searchViewConfig.backgroundColor,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: emojiBoxSize + 8.0,
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: results.length,
+                  itemBuilder: (context, index) {
+                    return buildEmoji(results[index], emojiSize, emojiBoxSize);
+                  },
                 ),
-                Expanded(
-                  child: TextField(
-                    onChanged: onTextInputChanged,
-                    focusNode: focusNode,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'search'.tr,
-                      hintStyle: const TextStyle(
-                        // color: AppColors.ItemOnColor,
-                        fontWeight: FontWeight.normal,
-                      ),
-                      contentPadding: EdgeInsets.zero,
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: widget.showEmojiView,
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: widget.config.searchViewConfig.buttonIconColor,
+                      size: 28.0,
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    });
+                  Expanded(
+                    child: TextField(
+                      onChanged: onTextInputChanged,
+                      focusNode: focusNode,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'search'.tr,
+                        hintStyle: const TextStyle(
+                          fontWeight: FontWeight.normal,
+                        ),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
 /// Default Bottom Action Bar implementation
 class AppBottomActionBar extends BottomActionBar {
   /// Constructor
-  const AppBottomActionBar(super.config, super.state, super.showSearchView,
-      {super.key});
+  const AppBottomActionBar(
+    super.config,
+    super.state,
+    super.showSearchView, {
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _AppBottomActionBarState();
@@ -212,10 +213,7 @@ class _AppBottomActionBarState extends State<AppBottomActionBar> {
       color: widget.config.bottomActionBarConfig.backgroundColor,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildSearchViewButton(),
-          _buildBackspaceButton(),
-        ],
+        children: [_buildSearchViewButton(), _buildBackspaceButton()],
       ),
     );
   }

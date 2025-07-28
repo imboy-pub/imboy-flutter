@@ -11,7 +11,7 @@ import 'package:imboy/page/personal_info/update/update_view.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
-import 'package:niku/namespace.dart' as n;
+
 import 'package:xid/xid.dart';
 
 import 'user_collect_logic.dart';
@@ -74,9 +74,8 @@ class UserCollectDetailPage extends StatelessWidget {
           },
         ),
       ),
-      n.Padding(
-        left: 16,
-        right: 16,
+      Padding(
+        padding: EdgeInsets.only(left: 16, right: 16),
         child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
       ),
       Center(
@@ -113,9 +112,8 @@ class UserCollectDetailPage extends StatelessWidget {
           ),
         ),
       ),
-      n.Padding(
-        left: 16,
-        right: 16,
+      Padding(
+        padding: EdgeInsets.only(left: 16, right: 16),
         child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
       ),
       Center(
@@ -159,9 +157,8 @@ class UserCollectDetailPage extends StatelessWidget {
           ),
         ),
       ),
-      n.Padding(
-        left: 16,
-        right: 16,
+      Padding(
+        padding: EdgeInsets.only(left: 16, right: 16),
         child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
       ),
       Center(
@@ -200,9 +197,8 @@ class UserCollectDetailPage extends StatelessWidget {
           ),
         ),
       ),
-      n.Padding(
-        left: 16,
-        right: 16,
+      Padding(
+        padding: EdgeInsets.only(left: 16, right: 16),
         child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
       )
     ];
@@ -230,14 +226,13 @@ class UserCollectDetailPage extends StatelessWidget {
             },
           ),
         ),
-        n.Padding(
-          left: 16,
-          right: 16,
+        Padding(
+          padding: EdgeInsets.only(left: 16, right: 16),
           child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
         ),
       ]);
     }
-    return n.Wrap(rightItems);
+    return Wrap(children: rightItems);
   }
 
   @override
@@ -270,9 +265,8 @@ class UserCollectDetailPage extends StatelessWidget {
               );
             },
             // 三点更多 more icon
-            child: n.Padding(
-              left: 10,
-              right: 10,
+            child: Padding(
+              padding: EdgeInsets.only(left: 10, right: 10),
               child: const Icon(
                 Icons.more_horiz,
                 // size: 40,
@@ -284,86 +278,98 @@ class UserCollectDetailPage extends StatelessWidget {
       body: Container(
         padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
         width: Get.width,
-        child: n.Column([
-          n.Row([
-            const Expanded(
-                flex: 1,
-                child: HorizontalLine(
-                  height: 1,
-                  color: Colors.black26,
-                )),
-            Expanded(
-                flex: 2,
-                child: Text(
-                  "${'from'.tr} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAt)}",
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 12),
-                )),
-            const Expanded(
-                flex: 1,
-                child: HorizontalLine(
-                  height: 1,
-                  color: Colors.black26,
-                )),
-          ])
+        child: Column(
+          children: [
+            Row(
+              children: [
+                const Expanded(
+                    flex: 1,
+                    child: HorizontalLine(
+                      height: 1,
+                      color: Colors.black26,
+                    )),
+                Expanded(
+                    flex: 2,
+                    child: Text(
+                      "${'from'.tr} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAt)}",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 12),
+                    )),
+                const Expanded(
+                    flex: 1,
+                    child: HorizontalLine(
+                      height: 1,
+                      color: Colors.black26,
+                    )),
+              ],
+            ),
             // 内容居中
-            ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+            // ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
           Obx(() => Visibility(
               visible: remark.value.isNotEmpty,
-              child: n.Column([
-                n.Row([
-                  Text(
-                    "${'remark'.tr}: ",
-                    textAlign: TextAlign.left,
-                    style: const TextStyle(fontSize: 16),
-                  )
-                ]),
-                n.Padding(
-                    top: 10,
-                    bottom: 10,
-                    child: n.Row([
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        "${'remark'.tr}: ",
+                        textAlign: TextAlign.left,
+                        style: const TextStyle(fontSize: 16),
+                      )
+                    ],
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                            flex: 2,
+                            child: Text(
+                              remark.value,
+                              textAlign: TextAlign.left,
+                              style: const TextStyle(fontSize: 13),
+                            )),
+                      ],
+                    ),
+                  ),
+                  // 内容文本左对齐
+                  // ..crossAxisAlignment = CrossAxisAlignment.start
+                  Row(
+                    children: const [
                       Expanded(
-                          flex: 2,
-                          child: Text(
-                            remark.value,
-                            textAlign: TextAlign.left,
-                            style: const TextStyle(fontSize: 13),
-                          )),
-                    ])
-                      // 内容文本左对齐
-                      ..crossAxisAlignment = CrossAxisAlignment.start),
-                n.Row(const [
-                  Expanded(
-                      flex: 4,
-                      child: HorizontalLine(
-                        height: 1,
-                        color: Colors.black26,
-                      ))
-                ]),
-              ]))),
+                          flex: 4,
+                          child: HorizontalLine(
+                            height: 1,
+                            color: Colors.black26,
+                          ))
+                    ],
+                  ),
+                ],
+              ))),
           Expanded(
-              child: n.Padding(
-                  top: 10,
-                  bottom: 10,
+              child: Padding(
+                  padding: EdgeInsets.only(top: 10, bottom: 10),
                   child: logic.buildItemBody(obj, 'detail'))),
-          n.Row([
-            const Expanded(
-                child: HorizontalLine(
-              height: 1,
-              color: Colors.black26,
-            )),
-            n.Padding(
-              left: 4,
-              right: 4,
-              child: const Icon(Icons.circle, size: 4),
-            ),
-            const Expanded(
-                child: HorizontalLine(
-              height: 1,
-              color: Colors.black26,
-            )),
-          ])
-        ], mainAxisSize: MainAxisSize.min),
+          Row(
+            children: [
+              const Expanded(
+                  child: HorizontalLine(
+                height: 1,
+                color: Colors.black26,
+              )),
+              Padding(
+                padding: EdgeInsets.only(left: 4, right: 4),
+                child: const Icon(Icons.circle, size: 4),
+              ),
+              const Expanded(
+                  child: HorizontalLine(
+                height: 1,
+                color: Colors.black26,
+              )),
+            ],
+          ),
+        ],
+        mainAxisSize: MainAxisSize.min),
       ),
     );
   }

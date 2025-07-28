@@ -5,8 +5,6 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/line.dart';
 
-import 'package:niku/namespace.dart' as n;
-
 Widget searchBar(
   BuildContext context, {
   String? hintText,
@@ -172,43 +170,46 @@ class SearchBarDelegate extends SearchDelegate {
             if (items.isEmpty) {
               return Center(child: Text('search_no_found'.tr));
             }
-            return n.Padding(
-              top: 16,
+            return Padding(
+              padding: const EdgeInsets.only(top: 16),
               child: ListView(
                 children: <Widget>[
                   for (int i = 0; i < items.length; i++)
-                    n.Column([
-                      n.ListTile(
-                        // selected: true,
-                        onTap: () {
-                          onTapForItem(items[i]);
-                        },
-                        leading: Avatar(
-                          imgUri: items[i].avatar,
-                          onTap: () {},
-                        ),
-                        title: n.Row([
-                          Expanded(
-                            child: Text(
-                              // 会话对象标题
-                              items[i].title,
-                              style: const TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              maxLines: 6,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                    Column(
+                      children: [
+                        ListTile(
+                          // selected: true,
+                          onTap: () {
+                            onTapForItem(items[i]);
+                          },
+                          leading: Avatar(
+                            imgUri: items[i].avatar,
+                            onTap: () {},
                           ),
-                        ]),
-                      ),
-                      n.Padding(
-                        left: 16,
-                        right: 16,
-                        bottom: 10,
-                        child: const HorizontalLine(height: 1.0),
-                      ),
-                    ]),
+                          title: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  // 会话对象标题
+                                  items[i].title,
+                                  style: const TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                  maxLines: 6,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 16, right: 16, bottom: 10),
+                          child: const HorizontalLine(height: 1.0),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             );

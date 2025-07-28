@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/component/ui/common.dart';
 
 import '../../config/theme.dart' show mainSpace;
 import '../../config/theme.dart' show mainLineWidth;
@@ -51,7 +50,7 @@ class ContactCard extends StatelessWidget {
       nickname = '';
     }
     List<Widget> items = <Widget>[
-      n.Row([
+      Row(children:[
         Expanded(
             child: Text(
           title ?? '',
@@ -62,9 +61,9 @@ class ContactCard extends StatelessWidget {
           maxLines: 6,
           overflow: TextOverflow.ellipsis,
         )),
-        const Space(width: mainSpace / 3),
+        const SizedBox(width: mainSpace / 3),
         genderIcon(gender),
-      ]),
+      ])
     ];
     if (strNoEmpty(nickname)) {
       items.add(Padding(
@@ -124,10 +123,12 @@ class ContactCard extends StatelessWidget {
               }
             },
           ),
-          const Space(width: mainSpace * 2),
+          const SizedBox(width: mainSpace * 2),
           Expanded(
-            child: n.Column(items)
-              ..crossAxisAlignment = CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: items,
+            ),
           ),
         ],
       ),

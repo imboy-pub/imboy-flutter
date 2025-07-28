@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/page/mine/language/language_logic.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'login_view.dart';
 import 'signup_view.dart';
@@ -85,13 +84,14 @@ class WelcomePageState extends State<WelcomePage> {
         body: Container(
       color: Colors.green,
       height: height,
-      child: n.Stack([
-        Positioned.fill(
-          child: Image.asset(
-            'assets/images/splash_bg.png',
-            fit: BoxFit.cover,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/splash_bg.png',
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
         // Positioned(
         //   top: -height * .15,
         //   right: -Get.width * .4,
@@ -111,35 +111,37 @@ class WelcomePageState extends State<WelcomePage> {
                   SizedBox(
                     width: Get.width,
                     height: 268,
-                    child: n.Column([
-                      n.Row([
-                        n.Padding(
-                          top: 10,
-                          right: 10,
-                          child: Obx(() => RoundedElevatedButton(
-                              text: 'button_accomplish'.tr,
-                              highlighted: langLogic.state.valueChanged.isTrue,
-                              onPressed: () async {
-                                langLogic.changeLanguage(
-                                  langLogic.state.selectedLanguage.value,
-                                );
-                                Get.closeAllBottomSheets();
-                              })),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10, right: 10),
+                              child: Obx(() => RoundedElevatedButton(
+                                  text: 'button_accomplish'.tr,
+                                  highlighted: langLogic.state.valueChanged.isTrue,
+                                  onPressed: () async {
+                                    langLogic.changeLanguage(
+                                      langLogic.state.selectedLanguage.value,
+                                    );
+                                    Get.closeAllBottomSheets();
+                                  })),
+                            ),
+                          ],
                         ),
-                      ])
-                        ..mainAxisAlignment = MainAxisAlignment.end,
-                      Expanded(
-                        child: ListView.builder(
-                          itemBuilder: (BuildContext context, int index) {
-                            var model = langLogic.state.languageList[index];
-                            return langLogic.getListItem(context, model);
-                          },
-                          itemCount: langLogic.state.languageList.length,
+                        Expanded(
+                          child: ListView.builder(
+                            itemBuilder: (BuildContext context, int index) {
+                              var model = langLogic.state.languageList[index];
+                              return langLogic.getListItem(context, model);
+                            },
+                            itemCount: langLogic.state.languageList.length,
+                          ),
                         ),
-                      ),
-                    ], mainAxisSize: MainAxisSize.min)
-                      ..useParent(
-                          (v) => v..bg = Theme.of(context).colorScheme.surface),
+                      ],
+                    ),
                   ),
                   //改变shape这里即可
                   shape: const RoundedRectangleBorder(
@@ -162,82 +164,80 @@ class WelcomePageState extends State<WelcomePage> {
           right: 0,
           child: Align(
             alignment: Alignment.center, // 垂直和水平居中
-            child: n.Column([
-              // logic.title(),
-              // const SizedBox(height: 20),
-              n.Row([
-                /*
-                const SizedBox(width: 10),
-                Expanded(child: ElevatedButton(
-                  style: whiteGreenButtonStyle(const Size(88, 48)),
-                  onPressed: () {
-                    logic.loginAuth(false);
-                  },
-                  child: n.Padding(
-                      left: 10,
-                      right: 10,
-                      child: Text(
-                        'mobile_quick_login'.tr,
-                        textAlign: TextAlign.center,
-                      )),
-                )),
-                */
-                Flexible(
-                    flex: 1,
-                    child: n.Padding(
-                      left: 10,
-                      right: 10,
-                      child: ElevatedButton(
-                        style: lightGreenButtonStyle(const Size(80, 48)),
-                        onPressed: () async {
-                          Get.to(
-                            () => const SignupPage(),
-                            transition: Transition.rightToLeft,
-                            popGesture: true, // 右滑，返回上一页
-                          );
-                        },
-                        child: n.Padding(
-                          left: 8,
-                          right: 8,
-                          child: Text(
-                            'signup'.tr,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 20),
-                          ),
-                        ),
-                      ),
-                    )),
-                Flexible(
-                    child: n.Padding(
-                  left: 10,
-                  right: 10,
-                  child: ElevatedButton(
-                      style: whiteGreenButtonStyle(const Size(80, 48)),
+            child: Column(
+              children: [
+                // logic.title(),
+                // const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    /*
+                    const SizedBox(width: 10),
+                    Expanded(child: ElevatedButton(
+                      style: whiteGreenButtonStyle(const Size(88, 48)),
                       onPressed: () {
-                        Get.to(
-                          () => const LoginPage(),
-                          transition: Transition.rightToLeft,
-                          popGesture: true, // 右滑，返回上一页
-                        );
+                        logic.loginAuth(false);
                       },
-                      child: n.Padding(
-                        left: 8,
-                        right: 8,
-                        child: Text(
-                          'param_login'.trArgs(['account'.tr]),
-                          textAlign: TextAlign.center,
-                        ),
-                      )),
-                )),
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
-              Obx(() {
-                return state.connectDesc.isEmpty
-                    ? const SizedBox.shrink() // 如果没有连接描述，则不显示
-                    : NetworkFailureTips(backgroundColor: Colors.white);
-              })
-            ]),
+                      child: Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: Text(
+                            'mobile_quick_login'.tr,
+                            textAlign: TextAlign.center,
+                          )),
+                    )),
+                    */
+                    Flexible(
+                        flex: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: ElevatedButton(
+                            style: lightGreenButtonStyle(const Size(80, 48)),
+                            onPressed: () async {
+                              Get.to(
+                                () => const SignupPage(),
+                                transition: Transition.rightToLeft,
+                                popGesture: true, // 右滑，返回上一页
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8, right: 8),
+                              child: Text(
+                                'signup'.tr,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                            ),
+                          ),
+                        )),
+                    Flexible(
+                        child: Padding(
+                      padding: const EdgeInsets.only(left: 10, right: 10),
+                      child: ElevatedButton(
+                          style: whiteGreenButtonStyle(const Size(80, 48)),
+                          onPressed: () {
+                            Get.to(
+                              () => const LoginPage(),
+                              transition: Transition.rightToLeft,
+                              popGesture: true, // 右滑，返回上一页
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8, right: 8),
+                            child: Text(
+                              'param_login'.trArgs(['account'.tr]),
+                              textAlign: TextAlign.center,
+                            ),
+                          )),
+                    )),
+                  ],
+                ),
+                Obx(() {
+                  return state.connectDesc.isEmpty
+                      ? const SizedBox.shrink() // 如果没有连接描述，则不显示
+                      : NetworkFailureTips(backgroundColor: Colors.white);
+                })
+              ],
+            ),
           ),
         ),
       ]),

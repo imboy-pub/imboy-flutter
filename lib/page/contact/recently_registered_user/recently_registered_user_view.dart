@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -62,69 +61,92 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
         title: 'newly_registered_people'.tr,
       ),
       body: SlidableAutoCloseBehavior(
-          child: n.Column([
-        Expanded(
-          child: n.Padding(
-            left: 10,
-            right: 10,
-            child: Obx(() => ListView.builder(
-                  itemCount: state.peopleList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    PeopleModel model = state.peopleList[index];
-                    return n.Column([
-                      if (index > 0)
-                        const Divider(
-                          height: 8.0,
-                          indent: 0.0,
-                          color: Colors.black26,
-                        ),
-                      ListTile(
-                        leading: Avatar(imgUri: model.avatar),
-                        contentPadding: const EdgeInsets.only(left: 0),
-                        title: n.Row([
-                          Expanded(child: Text(model.nickname.isEmpty
-                              ? model.account
-                              : model.nickname)),
-                          if (model.createdAt > 0)
-                            Expanded(child: Text(
-                              DateTimeHelper.lastTimeFmt(model.createdAt, pattern: 'y-MM-dd'),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign:TextAlign.right,
-                              style: const TextStyle(
-                                // color: AppColors.MainTextColor,
-                                fontSize: 14.0,
-                              ),
-                            )),
-                        ]),
-                        subtitle: n.Row([
-                          Expanded(
-                              child: Text(
-                                model.sign,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              )),
-                        ]),
-                        onTap: () {
-                          Get.to(
-                            () => PeopleInfoPage(
-                              id: model.id,
-                              scene: 'recently_user',
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10, right: 10),
+                child: Obx(
+                  () => ListView.builder(
+                    itemCount: state.peopleList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      PeopleModel model = state.peopleList[index];
+                      return Column(
+                        children: [
+                          if (index > 0)
+                            const Divider(
+                              height: 8.0,
+                              indent: 0.0,
+                              color: Colors.black26,
                             ),
-                            transition: Transition.rightToLeft,
-                            popGesture: true, // 右滑，返回上一页
-                          );
-                        },
-                      )
-                    ]);
-                  },
-                )),
-          ),
+                          ListTile(
+                            leading: Avatar(imgUri: model.avatar),
+                            contentPadding: const EdgeInsets.only(left: 0),
+                            title: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    model.nickname.isEmpty
+                                        ? model.account
+                                        : model.nickname,
+                                  ),
+                                ),
+                                if (model.createdAt > 0)
+                                  Expanded(
+                                    child: Text(
+                                      DateTimeHelper.lastTimeFmt(
+                                        model.createdAt,
+                                        pattern: 'y-MM-dd',
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.right,
+                                      style: const TextStyle(
+                                        // color: AppColors.MainTextColor,
+                                        fontSize: 14.0,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            subtitle: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    model.region,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      // color: AppColors.MainTextColor,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onTap: () {
+                              Get.to(
+                                () => PeopleInfoPage(
+                                  id: model.id,
+                                  scene: 'recently_user',
+                                ),
+                                transition: Transition.rightToLeft,
+                                popGesture: true, // 右滑，返回上一页
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-      ])
-            ..mainAxisSize = MainAxisSize.min
-          // ..useParent((v) => v..bg = AppColors.AppBarColor),
-          ),
+        // ..useParent((v) => v..bg = AppColors.AppBarColor),
+      ),
     );
   }
 }

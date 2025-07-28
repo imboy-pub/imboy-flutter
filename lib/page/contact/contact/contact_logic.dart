@@ -16,7 +16,7 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:lpinyin/lpinyin.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 class ContactLogic extends GetxController {
   RxList<ContactModel> contactList = <ContactModel>[].obs;
@@ -265,27 +265,29 @@ class ContactLogic extends GetxController {
     // debugPrint("getChatItem ${model.toJson().toString()}");
     return Container(
       padding: const EdgeInsets.only(top: 10, left: 10.0, bottom: 6),
-      child: n.Row([
-        n.Padding(
-          right: 2,
-          child: model.iconData == null
-              ? Avatar(
-                  imgUri: model.avatar,
-                  width: 49,
-                  height: 49,
-                )
-              : Container(
-                  width: 49,
-                  height: 49,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.circular(4.0),
-                    color: model.bgColor ?? defHeaderBgColor,
-                    image: avatar,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 2),
+            child: model.iconData == null
+                ? Avatar(
+                    imgUri: model.avatar,
+                    width: 49,
+                    height: 49,
+                  )
+                : Container(
+                    width: 49,
+                    height: 49,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.circular(4.0),
+                      color: model.bgColor ?? defHeaderBgColor,
+                      image: avatar,
+                    ),
+                    child: model.iconData,
                   ),
-                  child: model.iconData,
-                ),
-        ),
+          ),
         Container(
           margin: const EdgeInsets.only(left: 8),
           padding: const EdgeInsets.only(
@@ -303,23 +305,24 @@ class ContactLogic extends GetxController {
               ),
             ),
           ),
-          child: n.Row([
-            Expanded(
-              child: Text(
-                model.title,
-                style: const TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.normal,
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  model.title,
+                  style: const TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            )
-          ]),
+              )
+            ],
+          ),
         )
-      ])
-        ..crossAxisAlignment = CrossAxisAlignment.center,
-    );
+      ],
+    ));
   }
 
   Widget getSusItem(BuildContext context, String tag, {double susHeight = 24}) {

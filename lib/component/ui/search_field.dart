@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:niku/namespace.dart' as n;
-
 // ignore: must_be_immutable
 class SearchField extends StatelessWidget implements PreferredSizeWidget {
   TextEditingController controller;
@@ -41,58 +39,59 @@ class SearchField extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return n.Padding(
-      top: top ?? 0.0,
-      left: left ?? 0.0,
-      child: n.Row([
-        Expanded(
-          child: TextField(
-            controller: controller,
-            autofocus: true,
-            keyboardType: TextInputType.text,
-            // TextField 垂直居中光标
-            textAlignVertical: TextAlignVertical.center,
-            decoration: InputDecoration(
-              filled: true,
-              // 设置为true以启用填充背景
-              fillColor: Theme.of(context).colorScheme.onSecondary,
-              // 设置背景颜色
-              hintText: 'search'.tr,
-              border: InputBorder.none,
-              // 去除边框线条
-              contentPadding: EdgeInsets.zero,
-              prefixIcon: const Icon(Icons.search),
-              // 添加搜索图标
-              suffixIcon: controller.text.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        controller.text = '';
-                        controller.clear();
-                        if (onClear != null) {
-                          onClear!();
-                        }
-                      },
-                    )
-                  : null,
-            ),
-            onChanged: onChanged,
-            onSubmitted: onSubmitted,
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            Get.back();
-          },
-          child: Text(
-            'button_cancel'.tr,
-            style: TextStyle(
-              fontSize: 18,
-              color: Theme.of(context).colorScheme.onPrimary,
+    return Padding(
+      padding: EdgeInsets.only(top: top ?? 0.0, left: left ?? 0.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: controller,
+              autofocus: true,
+              keyboardType: TextInputType.text,
+              // TextField 垂直居中光标
+              textAlignVertical: TextAlignVertical.center,
+              decoration: InputDecoration(
+                filled: true,
+                // 设置为true以启用填充背景
+                fillColor: Theme.of(context).colorScheme.onSecondary,
+                // 设置背景颜色
+                hintText: 'search'.tr,
+                border: InputBorder.none,
+                // 去除边框线条
+                contentPadding: EdgeInsets.zero,
+                prefixIcon: const Icon(Icons.search),
+                // 添加搜索图标
+                suffixIcon: controller.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          controller.text = '';
+                          controller.clear();
+                          if (onClear != null) {
+                            onClear!();
+                          }
+                        },
+                      )
+                    : null,
+              ),
+              onChanged: onChanged,
+              onSubmitted: onSubmitted,
             ),
           ),
-        ),
-      ]),
+          TextButton(
+            onPressed: () {
+              Get.back();
+            },
+            child: Text(
+              'button_cancel'.tr,
+              style: TextStyle(
+                fontSize: 18,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

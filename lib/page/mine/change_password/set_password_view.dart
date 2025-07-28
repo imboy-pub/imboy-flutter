@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/button.dart';
@@ -29,12 +29,12 @@ class SetPasswordPage extends StatelessWidget {
         title: 'set_param'.trArgs(['password'.tr]),
       ),
       body: SingleChildScrollView(
-        child: n.Column([
-          n.Padding(
-            top: 10,
-            left: 16,
-            right: 16,
-            child: n.Row([
+        child: Column(
+          children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 10, left: 16, right: 16),
+            child: Row(
+              children: [
               Expanded(
                 child: Text(
                   '为了提升账号安全，同时防止因无法获取验证码导致无法登录，请设置登录密码。'.tr,
@@ -42,12 +42,10 @@ class SetPasswordPage extends StatelessWidget {
               ),
             ]),
           ),
-          n.Padding(
-            top: 10,
-            left: 16,
-            right: 16,
-            bottom: 10,
-            child: n.Row([
+          Padding(
+            padding: const EdgeInsets.only(top: 10, left: 16, right: 16, bottom: 10),
+            child: Row(
+              children: [
               Expanded(
                 child: Text(
                   'error_length_between'.trArgs([
@@ -59,7 +57,9 @@ class SetPasswordPage extends StatelessWidget {
               ),
             ]),
           ),
-          n.Column([
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: 0.0,
@@ -107,8 +107,7 @@ class SetPasswordPage extends StatelessWidget {
                     },
                   )),
             ),
-          ])
-            ..crossAxisAlignment = CrossAxisAlignment.start,
+          ]),
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -137,8 +136,9 @@ class SetPasswordPage extends StatelessWidget {
               ),
             ),
           ),
-        ])
-          ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+        ],
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        ),
       ),
     );
   }

@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-// ignore: depend_on_referenced_packages
-import 'package:niku/namespace.dart' as n;
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -77,30 +75,32 @@ class IMBoyImageGallery extends StatelessWidget {
           key: const Key('imboy_photo_view_gallery'),
           direction: DismissDirection.down,
           onDismissed: (direction) => onClosePressed(),
-          child: n.Stack([
-            PhotoViewGallery.builder(
-              builder: (BuildContext context, int index) =>
-                  PhotoViewGalleryPageOptions(
-                imageProvider: cachedImageProvider(images[index].uri, w: 0),
-                minScale: options.minScale,
-                maxScale: options.maxScale,
+          child: Stack(
+            children: [
+              PhotoViewGallery.builder(
+                builder: (BuildContext context, int index) =>
+                    PhotoViewGalleryPageOptions(
+                  imageProvider: cachedImageProvider(images[index].uri, w: 0),
+                  minScale: options.minScale,
+                  maxScale: options.maxScale,
+                ),
+                itemCount: images.length,
+                loadingBuilder: (context, event) =>
+                    _imageGalleryLoadingBuilder(event),
+                pageController: pageController,
+                scrollPhysics: const ClampingScrollPhysics(),
               ),
-              itemCount: images.length,
-              loadingBuilder: (context, event) =>
-                  _imageGalleryLoadingBuilder(event),
-              pageController: pageController,
-              scrollPhysics: const ClampingScrollPhysics(),
-            ),
-            // Positioned.directional(
-            //   end: 16,
-            //   textDirection: Directionality.of(context),
-            //   top: 56,
-            //   child: CloseButton(
-            //     color: Colors.white,
-            //     onPressed: onClosePressed,
-            //   ),
-            // ),
-          ]),
+              // Positioned.directional(
+              //   end: 16,
+              //   textDirection: Directionality.of(context),
+              //   top: 56,
+              //   child: CloseButton(
+              //     color: Colors.white,
+              //     onPressed: onClosePressed,
+              //   ),
+              // ),
+            ],
+          ),
         ),
       ),
     );

@@ -8,7 +8,6 @@ import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/page/group/face_to_face/face_to_face_logic.dart';
 import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/line.dart';
@@ -99,73 +98,79 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
       // backgroundColor: Get.isDarkMode ? darkBgColor : lightBgColor,
       body: Container(
         padding: const EdgeInsets.all(10.0),
-        child: n.Column([
-          n.Row([_buildNumberWidget(widget.code.length)])
-            // 内容居中
-            ..mainAxisAlignment = MainAxisAlignment.center,
-          SizedBox(height: 16, width: Get.width),
-          n.Row([
-            Expanded(
-                child: Text(
-              // '这些朋友也将进入群聊'.tr,
-              'create_group_f2f_confirm_tips'.tr,
-              textAlign: TextAlign.center, // 文本在Text组件内部居中
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.white38,
-                fontWeight: FontWeight.w500,
-              ),
-            )),
-          ])
-            // 内容居中
-            ..mainAxisAlignment = MainAxisAlignment.center,
-          const HorizontalLine(height: 1),
-          SizedBox(height: 10, width: Get.width),
-          SizedBox(
-            height: Get.height - 240,
-            child: SingleChildScrollView(
-              child: AvatarList(
-                memberList: memberList,
-                titleStyle: const TextStyle(color: Colors.white),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildNumberWidget(widget.code.length)
+              ],
+            ),
+            SizedBox(height: 16, width: Get.width),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                    child: Text(
+                  // '这些朋友也将进入群聊'.tr,
+                  'create_group_f2f_confirm_tips'.tr,
+                  textAlign: TextAlign.center, // 文本在Text组件内部居中
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.white38,
+                    fontWeight: FontWeight.w500,
+                  ),
+                )),
+              ],
+            ),
+            const HorizontalLine(height: 1),
+            SizedBox(height: 10, width: Get.width),
+            SizedBox(
+              height: Get.height - 240,
+              child: SingleChildScrollView(
+                child: AvatarList(
+                  memberList: memberList,
+                  titleStyle: const TextStyle(color: Colors.white),
+                ),
               ),
             ),
-          ),
-          const Spacer(),
-          RoundedElevatedButton(
-            text: 'enter_the_group'.tr,
-            highlighted: true,
-            size: Size(Get.width, 48),
-            borderRadius: BorderRadius.circular(4.0),
-            onPressed: () async {
-              EasyLoading.show(status: '');
-              Map<String, dynamic> res = await Get.find<FaceToFaceLogic>()
-                  .faceToFaceSave(widget.gid, widget.code);
-              List<PeopleModel> memberList = res['memberList'] ?? [];
-              Map<String, dynamic> group = res['group'];
-              // await Future.delayed(const Duration(seconds: 1));
-              EasyLoading.dismiss();
+            const Spacer(),
+            RoundedElevatedButton(
+              text: 'enter_the_group'.tr,
+              highlighted: true,
+              size: Size(Get.width, 48),
+              borderRadius: BorderRadius.circular(4.0),
+              onPressed: () async {
+                EasyLoading.show(status: '');
+                Map<String, dynamic> res = await Get.find<FaceToFaceLogic>()
+                    .faceToFaceSave(widget.gid, widget.code);
+                List<PeopleModel> memberList = res['memberList'] ?? [];
+                Map<String, dynamic> group = res['group'];
+                // await Future.delayed(const Duration(seconds: 1));
+                EasyLoading.dismiss();
 
-              GroupRepo().save('', group);
-              Get.to(
-                () => ChatPage(
-                  peerId: widget.gid,
-                  type: 'C2G',
-                  peerTitle: '',
-                  peerAvatar: '',
-                  peerSign: '',
-                  options: {
-                    'popTime': 2,
-                    'showConversation': true,
-                    'memberCount': memberList.length
-                  },
-                ),
-                transition: Transition.rightToLeft,
-                popGesture: true, // 右滑，返回上一页
-                // binding: ChatBinding(),
-              );
-            },
-          ),
-        ]),
+                GroupRepo().save('', group);
+                Get.to(
+                  () => ChatPage(
+                    peerId: widget.gid,
+                    type: 'C2G',
+                    peerTitle: '',
+                    peerAvatar: '',
+                    peerSign: '',
+                    options: {
+                      'popTime': 2,
+                      'showConversation': true,
+                      'memberCount': memberList.length
+                    },
+                  ),
+                  transition: Transition.rightToLeft,
+                  popGesture: true, // 右滑，返回上一页
+                  // binding: ChatBinding(),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

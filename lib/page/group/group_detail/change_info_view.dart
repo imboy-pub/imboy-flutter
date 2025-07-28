@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -86,9 +85,13 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(left: 10, right: 10),
-        child: n.Column([
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
           Space(height: 10, width: Get.width),
-          n.Row([
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
             Expanded(
                 child: Text(
               widget.title,
@@ -99,10 +102,10 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
                 fontWeight: FontWeight.w600,
               ),
             ))
-          ])
-            // 内容居中
-            ..mainAxisAlignment = MainAxisAlignment.center,
-          n.Row([
+          ]),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
             Expanded(
                 child: Text(
               widget.subtitle,
@@ -113,11 +116,11 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
                 fontWeight: FontWeight.w600,
               ),
             ))
-          ])
-            // 内容居中
-            ..mainAxisAlignment = MainAxisAlignment.center,
+          ]),
           SizedBox(height: 20, width: Get.width),
-          n.Row([
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
             SmartGroupAvatar(
               avatar: widget.group.avatar,
               groupId: widget.group.groupId,
@@ -161,10 +164,8 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
                     icon: const Icon(Icons.cancel),
                   ),
                 )),
-            // Text(logic.themeTypeTips()),
-          ])
-            // 居左对齐
-            ..mainAxisAlignment = MainAxisAlignment.start,
+            // Text(logic.themeTypeTips());
+          ]),
           SizedBox(height: 20, width: Get.width),
           Obx(
             () => RoundedElevatedButton(
@@ -186,8 +187,7 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
               },
             ),
           ),
-        ])
-          ..mainAxisSize = MainAxisSize.min,
+        ]),
       ),
     );
   }

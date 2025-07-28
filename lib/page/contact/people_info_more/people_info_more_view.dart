@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -36,7 +36,8 @@ class PeopleInfoMorePage extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Obx(
-          () => n.Column([
+          () => Column(
+            children: [
             LabelRow(
               title: 'mutual_groups_with_her'.tr,
               // 10个
@@ -65,7 +66,8 @@ class PeopleInfoMorePage extends StatelessWidget {
                 // rValue: sign,
                 trailing: SizedBox(
                   width: Get.width - 100,
-                  child: n.Row([
+                  child: Row(
+                    children: [
                     const SizedBox(width: 20),
                     // use Expanded only within a Column, Row or Flex
                     Expanded(

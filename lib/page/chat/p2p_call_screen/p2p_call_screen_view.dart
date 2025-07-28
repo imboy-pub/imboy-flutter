@@ -16,10 +16,7 @@ import 'package:imboy/service/message.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
 import 'package:xid/xid.dart';
-
-// import 'package:permission_handler/permission_handler.dart';
 
 import 'p2p_call_screen_logic.dart';
 
@@ -73,8 +70,6 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
   bool microphoneOff = false;
   bool speakerOn = true;
 
-  // final P2pCallScreenLogic logic = Get.find<P2pCallScreenLogic>();
-
   P2pCallScreenLogic? logic;
   StreamSubscription? subscription;
 
@@ -89,10 +84,6 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     super.initState();
     msgId = widget.option['msgId'] ?? Xid().toString();
     counter.cleanUp();
-
-    // if (!mounted) {
-    //   return;
-    // }
     initData();
   }
 
@@ -155,12 +146,6 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
       debugPrint(
         "> rtc onSignalingStateChange view ${state.toString()} ${DateTime.now()}",
       );
-      // switch (state) {
-      //   case SignalingState.ConnectionClosed:
-      //   case SignalingState.ConnectionError:
-      //   case SignalingState.ConnectionOpen:
-      //     break;
-      // }
     };
 
     logic
@@ -239,17 +224,12 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
 
       if (mounted) {
         setState(() {
-          // localRenderer.setSrcObject(stream: stream);
           localRenderer.srcObject = stream;
         });
       }
     });
 
     logic?.onAddRemoteStream = ((_, stream) {
-      // if (remoteRenderer.srcObject != null) {
-      //   return;
-      // }
-
       debugPrint(
         "> rtc stream onAddRemoteStream view $mounted, ${stream.toString()} ${DateTime.now()}",
       );
@@ -259,7 +239,6 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
 
       setState(() {
         remoteRenderer.srcObject = stream;
-        // remoteRenderer.setSrcObject(stream: stream);
       });
     });
 
@@ -291,7 +270,6 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     });
 
     debugPrint("> rtc view widget.caller ${widget.caller} ${DateTime.now()}");
-    // createSession 一定要放在 绑定时间的后面
 
     if (widget.caller) {
       // 发起通话
@@ -338,93 +316,92 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
   }
 
   Widget _buildPeerInfo() {
-    // iPrint('_buildPeerInfo media $media');
     return Center(
-      child: n.Padding(
-        top: Get.height * 0.3,
-        child: n.Column([
-          Avatar(imgUri: widget.peer.avatar, width: 80, height: 80),
-          n.Padding(
-            top: 12,
-            left: 12,
-            right: 12,
-            child: Text(
-              widget.peer.nickname,
-              style: const TextStyle(color: Colors.white, fontSize: 24),
+      child: Padding(
+        padding: EdgeInsets.only(top: Get.height * 0.3),
+        child: Column(
+          children: [
+            Avatar(imgUri: widget.peer.avatar, width: 80, height: 80),
+            Padding(
+              padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
+              child: Text(
+                widget.peer.nickname,
+                style: const TextStyle(color: Colors.white, fontSize: 24),
+              ),
             ),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }
 
-  //tools
   Widget _buildTools() {
     return SizedBox(
       width: 200.0,
       height: 180.0,
-      child: n.Column([
-        n.Row([
-          // 麦克风
-          FloatingActionButton(
-            heroTag: 'microphone',
-            tooltip: 'microphone'.tr,
-            onPressed: () {
-              var res = logic?.turnMicrophone();
-              if (res != null) {
-                if (mounted) {
-                  setState(() {
-                    microphoneOff = res;
-                  });
-                }
-              }
-            },
-            child: microphoneOff
-                ? const Icon(Icons.mic_off, color: Colors.white)
-                : const Icon(Icons.mic, color: Colors.white),
-          ),
-          if (media == 'audio')
-            FloatingActionButton(
-              heroTag: 'hangup',
-              tooltip: 'hangup'.tr,
-              onPressed: () {
-                _hangUp(
-                  state: connected ? 1 : 4,
-                  endAt: DateTimeHelper.millisecond(),
-                );
-              },
-              backgroundColor: Colors.pink,
-              child: const Icon(Icons.call_end, color: Colors.white),
-            ),
-          // 扬声器开关
-          FloatingActionButton(
-            heroTag: 'loudspeaker',
-            tooltip: 'loudspeaker'.tr,
-            onPressed: () {
-              if (mounted) {
-                setState(() {
-                  speakerOn = !speakerOn;
-                  logic?.switchSpeaker(speakerOn);
-                });
-              }
-            },
-            // child: const Icon(Icons.volume_up),
-            child: speakerOn
-                ? const Icon(Icons.volume_up, color: Colors.white)
-                : const Icon(Icons.volume_off, color: Colors.white),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // 麦克风
+              FloatingActionButton(
+                heroTag: 'microphone',
+                tooltip: 'microphone'.tr,
+                onPressed: () {
+                  var res = logic?.turnMicrophone();
+                  if (res != null) {
+                    if (mounted) {
+                      setState(() {
+                        microphoneOff = res;
+                      });
+                    }
+                  }
+                },
+                child: microphoneOff
+                    ? const Icon(Icons.mic_off, color: Colors.white)
+                    : const Icon(Icons.mic, color: Colors.white),
+              ),
+              if (media == 'audio')
+                FloatingActionButton(
+                  heroTag: 'hangup',
+                  tooltip: 'hangup'.tr,
+                  onPressed: () {
+                    _hangUp(
+                      state: connected ? 1 : 4,
+                      endAt: DateTimeHelper.millisecond(),
+                    );
+                  },
+                  backgroundColor: Colors.pink,
+                  child: const Icon(Icons.call_end, color: Colors.white),
+                ),
+              // 扬声器开关
+              FloatingActionButton(
+                heroTag: 'loudspeaker',
+                tooltip: 'loudspeaker'.tr,
+                onPressed: () {
+                  if (mounted) {
+                    setState(() {
+                      speakerOn = !speakerOn;
+                      logic?.switchSpeaker(speakerOn);
+                    });
+                  }
+                },
+                child: speakerOn
+                    ? const Icon(Icons.volume_up, color: Colors.white)
+                    : const Icon(Icons.volume_off, color: Colors.white),
+              ),
+              if (media == 'video')
+                FloatingActionButton(
+                  heroTag: "switch_camera",
+                  onPressed: logic?.switchCamera,
+                  child: const Icon(Icons.switch_camera, color: Colors.white),
+                ),
+            ],
           ),
           if (media == 'video')
-            FloatingActionButton(
-              heroTag: "switch_camera",
-              onPressed: logic?.switchCamera,
-              child: const Icon(Icons.switch_camera, color: Colors.white),
-            ),
-        ])..mainAxisAlignment = MainAxisAlignment.spaceBetween,
-        if (media == 'video')
-          n.Row([
-            n.Padding(
-              left: 72,
-              top: 20,
+            Padding(
+              padding: const EdgeInsets.only(left: 72, top: 20),
               child: FloatingActionButton(
                 heroTag: "hangup",
                 tooltip: 'hangup'.tr,
@@ -438,8 +415,8 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
                 child: const Icon(Icons.call_end, color: Colors.white),
               ),
             ),
-          ])..mainAxisAlignment = MainAxisAlignment.spaceBetween,
-      ]),
+        ],
+      ),
     );
   }
 
@@ -454,32 +431,42 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
             border: Border.all(color: Colors.white10, width: 2),
           ),
           padding: const EdgeInsets.all(12),
-          child: n.Row([
-            n.Column([
-              n.Row([
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4, right: 4),
-                    child: Icon(
-                      media == 'video' ? Icons.videocam : Icons.phone,
-                      color: Colors.green,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                children: [
+                  SizedBox(
+                    height: 20,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4, right: 4),
+                          child: Icon(
+                            media == 'video' ? Icons.videocam : Icons.phone,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ])
-                ..crossAxisAlignment = CrossAxisAlignment.center
-                ..height = 20,
-            ]),
-            n.Column([
-              n.Row([
-                Text(
-                  counter.show(),
-                  style: const TextStyle(color: Colors.green),
-                ),
-              ]),
-              n.Row([
-                Text('calling'.tr, style: const TextStyle(color: Colors.green)),
-              ]),
-            ]),
-          ])..crossAxisAlignment = CrossAxisAlignment.start,
+                ],
+              ),
+              Column(
+                children: [
+                  Text(
+                    counter.show(),
+                    style: const TextStyle(color: Colors.green),
+                  ),
+                  Text(
+                    'calling'.tr,
+                    style: const TextStyle(color: Colors.green),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -493,46 +480,44 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
         width: Get.width,
         height: Get.height,
-        //decoration: const BoxDecoration(color: Colors.black54),
         child: InkWell(
           onTap: switchTools,
           child: RTCVideoView(
             switchRenderer ? remoteRenderer : localRenderer,
-            // remoteRenderer,
             objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-            mirror: true,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildLocalVideo(double w, double h) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-      width: connected ? w : Get.width,
-      height: connected ? h : Get.height,
-      child: InkWell(
-        child: RTCVideoView(
-          switchRenderer ? localRenderer : remoteRenderer,
-          // localRenderer,
-          objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-          mirror: true,
-        ),
-        onTap: () {
-          switchTools();
-          // 点击切换 本地和远端 RTCVideoRenderer
-          if (connected && media == 'video') {
-            setState(() {
-              switchRenderer = !switchRenderer;
-            });
-          }
+  Widget _buildLocalVideo() {
+    return Positioned(
+      right: localX,
+      top: localY,
+      child: GestureDetector(
+        onPanUpdate: (details) {
+          setState(() {
+            localX += details.delta.dx;
+            localY += details.delta.dy;
+          });
         },
+        child: Container(
+          width: localWidth,
+          height: localHeight,
+          decoration: BoxDecoration(
+            color: Colors.black,
+            border: Border.all(color: Colors.white, width: 1.0),
+          ),
+          child: RTCVideoView(
+            switchRenderer ? localRenderer : remoteRenderer,
+            objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+          ),
+        ),
       ),
     );
   }
 
-  /// 切换工具栏
   void switchTools() {
     setState(() {
       showTool = !showTool;
@@ -545,105 +530,45 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
     });
   }
 
-  Future<void> _hangUp({
-    bool sendBye = true,
-    int state = 4, // state = 4 已取消
-    int startAt = -1,
-    int endAt = -1,
-  }) async {
-    debugPrint("> rtc hangUp 1");
+  void _hangUp({bool sendBye = true, int state = 0, int endAt = 0}) {
     if (sendBye) {
       logic?.sendBye(msgId);
     }
-
-    MessageService.to.changeLocalMsgState(
-      msgId,
-      state,
-      startAt: startAt,
-      endAt: endAt,
-    );
-
-    logic?.cleanUpP2P();
-    await disposeRenderer();
-    widget.closePage?.call();
+    if (state > 0) {
+      MessageService.to.changeLocalMsgState(
+        msgId,
+        state,
+        endAt: endAt > 0 ? endAt : DateTimeHelper.millisecond(),
+      );
+    }
+    Get.back();
   }
 
   @override
   Widget build(BuildContext context) {
-    return IndexedStack(
-      index: minimized ? 1 : 0,
-      children: [
-        Scaffold(
-          backgroundColor: const Color.fromRGBO(80, 80, 80, 1),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.miniCenterFloat,
-          floatingActionButton: showTool ? _buildTools() : null,
-          body: OrientationBuilder(
-            builder: (context, Orientation orientation) {
-              double w = orientation == Orientation.portrait ? 90.0 : 120.0;
-              double h = orientation == Orientation.portrait ? 120.0 : 90.0;
-
-              Widget localVideo = _buildLocalVideo(w, h);
-              return n.Stack([
-                // remote video
-                _buildRemoteVideo(),
-
-                // local video
-                Positioned(
-                  left: localX,
-                  top: localY,
-                  child: connected
-                      ? Draggable(
-                          feedback: localVideo,
-                          childWhenDragging: const SizedBox.shrink(),
-                          // 拖动中的回调
-                          onDragEnd: (details) {
-                            if (connected && mounted) {
-                              setState(() {
-                                localX = details.offset.dx;
-                                localY = details.offset.dy;
-                              });
-                            }
-                          },
-                          child: localVideo,
-                        )
-                      : localVideo,
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          _buildRemoteVideo(),
+          if (media == 'video') _buildLocalVideo(),
+          if (showTool) _buildPeerInfo(),
+          if (showTool && stateTips.isNotEmpty)
+            Center(
+              child: Padding(
+                padding: EdgeInsets.only(top: Get.height * 0.2),
+                child: Text(
+                  stateTips,
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
-
-                if (showTool)
-                  Positioned(
-                    top: 32,
-                    left: 8,
-                    child: InkWell(
-                      onTap: _zoom,
-                      child: const Icon(
-                        Icons.fullscreen_exit_rounded,
-                        color: Colors.white,
-                        size: 30.0,
-                      ),
-                      // child: const Icon(Icons.zoom_in_map_rounded, color:Colors.white,),
-                    ),
-                  ),
-                if (showTool)
-                  Positioned(
-                    top: 40,
-                    left: (Get.width - 160) / 2,
-                    width: 160,
-                    child: Text(
-                      stateTips,
-                      style: const TextStyle(color: Colors.white),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-
-                if ((connected == false && showTool) || media == 'audio')
-                  _buildPeerInfo(),
-              ]);
-            },
-          ),
-        ),
-        _buildDragArea(),
-      ],
+              ),
+            ),
+          if (showTool && connected)
+            Positioned(bottom: 20, left: 0, right: 0, child: _buildTools()),
+          if (!minimized)
+            Positioned(top: 30, left: 10, child: _buildDragArea()),
+        ],
+      ),
     );
   }
 }

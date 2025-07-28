@@ -12,7 +12,7 @@ import 'package:imboy/page/qrcode/qrcode_view.dart';
 import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/model/group_model.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/line.dart';
@@ -209,7 +209,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
           title: "${title.isEmpty ? 'chat_message'.tr : title} ($memberCount)",
         ),
         body: SingleChildScrollView(
-          child: n.Column([
+          child: Column(
+              children: [
             Container(
               padding: const EdgeInsets.only(left: 16, top: 10.0, bottom: 10),
               width: Get.width,
@@ -275,20 +276,21 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               color: Theme.of(context).colorScheme.primary,
               // color: Colors.red,
             ),
-            n.ListTile(
-              title: n.Row([
-                Flexible(child: Text('group_name'.tr)),
-                Flexible(
-                  child: Text(
-                    title.isEmpty ? 'unnamed'.tr : title,
-                    textAlign: TextAlign.right,
+            ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(child: Text('group_name'.tr)),
+                  Flexible(
+                    child: Text(
+                      title.isEmpty ? 'unnamed'.tr : title,
+                      textAlign: TextAlign.right,
+                    ),
                   ),
-                ),
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+                ],
+              ),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -313,22 +315,24 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 });
               },
             ),
-            n.Padding(
-                left: 20,
-                child: HorizontalLine(
-                  height: 1.0,
-                  color: Theme.of(context).colorScheme.primary,
-                  // color: Colors.red,
-                )),
-            n.ListTile(
-              title: n.Row([
-                Expanded(child: Text('group_qrcode'.tr)),
-                const Icon(Icons.qr_code)
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: HorizontalLine(
+                height: 1.0,
+                color: Theme.of(context).colorScheme.primary,
+                // color: Colors.red,
+              ),
+            ),
+            ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(child: Text('group_qrcode'.tr)),
+                  const Icon(Icons.qr_code)
+                ],
+              ),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -341,12 +345,13 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 );
               },
             ),
-            n.Padding(
-                left: 20,
-                child: HorizontalLine(
-                  height: 1.0,
-                  color: Theme.of(context).colorScheme.primary,
-                )),
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: HorizontalLine(
+                height: 1.0,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
             /* TODO 2024-08-15 15:22:59 群公告、备注、
             n.ListTile(
               title: n.Row([
@@ -371,36 +376,37 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 // );
               },
             ),
-            n.Padding(
-                left: 20,
+            Padding(
+                padding: const EdgeInsets.only(left: 20),
                 child: HorizontalLine(
                   height: 1.0,
                   color: Theme.of(context).colorScheme.primary,
                 )),
             Visibility(
               visible: isAdmin,
-              child: n.ListTile(
-                title: n.Row([
+              child: ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                   Expanded(child:Text('group_management'.tr)),
-                ])
-                  // 两端对齐
-                  ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
-                trailing: navigateNextIcon,
-                onTap: () {
-                  // Get.to(
-                  //       () => DenylistPage(),
-                  //   transition: Transition.rightToLeft,
-                  //   popGesture: true, // 右滑，返回上一页
-                  // );
-                },
+                ],
               ),
+              trailing: navigateNextIcon,
+              onTap: () {
+                // Get.to(
+                //       () => DenylistPage(),
+                //   transition: Transition.rightToLeft,
+                //   popGesture: true, // 右滑，返回上一页
+                // );
+              },
+            ),
             ),
 
-            n.ListTile(
-              title: n.Row(
-                  [Text('remark'.tr), Text(strEmpty(groupRemark) ? ''.tr : '')])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+            ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [Text('remark'.tr), Text(strEmpty(groupRemark) ? ''.tr : '')],
+              ),
               trailing: navigateNextIcon,
               onTap: () {
                 // Get.to(
@@ -415,14 +421,15 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               height: 10,
               color: Theme.of(context).colorScheme.primary,
             ),
-            n.ListTile(
-              title: n.Row([
-                Expanded(child: Text('search_chat_content'.tr)),
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+            ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(child: Text('search_chat_content'.tr)),
+                ],
+              ),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -446,12 +453,13 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               height: 10,
               color: Theme.of(context).colorScheme.primary,
             ),
-            n.ListTile(
-              title: n.Row([
-                Text('message_mute'.tr),
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+            ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('message_mute'.tr),
+                ],
+              ),
               trailing: CupertinoSwitch(
                 value: _top,
                 onChanged: (bool value) {
@@ -468,18 +476,20 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 // );
               },
             ),
-            n.Padding(
-                left: 20,
-                child: HorizontalLine(
-                  height: 1.0,
-                  color: Theme.of(context).colorScheme.primary,
-                )),
-            n.ListTile(
-              title: n.Row([
-                Text('pin_chat'.tr),
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: HorizontalLine(
+                height: 1.0,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('pin_chat'.tr),
+                ],
+              ),
               trailing: CupertinoSwitch(
                 value: _top,
                 onChanged: (bool value) {
@@ -496,18 +506,20 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 // );
               },
             ),
-            n.Padding(
-                left: 20,
-                child: HorizontalLine(
-                  height: 1.0,
-                  color: Theme.of(context).colorScheme.primary,
-                )),
-            n.ListTile(
-              title: n.Row([
-                Text('group_add_local'.tr),
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: HorizontalLine(
+                height: 1.0,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('group_add_local'.tr),
+                ],
+              ),
               trailing: CupertinoSwitch(
                 value: _top,
                 onChanged: (bool value) {
@@ -529,21 +541,22 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               height: 10,
               color: Theme.of(context).colorScheme.primary,
             ),
-            n.ListTile(
-              title: n.Row([
-                Expanded(child: Text('group_alias'.tr)),
-                Expanded(
-                    child: Text(strEmpty(myGroupAlias)
-                        ? UserRepoLocal.to.current.nickname.tr
-                        : '', textAlign: TextAlign.right,))
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+            ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(child: Text('group_alias'.tr)),
+                  Expanded(
+                      child: Text(strEmpty(myGroupAlias)
+                          ? UserRepoLocal.to.current.nickname.tr
+                          : '', textAlign: TextAlign.right,))
+                ],
+              ),
               subtitle: strEmpty(groupNotification)
                   ? null
-                  : n.Row([Text(groupNotification!)]),
+                  : Row(children: [Text(groupNotification!)]),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -567,39 +580,37 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             //   color: Theme.of(context).colorScheme.primary,
             // ),
 
-            n.ListTile(
-              title: n.Row([
-                Text('clear_chat_record'.tr),
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+            ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('clear_chat_record'.tr),
+                ],
+              ),
               onTap: () {
                 String tips = 'confirm_delete_chat_record'.tr;
-                n.showDialog(
+                showDialog(
                   context: Get.context!,
-                  builder: (context) => n.Alert()
-                    // ..title = Text("Session Expired")
-                    ..content = SizedBox(
+                  builder: (context) => AlertDialog(
+                    // title: Text("Session Expired"),
+                    content: SizedBox(
                       height: 40,
                       child: Center(
                           child: Text(
                         tips,
                         style: const TextStyle(color: Colors.red),
                       )),
-                    )
-                    ..actions = [
-                      n.Button('button_cancel'.tr.n)
-                        ..style = n.NikuButtonStyle(
-                            foregroundColor:
-                                Theme.of(context).colorScheme.onPrimary)
-                        ..onPressed = () {
+                    ),
+                    actions: [
+                      TextButton(
+                        child: Text('button_cancel'.tr),
+                        onPressed: () {
                           Navigator.of(context).pop();
                         },
-                      n.Button('button_confirm'.tr.n)
-                        ..style = n.NikuButtonStyle(
-                            foregroundColor:
-                                Theme.of(context).colorScheme.onPrimary)
-                        ..onPressed = () async {
+                      ),
+                      TextButton(
+                        child: Text('button_confirm'.tr),
+                        onPressed: () async {
                           Navigator.of(context).pop();
 
                           int cid = await logic.cleanMessageByPeerId(
@@ -617,7 +628,9 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                             EasyLoading.showError('tip_failed'.tr);
                           }
                         },
+                      ),
                     ],
+                  ),
                   barrierDismissible: true,
                 );
               },
@@ -626,14 +639,15 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               height: 10,
               color: Theme.of(context).colorScheme.primary,
             ),
-            n.ListTile(
-              title: n.Row([
-                Text('complaint'.tr),
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+            ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('complaint'.tr),
+                ],
+              ),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),

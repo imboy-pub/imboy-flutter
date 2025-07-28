@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
@@ -31,70 +29,76 @@ class GroupSelectPage extends StatelessWidget {
   Widget build(BuildContext context) {
     loadData();
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        appBar: NavAppBar(
-          title: 'select_group'.tr,
-          automaticallyImplyLeading: true,
-        ),
-        body: SingleChildScrollView(child: Obx(() {
-          // return NoDataView(text: 'no_data'.tr);
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: NavAppBar(
+        title: 'select_group'.tr,
+        automaticallyImplyLeading: true,
+      ),
+      body: SingleChildScrollView(
+        child: Obx(() {
           return state.items.isEmpty
               ? NoDataView(text: 'no_data'.tr)
               : ListView.builder(
-                  shrinkWrap: true,
-                  // data: state.items,
-                  itemCount: state.items.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    ConversationModel model = state.items[index];
-                    return n.Column([
-                      ListTile(
-                        leading: SmartGroupAvatar(
-                          avatar: model.avatar,
-                          groupId: model.peerId,
+            shrinkWrap: true,
+            itemCount: state.items.length,
+            itemBuilder: (BuildContext context, int index) {
+              ConversationModel model = state.items[index];
+              return Column(
+                children: [
+                  ListTile(
+                    leading: SmartGroupAvatar(
+                      avatar: model.avatar,
+                      groupId: model.peerId,
+                    ),
+                    contentPadding: const EdgeInsets.only(
+                      left: 10,
+                      right: 10,
+                    ),
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                              strEmpty(model.title)
+                                  ? model.computeTitle
+                                  : model.title
+                          ),
                         ),
-                        contentPadding: const EdgeInsets.only(
-                          left: 10,
-                          right: 10,
-                        ),
-                        title: n.Row([
-                          Expanded(
-                            child: Text(strEmpty(model.title)
-                                ? model.computeTitle
-                                : model.title),
-                          )
-                        ]),
-                        // subtitle: Text('${model.remark}'),
-                        onTap: () {
-                          Get.to(
+                      ],
+                    ),
+                    onTap: () {
+                      Get.to(
                             () => ChatPage(
-                              peerId: model.peerId,
-                              peerTitle: model.title,
-                              peerAvatar: model.avatar,
-                              peerSign: '',
-                              // computeTitle: model.computeTitle,
-                              type: 'C2G',
-                              options:  const {'popTime':2, 'memberCount': 0},
-                              // options:  {'popTime':2, 'memberCount': model.memberCount},
-                            ),
-                            transition: Transition.rightToLeft,
-                            popGesture: true, // 右滑，返回上一页
-                          );
-                        },
-                      ),
-                      n.Padding(
-                        left: 12,
-                        right: 20,
-                        bottom: 10,
-                        child: HorizontalLine(
-                          height: Get.isDarkMode ? 0.5 : 1.0,
+                          peerId: model.peerId,
+                          peerTitle: model.title,
+                          peerAvatar: model.avatar,
+                          peerSign: '',
+                          type: 'C2G',
+                          options: const {
+                            'popTime': 2,
+                            'memberCount': 0
+                          },
                         ),
-                      ),
-                    ]);
-                  },
-                  // 解决联系人数据量少的情况下无法刷新的问题
-                  // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
-                  physics: const AlwaysScrollableScrollPhysics(),
-                );
-        })));
+                        transition: Transition.rightToLeft,
+                        popGesture: true,
+                      );
+                    },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 12, right: 20, bottom: 10),
+                    child: HorizontalLine(
+                      height: Get.isDarkMode ? 0.5 : 1.0,
+                    ),
+                  ),
+                ],
+              );
+            },
+            // 解决联系人数据量少的情况下无法刷新的问题
+            // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
+            physics: const AlwaysScrollableScrollPhysics(),
+          );
+        }),
+      ),
+    );
   }
 }

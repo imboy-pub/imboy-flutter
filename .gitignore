@@ -61,3 +61,4 @@ lib/config/env_dev.g.dart
 lib/config/env_pro.g.dart
 IDEWorkspaceChecks.plist
 android/build
+.trae

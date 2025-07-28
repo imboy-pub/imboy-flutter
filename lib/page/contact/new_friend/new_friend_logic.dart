@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/page/contact/people_info/people_info_view.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -146,20 +145,22 @@ class NewFriendLogic extends GetxController {
       } else {
         return Container(
             margin:
-                const EdgeInsets.only(top: 10, left: 0, right: 0, bottom: 10),
+            const EdgeInsets.only(top: 10, left: 0, right: 0, bottom: 10),
             color: Get.isDarkMode ? Colors.black87 : Colors.white,
-            child: n.ListTile(
+            child: ListTile(
               leading: Avatar(
                 imgUri: model.avatar,
                 width: 56,
                 height: 56,
               ),
               title: Text('${model.title}($searchKwd)'),
-              subtitle: n.Row([
-                genderIcon(model.gender),
-                const Space(width: 10),
-                if (model.region.isNotEmpty) Text(model.region),
-              ]),
+              subtitle: Row(
+                children: [
+                  genderIcon(model.gender),
+                  const Space(width: 10),
+                  if (model.region.isNotEmpty) Text(model.region),
+                ],
+              ),
               trailing: Container(
                 width: 80,
                 alignment: Alignment.centerRight,
@@ -169,7 +170,7 @@ class NewFriendLogic extends GetxController {
               ),
               onTap: () {
                 Get.to(
-                  () => PeopleInfoPage(
+                      () => PeopleInfoPage(
                     id: model.id,
                     scene: 'user_search',
                   ),
@@ -181,26 +182,27 @@ class NewFriendLogic extends GetxController {
       }
     }
 
-    return n.Column([
-      if (items.isEmpty)
-        Container(
-          margin: const EdgeInsets.only(top: 10, left: 0, right: 0, bottom: 0),
-          padding:
-              const EdgeInsets.only(top: 40, left: 0, right: 0, bottom: 40),
-          color: Get.isDarkMode ? Colors.black87 : Colors.white,
-          child: Center(
-            child: Text(
-              'user_not_exist'.tr,
-              style: const TextStyle(fontSize: 18),
+    return Column(
+      children: [
+        if (items.isEmpty)
+          Container(
+            margin: const EdgeInsets.only(top: 10, left: 0, right: 0, bottom: 0),
+            padding:
+            const EdgeInsets.only(top: 40, left: 0, right: 0, bottom: 40),
+            color: Get.isDarkMode ? Colors.black87 : Colors.white,
+            child: Center(
+              child: Text(
+                'user_not_exist'.tr,
+                style: const TextStyle(fontSize: 18),
+              ),
             ),
           ),
-        ),
-      Container(
+        Container(
           margin: const EdgeInsets.only(top: 10, left: 0, right: 0, bottom: 10),
           padding:
-              const EdgeInsets.only(top: 10, left: 0, right: 0, bottom: 10),
+          const EdgeInsets.only(top: 10, left: 0, right: 0, bottom: 10),
           color: Get.isDarkMode ? Colors.black87 : Colors.white,
-          child: n.ListTile(
+          child: ListTile(
             leading: Container(
               width: 48, // 设置方块的宽度
               height: 48, // 设置方块的高度
@@ -218,19 +220,24 @@ class NewFriendLogic extends GetxController {
                 size: 40,
               ),
             ),
-            title: n.Row([
-              Text('search'.tr),
-              const Space(width: 10),
-              Expanded(
+            title: Row(
+              children: [
+                Text('search'.tr),
+                const Space(width: 10),
+                Expanded(
                   child: Text(
-                searchKwd,
-                style: const TextStyle(color: Colors.green),
-                maxLines: 4,
-                overflow: TextOverflow.ellipsis,
-              )),
-            ]),
+                    searchKwd,
+                    style: const TextStyle(color: Colors.green),
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
             onTap: () {},
-          )),
-    ]);
+          ),
+        ),
+      ],
+    );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/page/group/face_to_face/face_to_face_view.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/search.dart';
@@ -32,15 +31,19 @@ class AddFriendPage extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Container(
-            width: Get.width,
-            height: Get.height,
-            color: Theme.of(context).colorScheme.surface,
-            child: n.Column([
-              n.Padding(
-                left: 8,
-                top: 10,
-                right: 8,
-                bottom: 10,
+          width: Get.width,
+          height: Get.height,
+          color: Theme.of(context).colorScheme.surface,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 8,
+                  top: 10,
+                  right: 8,
+                  bottom: 10,
+                ),
                 child: searchBar(
                   context,
                   hintText: 'hint_login_account'.tr,
@@ -55,8 +58,11 @@ class AddFriendPage extends StatelessWidget {
                   },
                 ),
               ),
-              n.Padding(
-                child: n.Row([
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     Text("${'my_account'.tr}："),
                     Text(UserRepoLocal.to.current.account),
                     const Space(),
@@ -68,141 +74,127 @@ class AddFriendPage extends StatelessWidget {
                           popGesture: true, // 右滑，返回上一页
                         );
                       },
-                      child: const Icon(
-                        Icons.qr_code_2,
-                        color: Colors.teal,
-                      ),
-                    )
+                      child: const Icon(Icons.qr_code_2, color: Colors.teal),
+                    ),
                   ],
-                  mainAxisAlignment: MainAxisAlignment.center,
                 ),
               ),
               const Space(),
               Container(
                 color: Theme.of(context).colorScheme.surface,
-                child: n.Column([
-                  n.ListTile(
-                    leading: const Icon(
-                      Icons.explore_rounded,
-                      color: Colors.lightBlue,
-                      size: 40,
-                    ),
-                    title: Transform(
-                      transform: Matrix4.translationValues(0, 0.0, 0.0),
-                      child: Text('people_nearby'.tr),
-                    ),
-                    subtitle: Text(
-                      'nearby_people_tips'.tr,
-                      style: const TextStyle(
-                        // color: AppColors.TipColor,
-                        fontSize: 12,
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(
+                        Icons.explore_rounded,
+                        color: Colors.lightBlue,
+                        size: 40,
                       ),
-                    ),
-                    dense: true,
-                    trailing: navigateNextIcon,
-                    onTap: () {
-                      Get.to(
-                        () => PeopleNearbyPage(),
-                        transition: Transition.rightToLeft,
-                        popGesture: true, // 右滑，返回上一页
-                      );
-                    },
-                  ),
-                  n.Padding(
-                    left: 72,
-                    child: const Divider(),
-                  ),
-                  n.ListTile(
-                    leading: const Icon(
-                      Icons.group,
-                      color: Colors.purple,
-                      size: 40,
-                    ),
-                    title: Transform(
-                      transform: Matrix4.translationValues(0, 0.0, 0.0),
-                      child: Text('create_group_f2f'.tr),
-                    ),
-                    subtitle: Text(
-                      'enter_same_group'.tr,
-                      style: const TextStyle(
-                        // color: AppColors.TipColor,
-                        fontSize: 12,
+                      title: Transform(
+                        transform: Matrix4.translationValues(0, 0.0, 0.0),
+                        child: Text('people_nearby'.tr),
                       ),
-                    ),
-                    trailing: navigateNextIcon,
-                    onTap: () {
-                      Get.to(
-                        () => FaceToFacePage(),
-                        transition: Transition.rightToLeft,
-                        popGesture: true, // 右滑，返回上一页
-                      );
-                    },
-                  ),
-                  n.Padding(
-                    left: 72,
-                    child: const Divider(),
-                  ),
-                  n.ListTile(
-                    leading: const Icon(
-                      Icons.qr_code_scanner_outlined,
-                      color: Colors.blue,
-                      size: 40,
-                    ),
-                    title: Transform(
-                      transform: Matrix4.translationValues(0, 0.0, 0.0),
-                      child: Text('scan_qr_code'.tr),
-                    ),
-                    subtitle: Text(
-                      'scan_qr_code_business_card'.tr,
-                      style: const TextStyle(
-                        // color: AppColors.TipColor,
-                        fontSize: 12,
+                      subtitle: Text(
+                        'nearby_people_tips'.tr,
+                        style: const TextStyle(fontSize: 12),
                       ),
+                      dense: true,
+                      trailing: navigateNextIcon,
+                      onTap: () {
+                        Get.to(
+                          () => PeopleNearbyPage(),
+                          transition: Transition.rightToLeft,
+                          popGesture: true, // 右滑，返回上一页
+                        );
+                      },
                     ),
-                    trailing: navigateNextIcon,
-                    onTap: () {
-                      Get.to(
-                        () => const ScannerPage(),
-                        transition: Transition.rightToLeft,
-                        popGesture: true, // 右滑，返回上一页
-                      );
-                    },
-                  ),
-                  n.Padding(
-                    left: 72,
-                    child: const Divider(),
-                  ),
-                  n.ListTile(
-                    leading: const Icon(
-                      Icons.person,
-                      color: Colors.lightGreen,
-                      size: 40,
+                    const Padding(
+                      padding: EdgeInsets.only(left: 72),
+                      child: Divider(),
                     ),
-                    title: Transform(
-                      transform: Matrix4.translationValues(0, 0.0, 0.0),
-                      child: Text('newly_registered_people'.tr),
-                    ),
-                    subtitle: Text(
-                      // 最近新注册的并且允许被搜索到的朋友
-                      'allowed_be_searched'.tr,
-                      style: const TextStyle(
-                        // color: AppColors.TipColor,
-                        fontSize: 12,
+                    ListTile(
+                      leading: const Icon(
+                        Icons.group,
+                        color: Colors.purple,
+                        size: 40,
                       ),
+                      title: Transform(
+                        transform: Matrix4.translationValues(0, 0.0, 0.0),
+                        child: Text('create_group_f2f'.tr),
+                      ),
+                      subtitle: Text(
+                        'enter_same_group'.tr,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      trailing: navigateNextIcon,
+                      onTap: () {
+                        Get.to(
+                          () => FaceToFacePage(),
+                          transition: Transition.rightToLeft,
+                          popGesture: true, // 右滑，返回上一页
+                        );
+                      },
                     ),
-                    trailing: navigateNextIcon,
-                    onTap: () {
-                      Get.to(
-                        () => RecentlyRegisteredUserPage(),
-                        transition: Transition.rightToLeft,
-                        popGesture: true, // 右滑，返回上一页
-                      );
-                    },
-                  ),
-                ]),
-              )
-            ])
-              ..mainAxisAlignment = MainAxisAlignment.start),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 72),
+                      child: Divider(),
+                    ),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.qr_code_scanner_outlined,
+                        color: Colors.blue,
+                        size: 40,
+                      ),
+                      title: Transform(
+                        transform: Matrix4.translationValues(0, 0.0, 0.0),
+                        child: Text('scan_qr_code'.tr),
+                      ),
+                      subtitle: Text(
+                        'scan_qr_code_business_card'.tr,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      trailing: navigateNextIcon,
+                      onTap: () {
+                        Get.to(
+                          () => const ScannerPage(),
+                          transition: Transition.rightToLeft,
+                          popGesture: true, // 右滑，返回上一页
+                        );
+                      },
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 72),
+                      child: Divider(),
+                    ),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.person,
+                        color: Colors.lightGreen,
+                        size: 40,
+                      ),
+                      title: Transform(
+                        transform: Matrix4.translationValues(0, 0.0, 0.0),
+                        child: Text('newly_registered_people'.tr),
+                      ),
+                      subtitle: Text(
+                        'allowed_be_searched'.tr,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      trailing: navigateNextIcon,
+                      onTap: () {
+                        Get.to(
+                          () => RecentlyRegisteredUserPage(),
+                          transition: Transition.rightToLeft,
+                          popGesture: true, // 右滑，返回上一页
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

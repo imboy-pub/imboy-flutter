@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'dart:typed_data'; // 添加这个导入用于 Uint8List
 import 'package:flutter/services.dart';
-import 'package:niku/namespace.dart' as n;
 import 'package:amap_flutter_base/amap_flutter_base.dart';
 import 'package:amap_flutter_map/amap_flutter_map.dart';
 import 'package:easy_refresh/easy_refresh.dart';
@@ -8,14 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/config/env.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-
-import 'amap_helper.dart';
+import 'amap_helper.dart'; // 确保这个文件中没有使用 niku
 
 class SearchBarStyle {
   final Color backgroundColor;
   final EdgeInsetsGeometry padding;
   final BorderRadius borderRadius;
-
   const SearchBarStyle({
     this.backgroundColor = const Color.fromRGBO(142, 142, 147, .15),
     this.padding = const EdgeInsets.all(5.0),
@@ -33,7 +31,6 @@ class MapLocationPicker extends StatefulWidget {
   String citycode = "";
   SearchBarStyle searchBarStyle = const SearchBarStyle();
   bool isMapImage = false; //是否要返回地图截图
-
   //LatLng(26.017794, 119.41755599999999)
   MapLocationPicker({super.key, this.arguments}) {
     latLng = LatLng((arguments as Map)["lat"] as double,
@@ -48,11 +45,9 @@ class MapLocationPicker extends StatefulWidget {
 class _MapLocationPickerState extends State<MapLocationPicker>
     with SingleTickerProviderStateMixin, _BLoCMixin, _AnimationMixin {
   double _currentZoom = 15.0;
-
   AMapController? _controller;
   final PanelController _panelController = PanelController();
   FocusNode focusNode = FocusNode();
-
   final _iconSize = 50.0;
   double _fabHeightSend = 40.0;
   double _fabHeight = 16.0;
@@ -61,13 +56,10 @@ class _MapLocationPickerState extends State<MapLocationPicker>
   int page = 1;
   int _seLindex = 0;
   bool _moveByUser = true;
-
   final _searchQueryController = TextEditingController();
   CustomStyleOptions customStyleOptions = CustomStyleOptions(false);
-
   //小蓝点
   MyLocationStyleOptions myLocationStyleOptions = MyLocationStyleOptions(false);
-
   // 当前地图中心点
   LatLng _currentCenterCoordinate = const LatLng(39.909187, 116.397451);
   CameraPosition _kInitialPosition = const CameraPosition(
@@ -76,17 +68,14 @@ class _MapLocationPickerState extends State<MapLocationPicker>
     tilt: 30,
     bearing: 0,
   );
-
   @override
   // ignore: overridden_fields
   final poiStream = StreamController<List<AMapPosition>>();
   List<AMapPosition> poiInfoList = [];
-
   String searchType =
       "010000|020000|030000|040000|050000|060000|070000|080000|090000|100000|110000|120201|120300|140000|150400|190600|190301";
   final Map<String, Marker> _markers = <String, Marker>{};
   AMapPosition? _sendMsg;
-
   @override
   void initState() {
     // TODO: implement initState
@@ -150,7 +139,6 @@ class _MapLocationPickerState extends State<MapLocationPicker>
     final minPanelHeight = MediaQuery.of(context).size.height * 0.4;
     final maxPanelHeight = MediaQuery.of(context).size.height * 0.7;
     final widthMax = MediaQuery.of(context).size.width;
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: SlidingUpPanel(
@@ -161,34 +149,34 @@ class _MapLocationPickerState extends State<MapLocationPicker>
           maxHeight: maxPanelHeight,
           borderRadius: BorderRadius.circular(8),
           onPanelSlide: (double pos) => setState(() {
-                _fabHeightSend =
-                    pos * (maxPanelHeight - minPanelHeight) * .5 + 30;
-                _fabHeight = pos * (maxPanelHeight - minPanelHeight) * .5 + 16;
-              }),
-          body: n.Column(
-            [
+            _fabHeightSend =
+                pos * (maxPanelHeight - minPanelHeight) * .5 + 30;
+            _fabHeight = pos * (maxPanelHeight - minPanelHeight) * .5 + 16;
+          }),
+          body: Column( // 替换 n.Column
+            children: [
               Flexible(
-                child: n.Stack(
-                  [
+                child: Stack( // 替换 n.Stack
+                  children: [
                     amap,
                     Center(
                         child: AnimatedBuilder(
-                      animation: _tween,
-                      builder: (context, child) {
-                        return Transform.translate(
-                          offset: Offset(
-                            _tween.value.dx,
-                            _tween.value.dy - _iconSize / 2,
+                          animation: _tween,
+                          builder: (context, child) {
+                            return Transform.translate(
+                              offset: Offset(
+                                _tween.value.dx,
+                                _tween.value.dy - _iconSize / 2,
+                              ),
+                              child: child,
+                            );
+                          },
+                          child: const Icon(
+                            Icons.location_on,
+                            size: 40,
+                            color: Colors.green,
                           ),
-                          child: child,
-                        );
-                      },
-                      child: const Icon(
-                        Icons.location_on,
-                        size: 40,
-                        color: Colors.green,
-                      ),
-                    )),
+                        )),
                     Positioned(
                       right: 16.0,
                       bottom: _fabHeight,
@@ -321,7 +309,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                   width: _animate ? widthMax * .8 : widthMax,
                                   decoration: BoxDecoration(
                                       borderRadius:
-                                          widget.searchBarStyle.borderRadius,
+                                      widget.searchBarStyle.borderRadius,
                                       //color: widget.searchBarStyle.backgroundColor,
                                       color: Colors.grey.shade200),
                                   child: Padding(
@@ -402,14 +390,14 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                 child: ListTile(
                                   title: Text(data[index].name),
                                   subtitle:
-                                      Text("$distance${data[index].address}"),
+                                  Text("$distance${data[index].address}"),
                                   trailing: _seLindex == index
                                       ? Icon(
-                                          Icons.check,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                        )
+                                    Icons.check,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary,
+                                  )
                                       : const SizedBox.shrink(),
                                 ),
                               );
@@ -536,7 +524,6 @@ class _MapLocationPickerState extends State<MapLocationPicker>
     // "address":"宝田一路与臣田三路交叉口东南100米","distance":"22","pcode":"440000","adcode":"440306","pname":"广东省","cityname":"深圳市",
     // "type":"餐饮服务;快餐厅;快餐厅","typecode":"050300","adname":"宝安区","citycode":"0755","name":"影朵自选快餐",
     // "location":"113.876030,22.591599","id":"B0ID7UCWEP"},
-
     List poiList = [];
     String status = response.data["status"] ?? 0;
     if (response.statusCode == 200 && status == "1") {
@@ -573,12 +560,10 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       _isKeyword = true;
       return;
     }
-
     if (!more) {
       poiInfoList = [];
       _seLindex = -1;
     }
-
     var response = await AMapApi.getMapByKeyword(
       keyword,
       searchType,
@@ -587,7 +572,6 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       10,
       page,
     );
-
     List poiList = [];
     int status = response.data["status"] ?? 0;
     if (response.statusCode == 200 && status == 1) {
@@ -630,10 +614,8 @@ class _MapLocationPickerState extends State<MapLocationPicker>
 mixin _BLoCMixin on State<MapLocationPicker> {
   // poi流
   final poiStream = StreamController<List<AMapPosition>>();
-
   // 是否在我的位置
   final _onMyLocation = StreamController<bool>();
-
   @override
   void dispose() {
     poiStream.close();
@@ -646,7 +628,6 @@ mixin _AnimationMixin on SingleTickerProviderStateMixin<MapLocationPicker> {
   // 动画相关
   late AnimationController _jumpController;
   late Animation<Offset> _tween;
-
   @override
   void initState() {
     super.initState();

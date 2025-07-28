@@ -7,8 +7,6 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/web_view.dart';
 
-import 'package:niku/namespace.dart' as n;
-
 import 'scanner_logic.dart';
 
 // ignore: must_be_immutable
@@ -22,16 +20,20 @@ class ScannerResultPage extends StatelessWidget {
     final logic = Get.find<ScannerLogic>();
 
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        appBar:
-            NavAppBar(automaticallyImplyLeading: true, title: 'scan_result'.tr),
-        floatingActionButtonLocation:
-            FloatingActionButtonLocation.miniCenterFloat,
-        floatingActionButton: SizedBox(
-            width: Get.width,
-            height: 64.0,
-            child: n.Column([
-              n.Row([
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: NavAppBar(
+          automaticallyImplyLeading: true,
+          title: 'scan_result'.tr
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
+      floatingActionButton: SizedBox(
+        width: Get.width,
+        height: 64.0,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
                 const Space(width: 40),
                 FloatingActionButton(
                   heroTag: "back",
@@ -61,7 +63,7 @@ class ScannerResultPage extends StatelessWidget {
                   onPressed: () {
                     if (isUrl(scanResult)) {
                       Get.to(
-                        () => WebViewPage(
+                            () => WebViewPage(
                           scanResult,
                           '',
                           errorCallback: (String url) {
@@ -77,28 +79,30 @@ class ScannerResultPage extends StatelessWidget {
                   child: const Icon(Icons.open_in_browser),
                 ),
                 const Space(width: 40),
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
-            ])),
-        body: Container(
-          width: double.infinity,
-          margin: const EdgeInsets.all(0.0),
-          height: double.infinity,
-          // Creates insets from offsets from the left, top, right, and bottom.
-          padding: const EdgeInsets.fromLTRB(16, 28, 0, 10),
-          alignment: Alignment.center,
-          color: Colors.white,
-          child: Center(
-            child: Text(
-              scanResult,
-              textAlign: TextAlign.left,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 24,
-              ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      body: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.all(0.0),
+        height: double.infinity,
+        // Creates insets from offsets from the left, top, right, and bottom.
+        padding: const EdgeInsets.fromLTRB(16, 28, 0, 10),
+        alignment: Alignment.center,
+        color: Colors.white,
+        child: Center(
+          child: Text(
+            scanResult,
+            textAlign: TextAlign.left,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 24,
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

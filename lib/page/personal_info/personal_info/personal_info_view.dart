@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 import 'package:imboy/component/helper/crop_image.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -133,131 +133,135 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       appBar: NavAppBar(
           automaticallyImplyLeading: true, title: 'personal_information'.tr),
       body: SingleChildScrollView(
-          child: n.Column([
-        LabelRow(
-          title: 'avatar'.tr,
-          isLine: true,
-          isRight: true,
-          trailing: SizedBox(
-            width: 55.0,
-            height: 55.0,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-              child: Avatar(imgUri: currentUserAvatar),
-            ),
-          ),
-          onPressed: () => Get.bottomSheet(
-            SizedBox(
-              width: Get.width,
-              height: 168,
-              child: n.Wrap([
-                Center(
-                  child: TextButton(
-                    onPressed: () => getImageFromSource(ImageSource.camera),
-                    child: Text(
-                      'button_taking_pictures'.tr,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                ),
-                const Divider(),
-                Center(
-                  child: TextButton(
-                    onPressed: () => getImageFromSource(ImageSource.gallery),
-                    child: Text(
-                      'choose_from_album'.tr,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                ),
-                HorizontalLine(
-                  height: 6,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                Center(
-                  child: TextButton(
-                    onPressed: () => Get.close(),
-                    child: Text(
-                      'button_cancel'.tr,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                )
-              ]),
-            ),
-            backgroundColor: Get.isDarkMode
-                ? const Color.fromRGBO(80, 80, 80, 1)
-                : const Color.fromRGBO(240, 240, 240, 1),
-            //改变shape这里即可
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20.0),
-                topRight: Radius.circular(20.0),
-              ),
-            ),
-          ),
-        ),
-        LabelRow(
-            title: 'nickname'.tr,
+          child: Column(
+        children: [
+          LabelRow(
+            title: 'avatar'.tr,
             isLine: true,
             isRight: true,
             trailing: SizedBox(
-              width: Get.width - 160,
-              child: Text(
-                UserRepoLocal.to.current.nickname,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    fontWeight: FontWeight.w400),
+              width: 55.0,
+              height: 55.0,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+                child: Avatar(imgUri: currentUserAvatar),
               ),
             ),
-            onPressed: () {
-              Get.to(
-                () => UpdatePage(
-                    title: 'set_param'.trArgs(['nickname'.tr]),
-                    value: UserRepoLocal.to.current.nickname,
-                    field: 'input',
-                    callback: (nickname) async {
-                      bool ok = await logic.changeInfo({
-                        "field": "nickname",
-                        "value": nickname,
-                      });
-                      if (ok) {
-                        //url是图片上传后拿到的url
-                        setState(() {
-                          Map<String, dynamic> payload =
-                              UserRepoLocal.to.current.toMap();
-                          payload["nickname"] = nickname;
-                          UserRepoLocal.to.changeInfo(payload);
+            onPressed: () => Get.bottomSheet(
+              SizedBox(
+                width: Get.width,
+                height: 168,
+                child: Wrap(
+                  children: [
+                    Center(
+                      child: TextButton(
+                        onPressed: () => getImageFromSource(ImageSource.camera),
+                        child: Text(
+                          'button_taking_pictures'.tr,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Divider(),
+                    Center(
+                      child: TextButton(
+                        onPressed: () => getImageFromSource(ImageSource.gallery),
+                        child: Text(
+                          'choose_from_album'.tr,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ),
+                    HorizontalLine(
+                      height: 6,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    Center(
+                      child: TextButton(
+                        onPressed: () => Get.close(),
+                        child: Text(
+                          'button_cancel'.tr,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              backgroundColor: Get.isDarkMode
+                  ? const Color.fromRGBO(80, 80, 80, 1)
+                  : const Color.fromRGBO(240, 240, 240, 1),
+              //改变shape这里即可
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.0),
+                  topRight: Radius.circular(20.0),
+                ),
+              ),
+            ),
+          ),
+          LabelRow(
+              title: 'nickname'.tr,
+              isLine: true,
+              isRight: true,
+              trailing: SizedBox(
+                width: Get.width - 160,
+                child: Text(
+                  UserRepoLocal.to.current.nickname,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontWeight: FontWeight.w400),
+                ),
+              ),
+              onPressed: () {
+                Get.to(
+                  () => UpdatePage(
+                      title: 'set_param'.trArgs(['nickname'.tr]),
+                      value: UserRepoLocal.to.current.nickname,
+                      field: 'input',
+                      callback: (nickname) async {
+                        bool ok = await logic.changeInfo({
+                          "field": "nickname",
+                          "value": nickname,
                         });
-                      }
-                      return ok;
-                    }),
-                transition: Transition.rightToLeft,
-                popGesture: true, // 右滑，返回上一页,
-              );
-            }),
-        n.Column(
-          data.map((item) => buildContent(item)).toList(),
-        ),
-      ])),
+                        if (ok) {
+                          //url是图片上传后拿到的url
+                          setState(() {
+                            Map<String, dynamic> payload =
+                                UserRepoLocal.to.current.toMap();
+                            payload["nickname"] = nickname;
+                            UserRepoLocal.to.changeInfo(payload);
+                          });
+                        }
+                        return ok;
+                      }),
+                  transition: Transition.rightToLeft,
+                  popGesture: true, // 右滑，返回上一页,
+                );
+              }),
+          Column(
+            children: data.map((item) => buildContent(item)).toList(),
+          ),
+        ],
+      )),
     );
   }
 

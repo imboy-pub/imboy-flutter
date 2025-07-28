@@ -8,7 +8,7 @@ import 'package:imboy/page/group/launch_chat/launch_chat_logic.dart';
 import 'package:imboy/page/group/launch_chat/launch_chat_state.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -56,7 +56,8 @@ class AddMemberPageState extends State<AddMemberPage> {
 
   Widget _buildListItem(BuildContext context, ContactModel model) {
     // String susTag = model.getSuspensionTag();
-    return n.Column([
+    return Column(
+      children: [
       SizedBox(
         height: _itemHeight.toDouble(),
         child: Obx(() => InkWell(
@@ -78,10 +79,10 @@ class AddMemberPageState extends State<AddMemberPage> {
                       }
                       // setState(() {});
                     },
-              child: n.Row([
-                n.Padding(
-                  left: 8,
-                  right: 8,
+              child: Row(
+                children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, right: 8),
                   child: memberUserIds.contains(model.peerId)
                       ? Icon(CupertinoIcons.check_mark_circled_solid,
                           color: Colors.green.withValues(alpha: 0.6))
@@ -133,8 +134,8 @@ class AddMemberPageState extends State<AddMemberPage> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         title: 'select_contacts'.tr,
-        leading: n.Padding(
-          top: 8,
+        leading: Padding(
+          padding: const EdgeInsets.only(top: 8),
           child: TextButton(
             onPressed: () {
               Navigator.of(context).pop();
@@ -173,15 +174,14 @@ class AddMemberPageState extends State<AddMemberPage> {
       ),
       body: SingleChildScrollView(
           // 包裹一个可滚动的容器
-          child: n.Column([
+          child: Column(
+        children: [
         /* TODO leeyi 2024-04-12 00:05:34
-        n.Row([
+        Row(
+          children: [
           Expanded(
-              child: n.Padding(
-            left: 8,
-            top: 0,
-            right: 8,
-            bottom: 10,
+              child: Padding(
+            padding: const EdgeInsets.only(left: 8, top: 0, right: 8, bottom: 10),
             child: searchBar(
               context,
               searchLabel: 'search'.tr,
@@ -209,7 +209,8 @@ class AddMemberPageState extends State<AddMemberPage> {
           )),
         ]),
         */
-        n.Row([
+        Row(
+          children: [
           Expanded(
               child: SingleChildScrollView(
             child: Container(
@@ -217,7 +218,8 @@ class AddMemberPageState extends State<AddMemberPage> {
               // height: Get.height - 150,
               height: Get.height,
               color: Theme.of(context).colorScheme.surface,
-              child: n.Column([
+              child: Column(
+                children: [
                 Expanded(
                   child: SlidableAutoCloseBehavior(child: Obx(() {
                     return logic.state.items.isEmpty

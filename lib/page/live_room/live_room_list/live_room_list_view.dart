@@ -9,7 +9,7 @@ import 'package:imboy/config/const.dart';
 // import 'package:imboy/page/live_room/publisher/publisher_view.dart';
 // import 'package:imboy/page/live_room/subscriber/subscriber_view.dart';
 import 'package:imboy/store/model/live_room_model.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 import 'live_room_list_logic.dart';
 
@@ -51,11 +51,12 @@ class LiveRoomListPage extends StatelessWidget {
           width: Get.width,
           height: Get.height,
           color: Theme.of(context).colorScheme.surface,
-          child: n.Column([
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
             Expanded(
-              child: n.Padding(
-                left: 15,
-                right: 10,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 15, right: 10),
                 child: Obx(() {
                   return state.items.isEmpty
                       ? NoDataView(text: 'no_data'.tr)
@@ -63,14 +64,17 @@ class LiveRoomListPage extends StatelessWidget {
                           itemCount: state.items.length,
                           itemBuilder: (BuildContext context, int index) {
                             // LiveRoomModel model = state.items[index];
-                            return n.Column([
+                            return Column(
+                              children: [
                               ListTile(
                                 contentPadding: const EdgeInsets.only(left: 0),
-                                title: n.Row([
+                                title: Row(
+                                  children: [
                                   Text('live_broadcast'.tr),
                                   const Space(width: 10),
                                 ]),
-                                subtitle: n.Row([
+                                subtitle: Row(
+                                  children: [
                                   Text('PublisherPage'.tr),
                                 ]),
                                 trailing: navigateNextIcon,
@@ -96,11 +100,13 @@ class LiveRoomListPage extends StatelessWidget {
                               ),
                               ListTile(
                                 contentPadding: const EdgeInsets.only(left: 0),
-                                title: n.Row([
+                                title: Row(
+                                  children: [
                                   Text('live_broadcast'.tr),
                                   const Space(width: 10),
                                 ]),
-                                subtitle: n.Row([
+                                subtitle: Row(
+                                  children: [
                                   Text('Subscriber'.tr),
                                 ]),
                                 trailing: navigateNextIcon,
@@ -130,7 +136,7 @@ class LiveRoomListPage extends StatelessWidget {
                 }),
               ),
             )
-          ], mainAxisSize: MainAxisSize.min),
+          ]),
         ),
       ),
     );

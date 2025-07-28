@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
@@ -32,369 +32,394 @@ class StorageSpacePage extends StatelessWidget {
         title: 'storage_space'.tr,
       ),
       body: SingleChildScrollView(
-        child: n.Padding(
-          left: 16,
-          right: 16,
-          child: n.Column([
-            n.Padding(
-              top: 20,
-              bottom: 10,
-              child: n.Row([
-                Obx(() => SizedBox(
-                      height: 20,
-                      width: Get.width *
-                          (state.totalDiskSpace.value > 0
-                              ? state.usedDiskSpace.value /
-                                  state.totalDiskSpace.value
-                              : 0),
-                      child: LinearProgressIndicator(
-                        value: state.appAllBytes.value > 0
-                            ? (state.appAllBytes.value /
-                                        state.usedDiskSpace.value >
-                                    0.04
-                                ? state.appAllBytes.value /
-                                    state.usedDiskSpace.value
-                                : 0.04)
-                            : 0,
-                        backgroundColor: Colors.amber,
-                        valueColor:
-                            const AlwaysStoppedAnimation<Color>(Colors.green),
-                      ),
-                    )),
-                Expanded(
-                    child: Obx(() => SizedBox(
+        child: Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 20, bottom: 10),
+                child: Row(
+                  children: [
+                    Obx(() => SizedBox(
                           height: 20,
-                          width: state.totalDiskSpace.value > 0
-                              ? (Get.width *
-                                      (state.freeDiskSpace.value /
-                                          state.totalDiskSpace.value)) -
-                                  32
-                              : 1,
-                          child: const LinearProgressIndicator(
-                            value: 1,
-                            backgroundColor: Colors.grey,
+                          width: Get.width *
+                              (state.totalDiskSpace.value > 0
+                                  ? state.usedDiskSpace.value /
+                                      state.totalDiskSpace.value
+                                  : 0),
+                          child: LinearProgressIndicator(
+                            value: state.appAllBytes.value > 0
+                                ? (state.appAllBytes.value /
+                                            state.usedDiskSpace.value >
+                                        0.04
+                                    ? state.appAllBytes.value /
+                                        state.usedDiskSpace.value
+                                    : 0.04)
+                                : 0,
+                            backgroundColor: Colors.amber,
                             valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.black12),
+                                const AlwaysStoppedAnimation<Color>(Colors.green),
                           ),
-                        ))),
-              ]),
-            ),
-            n.Row([
-              const Icon(
-                Icons.square,
-                color: Colors.green,
-                size: 12,
-              ),
-              const SizedBox(width: 4),
-              Obx(() => Text(
-                    appName +
-                        'used_space'.tr +
-                        formatBytes(
-                          (state.appAllBytes.value),
-                          num: 1000,
-                        ),
-                    style: const TextStyle(fontSize: 12),
-                  )),
-            ]),
-            n.Row([
-              const Icon(
-                Icons.square,
-                color: Colors.amber,
-                size: 12,
-              ),
-              const SizedBox(width: 4),
-              Obx(
-                () => Text(
-                  'device_used_space'.tr +
-                      formatBytes(
-                        state.usedDiskSpace.value,
-                        num: 1000,
-                      ),
-                  style: const TextStyle(fontSize: 12),
-                ),
-              )
-            ]),
-            n.Row([
-              const Icon(
-                Icons.square,
-                color: Colors.grey,
-                size: 12,
-              ),
-              const SizedBox(width: 4),
-              Obx(() => Text(
-                    'device_available_space'.tr +
-                        formatBytes(
-                          state.freeDiskSpace.value,
-                          num: 1000,
-                        ),
-                    style: const TextStyle(fontSize: 12),
-                  )),
-            ]),
-            const SizedBox(height: 16),
-            n.Column([
-              n.Row([Text(appName + 'used_space'.tr)]),
-              n.Row([
-                Obx(
-                  () => Text(
-                    formatBytes(
-                      state.appAllBytes.value,
-                      num: 1000,
-                    ),
-                    style: const TextStyle(fontSize: 38),
-                  ),
-                )
-              ]),
-              n.Row([
-                // 占设备 @percent‰ 存储空间(@total)
-                Obx(() => Text('tip_device_space'.trArgs([
-                      state.totalDiskSpace.value > 0
-                          ? ((state.appAllBytes.value /
-                                      state.totalDiskSpace.value) *
-                                  1000)
-                              .toStringAsFixed(3)
-                          : '0',
-                      formatBytes(
-                        state.totalDiskSpace.value,
-                        num: 1000,
-                      ),
-                    ])))
-              ]),
-            ]),
-            const SizedBox(height: 8),
-            n.Column([
-              ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
-                child: Container(
-                  color: Theme.of(context).colorScheme.surface,
-                  child: n.ListTile(
-                    title: n.Row([
-                      Text(appName + 'cache'.tr),
-                      const Expanded(child: SizedBox()),
-                      ElevatedButton(
-                        onPressed: () async {
-                          bool res = await logic.clearAllCache();
-                          if (res) {
-                            EasyLoading.showSuccess('tip_success'.tr);
-                          } else {
-                            EasyLoading.showError('tip_failed'.tr);
-                          }
-                        },
-                        style: ButtonStyle(
-                          minimumSize: WidgetStateProperty.all(
-                            const Size(72, 26),
-                          ),
-                          padding: WidgetStateProperty.all(EdgeInsets.zero),
-                          //取消圆角边框
-                          shape:
-                              WidgetStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0),
-                            ),
-                          ),
-                        ),
-                        child: Text(
-                          // 'go_clean'.tr,
-                          'clean'.tr,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                    ]),
-                    subtitle: n.Column([
-                      n.Row([
-                        Obx(
-                          () => Text(
-                            formatBytes(
-                              state.cacheBytes.value,
-                              num: 1000,
-                            ),
-                            style: const TextStyle(fontSize: 28),
-                          ),
-                        )
-                      ])
-                        // 内容居左
-                        ..mainAxisAlignment = MainAxisAlignment.start,
-                      Text(
-                        'cache_tips'.tr,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                      )
-                    ])
-                      // 内容居左
-                      ..mainAxisAlignment = MainAxisAlignment.start,
-                  ),
+                        )),
+                    Expanded(
+                        child: Obx(() => SizedBox(
+                              height: 20,
+                              width: state.totalDiskSpace.value > 0
+                                  ? (Get.width *
+                                          (state.freeDiskSpace.value /
+                                              state.totalDiskSpace.value)) -
+                                      32
+                                  : 1,
+                              child: const LinearProgressIndicator(
+                                value: 1,
+                                backgroundColor: Colors.grey,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.black12),
+                              ),
+                            ))),
+                  ],
                 ),
               ),
-              /*
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
-                child: Container(
-                  color: AppColors.primaryBackground,
-                  child: n.ListTile(
-                    title: n.Row([
-                      Text('chat_history'.tr),
-                      const Expanded(child: SizedBox()),
-                      ElevatedButton(
-                        onPressed: () {
-                          Get.close();
-                        },
-                        style: ButtonStyle(
-                          minimumSize: WidgetStateProperty.all(
-                            const Size(48, 26),
-                          ),
-                          padding: WidgetStateProperty.all(EdgeInsets.zero),
-                          //取消圆角边框
-                          shape:
-                              WidgetStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0),
-                            ),
-                          ),
-                        ),
-                        child: Text(
-                          'manage'.tr,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.primaryText,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                    ]),
-                    subtitle: n.Column([
-                      n.Row([
-                        Obx(
-                          () => Text(
-                            formatBytes(
-                              state.chatHistoryBytes.value,
-                              num: 1000,
-                            ),
-                            style: const TextStyle(fontSize: 28),
-                          ),
-                        )
-                      ])
-                        // 内容居左
-                        ..mainAxisAlignment = MainAxisAlignment.start,
-                      Text(
-                        // 当前账号本地生成的sqlite文件大小；可清理所选聊天记录里的图片、视频、和文件，或者清空所选聊天记录里的所有聊天信息。
+              Row(
+                children: [
+                  const Icon(
+                    Icons.square,
+                    color: Colors.green,
+                    size: 12,
+                  ),
+                  const SizedBox(width: 4),
+                  Obx(() => Text(
                         appName +
-                            'app_sqlite_file_size_explain'
-                                .tr,
-                        style:
-                            const TextStyle(color: AppColors.thirdElementText),
-                      )
-                    ])
-                      // 内容居左
-                      ..mainAxisAlignment = MainAxisAlignment.start,
-                  ),
-                ),
-              ),
-              */
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
-                child: Container(
-                  color: Theme.of(context).colorScheme.surface,
-                  child: n.ListTile(
-                    title: n.Row([
-                      Text('user_data'.tr),
-                      const Expanded(child: SizedBox()),
-                      /* TODO 2024-01-29 17:42:21
-                      ElevatedButton(
-                        onPressed: () {
-                          logic.pathList();
-                        },
-                        style: ButtonStyle(
-                          minimumSize: WidgetStateProperty.all(
-                            const Size(48, 26),
-                          ),
-                          padding: WidgetStateProperty.all(EdgeInsets.zero),
-                          //取消圆角边框
-                          shape:
-                              WidgetStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0),
+                            'used_space'.tr +
+                            formatBytes(
+                              (state.appAllBytes.value),
+                              num: 1000,
                             ),
+                        style: const TextStyle(fontSize: 12),
+                      )),
+                ],
+              ),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.square,
+                    color: Colors.amber,
+                    size: 12,
+                  ),
+                  const SizedBox(width: 4),
+                  Obx(
+                    () => Text(
+                      'device_used_space'.tr +
+                          formatBytes(
+                            state.usedDiskSpace.value,
+                            num: 1000,
                           ),
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  )
+                ],
+              ),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.square,
+                    color: Colors.grey,
+                    size: 12,
+                  ),
+                  const SizedBox(width: 4),
+                  Obx(() => Text(
+                        'device_available_space'.tr +
+                            formatBytes(
+                              state.freeDiskSpace.value,
+                              num: 1000,
+                            ),
+                        style: const TextStyle(fontSize: 12),
+                      )),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Column(
+                children: [
+                  Row(children: [Text(appName + 'used_space'.tr)]),
+                  Row(
+                    children: [
+                      Obx(
+                        () => Text(
+                          formatBytes(
+                            state.appAllBytes.value,
+                            num: 1000,
+                          ),
+                          style: const TextStyle(fontSize: 38),
                         ),
-                        child: Text(
-                          'manage'.tr,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.primaryText,
+                      )
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      // 占设备 @percent‰ 存储空间(@total)
+                      Obx(() => Text('tip_device_space'.trArgs([
+                            state.totalDiskSpace.value > 0
+                                ? ((state.appAllBytes.value /
+                                            state.totalDiskSpace.value) *
+                                        1000)
+                                    .toStringAsFixed(3)
+                                : '0',
+                            formatBytes(
+                              state.totalDiskSpace.value,
+                              num: 1000,
+                            ),
+                          ])))
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Column(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    child: Container(
+                      color: Theme.of(context).colorScheme.surface,
+                      child: ListTile(
+                        title: Row(
+                          children: [
+                            Text(appName + 'cache'.tr),
+                            const Expanded(child: SizedBox()),
+                            ElevatedButton(
+                              onPressed: () async {
+                                bool res = await logic.clearAllCache();
+                                if (res) {
+                                  EasyLoading.showSuccess('tip_success'.tr);
+                                } else {
+                                  EasyLoading.showError('tip_failed'.tr);
+                                }
+                              },
+                              style: ButtonStyle(
+                                minimumSize: WidgetStateProperty.all(
+                                  const Size(72, 26),
+                                ),
+                                padding: WidgetStateProperty.all(EdgeInsets.zero),
+                                //取消圆角边框
+                                shape:
+                                    WidgetStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4.0),
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                // 'go_clean'.tr,
+                                'clean'.tr,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onPrimary,
                             fontWeight: FontWeight.normal,
                           ),
                         ),
                       ),
-                      */
                     ]),
-                    subtitle: n.Column([
-                      n.Row([
-                        Obx(
-                          () => Text(
-                            formatBytes(
-                              state.dataBytes.value,
-                              num: 1000,
+                    subtitle: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Obx(
+                                  () => Text(
+                                    formatBytes(
+                                      state.cacheBytes.value,
+                                      num: 1000,
+                                    ),
+                                    style: const TextStyle(fontSize: 28),
+                                  ),
+                                )
+                              ],
                             ),
-                            style: const TextStyle(fontSize: 28),
-                          ),
-                        )
-                      ])
-                        // 内容居左
-                        ..mainAxisAlignment = MainAxisAlignment.start,
-                      Text(
-                        'user_data_tips'.tr,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
+                            // 内容居左
+                            Text(
+                              'cache_tips'.tr,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                            )
+                          ],
                         ),
-                      )
-                    ])
-                      // 内容居左
-                      ..mainAxisAlignment = MainAxisAlignment.start,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
-                child: Container(
-                  color: Theme.of(context).colorScheme.surface,
-                  child: n.ListTile(
-                    title: Text('app_size'.tr),
-                    subtitle: n.Column([
-                      n.Row([
-                        Obx(
-                          () => Text(
-                            formatBytes(
-                              state.appBytes.value,
-                              num: 1000,
+                  /*
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    child: Container(
+                      color: AppColors.primaryBackground,
+                      child: ListTile(
+                        title: Row(
+                          children: [
+                            Text('chat_history'.tr),
+                            const Expanded(child: SizedBox),
+                            ElevatedButton(
+                              onPressed: () {
+                                Get.close();
+                              },
+                              style: ButtonStyle(
+                                minimumSize: WidgetStateProperty.all(
+                                  const Size(48, 26),
+                                ),
+                                padding: WidgetStateProperty.all(EdgeInsets.zero),
+                                //取消圆角边框
+                                shape:
+                                    WidgetStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4.0),
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                'manage'.tr,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: AppColors.primaryText,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
                             ),
-                            style: const TextStyle(fontSize: 28),
-                          ),
+                          ],
                         ),
-                      ])
-                        // 内容居左
-                        ..mainAxisAlignment = MainAxisAlignment.start,
-                      Text(
-                        'app_size_tips'.tr,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Obx(
+                                  () => Text(
+                                    formatBytes(
+                                      state.chatHistoryBytes.value,
+                                      num: 1000,
+                                    ),
+                                    style: const TextStyle(fontSize: 28),
+                                  ),
+                                )
+                              ],
+                            ),
+                            // 内容居左
+                            Text(
+                              // 当前账号本地生成的sqlite文件大小；可清理所选聊天记录里的图片、视频、和文件，或者清空所选聊天记录里的所有聊天信息。
+                              appName +
+                                  'app_sqlite_file_size_explain'
+                                      .tr,
+                              style:
+                                  const TextStyle(color: AppColors.thirdElementText),
+                            )
+                          ],
                         ),
-                      )
-                    ])
-                      // 内容居左
-                      ..mainAxisAlignment = MainAxisAlignment.start,
+                      ),
+                    ),
                   ),
-                ),
+                  */
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    child: Container(
+                      color: Theme.of(context).colorScheme.surface,
+                      child: ListTile(
+                        title: Row(
+                          children: [
+                            Text('user_data'.tr),
+                            const Expanded(child: SizedBox()),
+                            /* TODO 2024-01-29 17:42:21
+                            ElevatedButton(
+                              onPressed: () {
+                                logic.pathList();
+                              },
+                              style: ButtonStyle(
+                                minimumSize: WidgetStateProperty.all(
+                                  const Size(48, 26),
+                                ),
+                                padding: WidgetStateProperty.all(EdgeInsets.zero),
+                                //取消圆角边框
+                                shape:
+                                    WidgetStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4.0),
+                                  ),
+                                ),
+                              },
+                              child: Text(
+                                'manage'.tr,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: AppColors.primaryText,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                            */
+                          ],
+                        ),
+                        subtitle: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Obx(
+                                  () => Text(
+                                    formatBytes(
+                                      state.dataBytes.value,
+                                      num: 1000,
+                                    ),
+                                    style: const TextStyle(fontSize: 28),
+                                  ),
+                                )
+                              ],
+                            ),
+                            // 内容居左
+                            Text(
+                              'user_data_tips'.tr,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    child: Container(
+                      color: Theme.of(context).colorScheme.surface,
+                      child: ListTile(
+                        title: Text('app_size'.tr),
+                        subtitle: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Obx(
+                                  () => Text(
+                                    formatBytes(
+                                      state.appBytes.value,
+                                      num: 1000,
+                                    ),
+                                    style: const TextStyle(fontSize: 28),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            // 内容居左
+                            Text(
+                              'app_size_tips'.tr,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ])
-              ..mainAxisSize = MainAxisSize.min
-          ], mainAxisSize: MainAxisSize.min),
+            ], mainAxisSize: MainAxisSize.min,
+          ),
         ),
       ),
     );

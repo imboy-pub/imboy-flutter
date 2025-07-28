@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/label_row.dart';
@@ -18,12 +17,7 @@ class ChatSettingPage extends StatefulWidget {
   final String peerId;
   Map<String, dynamic>? options;
 
-  ChatSettingPage(
-    this.peerId, {
-    super.key,
-    required this.type,
-    this.options,
-  });
+  ChatSettingPage(this.peerId, {super.key, required this.type, this.options});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -50,10 +44,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
       isRight: false,
       trailing: SizedBox(
         height: 25.0,
-        child: CupertinoSwitch(
-          value: item['value'],
-          onChanged: (v) {},
-        ),
+        child: CupertinoSwitch(value: item['value'], onChanged: (v) {}),
       ),
       onPressed: () {},
     );
@@ -82,7 +73,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
               peerId: widget.options?['peer_id'],
               peerTitle: widget.options?['peerTitle'],
               peerAvatar: widget.options?['peerAvatar'],
-              peerSign:widget.options?['peerSign'] ?? '',
+              peerSign: widget.options?['peerSign'] ?? '',
               conversationUk3: widget.options?['conversationUk3'],
             ),
             transition: Transition.rightToLeft,
@@ -90,53 +81,38 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
           );
         },
       ),
-      Column(
-        children: switchItems.map(buildSwitch).toList(),
-      ),
-      // LabelRow(
-      //   label: 'set_chat_background'.tr,
-      //   margin: const EdgeInsets.only(top: 10.0),
-      //   onPressed: () {
-      //     Get.to(()=>
-      //       const ChatBackgroundPage(),
-      //       transition: Transition.rightToLeft,
-      //       popGesture: true, // 右滑，返回上一页
-      //     );
-      //   },
-      // ),
+      Column(children: switchItems.map(buildSwitch).toList()),
       LabelRow(
         title: 'clear_chat_record'.tr,
         margin: const EdgeInsets.only(top: 10.0),
         isLine: true,
         onPressed: () {
           String tips = 'confirm_delete_chat_record'.tr;
-          n.showDialog(
+          showDialog(
             context: Get.context!,
-            builder: (context) => n.Alert()
-              // ..title = Text("Session Expired")
-              ..content = SizedBox(
+            barrierDismissible: true,
+            builder: (context) => AlertDialog(
+              content: SizedBox(
                 height: 40,
                 child: Center(
-                    child: Text(
-                  tips,
-                  style: const TextStyle(color: Colors.red),
-                )),
-              )
-              ..actions = [
-                n.Button('button_cancel'.tr.n)
-                  ..style = n.NikuButtonStyle(
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary)
-                  ..onPressed = () {
+                  child: Text(tips, style: const TextStyle(color: Colors.red)),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  child: Text('button_cancel'.tr),
+                  onPressed: () {
                     Navigator.of(context).pop();
                   },
-                n.Button('button_confirm'.tr.n)
-                  ..style = n.NikuButtonStyle(
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary)
-                  ..onPressed = () async {
+                ),
+                TextButton(
+                  child: Text('button_confirm'.tr),
+                  onPressed: () async {
                     Navigator.of(context).pop();
-
                     int cid = await logic.cleanMessageByPeerId(
-                        widget.type, widget.peerId);
+                      widget.type,
+                      widget.peerId,
+                    );
                     if (cid > 0) {
                       backDoRefresh = true;
                       // 刷新会话列表
@@ -148,26 +124,14 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                       EasyLoading.showError('tip_failed'.tr);
                     }
                   },
+                ),
               ],
-            barrierDismissible: true,
+            ),
           );
         },
       ),
-      /*
-      LabelRow(
-          label: 'complaint'.tr,
-          margin: const EdgeInsets.only(top: 10.0),
-          onPressed: () {
-            Get.to(
-              () => WebViewPage(CONST_HELP_URL, 'complaint'.tr),
-              transition: Transition.rightToLeft,
-              popGesture: true, // 右滑，返回上一页
-            );
-          }),
-      */
     ];
   }
-
 
   @override
   void initState() {
@@ -196,9 +160,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
         title: 'chat_settings'.tr,
         automaticallyImplyLeading: true,
       ),
-      body: SingleChildScrollView(
-        child: n.Column(body()),
-      ),
+      body: SingleChildScrollView(child: Column(children: body())),
     );
   }
 

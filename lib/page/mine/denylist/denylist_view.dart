@@ -13,7 +13,7 @@ import 'package:imboy/page/contact/people_info/people_info_view.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/denylist_model.dart';
 import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 import 'denylist_logic.dart';
 
@@ -50,124 +50,124 @@ class DenylistPage extends StatelessWidget {
           width: Get.width,
           height: Get.height,
           color: Theme.of(context).colorScheme.surface,
-          child: n.Column([
-            n.Padding(
-              left: 8,
-              top: 10,
-              right: 8,
-              bottom: 10,
-              child: searchBar(
-                context,
-                searchLabel: 'search'.tr,
-                hintText: 'search'.tr,
-                queryTips: 'search_friends_tips'.tr,
-                doSearch: ((query) {
-                  // debugPrint(
-                  //     "> on search doSearch ${query.toString()}");
-                  return UserDenylistRepo().search(kwd: query);
-                }),
-                onTapForItem: (value) {
-                  // debugPrint(
-                  //     "> on search value ${value is DenylistModel}, ${value.toString()}");
-                  if (value is DenylistModel) {
-                    Get.to(
-                      () => PeopleInfoPage(
-                        id: value.deniedUid,
-                        scene: 'denylist',
-                      ),
-                      transition: Transition.rightToLeft,
-                      popGesture: true, // 右滑，返回上一页
-                    );
-                  }
-                },
-              ),
-            ),
-            Expanded(
-              child: SlidableAutoCloseBehavior(child: Obx(() {
-                // return NoDataView(text: 'no_data'.tr);
-                return logic.items.isEmpty
-                    ? NoDataView(text: 'no_data'.tr)
-                    : AzListView(
-                        data: logic.items,
-                        itemCount: logic.items.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          DenylistModel model = logic.items[index];
-                          // debugPrint(
-                          //     "model.avatar ${model.avatar.toString()}: ${model.toJson().toString()}");
-                          return n.Column([
-                            ListTile(
-                              leading: Avatar(imgUri: model.avatar),
-                              contentPadding: const EdgeInsets.only(left: 10),
-                              title: Text(model.nickname),
-                              // subtitle: Text('${model.remark}'),
-                              onTap: () {
-                                Get.to(
-                                  () => PeopleInfoPage(
-                                    id: model.deniedUid,
-                                    scene: 'denylist',
-                                  ),
-                                  transition: Transition.rightToLeft,
-                                  popGesture: true, // 右滑，返回上一页
-                                );
-                              },
-                            ),
-                            n.Padding(
-                              left: 12,
-                              right: 20,
-                              bottom: 10,
-                              child: HorizontalLine(
-                                  height: Get.isDarkMode ? 0.5 : 1.0),
-                            ),
-                          ]);
-                        },
-                        // 解决联系人数据量少的情况下无法刷新的问题
-                        // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        susItemBuilder: (BuildContext context, int index) {
-                          DenylistModel model = logic.items[index];
-                          if ('↑' == model.getSuspensionTag()) {
-                            return Container();
-                          }
-                          return Get.find<ContactLogic>().getSusItem(
-                            context,
-                            model.getSuspensionTag(),
-                          );
-                        },
-                        // indexBarData: const ['↑', ...kIndexBarData],
-                        indexBarData: logic.items.isNotEmpty
-                            ? ['↑', ...logic.currIndexBarData]
-                            : [],
-                        indexBarOptions: IndexBarOptions(
-                          needRebuild: true,
-                          ignoreDragCancel: true,
-                          downTextStyle: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
-                          ),
-                          downItemDecoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.green,
-                          ),
-                          indexHintWidth: 128 / 2,
-                          indexHintHeight: 128 / 2,
-                          indexHintDecoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage(
-                                AssetsService.getImgPath(
-                                    'index_bar_bubble_gray'),
-                              ),
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                          indexHintAlignment: Alignment.centerRight,
-                          indexHintChildAlignment: const Alignment(-0.25, 0.0),
-                          indexHintOffset: const Offset(-20, 0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 8, top: 10, right: 8, bottom: 10),
+                child: searchBar(
+                  context,
+                  searchLabel: 'search'.tr,
+                  hintText: 'search'.tr,
+                  queryTips: 'search_friends_tips'.tr,
+                  doSearch: ((query) {
+                    // debugPrint(
+                    //     "> on search doSearch ${query.toString()}");
+                    return UserDenylistRepo().search(kwd: query);
+                  }),
+                  onTapForItem: (value) {
+                    // debugPrint(
+                    //     "> on search value ${value is DenylistModel}, ${value.toString()}");
+                    if (value is DenylistModel) {
+                      Get.to(
+                        () => PeopleInfoPage(
+                          id: value.deniedUid,
+                          scene: 'denylist',
                         ),
+                        transition: Transition.rightToLeft,
+                        popGesture: true, // 右滑，返回上一页
                       );
-              })),
-            ),
-          ])
-            ..mainAxisSize = MainAxisSize.min,
+                    }
+                  },
+                ),
+              ),
+              Expanded(
+                child: SlidableAutoCloseBehavior(child: Obx(() {
+                  // return NoDataView(text: 'no_data'.tr);
+                  return logic.items.isEmpty
+                      ? NoDataView(text: 'no_data'.tr)
+                      : AzListView(
+                          data: logic.items,
+                          itemCount: logic.items.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            DenylistModel model = logic.items[index];
+                            // debugPrint(
+                            //     "model.avatar ${model.avatar.toString()}: ${model.toJson().toString()}");
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ListTile(
+                                  leading: Avatar(imgUri: model.avatar),
+                                  contentPadding: const EdgeInsets.only(left: 10),
+                                  title: Text(model.nickname),
+                                  // subtitle: Text('${model.remark}'),
+                                  onTap: () {
+                                    Get.to(
+                                      () => PeopleInfoPage(
+                                        id: model.deniedUid,
+                                        scene: 'denylist',
+                                      ),
+                                      transition: Transition.rightToLeft,
+                                      popGesture: true, // 右滑，返回上一页
+                                    );
+                                  },
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 12, right: 20, bottom: 10),
+                                  child: HorizontalLine(
+                                      height: Get.isDarkMode ? 0.5 : 1.0),
+                                ),
+                              ],
+                            );
+                          },
+                          // 解决联系人数据量少的情况下无法刷新的问题
+                          // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          susItemBuilder: (BuildContext context, int index) {
+                            DenylistModel model = logic.items[index];
+                            if ('↑' == model.getSuspensionTag()) {
+                              return Container();
+                            }
+                            return Get.find<ContactLogic>().getSusItem(
+                              context,
+                              model.getSuspensionTag(),
+                            );
+                          },
+                          // indexBarData: const ['↑', ...kIndexBarData],
+                          indexBarData: logic.items.isNotEmpty
+                              ? ['↑', ...logic.currIndexBarData]
+                              : [],
+                          indexBarOptions: IndexBarOptions(
+                            needRebuild: true,
+                            ignoreDragCancel: true,
+                            downTextStyle: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                            ),
+                            downItemDecoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.green,
+                            ),
+                            indexHintWidth: 128 / 2,
+                            indexHintHeight: 128 / 2,
+                            indexHintDecoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: AssetImage(
+                                  AssetsService.getImgPath(
+                                      'index_bar_bubble_gray'),
+                                ),
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                            indexHintAlignment: Alignment.centerRight,
+                            indexHintChildAlignment: const Alignment(-0.25, 0.0),
+                            indexHintOffset: const Offset(-20, 0),
+                          ),
+                        );
+                })),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -6,8 +6,6 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
-import 'package:niku/namespace.dart' as n;
-
 
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/line.dart';
@@ -59,37 +57,39 @@ class _SearchChatPageState extends State<SearchChatPage> {
         alignment: Alignment.center,
         color: Theme.of(Get.context!).colorScheme.onSecondary,
         margin: const EdgeInsets.only(top: 10),
-        child: n.ListTile(
+        child: ListTile(
           leading: Avatar(imgUri: author!.avatar),
-          title: n.Row([
-            Flexible(
-              child: Text(
-                author.nickname,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(child: Text(author.nickname)),
+              Text(
+                DateTimeHelper.lastTimeFmt(
+                  msg.createdAt!.millisecondsSinceEpoch +
+                      DateTime.now().timeZoneOffset.inMilliseconds,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  // color: AppColors.MainTextColor,
+                  fontSize: 14.0,
+                ),
               ),
-            ),
-            Text(
-              DateTimeHelper.lastTimeFmt(msg.createdAt!.millisecondsSinceEpoch + DateTime.now().timeZoneOffset.inMilliseconds),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                // color: AppColors.MainTextColor,
-                fontSize: 14.0,
-              ),
-            )
-          ])
-            // 两端对齐
-            ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+            ],
+          ),
           subtitle: TextHighlight(
-              text: subtitle,
-              // You need to pass the string you want the highlights
-              words: words,
-              // Your dictionary words
-              matchCase: true // will highlight only exactly the same string
-              ),
+            text: subtitle,
+            // You need to pass the string you want the highlights
+            words: words,
+            // Your dictionary words
+            matchCase: true, // will highlight only exactly the same string
+          ),
         ),
       ),
       onTap: () {
-        if (widget.type == 'C2C' || widget.type == 'C2G' || widget.type == 'S2C') {
+        if (widget.type == 'C2C' ||
+            widget.type == 'C2G' ||
+            widget.type == 'S2C') {
           Get.to(
             () => ChatPage(
               peerId: widget.peerId,
@@ -110,73 +110,81 @@ class _SearchChatPageState extends State<SearchChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        appBar: SearchField(
-          top: 40,
-          left: 10,
-          controller: _searchC,
-          onSubmitted: (txt) async {
-            if (txt.isNotEmpty) {
-              words = {
-                txt: HighlightedWord(
-                  onTap: () {
-                    // print("Flutter");
-                  },
-                  textStyle: const TextStyle(color: Colors.green, fontSize: 18),
-                ),
-              };
-              items = await logic.search(
-                kwd: txt,
-                type: widget.type,
-                conversationUk3: widget.conversationUk3,
-              );
-              setState(() {});
-            }
-          },
-          onChanged: (txt) async {
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: SearchField(
+        top: 40,
+        left: 10,
+        controller: _searchC,
+        onSubmitted: (txt) async {
+          if (txt.isNotEmpty) {
+            words = {
+              txt: HighlightedWord(
+                onTap: () {
+                  // print("Flutter");
+                },
+                textStyle: const TextStyle(color: Colors.green, fontSize: 18),
+              ),
+            };
+            items = await logic.search(
+              kwd: txt,
+              type: widget.type,
+              conversationUk3: widget.conversationUk3,
+            );
             setState(() {});
-          },
-          onClear: () {
-            items = [];
-            setState(() {});
-          },
-        ),
-        body: SingleChildScrollView(
-          child: n.Column([
+          }
+        },
+        onChanged: (txt) async {
+          setState(() {});
+        },
+        onClear: () {
+          items = [];
+          setState(() {});
+        },
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
             if (items.isEmpty)
-              n.Padding(
-                left: 30,
-                right: 30,
-                top: 20,
+              Padding(
+                padding: const EdgeInsets.only(left: 30, right: 30, top: 20),
                 child: _searchC.text.isEmpty
                     ? const SizedBox.square()
-                    : n.Row([
-                        Expanded(
+                    : Row(
+                        children: [
+                          Expanded(
                             child: Text(
-                          "${'search'.tr}: ${_searchC.text}",
-                          style: const TextStyle(
-                            color: Colors.green,
-                            fontSize: 16,
+                              "${'search'.tr}: ${_searchC.text}",
+                              style: const TextStyle(
+                                color: Colors.green,
+                                fontSize: 16,
+                              ),
+                            ),
                           ),
-                        )),
-                        HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0)
-                      ]),
+                          HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
+                        ],
+                      ),
               ),
             Wrap(
-              children: items.map((item) => FutureBuilder<Widget>(
-                future: wordView(item),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return snapshot.data!;
-                  } else {
-                    return const SizedBox.shrink(); // 或者返回一个加载指示器
-                  }
-                },
-              )).toList(),
-            )
-          ])
-            ..crossAxisAlignment = CrossAxisAlignment.center,
-        ));
+              children: items
+                  .map(
+                    (item) => FutureBuilder<Widget>(
+                      future: wordView(item),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return snapshot.data!;
+                        } else {
+                          return const SizedBox.shrink(); // 或者返回一个加载指示器
+                        }
+                      },
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override

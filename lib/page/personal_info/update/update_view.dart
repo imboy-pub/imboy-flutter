@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/page/mine/select_region/select_region_logic.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -68,7 +67,8 @@ class UpdatePage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        titleWidget: n.Row([
+        titleWidget: Row(
+          children: [
           Expanded(
             child: Text(
               title,
@@ -240,12 +240,14 @@ class UpdatePage extends StatelessWidget {
       ),
     );
     return Obx(
-      () => n.Column([
+      () => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
         IMBoyRadioListTile(
           value: '1',
-          title: n.Text(
+          title: Text(
             'male'.tr,
-            style: n.TextStyle(
+            style: TextStyle(
               fontSize: logic.val.value == '1' ? 20 : 16,
               color: Theme.of(context).colorScheme.onPrimary,
             ),
@@ -259,9 +261,8 @@ class UpdatePage extends StatelessWidget {
             onChanged(val);
           },
         ),
-        n.Padding(
-          left: 16,
-          right: 16,
+        Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16),
           child: HorizontalLine(
             height: Get.isDarkMode ? 0.5 : 1.0,
             color: Theme.of(context).colorScheme.primary,
@@ -269,9 +270,9 @@ class UpdatePage extends StatelessWidget {
         ),
         IMBoyRadioListTile(
           value: '2',
-          title: n.Text(
+          title: Text(
             'female'.tr,
-            style: n.TextStyle(
+            style: TextStyle(
               fontSize: logic.val.value == '2' ? 20 : 16,
               color: Theme.of(context).colorScheme.onPrimary,
             ),
@@ -285,9 +286,8 @@ class UpdatePage extends StatelessWidget {
             onChanged(val);
           },
         ),
-        n.Padding(
-          left: 16,
-          right: 16,
+        Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16),
           child: HorizontalLine(
             height: Get.isDarkMode ? 0.5 : 1.0,
             color: Theme.of(context).colorScheme.primary,
@@ -295,9 +295,9 @@ class UpdatePage extends StatelessWidget {
         ),
         IMBoyRadioListTile(
           value: '3',
-          title: n.Text(
+          title: Text(
             'keep_secret'.tr,
-            style: n.TextStyle(
+            style: TextStyle(
               fontSize: logic.val.value == '3' ? 20 : 16,
               color: Theme.of(context).colorScheme.onPrimary,
             ),
@@ -317,26 +317,22 @@ class UpdatePage extends StatelessWidget {
             onChanged(val);
           },
         ),
-        n.Padding(
-          left: 16,
-          right: 16,
+        Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16),
           child: HorizontalLine(
             height: Get.isDarkMode ? 0.5 : 1.0,
             color: Theme.of(context).colorScheme.primary,
           ),
         ),
-      ])
-        ..mainAxisSize = MainAxisSize.min
-        ..useParent((v) => v
-            // ..bg = Get.isDarkMode
-            //     ? const Color.fromRGBO(70, 70, 70, 1.0)
-            //     : Colors.white70
-            ),
-    );
+      ],
+    ));
   }
 
   Widget regionField(BuildContext context) {
-    return Obx(() => n.Column([
+    return Obx(() => Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               Container(
                 alignment: Alignment.centerLeft,
                 padding: const EdgeInsets.only(left: 16.0),
@@ -344,7 +340,9 @@ class UpdatePage extends StatelessWidget {
                 height: 40.0,
                 child: Text("${'selected_region'.tr}： ${logic.val.value}"),
               ),
-              n.Row([
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                 Expanded(
                   child: Container(
                     margin: const EdgeInsets.only(left: 16, right: 16),
@@ -370,13 +368,7 @@ class UpdatePage extends StatelessWidget {
                     ),
                   ),
                 ),
-              ])
-                ..mainAxisSize = MainAxisSize.min
-                // 内容文本左对齐
-                ..crossAxisAlignment = CrossAxisAlignment.start,
-            ])
-              ..mainAxisSize = MainAxisSize.min
-        // ..useParent((v) => v..bg = Theme.of(context).colorScheme.surface),
-        );
+              ]),
+            ]));
   }
 }

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -39,7 +39,8 @@ class LaunchChatPage extends StatelessWidget {
 
   Widget _buildListItem(BuildContext context, ContactModel model) {
     // String susTag = model.getSuspensionTag();
-    return n.Column([
+    return Column(
+      children: [
       SizedBox(
         height: _itemHeight.toDouble(),
         child: Obx(() => InkWell(
@@ -58,10 +59,10 @@ class LaunchChatPage extends StatelessWidget {
                 }
                 // setState(() {});
               },
-              child: n.Row([
-                n.Padding(
-                  left: 8,
-                  right: 8,
+              child: Row(
+                children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, right: 8),
                   child: Icon(
                     model.selected.isTrue
                         ? CupertinoIcons.check_mark_circled_solid
@@ -110,8 +111,8 @@ class LaunchChatPage extends StatelessWidget {
       appBar: NavAppBar(
         title: 'select_contacts'.tr,
         leadingWidth: 72,
-        leading: n.Padding(
-          top: 8,
+        leading: Padding(
+          padding: const EdgeInsets.only(top: 8),
           child: TextButton(
             onPressed: () {
               Navigator.of(context).pop();
@@ -163,15 +164,14 @@ class LaunchChatPage extends StatelessWidget {
       ),
       body: SingleChildScrollView(
           // 包裹一个可滚动的容器
-          child: n.Column([
+          child: Column(
+        children: [
         /* TODO leeyi 2024-04-12 00:05:34
-        n.Row([
+        Row(
+          children: [
           Expanded(
-              child: n.Padding(
-            left: 8,
-            top: 0,
-            right: 8,
-            bottom: 10,
+              child: Padding(
+            padding: const EdgeInsets.only(left: 8, top: 0, right: 8, bottom: 10),
             child: searchBar(
               context,
               searchLabel: 'search'.tr,
@@ -199,41 +199,43 @@ class LaunchChatPage extends StatelessWidget {
           )),
         ]),
         */
-        n.Row([
+        Row(
+          children: [
           Expanded(
               child: SingleChildScrollView(
             child: Container(
               width: Get.width,
               height: Get.height - 150,
               color: Theme.of(context).colorScheme.surface,
-              child: n.Column([
-                n.ListTile(
-                  title: Text('select_a_group'.tr),
-                  trailing: navigateNextIcon,
-                  onTap: () {
-                    Get.to(
-                      () => GroupSelectPage(),
-                      transition: Transition.rightToLeft,
-                      popGesture: true, // 右滑，返回上一页
-                    );
-                  },
-                ),
-                n.Padding(left: 18, child: const Divider()),
-                n.ListTile(
-                  title: Text('create_group_f2f'.tr),
-                  trailing: navigateNextIcon,
-                  onTap: () {
-                    Get.to(
-                      () => FaceToFacePage(),
-                      // () => FaceToFaceConfirmPage(
-                      //   code: '1258',
-                      // ),
-                      transition: Transition.rightToLeft,
-                      popGesture: true, // 右滑，返回上一页
-                    );
-                  },
-                ),
-                n.Padding(left: 18, child: const Divider()),
+              child: Column(
+                children: [
+                ListTile(
+                    title: Text('select_a_group'.tr),
+                    trailing: navigateNextIcon,
+                    onTap: () {
+                      Get.to(
+                        () => GroupSelectPage(),
+                        transition: Transition.rightToLeft,
+                        popGesture: true, // 右滑，返回上一页
+                      );
+                    },
+                  ),
+                  Padding(padding: const EdgeInsets.only(left: 18), child: const Divider()),
+                  ListTile(
+                    title: Text('create_group_f2f'.tr),
+                    trailing: navigateNextIcon,
+                    onTap: () {
+                      Get.to(
+                        () => FaceToFacePage(),
+                        // () => FaceToFaceConfirmPage(
+                        //   code: '1258',
+                        // ),
+                        transition: Transition.rightToLeft,
+                        popGesture: true, // 右滑，返回上一页
+                      );
+                    },
+                  ),
+                  Padding(padding: const EdgeInsets.only(left: 18), child: const Divider()),
                 Expanded(
                   child: SlidableAutoCloseBehavior(child: Obx(() {
                     return logic.state.items.isEmpty

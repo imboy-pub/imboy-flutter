@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
@@ -39,85 +39,88 @@ class FaceToFacePage extends StatelessWidget {
         // backgroundColor: darkBgColor,
       ),
       // backgroundColor: Get.isDarkMode ? darkBgColor : lightBgColor,
-      body: n.Column([
-        SizedBox(height: 20, width: MediaQuery.sizeOf(context).width),
-        n.Row([
-          Expanded(
-            child: n.Padding(
-              left: 48,
-              right: 48,
-              child: Text(
-                // 'Enter the same four numbers as your friends to enter the same group chat',
-                // '和身边的朋友输入同样的四个数字，进入同一个群聊',
-                'create_group_f2f_tips'.tr,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.white60,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-        ])
-          // 内容居中
-          ..mainAxisAlignment = MainAxisAlignment.center,
-        SizedBox(height: 20, width: MediaQuery.sizeOf(context).width),
-        Obx(() {
-          return _buildNumberWidget(state.resultData.value.length);
-        }),
-        n.Row([
-          Expanded(
-            child: n.Padding(
-              left: 20,
-              right: 10,
-              child: Obx(
-                () => Text(state.errorInfo.value,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SizedBox(height: 20, width: MediaQuery.sizeOf(context).width),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 48, right: 48),
+                  child: Text(
+                    // 'Enter the same four numbers as your friends to enter the same group chat',
+                    // '和身边的朋友输入同样的四个数字，进入同一个群聊',
+                    'create_group_f2f_tips'.tr,
                     style: const TextStyle(
                       fontSize: 16,
-                      color: Colors.red,
+                      color: Colors.white60,
                       fontWeight: FontWeight.w500,
-                    )),
+                    ),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ])
-          // 内容居中
-          ..mainAxisAlignment = MainAxisAlignment.center,
-        SizedBox(height: 20, width: MediaQuery.sizeOf(context).width),
-        const Spacer(),
-        NumericKeypad(
-          controller: state.textEditingController,
-          onChanged: (value) async {
-            state.resultData.value = value;
-            iPrint("_textEditingController value $value");
-            if (value.length == 4) {
-              EasyLoading.show(status: '');
-              Map<String, dynamic> res = await logic.faceToFace(value);
-              state.errorInfo.value = res['error'] ?? '';
+          SizedBox(height: 20, width: MediaQuery.sizeOf(context).width),
+          Obx(() {
+            return _buildNumberWidget(state.resultData.value.length);
+          }),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 20, right: 10),
+                  child: Obx(
+                    () => Text(state.errorInfo.value,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.red,
+                          fontWeight: FontWeight.w500,
+                        )),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 20, width: MediaQuery.sizeOf(context).width),
+          const Spacer(),
+          NumericKeypad(
+            controller: state.textEditingController,
+            onChanged: (value) async {
+              state.resultData.value = value;
+              iPrint("_textEditingController value $value");
+              if (value.length == 4) {
+                EasyLoading.show(status: '');
+                Map<String, dynamic> res = await logic.faceToFace(value);
+                state.errorInfo.value = res['error'] ?? '';
 
-              String gid = res['gid'] ?? '';
-              // await Future.delayed(const Duration(seconds: 1));
-              EasyLoading.dismiss();
-              state.textEditingController.clearText();
-              state.resultData.value = '';
-              if (gid.isNotEmpty) {
-                Get.to(
-                  () => FaceToFaceConfirmPage(
-                      code: value,
-                      gid: gid,
-                      memberList: res['memberList'] ?? []),
-                  transition: Transition.rightToLeft,
-                  popGesture: true, // 右滑，返回上一页
-                );
-              }
-              Timer(const Duration(seconds: 3), () {
+                String gid = res['gid'] ?? '';
+                // await Future.delayed(const Duration(seconds: 1));
                 EasyLoading.dismiss();
-              });
-              // 接口校验
-            }
-          },
-        ),
-      ]),
+                state.textEditingController.clearText();
+                state.resultData.value = '';
+                if (gid.isNotEmpty) {
+                  Get.to(
+                    () => FaceToFaceConfirmPage(
+                        code: value,
+                        gid: gid,
+                        memberList: res['memberList'] ?? []),
+                    transition: Transition.rightToLeft,
+                    popGesture: true, // 右滑，返回上一页
+                  );
+                }
+                Timer(const Duration(seconds: 3), () {
+                  EasyLoading.dismiss();
+                });
+                // 接口校验
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 

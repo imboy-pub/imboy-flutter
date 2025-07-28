@@ -3,7 +3,6 @@ import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/helper/permission.dart';
 import 'package:imboy/page/chat/widget/chat_input_height_listener.dart';
 import 'package:provider/provider.dart';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -22,12 +21,10 @@ import 'package:image/image.dart' as img;
 import 'package:imboy/component/ui/line.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:mime/mime.dart';
-import 'package:niku/namespace.dart' as n;
 import 'package:photo_view/photo_view.dart';
 import 'package:popup_menu/popup_menu.dart' as popupmenu;
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:xid/xid.dart';
-
 import 'package:imboy/service/message.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/chat_extend_model.dart';
@@ -39,7 +36,6 @@ import 'package:imboy/component/chat/message.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/voice_record/voice_widget.dart';
-
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat_setting/chat_setting_view.dart';
 import 'package:imboy/page/chat/send_to/send_to_view.dart';
@@ -55,26 +51,22 @@ import 'package:imboy/store/model/user_collect_model.dart';
 import 'package:imboy/store/provider/attachment_provider.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-
 import '../widget/chat_input.dart';
 import '../widget/extra_item.dart';
 import '../widget/quote_tips.dart';
 import '../widget/select_friend.dart';
 import 'chat_logic.dart';
-
 // 聊天页面主Widget
 // ignore: must_be_immutable
 class ChatPage extends StatefulWidget {
-  final String type; // 聊���类型 [C2C | C2G | C2S]
+  final String type; // 聊天类型 [C2C | C2G | C2S]
   final String peerId; // 对方ID (用户ID/群组ID/服务ID)
   final String peerAvatar; // 对方头像
   final String peerTitle; // 对方标题/名称
   final String peerSign; // 对方签名
   final String msgId; // 消息ID (用于定位特定消息)
-
   // 可选配置参数
   final Map<String, dynamic>? options;
-
   /*
     options可能包含的字段:
     {
@@ -94,26 +86,20 @@ class ChatPage extends StatefulWidget {
     this.msgId = '',
     this.options,
   });
-
   @override
   ChatPageState createState() => ChatPageState();
 }
-
 class ChatPageState extends State<ChatPage> {
   final galleryLogic = getx.Get.put(ImageGalleryLogic());
   final logic = getx.Get.find<ChatLogic>();
   final state = getx.Get.find<ChatLogic>().state;
-
   final conversationLogic = getx.Get.find<ConversationLogic>();
-
   bool _showAppBar = true; // 控制顶部导航栏显示/隐藏
   String newGroupName = ""; // 新群组名称
   int get maxAssetsCount => 9; // 最大可选资源数量
-
   List<AssetEntity> assets = <AssetEntity>[]; // 选择的资源列表
   Message? quoteMessage; // 引用的消息
   final GlobalKey<ChatInputState> chatInputKey = GlobalKey<ChatInputState>();
-
   // 消息ID集合，用于防止 eventBus 重复渲染消息
   final Set<String> msgIds = {};
   final User currentUser = User(
@@ -121,11 +107,9 @@ class ChatPageState extends State<ChatPage> {
     name: UserRepoLocal.to.current.nickname,
     imageSource: UserRepoLocal.to.current.avatar,
   );
-
   late ConversationModel conversation; // 当前会话
   late User peer; // 对方用户信息
   // StreamSubscription<ConnectivityResult>? _connectivitySubscription; // 网络状态监听
-
   // 页面初始化
   @override
   void initState() {
@@ -134,22 +118,17 @@ class ChatPageState extends State<ChatPage> {
     state.nextAutoId.value = 0;
     state.hasMoreMessage.value = true;
     state.isLoading.value = false;
-
     _initChat();
     _initData();
   }
-
   /// 初始化聊天相关数据
   Future<void> _initChat() async {
     logic.initChatController(widget.type);
-
     // 创建或获取会话
     await _setupConversation();
     await logic.loadMoreMessages(conversation, isInitial: true);
     _setupEventListeners();
   }
-
-
   // 初始化数据
   Future<void> _initData() async {
     peer = User(
@@ -157,7 +136,6 @@ class ChatPageState extends State<ChatPage> {
       name: widget.peerTitle,
       imageSource: widget.peerAvatar,
     );
-
     // 监听网络状态
     Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
       if (r.contains(ConnectivityResult.none)) {
@@ -175,10 +153,8 @@ class ChatPageState extends State<ChatPage> {
         //
       }
     }
-
     // 初始化群组信息
     await _initGroupInfo();
-
     // 加载消息
     if (widget.msgId.isNotEmpty) {
       logic.scrollToMessage(widget.type, widget.msgId);
@@ -186,7 +162,6 @@ class ChatPageState extends State<ChatPage> {
     // 设置消息监听
     _setupEventListeners();
   }
-
   /// 设置会话
   Future<void> _setupConversation() async {
     bool showConversation = widget.options?['showConversation'] ?? true;
@@ -198,13 +173,11 @@ class ChatPageState extends State<ChatPage> {
       subtitle: "",
       lastTime: showConversation ? DateTimeHelper.millisecond() : 0,
     );
-
     if (showConversation) {
       eventBus.fire(conversation);
     }
     state.nextAutoId.value = 0;
   }
-
   // 初始化群组信息
   Future<void> _initGroupInfo() async {
     if (widget.type == 'C2G') {
@@ -216,12 +189,11 @@ class ChatPageState extends State<ChatPage> {
       );
     }
   }
-
   void _setupEventListeners() {
     // 一些异步操作事件的监听
     state.ssMsgExt = eventBus.on<ChatExtendModel>().listen((
-      ChatExtendModel obj,
-    ) async {
+        ChatExtendModel obj,
+        ) async {
       // 监听新成员加入
       if (obj.type == 'join_group' &&
           obj.payload['groupId'] == widget.peerId &&
@@ -242,17 +214,14 @@ class ChatPageState extends State<ChatPage> {
         logic.chatController.removeMessageById(obj.payload['msg'].id);
       }
     });
-
     // 接收到新的消息订阅 for c2c c2g
     state.ssMsg = eventBus.on<Message>().listen((Message msg) async {
       final String conversationUk3 = msg.metadata?['conversation_uk3'] ?? '';
       if (conversationUk3 != conversation.uk3 || msgIds.contains(msg.id)) {
         return;
       }
-
       msgIds.add(msg.id);
       final i = logic.chatController.messages.indexWhere((e) => e.id == msg.id);
-
       if (i == -1) {
         String tb = MessageRepo.getTableName(widget.type);
         MessageModel? m = await MessageService.to.changeStatus(
@@ -261,7 +230,6 @@ class ChatPageState extends State<ChatPage> {
           IMBoyMessageStatus.seen,
         );
         conversationLogic.decreaseConversationRemind(conversation, 1);
-
         if (m != null) {
           msg = await m.toTypeMessage();
           logic.chatController.insertMessage(
@@ -269,17 +237,14 @@ class ChatPageState extends State<ChatPage> {
             index: logic.chatController.messages.length,
           );
           _markMessagesAsRead([msg]);
-
           if (msg is ImageMessage) {
             galleryLogic.pushToLast(msg.id, msg.source);
           }
         }
       }
-
       // 为节省内存，5秒后从 msgIds 移出 msg.id
       Future.delayed(const Duration(seconds: 5), () => msgIds.remove(msg.id));
     });
-
     // 消息状态更新订阅, 这里无需用锁 for c2g
     state.ssMsgState = eventBus.on<List<Message>>().listen((e) {
       if (e.isEmpty) return;
@@ -290,7 +255,6 @@ class ChatPageState extends State<ChatPage> {
       }
     });
   }
-
   @override
   void dispose() {
     state.ssMsgExt?.cancel();
@@ -302,25 +266,22 @@ class ChatPageState extends State<ChatPage> {
     getx.Get.delete<ImageGalleryLogic>();
     super.dispose();
   }
-
   // 标记消息为已读
   Future<void> _markMessagesAsRead(List<Message> items) async {
     final unreadMsgIds = items
         .where(
           (msg) =>
-              msg.authorId != UserRepoLocal.to.currentUid &&
-              msg.status != MessageStatus.seen,
-        )
+      msg.authorId != UserRepoLocal.to.currentUid &&
+          msg.status != MessageStatus.seen,
+    )
         .map((msg) => msg.id)
         .toList();
-
     if (unreadMsgIds.isEmpty) {
       conversationLogic.recalculateConversationRemind(conversation);
     } else {
       await logic.markAsRead(widget.type, widget.peerId, unreadMsgIds);
     }
   }
-
   // 添加消息
   Future<bool> _addMessage(Message message) async {
     try {
@@ -332,7 +293,6 @@ class ChatPageState extends State<ChatPage> {
         widget.type == 'null' ? 'C2C' : widget.type,
         message,
       );
-
       await logic.chatController.insertMessage(
         message,
         index: logic.chatController.messages.length,
@@ -343,21 +303,18 @@ class ChatPageState extends State<ChatPage> {
       return false;
     }
   }
-
   // 选择文件
   Future<void> _handleFileSelection() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.any);
     if (result == null || result.files.single.path == null) return;
-
     await _uploadFile(result.files.single);
   }
-
   // 上传文件
   Future<void> _uploadFile(PlatformFile file) async {
     await AttachmentProvider.uploadFile(
       "files",
       file,
-      (Map<String, dynamic> resp, String uri) async {
+          (Map<String, dynamic> resp, String uri) async {
         final message = FileMessage(
           id: Xid().toString(),
           authorId: currentUser.id,
@@ -374,24 +331,21 @@ class ChatPageState extends State<ChatPage> {
         );
         _addMessage(message);
       },
-      (Error error) => debugPrint("File upload error: ${error.toString()}"),
+          (Error error) => debugPrint("File upload error: ${error.toString()}"),
     );
   }
-
   // 拍摄照片或视频
   Future<void> _handlePickerSelection(BuildContext context) async {
     // 在异步操作前检查 context 是否已挂载
     if (!context.mounted) {
       return;
     }
-
     try {
       // 请求相机权限
       bool hasPermission = await requestCameraPermission();
       if (!hasPermission || !context.mounted) {  // 添加 mounted 检查
         return;
       }
-
       final AssetEntity? entity = await CameraPicker.pickFromCamera(
         context,
         pickerConfig: const CameraPickerConfig(
@@ -401,10 +355,8 @@ class ChatPageState extends State<ChatPage> {
           maximumRecordingDuration: Duration(seconds: 24),
         ),
       );
-
       // 检查上下文是否仍然有效
       if (!context.mounted || entity == null) return;
-
       await _uploadCameraAsset(entity);
     } catch (e) {
       debugPrint("Camera picker error: $e");
@@ -415,35 +367,31 @@ class ChatPageState extends State<ChatPage> {
       }
     }
   }
-
   // 上传拍摄的资源
   Future<void> _uploadCameraAsset(AssetEntity entity) async {
     await AttachmentProvider.uploadVideo(
       "camera",
       entity,
-      (Map<String, dynamic> resp, String imgUrl) async {
+          (Map<String, dynamic> resp, String imgUrl) async {
         imgUrl += "&width=${getx.Get.width.toInt()}";
-
         if (entity.type == AssetType.image) {
           await _handleImageUpload(resp, imgUrl, entity);
         } else if (entity.type == AssetType.video) {
           await _handleVideoUpload(resp);
         }
       },
-      (Error error) => debugPrint("Camera upload error: ${error.toString()}"),
+          (Error error) => debugPrint("Camera upload error: ${error.toString()}"),
       uploadOriginalImage: true,
     );
-
     // 上传后删除临时文件
     (await entity.file)?.deleteSync();
   }
-
   // 处理图片上传
   Future<void> _handleImageUpload(
-    Map<String, dynamic> resp,
-    String imgUrl,
-    AssetEntity entity,
-  ) async {
+      Map<String, dynamic> resp,
+      String imgUrl,
+      AssetEntity entity,
+      ) async {
     final message = ImageMessage(
       authorId: currentUser.id,
       createdAt: DateTimeHelper.now(),
@@ -460,7 +408,6 @@ class ChatPageState extends State<ChatPage> {
     );
     _addMessage(message);
   }
-
   // 处理视频上传
   Future<void> _handleVideoUpload(Map<String, dynamic> resp) async {
     final message = CustomMessage(
@@ -476,7 +423,6 @@ class ChatPageState extends State<ChatPage> {
     );
     _addMessage(message);
   }
-
   // 选择资源(图片/视频)
   Future<void> _selectAssets(PickMethod model) async {
     final List<AssetEntity>? result = await model.method(context, assets);
@@ -485,7 +431,6 @@ class ChatPageState extends State<ChatPage> {
       if (mounted) setState(() {});
     }
   }
-
   // 发送收藏消息
   Future<void> _handleCollectSelection() async {
     final peer = {
@@ -493,19 +438,16 @@ class ChatPageState extends State<ChatPage> {
       'avatar': widget.peerAvatar,
       'title': widget.peerTitle,
     };
-
     final collect = await Navigator.push(
       context,
       CupertinoPageRoute(
         builder: (_) => UserCollectPage(peer: peer, isSelect: true),
       ),
     );
-
     if (collect != null) {
       await _sendCollectMessage(collect);
     }
   }
-
   // 发送收藏消息
   Future<void> _sendCollectMessage(UserCollectModel collect) async {
     final data = collect.info
@@ -517,10 +459,8 @@ class ChatPageState extends State<ChatPage> {
         MessageRepo.conversationUk3: conversation.uk3,
         MessageRepo.createdAt: DateTimeHelper.millisecond(),
       });
-
     final msg = await MessageModel.fromJson(data).toTypeMessage();
     final res = await _addMessage(msg);
-
     if (res) {
       getx.Get.find<UserCollectLogic>().change(collect.kindId);
       EasyLoading.showSuccess('tip_success'.tr);
@@ -528,7 +468,6 @@ class ChatPageState extends State<ChatPage> {
       EasyLoading.showError('tip_failed'.tr);
     }
   }
-
   // 发送个人名片
   Future<void> _handleVisitCardSelection() async {
     final peer = {
@@ -536,17 +475,14 @@ class ChatPageState extends State<ChatPage> {
       'avatar': widget.peerAvatar,
       'title': widget.peerTitle,
     };
-
     final contact = await Navigator.push(
       context,
       CupertinoPageRoute(builder: (_) => SelectFriendPage(peer: peer)),
     );
-
     if (contact != null) {
       await _sendVisitCardMessage(contact);
     }
   }
-
   // 发送个人名片消息
   Future<void> _sendVisitCardMessage(ContactModel contact) async {
     final message = CustomMessage(
@@ -561,7 +497,6 @@ class ChatPageState extends State<ChatPage> {
         'avatar': contact.avatar,
       },
     );
-
     final res = await _addMessage(message);
     if (res) {
       EasyLoading.showSuccess('tip_success'.tr);
@@ -569,28 +504,24 @@ class ChatPageState extends State<ChatPage> {
       EasyLoading.showError('tip_failed'.tr);
     }
   }
-
   // 发送位置消息
   Future<void> _handleLocationSelection(
-    String id,
-    Uint8List? imageBytes,
-    String address,
-    String title,
-    String latitude,
-    String longitude,
-  ) async {
+      String id,
+      Uint8List? imageBytes,
+      String address,
+      String title,
+      String latitude,
+      String longitude,
+      ) async {
     if (imageBytes == null) return;
-
     final image = img.decodeImage(imageBytes)!;
     final result = img.encodeJpg(image, quality: 65);
-
     await AttachmentProvider.uploadBytes(
       "location",
       result,
-      (Map<String, dynamic> resp, String imgUrl) async {
+          (Map<String, dynamic> resp, String imgUrl) async {
         double w = getx.Get.width;
         imgUrl += "&width=${w.toInt()}";
-
         final message = CustomMessage(
           authorId: currentUser.id,
           createdAt: DateTimeHelper.now(),
@@ -609,11 +540,10 @@ class ChatPageState extends State<ChatPage> {
         );
         _addMessage(message);
       },
-      (Error error) => debugPrint("Location upload error: ${error.toString()}"),
+          (Error error) => debugPrint("Location upload error: ${error.toString()}"),
       process: false,
     );
   }
-
   // 选择图片/视频
   Future<void> _handleImageSelection() async {
     // Request photo permission before accessing assets
@@ -626,14 +556,13 @@ class ChatPageState extends State<ChatPage> {
     );
     await _uploadSelectedAssets();
   }
-
   // 上传选择的资源
   Future<void> _uploadSelectedAssets() async {
     for (var entity in assets) {
       await AttachmentProvider.uploadVideo(
         "img",
         entity,
-        (Map<String, dynamic> resp, String imgUrl) async {
+            (Map<String, dynamic> resp, String imgUrl) async {
           if (entity.type == AssetType.image) {
             await _handleSelectedImageUpload(resp, imgUrl, entity);
           } else if (entity.type == AssetType.video) {
@@ -641,21 +570,19 @@ class ChatPageState extends State<ChatPage> {
           }
           _removeUploadedAsset(entity);
         },
-        (Error error) => debugPrint("Asset upload error: ${error.toString()}"),
+            (Error error) => debugPrint("Asset upload error: ${error.toString()}"),
         uploadOriginalImage: true,
       );
     }
   }
-
   // 处理选择的图片上传
   Future<void> _handleSelectedImageUpload(
-    Map<String, dynamic> resp,
-    String imgUrl,
-    AssetEntity entity,
-  ) async {
+      Map<String, dynamic> resp,
+      String imgUrl,
+      AssetEntity entity,
+      ) async {
     double w = getx.Get.width;
     imgUrl += "&width=${w.toInt()}";
-
     final message = ImageMessage(
       authorId: currentUser.id,
       createdAt: DateTimeHelper.now(),
@@ -672,7 +599,6 @@ class ChatPageState extends State<ChatPage> {
     );
     _addMessage(message);
   }
-
   // 处理选择的视频上传
   Future<void> _handleSelectedVideoUpload(Map<String, dynamic> resp) async {
     final message = CustomMessage(
@@ -688,21 +614,18 @@ class ChatPageState extends State<ChatPage> {
     );
     _addMessage(message);
   }
-
   // 移除已上传的资源
   void _removeUploadedAsset(AssetEntity entity) {
     assets.removeWhere((element) => element.id == entity.id);
     if (mounted) setState(() {});
   }
-
   // 发送语音消息
   Future<void> _handleVoiceSelection(AudioFile? obj) async {
     if (obj == null || (await obj.file.readAsBytes()).isEmpty) return;
-
     await AttachmentProvider.uploadFile(
       'audio',
       obj.file,
-      (Map<String, dynamic> resp, String uri) async {
+          (Map<String, dynamic> resp, String uri) async {
         final message = CustomMessage(
           authorId: currentUser.id,
           createdAt: DateTimeHelper.now(),
@@ -721,11 +644,10 @@ class ChatPageState extends State<ChatPage> {
         obj.file.delete(recursive: true);
         _addMessage(message);
       },
-      (Error error) => debugPrint("Voice upload error: ${error.toString()}"),
+          (Error error) => debugPrint("Voice upload error: ${error.toString()}"),
       process: false,
     );
   }
-
   // 消息双击事件
   void _onMessageDoubleTap(BuildContext c1, Message message, {int? index}) {
     if (message is TextMessage) {
@@ -744,12 +666,10 @@ class ChatPageState extends State<ChatPage> {
       if (txt.isNotEmpty) showTextMessage(txt);
     }
   }
-
   // 更新引用消息
   Future<void> updateQuoteMessage(Message? msg) async {
     setState(() => quoteMessage = msg);
   }
-
   // 发送文本消息
   Future<bool> _handleSendPressed(String text) async {
     iPrint('handleSendPressed: $text');
@@ -759,7 +679,6 @@ class ChatPageState extends State<ChatPage> {
       return await _sendQuoteMessage(text);
     }
   }
-
   // 发送普通文本消息
   Future<bool> _sendTextMessage(String text) async {
     final textMessage = TextMessage(
@@ -771,13 +690,11 @@ class ChatPageState extends State<ChatPage> {
     );
     return await _addMessage(textMessage);
   }
-
   // 发送引用消息
   Future<bool> _sendQuoteMessage(String text) async {
     String quoteMsgAuthorName = quoteMessage!.authorId == widget.peerId
         ? widget.peerTitle
         : UserRepoLocal.to.current.nickname;
-
     final message = CustomMessage(
       authorId: currentUser.id,
       createdAt: DateTimeHelper.now(),
@@ -790,18 +707,15 @@ class ChatPageState extends State<ChatPage> {
         'quote_text': text,
       },
     );
-
     bool res = await _addMessage(message);
     if (res) updateQuoteMessage(null);
     return res;
   }
-
   // 消息状态点击事件
   void _onMessageStatusTap(BuildContext ctx, Message msg) {
     if (msg.status != MessageStatus.sent && msg.status != MessageStatus.sending) {
       return;
     }
-
     int diff =
         DateTimeHelper.millisecond() - msg.createdAt!.millisecondsSinceEpoch;
     if (diff > 1000) {
@@ -809,14 +723,13 @@ class ChatPageState extends State<ChatPage> {
       // setState(() => logic.chatController.messages = logic.chatController.messages);
     }
   }
-
   // 消息长按事件
   void _onMessageLongPress(
-    BuildContext c1,
-    Message message, {
-    int? index,
-    LongPressStartDetails? details,
-  }) {
+      BuildContext c1,
+      Message message, {
+        int? index,
+        LongPressStartDetails? details,
+      }) {
     iPrint('_onMessageLongPress');
     // BuildContext c1 = getx.Get.context!;
     final menu = popupmenu.PopupMenu(
@@ -824,10 +737,8 @@ class ChatPageState extends State<ChatPage> {
       items: logic.getPopupMenuItems(message),
       onClickMenu: onClickMenu,
     );
-
     final renderBox = c1.findRenderObject() as RenderBox;
     final offset = renderBox.localToGlobal(Offset.zero);
-
     double l = offset.dx / 2 - renderBox.size.width / 2 + 75.0;
     double r = renderBox.size.width / 2 - 75.0;
     double dx = message.authorId == UserRepoLocal.to.currentUid ? r : l;
@@ -835,16 +746,13 @@ class ChatPageState extends State<ChatPage> {
     double h = renderBox.size.height > getx.Get.height
         ? getx.Get.height
         : renderBox.size.height;
-
     menu.show(rect: Rect.fromLTWH(dx, dy, renderBox.size.width, h));
   }
-
   // 菜单项点击事件
   void onClickMenu(popupmenu.MenuItemProvider item) async {
     final it = item as popupmenu.MenuItem;
     final msg = it.userInfo['msg'] as Message;
     final itemId = it.userInfo['id'] ?? '';
-
     switch (itemId) {
       case "delete":
         if (msg.authorId == UserRepoLocal.to.currentUid) {
@@ -874,52 +782,54 @@ class ChatPageState extends State<ChatPage> {
         break;
     }
   }
-
   // 显示删除消息对话框
   void _showDeleteMessageDialog(Message msg) {
-    n.showDialog(
+    // 替换 n.showDialog
+    showDialog(
       context: getx.Get.context!,
-      builder: (context) => n.Alert()
-        ..contentPadding = n.NikuEdgeInsets.all(0)
-        ..backgroundColor = const Color(0xff232323)
-        ..content = n.Column([
-          ListTile(
-            title: Text(
-              'delete_for_me'.tr,
-              style: const TextStyle(color: Colors.white),
-            ),
-            onTap: () => _deleteMessageForMe(context, msg),
-          ),
-          if (msg.authorId == UserRepoLocal.to.currentUid)
-            n.Padding(
-              left: 16,
-              right: 16,
-              child: HorizontalLine(height: getx.Get.isDarkMode ? 0.5 : 1.0),
-            ),
-          if (msg.authorId == UserRepoLocal.to.currentUid)
+      builder: (context) => AlertDialog(
+        contentPadding: EdgeInsets.zero, // 替换 EdgeInsets.all(0)
+        backgroundColor: const Color(0xff232323),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
             ListTile(
               title: Text(
-                'delete_for_everyone'.tr,
+                'delete_for_me'.tr,
                 style: const TextStyle(color: Colors.white),
               ),
-              onTap: () => _deleteMessageForEveryone(context, msg),
+              onTap: () => _deleteMessageForMe(context, msg),
             ),
-        ]),
+            // 替换 n.Padding
+            if (msg.authorId == UserRepoLocal.to.currentUid)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: HorizontalLine(height: getx.Get.isDarkMode ? 0.5 : 1.0),
+              ),
+            if (msg.authorId == UserRepoLocal.to.currentUid)
+              ListTile(
+                title: Text(
+                  'delete_for_everyone'.tr,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                onTap: () => _deleteMessageForEveryone(context, msg),
+              ),
+          ],
+        ),
+      ),
       barrierDismissible: true,
     );
   }
-
   // 删除消息(仅自己)
   Future<void> _deleteMessageForMe(
-    BuildContext context,
-    Message msg, {
-    bool pop = true,
-  }) async {
+      BuildContext context,
+      Message msg, {
+        bool pop = true,
+      }) async {
     final nav = Navigator.of(context);
     if (widget.type == 'C2G') {
       await _sendDeleteForMeMessage(msg);
     }
-
     bool res = await logic.removeMessage(conversation, msg);
     if (res) {
       await logic.chatController.removeMessageById(msg.id);
@@ -928,7 +838,6 @@ class ChatPageState extends State<ChatPage> {
       nav.pop();
     }
   }
-
   // 发送删除消息请求(仅自己)
   Future<void> _sendDeleteForMeMessage(Message msg) async {
     final msg2 = {
@@ -945,14 +854,12 @@ class ChatPageState extends State<ChatPage> {
     };
     await logic.sendMessage(msg2);
   }
-
   // 删除消息(所有人)
   Future<void> _deleteMessageForEveryone(
-    BuildContext context,
-    Message msg,
-  ) async {
+      BuildContext context,
+      Message msg,
+      ) async {
     final nav = Navigator.of(context);
-
     final msg2 = {
       'id': Xid().toString(),
       'from': msg.authorId,
@@ -966,20 +873,17 @@ class ChatPageState extends State<ChatPage> {
       'created_at': DateTimeHelper.millisecond(),
     };
     await logic.sendMessage(msg2);
-
     bool res = await logic.removeMessage(conversation, msg);
     if (res) {
       await logic.chatController.removeMessageById(msg.id);
     }
     nav.pop();
   }
-
   // 复制消息文本
   void _copyMessageText(TextMessage msg) {
     Clipboard.setData(ClipboardData(text: msg.text));
     EasyLoading.showToast('copied'.tr);
   }
-
   // 保存消息内容
   Future<void> _saveMessageContent(Message msg) async {
     if (msg is CustomMessage) {
@@ -990,7 +894,6 @@ class ChatPageState extends State<ChatPage> {
       await logic.saveFile(msg.name, msg.source);
     }
   }
-
   // 收藏消息
   Future<void> _collectMessage(Message msg) async {
     String tb = MessageRepo.getTableName(widget.type);
@@ -999,7 +902,6 @@ class ChatPageState extends State<ChatPage> {
       res ? 'collected'.tr : 'operation_failed_again_later'.tr,
     );
   }
-
   // 撤回消息
   Future<void> _revokeMessage(Message msg) async {
     final msg2 = {
@@ -1011,29 +913,29 @@ class ChatPageState extends State<ChatPage> {
     };
     await logic.sendMessage(msg2);
   }
-
   // 转发消息
   void _forwardMessage(Message msg) {
     getx.Get.bottomSheet(
       backgroundColor: getx.Get.isDarkMode
           ? const Color.fromRGBO(80, 80, 80, 1)
           : const Color.fromRGBO(240, 240, 240, 1),
-      n.Padding(top: 24, child: SendToPage(msg: msg)),
+      // 替换 n.Padding
+      Padding(
+        padding: const EdgeInsets.only(top: 24),
+        child: SendToPage(msg: msg),
+      ),
       isScrollControlled: true,
     );
   }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final topRightWidget = [
       InkWell(
         onTap: _navigateToChatSettings,
-        child: n.Padding(
-          left: 10,
-          right: 10,
-          bottom: 10,
-          top: 10,
+        // 替换 n.Padding
+        child: Padding(
+          padding: const EdgeInsets.all(10), // left: 10, right: 10, bottom: 10, top: 10
           child: Icon(
             Icons.more_horiz,
             color: Theme.of(context).colorScheme.onPrimary,
@@ -1041,75 +943,77 @@ class ChatPageState extends State<ChatPage> {
         ),
       ),
     ];
-
     return Scaffold(
       appBar: _showAppBar
           ? NavAppBar(
-              title: newGroupName.isEmpty ? widget.peerTitle : newGroupName,
-              rightDMActions: topRightWidget,
-              automaticallyImplyLeading: true,
-              popTime: widget.options?['popTime'] ?? 1,
-            )
+        title: newGroupName.isEmpty ? widget.peerTitle : newGroupName,
+        rightDMActions: topRightWidget,
+        automaticallyImplyLeading: true,
+        popTime: widget.options?['popTime'] ?? 1,
+      )
           : null,
-      body: n.Column([
-        getx.Obx(
-          () => state.connected.isTrue
-              ? const SizedBox.shrink()
-              : NetworkFailureTips(),
-        ),
-        Expanded(
-          child: n.Stack([
-            // 优化2：Provider 注入你的 onMessageLongPress 回调
-            GestureDetector(
-              onTap: () => chatInputKey.currentState?.hideAllPanel(),
-              child: NotificationListener<ScrollNotification>(
-                onNotification: (sn) {
-                  if (sn is UserScrollNotification) {
-                    chatInputKey.currentState?.hideAllPanel();
-                  }
-                  return false;
-                },
-                child: MultiProvider(
-                  providers: [
-                    Provider<OnMessageLongPressCallback>.value(
-                      value: _onMessageLongPress,
+      body: Column( // 替换 n.Column
+        children: [
+          getx.Obx(
+                () => state.connected.isTrue
+                ? const SizedBox.shrink()
+                : NetworkFailureTips(),
+          ),
+          Expanded(
+            child: Stack( // 替换 n.Stack
+              children: [
+                // 优化2：Provider 注入你的 onMessageLongPress 回调
+                GestureDetector(
+                  onTap: () => chatInputKey.currentState?.hideAllPanel(),
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (sn) {
+                      if (sn is UserScrollNotification) {
+                        chatInputKey.currentState?.hideAllPanel();
+                      }
+                      return false;
+                    },
+                    child: MultiProvider(
+                      providers: [
+                        Provider<OnMessageLongPressCallback>.value(
+                          value: _onMessageLongPress,
+                        ),
+                        Provider<OnMessageDoubleTapCallback>.value(
+                          value: _onMessageDoubleTap,
+                        ),
+                        // Provider<OnMessageTapCallback>.value(
+                        //   value: ,
+                        // ),
+                        Provider<OnMessageSendCallback>.value(
+                          value: _handleSendPressed,
+                        ),
+                        // Provider<OnAttachmentTapCallback>.value(
+                        //   value: _onAttachmentTap,
+                        // ),
+                        // 你还可以注入 OnMessageTapCallback、UserID 等 Provider
+                        Provider<UserID>.value(value: currentUser.id),
+                      ],
+                      child: _buildChatWidget(context, theme), // 保持原有 _buildChatWidget 不变
                     ),
-                    Provider<OnMessageDoubleTapCallback>.value(
-                      value: _onMessageDoubleTap,
-                    ),
-                    // Provider<OnMessageTapCallback>.value(
-                    //   value: ,
-                    // ),
-                    Provider<OnMessageSendCallback>.value(
-                      value: _handleSendPressed,
-                    ),
-                    // Provider<OnAttachmentTapCallback>.value(
-                    //   value: _onAttachmentTap,
-                    // ),
-                    // 你还可以注入 OnMessageTapCallback、UserID 等 Provider
-                    Provider<UserID>.value(value: currentUser.id),
-                  ],
-                  child: _buildChatWidget(context, theme), // 保持原有 _buildChatWidget 不变
+                  ),
                 ),
-              ),
+                // _buildChatInput(),
+                if (galleryLogic.isImageViewVisible.isTrue)
+                  IMBoyImageGallery(
+                    images: galleryLogic.gallery.value,
+                    pageController: galleryLogic.galleryPageController!,
+                    onClosePressed: _closeImageGallery,
+                    options: const IMBoyImageGalleryOptions(
+                      maxScale: PhotoViewComputedScale.covered,
+                      minScale: PhotoViewComputedScale.contained,
+                    ),
+                  ),
+              ],
             ),
-            // _buildChatInput(),
-            if (galleryLogic.isImageViewVisible.isTrue)
-              IMBoyImageGallery(
-                images: galleryLogic.gallery.value,
-                pageController: galleryLogic.galleryPageController!,
-                onClosePressed: _closeImageGallery,
-                options: const IMBoyImageGalleryOptions(
-                  maxScale: PhotoViewComputedScale.covered,
-                  minScale: PhotoViewComputedScale.contained,
-                ),
-              ),
-          ]),
-        ),
-      ]),
+          ),
+        ],
+      ),
     );
   }
-
   /// 导航到聊天设置页面
   Widget _buildChatInput(BuildContext context) {
     return ChatInput(
@@ -1142,8 +1046,8 @@ class ChatPageState extends State<ChatPage> {
       ),
       quoteTipsWidget: QuoteTipsWidget(
         title:
-            (quoteMessage != null &&
-                quoteMessage?.authorId == UserRepoLocal.to.currentUid)
+        (quoteMessage != null &&
+            quoteMessage?.authorId == UserRepoLocal.to.currentUid)
             ? UserRepoLocal.to.current.nickname
             : widget.peerTitle,
         message: quoteMessage,
@@ -1151,7 +1055,6 @@ class ChatPageState extends State<ChatPage> {
       ),
     );
   }
-
   /// 构建聊天主界面
   Widget _buildChatWidget(BuildContext context, ThemeData theme) {
     return Chat(
@@ -1185,7 +1088,7 @@ class ChatPageState extends State<ChatPage> {
       builders: Builders(
         chatAnimatedListBuilder: (context, itemBuilder) {
           return getx.Obx(
-            () => AnimatedPadding(
+                () => AnimatedPadding(
               // 用动画包裹消息列表
               padding: EdgeInsets.only(bottom: state.composerHeight.value),
               duration: const Duration(milliseconds: 0),
@@ -1207,7 +1110,6 @@ class ChatPageState extends State<ChatPage> {
             ),
           );
         },
-
         // composerBuilder: (context) => SizedBox.shrink(),
         composerBuilder: (context) => Positioned(
           left: 0,
@@ -1220,138 +1122,134 @@ class ChatPageState extends State<ChatPage> {
         ),
         customMessageBuilder:
             (
-              context,
-              message,
-              index, {
-              required bool isSentByMe,
-              MessageGroupStatus? groupStatus,
-            }) => CustomMessageBuilder(type: widget.type, message: message),
+            context,
+            message,
+            index, {
+          required bool isSentByMe,
+          MessageGroupStatus? groupStatus,
+        }) => CustomMessageBuilder(type: widget.type, message: message),
         imageMessageBuilder:
             (
-              context,
-              message,
-              index, {
-              required bool isSentByMe,
-              MessageGroupStatus? groupStatus,
-            }) => FlyerChatImageMessage(
-              message: message,
-              index: index,
-              showStatus: true,
-              showTime: true,
-              // timeStyle: const TextStyle(
-              //   fontSize: 12,
-              //   color: Colors.green,
-              // ),
-            ),
+            context,
+            message,
+            index, {
+          required bool isSentByMe,
+          MessageGroupStatus? groupStatus,
+        }) => FlyerChatImageMessage(
+          message: message,
+          index: index,
+          showStatus: true,
+          showTime: true,
+          // timeStyle: const TextStyle(
+          //   fontSize: 12,
+          //   color: Colors.green,
+          // ),
+        ),
         systemMessageBuilder:
             (
-              context,
-              message,
-              index, {
-              required bool isSentByMe,
-              MessageGroupStatus? groupStatus,
-            }) => FlyerChatSystemMessage(message: message, index: index),
+            context,
+            message,
+            index, {
+          required bool isSentByMe,
+          MessageGroupStatus? groupStatus,
+        }) => FlyerChatSystemMessage(message: message, index: index),
         textMessageBuilder:
             (
-              context,
-              message,
-              index, {
-              required bool isSentByMe,
-              MessageGroupStatus? groupStatus,
-            }) => FlyerChatTextMessage(
-              message: message,
-              index: index,
-              showStatus: true,
-              showTime: true,
-            ),
+            context,
+            message,
+            index, {
+          required bool isSentByMe,
+          MessageGroupStatus? groupStatus,
+        }) => FlyerChatTextMessage(
+          message: message,
+          index: index,
+          showStatus: true,
+          showTime: true,
+        ),
         fileMessageBuilder:
             (
-              context,
-              message,
-              index, {
-              required bool isSentByMe,
-              MessageGroupStatus? groupStatus,
-            }) => FlyerChatFileMessage(
-              message: message,
-              index: index,
-              showStatus: true,
-              showTime: true,
-            ),
+            context,
+            message,
+            index, {
+          required bool isSentByMe,
+          MessageGroupStatus? groupStatus,
+        }) => FlyerChatFileMessage(
+          message: message,
+          index: index,
+          showStatus: true,
+          showTime: true,
+        ),
         chatMessageBuilder:
             (
-              context,
-              message,
-              index,
-              animation,
-              child, {
-              bool? isRemoved,
-              required bool isSentByMe,
-              MessageGroupStatus? groupStatus,
-            }) {
-              final isSystemMessage = message.authorId == 'system';
-              final isFirstInGroup = groupStatus?.isFirst ?? true;
-              final isLastInGroup = groupStatus?.isLast ?? true;
-              final shouldShowAvatar =
-                  !isSystemMessage && isLastInGroup && isRemoved != true;
-              final isCurrentUser = message.authorId == currentUser.id;
-              final shouldShowUsername =
-                  !isSystemMessage && isFirstInGroup && isRemoved != true;
-
-              Widget? avatar;
-              if (shouldShowAvatar) {
-                avatar = Padding(
-                  padding: EdgeInsets.only(
-                    left: isCurrentUser ? 8 : 0,
-                    right: isCurrentUser ? 0 : 8,
-                  ),
-                  child: Avatar(userId: message.authorId),
-                );
-              } else if (!isSystemMessage) {
-                avatar = const SizedBox(width: 40);
-              }
-
-              return ChatMessage(
-                message: message,
-                index: index,
-                animation: animation,
-                isRemoved: isRemoved,
-                groupStatus: groupStatus,
-
-                topWidget: shouldShowUsername
-                    ? Padding(
-                        padding: EdgeInsets.only(
-                          bottom: 4,
-                          left: isCurrentUser ? 0 : 48,
-                          right: isCurrentUser ? 48 : 0,
-                        ),
-                        child: Username(userId: message.authorId),
-                      )
-                    : null,
-                leadingWidget: !isCurrentUser
-                    ? avatar
-                    : isSystemMessage
-                    ? null
-                    : const SizedBox(width: 40),
-                trailingWidget: isCurrentUser
-                    ? avatar
-                    : isSystemMessage
-                    ? null
-                    : const SizedBox(width: 40),
-                receivedMessageScaleAnimationAlignment:
-                    (message is SystemMessage)
-                    ? Alignment.center
-                    : Alignment.centerLeft,
-                receivedMessageAlignment: (message is SystemMessage)
-                    ? AlignmentDirectional.center
-                    : AlignmentDirectional.centerStart,
-                horizontalPadding: (message is SystemMessage) ? 0 : 8,
-                child: child,
-              );
-            },
+            context,
+            message,
+            index,
+            animation,
+            child, {
+          bool? isRemoved,
+          required bool isSentByMe,
+          MessageGroupStatus? groupStatus,
+        }) {
+          final isSystemMessage = message.authorId == 'system';
+          final isFirstInGroup = groupStatus?.isFirst ?? true;
+          final isLastInGroup = groupStatus?.isLast ?? true;
+          final shouldShowAvatar =
+              !isSystemMessage && isLastInGroup && isRemoved != true;
+          final isCurrentUser = message.authorId == currentUser.id;
+          final shouldShowUsername =
+              !isSystemMessage && isFirstInGroup && isRemoved != true;
+          Widget? avatar;
+          if (shouldShowAvatar) {
+            avatar = Padding(
+              padding: EdgeInsets.only(
+                left: isCurrentUser ? 8 : 0,
+                right: isCurrentUser ? 0 : 8,
+              ),
+              child: Avatar(userId: message.authorId),
+            );
+          } else if (!isSystemMessage) {
+            avatar = const SizedBox(width: 40);
+          }
+          return ChatMessage(
+            message: message,
+            index: index,
+            animation: animation,
+            isRemoved: isRemoved,
+            groupStatus: groupStatus,
+            topWidget: shouldShowUsername
+                ? Padding(
+              padding: EdgeInsets.only(
+                bottom: 4,
+                left: isCurrentUser ? 0 : 48,
+                right: isCurrentUser ? 48 : 0,
+              ),
+              child: Username(userId: message.authorId),
+            )
+                : null,
+            leadingWidget: !isCurrentUser
+                ? avatar
+                : isSystemMessage
+                ? null
+                : const SizedBox(width: 40),
+            trailingWidget: isCurrentUser
+                ? avatar
+                : isSystemMessage
+                ? null
+                : const SizedBox(width: 40),
+            receivedMessageScaleAnimationAlignment:
+            (message is SystemMessage)
+                ? Alignment.center
+                : Alignment.centerLeft,
+            receivedMessageAlignment: (message is SystemMessage)
+                ? AlignmentDirectional.center
+                : AlignmentDirectional.centerStart,
+            horizontalPadding: (message is SystemMessage) ? 0 : 8,
+            child: child,
+          );
+        },
       ),
     );
   }
-
   // 导航到聊天设置
   void _navigateToChatSettings() {
     final options = {
@@ -1361,29 +1259,26 @@ class ChatPageState extends State<ChatPage> {
       "peerSign": widget.peerSign,
       "conversationUk3": conversation.uk3,
     };
-
     getx.Get.to(
-      () => widget.type == 'C2G'
+          () => widget.type == 'C2G'
           ? GroupDetailPage(
-              groupId: widget.peerId,
-              memberCount: state.memberCount.value,
-              title: widget.peerTitle,
-              options: options,
-              callBack: (v) {},
-            )
+        groupId: widget.peerId,
+        memberCount: state.memberCount.value,
+        title: widget.peerTitle,
+        options: options,
+        callBack: (v) {},
+      )
           : ChatSettingPage(widget.peerId, type: widget.type, options: options),
       transition: getx.Transition.rightToLeft,
       popGesture: true,
     )?.then((value) => _handleChatSettingsResult(value));
   }
-
   // 处理聊天设置返回结果
   Future<void> _handleChatSettingsResult(dynamic value) async {
     if (value == false) {
       state.nextAutoId.value = 0;
       await logic.loadMoreMessages(conversation, isInitial: true);
     }
-
     if (value is Map<String, dynamic>) {
       int num = value['memberCount'] ?? 0;
       if (num > 0) {
@@ -1397,7 +1292,6 @@ class ChatPageState extends State<ChatPage> {
       }
     }
   }
-
   // 关闭图片画廊
   void _closeImageGallery() {
     galleryLogic.onCloseGalleryPressed();

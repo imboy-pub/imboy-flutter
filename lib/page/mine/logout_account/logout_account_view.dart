@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/locales/locales.dart';
@@ -34,7 +34,8 @@ class LogoutAccountPage extends StatelessWidget {
       lang = 'ru';
     }
     return Scaffold(
-        body: n.Column([
+        body: Column(
+      children: [
       LimitedBox(
         maxHeight: Get.height - 110, // 设置最大高度限制
         child: MarkdownPage(
@@ -42,7 +43,9 @@ class LogoutAccountPage extends StatelessWidget {
           url: "https://imboy.pub/doc/notice_of_cancellation_$lang.md?vsn=$appVsn",
         ),
       ),
-      n.Row([
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
         Obx(() => Radio(
               value: state.selectedValue.value,
               groupValue: 'read_and_agree',
@@ -65,10 +68,10 @@ class LogoutAccountPage extends StatelessWidget {
                 logic.changeValue(state.selectedValue.value);
               }),
         ),
-      ])
-        // 内容居中
-        ..mainAxisAlignment = MainAxisAlignment.center,
-      n.Row([
+      ]),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
         RoundedElevatedButton(
           text: 'apply_param'.trArgs(['button_logout'.tr]),
           highlighted: true,
@@ -87,9 +90,7 @@ class LogoutAccountPage extends StatelessWidget {
           },
           // child: const Icon(Icons.volume_up),
         ),
-      ])
-        // 内容居中
-        ..mainAxisAlignment = MainAxisAlignment.center
+      ]),
     ]));
   }
 }

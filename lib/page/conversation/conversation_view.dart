@@ -4,7 +4,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -93,138 +92,140 @@ class _ConversationPageState extends State<ConversationPage> {
           // style: AppStyle.navAppBarTitleStyle, // 传入BuildContext
         ),
         rightDMActions: <Widget>[
-          n.Padding(
-            right: 4,
+          Padding(
+            padding: const EdgeInsets.only(right: 4.0),
             child: const RightButton(),
           ),
         ],
       ),
       // backgroundColor: Get.isDarkMode ? darkBgColor : lightBgColor,
-      body: n.Column([
-        Obx(() {
-          return logic.connectDesc.isEmpty
-              ? const SizedBox.shrink()
-              : NetworkFailureTips();
-        }),
-        Expanded(
-          child: SlidableAutoCloseBehavior(
-            child: Obx(() {
-              return logic.conversations.isEmpty
-                  ? NoDataView(text: 'no_conversation_messages'.tr)
-                  : ListView.builder(
-                      itemCount: logic.conversations.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        ConversationModel model = logic.conversations[index];
-                        // RxInt remindNum =
-                        //     logic.conversationRemind[model.peerId] ?? 0.obs;
-                        return InkWell(
-                          onTap: () {
-                            Get.to(
-                              () => ChatPage(
-                                peerId: model.peerId,
-                                peerTitle: model.title,
-                                peerAvatar: model.avatar,
-                                peerSign: model.sign,
-                                type: strEmpty(model.type) ? 'C2C' : model.type,
-                              ),
-                              transition: Transition.rightToLeft,
-                              popGesture: true, // 右滑，返回上一页
-                            );
-                          },
-                          onTapDown: (TapDownDetails details) {},
-                          onLongPress: () {},
-                          child: Slidable(
-                            key: ValueKey(model.id),
-                            groupTag: '0',
-                            closeOnScroll: true,
+      body: Column(
+        children: [
+          Obx(() {
+            return logic.connectDesc.isEmpty
+                ? const SizedBox.shrink()
+                : NetworkFailureTips();
+          }),
+          Expanded(
+            child: SlidableAutoCloseBehavior(
+              child: Obx(() {
+                return logic.conversations.isEmpty
+                    ? NoDataView(text: 'no_conversation_messages'.tr)
+                    : ListView.builder(
+                        itemCount: logic.conversations.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          ConversationModel model = logic.conversations[index];
+                          // RxInt remindNum =
+                          //     logic.conversationRemind[model.peerId] ?? 0.obs;
+                          return InkWell(
+                            onTap: () {
+                              Get.to(
+                                () => ChatPage(
+                                  peerId: model.peerId,
+                                  peerTitle: model.title,
+                                  peerAvatar: model.avatar,
+                                  peerSign: model.sign,
+                                  type: strEmpty(model.type) ? 'C2C' : model.type,
+                                ),
+                                transition: Transition.rightToLeft,
+                                popGesture: true, // 右滑，返回上一页
+                              );
+                            },
+                            onTapDown: (TapDownDetails details) {},
+                            onLongPress: () {},
+                            child: Slidable(
+                              key: ValueKey(model.id),
+                              groupTag: '0',
+                              closeOnScroll: true,
 
-                            endActionPane: ActionPane(
-                              extentRatio: 0.618,
-                              motion: const StretchMotion(),
-                              children: [
-                                /*
-                                CustomSlidableAction(
-                                  onPressed: (_) async {
-                                    int num = 1;
-                                    remindNum.value = 1;
-                                    if (model.unreadNum > 0) {
-                                      num = 0;
-                                      remindNum.value = 0;
-                                    }
-                                    logic.markAs(model.peerId, num);
-                                    model.unreadNum = num;
-                                  },
-                                  autoClose: true,
-                                  backgroundColor: Colors.blue,
-                                  flex: 2,
-                                  child: Obx(
-                                    () => Text(
-                                      remindNum > 0 ? "标为已读" : "标为未读",
-                                      overflow: TextOverflow.ellipsis,
+                              endActionPane: ActionPane(
+                                extentRatio: 0.618,
+                                motion: const StretchMotion(),
+                                children: [
+                                  /*
+                                  CustomSlidableAction(
+                                    onPressed: (_) async {
+                                      int num = 1;
+                                      remindNum.value = 1;
+                                      if (model.unreadNum > 0) {
+                                        num = 0;
+                                        remindNum.value = 0;
+                                      }
+                                      logic.markAs(model.peerId, num);
+                                      model.unreadNum = num;
+                                    },
+                                    autoClose: true,
+                                    backgroundColor: Colors.blue,
+                                    flex: 2,
+                                    child: Obx(
+                                      () => Text(
+                                        remindNum > 0 ? "标为已读" : "标为未读",
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                */
-                                SlidableAction(
-                                  key: ValueKey("hide_$index"),
-                                  flex: 3,
-                                  backgroundColor: Colors.amber,
-                                  onPressed: (_) async {
-                                    final uk3 = model.uk3;
-                                    await logic.hideConversation(model.id);
-                                    // 从 Map 中移除对应会话
-                                    logic.conversationMap.remove(uk3);
-                                    // 清空提醒计数
-                                    logic.conversationRemind[uk3] = 0;
-                                    // 通知 UI 更新（GetX 会自动响应）
-                                    logic.update();
-                                  },
-                                  label: 'not_show'.tr,
-                                  spacing: 1,
-                                ),
-                                SlidableAction(
-                                  key: ValueKey("delete_$index"),
-                                  flex: 2,
-                                  backgroundColor: Colors.red,
-                                  foregroundColor: Colors.white,
-                                  onPressed: (_) async {
-                                    final uk3 = model.uk3;
-                                    await logic.removeConversation(model);
-                                    // 从 Map 中移除对应会话
-                                    logic.conversationMap.remove(uk3);
-                                    // 清空提醒计数
-                                    logic.conversationRemind[uk3] = 0;
-                                    // 通知 UI 更新（GetX 会自动响应）
-                                    logic.update();
-                                  },
-                                  label: 'button_delete'.tr,
-                                  spacing: 1,
-                                ),
-                              ],
-                            ),
-                            // endActionPane: null,
-                            child: ConversationItem(
-                              model: model,
-                              // remindCounter: remindNum,
-                              onTapAvatar: () {
-                                Get.to(
-                                  () => PeopleInfoPage(
-                                    id: model.peerId,
-                                    scene: '',
+                                  */
+                                  SlidableAction(
+                                    key: ValueKey("hide_$index"),
+                                    flex: 3,
+                                    backgroundColor: Colors.amber,
+                                    onPressed: (_) async {
+                                      final uk3 = model.uk3;
+                                      await logic.hideConversation(model.id);
+                                      // 从 Map 中移除对应会话
+                                      logic.conversationMap.remove(uk3);
+                                      // 清空提醒计数
+                                      logic.conversationRemind[uk3] = 0;
+                                      // 通知 UI 更新（GetX 会自动响应）
+                                      logic.update();
+                                    },
+                                    label: 'not_show'.tr,
+                                    spacing: 1,
                                   ),
-                                  transition: Transition.rightToLeft,
-                                  popGesture: true, // 右滑，返回上一页
-                                );
-                              },
+                                  SlidableAction(
+                                    key: ValueKey("delete_$index"),
+                                    flex: 2,
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                    onPressed: (_) async {
+                                      final uk3 = model.uk3;
+                                      await logic.removeConversation(model);
+                                      // 从 Map 中移除对应会话
+                                      logic.conversationMap.remove(uk3);
+                                      // 清空提醒计数
+                                      logic.conversationRemind[uk3] = 0;
+                                      // 通知 UI 更新（GetX 会自动响应）
+                                      logic.update();
+                                    },
+                                    label: 'button_delete'.tr,
+                                    spacing: 1,
+                                  ),
+                                ],
+                              ),
+                              // endActionPane: null,
+                              child: ConversationItem(
+                                model: model,
+                                // remindCounter: remindNum,
+                                onTapAvatar: () {
+                                  Get.to(
+                                    () => PeopleInfoPage(
+                                      id: model.peerId,
+                                      scene: '',
+                                    ),
+                                    transition: Transition.rightToLeft,
+                                    popGesture: true, // 右滑，返回上一页
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    );
-            }),
+                          );
+                        },
+                      );
+              }),
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }

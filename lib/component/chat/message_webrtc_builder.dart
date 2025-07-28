@@ -8,9 +8,6 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
-// ignore: depend_on_referenced_packages
-import 'package:niku/namespace.dart' as n;
-
 class WebRTCMessageBuilder extends StatelessWidget {
   const WebRTCMessageBuilder({
     super.key,
@@ -25,62 +22,62 @@ class WebRTCMessageBuilder extends StatelessWidget {
       bool userIsAuthor) {
     Widget row;
     if (userIsAuthor) {
-      row = n.Row([
-        n.Padding(
-          top: 2,
-          right: 4,
-          child: Text(
-            // '通话时长 10:48',
-            title,
-            textAlign: TextAlign.left,
-            style: const TextStyle(
-              // color: Theme.of(context).colorScheme.onPrimary,
-              color: Color.fromRGBO(34, 34, 34, 1.0),
-              fontSize: 15.0,
-            ),
-            maxLines: 4,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        customType == 'webrtc_video'
-            ? const Icon(
-                Icons.videocam,
+      row = Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2, right: 4),
+            child: Text(
+              // '通话时长 10:48',
+              title,
+              textAlign: TextAlign.left,
+              style: const TextStyle(
+                // color: Theme.of(context).colorScheme.onPrimary,
                 color: Color.fromRGBO(34, 34, 34, 1.0),
-              )
-            : const Icon(
-                Icons.call_end,
-                color: Color.fromRGBO(34, 34, 34, 1.0),
+                fontSize: 15.0,
               ),
-      ])
-        ..mainAxisSize = MainAxisSize.min
-        // 内容文本左对齐
-        ..crossAxisAlignment = CrossAxisAlignment.start
-        ..mainAxisAlignment = MainAxisAlignment.start;
-    } else {
-      row = n.Row([
-        customType == 'webrtc_video'
-            ? const Icon(Icons.videocam)
-            : const Icon(Icons.call_end),
-        n.Padding(
-          top: 2,
-          left: 4,
-          child: Text(
-            // '通话时长 10:48',
-            title,
-            textAlign: TextAlign.left,
-            style: const TextStyle(
-              // color: AppColors.primaryText,
-              fontSize: 15.0,
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 4,
-            overflow: TextOverflow.ellipsis,
           ),
-        ),
-      ])
-        ..mainAxisSize = MainAxisSize.min
-        // 内容文本左对齐
-        ..crossAxisAlignment = CrossAxisAlignment.start
-        ..mainAxisAlignment = MainAxisAlignment.start;
+          customType == 'webrtc_video'
+              ? const Icon(
+                  Icons.videocam,
+                  color: Color.fromRGBO(34, 34, 34, 1.0),
+                )
+              : const Icon(
+                  Icons.call_end,
+                  color: Color.fromRGBO(34, 34, 34, 1.0),
+                ),
+        ],
+      );
+    } else {
+      row = Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          customType == 'webrtc_video'
+              ? const Icon(Icons.videocam)
+              : const Icon(Icons.call_end),
+          Padding(
+            padding: const EdgeInsets.only(top: 2, left: 4),
+            child: Text(
+              // '通话时长 10:48',
+              title,
+              textAlign: TextAlign.left,
+              style: const TextStyle(
+                // color: AppColors.primaryText,
+                fontSize: 15.0,
+              ),
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      );
     }
     return row;
   }
@@ -143,11 +140,8 @@ class WebRTCMessageBuilder extends StatelessWidget {
           caller: true,
         );
       },
-      child: n.Padding(
-        left: 10,
-        right: 10,
-        top: 8,
-        bottom: 8,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 8, bottom: 8),
         child: _buildBody(
           context,
           customType,

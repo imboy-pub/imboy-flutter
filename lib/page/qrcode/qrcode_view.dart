@@ -5,7 +5,6 @@ import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
 import 'package:imboy/component/ui/icon_image_provider.dart';
 import 'package:imboy/component/ui/imboy_icon.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:niku/namespace.dart' as n;
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -46,11 +45,8 @@ class UserQrCodePage extends StatelessWidget {
         title: '',
         rightDMActions: <Widget>[
           InkWell(
-            child: n.Padding(
-              top: 10,
-              left: 10,
-              right: 10,
-              bottom: 10,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: Icon(
                 Icons.more_horiz,
                 color: Theme.of(context).colorScheme.onPrimary,
@@ -65,7 +61,8 @@ class UserQrCodePage extends StatelessWidget {
                 SizedBox(
                   width: Get.width,
                   height: 240,
-                  child: n.Wrap([
+                  child: Wrap(
+                    children: [
                     Center(
                       child: TextButton(
                         onPressed: () async {
@@ -175,7 +172,7 @@ class UserQrCodePage extends StatelessWidget {
                         ),
                       ),
                     )
-                  ]),
+                  ],),
                 ),
                 //改变shape这里即可
                 shape: const RoundedRectangleBorder(
@@ -189,11 +186,8 @@ class UserQrCodePage extends StatelessWidget {
           ),
         ],
       ),
-      body: n.Padding(
-        left: 20,
-        top: 60,
-        right: 20,
-        bottom: 20,
+      body: Padding(
+        padding: const EdgeInsets.only(left: 20, top: 60, right: 20, bottom: 20),
         child: RepaintBoundary(
           key: globalKey,
           child: Card(
@@ -205,7 +199,8 @@ class UserQrCodePage extends StatelessWidget {
               width: Get.width,
               height: Get.height * 0.65 + 20,
               color: Colors.white,
-              child: n.Column([
+              child: Column(
+                children: [
                 ListTile(
                   leading: Container(
                     width: 64,
@@ -265,9 +260,8 @@ class UserQrCodePage extends StatelessWidget {
                     ),
                   ),
                 ),
-                n.Padding(
-                  // top: 10,
-                  bottom: 15,
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 15),
                   child: Text(
                     'scan_qrcode_add_friend'.tr,
                     style: const TextStyle(
@@ -275,9 +269,7 @@ class UserQrCodePage extends StatelessWidget {
                     ),
                   ),
                 ),
-              ])
-                // 内容居中
-                ..mainAxisAlignment = MainAxisAlignment.center,
+              ], mainAxisAlignment: MainAxisAlignment.center,)
             ),
           ),
         ),
@@ -329,11 +321,8 @@ class GroupQrCodePage extends StatelessWidget {
         title: '',
         rightDMActions: <Widget>[
           InkWell(
-            child: n.Padding(
-              top: 10,
-              left: 10,
-              right: 10,
-              bottom: 10,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: Icon(
                 Icons.more_horiz,
                 color: Theme.of(context).colorScheme.onPrimary,
@@ -348,7 +337,8 @@ class GroupQrCodePage extends StatelessWidget {
                 SizedBox(
                   width: Get.width,
                   height: 240,
-                  child: n.Wrap([
+                  child: Wrap(
+                    children: [
                     Center(
                       child: TextButton(
                         onPressed: () async {
@@ -483,7 +473,8 @@ class GroupQrCodePage extends StatelessWidget {
           right: 20,
           bottom: 20,
         ),
-        child: n.Column([
+        child: Column(
+          children: [
           RepaintBoundary(
             key: globalKey,
             child: Card(
@@ -495,21 +486,18 @@ class GroupQrCodePage extends StatelessWidget {
                     width: Get.width,
                     height: 520,
                     color: Colors.white,
-                    child: n.Column([
-                      n.Padding(
-                        // top: 10,
-                        bottom: 10,
+                    child: Column(
+                      children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
                         child: SmartGroupAvatar(
                           avatar: group.avatar,
                           groupId: group.groupId,
                         ),
                       ),
                       Flexible(
-                          child: n.Padding(
-                              // top: 20,
-                              left: 10,
-                              right: 10,
-                              bottom: 20,
+                          child: Padding(
+                              padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
                               child: Text(
                                 "${'group_chat'.tr}: ${group.title.isEmpty ? group.computeTitle : group.title}",
                                 style: const TextStyle(
@@ -550,10 +538,8 @@ class GroupQrCodePage extends StatelessWidget {
                                 ),
                         ),
                       ),
-                      n.Padding(
-                        // top: 10,
-                        left: 10, right: 10,
-                        bottom: 10,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
                         child: Text(
                           // 该二维码%s天内（%s前）有效，重新进入将更新
                           'group_qrcode_tips'.trArgs([
@@ -569,14 +555,13 @@ class GroupQrCodePage extends StatelessWidget {
                           ),
                         ),
                       ),
-                    ])
-                      // 内容居中
-                      ..mainAxisAlignment = MainAxisAlignment.center,
+                    ], mainAxisAlignment: MainAxisAlignment.center,)
                   )),
             ),
           ),
           Center(
-            child: n.Row([
+            child: Row(
+              children: [
               TextButton(
                 child: Text(
                   'save_qr_code'.tr,
@@ -641,9 +626,7 @@ class GroupQrCodePage extends StatelessWidget {
                   });
                 },
               )
-            ])
-              // 两端对齐
-              ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+            ], mainAxisAlignment: MainAxisAlignment.spaceBetween,)
           )
         ]),
       ),

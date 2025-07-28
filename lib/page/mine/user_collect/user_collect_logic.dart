@@ -23,10 +23,10 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_collect_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'user_collect_state.dart';
 
+// 用户收藏逻辑控制器
 class UserCollectLogic extends GetxController {
   final UserCollectState state = UserCollectState();
 
@@ -61,7 +61,7 @@ class UserCollectLogic extends GetxController {
       }
       if (strNoEmpty(kwd)) {
         where =
-            "$where and (${UserCollectRepo.source} like '%$kwd%' or ${UserCollectRepo.remark} like '%$kwd%' or ${UserCollectRepo.info} like '%$kwd%')";
+        "$where and (${UserCollectRepo.source} like '%$kwd%' or ${UserCollectRepo.remark} like '%$kwd%' or ${UserCollectRepo.info} like '%$kwd%')";
       }
       iPrint("searchLeading_tag where $where");
       List<UserCollectModel> list = await repo.page(
@@ -115,271 +115,57 @@ class UserCollectLogic extends GetxController {
     //     obj.info['payload']['msg_type'] ?? '';
     // Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息
     if (obj.kind == 1) {
-      body = n.Row([
-        Expanded(
+      body = Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
             child: Text(
-          obj.info['text'] ?? (obj.info['payload']['text'] ?? ''),
-          style: const TextStyle(
-            fontSize: 16.0,
-            fontWeight: FontWeight.normal,
-          ),
-          maxLines: scene == 'page' ? 4 : 160,
-          overflow: TextOverflow.ellipsis,
-        ))
-      ])
-        // 内容文本左对齐
-        ..crossAxisAlignment = CrossAxisAlignment.start;
-    } else if (obj.kind == 2) {
-      String uri = obj.info['payload']['uri'] ?? '';
-      body = n.Column([
-        scene == 'page'
-            ? Image(
-                width: Get.width * 0.5,
-                height: 120,
-                fit: BoxFit.cover,
-                image: cachedImageProvider(
-                  uri,
-                  w: Get.width,
-                ),
-              )
-            : InkWell(
-                onTap: () async {
-                  zoomInPhotoView(uri);
-                },
-                child: Image(
-                  // detail 里面减去左右 padding 和
-                  width: Get.width - 20,
-                  fit: BoxFit.cover,
-                  image: cachedImageProvider(
-                    uri,
-                    w: Get.width,
-                  ),
-                ),
-              ),
-        n.Padding(
-          top: 10,
-          child: n.Row([
-            Text(
-              formatBytes(obj.info['payload']['size'] ?? ''),
+              obj.info['text'] ?? (obj.info['payload']['text'] ?? ''),
               style: const TextStyle(
-                // color: AppColors.MainTextColor,
-                fontSize: 14.0,
+                fontSize: 16.0,
+                fontWeight: FontWeight.normal,
               ),
-              maxLines: 1,
+              maxLines: scene == 'page' ? 4 : 160,
               overflow: TextOverflow.ellipsis,
             ),
-            Text(
-              " ${obj.info['payload']['width']}X${obj.info['payload']['height']}",
-              style: const TextStyle(
-                // color: AppColors.MainTextColor,
-                fontSize: 14.0,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            )
-          ]),
-        )
-      ])
-        // 内容文本左对齐
-        ..crossAxisAlignment = CrossAxisAlignment.start;
-    } else if (obj.kind == 3) {
-      int durationMS = obj.info['payload']['durationMs'] ?? 0;
-      // row > expand > column > text 换行有效
-      body = scene == 'page'
-          ? n.Row([
-              Expanded(
-                  flex: 9,
-                  child: n.Column(
-                    [
-                      Text(
-                        durationMS > 0 ? "${durationMS / 1000} ''" : '',
-                        style: const TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.normal,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                    // 内容文本左对齐
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                  )),
-              // const Expanded(child: SizedBox()),
-              Expanded(
-                  flex: 1,
-                  child: n.Column(const [
-                    Icon(
-                      Icons.graphic_eq,
-                      size: 28,
-                    ),
-                  ])),
-            ])
-          : n.Row([
-              SizedBox(
-                height: 80,
-                child: AudioMessageBuilder(
-                  type: obj.info['type'],
-                  user: User(
-                    id: UserRepoLocal.to.currentUid,
-                    name: UserRepoLocal.to.current.nickname,
-                    imageSource: UserRepoLocal.to.current.avatar,
-                  ),
-                  info: obj.info,
-                  // message: MessageModel.fromJson(obj.info).toTypeMessage()
-                  //     as types.CustomMessage,
-                ),
-              ),
-            ])
-        // 内容居中
-        ..mainAxisAlignment = MainAxisAlignment.spaceBetween;
-    } else if (obj.kind == 4) {
-      String uri = obj.info['payload']['thumb']['uri'] ?? '';
-      // debugPrint("item_4_uri $uri");
-      body = n.Column([
-        Stack(
-          alignment: Alignment.centerRight,
-          children: <Widget>[
-            Image(
-              width: scene == 'page' ? Get.width * 0.5 : Get.width - 20,
-              height: scene == 'page' ? 120 : Get.height * 0.618,
+          ),
+        ],
+      );
+    } else if (obj.kind == 2) {
+      String uri = obj.info['payload']['uri'] ?? '';
+      body = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          scene == 'page'
+              ? Image(
+            width: Get.width * 0.5,
+            height: 120,
+            fit: BoxFit.cover,
+            image: cachedImageProvider(
+              uri,
+              w: Get.width,
+            ),
+          )
+              : InkWell(
+            onTap: () async {
+              zoomInPhotoView(uri);
+            },
+            child: Image(
+              // detail 里面减去左右 padding 和
+              width: Get.width - 20,
               fit: BoxFit.cover,
               image: cachedImageProvider(
                 uri,
-                w: Get.width * 0.5,
+                w: Get.width,
               ),
             ),
-            Positioned.fill(
-              child: InkWell(
-                onTap: () {
-                  final String uri = obj.info['payload']['video']['uri'] ?? '';
-                  final String thumb =
-                      obj.info['payload']['thumb']['uri'] ?? '';
-                  // debugPrint("chat_video_user_collect_detail_view $uri; ${obj.info['payload']['video'].toString()}");
-                  if (uri.isEmpty) {
-                    EasyLoading.showError('收藏的视频消息格式有误，找不到 video uri');
-                  } else {
-                    Get.to(
-                      () => VideoViewerPage(url: uri, thumb: thumb),
-                      transition: Transition.rightToLeft,
-                      popGesture: true, // 右滑，返回上一页
-                    );
-                  }
-                },
-                child: const SizedBox(
-                  height: 100,
-                  child: Center(
-                    child: Icon(
-                      Icons.video_library,
-                      color: Colors.white,
-                      size: 40,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        n.Padding(
-          top: 10,
-          child: n.Row([
-            Text(
-              formatBytes(obj.info['payload']['video']['size'] ?? 0),
-              style: const TextStyle(
-                // color: AppColors.MainTextColor,
-                fontSize: 14.0,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              " ${obj.info['payload']['video']['width']}X${obj.info['payload']['video']['height']}",
-              style: const TextStyle(
-                // color: AppColors.MainTextColor,
-                fontSize: 14.0,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            )
-          ]),
-        )
-      ])
-        // 内容文本左对齐
-        ..crossAxisAlignment = CrossAxisAlignment.start;
-    } else if (obj.kind == 5) {
-      // String uri = obj.info['payload']['uri'] ?? '';
-      String mimeType =
-          (obj.info['payload']['mime_type'] ?? '').toString().toLowerCase();
-      // Widget fileIcon = const Icon(
-      //   Icons.quiz_outlined,
-      //   size: 40,
-      // );
-      // if (mimeType == 'application/pdf') {
-      //   fileIcon = const Icon(
-      //     Icons.picture_as_pdf_outlined,
-      //     size: 40,
-      //   );
-      // }
-      body = scene == 'page'
-          ? n.Row([
-              n.Column(
-                [
-                  n.Row([
-                    Expanded(child: Text(
-                      obj.info['payload']['name'] ?? '',
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal,
-                      ),
-                      maxLines: 8,
-                      overflow: TextOverflow.ellipsis,
-                    )),
-                  ]),
-                  n.Row([
-                    Text(
-                      "$mimeType  ${formatBytes(obj.info['payload']['size'] ?? '')}",
-                      style: const TextStyle(
-                        // color: AppColors.MainTextColor,
-                        fontSize: 14.0,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    )
-                  ]),
-                ],
-                // 内容文本左对齐
-                crossAxisAlignment: CrossAxisAlignment.start,
-              ),
-            ])
-          : n.Column([
-              n.Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, [
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(
+              children: [
                 Text(
-                  obj.info['payload']['name'] ?? '',
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  maxLines: 8,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
-              ]),
-              n.Padding(
-                top: 20,
-                bottom: 20,
-                child: n.Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, [
-                  Text(
-                    "${'file_size'.tr}: ${formatBytes(obj.info['payload']['size'] ?? '')}",
-                    style: const TextStyle(
-                      fontSize: 14.0,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ]),
-              ),
-              n.Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, [
-                Text(
-                  mimeType,
+                  formatBytes(obj.info['payload']['size'] ?? ''),
                   style: const TextStyle(
                     // color: AppColors.MainTextColor,
                     fontSize: 14.0,
@@ -387,104 +173,337 @@ class UserCollectLogic extends GetxController {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ]),
-            ]);
-    } else if (obj.kind == 6) {
-      String title = obj.info['payload']['title'] ?? '';
-      String address = obj.info['payload']['address'] ?? '';
-
+                Text(
+                  " ${obj.info['payload']['width']}X${obj.info['payload']['height']}",
+                  style: const TextStyle(
+                    // color: AppColors.MainTextColor,
+                    fontSize: 14.0,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else if (obj.kind == 3) {
+      int durationMS = obj.info['payload']['durationMs'] ?? 0;
       // row > expand > column > text 换行有效
       body = scene == 'page'
-          ? n.Row([
-              Expanded(
-                flex: 9,
-                child: n.Column(
-                  [
-                    Text(
-                      title,
-                      // "宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼(…",
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+          ? Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            flex: 9,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  durationMS > 0 ? "${durationMS / 1000} ''" : '',
+                  style: const TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Column(
+              children: const [
+                Icon(
+                  Icons.graphic_eq,
+                  size: 28,
+                ),
+              ],
+            ),
+          ),
+        ],
+      )
+          : Row(
+        children: [
+          SizedBox(
+            height: 80,
+            child: AudioMessageBuilder(
+              type: obj.info['type'],
+              user: User(
+                id: UserRepoLocal.to.currentUid,
+                name: UserRepoLocal.to.current.nickname,
+                imageSource: UserRepoLocal.to.current.avatar,
+              ),
+              info: obj.info,
+            ),
+          ),
+        ],
+      );
+    } else if (obj.kind == 4) {
+      String uri = obj.info['payload']['thumb']['uri'] ?? '';
+      // debugPrint("item_4_uri $uri");
+      body = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
+            alignment: Alignment.centerRight,
+            children: <Widget>[
+              Image(
+                width: scene == 'page' ? Get.width * 0.5 : Get.width - 20,
+                height: scene == 'page' ? 120 : Get.height * 0.618,
+                fit: BoxFit.cover,
+                image: cachedImageProvider(
+                  uri,
+                  w: Get.width * 0.5,
+                ),
+              ),
+              Positioned.fill(
+                child: InkWell(
+                  onTap: () {
+                    final String uri = obj.info['payload']['video']['uri'] ?? '';
+                    final String thumb =
+                        obj.info['payload']['thumb']['uri'] ?? '';
+                    // debugPrint("chat_video_user_collect_detail_view $uri; ${obj.info['payload']['video'].toString()}");
+                    if (uri.isEmpty) {
+                      EasyLoading.showError('收藏的视频消息格式有误，找不到 video uri');
+                    } else {
+                      Get.to(
+                            () => VideoViewerPage(url: uri, thumb: thumb),
+                        transition: Transition.rightToLeft,
+                        popGesture: true, // 右滑，返回上一页
+                      );
+                    }
+                  },
+                  child: const SizedBox(
+                    height: 100,
+                    child: Center(
+                      child: Icon(
+                        Icons.video_library,
+                        color: Colors.white,
+                        size: 40,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(
+              children: [
+                Text(
+                  formatBytes(obj.info['payload']['video']['size'] ?? 0),
+                  style: const TextStyle(
+                    // color: AppColors.MainTextColor,
+                    fontSize: 14.0,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  " ${obj.info['payload']['video']['width']}X${obj.info['payload']['video']['height']}",
+                  style: const TextStyle(
+                    // color: AppColors.MainTextColor,
+                    fontSize: 14.0,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else if (obj.kind == 5) {
+      String mimeType =
+      (obj.info['payload']['mime_type'] ?? '').toString().toLowerCase();
+      body = scene == 'page'
+          ? Row(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      obj.info['payload']['name'] ?? '',
                       style: const TextStyle(
                         fontSize: 16.0,
                         fontWeight: FontWeight.normal,
                       ),
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    Text(
-                      address,
-                      // "宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼宝安区西乡径贝新村106号楼(…",
-                      maxLines: 4,
+                      maxLines: 8,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        // color: AppColors.MainTextColor,
-                        fontSize: 14.0,
-                      ),
                     ),
-                  ],
-                  // 内容文本左对齐
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                ),
+                  ),
+                ],
               ),
-              // const Expanded(flex: 1, child: SizedBox()),
-              Expanded(
-                  flex: 1,
-                  child: n.Column(const [
-                    Icon(
-                      Icons.location_on_outlined,
-                      size: 28,
+              Row(
+                children: [
+                  Text(
+                    "$mimeType  ${formatBytes(obj.info['payload']['size'] ?? '')}",
+                    style: const TextStyle(
+                      // color: AppColors.MainTextColor,
+                      fontSize: 14.0,
                     ),
-                  ])),
-            ])
-          : n.Row([
-              Expanded(
-                  flex: 1,
-                  child: LocationMessageBuilder(
-                    width: Get.width - 20,
-                    height: Get.height - 160,
-                    user: User(
-                      id: UserRepoLocal.to.currentUid,
-                      name: UserRepoLocal.to.current.nickname,
-                      imageSource: UserRepoLocal.to.current.avatar,
-                    ),
-                    info: obj.info,
-                    // message: MessageModel.fromJson(obj.info).toTypeMessage()
-                    //     as types.CustomMessage,
-                  ))
-            ]);
-    } else if (obj.kind == 7) {
-      // row > expand > column > text 换行有效
-      body = n.Row([
-        Expanded(
-            child: VisitCardMessageBuilder(
-          user: User(
-            id: UserRepoLocal.to.currentUid,
-            name: UserRepoLocal.to.current.nickname,
-            imageSource: UserRepoLocal.to.current.avatar,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ],
           ),
-          info: obj.info,
-        ))
-      ])
-        // 内容文本左对齐
-        ..crossAxisAlignment = CrossAxisAlignment.start;
+        ],
+      )
+          : Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(
+                obj.info['payload']['name'] ?? '',
+                style: const TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.normal,
+                ),
+                maxLines: 8,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 20, bottom: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  "${'file_size'.tr}: ${formatBytes(obj.info['payload']['size'] ?? '')}",
+                  style: const TextStyle(
+                    fontSize: 14.0,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(
+                mimeType,
+                style: const TextStyle(
+                  // color: AppColors.MainTextColor,
+                  fontSize: 14.0,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ],
+      );
+    } else if (obj.kind == 6) {
+      String title = obj.info['payload']['title'] ?? '';
+      String address = obj.info['payload']['address'] ?? '';
+
+      body = scene == 'page'
+          ? Row(
+        children: [
+          Expanded(
+            flex: 9,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                Text(
+                  address,
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    // color: AppColors.MainTextColor,
+                    fontSize: 14.0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Column(
+              children: const [
+                Icon(
+                  Icons.location_on_outlined,
+                  size: 28,
+                ),
+              ],
+            ),
+          ),
+        ],
+      )
+          : Row(
+        children: [
+          Expanded(
+            flex: 1,
+            child: LocationMessageBuilder(
+              width: Get.width - 20,
+              height: Get.height - 160,
+              user: User(
+                id: UserRepoLocal.to.currentUid,
+                name: UserRepoLocal.to.current.nickname,
+                imageSource: UserRepoLocal.to.current.avatar,
+              ),
+              info: obj.info,
+            ),
+          ),
+        ],
+      );
+    } else if (obj.kind == 7) {
+      body = Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: VisitCardMessageBuilder(
+              user: User(
+                id: UserRepoLocal.to.currentUid,
+                name: UserRepoLocal.to.current.nickname,
+                imageSource: UserRepoLocal.to.current.avatar,
+              ),
+              info: obj.info,
+            ),
+          ),
+        ],
+      );
     }
     return scene == 'detail'
         ? SizedBox(
-            width: Get.width - 8,
-            height: Get.height - 120,
-            child: SingleChildScrollView(child: body),
-          )
+      width: Get.width - 8,
+      height: Get.height - 120,
+      child: SingleChildScrollView(child: body),
+    )
         : body;
   }
 
   /// 点击分类标签，按Tag搜索
   Future<void> searchByTag(
-    String tag,
-    String kindTips,
-    Function callback,
-  ) async {
+      String tag,
+      String kindTips,
+      Function callback,
+      ) async {
     state.page = 1;
     iPrint("searchLeading_tag searchByTag tag $tag, kindTips $kindTips");
     var list = await page(page: state.page, size: state.size, tag: tag);
@@ -504,73 +523,75 @@ class UserCollectLogic extends GetxController {
           child: const Icon(Icons.search)),
     ].map((e) => e).obs;
 
-    state.searchLeading = n.Row([
-      ElevatedButton(
-        onPressed: () {
-          // debugPrint("state.searchLeading ${state.searchLeading.toString()}");
-          state.searchLeading = null;
-          state.searchTrailing = null;
-          state.kwd = ''.obs;
-          state.searchController.text = "";
-          state.kindActive.value = !state.kindActive.value;
-          state.kindActive.value = !state.kindActive.value;
-          state.kind = 'all';
-          callback();
-        },
-        style: ButtonStyle(
-          backgroundColor: WidgetStateProperty.resolveWith<Color>(
-            (Set<WidgetState> states) {
-              if (states.contains(WidgetState.pressed)) {
-                return Theme.of(Get.context!)
-                    .colorScheme
-                    .surface
-                    .withValues(alpha: 0.75);
-              }
-              // Use the component's default.
-              return Theme.of(Get.context!).colorScheme.surface;
-            },
+    state.searchLeading = Row(
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            state.searchLeading = null;
+            state.searchTrailing = null;
+            state.kwd = ''.obs;
+            state.searchController.text = "";
+            state.kindActive.value = !state.kindActive.value;
+            state.kindActive.value = !state.kindActive.value;
+            state.kind = 'all';
+            callback();
+          },
+          style: ButtonStyle(
+            backgroundColor: WidgetStateProperty.resolveWith<Color>(
+                  (Set<WidgetState> states) {
+                if (states.contains(WidgetState.pressed)) {
+                  return Theme.of(Get.context!)
+                      .colorScheme
+                      .surface
+                      .withValues(alpha: 0.75);
+                }
+                return Theme.of(Get.context!).colorScheme.surface;
+              },
+            ),
+          ),
+          child: Row(
+            children: [
+              // icon 翻转
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Transform.scale(
+                  scaleX: -1,
+                  child: Icon(
+                    Icons.local_offer,
+                    size: 18,
+                    color: Theme.of(Get.context!)
+                        .colorScheme
+                        .onPrimary
+                        .withValues(alpha: 0.75),
+                  ),
+                ),
+              ),
+              Text(
+                kindTips,
+                style: TextStyle(
+                  color: Theme.of(Get.context!).colorScheme.onPrimary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Icon(
+                Icons.close,
+                size: 16,
+                color:
+                Theme.of(Get.context!).colorScheme.onPrimary.withValues(alpha: 0.75),
+              ),
+            ],
           ),
         ),
-        child: n.Row([
-          // icon 翻转
-          n.Padding(
-            right: 8,
-            child: Transform.scale(
-              scaleX: -1,
-              child: Icon(
-                Icons.local_offer,
-                size: 18,
-                color: Theme.of(Get.context!)
-                    .colorScheme
-                    .onPrimary
-                    .withValues(alpha: 0.75),
-              ),
-            ),
-          ),
-          Text(
-            kindTips,
-            style: TextStyle(
-              color: Theme.of(Get.context!).colorScheme.onPrimary,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Icon(
-            Icons.close,
-            size: 16,
-            color:
-                Theme.of(Get.context!).colorScheme.onPrimary.withValues(alpha: 0.75),
-          ),
-        ]),
-      )
-    ]).obs;
+      ],
+    ).obs;
   }
 
   /// 点击分类标签，按分类搜索
   Future<void> searchByKind(
-    String kind,
-    String kindTips,
-    Function callback,
-  ) async {
+      String kind,
+      String kindTips,
+      Function callback,
+      ) async {
     state.page = 1;
     state.kind = kind;
     var list = await page(page: state.page, size: state.size, kind: kind);
@@ -590,64 +611,66 @@ class UserCollectLogic extends GetxController {
           child: const Icon(Icons.search)),
     ].map((e) => e).obs;
 
-    state.searchLeading = n.Row([
-      ElevatedButton(
-        onPressed: () {
-          // debugPrint("state.searchLeading ${state.searchLeading.toString()}");
-          state.searchLeading = null;
-          state.searchTrailing = null;
-          state.kwd = ''.obs;
-          state.searchController.text = "";
-          state.kindActive.value = !state.kindActive.value;
-          state.kindActive.value = !state.kindActive.value;
-          state.kind = 'all';
-          callback();
-        },
-        style: ButtonStyle(
-          backgroundColor: WidgetStateProperty.resolveWith<Color>(
-            (Set<WidgetState> states) {
-              if (states.contains(WidgetState.pressed)) {
-                return Theme.of(Get.context!)
-                    .colorScheme
-                    .surface
-                    .withValues(alpha: 0.75);
-              }
-              // Use the component's default.
-              return Theme.of(Get.context!).colorScheme.surface;
-            },
+    state.searchLeading = Row(
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            state.searchLeading = null;
+            state.searchTrailing = null;
+            state.kwd = ''.obs;
+            state.searchController.text = "";
+            state.kindActive.value = !state.kindActive.value;
+            state.kindActive.value = !state.kindActive.value;
+            state.kind = 'all';
+            callback();
+          },
+          style: ButtonStyle(
+            backgroundColor: WidgetStateProperty.resolveWith<Color>(
+                  (Set<WidgetState> states) {
+                if (states.contains(WidgetState.pressed)) {
+                  return Theme.of(Get.context!)
+                      .colorScheme
+                      .surface
+                      .withValues(alpha: 0.75);
+                }
+                return Theme.of(Get.context!).colorScheme.surface;
+              },
+            ),
+          ),
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Transform.scale(
+                  scaleX: -1,
+                  child: Icon(
+                    Icons.grid_view,
+                    size: 18,
+                    color: Theme.of(Get.context!)
+                        .colorScheme
+                        .onPrimary
+                        .withValues(alpha: 0.8),
+                  ),
+                ),
+              ),
+              Text(
+                kindTips,
+                style: TextStyle(
+                  color: Theme.of(Get.context!).colorScheme.onPrimary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Icon(
+                Icons.close,
+                size: 16,
+                color:
+                Theme.of(Get.context!).colorScheme.onPrimary.withValues(alpha: 0.7),
+              ),
+            ],
           ),
         ),
-        child: n.Row([
-          n.Padding(
-            right: 8,
-            child: Transform.scale(
-              scaleX: -1,
-              child: Icon(
-                Icons.grid_view,
-                size: 18,
-                color: Theme.of(Get.context!)
-                    .colorScheme
-                    .onPrimary
-                    .withValues(alpha: 0.8),
-              ),
-            ),
-          ),
-          Text(
-            kindTips,
-            style: TextStyle(
-              color: Theme.of(Get.context!).colorScheme.onPrimary,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Icon(
-            Icons.close,
-            size: 16,
-            color:
-                Theme.of(Get.context!).colorScheme.onPrimary.withValues(alpha: 0.7),
-          ),
-        ]),
-      )
-    ]).obs;
+      ],
+    ).obs;
   }
 
   Future<List<dynamic>> doSearch(dynamic query) async {
@@ -702,7 +725,7 @@ class UserCollectLogic extends GetxController {
   /// 收藏的信息来源，消息发布中的昵称或者备注
   Future<String> getCollectSource(String authorId) async {
     ContactModel? obj =
-        await ContactRepo().findByUid(authorId, autoFetch: true);
+    await ContactRepo().findByUid(authorId, autoFetch: true);
     debugPrint(
         "userCollectLogic/getCollectSource ${obj?.title}; ${obj?.toJson().toString()} ;");
     if (obj == null) {
@@ -741,7 +764,6 @@ class UserCollectLogic extends GetxController {
         UserCollectRepo.source: source,
         UserCollectRepo.info: info
       });
-      // res = res2 > 0 ? true : false;
     }
     return res;
   }
@@ -753,14 +775,12 @@ class UserCollectLogic extends GetxController {
       'kind_id': kindId,
     });
 
-    // debugPrint("send_to_view callback after $res");
     if (res) {
       await UserCollectRepo().save({
         UserCollectRepo.updatedAt: DateTimeHelper.millisecond(),
         UserCollectRepo.userId: UserRepoLocal.to.currentUid,
         UserCollectRepo.kindId: kindId
       });
-      // res = res2 > 0 ? true : false;
     }
     return res;
   }
@@ -792,8 +812,7 @@ class UserCollectLogic extends GetxController {
     for (String tag in items) {
       widgetList.add(ElevatedButton(
         onPressed: () {
-          debugPrint(
-              "searchLeading_tag $tag ${state.searchLeading.toString()}");
+          debugPrint("searchLeading_tag $tag ${state.searchLeading.toString()}");
           state.kindActive.value = !state.kindActive.value;
           searchByTag(tag, tag, () {
             state.kindActive.value = !state.kindActive.value;
@@ -801,14 +820,13 @@ class UserCollectLogic extends GetxController {
         },
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.resolveWith<Color>(
-            (Set<WidgetState> states) {
+                (Set<WidgetState> states) {
               if (states.contains(WidgetState.pressed)) {
                 return Theme.of(Get.context!)
                     .colorScheme
                     .primary
                     .withValues(alpha: 0.75);
               }
-              // Use the component's default.
               return Theme.of(Get.context!)
                   .colorScheme
                   .primary
@@ -816,13 +834,11 @@ class UserCollectLogic extends GetxController {
             },
           ),
         ),
-        child: n.Padding(
-          left: 2,
-          right: 2,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 2, right: 2),
           child: Text(
             tag,
-            style:
-                TextStyle(color: Theme.of(Get.context!).colorScheme.onPrimary),
+            style: TextStyle(color: Theme.of(Get.context!).colorScheme.onPrimary),
           ),
         ),
       ));

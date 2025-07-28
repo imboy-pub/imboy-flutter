@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/imboy_icon.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/common.dart';
@@ -45,7 +44,9 @@ class ConversationItem extends StatelessWidget {
     // debugPrint("> on imgUri ${imgUri!}");
     return Container(
       padding: const EdgeInsets.only(left: 10.0, top: 2),
-      child: n.Row([
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
         Obx(
           () => badges.Badge(
             position: badges.BadgePosition.topEnd(top: -4, end: -4),
@@ -87,11 +88,15 @@ class ConversationItem extends StatelessWidget {
               ),
             ),
           ),
-          child: n.Row([
+          child: Row(
+            children: [
             const Space(width: 6),
             Expanded(
-              child: n.Column([
-                n.Row([
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                Row(
+                  children: [
                   Expanded(
                     child: Text(
                       // 会话对象标题
@@ -109,8 +114,11 @@ class ConversationItem extends StatelessWidget {
                 ]),
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
-                  child: n.Row([
-                    n.Column(icon),
+                  child: Row(
+                    children: [
+                    Column(
+                      children: icon,
+                    ),
                     if (model.content.contains('_color_red_'))
                       Text(
                         "${model.content.split('_color_red_')[0]} ",
@@ -135,30 +143,32 @@ class ConversationItem extends StatelessWidget {
                     ),
                   ]),
                 ),
-              ])
-                ..crossAxisAlignment = CrossAxisAlignment.start,
+              ]
+              ),
             ),
             // Space(width: mainSpace),
-            Expanded(child: n.Column([
-              // 最近会话时间
-              if (model.lastTime > 0)
-                Text(
-                  DateTimeHelper.lastTimeFmt(model.lastTime),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.right,
-                  style: const TextStyle(
-                    // color: AppColors.MainTextColor,
-                    fontSize: 14.0,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                // 最近会话时间
+                if (model.lastTime > 0)
+                  Text(
+                    DateTimeHelper.lastTimeFmt(model.lastTime),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.right,
+                    style: const TextStyle(
+                      // color: AppColors.MainTextColor,
+                      fontSize: 14.0,
+                    ),
                   ),
-                ),
-              const Icon(Icons.flag, color: Colors.transparent),
-            ])
-              ..crossAxisAlignment = CrossAxisAlignment.end)
+                const Icon(Icons.flag, color: Colors.transparent),
+              ],
+            )),
           ]),
         )
-      ])
-        ..crossAxisAlignment = CrossAxisAlignment.center,
+      ]),
     );
   }
 }

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -21,10 +19,9 @@ class GroupListPage extends StatelessWidget {
   final logic = Get.put(GroupListLogic());
   final state = Get.find<GroupListLogic>().state;
 
-  /// 加载好友申请数据
+  /// Load group data
   void initData() async {
     if (state.page == 1) {
-      // state.groupList.value = await logic.page(page: page, size: size);
       List<GroupModel> list = await logic.page(
         page: state.page,
         size: state.size,
@@ -47,11 +44,9 @@ class GroupListPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
-        // title: "${'group_chat'.tr}(${state.groupList.length})",
         titleWidget: Obx(() => Text(
-              "${'group_chat'.tr}(${state.groupList.length})",
-              // style: AppStyle.navAppBarTitleStyle,
-            )),
+          "${'group_chat'.tr}(${state.groupList.length})",
+        )),
         automaticallyImplyLeading: true,
       ),
       body: SingleChildScrollView(
@@ -59,72 +54,67 @@ class GroupListPage extends StatelessWidget {
           width: Get.width,
           height: Get.height,
           color: Theme.of(context).colorScheme.surface,
-          child: n.Column([
-            n.Padding(
-              left: 8,
-              top: 10,
-              right: 8,
-              bottom: 10,
-              child: searchBar(
-                context,
-                searchLabel: 'search'.tr,
-                hintText: 'search'.tr,
-                queryTips: 'group_search_tips'.tr,
-                doSearch: ((query) {
-                  // debugPrint(
-                  //     "> on search doSearch ${query.toString()}");
-                  return GroupRepo().search(kwd: query);
-                }),
-                onTapForItem: (model) {
-                  // debugPrint(
-                  //     "> on search value ${value is GroupModel}, ${value.toString()}");
-                  if (model is GroupModel) {
-                    Get.to(
-                      () => ChatPage(
-                        peerId: model.groupId,
-                        peerTitle: model.title,
-                        peerAvatar: model.avatar,
-                        peerSign: '',
-                        type: 'C2G',
-                        options: {'memberCount': model.memberCount},
-                      ),
-                      transition: Transition.rightToLeft,
-                      popGesture: true, // 右滑，返回上一页
-                    );
-                  }
-                },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 8, top: 10, right: 8, bottom: 10),
+                child: searchBar(
+                  context,
+                  searchLabel: 'search'.tr,
+                  hintText: 'search'.tr,
+                  queryTips: 'group_search_tips'.tr,
+                  doSearch: ((query) => GroupRepo().search(kwd: query)),
+                  onTapForItem: (model) {
+                    if (model is GroupModel) {
+                      Get.to(
+                            () => ChatPage(
+                          peerId: model.groupId,
+                          peerTitle: model.title,
+                          peerAvatar: model.avatar,
+                          peerSign: '',
+                          type: 'C2G',
+                          options: {'memberCount': model.memberCount},
+                        ),
+                        transition: Transition.rightToLeft,
+                        popGesture: true,
+                      );
+                    }
+                  },
+                ),
               ),
-            ),
-            Expanded(
-              child: SlidableAutoCloseBehavior(child: Obx(() {
-                // return NoDataView(text: 'no_data'.tr);
-                return state.groupList.isEmpty
-                    ? NoDataView(text: 'no_data'.tr)
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        // data: state.groupList,
-                        itemCount: state.groupList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          GroupModel model = state.groupList[index];
-                          return n.Column([
+              Expanded(
+                child: SlidableAutoCloseBehavior(
+                  child: Obx(() {
+                    return state.groupList.isEmpty
+                        ? NoDataView(text: 'no_data'.tr)
+                        : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: state.groupList.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        GroupModel model = state.groupList[index];
+                        return Column(
+                          children: [
                             ListTile(
                               leading: SmartGroupAvatar(
                                 avatar: model.avatar,
                                 groupId: model.groupId,
                               ),
-                              contentPadding:
-                                  const EdgeInsets.only(left: 10, right: 10),
-                              title: n.Row([
-                                Expanded(
-                                  child: Text(strEmpty(model.title)
-                                      ? model.computeTitle
-                                      : model.title),
-                                )
-                              ]),
-                              // subtitle: Text('${model.remark}'),
+                              contentPadding: const EdgeInsets.only(left: 10, right: 10),
+                              title: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                        strEmpty(model.title)
+                                            ? model.computeTitle
+                                            : model.title
+                                    ),
+                                  )
+                                ],
+                              ),
                               onTap: () {
                                 Get.to(
-                                  () => ChatPage(
+                                      () => ChatPage(
                                     peerId: model.groupId,
                                     peerTitle: model.title,
                                     peerAvatar: model.avatar,
@@ -133,27 +123,28 @@ class GroupListPage extends StatelessWidget {
                                     options: {'memberCount': model.memberCount},
                                   ),
                                   transition: Transition.rightToLeft,
-                                  popGesture: true, // 右滑，返回上一页
+                                  popGesture: true,
                                 );
                               },
                             ),
-                            n.Padding(
-                              left: 12,
-                              right: 20,
-                              bottom: 10,
+                            Padding(
+                              padding: const EdgeInsets.only(left: 12, right: 20, bottom: 10),
                               child: HorizontalLine(
-                                  height: Get.isDarkMode ? 0.5 : 1.0),
+                                height: Get.isDarkMode ? 0.5 : 1.0,
+                              ),
                             ),
-                          ]);
-                        },
-                        // 解决联系人数据量少的情况下无法刷新的问题
-                        // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
-                        physics: const AlwaysScrollableScrollPhysics(),
-                      );
-              })),
-            ),
-          ])
-            ..mainAxisSize = MainAxisSize.min,
+                          ],
+                        );
+                      },
+                      // 解决联系人数据量少的情况下无法刷新的问题
+                      // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
+                      physics: const AlwaysScrollableScrollPhysics(),
+                    );
+                  }),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

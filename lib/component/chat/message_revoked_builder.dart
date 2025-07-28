@@ -7,7 +7,6 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
-import 'package:niku/namespace.dart' as n;
 
 class RevokedMessageBuilder extends StatelessWidget {
   const RevokedMessageBuilder({
@@ -70,27 +69,29 @@ class RevokedMessageBuilder extends StatelessWidget {
             width: Get.width,
             padding: const EdgeInsets.all(12),
             alignment: Alignment.center,
-            child: n.Row([
-              Expanded(
-                child: Padding(
-                  padding: userIsAuthor
-                      ? const EdgeInsets.only(right: 10, left: 0)
-                      : const EdgeInsets.only(left: 50),
-                  child: Text(
-                    "$nickname ${'message_was_withdrawn'.tr}",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 14.0,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: userIsAuthor
+                        ? const EdgeInsets.only(right: 10, left: 0)
+                        : const EdgeInsets.only(left: 50),
+                    child: Text(
+                      "$nickname ${'message_was_withdrawn'.tr}",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontSize: 14.0,
+                      ),
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 2,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ),
-              btn,
-            ])
-              ..crossAxisAlignment = CrossAxisAlignment.center,
+                btn,
+              ],
+            ),
           ),
         );
       },

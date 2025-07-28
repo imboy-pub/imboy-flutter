@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
 
 import '../../config/theme.dart' show mainLineWidth;
 
@@ -117,27 +116,25 @@ class RoundedElevatedButton extends StatelessWidget {
                     borderRadius ?? BorderRadius.circular(30.0), // 设置圆角大小
               )),
             ),
-      child: n.Padding(
-          left: 10,
-          right: 10,
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-          )),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 10, right: 10),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+        ),
+      ),
     );
   }
 }
 
 ButtonStyle lightGreenButtonStyle(Size? s) {
   return ButtonStyle(
-    backgroundColor: WidgetStateProperty.resolveWith<Color?>(
-      (Set<WidgetState> states) {
-        if (states.contains(WidgetState.pressed)) {
-          return Colors.lightGreen[700]; // 按下时的背景颜色
-        }
-        return Colors.lightGreen; // 默认背景颜色
-      },
-    ),
+    backgroundColor: WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
+      if (states.contains(WidgetState.pressed)) {
+        return Colors.lightGreen[700]; // 按下时的背景颜色
+      }
+      return Colors.lightGreen; // 默认背景颜色
+    }),
     foregroundColor: WidgetStateProperty.all<Color>(
       Colors.white,
     ),

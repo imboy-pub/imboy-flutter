@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
 import 'package:imboy/page/mine/setting/setting_logic.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 class FriendsPermissionsPage extends StatelessWidget {
   // final String id; // 用户ID
@@ -28,6 +28,6 @@ class FriendsPermissionsPage extends StatelessWidget {
           automaticallyImplyLeading: true,
           title: 'friend_permissions'.tr,
         ),
-        body: SingleChildScrollView(child: n.Column(const [])));
+        body: SingleChildScrollView(child: Column(children: const [])));
   }
 }

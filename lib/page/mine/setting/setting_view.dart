@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/mine/account_security/account_security_view.dart';
@@ -42,12 +42,14 @@ class _SettingPageState extends State<SettingPage> {
         title: 'setting'.tr,
       ),
       body: SingleChildScrollView(
-        child: n.Column([
-          n.Column([
-            n.ListTile(
+        child: Column(
+          children: [
+          Column(
+            children: [
+            ListTile(
               title: Text('account_security'.tr),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -65,10 +67,10 @@ class _SettingPageState extends State<SettingPage> {
               color: Theme.of(context).colorScheme.primary,
             ),
 
-            n.ListTile(
+            ListTile(
               title: Text('language_setting'.tr),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -80,25 +82,25 @@ class _SettingPageState extends State<SettingPage> {
                 );
               },
             ),
-            n.Padding(
-                left: 18,
+            Padding(
+                padding: const EdgeInsets.only(left: 18),
                 child: HorizontalLine(
                   height: Get.isDarkMode ? 0.5 : 1.0,
                   color: Theme.of(context).colorScheme.primary,
                 )),
-            n.ListTile(
-              title: n.Row([
+            ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                 Expanded(child: Text('dark_model'.tr)),
                 Expanded(child: SizedBox(
                   width: 120,
                   child:
                   Text(logic.themeTypeTips(), textAlign: TextAlign.right),
                 )),
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+              ]),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -115,10 +117,10 @@ class _SettingPageState extends State<SettingPage> {
               color: Theme.of(context).colorScheme.primary,
             ),
             /*
-            n.ListTile(
+            ListTile(
               title: Text('message_notification'.tr),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -135,14 +137,14 @@ class _SettingPageState extends State<SettingPage> {
               },
             ),
             */
-            n.Padding(
-                left: 18,
+            Padding(
+                padding: const EdgeInsets.only(left: 18),
                 child: HorizontalLine(
                   height: Get.isDarkMode ? 0.5 : 1.0,
                   color: Theme.of(context).colorScheme.primary,
                 )),
 
-            n.ListTile(
+            ListTile(
               title: Text('allow_search_me'.tr),
               trailing: SizedBox(
                 height: 32.0,
@@ -164,7 +166,7 @@ class _SettingPageState extends State<SettingPage> {
                   ),
                 ),
               ),
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -175,10 +177,10 @@ class _SettingPageState extends State<SettingPage> {
               color: Theme.of(context).colorScheme.primary,
             ),
 
-            n.ListTile(
+            ListTile(
               title: Text('storage_space'.tr),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -190,11 +192,11 @@ class _SettingPageState extends State<SettingPage> {
                 );
               },
             ),
-            // n.Padding(left: 18, child: HorizontalLine(
+            // Padding(left: 18, child: HorizontalLine(
             //         height: Get.isDarkMode ? 0.5 : 1.0,
             //         color: Theme.of(context).colorScheme.primary,
             //       )),
-            // n.ListTile(
+            // ListTile(
             //   title: Text('friend_permissions'.tr),
             //   trailing: navigateNextIcon,
             //   onTap: () {
@@ -209,10 +211,10 @@ class _SettingPageState extends State<SettingPage> {
               height: 10,
               color: Theme.of(context).colorScheme.primary,
             ),
-            n.ListTile(
+            ListTile(
               title: Text('update_log'.tr),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -228,16 +230,16 @@ class _SettingPageState extends State<SettingPage> {
                 );
               },
             ),
-            n.Padding(
-                left: 18,
+            Padding(
+                padding: const EdgeInsets.only(left: 18),
                 child: HorizontalLine(
                   height: Get.isDarkMode ? 0.5 : 1.0,
                   color: Theme.of(context).colorScheme.primary,
                 )),
-            n.ListTile(
+            ListTile(
               title: Text('help_document'.tr),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
@@ -253,30 +255,28 @@ class _SettingPageState extends State<SettingPage> {
                 );
               },
             ),
-            n.Padding(
-                left: 18,
+            Padding(
+                padding: const EdgeInsets.only(left: 18),
                 child: HorizontalLine(
                   height: Get.isDarkMode ? 0.5 : 1.0,
                   color: Theme.of(context).colorScheme.primary,
                 )),
-            n.ListTile(
-              title: n.Row([
+            ListTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                 Expanded(child: Text('about_app'.tr)),
                 Expanded(child: Text("${'version'.tr} $appVsn", textAlign: TextAlign.right)),
-              ])
-                // 两端对齐
-                ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
+              ]),
               trailing: navigateNextIcon,
-              contentPadding: n.EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                 left: 16,
                 right: 8.0,
               ),
               onTap: () {
                 final rightDMActions = [
-                  n.Padding(
-                    right: 10,
-                    top: 10,
-                    bottom: 10,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 10, top: 10, bottom: 10),
                     child: RoundedElevatedButton(
                       text: 'check_for_updates'.tr,
                       highlighted: true,
@@ -329,8 +329,10 @@ class _SettingPageState extends State<SettingPage> {
                 color: Theme.of(context).colorScheme.primary,
               ),
             if (currentEnv != 'pro')
-              n.ListTile(
-                title: n.Row([
+              ListTile(
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                   Text('switch_environment'.tr),
                   DropdownButton<String>(
                     value: currentEnv,
@@ -358,10 +360,8 @@ class _SettingPageState extends State<SettingPage> {
                       }
                     },
                   )
-                ])
-                  // 两端对齐
-                  ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
-                contentPadding: n.EdgeInsets.only(
+                ]),
+                contentPadding: const EdgeInsets.only(
                   left: 16,
                   right: 8.0,
                 ),

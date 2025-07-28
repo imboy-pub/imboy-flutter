@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:get/get.dart';
 
@@ -34,29 +33,31 @@ class VideoMessageBuilder extends StatelessWidget {
           popGesture: true, // 右滑，返回上一页
         );
       },
-      child: n.Stack([
-        CachedNetworkImage(
-          imageUrl: message.metadata!['thumb']['uri'],
-          progressIndicatorBuilder: (context, url, downloadProgress) =>
-              CircularProgressIndicator(value: downloadProgress.progress),
-          errorWidget: (context, url, error) => const Icon(Icons.error),
-          cacheManager: cacheManager,
-          //cancelToken: cancellationToken,
-        ),
-        const Positioned.fill(
-          child: SizedBox(
-            height: 100,
-            child: Center(
-              child: Icon(
-                Icons.video_library,
-                color: Colors.white,
-                size: 40,
+      child: Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          CachedNetworkImage(
+            imageUrl: message.metadata!['thumb']['uri'],
+            progressIndicatorBuilder: (context, url, downloadProgress) =>
+                CircularProgressIndicator(value: downloadProgress.progress),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+            cacheManager: cacheManager,
+            //cancelToken: cancellationToken,
+          ),
+          const Positioned.fill(
+            child: SizedBox(
+              height: 100,
+              child: Center(
+                child: Icon(
+                  Icons.video_library,
+                  color: Colors.white,
+                  size: 40,
+                ),
               ),
             ),
           ),
-        ),
-      ])
-        ..alignment = Alignment.centerRight,
+        ],
+      ),
     );
   }
 }

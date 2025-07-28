@@ -5,8 +5,6 @@ import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
-import 'package:niku/namespace.dart' as n;
-
 import 'contact_setting_tag_logic.dart';
 
 // ignore: must_be_immutable
@@ -54,90 +52,85 @@ class ContactSettingTagPage extends StatelessWidget {
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        titleWidget: n.Row([
-          Expanded(
-            child: Text(
-              'set_param'.trArgs(['remarks_tags'.tr]),
-              textAlign: TextAlign.center,
-              // style: AppStyle.navAppBarTitleStyle,
+        titleWidget: Row(
+          children: [
+            Expanded(
+              child: Text(
+                'set_param'.trArgs(['remarks_tags'.tr]),
+                textAlign: TextAlign.center,
+              ),
             ),
-            // 中间用Expanded控件
-          ),
-          Obx(
-            () => RoundedElevatedButton(
-              text: 'button_accomplish'.tr,
-              highlighted: logic.valueChanged.isTrue,
-              onPressed: () async {
-                String trimmedText = logic.remarkTextController.text.trim();
-                if (trimmedText == '') {
-                  logic.valueOnChange(false);
-                } else if (logic.valueChanged.isTrue) {
-                  bool res = await logic.changeRemark(peerId, trimmedText);
-                  if (res) {
-                    EasyLoading.showSuccess('tip_success'.tr);
-                    peerRemark = trimmedText;
-                    Get.back(result: trimmedText);
+            Obx(
+              () => RoundedElevatedButton(
+                text: 'button_accomplish'.tr,
+                highlighted: logic.valueChanged.isTrue,
+                onPressed: () async {
+                  String trimmedText = logic.remarkTextController.text.trim();
+                  if (trimmedText == '') {
+                    logic.valueOnChange(false);
+                  } else if (logic.valueChanged.isTrue) {
+                    bool res = await logic.changeRemark(peerId, trimmedText);
+                    if (res) {
+                      EasyLoading.showSuccess('tip_success'.tr);
+                      peerRemark = trimmedText;
+                      Get.back(result: trimmedText);
+                    }
                   }
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.only(left: 12, top: 20, right: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextFormField(
+              decoration: InputDecoration(
+                labelText: 'remark'.tr,
+                labelStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
+              autofocus: true,
+              showCursor: true,
+              focusNode: logic.remarkFocusNode,
+              controller: logic.remarkTextController,
+              keyboardType: TextInputType.text,
+              maxLength: 40,
+              textCapitalization: TextCapitalization.words,
+              readOnly: false,
+              onFieldSubmitted: (value) async {
+                FocusScope.of(Get.context!).requestFocus();
+                if (value == '' || peerRemark == value) {
+                  logic.valueOnChange(false);
+                }
+              },
+              onChanged: (value) {
+                if (value == '' || peerRemark == value) {
+                  logic.valueOnChange(false);
+                } else {
+                  logic.valueOnChange(true);
                 }
               },
             ),
-          ),
-        ]),
-      ),
-      body: n.Padding(
-        left: 12,
-        top: 20,
-        right: 12,
-        child: n.Column([
-          n.TextFormField(
-            label: Text(
-              'remark'.tr,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
-            ),
-            autofocus: true,
-            showCursor: true,
-            // style: n.TextStyle(color: Colors.red),
-            focusNode: logic.remarkFocusNode,
-            controller: logic.remarkTextController,
-            keyboardType: TextInputType.text,
-            maxLength: 40,
-            textCapitalization: TextCapitalization.words,
-            // textInputAction: TextInputAction.,
-            readOnly: false,
-            onFieldSubmitted: (value) async {
-              FocusScope.of(Get.context!).requestFocus();
-              if (value == '' || peerRemark == value) {
-                logic.valueOnChange(false);
-              } else {}
-            },
-            //style: ,
-            onChanged: (value) {
-              if (value == '' || peerRemark == value) {
-                logic.valueOnChange(false);
-              } else {
-                logic.valueOnChange(true);
-              }
-            },
-          )
-          // ..usePrefixStyle(
-          //   (v) => v..color = Theme.of(context).colorScheme.surface,
-          // )
-          ,
-          const SizedBox(height: 20),
-          //
-          Obx(() => n.TextFormField(
-                // labelText: 'tags'.tr,
-                label: Text(
-                  'tags'.tr,
-                  style: TextStyle(
+            const SizedBox(height: 20),
+            Obx(
+              () => TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'tags'.tr,
+                  labelStyle: TextStyle(
                     color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  suffixIcon: const Padding(
+                    padding: EdgeInsets.only(left: 20),
+                    child: Icon(Icons.chevron_right),
                   ),
                 ),
                 controller: TextEditingController()
                   ..text = peerTag.isEmpty ? 'add_tag'.tr : peerTag.value,
-                // style: n.TextStyle(color: AppColors.ItemOnColor),
                 readOnly: true,
                 minLines: 1,
                 maxLines: 8,
@@ -148,24 +141,18 @@ class ContactSettingTagPage extends StatelessWidget {
                       peerTag: peerTag.value,
                       scene: 'friend',
                     ),
-                    // () => TagAddPage(peerId:peerId, peerTag:'标签1, 标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,标签1,ABCD'),
                     transition: Transition.rightToLeft,
-                    popGesture: true, // 右滑，返回上一页
+                    popGesture: true,
                   )?.then((value) {
-                    // iPrint(
-                    //     "ContactSettingTagPage_TagAddPage_back then $value");
                     if (value != null && value is String) {
                       peerTag.value = value.toString();
                     }
                   });
                 },
-              )
-                ..usePrefixStyle((v) => v..color = Colors.white)
-                ..suffixIcon = n.Padding(left: 20, child: const Icon(Icons.chevron_right),),
-          ),
-        ],
-            // 内容文本左对齐
-            crossAxisAlignment: CrossAxisAlignment.start),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

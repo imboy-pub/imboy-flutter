@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 
-import 'package:niku/namespace.dart' as n;
-
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/location/widget.dart';
 import 'package:imboy/component/webrtc/func.dart';
@@ -34,40 +32,37 @@ class ExtraItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onPressed ?? () => Get.snackbar('Tips', '功能暂未实现'),
-      child: n.Padding(
-        left: 15,
-        top: 10,
-        right: 15,
-        bottom: 0,
-        child: n.Column([
-          SizedBox(
-            width: width ?? 56,
-            height: height ?? 56,
-            child: Material(
-              // color: InheritedChatTheme.of(context).theme.inputBackgroundColor,
-              child: Ink(
-                decoration: BoxDecoration(
-                  color: Get.isDarkMode
-                      ? const Color.fromRGBO(38, 38, 38, 1.0)
-                      : const Color.fromRGBO(255, 255, 255, 1.0),
-                  borderRadius: const BorderRadius.all(Radius.circular(16.0)),
-                  border: Border.all(
-                    width: 1,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 15, top: 10, right: 15),
+        child: Column(
+          children: [
+            SizedBox(
+              width: width ?? 56,
+              height: height ?? 56,
+              child: Material(
+                // color: InheritedChatTheme.of(context).theme.inputBackgroundColor,
+                child: Ink(
+                  decoration: BoxDecoration(
                     color: Get.isDarkMode
-                        ? const Color.fromRGBO(44, 44, 44, 1.0)
+                        ? const Color.fromRGBO(38, 38, 38, 1.0)
                         : const Color.fromRGBO(255, 255, 255, 1.0),
+                    borderRadius: const BorderRadius.all(Radius.circular(16.0)),
+                    border: Border.all(
+                      width: 1,
+                      color: Get.isDarkMode
+                          ? const Color.fromRGBO(44, 44, 44, 1.0)
+                          : const Color.fromRGBO(255, 255, 255, 1.0),
+                    ),
                   ),
+                  child: image is ImageProvider
+                      ? Image(image: image as ImageProvider)
+                      : image,
                 ),
-                child: image is ImageProvider
-                    ? Image(
-                  image: image as ImageProvider,
-                )
-                    : image,
               ),
             ),
-          ),
-          Text(title),
-        ]),
+            Text(title),
+          ],
+        ),
       ),
     );
   }
@@ -108,130 +103,132 @@ class ExtraItemsState extends State<ExtraItems> {
   Widget build(BuildContext context) {
     const double iconSize = 30;
     var items = [
-      n.Column([
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: [
-            ExtraItem(
-              title: 'album'.tr,
-              image: const Icon(Icons.photo, size: iconSize),
-              onPressed: widget.handleImageSelection,
-            ),
-            ExtraItem(
-              title: 'camera'.tr,
-              image: const Icon(Icons.camera_alt, size: iconSize),
-              onPressed: () {
-                if (widget.handlePickerSelection != null) {
-                  widget.handlePickerSelection!(context);
-                }
-              },
-            ),
-            ExtraItem(
-              title: 'location'.tr,
-              image: const Icon(Icons.location_on, size: iconSize),
-              onPressed: () async {
-                AMapPosition? l = await AMapHelper().startLocation();
-                debugPrint("getLocation ${l?.latLng.toJson().toString()}");
-                if (l != null) {
-                  Navigator.push(
-                    Get.context!,
-                    CupertinoPageRoute(
-                      builder: (context) => MapLocationPicker(arguments: {
-                        "lat": double.parse(l.latLng.latitude.toString()),
-                        "lng": double.parse(l.latLng.longitude.toString()),
-                        "citycode": AMapApi.getCityNameByGaoDe(l.adCode),
-                        "isMapImage": true
+      Column(
+        children: [
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              ExtraItem(
+                title: 'album'.tr,
+                image: const Icon(Icons.photo, size: iconSize),
+                onPressed: widget.handleImageSelection,
+              ),
+              ExtraItem(
+                title: 'camera'.tr,
+                image: const Icon(Icons.camera_alt, size: iconSize),
+                onPressed: () {
+                  if (widget.handlePickerSelection != null) {
+                    widget.handlePickerSelection!(context);
+                  }
+                },
+              ),
+              ExtraItem(
+                title: 'location'.tr,
+                image: const Icon(Icons.location_on, size: iconSize),
+                onPressed: () async {
+                  AMapPosition? l = await AMapHelper().startLocation();
+                  debugPrint("getLocation ${l?.latLng.toJson().toString()}");
+                  if (l != null) {
+                    Navigator.push(
+                      Get.context!,
+                      CupertinoPageRoute(
+                        builder: (context) => MapLocationPicker(
+                          arguments: {
+                            "lat": double.parse(l.latLng.latitude.toString()),
+                            "lng": double.parse(l.latLng.longitude.toString()),
+                            "citycode": AMapApi.getCityNameByGaoDe(l.adCode),
+                            "isMapImage": true,
+                          },
+                        ),
+                      ),
+                    ).then((value) {
+                      if (value != null) {
+                        if (value["image"] == null) {
+                          EasyLoading.showError('failed_get_map_try_again'.tr);
+                          FocusScope.of(Get.context!).requestFocus(FocusNode());
+                          return;
+                        }
+                        if (widget.handleLocationSelection != null &&
+                            value["image"] != null) {
+                          widget.handleLocationSelection!(
+                            value["id"],
+                            value["image"],
+                            value["address"],
+                            value["title"],
+                            value["latitude"].toString(),
+                            value["longitude"].toString(),
+                          );
+                        }
+                      }
+                    });
+                  }
+                },
+              ),
+              ExtraItem(
+                title: 'personal_card'.tr,
+                image: const Icon(Icons.person, size: iconSize),
+                onPressed: widget.handleVisitCardSelection,
+              ),
+              if (widget.type != 'C2G')
+                ExtraItem(
+                  title: 'voice_call'.tr,
+                  image: const Icon(Icons.phone, size: iconSize),
+                  onPressed: () {
+                    openCallScreen(
+                      ContactModel.fromMap({
+                        "id": widget.options["to"],
+                        "nickname": widget.options["title"],
+                        "avatar": widget.options["avatar"],
+                        "sign": widget.options["sign"],
                       }),
-                    ),
-                  ).then((value) {
-                    if (value != null) {
-                      if (value["image"] == null) {
-                        EasyLoading.showError('failed_get_map_try_again'.tr);
-                        FocusScope.of(Get.context!).requestFocus(FocusNode());
-                        return;
-                      }
-                      if (widget.handleLocationSelection != null &&
-                          value["image"] != null) {
-                        widget.handleLocationSelection!(
-                          value["id"],
-                          value["image"],
-                          value["address"],
-                          value["title"],
-                          value["latitude"].toString(),
-                          value["longitude"].toString(),
-                        );
-                      }
-                    }
-                  });
-                }
-              },
-            ),
-            ExtraItem(
-              title: 'personal_card'.tr,
-              image: const Icon(Icons.person, size: iconSize),
-              onPressed: widget.handleVisitCardSelection,
-            ),
-            if (widget.type != 'C2G')
+                      {'media': 'audio'},
+                    );
+                  },
+                ),
+              if (widget.type != 'C2G')
+                ExtraItem(
+                  title: 'video_call'.tr,
+                  image: const Icon(Icons.videocam, size: iconSize),
+                  onPressed: () {
+                    openCallScreen(
+                      ContactModel.fromMap({
+                        "id": widget.options["to"],
+                        "nickname": widget.options["title"],
+                        "avatar": widget.options["avatar"],
+                        "sign": widget.options["sign"],
+                      }),
+                      {'media': 'video'},
+                    );
+                  },
+                ),
               ExtraItem(
-                title: 'voice_call'.tr,
-                image: const Icon(Icons.phone, size: iconSize),
-                onPressed: () {
-                  openCallScreen(
-                    ContactModel.fromMap({
-                      "id": widget.options["to"],
-                      "nickname": widget.options["title"],
-                      "avatar": widget.options["avatar"],
-                      "sign": widget.options["sign"],
-                    }),
-                    {
-                      'media': 'audio',
-                    },
-                  );
-                },
+                title: 'favorites'.tr,
+                image: const Icon(Icons.collections_bookmark, size: iconSize),
+                onPressed: widget.handleCollectSelection,
               ),
-            if (widget.type != 'C2G')
+            ],
+          ),
+        ],
+      ),
+      Column(
+        children: [
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
               ExtraItem(
-                title: 'video_call'.tr,
-                image: const Icon(Icons.videocam, size: iconSize),
-                onPressed: () {
-                  openCallScreen(
-                    ContactModel.fromMap({
-                      "id": widget.options["to"],
-                      "nickname": widget.options["title"],
-                      "avatar": widget.options["avatar"],
-                      "sign": widget.options["sign"],
-                    }),
-                    {
-                      'media': 'video',
-                    },
-                  );
-                },
+                title: 'file'.tr,
+                image: const Icon(Icons.file_copy, size: iconSize),
+                onPressed: widget.handleFileSelection,
               ),
-            ExtraItem(
-              title: 'favorites'.tr,
-              image: const Icon(Icons.collections_bookmark, size: iconSize),
-              onPressed: widget.handleCollectSelection,
-            ),
-          ],
-        ),
-      ]),
-      n.Column([
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: [
-            ExtraItem(
-              title: 'file'.tr,
-              image: const Icon(Icons.file_copy, size: iconSize),
-              onPressed: widget.handleFileSelection,
-            ),
-            // 后面你如果需要继续加其他 ExtraItem，可以继续加在这里
-          ],
-        ),
-      ]),
+              // 后面你如果需要继续加其他 ExtraItem，可以继续加在这里
+            ],
+          ),
+        ],
+      ),
     ];
-    return n.Column([
+    return Column(children: [
       Expanded(
         child: CarouselSlider(
           controller: _controller,
@@ -249,15 +246,13 @@ class ExtraItemsState extends State<ExtraItems> {
             },
           ),
           items: items.map((tab) {
-            return Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: tab,
-            );
+            return Padding(padding: const EdgeInsets.only(left: 8), child: tab);
           }).toList(),
         ),
       ),
-      n.Row(
-        items.asMap().entries.map((entry) {
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: items.asMap().entries.map((entry) {
           return GestureDetector(
             onTap: () => _controller.animateToPage(entry.key),
             child: Container(
@@ -276,7 +271,7 @@ class ExtraItemsState extends State<ExtraItems> {
             ),
           );
         }).toList(),
-      )..mainAxisAlignment = MainAxisAlignment.center,
+      ),
     ]);
   }
 }

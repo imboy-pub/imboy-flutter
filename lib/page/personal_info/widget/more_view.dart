@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:niku/namespace.dart' as n;
+
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -32,7 +32,8 @@ class MoreView extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(automaticallyImplyLeading: true, title: 'more_info'.tr),
-      body: n.Column([
+      body: Column(
+        children: [
         LabelRow(
           title: 'gender'.tr,
           isLine: true,
@@ -130,7 +131,8 @@ class MoreView extends StatelessWidget {
             margin: const EdgeInsets.only(
               left: 20.0,
             ),
-            child: n.Row([
+            child: Row(
+              children: [
               SizedBox(
                 child: Text(
                   'signature'.tr,

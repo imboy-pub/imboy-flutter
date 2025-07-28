@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/button.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
 import 'package:imboy/page/mine/user_device/user_device_logic.dart';
 
+// 修改名称页面
 // ignore: must_be_immutable
 class ChangeNamePage extends StatelessWidget {
   final String title;
@@ -41,34 +41,36 @@ class ChangeNamePage extends StatelessWidget {
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        titleWidget: n.Row([
-          Expanded(
-            child: Text(
-              title,
-              textAlign: TextAlign.center,
-              // style: AppStyle.navAppBarTitleStyle,
+        titleWidget: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                // style: AppStyle.navAppBarTitleStyle,
+              ),
+              // 中间用Expanded控件
             ),
-            // 中间用Expanded控件
-          ),
-          Obx(
-            () => RoundedElevatedButton(
-                text: 'button_accomplish'.tr,
-                highlighted: valueChanged.isTrue,
-                onPressed: () async {
-                  if (field == "input") {
-                    String trimmedText = textController.text.trim();
-                    if (trimmedText == '') {
-                      valueChanged.value = false;
-                    } else {
-                      bool res = await callback(trimmedText);
-                      if (res) {
-                        Get.back();
+            Obx(
+                  () => RoundedElevatedButton(
+                  text: 'button_accomplish'.tr,
+                  highlighted: valueChanged.isTrue,
+                  onPressed: () async {
+                    if (field == "input") {
+                      String trimmedText = textController.text.trim();
+                      if (trimmedText == '') {
+                        valueChanged.value = false;
+                      } else {
+                        bool res = await callback(trimmedText);
+                        if (res) {
+                          Get.back();
+                        }
                       }
                     }
-                  }
-                }),
-          ),
-        ]),
+                  }),
+            ),
+          ],
+        ),
       ),
       body: TextFormField(
         autofocus: true,

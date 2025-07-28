@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:niku/namespace.dart' as n;
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -128,7 +127,8 @@ class _ScannerPageState extends State<ScannerPage>
       backgroundColor: Colors.black,
       body: Builder(
         builder: (context) {
-          return n.Stack([
+          return Stack(
+            children: [
             Padding(
               padding: const EdgeInsets.only(
                 left: 0,

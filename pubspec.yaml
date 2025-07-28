@@ -17,7 +17,6 @@ dependencies:
   # Core Flutter & UI Framework
   ##############################################
   cupertino_icons: ^1.0.8 # iOS style icons
-  niku: ^2.4.3            # Utility widgets for cleaner UI code
   flutter_screenutil: ^5.9.3 # Screen adaptation
   flutter_animate: ^4.5.2  # Animation library
   octo_image: ^2.1.0      # 多功能 Flutter 图像小部件
@@ -38,7 +37,7 @@ dependencies:
   http: ^1.3.0            # Additional HTTP utilities
   connectivity_plus: ^6.1.4 # Network status
   webview_flutter: ^4.13.0 # WebView integration
-  url_launcher: ^6.3.0    # URL handling
+  url_launcher: ^6.3.2    # URL handling
   mime: ^2.0.0            # MIME type handling
 
   ##############################################
@@ -48,7 +47,7 @@ dependencies:
   flutter_secure_storage: ^9.2.4 # Secure storage
   sqflite: ^2.4.2         # SQLite database
   sqflite_common_ffi: ^2.3.6 # SQLite FFI support
-  sqlite3_flutter_libs: ^0.5.34 # SQLite libraries
+  sqlite3_flutter_libs: ^0.5.38 # SQLite libraries
   cached_network_image: ^3.4.1 # Image caching
   flutter_cache_manager: ^3.4.1 # Cache management
   pointycastle: ^4.0.0    # Cryptography
@@ -58,7 +57,7 @@ dependencies:
   ##############################################
   # Media & Camera
   ##############################################
-  camera: ^0.11.1         # Camera access
+  camera: ^0.11.2         # Camera access
   wechat_camera_picker: ^4.3.7 # Camera picker
   wechat_assets_picker: ^9.5.1 # Asset picker
   photo_view: ^0.15.0     # Interactive image viewer
@@ -84,7 +83,7 @@ dependencies:
   flutter_sound: ^9.28.0  # Audio recording/playback
   audio_session: ^0.2.2   # Audio session management
   voice_message_package: ^2.2.1 # Voice message player
-  flutter_webrtc: ^0.14.2 # WebRTC for audio/video calls
+  flutter_webrtc: ^1.0.0 # WebRTC for audio/video calls
 
   ##############################################
   # Chat & Messaging
@@ -128,7 +127,7 @@ dependencies:
   amap_flutter_base: ^3.0.0 # AMap base
   amap_flutter_location: ^3.0.0 # AMap location
   amap_flutter_map: ^3.0.0 # AMap maps
-  map_launcher: ^3.5.0    # Map apps launcher
+  map_launcher: ^4.0.0    # Map apps launcher
 
   ##############################################
   # QR Code
@@ -139,13 +138,13 @@ dependencies:
   ##############################################
   # Utilities
   ##############################################
-  logger: ^2.6.0          # Logging
+  logger: ^2.6.1          # Logging
   event_bus: ^2.0.1       # Event bus
   jose: ^0.3.4            # JWT handling
   encrypt: ^5.0.3         # Encryption
-  permission_handler: ^12.0.0+1 # Permissions
+  permission_handler: ^12.0.1 # Permissions
   path_provider: ^2.1.5   # File system paths
-  file_saver: ^0.3.0
+  file_saver: ^0.3.1
   xid: ^1.2.1             # Unique ID generation
   jiffy: ^6.4.3           # Date/time handling
   ntp: ^2.0.0             # Network time protocol
@@ -187,7 +186,7 @@ dependencies:
   ##############################################
   lpinyin: ^2.0.3         # Chinese pinyin
   intl: ^0.20.2           # Internationalization
-  feedback: ^3.1.0
+  feedback: ^3.2.0
   # Flutter 的弹出窗口。弹出窗口是一种瞬态视图，当您点击某个控件或某个区域时，它会出现在屏幕上其他内容的上方。
   popover: ^0.3.1
   popup_menu: ^2.1.0
@@ -241,7 +240,7 @@ dependency_overrides:
   audio_session: ^0.2.2
   intl: ^0.20.2
   pointycastle: ^4.0.0    # Cryptography 一个实现加密算法和原语的 Dart 库
-  camera: ^0.11.1 # dep by wechat_camera_picker
+  camera: ^0.11.2 # dep by wechat_camera_picker
 
 #  scroll_to_index: // 打算弃用
 #    git:
