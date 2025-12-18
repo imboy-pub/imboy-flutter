@@ -1,5 +1,5 @@
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/loading_dialog.dart';
 
 extension GetExtension on GetInterface {
   void dismiss() {
@@ -10,6 +10,7 @@ extension GetExtension on GetInterface {
     } else if (Get.isBottomSheetOpen ?? false) {
       Get.closeAllBottomSheets();
     }
+    EasyLoading.dismiss();
   }
 
   void loading() {
@@ -20,6 +21,6 @@ extension GetExtension on GetInterface {
     } else if (Get.isBottomSheetOpen ?? false) {
       Get.closeAllBottomSheets();
     }
-    Get.dialog(const LoadingDialog());
+    EasyLoading.show();
   }
 }

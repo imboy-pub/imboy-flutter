@@ -14,6 +14,10 @@ class PeopleInfoState {
   RxString tag = "".obs;
   RxInt isFriend = 0.obs;
   RxInt isFrom = 0.obs;
+  
+  // 在线状态相关
+  RxString status = "".obs;
+  RxInt lastSeenAt = 0.obs;
 
   PeopleInfoState() {
     ///Initialize variables

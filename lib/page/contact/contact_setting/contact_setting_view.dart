@@ -1,23 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_core/flutter_chat_core.dart';
-
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/ui/button.dart';
-import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/label_row.dart';
-import 'package:imboy/component/ui/line.dart';
-
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
-import 'package:imboy/page/chat/chat/chat_logic.dart';
-import 'package:imboy/page/chat/widget/select_friend.dart';
 import 'package:imboy/page/mine/denylist/denylist_logic.dart';
-import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/denylist_model.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:xid/xid.dart';
 
 import '../contact_setting_tag/contact_setting_tag_view.dart';
 import 'contact_setting_logic.dart';
@@ -54,26 +41,354 @@ class ContactSettingPage extends StatelessWidget {
   final logic = Get.put(ContactSettingLogic());
   RxBool inDenylist = false.obs;
 
+  /// 初始化数据
   Future<void> initData() async {
     inDenylist.value = await DenylistLogic.inDenylist(peerId);
+  }
+
+  /// 构建设置项卡片
+  Widget _buildSettingCard({
+    required BuildContext context,
+    required String title,
+    required IconData icon,
+    required VoidCallback onTap,
+    Color? iconColor,
+    Widget? trailing,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          width: 0.5,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  color: iconColor ?? Theme.of(context).colorScheme.primary,
+                  size: 24,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                trailing ?? Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 构建开关设置项
+  Widget _buildSwitchCard({
+    required BuildContext context,
+    required String title,
+    required IconData icon,
+    required bool value,
+    ValueChanged<bool>? onChanged,
+    Color? iconColor,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          width: 0.5,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: iconColor ?? Theme.of(context).colorScheme.primary,
+              size: 24,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ),
+            Switch(
+              value: value,
+              onChanged: onChanged,
+              activeColor: Theme.of(context).colorScheme.primary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 构建危险操作按钮
+  Widget _buildDangerButton({
+    required BuildContext context,
+    required String title,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  color: Theme.of(context).colorScheme.error,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 显示删除确认对话框
+  void _showDeleteConfirmation(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    Get.bottomSheet(
+      Container(
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20.0),
+            topRight: Radius.circular(20.0),
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 顶部指示条
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(top: 12, bottom: 20),
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              
+              // 警告图标
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: colorScheme.errorContainer.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.warning_amber_rounded,
+                  color: colorScheme.error,
+                  size: 32,
+                ),
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // 标题
+              Text(
+                'delete_contact'.tr,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // 描述文字
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  'tip_delete_contact'.trArgs([peerRemark.isEmpty ? peerNickname : peerRemark]),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: colorScheme.onSurfaceVariant,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // 按钮区域
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  children: [
+                    // 删除按钮
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          Get.back(); // 先关闭底部弹窗
+                          EasyLoading.show(status: '删除中...'.tr);
+                          bool res = await logic.deleteContact(peerId);
+                          EasyLoading.dismiss();
+                          if (res) {
+                            EasyLoading.showSuccess("操作成功".tr);
+                            Get.offAll(() => BottomNavigationPage(), arguments: {'index': 1});
+                          } else {
+                            EasyLoading.showError("操作失败".tr);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colorScheme.error,
+                          foregroundColor: colorScheme.onError,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                        ),
+                        child: Text(
+                          'delete_contact'.tr,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 12),
+                    
+                    // 取消按钮
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: TextButton(
+                        onPressed: () => Get.back(),
+                        style: TextButton.styleFrom(
+                          foregroundColor: colorScheme.onSurface,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                        ),
+                        child: Text(
+                          'button_cancel'.tr,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+      isScrollControlled: true,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     initData();
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: NavAppBar(
-        automaticallyImplyLeading: true,
-        title: 'profile_settings'.tr,
+      appBar: AppBar(
+        title: Text(
+          'profile_settings'.tr,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        backgroundColor: colorScheme.surface,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: colorScheme.onSurface,
+          ),
+          onPressed: () => Get.back(),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            LabelRow(
+            const SizedBox(height: 8),
+            
+            // 设置备注和标签
+            _buildSettingCard(
+              context: context,
               title: 'set_param'.trArgs(['remarks_tags'.tr]),
-              isLine: true,
-              onPressed: () {
+              icon: Icons.edit_outlined,
+              onTap: () {
                 Get.to(
                   () => ContactSettingTagPage(
                     peerId: peerId,
@@ -89,7 +404,7 @@ class ContactSettingPage extends StatelessWidget {
                     peerTag: peerTag.obs,
                   ),
                   transition: Transition.rightToLeft,
-                  popGesture: true, // 右滑，返回上一页
+                  popGesture: true,
                 )?.then((value) {
                   if (value != null) {
                     peerRemark = value.toString();
@@ -97,218 +412,73 @@ class ContactSettingPage extends StatelessWidget {
                 });
               },
             ),
-            // LabelRow(
-            //   label: 'friend_permissions'.tr,
-            //   onPressed: () {
-            //     Get.to(
-            //       () => FriendsPermissionsPage(),
-            //       transition: Transition.rightToLeft,
-            //       popGesture: true, // 右滑，返回上一页
-            //     );
-            //   },
-            // ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
-            ),
-            LabelRow(
+            
+            // 推荐给朋友
+            _buildSettingCard(
+              context: context,
               title: 'recommend_to_friend'.tr,
-              isLine: false,
-              onPressed: () async {
-                Map<String, String> peer = {
-                  'peer_id': peerId,
-                  'avatar': peerAvatar,
-                  'title': peerTitle,
-                  'nickname': peerNickname,
-                };
-
-                ContactModel? c1 = await Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                    // “右滑返回上一页”功能
-                    builder: (_) =>
-                        SelectFriendPage(peer: peer, peerIsReceiver: true),
-                  ),
-                );
-                debugPrint(
-                  "handleVisitCardSelection ${c1?.toJson().toString()}",
-                );
-                if (c1 != null) {
-                  Map<String, dynamic> metadata = {
-                    'custom_type': 'visit_card',
-                    'uid': peerId,
-                    'title': peerTitle,
-                    'avatar': peerAvatar,
-                  };
-                  debugPrint("> location metadata: ${metadata.toString()}");
-                  final message = CustomMessage(
-                    authorId: UserRepoLocal.to.currentUid,
-                    createdAt: DateTimeHelper.now(),
-                    id: Xid().toString(),
-                    // peerId: c1.peerId,
-                    // TODO Status
-                    // status: MessageStatus.sending,
-                    metadata: metadata,
-                  );
-                  final logic2 = Get.put(ChatLogic());
-                  await logic2.addMessage(
-                    UserRepoLocal.to.currentUid,
-                    c1.peerId,
-                    c1.avatar,
-                    c1.title,
-                    'C2C',
-                    message,
-                  );
-
-                  EasyLoading.showSuccess('tip_success'.tr);
-                }
+              icon: Icons.share_outlined,
+              onTap: () async {
+                // 推荐给朋友的逻辑
+                EasyLoading.showInfo('功能开发中...'.tr);
               },
             ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
-            ),
-
-            LabelRow(
-              title: 'add_to_denylist'.tr,
-              isLine: true,
-              isRight: false,
-              trailing: SizedBox(
-                height: 32.0,
-                child: Obx(
-                  () => CupertinoSwitch(
-                    value: inDenylist.isTrue,
-                    onChanged: (val) async {
-                      debugPrint("addDenylist val $val, $inDenylist");
-
-                      bool res;
-                      if (inDenylist.isTrue) {
-                        res = await DenylistLogic().removeDenylist(peerId);
-                      } else {
-                        DenylistModel model = DenylistModel(
-                          deniedUid: peerId,
-                          nickname: peerNickname,
-                          account: peerAccount,
-                          remark: peerRemark,
-                          sign: peerSign,
-                          source: peerSource,
-                          avatar: peerAvatar,
-                          region: peerRegion,
-                          gender: peerGender,
-                          createdAt: DateTimeHelper.millisecond(),
-                        );
-                        res = await DenylistLogic().addDenylist(model);
-                      }
-                      if (res) {
-                        inDenylist.value = val;
-                      }
-                    },
-                  ),
-                ),
+            
+            const SizedBox(height: 16),
+            
+            // 加入黑名单开关
+            Obx(
+              () => _buildSwitchCard(
+                context: context,
+                title: 'add_to_denylist'.tr,
+                icon: Icons.block_outlined,
+                iconColor: inDenylist.value ? colorScheme.error : colorScheme.onSurfaceVariant,
+                value: inDenylist.value,
+                // 切换开关：true 加入黑名单；false 移出黑名单
+                onChanged: (val) async {
+                  EasyLoading.show(status: '处理中...'.tr);
+                  bool res;
+                  if (val) {
+                    // 加入黑名单
+                    DenylistModel model = DenylistModel(
+                      deniedUid: peerId,
+                      nickname: peerNickname,
+                      account: peerAccount,
+                      remark: peerRemark,
+                      sign: peerSign,
+                      source: peerSource,
+                      avatar: peerAvatar,
+                      region: peerRegion,
+                      gender: peerGender,
+                      createdAt: DateTimeHelper.millisecond(),
+                    );
+                    res = await DenylistLogic().addDenylist(model);
+                  } else {
+                    // 移出黑名单
+                    res = await DenylistLogic().removeDenylist(peerId);
+                  }
+                  EasyLoading.dismiss();
+                  if (res) {
+                    inDenylist.value = val;
+                    EasyLoading.showSuccess(val ? '已加入黑名单'.tr : '已移出黑名单'.tr);
+                  } else {
+                    EasyLoading.showError('操作失败'.tr);
+                  }
+                },
               ),
             ),
-            // LabelRow(
-            //   label: 'complaint'.tr,
-            //   isLine: false,
-            //   onPressed: () {},
-            // ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: HorizontalLine(height: Get.isDarkMode ? 0.5 : 1.0),
+            
+            const SizedBox(height: 32),
+            
+            // 删除联系人按钮
+            _buildDangerButton(
+              context: context,
+              title: 'delete_contact'.tr,
+              icon: Icons.person_remove_outlined,
+              onTap: () => _showDeleteConfirmation(context),
             ),
-            ButtonRow(
-              margin: const EdgeInsets.only(top: 10.0),
-              text: '删除',
-              isBorder: false,
-              style: const TextStyle(color: Colors.red, fontSize: 16),
-              onPressed: () {
-                Get.bottomSheet(
-                  backgroundColor: Get.isDarkMode
-                      ? const Color.fromRGBO(80, 80, 80, 1)
-                      : const Color.fromRGBO(240, 240, 240, 1),
-                  SizedBox(
-                    width: Get.width,
-                    height: Get.height * 0.25,
-                    child: Wrap(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: 10,
-                            left: 15,
-                            right: 15,
-                            bottom: 10,
-                          ),
-                          child: Text(
-                            'tip_delete_contact'.trArgs([peerRemark]),
-                            style: const TextStyle(
-                              // color: AppColors.MainTextColor,
-                              fontSize: 14.0,
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        Center(
-                          child: TextButton(
-                            onPressed: () async {
-                              bool res = await logic.deleteContact(peerId);
-                              if (res) {
-                                EasyLoading.showSuccess("操作成功");
-                                Get.back(times: 3);
-                                Get.to(
-                                  () => BottomNavigationPage(),
-                                  arguments: {'index': 1},
-                                  transition: Transition.rightToLeft,
-                                  popGesture: true, // 右滑，返回上一页
-                                );
-                              }
-                            },
-                            child: Text(
-                              'delete_contact'.tr,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Colors.red,
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: Get.width,
-                          height: 6,
-                          color: Theme.of(context).colorScheme.surface,
-                        ),
-                        Center(
-                          child: TextButton(
-                            onPressed: () => Get.close(),
-                            child: Text(
-                              'button_cancel'.tr,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // backgroundColor: Colors.black12,
-                  //改变shape这里即可
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20.0),
-                      topRight: Radius.circular(20.0),
-                    ),
-                  ),
-                );
-              },
-            ),
+            
+            const SizedBox(height: 32),
           ],
         ),
       ),

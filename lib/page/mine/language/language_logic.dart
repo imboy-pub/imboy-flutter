@@ -27,52 +27,46 @@ class LanguageLogic extends GetxController {
   /// model 当前地区节点数据，如果是叶子节点，类型为String；如果非叶子节点类型为Map
   /// callback 有里面有业务逻辑处理
   /// outCallback 递归调用的时候传递最外层的callback
-  Widget getListItem(
-    BuildContext context,
-    Map<String, String> model,
-  ) {
+  Widget getListItem(BuildContext context, Map<String, String> model) {
     String id = model['id'] ?? '';
     return Obx(
-      () => Container(
-        height: 52,
-        // ignore: sort_child_properties_last
+      () => Card(
+        margin: const EdgeInsets.only(bottom: 8),
+        color: Theme.of(context).colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        elevation: 1,
         child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
           title: Text(
             model['title'] ?? '',
             style: TextStyle(
-              fontSize: state.selectedLanguage.value == id ? 20 : 16,
-              // color: Theme.of(context).colorScheme.onPrimary,
+              fontSize: 16.0,
+              fontWeight: state.selectedLanguage.value == id
+                  ? FontWeight.w600
+                  : FontWeight.normal,
+              color: state.selectedLanguage.value == id
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onSurface,
             ),
           ),
-          selected: state.selectedLanguage.value == id,
-          selectedColor: Theme.of(context).colorScheme.onPrimary,
           trailing: state.selectedLanguage.value == id
-              ? const Text(
-                  '√',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.green,
-                  ),
+              ? Icon(
+                  Icons.check_circle,
+                  color: Colors.lightGreen,
+            // color: Theme.of(context).iconTheme.color,
+                  // size: 22,
                 )
               : null,
           onTap: () {
             state.selectedLanguage.value = id;
             state.valueChanged.value =
                 state.currentLanguage.value == state.selectedLanguage.value
-                    ? false
-                    : true;
-            // regionSelectedTitle(title);
+                ? false
+                : true;
           },
-        ),
-        // margin: const EdgeInsets.only(left: 16, right: 16),
-        // 下边框
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              width: 1.0,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
         ),
       ),
     );

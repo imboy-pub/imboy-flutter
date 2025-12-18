@@ -114,7 +114,8 @@ class Avatar extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: Column(
+      child: Wrap(
+        verticalDirection: VerticalDirection.down,
         children: [
           Container(
             width: width ?? 50,
@@ -134,7 +135,7 @@ class Avatar extends StatelessWidget {
           if (title != null)
             SizedBox(
               width: width ?? 50,
-              child: Row(children: [Expanded(child: title!)]),
+              child: title!,
             ),
         ],
       ),

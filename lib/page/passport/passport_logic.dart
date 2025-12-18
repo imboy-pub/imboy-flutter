@@ -1,14 +1,15 @@
 import 'dart:io';
 
-import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:imboy/theme/theme_manager.dart';
 import 'package:imboy/component/locales/locales.dart';
 import 'package:imboy/component/ui/imboy_icon.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/mine/change_password/set_password_view.dart';
+import 'package:imboy/page/passport/manage_account_view.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:jverify/jverify.dart';
 
@@ -147,7 +148,7 @@ class PassportLogic extends GetxController {
       } else if (status == 2) {
         Get.defaultDialog(
             title: 'cancel_logout_title'.tr,
-            backgroundColor: Get.isDarkMode
+            backgroundColor: ThemeManager.instance.isDarkMode
                 ? const Color.fromRGBO(80, 80, 80, 1)
                 : const Color.fromRGBO(240, 240, 240, 1),
             radius: 6,
@@ -185,10 +186,10 @@ class PassportLogic extends GetxController {
                       padding: const EdgeInsets.only(left: 10),
                       child: Text(
                         'cancel_logout_body'.tr,
-                        style: const TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.normal,
-                        ),
+                        // style:  TextStyle(
+                        //   fontSize: AppTextSize.medium,
+                        //   fontWeight: FontWeight.normal,
+                        // ),
                         maxLines: 6,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -219,11 +220,8 @@ class PassportLogic extends GetxController {
     // debugPrint("login_pwd_rsa_encrypt ${payload.toString()}");
     final rsaEncrypt = payload['login_pwd_rsa_encrypt'].toString();
     if (rsaEncrypt == "1") {
-      String pubKey = payload['login_rsa_pub_key'].toString();
-      dynamic publicKey = RSAKeyParser().parse(pubKey);
-      final encryptor = Encrypter(RSA(publicKey: publicKey));
-      final encrypted = encryptor.encrypt(password);
-      password = encrypted.base64.toString();
+      String pubKeyPem = payload['login_rsa_pub_key'].toString();
+      password = RSAService.rsaEncryptWithPointyCastle(password, pubKeyPem);
     }
     return {
       "password": password,
@@ -345,6 +343,9 @@ class PassportLogic extends GetxController {
       return null;
     } else {
       state.error.value = resp.error?.message ?? 'error';
+      if (state.error.value.contains('%s')) {
+        state.error.value = state.error.value.replaceFirst('%s', account);
+      }
       return state.error.value;
     }
   }
@@ -620,7 +621,14 @@ class PassportLogic extends GetxController {
         await StorageService.to.setBool(Keys.needSetPwd, true);
         Get.off(() => SetPasswordPage());
       } else {
-        Get.off(() => BottomNavigationPage());
+        // 登录成功后检查是否需要引导绑定（邮箱或手机任一未绑定即引导）
+        final user = UserRepoLocal.to.current;
+        final needGuide = (user.email.isEmpty || user.mobile.isEmpty);
+        if (needGuide) {
+          Get.offAll(() => const ManageAccountPage());
+        } else {
+          Get.off(() => BottomNavigationPage());
+        }
       }
       return null;
     }

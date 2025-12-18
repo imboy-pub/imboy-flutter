@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
+import 'package:imboy/page/passport/manage_account_view.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/password.dart';
@@ -63,11 +64,9 @@ class LoginAccountPageState extends State<LoginAccountPage> {
   Widget build(BuildContext context) {
     final focusNode = FocusNode();
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        color: Colors.green,
-        height: Get.height,
-        width: Get.width,
+        padding: const EdgeInsets.symmetric(horizontal: 0),
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -75,85 +74,118 @@ class LoginAccountPageState extends State<LoginAccountPage> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
+                  // 账号输入框 - 统一样式设计，修复圆角裁剪问题
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 0,
-                      vertical: 8.0,
+                    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
                     ),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(5)),
-                    ),
-                    child: TextField(
-                      controller: state.loginAccountCtl,
-                      enableSuggestions: false,
-                      autocorrect: false,
-                      // TextField 垂直居中光标
-                      textAlignVertical: TextAlignVertical.center,
-                      focusNode:focusNode,
-                      decoration: InputDecoration(
-                        isDense: true, // 关键属性：压缩默认高度
-                        contentPadding: const EdgeInsets.symmetric(vertical: 10), // 调整垂直内边距
-                        border: InputBorder.none,
-                        hintText: 'hint_login_account'.tr,
-                        hintStyle: const TextStyle(fontSize: 14.0),
-                        prefixIcon: const Icon(Icons.account_box),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(11), // 比外层稍小，确保完美贴合
+                      child: TextField(
+                        controller: state.loginAccountCtl,
+                        enableSuggestions: false,
+                        autocorrect: false,
+                        textAlignVertical: TextAlignVertical.center,
+                        focusNode: focusNode,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          hintText: 'hint_login_account'.tr,
+                          hintStyle: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 16,
+                          ),
+                          prefixIcon: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Icon(
+                              Icons.account_box,
+                              color: Colors.grey.shade600,
+                              size: 20,
+                            ),
+                          ),
+                          prefixIconConstraints: const BoxConstraints(
+                            minWidth: 44,
+                            minHeight: 44,
+                          ),
                           suffixIcon: loginHistory.isEmpty
                               ? null
-                              : IconButton(
-                            icon: const Icon(Icons.menu_open_outlined, size: 26),
-                            padding: EdgeInsets.all(12), // 增加内边距
-                            constraints: BoxConstraints(
-                              minWidth: 48,
-                              minHeight: 48,
-                            ),
-                            onPressed: () {
-                              // 保持焦点
-                              focusNode.requestFocus();
-                              showModalBottomSheet(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return ListView.builder(
-                                    itemCount: loginHistory.length,
-                                    itemBuilder: (BuildContext context, int index) {
-                                      final item = loginHistory[index];
-                                      return ListTile(
-                                        title: Text(item),
-                                        onTap: () {
-                                          state.loginAccountCtl.text = item;
-                                          state.loginAccount.value = state.loginAccountCtl.text;
-                                          Navigator.pop(context);
+                              : Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: () {
+                                      focusNode.requestFocus();
+                                      showModalBottomSheet(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return ListView.builder(
+                                            itemCount: loginHistory.length,
+                                            itemBuilder: (BuildContext context, int index) {
+                                              final item = loginHistory[index];
+                                              return ListTile(
+                                                title: Text(item),
+                                                onTap: () {
+                                                  state.loginAccountCtl.text = item;
+                                                  state.loginAccount.value = state.loginAccountCtl.text;
+                                                  Navigator.pop(context);
+                                                },
+                                              );
+                                            },
+                                          );
                                         },
                                       );
                                     },
-                                  );
-                                },
-                              );
-                            },
+                                    borderRadius: BorderRadius.circular(24),
+                                    child: Container(
+                                      width: 48,
+                                      height: 48,
+                                      alignment: Alignment.center,
+                                      child: Icon(
+                                        Icons.menu_open_outlined, 
+                                        size: 22,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                          suffixIconConstraints: const BoxConstraints(
+                            minWidth: 48,
+                            minHeight: 48,
                           ),
+                        ),
+                        onChanged: (String? val) {
+                          if (strNoEmpty(val)) {
+                            state.loginAccount.value = val!.trim();
+                          }
+                        },
                       ),
-                      onChanged: (String? val) {
-                        if (strNoEmpty(val)) {
-                          state.loginAccount.value = val!.trim();
-                        }
-                      },
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
+                  // 密码输入框 - 统一样式设计
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 0,
-                      vertical: 8.0,
+                    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
                     ),
-                    decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(Radius.circular(5))),
                     child: Obx(() => PasswordTextField(
                           obscureText: state.loginPwdObscure.value,
                           hintText: 'password'.tr,
                           onTap: () {
-                            state.loginPwdObscure.value =
-                                !state.loginPwdObscure.value;
+                            state.loginPwdObscure.value = !state.loginPwdObscure.value;
                           },
                           onChanged: (String? val) {
                             if (strNoEmpty(val)) {
@@ -164,53 +196,71 @@ class LoginAccountPageState extends State<LoginAccountPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  String? err1 =
-                      logic.userValidator('account', state.loginAccount.value);
-                  if (err1 != null) {
-                    logic.snackBar(err1);
-                    return;
-                  }
-                  String? err2 = logic.passwordValidator(state.loginPwd.value);
-                  if (err2 != null) {
-                    logic.snackBar(err2);
-                    return;
-                  }
-                  String? err3 = await logic.loginUser(
-                    'account',
-                    state.loginAccount.value,
-                    state.loginPwd.value,
-                  );
-                  if (err3 != null) {
-                    logic.snackBar(err3.tr);
-                    return;
-                  }
-                  Get.off(() => BottomNavigationPage());
-                },
-                // ignore: sort_child_properties_last
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10),
-                  child: Text(
-                    'login'.tr,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 20),
+              const SizedBox(height: 24),
+              // 登录按钮 - 统一样式
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      String? err1 = logic.userValidator('account', state.loginAccount.value);
+                      if (err1 != null) {
+                        logic.snackBar(err1);
+                        return;
+                      }
+                      String? err2 = logic.passwordValidator(state.loginPwd.value);
+                      if (err2 != null) {
+                        logic.snackBar(err2);
+                        return;
+                      }
+                      String? err3 = await logic.loginUser(
+                        'account',
+                        state.loginAccount.value,
+                        state.loginPwd.value,
+                      );
+                      if (err3 != null) {
+                        logic.snackBar(err3.tr);
+                        return;
+                      }
+                      final user = UserRepoLocal.to.current;
+                      final needGuide = (user.email.isEmpty || user.mobile.isEmpty);
+                      if (needGuide) {
+                        Get.offAll(() => const ManageAccountPage());
+                      } else {
+                        Get.off(() => BottomNavigationPage());
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.green,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    child: Text(
+                      'login'.tr,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
-
-                style: lightGreenButtonStyle(null),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                alignment: Alignment.centerRight,
-                child: TextButton(
+              // 忘记密码链接
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
                     onPressed: () {
                       Get.to(
-                        () =>
-                            ForgotPasswordPage(account: state.loginAccount.value),
+                        () => ForgotPasswordPage(account: state.loginAccount.value),
                         transition: Transition.rightToLeft,
-                        popGesture: true, // 右滑，返回上一页
+                        popGesture: true,
                       );
                     },
                     child: Text(
@@ -220,7 +270,9 @@ class LoginAccountPageState extends State<LoginAccountPage> {
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
-                    )),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

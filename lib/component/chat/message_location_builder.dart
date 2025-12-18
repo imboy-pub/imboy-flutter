@@ -139,10 +139,6 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
                   child: Text(
                     msg.metadata?['address'],
                     textAlign: TextAlign.left,
-                    // style: const TextStyle(
-                    //   color: Color.fromRGBO(56, 56, 56, 1.0),
-                    //   fontSize: 13.0,
-                    // ),
                     maxLines: 8,
                     overflow: TextOverflow.ellipsis,
                   ),

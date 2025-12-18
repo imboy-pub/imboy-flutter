@@ -52,7 +52,9 @@ class _ScannerPageState extends State<ScannerPage>
   }
 
   Future<void> onDetect(BarcodeCapture barcodes) async {
-    debugPrint("> scanner onDetect attainableResult $attainableResult, barcodes.length ${barcodes.barcodes.length}; barcodeStr $barcodeStr");
+    debugPrint(
+      "> scanner onDetect attainableResult $attainableResult, barcodes.length ${barcodes.barcodes.length}; barcodeStr $barcodeStr",
+    );
     capture = barcodes;
     setState(() => barcode = barcodes.barcodes.first);
     if (attainableResult == false) {
@@ -106,9 +108,7 @@ class _ScannerPageState extends State<ScannerPage>
       }
     } else {
       Get.to(
-        () => ScannerResultPage(
-          scanResult: barcodeStr!,
-        ),
+        () => ScannerResultPage(scanResult: barcodeStr!),
         transition: Transition.rightToLeft,
         popGesture: true, // 右滑，返回上一页
       );
@@ -129,152 +129,155 @@ class _ScannerPageState extends State<ScannerPage>
         builder: (context) {
           return Stack(
             children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 0,
-                top: 20,
+              Padding(
+                padding: const EdgeInsets.only(left: 0, top: 20),
+                child: MaterialButton(
+                  minWidth: 20,
+                  height: 18,
+                  onPressed: () {
+                    Get.back();
+                  },
+                  color: Theme.of(context).colorScheme.surface,
+                  textColor: Theme.of(context).colorScheme.onSurface,
+                  shape: const CircleBorder(),
+                  child: const Icon(Icons.arrow_left, size: 16),
+                ),
               ),
-              child: MaterialButton(
-                minWidth: 20,
-                height: 18,
-                onPressed: () {
-                  Get.back();
-                },
-                color: Colors.white,
-                textColor: Colors.black54,
-                shape: const CircleBorder(),
-                child: const Icon(Icons.arrow_left, size: 16),
+              MobileScanner(
+                fit: BoxFit.contain,
+                scanWindow: scanWindow,
+                controller: controller,
+                // onScannerStarted: (arguments) {
+                //   debugPrint(
+                //       "> scanner onScannerStarted ${arguments.toString()}");
+                //   setState(() {
+                //     this.arguments = arguments;
+                //   });
+                // },
+                onDetect: onDetect,
               ),
-            ),
-            MobileScanner(
-              fit: BoxFit.contain,
-              scanWindow: scanWindow,
-              controller: controller,
-              // onScannerStarted: (arguments) {
-              //   debugPrint(
-              //       "> scanner onScannerStarted ${arguments.toString()}");
-              //   setState(() {
-              //     this.arguments = arguments;
-              //   });
-              // },
-              onDetect: onDetect,
-            ),
-            CustomPaint(
-              painter: ScannerOverlay(scanWindow),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
+              CustomPaint(painter: ScannerOverlay(scanWindow)),
+              Align(
                 alignment: Alignment.bottomCenter,
-                height: 100,
-                color: Colors.black.withValues(alpha: 0.4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    IconButton(
-                      color: Colors.white,
-                      icon: ValueListenableBuilder(
-                        valueListenable: controller,
-                        builder: (context, MobileScannerState state, child) {
-                          final iconData = state.torchState == TorchState.on
-                              ? Icons.flash_on
-                              : Icons.flash_off;
-                          final color = state.torchState == TorchState.on
-                              ? Colors.yellow
-                              : Colors.grey;
-                          return Icon(iconData, color: color);
-                        },
+                child: Container(
+                  alignment: Alignment.bottomCenter,
+                  height: 100,
+                  color: Colors.black.withValues(alpha: 0.4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        color: Colors.white,
+                        icon: ValueListenableBuilder(
+                          valueListenable: controller,
+                          builder: (context, MobileScannerState state, child) {
+                            final iconData = state.torchState == TorchState.on
+                                ? Icons.flash_on
+                                : Icons.flash_off;
+                            final color = state.torchState == TorchState.on
+                                ? Colors.yellow
+                                : Colors.grey;
+                            return Icon(iconData, color: color);
+                          },
+                        ),
+                        iconSize: 32.0,
+                        onPressed: () => controller.toggleTorch(),
                       ),
-                      iconSize: 32.0,
-                      onPressed: () => controller.toggleTorch(),
-                    ),
-                    IconButton(
-                      color: Colors.white,
-                      icon: isStarted
-                          ? const Icon(Icons.stop)
-                          : const Icon(Icons.play_arrow),
-                      iconSize: 32.0,
-                      onPressed: () => setState(() {
-                        isStarted ? controller.stop() : controller.start();
-                        isStarted = !isStarted;
-                      }),
-                    ),
-                    Center(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width - 200,
-                        height: 20,
-                        child: FittedBox(
-                          child: Text(
-                            // barcode ?? 'scan_qr_code'.tr,
-                            'scan_qr_code'.tr,
-                            // overflow: TextOverflow.fade,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              // fontSize: 24,
+                      IconButton(
+                        color: Colors.white,
+                        icon: isStarted
+                            ? const Icon(Icons.stop)
+                            : const Icon(Icons.play_arrow),
+                        iconSize: 32.0,
+                        onPressed: () => setState(() {
+                          isStarted ? controller.stop() : controller.start();
+                          isStarted = !isStarted;
+                        }),
+                      ),
+                      Center(
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width - 200,
+                          height: 20,
+                          child: FittedBox(
+                            child: Text(
+                              // barcode ?? 'scan_qr_code'.tr,
+                              'scan_qr_code'.tr,
+                              // overflow: TextOverflow.fade,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                // fontSize: 24,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    IconButton(
-                      color: Colors.white,
-                      icon: ValueListenableBuilder(
-                        valueListenable: controller,
-                        builder:
-                            (context, MobileScannerState cameraFacing, child) {
-                          final iconData =
-                              cameraFacing.cameraDirection == CameraFacing.front
-                                  ? Icons.camera_front
-                                  : Icons.camera_rear;
-                          return Icon(iconData);
+                      IconButton(
+                        color: Colors.white,
+                        icon: ValueListenableBuilder(
+                          valueListenable: controller,
+                          builder:
+                              (
+                                context,
+                                MobileScannerState cameraFacing,
+                                child,
+                              ) {
+                                final iconData =
+                                    cameraFacing.cameraDirection ==
+                                        CameraFacing.front
+                                    ? Icons.camera_front
+                                    : Icons.camera_rear;
+                                return Icon(iconData);
+                              },
+                        ),
+                        iconSize: 32.0,
+                        onPressed: () => controller.switchCamera(),
+                      ),
+                      IconButton(
+                        color: Colors.white,
+                        icon: const Icon(Icons.image),
+                        iconSize: 32.0,
+                        onPressed: () async {
+                          ScaffoldMessengerState state = ScaffoldMessenger.of(
+                            context,
+                          );
+                          isStarted = true;
+                          final ImagePicker picker = ImagePicker();
+                          // Pick an image
+                          final XFile? image = await picker.pickImage(
+                            source: ImageSource.gallery,
+                          );
+                          if (image == null) {
+                            return;
+                          }
+                          if (!mounted) return;
+                          BarcodeCapture? res = await controller.analyzeImage(
+                            image.path,
+                          );
+                          debugPrint("> on barcode $res ${image.path}");
+                          if (res == null) {
+                            state.showSnackBar(
+                              SnackBar(
+                                content: Text('No barcode found!'.tr),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          } else {
+                            state.showSnackBar(
+                              SnackBar(
+                                content: Text('Barcode found!'.tr),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                            onDetect(res);
+                          }
                         },
                       ),
-                      iconSize: 32.0,
-                      onPressed: () => controller.switchCamera(),
-                    ),
-                    IconButton(
-                      color: Colors.white,
-                      icon: const Icon(Icons.image),
-                      iconSize: 32.0,
-                      onPressed: () async {
-                        ScaffoldMessengerState state =
-                            ScaffoldMessenger.of(context);
-                        isStarted = true;
-                        final ImagePicker picker = ImagePicker();
-                        // Pick an image
-                        final XFile? image = await picker.pickImage(
-                          source: ImageSource.gallery,
-                        );
-                        if (image == null) {
-                          return;
-                        }
-                        if (!mounted) return;
-                        BarcodeCapture? res =
-                            await controller.analyzeImage(image.path);
-                        debugPrint("> on barcode $res ${image.path}");
-                        if (res == null) {
-                          state.showSnackBar(
-                            SnackBar(
-                              content: Text('No barcode found!'.tr),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        } else {
-                          state.showSnackBar(
-                            SnackBar(
-                              content: Text('Barcode found!'.tr),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-                          onDetect(res);
-                        }
-                      },
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ]);
+            ],
+          );
         },
       ),
     );

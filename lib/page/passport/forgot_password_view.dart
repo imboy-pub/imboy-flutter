@@ -67,43 +67,55 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     const SizedBox(height: 40),
                     logic.title(),
                     const SizedBox(height: 40),
-                    Card(
-                      elevation: 5,
-                      color: Colors.white.withValues(alpha: 0.9),
-                      child: Container(
-                        width: 400,
-                        padding: const EdgeInsets.all(30.0),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
+                    // 使用登录页面相同的输入框样式设计
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          width: 1,
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(height: 10),
-                            FadeAnimation(
-                              delay: 1,
-                              child: Text(
-                                "recover_password".tr,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  letterSpacing: 0.5,
-                                ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          FadeAnimation(
+                            delay: 1,
+                            child: Text(
+                              "recover_password".tr,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
                               ),
                             ),
-                            const SizedBox(height: 20),
-                            FadeAnimation(
-                              delay: 1,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 0,
-                                  vertical: 8.0,
+                          ),
+                          const SizedBox(height: 24),
+                          // 邮箱输入框 - 参考登录页面样式
+                          FadeAnimation(
+                            delay: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.9),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                  width: 1,
                                 ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5.0),
-                                  color: selected == FormData.Email
-                                      ? enabled
-                                      : backgroundColor,
-                                ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(11),
                                 child: TextField(
                                   controller: _controller,
                                   enableSuggestions: false,
@@ -115,35 +127,50 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                     });
                                   },
                                   decoration: InputDecoration(
-                                    enabledBorder: InputBorder.none,
+                                    isDense: true,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 16, 
+                                      horizontal: 16
+                                    ),
                                     border: InputBorder.none,
-                                    prefixIcon: Icon(
-                                      Icons.email_outlined,
-                                      color: selected == FormData.Email
-                                          ? enabledtxt
-                                          : deaible,
-                                      size: 20,
+                                    focusedBorder: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    prefixIcon: Container(
+                                      width: 44,
+                                      height: 44,
+                                      alignment: Alignment.center,
+                                      child: Icon(
+                                        Icons.email_outlined,
+                                        color: Colors.grey.shade600,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    prefixIconConstraints: const BoxConstraints(
+                                      minWidth: 44,
+                                      minHeight: 44,
                                     ),
                                     hintText: accountType.tr,
                                     hintStyle: TextStyle(
-                                        color: selected == FormData.Email
-                                            ? enabledtxt
-                                            : deaible,
-                                        fontSize: 12),
+                                      color: Colors.grey.shade600,
+                                      fontSize: 16,
+                                    ),
                                   ),
-                                  style: TextStyle(
-                                      color: selected == FormData.Email
-                                          ? enabledtxt
-                                          : deaible,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12),
+                                  style: const TextStyle(
+                                    color: Colors.black87,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 25),
-                            FadeAnimation(
-                              delay: 1,
-                              child: TextButton(
+                          ),
+                          const SizedBox(height: 24),
+                          // 继续按钮 - 参考登录页面样式
+                          FadeAnimation(
+                            delay: 1,
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: ElevatedButton(
                                 onPressed: () async {
                                   final account = _controller.text;
 
@@ -175,26 +202,25 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                     logic.snackBar(res.tr);
                                   }
                                 },
-                                style: TextButton.styleFrom(
-                                  backgroundColor: Colors.green,
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 14.0, horizontal: 80),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: Colors.green,
+                                  elevation: 0,
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12.0)),
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
                                 ),
                                 child: Text(
                                   "button_continue".tr,
                                   style: const TextStyle(
-                                    color: Colors.white,
-                                    letterSpacing: 0.5,
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 20),

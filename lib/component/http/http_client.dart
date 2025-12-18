@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 
 // ignore: implementation_imports
@@ -16,6 +15,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/page/passport/login_view.dart';
+import 'package:imboy/service/network_monitor.dart';
 
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/provider/user_provider.dart';
@@ -133,8 +133,8 @@ class HttpClient {
   }) async {
     try {
       await _setDefaultConfig();
-      var connectivityResult = await (Connectivity().checkConnectivity());
-      if (connectivityResult.contains(ConnectivityResult.none)) {
+      // 使用 NetworkMonitorService 检查网络状态
+      if (!NetworkMonitorService.to.hasNetwork) {
         return handleException(
           uri,
           NetworkException(message: 'tip_connect_desc'.tr),
@@ -190,8 +190,8 @@ class HttpClient {
     ProgressCallback? onReceiveProgress,
     HttpTransformer? httpTransformer,
   }) async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult.contains(ConnectivityResult.none)) {
+    // 使用 NetworkMonitorService 检查网络状态
+    if (!NetworkMonitorService.to.hasNetwork) {
       // EasyLoading.showError('tip_connect_desc'.tr);
       return handleException(
         uri,
@@ -231,8 +231,8 @@ class HttpClient {
     CancelToken? cancelToken,
     HttpTransformer? httpTransformer,
   }) async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult.contains(ConnectivityResult.none)) {
+    // 使用 NetworkMonitorService 检查网络状态
+    if (!NetworkMonitorService.to.hasNetwork) {
       EasyLoading.showError('tip_connect_desc'.tr);
       return handleException(
         uri,
@@ -269,8 +269,8 @@ class HttpClient {
     ProgressCallback? onReceiveProgress,
     HttpTransformer? httpTransformer,
   }) async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult.contains(ConnectivityResult.none)) {
+    // 使用 NetworkMonitorService 检查网络状态
+    if (!NetworkMonitorService.to.hasNetwork) {
       EasyLoading.showError('tip_connect_desc'.tr);
       return handleException(
         uri,
@@ -303,8 +303,8 @@ class HttpClient {
     CancelToken? cancelToken,
     HttpTransformer? httpTransformer,
   }) async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult.contains(ConnectivityResult.none)) {
+    // 使用 NetworkMonitorService 检查网络状态
+    if (!NetworkMonitorService.to.hasNetwork) {
       EasyLoading.showError('tip_connect_desc'.tr);
       return handleException(
         uri,

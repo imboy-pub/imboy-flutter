@@ -1,18 +1,23 @@
+import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/ui/line.dart';
+import 'package:image/image.dart' as img;
 
-import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/mine/feedback/feedback_detail_view.dart';
 import 'package:imboy/store/model/feedback_model.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/store/provider/attachment_provider.dart'
+    show AttachmentProvider;
+import 'package:imboy/store/provider/feedback_provider.dart'
+    show FeedbackProvider;
 
 import 'feedback_logic.dart';
 
+/// 意见反馈页面
 //ignore: must_be_immutable
 class FeedbackPage extends StatelessWidget {
   FeedbackPage({super.key});
@@ -30,191 +35,513 @@ class FeedbackPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     initData();
 
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         title: 'feedback'.tr,
+        rightDMActions: [
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () {
+                  BetterFeedback.of(context).show((UserFeedback feedback) async {
+                    if (feedback.text.isEmpty) {
+                      EasyLoading.showError('feedback_content_required'.tr);
+                      return;
+                    }
+
+                    img.Image image = img.decodeImage(feedback.screenshot)!;
+                    final result = img.encodeJpg(image, quality: 70);
+
+                    await AttachmentProvider.uploadBytes(
+                      "feedback",
+                      result,
+                      (Map<String, dynamic> resp, String uri) async {
+                        FeedbackProvider p = FeedbackProvider();
+                        var type = feedback.extra?['feedback_type'] ?? '';
+                        var rating = feedback.extra?['rating'] ?? '';
+
+                        Map<String, dynamic> data = {
+                          'rating': rating,
+                          'type': type
+                              .toString()
+                              .split('.')
+                              .last
+                              .replaceAll('_', ' '),
+                          'contact_detail':
+                              feedback.extra?['contact_detail'] ?? '',
+                          'description': feedback.text,
+                          'screenshot': [uri],
+                        };
+                        bool res = await p.add(data);
+                        if (res) {
+                          EasyLoading.showSuccess('feedback_success_msg'.tr);
+                          initData(); // 刷新列表
+                        } else {
+                          EasyLoading.showError('tip_failed'.tr);
+                        }
+                      },
+                      (Error error) {
+                        debugPrint("> on upload ${error.toString()}");
+                      },
+                      process: false,
+                    );
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary.withAlpha(51),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.add,
+                    color: colorScheme.primary,
+                    size: 24,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
+      backgroundColor: colorScheme.surface,
       body: SingleChildScrollView(
-        child: Container(
-          width: Get.width,
-          height: Get.height,
-          color: Theme.of(context).colorScheme.surface,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 15, right: 10),
-                  child: Obx(() {
-                    return state.itemList.isEmpty
-                        ? NoDataView(text: 'no_data'.tr)
-                        : ListView.builder(
-                      itemCount: state.itemList.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        FeedbackModel model = state.itemList[index];
-                        return Column(
-                          children: [
-                            Slidable(
-                              key: ValueKey(model.feedbackId),
-                              groupTag: '0',
-                              closeOnScroll: true,
-                              endActionPane: ActionPane(
-                                extentRatio: 0.25,
-                                motion: const BehindMotion(),
-                                children: [
-                                  SlidableAction(
-                                    key: ValueKey("delete_$index"),
-                                    flex: 2,
-                                    backgroundColor: Colors.red,
-                                    // foregroundColor: Colors.white,
-                                    onPressed: (_) async {
-                                      String tips = 'sure_delete_data'.tr;
-                                      showDialog(
-                                        context: Get.context!,
-                                        builder: (context) => AlertDialog(
-                                          content: SizedBox(
-                                            height: 40,
-                                            child: Center(child: Text(tips)),
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                              style: TextButton.styleFrom(
-                                                foregroundColor: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurface,
-                                              ),
-                                              child: Text('button_cancel'.tr),
-                                            ),
-                                            TextButton(
-                                              onPressed: () async {
-                                                Navigator.of(context).pop();
-                                                bool res = await logic.remove(
-                                                  model.feedbackId,
-                                                );
-                                                if (res) {
-                                                  state.itemList.removeAt(
-                                                    state.itemList.indexWhere(
-                                                            (e) =>
-                                                        e.feedbackId ==
-                                                            model.feedbackId),
-                                                  );
-                                                  EasyLoading.showSuccess(
-                                                      'tip_success'.tr);
-                                                } else {
-                                                  EasyLoading.showError(
-                                                      'tip_failed'.tr);
-                                                }
-                                              },
-                                              style: TextButton.styleFrom(
-                                                foregroundColor: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurface,
-                                              ),
-                                              child: Text('button_delete'.tr),
-                                            ),
-                                          ],
-                                        ),
-                                        barrierDismissible: true,
-                                      );
-                                    },
-                                    label: 'button_delete'.tr,
-                                    spacing: 1,
-                                  ),
-                                ],
-                              ),
-                              child: ListTile(
-                                contentPadding:
-                                const EdgeInsets.only(left: 0),
-                                title: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 8),
+            
+            // 反馈说明卡片
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      colorScheme.primary.withAlpha(25),
+                      colorScheme.primary.withAlpha(10),
+                    ],
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary.withAlpha(51),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.feedback,
+                        color: colorScheme.primary,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '意见反馈',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '您的建议是我们改进的动力',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: colorScheme.onSurface.withAlpha(179),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () {
+                          BetterFeedback.of(context).show((UserFeedback feedback) async {
+                            if (feedback.text.isEmpty) {
+                              EasyLoading.showError('feedback_content_required'.tr);
+                              return;
+                            }
+
+                            img.Image image = img.decodeImage(feedback.screenshot)!;
+                            final result = img.encodeJpg(image, quality: 70);
+
+                            await AttachmentProvider.uploadBytes(
+                              "feedback",
+                              result,
+                              (Map<String, dynamic> resp, String uri) async {
+                                FeedbackProvider p = FeedbackProvider();
+                                var type = feedback.extra?['feedback_type'] ?? '';
+                                var rating = feedback.extra?['rating'] ?? '';
+
+                                Map<String, dynamic> data = {
+                                  'rating': rating,
+                                  'type': type
+                                      .toString()
+                                      .split('.')
+                                      .last
+                                      .replaceAll('_', ' '),
+                                  'contact_detail':
+                                      feedback.extra?['contact_detail'] ?? '',
+                                  'description': feedback.text,
+                                  'screenshot': [uri],
+                                };
+                                bool res = await p.add(data);
+                                if (res) {
+                                  EasyLoading.showSuccess('feedback_success_msg'.tr);
+                                  initData();
+                                } else {
+                                  EasyLoading.showError('tip_failed'.tr);
+                                }
+                              },
+                              (Error error) {
+                                debugPrint("> on upload ${error.toString()}");
+                              },
+                              process: false,
+                            );
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '新建反馈',
+                            style: TextStyle(
+                              color: colorScheme.onPrimary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 24),
+            
+            // 反馈列表卡片
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.history,
+                          color: colorScheme.primary,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '反馈历史',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // 反馈列表
+                    Container(
+                      constraints: BoxConstraints(
+                        maxHeight: Get.height * 0.6,
+                      ),
+                      child: Obx(() {
+                        return state.itemList.isEmpty
+                            ? SizedBox(
+                                height: 200,
+                                child: NoDataView(text: 'no_data'.tr),
+                              )
+                            : ListView.separated(
+                                shrinkWrap: true,
+                                itemCount: state.itemList.length,
+                                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                                itemBuilder: (BuildContext context, int index) {
+                                  FeedbackModel model = state.itemList[index];
+                                  return Slidable(
+                                    key: ValueKey(model.feedbackId),
+                                    groupTag: '0',
+                                    closeOnScroll: true,
+                                    endActionPane: ActionPane(
+                                      extentRatio: 0.25,
+                                      motion: const BehindMotion(),
                                       children: [
-                                        Expanded(
-                                          child: Text(
-                                            "${model.type.tr} | ${'submitted_at'.tr}",
-                                            style: const TextStyle(
-                                              // color: AppColors.MainTextColor,
-                                              fontSize: 14.0,
-                                            ),
-                                          ),
+                                        SlidableAction(
+                                          key: ValueKey("delete_$index"),
+                                          flex: 2,
+                                          backgroundColor: colorScheme.error,
+                                          foregroundColor: colorScheme.onError,
+                                          borderRadius: BorderRadius.circular(12),
+                                          onPressed: (_) async {
+                                            _showDeleteDialog(context, model, index);
+                                          },
+                                          label: 'button_delete'.tr,
+                                          spacing: 1,
                                         ),
                                       ],
                                     ),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            DateTimeHelper.lastTimeFmt(
-                                                model.createdAt),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              // color: AppColors.MainTextColor,
-                                              fontSize: 14.0,
-                                            ),
-                                          ),
-                                        ),
-                                        const Expanded(child: SizedBox()),
-                                        Text(
-                                          model.statusDesc,
-                                          style: const TextStyle(
-                                            // color: AppColors.MainTextColor,
-                                            fontSize: 14.0,
-                                          ),
-                                        )
-                                      ],
-                                    )
-                                  ],
-                                ),
-                                subtitle: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        // 会话对象标题
-                                        model.body,
-                                        style: const TextStyle(
-                                          fontSize: 18.0,
-                                          fontWeight: FontWeight.normal,
-                                        ),
-                                        maxLines: 4,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                trailing: navigateNextIcon,
-                                onTap: () {
-                                  Get.to(
-                                        () => FeedbackDetailPage(
-                                      model: model,
-                                    ),
-                                    transition: Transition.rightToLeft,
-                                    popGesture: true, // 右滑，返回上一页
+                                    child: _buildFeedbackItem(context, model),
                                   );
                                 },
-                              ),
-                            ),
-                            HorizontalLine(
-                              height: Get.isDarkMode ? 0.5 : 1.0,
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  }),
+                              );
+                      }),
+                    ),
+                  ],
                 ),
-              )
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 构建反馈项组件
+  Widget _buildFeedbackItem(BuildContext context, FeedbackModel model) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          Get.to(
+            () => FeedbackDetailPage(model: model),
+            transition: Transition.rightToLeft,
+            popGesture: true,
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: colorScheme.outline.withAlpha(51),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 标题和状态
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer.withAlpha(128),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      model.type.tr,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(context, model.statusDesc).withAlpha(51),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      model.statusDesc,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: _getStatusColor(context, model.statusDesc),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // 反馈内容
+              Text(
+                model.body,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: colorScheme.onSurface,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              
+              const SizedBox(height: 8),
+              
+              // 提交时间
+              Row(
+                children: [
+                  Icon(
+                    Icons.access_time,
+                    color: colorScheme.onSurface.withAlpha(128),
+                    size: 16,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${'submitted_at'.tr} ${DateTimeHelper.lastTimeFmt(model.createdAt)}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: colorScheme.onSurface.withAlpha(179),
+                    ),
+                  ),
+                  const Spacer(),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    color: colorScheme.onSurface.withAlpha(128),
+                    size: 16,
+                  ),
+                ],
+              ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  /// 获取状态颜色
+  Color _getStatusColor(BuildContext context, String status) {
+    final colorScheme = Theme.of(context).colorScheme;
+    switch (status) {
+      case '已处理':
+        return Colors.green;
+      case '处理中':
+        return Colors.orange;
+      case '已提交':
+        return colorScheme.primary;
+      default:
+        return colorScheme.onSurface;
+    }
+  }
+
+  /// 显示删除确认对话框
+  void _showDeleteDialog(BuildContext context, FeedbackModel model, int index) {
+    final colorScheme = Theme.of(context).colorScheme;
+    String tips = 'sure_delete_data'.tr;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              color: colorScheme.error,
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              '确认删除',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          tips,
+          style: TextStyle(
+            fontSize: 16,
+            color: colorScheme.onSurface.withAlpha(179),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: colorScheme.onSurface.withAlpha(179),
+            ),
+            child: Text('button_cancel'.tr),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              bool res = await logic.remove(model.feedbackId);
+              if (res) {
+                state.itemList.removeAt(
+                  state.itemList.indexWhere(
+                    (e) => e.feedbackId == model.feedbackId,
+                  ),
+                );
+                EasyLoading.showSuccess('tip_success'.tr);
+              } else {
+                EasyLoading.showError('tip_failed'.tr);
+              }
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: colorScheme.error,
+            ),
+            child: Text('button_delete'.tr),
+          ),
+        ],
+      ),
+      barrierDismissible: true,
     );
   }
 }

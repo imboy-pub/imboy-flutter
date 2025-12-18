@@ -13,6 +13,11 @@ import 'send_to_state.dart';
 
 class SendToLogic extends GetxController {
   final SendToState state = SendToState();
+  
+  // 添加缺失的属性
+  final TextEditingController searchController = TextEditingController();
+  final RxList<ConversationModel> searchResults = <ConversationModel>[].obs;
+  final RxList<ConversationModel> selectedContacts = <ConversationModel>[].obs;
 
   /// 最近聊天
   Future<void> conversationsList() async {
@@ -46,5 +51,27 @@ class SendToLogic extends GetxController {
       debugPrint("> on sendMsg ${e.toString()} ${s.toString()}");
     }
     return false;
+  }
+  
+  // 添加缺失的方法
+  void search(String query) {
+    // 实现搜索逻辑
+    if (query.isEmpty) {
+      searchResults.assignAll(state.conversations);
+    } else {
+      searchResults.assignAll(
+        state.conversations.where((contact) {
+          return contact.title.toLowerCase().contains(query.toLowerCase());
+        }).toList(),
+      );
+    }
+  }
+
+  void toggleContactSelection(ConversationModel contact) {
+    if (selectedContacts.any((element) => element.id == contact.id)) {
+      selectedContacts.removeWhere((element) => element.id == contact.id);
+    } else {
+      selectedContacts.add(contact);
+    }
   }
 }

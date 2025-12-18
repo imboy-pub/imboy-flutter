@@ -53,7 +53,7 @@ class GroupListPage extends StatelessWidget {
         child: Container(
           width: Get.width,
           height: Get.height,
-          color: Theme.of(context).colorScheme.surface,
+          // color: Theme.of(context).colorScheme.surface,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -107,10 +107,16 @@ class GroupListPage extends StatelessWidget {
                                     child: Text(
                                         strEmpty(model.title)
                                             ? model.computeTitle
-                                            : model.title
+                                            : model.title,
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.onSurface, // 使用主题文字色
+                                        ),
                                     ),
                                   )
                                 ],
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0), // 增加圆角
                               ),
                               onTap: () {
                                 Get.to(

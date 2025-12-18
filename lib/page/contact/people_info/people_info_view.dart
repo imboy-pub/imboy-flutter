@@ -2,13 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-
-import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/contact_card.dart';
-import 'package:imboy/component/ui/label_row.dart';
-import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/webrtc/func.dart';
+import 'package:imboy/component/widget/user_online_status_widget.dart';
 
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/page/contact/apply_friend/apply_friend_view.dart';
@@ -34,8 +31,229 @@ class PeopleInfoPage extends StatelessWidget {
   final logic = Get.put(PeopleInfoLogic());
   final state = Get.find<PeopleInfoLogic>().state;
 
+  /// 初始化数据
   Future<void> initData() async {
     logic.initData(id, scene);
+  }
+
+  /// 构建操作卡片
+  Widget _buildActionCard({
+    required BuildContext context,
+    required String title,
+    required IconData icon,
+    required VoidCallback onTap,
+    Color? iconColor,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          width: 0.5,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  color: iconColor ?? Theme.of(context).colorScheme.primary,
+                  size: 24,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 构建标签卡片
+  Widget _buildTagCard(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          width: 0.5,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            Get.to(
+              () => ContactSettingTagPage(
+                peerId: id,
+                peerAvatar: state.avatar.value,
+                peerAccount: state.account.value,
+                peerNickname: state.nickname.value,
+                peerGender: state.gender.value,
+                peerTitle: state.title.value,
+                peerSign: state.sign.value,
+                peerRegion: state.region.value,
+                peerSource: state.source.value,
+                peerRemark: state.remark.value,
+                peerTag: state.tag,
+              ),
+              transition: Transition.rightToLeft,
+              popGesture: true,
+            )?.then((value) {
+              debugPrint("PeopleInfoPage_ContactSettingTagPage_back then $value");
+              if (value != null && value is String && value.isNotEmpty) {
+                state.remark.value = value.toString();
+              }
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.local_offer_outlined,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        state.tag.value.isEmpty ? 'remarks_tags'.tr : 'tags'.tr,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      size: 20,
+                    ),
+                  ],
+                ),
+                if (state.tag.value.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    state.tag.value.endsWith(',')
+                        ? state.tag.value.substring(0, state.tag.value.length - 1)
+                        : state.tag.value,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 构建添加好友按钮
+  Widget _buildAddFriendButton(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton(
+        onPressed: () => Get.to(
+          () => ApplyFriendPage(
+            id,
+            state.nickname.value,
+            state.avatar.value,
+            state.region.value,
+            source: state.source.value,
+          ),
+          transition: Transition.rightToLeft,
+          popGesture: true,
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ),
+        child: Text(
+          'add_to_contacts'.tr,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 构建警告提示
+  Widget _buildWarningTip(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.warning_amber_rounded,
+            color: Theme.of(context).colorScheme.error,
+            size: 24,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'added_to_denylist_tips'.tr,
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -46,47 +264,47 @@ class PeopleInfoPage extends StatelessWidget {
     if (scene == 'denylist' || id == 'bot_qian_fan') {
       showApplyFriendBtn = false;
     }
+
     return Scaffold(
-      // backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         title: '',
-        // backgroundColor: Colors.white,
         rightDMActions: isSelf || id == 'bot_qian_fan'
             ? []
             : [
-                SizedBox(
-                  width: 60,
-                  child: TextButton(
-                    onPressed: () {
-                      Get.to(
-                        () => ContactSettingPage(
-                          peerId: id,
-                          peerAvatar: state.avatar.value,
-                          peerAccount: state.account.value,
-                          peerNickname: state.nickname.value,
-                          peerGender: state.gender.value,
-                          peerTitle: state.title.value,
-                          peerSign: state.sign.value,
-                          peerRegion: state.region.value,
-                          peerSource: state.source.value,
-                          peerRemark: state.remark.value,
-                          peerTag: state.tag.value,
-                        ),
-                        transition: Transition.rightToLeft,
-                        popGesture: true, // 右滑，返回上一页
-                      )?.then((value) {
-                        initData();
-                        // iPrint("ContactSettingPage_back $value;");
-                      });
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          top: 10, left: 10, right: 10, bottom: 10),
+                Container(
+                  width: 48,
+                  height: 48,
+                  margin: const EdgeInsets.only(right: 8),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(24),
+                      onTap: () {
+                        Get.to(
+                          () => ContactSettingPage(
+                            peerId: id,
+                            peerAvatar: state.avatar.value,
+                            peerAccount: state.account.value,
+                            peerNickname: state.nickname.value,
+                            peerGender: state.gender.value,
+                            peerTitle: state.title.value,
+                            peerSign: state.sign.value,
+                            peerRegion: state.region.value,
+                            peerSource: state.source.value,
+                            peerRemark: state.remark.value,
+                            peerTag: state.tag.value,
+                          ),
+                          transition: Transition.rightToLeft,
+                          popGesture: true,
+                        )?.then((value) {
+                          initData();
+                        });
+                      },
                       child: Icon(
                         Icons.more_horiz,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        // size: 40,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        size: 24,
                       ),
                     ),
                   ),
@@ -97,155 +315,110 @@ class PeopleInfoPage extends StatelessWidget {
         child: Obx(
           () => Column(
             children: [
-              ContactCard(
-                id: id,
-                remark: state.remark.value,
-                nickname: state.nickname.value,
-                account: state.account.value,
-                avatar: state.avatar.value,
-                gender: state.gender.value,
-                region: state.region.value,
-                isBorder: true,
-                lineWidth: 1.0,
-                padding: const EdgeInsets.only(
-                  top: 8,
-                  right: 15.0,
-                  left: 15.0,
-                  bottom: 16.0,
+              // 用户信息卡片
+              Container(
+                margin: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ContactCard(
+                  id: id,
+                  remark: state.remark.value,
+                  nickname: state.nickname.value,
+                  account: state.account.value,
+                  avatar: state.avatar.value,
+                  gender: state.gender.value,
+                  region: state.region.value,
+                  isBorder: false,
+                  lineWidth: 0,
+                  padding: const EdgeInsets.all(20.0),
                 ),
               ),
-              Visibility(
-                visible: !isSelf && id != 'bot_qian_fan',
-                child: LabelRow(
-                  title: state.tag.value.isEmpty ? 'remarks_tags'.tr : 'tags'.tr,
-                  titleWidth: state.tag.value.isEmpty ? 90 : 40,
-                  // rValue: tag.value.isEmpty ? null : tag.value,
-                  isLine: true,
-                  lineWidth: 1.0,
-                  trailing: SizedBox(
-                    width: Get.width - 160,
-                    child: Text(
-                      (state.tag.value.endsWith(',')
-                          ? state.tag.value
-                              .substring(0, state.tag.value.length - 1)
-                          : state.tag.value),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontSize: 17.0,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
+
+              // 在线状态显示（非本人）
+              if (!isSelf && id != 'bot_qian_fan')
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                      width: 0.5,
                     ),
                   ),
-                  onPressed: () {
-                    Get.to(
-                      () => ContactSettingTagPage(
-                        peerId: id,
-                        peerAvatar: state.avatar.value,
-                        peerAccount: state.account.value,
-                        peerNickname: state.nickname.value,
-                        peerGender: state.gender.value,
-                        peerTitle: state.title.value,
-                        peerSign: state.sign.value,
-                        peerRegion: state.region.value,
-                        peerSource: state.source.value,
-                        peerRemark: state.remark.value,
-                        peerTag: state.tag,
-                      ),
-                      transition: Transition.rightToLeft,
-                      popGesture: true, // 右滑，返回上一页
-                    )?.then((value) {
-                      debugPrint(
-                          "PeopleInfoPage_ContactSettingTagPage_back then $value");
-                      if (value != null && value is String && value.isNotEmpty) {
-                        state.remark.value = value.toString();
-                      }
-                    });
-                  },
+                  child: UserOnlineStatusDetailWidget(
+                    isOnline: state.status.value == 'online',
+                    lastSeenTimestamp: state.lastSeenAt.value,
+                    hideOnlineStatus: false,
+                  ),
                 ),
-              ),
-              /*
-            Visibility(
-              visible: !isSelf,
-              child: LabelRow(
-                label: 'friend_permissions'.tr,
-                onPressed: () {
-                  Get.to(
-                    () => FriendsPermissionsPage(),
-                    transition: Transition.rightToLeft,
-                    popGesture: true, // 右滑，返回上一页
-                  );
-                },
-              ),
-            ),
-            const Space(),
-            LabelRow(
-              label: 'moment'.tr,
-              isLine: true,
-              onPressed: () => Get.to(()=>
-                const FriendCirclePage(),
-                transition: Transition.rightToLeft,
-                popGesture: true, // 右滑，返回上一页
-              ),
-            ),
-            */
+
+              // 标签设置（非本人且非机器人）
+              if (!isSelf && id != 'bot_qian_fan')
+                _buildTagCard(context),
+
+              // 更多信息（好友或黑名单）
               if (state.isFriend.value == 1 || scene == 'denylist')
-                LabelRow(
+                _buildActionCard(
+                  context: context,
                   title: 'more_info'.tr,
-                  isLine: false,
-                  onPressed: () => Navigator.push(
+                  icon: Icons.info_outline,
+                  onTap: () => Navigator.push(
                     context,
                     CupertinoPageRoute(
-                      // “右滑返回上一页”功能
-                      builder: (_) => PeopleInfoMorePage(
-                        id: id,
-                      ),
+                      builder: (_) => PeopleInfoMorePage(id: id),
                     ),
                   ),
                 ),
-              HorizontalLine(
-                height: 10,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              state.isFriend.value == 1 || scene == 'denylist'
-                  ? Visibility(
-                      visible: !isSelf,
-                      child: ButtonRow(
-                          margin: const EdgeInsets.only(bottom: 0.0),
-                          text: 'message_call'.tr,
-                          isBorder: true,
-                          lineWidth: 1.0,
-                          onPressed: () {
-                            String peerTitle = state.remark.value;
-                            if (peerTitle.isEmpty) {
-                              peerTitle = state.nickname.value;
-                            }
-                            if (peerTitle.isEmpty) {
-                              peerTitle = state.account.value;
-                            }
-                            Get.to(
-                              () => ChatPage(
-                                peerId: id,
-                                peerTitle: peerTitle,
-                                peerAvatar: state.avatar.value,
-                                peerSign: state.sign.value,
-                                type: 'C2C',
-                              ),
-                              transition: Transition.rightToLeft,
-                              popGesture: true, // 右滑，返回上一页
-                            );
-                          }),
-                    )
-                  : const SizedBox.shrink(),
-              if (state.isFriend.value == 1)
-                Visibility(
-                  visible: !isSelf,
-                  child: ButtonRow(
-                    text: 'voice_call'.tr,
-                    isBorder: true,
-                    lineWidth: 1.0,
-                    onPressed: () {
+
+              const SizedBox(height: 8),
+
+              // 功能按钮区域
+              if (state.isFriend.value == 1 || scene == 'denylist') ...[
+                // 发消息
+                if (!isSelf)
+                  _buildActionCard(
+                    context: context,
+                    title: 'message_call'.tr,
+                    icon: Icons.message_outlined,
+                    onTap: () {
+                      String peerTitle = state.remark.value;
+                      if (peerTitle.isEmpty) {
+                        peerTitle = state.nickname.value;
+                      }
+                      if (peerTitle.isEmpty) {
+                        peerTitle = state.account.value;
+                      }
+                      Get.to(
+                        () => ChatPage(
+                          peerId: id,
+                          peerTitle: peerTitle,
+                          peerAvatar: state.avatar.value,
+                          peerSign: state.sign.value,
+                          type: 'C2C',
+                        ),
+                        transition: Transition.rightToLeft,
+                        popGesture: true,
+                      );
+                    },
+                  ),
+
+                // 语音通话
+                if (state.isFriend.value == 1 && !isSelf)
+                  _buildActionCard(
+                    context: context,
+                    title: 'voice_call'.tr,
+                    icon: Icons.call_outlined,
+                    onTap: () {
                       openCallScreen(
                         ContactModel.fromMap({
                           "id": id,
@@ -253,75 +426,40 @@ class PeopleInfoPage extends StatelessWidget {
                           "avatar": state.avatar.value,
                           "sign": state.sign.value,
                         }),
-                        {
-                          'media': 'audio',
-                        },
+                        {'media': 'audio'},
                       );
                     },
                   ),
-                ),
-              state.isFriend.value == 1
-                  ? Visibility(
-                      visible: !isSelf,
-                      child: ButtonRow(
-                        text: 'video_call'.tr,
-                        isBorder: true,
-                        lineWidth: 1.0,
-                        onPressed: () {
-                          openCallScreen(
-                            ContactModel.fromMap({
-                              "id": id,
-                              "nickname": state.nickname.value,
-                              "avatar": state.avatar.value,
-                              "sign": state.sign.value,
-                            }),
-                            {},
-                          );
-                        },
-                      ),
-                    )
-                  : Visibility(
-                      visible: showApplyFriendBtn,
-                      child: ButtonRow(
-                        text: 'add_to_contacts'.tr,
-                        onPressed: () => Get.to(
-                          () => ApplyFriendPage(
-                            id,
-                            state.nickname.value,
-                            state.avatar.value,
-                            state.region.value,
-                            source: state.source.value,
-                          ),
-                          transition: Transition.rightToLeft,
-                          popGesture: true, // 右滑，返回上一页
-                        ),
-                      ),
-                    ),
-              if (scene == 'denylist')
-                Padding(
-                  padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center, // 主轴居中
-                      crossAxisAlignment: CrossAxisAlignment.center, // 交叉轴居中
-                      children: [
-                        Icon(
-                          Icons.warning_amber_rounded,
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                        const SizedBox(width: 4), // 使用 SizedBox 替代 Space 更常见
-                        Expanded(
-                          child: Text(
-                            'added_to_denylist_tips'.tr,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+
+                // 视频通话
+                if (state.isFriend.value == 1 && !isSelf)
+                  _buildActionCard(
+                    context: context,
+                    title: 'video_call'.tr,
+                    icon: Icons.videocam_outlined,
+                    onTap: () {
+                      openCallScreen(
+                        ContactModel.fromMap({
+                          "id": id,
+                          "nickname": state.nickname.value,
+                          "avatar": state.avatar.value,
+                          "sign": state.sign.value,
+                        }),
+                        {},
+                      );
+                    },
                   ),
-                )
+              ] else if (showApplyFriendBtn) ...[
+                // 添加好友按钮
+                const SizedBox(height: 16),
+                _buildAddFriendButton(context),
+              ],
+
+              // 黑名单提示
+              if (scene == 'denylist')
+                _buildWarningTip(context),
+
+              const SizedBox(height: 32),
             ],
           ),
         ),

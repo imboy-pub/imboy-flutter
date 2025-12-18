@@ -1,12 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/icon_text.dart';
-import 'package:imboy/component/ui/label_row.dart';
-import 'package:imboy/component/ui/line.dart';
-import 'package:imboy/component/ui/radio_list_title.dart';
-import 'package:imboy/component/ui/title_text_field.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -34,278 +28,502 @@ class ApplyFriendPage extends StatelessWidget {
   final TextEditingController _msgController = TextEditingController();
   final TextEditingController _remarkController = TextEditingController();
 
+  /// 构建输入框卡片
+  Widget _buildInputCard({
+    required BuildContext context,
+    required String title,
+    required String hint,
+    required TextEditingController controller,
+    required IconData icon,
+    int maxLines = 1,
+    int? maxLength,
+    int? minLines,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+          width: 0.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 标题行
+            Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // 输入框
+            TextField(
+              controller: controller,
+              minLines: minLines,
+              maxLines: maxLines,
+              maxLength: maxLength,
+              decoration: InputDecoration(
+                hintText: hint,
+                hintStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 2,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.all(16),
+                counterStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              style: TextStyle(
+                fontSize: 15,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 构建设置项卡片
+  Widget _buildSettingCard({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+          width: 0.5,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 构建选项卡片
+  Widget _buildOptionCard({
+    required BuildContext context,
+    required String title,
+    required List<Widget> children,
+    required IconData icon,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+          width: 0.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 标题
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 12.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // 选项列表
+          ...children,
+          
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+
+  /// 构建单选项
+  Widget _buildRadioOption(BuildContext context, String title, String value, bool isLast) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 2.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: RadioListTile<String>(
+          title: Text(
+            title,
+            style: TextStyle(
+              fontSize: 15,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          value: value,
+          groupValue: logic.role.value,
+          onChanged: (val) {
+            if (val == null) return;
+            logic.setRole(val);
+            if (val == 'all') {
+              logic.visibilityLook.value = true;
+            } else {
+              logic.visibilityLook.value = false;
+              logic.donotlethimlook.value = false;
+              logic.donotlookhim.value = false;
+            }
+          },
+          activeColor: Theme.of(context).colorScheme.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 构建开关项
+  Widget _buildSwitchOption(BuildContext context, String title, RxBool switchValue, bool isLast) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 2.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: SwitchListTile(
+          title: Text(
+            title,
+            style: TextStyle(
+              fontSize: 15,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          value: switchValue.value,
+          onChanged: (val) {
+            switchValue.value = val;
+          },
+          activeColor: Theme.of(context).colorScheme.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     _msgController.text = "${'i_am'.tr} ${UserRepoLocal.to.current.nickname}";
     _remarkController.text = remark;
 
-    Widget secondary = const Text(
-      '√',
-      style: TextStyle(
-        fontSize: 20,
-        color: Colors.green,
-      ),
-    );
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: NavAppBar(
-        title: 'apply_add_friend'.tr,
-        automaticallyImplyLeading: true,
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: SizedBox(
-          width: Get.width * 0.5,
-          height: 40, // 宽度值必须设置为double.infinity
-          child: ElevatedButton(
-            onPressed: () async {
-              var nav = Navigator.of(context);
-              Map<String, dynamic> payload = {
-                "from": {
-                  "source": source,
-                  "msg": _msgController.text,
-                  "remark": _remarkController.text,
-                  "account": UserRepoLocal.to.current.account,
-                  "nickname": UserRepoLocal.to.current.nickname,
-                  "avatar": UserRepoLocal.to.current.avatar,
-                  "sign": UserRepoLocal.to.current.sign,
-                  "gender": UserRepoLocal.to.current.gender,
-                  "region": UserRepoLocal.to.current.region,
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
-                  "role": logic.role.value, // role 可能的值 all just_chat
-                  // donotlookhim 前后端约定的名称，请不要随意修改
-                  "donotlookhim": logic.donotlookhim.isTrue,
-                  // donotlethimlook 前后端约定的名称，请不要随意修改
-                  "donotlethimlook": logic.donotlethimlook.isTrue,
-                  "tag": logic.peerTag.isEmpty ? '' : "${logic.peerTag.value},",
+    return Scaffold(
+      backgroundColor: colorScheme.background,
+      appBar: AppBar(
+        title: Text(
+          'apply_add_friend'.tr,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        backgroundColor: colorScheme.surface,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: colorScheme.onSurface,
+          ),
+          onPressed: () => Get.back(),
+        ),
+      ),
+      body: Obx(
+        () => SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 8),
+              
+              // 验证消息输入
+              _buildInputCard(
+                context: context,
+                title: 'send_friend_request'.tr,
+                hint: '请输入验证消息',
+                controller: _msgController,
+                icon: Icons.message_outlined,
+                minLines: 3,
+                maxLines: 4,
+                maxLength: 100,
+              ),
+              
+              // 备注设置
+              _buildInputCard(
+                context: context,
+                title: 'set_param'.trArgs(['remark'.tr]),
+                hint: '请输入备注名',
+                controller: _remarkController,
+                icon: Icons.edit_outlined,
+                maxLength: 80,
+              ),
+              
+              // 标签设置
+              _buildSettingCard(
+                context: context,
+                title: 'tags'.tr,
+                subtitle: logic.peerTag.isEmpty ? 'add_tag'.tr : logic.peerTag.value,
+                icon: Icons.local_offer_outlined,
+                onTap: () {
+                  Get.to(
+                    () => UserTagRelationPage(
+                      peerId: uid,
+                      peerTag: logic.peerTag.isEmpty ? '' : logic.peerTag.value,
+                      scene: 'friend',
+                    ),
+                    transition: Transition.rightToLeft,
+                    popGesture: true,
+                  )?.then((value) {
+                    if (value != null && value is String) {
+                      logic.peerTag.value = value;
+                    }
+                  });
                 },
-                "to": {}
-              };
-              await logic.apply(
-                to: uid,
-                peerNickname: remark,
-                peerAvatar: avatar,
-                payload: payload,
-              );
-              nav.pop();
-              nav.pop();
-            },
-            style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all<Color>(
-                Theme.of(context).colorScheme.surface,
               ),
-              foregroundColor: WidgetStateProperty.all<Color>(
-                Theme.of(context).colorScheme.onSurface,
+              
+              const SizedBox(height: 8),
+              
+              // 朋友圈权限设置
+              _buildOptionCard(
+                context: context,
+                title: 'set_param'.trArgs(['moment'.tr]),
+                icon: Icons.photo_library_outlined,
+                children: [
+                  _buildRadioOption(context, 'chat_moment_sport_data_etc'.tr, 'all', false),
+                  _buildRadioOption(context, 'just_chat'.tr, 'just_chat', true),
+                ],
               ),
-              minimumSize: WidgetStateProperty.all(const Size(60, 40)),
-              visualDensity: VisualDensity.compact,
-              padding: WidgetStateProperty.all(EdgeInsets.zero),
-            ),
-            child: Text(
-              'button_send'.tr,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
-            ),
+              
+              // 朋友圈可见性设置
+              if (logic.visibilityLook.isTrue)
+                _buildOptionCard(
+                  context: context,
+                  title: 'moment_status'.tr,
+                  icon: Icons.visibility_outlined,
+                  children: [
+                    _buildSwitchOption(context, 'not_let_him_see'.tr, logic.donotlethimlook, false),
+                    _buildSwitchOption(context, 'not_see_him'.tr, logic.donotlookhim, true),
+                  ],
+                ),
+              
+              const SizedBox(height: 100), // 为底部按钮留出空间
+            ],
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          width: Get.width,
-          height: Get.height + 200,
-          color: Theme.of(context).colorScheme.surface,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 30, top: 10, right: 30),
-            child: Obx(() => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TitleTextField(
-                  title: 'send_friend_request'.tr,
-                  controller: _msgController,
-                  minLines: 3,
-                  maxLines: 4,
-                  maxLength: 100,
-                  contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                ),
-                TitleTextField(
-                  title: 'set_param'.trArgs(['remark'.tr]),
-                  controller: _remarkController,
-                  minLines: 1,
-                  maxLines: 1,
-                  maxLength: 80,
-                  contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                ),
-                Text('tags'.tr),
-                Obx(() => IconTextView(
-                  // leftText: 'add_tag'.tr,
-                  leftText: logic.peerTag.isEmpty
-                      ? 'add_tag'.tr
-                      : logic.peerTag.value,
-                  paddingLeft: 10,
-                  onPressed: () {
-                    Get.to(
-                          () => UserTagRelationPage(
-                        peerId: uid,
-                        peerTag: logic.peerTag.isEmpty
-                            ? ''
-                            : logic.peerTag.value,
-                        scene: 'friend',
-                      ),
-                      transition: Transition.rightToLeft,
-                      popGesture: true, // 右滑，返回上一页
-                    )?.then((value) {
-                      if (value != null && value is String) {
-                        logic.peerTag.value = value.toString();
-                      }
-                    });
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.shadow.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: () async {
+                final nav = Navigator.of(context);
+                Map<String, dynamic> payload = {
+                  "from": {
+                    "source": source,
+                    "msg": _msgController.text,
+                    "remark": _remarkController.text,
+                    "account": UserRepoLocal.to.current.account,
+                    "nickname": UserRepoLocal.to.current.nickname,
+                    "avatar": UserRepoLocal.to.current.avatar,
+                    "sign": UserRepoLocal.to.current.sign,
+                    "gender": UserRepoLocal.to.current.gender,
+                    "region": UserRepoLocal.to.current.region,
+                    "role": logic.role.value,
+                    "donotlookhim": logic.donotlookhim.isTrue,
+                    "donotlethimlook": logic.donotlethimlook.isTrue,
+                    "tag": logic.peerTag.isEmpty ? '' : "${logic.peerTag.value},",
                   },
-                  decoration: ShapeDecoration(
-                    // color: Get.isDarkMode
-                    //     ? darkInputFillColor
-                    //     : lightInputFillColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadiusDirectional.circular(5),
-                    ),
-                  ),
-                )),
-                Padding(
-                  padding: const EdgeInsets.only(top: 14),
-                  child: Text('set_param'.trArgs(['moment'.tr])),
+                  "to": {}
+                };
+                await logic.apply(
+                  to: uid,
+                  peerNickname: remark,
+                  peerAvatar: avatar,
+                  payload: payload,
+                );
+                nav.pop();
+                nav.pop();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorScheme.primary,
+                foregroundColor: colorScheme.onPrimary,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
                 ),
-                Card(
-                  // color: Get.isDarkMode
-                  //     ? darkInputFillColor
-                  //     : lightInputFillColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusDirectional.circular(5),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    children: [
-                      IMBoyRadioListTile(
-                        value: "all",
-                        title: Text(
-                          'chat_moment_sport_data_etc'.tr,
-                          style: TextStyle(
-                            fontSize: 17.0,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                        ),
-                        selected: false,
-                        secondary: logic.role.value == "all" ? secondary : null,
-                        controlAffinity: ListTileControlAffinity.leading,
-                        activeColor: Colors.green,
-                        groupValue: logic.role.value,
-                        contentPadding: const EdgeInsets.fromLTRB(
-                          10,
-                          0,
-                          10,
-                          0,
-                        ),
-                        onChanged: (val) {
-                          logic.setRole(val.toString());
-                          logic.visibilityLook = true.obs;
-                          logic.update([logic.visibilityLook]);
-                          debugPrint(
-                              "> on logic.visibilityLook1 ${logic.visibilityLook}");
-                        },
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8, right: 8),
-                        child: const HorizontalLine(height: 0.5),
-                      ),
-                      IMBoyRadioListTile(
-                        value: "just_chat",
-                        title: Text(
-                          'just_chat'.tr,
-                          style: TextStyle(
-                            fontSize: 17.0,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                        ),
-                        selected: false,
-                        secondary:
-                        logic.role.value == "just_chat" ? secondary : null,
-                        controlAffinity: ListTileControlAffinity.leading,
-                        activeColor: Colors.green,
-                        groupValue: logic.role.value,
-                        contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                        onChanged: (val) {
-                          logic.setRole(val.toString());
-                          logic.visibilityLook = false.obs;
-                          logic.donotlethimlook = false.obs;
-                          logic.donotlookhim = false.obs;
-                          logic.update();
-                          debugPrint(
-                              "> on logic.visibilityLook2 ${logic.visibilityLook}");
-                          debugPrint(
-                              "> on logic.donotlethimlook3 ${logic.donotlethimlook}");
-                        },
-                      ),
-                    ],
-                  ),
+              ),
+              child: Text(
+                'button_send'.tr,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
                 ),
-                Visibility(
-                  visible: logic.visibilityLook.isTrue,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 50),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('moment_status'.tr),
-                        Card(
-                          // color: Get.isDarkMode
-                          //     ? darkInputFillColor
-                          //     : lightInputFillColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadiusDirectional.circular(5),
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: Column(
-                            children: [
-                              LabelRow(
-                                title: 'not_let_him_see'.tr,
-                                isLine: true,
-                                isRight: false,
-                                trailing: SizedBox(
-                                  height: 32.0,
-                                  child: Obx(
-                                        () => CupertinoSwitch(
-                                      value: logic.donotlethimlook.isTrue,
-                                      onChanged: (val) {
-                                        logic.donotlethimlook.value = val;
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              LabelRow(
-                                title: 'not_see_him'.tr,
-                                isLine: true,
-                                isRight: false,
-                                trailing: SizedBox(
-                                  height: 32.0,
-                                  child: Obx(
-                                        () => CupertinoSwitch(
-                                      value: logic.donotlookhim.isTrue,
-                                      onChanged: (val) {
-                                        logic.donotlookhim.value = val;
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            )),
+              ),
+            ),
           ),
         ),
       ),

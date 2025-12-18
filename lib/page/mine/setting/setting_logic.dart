@@ -56,9 +56,9 @@ class SettingLogic extends GetxController {
               TextButton(
                 child: Text(
                   'button_confirm'.tr,
-                  style: TextStyle(
-                    color: Get.isDarkMode ? Colors.white : Colors.black,
-                  ),
+                  // style: TextStyle(
+                  //   color: ThemeManager.instance.getThemeColor('textPrimary'),
+                  // ),
                 ),
                 onPressed: () {
                   exit(0);

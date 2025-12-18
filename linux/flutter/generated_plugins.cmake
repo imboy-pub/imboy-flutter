@@ -3,13 +3,14 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  dynamic_color
   emoji_picker_flutter
   file_saver
   file_selector_linux
   flutter_secure_storage_linux
+  flutter_sound
   flutter_webrtc
   open_file_linux
-  sqlite3_flutter_libs
   url_launcher_linux
 )
 

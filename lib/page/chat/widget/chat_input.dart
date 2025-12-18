@@ -1,15 +1,30 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter/services.dart';
 
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/image_button.dart' show ImageButton;
-import 'package:imboy/component/ui/line.dart' show HorizontalLine;
 import 'package:imboy/config/init.dart';
+import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/theme_manager.dart' show ThemeManager;
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/message_model.dart';
+
+/// 键盘高度观察者
+class _KeyboardObserver with WidgetsBindingObserver {
+  final VoidCallback onKeyboardChanged;
+  
+  _KeyboardObserver(this.onKeyboardChanged);
+  
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+    onKeyboardChanged();
+  }
+}
 
 /// 部分代码来自该项目，感谢作者 CaiJingLong https://github.com/CaiJingLong/flutter_like_wechat_input
 /// 输入类型枚举
@@ -54,6 +69,7 @@ class ChatInput extends StatefulWidget {
     this.maxLines = 6,
     this.minLines = 1,
     this.maxLength = 1000,
+    this.contentInsertionConfiguration,
   });
 
   final String type; // 聊天类型
@@ -80,6 +96,7 @@ class ChatInput extends StatefulWidget {
   final int? minLines; // 最小行数
   final int? maxLength; // 最大输入长度
   final RxDouble composerHeight; // 外部传递的输入区高度notifier（用于丝滑动画）
+  final ContentInsertionConfiguration? contentInsertionConfiguration; // 内容插入配置
 
   @override
   State<ChatInput> createState() => ChatInputState();
@@ -88,6 +105,10 @@ class ChatInput extends StatefulWidget {
 class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   final _inputFocusNode = FocusNode(); // 输入框焦点
   final _textController = TextEditingController(); // 文本输入控制器
+  
+  // 公开内部方法供外部调用
+  FocusNode get inputFocusNode => _inputFocusNode;
+  TextEditingController get textController => _textController;
   late AnimationController _bottomHeightController; // 兼容旧动画逻辑
   late String draftKey; // 草稿key
   StreamSubscription? ssMsg;
@@ -99,11 +120,27 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   final _emojiShowing = ValueNotifier<bool>(false); // 是否显示表情面板
   final _inputType = ValueNotifier<InputType>(InputType.text); // 当前输入类型
   final _sendButtonVisible = ValueNotifier<bool>(false); // 发送按钮可见性
+  final _characterCount = ValueNotifier<int>(0); // 字符计数
+  final _isFocused = ValueNotifier<bool>(false); // 输入框聚焦状态
+  final _showMentionList = ValueNotifier<bool>(false); // 是否显示@提及列表
+  final _mentionCandidates = ValueNotifier<List<String>>([]); // @提及候选列表
+  final _showQuickReplies = ValueNotifier<bool>(false); // 是否显示快捷回复
+  final _quickReplies = ValueNotifier<List<String>>([
+    '好的',
+    '收到',
+    '谢谢',
+    '明白了',
+    '稍等',
+    '没问题',
+    '马上到',
+    '好的，谢谢'
+  ]); // 快捷回复列表
 
   final double iconSize = 40; // 图标大小
-  final double _softKeyHeight = 198; // 软键盘默认高度
+  final double _softKeyHeight = 270; // 软键盘默认高度
   final double fontSize = 22 * (Platform.isIOS ? 1.2 : 1.0); // 字体大小
   double _keyboardHeight = 0; // 当前键盘高度
+  bool _isTransitioningToTextFromPanel = false; // 是否正在从面板切换回文本（用于丝滑动画）
 
   @override
   void initState() {
@@ -115,6 +152,8 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     _initTextController();
     _initAnimationController();
     _initEventListeners();
+    _initFocusListener();
+    _initMentionListener();
 
     _setupKeyboardListener();
   }
@@ -138,6 +177,16 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     _bottomHeightController.animateBack(0);
   }
 
+  /// 初始化焦点监听器
+  void _initFocusListener() {
+    _inputFocusNode.addListener(() {
+      _isFocused.value = _inputFocusNode.hasFocus;
+      if (_inputFocusNode.hasFocus) {
+        updateState(InputType.text);
+      }
+    });
+  }
+
   /// 初始化事件监听器（输入框获取焦点自动切回文本模式）
   void _initEventListeners() {
 
@@ -155,35 +204,199 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     });
 
     // 监听输入框焦点变化，自动切换到文本输入模式
-    _inputFocusNode.addListener(() {
-      if (_inputFocusNode.hasFocus) {
-        updateState(InputType.text);
-      }
-    });
+    // 已移至 _initFocusListener()
   }
 
   /// 设置键盘监听器（获取键盘高度，兼容多机型，动态设置输入区高度实现丝滑）
   void _setupKeyboardListener() {
+    // 立即检查一次键盘状态
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final mediaQuery = MediaQuery.of(context);
-      _keyboardHeight = mediaQuery.viewInsets.bottom;
-      _updateComposerHeightByKeyboard();
+      final newKeyboardHeight = mediaQuery.viewInsets.bottom;
+      
+      if (newKeyboardHeight != _keyboardHeight) {
+        _keyboardHeight = newKeyboardHeight;
+        _updateComposerHeightByKeyboard();
+      }
     });
+    
+    // 监听后续的键盘变化
+    WidgetsBinding.instance.addObserver(_KeyboardObserver(_updateComposerHeightByKeyboard));
+  }
+
+  /// 处理键盘快捷键
+  void _handleKeyboardShortcuts(RawKeyEvent event) {
+    if (event is RawKeyDownEvent) {
+      final logicalKey = event.logicalKey;
+      
+      // Command/Ctrl + Enter 发送消息
+      if (event.isControlPressed && logicalKey == LogicalKeyboardKey.enter) {
+        _handleSendPressed();
+      }
+      
+      // Escape 键收起键盘和面板
+      if (logicalKey == LogicalKeyboardKey.escape) {
+        hideAllPanel();
+      }
+      
+      // Command/Ctrl + K 切换输入模式
+      if (event.isControlPressed && logicalKey == LogicalKeyboardKey.keyK) {
+        updateState(_inputType.value == InputType.text ? InputType.voice : InputType.text);
+      }
+    }
   }
 
   /// 根据系统键盘/自定义面板动态设置输入区高度
+  /// 优化版本：快速响应，减少延迟
   void _updateComposerHeightByKeyboard() {
-    final mediaQuery = MediaQuery.of(context);
-    // 系统键盘弹起时
-    if (mediaQuery.viewInsets.bottom > 0) {
-      _composerHeight.value = mediaQuery.viewInsets.bottom;
-    } else if (_inputType.value == InputType.emoji ||
-        _inputType.value == InputType.extra) {
-      _composerHeight.value = _softKeyHeight;
+    if (!mounted) return;
+    
+    // 触发重绘，以便 build 方法中重新计算 panelHeight
+    setState(() {});
+  }
+
+  /// 初始化@提及监听器
+  void _initMentionListener() {
+    _textController.addListener(_handleMentionDetection);
+  }
+
+  /// 处理@提及检测
+  void _handleMentionDetection() {
+    final text = _textController.text;
+    final selection = _textController.selection;
+    
+    // 检测@符号
+    if (text.isNotEmpty && selection.extentOffset > 0) {
+      final charBeforeCursor = text.substring(selection.extentOffset - 1, selection.extentOffset);
+      if (charBeforeCursor == '@') {
+        _showMentionList.value = true;
+        // 模拟群组成员列表
+        _mentionCandidates.value = ['用户1', '用户2', '用户3', '用户4', '用户5'];
+      } else {
+        _showMentionList.value = false;
+      }
     } else {
-      _composerHeight.value = widget.composerHeight.value;
+      _showMentionList.value = false;
     }
+  }
+
+  /// 插入@提及
+  void _insertMention(String username) {
+    final currentText = _textController.text;
+    final selection = _textController.selection;
+    
+    // 找到@符号的位置
+    final atIndex = currentText.lastIndexOf('@', selection.extentOffset - 1);
+    if (atIndex != -1) {
+      final newText = currentText.substring(0, atIndex) + '@$username ' + currentText.substring(selection.extentOffset);
+      final newCursorPosition = atIndex + username.length + 2;
+      
+      _textController.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(offset: newCursorPosition),
+      );
+    }
+    
+    _showMentionList.value = false;
+  }
+
+  /// 构建快捷回复面板
+  Widget _buildQuickRepliesPanel() {
+    return ValueListenableBuilder<bool>(
+      valueListenable: _showQuickReplies,
+      builder: (context, showQuickReplies, _) {
+        if (!showQuickReplies) return const SizedBox.shrink();
+        
+        return ValueListenableBuilder<List<String>>(
+          valueListenable: _quickReplies,
+          builder: (context, replies, _) {
+            return Container(
+              height: 60,
+              decoration: BoxDecoration(
+                color: ThemeManager.instance.getThemeColor('surface'),
+                border: Border(
+                  top: BorderSide(
+                    color: ThemeManager.instance.getThemeColor('outline').withValues(alpha: 0.1),
+                    width: 0.5,
+                  ),
+                ),
+              ),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                itemCount: replies.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    child: ElevatedButton(
+                      onPressed: () => _insertQuickReply(replies[index]),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ThemeManager.instance.getThemeColor('primary').withValues(alpha: 0.1),
+                        foregroundColor: ThemeManager.instance.getThemeColor('primary'),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(replies[index]),
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  /// 插入快捷回复
+  void _insertQuickReply(String reply) {
+    _textController.text = reply;
+    _sendButtonVisible.value = true;
+    _showQuickReplies.value = false;
+  }
+
+  /// 构建@提及列表
+  Widget _buildMentionList() {
+    return ValueListenableBuilder<bool>(
+      valueListenable: _showMentionList,
+      builder: (context, showMentionList, _) {
+        if (!showMentionList) return const SizedBox.shrink();
+        
+        return ValueListenableBuilder<List<String>>(
+          valueListenable: _mentionCandidates,
+          builder: (context, candidates, _) {
+            return Container(
+              height: 180,
+              decoration: BoxDecoration(
+                color: ThemeManager.instance.getThemeColor('surface'),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: candidates.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(candidates[index]),
+                    onTap: () => _insertMention(candidates[index]),
+                  );
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   /// 处理文本控制器变化（带节流，存储草稿，发送文本变更回调）
@@ -194,6 +407,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     _debounceTimer = Timer(const Duration(milliseconds: 300), () {
       final text = _textController.text.trim();
       _sendButtonVisible.value = text.isNotEmpty;
+      _characterCount.value = text.characters.length;
 
       // 超长自动裁剪并存储草稿
       if (text.length <= (widget.maxLength ?? 1000)) {
@@ -214,6 +428,12 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     _emojiShowing.dispose();
     _inputType.dispose();
     _sendButtonVisible.dispose();
+    _characterCount.dispose();
+    _isFocused.dispose();
+    _showMentionList.dispose();
+    _mentionCandidates.dispose();
+    _showQuickReplies.dispose();
+    _quickReplies.dispose();
     super.dispose();
   }
 
@@ -257,6 +477,14 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     );
   }
 
+  /// 公开的设置文本方法，供外部调用
+  void setText(String text) {
+    _textController.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+
   /// 处理发送按钮点击（异步发送，草稿清理，安全判断 mounted）
   Future<void> _handleSendPressed() async {
     final trimmedText = _textController.text.trim();
@@ -266,6 +494,8 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       if (res) {
         _textController.clear();
         StorageService.to.remove(draftKey);
+        // 发送后自动收起键盘
+        FocusScope.of(context).unfocus();
       }
     }
   }
@@ -278,67 +508,136 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     _composerHeight = widget.composerHeight;
   }
 
-  /// 切换输入类型（文本/语音/表情/扩展面板），丝滑动画关键：直接设置高度
+  /// 对外提供unfocus方法，用于收起输入框和面板
+  void unfocus() {
+    hideAllPanel();
+  }
+
+  /// 切换输入类型（文本/语音/表情/扩展面板），优化版本：更平滑的高度过渡
   Future<void> updateState(InputType type) async {
     if (type == _inputType.value) return;
 
+    final oldType = _inputType.value;
     _inputType.value = type;
     _emojiShowing.value = type == InputType.emoji;
 
-    // final isIOS = Platform.isIOS;
-
     if (type == InputType.text) {
-      // 切换到文本输入，先收起面板，再唤起键盘，并同步高度
-      _composerHeight.value = 0.0;
-      // await Future.delayed(Duration(milliseconds: isIOS ? 100 : 60));
-      if (!mounted) return;
-      FocusScope.of(context).requestFocus(_inputFocusNode);
-      // 等待键盘弹起监听同步高度
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => _updateComposerHeightByKeyboard(),
-      );
-    } else {
-      // 切换到emoji/extra/voice，先收起键盘，再展示面板，并同步高度
-      FocusScope.of(context).unfocus();
-      // await Future.delayed(Duration(milliseconds: isIOS ? 100 : 60));
-      if (!mounted) return;
-      if (type == InputType.emoji || type == InputType.extra) {
-        _composerHeight.value = _softKeyHeight;
-      } else {
-        _composerHeight.value = widget.composerHeight.value;
+      // 切换到文本输入，先收起面板，再唤起键盘
+      if (oldType == InputType.emoji || oldType == InputType.extra) {
+        _isTransitioningToTextFromPanel = true;
       }
+      
+      _updateComposerHeightByKeyboard(); // 先更新高度
+      // 立即请求焦点，不使用 await 延迟，减少空白闪烁
+      if (mounted) {
+        FocusScope.of(context).requestFocus(_inputFocusNode);
+      }
+    } else if (type == InputType.voice) {
+      // 切换到语音模式，收起所有面板
+      FocusScope.of(context).unfocus();
+      await Future.delayed(const Duration(milliseconds: 100)); // 等待键盘收起
+      _updateComposerHeightByKeyboard();
+    } else {
+      // 切换到emoji/extra，先收起键盘，再展示面板
+      FocusScope.of(context).unfocus();
+      
+      // 根据之前的状态调整延迟时间
+      final delay = oldType == InputType.text 
+          ? const Duration(milliseconds: 150) // 从文本切换需要等键盘收起
+          : const Duration(milliseconds: 50);  // 从其他状态切换延迟较短
+      
+      await Future.delayed(delay);
+      if (!mounted) return;
+      
+      // 触发重新构建，让 ChatInputHeightListener 检测到高度变化并执行动画
+      setState(() {});
     }
   }
 
-  /// 构建语音按钮（未实现时弹出提示）
+  /// 构建语音按钮（支持长按录音，松开发送，带动画效果）
   Widget _buildVoiceButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: TextButton(
-        onPressed: () {
-          // 暂未实现语音输入
-          Get.snackbar('Tips', 'voice_input_not_implemented'.tr);
-        },
-        child: Text('chat_hold_down_talk'.tr),
+    return GestureDetector(
+      onLongPressStart: (details) {
+        // 开始录音
+        _startVoiceRecording();
+      },
+      onLongPressEnd: (details) {
+        // 结束录音并发送
+        _stopAndSendVoiceRecording();
+      },
+      onLongPressMoveUpdate: (details) {
+        // 滑动取消录音
+        final globalPosition = details.globalPosition;
+        final box = context.findRenderObject() as RenderBox?;
+        if (box != null) {
+          final localPosition = box.globalToLocal(globalPosition);
+          if (!box.size.contains(localPosition)) {
+            // 手指移出按钮区域，取消录音
+            _cancelVoiceRecording();
+          }
+        }
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: double.infinity,
+        height: 36,
+        decoration: BoxDecoration(
+          color: ThemeManager.instance.getThemeColor('primary').withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: ThemeManager.instance.getThemeColor('primary'),
+            width: 1,
+          ),
+        ),
+        child: Center(
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 200),
+            opacity: 1.0,
+            child: Text(
+              'chat_hold_down_talk'.tr,
+              style: TextStyle(
+                color: ThemeManager.instance.getThemeColor('primary'),
+                fontSize: ThemeManager.instance.getFontSize(FontSizeType.medium),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  /// 构建底部容器（emoji/扩展面板，带动画）—— 丝滑高度逻辑已交由外部AnimatedPadding处理
-  Widget _buildBottomContainer({required Widget child}) {
-    return Offstage(
-      // 根据输入类型决定是否显示
-      offstage:
-          _inputType.value != InputType.emoji &&
-          _inputType.value != InputType.extra,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: max(_softKeyHeight, _keyboardHeight),
-        ),
-        child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
-          child: IntrinsicHeight(child: child),
-        ),
+  /// 开始语音录制
+  void _startVoiceRecording() {
+    // TODO: 实现语音录制逻辑
+    Get.snackbar('提示', '开始录音...');
+  }
+
+  /// 停止并发送语音录制
+  void _stopAndSendVoiceRecording() {
+    // TODO: 实现语音发送逻辑
+    Get.snackbar('提示', '录音完成，准备发送');
+  }
+
+  /// 取消语音录制
+  void _cancelVoiceRecording() {
+    // TODO: 实现取消录音逻辑
+    Get.snackbar('提示', '录音已取消');
+  }
+
+  /// 构建底部容器（emoji/扩展面板，带动画）—— 丝滑高度逻辑
+  Widget _buildBottomContainer({required Widget child, required double height}) {
+    // 如果高度为0，且不显示，则隐藏（避免点击穿透等问题）
+    if (height <= 0) {
+      return const SizedBox.shrink();
+    }
+    
+    return SizedBox(
+      height: height,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque, // 面板区域消费手势，避免向上冒泡触发返回/侧滑
+        onTap: () {},
+        child: child,
       ),
     );
   }
@@ -358,8 +657,10 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             builder: (context, emojiShowing, _) {
               return Offstage(
                 offstage: !emojiShowing,
-                child: EmojiPicker(
-                  onEmojiSelected: (Category? category, Emoji emoji) {
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque, // 面板命中不穿透，避免触发外层返回/侧滑
+                  child: EmojiPicker(
+                    onEmojiSelected: (Category? category, Emoji emoji) {
                     _setText(emoji.emoji);
                   },
                   onBackspacePressed: () {
@@ -373,7 +674,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                         );
                     }
                   },
-                  config: Config(
+                    config: Config(
                     checkPlatformCompatibility: true,
                     emojiViewConfig: EmojiViewConfig(
                       columns: columns,
@@ -382,23 +683,17 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                       horizontalSpacing: 4,
                       recentsLimit: columns * 3 - 2,
                       buttonMode: ButtonMode.MATERIAL,
-                      backgroundColor: Get.isDarkMode
-                          ? const Color.fromRGBO(34, 34, 34, 1.0)
-                          : const Color.fromRGBO(246, 246, 246, 1.0),
+                      backgroundColor: ThemeManager.instance.getThemeColor('surface'),
                     ),
                     skinToneConfig: SkinToneConfig(
-                      indicatorColor: Get.isDarkMode
-                          ? const Color.fromRGBO(34, 34, 34, 1.0)
-                          : const Color.fromRGBO(246, 246, 246, 1.0),
+                      indicatorColor: ThemeManager.instance.getThemeColor('surface'),
                     ),
                     categoryViewConfig: CategoryViewConfig(
                       tabBarHeight: 48,
-                      backgroundColor: Get.isDarkMode
-                          ? const Color.fromRGBO(34, 34, 34, 1.0)
-                          : const Color.fromRGBO(246, 246, 246, 1.0),
-                      iconColorSelected: Theme.of(
-                        context,
-                      ).colorScheme.onPrimary,
+                      backgroundColor: ThemeManager.instance.getThemeColor('surface'),
+                      iconColor: ThemeManager.instance.getThemeColor('textSecondary'),
+                      iconColorSelected: ThemeManager.instance.getThemeColor('primary'),
+                      indicatorColor: ThemeManager.instance.getThemeColor('primary'),
                       categoryIcons: const CategoryIcons(
                         recentIcon: Icons.access_time_outlined,
                         smileyIcon: Icons.emoji_emotions_outlined,
@@ -413,16 +708,15 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                     ),
                     bottomActionBarConfig: BottomActionBarConfig(
                       enabled: true,
-                      backgroundColor: Get.isDarkMode
-                          ? const Color.fromRGBO(35, 35, 35, 1.0)
-                          : const Color.fromRGBO(246, 246, 246, 1.0),
-                      buttonColor: Theme.of(context).colorScheme.surface,
-                      buttonIconColor: Theme.of(context).colorScheme.onPrimary,
+                      backgroundColor: ThemeManager.instance.getThemeColor('surface'),
+                      buttonColor: ThemeManager.instance.getThemeColor('primary'),
+                      buttonIconColor: Colors.white,
                     ),
                     searchViewConfig: SearchViewConfig(
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      buttonIconColor: Theme.of(context).colorScheme.onPrimary,
+                      backgroundColor: ThemeManager.instance.getThemeColor('surface'),
+                      buttonIconColor: ThemeManager.instance.getThemeColor('primary'),
                     ),
+                  ),
                   ),
                 ),
               );
@@ -434,56 +728,91 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     );
   }
 
-  /// 构建输入框（支持多行、emoji、安全选择等）
+  /// 构建输入框（支持多行、emoji、安全选择等，支持键盘快捷键）
   Widget _buildInputField() {
-    return TextField(
-      controller: _textController,
-      focusNode: _inputFocusNode,
-      maxLines: widget.maxLines,
-      minLines: widget.minLines,
-      maxLength: widget.maxLength,
-      enableInteractiveSelection: true,
-      keyboardType: widget.keyboardType,
-      textCapitalization: widget.textCapitalization,
-      textInputAction: widget.textInputAction,
-      decoration: InputDecoration(
-        hintText: widget.hintText,
-        border: InputBorder.none,
-        contentPadding: EdgeInsets.zero,
-        counterText: '',
-      ),
-      onChanged: (val) {
-        _handleTextControllerChange();
+    return ValueListenableBuilder<bool>(
+      valueListenable: _isFocused,
+      builder: (context, isFocused, _) {
+        return RawKeyboardListener(
+          focusNode: FocusNode(),
+          onKey: _handleKeyboardShortcuts,
+          child: TextField(
+            controller: _textController,
+            focusNode: _inputFocusNode,
+            maxLines: widget.maxLines,
+            minLines: widget.minLines,
+            maxLength: widget.maxLength,
+            enableInteractiveSelection: true,
+            keyboardType: widget.keyboardType,
+            textCapitalization: widget.textCapitalization,
+            textInputAction: widget.textInputAction,
+            contentInsertionConfiguration: widget.contentInsertionConfiguration,
+            decoration: InputDecoration(
+              hintText: widget.hintText,
+              hintStyle: TextStyle(
+                color: ThemeManager.instance.getThemeColor('textSecondary'),
+                fontSize: ThemeManager.instance.getFontSize(FontSizeType.medium),
+              ),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.zero,
+              counterText: '',
+              filled: isFocused,
+              fillColor: isFocused 
+                ? ThemeManager.instance.getThemeColor('primary').withValues(alpha: 0.05)
+                : Colors.transparent,
+            ),
+            style: TextStyle(
+              color: ThemeManager.instance.getThemeColor('textPrimary'),
+              fontSize: ThemeManager.instance.getFontSize(FontSizeType.medium),
+            ),
+            onChanged: (val) {
+              _handleTextControllerChange();
+            },
+            onTap: () {
+              updateState(InputType.text);
+              widget.onTextFieldTap?.call();
+            },
+            onSubmitted: (_) => _handleSendPressed(),
+          ),
+        );
       },
-      onTap: () {
-        updateState(InputType.text);
-        widget.onTextFieldTap?.call();
-      },
-      onSubmitted: (_) => _handleSendPressed(),
     );
   }
 
-  /// 构建语音输入组件（自定义或默认按钮）
+  /// 构建语音输入组件（使用增强版语音录制器或自定义组件）
   Widget _buildVoiceInput() {
-    return widget.voiceWidget ?? _buildVoiceButton(context);
+    if (widget.voiceWidget != null) {
+      return widget.voiceWidget!;
+    }
+    return SizedBox.shrink();
   }
 
-  /// 构建输入按钮（文本/语音切换，Stack切换）
+  /// 构建输入按钮（文本/语音切换，AnimatedSwitcher 平滑过渡）
   Widget _buildInputButton() {
     return ValueListenableBuilder<InputType>(
       valueListenable: _inputType,
       builder: (context, inputType, _) {
-        return Stack(
-          children: [
-            Offstage(
-              offstage: inputType == InputType.voice,
-              child: _buildInputField(),
-            ),
-            Offstage(
-              offstage: inputType != InputType.voice,
-              child: _buildVoiceInput(),
-            ),
-          ],
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          transitionBuilder: (child, anim) {
+            return FadeTransition(
+              opacity: anim,
+              child: SizeTransition(
+                sizeFactor: anim,
+                axisAlignment: -1.0,
+                child: child,
+              ),
+            );
+          },
+          child: inputType == InputType.voice
+              ? KeyedSubtree(
+                  key: const ValueKey('voice'),
+                  child: _buildVoiceInput(),
+                )
+              : KeyedSubtree(
+                  key: const ValueKey('text'),
+                  child: _buildInputField(),
+                ),
         );
       },
     );
@@ -503,7 +832,6 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             } else {
               updateState(InputType.voice);
             }
-            _composerHeight.value = 0.0; // 切换语音时收起所有面板
           },
           image: inputType != InputType.voice
               ? Icon(Icons.keyboard_voice_outlined, size: iconSize)
@@ -534,30 +862,59 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   /// 构建附加功能按钮
   Widget _buildExtraButton() {
-    return ImageButton(
-      image: const Icon(Icons.control_point, size: 40),
-      onPressed: () {
-        updateState(
-          _inputType.value != InputType.extra
-              ? InputType.extra
-              : InputType.text,
+    return ValueListenableBuilder<bool>(
+      valueListenable: _sendButtonVisible,
+      builder: (context, sendButtonVisible, _) {
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) {
+            return ScaleTransition(
+              scale: animation,
+              child: child,
+            );
+          },
+          child: sendButtonVisible
+              ? const SizedBox.shrink(key: ValueKey('empty_extra'))
+              : ImageButton(
+                  key: const ValueKey('extra_button'),
+                  image: const Icon(Icons.control_point, size: 40),
+                  onPressed: () {
+                    updateState(
+                      _inputType.value != InputType.extra
+                          ? InputType.extra
+                          : InputType.text,
+                    );
+                  },
+                ),
         );
       },
     );
   }
 
-  /// 构建发送按钮
+  /// 构建发送按钮（带动画效果）
   Widget _buildSendButton() {
     return ValueListenableBuilder<bool>(
       valueListenable: _sendButtonVisible,
       builder: (context, sendButtonVisible, _) {
-        return Visibility(
-          visible: sendButtonVisible,
-          child: IconButton(
-            icon: const Icon(Icons.send),
-            onPressed: _handleSendPressed,
-            padding: const EdgeInsets.only(left: 0),
-          ),
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) {
+            return ScaleTransition(
+              scale: animation,
+              child: child,
+            );
+          },
+          child: sendButtonVisible
+              ? IconButton(
+                  key: const ValueKey('send_button'),
+                  icon: Icon(
+                    Icons.send,
+                    color: ThemeManager.instance.getThemeColor('primary'),
+                  ),
+                  onPressed: _handleSendPressed,
+                  padding: const EdgeInsets.only(left: 0),
+                )
+              : const SizedBox.shrink(key: ValueKey('empty_button')),
         );
       },
     );
@@ -565,58 +922,155 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final query = MediaQuery.of(context);
-    // 处理底部安全区（兼容全面屏、刘海屏等场景）
-    final bottomSafeArea = widget.handleSafeArea == true
-        ? query.viewInsets.bottom + query.padding.bottom + 4
-        : 0;
+    // 每次构建时都设置键盘监听器，确保能及时响应键盘变化
+    _setupKeyboardListener();
+    
+    // 计算底部面板高度，实现丝滑切换
+    // 使用 View.of(context) 获取全局的 viewInsets，避免被 Scaffold(resizeToAvoidBottomInset: true) 消费掉
+    // 从而导致在键盘弹出时获取到的 bottomInset 为 0，引发面板高度计算错误（出现空白）
+    final view = View.of(context);
+    final bottomInset = view.viewInsets.bottom / view.devicePixelRatio;
+    
+    // iPhone 底部安全区域处理
+    // 即使在键盘未弹出时，iPhone X+ 机型也有底部安全区域（通常34px）
+    // 这会导致输入框和键盘之间出现空隙，因为 bottomInset 包含了这个安全区域
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    
+    // 修正后的 bottomInset：减去安全区域高度，但不能小于0
+    // 当键盘弹出时，viewInsets.bottom 包含键盘高度 + 安全区域（某些情况下）或仅键盘高度
+    // 我们主要关注的是键盘带来的“额外”高度
+    double effectiveBottomInset = bottomInset;
+    if (Platform.isIOS && bottomInset > 0) {
+      // 在 iOS 上，键盘弹出时的 viewInsets.bottom 通常已经处理了安全区域
+      // 但在某些机型（如 iPhone 16E）上可能存在差异
+      // 这里的逻辑是：如果 bottomInset 很小（接近安全区域高度），则认为是键盘未弹出或仅是安全区域干扰
+    }
 
-    _keyboardHeight = query.viewInsets.bottom;
+    // 更新记录的键盘高度 (只要看起来像键盘的高度就更新，适应不同输入法高度变化)
+    // 增加判断：只有显著大于底部安全区域的高度才被视为键盘高度
+    if (bottomInset > (bottomPadding + 50)) {
+      _keyboardHeight = bottomInset;
+    }
+    
+    final targetPanelHeight = _keyboardHeight > 0 ? _keyboardHeight : _softKeyHeight;
+    double panelHeight = 0;
+    
+    if (_inputType.value == InputType.emoji || _inputType.value == InputType.extra) {
+       // 面板展开模式：面板高度 = 目标高度 - 当前键盘高度（实现键盘收起时面板逐渐出现）
+       // 这里使用原始 bottomInset，因为我们需要填补键盘腾出的空间
+       panelHeight = max(0, targetPanelHeight - bottomInset);
+    } else if (_inputType.value == InputType.text) {
+       // 文本模式：
+       // 如果正在从面板切换回文本，且键盘还未完全弹出，保持面板填充剩余空间
+       if (_isTransitioningToTextFromPanel) {
+          if (bottomInset > 0) {
+             // 键盘开始弹起，面板高度 = 目标高度 - 当前键盘高度
+             // 这样 键盘高度 + 面板高度 ≈ 目标高度，实现无缝过渡
+             panelHeight = max(0, targetPanelHeight - bottomInset);
+             
+             // 当键盘高度接近完全展开时，结束过渡状态
+             if (bottomInset >= targetPanelHeight * 0.9) {
+               _isTransitioningToTextFromPanel = false;
+               panelHeight = 0;
+             }
+          } else {
+             // 键盘未弹起时，保持面板高度，避免闪烁
+             panelHeight = targetPanelHeight;
+          }
+       } else {
+          panelHeight = 0;
+       }
+    } else {
+       panelHeight = 0;
+    }
 
-    return Material(
-      color: widget.backgroundColor,
-      child: Container(
-        padding: EdgeInsets.fromLTRB(
-          query.padding.left,
-          4,
-          query.padding.right,
-          bottomSafeArea.toDouble(),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            widget.quoteTipsWidget ?? const SizedBox.shrink(),
-            Row(
+    return Container(
+      color: widget.backgroundColor ?? ThemeManager.instance.getThemeColor('surface'),
+      child: Column(
+        children: [
+          // 引用消息提示条
+          if (widget.quoteTipsWidget != null) widget.quoteTipsWidget!,
+          
+          // 主输入区域
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                  width: 0.5,
+                ),
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                // 左侧语音/键盘切换按钮
                 _buildLeftButton(),
-                Expanded(child: _buildInputButton()),
+                
+                // 中间输入区域（文本输入框或语音按钮）
+                Expanded(
+                  child: Container(
+                    constraints: BoxConstraints(
+                      minHeight: 28,
+                      maxHeight: (widget.maxLines ?? 6) * 24.0 + 24,
+                    ),
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: ThemeManager.instance.getThemeColor('surface').withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: Colors.transparent,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Stack(
+                      children: [
+                        SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _buildInputButton(),
+                            ],
+                          ),
+                        ),
+                        // @提及列表
+                        Positioned(
+                          bottom: -180, // 将列表移到输入框外部，避免占用内部空间
+                          left: 0,
+                          right: 0,
+                          child: _buildMentionList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                
+                // 表情按钮
                 _buildEmojiButton(),
-                ValueListenableBuilder<TextEditingValue>(
-                  valueListenable: _textController,
-                  builder: (context, value, _) {
-                    return value.text.isEmpty
-                        ? _buildExtraButton()
-                        : _buildSendButton();
+                
+                // 发送按钮或附加功能按钮
+                ValueListenableBuilder<bool>(
+                  valueListenable: _sendButtonVisible,
+                  builder: (context, sendButtonVisible, _) {
+                    return sendButtonVisible
+                        ? _buildSendButton()
+                        : _buildExtraButton();
                   },
                 ),
               ],
             ),
-            // 分隔线，仅在emoji/扩展面板展开时显示
-            ValueListenableBuilder<InputType>(
-              valueListenable: _inputType,
-              builder: (context, inputType, _) {
-                return inputType == InputType.emoji ||
-                        inputType == InputType.extra
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: const HorizontalLine(),
-                      )
-                    : const SizedBox.shrink();
-              },
-            ),
-            _buildBottomContainer(child: _buildBottomItems()),
-          ],
-        ),
+          ),
+          
+          // 底部面板（表情选择器或扩展功能）
+          _buildBottomContainer(
+            child: _buildBottomItems(),
+            height: panelHeight,
+          ),
+          
+          // 快捷回复面板
+          _buildQuickRepliesPanel(),
+        ],
       ),
     );
   }

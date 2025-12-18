@@ -13,7 +13,13 @@ class PassportState {
   RxString nickname = ''.obs;
   RxString mobile = ''.obs;
 
-  // 手机号码格式验证
+  // accountType: 'mobile' | 'email'
+  RxString accountType = 'mobile'.obs;
+
+  // 注册使用的 email 字段（用于邮箱注册）
+  RxString email = ''.obs;
+
+  // 手机号码格式验证（也用于 email 注册时表示账号格式验证通过）
   RxBool mobileValidated = false.obs;
 
   // 注册页面“同意并继续”按钮是否高亮

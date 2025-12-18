@@ -6,6 +6,7 @@ import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:imboy/page/user_tag/contact_tag_detail/contact_tag_detail_view.dart';
 import 'package:imboy/page/user_tag/user_tag_save/user_tag_save_view.dart';
@@ -67,10 +68,7 @@ class ContactTagListPage extends StatelessWidget {
             backgroundColor: Colors.black87,
             onPressed: (_) async {
               Get.bottomSheet(
-                UserTagSavePage(
-                  tag: obj,
-                  scene: 'friend',
-                ),
+                UserTagSavePage(tag: obj, scene: 'friend'),
                 backgroundColor: Get.isDarkMode
                     ? const Color.fromRGBO(80, 80, 80, 1)
                     : const Color.fromRGBO(240, 240, 240, 1),
@@ -96,8 +94,8 @@ class ContactTagListPage extends StatelessWidget {
                           child: Text(
                             'delete_tag_tips'.tr,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 16.0,
+                            style: Get.context!.textStyle(
+                              FontSizeType.normal,
                               fontWeight: FontWeight.normal,
                             ),
                           ),
@@ -123,9 +121,9 @@ class ContactTagListPage extends StatelessWidget {
                           child: Text(
                             'button_delete'.tr,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: Get.context!.textStyle(
+                              FontSizeType.normal,
                               color: Colors.red,
-                              fontSize: 16.0,
                               fontWeight: FontWeight.normal,
                             ),
                           ),
@@ -138,13 +136,13 @@ class ContactTagListPage extends StatelessWidget {
                           child: Text(
                             'button_cancel'.tr,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 16.0,
+                            style: Get.context!.textStyle(
+                              FontSizeType.normal,
                               fontWeight: FontWeight.normal,
                             ),
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -179,14 +177,8 @@ class ContactTagListPage extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text(
-                    obj.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    ' (${obj.refererTime})',
-                  ),
+                  Text(obj.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text(' (${obj.refererTime})'),
                 ],
               ),
               Row(
@@ -197,14 +189,14 @@ class ContactTagListPage extends StatelessWidget {
                       obj.subtitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14.0,
-                      ),
+                      // style:  TextStyle(
+                      //   fontSize: AppTextSize.small,
+                      // ),
                     ),
                   ),
                 ],
               ),
-              const HorizontalLine(height: 1.0)
+              const HorizontalLine(height: 1.0),
             ],
           ),
         ),
@@ -254,62 +246,67 @@ class ContactTagListPage extends StatelessWidget {
             state.page += 1;
           }
         },
-        child: Obx(() => Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 2, 8, 2),
-                  child: searchBar(
-                    context,
-                    leading: state.searchLeading?.value ??
-                        InkWell(
-                          onTap: () {
-                            logic.doSearch(state.kwd.value);
-                          },
-                          child: const Icon(Icons.search),
-                        ),
-                    trailing: state.kwd.isEmpty
-                        ? null
-                        : [
-                            InkWell(
-                              onTap: () {
-                                state.kwd.value = '';
-                                state.searchController.text = '';
-                                logic.doSearch(state.kwd.value);
-                              },
-                              child: const Icon(Icons.close),
-                            )
-                          ],
-                    controller: state.searchController,
-                    searchLabel: 'search'.tr,
-                    hintText: 'search'.tr,
-                    onChanged: ((query) async {
-                      state.kwd.value = query;
-                      debugPrint("contact_tag_view_onChanged ${query.toString()}");
-                      await logic.doSearch(query);
-                    }),
+        child: Obx(
+          () => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 2, 8, 2),
+                child: searchBar(
+                  context,
+                  leading:
+                      state.searchLeading?.value ??
+                      InkWell(
+                        onTap: () {
+                          logic.doSearch(state.kwd.value);
+                        },
+                        child: const Icon(Icons.search),
+                      ),
+                  trailing: state.kwd.isEmpty
+                      ? null
+                      : [
+                          InkWell(
+                            onTap: () {
+                              state.kwd.value = '';
+                              state.searchController.text = '';
+                              logic.doSearch(state.kwd.value);
+                            },
+                            child: const Icon(Icons.close),
+                          ),
+                        ],
+                  controller: state.searchController,
+                  searchLabel: 'search'.tr,
+                  hintText: 'search'.tr,
+                  onChanged: ((query) async {
+                    state.kwd.value = query;
+                    debugPrint(
+                      "contact_tag_view_onChanged ${query.toString()}",
+                    );
+                    await logic.doSearch(query);
+                  }),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: SlidableAutoCloseBehavior(
+                    child: state.items.isEmpty
+                        ? NoDataView(text: 'no_data'.tr)
+                        : ListView.builder(
+                            controller: controller,
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            itemCount: state.items.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              UserTagModel obj = state.items[index];
+                              return buildItem(index, obj);
+                            },
+                          ),
                   ),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: SlidableAutoCloseBehavior(
-                      child: state.items.isEmpty
-                          ? NoDataView(text: 'no_data'.tr)
-                          : ListView.builder(
-                              controller: controller,
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              itemCount: state.items.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                UserTagModel obj = state.items[index];
-                                return buildItem(index, obj);
-                              },
-                            ),
-                    ),
-                  ),
-                ),
-              ],
-            )),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

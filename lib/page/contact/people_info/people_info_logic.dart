@@ -27,6 +27,9 @@ class PeopleInfoLogic extends GetxController {
       state.isFriend.value = ct.isFriend;
       state.isFrom.value = ct.isFrom;
       state.tag.value = ct.tag;
+      // 在线状态信息
+      state.status.value = ct.status ?? '';
+      state.lastSeenAt.value = ct.lastSeenAt ?? 0;
     }
     if (state.isFriend.value != 1) {
       if (scene == 'qrcode') {

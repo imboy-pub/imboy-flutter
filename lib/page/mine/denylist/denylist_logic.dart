@@ -14,6 +14,18 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:lpinyin/lpinyin.dart';
 
 class DenylistLogic extends GetxController {
+  /// 控制器就绪回调：初始化加载黑名单列表
+  /// 用途：避免在 build 中触发异步加载导致重建与手势冲突
+  /// 返回：无
+  @override
+  void onReady() {
+    super.onReady();
+    // 加载首页数据
+    DenylistLogic.page(page: 1, size: 1000).then((list) {
+      handleList(list);
+    });
+  }
+
   FocusNode searchF = FocusNode();
   TextEditingController searchC = TextEditingController();
 
@@ -83,25 +95,37 @@ class DenylistLogic extends GetxController {
     return count > 0 ? true : false;
   }
 
+  /// 移除黑名单
+  /// 用途：从黑名单中移除指定用户，并恢复联系人与会话的可见性。
+  /// 参数：
+  /// - peerId: 对端用户ID
+  /// 返回：
+  /// - bool：操作是否成功
+  /// 异常：
+  /// - 捕获内部异常并返回 false
   Future<bool> removeDenylist(String peerId) async {
-    DenylistProvider api = DenylistProvider();
-    UserDenylistRepo repo = UserDenylistRepo();
-    bool res = await api.remove(deniedUserUid: peerId);
-    if (res) {
-      await repo.deleteForUid(peerId);
-      // 显示联系人
-      await ContactRepo().update({
-        ContactRepo.userId: UserRepoLocal.to.currentUid,
-        ContactRepo.peerId: peerId,
-        ContactRepo.isFriend: 1,
-      });
-      // 显示会话
-      await ConversationRepo().updateByPeerId('C2C', peerId, {
-        ConversationRepo.isShow: 1,
-      });
-      await refreshData();
+    try {
+      DenylistProvider api = DenylistProvider();
+      UserDenylistRepo repo = UserDenylistRepo();
+      bool res = await api.remove(deniedUserUid: peerId);
+      if (res) {
+        await repo.deleteForUid(peerId);
+        // 显示联系人
+        await ContactRepo().update({
+          ContactRepo.userId: UserRepoLocal.to.currentUid,
+          ContactRepo.peerId: peerId,
+          ContactRepo.isFriend: 1,
+        });
+        // 显示会话
+        await ConversationRepo().updateByPeerId('C2C', peerId, {
+          ConversationRepo.isShow: 1,
+        });
+        await refreshData();
+      }
+      return res;
+    } catch (e) {
+      return false;
     }
-    return res;
   }
 
   Future<bool> addDenylist(DenylistModel model) async {

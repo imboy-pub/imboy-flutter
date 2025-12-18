@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:imboy/theme/theme_manager.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/avatar.dart';
-
-import '../../config/theme.dart' show mainSpace;
-import '../../config/theme.dart' show mainLineWidth;
 
 // ignore: must_be_immutable
 class ContactCard extends StatelessWidget {
@@ -39,9 +37,9 @@ class ContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle labelStyle = const TextStyle(
-      fontSize: 14,
-      // color: AppColors.MainTextColor,
+    TextStyle labelStyle = ThemeManager.instance.getTextStyle(
+      FontSizeType.small,
+      color: ThemeManager.instance.getThemeColor('textSecondary'),
     );
 
     String? title = (remark == null || remark == 'null') ? '' : remark;
@@ -50,37 +48,39 @@ class ContactCard extends StatelessWidget {
       nickname = '';
     }
     List<Widget> items = <Widget>[
-      Row(children:[
-        Expanded(
+      Row(
+        children: [
+          Expanded(
             child: Text(
-          title ?? '',
-          style: const TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.w600,
+              title ?? '',
+
+              maxLines: 6,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-          maxLines: 6,
-          overflow: TextOverflow.ellipsis,
-        )),
-        const SizedBox(width: mainSpace / 3),
-        genderIcon(gender),
-      ])
+          const SizedBox(width: 3.33),
+          genderIcon(gender),
+        ],
+      ),
     ];
     if (strNoEmpty(nickname)) {
-      items.add(Padding(
-        padding: const EdgeInsets.only(top: 3.0),
-        child: Text("${'nickname'.tr}：$nickname", style: labelStyle),
-      ));
+      items.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 3.0),
+          child: Text("${'nickname'.tr}：$nickname", style: labelStyle),
+        ),
+      );
     }
     if (strNoEmpty(account)) {
-      items.add(Padding(
-        padding: const EdgeInsets.only(top: 3.0),
-        child: Text("${'account'.tr}：$account", style: labelStyle),
-      ));
+      items.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 3.0),
+          child: Text("${'account'.tr}：$account", style: labelStyle),
+        ),
+      );
     }
     if (strNoEmpty(region) && region != 'null') {
-      items.add(
-        Text("${'region'.tr}：$region", style: labelStyle),
-      );
+      items.add(Text("${'region'.tr}：$region", style: labelStyle));
     }
     return Container(
       decoration: BoxDecoration(
@@ -88,32 +88,23 @@ class ContactCard extends StatelessWidget {
         border: isBorder!
             ? Border(
                 bottom: BorderSide(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: lineWidth ?? mainLineWidth,
+                  color: ThemeManager.instance.getThemeColor('primary'),
+                  width: lineWidth ?? ThemeManager.instance.mainLineWidth,
                 ),
               )
             : null,
       ),
       width: Get.width,
-      padding: padding ??
-          const EdgeInsets.only(
-            right: 15.0,
-            left: 15.0,
-            bottom: 20.0,
-          ),
+      padding:
+          padding ??
+          const EdgeInsets.only(right: 15.0, left: 15.0, bottom: 20.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           GestureDetector(
             child: Padding(
-              padding: const EdgeInsets.only(
-                top: 4.0,
-              ),
-              child: Avatar(
-                imgUri: avatar!,
-                width: 55,
-                height: 55,
-              ),
+              padding: const EdgeInsets.only(top: 4.0),
+              child: Avatar(imgUri: avatar!, width: 55, height: 55),
             ),
             onTap: () {
               if (isNetWorkImg(avatar!)) {
@@ -123,7 +114,7 @@ class ContactCard extends StatelessWidget {
               }
             },
           ),
-          const SizedBox(width: mainSpace * 2),
+          const SizedBox(width: 20.0),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

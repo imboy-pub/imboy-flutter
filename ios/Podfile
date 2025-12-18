@@ -1,5 +1,5 @@
 # Uncomment this line to define a global platform for your project
-# platform :ios, '12.0'
+# platform :ios, '13.0'
 platform :ios, '13.0'
 
 # rm -rf Podfile.lock pods .symlink Runner.xcworkspace && flutter clean && flutter pub get && pod install --repo-update
@@ -49,6 +49,14 @@ post_install do |installer|
         end
       end
       # snippet end
+
+      # Fix for audio_waveforms iOS 13.0 concurrency compatibility
+      if target.name == "audio_waveforms"
+        target.build_configurations.each do |build_configuration|
+          build_configuration.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+          build_configuration.build_settings['SWIFT_VERSION'] = '5.0'
+        end
+      end
       target.build_configurations.each do |config|
         # start fix DT_TOOLCHAIN_DIR cannot be used to evaluate LIBRARY_SEARCH_PATHS
         # https://stackoverflow.com/questions/77136958/flutter-or-react-native-xcode-15-error-xcode-dt-toolchain-dir-cannot-be-used

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 class IconTextView extends StatefulWidget {
   // 左侧 图标
@@ -66,10 +67,12 @@ class _IconTextViewState extends State<IconTextView> {
     final List<Widget> rightList = [];
 
     if (widget.leftIcon != null) {
-      leftList.add(Container(
-        padding: const EdgeInsets.only(left: 0, right: 10),
-        child: widget.leftIcon,
-      ));
+      leftList.add(
+        Container(
+          padding: const EdgeInsets.only(left: 0, right: 10),
+          child: widget.leftIcon,
+        ),
+      );
     }
 
     if (widget.leftIconAsset != null) {
@@ -81,9 +84,18 @@ class _IconTextViewState extends State<IconTextView> {
     }
 
     if (widget.leftText != null) {
-      leftList.add(Container(
+      leftList.add(
+        Container(
           padding: const EdgeInsets.only(left: 0),
-          child: Text(widget.leftText!, style: const TextStyle(fontSize: 16))));
+          child: Text(
+            widget.leftText!,
+            style: TextStyle(
+              fontSize: 14.0, // 使用固定字体大小
+              color: Theme.of(context).colorScheme.onSurface, // 使用标准主题
+            ),
+          ),
+        ),
+      );
     }
 
     if (widget.leftTextWidget != null) {
@@ -91,10 +103,15 @@ class _IconTextViewState extends State<IconTextView> {
     }
 
     if (widget.rightText != null) {
-      rightList.add(Text(
-        widget.rightText!,
-        style: const TextStyle(fontSize: 15),
-      ));
+      rightList.add(
+        Text(
+          widget.rightText!,
+          style: TextStyle(
+            fontSize: 16.0, // 使用固定字体大小
+            color: Theme.of(context).colorScheme.onSurfaceVariant, // 使用标准主题
+          ),
+        ),
+      );
     }
 
     if (widget.rightTextWidget != null) {
@@ -114,11 +131,15 @@ class _IconTextViewState extends State<IconTextView> {
     }
 
     if (widget.shotArrow == true) {
-      Widget leftIconAssetWidget = Container(
+      Widget arrowIconWidget = Container(
         padding: const EdgeInsets.only(left: 10, right: 10),
-        child: const Icon(Icons.chevron_right),
+        child: Icon(
+          Icons.chevron_right,
+          color: Theme.of(context).colorScheme.onSurfaceVariant, // 使用标准主题
+          size: 20.0, // 使用固定图标大小
+        ),
       );
-      rightList.add(leftIconAssetWidget);
+      rightList.add(arrowIconWidget);
     }
 
     // ignore: no_leading_underscores_for_local_identifiers
@@ -146,38 +167,45 @@ class _IconTextViewState extends State<IconTextView> {
       onTapUp: onViewClickUp,
       onTapCancel: onViewClickCancel,
       child: Container(
-//          color: isClickDown ? Colors.red : Colors.white,
-          height: widget.height,
-          decoration: widget.decoration ??
-              (BoxDecoration(
-                // color: isClickDown
-                //     ? const Color(0xFFEEEEEE)
-                //     : (Get.isDarkMode
-                //         ? darkInputFillColor
-                //         : lightInputFillColor),
-              )),
-          child: Stack(
-            children: <Widget>[
-              Positioned(
-                left: widget.paddingLeft,
-                top: 0,
-                bottom: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: leftList.toList(),
+        height: widget.height,
+        decoration:
+            widget.decoration ??
+            BoxDecoration(
+              color: isClickDown
+                  ? ThemeManager.instance.getThemeColor('surfaceVariant') // 点击时使用主题变体色
+                  : ThemeManager.instance.getThemeColor('surface'), // 默认使用主题表面色
+              border: Border(
+                bottom: BorderSide(
+                  color: context
+                      .themeColor('outline')
+                      .withValues(alpha: 0.1), // 使用主题边框色
+                  width: 0.5,
                 ),
               ),
-              Positioned(
-                right: 0,
-                top: 0,
-                bottom: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: rightList.toList(),
-                ),
+            ),
+        child: Stack(
+          children: <Widget>[
+            Positioned(
+              left: widget.paddingLeft,
+              top: 0,
+              bottom: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: leftList.toList(),
               ),
-            ],
-          )),
+            ),
+            Positioned(
+              right: 0,
+              top: 0,
+              bottom: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: rightList.toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

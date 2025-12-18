@@ -71,6 +71,10 @@ class API {
   static const friendChangeRemark = '/friend/change_remark';
 
   static const conversationList = '/conversation/mine';
+  // 拉取离线
+  static const msgOffline = '/msg/offline';
+  // 确认离线消息已处理
+  static const msgOfflineAck = '/msg/offline_ack';
 
   static const denylistAdd = '/friend/denylist/add';
   static const denylistRemove = '/friend/denylist/remove';
@@ -93,6 +97,7 @@ class API {
   static const userShow = '/user/show';
   static const turnCredential = '/user/credential';
   static const userUpdate = '/user/update';
+  static const userSetting = '/user/setting';
   static const userChangePassword = '/user/change_password';
   static const userSetPassword = '/user/set_password';
   static const userApplyLogout = '/user/apply_logout';

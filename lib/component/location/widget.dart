@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'dart:typed_data'; // 添加这个导入用于 Uint8List
 import 'package:flutter/services.dart';
-import 'package:amap_flutter_base/amap_flutter_base.dart';
-import 'package:amap_flutter_map/amap_flutter_map.dart';
+import 'package:amap_flutter_base_plus/amap_flutter_base_plus.dart';
+import 'package:amap_flutter_map_plus/amap_flutter_map_plus.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -33,8 +32,10 @@ class MapLocationPicker extends StatefulWidget {
   bool isMapImage = false; //是否要返回地图截图
   //LatLng(26.017794, 119.41755599999999)
   MapLocationPicker({super.key, this.arguments}) {
-    latLng = LatLng((arguments as Map)["lat"] as double,
-        (arguments as Map)["lng"] as double);
+    latLng = LatLng(
+      (arguments as Map)["lat"] as double,
+      (arguments as Map)["lng"] as double,
+    );
     citycode = (arguments as Map)["citycode"];
     // citycode = "350100";
     // latLng = LatLng(26.017794, 119.41755599999999);
@@ -142,283 +143,292 @@ class _MapLocationPickerState extends State<MapLocationPicker>
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: SlidingUpPanel(
-          controller: _panelController,
-          parallaxEnabled: true,
-          parallaxOffset: 0.5,
-          minHeight: minPanelHeight,
-          maxHeight: maxPanelHeight,
-          borderRadius: BorderRadius.circular(8),
-          onPanelSlide: (double pos) => setState(() {
-            _fabHeightSend =
-                pos * (maxPanelHeight - minPanelHeight) * .5 + 30;
-            _fabHeight = pos * (maxPanelHeight - minPanelHeight) * .5 + 16;
-          }),
-          body: Column( // 替换 n.Column
-            children: [
-              Flexible(
-                child: Stack( // 替换 n.Stack
-                  children: [
-                    amap,
-                    Center(
-                        child: AnimatedBuilder(
-                          animation: _tween,
-                          builder: (context, child) {
-                            return Transform.translate(
-                              offset: Offset(
-                                _tween.value.dx,
-                                _tween.value.dy - _iconSize / 2,
-                              ),
-                              child: child,
-                            );
-                          },
-                          child: const Icon(
-                            Icons.location_on,
-                            size: 40,
-                            color: Colors.green,
+        controller: _panelController,
+        parallaxEnabled: true,
+        parallaxOffset: 0.5,
+        minHeight: minPanelHeight,
+        maxHeight: maxPanelHeight,
+        borderRadius: BorderRadius.circular(8),
+        onPanelSlide: (double pos) => setState(() {
+          _fabHeightSend = pos * (maxPanelHeight - minPanelHeight) * .5 + 30;
+          _fabHeight = pos * (maxPanelHeight - minPanelHeight) * .5 + 16;
+        }),
+        body: Column(
+          // 替换 n.Column
+          children: [
+            Flexible(
+              child: Stack(
+                // 替换 n.Stack
+                children: [
+                  amap,
+                  Center(
+                    child: AnimatedBuilder(
+                      animation: _tween,
+                      builder: (context, child) {
+                        return Transform.translate(
+                          offset: Offset(
+                            _tween.value.dx,
+                            _tween.value.dy - _iconSize / 2,
                           ),
-                        )),
-                    Positioned(
-                      right: 16.0,
-                      bottom: _fabHeight,
-                      child: FloatingActionButton(
-                        onPressed: _showMyLocation,
-                        // backgroundColor: Colors.white,
-                        child: StreamBuilder<bool>(
-                          stream: _onMyLocation.stream,
-                          initialData: true,
-                          builder: (context, snapshot) {
-                            return Icon(
-                              Icons.gps_fixed,
-                              size: 32,
-                              color: snapshot.data!
-                                  ? Theme.of(context).primaryColor
-                                  : Colors.black54,
-                            );
-                          },
-                        ),
+                          child: child,
+                        );
+                      },
+                      child: Icon(
+                        Icons.location_on,
+                        size: 40,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                    Positioned(
-                      left: 16.0,
-                      top: _fabHeightSend,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.of(context).pop();
+                  ),
+                  Positioned(
+                    right: 16.0,
+                    bottom: _fabHeight,
+                    child: FloatingActionButton(
+                      onPressed: _showMyLocation,
+                      // backgroundColor: Colors.white,
+                      child: StreamBuilder<bool>(
+                        stream: _onMyLocation.stream,
+                        initialData: true,
+                        builder: (context, snapshot) {
+                          return Icon(
+                            Icons.gps_fixed,
+                            size: 32,
+                            color: snapshot.data!
+                                ? Theme.of(context).primaryColor
+                                : Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.54),
+                          );
                         },
-                        child: const Icon(
-                          Icons.arrow_back_ios,
-                          size: 40,
-                          color: Colors.green,
-                        ),
                       ),
                     ),
-                    Positioned(
-                        right: 16.0,
-                        top: _fabHeightSend,
-                        child: SizedBox(
-                          width: 60,
-                          child: TextButton(
-                            style: ButtonStyle(
-                              backgroundColor: WidgetStateProperty.all<Color>(
-                                Colors.green,
-                              ),
-                            ),
-                            child: Text(
-                              'button_send'.tr,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            onPressed: () async {
-                              Map<String, dynamic>? map;
-                              if (_sendMsg != null) {
-                                map = {
-                                  "id": _sendMsg!.id,
-                                  "image": null,
-                                  "address": _sendMsg!.address,
-                                  "title": _sendMsg!.name,
-                                  "latitude": _sendMsg!.latLng.latitude,
-                                  "longitude": _sendMsg!.latLng.longitude,
-                                  // "provinceCode": _sendMsg!.pcode,
-                                  "adCode": _sendMsg!.adCode
-                                };
-                              }
-                              debugPrint("sendLocation ${map.toString()}");
-                              if (widget.isMapImage && _sendMsg != null) {
-                                final Marker marker = Marker(
-                                  anchor: const Offset(0.5, 1),
-                                  position: LatLng(
-                                    _sendMsg!.latLng.latitude,
-                                    _sendMsg!.latLng.longitude,
-                                  ),
-                                  // icon: BitmapDescriptor.fromIconPath(
-                                  //     'assets/images/location_on.png'),
-                                  //使用默认hue的方式设置Marker的图标
-                                );
-                                setState(() {
-                                  //将新的marker添加到map里
-                                  _markers[marker.id] = marker;
-                                });
-                                Future.delayed(
-                                    const Duration(milliseconds: 500), () {
-                                  takeSnapshotReturn(map!);
-                                });
-                              }
-                            },
+                  ),
+                  Positioned(
+                    left: 16.0,
+                    top: _fabHeightSend,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Icon(
+                        Icons.arrow_back_ios,
+                        size: 40,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    right: 16.0,
+                    top: _fabHeightSend,
+                    child: SizedBox(
+                      width: 60,
+                      child: TextButton(
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all<Color>(
+                            Theme.of(context).colorScheme.primary,
                           ),
-                        ))
-                  ],
-                ),
+                        ),
+                        child: Text(
+                          'button_send'.tr,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        onPressed: () async {
+                          Map<String, dynamic>? map;
+                          if (_sendMsg != null) {
+                            map = {
+                              "id": _sendMsg!.id,
+                              "image": null,
+                              "address": _sendMsg!.address,
+                              "title": _sendMsg!.name,
+                              "latitude": _sendMsg!.latLng.latitude,
+                              "longitude": _sendMsg!.latLng.longitude,
+                              // "provinceCode": _sendMsg!.pcode,
+                              "adCode": _sendMsg!.adCode,
+                            };
+                          }
+                          debugPrint("sendLocation ${map.toString()}");
+                          if (widget.isMapImage && _sendMsg != null) {
+                            final Marker marker = Marker(
+                              anchor: const Offset(0.5, 1),
+                              position: LatLng(
+                                _sendMsg!.latLng.latitude,
+                                _sendMsg!.latLng.longitude,
+                              ),
+                              // icon: BitmapDescriptor.fromIconPath(
+                              //     'assets/images/location_on.png'),
+                              //使用默认hue的方式设置Marker的图标
+                            );
+                            setState(() {
+                              //将新的marker添加到map里
+                              _markers[marker.id] = marker;
+                            });
+                            Future.delayed(
+                              const Duration(milliseconds: 500),
+                              () {
+                                takeSnapshotReturn(map!);
+                              },
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              // 用来抵消panel的最小高度
-              SizedBox(height: minPanelHeight),
-            ],
-          ),
-          panelBuilder: (scrollController) {
-            return StreamBuilder<List<AMapPosition>>(
-              stream: poiStream.stream,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final data = snapshot.data;
-                  return EasyRefresh(
-                    footer: const MaterialFooter(),
-                    onLoad: _handleLoadMore,
-                    child: Column(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(
-                            left: 10,
-                            right: 10,
-                            top: 10,
+            ),
+            // 用来抵消panel的最小高度
+            SizedBox(height: minPanelHeight),
+          ],
+        ),
+        panelBuilder: (scrollController) {
+          return StreamBuilder<List<AMapPosition>>(
+            stream: poiStream.stream,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final data = snapshot.data;
+                return EasyRefresh(
+                  footer: const MaterialFooter(),
+                  onLoad: _handleLoadMore,
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(
+                          left: 10,
+                          right: 10,
+                          top: 10,
+                        ),
+                        alignment: Alignment.center,
+                        height: 39,
+                        decoration: BoxDecoration(
+                          color: Colors.black12.withAlpha(10),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(15.0),
                           ),
-                          alignment: Alignment.center,
-                          height: 39,
-                          decoration: BoxDecoration(
-                            color: Colors.black12.withAlpha(10),
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(15.0),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Flexible(
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                width: _animate ? widthMax * .8 : widthMax,
+                                decoration: BoxDecoration(
+                                  borderRadius:
+                                      widget.searchBarStyle.borderRadius,
+                                  //color: widget.searchBarStyle.backgroundColor,
+                                  color: Theme.of(context).colorScheme.surface,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 10),
+                                  child: Theme(
+                                    data: Theme.of(
+                                      context,
+                                    ).copyWith(primaryColor: Colors.black),
+                                    child: TextField(
+                                      focusNode: focusNode,
+                                      keyboardType: TextInputType.text,
+                                      controller: _searchQueryController,
+                                      onChanged: _onTextChanged,
+                                      style: const TextStyle(
+                                        color: Colors.black87,
+                                        fontSize: 15,
+                                      ),
+                                      decoration: InputDecoration(
+                                        icon: const Icon(
+                                          Icons.search,
+                                          size: 20,
+                                        ),
+                                        border: InputBorder.none,
+                                        // 搜索地点
+                                        hintText: 'search_location'.tr,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              Flexible(
+                            GestureDetector(
+                              onTap: _cancel,
+                              child: AnimatedOpacity(
+                                opacity: _animate ? 1.0 : 0,
+                                curve: Curves.easeIn,
+                                duration: Duration(
+                                  milliseconds: _animate ? 1000 : 0,
+                                ),
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 200),
-                                  width: _animate ? widthMax * .8 : widthMax,
-                                  decoration: BoxDecoration(
-                                      borderRadius:
-                                      widget.searchBarStyle.borderRadius,
-                                      //color: widget.searchBarStyle.backgroundColor,
-                                      color: Colors.grey.shade200),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 10),
-                                    child: Theme(
-                                      data: Theme.of(context).copyWith(
-                                        primaryColor: Colors.black,
-                                      ),
-                                      child: TextField(
-                                        focusNode: focusNode,
-                                        keyboardType: TextInputType.text,
-                                        controller: _searchQueryController,
-                                        onChanged: _onTextChanged,
-                                        style: const TextStyle(
-                                          color: Colors.black87,
-                                          fontSize: 15,
-                                        ),
-                                        decoration: InputDecoration(
-                                          icon: const Icon(
-                                            Icons.search,
-                                            size: 20,
-                                          ),
-                                          border: InputBorder.none,
-                                          // 搜索地点
-                                          hintText: 'search_location'.tr,
-                                        ),
-                                      ),
+                                  width: _animate
+                                      ? MediaQuery.of(context).size.width * .2
+                                      : 0,
+                                  child: Container(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.surface,
+                                    child: Center(
+                                      child: Text('button_cancel'.tr),
                                     ),
                                   ),
                                 ),
                               ),
-                              GestureDetector(
-                                onTap: _cancel,
-                                child: AnimatedOpacity(
-                                  opacity: _animate ? 1.0 : 0,
-                                  curve: Curves.easeIn,
-                                  duration: Duration(
-                                    milliseconds: _animate ? 1000 : 0,
-                                  ),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    width: _animate
-                                        ? MediaQuery.of(context).size.width * .2
-                                        : 0,
-                                    child: Container(
-                                      color: Colors.white,
-                                      child: Center(
-                                        child: Text(
-                                          'button_cancel'.tr,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        Expanded(
-                          child: ListView.builder(
-                            padding: EdgeInsets.zero,
-                            controller: scrollController,
-                            shrinkWrap: true,
-                            itemCount: data!.length,
-                            itemBuilder: (context, index) {
-                              String distance = data[index].distance;
-                              if (distance.isNotEmpty) {
-                                distance = "${distance}m | ";
-                              }
-                              return GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _seLindex = index;
-                                    _sendMsg = data[index];
-                                    _changeCameraPosition(data[index].latLng);
-                                  });
-                                },
-                                child: ListTile(
-                                  title: Text(data[index].name),
-                                  subtitle:
-                                  Text("$distance${data[index].address}"),
-                                  trailing: _seLindex == index
-                                      ? Icon(
-                                    Icons.check,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary,
-                                  )
-                                      : const SizedBox.shrink(),
-                                ),
-                              );
-                            },
-                          ),
-                        )
-                      ],
-                    ),
-                  );
-                } else {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(
-                        Theme.of(context).colorScheme.onPrimary,
                       ),
+                      Expanded(
+                        child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          controller: scrollController,
+                          shrinkWrap: true,
+                          itemCount: data!.length,
+                          itemBuilder: (context, index) {
+                            String distance = data[index].distance;
+                            if (distance.isNotEmpty) {
+                              distance = "${distance}m | ";
+                            }
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _seLindex = index;
+                                  _sendMsg = data[index];
+                                  _changeCameraPosition(data[index].latLng);
+                                });
+                              },
+                              child: ListTile(
+                                title: Text(data[index].name),
+                                subtitle: Text(
+                                  "$distance${data[index].address}",
+                                ),
+                                trailing: _seLindex == index
+                                    ? Icon(
+                                        Icons.check,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onPrimary,
+                                      )
+                                    : const SizedBox.shrink(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                return Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation(
+                      Theme.of(context).colorScheme.onPrimary,
                     ),
-                  );
-                }
-              },
-            );
-          }),
+                  ),
+                );
+              }
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -533,18 +543,20 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       // e['location'] "116.310905,39.992806",
       // longitude 经度坐标 -180,180
       // latitude '纬度坐标 -90,90
-      poiInfoList.add(AMapPosition(
-        id: e['id'],
-        name: e['name'],
-        latLng: LatLng(
-          double.parse(e['location'].toString().split(",")[1]), // latitude
-          double.parse(e['location'].toString().split(",")[0]), // longitude
+      poiInfoList.add(
+        AMapPosition(
+          id: e['id'],
+          name: e['name'],
+          latLng: LatLng(
+            double.parse(e['location'].toString().split(",")[1]), // latitude
+            double.parse(e['location'].toString().split(",")[0]), // longitude
+          ),
+          address: e['address'] ?? '',
+          // pcode: e['pcode'],
+          adCode: e['adcode'] ?? '',
+          distance: e['distance'] ?? '',
         ),
-        address: e['address'] ?? '',
-        // pcode: e['pcode'],
-        adCode: e['adcode'] ?? '',
-        distance: e['distance'] ?? '',
-      ));
+      );
     }
     if (!more) {
       if (poiInfoList.isNotEmpty) {
@@ -581,18 +593,20 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       // e['location'] "116.310905,39.992806",
       // longitude 经度坐标 -180,180
       // latitude '纬度坐标 -90,90
-      poiInfoList.add(AMapPosition(
-        id: e['id'],
-        name: e['name'],
-        latLng: LatLng(
-          double.parse(e['location'].toString().split(",")[1]), // latitude
-          double.parse(e['location'].toString().split(",")[0]), // longitude
+      poiInfoList.add(
+        AMapPosition(
+          id: e['id'],
+          name: e['name'],
+          latLng: LatLng(
+            double.parse(e['location'].toString().split(",")[1]), // latitude
+            double.parse(e['location'].toString().split(",")[0]), // longitude
+          ),
+          address: e['address'] ?? '',
+          // pcode: e['pcode'],
+          adCode: e['adcode'] ?? '',
+          distance: e['distance'] ?? '',
         ),
-        address: e['address'] ?? '',
-        // pcode: e['pcode'],
-        adCode: e['adcode'] ?? '',
-        distance: e['distance'] ?? '',
-      ));
+      );
     }
     if (!more) {
       page = 1;
@@ -635,15 +649,10 @@ mixin _AnimationMixin on SingleTickerProviderStateMixin<MapLocationPicker> {
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _tween = Tween(
-      begin: const Offset(0, 0),
-      end: const Offset(0, -15),
-    ).animate(
-      CurvedAnimation(
-        parent: _jumpController,
-        curve: Curves.easeInOut,
-      ),
-    );
+    _tween = Tween(begin: const Offset(0, 0), end: const Offset(0, -15))
+        .animate(
+          CurvedAnimation(parent: _jumpController, curve: Curves.easeInOut),
+        );
   }
 
   @override

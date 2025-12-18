@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/widget/user_online_status_widget.dart';
 
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
@@ -263,66 +264,134 @@ class ContactLogic extends GetxController {
       avatar = dynamicAvatar(model.avatar);
     }
     // debugPrint("getChatItem ${model.toJson().toString()}");
+    
+    // 判断是否为特殊联系人（功能入口）
+    bool isSpecialContact = model.iconData != null;
+    
     return Container(
       padding: const EdgeInsets.only(top: 10, left: 10.0, bottom: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 2),
-            child: model.iconData == null
-                ? Avatar(
-                    imgUri: model.avatar,
-                    width: 49,
-                    height: 49,
-                  )
-                : Container(
-                    width: 49,
-                    height: 49,
+          // 头像部分
+          Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 2),
+                child: model.iconData == null
+                    ? Avatar(
+                        imgUri: model.avatar,
+                        width: 49,
+                        height: 49,
+                      )
+                    : Container(
+                        width: 49,
+                        height: 49,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(12.0), // 增加圆角
+                          color: model.bgColor ?? defHeaderBgColor,
+                          image: avatar,
+                        ),
+                        child: model.iconData,
+                      ),
+              ),
+              // 在线状态指示器（仅对真实联系人显示）
+              if (!isSpecialContact)
+                Positioned(
+                  bottom: 2,
+                  right: 2,
+                  child: Container(
+                    width: 12,
+                    height: 12,
                     decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(4.0),
-                      color: model.bgColor ?? defHeaderBgColor,
-                      image: avatar,
+                      color: _getOnlineStatusColor(model),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 2,
+                      ),
                     ),
-                    child: model.iconData,
                   ),
+                ),
+            ],
           ),
-        Container(
-          margin: const EdgeInsets.only(left: 8),
-          padding: const EdgeInsets.only(
-            left: 0,
-            right: 0,
-            top: 10.0,
-            bottom: 10.0,
-          ),
-          width: Get.width - 78,
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
-                width: 0.25,
+          // 信息部分
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.only(left: 8),
+              padding: const EdgeInsets.only(
+                left: 0,
+                right: 0,
+                top: 10.0,
+                bottom: 10.0,
+              ),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2), // 参考会话页面的下划线样式
+                    width: 0.25,
+                  ),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 姓名
+                  Text(
+                    model.title,
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.normal,
+                      color: Theme.of(context).colorScheme.onSurface, // 使用主题文字色
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  // 在线状态（仅对真实联系人显示）
+                  if (!isSpecialContact)
+                    const SizedBox(height: 4),
+                  if (!isSpecialContact)
+                    UserOnlineStatusWidget(
+                      isOnline: model.status == 'online',
+                      lastSeenTimestamp: model.lastSeenAt,
+                      hideOnlineStatus: false,
+                      textStyle: TextStyle(
+                        fontSize: 12.0,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                      indicatorSize: 6,
+                    ),
+                ],
               ),
             ),
           ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  model.title,
-                  style: const TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              )
-            ],
-          ),
-        )
-      ],
-    ));
+        ],
+      ));
+  }
+
+  // 获取在线状态颜色
+  Color _getOnlineStatusColor(ContactModel model) {
+    if (model.status == 'online') {
+      return Colors.green;
+    } else if (model.lastSeenAt != null) {
+      // 如果有最后在线时间，根据时间长短返回不同颜色
+      final lastSeen = DateTime.fromMillisecondsSinceEpoch(model.lastSeenAt!);
+      final now = DateTime.now();
+      final difference = now.difference(lastSeen);
+      
+      if (difference.inHours <= 1) {
+        return Colors.orange; // 1小时内
+      } else if (difference.inDays <= 1) {
+        return Colors.blue; // 1天内
+      } else if (difference.inDays <= 7) {
+        return Colors.purple; // 1周内
+      } else {
+        return Colors.grey; // 超过1周
+      }
+    } else {
+      return Colors.grey.withValues(alpha: 0.5); // 无在线信息
+    }
   }
 
   Widget getSusItem(BuildContext context, String tag, {double susHeight = 24}) {

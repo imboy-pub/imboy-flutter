@@ -1,134 +1,96 @@
-import 'dart:io' show ContentType, HttpHeaders;
+import 'dart:io';
 
-import 'package:clock/clock.dart';
-import 'package:flutter_cache_manager/file.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:http/http.dart' as http;
-import 'package:imboy/component/helper/string.dart';
+import 'package:cross_cache/cross_cache.dart';
+import 'package:dio/dio.dart';
 import 'package:imboy/service/assets.dart';
+import 'package:path_provider/path_provider.dart';
 
-import 'mime_converter.dart';
-
-const stalePeriod = Duration(days: 30);
-
-class IMBoyCacheManager extends CacheManager {
-  static const key = 'imboy_cache_key';
-
+class IMBoyCacheManager {
   static final IMBoyCacheManager _instance = IMBoyCacheManager._();
+
+  final CrossCache _crossCache;
 
   factory IMBoyCacheManager() {
     return _instance;
   }
 
-  @override
-  Future<File> getSingleFile(
-    String url, {
-    String? key,
-    String? ext,
-    Map<String, String>? headers,
-  }) async {
-    Uri u = AssetsService.viewUrl(url);
-    key ??= "${u.scheme}://${u.host}:${u.port}${u.path}";
-
-    final cacheFile = await getFileFromCache(key);
-    if (cacheFile != null && cacheFile.validTill.isAfter(DateTime.now())) {
-      return cacheFile.file;
-    }
-    return (await downloadFile(u.toString(), key: key, authHeaders: headers))
-        .file;
-  }
-
   IMBoyCacheManager._()
-      : super(
-          Config(
-            key,
-            stalePeriod: stalePeriod,
-            maxNrOfCacheObjects: 20,
-            repo: JsonCacheInfoRepository(databaseName: key),
-            // fileSystem: IOFileSystem(key),
-            fileService: IMBoyHttpFileService(),
+      : _crossCache = CrossCache(
+          dio: Dio(
+            BaseOptions(
+              connectTimeout: const Duration(seconds: 30),
+              receiveTimeout: const Duration(seconds: 30),
+              sendTimeout: const Duration(seconds: 30),
+            ),
           ),
         );
-}
 
-class IMBoyHttpFileService extends FileService {
-  final http.Client _httpClient;
-
-  IMBoyHttpFileService({http.Client? httpClient})
-      : _httpClient = httpClient ?? http.Client();
-
-  @override
-  Future<FileServiceResponse> get(String url,
-      {Map<String, String>? headers}) async {
-    final req = http.Request('GET', Uri.parse(url));
-    if (headers != null) {
-      req.headers.addAll(headers);
+  Future<File> getSingleFile(
+    String url, {
+    Map<String, String>? headers,
+  }) async {
+    final rawUri = Uri.parse(url);
+    final cacheKey =
+        '${rawUri.scheme}://${rawUri.host}:${rawUri.port}${rawUri.path}';
+    final viewUri = AssetsService.viewUrl(url);
+    List<int> bytes;
+    try {
+      bytes = await _crossCache.get(cacheKey);
+    } catch (_) {
+      final downloaded = await _crossCache.downloadAndSave(
+        viewUri.toString(),
+        headers: headers,
+      );
+      await _crossCache.set(cacheKey, downloaded);
+      await _crossCache.delete(viewUri.toString());
+      bytes = downloaded;
     }
-    String ext = StringHelper.ext(url);
-    final httpResponse = await _httpClient.send(req);
-    return IMBoyHttpGetResponse(httpResponse, ext: ext);
-  }
-}
 
-/// Basic implementation of a [FileServiceResponse] for http requests.
-class IMBoyHttpGetResponse implements FileServiceResponse {
-  IMBoyHttpGetResponse(this._response, {this.ext});
+    final tempDir = await getTemporaryDirectory();
+    final directory = Directory('${tempDir.path}/imboy_cache');
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
 
-  final DateTime _receivedTime = clock.now();
-  final String? ext;
-  final http.StreamedResponse _response;
+    final ext = _getFileExtension(viewUri.path) ?? 'cache';
+    final fileName = 'imboy_cache_${_hashCode(cacheKey)}.$ext';
+    final file = File('${directory.path}/$fileName');
 
-  @override
-  int get statusCode => _response.statusCode;
-
-  String? _header(String name) {
-    return _response.headers[name];
+    await file.writeAsBytes(bytes);
+    return file;
   }
 
-  @override
-  Stream<List<int>> get content => _response.stream;
+  String _hashCode(String input) {
+    return input.hashCode.toString();
+  }
 
-  @override
-  int? get contentLength => _response.contentLength;
-
-  @override
-  DateTime get validTill {
-    // Without a cache-control header we keep the file for a week
-    var ageDuration = stalePeriod;
-    final controlHeader = _header(HttpHeaders.cacheControlHeader);
-    if (controlHeader != null) {
-      final controlSettings = controlHeader.split(',');
-      for (final setting in controlSettings) {
-        final sanitizedSetting = setting.trim().toLowerCase();
-        if (sanitizedSetting == 'no-cache') {
-          ageDuration = const Duration();
-        }
-        if (sanitizedSetting.startsWith('max-age=')) {
-          var validSeconds = int.tryParse(sanitizedSetting.split('=')[1]) ?? 0;
-          if (validSeconds > 0) {
-            ageDuration = Duration(seconds: validSeconds);
-          }
-        }
+  String? _getFileExtension(String path) {
+    try {
+      final uri = Uri.parse(path);
+      final filePath = uri.path;
+      final lastDotIndex = filePath.lastIndexOf('.');
+      if (lastDotIndex != -1 && lastDotIndex < filePath.length - 1) {
+        return filePath.substring(lastDotIndex + 1);
       }
-    }
-
-    return _receivedTime.add(ageDuration);
+    } catch (_) {}
+    return null;
   }
 
-  @override
-  String? get eTag => _header(HttpHeaders.etagHeader);
+  Future<void> emptyCache() async {
+    final cacheDir = await getApplicationCacheDirectory();
+    final crossCacheDir = Directory('${cacheDir.path}/cross_cache');
+    if (await crossCacheDir.exists()) {
+      await crossCacheDir.delete(recursive: true);
+    }
 
-  @override
-  String get fileExtension {
-    if (ext != null) {
-      return ext!;
+    final tempDir = await getTemporaryDirectory();
+    final imboyCacheDir = Directory('${tempDir.path}/imboy_cache');
+    if (await imboyCacheDir.exists()) {
+      await imboyCacheDir.delete(recursive: true);
     }
-    var fileExtension = '';
-    final contentTypeHeader = _header(HttpHeaders.contentTypeHeader);
-    if (contentTypeHeader != null) {
-      final contentType = ContentType.parse(contentTypeHeader);
-      fileExtension = contentType.fileExtension;
-    }
-    return fileExtension;
+  }
+
+  void dispose() {
+    _crossCache.dispose();
   }
 }

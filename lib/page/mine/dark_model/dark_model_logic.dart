@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:imboy/config/app_theme.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/theme/theme_manager.dart';
 
 import 'dark_model_state.dart';
 
@@ -108,17 +108,17 @@ class DarkModelLogic extends GetxController {
   }) {
     int type = isUserCache ? getThemeType() : themeType;
     if (type == 0) {
-      return lightTheme;
+      return ThemeManager.instance.lightTheme;
     } else if (type == 1) {
-      return darkTheme;
+      return ThemeManager.instance.darkTheme;
     } else if (type == 2) {
       if (!Get.isDarkMode) {
-        return darkTheme;
+        return ThemeManager.instance.darkTheme;
       } else {
-        return lightTheme;
+        return ThemeManager.instance.lightTheme;
       }
     } else {
-      return lightTheme;
+      return ThemeManager.instance.lightTheme;
     }
   }
 }

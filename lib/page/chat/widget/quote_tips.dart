@@ -43,27 +43,50 @@ class QuoteTipsWidget extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       );
     } else if (message is ImageMessage) {
-      body = ImageView(uri: (message as ImageMessage).source, height: 40);
+      body = Row(
+        children: [
+          Icon(
+            Icons.image,
+            size: 16,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+          const SizedBox(width: 8),
+          ImageView(uri: (message as ImageMessage).source, height: 40),
+        ],
+      );
     } else if (message is FileMessage) {
       FileMessage fileMsg = message as FileMessage;
       body = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text(
-                "[${'file'.tr}] (${formatBytes(fileMsg.size!.truncate())})",
-                style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+              Icon(
+                Icons.attach_file,
+                size: 16,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  "[${'file'.tr}] (${formatBytes(fileMsg.size!.truncate())})",
+                  style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+                ),
               ),
             ],
           ),
+          const SizedBox(height: 4),
           Row(
             children: [
+              const SizedBox(width: 24), // 与图标对齐
               Expanded(
                 child: Text(
                   fileMsg.name,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.tertiary,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -71,35 +94,145 @@ class QuoteTipsWidget extends StatelessWidget {
         ],
       );
     } else if (message is AudioMessage) {
-      //
+      body = Row(
+        children: [
+          Icon(
+            Icons.mic,
+            size: 16,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            "[${'voice_message'.tr}]",
+            style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+          ),
+        ],
+      );
     }
 
     String customType = message?.metadata?['custom_type'] ?? '';
     if (customType == 'quote') {
       String txt = message?.metadata?['quote_text'] ?? '';
-      body = Text(
-        "[${'quote'.tr}] $txt",
-        style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+      body = Row(
+        children: [
+          Icon(
+            Icons.format_quote,
+            size: 16,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              "[${'quote'.tr}] $txt",
+              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       );
-    } else if (customType == 'audio') {
-      double durationMS = message?.metadata?["duration_ms"] / 1000;
-      body = Text(
-        "[${'voice_message'.tr}] $durationMS''",
-        style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+    } else if (customType == 'audio' || customType == 'voice') {
+      double durationMS = (message?.metadata?["duration_ms"] ?? 0) / 1000;
+      body = Row(
+        children: [
+          Icon(
+            Icons.mic,
+            size: 16,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            "[${'voice_message'.tr}] ${durationMS.toStringAsFixed(1)}''",
+            style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+          ),
+        ],
       );
     } else if (customType == 'location') {
-      body = Text(
-        "[${'location'.tr}] ${message?.metadata?['title'] ?? ''}",
-        style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+      body = Row(
+        children: [
+          Icon(
+            Icons.location_on,
+            size: 16,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              "[${'location'.tr}] ${message?.metadata?['title'] ?? ''}",
+              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       );
     } else if (customType == 'video') {
       body = Row(
         children: [
+          Icon(
+            Icons.videocam,
+            size: 16,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+          const SizedBox(width: 8),
           Text(
             "[${'video'.tr}] ",
             style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
           ),
-          ImageView(uri: message?.metadata?['thumb']['uri'], height: 40),
+          const SizedBox(width: 4),
+          if (message?.metadata?['thumb']?['uri'] != null)
+            ImageView(uri: message?.metadata?['thumb']['uri'], height: 40)
+          else
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Icon(
+                Icons.play_arrow,
+                color: Theme.of(context).colorScheme.tertiary,
+                size: 20,
+              ),
+            ),
+        ],
+      );
+    } else if (customType == 'visit_card') {
+      body = Row(
+        children: [
+          Icon(
+            Icons.person,
+            size: 16,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              "[${'business_card'.tr}] ${message?.metadata?['title'] ?? ''}",
+              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      );
+    } else if (customType == 'revoked' || customType == 'my_revoked' || customType == 'peer_revoked') {
+      body = Row(
+        children: [
+          Icon(
+            Icons.block,
+            size: 16,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+          const SizedBox(width: 8),
+          Text(
+  '${'message_revoked'.tr}',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.tertiary,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
         ],
       );
     }

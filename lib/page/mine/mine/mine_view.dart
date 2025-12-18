@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/page/mine/feedback/feedback_view.dart';
-// niku namespace import removed
 
-import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
-import 'package:imboy/component/ui/line.dart';
 
 import 'package:imboy/page/mine/setting/setting_view.dart';
+import 'package:imboy/page/mine/storage_space/storage_space_view.dart';
+import 'package:imboy/page/mine/user_device/user_device_view.dart';
 import 'package:imboy/page/personal_info/personal_info/personal_info_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 import '../denylist/denylist_view.dart';
 import '../user_collect/user_collect_view.dart';
@@ -22,331 +22,329 @@ class MinePage extends StatelessWidget {
 
   MinePage({super.key});
 
-  @override
-  Widget build(BuildContext context) {
+  /// 构建个人信息卡片 - 支持黑暗模式
+  Widget _buildProfileCard(BuildContext context, UserRepoLocal userRepo) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // 顶部 SafeArea 兼容
+    final topPadding = MediaQuery.of(context).padding.top;
+
     return Container(
-      color: Theme.of(context).colorScheme.surface,
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            GetBuilder<UserRepoLocal>(
-              builder: (c) => InkWell(
-                onTap: () {
-                  Get.to(
-                        () => const PersonalInfoPage(),
-                    transition: Transition.rightToLeft,
-                    popGesture: true, // 右滑，返回上一页
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(0),
+      padding: EdgeInsets.only(top: topPadding),
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        // color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.05),
+            blurRadius: 0,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Get.to(
+                  () => const PersonalInfoPage(),
+              transition: Transition.rightToLeft,
+              popGesture: true,
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Row(
+              children: [
+                // 头像区域
+                InkWell(
+                  onTap: () {
+                    if (userRepo.current.avatar.isEmpty) {
+                      Get.to(
+                            () => const PersonalInfoPage(),
+                        transition: Transition.rightToLeft,
+                        popGesture: true,
+                      );
+                    } else {
+                      zoomInPhotoView(userRepo.current.avatar);
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(6),
                   child: Container(
-                    // color: Colors.white,
-                    // 显示地区需要360的高度
-                    height: c.current.region.isEmpty ? 340 : 380,
-                    padding: const EdgeInsets.only(
-                      left: 16.0,
-                      right: 12.0,
-                      top: 32.0,
-                    ),
-                    margin: const EdgeInsets.only(
-                      bottom: 10,
-                    ),
-                    child: Column(
-                      children: [
-                        // avatar
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 32.0),
-                                // color: Colors.red,
-                                width: 180.0,
-                                height: 180.0,
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.all(
-                                    Radius.circular(100.0),
-                                  ),
-                                  child: InkWell(
-                                    onTap: () {
-                                      if (c.current.avatar.isEmpty) {
-                                        Get.to(
-                                              () => const PersonalInfoPage(),
-                                          transition: Transition.rightToLeft,
-                                          popGesture: true, // 右滑，返回上一页
-                                        );
-                                        // EasyLoading.showInfo('请进入【个人信息页面】设置头像'.tr);
-                                      } else {
-                                        zoomInPhotoView(c.current.avatar);
-                                      }
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.rectangle,
-                                        borderRadius: BorderRadius.circular(80.0),
-                                        // color: defHeaderBgColor,
-                                        image: dynamicAvatar(c.current.avatar),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                margin: const EdgeInsets.only(left: 0.0, top: 10.0),
-                                width: 200.0,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      // c.current.nickname+c.current.nickname,
-                                      c.current.nickname,
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        top: 8.0,
-                                        bottom: 4.0,
-                                      ),
-                                      child: Text(
-                                        // '',
-                                        "${'account'.tr}：${c.current.account}",
-                                        // style: const TextStyle(
-                                        //   color: AppColors.MainTextColor,
-                                        // ),
-                                      ),
-                                    ),
-                                    strNoEmpty(c.current.region)
-                                        ? Text(
-                                      "${'region'.tr}：${c.current.region}",
-                                      // style: const TextStyle(
-                                      //     color: AppColors.MainTextColor),
-                                    )
-                                        : const SizedBox.shrink(),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: 20.0,
-                              margin: const EdgeInsets.only(right: 10.0),
-                              child: const Icon(Icons.qr_code_2),
-                            ),
-                          ],
-                        ),
-                      ],
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6),
+                      image: dynamicAvatar(
+                        userRepo.current.avatar,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-            HorizontalLine(
-              height: 8,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            Container(
-              padding: const EdgeInsets.only(left: 0),
-              // color: Colors.white,
-              child: Column(
-                children: [
-                  /*
-                  ListTile(
-                    leading: const Icon(
-                      Icons.video_library,
-                      color: Colors.deepPurple,
-                      size: 22,
-                    ),
-                    title: Transform(
-                      transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                      child: Text('my_live'.tr),
-                    ),
-                    trailing: navigateNextIcon,
-                    onTap: () {
-                      Get.to(
-                        () => LiveRoomListPage(),
-                        transition: Transition.rightToLeft,
-                        popGesture: true, // 右滑，返回上一页
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 40),
-                    child: HorizontalLine(
-                      height: 1.0,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  */
-                  ListTile(
-                    leading: const Icon(
-                      Icons.collections_bookmark,
-                      color: Colors.blue,
-                      size: 22,
-                    ),
-                    title: Transform(
-                      transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                      child: Text('my_favorites'.tr),
-                    ),
-                    trailing: navigateNextIcon,
-                    contentPadding: const EdgeInsets.only(
-                      left: 16,
-                      right: 8.0,
-                    ),
-                    onTap: () {
-                      Get.to(
-                            () => UserCollectPage(),
-                        transition: Transition.rightToLeft,
-                        popGesture: true, // 右滑，返回上一页
-                      );
-                    },
-                  ),
-                  /*
-                  Padding(
-                    padding: const EdgeInsets.only(left: 40),
-                    child: HorizontalLine(
-                      height: 1.0,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  ListTile(
-                    leading: const Icon(
-                      Icons.restore_page,
-                      color: Colors.indigo,
-                      size: 22,
-                    ),
-                    title: Transform(
-                      transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                      child: Text('storage_space_data'.tr),
-                    ),
-                    trailing: navigateNextIcon,
-                    onTap: () {},
-                  ),
-                  */
-                  Padding(
-                    padding: const EdgeInsets.only(left: 40),
-                    child: HorizontalLine(
-                      height: 1.0,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  ListTile(
-                    leading: const Icon(
-                      Icons.speaker_notes_off,
-                      color: Colors.grey,
-                      size: 22,
-                    ),
-                    title: Transform(
-                      transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                      child: Text('denylist'.tr),
-                    ),
-                    trailing: navigateNextIcon,
-                    contentPadding: const EdgeInsets.only(
-                      left: 16,
-                      right: 8.0,
-                    ),
-                    onTap: () {
-                      Get.to(
-                            () => DenylistPage(),
-                        transition: Transition.rightToLeft,
-                        popGesture: true, // 右滑，返回上一页
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 40),
-                    child: HorizontalLine(
-                      height: 1.0,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  ListTile(
-                    leading: const Icon(
-                      Icons.feedback_outlined,
-                      color: Colors.teal,
-                      size: 22,
-                    ),
-                    title: Transform(
-                      transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                      child: Row(
-                        children: [
-                          Text('feedback'.tr),
-                        ],
+                const SizedBox(width: 8),
+
+                // 用户信息区域
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 12),
+                      // 用户昵称
+                      Flexible(
+                        fit: FlexFit.loose,
+                        child: Text(
+                          userRepo.current.nickname.isEmpty
+                              ? '未设置昵称'
+                              : userRepo.current.nickname,
+                          // '这样修改后，整个顶部区域（包括状态栏和个人信息卡片）的背景色将保持一致，解决了在',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            height: 1.2, // 行高统一
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                        ),
                       ),
-                    ),
-                    trailing: navigateNextIcon,
-                    contentPadding: const EdgeInsets.only(
-                      left: 16,
-                      right: 8.0,
-                    ),
-                    onTap: () {
-                      Get.to(
-                            () => FeedbackPage(),
-                        transition: Transition.rightToLeft,
-                        popGesture: true, // 右滑，返回上一页
-                      );
-                    },
+                      // 用户账号
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          "${'account'.tr}: ${userRepo.current.account}",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
-                  // ListTile(
-                  //   leading: const Icon(
-                  //     Icons.speaker_notes_off,
-                  //     color: Colors.grey,
-                  //     size: 22,
-                  //   ),
-                  //   title: Text('tell_friend'.tr),
-                  //   trailing: navigateNextIcon,
-                  //   onTap: () {},
-                  // ),
-                  // Padding(
-                  //   child: const Divider(height: 8),
-                  // ),
-                  HorizontalLine(
-                    height: 8,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  ListTile(
-                    leading: const Icon(
-                      Icons.settings,
-                      color: Colors.grey,
-                      size: 22,
+                ),
+
+                // 二维码和箭头
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.qr_code_2, size: 24),
+                    const SizedBox(width: 8, height: 16),
+                    Icon(
+                      Icons.navigate_next,
+                      color: isDark
+                          ? const Color(0xFF8E8E93)
+                          : const Color(0xFF999999),
+                      size: 20,
                     ),
-                    title: Transform(
-                      transform: Matrix4.translationValues(-10, 0.0, 0.0),
-                      child: Text('setting'.tr),
-                    ),
-                    trailing: navigateNextIcon,
-                    contentPadding: const EdgeInsets.only(
-                      left: 16,
-                      right: 8.0,
-                    ),
-                    onTap: () {
-                      Get.to(
-                            () => const SettingPage(),
-                        transition: Transition.rightToLeft,
-                        popGesture: true, // 右滑，返回上一页
-                      );
-                    },
-                  ),
-                  HorizontalLine(
-                    height: 8,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 构建功能菜单项 - 支持黑暗模式
+  Widget _buildMenuItem({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    required Color iconColor,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Material(
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+          child: Row(
+            children: [
+              // 图标
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Icon(icon, color: iconColor, size: 20),
+              ),
+
+              const SizedBox(width: 12),
+
+              // 标题
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w400,
+                    color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                  ),
+                ),
+              ),
+
+              // 箭头图标
+              Icon(
+                Icons.navigate_next,
+                color: isDark
+                    ? const Color(0xFF8E8E93)
+                    : const Color(0xFF999999),
+                size: 18,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 构建功能分组 - 支持黑暗模式
+  Widget _buildMenuGroup(BuildContext context, List<Widget> children) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.03),
+            blurRadius: 0.5,
+            offset: const Offset(0, 0.5),
+          ),
+        ],
+      ),
+      child: Column(
+        children: children.asMap().entries.map((entry) {
+          int index = entry.key;
+          Widget child = entry.value;
+
+          return Column(
+            children: [
+              child,
+              if (index < children.length - 1)
+                Padding(
+                  padding: const EdgeInsets.only(left: 48),
+                  child: Container(
+                    height: 0.3,
+                    color: isDark
+                        ? const Color(0xFF48484A)
+                        : const Color(0xFFE5E5E5),
+                  ),
+                ),
+            ],
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(148.0),
+        child: GetBuilder<UserRepoLocal>(
+          builder: (userRepo) => _buildProfileCard(context, userRepo),
+        ),
+      ),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // 功能菜单分组1：收藏和黑名单
+            _buildMenuGroup(context, [
+              _buildMenuItem(
+                context: context,
+                icon: Icons.star_outline,
+                title: 'my_favorites'.tr,
+                iconColor: const Color(0xFFFF9500),
+                onTap: () {
+                  Get.to(
+                        () => UserCollectPage(),
+                    transition: Transition.rightToLeft,
+                    popGesture: true,
+                  );
+                },
+              ),
+              _buildMenuItem(
+                context: context,
+                icon: Icons.block_outlined,
+                title: 'denylist'.tr,
+                iconColor: const Color(0xFFFF3B30),
+                onTap: () {
+                  Get.to(
+                        () => DenylistPage(),
+                    transition: Transition.rightToLeft,
+                    popGesture: true,
+                  );
+                },
+              ),
+            ]),
+
+            _buildMenuGroup(context, [
+              // 存储空间
+              _buildMenuItem(
+                context: context,
+                title: 'storage_space'.tr,
+                icon: Icons.sd_storage_outlined,
+                iconColor: AppColors.warning,
+                onTap: () {
+                  Get.to(
+                        () => StorageSpacePage(),
+                    transition: Transition.rightToLeft,
+                    popGesture: true,
+                  );
+                },
+              ),
+
+              // 设备管理
+              _buildMenuItem(
+                context: context,
+                title: 'device_list'.tr,
+                icon: Icons.devices,
+                iconColor: AppColors.info,
+                onTap: () {
+                  Get.to(
+                        () => UserDevicePage(),
+                    transition: Transition.rightToLeft,
+                    popGesture: true,
+                  );
+                },
+              ),
+              _buildMenuItem(
+                context: context,
+                icon: Icons.settings_outlined,
+                title: 'setting'.tr,
+                iconColor: const Color(0xFF8E8E93),
+                onTap: () {
+                  Get.to(
+                        () => const SettingPage(),
+                    transition: Transition.rightToLeft,
+                    popGesture: true,
+                  );
+                },
+              ),
+            ]),
+
+            // 测试功能和反馈
+            _buildMenuGroup(context, [
+              _buildMenuItem(
+                context: context,
+                icon: Icons.feedback_outlined,
+                title: 'feedback'.tr,
+                iconColor: const Color(0xFF007AFF),
+                onTap: () {
+                  Get.to(
+                        () => FeedbackPage(),
+                    transition: Transition.rightToLeft,
+                    popGesture: true,
+                  );
+                },
+              ),
+            ]),
+            const SizedBox(height: 40),
           ],
         ),
       ),

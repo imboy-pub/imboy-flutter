@@ -33,10 +33,10 @@ class WebRTCMessageBuilder extends StatelessWidget {
               // '通话时长 10:48',
               title,
               textAlign: TextAlign.left,
-              style: const TextStyle(
+              style: TextStyle(
                 // color: Theme.of(context).colorScheme.onPrimary,
                 color: Color.fromRGBO(34, 34, 34, 1.0),
-                fontSize: 15.0,
+                fontSize: 14.0, // 使用固定字体大小
               ),
               maxLines: 4,
               overflow: TextOverflow.ellipsis,

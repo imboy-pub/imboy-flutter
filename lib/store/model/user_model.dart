@@ -7,19 +7,50 @@ class UserSettingModel {
   bool peopleNearbyVisible;
 
   // 聊天状态 hide online offline
-  String chatState; //
+  String chatState;
+  
+  // 字体大小设置
+  String fontSize;
+
+  // 是否启用“可视阈值已读”（隐私开关）
+  bool enableVisibilityRead;
+  // 可视阈值（0~1），消息可见比例达到该阈值后开始计时
+  double visibilityReadFraction;
+  // 可视阈值已读的停留时长（毫秒）
+  int visibilityReadDelayMs;
 
   UserSettingModel({
     required this.allowSearch,
     required this.peopleNearbyVisible,
     this.chatState = '',
+    this.fontSize = 'normal',
+    this.enableVisibilityRead = true,
+    this.visibilityReadFraction = 0.6,
+    this.visibilityReadDelayMs = 400,
   });
 
   factory UserSettingModel.fromJson(Map<String, dynamic> json) {
+    // 解析数值工具
+    double _toDouble(dynamic v, double dft) {
+      if (v == null) return dft;
+      if (v is num) return v.toDouble();
+      if (v is String) return double.tryParse(v) ?? dft;
+      return dft;
+    }
+    int _toInt(dynamic v, int dft) {
+      if (v == null) return dft;
+      if (v is num) return v.toInt();
+      if (v is String) return int.tryParse(v) ?? dft;
+      return dft;
+    }
     return UserSettingModel(
       allowSearch: json['allow_search'] ?? true,
       peopleNearbyVisible: json['people_nearby_visible'] ?? false,
       chatState: json['chat_state'] ?? 'hide',
+      fontSize: json['font_size'] ?? 'normal',
+      enableVisibilityRead: json['enable_visibility_read'] ?? true,
+      visibilityReadFraction: _toDouble(json['visibility_read_fraction'], 0.6),
+      visibilityReadDelayMs: _toInt(json['visibility_read_delay_ms'], 400),
     );
   }
 
@@ -28,6 +59,10 @@ class UserSettingModel {
       'allow_search': allowSearch,
       'people_nearby_visible': peopleNearbyVisible,
       'chat_state': chatState,
+      'font_size': fontSize,
+      'enable_visibility_read': enableVisibilityRead,
+      'visibility_read_fraction': visibilityReadFraction,
+      'visibility_read_delay_ms': visibilityReadDelayMs,
     };
   }
 }

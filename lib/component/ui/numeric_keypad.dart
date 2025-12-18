@@ -1,6 +1,7 @@
 // NumericKeypad
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/sound_manager.dart';
 
 class NumericKeypad extends StatelessWidget {
   final NumericKeypadController controller;
@@ -42,7 +43,15 @@ class NumericKeypad extends StatelessWidget {
   Widget buildNumKeyboardItem(PayKeyboardDataBean keyboardDataBean) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () {
+      onTap: () async {
+        // 播放金属感按键音效
+        try {
+          await SoundManager.playMetallicSound();
+        } catch (e) {
+          // 如果音效播放失败，不影响功能继续使用
+          print("金属音效播放失败: $e");
+        }
+        
         if (keyboardDataBean.type == PayKeyboardType.delete) {
           if (controller.value.isNotEmpty) {
             controller.value =
@@ -57,24 +66,25 @@ class NumericKeypad extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: keyboardDataBean.type == PayKeyboardType.num
-              ? Colors.transparent
-              : Colors.black26,
+          color: Colors.transparent,
           border: const Border(
-            top: BorderSide(width: 0.5, color: Colors.black26),
-            right: BorderSide(width: 0.5, color: Colors.black26),
+            top: BorderSide(width: 0.5, color: Colors.white12),
+            right: BorderSide(width: 0.5, color: Colors.white12),
           ),
         ),
         child: keyboardDataBean.type == PayKeyboardType.delete
             ? const Icon(
-                Icons.cancel_presentation,
+                Icons.backspace,
                 color: Colors.white60,
+                size: 24,
               )
             : Text(
                 keyboardDataBean.value,
                 style: const TextStyle(
-                  fontSize: 20,
-                  color: Colors.white60,
+                  fontSize: 28,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w300,
+                  letterSpacing: 2,
                 ),
               ),
       ),

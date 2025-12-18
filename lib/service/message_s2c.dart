@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show showDialog, AlertDialog, TextButton;
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/service/websocket.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:get/get.dart';
@@ -22,12 +25,14 @@ import 'package:imboy/page/single/upgrade.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/provider/app_version_provider.dart';
 import 'package:imboy/store/provider/user_provider.dart';
+
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'message.dart';
+import 'message_offline.dart';
 
 class MessageS2CService {
   static Future<void> switchS2C(Map data) async {
@@ -43,6 +48,90 @@ class MessageS2CService {
     bool autoAck = true;
     try {
       switch (msgType.toString().toLowerCase()) {
+        case 'pull_offline_msg':
+          // 拉取离线消息
+          iPrint("收到离线消息拉取指令，开始处理离线消息");
+
+          // 异步处理离线消息，避免阻塞 S2C 消息确认
+          Future.microtask(() async {
+            try {
+              await MessageOfflineService.to.pullOfflineMessages();
+              iPrint("离线消息处理完成");
+            } catch (e) {
+              iPrint("离线消息处理失败: $e");
+            }
+          });
+
+          break;
+        case 'c2c_revoke':
+          // 处理对端发来的撤回消息
+          String revokeMsgId = payload['old_msg_id'] ?? msgId;
+          String peerId = UserRepoLocal.to.currentUid == from ? to : from;
+          
+          iPrint("收到对端撤回消息: revokeMsgId=$revokeMsgId, peerId=$peerId");
+          
+          // 查找会话
+          ConversationRepo conversationRepo = ConversationRepo();
+          ConversationModel? conversation = await conversationRepo.findByPeerId('C2C', peerId);
+          
+          if (conversation != null) {
+            // 查找要撤回的消息
+            MessageRepo messageRepo = MessageRepo(
+              tableName: MessageRepo.c2cTable,
+            );
+            MessageModel? oldMsg = await messageRepo.find(revokeMsgId);
+            
+            if (oldMsg != null) {
+              iPrint("找到要撤回的消息: ${oldMsg.toJson()}");
+              
+              // 转换为撤回消息
+              Map<String, dynamic> revokePayload = {
+                'msg_type': 'custom',
+                'custom_type': 'peer_revoked', // 标记为对方撤回
+                'text': payload['text'] ?? '撤回的消息',
+                'original_type': oldMsg.payload['msg_type'] ?? 'TextMessage',
+                'revoke_time': payload['revoke_time'] ?? DateTime.now().millisecondsSinceEpoch,
+                'revoke_user': from, // 记录撤回操作的用户ID
+              };
+              
+              // 更新消息
+              int res = await messageRepo.update({
+                'id': revokeMsgId,
+                'payload': json.encode(revokePayload),
+                'status': 20, // 设置为已读状态
+              });
+              
+              iPrint("撤回消息数据库更新结果: $res, 消息ID: $revokeMsgId");
+              
+              if (res > 0) {
+                // 重新获取更新后的消息
+                MessageModel? updatedMsg = await messageRepo.find(revokeMsgId);
+                if (updatedMsg != null) {
+                  iPrint("撤回消息更新成功: ${updatedMsg.toJson()}");
+                  
+                  // 触发UI更新事件
+                  eventBus.fire(ChatExtendModel(type: 'revoke_msg', payload: {
+                    'conversation': conversation,
+                    'msgId': revokeMsgId,
+                    'revokeUser': from,
+                  }));
+                  
+                  // 更新会话的最后一条消息
+                  final ChatLogic chatLogic = Get.find();
+                  await chatLogic.updateConversationAfterRevoke(
+                    conversation,
+                    await oldMsg.toTypeMessage(),
+                    'peer_revoked',
+                  );
+                }
+              }
+            } else {
+              iPrint("未找到要撤回的消息: $revokeMsgId");
+            }
+          } else {
+            iPrint("未找到对应的会话: peerId=$peerId");
+          }
+          break;
         case 'c2c_del_everyone':
           String oldMsgId = payload['old_msg_id'] ?? '';
           String peerId = UserRepoLocal.to.currentUid == from ? to : from;
@@ -296,6 +385,50 @@ class MessageS2CService {
             );
           }
           break;
+        case 'device_force_offline': // 被其他设备强制下线
+          {
+            final byDid = payload['by_did'] ?? '';
+            final byName = payload['by_name'] ?? '';
+            final serverTs = data['server_ts'] ?? 0;
+
+            // 优先弹窗提示来源设备；若无可用 context 则忽略弹窗
+            try {
+              if (Get.context != null) {
+                await showDialog<bool>(
+                  context: Get.context!,
+                  barrierDismissible: true,
+                  builder: (ctx) => AlertDialog(
+                    title: Text('下线通知'.tr),
+                    content: Text('您已被设备【$byName】强制下线'.tr),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(true),
+                        child: Text('button_ok'.tr),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            } catch (_) {}
+
+            // 统一执行退登与清理
+            try {
+              WebSocketService.to.closeSocket(permanent: true);
+            } catch (_) {}
+
+            EasyLoading.showSuccess('confirm_recover_success'.tr);
+            await UserRepoLocal.to.quitLogin();
+            Get.offAll(
+              () => const LoginPage(),
+              arguments: {
+                'msg_type': 'device_force_offline',
+                'server_ts': serverTs,
+                'by_did': byDid,
+                'by_dname': byName,
+              },
+            );
+          }
+          break;
         case 'online': // 好友上线提醒
           // TODO
           break;
@@ -308,10 +441,10 @@ class MessageS2CService {
           break;
       }
       // 确认消息
-      if (autoAck) {
-        iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId");
-        MessageService.to.sendAckMsg('S2C', msgId);
-      }
+     if (autoAck) {
+       iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId");
+       MessageService.to.sendAckMsg('S2C', msgId);
+     }
     } catch (e, s) {
       iPrint("switchS2C error: $e, $s");
     }

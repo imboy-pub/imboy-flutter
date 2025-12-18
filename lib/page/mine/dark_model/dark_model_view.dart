@@ -3,12 +3,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/line.dart';
-
-
+import 'package:imboy/theme/theme_manager.dart';
 
 import 'dark_model_logic.dart';
 
+/// 深色模式页面
 class DarkModelPage extends StatelessWidget {
   final logic = Get.put(DarkModelLogic());
   final state = Get.find<DarkModelLogic>().state;
@@ -17,153 +16,225 @@ class DarkModelPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     logic.configLocalTheme();
+
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         title: 'dark_model'.tr,
       ),
-      backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
-      body: Column(
+      backgroundColor: colorScheme.surface,
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         children: [
-        Expanded(
-          child: ListView.separated(
-            itemBuilder: createItemBuilder,
-            separatorBuilder: createSeparatorBuilder,
-            itemCount: state.switchValue.value ? 1 : 4,
-          ),
-        ),
-      ]),
-    );
-  }
-
-  Widget createItemBuilder(BuildContext context, int index) {
-    Widget body = Container();
-    if (index == 0) {
-      body = createFirstWidget(context);
-    } else if (index == 1) {
-      body = Padding(
-          padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
-          child: Text(
-            'manually'.tr,
-            style: const TextStyle(
-              fontSize: 14,
-              // color: Colors.black54,
+          // 跟随系统设置
+          ListTile(
+            leading: Icon(
+              Icons.brightness_auto,
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
             ),
-            // style: FontConfig.fontMedium145a5a5a,
-          ));
-    } else if (index == 2) {
-      body = createDarkItemWidget(
-        'normal_model'.tr,
-        index,
-      );
-    } else if (index == 3) {
-      body = createDarkItemWidget(
-        'dark_model'.tr,
-        index,
-      );
-    }
-    return body;
-  }
-
-  Widget createSeparatorBuilder(BuildContext context, int index) {
-    if (index == 2) {
-      return Padding(
-        padding: const EdgeInsets.only(left: 20, right: 20),
-        child: const HorizontalLine(height: 0.5),
-      );
-    } else {
-      return Container();
-    }
-  }
-
-  // 创建跟随系统
-  Widget createFirstWidget(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 15,
-        bottom: 15,
-      ),
-      color: Theme.of(context).colorScheme.surface,
-      // color: Colors.white,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-            Text(
+            title: Text(
               'follow_system'.tr,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                // color: Theme.of(context).colorScheme.onSecondary,
-              ),
+              style: const TextStyle(fontSize: 16),
             ),
-            // Gaps.vGap5,
-            Text(
+            subtitle: Text(
               'follow_system_tips'.tr,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w200,
-                // color: Theme.of(context).colorScheme.onSecondary,
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
-          ]),
-        ),
-        CupertinoSwitch(
-          value: state.switchValue.value,
-          dragStartBehavior: DragStartBehavior.down,
-          onChanged: (value) {
-            logic.configSwitchOnChanged(value);
-          },
-        )
-      ]),
-    );
-  }
-
-  Widget createDarkItemWidget(String text, int index) {
-    return InkWell(
-      onTap: () {
-        logic.tapDarkItem(index: index);
-      },
-      child: Container(
-        padding: const EdgeInsets.only(
-          left: 20,
-          right: 20,
-          bottom: 10,
-          top: 10,
-        ),
-        decoration: BoxDecoration(
-          color: Theme.of(Get.context!).colorScheme.surface,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-          Expanded(
-            child: Text(
-              text,
-              overflow: TextOverflow.ellipsis,
+            trailing: Obx(
+              () => CupertinoSwitch(
+                value: state.switchValue.value,
+                onChanged: (value) {
+                  logic.configSwitchOnChanged(value);
+                },
+              ),
             ),
+            contentPadding: EdgeInsets.zero,
           ),
-          state.selectIndex.value == index
-              ? const Icon(
-                  Icons.check,
-                  size: 20,
-                  color: Colors.green,
-                )
-              : Container(),
-        ]),
+
+          // 分隔线
+          Obx(
+            () => state.switchValue.value
+                ? const SizedBox.shrink()
+                : Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Divider(
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                    ),
+                  ),
+          ),
+
+          // 主题选择
+          Obx(
+            () => state.switchValue.value
+                ? const SizedBox.shrink()
+                : Column(
+                    children: [
+                      // 浅色主题
+                      ListTile(
+                        leading: Icon(
+                          Icons.light_mode_outlined,
+                          color: state.selectIndex.value == 2
+                              ? colorScheme.primary
+                              : colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        title: Text(
+                          'normal_model'.tr,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: state.selectIndex.value == 2
+                                ? colorScheme.primary
+                                : colorScheme.onSurface,
+                          ),
+                        ),
+                        trailing: state.selectIndex.value == 2
+                            ? Icon(
+                                Icons.check,
+                                color: colorScheme.primary,
+                                size: 20,
+                              )
+                            : null,
+                        onTap: () => logic.tapDarkItem(index: 2),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      // 深色主题
+                      ListTile(
+                        leading: Icon(
+                          Icons.dark_mode_outlined,
+                          color: state.selectIndex.value == 3
+                              ? colorScheme.primary
+                              : colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        title: Text(
+                          'dark_model'.tr,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: state.selectIndex.value == 3
+                                ? colorScheme.primary
+                                : colorScheme.onSurface,
+                          ),
+                        ),
+                        trailing: state.selectIndex.value == 3
+                            ? Icon(
+                                Icons.check,
+                                color: colorScheme.primary,
+                                size: 20,
+                              )
+                            : null,
+                        onTap: () => logic.tapDarkItem(index: 3),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ],
+                  ),
+          ),
+
+          // OLED模式和护眼模式设置
+          /*
+          Obx(
+            () => state.selectIndex.value == 3
+                ? Column(
+                    children: [
+                      const SizedBox(height: 24),
+                      
+                      // 分隔线
+                      Divider(
+                        color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // 深色模式增强选项标题
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '深色模式增强',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // OLED优化模式
+                      ListTile(
+                        leading: Icon(
+                          Icons.smartphone,
+                          color: colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        title: const Text(
+                          'OLED优化模式',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        subtitle: Text(
+                          '为OLED屏幕优化，使用纯黑背景节省电量',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
+                        ),
+                        trailing: Obx(
+                             () {
+                               final themeManager = Get.find<ThemeManager>();
+                               return CupertinoSwitch(
+                                 value: themeManager.themeSettings.isOLEDMode,
+                                 onChanged: (value) {
+                                   themeManager.toggleOLEDMode();
+                                 },
+                               );
+                             },
+                           ),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      
+                      const SizedBox(height: 8),
+                      
+                      // 护眼模式
+                      ListTile(
+                        leading: Icon(
+                          Icons.remove_red_eye_outlined,
+                          color: colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        title: const Text(
+                          '护眼模式',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        subtitle: Text(
+                          '减少蓝光，使用暖色调保护视力',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
+                        ),
+                        trailing: Obx(
+                             () {
+                               final themeManager = Get.find<ThemeManager>();
+                               return CupertinoSwitch(
+                                 value: themeManager.themeSettings.isEyeCareMode,
+                                 onChanged: (value) {
+                                   themeManager.toggleEyeCareMode();
+                                 },
+                               );
+                             },
+                           ),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ],
+                  )
+                : const SizedBox.shrink(),
+          ),
+          */
+        ],
       ),
     );
   }
-
-// @override
-// configShowBack() {
-//   return isShowBack ?? true;
-// }
 }

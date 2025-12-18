@@ -6,18 +6,20 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
-import 'package:imboy/page/group/group_list/group_list_logic.dart';
+import 'package:imboy/page/conversation/widget/right_button.dart'
+    show RightButton;
 import 'package:imboy/page/contact/people_info/people_info_view.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/service/sqlite.dart';
 
 import 'conversation_logic.dart';
 import 'widget/conversation_item.dart';
-import 'widget/right_button_list.dart';
 
 class ConversationPage extends StatefulWidget {
   const ConversationPage({super.key});
@@ -68,11 +70,7 @@ class _ConversationPageState extends State<ConversationPage> {
 
     // 监听会话消息
     ssMsg = eventBus.on<ConversationModel>().listen((obj) async {
-      if (obj.type == 'C2G' && obj.title.trim().isEmpty) {
-        obj.computeTitle = await Get.find<GroupListLogic>().computeTitle(
-          obj.peerId,
-        );
-      }
+      obj.title = await logic.computeTitle(obj);
       // 更新会话
       await logic.replace(obj);
     });
@@ -85,13 +83,13 @@ class _ConversationPageState extends State<ConversationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: NavAppBar(
+      appBar: AppBar(
         leading: const SizedBox.shrink(),
-        titleWidget: Text(
+        title: Text(
           'title_message'.tr + logic.connectDesc.value,
           // style: AppStyle.navAppBarTitleStyle, // 传入BuildContext
         ),
-        rightDMActions: <Widget>[
+        actions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: 4.0),
             child: const RightButton(),
@@ -115,8 +113,8 @@ class _ConversationPageState extends State<ConversationPage> {
                         itemCount: logic.conversations.length,
                         itemBuilder: (BuildContext context, int index) {
                           ConversationModel model = logic.conversations[index];
-                          // RxInt remindNum =
-                          //     logic.conversationRemind[model.peerId] ?? 0.obs;
+                          RxInt remindNum =
+                              RxInt(logic.conversationRemind[model.uk3] ?? 0);
                           return InkWell(
                             onTap: () {
                               Get.to(
@@ -125,7 +123,9 @@ class _ConversationPageState extends State<ConversationPage> {
                                   peerTitle: model.title,
                                   peerAvatar: model.avatar,
                                   peerSign: model.sign,
-                                  type: strEmpty(model.type) ? 'C2C' : model.type,
+                                  type: strEmpty(model.type)
+                                      ? 'C2C'
+                                      : model.type,
                                 ),
                                 transition: Transition.rightToLeft,
                                 popGesture: true, // 右滑，返回上一页
@@ -142,20 +142,50 @@ class _ConversationPageState extends State<ConversationPage> {
                                 extentRatio: 0.618,
                                 motion: const StretchMotion(),
                                 children: [
-                                  /*
                                   CustomSlidableAction(
                                     onPressed: (_) async {
                                       int num = 1;
-                                      remindNum.value = 1;
                                       if (model.unreadNum > 0) {
+                                        // 当前有未读消息，标记为已读
                                         num = 0;
-                                        remindNum.value = 0;
+                                        // 同步将该会话未读消息状态从 delivered 改为 seen，避免刷新后红点恢复
+                                        try {
+                                          final db = await SqliteService.to.db;
+                                          if (db != null) {
+                                            final tb = MessageRepo.getTableName(model.type);
+                                            await db.update(
+                                              tb,
+                                              {MessageRepo.status: IMBoyMessageStatus.seen},
+                                              where:
+                                                  "${MessageRepo.conversationUk3} = ? and ${MessageRepo.status} = ? and ${MessageRepo.isAuthor} = ?",
+                                              whereArgs: [
+                                                model.uk3,
+                                                IMBoyMessageStatus.delivered,
+                                                0,
+                                              ],
+                                            );
+                                          }
+                                        } catch (e) {
+                                          // 忽略异常以保证交互流畅，后续重算会再次校正
+                                        }
+                                        // 推进水位到该会话来自对方的最新消息
+                                        await logic.advanceWatermarkToLatest(model);
+                                        await logic.setConversationRemind(model, 0);
+                                      } else {
+                                        // 当前没有未读消息，标记为未读
+                                        num = 1;
+                                        await logic.setConversationRemind(model, 1);
                                       }
-                                      logic.markAs(model.peerId, num);
+                                      // 更新本地模型
                                       model.unreadNum = num;
+                                      // 更新内存中的会话映射
+                                      logic.conversationMap[model.uk3] = model.copyWith(unreadNum: num);
+                                      // 更新提醒计数
+                                      logic.conversationRemind[model.uk3] = num;
+                                      remindNum.value = num;
                                     },
                                     autoClose: true,
-                                    backgroundColor: Colors.blue,
+                                    backgroundColor: Theme.of(context).colorScheme.primary,
                                     flex: 2,
                                     child: Obx(
                                       () => Text(
@@ -164,11 +194,12 @@ class _ConversationPageState extends State<ConversationPage> {
                                       ),
                                     ),
                                   ),
-                                  */
                                   SlidableAction(
                                     key: ValueKey("hide_$index"),
                                     flex: 3,
-                                    backgroundColor: Colors.amber,
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.secondary,
                                     onPressed: (_) async {
                                       final uk3 = model.uk3;
                                       await logic.hideConversation(model.id);
@@ -185,8 +216,12 @@ class _ConversationPageState extends State<ConversationPage> {
                                   SlidableAction(
                                     key: ValueKey("delete_$index"),
                                     flex: 2,
-                                    backgroundColor: Colors.red,
-                                    foregroundColor: Colors.white,
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.error,
+                                    foregroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.onError,
                                     onPressed: (_) async {
                                       final uk3 = model.uk3;
                                       await logic.removeConversation(model);
@@ -205,7 +240,7 @@ class _ConversationPageState extends State<ConversationPage> {
                               // endActionPane: null,
                               child: ConversationItem(
                                 model: model,
-                                // remindCounter: remindNum,
+                                remindCounter: remindNum,
                                 onTapAvatar: () {
                                   Get.to(
                                     () => PeopleInfoPage(

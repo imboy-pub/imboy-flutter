@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/ui/button.dart';
-import 'package:imboy/component/ui/common_bar.dart';
-
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'contact_setting_tag_logic.dart';
 
@@ -40,100 +37,63 @@ class ContactSettingTagPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(const Duration(milliseconds: 100)).then((e) {
-      // 设置提交按钮灰色
+    // 初始化时设置按钮状态
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       logic.valueOnChange(false);
     });
-    logic.remarkTextController.text = peerRemark;
-    if (peerRemark == 'null') {
-      logic.remarkTextController.text = '';
-    }
 
-    return Scaffold(
-      appBar: NavAppBar(
-        automaticallyImplyLeading: true,
-        titleWidget: Row(
-          children: [
-            Expanded(
-              child: Text(
-                'set_param'.trArgs(['remarks_tags'.tr]),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Obx(
-              () => RoundedElevatedButton(
-                text: 'button_accomplish'.tr,
-                highlighted: logic.valueChanged.isTrue,
-                onPressed: () async {
-                  String trimmedText = logic.remarkTextController.text.trim();
-                  if (trimmedText == '') {
-                    logic.valueOnChange(false);
-                  } else if (logic.valueChanged.isTrue) {
-                    bool res = await logic.changeRemark(peerId, trimmedText);
-                    if (res) {
-                      EasyLoading.showSuccess('tip_success'.tr);
-                      peerRemark = trimmedText;
-                      Get.back(result: trimmedText);
+    logic.remarkTextController.text = (peerRemark == 'null') ? '' : peerRemark;
+
+    return Obx(
+      () => Scaffold(
+        appBar: AppBar(
+          title: Text('set_param'.trArgs(['remarks_tags'.tr])),
+          actions: [
+            TextButton(
+              onPressed: logic.valueChanged.isTrue
+                  ? () async {
+                      String trimmedText = logic.remarkTextController.text.trim();
+                      if (trimmedText.isNotEmpty) {
+                        bool res = await logic.changeRemark(peerId, trimmedText);
+                        if (res) {
+                          EasyLoading.showSuccess('tip_success'.tr);
+                          peerRemark = trimmedText;
+                          Get.back(result: trimmedText);
+                        }
+                      }
                     }
-                  }
-                },
-              ),
+                  : null, // 如果 valueChanged 为 false，则禁用按钮
+              child: Text('button_accomplish'.tr),
             ),
           ],
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.only(left: 12, top: 20, right: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        body: ListView(
+          padding: const EdgeInsets.all(16.0),
           children: [
             TextFormField(
               decoration: InputDecoration(
                 labelText: 'remark'.tr,
-                labelStyle: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
+                border: const OutlineInputBorder(),
               ),
               autofocus: true,
-              showCursor: true,
               focusNode: logic.remarkFocusNode,
               controller: logic.remarkTextController,
               keyboardType: TextInputType.text,
               maxLength: 40,
-              textCapitalization: TextCapitalization.words,
-              readOnly: false,
-              onFieldSubmitted: (value) async {
-                FocusScope.of(Get.context!).requestFocus();
-                if (value == '' || peerRemark == value) {
-                  logic.valueOnChange(false);
-                }
-              },
               onChanged: (value) {
-                if (value == '' || peerRemark == value) {
-                  logic.valueOnChange(false);
-                } else {
-                  logic.valueOnChange(true);
-                }
+                logic.valueOnChange(value.trim().isNotEmpty && peerRemark != value);
               },
             ),
-            const SizedBox(height: 20),
-            Obx(
-              () => TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'tags'.tr,
-                  labelStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                  suffixIcon: const Padding(
-                    padding: EdgeInsets.only(left: 20),
-                    child: Icon(Icons.chevron_right),
-                  ),
-                ),
-                controller: TextEditingController()
-                  ..text = peerTag.isEmpty ? 'add_tag'.tr : peerTag.value,
-                readOnly: true,
-                minLines: 1,
-                maxLines: 8,
+            const SizedBox(height: 16),
+            Card(
+              elevation: 2.0, // 添加阴影效果
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.0), // 增加圆角
+              ),
+              child: ListTile(
+                title: Text('tags'.tr),
+                subtitle: Text(peerTag.isEmpty ? 'add_tag'.tr : peerTag.value),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
                   Get.to(
                     () => UserTagRelationPage(
@@ -145,7 +105,7 @@ class ContactSettingTagPage extends StatelessWidget {
                     popGesture: true,
                   )?.then((value) {
                     if (value != null && value is String) {
-                      peerTag.value = value.toString();
+                      peerTag.value = value;
                     }
                   });
                 },

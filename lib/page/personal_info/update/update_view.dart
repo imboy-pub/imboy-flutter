@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/page/mine/select_region/select_region_logic.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/radio_list_title.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/theme_manager.dart';
 
 import 'update_logic.dart';
 
@@ -49,12 +51,6 @@ class UpdatePage extends StatelessWidget {
       logic.textController.text = value;
       logic.valueOnChange(true);
       body = textField(context);
-    } else if (field == "region") {
-      // 选择如果是顶级地区,选中之
-      regionLogic.regionSelectedTitle(value);
-      // 加载地区数据
-      logic.loadData();
-      body = regionField(context);
     } else if (field == "gender") {
       logic.valueOnChange(true);
       body = genderField(context);
@@ -63,53 +59,91 @@ class UpdatePage extends StatelessWidget {
     // if (Platform.isAndroid || Platform.isIOS || Platform.isFuchsia) {
     //   top = 22;
     // }
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
         titleWidget: Row(
           children: [
-          Expanded(
-            child: Text(
-              title,
-              textAlign: TextAlign.center,
-              // style: AppStyle.navAppBarTitleStyle,
+            Expanded(child: Text(title, textAlign: TextAlign.center)),
+            Obx(
+              () => Container(
+                height: ThemeManager.instance.mainSpace * 4,
+                decoration: BoxDecoration(
+                  color: logic.valueChanged.isTrue
+                      ? AppColors.primaryGreen
+                      : (isDark
+                            ? const Color(0xFF48484A)
+                            : const Color(0xFFE5E5E5)),
+                  borderRadius: BorderRadius.circular(
+                    ThemeManager.instance.mainSpace * 2,
+                  ),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(
+                      ThemeManager.instance.mainSpace * 2,
+                    ),
+                    onTap: logic.valueChanged.isTrue
+                        ? () async {
+                            if (field == "input") {
+                              String trimmedText = logic.textController.text
+                                  .trim();
+                              if (trimmedText == '') {
+                                logic.valueOnChange(false);
+                              } else {
+                                bool res = await callback(trimmedText);
+                                if (res) {
+                                  Get.back();
+                                }
+                              }
+                            } else if (field == "text") {
+                              String trimmedText = logic.textController.text
+                                  .trim();
+                              bool res = await callback(trimmedText);
+                              if (res) {
+                                Get.back();
+                              }
+                            } else if (field == "gender") {
+                              bool res = await callback(logic.val.value);
+                              if (res) {
+                                Get.back();
+                              }
+                            }
+                          }
+                        : null,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ThemeManager.instance.mainSpace * 2,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'button_accomplish'.tr,
+                        style: ThemeManager.instance.getTextStyle(
+                          FontSizeType.small,
+                          fontWeight: FontWeight.w600,
+                          color: logic.valueChanged.isTrue
+                              ? Colors.white
+                              : AppColors.getTextColor(
+                                  Theme.of(context).brightness,
+                                  isSecondary: true,
+                                ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
-            // 中间用Expanded控件
-          ),
-          Obx(
-            () => RoundedElevatedButton(
-              text: 'button_accomplish'.tr,
-              highlighted: logic.valueChanged.isTrue,
-              onPressed: () async {
-                if (field == "input") {
-                  String trimmedText = logic.textController.text.trim();
-                  if (trimmedText == '') {
-                    logic.valueOnChange(false);
-                  } else {
-                    bool res = await callback(trimmedText);
-                    if (res) {
-                      Get.back();
-                    }
-                  }
-                } else if (field == "text") {
-                  String trimmedText = logic.textController.text.trim();
-                  bool res = await callback(trimmedText);
-                  if (res) {
-                    Get.back();
-                  }
-                } else if (field == "region" || field == "gender") {
-                  bool res = await callback(logic.val.value);
-                  if (res) {
-                    Get.back();
-                  }
-                }
-              },
-            ),
-          ),
-        ]),
+          ],
+        ),
       ),
-      body: SingleChildScrollView(child: body),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: body,
+      ),
     );
   }
 
@@ -121,33 +155,36 @@ class UpdatePage extends StatelessWidget {
       keyboardType: TextInputType.text,
       textCapitalization: TextCapitalization.words,
       decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(14, 0, 8, 0),
-          filled: true,
-          fillColor: Get.isDarkMode
-              ? const Color.fromRGBO(70, 70, 70, 1.0)
-              : Colors.white70,
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(3),
-              borderSide: BorderSide(
-                width: 1.0,
-                color: Theme.of(context).colorScheme.surface,
-              )),
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(3),
-              borderSide: BorderSide(
-                width: 1.0,
-                color: Theme.of(context).colorScheme.surface,
-              )),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(3),
-            borderSide: const BorderSide(width: 1.0, color: Colors.red),
+        contentPadding: const EdgeInsets.fromLTRB(14, 0, 8, 0),
+        filled: true,
+        fillColor: Get.isDarkMode
+            ? const Color.fromRGBO(70, 70, 70, 1.0)
+            : Colors.white70,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(3),
+          borderSide: BorderSide(
+            width: 1.0,
+            color: Theme.of(context).colorScheme.surface,
           ),
-          errorStyle: const TextStyle(),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(3),
-            borderSide: const BorderSide(width: 1.0, color: Colors.red),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(3),
+          borderSide: BorderSide(
+            width: 1.0,
+            color: Theme.of(context).colorScheme.surface,
           ),
-          border: InputBorder.none),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(3),
+          borderSide: const BorderSide(width: 1.0, color: Colors.red),
+        ),
+        errorStyle: const TextStyle(),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(3),
+          borderSide: const BorderSide(width: 1.0, color: Colors.red),
+        ),
+        border: InputBorder.none,
+      ),
       readOnly: false,
       onFieldSubmitted: (value) async {
         // FocusScope.of(Get.context!).requestFocus();
@@ -182,193 +219,206 @@ class UpdatePage extends StatelessWidget {
   }
 
   Widget textField(BuildContext context) {
-    return TextFormField(
-      autofocus: true,
-      focusNode: logic.inputFocusNode,
-      controller: logic.textController,
-      keyboardType: TextInputType.multiline,
-      maxLines: 5,
-      minLines: 3,
-      maxLength: maxLength,
-      textCapitalization: TextCapitalization.words,
-      textInputAction: TextInputAction.newline,
-      decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(14, 16, 8, 0),
-          filled: true,
-          fillColor: Get.isDarkMode
-              ? const Color.fromRGBO(70, 70, 70, 1.0)
-              : Colors.white70,
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(3),
-              borderSide: BorderSide(
-                width: 0.2,
-                color: Theme.of(context).colorScheme.surface,
-              )),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(3),
-            borderSide: const BorderSide(width: 1.0, color: Colors.red),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      margin: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 输入提示
+          // Padding(
+          //   padding: const EdgeInsets.only(bottom: 12),
+          //   child: Text(
+          //     'signature_input_hint'.tr,
+          //     style: TextStyle(
+          //       fontSize: 14,
+          //       color: isDark
+          //           ? const Color(0xFF8E8E93)
+          //           : const Color(0xFF999999),
+          //     ),
+          //   ),
+          // ),
+
+          // 输入框容器
+          Container(
+            decoration: BoxDecoration(
+              // color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: isDark
+                      ? Colors.black.withValues(alpha: 0.2)
+                      : Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 0.5,
+                  offset: const Offset(0, 0.5),
+                ),
+              ],
+            ),
+            child: TextFormField(
+              autofocus: true,
+              focusNode: logic.inputFocusNode,
+              controller: logic.textController,
+              keyboardType: TextInputType.multiline,
+              maxLines: 6,
+              minLines: 4,
+              maxLength: maxLength,
+              textCapitalization: TextCapitalization.sentences,
+              textInputAction: TextInputAction.newline,
+              style: TextStyle(
+                fontSize: 16,
+                color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                height: 1.4,
+              ),
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.all(16),
+                // hintText: 'signature_placeholder'.tr,
+                hintStyle: TextStyle(
+                  fontSize: 16,
+                  color: isDark
+                      ? const Color(0xFF48484A)
+                      : const Color(0xFFCCCCCC),
+                ),
+                filled: false,
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                focusedErrorBorder: InputBorder.none,
+                counterStyle: TextStyle(
+                  fontSize: 12,
+                  color: isDark
+                      ? const Color(0xFF8E8E93)
+                      : const Color(0xFF999999),
+                ),
+              ),
+              readOnly: false,
+              onFieldSubmitted: (value) async {
+                bool res = await callback(value.trim());
+                if (res) {
+                  Get.back();
+                }
+              },
+              onChanged: (value) {
+                onChanged(value);
+              },
+              onSaved: (value) {},
+              validator: (value) {
+                return null;
+              },
+            ),
           ),
-          errorStyle: const TextStyle(),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(3),
-            borderSide: const BorderSide(width: 1.0, color: Colors.red),
-          ),
-          border: InputBorder.none),
-      readOnly: false,
-      onFieldSubmitted: (value) async {
-        bool res = await callback(value);
-        if (res) {
-          Get.back();
-        }
-      },
-      onChanged: (value) {
-        onChanged(value);
-      },
-      onSaved: (value) {},
-      validator: (value) {
-        return null;
-      },
+
+          // 底部提示
+          // Padding(
+          //   padding: const EdgeInsets.only(top: 12),
+          //   child: Text(
+          //     'signature_tips'.tr,
+          //     style: TextStyle(
+          //       fontSize: 12,
+          //       color: isDark
+          //           ? const Color(0xFF8E8E93)
+          //           : const Color(0xFF999999),
+          //     ),
+          //   ),
+          // ),
+        ],
+      ),
     );
   }
 
   Widget genderField(BuildContext context) {
     Widget secondary = const Text(
       '√',
-      style: TextStyle(
-        fontSize: 20,
-        color: Colors.green,
-      ),
+      style: TextStyle(fontSize: 20, color: Colors.green),
     );
     return Obx(
       () => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-        IMBoyRadioListTile(
-          value: '1',
-          title: Text(
-            'male'.tr,
-            style: TextStyle(
-              fontSize: logic.val.value == '1' ? 20 : 16,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-          ),
-          selected: false,
-          secondary: logic.val.value == '1' ? secondary : null,
-          controlAffinity: ListTileControlAffinity.leading,
-          activeColor: Theme.of(context).colorScheme.primary,
-          groupValue: logic.val.value,
-          onChanged: (val) {
-            onChanged(val);
-          },
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16, right: 16),
-          child: HorizontalLine(
-            height: Get.isDarkMode ? 0.5 : 1.0,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        IMBoyRadioListTile(
-          value: '2',
-          title: Text(
-            'female'.tr,
-            style: TextStyle(
-              fontSize: logic.val.value == '2' ? 20 : 16,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-          ),
-          selected: false,
-          secondary: logic.val.value == '2' ? secondary : null,
-          controlAffinity: ListTileControlAffinity.leading,
-          activeColor: Theme.of(context).colorScheme.primary,
-          groupValue: logic.val.value,
-          onChanged: (val) {
-            onChanged(val);
-          },
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16, right: 16),
-          child: HorizontalLine(
-            height: Get.isDarkMode ? 0.5 : 1.0,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        IMBoyRadioListTile(
-          value: '3',
-          title: Text(
-            'keep_secret'.tr,
-            style: TextStyle(
-              fontSize: logic.val.value == '3' ? 20 : 16,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-          ),
-          selected: false,
-          secondary: logic.val.value == '3' ? secondary : null,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(0.0),
-              topRight: Radius.circular(0.0),
-            ),
-          ),
-          controlAffinity: ListTileControlAffinity.leading,
-          activeColor: Theme.of(Get.context!).colorScheme.primary,
-          groupValue: logic.val.value,
-          onChanged: (val) {
-            onChanged(val);
-          },
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16, right: 16),
-          child: HorizontalLine(
-            height: Get.isDarkMode ? 0.5 : 1.0,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-      ],
-    ));
-  }
-
-  Widget regionField(BuildContext context) {
-    return Obx(() => Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.only(left: 16.0),
-                width: Get.width,
-                height: 40.0,
-                child: Text("${'selected_region'.tr}： ${logic.val.value}"),
+          IMBoyRadioListTile(
+            value: '1',
+            title: Text(
+              'male'.tr,
+              style: TextStyle(
+                fontSize: logic.val.value == '1' ? 20 : 16,
+                color: Theme.of(context).colorScheme.onPrimary,
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.only(left: 16, right: 16),
-                    width: Get.width,
-                    height: Get.height - 40,
-                    // color: Theme.of(context).colorScheme.surface,
-                    child: ListView.builder(
-                      itemBuilder: (BuildContext context, int index) {
-                        return regionLogic.getListItem(
-                            context: context,
-                            parent: '',
-                            model: logic.regionList[index],
-                            callback: (String p, String t) async {
-                              // logic.val.value = strEmpty(p) ? t : "$p $t";
-                              // logic.valueOnChange(true);
-                              onChanged(strEmpty(p) ? t : "$p $t");
-                              return true;
-                            },
-                            outCallback: callback,
-                            margin: const EdgeInsets.only(left: 0, right: 0));
-                      },
-                      itemCount: logic.regionList.length,
-                    ),
-                  ),
-                ),
-              ]),
-            ]));
+            ),
+            selected: false,
+            secondary: logic.val.value == '1' ? secondary : null,
+            controlAffinity: ListTileControlAffinity.leading,
+            activeColor: Theme.of(context).colorScheme.primary,
+            groupValue: logic.val.value,
+            onChanged: (val) {
+              onChanged(val);
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16),
+            child: HorizontalLine(
+              height: Get.isDarkMode ? 0.5 : 1.0,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          IMBoyRadioListTile(
+            value: '2',
+            title: Text(
+              'female'.tr,
+              style: TextStyle(
+                fontSize: logic.val.value == '2' ? 20 : 16,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+            ),
+            selected: false,
+            secondary: logic.val.value == '2' ? secondary : null,
+            controlAffinity: ListTileControlAffinity.leading,
+            activeColor: Theme.of(context).colorScheme.primary,
+            groupValue: logic.val.value,
+            onChanged: (val) {
+              onChanged(val);
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16),
+            child: HorizontalLine(
+              height: Get.isDarkMode ? 0.5 : 1.0,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          IMBoyRadioListTile(
+            value: '3',
+            title: Text(
+              'keep_secret'.tr,
+              style: TextStyle(
+                fontSize: logic.val.value == '3' ? 20 : 16,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+            ),
+            selected: false,
+            secondary: logic.val.value == '3' ? secondary : null,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(0.0),
+                topRight: Radius.circular(0.0),
+              ),
+            ),
+            controlAffinity: ListTileControlAffinity.leading,
+            activeColor: Theme.of(Get.context!).colorScheme.primary,
+            groupValue: logic.val.value,
+            onChanged: (val) {
+              onChanged(val);
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16),
+            child: HorizontalLine(
+              height: Get.isDarkMode ? 0.5 : 1.0,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

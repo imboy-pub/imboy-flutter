@@ -107,6 +107,7 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
                         alignment: Alignment.centerLeft,
                         height: _itemHeight.toDouble(),
                         decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12.0),
                           border: Border(
                             top: BorderSide(
                               width: Get.isDarkMode ? 0.5 : 1.0,
@@ -123,7 +124,10 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
                               flex: 3,
                               child: Text(
                                 model.alias.isEmpty ? model.nickname : model.alias,
-                                style: const TextStyle(fontSize: 14.0),
+                                style: TextStyle(
+                                  fontSize: 14.0,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
                               ),
                             ),
                             // const Spacer(), // Spacer 会自动填充可用空间

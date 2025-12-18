@@ -95,7 +95,7 @@ class UserDeviceRepo {
         UserDeviceRepo.tableName,
         data,
         where:
-            '${UserDeviceRepo.userId} = ? and ${UserDeviceRepo.deviceId} = ?',
+        '${UserDeviceRepo.userId} = ? and ${UserDeviceRepo.deviceId} = ?',
         whereArgs: [UserRepoLocal.to.currentUid, did],
       );
     } else {
@@ -103,6 +103,26 @@ class UserDeviceRepo {
     }
   }
 
+  Future<UserDeviceModel?> find(String deviceId) async {
+    List<Map<String, dynamic>> maps = await _db.query(
+      UserDeviceRepo.tableName,
+      columns: [
+        // UserDeviceRepo.userId,
+        UserDeviceRepo.deviceId,
+        UserDeviceRepo.deviceName,
+        UserDeviceRepo.deviceType,
+        UserDeviceRepo.lastActiveAt,
+        UserDeviceRepo.deviceVsn,
+      ],
+      where: '${UserDeviceRepo.userId}=? and ${UserDeviceRepo.deviceId}=?',
+      whereArgs: [UserRepoLocal.to.currentUid, deviceId],
+      limit: 1,
+    );
+    if (maps.isEmpty) {
+      return null;
+    }
+    return UserDeviceModel.fromJson(maps.first);
+  }
 // 记得及时关闭数据库，防止内存泄漏
 // close() async {
 //   await _db.close();

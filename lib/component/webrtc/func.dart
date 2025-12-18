@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/theme/theme_manager.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -13,17 +14,25 @@ import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_view.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
+
 /// 发送WebRTC消息
-void sendWebRTCMsg(
+Future<bool> sendWebRTCMsg(
   String event,
   Map payload, {
   required String msgId,
   required String to,
   String? debug,
-}) {
+}) async {
+  // 使用 NetworkMonitorService 检查网络状态
+  if (!NetworkMonitorService.to.hasNetwork) {
+    debugPrint('WebRTC消息发送失败：无网络连接');
+    return false;
+  }
+
   Map request = {};
   request["ts"] = DateTimeHelper.millisecond();
   request["id"] = msgId;
@@ -31,7 +40,7 @@ void sendWebRTCMsg(
   request["from"] = UserRepoLocal.to.currentUid;
   request["type"] = "webrtc_$event";
   request["payload"] = payload;
-  WebSocketService.to.sendMessage(json.encode(request));
+  return WebSocketService.to.sendMessage(json.encode(request), msgId);
 }
 
 /// 生成会话ID
@@ -70,11 +79,11 @@ Future<void> incomingCallScreen(
     p2pCallScreenOn = false;
   });
 
-  sendWebRTCMsg('ringing', {}, msgId: msgId, to: peer.peerId);
+  await sendWebRTCMsg('ringing', {}, msgId: msgId, to: peer.peerId);
 
   Get.defaultDialog(
     title: '',
-    backgroundColor: Get.isDarkMode
+    backgroundColor: ThemeManager.instance.isDarkMode
         ? const Color.fromRGBO(80, 80, 80, 1)
         : const Color.fromRGBO(240, 240, 240, 1),
     titlePadding: EdgeInsets.zero,
@@ -111,7 +120,7 @@ Future<void> incomingCallScreen(
                       option['media'] == 'video' ? 'video'.tr : 'audio'.tr,
                     ]),
                     style: TextStyle(
-                      color: Theme.of(Get.context!).colorScheme.onPrimary,
+                      color: ThemeManager.instance.getThemeColor('textPrimary'),
                       fontSize: 12,
                     ),
                   ),
@@ -122,7 +131,7 @@ Future<void> incomingCallScreen(
           FloatingActionButton(
             mini: true,
             heroTag: "RejectCall",
-            backgroundColor: Colors.red,
+            backgroundColor: Get.theme.colorScheme.error,
             onPressed: () async {
               try {
                 await Get.find<ChatLogic>().markAsRead('C2C', peer.peerId, [
@@ -132,17 +141,17 @@ Future<void> incomingCallScreen(
               MessageService.to.changeLocalMsgState(msgId, 5);
               gTimer?.cancel();
               gTimer = null;
-              sendWebRTCMsg('busy', {}, msgId: msgId, to: peer.peerId);
+              await sendWebRTCMsg('busy', {}, msgId: msgId, to: peer.peerId);
               p2pCallScreenOn = false;
               Get.closeAllDialogs();
             },
-            child: const Icon(Icons.call_end, color: Colors.white),
+            child: Icon(Icons.call_end, color: Get.theme.colorScheme.onError),
           ),
           const SizedBox(width: 8),
           FloatingActionButton(
             mini: true,
             heroTag: "AcceptCall",
-            backgroundColor: Colors.green,
+            backgroundColor: Get.theme.colorScheme.primary,
             onPressed: () async {
               try {
                 await Get.find<ChatLogic>().markAsRead('C2C', peer.peerId, [
@@ -157,7 +166,7 @@ Future<void> incomingCallScreen(
             },
             child: Icon(
               option['media'] == 'video' ? Icons.videocam : Icons.phone,
-              color: Theme.of(Get.context!).colorScheme.onPrimary,
+              color: ThemeManager.instance.getThemeColor('textPrimary'),
             ),
           ),
         ],

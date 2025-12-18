@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import 'package:get/get.dart';
+import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:octo_image/octo_image.dart';
 
@@ -9,9 +13,9 @@ import 'package:octo_image/octo_image.dart';
 /// aspect ratios, renders blurred image as a background which is visible
 /// if the image is narrow, renders image in form of a file if aspect
 /// ratio is very small or very big.
-class ImageMessageBuilder extends StatefulWidget {
+class IMBoyImageMessageBuilder extends StatefulWidget {
   /// Creates an image message widget based on [ImageMessage].
-  const ImageMessageBuilder({
+  const IMBoyImageMessageBuilder({
     super.key,
     required this.message,
     required this.messageWidth,
@@ -27,11 +31,12 @@ class ImageMessageBuilder extends StatefulWidget {
   final int messageWidth;
 
   @override
-  State<ImageMessageBuilder> createState() => _ImageMessageState();
+  State<IMBoyImageMessageBuilder> createState() =>
+      _IMBoyImageMessageState();
 }
 
 /// [ImageMessage] widget state.
-class _ImageMessageState extends State<ImageMessageBuilder> {
+class _IMBoyImageMessageState extends State<IMBoyImageMessageBuilder> {
   ImageProvider? _image;
   Size _size = Size.zero;
   ImageStream? _stream;
@@ -40,8 +45,8 @@ class _ImageMessageState extends State<ImageMessageBuilder> {
   void initState() {
     super.initState();
 
-    _image = cachedImageProvider(widget.message.source, w: Get.width);
     _size = Size(widget.message.width ?? 0, widget.message.height ?? 0);
+    _loadImage();
   }
 
   @override
@@ -60,6 +65,18 @@ class _ImageMessageState extends State<ImageMessageBuilder> {
 
   @override
   Widget build(BuildContext context) {
+    return VisibilityDetector(
+      key: Key(widget.message.id),
+      onVisibilityChanged: (info) {
+        if (info.visibleFraction > 0.3 && _image == null) {
+          _loadImage();
+        }
+      },
+      child: _buildImageContent(context),
+    );
+  }
+
+  Widget _buildImageContent(BuildContext context) {
 
     if (_size.aspectRatio == 0) {
       return SizedBox(
@@ -74,23 +91,21 @@ class _ImageMessageState extends State<ImageMessageBuilder> {
           children: [
             SizedBox(
               height: 64,
-              // TODO fix InheritedChatTheme
-              // margin: EdgeInsetsDirectional.fromSTEB(
-              //   InheritedChatTheme.of(context).theme.messageInsetsVertical,
-              //   InheritedChatTheme.of(context).theme.messageInsetsVertical,
-              //   16,
-              //   InheritedChatTheme.of(context).theme.messageInsetsVertical,
-              // ),
               width: 64,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: OctoImage(
-                  width: Get.width,
-                  fit: BoxFit.cover,
-                  image: _image!,
-                  errorBuilder: (context, error, stacktrace) =>
-                      const Icon(Icons.error),
-                ),
+                borderRadius: BorderRadius.circular(12),
+                child: _image != null
+                    ? OctoImage(
+                        width: Get.width,
+                        fit: BoxFit.cover,
+                        image: _image!,
+                        errorBuilder: (context, error, stacktrace) =>
+                            const Icon(Icons.error),
+                      )
+                    : Container(
+                        color: Colors.grey[200],
+                        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                      ),
               ),
             ),
             Flexible(
@@ -99,14 +114,10 @@ class _ImageMessageState extends State<ImageMessageBuilder> {
                 children: [
                   Text(
                     widget.message.text!,
-                    // TODO fix InheritedChatTheme
-                    // style: user.id == widget.message.author.id
-                    //     ? InheritedChatTheme.of(context)
-                    //         .theme
-                    //         .sentMessageBodyTextStyle
-                    //     : InheritedChatTheme.of(context)
-                    //         .theme
-                    //         .receivedMessageBodyTextStyle,
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.bodyMedium?.color,
+                      fontSize: 14.0,
+                    ),
                     textWidthBasis: TextWidthBasis.longestLine,
                   ),
                   Container(
@@ -115,14 +126,10 @@ class _ImageMessageState extends State<ImageMessageBuilder> {
                     ),
                     child: Text(
                       formatBytes((widget.message.size??0).truncate()),
-                      // TODO fix InheritedChatTheme
-                      // style: user.id == widget.message.author.id
-                      //     ? InheritedChatTheme.of(context)
-                      //         .theme
-                      //         .sentMessageCaptionTextStyle
-                      //     : InheritedChatTheme.of(context)
-                      //         .theme
-                      //         .receivedMessageCaptionTextStyle,
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                        fontSize: 12.0,
+                      ),
                     ),
                   ),
                 ],
@@ -136,10 +143,15 @@ class _ImageMessageState extends State<ImageMessageBuilder> {
         width: Get.width * 0.618,
         child: AspectRatio(
           aspectRatio: _size.aspectRatio > 0 ? _size.aspectRatio : 1,
-          child: Image(
-            fit: BoxFit.contain,
-            image: _image!,
-          ),
+          child: _image != null
+              ? Image(
+                  fit: BoxFit.contain,
+                  image: _image!,
+                )
+              : Container(
+                  color: Colors.grey[200],
+                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                ),
         ),
       );
     }
@@ -163,5 +175,21 @@ class _ImageMessageState extends State<ImageMessageBuilder> {
         info.image.height.toDouble(),
       );
     });
+  }
+
+  Future<void> _loadImage() async {
+    try {
+      final File file =
+          await IMBoyCacheManager().getSingleFile(widget.message.source);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _image = FileImage(file);
+      });
+      if (_size.isEmpty) {
+        _getImage();
+      }
+    } catch (_) {}
   }
 }

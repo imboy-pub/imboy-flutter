@@ -15,8 +15,9 @@ void main() async {
       signKeyVsn: '1',
     );
     run();
-  } catch (e) {
-    logger.e("Application initialization failed", error: e);
+  } catch (e, s) {
+    // logger.e("Application initialization failed", error: e);
+    debugPrint("Application initialization failed: $e, $s");
   }
   // var v = SignKeyFFI.signKey("input");
   // debugPrint("signKey $v ;");

@@ -19,10 +19,9 @@ class GroupSelectPage extends StatelessWidget {
   GroupSelectPage({super.key});
 
   void loadData() async {
-    state.items.value = await Get.find<ConversationLogic>().conversationsList(
-      type: 'C2G',
-      recalculateRemind: false,
-    );
+    // 使用ConversationLogic的conversationsList方法加载所有会话，然后过滤出群组会话
+    final allConversations = await Get.find<ConversationLogic>().conversationsList();
+    state.items.value = allConversations.where((conversation) => conversation.type == 'C2G').toList();
   }
 
   @override

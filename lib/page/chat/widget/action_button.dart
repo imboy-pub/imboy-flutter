@@ -29,66 +29,54 @@ class ActionButton extends StatefulWidget {
 class _ActionButtonState extends State<ActionButton> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        GestureDetector(
-            onLongPress: widget.onLongPress,
-            onTap: widget.onPressed,
-            child: RawMaterialButton(
-              onPressed: widget.onPressed,
-              splashColor: widget.fillColor ??
-                  (widget.checked ? Colors.white : Colors.blue),
-              fillColor: widget.fillColor ??
-                  (widget.checked ? Colors.blue : Colors.white),
-              elevation: 10.0,
-              shape: const CircleBorder(),
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: widget.number
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                            Text('${widget.title}',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: widget.fillColor ?? Colors.grey[500],
-                                )),
-                            Text(widget.subTitle.toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 8,
-                                  color: widget.fillColor ?? Colors.grey[500],
-                                ))
-                          ])
-                    : Icon(
-                        widget.icon,
-                        size: 30.0,
-                        color: widget.fillColor != null
-                            ? Colors.white
-                            : (widget.checked ? Colors.white : Colors.blue),
-                      ),
-              ),
-            )),
-        widget.number
-            ? Container(
-                margin:
-                    const EdgeInsets.symmetric(vertical: 4.0, horizontal: 2.0))
-            : Container(
-                margin:
-                    const EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
-                child: (widget.number || widget.title == null)
-                    ? null
-                    : Text(
-                        widget.title!,
-                        style: TextStyle(
-                          fontSize: 15.0,
-                          color: widget.fillColor ?? Colors.grey[500],
-                        ),
-                      ),
-              )
-      ],
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      margin: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: colorScheme.surface, // 应用主题表面颜色
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.outline.withValues(alpha: 0.1), // 应用主题边框颜色
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: widget.onPressed,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            width: 60,
+            height: 60,
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  widget.icon!,
+                  size: 24,
+                  color: colorScheme.primary, // 应用主题主颜色
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  widget.title ?? '',
+                  style: TextStyle(
+                    color: colorScheme.onSurface, // 应用主题文本颜色
+                    fontSize: 12,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

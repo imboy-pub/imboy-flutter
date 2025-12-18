@@ -1,16 +1,17 @@
 import 'dart:async';
+import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_cache_manager/file.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
-import 'package:imboy/config/init.dart';
+import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
+import 'package:imboy/component/video/video_controller.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/service/assets.dart';
-import 'package:imboy/service/encrypter.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 class VideoViewerPage extends StatefulWidget {
   final String url;
@@ -32,6 +33,7 @@ class _VideoViewerPageState extends State<VideoViewerPage> {
   final ValueNotifier<bool> isPlaying = ValueNotifier<bool>(false);
   bool get isControllerPlaying => _controller?.value.isPlaying ?? false;
   late bool hasLoaded = false;
+  bool _isFullScreen = false;
 
   @override
   void initState() {
@@ -48,13 +50,17 @@ class _VideoViewerPageState extends State<VideoViewerPage> {
     super.dispose();
   }
 
+  void _toggleFullScreen() {
+    setState(() {
+      _isFullScreen = !_isFullScreen;
+    });
+  }
+
   Future<void> initializePlayer() async {
-    final String viewUrl = AssetsService.viewUrl(widget.url).toString();
     File? tmpF = await IMBoyCacheManager().getSingleFile(
-      viewUrl,
-      key: EncrypterService.md5(widget.url),
+      widget.url,
     );
-    debugPrint("chat_video_initializePlayer $viewUrl");
+    debugPrint("chat_video_initializePlayer ${AssetsService.viewUrl(widget.url)}");
     try {
       _controller = VideoPlayerController.file(tmpF);
       await _controller?.initialize();
@@ -163,7 +169,12 @@ class _VideoViewerPageState extends State<VideoViewerPage> {
                 child: VideoPlayer(_controller!),
               ),
             ),
-            buildPlayControlButton(context),
+            if (_controller != null)
+              VideoControllerOverlay(
+                controller: _controller!,
+                onFullScreenPressed: _toggleFullScreen,
+                isFullScreen: _isFullScreen,
+              ),
           ],
         ),
       ),
@@ -203,14 +214,38 @@ class _VideoViewerPageState extends State<VideoViewerPage> {
         body: Stack(
           alignment: Alignment.centerRight,
           children: <Widget>[
-            CachedNetworkImage(
-              imageUrl: AssetsService.viewUrl(widget.thumb).toString(),
-              width: Get.width,
-              height: Get.height,
-              progressIndicatorBuilder: (context, url, downloadProgress) =>
-                  CircularProgressIndicator(value: downloadProgress.progress),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-              cacheManager: cacheManager,
+            FutureBuilder<String>(
+              future: UserRepoLocal.to.accessToken,
+              builder: (context, snapshot) {
+                Map<String, String> headers = <String, String>{
+                  'User-Agent': 'imboy/1.0.0',
+                };
+
+                if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                  headers[Keys.tokenKey] = snapshot.data!;
+                }
+
+                return Image(
+                  image: IMBoyCachedImageProvider(
+                    AssetsService.viewUrl(widget.thumb).toString(),
+                    headers,
+                  ),
+                  width: Get.width,
+                  height: Get.height,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                );
+              },
             ),
             Positioned.fill(
               child: Center(
@@ -228,13 +263,14 @@ class _VideoViewerPageState extends State<VideoViewerPage> {
         ),
       );
     }
+    
     return Material(
       color: Colors.black,
       child: Stack(
         fit: StackFit.expand,
         children: [
           buildVideo(context),
-          buildForeground(context),
+          // 移除旧的buildForeground，因为控制功能已集成到VideoControllerOverlay中
         ],
       ),
     );

@@ -1,15 +1,13 @@
 import 'dart:math' as math;
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/icon_image_provider.dart';
+import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
 
 import 'package:imboy/config/const.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/service/assets.dart';
-import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -24,33 +22,6 @@ bool isUrl(String value) {
   return url.hasMatch(value);
 }
 
-///校验身份证
-bool isIdCard(String value) {
-  RegExp identity = RegExp(r"\d{17}[\d|x]|\d{15}");
-
-  return identity.hasMatch(value);
-}
-
-///正浮点数
-bool isMoney(String value) {
-  RegExp identity =
-      RegExp(r"^((\d+\.\d*[1-9]\d*)|(\d*[1-9]\d*\.\d+)|(\d*[1-9]\d*))$");
-  return identity.hasMatch(value);
-}
-
-///校验中文
-bool isChinese(String value) {
-  RegExp identity = RegExp(r"[\u4e00-\u9fa5]");
-
-  return identity.hasMatch(value);
-}
-
-///校验支付宝名称
-bool isAliPayName(String value) {
-  RegExp identity = RegExp(r"[\u4e00-\u9fa5_a-zA-Z]");
-
-  return identity.hasMatch(value);
-}
 
 bool strEmpty(String? val) {
   if (val == null) {
@@ -104,13 +75,6 @@ bool isAssetsImg(String? img) {
   return img.startsWith('asset') || img.startsWith('assets');
 }
 
-double getMemoryImageCache() {
-  return PaintingBinding.instance.imageCache.maximumSize / 1000;
-}
-
-void clearMemoryImageCache() {
-  PaintingBinding.instance.imageCache.clear();
-}
 
 String hiddenPhone(String phone) {
   if (phone.isEmpty) return phone;
@@ -165,28 +129,6 @@ String hiddenPhone(String phone) {
 }
 
 
-// bool isPhone(String? value) {
-//   if (strEmpty(value)) {
-//     return false;
-//   }
-//
-//   // 去除所有非数字字符和加号
-//   String cleaned = value!.replaceAll(RegExp(r'[^0-9+]'), '');
-//
-//   // 国际号码正则（以+开头，后跟5-14位数字）
-//   String internationalPattern = r'^\+\d{5,14}$';
-//
-//   // 中国手机号码正则（支持所有1[3-9]开头的11位号码，包含国际前缀）
-//   String chinaPattern = r'^(?:(?:\+|00)86)?1[3-9]\d{9}$';
-//
-//   // 检查是否是国际号码或中国号码
-//   return RegExp(internationalPattern).hasMatch(cleaned) ||
-//       RegExp(chinaPattern).hasMatch(cleaned);
-// }
-
-
-// 预编译所有正则表达式
-// final RegExp _digitRegExp = RegExp(r'\d');
 final RegExp _plusRegExp = RegExp(r'\+');
 final RegExp _internationalRegExp = RegExp(r'^\+\d{5,15}$');
 final RegExp _chinaRegExp = RegExp(
@@ -248,47 +190,22 @@ bool isEmail(String value) {
   return RegExp(pt).hasMatch(value);
 }
 
-///去除后面的0
-String stringDisposeWithDouble(int v, [int fix = 2]) {
-  double b = double.parse(v.toString());
-  String vStr = b.toStringAsFixed(fix);
-  int len = vStr.length;
-  for (int i = 0; i < len; i++) {
-    if (vStr.contains('.') && vStr.endsWith('0')) {
-      vStr = vStr.substring(0, vStr.length - 1);
-    } else {
-      break;
-    }
-  }
 
-  if (vStr.endsWith('.')) {
-    vStr = vStr.substring(0, vStr.length - 1);
-  }
-
-  return vStr;
-}
-
-///
-/// w < 0 不要缓存大文件，以节省设备存储空间
 ImageProvider<Object> cachedImageProvider(String url, {double w = 400}) {
   if (url.contains("def_avatar.png", 0)) {
     return IconImageProvider(Icons.person);
   }
 
   Uri u = AssetsService.viewUrl(url);
-  // 不要缓存大文件，以节省设备存储空间
-  if (w < 0) {
-    return CachedNetworkImageProvider(
-      u.toString(),
-      cacheManager: cacheManager,
-    );
-  }
-  String k = "${u.scheme}://${u.host}:${u.port}${u.path}";
-  // iPrint("cachedImageProvider_url $u");
-  return CachedNetworkImageProvider(
-    w > 0 ? "${u.toString()}&width=$w" : u.toString(),
-    cacheKey: EncrypterService.md5(k),
-    cacheManager: cacheManager,
+  String finalUrl = w > 0 ? "${u.toString()}&width=$w" : u.toString();
+
+  final headers = <String, String>{
+    'User-Agent': 'imboy/1.0.0',
+  };
+
+  return IMBoyCachedImageProvider(
+    finalUrl,
+    headers,
   );
 }
 

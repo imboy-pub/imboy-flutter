@@ -4,17 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar_list.dart' show AvatarList;
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_view.dart';
 import 'package:imboy/page/group/face_to_face/face_to_face_logic.dart';
 import 'package:imboy/store/model/chat_extend_model.dart';
-import 'package:imboy/store/repository/group_repo_sqlite.dart';
-
-import 'package:imboy/component/ui/button.dart';
-import 'package:imboy/component/ui/line.dart';
-import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/people_model.dart';
+import 'package:imboy/store/repository/group_repo_sqlite.dart';
 
 class FaceToFaceConfirmPage extends StatefulWidget {
   final String gid;
@@ -83,145 +79,103 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      // backgroundColor: darkBgColor,
-      appBar: NavAppBar(
+      backgroundColor: Colors.black87,
+      appBar: AppBar(
+        backgroundColor: Colors.black87,
         leading: IconButton(
-          icon: const Icon(Icons.close, size: 24, color: Colors.white),
-          onPressed: () {
-            NavigatorState nav = Navigator.of(context);
-            nav.pop();
-          },
+          icon: Icon(Icons.close, color: Colors.white),
+          onPressed: () => Get.back(),
         ),
-        // backgroundColor: darkBgColor,
+        elevation: 0,
       ),
-      // backgroundColor: Get.isDarkMode ? darkBgColor : lightBgColor,
-      body: Container(
-        padding: const EdgeInsets.all(10.0),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildNumberWidget(widget.code.length)
-              ],
+            _buildNumberWidget(context, widget.code),
+            const SizedBox(height: 8),
+            Text(
+              'create_group_f2f_confirm_tips'.tr,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: Colors.white.withValues(alpha: 0.85),
+              ),
             ),
-            SizedBox(height: 16, width: Get.width),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                    child: Text(
-                  // '这些朋友也将进入群聊'.tr,
-                  'create_group_f2f_confirm_tips'.tr,
-                  textAlign: TextAlign.center, // 文本在Text组件内部居中
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.white38,
-                    fontWeight: FontWeight.w500,
-                  ),
-                )),
-              ],
-            ),
-            const HorizontalLine(height: 1),
-            SizedBox(height: 10, width: Get.width),
-            SizedBox(
-              height: Get.height - 240,
+            const Divider(height: 16),
+            Expanded(
               child: SingleChildScrollView(
                 child: AvatarList(
                   memberList: memberList,
-                  titleStyle: const TextStyle(color: Colors.white),
+                  titleStyle: TextStyle(color: Colors.white.withValues(alpha: 0.85)),
                 ),
               ),
             ),
-            const Spacer(),
-            RoundedElevatedButton(
-              text: 'enter_the_group'.tr,
-              highlighted: true,
-              size: Size(Get.width, 48),
-              borderRadius: BorderRadius.circular(4.0),
-              onPressed: () async {
-                EasyLoading.show(status: '');
-                Map<String, dynamic> res = await Get.find<FaceToFaceLogic>()
-                    .faceToFaceSave(widget.gid, widget.code);
-                List<PeopleModel> memberList = res['memberList'] ?? [];
-                Map<String, dynamic> group = res['group'];
-                // await Future.delayed(const Duration(seconds: 1));
-                EasyLoading.dismiss();
-
-                GroupRepo().save('', group);
-                Get.to(
-                  () => ChatPage(
-                    peerId: widget.gid,
-                    type: 'C2G',
-                    peerTitle: '',
-                    peerAvatar: '',
-                    peerSign: '',
-                    options: {
-                      'popTime': 2,
-                      'showConversation': true,
-                      'memberCount': memberList.length
-                    },
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  transition: Transition.rightToLeft,
-                  popGesture: true, // 右滑，返回上一页
-                  // binding: ChatBinding(),
-                );
-              },
+                ),
+                child: Text('enter_the_group'.tr, style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.onPrimary)),
+                onPressed: () async {
+                  EasyLoading.show(status: 'loading'.tr);
+                  try {
+                    Map<String, dynamic> res = await Get.find<FaceToFaceLogic>()
+                        .faceToFaceSave(widget.gid, widget.code);
+                    List<PeopleModel> memberList = res['memberList'] ?? [];
+                    Map<String, dynamic> group = res['group'];
+                    await GroupRepo().save('', group);
+                    Get.off(
+                      () => ChatPage(
+                        peerId: widget.gid,
+                        type: 'C2G',
+                        peerTitle: group['name'] ?? '',
+                        peerAvatar: group['avatar'] ?? '',
+                        peerSign: group['profile'] ?? '',
+                        options: {'memberCount': memberList.length},
+                      ),
+                      preventDuplicates: false,
+                    );
+                  } finally {
+                    EasyLoading.dismiss();
+                  }
+                },
+              ),
             ),
+            const SizedBox(height: 8),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildNumberWidget(int length) {
-    return SizedBox(
-      height: 47,
-      width: 188,
-      child: ListView.builder(
-        padding: EdgeInsets.zero,
-        scrollDirection: Axis.horizontal,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: 4,
-        itemExtent: 47,
-        itemBuilder: (BuildContext context, int index) {
-          Widget showVal = Text(
-            widget.code[index],
-            style: const TextStyle(color: Colors.green, fontSize: 40),
-          );
-          return _buildNumberItemWidget(
-            length,
-            index,
-            true,
-            showVal,
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildNumberItemWidget(
-    int length,
-    int index,
-    bool showPoint,
-    Widget showVal,
-  ) {
-    iPrint("_buildNumberItemWidget length $length");
-    return Container(
-      height: 47,
-      width: 47,
-      alignment: Alignment.center,
-      child: showPoint
-          ? showVal
-          : Container(
-              height: 16,
-              width: 16,
-              decoration: BoxDecoration(
-                color: Colors.black87,
-                borderRadius: BorderRadius.circular(16),
-              ),
+  Widget _buildNumberWidget(BuildContext context, String code) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: code.split('').map((char) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Text(
+            char,
+            style: theme.textTheme.displayMedium?.copyWith(
+              color: colorScheme.primary,
+              fontWeight: FontWeight.bold,
             ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

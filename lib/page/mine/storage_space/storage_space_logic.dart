@@ -32,7 +32,7 @@ class StorageSpaceLogic extends GetxController {
     if (res) {
       storageStats();
       try {
-        await cacheManager.store.emptyCache();
+        await cacheManager.emptyCache();
       } catch (e) {
         //
       }

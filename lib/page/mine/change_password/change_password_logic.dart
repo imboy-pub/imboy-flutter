@@ -1,9 +1,9 @@
-import 'package:encrypt/encrypt.dart';
+import 'package:imboy/service/encrypter.dart';
+import 'package:imboy/service/rsa.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 
@@ -66,10 +66,8 @@ class ChangePasswordLogic extends GetxController {
   Future<String> _encryptPassword(String pubKey, String password) async {
     password = EncrypterService.md5(password);
     // debugPrint("login_pwd_rsa_encrypt ${payload.toString()}");
-    dynamic publicKey = RSAKeyParser().parse(pubKey);
-    final encryptor = Encrypter(RSA(publicKey: publicKey));
-    final encrypted = encryptor.encrypt(password);
-    return encrypted.base64.toString();
+    final encrypted = RSAService.rsaEncryptWithPointyCastle(password, pubKey);
+    return encrypted;
   }
 
   Future<bool> setPassword(

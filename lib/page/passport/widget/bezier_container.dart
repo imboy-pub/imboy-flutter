@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 import 'clip_painter.dart';
 
@@ -16,11 +17,15 @@ class BezierContainer extends StatelessWidget {
     child: Container(
       height: MediaQuery.of(context).size.height * .618,
       width: MediaQuery.of(context).size.width,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
           gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Colors.green, Colors.lightGreenAccent])),
+              colors: [
+                AppColors.primaryGreen.withValues(alpha: 0.9),
+                AppColors.primaryGreenLight.withValues(alpha: 0.7),
+                AppColors.primaryGreenLight.withValues(alpha: 0.5),
+              ])),
     ),
           ),
         );

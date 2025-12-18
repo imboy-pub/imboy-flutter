@@ -38,3 +38,9 @@
 # 针对 webview_flutter 插件的类
 -keep class io.flutter.plugins.webviewflutter.** { *; }
 -dontwarn io.flutter.plugins.webviewflutter.**
+
+# ==========================
+# 荣耀广告ID混淆规则（修复R8缺失类问题）
+# ==========================
+-dontwarn com.hihonor.ads.identifier.AdvertisingIdClient$Info
+-dontwarn com.hihonor.ads.identifier.AdvertisingIdClient

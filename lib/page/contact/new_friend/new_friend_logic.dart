@@ -67,7 +67,7 @@ class NewFriendLogic extends GetxController {
     replaceItems(NewFriendModel.fromJson(saveData));
     bottomLogic.newFriendRemindCounter.add(from);
     bottomLogic.update([bottomLogic.newFriendRemindCounter]);
-    WebSocketService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$deviceId");
+    WebSocketService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$deviceId", data['id']);
   }
 
   /// 确认添加朋友，对端消息通知
@@ -90,7 +90,7 @@ class NewFriendLogic extends GetxController {
       replaceItems(obj);
     }
     if (ack) {
-      WebSocketService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$deviceId");
+      WebSocketService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$deviceId", data['id']);
     }
   }
 
@@ -137,7 +137,7 @@ class NewFriendLogic extends GetxController {
     return list;
   }
 
-  Widget doBuildUserSearchResults(List<dynamic> items) {
+  Widget doBuildUserSearchResults(BuildContext context, List<dynamic> items) {
     if (items.isNotEmpty) {
       PeopleModel model = items[0];
       if (model.id == UserRepoLocal.to.currentUid) {

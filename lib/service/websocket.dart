@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
+import 'package:imboy/service/message.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -16,6 +17,8 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/page/passport/login_view.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/service/network_monitor.dart';
+import '../component/helper/datetime.dart' show DateTimeHelper;
 import 'websocket_message_queue.dart';
 
 enum SocketStatus { connecting, connected, disconnected }
@@ -28,13 +31,12 @@ class WebSocketService extends GetxService {
   final PersistentMessageQueue _messageQueue = PersistentMessageQueue.to;
 
   // 网络与连接
-  final Connectivity _connectivity = Connectivity();
   final ExponentialBackoff _backoff = ExponentialBackoff(maxRetries: 16);
+  final Set<String> _pendingMessages = <String>{}; // 等待确认的消息ID
   WebSocketChannel? _channel;
   bool _isFlushing = false;
 
   // 订阅管理
-  StreamSubscription<List<ConnectivityResult>>? _netSub;
   StreamSubscription? _wsSub;
   Timer? _reconnectTimer;
 
@@ -46,10 +48,17 @@ class WebSocketService extends GetxService {
   void onInit() {
     super.onInit();
 
-    // 初始化网络状态监听
-    _netSub = _connectivity.onConnectivityChanged.listen((results) async {
-      final hasNetwork = results.any((r) => r != ConnectivityResult.none);
-      hasNetwork ? _handleNetworkRestored() : _handleNetworkLost();
+    // 监听网络类型变化
+    NetworkMonitorService.to.addNetworkChangeListener((oldType, newType) {
+      iPrint('WebSocket服务检测到网络类型变化: ${oldType.name} -> ${newType.name}');
+      if (newType != NetworkType.none) {
+        // 网络类型变化时延迟重连
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (_shouldReconnect()) {
+            openSocket(from: 'network-type-change');
+          }
+        });
+      }
     });
 
     // 初始化连接（应用启动时调用）
@@ -60,32 +69,13 @@ class WebSocketService extends GetxService {
 
   @override
   void onClose() {
+    // 移除网络变化监听
+    NetworkMonitorService.to.removeNetworkChangeListener((oldType, newType) {});
     _cleanupResources();
     super.onClose();
   }
 
-  /// 处理网络恢复事件
-  void _handleNetworkRestored() {
-    if (_shouldHandleNetworkRestore()) {
-      iPrint('> ws: 网络恢复，尝试重新连接');
-      openSocket(from: 'network-restored');
-    }
-  }
-
-  /// 判断是否需要处理网络恢复
-  bool _shouldHandleNetworkRestore() {
-    return status.value == SocketStatus.disconnected &&
-        UserRepoLocal.to.isLoggedIn &&
-        !_connecting;
-  }
-
-  /// 处理网络断开事件
-  void _handleNetworkLost() {
-    iPrint('> ws: 网络连接丢失');
-    _updateStatus(SocketStatus.disconnected);
-    _cancelStream();
-  }
-
+  
   /// 统一状态更新方法
   void _updateStatus(SocketStatus newStatus) {
     if (status.value != newStatus) {
@@ -125,10 +115,17 @@ class WebSocketService extends GetxService {
     iPrint('> ws: 开始连接 (from: $from)');
 
     try {
-      if (!await _checkNetworkConnectivity()) return;
+      // 增强的网络连通性检查
+      if (!await _checkNetworkConnectivity()) {
+        iPrint('> ws: 网络连通性检查失败，取消连接');
+        return;
+      }
 
       final token = await _getValidToken();
-      if (token.isEmpty) return;
+      if (token.isEmpty) {
+        iPrint('> ws: 无效的访问令牌，取消连接');
+        return;
+      }
 
       _channel = IOWebSocketChannel.connect(
         Env.wsUrl ?? 'wss://pro.imboy.pub/ws/',
@@ -158,7 +155,7 @@ class WebSocketService extends GetxService {
         },
         cancelOnError: true,
       );
-      iPrint('> ws: 连接成功');
+      iPrint('> ws: 连接成功 ${Env.wsUrl}');
     } catch (e, s) {
       iPrint('> ws: 连接失败 ${Env.wsUrl}; (${e.toString()}); $s');
       _handleConnectionFailure(e);
@@ -173,20 +170,96 @@ class WebSocketService extends GetxService {
     _scheduleReconnection();
   }
 
-  /// 处理接收到的消息
-  void _onMessage(dynamic message) {
-    iPrint("ws_onMessage ${DateTime.now()} : $message");
+  /// 处理接收到的消息（优化版：简化分发逻辑）
+  Future<void> _onMessage(dynamic message) async {
+    iPrint("ws_onMessage ${DateTime.now()}");
+
+    // 快速空值检查
+    if (message == null || (message is String && message.trim().isEmpty)) {
+      return;
+    }
+
     try {
-      final payload = message is String ? jsonDecode(message) : message;
-      eventBus.fire(payload);
-    } catch (e, s) {
-      iPrint('> ws: 消息解析失败 ($message), $e ; $s');
+      // 统一消息解析
+      final msg = _parseMessage(message);
+      if (msg.isEmpty) return;
+
+      final messageType = msg['type']?.toString() ?? '';
+      final messageId = msg['id']?.toString() ?? '';
+
+      final type = messageType.toUpperCase();
+      msg['type'] = type;
+      // 消息确认处理（包含ACK和撤回确认）
+      _handleMessageAck(messageType, messageId);
+
+      // 统一分发到事件总线（移除冗余的_dispatchTypedEvents调用）
+      try {
+
+        iPrint("> msg listen: $type, ${DateTime.now()} $msg");
+
+        // 如果有 ts 字段，则打印延迟
+        // Log latency if timestamp provided
+        if (msg.containsKey('ts')) {
+          iPrint(
+            "> msg latency: ${DateTimeHelper.millisecond() - (msg['ts'] as int)} ms",
+          );
+        }
+
+        // 这里将具体处理委托给其他模块
+        // Delegate specific processing to other modules
+        await MessageService.to.processMessage(type, msg);
+      } catch (e, s) {
+        iPrint('Error processing message: $e - $s');
+      }
+      iPrint('> ws: 消息已分发: $messageType');
+
+    } catch (e) {
+      iPrint('> ws: 消息处理失败: $e');
+      // 解析失败时发送原始消息事件
+      _handleRawMessage(message);
+    }
+  }
+  
+  /// 统一消息解析方法
+  Map<String, dynamic> _parseMessage(dynamic message) {
+    if (message is String) {
+      return jsonDecode(message);
+    } else if (message is Map<String, dynamic>) {
+      return message;
+    } else if (message is Map) {
+      return Map<String, dynamic>.from(message);
+    }
+    throw FormatException('不支持的消息格式: ${message.runtimeType}');
+  }
+
+  /// 统一处理消息确认（包含ACK和撤回确认）
+  void _handleMessageAck(String messageType, String messageId) {
+    if (messageType.endsWith('_ACK')) {
+      _handleMessageConfirmation(messageId);
+    }
+
+    // 处理撤回消息的特殊确认
+    if (messageType.contains('REVOKE') && messageType.endsWith('_REVOKE_ACK') && messageId.isNotEmpty) {
+      _handleMessageConfirmation(messageId);
+    }
+  }
+
+    
+  /// 处理原始消息（当JSON解析失败时）
+  void _handleRawMessage(dynamic rawMessage) {
+    try {
+      eventBus.fire({
+        'type': 'RAW_MESSAGE',
+        'data': rawMessage,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      });
+    } catch (e) {
+      iPrint('> ws: 原始消息处理失败: $e');
     }
   }
 
   /// 清理所有资源
   void _cleanupResources() {
-    _netSub?.cancel();
     _cancelStream();
     _cancelReconnectTimer();
   }
@@ -299,17 +372,77 @@ class WebSocketService extends GetxService {
         status.value != SocketStatus.connected;
   }
 
-  /// 网络连通性检查
+  /// 网络连通性检查（使用网络监控服务）
   Future<bool> _checkNetworkConnectivity() async {
-    final result = await _connectivity.checkConnectivity();
-    final hasNetwork = result.any((r) => r != ConnectivityResult.none);
+    try {
+      // 使用网络监控服务检查网络状态
+      final hasNetwork = NetworkMonitorService.to.hasNetwork;
 
-    if (!hasNetwork) {
-      iPrint('> ws: 无可用网络');
-      _updateStatus(SocketStatus.disconnected);
-      _connecting = false;
+      if (!hasNetwork) {
+        iPrint('> ws: 设备无网络连接');
+        _updateStatus(SocketStatus.disconnected);
+        _connecting = false;
+        return false;
+      }
+
+      // 可选：真实网络连通性测试（更准确）
+      final hasRealNetwork = await _testRealNetworkConnectivity();
+
+      if (!hasRealNetwork) {
+        iPrint('> ws: 网络连通性测试失败，可能无法访问外网');
+        // 不立即断开，允许尝试连接（可能是DNS问题或测试服务器问题）
+        iPrint('> ws: 继续尝试 WebSocket 连接...');
+      }
+
+      return true; // 允许尝试连接，即使真实网络测试失败
+    } catch (e) {
+      iPrint('> ws: 网络连通性检查异常: $e');
+      // 出现异常时，假设网络可用，继续尝试连接
+      return true;
     }
-    return hasNetwork;
+  }
+
+  /// 真实网络连通性测试
+  Future<bool> _testRealNetworkConnectivity() async {
+    try {
+      // 使用系统的 HTTP 客户端进行轻量级测试
+      final client = HttpClient();
+      client.connectionTimeout = const Duration(seconds: 5);
+      
+      // 测试多个可靠的服务
+      final testUrls = [
+        'https://www.baidu.com',
+        'https://dns.alidns.com',
+        'https://1.1.1.1',
+      ];
+      
+      for (final url in testUrls) {
+        try {
+          final uri = Uri.parse(url);
+          final request = await client.getUrl(uri);
+          request.headers.set('User-Agent', 'IMBoy-NetworkTest/1.0');
+          
+          final response = await request.close().timeout(
+            const Duration(seconds: 3),
+          );
+          
+          if (response.statusCode >= 200 && response.statusCode < 400) {
+            client.close();
+            iPrint('> ws: 网络连通性测试成功 ($url)');
+            return true;
+          }
+        } catch (e) {
+          // 继续测试下一个 URL
+          continue;
+        }
+      }
+      
+      client.close();
+      return false;
+    } catch (e) {
+      iPrint('> ws: 网络测试异常: $e');
+      return false; // 测试异常时返回 false
+    }
   }
 
   /// 手动关闭连接
@@ -320,22 +453,94 @@ class WebSocketService extends GetxService {
     if (permanent) Get.delete<WebSocketService>();
   }
 
-  /// 发送消息核心方法
-  Future<bool> sendMessage(String message) async {
+  /// 发送消息核心方法（优化版：简化确认机制）
+  Future<bool> sendMessage(String message, String? messageId) async {
     if (!_preMessageCheck(message)) return false;
 
     if (status.value == SocketStatus.connected) {
       try {
         _channel?.sink.add(message);
+        iPrint('> ws: 消息已发送 (${messageId ?? 'unknown'})');
+
+        // 如果有消息ID，启动确认机制
+        if (messageId != null) {
+          bool isRevokeMessage = false;
+          try {
+            final messageData = jsonDecode(message);
+            final messageType = messageData['type']?.toString() ?? '';
+            isRevokeMessage = messageType.contains('REVOKE');
+          } catch (e) {
+            // 忽略解析错误
+          }
+
+          _startMessageConfirmation(messageId, isRevokeMessage: isRevokeMessage);
+        }
+
         return true;
-      } catch (e, s) {
-        iPrint('> ws: 消息发送失败(${e.toString()}); $s');
+      } catch (e) {
+        iPrint('> ws: 消息发送失败: $e');
+        await _handleSendFailure(message, messageId);
+        return false;
       }
     }
 
+    // 连接断开时，消息入队等待重连
+    iPrint('> ws: 连接断开，消息入队');
     _enqueueMessage(message);
+
+    // 尝试重新连接
     await openSocket(from: 'sendMessage');
     return false;
+  }
+  
+  /// 处理消息发送失败
+  Future<void> _handleSendFailure(String message, String? messageId) async {
+    iPrint('> ws: 处理消息发送失败 (${messageId ?? 'unknown'})');
+    
+    // 将消息加入重试队列
+    _enqueueMessage(message);
+    
+    // 如果是网络问题，尝试重新连接
+    if (status.value != SocketStatus.connected) {
+      await openSocket(from: 'retryAfterFailure');
+    }
+  }
+  
+  /// 启动消息确认机制
+  void _startMessageConfirmation(String messageId, {bool isRevokeMessage = false}) {
+    // 设置超时确认（普通消息5秒，撤回消息10秒）
+    int timeoutSeconds = isRevokeMessage ? 10 : 5;
+
+    Timer(Duration(seconds: timeoutSeconds), () {
+      if (_pendingMessages.remove(messageId)) {
+        final isConnected = status.value == SocketStatus.connected;
+        iPrint('> ws: 消息确认超时: $messageId (连接正常: $isConnected)');
+        // 连接断开时才通知失败，连接正常可能是服务端延迟
+        if (!isConnected) {
+          _notifyMessageSendResult(messageId, false);
+        }
+      }
+    });
+
+    _pendingMessages.add(messageId);
+  }
+
+  /// 处理消息确认（当收到服务器ACK时调用）
+  void _handleMessageConfirmation(String messageId) {
+    if (_pendingMessages.remove(messageId)) {
+      iPrint('> ws: 消息已确认: $messageId');
+      _notifyMessageSendResult(messageId, true);
+    }
+  }
+  
+  /// 通知消息发送结果
+  void _notifyMessageSendResult(String messageId, bool success) {
+    // 通过事件总线通知消息发送结果
+    eventBus.fire({
+      'type': 'MESSAGE_SEND_RESULT',
+      'messageId': messageId,
+      'success': success,
+    });
   }
 
   /// 消息发送前检查
@@ -368,6 +573,53 @@ class WebSocketService extends GetxService {
   void _cancelReconnectTimer() {
     _reconnectTimer?.cancel();
     _reconnectTimer = null;
+  }
+
+  /// 获取WebSocket URL
+  /// Get WebSocket URL
+  String? getWebSocketUrl() {
+    return Env.wsUrl;
+  }
+
+  /// 获取消息队列大小
+  /// Get message queue size
+  int getMessageQueueSize() {
+    return _messageQueue.messages.length;
+  }
+
+  /// 获取待确认消息数量
+  /// Get pending message count
+  int getPendingMessageCount() {
+    return _pendingMessages.length;
+  }
+  
+  /// 获取连接统计信息
+  /// Get connection statistics
+  Map<String, dynamic> getConnectionStats() {
+    return {
+      'status': status.value.name,
+      'message_queue_size': _messageQueue.messages.length,
+      'pending_messages': _pendingMessages.length,
+      'connection_attempts': _backoff.attempts,
+      'is_flushing': _isFlushing,
+      'current_url': getWebSocketUrl(),
+    };
+  }
+  
+  /// 获取待确认消息列表（用于调试）
+  /// Get pending messages list (for debugging)
+  List<String> getPendingMessages() {
+    return List<String>.from(_pendingMessages);
+  }
+  
+  /// 清理过期的待确认消息
+  /// Clean up expired pending messages
+  void cleanupExpiredPendingMessages() {
+    if (_pendingMessages.isNotEmpty) {
+      iPrint('> ws: 清理过期的待确认消息，当前数量: ${_pendingMessages.length}');
+      _pendingMessages.clear();
+      iPrint('> ws: 已清理所有待确认消息');
+    }
   }
 }
 

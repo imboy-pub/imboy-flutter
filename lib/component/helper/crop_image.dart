@@ -66,8 +66,8 @@ class _CropImageRouteState extends State<CropImageRoute> {
                       'button_cancel'.tr,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0,
+                        //color: Colors.white,
+                        //fontSize: 16.0,
                         fontWeight: FontWeight.normal,
                       ),
                     ),
@@ -85,8 +85,8 @@ class _CropImageRouteState extends State<CropImageRoute> {
                         'button_accomplish'.tr,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.0,
+                          //color: Colors.white,
+                          //fontSize: 16.0,
                           fontWeight: FontWeight.normal,
                         ),
                       ),

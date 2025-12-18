@@ -50,6 +50,7 @@ class ContactModel extends ISuspensionBean {
     this.avatar = "",
     this.gender = 0,
     this.status,
+    this.lastSeenAt,
     this.remark = "",
     this.tag = "",
     this.region = "",
@@ -76,6 +77,7 @@ class ContactModel extends ISuspensionBean {
   final String avatar; // 用户头像
   int gender; // 1 男  2 女  3 保密  0 未知
   final String? status; // offline | online |
+  final int? lastSeenAt; // 最后在线时间戳
   final String remark;
 
   // 朋友标签，半角逗号分割，单个表情不超过14字符
@@ -123,6 +125,9 @@ class ContactModel extends ISuspensionBean {
 
   factory ContactModel.fromMap(Map<String, dynamic> json) {
     var isFrom = json[ContactRepo.isFrom] ?? 0;
+    if (isFrom is String) {
+      isFrom = int.tryParse(isFrom) ?? 0;
+    }
     String tag = json[ContactRepo.tag] ?? '';
     tag = tag.replaceAll(',,', ',');
     tag = tag.endsWith(',') ? tag.substring(0, tag.length - 1) : tag;
@@ -139,8 +144,9 @@ class ContactModel extends ISuspensionBean {
       account: json["account"].toString(),
       nickname: json["nickname"].toString(),
       avatar: json["avatar"].toString(),
-      gender: json["gender"] ?? 0,
+      gender: int.tryParse(json["gender"].toString()) ?? 0,
       status: json["status"] ?? '',
+      lastSeenAt: json["last_seen_at"] == "" ? null : int.tryParse(json["last_seen_at"].toString()),
       remark: json["remark"].toString(),
       tag: tag,
       region: "${json["region"] ?? ''}",
@@ -148,8 +154,8 @@ class ContactModel extends ISuspensionBean {
       sign: json["sign"].toString(),
       // 单位毫秒，13位时间戳  1561021145560
       updatedAt: updateAt,
-      isFriend: json[ContactRepo.isFriend] ?? 0,
-      categoryId: json[ContactRepo.categoryId] ?? 0,
+      isFriend: int.tryParse(json[ContactRepo.isFriend].toString()) ?? 0,
+      categoryId: int.tryParse(json[ContactRepo.categoryId].toString()) ?? 0,
       isFrom: int.tryParse('$isFrom') ?? 0,
     );
   }
@@ -161,6 +167,7 @@ class ContactModel extends ISuspensionBean {
         'avatar': avatar,
         'gender': gender,
         'status': status,
+        'last_seen_at': lastSeenAt,
         'remark': remark,
         'region': region,
         'sign': sign,

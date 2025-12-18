@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/init.dart';
 
 import 'group_bill_board_logic.dart';
 import 'group_bill_board_state.dart';
@@ -11,7 +9,7 @@ class GroupBillBoardPage extends StatefulWidget {
   final String? groupNotice;
   final String? groupId;
   final String? time;
-  final Callback? callback;
+  final Function(String?)? callback;
 
   const GroupBillBoardPage(
     this.groupOwner,
@@ -31,62 +29,63 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
   final logic = Get.find<GroupBillBoardLogic>();
   final GroupBillBoardState state = Get.find<GroupBillBoardLogic>().state;
 
-  bool inputState = false;
   final FocusNode _focusNode = FocusNode();
-  final TextEditingController _textController = TextEditingController();
-  String? _publishTime;
-
-  TextStyle styleLabel =
-      TextStyle(fontSize: 12.0, color: Colors.black.withValues(alpha: 0.8));
+  late final TextEditingController _textController;
+  bool _canSave = false;
 
   @override
   void initState() {
     super.initState();
-    _textController.text = widget.groupNotice!;
+    _textController = TextEditingController(text: widget.groupNotice ?? '');
+    _textController.addListener(() {
+      final isModified = _textController.text != (widget.groupNotice ?? '');
+      if (isModified != _canSave) {
+        setState(() {
+          _canSave = isModified;
+        });
+      }
+    });
   }
 
-  void onChange() {
-    if (inputState) {
-      _publishTime =
-          "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day} ${DateTime.now().hour}:${DateTime.now().minute}";
-      widget.callback!(_publishTime);
-      Navigator.pop(context, _textController.text);
-      inputState = false;
-    } else {
-      inputState = true;
-    }
-    setState(() {});
+  void _saveNotice() {
+    if (!_canSave) return;
+    final newNotice = _textController.text;
+    final publishTime =
+        "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day} ${DateTime.now().hour}:${DateTime.now().minute}";
+    widget.callback?.call(publishTime);
+    Navigator.pop(context, newNotice);
   }
 
   @override
   Widget build(BuildContext context) {
-    // var rWidget = ComMomButton(
-    //   text: '确定',
-    //   style: const TextStyle(color: Colors.white),
-    //   width: 45.0,
-    //   margin: const EdgeInsets.all(10.0),
-    //   radius: 4.0,
-    //   onTap: () => onChange(),
-    // );
-
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: NavAppBar(
-        automaticallyImplyLeading: true,
-        title: 'group_announcement'.tr,
-        // rightDMActions: <Widget>[rWidget],
+      backgroundColor: theme.colorScheme.surface,
+      appBar: AppBar(
+        title: Text('group_announcement'.tr),
+        actions: [
+          TextButton(
+            onPressed: _canSave ? _saveNotice : null,
+            child: Text('button_accomplish'.tr),
+          ),
+        ],
       ),
-      body: TextField(
-        decoration: const InputDecoration(
-          filled: true,
-          fillColor: Colors.white,
-          hintText: '', // 请编辑群公告
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextField(
+          decoration: InputDecoration(
+            hintText: 'hint_edit_group_announcement'.tr,
+            border: InputBorder.none,
+            filled: true,
+            fillColor: theme.cardColor,
+          ),
+          autofocus: true,
+          focusNode: _focusNode,
+          maxLines: null,
+          expands: true,
+          controller: _textController,
+          style: theme.textTheme.bodyLarge,
         ),
-        autofocus: true,
-        focusNode: _focusNode,
-        maxLines: null,
-        expands: true,
-        controller: _textController,
-        style: const TextStyle(fontSize: 15.0),
       ),
     );
   }

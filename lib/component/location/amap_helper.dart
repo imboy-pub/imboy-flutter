@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:amap_flutter_base/amap_flutter_base.dart';
-import 'package:amap_flutter_location/amap_flutter_location.dart';
-import 'package:amap_flutter_location/amap_location_option.dart';
+import 'package:amap_flutter_base_plus/amap_flutter_base_plus.dart';
+import 'package:amap_flutter_location_plus/amap_flutter_location_plus.dart';
+import 'package:amap_flutter_location_plus/amap_location_option.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 

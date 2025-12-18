@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/button.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 import 'package:imboy/page/passport/login_view.dart';
+import 'manage_account_view.dart';
 
 import 'passport_logic.dart';
 import 'widget/bezier_container.dart';
@@ -137,12 +138,10 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                                 blinkWhenObscuring: true,
                                 animationType: AnimationType.fade,
                                 validator: (v) {
-                                  if (v!.length < 3) {
-                                    // please_input_param
-                                    return "Validate me".tr;
-                                  } else {
-                                    return null;
+                                  if (v == null || v.trim().isEmpty) {
+                                    return 'confirm_code_error'.tr;
                                   }
+                                  return null;
                                 },
                                 pinTheme: PinTheme(
                                   shape: PinCodeFieldShape.box,
@@ -214,7 +213,6 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                                       widget.account,
                                       'signup',
                                     );
-                                    // EasyLoading.dismiss();
                                     if (res == null) {
                                       logic.snackBar(
                                         Text(
@@ -231,10 +229,11 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                                       );
                                     } else {
                                       if (res == 'param_already_exist') {
-                                        res =
-                                            'param_already_exist'.trArgs(['mobile'.tr]);
+                                        final label = widget.accountType == 'email' ? 'email'.tr : 'mobile'.tr;
+                                        logic.snackBar('param_already_exist'.trArgs([label]));
+                                      } else {
+                                        logic.snackBar(res.tr);
                                       }
-                                      logic.snackBar(res.tr);
                                     }
                                   },
                                   child: Text(
@@ -272,7 +271,8 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                                       color: Colors.green,
                                     ),
                                   );
-                                  Get.offAll(() => const LoginPage());
+                                  // 注册成功后引导用户去管理账户（绑定手机号/关联邮箱）
+                                  Get.offAll(() => ManageAccountPage());
                                 } else {
                                   logic.snackBar(res.tr);
                                 }

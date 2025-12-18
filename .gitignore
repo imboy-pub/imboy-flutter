@@ -25,6 +25,7 @@ migrate_working_dir/
 
 # Flutter/Dart/Pub related
 **/doc/api/
+**/doc/moments_*.md
 **/ios/Flutter/.last_build_id
 .dart_tool/
 .flutter-plugins
@@ -62,3 +63,15 @@ lib/config/env_pro.g.dart
 IDEWorkspaceChecks.plist
 android/build
 .trae
+.vscode
+.codebuddy
+.lingma
+.kiro
+.gradle
+.dev.env
+.kilocode
+erl_code
+.claude/settings.local.json
+.cline/mcp_settings.json
+.qoder/rules/imboyapp.md
+doc/ai_prompts

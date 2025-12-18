@@ -6,7 +6,7 @@ import 'package:imboy/component/http/http_response.dart';
 
 class AuthProvider extends HttpClient {
   Future<String> getAssetsToken(String s) async {
-    IMBoyHttpResponse resp = await post(API.assetsToken, data: {'s', s});
+    IMBoyHttpResponse resp = await post(API.assetsToken, data: {'s': s});
     debugPrint("AuthProvider_getAssetsToken resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return '';

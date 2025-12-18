@@ -79,9 +79,9 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      // backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        // backgroundColor: Theme.of(context).colorScheme.surface,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(left: 10, right: 10),
@@ -97,7 +97,6 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
               widget.title,
               textAlign: TextAlign.center, // 文本对齐方式为居中
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimary,
                 fontSize: 24.0,
                 fontWeight: FontWeight.w600,
               ),
@@ -111,7 +110,6 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
               widget.subtitle,
               textAlign: TextAlign.center, // 文本对齐方式为居中
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimary,
                 fontSize: 16.0,
                 fontWeight: FontWeight.w600,
               ),
@@ -132,7 +130,7 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
             ),
             SizedBox(
               height: 80,
-              width: Get.width - 120,
+              width: Get.width - 128,
               child: TextField(
                 focusNode: _inputFocusNode,
                 controller: _textController,

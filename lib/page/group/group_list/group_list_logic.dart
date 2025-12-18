@@ -1,4 +1,4 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
+ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -63,47 +63,87 @@ class GroupListLogic extends GetxController {
   }
 
   Future<String> computeTitle(String gid) async {
+    if (gid.trim().isEmpty) {
+      iPrint("computeTitle: gid is empty");
+      return '';
+    }
+    
     const limit = 3;
     String title = '';
     String sql =
-        "select c.remark, c.nickname, c.account, gm.${GroupMemberRepo.alias} from ${ContactRepo.tableName} as c left join ${GroupMemberRepo.tableName} gm on gm.${GroupMemberRepo.userId} = c.${ContactRepo.peerId} WHERE gm.group_id = '$gid' limit $limit;";
+        "select c.remark, c.nickname, c.account, gm.${GroupMemberRepo.alias} from ${ContactRepo.tableName} as c left join ${GroupMemberRepo.tableName} gm on gm.${GroupMemberRepo.userId} = c.${ContactRepo.peerId} WHERE gm.group_id = ? limit $limit;";
     Database? db = await SqliteService.to.db;
     if (db == null) {
+      iPrint("computeTitle: database is null");
       return '';
     }
-    List<Map> list = await db.rawQuery(sql);
-    iPrint("computeTitle $gid, ${list.length} $sql");
-    iPrint("computeTitle $gid, ${list.toString()}");
-    if (list.isNotEmpty) {
-      for (var e in list) {
-        String t = e['alias'] ?? '';
-        if (t.isEmpty) {
-          t = e['nickname'] ?? '';
+    
+    try {
+      List<Map> list = await db.rawQuery(sql, [gid]);
+      iPrint("computeTitle $gid, ${list.length} members found in local db");
+      
+      if (list.isNotEmpty) {
+        List<String> names = [];
+        for (var e in list) {
+          String t = (e['alias']?.toString() ?? '').trim();
+          if (t.isEmpty) {
+            t = (e['remark']?.toString() ?? '').trim();
+          }
+          if (t.isEmpty) {
+            t = (e['nickname']?.toString() ?? '').trim();
+          }
+          if (t.isEmpty) {
+            t = (e['account']?.toString() ?? '').trim();
+          }
+          if (t.isNotEmpty) {
+            names.add(t);
+          }
         }
-        if (t.isEmpty) {
-          t = e['account'] ?? '';
+        
+        if (names.isNotEmpty) {
+          title = names.join('、');
+          iPrint("computeTitle local result: $title");
+          return title;
         }
-        title = title.isEmpty ? t : "$title、$t";
-        iPrint("computeTitle title: $title");
       }
-      return title;
-    }
 
-    Map<String, dynamic>? payload = await GroupMemberProvider().page(
-      gid: gid,
-      size: limit,
-    );
-    if (payload != null && payload['list'] != null) {
-      GroupMemberRepo repo = GroupMemberRepo();
-      for (var item in payload['list']) {
-        repo.save(item);
-        String t = item['alias'] ?? '';
-        if (t.isEmpty) {
-          t = "${item['nickname'] ?? ''}";
+      // 如果本地没有数据，尝试从服务器获取
+      iPrint("computeTitle: fetching from server for gid: $gid");
+      Map<String, dynamic>? payload = await GroupMemberProvider().page(
+        gid: gid,
+        size: limit,
+      );
+      
+      if (payload != null && payload['list'] != null && payload['list'] is List) {
+        GroupMemberRepo repo = GroupMemberRepo();
+        List<String> names = [];
+        
+        for (var item in payload['list']) {
+          if (item is Map<String, dynamic>) {
+            await repo.save(item);
+            String t = (item['alias']?.toString() ?? '').trim();
+            if (t.isEmpty) {
+              t = (item['nickname']?.toString() ?? '').trim();
+            }
+            if (t.isEmpty) {
+              t = (item['account']?.toString() ?? '').trim();
+            }
+            if (t.isNotEmpty) {
+              names.add(t);
+            }
+          }
         }
-        title = title.isEmpty ? t : "$title、$t";
+        
+        if (names.isNotEmpty) {
+          title = names.join('、');
+          iPrint("computeTitle server result: $title");
+        }
       }
+    } catch (e, s) {
+      iPrint("computeTitle error: $e\n$s");
     }
+    
+    iPrint("computeTitle final result for $gid: '$title'");
     return title;
   }
 

@@ -80,7 +80,6 @@ class LaunchSearch extends StatelessWidget {
             style: const TextStyle(textBaseline: TextBaseline.alphabetic),
             decoration: InputDecoration(
               hintText: 'search'.tr,
-              // hintStyle: TextStyle(color: AppColors.LineColor.withValues(alpha: 0.7)),
               border: InputBorder.none,
             ),
             onChanged: onChanged,

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -6,20 +7,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:just_audio/just_audio.dart' as just_audio;
+import 'package:audio_session/audio_session.dart';
 import 'package:imboy/page/chat/chat/sqlite_chat_controller.dart';
 import 'package:popup_menu/popup_menu.dart' as popupmenu;
 import 'package:sqflite/sqflite.dart';
+import 'package:imboy/component/chat/message_scroll_manager.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/string.dart';
-import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
+import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_logic.dart';
 import 'package:imboy/service/encrypter.dart';
+import 'package:imboy/service/message.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -36,17 +42,44 @@ import 'chat_state.dart';
 class ChatLogic extends GetxController {
   final state = ChatState();
   final scrollController = ScrollController();
-  late SqliteChatController chatController; // 聊天控制器
+  SqliteChatController? chatController; // 聊天控制器
+  PlayerController? _globalPlayerController; // 全局音频播放控制器
+  StreamSubscription<PlayerState>? _playerStateSubscription; // 播放状态监听
+  StreamSubscription<int>? _positionSubscription; // 播放位置监听
+  bool _isDisposed = false; // 添加状态跟踪标志
+  
+  // 备用音频播放器相关字段
+  just_audio.AudioPlayer? _audioPlayer; // 备用音频播放器
+  StreamSubscription<just_audio.PlayerState>? _justAudioStateSubscription; // Just Audio状态监听
+  StreamSubscription<Duration>? _justAudioPositionSubscription; // Just Audio位置监听
+  bool _useJustAudio = true; // 统一使用 Just Audio
   @override
   void onInit() {
     super.onInit();
     initState();
   }
 
+  
   void initChatController(String chatType) {
-    chatController = SqliteChatController();
-    // 清理旧数据
-    chatController.setMessages([]);
+    // 检查是否已经被释放
+    if (_isDisposed) {
+      iPrint('ChatLogic已被释放，跳过初始化');
+      return;
+    }
+    
+    // 检查控制器是否为null或已被释放
+    if (chatController == null || chatController!.isDisposed) {
+      iPrint('initChatController: 创建新的聊天控制器');
+      chatController = SqliteChatController();
+    } else {
+      iPrint('initChatController: 聊天控制器已存在，重置状态');
+      // 重置现有控制器的状态
+      chatController!.reset();
+    }
+    
+    // 不在这里清空消息列表，让 loadMoreMessages 方法处理
+    // 这样可以避免重复清空消息列表
+    iPrint('initChatController: 聊天控制器初始化完成');
   }
 
   /// 初始化状态
@@ -56,12 +89,41 @@ class ChatLogic extends GetxController {
     state.isLoading.value = false;
     state.nextAutoId.value = 0;
     state.memberCount.value = 0;
+    // 清除当前会话ID，确保状态正确
+    state.currentConversationId.value = '';
   }
 
   @override
   void dispose() {
     scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void onClose() {
+    // 设置释放标志
+    _isDisposed = true;
+    
+    // 清理资源
+    _positionSubscription?.cancel();
+    _playerStateSubscription?.cancel();
+    _globalPlayerController?.dispose();
+    _globalPlayerController = null;
+    
+    // 清理备用音频播放器资源
+    _justAudioPositionSubscription?.cancel();
+    _justAudioStateSubscription?.cancel();
+    _audioPlayer?.dispose();
+    _audioPlayer = null;
+    
+    // 清除当前会话ID
+    state.currentConversationId.value = '';
+    
+    // 注意：ChatLogic是全局单例，onClose()永远不会被自动调用
+    // chatController 的释放由 ChatLifecycleMixin.dispose() 负责
+    // 这里不再处理 chatController，避免双重释放
+    
+    super.onClose();
   }
 
   /// 获取群组标题，格式为"群组名称(人数)"
@@ -116,20 +178,93 @@ class ChatLogic extends GetxController {
     return messages.toList();
   }
 
-  /// 通过WebSocket发送消息
+  /// 通过WebSocket发送消息（增强版：包含重试机制）
   Future<bool> sendWsMsg(MessageModel obj) async {
-    if (obj.status == IMBoyMessageStatus.sending) {
-      Map<String, dynamic> msg = {
-        'id': obj.id,
-        'type': obj.type,
-        'from': obj.fromId,
-        'to': obj.toId,
-        'payload': obj.payload,
-        'created_at': obj.createdAt,
-      };
-      return await WebSocketService.to.sendMessage(json.encode(msg));
+    if (obj.status != IMBoyMessageStatus.sending) return true;
+
+    // 构建消息数据
+    Map<String, dynamic> msg = {
+      'id': obj.id,
+      'type': obj.type,
+      'from': obj.fromId,
+      'to': obj.toId,
+      'payload': obj.payload,
+      'created_at': obj.createdAt,
+    };
+
+    // 尝试发送消息，包含重试机制
+    if (obj.id == null) {
+      iPrint('消息ID为空，无法发送');
+      return false;
     }
-    return true;
+    return await _sendWithRetry(obj.id!, msg);
+  }
+
+  /// 带重试机制的消息发送（按照项目规范：指数退避，最大3次）
+  Future<bool> _sendWithRetry(String messageId, Map<String, dynamic> msg) async {
+    const maxRetries = 3;
+    int attempt = 0;
+    
+    while (attempt < maxRetries) {
+      try {
+        iPrint('消息发送尝试 ${attempt + 1}/$maxRetries: $messageId');
+        
+        bool success = await WebSocketService.to.sendMessage(json.encode(msg), messageId);
+        
+        if (success) {
+          iPrint('消息发送成功: $messageId');
+          await _updateMessageStatus(messageId, IMBoyMessageStatus.sent);
+          return true;
+        }
+        
+        throw Exception('发送失败');
+        
+      } catch (e) {
+        attempt++;
+        iPrint('消息发送失败 ($attempt/$maxRetries): $messageId, 错误: $e');
+        
+        if (attempt >= maxRetries) {
+          // 最终失败，标记为错误状态
+          await _updateMessageStatus(messageId, IMBoyMessageStatus.error);
+          iPrint('消息发送最终失败: $messageId');
+          return false;
+        }
+        
+        // 指数退避等待：1s, 2s, 4s
+        final delay = Duration(seconds: 1 << (attempt - 1));
+        iPrint('等待 ${delay.inSeconds}秒 后重试...');
+        await Future.delayed(delay);
+      }
+    }
+    
+    return false;
+  }
+  
+  /// 更新消息状态
+  Future<void> _updateMessageStatus(String messageId, int status) async {
+    try {
+      // 查找消息并更新状态
+      for (final tableType in ['C2C', 'C2G', 'C2S']) {
+        final tb = MessageRepo.getTableName(tableType);
+        final repo = MessageRepo(tableName: tb);
+        
+        final msg = await repo.find(messageId);
+        if (msg != null) {
+          await repo.update({
+            'id': messageId,
+            MessageRepo.status: status,
+          });
+          
+          // 通知UI更新
+          msg.status = status;
+          final updatedMessage = await msg.toTypeMessage();
+          eventBus.fire([updatedMessage]);
+          break;
+        }
+      }
+    } catch (e) {
+      iPrint('更新消息状态失败: $messageId, $e');
+    }
   }
 
   /// 从UI层消息模型转换为数据库模型
@@ -256,68 +391,244 @@ class ChatLogic extends GetxController {
 
     // 如果是图片消息，添加到画廊
     if (message is ImageMessage) {
-      Get.find<ImageGalleryLogic>().pushToLast(
+      Get.find<IMBoyImageGalleryController>().pushToLast(
         message.id,
         message.source,
       );
     }
   }
+  /// 撤回后更新会话状态
+  /// Update conversation after message revoke
+  Future<void> updateConversationAfterRevoke(
+    ConversationModel conversation,
+    Message msg,
+    String customType,
+  ) async {
+    try {
+      iPrint('更新会话撤回状态[本端]: conversationId=${conversation.id}, msgId=${msg.id}, customType=$customType');
+      
+      // 获取会话仓库和消息仓库
+      final conversationRepo = ConversationRepo();
+      final messageRepo = MessageRepo(tableName: MessageRepo.getTableName(conversation.type));
+      
+      // 如果撤回的是会话的最后一条消息，需要更新会话显示
+      if (conversation.lastMsgId == msg.id) {
+        // 首先更新会话为撤回状态显示
+        await conversationRepo.updateById(conversation.id, {
+          ConversationRepo.msgType: customType, // 设置为 'my_revoked' 或 'peer_revoked'
+          ConversationRepo.subtitle: customType == 'my_revoked' ? '你撤回了一条消息' : '对方撤回了一条消息',
+          ConversationRepo.payload: json.encode({
+            'msg_type': 'custom',
+            'custom_type': customType,
+            'text': msg.metadata?['text'] ?? '',
+            'peer_name': msg.metadata?['peer_name'] ?? '',
+          }),
+        });
+        
+        iPrint('会话更新为撤回状态: $customType');
+        
+        // 查找撤回消息的前一条消息
+        // 使用page方法获取最新的消息，排除当前撤回的消息
+        final allMessages = await messageRepo.page(
+          conversationUk3: conversation.uk3,
+          page: 1,
+          size: 10, // 获取更多消息以确保能找到前一条消息
+        );
+        
+        iPrint('查找前一条消息: 当前消息ID=${msg.id}, 获取到${allMessages.length}条消息');
+        for (int i = 0; i < allMessages.length; i++) {
+          iPrint('消息[$i]: id=${allMessages[i].id}, text=${allMessages[i].payload['text'] ?? ''}');
+        }
+        
+        // 找到撤回消息的前一条消息
+        // 由于page方法返回的是按时间倒序的消息，所以第一个不是当前消息的就是前一条消息
+        MessageModel? previousMsg;
+        if (allMessages.isNotEmpty && allMessages[0].id == msg.id) {
+          // 如果第一条消息就是被撤回的消息，则取第二条
+          if (allMessages.length > 1) {
+            previousMsg = allMessages[1];
+          }
+        } else if (allMessages.isNotEmpty) {
+          // 否则第一条消息就是前一条消息
+          previousMsg = allMessages[0];
+        }
+        
+        iPrint('找到前一条消息: ${previousMsg?.id ?? 'null'}');
+        
+        if (previousMsg != null) {
+          // 有前一条消息，更新会话显示前一条消息
+          final previousMessage = await previousMsg.toTypeMessage();
+          
+          await conversationRepo.updateById(conversation.id, {
+            ConversationRepo.lastMsgId: previousMsg.id,
+            ConversationRepo.msgType: MessageModel.conversationMsgType(previousMessage),
+            ConversationRepo.subtitle: MessageModel.conversationSubtitle(previousMessage),
+            ConversationRepo.lastTime: previousMsg.createdAt,
+            ConversationRepo.payload: json.encode(previousMsg.payload),
+          });
+          
+          iPrint('会话更新为前一条消息: ${previousMsg.id}');
+        } else {
+          // 没有前一条消息，保持撤回状态显示
+          iPrint('会话没有前一条消息，保持撤回状态显示');
+        }
+        
+        // 重新获取更新后的会话并通知UI更新
+        final updatedConversation = await conversationRepo.findById(conversation.id);
+        if (updatedConversation != null) {
+          iPrint('会话状态更新成功: ${updatedConversation.id}');
+          iPrint('触发会话更新事件总线[本端]');
+          // 重新启用事件触发，确保会话列表更新
+          eventBus.fire(updatedConversation);
+        }
+      } else {
+        iPrint('撤回的消息不是会话的最后一条消息，无需更新会话');
+      }
+    } catch (e, stack) {
+      iPrint('更新会话撤回状态异常[本端]: $e\n$stack');
+    }
+  }
+
 
   /// 从会话删除消息
   Future<bool> removeMessage(
       ConversationModel cm,
       Message msg,
       ) async {
+    iPrint('removeMessage - 开始删除消息: ${msg.id}, 会话ID: ${cm.id}, 会话类型: ${cm.type}');
     final repo = ConversationRepo();
     final tb = MessageRepo.getTableName(cm.type);
     final mRepo = MessageRepo(tableName: tb);
+    
+    iPrint('removeMessage - 使用表: $tb, 消息ID: ${msg.id}');
 
-    // 获取最后一条消息用于更新会话
-    final items = await mRepo.page(
-      conversationUk3: cm.uk3,
-      page: 2,
-      size: 1,
-    );
-    final lastMsg = items.isEmpty ? null : items[0];
+    // 先从数据库删除消息，确保数据一致性
+    iPrint('removeMessage - 开始从数据库删除消息: ${msg.id}');
+    int deleteCount = await mRepo.delete(msg.id);
+    iPrint('removeMessage - 数据库删除消息结果: $deleteCount, 消息ID: ${msg.id}');
 
-    // 删除消息
-    await mRepo.delete(msg.id);
+    // 检查删除是否成功
+    if (deleteCount == 0) {
+      iPrint('removeMessage - 数据库删除失败，尝试从数据库中查找消息');
+      MessageModel? dbMsg = await mRepo.find(msg.id);
+      if (dbMsg != null) {
+        iPrint('removeMessage - 消息仍在数据库中，重新尝试删除');
+        deleteCount = await mRepo.delete(msg.id);
+        iPrint('removeMessage - 重试删除结果: $deleteCount');
+      } else {
+        iPrint('removeMessage - 消息在数据库中未找到，可能已被删除');
+      }
+    }
 
-    // 更新会话最后消息信息
-    if (lastMsg == null) {
-      await repo.updateById(cm.id, {
-        ConversationRepo.lastMsgId: '',
-        ConversationRepo.lastMsgStatus: 0,
-        ConversationRepo.msgType: 'empty',
-        ConversationRepo.lastTime: 0,
-        ConversationRepo.subtitle: '',
-      });
+    // 只有在数据库删除成功后才从UI中移除消息
+    if (deleteCount > 0) {
+      // 从UI中移除消息，确保用户体验
+      iPrint('removeMessage - 开始从UI移除消息: ${msg.id}');
+      await chatController?.removeMessageById(msg.id);
+      iPrint('removeMessage - UI移除消息完成: ${msg.id}');
+
+      // 获取最后一条消息用于更新会话
+      iPrint('removeMessage - 开始获取最后一条消息');
+      final items = await mRepo.page(
+        conversationUk3: cm.uk3,
+        page: 1,
+        size: 1,
+      );
+      final lastMsg = items.isEmpty ? null : items[0];
+      iPrint('removeMessage - 获取最后一条消息: ${lastMsg?.id ?? "null"}');
+
+      // 如果获取到的最后一条消息就是被删除的消息，则需要获取倒数第二条消息
+      MessageModel? finalLastMsg = lastMsg;
+      if (lastMsg != null && lastMsg.id == msg.id) {
+        iPrint('removeMessage - 最后一条消息是被删除的消息，获取倒数第二条消息');
+        final moreItems = await mRepo.page(
+          conversationUk3: cm.uk3,
+          page: 1,
+          size: 2,
+        );
+        if (moreItems.length >= 2) {
+          finalLastMsg = moreItems[1]; // 第二条消息（倒数第二条）
+          iPrint('removeMessage - 获取倒数第二条消息: ${finalLastMsg.id ?? "null"}');
+        } else {
+          finalLastMsg = null; // 没有更多消息了
+          iPrint('removeMessage - 没有更多消息，会话将无最后消息');
+        }
+      }
+
+      // 更新会话最后消息信息
+      if (finalLastMsg == null) {
+        iPrint('removeMessage - 更新会话: 清空最后消息信息');
+        // 当会话中没有消息时，保留会话的创建时间或当前时间，而不是设置为0
+        // 这样可以确保会话仍然在会话列表中显示
+        int conversationTime = cm.lastTime > 0 ? cm.lastTime : DateTime.now().millisecondsSinceEpoch;
+        await repo.updateById(cm.id, {
+          ConversationRepo.lastMsgId: '',
+          ConversationRepo.lastMsgStatus: 0,
+          ConversationRepo.msgType: 'empty',
+          ConversationRepo.lastTime: conversationTime,
+          ConversationRepo.subtitle: '',
+        });
+      } else {
+        Message msg2 = await finalLastMsg.toTypeMessage();
+        iPrint('removeMessage - 更新会话: 最后消息ID: ${finalLastMsg.id}');
+        await repo.updateById(cm.id, {
+          ConversationRepo.lastMsgId: finalLastMsg.id,
+          ConversationRepo.lastMsgStatus: finalLastMsg.status,
+          ConversationRepo.msgType: MessageModel.conversationMsgType(msg2),
+          ConversationRepo.subtitle: MessageModel.conversationSubtitle(msg2),
+        });
+      }
+
+      // 通知会话更新
+      ConversationModel? cm2 = await repo.findById(cm.id);
+      if (cm2 != null) {
+        iPrint('removeMessage - 触发会话更新事件: ${cm2.id}');
+        eventBus.fire(cm2);
+      } else {
+        iPrint('removeMessage - 未找到更新后的会话');
+      }
+
+      // 如果是图片消息，从画廊移除
+      if (msg is ImageMessage) {
+        iPrint('removeMessage - 从画廊移除图片消息: ${msg.id}');
+        try {
+          Get.find<IMBoyImageGalleryController>().remoteFromGallery(msg.id);
+          iPrint('removeMessage - 从画廊移除图片消息成功: ${msg.id}');
+        } catch (e) {
+          iPrint('removeMessage - 从画廊移除图片消息失败: $e');
+        }
+      }
     } else {
-      Message msg2 = await lastMsg.toTypeMessage();
-      await repo.updateById(cm.id, {
-        ConversationRepo.lastMsgId: lastMsg.id,
-        ConversationRepo.lastMsgStatus: lastMsg.status,
-        ConversationRepo.msgType: MessageModel.conversationMsgType(msg2),
-        ConversationRepo.subtitle: MessageModel.conversationSubtitle(msg2),
-      });
+      // 如果数据库删除失败，不从UI中移除消息，保持一致性
+      iPrint('removeMessage - 数据库删除失败，不从UI移除消息，保持一致性');
     }
-
-    // 通知会话更新
-    ConversationModel? cm2 = await repo.findById(cm.id);
-    if (cm2 != null) {
-      eventBus.fire(cm2);
-    }
-
-    // 如果是图片消息，从画廊移除
-    if (msg is ImageMessage) {
-      Get.find<ImageGalleryLogic>().remoteFromGallery(msg.id);
-    }
-    return true;
+    
+    iPrint('removeMessage - 删除消息完成: ${msg.id}, 返回结果: ${deleteCount > 0}');
+    return deleteCount > 0;
   }
 
   /// 直接发送消息(不经过数据库)
   Future<bool> sendMessage(Map<String, dynamic> msg) async {
-    return WebSocketService.to.sendMessage(json.encode(msg));
+    // 🔍 追踪撤回消息发送
+    final messageType = msg['type']?.toString() ?? '';
+    if (messageType.contains('REVOKE')) {
+      iPrint('🔍 ChatLogic撤回消息追踪: 准备发送撤回消息');
+      iPrint('🔍 消息类型: $messageType');
+      iPrint('🔍 消息ID: ${msg['id']}');
+      iPrint('🔍 完整消息: ${json.encode(msg)}');
+    }
+    
+    iPrint('ChatLogic.sendMessage: ${json.encode(msg)}');
+    iPrint('WebSocket连接状态: ${WebSocketService.to.status.value}');
+    bool result = await WebSocketService.to.sendMessage(json.encode(msg), msg['id']);
+    iPrint('ChatLogic.sendMessage结果: $result');
+    
+    // 🔍 追踪撤回消息发送结果
+    if (messageType.contains('REVOKE')) {
+      iPrint('🔍 ChatLogic撤回消息追踪: 发送结果: $result');
+    }
+    
+    return result;
   }
 
   /// 标记消息为已读
@@ -368,12 +679,9 @@ class ChatLogic extends GetxController {
     });
 
     if (res) {
-      // 通知会话逻辑更新
+      // 推进会话“已读水位”，并按水位重算未读
       ConversationLogic conversationLogic = Get.find<ConversationLogic>();
-      conversationLogic.decreaseConversationRemind(
-        c,
-        msgIds.length,
-      );
+      await conversationLogic.advanceReadWatermarkByMsgIds(c, msgIds);
       conversationLogic.replace(c);
       return true;
     } else {
@@ -396,7 +704,7 @@ class ChatLogic extends GetxController {
     var repo = MessageRepo(tableName: tableName);
     MessageModel? msg = await repo.find(msgId);
     if (msg == null) return;
-    Map<String, dynamic> payload = msg.payload ?? {};
+    Map<String, dynamic> payload = msg.payload;
     payload['msg_type'] = payload['msg_type'].toString();
     payload['sys_prompt'] = sysPrompt;
 
@@ -442,10 +750,10 @@ class ChatLogic extends GetxController {
         title: 'button_copy'.tr,
         userInfo: {"id": "copy", "msg": message},
         textAlign: TextAlign.center,
-        textStyle: const TextStyle(
-          color: Color(0xffc5c5c5),
-          fontSize: 10.0,
-        ),
+        // textStyle: TextStyle(
+        //   color: Color(0xffc5c5c5),
+        //   fontSize: AppTextSize.small,
+        // ),
         image: const Icon(
           Icons.copy,
           size: 16,
@@ -505,7 +813,7 @@ class ChatLogic extends GetxController {
     }
 
     // 检查是否已撤回
-    bool isRevoked = (message is CustomMessage) && customType == 'revoked';
+    bool isRevoked = (message is CustomMessage) && customType.toUpperCase().contains('REVOKE');
     if (customType == 'webrtc_audio' || customType == 'webrtc_video') {
       isRevoked = true;
     }
@@ -529,7 +837,7 @@ class ChatLogic extends GetxController {
         title: 'quote'.tr,
         userInfo: {"id": "quote", "msg": message},
         textAlign: TextAlign.center,
-        textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+        // textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: AppTextSize.small),
         image: const Icon(
           Icons.format_quote,
           size: 16,
@@ -575,7 +883,6 @@ class ChatLogic extends GetxController {
   Future<void> saveFile(String name, String uri) async {
     File? tmpF = await IMBoyCacheManager().getSingleFile(
       uri,
-      key: EncrypterService.md5(uri),
     );
 
     String ext = StringHelper.ext(uri);
@@ -599,12 +906,22 @@ class ChatLogic extends GetxController {
   /// [isInitial] 是否首次加载（首次清空消息及游标）
   /// 返回新加载的消息列表
   Future<List<Message>> loadMoreMessages(ConversationModel obj, {bool isInitial = false}) async {
+    // 检查是否已经被释放
+    if (_isDisposed) {
+      iPrint('ChatLogic已被释放，跳过加载更多消息');
+      return [];
+    }
+    
     iPrint('_loadMoreMessages: isInitial=$isInitial, hasMore=${state.hasMoreMessage.value}, loading=${state.isLoading.value}');
     // 初始化时清空游标和消息
     if (isInitial) {
       state.nextAutoId.value = 0;
+      state.prevAutoId.value = 0;
       state.hasMoreMessage.value = true;
-      chatController.setMessages([]);
+      chatController?.setMessages([]);
+      // 设置当前会话ID，用于防止重复计数未读消息
+      state.currentConversationId.value = obj.uk3;
+      iPrint('设置当前会话ID: ${obj.uk3}');
     }
     if (state.isLoading.value || !state.hasMoreMessage.value) return [];
 
@@ -612,20 +929,34 @@ class ChatLogic extends GetxController {
     final items = await pageMessages(obj, state.pageSize);
     state.isLoading.value = false;
 
+    // 再次检查是否已被释放（异步操作后）
+    if (_isDisposed) {
+      iPrint('ChatLogic在异步操作后被释放，跳过消息更新');
+      return [];
+    }
+
     if (items.isEmpty) {
       state.hasMoreMessage.value = false;
       return [];
     }
 
     // 去重插入
-    final currentIds = chatController.messages.map((e) => e.id).toSet();
+    final currentIds = chatController?.messages.map((e) => e.id).toSet() ?? <String>{};
     final newItems = items.where((msg) => !currentIds.contains(msg.id)).toList();
 
     if (newItems.isNotEmpty) {
-      chatController.insertAllMessages([
-        ...chatController.messages,
-        ...newItems,
-      ]);
+      // 初始加载时，直接设置消息列表（保持正确的顺序）
+      if (isInitial) {
+        chatController?.setMessages(newItems);
+        // 设置初始的 prevAutoId 为最新消息的 auto_id
+        state.prevAutoId.value = newItems.first.metadata?['auto_id'] ?? 0;
+      } else {
+        // 分页加载时，需要反转消息顺序后再插入到列表顶部
+        // 因为 pageMessages 返回的是旧消息在前，新消息在后的顺序
+        // 但分页加载的历史消息应该插入到列表顶部，且保持新旧顺序
+        final reversedItems = newItems.reversed.toList();
+        chatController?.insertAllMessages(reversedItems, index: 0);
+      }
       // 更新游标（假设消息ID单调递减）
       state.nextAutoId.value =
           newItems.last.metadata?['auto_id'] ?? state.nextAutoId.value;
@@ -638,57 +969,628 @@ class ChatLogic extends GetxController {
     return newItems;
   }
 
-  /// 滚动到指定消息ID，如果消息未加载则自动加载历史消息
+  /// 加载较新的消息（用于双向分页）
+  /// 返回新加载的消息列表
+  Future<List<Message>> loadNewerMessages(ConversationModel obj) async {
+    // 检查是否已经被释放
+    if (_isDisposed) {
+      iPrint('ChatLogic已被释放，跳过加载较新消息');
+      return [];
+    }
+    
+    // 防止重复加载
+    if (state.isLoadingNewer.value) {
+      iPrint('正在加载较新消息，跳过');
+      return [];
+    }
+
+    state.isLoadingNewer.value = true;
+    update();
+
+    try {
+      final tb = MessageRepo.getTableName(obj.type);
+      final repo = MessageRepo(tableName: tb);
+      final prevAutoId = state.prevAutoId.value;
+      final pageSize = state.pageSize;
+
+      iPrint('loadNewerMessages: uk3=${obj.uk3}, prevAutoId=$prevAutoId, pageSize=$pageSize');
+
+      // 从数据库查询较新的消息
+      final items = await repo.pageNewerForConversation(
+        obj.uk3,
+        prevAutoId,
+        pageSize,
+      );
+
+      if (items.isEmpty) {
+        iPrint('loadNewerMessages: 没有较新的消息');
+        return [];
+      }
+
+      // 转换为消息对象
+      final messages = await Future.wait(
+        items.map((item) async {
+          // 如果是发送中的消息，尝试重新发送
+          if (item.status == IMBoyMessageStatus.sending) {
+            await sendWsMsg(item);
+          }
+          return await item.toTypeMessage();
+        }),
+      );
+
+      // 去重处理
+      final currentIds = chatController?.messages.map((e) => e.id).toSet() ?? <String>{};
+      final newMessages = messages.where((msg) => !currentIds.contains(msg.id)).toList();
+
+      if (newMessages.isNotEmpty) {
+        iPrint('loadNewerMessages: 加载了 ${newMessages.length} 条较新消息');
+        // 更新 prevAutoId 为当前加载的消息中最大的 auto_id
+        state.prevAutoId.value = items
+            .map((msg) => msg.autoId)
+            .fold(0, (max, id) => id > max ? id : max);
+        
+        // 将较新的消息插入到列表顶部
+        await chatController?.insertAllMessages(newMessages, index: 0);
+      }
+
+      return newMessages;
+    } catch (e) {
+      iPrint('loadNewerMessages: 加载较新消息失败 $e');
+      return [];
+    } finally {
+      state.isLoadingNewer.value = false;
+      update();
+    }
+  }
+
+  /// 滚动到指定消息ID（优化版），支持精确定位和高亮效果
   Future<void> scrollToMessage(String chatType, MessageID messageId) async {
     if (messageId.isEmpty) return;
 
-    bool messageExists() => chatController.messages.any((m) => m.id == messageId);
+    bool messageExists() => chatController?.messages.any((m) => m.id == messageId) ?? false;
 
-    // 1. 先查本地有没有
+    // 1. 先查本地有没有，直接滚动（优化响应速度）
     if (messageExists()) {
-      await chatController.scrollToMessage(messageId);
+      iPrint('消息已在内存中，直接滚动: $messageId');
+      await _performScrollToMessage(messageId);
       return;
     }
 
-    // 2. 查数据库是否有
+    // 2. 查数据库是否存在该消息
     String tb = MessageRepo.getTableName(chatType);
-    iPrint("chatType: $chatType, tableName: $tb, messageId: $messageId");
+    iPrint("查询消息: chatType=$chatType, tableName=$tb, messageId=$messageId");
+
     MessageModel? msg = await (MessageRepo(tableName: tb)).find(messageId);
     if (msg == null) {
       EasyLoading.showError('未找到该消息');
       return;
     }
+
     String toId = msg.toId ?? '';
     ConversationModel? conversation = await (ConversationRepo()).findByPeerId(chatType, toId);
 
-    int maxAttempts = 10;
+    // 3. 智能加载历史消息，减少不必要的加载
+    int maxAttempts = 5; // 减少最大尝试次数
     int attempts = 0;
-    bool allMessagesLoaded = false;
-    bool found = false;
 
-    while (!allMessagesLoaded && attempts < maxAttempts) {
-      // 3. 检查消息是否已加载到内存
+    while (attempts < maxAttempts) {
+      // 检查消息是否已加载到内存
       if (messageExists()) {
-        found = true;
         break;
       }
-      // 4. 触发加载更多（异步等待加载完成）
-      if (conversation != null) {
-        await loadMoreMessages(conversation);
+
+      // 如果没有更多历史消息，退出循环
+      if (!state.hasMoreMessage.value) {
+        iPrint('没有更多历史消息可加载');
+        break;
       }
-      // 5. 检查是否已无更多历史消息
-      allMessagesLoaded = !state.hasMoreMessage.value;
+
+      // 触发加载更多历史消息
+      if (conversation != null) {
+        iPrint('加载历史消息，尝试 ${attempts + 1}/$maxAttempts');
+        await loadMoreMessages(conversation);
+
+        // 等待UI更新
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+
       attempts++;
     }
 
-    // 如果经过多次尝试仍未找到消息
-    if (!found && !messageExists()) {
-      EasyLoading.showError('未能定位到该消息');
+    // 最终检查消息是否存在
+    if (!messageExists()) {
+      EasyLoading.showError('未能定位到该消息，可能已被删除');
       return;
     }
 
-    // 等待动画完成
-    await Future.delayed(const Duration(milliseconds: 100));
-    await chatController.scrollToMessage(messageId);
+    // 执行滚动操作
+    await _performScrollToMessage(messageId);
   }
-}
+
+  /// 执行滚动到指定消息的操作
+  Future<void> _performScrollToMessage(String messageId) async {
+    try {
+      // 使用滚动管理器进行精确定位
+      // 这里需要传入会话ID，暂时使用消息ID作为替代
+      final conversationId = _getCurrentConversationId();
+
+      await MessageScrollManager.to.scrollToMessage(
+        conversationId,
+        messageId,
+        animated: true,
+        offset: 80.0, // 避免被顶部栏遮挡
+        highlight: true,
+        duration: const Duration(milliseconds: 300),
+      );
+
+      iPrint('滚动到消息完成: $messageId');
+    } catch (e) {
+      iPrint('滚动到消息失败: $messageId, 错误: $e');
+
+      // 备用方案：使用chatController的滚动方法
+      await chatController?.scrollToMessage(messageId);
+    }
+  }
+
+  /// 获取当前会话ID（优化版）
+  String _getCurrentConversationId() {
+    // 优先返回实际的会话uk3，确保滚动管理器能正确缓存位置
+    try {
+      // 从当前会话中获取uk3作为唯一标识
+      if (chatController?.messages.isNotEmpty == true) {
+        // 可以从第一条消息的metadata中获取conversation_uk3
+        final firstMessage = chatController!.messages.first;
+        final conversationUk3 = firstMessage.metadata?['conversation_uk3']?.toString();
+        if (conversationUk3?.isNotEmpty == true) {
+          return conversationUk3!;
+        }
+      }
+
+      // 如果没有消息，返回默认标识
+      return 'default_conversation';
+    } catch (e) {
+      iPrint('获取当前会话ID失败，使用默认值: $e');
+      return 'default_conversation';
+    }
+  }
+
+  /// 重试发送失败的消息
+  /// Retry sending failed message.
+  Future<bool> retryMessage(String messageId, String messageType) async {
+    try {
+      iPrint('开始重试消息: $messageId');
+      
+      // 使用MessageService的重试功能
+      final success = await MessageService.to.retryMessage(messageId, messageType);
+      
+      if (success) {
+        iPrint('消息重试成功: $messageId');
+      } else {
+        iPrint('消息重试失败: $messageId');
+      }
+      
+      return success;
+    } catch (e) {
+      iPrint('重试消息异常: $messageId, $e');
+      return false;
+    }
+  }
+
+  /// 检查并重试发送中的消息
+  /// Check and retry sending messages.
+  Future<void> checkAndRetrySendingMessages(String type, String conversationUk3) async {
+    try {
+      final tb = MessageRepo.getTableName(type);
+      final repo = MessageRepo(tableName: tb);
+      
+      // 查找所有发送中状态的消息
+      final sendingMessages = await repo.findByStatus(
+        conversationUk3,
+        IMBoyMessageStatus.sending,
+      );
+      
+      for (final msg in sendingMessages) {
+        // 检查消息创建时间，如果超过5分钟则标记为失败
+        final now = DateTime.now().millisecondsSinceEpoch;
+        if (now - msg.createdAt > 5 * 60 * 1000) {
+          await repo.update({
+            'id': msg.id,
+            'status': IMBoyMessageStatus.error,
+          });
+          
+          // 更新UI
+          final updatedMessage = await msg.toTypeMessage();
+          eventBus.fire([updatedMessage]);
+          
+          iPrint('消息发送超时，标记为失败: ${msg.id}');
+        } else {
+          // 尝试重新发送
+          await sendWsMsg(msg);
+        }
+      }
+    } catch (e) {
+      iPrint('检查发送中消息异常: $e');
+    }
+  }
+
+  /// 初始化全局音频会话（获取音频焦点）
+  Future<void> _initGlobalPlayerController() async {
+    try {
+      final session = await AudioSession.instance;
+      await session.configure(AudioSessionConfiguration.music());
+      await session.setActive(true);
+      iPrint('AudioSession configured and activated');
+    } catch (e) {
+      iPrint('AudioSession configuration failed: $e');
+    }
+  }
+
+  /// 播放/暂停/继续播放语音（统一 just_audio）
+  Future<void> playVoice({
+    required String voiceUrlOrPath,
+    required String messageId,
+    required int duration,
+  }) async {
+    try {
+      iPrint('playVoice called: path=$voiceUrlOrPath, messageId=$messageId, duration=$duration');
+      
+      if (voiceUrlOrPath.isEmpty) {
+        iPrint('Error: Audio path is empty');
+        return;
+      }
+      
+      // 检查文件是否存在
+      final file = File(voiceUrlOrPath);
+      if (!await file.exists()) {
+        iPrint('Error: Audio file does not exist at path: $voiceUrlOrPath');
+        return;
+      }
+      
+      // 初始化音频会话（获取音频焦点）
+      await _initGlobalPlayerController();
+      
+      // 检查是否是当前正在播放的音频
+      if (state.currentAudioPath.value == voiceUrlOrPath) {
+        iPrint('Same audio file clicked, current state: isPlaying=${state.isPlaying.value}, isPaused=${state.isPaused.value}');
+        _audioPlayer ??= just_audio.AudioPlayer();
+        if (state.isPlaying.value) {
+          await _audioPlayer!.pause();
+          state.setCurrentPausedAudio(
+            audioPath: voiceUrlOrPath,
+            messageId: messageId,
+            position: state.currentPosition.value,
+          );
+          update(['voice_playback_state']);
+          return;
+        } else if (state.isPaused.value) {
+          await _audioPlayer!.play();
+          state.resumeCurrentAudio();
+          update(['voice_playback_state']);
+          return;
+        }
+      }
+
+      // 不同资源或首次播放：先停止当前播放，然后开始新的播放
+      if (state.isPlaying.value && _audioPlayer != null) {
+        iPrint('Stopping current playback to play new audio');
+        await _audioPlayer!.stop();
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+
+      await _playWithJustAudio(voiceUrlOrPath, messageId, duration);
+      
+    } catch (e) {
+      iPrint('播放语音消息异常: $e');
+      debugAudioState(); // 输出调试信息
+      state.stopCurrentAudio();
+      update(['voice_playback_state', 'voice_playback_progress']); // 更新UI状态
+    }
+  }
+  
+  /// 使用 just_audio 播放音频
+  Future<void> _playWithJustAudio(String voiceUrlOrPath, String messageId, int duration) async {
+    try {
+      // 初始化 just_audio 播放器
+      if (_audioPlayer == null) {
+        _audioPlayer = just_audio.AudioPlayer();
+        iPrint('Just Audio player initialized');
+        
+        // 监听播放状态变化
+        _justAudioStateSubscription = _audioPlayer!.playerStateStream.listen((playerState) async {
+          if (_isDisposed) return;
+          
+          iPrint('Just Audio player state changed: $playerState');
+          
+          if (playerState.playing) {
+            iPrint('Just Audio is playing, updating state');
+            state.resumeCurrentAudio();
+            update(['voice_playback_state', 'voice_playback_progress']);
+          } else if (playerState.processingState == just_audio.ProcessingState.ready && !playerState.playing) {
+            iPrint('Just Audio is paused, updating state');
+            state.isPaused.value = true;
+            state.isPlaying.value = false;
+            update(['voice_playback_state']);
+          } else if (playerState.processingState == just_audio.ProcessingState.completed) {
+            iPrint('Just Audio is completed, checking for next audio message');
+            // 播放完成，先尝试播放下一条语音消息
+            // 在播放下一条之前不清除当前状态，以便能够找到当前消息的位置
+            await playNextAudioMessage();
+            
+            // 只有在没有下一条消息时才清除状态
+            // 如果有下一条消息，状态会在播放新消息时被更新
+            if (state.currentMessageId.value.isEmpty) {
+              state.stopCurrentAudio();
+            }
+            update(['voice_playback_state', 'voice_playback_progress']);
+          } else if (playerState.processingState == just_audio.ProcessingState.idle) {
+            iPrint('Just Audio is idle, updating state');
+            state.stopCurrentAudio();
+            update(['voice_playback_state', 'voice_playback_progress']);
+          }
+        });
+        
+        // 监听播放位置变化
+        _justAudioPositionSubscription = _audioPlayer!.positionStream.listen((position) {
+          if (_isDisposed) return;
+          
+          // 只在每秒更新一次日志，避免日志过多
+          if (position.inMilliseconds % 1000 == 0) {
+            iPrint('Just Audio playback position updated: ${position.inMilliseconds}ms');
+          }
+          state.updatePlaybackPosition(position.inMilliseconds);
+          update(['voice_playback_progress']);
+        });
+      }
+      
+      // 设置音频源并播放
+      await _audioPlayer!.setFilePath(voiceUrlOrPath);
+      
+      // 确保状态正确设置
+      state.setCurrentPlayingAudio(
+        audioPath: voiceUrlOrPath,
+        messageId: messageId,
+        duration: duration,
+      );
+      
+      await _audioPlayer!.play();
+      
+      iPrint('Just Audio playback started successfully');
+      update(['voice_playback_state', 'voice_playback_progress']);
+      
+    } catch (e) {
+      iPrint('Just Audio playback error: $e');
+      state.stopCurrentAudio();
+      update(['voice_playback_state', 'voice_playback_progress']);
+    }
+  }
+
+  /// 暂停播放语音
+  Future<void> pauseVoice() async {
+    try {
+      if (state.isPlaying.value) {
+        if (_audioPlayer != null) {
+          await _audioPlayer!.pause();
+        }
+        state.setCurrentPausedAudio(
+          audioPath: state.currentAudioPath.value,
+          messageId: state.currentMessageId.value,
+          position: state.currentPosition.value,
+        );
+      }
+    } catch (e) {
+      iPrint('暂停语音播放异常: $e');
+    }
+  }
+
+  /// 继续播放语音
+  Future<void> resumeVoice() async {
+    try {
+      if (state.isPaused.value) {
+        if (_audioPlayer != null) {
+          await _audioPlayer!.play();
+          state.resumeCurrentAudio();
+          update(['voice_playback_state']);
+        }
+      }
+    } catch (e) {
+      iPrint('继续语音播放异常: $e');
+    }
+  }
+
+  /// 停止当前播放的语音（用于播放其他消息时）
+  Future<void> stopCurrentVoice() async {
+    try {
+      if (state.isPlaying.value) {
+        if (_audioPlayer != null) {
+          await _audioPlayer!.stop();
+        }
+        state.stopCurrentAudio();
+      }
+    } catch (e) {
+      iPrint('停止语音播放异常: $e');
+    }
+  }
+
+  /// 检查是否是当前正在播放的消息
+  bool isCurrentPlayingMessage(String voiceUrlOrPath) {
+    return state.isCurrentPlayingAudio(voiceUrlOrPath);
+  }
+
+  /// 检查是否是当前正在暂停的消息
+  bool isCurrentPausedMessage(String voiceUrlOrPath) {
+    return state.isCurrentPausedAudio(voiceUrlOrPath);
+  }
+
+  /// 获取当前播放进度（0.0 到 1.0）
+  double? getCurrentPlaybackProgress() {
+    if (state.currentDuration.value == 0) {
+      return null;
+    }
+    return state.currentPosition.value / state.currentDuration.value;
+  }
+
+  /// 获取当前播放位置
+  int getCurrentPlaybackPosition() {
+    return state.currentPosition.value;
+  }
+
+  /// 检查当前是否正在播放语音
+  bool get isPlayingVoice => state.isPlaying.value;
+
+  /// 检查当前是否处于暂停状态
+  bool get isPausedVoice => state.isPaused.value;
+
+  /// 获取当前播放的消息ID
+  String get currentPlayingMessageId => state.currentMessageId.value;
+
+  /// 标记 ChatLogic 为已释放状态
+  /// 这个方法主要用于在页面生命周期结束时，阻止新的异步操作
+  void markAsDisposed() {
+    _isDisposed = true;
+    iPrint('ChatLogic 已标记为已释放状态');
+  }
+
+  /// 重置释放状态，允许重新初始化
+  void resetDisposedState() {
+    _isDisposed = false;
+    iPrint('ChatLogic 已重置释放状态，允许重新初始化');
+  }
+
+  /// 查找下一条语音消息
+  Future<MessageModel?> findNextAudioMessage(String messageId) async {
+    try {
+      // 检查聊天控制器是否存在
+      if (chatController == null) {
+        iPrint('聊天控制器不存在，无法查找下一条语音消息');
+        return null;
+      }
+      
+      // 获取当前消息列表
+      final messages = chatController!.messages;
+      if (messages.isEmpty) {
+        iPrint('消息列表为空，无法查找下一条语音消息');
+        return null;
+      }
+      
+      // 查找当前消息在列表中的位置
+      int currentIndex = -1;
+      
+      for (int i = 0; i < messages.length; i++) {
+        if (messages[i].id == messageId) {
+          currentIndex = i;
+          break;
+        }
+      }
+      
+      if (currentIndex == -1) {
+        iPrint('在消息列表中找不到当前消息: $messageId');
+        return null;
+      }
+      
+      // 从当前消息的下一条开始查找语音消息
+      for (int i = currentIndex + 1; i < messages.length; i++) {
+        final message = messages[i];
+        
+        // 检查是否是语音消息
+        if (message is CustomMessage) {
+          final customType = message.metadata?['custom_type']?.toString();
+          if (customType == 'audio') {
+            iPrint('找到下一条语音消息: ${message.id}');
+            
+            // 将CustomMessage转换为MessageModel
+            // 由于需要返回MessageModel，我们需要从数据库中获取完整信息
+            for (final tableType in ['C2C', 'C2G', 'C2S']) {
+              final tb = MessageRepo.getTableName(tableType);
+              final repo = MessageRepo(tableName: tb);
+              
+              final msg = await repo.find(message.id);
+              if (msg != null) {
+                return msg;
+              }
+            }
+          }
+        }
+      }
+      
+      iPrint('没有找到下一条语音消息');
+      return null;
+    } catch (e) {
+      iPrint('查找下一条语音消息失败: $e');
+      return null;
+    }
+  }
+
+  /// 播放下一条语音消息
+  Future<void> playNextAudioMessage() async {
+    // 保存当前消息ID，避免在查找过程中状态被清除
+    final currentMessageId = state.currentMessageId.value;
+    
+    if (currentMessageId.isEmpty) {
+      iPrint('当前没有播放的消息，无法播放下一条');
+      return;
+    }
+    
+    final nextMessage = await findNextAudioMessage(currentMessageId);
+    if (nextMessage == null) {
+      iPrint('没有下一条语音消息可播放');
+      return;
+    }
+    
+    // 转换为 CustomMessage
+    final customMessage = await nextMessage.toTypeMessage() as CustomMessage;
+    
+    // 获取音频文件路径
+    if (customMessage.metadata?['uri'] == null) {
+      iPrint('下一条语音消息没有音频文件路径');
+      return;
+    }
+    
+    final audioUri = customMessage.metadata!['uri'];
+    final messageId = customMessage.id;
+    final duration = customMessage.metadata?['duration_ms'] ?? 0;
+    
+    // 下载音频文件
+    try {
+      final audioFile = await IMBoyCacheManager().getSingleFile(
+        audioUri,
+      );
+      
+      if (await audioFile.exists()) {
+        iPrint('开始播放下一条语音消息: $messageId');
+        await playVoice(
+          voiceUrlOrPath: audioFile.path,
+          messageId: messageId,
+          duration: duration,
+        );
+      } else {
+        iPrint('下一条语音消息文件不存在: ${audioFile.path}');
+      }
+    } catch (e) {
+      iPrint('播放下一条语音消息失败: $e');
+    }
+  }
+
+  /// 调试音频播放状态
+  void debugAudioState() {
+    iPrint('=== Audio Debug Info ===');
+    iPrint('Current Audio Path: ${state.currentAudioPath.value}');
+    iPrint('Current Message ID: ${state.currentMessageId.value}');
+    iPrint('Is Playing: ${state.isPlaying.value}');
+    iPrint('Is Paused: ${state.isPaused.value}');
+    iPrint('Current Position: ${state.currentPosition.value}ms');
+    iPrint('Current Duration: ${state.currentDuration.value}ms');
+    iPrint('Use Just Audio: $_useJustAudio');
+    iPrint('Global Player Controller: ${_globalPlayerController != null ? "initialized" : "null"}');
+    if (_globalPlayerController != null) {
+      iPrint('Player State: ${_globalPlayerController!.playerState}');
+    }
+    iPrint('Just Audio Player: ${_audioPlayer != null ? "initialized" : "null"}');
+    if (_audioPlayer != null) {
+      iPrint('Just Audio State: ${_audioPlayer!.playerState}');
+      iPrint('Just Audio Processing State: ${_audioPlayer!.processingState}');
+    }
+    iPrint('Is Disposed: $_isDisposed');
+    iPrint('========================');
+  }
+
+  }

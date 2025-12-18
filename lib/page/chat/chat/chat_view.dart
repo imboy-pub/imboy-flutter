@@ -1,11 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/helper/permission.dart';
 import 'package:imboy/page/chat/widget/chat_input_height_listener.dart';
+import 'package:imboy/page/chat/widget/message_action_menu.dart';
+import 'package:imboy/page/chat/widget/chat_background_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart'
@@ -13,27 +17,28 @@ import 'package:flutter_chat_core/flutter_chat_core.dart'
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flyer_chat_file_message/flyer_chat_file_message.dart';
-import 'package:flyer_chat_image_message/flyer_chat_image_message.dart';
 import 'package:flyer_chat_system_message/flyer_chat_system_message.dart';
 import 'package:flyer_chat_text_message/flyer_chat_text_message.dart';
 import 'package:get/get.dart' as getx;
+import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/config/chat_theme_config.dart';
 import 'package:image/image.dart' as img;
-import 'package:imboy/component/ui/line.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:mime/mime.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:popup_menu/popup_menu.dart' as popupmenu;
+import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:xid/xid.dart';
 import 'package:imboy/service/message.dart';
+import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/picker_method.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
-import 'package:imboy/component/image_gallery/image_gallery_logic.dart';
 import 'package:imboy/component/chat/message.dart';
-import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/chat/message_image_builder.dart';
+import 'package:imboy/component/chat/performance_monitor.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/voice_record/voice_widget.dart';
 import 'package:imboy/config/init.dart';
@@ -51,11 +56,14 @@ import 'package:imboy/store/model/user_collect_model.dart';
 import 'package:imboy/store/provider/attachment_provider.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+
 import '../widget/chat_input.dart';
 import '../widget/extra_item.dart';
 import '../widget/quote_tips.dart';
 import '../widget/select_friend.dart';
 import 'chat_logic.dart';
+import 'sqlite_chat_controller.dart';
+
 // 聊天页面主Widget
 // ignore: must_be_immutable
 class ChatPage extends StatefulWidget {
@@ -90,7 +98,7 @@ class ChatPage extends StatefulWidget {
   ChatPageState createState() => ChatPageState();
 }
 class ChatPageState extends State<ChatPage> {
-  final galleryLogic = getx.Get.put(ImageGalleryLogic());
+  final galleryLogic = getx.Get.put(IMBoyImageGalleryController());
   final logic = getx.Get.find<ChatLogic>();
   final state = getx.Get.find<ChatLogic>().state;
   final conversationLogic = getx.Get.find<ConversationLogic>();
@@ -100,6 +108,11 @@ class ChatPageState extends State<ChatPage> {
   List<AssetEntity> assets = <AssetEntity>[]; // 选择的资源列表
   Message? quoteMessage; // 引用的消息
   final GlobalKey<ChatInputState> chatInputKey = GlobalKey<ChatInputState>();
+  final performanceMonitor = ChatPerformanceMonitor();
+  Timer? _cleanupTimer;
+  // 可视阈值已读：延迟计时与去重集合
+  final Map<String, Timer> _readDelayTimers = {};
+  final Set<String> _readCommitted = {};
   // 消息ID集合，用于防止 eventBus 重复渲染消息
   final Set<String> msgIds = {};
   final User currentUser = User(
@@ -109,25 +122,49 @@ class ChatPageState extends State<ChatPage> {
   );
   late ConversationModel conversation; // 当前会话
   late User peer; // 对方用户信息
+  String? _editingMessageId; // 当前正在编辑的消息ID
   // StreamSubscription<ConnectivityResult>? _connectivitySubscription; // 网络状态监听
   // 页面初始化
   @override
   void initState() {
     super.initState();
-    msgIds.clear();
-    state.nextAutoId.value = 0;
-    state.hasMoreMessage.value = true;
-    state.isLoading.value = false;
-    _initChat();
-    _initData();
+    try {
+      msgIds.clear();
+      state.nextAutoId.value = 0;
+      state.hasMoreMessage.value = true;
+      state.isLoading.value = false;
+      _initChat();
+      _initData();
+      
+      // 启动内存清理定时器
+      _cleanupTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+        performanceMonitor.cleanupInvisibleMessages();
+        if (kDebugMode) {
+          final stats = performanceMonitor.getMemoryStats();
+          debugPrint('内存使用统计: $stats');
+        }
+      });
+    } catch (e, stack) {
+      debugPrint('Error in initState: $e\n$stack');
+    }
   }
   /// 初始化聊天相关数据
   Future<void> _initChat() async {
-    logic.initChatController(widget.type);
-    // 创建或获取会话
-    await _setupConversation();
-    await logic.loadMoreMessages(conversation, isInitial: true);
-    _setupEventListeners();
+    try {
+      logic.initChatController(widget.type);
+      // 创建或获取会话
+      await _setupConversation();
+      await logic.loadMoreMessages(conversation, isInitial: true);
+      _setupEventListeners();
+    } catch (e, stack) {
+      debugPrint('_initChat error: $e\n$stack');
+      // 显示错误提示
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('聊天初始化失败: $e')),
+        );
+      }
+    }
   }
   // 初始化数据
   Future<void> _initData() async {
@@ -190,80 +227,129 @@ class ChatPageState extends State<ChatPage> {
     }
   }
   void _setupEventListeners() {
-    // 一些异步操作事件的监听
-    state.ssMsgExt = eventBus.on<ChatExtendModel>().listen((
-        ChatExtendModel obj,
-        ) async {
-      // 监听新成员加入
-      if (obj.type == 'join_group' &&
-          obj.payload['groupId'] == widget.peerId &&
-          (obj.payload['isFirst'] ?? false)) {
-        state.memberCount.value += 1;
-        newGroupName = await logic.groupTitle(
-          widget.peerId,
-          widget.peerTitle,
-          state.memberCount.value,
-        );
-        if (mounted) setState(() {});
-      } else if (obj.type == 'clean_msg' &&
-          ((obj.payload['uk3'] ?? '') == conversation.uk3)) {
-        state.nextAutoId.value = 0;
-        await logic.loadMoreMessages(conversation, isInitial: true);
-      } else if (obj.type == 'delete_msg' &&
-          obj.payload['conversation'].id == conversation.id) {
-        logic.chatController.removeMessageById(obj.payload['msg'].id);
-      }
-    });
-    // 接收到新的消息订阅 for c2c c2g
-    state.ssMsg = eventBus.on<Message>().listen((Message msg) async {
-      final String conversationUk3 = msg.metadata?['conversation_uk3'] ?? '';
-      if (conversationUk3 != conversation.uk3 || msgIds.contains(msg.id)) {
-        return;
-      }
-      msgIds.add(msg.id);
-      final i = logic.chatController.messages.indexWhere((e) => e.id == msg.id);
-      if (i == -1) {
-        String tb = MessageRepo.getTableName(widget.type);
-        MessageModel? m = await MessageService.to.changeStatus(
-          tb,
-          msg.id,
-          IMBoyMessageStatus.seen,
-        );
-        conversationLogic.decreaseConversationRemind(conversation, 1);
-        if (m != null) {
-          msg = await m.toTypeMessage();
-          logic.chatController.insertMessage(
-            msg,
-            index: logic.chatController.messages.length,
-          );
-          _markMessagesAsRead([msg]);
-          if (msg is ImageMessage) {
-            galleryLogic.pushToLast(msg.id, msg.source);
+    try {
+      // 一些异步操作事件的监听
+      state.ssMsgExt = eventBus.on<ChatExtendModel>().listen((
+          ChatExtendModel obj,
+          ) async {
+        try {
+          // 监听新成员加入
+          if (obj.type == 'join_group' &&
+              obj.payload['groupId'] == widget.peerId &&
+              (obj.payload['isFirst'] ?? false)) {
+            state.memberCount.value += 1;
+            newGroupName = await logic.groupTitle(
+              widget.peerId,
+              widget.peerTitle,
+              state.memberCount.value,
+            );
+            if (mounted) setState(() {});
+          } else if (obj.type == 'clean_msg' &&
+              ((obj.payload['uk3'] ?? '') == conversation.uk3)) {
+            state.nextAutoId.value = 0;
+            await logic.loadMoreMessages(conversation, isInitial: true);
+          } else if (obj.type == 'delete_msg' &&
+              obj.payload['conversation'] != null && 
+              obj.payload['conversation'].id == conversation.id) {
+            logic.chatController?.removeMessageById(obj.payload['msg']?.id ?? '');
           }
+        } catch (e) {
+          debugPrint('_setupEventListeners ssMsgExt error: $e');
         }
-      }
-      // 为节省内存，5秒后从 msgIds 移出 msg.id
-      Future.delayed(const Duration(seconds: 5), () => msgIds.remove(msg.id));
-    });
-    // 消息状态更新订阅, 这里无需用锁 for c2g
-    state.ssMsgState = eventBus.on<List<Message>>().listen((e) {
-      if (e.isEmpty) return;
-      Message msg = e.first;
-      final i = logic.chatController.messages.indexWhere((e) => e.id == msg.id);
-      if (i > -1 && mounted) {
-        logic.chatController.updateMessage(logic.chatController.messages[i], msg);
-      }
-    });
+      }, onError: (error) {
+        debugPrint('ssMsgExt stream error: $error');
+      });
+      
+      // 接收到新的消息订阅 for c2c c2g
+      state.ssMsg = eventBus.on<Message>().listen((Message msg) async {
+        try {
+          final String conversationUk3 = msg.metadata?['conversation_uk3'] ?? '';
+          if (conversationUk3 != conversation.uk3 || msgIds.contains(msg.id)) {
+            return;
+          }
+          msgIds.add(msg.id);
+          final i = logic.chatController?.messages.indexWhere((e) => e.id == msg.id) ?? -1;
+          if (i == -1) {
+            // 不再强制立即置为已读，交由“可视阈值已读”推进水位
+            logic.chatController?.insertMessage(
+              msg,
+              index: logic.chatController?.messages.length ?? 0,
+            );
+            if (msg is ImageMessage) {
+              galleryLogic.pushToLast(msg.id, msg.source);
+            }
+          }
+          // 为节省内存，5秒后从 msgIds 移出 msg.id
+          Future.delayed(const Duration(seconds: 5), () => msgIds.remove(msg.id));
+        } catch (e) {
+          debugPrint('_setupEventListeners ssMsg error: $e');
+        }
+      }, onError: (error) {
+        debugPrint('ssMsg stream error: $error');
+      });
+      
+      // 消息状态更新订阅, 这里无需用锁 for c2g
+      state.ssMsgState = eventBus.on<List<Message>>().listen((e) {
+        try {
+          if (e.isEmpty) return;
+          Message msg = e.first;
+          iPrint('收到消息状态更新事件: msgId=${msg.id}, type=${msg.runtimeType}');
+          final i = logic.chatController?.messages.indexWhere((e) => e.id == msg.id) ?? -1;
+          final messageCount = logic.chatController?.messages.length ?? 0;
+          iPrint('在消息列表中查找消息: index=$i, 总消息数=$messageCount');
+          if (i > -1 && mounted && logic.chatController != null) {
+            iPrint('更新消息UI: ${msg.id}');
+            logic.chatController!.updateMessage(logic.chatController!.messages[i], msg);
+          } else {
+            iPrint('消息未找到或组件未挂载: msgId=${msg.id}, mounted=$mounted');
+          }
+        } catch (e) {
+          debugPrint('_setupEventListeners ssMsgState error: $e');
+        }
+      }, onError: (error) {
+        debugPrint('ssMsgState stream error: $error');
+      });
+    } catch (e) {
+      debugPrint('_setupEventListeners error: $e');
+    }
   }
   @override
   void dispose() {
+    // 取消所有订阅
     state.ssMsgExt?.cancel();
     state.ssMsg?.cancel();
     state.ssMsgState?.cancel();
+    
+    // 清理消息ID集合
     msgIds.clear();
-    logic.chatController.setMessages([]);
-    logic.chatController.dispose();
-    getx.Get.delete<ImageGalleryLogic>();
+    
+    // 停止内存清理定时器
+    _cleanupTimer?.cancel();
+    // 取消所有“可视阈值已读”的定时
+    for (final t in _readDelayTimers.values) {
+      t.cancel();
+    }
+    _readDelayTimers.clear();
+    _readCommitted.clear();
+    
+    // 清理性能监控内存
+    performanceMonitor.cleanupInvisibleMessages();
+    
+    // 安全地清理聊天控制器
+    try {
+      logic.chatController?.setMessages([]);
+      logic.chatController?.dispose();
+    } catch (e) {
+      debugPrint('Error disposing chat controller: $e');
+    }
+    
+    // 删除图片画廊逻辑
+    try {
+      getx.Get.delete<IMBoyImageGalleryController>();
+    } catch (e) {
+      debugPrint('Error deleting ImageGalleryLogic: $e');
+    }
+    
     super.dispose();
   }
   // 标记消息为已读
@@ -293,9 +379,10 @@ class ChatPageState extends State<ChatPage> {
         widget.type == 'null' ? 'C2C' : widget.type,
         message,
       );
-      await logic.chatController.insertMessage(
+      await logic.chatController?.insertMessage(
         message,
-        index: logic.chatController.messages.length,
+        index: logic.chatController?.messages.length ?? 0,
+        animated: true, // 新消息使用动画
       );
       return true;
     } catch (e, stack) {
@@ -303,6 +390,32 @@ class ChatPageState extends State<ChatPage> {
       return false;
     }
   }
+  
+  /// 消息重试回调
+  /// Message retry callback.
+  Future<void> _onMessageRetry(String messageId) async {
+    try {
+      debugPrint('开始重试消息: $messageId');
+      
+      // 显示加载状态
+      EasyLoading.show(status: '正在重试发送...');
+      
+      final success = await logic.retryMessage(messageId, widget.type);
+      
+      EasyLoading.dismiss();
+      
+      if (success) {
+        EasyLoading.showSuccess('重试成功');
+      } else {
+        EasyLoading.showError('重试失败，请检查网络连接');
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
+      EasyLoading.showError('重试异常: $e');
+      debugPrint('消息重试异常: $e');
+    }
+  }
+
   // 选择文件
   Future<void> _handleFileSelection() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.any);
@@ -650,6 +763,9 @@ class ChatPageState extends State<ChatPage> {
   }
   // 消息双击事件
   void _onMessageDoubleTap(BuildContext c1, Message message, {int? index}) {
+    // 触发震动反馈
+    HapticFeedback.lightImpact();
+
     if (message is TextMessage) {
       showTextMessage(message.text);
     } else if (message is FileMessage) {
@@ -666,14 +782,152 @@ class ChatPageState extends State<ChatPage> {
       if (txt.isNotEmpty) showTextMessage(txt);
     }
   }
+
+  // 新增：消息点击事件
+  void _onMessageTap(BuildContext context, Message message, {int? index, TapUpDetails? details}) {
+    // 取消引用状态
+    if (quoteMessage?.id == message.id) {
+      updateQuoteMessage(null);
+    }
+
+    // 可以在这里添加其他点击逻辑
+    iPrint('Message tapped: ${message.id}, type: ${message.runtimeType}');
+  }
+
+  // 新增：消息辅助点击事件（右键或长按）
+  void _onMessageSecondaryTap(BuildContext context, Message message, {int? index}) {
+    // 触发震动反馈
+    HapticFeedback.mediumImpact();
+
+    // 显示快捷菜单或执行特定操作
+    final isSentByMe = message.authorId == UserRepoLocal.to.currentUid;
+
+    // 如果是自己的消息且是发送失败状态，提供重试选项
+    if (isSentByMe && message.status == MessageStatus.error) {
+      _showRetryMenu(context, message);
+    } else {
+      // 显示简化的操作菜单
+      _showQuickActionMenu(context, message);
+    }
+  }
+
+  // 显示重试菜单
+  void _showRetryMenu(BuildContext context, Message message) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.refresh, color: Colors.orange),
+                title: const Text('重新发送'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _onMessageRetry(message.id);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete_outline, color: Colors.red),
+                title: const Text('删除消息'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _deleteMessageForMe(context, message, pop: false);
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // 显示快捷操作菜单
+  void _showQuickActionMenu(BuildContext context, Message message) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 根据消息类型显示不同的选项
+              if (message is TextMessage) ...[
+                ListTile(
+                  leading: const Icon(Icons.copy),
+                  title: const Text('复制'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Clipboard.setData(ClipboardData(text: message.text));
+                    EasyLoading.showToast('已复制');
+                  },
+                ),
+              ],
+              if (message is ImageMessage) ...[
+                ListTile(
+                  leading: const Icon(Icons.save_alt),
+                  title: const Text('保存图片'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    logic.saveFile(message.text ?? message.id, message.source);
+                  },
+                ),
+              ],
+              ListTile(
+                leading: const Icon(Icons.reply),
+                title: const Text('回复'),
+                onTap: () {
+                  Navigator.pop(context);
+                  updateQuoteMessage(message);
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
   // 更新引用消息
   Future<void> updateQuoteMessage(Message? msg) async {
     setState(() => quoteMessage = msg);
   }
   // 发送文本消息
   Future<bool> _handleSendPressed(String text) async {
-    iPrint('handleSendPressed: $text');
-    if (quoteMessage == null) {
+    iPrint('handleSendPressed: $text, editingMessageId: $_editingMessageId');
+    
+    // 检查是否是编辑消息
+    if (_editingMessageId != null) {
+      // 发送编辑消息
+      bool result = await MessageActions.to.sendEditMessage(
+        _editingMessageId!, 
+        widget.type, 
+        text
+      );
+      
+      // 清除编辑状态
+      _editingMessageId = null;
+      
+      return result;
+    } else if (quoteMessage == null) {
       return await _sendTextMessage(text);
     } else {
       return await _sendQuoteMessage(text);
@@ -713,6 +967,13 @@ class ChatPageState extends State<ChatPage> {
   }
   // 消息状态点击事件
   void _onMessageStatusTap(BuildContext ctx, Message msg) {
+    // 检查是否为发送失败的消息，如果是则触发重试
+    if (msg.status == MessageStatus.error && msg.authorId == UserRepoLocal.to.currentUid) {
+      _onMessageRetry(msg.id);
+      return;
+    }
+    
+    // 原有逻辑：处理已发送和发送中的消息
     if (msg.status != MessageStatus.sent && msg.status != MessageStatus.sending) {
       return;
     }
@@ -731,95 +992,112 @@ class ChatPageState extends State<ChatPage> {
         LongPressStartDetails? details,
       }) {
     iPrint('_onMessageLongPress');
-    // BuildContext c1 = getx.Get.context!;
-    final menu = popupmenu.PopupMenu(
+    final isSentByMe = message.authorId == UserRepoLocal.to.currentUid;
+    final canEdit = _canEditMessage(message);
+    
+    // 检查消息是否可以重试（发送失败的消息）
+    final canRetry = isSentByMe && message.status == MessageStatus.error;
+    
+    // 使用现代化的消息操作菜单，保留所有现有功能
+    showMessageActionMenu(
       context: c1,
-      items: logic.getPopupMenuItems(message),
-      onClickMenu: onClickMenu,
-    );
-    final renderBox = c1.findRenderObject() as RenderBox;
-    final offset = renderBox.localToGlobal(Offset.zero);
-    double l = offset.dx / 2 - renderBox.size.width / 2 + 75.0;
-    double r = renderBox.size.width / 2 - 75.0;
-    double dx = message.authorId == UserRepoLocal.to.currentUid ? r : l;
-    double dy = offset.dy.clamp(0, getx.Get.height);
-    double h = renderBox.size.height > getx.Get.height
-        ? getx.Get.height
-        : renderBox.size.height;
-    menu.show(rect: Rect.fromLTWH(dx, dy, renderBox.size.width, h));
-  }
-  // 菜单项点击事件
-  void onClickMenu(popupmenu.MenuItemProvider item) async {
-    final it = item as popupmenu.MenuItem;
-    final msg = it.userInfo['msg'] as Message;
-    final itemId = it.userInfo['id'] ?? '';
-    switch (itemId) {
-      case "delete":
-        if (msg.authorId == UserRepoLocal.to.currentUid) {
-          _showDeleteMessageDialog(msg);
-        } else {
-          // 仅删除自己看到的消息
-          _deleteMessageForMe(context, msg, pop: false);
+      message: message,
+      isSentByMe: isSentByMe,
+      canEdit: canEdit,
+      onReply: () => updateQuoteMessage(message),
+      onCopy: () {
+        if (message is TextMessage) {
+          _copyMessageText(message);
+        } else if (message is CustomMessage &&
+                   message.metadata?['custom_type'] == 'quote') {
+          // 引用消息的复制功能
+          final quoteText = message.metadata?['quote_text'] ?? '';
+          if (quoteText.isNotEmpty) {
+            Clipboard.setData(ClipboardData(text: quoteText));
+            EasyLoading.showToast('copied'.tr);
+          }
         }
-        break;
-      case "copy":
-        _copyMessageText(msg as TextMessage);
-        break;
-      case "save":
-        _saveMessageContent(msg);
-        break;
-      case "collect":
-        _collectMessage(msg);
-        break;
-      case "revoke":
-        _revokeMessage(msg);
-        break;
-      case "quote":
-        updateQuoteMessage(msg);
-        break;
-      case "transpond":
-        _forwardMessage(msg);
-        break;
+      },
+      onEdit: () => _editMessage(message),
+      onDelete: () => _deleteMessageForMe(context, message, pop: false),
+      onDeleteForEveryone: isSentByMe ? () => _deleteMessageForEveryone(context, message) : null,
+      onForward: () => _forwardMessage(message),
+      onReaction: (emoji) => _addReaction(message, emoji),
+      // 新增的操作回调
+      onRevoke: isSentByMe ? () => _revokeMessage(message) : null,
+      onSave: _canSaveMessage(message) ? () => _saveMessageContent(message) : null,
+      onCollect: _canCollectMessage(message) ? () => _collectMessage(message) : null,
+      onRetry: canRetry ? () => _onMessageRetry(message.id) : null,
+    );
+  }
+  
+  /// 检查消息是否可以编辑
+  bool _canEditMessage(Message message) {
+    if (message.authorId != UserRepoLocal.to.currentUid) return false;
+    if (message is! TextMessage) return false;
+    
+    // 检查时间限制（2分钟内可编辑）
+    final now = DateTime.now();
+    final messageTime = message.createdAt ?? now;
+    final timeDiff = now.difference(messageTime);
+    
+    return timeDiff.inMinutes < 2;
+  }
+  
+  /// 检查消息是否可以保存
+  bool _canSaveMessage(Message message) {
+    if (message is ImageMessage) {
+      return true;
+    } else if (message is FileMessage) {
+      return true;
+    } else if (message is CustomMessage) {
+      final customType = message.metadata?['custom_type'] ?? '';
+      return customType == 'video' || customType == 'audio';
+    }
+    return false;
+  }
+  
+  /// 检查消息是否可以收藏
+  bool _canCollectMessage(Message message) {
+    return UserCollectLogic.getCollectKind(message) > 0;
+  }
+  
+  /// 编辑消息
+  Future<void> _editMessage(Message message) async {
+    if (message is TextMessage) {
+      // 显示加载状态
+      EasyLoading.show(status: '正在编辑...');
+      
+      // 记录当前正在编辑的消息ID
+      _editingMessageId = message.id;
+      
+      // 将消息文本填充到输入框
+      chatInputKey.currentState?.setText(message.text);
+      
+      // 关闭加载状态
+      EasyLoading.dismiss();
     }
   }
-  // 显示删除消息对话框
-  void _showDeleteMessageDialog(Message msg) {
-    // 替换 n.showDialog
-    showDialog(
-      context: getx.Get.context!,
-      builder: (context) => AlertDialog(
-        contentPadding: EdgeInsets.zero, // 替换 EdgeInsets.all(0)
-        backgroundColor: const Color(0xff232323),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: Text(
-                'delete_for_me'.tr,
-                style: const TextStyle(color: Colors.white),
-              ),
-              onTap: () => _deleteMessageForMe(context, msg),
-            ),
-            // 替换 n.Padding
-            if (msg.authorId == UserRepoLocal.to.currentUid)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: HorizontalLine(height: getx.Get.isDarkMode ? 0.5 : 1.0),
-              ),
-            if (msg.authorId == UserRepoLocal.to.currentUid)
-              ListTile(
-                title: Text(
-                  'delete_for_everyone'.tr,
-                  style: const TextStyle(color: Colors.white),
-                ),
-                onTap: () => _deleteMessageForEveryone(context, msg),
-              ),
-          ],
-        ),
+  
+  /// 添加消息反应
+  void _addReaction(Message message, String emoji) {
+    // TODO: 实现消息反应功能
+    iPrint('添加反应: $emoji 到消息: ${message.id}');
+    
+    // 触发震动反馈
+    HapticFeedback.lightImpact();
+    
+    // 显示添加成功提示
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('已添加反应 $emoji'),
+        duration: const Duration(seconds: 1),
+        behavior: SnackBarBehavior.floating,
       ),
-      barrierDismissible: true,
     );
   }
+
+
   // 删除消息(仅自己)
   Future<void> _deleteMessageForMe(
       BuildContext context,
@@ -832,7 +1110,7 @@ class ChatPageState extends State<ChatPage> {
     }
     bool res = await logic.removeMessage(conversation, msg);
     if (res) {
-      await logic.chatController.removeMessageById(msg.id);
+      await logic.chatController?.removeMessageById(msg.id);
     }
     if (pop) {
       nav.pop();
@@ -875,7 +1153,7 @@ class ChatPageState extends State<ChatPage> {
     await logic.sendMessage(msg2);
     bool res = await logic.removeMessage(conversation, msg);
     if (res) {
-      await logic.chatController.removeMessageById(msg.id);
+      await logic.chatController?.removeMessageById(msg.id);
     }
     nav.pop();
   }
@@ -897,21 +1175,37 @@ class ChatPageState extends State<ChatPage> {
   // 收藏消息
   Future<void> _collectMessage(Message msg) async {
     String tb = MessageRepo.getTableName(widget.type);
-    bool res = await UserCollectLogic().add(tb: tb, msg: msg);
+    final collectLogic = UserCollectLogic();
+    bool res = await collectLogic.add(tb: tb, msg: msg);
     EasyLoading.showToast(
       res ? 'collected'.tr : 'operation_failed_again_later'.tr,
     );
   }
   // 撤回消息
   Future<void> _revokeMessage(Message msg) async {
-    final msg2 = {
-      'ts': DateTimeHelper.millisecond(),
-      'id': msg.id,
-      'type': '${widget.type.toUpperCase()}_REVOKE',
-      'from': msg.authorId,
-      'to': msg.metadata?['peer_id'],
-    };
-    await logic.sendMessage(msg2);
+    try {
+      // 显示加载状态
+      EasyLoading.show(status: '正在撤回...');
+
+      iPrint('🔍 使用新的action机制撤回消息: msgId=${msg.id}, type=${widget.type}');
+
+      // 使用新的MessageActions撤回机制
+      bool result = await MessageActions.to.sendRevokeMessage(msg.id, widget.type);
+      iPrint('🔍 撤回消息发送结果: $result');
+
+      EasyLoading.dismiss();
+
+      if (result) {
+        EasyLoading.showSuccess('撤回成功');
+        iPrint('🔍 撤回请求发送完成，等待服务端确认');
+      } else {
+        EasyLoading.showError('撤回失败，请检查网络连接');
+      }
+    } catch (e, stack) {
+      iPrint('撤回消息异常: $e\n$stack');
+      EasyLoading.dismiss();
+      EasyLoading.showError('撤回操作异常，请重试');
+    }
   }
   // 转发消息
   void _forwardMessage(Message msg) {
@@ -931,25 +1225,47 @@ class ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final topRightWidget = [
-      InkWell(
-        onTap: _navigateToChatSettings,
-        // 替换 n.Padding
-        child: Padding(
-          padding: const EdgeInsets.all(10), // left: 10, right: 10, bottom: 10, top: 10
-          child: Icon(
-            Icons.more_horiz,
-            color: Theme.of(context).colorScheme.onPrimary,
-          ),
+      IconButton(
+        onPressed: _navigateToChatSettings, 
+        icon: Icon(
+          Icons.more_horiz,
+          color: ThemeManager.instance.getThemeColor('textPrimary'),
         ),
       ),
     ];
-    return Scaffold(
-      appBar: _showAppBar
-          ? NavAppBar(
-        title: newGroupName.isEmpty ? widget.peerTitle : newGroupName,
-        rightDMActions: topRightWidget,
+    return PopScope(
+      canPop: !(state.composerHeight.value > 52), // 面板或键盘展开时禁止返回（约定基础高度≈52）
+      onPopInvokedWithResult: (didPop, result) async {
+        // 如果已经执行了返回操作，不需要处理
+        if (didPop) return;
+        
+        // 优先收起面板/键盘，避免"返回上一页"
+        if (state.composerHeight.value > 52) {
+          chatInputKey.currentState?.hideAllPanel();
+          // 面板收起后，延迟执行返回操作
+          Future.delayed(const Duration(milliseconds: 300), () {
+            if (mounted) {
+              Navigator.of(context).pop();
+            }
+          });
+        }
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: true, // 启用系统键盘避让，获得更丝滑的交互体验
+        appBar: _showAppBar
+          ?  AppBar(
+        title: Text(
+          newGroupName.isEmpty ? widget.peerTitle : newGroupName,
+          style: TextStyle(
+            color: ThemeManager.instance.getThemeColor('textPrimary'),
+            fontSize: ThemeManager.instance.getFontSize(FontSizeType.title),
+          ),
+        ),
+        backgroundColor: ThemeManager.instance.getThemeColor('surface'),
+        foregroundColor: ThemeManager.instance.getThemeColor('textPrimary'),
+        actions: topRightWidget,
         automaticallyImplyLeading: true,
-        popTime: widget.options?['popTime'] ?? 1,
+        // popTime: widget.options?['popTime'] ?? 1,
       )
           : null,
       body: Column( // 替换 n.Column
@@ -964,44 +1280,51 @@ class ChatPageState extends State<ChatPage> {
               children: [
                 // 优化2：Provider 注入你的 onMessageLongPress 回调
                 GestureDetector(
-                  onTap: () => chatInputKey.currentState?.hideAllPanel(),
-                  child: NotificationListener<ScrollNotification>(
-                    onNotification: (sn) {
-                      if (sn is UserScrollNotification) {
-                        chatInputKey.currentState?.hideAllPanel();
-                      }
-                      return false;
-                    },
-                    child: MultiProvider(
-                      providers: [
-                        Provider<OnMessageLongPressCallback>.value(
-                          value: _onMessageLongPress,
-                        ),
-                        Provider<OnMessageDoubleTapCallback>.value(
-                          value: _onMessageDoubleTap,
-                        ),
-                        // Provider<OnMessageTapCallback>.value(
-                        //   value: ,
-                        // ),
-                        Provider<OnMessageSendCallback>.value(
-                          value: _handleSendPressed,
-                        ),
-                        // Provider<OnAttachmentTapCallback>.value(
-                        //   value: _onAttachmentTap,
-                        // ),
-                        // 你还可以注入 OnMessageTapCallback、UserID 等 Provider
-                        Provider<UserID>.value(value: currentUser.id),
-                      ],
-                      child: _buildChatWidget(context, theme), // 保持原有 _buildChatWidget 不变
-                    ),
+                  onTapDown: (details) {
+                    // 检查点击位置是否在输入区域外部
+                    final screenHeight = MediaQuery.of(context).size.height;
+                    final composerHeight = state.composerHeight.value;
+                    final clickY = details.globalPosition.dy;
+                    final inputAreaTop = screenHeight - composerHeight;
+                    if (clickY < inputAreaTop) {
+                      chatInputKey.currentState?.hideAllPanel();
+                    }
+                  },
+                  // 只响应点击手势，不响应滑动手势，避免在输入框中滑动时误触收起面板
+                  behavior: HitTestBehavior.translucent,
+                  child: MultiProvider(
+                    providers: [
+                      Provider<OnMessageDoubleTapCallback>.value(
+                        value: _onMessageDoubleTap,
+                      ),
+                    ],
+                    // 以下回调与参数已由 Chat 通过 props 注入 Provider（见 _buildChatWidget 的 Chat(...)），无需在此重复注入：
+                    // Provider<OnMessageLongPressCallback>.value(
+                    //   value: _onMessageLongPress,
+                    // ),
+                    // Provider<OnMessageSendCallback>.value(
+                    //   value: _handleSendPressed,
+                    // ),
+                    // Provider<UserID>.value(value: currentUser.id),
+                    // Provider<OnMessageTapCallback>.value(
+                    //   value: ,
+                    // ),
+                    // Provider<OnAttachmentTapCallback>.value(
+                    //   value: _onAttachmentTap,
+                    // ),
+                    // 你还可以注入 OnMessageTapCallback、UserID 等 Provider
+                    child: _buildChatWidget(context, theme),
                   ),
                 ),
-                // _buildChatInput(),
                 if (galleryLogic.isImageViewVisible.isTrue)
                   IMBoyImageGallery(
                     images: galleryLogic.gallery.value,
                     pageController: galleryLogic.galleryPageController!,
-                    onClosePressed: _closeImageGallery,
+                    onClosePressed: () {            
+                      // 关闭图片画廊
+                      galleryLogic.onCloseGalleryPressed();
+                      setState(() => _showAppBar = true);
+                    },
                     options: const IMBoyImageGalleryOptions(
                       maxScale: PhotoViewComputedScale.covered,
                       minScale: PhotoViewComputedScale.contained,
@@ -1012,7 +1335,7 @@ class ChatPageState extends State<ChatPage> {
           ),
         ],
       ),
-    );
+    ));
   }
   /// 导航到聊天设置页面
   Widget _buildChatInput(BuildContext context) {
@@ -1026,7 +1349,7 @@ class ChatPageState extends State<ChatPage> {
       voiceWidget: VoiceWidget(
         startRecord: () {},
         stopRecord: _handleVoiceSelection,
-        height: state.composerHeight.value,
+        height: 46,
         margin: EdgeInsets.zero,
       ),
       extraWidget: ExtraItems(
@@ -1057,57 +1380,66 @@ class ChatPageState extends State<ChatPage> {
   }
   /// 构建聊天主界面
   Widget _buildChatWidget(BuildContext context, ThemeData theme) {
-    return Chat(
+    // 初始化聊天背景管理器
+    final backgroundManager = getx.Get.put(ChatBackgroundManager());
+    
+    return getx.Obx(() => Chat(
       currentUserId: currentUser.id,
       backgroundColor: Colors.transparent,
-      chatController: logic.chatController,
+      chatController: logic.chatController ?? SqliteChatController(),
       onMessageSend: _handleSendPressed,
       onMessageLongPress: _onMessageLongPress,
-      decoration: BoxDecoration(
-        color: theme.brightness == Brightness.dark
-            ? ChatColors.dark().surface
-            : ChatColors.light().surface,
-        image: DecorationImage(
-          image: AssetImage('assets/images/pattern.png'),
-          repeat: ImageRepeat.repeat,
-          colorFilter: ColorFilter.mode(
-            theme.brightness == Brightness.dark
-                ? ChatColors.dark().surfaceContainerLow
-                : ChatColors.light().surfaceContainerLow,
-            BlendMode.srcIn,
-          ),
-        ),
-      ),
+      // onMessageStatusTap: _onMessageStatusTap,
+      decoration: backgroundManager.getCurrentBackgroundDecoration(),
       resolveUser: (id) => Future.value(switch (id) {
         'me' => currentUser,
         'recipient' => peer,
         _ => null,
       }),
-      timeFormat: DateFormat("y-MM-dd HH:mm"),
-      theme: ChatTheme.fromThemeData(theme),
+      // timeFormat: DateFormat("y-MM-dd HH:mm"),
+      timeFormat: RelativeDateFormat(),
+      theme: ChatThemeConfig.chatTheme,
       builders: Builders(
         chatAnimatedListBuilder: (context, itemBuilder) {
           return getx.Obx(
-                () => AnimatedPadding(
-              // 用动画包裹消息列表
-              padding: EdgeInsets.only(bottom: state.composerHeight.value),
-              duration: const Duration(milliseconds: 0),
-              curve: Curves.easeInOut,
-              child: ChatAnimatedList(
-                scrollController: logic.scrollController,
-                bottomPadding: state.composerHeight.value, // 让消息列表底部有输入区空间
-                scrollToEndAnimationDuration: Duration(
-                  milliseconds: 0,
-                ), // <--- 动画时长
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.manual,
-                itemBuilder: itemBuilder,
-                onEndReached: () => logic.loadMoreMessages(conversation),
-                insertAnimationDurationResolver: (message) {
-                  if (message is SystemMessage) return Duration.zero;
-                  return null;
-                },
-              ),
-            ),
+            () {
+              final bottomGap = state.composerHeight.value;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                try {
+                  logic.chatController?.scrollToBottom();
+                } catch (_) {}
+              });
+              return Padding(
+                padding: EdgeInsets.only(bottom: bottomGap),
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (sn) {
+                    if (sn is UserScrollNotification) {
+                      chatInputKey.currentState?.hideAllPanel();
+                    }
+                    return false;
+                  },
+                  child: ChatAnimatedList(
+                    reversed: true,
+                    itemBuilder: itemBuilder,
+                    onEndReached: () async {
+                      if (conversation.uk3.isNotEmpty &&
+                          !state.isLoading.value &&
+                          state.hasMoreMessage.value) {
+                        await logic.loadMoreMessages(conversation);
+                      }
+                    },
+                    onStartReached: () async {
+                      if (conversation.uk3.isNotEmpty &&
+                          !state.isLoadingNewer.value &&
+                          state.hasMoreMessage.value) {
+                        await logic.loadNewerMessages(conversation);
+                      }
+                    },
+                    messageGroupingTimeoutInSeconds: 60,
+                  ),
+                ),
+              );
+            },
           );
         },
         // composerBuilder: (context) => SizedBox.shrink(),
@@ -1117,9 +1449,30 @@ class ChatPageState extends State<ChatPage> {
           bottom: 0,
           child: ChatInputHeightListener(
             composerHeight: state.composerHeight,
+            animationDuration: Duration.zero,
+            animationCurve: Curves.linear,
             child: _buildChatInput(context),
           ),
         ),
+        // 自定义回到底部按钮（自动避让 Composer）
+        scrollToBottomBuilder: (ctx, animation, onPressed) => ScrollToBottom(
+          animation: animation,
+          onPressed: onPressed,
+          right: 16,
+          bottom: 20,
+          useComposerHeightForBottomOffset: true,
+          mini: true,
+        ),
+        // 自定义空态文案
+        emptyChatListBuilder: (ctx) => getx.Obx(() {
+          if (state.isLoading.value && state.hasMoreMessage.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!state.hasMoreMessage.value && (logic.chatController?.messages.isEmpty ?? true)) {
+            return EmptyChatList(text: '暂无消息'.tr);
+          }
+          return const SizedBox.shrink();
+        }),
         customMessageBuilder:
             (
             context,
@@ -1127,24 +1480,23 @@ class ChatPageState extends State<ChatPage> {
             index, {
           required bool isSentByMe,
           MessageGroupStatus? groupStatus,
-        }) => CustomMessageBuilder(type: widget.type, message: message),
-        imageMessageBuilder:
-            (
-            context,
-            message,
-            index, {
+        }) {
+          return CustomMessageBuilder(type: widget.type, message: message);
+        },
+        imageMessageBuilder: (
+          context,
+          message,
+          index, {
           required bool isSentByMe,
           MessageGroupStatus? groupStatus,
-        }) => FlyerChatImageMessage(
-          message: message,
-          index: index,
-          showStatus: true,
-          showTime: true,
-          // timeStyle: const TextStyle(
-          //   fontSize: 12,
-          //   color: Colors.green,
-          // ),
-        ),
+        }) {
+          final width = MediaQuery.of(context).size.width.toInt();
+          return IMBoyImageMessageBuilder(
+            message: message,
+            messageWidth: width,
+            user: isSentByMe ? currentUser : peer,
+          );
+        },
         systemMessageBuilder:
             (
             context,
@@ -1152,7 +1504,9 @@ class ChatPageState extends State<ChatPage> {
             index, {
           required bool isSentByMe,
           MessageGroupStatus? groupStatus,
-        }) => FlyerChatSystemMessage(message: message, index: index),
+        }) {
+          return FlyerChatSystemMessage(message: message, index: index);
+        },
         textMessageBuilder:
             (
             context,
@@ -1160,12 +1514,14 @@ class ChatPageState extends State<ChatPage> {
             index, {
           required bool isSentByMe,
           MessageGroupStatus? groupStatus,
-        }) => FlyerChatTextMessage(
-          message: message,
-          index: index,
-          showStatus: true,
-          showTime: true,
-        ),
+        }) {
+          return FlyerChatTextMessage(
+            message: message,
+            index: index,
+            showStatus: false,
+            showTime: true,
+          );
+        },
         fileMessageBuilder:
             (
             context,
@@ -1173,12 +1529,14 @@ class ChatPageState extends State<ChatPage> {
             index, {
           required bool isSentByMe,
           MessageGroupStatus? groupStatus,
-        }) => FlyerChatFileMessage(
-          message: message,
-          index: index,
-          showStatus: true,
-          showTime: true,
-        ),
+        }) {
+          return FlyerChatFileMessage(
+            message: message,
+            index: index,
+            showStatus: false,
+            showTime: true,
+          );
+        },
         chatMessageBuilder:
             (
             context,
@@ -1198,6 +1556,41 @@ class ChatPageState extends State<ChatPage> {
           final isCurrentUser = message.authorId == currentUser.id;
           final shouldShowUsername =
               !isSystemMessage && isFirstInGroup && isRemoved != true;
+
+          Widget? statusIcon;
+          switch (message.status) {
+            case MessageStatus.sending:
+              statusIcon = Icon(
+                Icons.access_time,
+                size: 16,
+                color: ThemeManager.instance.getThemeColor('textSecondary'),
+              );
+              break;
+            case MessageStatus.sent:
+            case MessageStatus.delivered:
+              statusIcon = Icon(
+                Icons.done_all,
+                size: 16,
+                color: ThemeManager.instance.getThemeColor('primary'),
+              );
+              break;
+            case MessageStatus.seen:
+              statusIcon = Icon(
+                Icons.done_all,
+                size: 16,
+                color: ThemeManager.instance.getChatColor('sendMessageBg'),
+              );
+              break;
+            case MessageStatus.error:
+              statusIcon = Icon(
+                Icons.error_outline,
+                size: 16,
+                color: ThemeManager.instance.getThemeColor('error'),
+              );
+              break;
+            default:
+              statusIcon = null;
+          }
           Widget? avatar;
           if (shouldShowAvatar) {
             avatar = Padding(
@@ -1210,7 +1603,19 @@ class ChatPageState extends State<ChatPage> {
           } else if (!isSystemMessage) {
             avatar = const SizedBox(width: 40);
           }
-          return ChatMessage(
+
+          // 在消息末尾添加状态图标
+          if (isCurrentUser && statusIcon != null) {
+            child = Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(child: child),
+                const SizedBox(width: 4),
+                statusIcon,
+              ],
+            );
+          }
+          final chatMsg = ChatMessage(
             message: message,
             index: index,
             animation: animation,
@@ -1246,9 +1651,61 @@ class ChatPageState extends State<ChatPage> {
             horizontalPadding: (message is SystemMessage) ? 0 : 8,
             child: child,
           );
+          // 可视阈值已读（受隐私设置控制）
+          final s = UserRepoLocal.to.setting;
+          if (!s.enableVisibilityRead) {
+            return chatMsg;
+          }
+          final double fractionThreshold = (() {
+            final v = s.visibilityReadFraction;
+            if (v.isNaN) return 0.6;
+            if (v < 0.1) return 0.1;
+            if (v > 1.0) return 1.0;
+            return v;
+          })();
+          final int delayMs = s.visibilityReadDelayMs <= 0 ? 400 : s.visibilityReadDelayMs;
+          // 当来自对方的消息可视比例达到阈值并持续 delayMs 后推进水位
+          return VisibilityDetector(
+            key: Key('msg_vis_${message.id}'),
+            onVisibilityChanged: (info) {
+              final fraction = info.visibleFraction;
+              // 标记当前消息是否可见（用于后续检查）
+              if (fraction > 0.1) {
+                performanceMonitor.markMessageVisible(message.id);
+              } else {
+                performanceMonitor.markMessageInvisible(message.id);
+              }
+
+              // 仅处理来自对方的消息
+              final isIncoming = message.authorId != currentUser.id;
+              if (!isIncoming) return;
+              // 已处理过的消息无需重复
+              if (_readCommitted.contains(message.id)) return;
+
+              // 达到可视阈值，启动延时判定
+              if (fraction >= fractionThreshold) {
+                _readDelayTimers[message.id]?.cancel();
+                _readDelayTimers[message.id] = Timer(Duration(milliseconds: delayMs), () async {
+                  if (!mounted) return;
+                  // 仍处于可见状态才推进水位
+                  if (performanceMonitor.isMessageVisible(message.id)) {
+                    try {
+                      await conversationLogic.advanceReadWatermarkByMsgIds(conversation, [message.id]);
+                      _readCommitted.add(message.id);
+                    } catch (_) {}
+                  }
+                });
+              } else {
+                // 可见比例下降，取消未完成的判定
+                _readDelayTimers[message.id]?.cancel();
+                _readDelayTimers.remove(message.id);
+              }
+            },
+            child: chatMsg,
+          );
         },
       ),
-    );
+    ));
   }
   // 导航到聊天设置
   void _navigateToChatSettings() {
@@ -1291,10 +1748,5 @@ class ChatPageState extends State<ChatPage> {
         if (mounted) setState(() {});
       }
     }
-  }
-  // 关闭图片画廊
-  void _closeImageGallery() {
-    galleryLogic.onCloseGalleryPressed();
-    setState(() => _showAppBar = true);
   }
 }

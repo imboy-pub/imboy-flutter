@@ -109,6 +109,21 @@ class UserProvider extends HttpClient {
     return resp.ok;
   }
 
+  /// 修改或绑定手机号（需短信验证码）
+  /// 参数:
+  /// - mobile: 要绑定的新手机号（带区号完整号码，如 +8613812345678）
+  /// - code: 短信验证码
+  /// 返回:
+  /// - true 表示后端更新成功；false 失败（调用方应根据场景提示）
+  Future<bool> changeMobile({required String mobile, required String code}) async {
+    IMBoyHttpResponse resp = await put(API.userUpdate, data: {
+      "field": "mobile",
+      "value": mobile,
+      "code": code,
+    });
+    return resp.ok;
+  }
+
   /// 用户允许被搜索 1 是  2 否
   Future<bool> allowSearch(int val) async {
     IMBoyHttpResponse resp = await put(API.userUpdate, data: {
@@ -162,6 +177,15 @@ class UserProvider extends HttpClient {
   Future<bool> cancelLogout() async {
     IMBoyHttpResponse resp = await post(API.userCancelLogout);
     iPrint("> on UserProvider/cancelLogout resp: ${resp.payload.toString()}");
+    if (!resp.ok) {
+      return false;
+    }
+    return true;
+  }
+
+  Future<bool> changeSetting(Map<String, dynamic> map) async {
+    IMBoyHttpResponse resp = await post(API.userSetting, data: map);
+    iPrint("> on UserProvider/changeSetting resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return false;
     }

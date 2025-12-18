@@ -215,6 +215,35 @@ class LocaleKeys {
   static const send_msg_not_friend_tips = 'send_msg_not_friend_tips';
   static const collected = 'collected';
   static const copied = 'copied';
+  static const cancel = 'cancel';
+  static const selected = 'selected';
+  static const select_all = 'select_all';
+  static const star = 'star';
+  static const reply = 'reply';
+  static const copy = 'copy';
+  static const delete = 'delete';
+  static const message_mark_title = 'message_mark_title';
+  static const mark_important = 'mark_important';
+  static const mark_important_desc = 'mark_important_desc';
+  static const mark_todo = 'mark_todo';
+  static const mark_todo_desc = 'mark_todo_desc';
+  static const mark_star = 'mark_star';
+  static const mark_star_desc = 'mark_star_desc';
+  static const reply_to = 'reply_to';
+  static const quote_reply = 'quote_reply';
+  static const private_reply = 'private_reply';
+  static const forward_reply = 'forward_reply';
+  static const type_message = 'type_message';
+  static const image_message = 'image_message';
+  static const video_message = 'video_message';
+  static const audio_message = 'audio_message';
+  static const file_message = 'file_message';
+  static const location_message = 'location_message';
+  static const message = 'message';
+  static const search_hint = 'search_hint';
+  static const search_results_count = 'search_results_count';
+  static const search_chat_content = 'search_chat_content';
+  static const multi_select_mode = 'multi_select_mode';
   static const operation_failed_again_later = 'operation_failed_again_later';
   static const set_chat_background = 'set_chat_background';
   static const message_mute = 'message_mute';
@@ -287,6 +316,12 @@ class LocaleKeys {
   static const friend_permissions = 'friend_permissions';
   static const recommend_to_friend = 'recommend_to_friend';
   static const denylist = 'denylist';
+  static const blocked = 'blocked';
+  static const denylist_empty = 'denylist_empty';
+  static const denylist_empty_desc = 'denylist_empty_desc';
+  static const denylist_note_title = 'denylist_note_title';
+  static const denylist_note_desc = 'denylist_note_desc';
+  static const search_region = 'search_region';
   static const add_to_denylist = 'add_to_denylist';
   static const delete_contact = 'delete_contact';
   static const no_new_friends = 'no_new_friends';
@@ -389,7 +424,6 @@ class LocaleKeys {
   static const recently_used = 'recently_used';
   static const text = 'text';
   static const image = 'image';
-  static const location_message = 'location_message';
   static const voice = 'voice';
   static const type = 'type';
   static const device_details = 'device_details';
@@ -414,6 +448,11 @@ class LocaleKeys {
   static const female = 'female';
   static const gender = 'gender';
   static const keep_secret = 'keep_secret';
+  static const gender_update_success = 'gender_update_success';
+  static const gender_update_failed = 'gender_update_failed';
+  static const gender_network_error = 'gender_network_error';
+  static const gender_conflict_error = 'gender_conflict_error';
+  static const gender_saving = 'gender_saving';
   static const signature = 'signature';
   static const not_filled = 'not_filled';
   static const not_bound = 'not_bound';
@@ -472,12 +511,37 @@ class LocaleKeys {
   static const name = 'name';
   static const unnamed = 'unnamed';
   static const group_announcement = 'group_announcement';
-  static const search_chat_content = 'search_chat_content';
   static const pin_chat = 'pin_chat';
   static const change_group_chat_name = 'change_group_chat_name';
   static const nickname_change_visibility = 'nickname_change_visibility';
   static const group_remark_visibility = 'group_remark_visibility';
   static const about_app = 'about_app';
+  static const pinned = 'pinned';
+  static const pin = 'pin';
+  static const unpin = 'unpin';
+  static const delete_collect_confirm_desc = 'delete_collect_confirm_desc';
+  static const remaining_chars = 'remaining_chars';
+  static const load_error = 'load_error';
+  static const button_retry = 'button_retry';
+  static const region_select_title = 'region_select_title';
+  static const region_search_hint = 'region_search_hint';
+  static const region_confirm = 'region_confirm';
+  static const region_cancel = 'region_cancel';
+  static const region_no_result = 'region_no_result';
+  static const set_nickname = 'set_nickname';
+  static const nickname_hint = 'nickname_hint';
+  static const nickname_length_error = 'nickname_length_error';
+  static const nickname_empty_error = 'nickname_empty_error';
+  static const nickname_whitespace_error = 'nickname_whitespace_error';
+  static const nickname_emoji_only_error = 'nickname_emoji_only_error';
+  static const nickname_sensitive_word_error = 'nickname_sensitive_word_error';
+  static const nickname_update_success = 'nickname_update_success';
+  static const nickname_update_failed = 'nickname_update_failed';
+  static const nickname_network_error = 'nickname_network_error';
+  static const nickname_server_error = 'nickname_server_error';
+  static const nickname_conflict_error = 'nickname_conflict_error';
+  static const nickname_saving = 'nickname_saving';
+  static const nickname_chars_remaining = 'nickname_chars_remaining';
   static const zh_tw = 'zh_tw';
 }
 
@@ -681,6 +745,35 @@ class Locales {
     'send_msg_not_friend_tips': '对方开启了好友验证，你还不是他（她）好友。请先发送好友验证请求，对方验证通过后，才能聊天。',
     'collected': '已收藏',
     'copied': '已复制',
+    'cancel': '取消',
+    'selected': '已选',
+    'select_all': '全选',
+    'star': '收藏',
+    'reply': '回复',
+    'copy': '复制',
+    'delete': '删除',
+    'message_mark_title': '消息标记',
+    'mark_important': '重要',
+    'mark_important_desc': '标记为重要消息',
+    'mark_todo': '待办',
+    'mark_todo_desc': '标记为待办事项',
+    'mark_star': '收藏',
+    'mark_star_desc': '收藏此消息',
+    'reply_to': '回复',
+    'quote_reply': '引用回复',
+    'private_reply': '私聊回复',
+    'forward_reply': '转发回复',
+    'type_message': '输入消息...',
+    'image_message': '[图片]',
+    'video_message': '[视频]',
+    'audio_message': '语音消息',
+    'file_message': '[文件]',
+    'location_message': '位置消息',
+    'message': '消息',
+    'search_hint': '输入关键词搜索消息',
+    'search_results_count': '第 %{current} 个，共 %{total} 个结果',
+    'search_chat_content': '查找聊天内容',
+    'multi_select_mode': '多选模式',
     'operation_failed_again_later': '操作失败，请稍后重试',
     'set_chat_background': '设置当前聊天背景',
     'message_mute': '消息免打扰',
@@ -753,6 +846,12 @@ class Locales {
     'friend_permissions': '朋友权限',
     'recommend_to_friend': '把他推荐给朋友',
     'denylist': '黑名单',
+    'blocked': '已拉黑',
+    'denylist_empty': '黑名单为空',
+    'denylist_empty_desc': '你还没有拉黑任何用户\n被拉黑的用户将无法给你发送消息',
+    'denylist_note_title': '黑名单说明',
+    'denylist_note_desc': '被拉黑的用户无法给你发送消息，也无法查看你的动态。点击用户可以查看详情。',
+    'search_region': '搜索地区',
     'add_to_denylist': '加入黑名单',
     'delete_contact': '删除联系人',
     'no_new_friends': '没有新的好友',
@@ -854,7 +953,6 @@ class Locales {
     'recently_used': '最近使用',
     'text': '文本',
     'image': '图片',
-    'location_message': '位置消息',
     'voice': '语音',
     'type': '类型',
     'device_details': '设备详情',
@@ -879,6 +977,11 @@ class Locales {
     'female': '女',
     'gender': '性别',
     'keep_secret': '保密',
+    'gender_update_success': '性别设置成功',
+    'gender_update_failed': '性别设置失败，请重试',
+    'gender_network_error': '网络异常，请检查网络连接',
+    'gender_conflict_error': '性别设置冲突，请重试',
+    'gender_saving': '保存中...',
     'signature': '个性签名',
     'not_filled': '未填写',
     'not_bound': '未绑定',
@@ -937,12 +1040,37 @@ class Locales {
     'name': '名称',
     'unnamed': '未命名',
     'group_announcement': '群公告',
-    'search_chat_content': '查找聊天内容',
     'pin_chat': '置顶聊天',
     'change_group_chat_name': '修改群聊名称后，将在群内通知其他成员。',
     'nickname_change_visibility': '昵称修改后，只会在此群内显示，群内成员都可以看见。',
     'group_remark_visibility': '群聊的备注仅自己可见',
     'about_app': '关于应用',
+    'pinned': '已置顶',
+    'pin': '置顶',
+    'unpin': '取消置顶',
+    'delete_collect_confirm_desc': '删除后无法恢复，确定要删除这条收藏吗？',
+    'remaining_chars': '还可输入 %s 个字符',
+    'load_error': '加载失败，请重试',
+    'button_retry': '重试',
+    'region_select_title': '选择地区',
+    'region_search_hint': '按地区名称搜索',
+    'region_confirm': '确定',
+    'region_cancel': '取消',
+    'region_no_result': '暂无结果',
+    'set_nickname': '设置昵称',
+    'nickname_hint': '请输入昵称',
+    'nickname_length_error': '昵称长度应在2-24个字符之间',
+    'nickname_empty_error': '昵称不能为空',
+    'nickname_whitespace_error': '昵称不能仅包含空白字符',
+    'nickname_emoji_only_error': '昵称不能仅包含表情符号',
+    'nickname_sensitive_word_error': '昵称包含敏感词，请重新输入',
+    'nickname_update_success': '昵称修改成功',
+    'nickname_update_failed': '昵称修改失败，请重试',
+    'nickname_network_error': '网络异常，请检查网络连接',
+    'nickname_server_error': '服务器错误，请稍后重试',
+    'nickname_conflict_error': '昵称已被使用，请选择其他昵称',
+    'nickname_saving': '保存中...',
+    'nickname_chars_remaining': '还可输入%s个字符',
   };
   static const en_US = {
     'manually': 'Choose manually',
@@ -1339,7 +1467,7 @@ class Locales {
     'recently_used': 'Recently Used',
     'text': 'Text',
     'image': 'Image',
-    'location_message': 'Location Message',
+    'location_message': '[Location]',
     'voice': 'Voice',
     'type': 'Type',
     'device_details': 'Device Details',
@@ -1438,6 +1566,68 @@ class Locales {
         'After the nickname is modified, it will only be displayed in this group, and all members in the group can see it.',
     'group_remark_visibility': 'Group chat remarks are visible only to oneself',
     'about_app': 'About app',
+    'pinned': 'Pinned',
+    'cancel': 'Cancel',
+    'selected': 'Selected',
+    'select_all': 'Select all',
+    'star': 'Star',
+    'reply': 'Reply',
+    'copy': 'Copy',
+    'delete': 'Delete',
+    'message_mark_title': 'Message Mark',
+    'mark_important': 'Important',
+    'mark_important_desc': 'Mark as important message',
+    'mark_todo': 'Todo',
+    'mark_todo_desc': 'Mark as todo item',
+    'mark_star': 'Star',
+    'mark_star_desc': 'Star this message',
+    'reply_to': 'Reply to',
+    'quote_reply': 'Quote Reply',
+    'private_reply': 'Private Reply',
+    'forward_reply': 'Forward Reply',
+    'type_message': 'Type a message...',
+    'image_message': '[Image]',
+    'video_message': '[Video]',
+    'file_message': '[File]',
+    'message': 'Message',
+    'search_hint': 'Enter keywords to search messages',
+    'search_results_count': '%{current} of %{total} results',
+    'multi_select_mode': 'Multi-select Mode',
+    'unpin': 'Unpin',
+    'delete_collect_confirm_desc':
+        'This action cannot be undone. Delete this favorite?',
+    'audio_message': 'Audio message',
+    'denylist_empty': 'Denylist is empty',
+    'denylist_empty_desc':
+        'You haven\'t blocked any users yet.\nBlocked users cannot send you messages.',
+    'denylist_note_title': 'About denylist',
+    'denylist_note_desc':
+        'Blocked users cannot send you messages or view your moments. Tap a user to view details.',
+    'blocked': 'Blocked',
+    'search_region': 'Search region',
+    'remaining_chars': 'Remaining %s chars',
+    'load_error': 'Load failed. Please retry.',
+    'button_retry': 'Retry',
+    'region_select_title': 'Region',
+    'region_search_hint': 'Search regions',
+    'region_confirm': 'Confirm',
+    'region_cancel': 'Cancel',
+    'region_no_result': 'No results',
+    'set_nickname': 'Set Nickname',
+    'nickname_hint': 'Enter nickname',
+    'nickname_length_error': 'Nickname should be 2-24 characters long',
+    'nickname_empty_error': 'Nickname cannot be empty',
+    'nickname_whitespace_error': 'Nickname cannot contain only whitespace',
+    'nickname_emoji_only_error': 'Nickname cannot contain only emojis',
+    'nickname_sensitive_word_error':
+        'Nickname contains sensitive words, please re-enter',
+    'nickname_update_success': 'Nickname updated successfully',
+    'nickname_update_failed': 'Failed to update nickname, please try again',
+    'nickname_network_error': 'Network error, please check your connection',
+    'nickname_server_error': 'Server error, please try again later',
+    'nickname_conflict_error': 'Nickname already taken, please choose another',
+    'nickname_saving': 'Saving...',
+    'nickname_chars_remaining': '%s characters remaining',
   };
   static const ru_RU = {
     'manually': 'Выбор вручную',

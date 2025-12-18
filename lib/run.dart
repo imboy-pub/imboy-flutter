@@ -1,33 +1,28 @@
-import 'package:drag_ball/drag_ball.dart';
+import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:image/image.dart' as img;
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/feedback_builder.dart';
 import 'package:imboy/page/passport/welcome_view.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:jiffy/jiffy.dart';
-import 'package:feedback/feedback.dart';
 
 import 'package:imboy/component/helper/log.dart';
 import 'package:imboy/component/locales/locales.g.dart';
-import 'package:imboy/component/ui/common.dart';
 
 import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
 import 'package:imboy/page/pages.dart';
-import 'package:imboy/store/provider/attachment_provider.dart';
-import 'package:imboy/store/provider/feedback_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/theme_manager.dart';
 
 import 'component/locales/locales.dart';
-import 'config/app_theme.dart';
 import 'config/init.dart';
 
 void run() async {
@@ -39,28 +34,9 @@ void run() async {
     _,
   ) {
     runApp(
-      BetterFeedback(
-        theme: FeedbackThemeData(
-          background: Colors.grey,
-          feedbackSheetColor: Colors.grey[50]!,
-          drawColors: [
-            Colors.red,
-            Colors.orange,
-            Colors.yellow,
-            Colors.green,
-            Colors.cyan,
-            Colors.blue,
-            Colors.purple,
-          ],
-        ),
-        feedbackBuilder: (context, onSubmit, scrollController) =>
-            IMBoyFeedbackForm(
-              onSubmit: onSubmit,
-              scrollController: scrollController,
-            ),
-        child: const IMBoyApp(),
-      ),
+      BetterFeedback(mode: FeedbackMode.navigate, child: const IMBoyApp()),
     );
+    // runApp(const IMBoyApp());
   });
 }
 
@@ -68,20 +44,34 @@ class IMBoyApp extends StatefulWidget {
   const IMBoyApp({super.key});
 
   @override
-  State<IMBoyApp> createState() => _IMBoyAppState();
+  State<IMBoyApp> createState() => IMBoyAppState();
 }
 
-class _IMBoyAppState extends State<IMBoyApp> {
+class IMBoyAppState extends State<IMBoyApp> {
+  // 监听字体大小变化
+  RxString currentFontSize = 'normal'.obs;
+
   @override
   void initState() {
     super.initState();
+
+    // 初始化字体大小设置
+    currentFontSize.value = UserRepoLocal.to.setting.fontSize;
+
+    // 监听 ThemeManager 的主题设置变化
+    // 使用 GetBuilder 或直接监听 ThemeManager 的更新
+    ThemeManager.instance.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
 
     initialization();
   }
 
   void initialization() async {
     /// HACK: 启动页关闭
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 2));
     FlutterNativeSplash.remove();
   }
 
@@ -92,82 +82,9 @@ class _IMBoyAppState extends State<IMBoyApp> {
     if (lang == 'ru') {
       code.add('RU');
     }
-    return Dragball(
-      icon: DecoratedBox(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Theme.of(context).colorScheme.surface,
-        ),
-        child: const Padding(
-          padding: EdgeInsets.all(2),
-          child: Icon(Icons.navigate_before_rounded, size: 24),
-        ),
-      ),
-      ball: SizedBox(
-        width: 50,
-        height: 28,
-        child: Row(
-          // 垂直居中
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Space(width: 16),
-            Expanded(child: Text('FB')),
-            Space(width: 16),
-          ],
-        ),
-        // ..backgroundColor = Theme.of(context).colorScheme.surface
-      ),
-      initialPosition: DragballPosition(
-        top: Get.height / 3 + 120,
-        isRight: true,
-        ballState: BallState.show,
-      ),
-      onTap: () {
-        BetterFeedback.of(context).show((UserFeedback feedback) async {
-          iPrint(
-            "BetterFeedback show extra ${feedback.extra.toString()} isLogin ${UserRepoLocal.to.isLoggedIn}",
-          );
-          // Uint8List feedbackScreenshot = feedback.screenshot
-          if (feedback.text.isEmpty) {
-            EasyLoading.showError('feedback_content_required'.tr);
-            return;
-          }
-
-          img.Image image = img.decodeImage(feedback.screenshot)!;
-          final result = img.encodeJpg(image, quality: 70);
-
-          await AttachmentProvider.uploadBytes(
-            "feedback",
-            result,
-            (Map<String, dynamic> resp, String uri) async {
-              FeedbackProvider p = FeedbackProvider();
-              var type = feedback.extra?['feedback_type'] ?? '';
-              var rating = feedback.extra?['rating'] ?? '';
-
-              Map<String, dynamic> data = {
-                'rating': rating,
-                'type': type.toString().split('.').last.replaceAll('_', ' '),
-                'contact_detail': feedback.extra?['contact_detail'] ?? '',
-                'description': feedback.text,
-                'screenshot': [uri],
-              };
-              bool res = await p.add(data);
-              if (res) {
-                EasyLoading.showSuccess('feedback_success_msg'.tr);
-              } else {
-                EasyLoading.showError('tip_failed'.tr);
-              }
-            },
-            (Error error) {
-              debugPrint("> on upload ${error.toString()}");
-            },
-            process: false,
-          );
-        });
-      },
-      onPositionChanged: (DragballPosition position) {
-        // debugPrint(position.toString());
-      },
+    return Directionality(
+      // 为子树提供文本方向信息。它告诉应用中的其他widget应该按照从左到右（LTR）还是从右到左（RTL）的顺序来排列内容。
+      textDirection: TextDirection.ltr,
       child: ScreenUtilInit(
         designSize: const Size(375, 812),
         minTextAdapt: true,
@@ -184,19 +101,29 @@ class _IMBoyAppState extends State<IMBoyApp> {
           debugShowCheckedModeBanner: false,
           // getPages: AppPages.routes,
           // initialRoute: AppPages.INITIAL,
-          // translations: TranslationService(),
           navigatorObservers: [AppPages.observer],
-          // localizationsDelegates: [
-          //   GlobalMaterialLocalizations.delegate,
-          //   GlobalWidgetsLocalizations.delegate,
-          //   GlobalCupertinoLocalizations.delegate,
-          // ],
+          
+          // 配置本地化代理
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          
+          // 配置支持的语言环境
+          supportedLocales: const [
+            Locale('zh', 'CN'), // 简体中文
+            Locale('zh', 'TW'), // 繁体中文
+            Locale('en', 'US'), // 美式英语
+            Locale('en', 'GB'), // 英式英语
+            Locale('ru', 'RU'), // 俄语
+          ],
+          
+          // 配置 GetX 翻译
           translationsKeys: AppTranslation.translations,
-
           translations: IMBoyTranslations(),
+          
           // 翻译将在该语言环境中显示
-          // locale: const Locale('zh', 'CN'),
-          // locale: Get.deviceLocale,
           locale: Locale(code[0], code[1]),
           // 如果选择了无效的语言环境，则指定备用语言环境。
           fallbackLocale: const Locale('en', 'US'),
@@ -205,8 +132,9 @@ class _IMBoyAppState extends State<IMBoyApp> {
           // opaqueRoute: Get.isOpaqueRouteDefault,
           // popGesture: Get.isPopGestureEnable,
           builder: EasyLoading.init(),
-          theme: lightTheme,
-          darkTheme: darkTheme,
+          theme: ThemeManager.instance.lightTheme,
+          darkTheme: ThemeManager.instance.darkTheme,
+          // themeMode: ThemeMode.system, // 跟随系统主题
           // 配置 本地存储 主题类型
           themeMode: getLocalProfileAboutThemeModel(),
           enableLog: true,

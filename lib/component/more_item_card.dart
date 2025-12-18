@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:imboy/component/ui/common.dart';
-
-import '../config/theme.dart';
-
-
 class MoreItemCard extends StatelessWidget {
   final String? name, icon;
   final VoidCallback? onPressed;
@@ -38,7 +33,7 @@ class MoreItemCard extends StatelessWidget {
               style: TextButton.styleFrom(
                 minimumSize: Size.zero,
                 padding: EdgeInsets.zero,
-                backgroundColor: Colors.white,
+                backgroundColor: Theme.of(context).colorScheme.surface,
               ),
               onPressed: () {
                 if (onPressed != null) {
@@ -56,14 +51,8 @@ class MoreItemCard extends StatelessWidget {
               ),
             ),
           ),
-          Space(width: mainSpace / 2),
-          Text(
-            name ?? '',
-            style: const TextStyle(
-              // color: AppColors.MainTextColor,
-              fontSize: 11,
-            ),
-          ),
+          SizedBox(width: 5.0), // 使用 SizedBox 替代 Space
+          Text(name ?? ''),
         ],
       ),
     );

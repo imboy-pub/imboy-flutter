@@ -108,7 +108,7 @@ class ConversationModel {
         title = title.substring(0, 12);
         suffix = '...';
       }
-      return '"$title$suffix"${'message_was_withdrawn'.tr}';
+      return '"$title$suffix" ${'message_was_withdrawn'.tr}';
     } else if (msgType == 'my_revoked') {
       return 'you_withdrew_a_message'.tr;
     } else if (msgType == 'custom') {

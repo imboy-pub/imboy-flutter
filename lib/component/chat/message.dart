@@ -20,8 +20,24 @@ import 'message_video_builder.dart';
 import 'message_visit_card_builder.dart';
 import 'message_webrtc_builder.dart';
 
-/// 消息圆角半径，可按需自定义
-const BorderRadius kMsgBorderRadius = BorderRadius.all(Radius.circular(12));
+/// Material 3消息圆角半径 - Medium圆角 (16dp)
+const BorderRadius kMsgBorderRadius = BorderRadius.all(Radius.circular(16));
+
+/// Material 3发送消息圆角 - 右下角小圆角
+const BorderRadius kSentMsgBorderRadius = BorderRadius.only(
+  topLeft: Radius.circular(16),
+  topRight: Radius.circular(4), // 小圆角表示消息方向
+  bottomLeft: Radius.circular(16),
+  bottomRight: Radius.circular(16),
+);
+
+/// Material 3接收消息圆角 - 左下角小圆角
+const BorderRadius kReceivedMsgBorderRadius = BorderRadius.only(
+  topLeft: Radius.circular(4), // 小圆角表示消息方向
+  topRight: Radius.circular(16),
+  bottomLeft: Radius.circular(16),
+  bottomRight: Radius.circular(16),
+);
 
 /// 构建自定义消息主入口
 class CustomMessageBuilder extends StatelessWidget {
@@ -36,25 +52,17 @@ class CustomMessageBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("> on CustomMessageBuilder msg: ${message.toJson().toString()}");
+    debugPrint(
+      "> on CustomMessageBuilder msg: $type ${message.toJson().toString()}",
+    );
     final user = User(
       id: UserRepoLocal.to.currentUid,
       name: UserRepoLocal.to.current.nickname,
       imageSource: UserRepoLocal.to.current.avatar,
     );
     bool isSentByMe = message.authorId == user.id;
-    final theme = context.select(
-          (ChatTheme t) => (
-      bodyMedium: t.typography.bodyMedium,
-      labelSmall: t.typography.labelSmall,
-      onPrimary: t.colors.onPrimary,
-      onSurface: t.colors.onSurface,
-      primary: t.colors.primary,
-      shape: t.shape,
-      surfaceContainer: t.colors.surfaceContainer,
-      ),
-    );
-
+    final theme = Provider.of<ChatTheme>(context, listen: false);
+    const padding = EdgeInsets.symmetric(horizontal: 10, vertical: 8);
     Widget content = const SizedBox.shrink();
     try {
       final customType = message.metadata?['custom_type'] ?? '';
@@ -69,14 +77,24 @@ class CustomMessageBuilder extends StatelessWidget {
           content = WebRTCMessageBuilder(message: message, user: user);
           break;
         case 'quote':
-          content = QuoteMessageBuilder(type: type, message: message, user: user);
+          content = QuoteMessageBuilder(
+            type: type,
+            message: message,
+            user: user,
+          );
           break;
         case 'video':
           content = VideoMessageBuilder(message: message, user: user);
           break;
         case 'audio':
-          content = AudioMessageBuilder(type: type, message: message, user: user);
-          break;
+          return Padding(
+            padding: padding,
+            child: AudioMessageBuilder(
+              type: type,
+              message: message,
+              user: user,
+            ),
+          );
         case 'visit_card':
           content = VisitCardMessageBuilder(message: message, user: user);
           break;
@@ -84,19 +102,39 @@ class CustomMessageBuilder extends StatelessWidget {
           content = LocationMessageBuilder(message: message, user: user);
           break;
         default:
-        // 可以考虑一个默认的文本消息展示
+          // 可以考虑一个默认的文本消息展示
           break;
       }
     } catch (e, s) {
       debugPrint("> on CustomMessageBuilder e ${e.toString()}; $s");
     }
 
-    return ClipRRect(
-      borderRadius: kMsgBorderRadius,
-      child: Container(
-        color: isSentByMe ? theme.primary : theme.surfaceContainer,
-        child: content,
+    // Material 3消息气泡样式
+    final borderRadius = isSentByMe
+        ? kSentMsgBorderRadius
+        : kReceivedMsgBorderRadius;
+    final backgroundColor = isSentByMe
+        ? theme.colors.primary.withValues(
+            alpha: 0.12,
+          ) // 使用Primary Container的透明度
+        : theme.colors.surfaceContainerLow; // 使用更浅的表面容器
+
+    return Container(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: borderRadius,
+        // Material 3阴影效果
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isSentByMe ? 0.1 : 0.05),
+            blurRadius: isSentByMe ? 4 : 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
+      // Material 3间距系统
+      padding: padding,
+      child: content,
     );
   }
 }
@@ -109,7 +147,7 @@ Widget messageMsgWidget(Message msg, {Color? txtColor}) {
     imageSource: UserRepoLocal.to.current.avatar,
   );
 
-  final textStyle = TextStyle(fontSize: 13.0, color: txtColor);
+  final textStyle = TextStyle(fontSize: 14.0, color: txtColor); // 使用固定字体大小
 
   // 优先处理 custom_type
   final customType = msg.metadata?['custom_type'] ?? '';
@@ -119,14 +157,23 @@ Widget messageMsgWidget(Message msg, {Color? txtColor}) {
       content = VideoMessageBuilder(user: user, message: msg as CustomMessage);
       break;
     case 'audio':
-      content = AudioMessageBuilder(
-        type: msg.metadata?['type'],
+      return AudioMessageBuilder(
+        type: msg.metadata?['type'] ?? 'C2C', // 提供默认值
+        user: user,
+        message: msg as CustomMessage,
+        // onPlay: ,
+      );
+    // content = AudioMessageBuilder(
+    //   type: msg.metadata?['type'] ?? 'C2C', // 提供默认值
+    //   user: user,
+    //   message: msg as CustomMessage,
+    // );
+    // break;
+    case 'location':
+      content = LocationMessageBuilder(
         user: user,
         message: msg as CustomMessage,
       );
-      break;
-    case 'location':
-      content = LocationMessageBuilder(user: user, message: msg as CustomMessage);
       break;
     case 'quote':
       final txt = msg.metadata?['quote_text'] ?? '';
@@ -138,7 +185,7 @@ Widget messageMsgWidget(Message msg, {Color? txtColor}) {
       );
       break;
     default:
-    // 普通消息类型
+      // 普通消息类型
       if (msg is TextMessage) {
         content = Text(
           msg.text,
@@ -154,12 +201,27 @@ Widget messageMsgWidget(Message msg, {Color? txtColor}) {
         content = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [
-              Text("[${'file'.tr}] $sizeStr", style: TextStyle(color: txtColor)),
-            ]),
-            Row(children: [
-              Text(msg.name, style: TextStyle(color: txtColor)),
-            ]),
+            Row(
+              children: [
+                Icon(Icons.insert_drive_file, size: 16, color: txtColor),
+                const SizedBox(width: 8),
+                Text(
+                  "[${'file'.tr}] $sizeStr",
+                  style: TextStyle(color: txtColor, fontSize: 12.0),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              msg.name,
+              style: TextStyle(
+                color: txtColor,
+                fontSize: 14.0,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         );
       } else if (msg is ImageMessage) {
@@ -176,10 +238,7 @@ Widget messageMsgWidget(Message msg, {Color? txtColor}) {
       break;
   }
   // 新增：所有引用消息都包裹圆角
-  return ClipRRect(
-    borderRadius: kMsgBorderRadius,
-    child: content,
-  );
+  return ClipRRect(borderRadius: kMsgBorderRadius, child: content);
 }
 
 /// 双击文本消息的时候全屏显示文本消息
@@ -199,10 +258,7 @@ void showTextMessage(String text) {
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: SelectableText.rich(
-            TextSpan(
-              text: text,
-              style: const TextStyle(fontSize: 24),
-            ),
+            TextSpan(text: text, style: const TextStyle(fontSize: 24)),
             onTap: () {
               Get.closeAllBottomSheets();
             },
@@ -236,7 +292,6 @@ void confirmOpenFile(String uri) {
             Navigator.of(context).pop();
             final tmpF = await IMBoyCacheManager().getSingleFile(
               uri,
-              key: EncrypterService.md5(uri),
             );
             await OpenFile.open(tmpF.path);
           },

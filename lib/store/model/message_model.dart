@@ -42,7 +42,7 @@ class MessageModel {
   String? type; // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
   String? fromId; // 等价于数据库的 from
   String? toId; // 等价于数据库的 to
-  Map<String, dynamic>? payload;
+  Map<String, dynamic> payload;
   int createdAt; // 消息创建时间 毫秒时间戳
   // type_userId_peerId
   String conversationUk3;
@@ -71,7 +71,7 @@ class MessageModel {
   });
 
   factory MessageModel.fromJson(Map<String, dynamic> data) {
-    Map<String, dynamic>? p;
+    Map<String, dynamic> p = <String, dynamic>{};
     if (data['payload'] == null || data['payload'] == "") {
       p = <String, dynamic>{};
     } else if (data['payload'] is String) {
@@ -133,24 +133,21 @@ class MessageModel {
   }
 
   CustomMessageType get msgType {
-    if (payload == null) {
-      CustomMessageType.unsupported;
-    }
-    if (payload!['msg_type'] == 'text') {
+    if (payload['msg_type'] == 'text') {
       return CustomMessageType.text;
-    } else if (payload!['msg_type'] == 'text_stream') {
+    } else if (payload['msg_type'] == 'text_stream') {
       return CustomMessageType.textStream;
-    } else if (payload!['msg_type'] == 'image') {
+    } else if (payload['msg_type'] == 'image') {
       return CustomMessageType.image;
-    } else if (payload!['msg_type'] == 'file') {
+    } else if (payload['msg_type'] == 'file') {
       return CustomMessageType.file;
-    } else if (payload!['msg_type'] == 'custom') {
+    } else if (payload['msg_type'] == 'custom') {
       return CustomMessageType.custom;
-    } else if (payload!['msg_type'] == 'location') {
+    } else if (payload['msg_type'] == 'location') {
       return CustomMessageType.custom;
-    } else if (payload!['msg_type'] == 'visit_card') {
+    } else if (payload['msg_type'] == 'visit_card') {
       return CustomMessageType.custom;
-    } else if (payload!['msg_type'] == 'revoked') {
+    } else if (payload['msg_type'] == 'revoked') {
       return CustomMessageType.custom;
     }
 
@@ -167,6 +164,12 @@ class MessageModel {
     } else if (message is CustomMessage) {
       String msgType = message.metadata?['custom_type'] ?? 'unsupported';
       if (msgType == 'revoked') {
+        // 检查是否有revoke_user字段，如果有则根据revoke_user判断撤回方
+        final String revokeUser = message.metadata?['revoke_user'] ?? '';
+        if (revokeUser.isNotEmpty) {
+          return revokeUser == UserRepoLocal.to.currentUid ? 'my_revoked' : 'peer_revoked';
+        }
+        // 如果没有revoke_user字段，则根据authorId判断
         return UserRepoLocal.to.currentUid == message.authorId
             ? 'my_revoked'
             : 'peer_revoked';
@@ -218,7 +221,7 @@ class MessageModel {
   }
 
   Future<Message> toTypeMessage() async {
-    String sysPrompt = payload?['sys_prompt'] ?? '';
+    String sysPrompt = payload['sys_prompt'] ?? '';
     Message? message;
     // enum MessageType { custom, file, image, text, unsupported }
     Map<String, dynamic> metadata = {
@@ -239,80 +242,91 @@ class MessageModel {
     User author = User(
       id: fromId!,
       imageSource: avatar,
-      // payload!['peer_name'] 目前只在收到撤回消息的时候才存在 peer_name
+      // payload['peer_name'] 目前只在收到撤回消息的时候才存在 peer_name
       name: nickname.isEmpty
-          ? (payload?['peer_name'] ?? (payload?['quote_msg_author_name'] ?? ''))
+          ? (payload['peer_name'] ?? (payload['quote_msg_author_name'] ?? ''))
           : nickname,
     );
     DateTime createdDt = DateTimeHelper.millisecondToDateTime(createdAt);
-    if (payload!['msg_type'] == 'text') {
+
+    // Handle null payload case
+    final payloadData = payload;
+    if (payloadData['msg_type'] == 'text') {
       message = TextMessage(
         authorId: author.id,
         createdAt: createdDt,
         id: id!,
         // peerId: toId,
-        text: payload?['text'],
+        text: payload['text'],
         status: typesStatus,
-        metadata: {...metadata, ...?payload},
+        metadata: {...metadata, ...payload},
       );
-    } else if (payload!['msg_type'] == 'image') {
+    } else if (payloadData['msg_type'] == 'image') {
       message = ImageMessage(
         authorId: author.id,
         createdAt: createdDt,
         id: id!,
         // peerId: toId,
-        text: payload!['name'],
-        size: payload!['size'],
-        source: AssetsService.viewUrl(payload!['uri']).toString(),
-        width: payload!['width'] / 1.0,
-        height: payload!['height'] / 1.0,
+        text: payloadData['name'] ?? '',
+        size: payloadData['size'] ?? 0,
+        source: AssetsService.viewUrl(payloadData['uri'] ?? '').toString(),
+        width: (payloadData['width'] ?? 0) / 1.0,
+        height: (payloadData['height'] ?? 0) / 1.0,
         status: typesStatus,
-        metadata: {...metadata, ...?payload},
+        metadata: {...metadata, ...payloadData},
       );
-    } else if (payload!['msg_type'] == 'file') {
+    } else if (payloadData['msg_type'] == 'file') {
       message = FileMessage(
         authorId: author.id,
         createdAt: createdDt,
         id: id!,
         // peerId: toId,
-        name: payload!['name'],
-        size: payload!['size'],
-        source: AssetsService.viewUrl(payload!['uri']).toString(),
+        name: payloadData['name'] ?? '',
+        size: payloadData['size'] ?? 0,
+        source: AssetsService.viewUrl(payloadData['uri'] ?? '').toString(),
         status: typesStatus,
-        metadata: {...metadata, ...?payload},
+        metadata: {...metadata, ...payloadData},
       );
-    } else if (payload!['custom_type'] == 'revoked' ||
-        payload!['custom_type'] == 'peer_revoked' ||
-        payload!['custom_type'] == 'my_revoked' ||
-        payload!['custom_type'] == 'c2c_revoke') {
+    } else if (payloadData['custom_type'] == 'revoked' ||
+        payloadData['custom_type'] == 'peer_revoked' ||
+        payloadData['custom_type'] == 'my_revoked' ||
+        payloadData['custom_type'] == 'c2c_revoke') {
       message = CustomMessage(
         authorId: author.id,
         id: id!,
         createdAt: createdDt,
         // peerId: toId,
-        metadata: {...metadata, ...?payload},
+        metadata: {...metadata, ...payloadData},
       );
-    } else if (payload!['custom_type'] == 'quote') {
+    } else if (payloadData['custom_type'] == 'quote') {
       message = CustomMessage(
         authorId: author.id,
         id: id!,
         createdAt: createdDt,
         // peerId: toId,
-        metadata: {...metadata, ...?payload},
+        metadata: {...metadata, ...payloadData},
       );
-    } else if (payload!['msg_type'] == 'custom') {
+    } else if (payloadData['msg_type'] == 'custom') {
       message = CustomMessage(
         authorId: author.id,
         id: id!,
         createdAt: createdDt,
         // peerId: toId,
         // status: typesStatus,
-        metadata: {...metadata, ...?payload},
+        metadata: {...metadata, ...payloadData},
+      );
+    } else {
+      // Fallback case for unknown message types
+      message = CustomMessage(
+        authorId: author.id,
+        id: id!,
+        createdAt: createdDt,
+        metadata: {...metadata, ...payloadData},
       );
     }
 
     // debugPrint("> on toTypeMessage md ${toJson().toString()}");
-    return message!;
+    return message;
   }
 
   static MessageModel fromMessage(Message message) {

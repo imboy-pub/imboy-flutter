@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/passport/login_view.dart';
-import 'package:imboy/service/secure_key_service.dart' show SecureKeyService;
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
@@ -62,20 +61,17 @@ class UserRepoLocal extends GetxController {
   void onInit() {
     super.onInit();
     // _loadIsLogin();
-    update();
   }
 
   Future<bool> changeSetting(UserSettingModel setting) async {
     Map<String, dynamic> u = StorageService.getMap(Keys.currentUser);
     u['setting'] = setting.toMap();
     await StorageService.setMap(Keys.currentUser, u);
-    update();
     return true;
   }
 
   Future<bool> changeInfo(Map<String, dynamic> payload) async {
     await StorageService.setMap(Keys.currentUser, payload);
-    update();
     return true;
   }
 
@@ -122,7 +118,7 @@ class UserRepoLocal extends GetxController {
 
   Future<bool> quitLogin() async {
     if (to.isLoggedIn) {
-      WebSocketService.to.sendMessage("logout");
+      //WebSocketService.to.sendMessage("logout");
     }
     await StorageService.to.remove(Keys.currentUid);
     await StorageService.to.remove(Keys.wsUrl);
@@ -132,7 +128,6 @@ class UserRepoLocal extends GetxController {
 
     try {
       await SecureTokenStorageService.clear();
-      await SecureKeyService.clear();
     } catch (e, s) {
       debugPrint("$e; $s");
       // FlutterKeychain 不支持 macos

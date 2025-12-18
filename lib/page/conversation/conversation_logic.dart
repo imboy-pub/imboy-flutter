@@ -6,9 +6,11 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/store/model/contact_model.dart' show ContactModel;
 import 'package:imboy/store/model/conversation_model.dart';
-import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:sqflite/sqflite.dart';
@@ -41,6 +43,42 @@ class ConversationLogic extends GetxController {
   }
 
   Rx<int> get chatMsgRemindCounter => conversationRemind.values.fold(0, (sum, val) => sum + val).obs;
+
+  // 读取会话的“已读水位”（使用消息表 auto_id）
+  int _getLastReadAutoId(ConversationModel conversation) {
+    try {
+      final v = conversation.payload?['last_read_auto_id'];
+      if (v is int) return v;
+      if (v is String) return int.tryParse(v) ?? 0;
+      return 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  // 设置会话“已读水位”（仅推进，不回退）
+  Future<void> _setLastReadAutoId(ConversationModel conversation, int autoId) async {
+    if (conversation.uk3.isEmpty) return;
+    final current = _getLastReadAutoId(conversation);
+    if (autoId <= current) return;
+
+    final newPayload = <String, dynamic>{
+      ...?conversation.payload,
+      'last_read_auto_id': autoId,
+    };
+    await (ConversationRepo()).updateById(conversation.id, {
+      ConversationRepo.payload: newPayload,
+    });
+
+    // 同步更新内存对象
+    final uk3 = conversation.uk3;
+    if (conversationMap.containsKey(uk3)) {
+      conversationMap[uk3] = conversationMap[uk3]!.copyWith(payload: newPayload);
+    } else {
+      // 不在 Map 中时，尽量更新传入对象的 payload
+      conversation.payload = newPayload;
+    }
+  }
 
   Future<void> setConversationRemind(ConversationModel conversation, int val) async {
     final String uk3 = conversation.uk3;
@@ -86,6 +124,33 @@ class ConversationLogic extends GetxController {
     conversationMap[obj.uk3] = obj;
   }
 
+  Future<String> computeTitle(ConversationModel obj) async {
+
+    String computedTitle = '';
+
+    if (obj.type == 'C2G') {
+      // 群组会话：如果设置了群名称，就应该取群名称；否则取 _groupListLogic.computeTitle 的结果
+      final group = await (GroupRepo()).findById(obj.peerId);
+      if (group != null && group.title.trim().isNotEmpty) {
+        computedTitle = group.title;
+      } else {
+        computedTitle = await _groupListLogic.computeTitle(obj.peerId);
+      }
+    } else if (obj.type == 'C2C') {
+      // 个人会话：获取联系人标题
+      computedTitle = await _getContactTitle(obj.peerId);
+    }
+    iPrint("${obj.peerId} computedTitle $computedTitle");
+    // 将计算结果持久化到数据库
+    if (computedTitle.isNotEmpty) {
+      await (ConversationRepo()).updateById(obj.id, {
+        ConversationRepo.title: computedTitle,
+      });
+      obj.title = computedTitle; // 更新内存中的对象
+    }
+    return computedTitle;
+  }
+
   Future<List<ConversationModel>> conversationsList({
     String type = '',
     bool recalculateRemind = true,
@@ -93,17 +158,16 @@ class ConversationLogic extends GetxController {
     try {
       List<ConversationModel> li = await (ConversationRepo()).list(type: type);
       await Future.wait(li.map((obj) async {
-        if (obj.type == 'C2G') {
-          final futures = <Future>[];
-          if (obj.title.isEmpty) {
-            futures.add(_groupListLogic.computeTitle(obj.peerId).then((v) => obj.computeTitle = v));
-          }
-          await Future.wait(futures);
-        }
-        if (recalculateRemind) {
-          await recalculateAllReminds(li);
+        // obj.title = '';
+        if (obj.title.isEmpty) {
+          obj.title = await computeTitle(obj);
         }
       }));
+      
+      if (recalculateRemind) {
+        await recalculateAllReminds(li);
+      }
+      
       conversationMap.assignAll({for (var c in li) c.uk3: c});
       return li;
     } catch (e, s) {
@@ -182,6 +246,7 @@ class ConversationLogic extends GetxController {
       for (var item in items) {
         await replace(item);
         eventBus.fire(item);
+        iPrint('updateConversationByMsgId: 更新会话 ${item.uk3} 的 lastMsgStatus 为 ${item.lastMsgStatus}');
       }
     } catch (e, s) {
       iPrint('updateConversationByMsgId error: $e; $s');
@@ -229,10 +294,11 @@ class ConversationLogic extends GetxController {
     if (cm.uk3.isEmpty) return;
     try {
       String tb = MessageRepo.getTableName(cm.type);
+      final lastRead = _getLastReadAutoId(cm);
       int? count = await SqliteService.to.count(
         tb,
-        where: "${MessageRepo.conversationUk3} = ? and ${MessageRepo.status} = ? and ${MessageRepo.isAuthor} = ?",
-        whereArgs: [cm.uk3, IMBoyMessageStatus.delivered, 0],
+        where: "${MessageRepo.conversationUk3} = ? and ${MessageRepo.isAuthor} = ? and ${MessageRepo.autoId} > ?",
+        whereArgs: [cm.uk3, 0, lastRead],
       );
       if (count != null) {
         await setConversationRemind(cm, count);
@@ -240,5 +306,68 @@ class ConversationLogic extends GetxController {
     } catch (e, s) {
       iPrint('recalculateConversationRemind error: $e; $s');
     }
+  }
+
+  // 依据一组消息ID推进“已读水位”至这些消息中的最大 auto_id，然后重算未读数
+  Future<void> advanceReadWatermarkByMsgIds(ConversationModel cm, List<String> msgIds) async {
+    if (cm.uk3.isEmpty || msgIds.isEmpty) return;
+    try {
+      String tb = MessageRepo.getTableName(cm.type);
+      final placeholders = List.filled(msgIds.length, '?').join(',');
+      final where = "${MessageRepo.conversationUk3} = ? and ${MessageRepo.isAuthor} = ? and ${MessageRepo.id} IN ($placeholders)";
+      final whereArgs = [cm.uk3, 0, ...msgIds];
+
+      final int? maxAutoId = await SqliteService.to.pluck<int>(
+        'MAX(${MessageRepo.autoId})',
+        tb,
+        where: where,
+        whereArgs: whereArgs,
+      );
+      if (maxAutoId != null) {
+        await _setLastReadAutoId(cm, maxAutoId);
+        await recalculateConversationRemind(cm);
+      }
+    } catch (e, s) {
+      iPrint('advanceReadWatermarkByMsgIds error: $e; $s');
+    }
+  }
+
+  // 将水位推进到当前会话“来自对方”的最新消息（用于“标为已读”）
+  Future<void> advanceWatermarkToLatest(ConversationModel cm) async {
+    if (cm.uk3.isEmpty) return;
+    try {
+      String tb = MessageRepo.getTableName(cm.type);
+      final int? maxAutoId = await SqliteService.to.pluck<int>(
+        'MAX(${MessageRepo.autoId})',
+        tb,
+        where: "${MessageRepo.conversationUk3} = ? and ${MessageRepo.isAuthor} = ?",
+        whereArgs: [cm.uk3, 0],
+      );
+      if (maxAutoId != null) {
+        await _setLastReadAutoId(cm, maxAutoId);
+        await recalculateConversationRemind(cm);
+      }
+    } catch (e, s) {
+      iPrint('advanceWatermarkToLatest error: $e; $s');
+    }
+  }
+
+  /// 获取联系人标题(用于C2C会话)
+  Future<String> _getContactTitle(String peerId) async {
+    if (peerId.trim().isEmpty) {
+      return '';
+    }
+    
+    try {
+      ContactModel? c = await ContactRepo().findByUid(peerId, autoFetch: true);
+      if (c != null) {
+        return c.title;
+      }
+    } catch (e, s) {
+      iPrint('_getContactTitle error for $peerId: $e; $s');
+    }
+    
+    // 如果没有找到联系人信息，返回peerId
+    return peerId;
   }
 }

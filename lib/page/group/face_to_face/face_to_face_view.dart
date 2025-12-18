@@ -4,14 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 
-
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/common.dart';
-import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/numeric_keypad.dart';
-
 import 'face_to_face_confirm_view.dart';
 import 'face_to_face_logic.dart';
+import 'package:imboy/theme/default/app_text_size.dart';
 
 class FaceToFacePage extends StatelessWidget {
   final logic = Get.put(FaceToFaceLogic());
@@ -21,162 +18,228 @@ class FaceToFacePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      // backgroundColor: darkBgColor,
-      appBar: NavAppBar(
+      appBar: AppBar(
+        backgroundColor: Colors.black87,
         leading: IconButton(
           icon: const Icon(Icons.close, size: 24, color: Colors.white),
-          onPressed: () {
-            NavigatorState nav = Navigator.of(context);
-            nav.pop();
-          },
+          onPressed: () => Get.back(),
         ),
-        // title: 'create_group_f2f'.tr,
-        titleWidget: Text(
+        title: Text(
           'create_group_f2f'.tr,
-          // style: AppStyle.navAppBarTitleStyle,
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.9)),
         ),
-        // backgroundColor: darkBgColor,
+        elevation: 0,
       ),
-      // backgroundColor: Get.isDarkMode ? darkBgColor : lightBgColor,
+      backgroundColor: Colors.black87,
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SizedBox(height: 20, width: MediaQuery.sizeOf(context).width),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 48, right: 48),
-                  child: Text(
-                    // 'Enter the same four numbers as your friends to enter the same group chat',
-                    // '和身边的朋友输入同样的四个数字，进入同一个群聊',
-                    'create_group_f2f_tips'.tr,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.white60,
-                      fontWeight: FontWeight.w500,
+          // 使用 Expanded 包裹可滚动内容，确保不会溢出
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(height: 20, width: MediaQuery.sizeOf(context).width),
+                  // 顶部提示：
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Container(
+                      padding: const EdgeInsets.all(12.0),
+
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'create_group_f2f_tips'.tr,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.9),
+                                height: 1.4,
+                              ),
+                              textAlign: TextAlign.left,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 20, width: MediaQuery.sizeOf(context).width),
-          Obx(() {
-            return _buildNumberWidget(state.resultData.value.length);
-          }),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 20, right: 10),
-                  child: Obx(
-                    () => Text(state.errorInfo.value,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.red,
-                          fontWeight: FontWeight.w500,
-                        )),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 20, width: MediaQuery.sizeOf(context).width),
-          const Spacer(),
-          NumericKeypad(
-            controller: state.textEditingController,
-            onChanged: (value) async {
-              state.resultData.value = value;
-              iPrint("_textEditingController value $value");
-              if (value.length == 4) {
-                EasyLoading.show(status: '');
-                Map<String, dynamic> res = await logic.faceToFace(value);
-                state.errorInfo.value = res['error'] ?? '';
 
-                String gid = res['gid'] ?? '';
-                // await Future.delayed(const Duration(seconds: 1));
-                EasyLoading.dismiss();
-                state.textEditingController.clearText();
-                state.resultData.value = '';
-                if (gid.isNotEmpty) {
-                  Get.to(
-                    () => FaceToFaceConfirmPage(
+                  const SizedBox(height: 36),
+
+                  // 数字输入区
+                  Obx(() {
+                    return _buildNumberWidget(
+                      context,
+                      state.resultData.value.length,
+                    );
+                  }),
+
+                  const SizedBox(height: 16),
+
+                  // 错误提示：仅在有文本时显示，避免空白占位
+                  Obx(() {
+                    final err = state.errorInfo.value;
+                    if (err.isEmpty) return const SizedBox(height: 4);
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        err,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.error,
+                          fontSize: 16,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ),
+
+          // NumericKeypad 固定在底部
+          Container(
+            color: Colors.black87,
+            child: NumericKeypad(
+              controller: state.textEditingController,
+              onChanged: (value) async {
+                state.resultData.value = value;
+                iPrint("_textEditingController value $value");
+                if (value.length == 4) {
+                  EasyLoading.show(status: '');
+                  EasyLoading.dismiss();
+
+                  Map<String, dynamic> res = await logic.faceToFace(value);
+                  state.errorInfo.value = res['error'] ?? '';
+
+                  String gid = res['gid'] ?? '';
+                  if (gid.isNotEmpty) {
+                    Get.to(
+                      () => FaceToFaceConfirmPage(
                         code: value,
                         gid: gid,
-                        memberList: res['memberList'] ?? []),
-                    transition: Transition.rightToLeft,
-                    popGesture: true, // 右滑，返回上一页
-                  );
+                        memberList: res['memberList'] ?? [],
+                      ),
+                      transition: Transition.rightToLeft,
+                      popGesture: true, // 右滑，返回上一页
+                    );
+                  }
+                  // 延时清理输入与提示
+                  Timer(const Duration(seconds: 3), () {
+                    state.textEditingController.clearText();
+                    state.resultData.value = '';
+                    state.errorInfo.value = '';
+                    EasyLoading.dismiss();
+                  });
                 }
-                Timer(const Duration(seconds: 3), () {
-                  EasyLoading.dismiss();
-                });
-                // 接口校验
-              }
-            },
+              },
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNumberWidget(int length) {
-    return SizedBox(
-      height: 47,
-      width: 188,
-      child: ListView.builder(
-        padding: EdgeInsets.zero,
-        scrollDirection: Axis.horizontal,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: 5,
-        itemExtent: 47,
-        itemBuilder: (BuildContext context, int index) {
-          bool showPoint = index < length;
-          Widget showVal = showPoint
-              ? Text(
-                  state.resultData.value[index],
-                  style: const TextStyle(color: Colors.green, fontSize: 40),
-                )
-              : const Space(
-                  height: 47,
-                  width: 47,
-                );
-          return _buildNumberItemWidget(
-            length,
-            index,
-            showPoint,
-            showVal,
-          );
-        },
-      ),
-    );
-  }
+  /// 构建 4 位数字占位视图
+  /// - 暗色模式：使用黑色金属渐变 + 轻微高光与阴影，呈现“金属感”
+  /// - 浅色模式：使用主题容器色 + 细描边，简洁大方
+  /// - 自适应：根据屏幕宽度调整单格尺寸与间距，确保“数据数组大小”得体
+  Widget _buildNumberWidget(BuildContext context, int length) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
-  Widget _buildNumberItemWidget(
-    int length,
-    int index,
-    bool showPoint,
-    Widget showVal,
-  ) {
-    iPrint("_buildNumberItemWidget length $length");
+    final double screenW = MediaQuery.sizeOf(context).width;
+    // 自适应尺寸（iPhone 小屏 ~ 现代大屏）
+    final double boxSize = screenW <= 360
+        ? 52
+        : (screenW <= 400 ? 58 : (screenW <= 480 ? 64 : 68));
+    final double gap = screenW <= 360 ? 8 : (screenW <= 400 ? 10 : 12);
+
     return Container(
-      height: 47,
-      width: 47,
-      alignment: Alignment.center,
-      child: showPoint
-          ? showVal
-          : Container(
-              height: 16,
-              width: 16,
-              decoration: BoxDecoration(
-                color: Colors.black87,
-                borderRadius: BorderRadius.circular(16),
-              ),
+      padding: const EdgeInsets.symmetric(vertical: 18),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(4, (index) {
+          final hasValue = index < length;
+          final isActive = index == length && length < 4; // 当前输入焦点格
+          final BoxDecoration baseDecoration = BoxDecoration(
+            gradient: isDark
+                ? LinearGradient(
+                    colors: hasValue
+                        ? const [Color(0xFF2A2C31), Color(0xFF16181C)]
+                        : const [Color(0xFF202226), Color(0xFF131417)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                : null,
+            color: isDark ? null : theme.colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark
+                  ? (isActive
+                        ? Colors.white.withValues(alpha: 0.20)
+                        : Colors.white54.withValues(
+                            alpha: hasValue ? 0.10 : 0.06,
+                          ))
+                  : (isActive
+                        ? colorScheme.primary.withValues(alpha: 0.45)
+                        : theme.colorScheme.outline.withValues(alpha: 0.15)),
+              width: isActive ? 1.2 : 0.8,
             ),
+            boxShadow: isDark
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.45),
+                      blurRadius: 6,
+                      offset: const Offset(2, 3),
+                    ),
+                    BoxShadow(
+                      color: Colors.white.withValues(alpha: 0.06),
+                      blurRadius: 3,
+                      offset: const Offset(-2, -2),
+                    ),
+                  ]
+                : const [],
+          );
+
+          return Container(
+            width: boxSize,
+            height: boxSize,
+            margin: EdgeInsets.symmetric(horizontal: gap / 2),
+            decoration: baseDecoration,
+            alignment: Alignment.center,
+            child: hasValue
+                ? Text(
+                    state.resultData.value[index],
+                    style: TextStyle(
+                      fontSize: AppTextSize.subTitle,
+                      color: colorScheme.onSurface,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.0,
+                    ),
+                  )
+                : Opacity(
+                    opacity: isDark ? 0.20 : 0.15,
+                    child: Text(
+                      '•', // 候选占位符（提升布局稳定性）
+                      style: TextStyle(
+                        fontSize: AppTextSize.subTitle,
+                        color: colorScheme.onSurface,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+          );
+        }),
+      ),
     );
   }
 }

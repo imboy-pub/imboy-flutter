@@ -2,9 +2,10 @@ import 'package:buttons_tabbar/buttons_tabbar.dart' show ButtonsTabBar;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/component/ui/button.dart';
+import 'package:imboy/theme/theme_manager.dart';
+import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
-import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
 
@@ -97,55 +98,67 @@ class LoginPageState extends State<LoginPage>
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.green,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return Stack(
-            children: [
-              // 背景装饰
-              Positioned(
-                top: -screenHeight * .10,
-                right: -screenWidth * .68,
-                child: const BezierContainer(),
-              ),
+      body: Container(
+        color: Colors.green, // 与注册页面相同的背景色
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Stack(
+              children: [
+                // 使用与注册页面相同的BezierContainer装饰，但位置不同
+                Positioned(
+                  top: -screenHeight * .15,
+                  right: -screenWidth * .4,
+                  child: const BezierContainer(),
+                ),
 
-              // 主内容区域
-              Positioned.fill(
-                child: SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  padding: EdgeInsets.only(
-                    top: 80,
-                    bottom: MediaQuery.of(context).viewInsets.bottom,
-                  ),
-                  child: GestureDetector(
-                    onTap: () => FocusScope.of(context).unfocus(),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          logic.title(),
-                          _buildTabBar(screenWidth),
-                          _buildPageView(),
-                          _buildOrDivider(),
-                          if (GetPlatform.isMobile) _buildQuickLoginButton(),
-                          _createAccountLabel(),
-                          SizedBox(
-                            height: MediaQuery.of(context).viewInsets.bottom,
-                          ),
-                        ],
+                // 主内容区域 - 简洁设计
+                Positioned.fill(
+                  child: SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    padding: EdgeInsets.only(
+                      top: 80,
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                    ),
+                    child: GestureDetector(
+                      onTap: () => FocusScope.of(context).unfocus(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            logic.title(),
+                            const SizedBox(height: 32),
+                            _buildSimpleTabBar(screenWidth),
+                            const SizedBox(height: 24),
+                            _buildPageView(),
+                            const SizedBox(height: 20),
+                            _buildOrDivider(),
+                            if (GetPlatform.isMobile) 
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                child: _buildQuickLoginButton(),
+                              ),
+                            _createAccountLabel(),
+                            SizedBox(
+                              height: MediaQuery.of(context).viewInsets.bottom,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
+
+              // 返回按钮 - 使用优化后的样式
+              Positioned(
+                top: 40, 
+                left: 0, 
+                child: logic.backButton(),
               ),
 
-              // 返回按钮
-              Positioned(top: 40, left: 0, child: logic.backButton()),
-
-              // 网络状态提示
+              // 网络状态提示 - 使用优化后的样式
               Positioned(
                 bottom: 0,
                 left: 0,
@@ -153,80 +166,102 @@ class LoginPageState extends State<LoginPage>
                 child: Obx(
                   () => state.connectDesc.isEmpty
                       ? const SizedBox.shrink()
-                      : NetworkFailureTips(backgroundColor: Colors.white),
+                      : Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: AppColors.messageFailed.withValues(alpha: .95),
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(12),
+                              topRight: Radius.circular(12),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: .1),
+                                blurRadius: 8,
+                                offset: const Offset(0, -2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.wifi_off,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                state.connectDesc.value,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                 ),
               ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildTabBar(double screenWidth) {
+  /// 构建简洁标签栏 - 修复Tab切换焦点问题
+  Widget _buildSimpleTabBar(double screenWidth) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
-        height: 60,
-        decoration: const BoxDecoration(
-          color: Color(0x552B2B2B),
-          borderRadius: BorderRadius.all(Radius.circular(25)),
+        height: 56,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: .2),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: .3),
+            width: 1,
+          ),
         ),
         child: DefaultTabController(
           length: 2,
           child: ButtonsTabBar(
-            radius: 25,
-            height: 60,
-            width: (screenWidth - 40) / 2,
+            radius: 26,
+            height: 52,
+            width: (screenWidth - 44) / 2,
             contentCenter: true,
-            duration: 800,
+            duration: 300, // 增加动画时长，让切换更明显
             buttonMargin: const EdgeInsets.all(2),
-            backgroundColor: leftBgColor,
-            unselectedBackgroundColor: rightBgColor,
+            backgroundColor: Colors.white,
+            unselectedBackgroundColor: Colors.transparent,
+            // 移除手动的颜色管理，让ButtonsTabBar自己处理
             labelStyle: TextStyle(
-              color: leftColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              fontFamily: 'WorkSansSemiBold',
+              color: ThemeManager.instance.getThemeColor('primary'),
+              fontWeight: FontWeight.w600,
+              fontSize: 15,
             ),
-            unselectedLabelStyle: TextStyle(
-              color: rightColor,
-              fontSize: 16,
-              fontFamily: 'WorkSansSemiBold',
+            unselectedLabelStyle: const TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
             ),
+            // 添加Tab切换回调，同步PageView
+            onTap: (index) {
+              _pageController.animateToPage(
+                index,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
+            },
             tabs: [
               Tab(
-                child: TextButton(
-                  style: ButtonStyle(
-                    overlayColor: WidgetStateProperty.all(Colors.transparent),
-                  ),
-                  onPressed: _onSignInButtonPress,
-
-                  child: Text(
-                    'param_login'.trArgs(['mobile'.tr]),
-                    style: TextStyle(
-                      color: leftColor,
-                      fontSize: 16.0,
-                      fontFamily: 'WorkSansSemiBold',
-                    ),
-                  ),
-                ),
+                text: 'param_login'.trArgs(['account'.tr]),
               ),
               Tab(
-                child: TextButton(
-                  style: ButtonStyle(
-                    overlayColor: WidgetStateProperty.all(Colors.transparent),
-                  ),
-                  onPressed: _onSignUpButtonPress,
-                  child: Text(
-                    'param_login'.trArgs(['account'.tr]),
-                    style: TextStyle(
-                      color: rightColor,
-                      fontSize: 16.0,
-                      fontFamily: 'WorkSansSemiBold',
-                    ),
-                  ),
-                ),
+                text: 'param_login'.trArgs(['mobile'.tr]),
               ),
             ],
           ),
@@ -237,27 +272,18 @@ class LoginPageState extends State<LoginPage>
 
   Widget _buildPageView() {
     return SizedBox(
-      height: 240, // 适当的高度
+      height: 320, // 增加高度，确保"忘记密码？"文案能够显示
       child: PageView(
         controller: _pageController,
         physics: const ClampingScrollPhysics(),
         onPageChanged: (int i) {
           FocusScope.of(context).unfocus();
-          setState(() {
-            if (i == 0) {
-              leftColor = Colors.black;
-              leftBgColor = Colors.white;
-              rightColor = Colors.white;
-              rightBgColor = const Color(0x552B2B2B).withAlpha(0);
-            } else {
-              leftColor = Colors.white;
-              leftBgColor = const Color(0x552B2B2B).withAlpha(0);
-              rightColor = Colors.black;
-              rightBgColor = Colors.white;
-            }
-          });
+          // 移除手动颜色管理，让ButtonsTabBar自己处理Tab状态
         },
-        children: const [LoginMobilePage(), LoginAccountPage()],
+        children: const [
+          LoginAccountPage(),
+          LoginMobilePage(),
+        ],
       ),
     );
   }
@@ -308,69 +334,83 @@ class LoginPageState extends State<LoginPage>
     );
   }
 
+  /// 构建快速登录按钮 - 简洁设计
   Widget _buildQuickLoginButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: ElevatedButton(
-        onPressed: () => logic.loginAuth(false),
-        style: lightGreenButtonStyle(
-          Size(MediaQuery.of(context).size.width - 40, 40),
+    return Container(
+      width: double.infinity,
+      height: 50,
+      margin: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: .9),
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: .3),
+          width: 1,
         ),
-        child: Text(
-          'mobile_quick_login'.tr,
-          style: const TextStyle(fontSize: 16),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => logic.loginAuth(false),
+          borderRadius: BorderRadius.circular(25),
+          child: Center(
+            child: Text(
+              'mobile_quick_login'.tr,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: ThemeManager.instance.getThemeColor('primary'),
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
 
-  void _onSignInButtonPress() {
-    _pageController.animateToPage(
-      0,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.decelerate,
-    );
-  }
-
-  void _onSignUpButtonPress() {
-    _pageController.animateToPage(
-      1,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.decelerate,
-    );
-  }
-
+  /// 构建注册账号标签 - 简洁设计
   Widget _createAccountLabel() {
     return InkWell(
       onTap: () {
         Get.to(
           () => const SignupPage(),
           transition: Transition.rightToLeft,
-          popGesture: true, // 右滑，返回上一页
+          popGesture: true,
         );
       },
+      borderRadius: BorderRadius.circular(8),
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 20),
-        padding: const EdgeInsets.all(15),
-        alignment: Alignment.bottomCenter,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: .1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: .2),
+            width: 1,
+          ),
+        ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               'no_sigin_q'.tr,
               style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
                 color: Colors.white,
               ),
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 6),
             Text(
               'signup'.tr,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                decoration: TextDecoration.underline,
+                decorationColor: Colors.white,
               ),
             ),
           ],

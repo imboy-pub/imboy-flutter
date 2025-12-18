@@ -94,35 +94,6 @@ class PickMethod {
             maxAssets: maxAssetsCount,
             selectedAssets: assets,
             requestType: RequestType.common,
-            specialItemPosition: SpecialItemPosition.prepend,
-            specialItemBuilder: (
-              BuildContext context,
-              AssetPathEntity? path,
-              int length,
-            ) {
-              if (path?.isAll != true) {
-                return null;
-              }
-              return Semantics(
-                label: textDelegate.sActionUseCameraHint,
-                button: true,
-                onTapHint: textDelegate.sActionUseCameraHint,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () async {
-                    Feedback.forTap(context);
-                    final AssetEntity? result = await _pickFromCamera(context);
-                    if (result != null) {
-                      // ignore: use_build_context_synchronously
-                      handleResult(context, result);
-                    }
-                  },
-                  child: const Center(
-                    child: Icon(Icons.camera_enhance, size: 42.0),
-                  ),
-                ),
-              );
-            },
           ),
         );
       },
@@ -143,46 +114,6 @@ class PickMethod {
             maxAssets: maxAssetsCount,
             selectedAssets: assets,
             requestType: RequestType.common,
-            specialItemPosition: SpecialItemPosition.prepend,
-            specialItemBuilder: (
-              BuildContext context,
-              AssetPathEntity? path,
-              int length,
-            ) {
-              if (path?.isAll != true) {
-                return null;
-              }
-              return Semantics(
-                label: textDelegate.sActionUseCameraHint,
-                button: true,
-                onTapHint: textDelegate.sActionUseCameraHint,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () async {
-                    final AssetEntity? result = await _pickFromCamera(context);
-                    if (result == null) {
-                      return;
-                    }
-                    final AssetPicker<AssetEntity, AssetPathEntity> picker =
-                        // ignore: use_build_context_synchronously
-                        context.findAncestorWidgetOfExactType()!;
-                    final DefaultAssetPickerBuilderDelegate builder =
-                        picker.builder as DefaultAssetPickerBuilderDelegate;
-                    final DefaultAssetPickerProvider p = builder.provider;
-                    await p.switchPath(
-                      PathWrapper<AssetPathEntity>(
-                        path:
-                            await p.currentPath!.path.obtainForNewProperties(),
-                      ),
-                    );
-                    p.selectAsset(result);
-                  },
-                  child: const Center(
-                    child: Icon(Icons.camera_enhance, size: 42.0),
-                  ),
-                ),
-              );
-            },
           ),
         );
       },
@@ -267,16 +198,6 @@ class PickMethod {
             maxAssets: maxAssetsCount,
             selectedAssets: assets,
             requestType: RequestType.common,
-            specialItemPosition: SpecialItemPosition.prepend,
-            specialItemBuilder: (
-              BuildContext context,
-              AssetPathEntity? path,
-              int length,
-            ) {
-              return const Center(
-                child: Text('Custom Widget', textAlign: TextAlign.center),
-              );
-            },
           ),
         );
       },

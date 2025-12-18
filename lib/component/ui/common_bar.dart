@@ -51,13 +51,13 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
           Text(
             title!,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onPrimary,
+              // color: Theme.of(context).colorScheme.onPrimary,
               fontSize: 16.0,
               fontWeight: FontWeight.w600,
             ),
           ),
       automaticallyImplyLeading: automaticallyImplyLeading,
-      backgroundColor: backgroundColor ?? Theme.of(context).colorScheme.primary,
+      backgroundColor: backgroundColor,
       // foregroundColor: mainColor,
       // backgroundColor: Theme.of(context).colorScheme.surface,
       // foregroundColor: Theme.of(context).colorScheme.primary,

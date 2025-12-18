@@ -30,7 +30,6 @@ class MarkdownPage extends StatelessWidget {
     // iPrint("MarkdownPage_url $url ;;;;");
     File tmpF = await IMBoyCacheManager().getSingleFile(
       url,
-      key: EncrypterService.md5(url),
     );
     content.value = await tmpF.readAsString();
     // iPrint("MarkdownPage_content ${content.value} ;;;;");

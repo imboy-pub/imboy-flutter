@@ -8,6 +8,7 @@ import 'package:imboy/service/storage_secure.dart';
 import 'package:pointycastle/export.dart';
 import 'package:pointycastle/pointycastle.dart';
 import 'package:pointycastle/src/platform_check/platform_check.dart';
+import 'package:asn1lib/asn1lib.dart' as asn1;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 
@@ -102,8 +103,8 @@ class RSAService {
       final keyPair = _generateRSAKeyPair();
 
       // 编码为PEM格式
-      _cachedPublicKey = _encodePublicKeyToPem(keyPair.publicKey);
-      _cachedPrivateKey = _encodePrivateKeyToPem(keyPair.privateKey);
+      _cachedPublicKey = _encodePublicKeyToPem(keyPair.publicKey as RSAPublicKey);
+      _cachedPrivateKey = _encodePrivateKeyToPem(keyPair.privateKey as RSAPrivateKey);
 
       // 存储到安全存储
       await Future.wait([
@@ -127,7 +128,7 @@ class RSAService {
   }
 
   /// 生成RSA密钥对
-  static AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> _generateRSAKeyPair({
+  static AsymmetricKeyPair<PublicKey, PrivateKey> _generateRSAKeyPair({
     int bitLength = _defaultKeySize,
   }) {
     try {
@@ -275,7 +276,7 @@ class RSAService {
   // region 加密解密操作
 
   /// RSA加密
-  Uint8List rsaEncrypt(RSAPublicKey publicKey, Uint8List dataToEncrypt) {
+  static Uint8List rsaEncrypt(RSAPublicKey publicKey, Uint8List dataToEncrypt) {
     try {
       final encryptor = OAEPEncoding(RSAEngine())
         ..init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
@@ -287,7 +288,7 @@ class RSAService {
   }
 
   /// RSA解密
-  Uint8List rsaDecrypt(RSAPrivateKey privateKey, Uint8List cipherText) {
+  static Uint8List rsaDecrypt(RSAPrivateKey privateKey, Uint8List cipherText) {
     try {
       final decryptor = OAEPEncoding(RSAEngine())
         ..init(false, PrivateKeyParameter<RSAPrivateKey>(privateKey));
@@ -299,7 +300,7 @@ class RSAService {
   }
 
   /// 分块处理数据
-  Uint8List _processInBlocks(AsymmetricBlockCipher engine, Uint8List input) {
+  static Uint8List _processInBlocks(AsymmetricBlockCipher engine, Uint8List input) {
     try {
       final output = Uint8List(
         engine.outputBlockSize *
@@ -334,7 +335,7 @@ class RSAService {
   // region 签名验签
 
   /// RSA签名
-  Uint8List rsaSign(RSAPrivateKey privateKey, Uint8List dataToSign) {
+  static Uint8List rsaSign(RSAPrivateKey privateKey, Uint8List dataToSign) {
     try {
       final signer = RSASigner(SHA256Digest(), '0609608648016503040201')
         ..init(true, PrivateKeyParameter<RSAPrivateKey>(privateKey));
@@ -347,7 +348,7 @@ class RSAService {
   }
 
   /// RSA验签
-  bool rsaVerify(
+  static bool rsaVerify(
     RSAPublicKey publicKey,
     Uint8List signedData,
     Uint8List signature,
@@ -366,4 +367,68 @@ class RSAService {
   }
 
   // endregion
+
+  /// 将字节数组转换为大整数
+  static BigInt bytesToBigInt(Uint8List bytes) {
+    var result = BigInt.zero;
+    for (var i = 0; i < bytes.length; i++) {
+      result = (result << 8) | BigInt.from(bytes[i]);
+    }
+    return result;
+  }
+
+  static RSAPublicKey parsePublicKeyFromPem(String pem) {
+    try {
+      final cleaned = pem
+          .replaceAll('-----BEGIN PUBLIC KEY-----', '')
+          .replaceAll('-----END PUBLIC KEY-----', '')
+          .replaceAll('\n', '')
+          .replaceAll('\r', '');
+
+      final derBytes = base64.decode(cleaned);
+
+      // 使用 asn1lib 解析，更兼容各种ASN.1标签
+      final asn1Parser = asn1.ASN1Parser(derBytes);
+      final topLevelSeq = asn1Parser.nextObject() as asn1.ASN1Sequence;
+
+      // SubjectPublicKeyInfo 结构
+      // AlgorithmIdentifier + SubjectPublicKey
+      final subjectPublicKey = topLevelSeq.elements[1] as asn1.ASN1BitString;
+
+      // 解析 SubjectPublicKey (BIT STRING) 中的 RSAPublicKey
+      final publicKeyBytes = subjectPublicKey.stringValue;
+      final publicKeyParser = asn1.ASN1Parser(Uint8List.fromList(publicKeyBytes));
+      final rsaPublicKeySeq = publicKeyParser.nextObject() as asn1.ASN1Sequence;
+
+      // RSAPublicKey ::= SEQUENCE {
+      //   modulus           INTEGER,  -- n
+      //   publicExponent    INTEGER   -- e
+      // }
+      final modulusAsn1 = rsaPublicKeySeq.elements[0] as asn1.ASN1Integer;
+      final exponentAsn1 = rsaPublicKeySeq.elements[1] as asn1.ASN1Integer;
+
+      final modulus = bytesToBigInt(Uint8List.fromList(modulusAsn1.valueBytes()));
+      final exponent = bytesToBigInt(Uint8List.fromList(exponentAsn1.valueBytes()));
+
+      return RSAPublicKey(modulus, exponent);
+    } catch (e) {
+      throw Exception('解析RSA公钥失败: $e');
+    }
+  }
+
+  static String rsaEncryptWithPointyCastle(String plaintext, String pubKeyPem) {
+    final publicKey = parsePublicKeyFromPem(pubKeyPem);
+
+    final engine = PKCS1Encoding(RSAEngine())
+      ..init(
+        true,
+        PublicKeyParameter<RSAPublicKey>(publicKey),
+      );
+
+    final input = Uint8List.fromList(utf8.encode(plaintext));
+    final encrypted = engine.process(input);
+
+    return base64.encode(encrypted);  // 输出保持不变
+  }
+
 }

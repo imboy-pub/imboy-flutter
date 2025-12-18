@@ -70,8 +70,7 @@ class ContactTagDetailPage extends StatelessWidget {
                           child: Text(
                             'change_param'.trArgs(['tags'.tr]),
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 16.0,
+                            style: TextStyle(
                               fontWeight: FontWeight.normal,
                             ),
                           ),
@@ -189,9 +188,8 @@ class ContactTagDetailPage extends StatelessWidget {
                           child: Text(
                             'button_delete'.tr,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.red,
-                              fontSize: 16.0,
                               fontWeight: FontWeight.normal,
                             ),
                           ),
@@ -204,8 +202,7 @@ class ContactTagDetailPage extends StatelessWidget {
                           child: Text(
                             'button_cancel'.tr,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 16.0,
+                            style: TextStyle(
                               fontWeight: FontWeight.normal,
                             ),
                           ),

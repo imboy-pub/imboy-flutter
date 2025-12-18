@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:synchronized/synchronized.dart';
 
 import 'package:imboy/component/helper/func.dart';
@@ -75,8 +75,6 @@ class SqliteService {
   /// 初始化数据库
   /// Initialize the database
   Future<Database?> _initDatabase() async {
-    sqfliteFfiInit(); // 初始化 FFI
-
     if (UserRepoLocal.to.currentUid.isEmpty) {
       return null;
     }
@@ -85,7 +83,7 @@ class SqliteService {
     bool exists = await databaseExists(path);
 
     if (!exists) {
-      iPrint("Creating new copy from asset");
+      iPrint("Creating new database");
 
       try {
         await Directory(dirname(path)).create(recursive: true);
@@ -98,17 +96,13 @@ class SqliteService {
       iPrint("Opening existing database");
     }
 
-    return await databaseFactoryFfi.openDatabase(
+    return await openDatabase(
       path,
-      options: OpenDatabaseOptions(
-        version: _dbVersion,
-        onConfigure: _onConfigure,
-        onCreate: _onCreate,
-        onUpgrade: _onUpgrade,
-        onDowngrade: _onDowngrade,
-        readOnly: false,
-        singleInstance: true,
-      ),
+      version: _dbVersion,
+      onConfigure: _onConfigure,
+      onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
+      onDowngrade: _onDowngrade,
     );
   }
 

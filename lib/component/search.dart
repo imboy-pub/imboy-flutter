@@ -3,8 +3,10 @@ import 'package:get/get.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/component/ui/line.dart';
+import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/theme_manager.dart';
 
+/// 搜索栏组件 - 使用新的主题系统
 Widget searchBar(
   BuildContext context, {
   String? hintText,
@@ -34,40 +36,66 @@ Widget searchBar(
   Future<List<dynamic>> Function(dynamic query)? doSearch,
   Widget Function(List<dynamic>)? doBuildResults,
 }) {
-  return SearchBar(
-    leading: leading ?? const Icon(Icons.search),
-    trailing: trailing,
-    hintText: hintText,
-    // 取消阴影效果
-    elevation: WidgetStateProperty.all(0),
-    // 圆角效果
-    shape: WidgetStateProperty.all(const RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-    )),
-    hintStyle: WidgetStateProperty.all(const TextStyle(
-      fontSize: 14,
-      // color: AppColors.LineColor.withValues(alpha: 0.7),
-    )),
-    backgroundColor:
-        WidgetStatePropertyAll<Color>(Theme.of(context).colorScheme.primary),
-    controller: controller,
-    focusNode: focusNode,
-    onChanged: onChanged,
-    onTap: onTapForItem == null
-        ? null
-        : () {
-            showSearch(
-              context: context,
-              delegate: SearchBarDelegate(
-                searchLabel: searchLabel,
-                queryTips: queryTips,
-                doSearch: doSearch,
-                doBuildResults: doBuildResults,
-                onTapForItem: onTapForItem,
-
-              ),
-            );
-          },
+  return Container(
+    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: SearchBar(
+      leading:
+          leading ??
+          Icon(
+            Icons.search,
+            color: ThemeManager.instance.getThemeColor('textSecondary'),
+            size: 20,
+          ),
+      trailing: trailing,
+      hintText: hintText ?? '搜索',
+      // 使用新的搜索主题配置
+      elevation: WidgetStateProperty.all(0),
+      shape: WidgetStateProperty.all(
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+      ),
+      backgroundColor: WidgetStateProperty.all(
+        Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      ),
+      side: WidgetStateProperty.all(
+        BorderSide(color: ThemeManager.instance.getThemeColor('border'), width: 0.5),
+      ),
+      hintStyle: WidgetStateProperty.all(
+        TextStyle(
+          color: ThemeManager.instance.getThemeColor('textSecondary'),
+          fontSize: ThemeManager.instance.getFontSize(FontSizeType.medium, context: context),
+          height: 1.4,
+        ),
+      ),
+      textStyle: WidgetStateProperty.all(
+        TextStyle(
+          color: ThemeManager.instance.getThemeColor('textPrimary'),
+          fontSize: ThemeManager.instance.getFontSize(FontSizeType.medium, context: context),
+          height: 1.4,
+        ),
+      ),
+      padding: WidgetStateProperty.all(
+        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      ),
+      controller: controller,
+      focusNode: focusNode,
+      onChanged: onChanged,
+      onTap: onTapForItem == null
+          ? null
+          : () {
+              showSearch(
+                context: context,
+                delegate: SearchBarDelegate(
+                  searchLabel: searchLabel,
+                  queryTips: queryTips,
+                  doSearch: doSearch,
+                  doBuildResults: doBuildResults,
+                  onTapForItem: onTapForItem,
+                ),
+              );
+            },
+    ),
   );
 }
 
@@ -90,9 +118,7 @@ class SearchBarDelegate extends SearchDelegate {
     this.doBuildResults,
     this.searchLabel,
     this.queryTips,
-  }) : super(
-          searchFieldLabel: searchLabel,
-        );
+  }) : super(searchFieldLabel: searchLabel);
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -103,11 +129,11 @@ class SearchBarDelegate extends SearchDelegate {
         curve: Curves.easeInOutCubic,
         child: IconButton(
           tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-          icon: const Center(
-              child: Icon(
+          icon: Icon(
             Icons.clear,
-            size: 28,
-          )),
+            size: 20,
+            color: ThemeManager.instance.getThemeColor('textSecondary'),
+          ),
           onPressed: () {
             query = '';
           },
@@ -120,12 +146,12 @@ class SearchBarDelegate extends SearchDelegate {
   Widget buildLeading(BuildContext context) {
     return IconButton(
       tooltip: 'button_back'.tr,
-      icon: AnimatedIcon(
-        icon: AnimatedIcons.menu_arrow,
-        progress: transitionAnimation,
+      icon: Icon(
+        Icons.arrow_back_ios,
+        size: 20,
+        color: ThemeManager.instance.getThemeColor('textPrimary'),
       ),
       onPressed: () {
-        // close(context, null);
         close(context, 'error');
         // 收起键盘
         FocusScope.of(context).requestFocus(FocusNode());
@@ -148,13 +174,14 @@ class SearchBarDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    // if (int.parse(query) >= 100) {
-    //   return Center(child: Text('请输入小于 100 的数字'));
-    // }
     if (query.isEmpty) {
       return Center(
-        // child: Text('Filter people by name, surname or age'),
-        child: Text(queryTips ?? ''),
+        child: Text(
+          queryTips ?? '',
+          style: ThemeManager.instance
+              .getTextStyle(FontSizeType.medium, context: context)
+              .copyWith(color: ThemeManager.instance.getThemeColor('textSecondary')),
+        ),
       );
     }
 
@@ -168,45 +195,58 @@ class SearchBarDelegate extends SearchDelegate {
             return doBuildResults!(items);
           } else {
             if (items.isEmpty) {
-              return Center(child: Text('search_no_found'.tr));
+              return Center(
+                child: Text(
+                  'search_no_found'.tr,
+                  style: ThemeManager.instance
+                      .getTextStyle(FontSizeType.medium, context: context)
+                      .copyWith(color: ThemeManager.instance.getThemeColor('textSecondary')),
+                ),
+              );
             }
-            return Padding(
-              padding: const EdgeInsets.only(top: 16),
+            return Container(
+              color: ThemeManager.instance.getThemeColor('surface'),
               child: ListView(
+                padding: EdgeInsets.zero,
                 children: <Widget>[
                   for (int i = 0; i < items.length; i++)
                     Column(
                       children: [
-                        ListTile(
-                          // selected: true,
-                          onTap: () {
-                            onTapForItem(items[i]);
-                          },
-                          leading: Avatar(
-                            imgUri: items[i].avatar,
-                            onTap: () {},
-                          ),
-                          title: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  // 会话对象标题
-                                  items[i].title,
-                                  style: const TextStyle(
-                                    fontSize: 16.0,
+                        Container(
+                          color: ThemeManager.instance.getThemeColor('surface'),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            onTap: () {
+                              onTapForItem(items[i]);
+                            },
+                            leading: Avatar(
+                              imgUri: items[i].avatar,
+                              onTap: () {},
+                              width: 40,
+                              height: 40,
+                            ),
+                            title: Text(
+                              // 会话对象标题
+                              items[i].title,
+                              style: ThemeManager.instance
+                                  .getTextStyle(FontSizeType.large, context: context)
+                                  .copyWith(
                                     fontWeight: FontWeight.normal,
+                                    color: ThemeManager.instance.getThemeColor('textPrimary'),
+                                    height: 1.4,
                                   ),
-                                  maxLines: 6,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              left: 16, right: 16, bottom: 10),
-                          child: const HorizontalLine(height: 1.0),
+                        Container(
+                          height: ThemeManager.instance.mainLineWidth,
+                          margin: const EdgeInsets.only(left: 72),
+                          color: ThemeManager.instance.getThemeColor('border'),
                         ),
                       ],
                     ),
@@ -216,9 +256,12 @@ class SearchBarDelegate extends SearchDelegate {
           }
         }
 
-        return const Center(
-          child: CircularProgressIndicator(),
-          // child: Text('Filter people by name, surname or age'),
+        return Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(
+              ThemeManager.instance.getThemeColor('primary'),
+            ),
+          ),
         );
       },
     );
@@ -226,18 +269,16 @@ class SearchBarDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    return Center(
-      // child: Text('Filter people by name, surname or age'),
-      child: Text(queryTips ?? ''),
+    return Container(
+      color: ThemeManager.instance.getThemeColor('surface'),
+      child: Center(
+        child: Text(
+          queryTips ?? '',
+          style: ThemeManager.instance
+              .getTextStyle(FontSizeType.medium, context: context)
+              .copyWith(color: ThemeManager.instance.getThemeColor('textSecondary')),
+        ),
+      ),
     );
-    // return ListView(
-    //   children: <Widget>[
-    //     ListTile(title: Text('Suggest 01')),
-    //     ListTile(title: Text('Suggest 02')),
-    //     ListTile(title: Text('Suggest 03')),
-    //     ListTile(title: Text('Suggest 04')),
-    //     ListTile(title: Text('Suggest 05')),
-    //   ],
-    // );
   }
 }

@@ -1,11 +1,8 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/init.dart';
-import 'package:imboy/service/assets.dart';
 
 class ImageView extends StatelessWidget {
   final String uri;
@@ -27,12 +24,35 @@ class ImageView extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget image;
     if (isNetWorkImg(uri)) {
-      image = CachedNetworkImage(
-        imageUrl: AssetsService.viewUrl(uri).toString(),
+      final double targetWidth = width ?? Get.width;
+      image = Image(
+        image: cachedImageProvider(
+          uri,
+          w: targetWidth,
+        ),
         width: width,
         height: height,
         fit: fit,
-        cacheManager: cacheManager,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) => Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(4.0),
+            color: Colors.black26.withValues(alpha: 0.1),
+          ),
+          child: const Icon(Icons.error),
+        ),
       );
     } else if (File(uri).existsSync()) {
       image = Image.file(
