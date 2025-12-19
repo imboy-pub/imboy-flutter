@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/model/user_model.dart';
 
@@ -38,6 +39,9 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
   double _visibilityReadFraction = 0.6; // 0~1
   int _visibilityReadDelayMs = 400;     // 毫秒
 
+  bool _burnEnabled = false;
+  int _burnAfterMs = 30000;
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +52,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
     _visibilityReadDelayMs = s.visibilityReadDelayMs;
     // 读取其他需要的初始化信息
     getInfo();
+    _loadBurnSetting();
   }
 
   Future<void> _persistVisibilityReadSetting() async {
@@ -62,6 +67,122 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
       visibilityReadDelayMs: _visibilityReadDelayMs,
     );
     await UserRepoLocal.to.changeSetting(newSetting);
+  }
+
+  Future<void> _loadBurnSetting() async {
+    try {
+      final conversation = await ConversationRepo().findByPeerId(widget.type, widget.peerId);
+      final payload = conversation?.payload;
+      if (!mounted) return;
+      setState(() {
+        _burnEnabled = payload?['burn_enabled'] == true;
+        final raw = payload?['burn_after_ms'];
+        if (raw is int && raw > 0) {
+          _burnAfterMs = raw;
+        } else if (raw is String) {
+          final v = int.tryParse(raw);
+          if (v != null && v > 0) _burnAfterMs = v;
+        }
+      });
+    } catch (_) {}
+  }
+
+  Future<void> _persistBurnSetting() async {
+    final repo = ConversationRepo();
+    final conversation = await repo.findByPeerId(widget.type, widget.peerId);
+    if (conversation == null) return;
+    final newPayload = <String, dynamic>{
+      ...?conversation.payload,
+      'burn_enabled': _burnEnabled,
+      'burn_after_ms': _burnAfterMs,
+    };
+    await repo.updateById(conversation.id, {
+      ConversationRepo.payload: newPayload,
+    });
+    final conversationLogic = Get.find<ConversationLogic>();
+    final uk3 = conversation.uk3;
+    if (conversationLogic.conversationMap.containsKey(uk3)) {
+      conversationLogic.conversationMap[uk3] =
+          conversationLogic.conversationMap[uk3]!.copyWith(payload: newPayload);
+    }
+    backDoRefresh = true;
+  }
+
+  String _formatBurnAfterMs(int ms) {
+    if (ms < 1000) return '${ms}ms';
+    if (ms % 60000 == 0) return '${ms ~/ 60000}分钟';
+    if (ms % 1000 == 0) return '${ms ~/ 1000}秒';
+    return '${(ms / 1000).toStringAsFixed(1)}秒';
+  }
+
+  Future<void> _selectBurnDuration() async {
+    final options = <int>[
+      5000,
+      10000,
+      30000,
+      60000,
+      300000,
+      600000,
+    ];
+    int selectedIndex = options.indexWhere((e) => e == _burnAfterMs);
+    if (selectedIndex < 0) selectedIndex = 2;
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        int tempIndex = selectedIndex;
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(ctx).colorScheme.surface,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: SizedBox(
+              height: 280,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Row(
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(),
+                          child: Text('buttonCancel'.tr),
+                        ),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: () async {
+                            Navigator.of(ctx).pop();
+                            setState(() => _burnAfterMs = options[tempIndex]);
+                            await _persistBurnSetting();
+                            EasyLoading.showToast('tipSuccess'.tr);
+                          },
+                          child: Text('buttonConfirm'.tr),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: CupertinoPicker(
+                      scrollController: FixedExtentScrollController(initialItem: selectedIndex),
+                      itemExtent: 40,
+                      onSelectedItemChanged: (i) => tempIndex = i,
+                      children: options
+                          .map((ms) => Center(child: Text(_formatBurnAfterMs(ms))))
+                          .toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   /// 构建现代化的列表项
@@ -166,12 +287,16 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
   /// 构建现代化开关列表项
   Widget _buildSwitchTile(String title, bool value, ValueChanged<bool> onChanged, {
     IconData? icon,
+    Color? iconColor,
     String? subtitle,
+    bool isFirst = false,
   }) {
     return _buildSettingTile(
       title: title,
       icon: icon,
+      iconColor: iconColor,
       subtitle: subtitle,
+      isFirst: isFirst,
       trailing: Transform.scale(
         scale: 0.8,
         child: CupertinoSwitch(
@@ -187,17 +312,35 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
   /// 构建设置列表
   List<Widget> _buildSettingsList(BuildContext context) {
     return [
-      // 阅读回执（可视阈值）说明
-      _buildSettingTile(
-        title: '阅读回执（可视阈值）说明',
-        icon: Icons.info_outline,
-        iconColor: Theme.of(context).colorScheme.primary,
-        subtitle: '开启后：对方消息在屏幕内可见比例≥${(_visibilityReadFraction * 100).toStringAsFixed(0)}%，且持续≥${_visibilityReadDelayMs}ms，才视为"已读"。\n'
-                '关闭后：不会基于可视自动已读，只能通过"标记已读"等操作清除。\n'
-                '说明：仅在本机生效，用于计算未读数（基于已读水位），不向对端自动上报。',
+      _buildSwitchTile(
+        '阅后即焚',
+        _burnEnabled,
+        (v) async {
+          setState(() => _burnEnabled = v);
+          await _persistBurnSetting();
+          EasyLoading.showToast(v ? '已开启' : '已关闭');
+        },
+        icon: Icons.local_fire_department_outlined,
+        iconColor: Theme.of(context).colorScheme.error,
+        subtitle: _burnEnabled
+            ? '开启后：消息在被阅读后 ${_formatBurnAfterMs(_burnAfterMs)} 自动销毁'
+            : '关闭后：消息不会自动销毁',
         isFirst: true,
       ),
-      // 可视阈值已读开关
+      if (_burnEnabled)
+        _buildSettingTile(
+          title: '销毁时间',
+          icon: Icons.timer_outlined,
+          subtitle: _formatBurnAfterMs(_burnAfterMs),
+          onTap: _selectBurnDuration,
+          trailing: Text(
+            _formatBurnAfterMs(_burnAfterMs),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
+              fontSize: 14,
+            ),
+          ),
+        ),
       _buildSwitchTile(
         '可视阈值已读',
         _enableVisibilityRead,
@@ -207,104 +350,108 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
           EasyLoading.showToast(v ? '已开启' : '已关闭');
         },
         icon: Icons.visibility,
-        subtitle: '自动标记消息为已读',
+        iconColor: Theme.of(context).colorScheme.primary,
+        subtitle: _enableVisibilityRead
+            ? '开启后：可见比例≥${(_visibilityReadFraction * 100).toStringAsFixed(0)}%，持续≥${_visibilityReadDelayMs}ms'
+            : '关闭后：不会基于可视自动已读',
+        isFirst: true,
       ),
-      // 配置阈值与延时
-      _buildSettingTile(
-        title: '已读阈值与延时',
-        icon: Icons.tune,
-        subtitle: '可见比例: ${(_visibilityReadFraction * 100).toStringAsFixed(0)}% | 延时: ${_visibilityReadDelayMs}ms',
-        onTap: () async {
-          final fracCtl = TextEditingController(text: _visibilityReadFraction.toStringAsFixed(2));
-          final delayCtl = TextEditingController(text: _visibilityReadDelayMs.toString());
-          await showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              title: Text(
-                '配置可视阈值',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.w600,
+      if (_enableVisibilityRead)
+        _buildSettingTile(
+          title: '已读阈值与延时',
+          icon: Icons.tune,
+          subtitle: '可见比例: ${(_visibilityReadFraction * 100).toStringAsFixed(0)}% | 延时: ${_visibilityReadDelayMs}ms',
+          onTap: () async {
+            final fracCtl = TextEditingController(text: _visibilityReadFraction.toStringAsFixed(2));
+            final delayCtl = TextEditingController(text: _visibilityReadDelayMs.toString());
+            await showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
                 ),
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: fracCtl,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      labelText: '可见比例 (0.1~1.0)',
-                      border: OutlineInputBorder(
+                title: Text(
+                  '配置可视阈值',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: fracCtl,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: InputDecoration(
+                        labelText: '可见比例 (0.1~1.0)',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: delayCtl,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: '延时毫秒 (>=100)',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      'buttonCancel'.tr,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: delayCtl,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: '延时毫秒 (>=100)',
-                      border: OutlineInputBorder(
+                  ElevatedButton(
+                    onPressed: () async {
+                      double f = double.tryParse(fracCtl.text.trim()) ?? _visibilityReadFraction;
+                      int d = int.tryParse(delayCtl.text.trim()) ?? _visibilityReadDelayMs;
+                      // 约束到合理范围
+                      if (f.isNaN) f = 0.6;
+                      if (f < 0.1) f = 0.1;
+                      if (f > 1.0) f = 1.0;
+                      if (d < 100) d = 100;
+                      setState(() {
+                        _visibilityReadFraction = f;
+                        _visibilityReadDelayMs = d;
+                      });
+                      await _persistVisibilityReadSetting();
+                      if (ctx.mounted) Navigator.of(ctx).pop();
+                      EasyLoading.showSuccess('tipSuccess'.tr);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
+                    child: Text('buttonConfirm'.tr),
                   ),
                 ],
               ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    'buttonCancel'.tr,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    double f = double.tryParse(fracCtl.text.trim()) ?? _visibilityReadFraction;
-                    int d = int.tryParse(delayCtl.text.trim()) ?? _visibilityReadDelayMs;
-                    // 约束到合理范围
-                    if (f.isNaN) f = 0.6;
-                    if (f < 0.1) f = 0.1;
-                    if (f > 1.0) f = 1.0;
-                    if (d < 100) d = 100;
-                    setState(() {
-                      _visibilityReadFraction = f;
-                      _visibilityReadDelayMs = d;
-                    });
-                    await _persistVisibilityReadSetting();
-                    if (ctx.mounted) Navigator.of(ctx).pop();
-                    EasyLoading.showSuccess('tipSuccess'.tr);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text('buttonConfirm'.tr),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+            );
+          },
+        ),
       _buildSettingTile(
         title: 'searchChatRecord'.tr,
         icon: Icons.search,

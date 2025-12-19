@@ -24,7 +24,6 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_logic.dart';
-import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket.dart';
@@ -53,12 +52,16 @@ class ChatLogic extends GetxController {
   static const String _spPendingReactionsKey = 'imboy.pending_reactions.v1';
   Timer? _readReceiptFlushTimer;
   Worker? _onlineWorker;
+  final Map<String, Timer> _burnDeleteTimers = {};
+  final Map<String, Timer> _burnPurgeTimers = {};
+  static const int _burnTombstoneRetentionMs = 24 * 60 * 60 * 1000;
+  static const int _burnLastMessageScanLimit = 40;
   
   // 备用音频播放器相关字段
   just_audio.AudioPlayer? _audioPlayer; // 备用音频播放器
   StreamSubscription<just_audio.PlayerState>? _justAudioStateSubscription; // Just Audio状态监听
   StreamSubscription<Duration>? _justAudioPositionSubscription; // Just Audio位置监听
-  bool _useJustAudio = true; // 统一使用 Just Audio
+  final bool _useJustAudio = true; // 统一使用 Just Audio
   @override
   void onInit() {
     super.onInit();
@@ -117,6 +120,14 @@ class ChatLogic extends GetxController {
     _isDisposed = true;
     _readReceiptFlushTimer?.cancel();
     _onlineWorker?.dispose();
+    for (final t in _burnDeleteTimers.values) {
+      t.cancel();
+    }
+    _burnDeleteTimers.clear();
+    for (final t in _burnPurgeTimers.values) {
+      t.cancel();
+    }
+    _burnPurgeTimers.clear();
     
     // 清理资源
     _positionSubscription?.cancel();
@@ -138,6 +149,365 @@ class ChatLogic extends GetxController {
     // 这里不再处理 chatController，避免双重释放
     
     super.onClose();
+  }
+
+  bool _isBurnPayload(Map<String, dynamic> payload) {
+    return payload['burn'] == true || payload['is_burn'] == true;
+  }
+
+  bool _isBurnTombstonePayload(Map<String, dynamic> payload) {
+    return payload['burn_deleted'] == true;
+  }
+
+  int _burnDeletedAtMsFromPayload(Map<String, dynamic> payload) {
+    final raw = payload['burn_deleted_at'];
+    if (raw is int) return raw;
+    if (raw is String) return int.tryParse(raw) ?? 0;
+    return 0;
+  }
+
+  int _burnAfterMsFromPayload(Map<String, dynamic> payload) {
+    final raw = payload['burn_after_ms'] ?? payload['expiry_time'];
+    if (raw is int) return raw;
+    if (raw is String) return int.tryParse(raw) ?? 0;
+    return 0;
+  }
+
+  int _burnReadAtMsFromPayload(Map<String, dynamic> payload) {
+    final raw = payload['burn_read_at'];
+    if (raw is int) return raw;
+    if (raw is String) return int.tryParse(raw) ?? 0;
+    return 0;
+  }
+
+  bool _isBurnExpired(Map<String, dynamic> payload, int nowMs) {
+    if (!_isBurnPayload(payload)) return false;
+    final burnAfter = _burnAfterMsFromPayload(payload);
+    final readAt = _burnReadAtMsFromPayload(payload);
+    if (burnAfter <= 0 || readAt <= 0) return false;
+    return readAt + burnAfter <= nowMs;
+  }
+
+  bool isBurnPayload(Map<String, dynamic> payload) => _isBurnPayload(payload);
+
+  int burnAfterMsFromPayload(Map<String, dynamic> payload) => _burnAfterMsFromPayload(payload);
+
+  int burnReadAtMsFromPayload(Map<String, dynamic> payload) => _burnReadAtMsFromPayload(payload);
+
+  bool isBurnExpiredPayload(Map<String, dynamic> payload, {int? nowMs}) =>
+      _isBurnExpired(payload, nowMs ?? DateTimeHelper.millisecond());
+
+  Future<void> _ensureBurnTimerForItem({
+    required ConversationModel conversation,
+    required MessageRepo repo,
+    required MessageModel item,
+    required int nowMs,
+  }) async {
+    final payload = item.payload;
+    if (!_isBurnPayload(payload)) return;
+    if (_isBurnTombstonePayload(payload)) return;
+    final burnAfter = _burnAfterMsFromPayload(payload);
+    if (burnAfter <= 0) return;
+
+    int readAt = _burnReadAtMsFromPayload(payload);
+    if (readAt <= 0 && item.status == IMBoyMessageStatus.seen) {
+      readAt = nowMs;
+      payload['burn_read_at'] = readAt;
+      final messageId = item.id ?? '';
+      if (messageId.isNotEmpty) {
+        await repo.update({
+          MessageRepo.id: messageId,
+          MessageRepo.payload: payload,
+        });
+      }
+    }
+
+    if (readAt > 0) {
+      await _scheduleBurnDeletion(
+        conversation: conversation,
+        messageId: item.id ?? '',
+        burnAfterMs: burnAfter,
+        readAtMs: readAt,
+      );
+    }
+  }
+
+  Future<MessageModel?> _findLatestVisibleMessageModel(
+    MessageRepo repo,
+    ConversationModel conversation, {
+    required int nowMs,
+    int scanLimit = _burnLastMessageScanLimit,
+  }) async {
+    final items = await repo.page(
+      conversationUk3: conversation.uk3,
+      page: 1,
+      size: scanLimit,
+      orderBy: "${MessageRepo.autoId} DESC",
+    );
+    if (items.isEmpty) return null;
+
+    for (final item in items) {
+      final payload = item.payload;
+      if (_isBurnTombstonePayload(payload)) continue;
+      if (_isBurnExpired(payload, nowMs)) continue;
+      return item;
+    }
+    return null;
+  }
+
+  Future<void> _updateConversationLastMessageAfterBurnHidden(
+    ConversationModel conversation,
+    MessageRepo messageRepo, {
+    required String hiddenMessageId,
+  }) async {
+    try {
+      if (conversation.lastMsgId != hiddenMessageId) return;
+      final nowMs = DateTimeHelper.millisecond();
+      final repo = ConversationRepo();
+      final latest = await _findLatestVisibleMessageModel(
+        messageRepo,
+        conversation,
+        nowMs: nowMs,
+      );
+
+      if (latest == null) {
+        final conversationTime = conversation.lastTime > 0
+            ? conversation.lastTime
+            : DateTime.now().millisecondsSinceEpoch;
+        await repo.updateById(conversation.id, {
+          ConversationRepo.lastMsgId: '',
+          ConversationRepo.lastMsgStatus: 0,
+          ConversationRepo.msgType: 'empty',
+          ConversationRepo.lastTime: conversationTime,
+          ConversationRepo.subtitle: '',
+        });
+      } else {
+        final msg2 = await latest.toTypeMessage();
+        await repo.updateById(conversation.id, {
+          ConversationRepo.lastMsgId: latest.id,
+          ConversationRepo.lastMsgStatus: latest.status,
+          ConversationRepo.lastTime: latest.createdAt,
+          ConversationRepo.msgType: MessageModel.conversationMsgType(msg2),
+          ConversationRepo.subtitle: MessageModel.conversationSubtitle(msg2),
+        });
+      }
+
+      final updated = await repo.findById(conversation.id);
+      if (updated != null) {
+        eventBus.fire(updated);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> expireBurnMessage(
+    ConversationModel conversation,
+    String messageId, {
+    int? deletedAtMs,
+  }) async {
+    try {
+      final tb = MessageRepo.getTableName(conversation.type);
+      final repo = MessageRepo(tableName: tb);
+      final nowMs = deletedAtMs ?? DateTimeHelper.millisecond();
+
+      final m = await repo.find(messageId);
+      if (m == null) {
+        try {
+          if (chatController?.isDisposed != true) {
+            await chatController?.removeMessageById(messageId);
+          }
+        } catch (_) {}
+        return;
+      }
+
+      final payload = Map<String, dynamic>.from(m.payload);
+      if (!_isBurnPayload(payload)) {
+        await removeMessage(conversation, await m.toTypeMessage());
+        return;
+      }
+
+      if (!_isBurnTombstonePayload(payload)) {
+        payload['burn_deleted'] = true;
+        payload['burn_deleted_at'] = nowMs;
+        await repo.update({
+          MessageRepo.id: messageId,
+          MessageRepo.payload: payload,
+        });
+      }
+
+      try {
+        if (chatController?.isDisposed != true) {
+          await chatController?.removeMessageById(messageId);
+        }
+      } catch (_) {}
+
+      await _updateConversationLastMessageAfterBurnHidden(
+        conversation,
+        repo,
+        hiddenMessageId: messageId,
+      );
+
+      _scheduleBurnPurge(conversation: conversation, messageId: messageId);
+    } catch (_) {}
+  }
+
+  void _scheduleBurnPurge({
+    required ConversationModel conversation,
+    required String messageId,
+  }) {
+    _burnPurgeTimers[messageId]?.cancel();
+    _burnPurgeTimers[messageId] = Timer(
+      const Duration(milliseconds: _burnTombstoneRetentionMs),
+      () async {
+        await _purgeBurnTombstone(conversation, messageId);
+      },
+    );
+  }
+
+  Future<void> _purgeBurnTombstone(ConversationModel conversation, String messageId) async {
+    try {
+      final tb = MessageRepo.getTableName(conversation.type);
+      final repo = MessageRepo(tableName: tb);
+      final m = await repo.find(messageId);
+      if (m == null) return;
+      final payload = m.payload;
+      if (!_isBurnTombstonePayload(payload)) return;
+
+      final nowMs = DateTimeHelper.millisecond();
+      final deletedAt = _burnDeletedAtMsFromPayload(payload);
+      if (deletedAt <= 0) return;
+      if (nowMs - deletedAt < _burnTombstoneRetentionMs) return;
+
+      await repo.delete(messageId);
+      await _updateConversationLastMessageAfterBurnHidden(
+        conversation,
+        repo,
+        hiddenMessageId: messageId,
+      );
+    } catch (_) {}
+    _burnPurgeTimers.remove(messageId)?.cancel();
+  }
+
+  Future<void> markBurnReadAt(
+    ConversationModel conversation,
+    String messageId, {
+    required int readAtMs,
+  }) async {
+    try {
+      final tb = MessageRepo.getTableName(conversation.type);
+      final repo = MessageRepo(tableName: tb);
+      final m = await repo.find(messageId);
+      if (m == null) return;
+      final payload = Map<String, dynamic>.from(m.payload);
+      if (!_isBurnPayload(payload)) return;
+
+      final burnAfter = _burnAfterMsFromPayload(payload);
+      if (burnAfter <= 0) return;
+
+      final existingReadAt = _burnReadAtMsFromPayload(payload);
+      final nextReadAt = existingReadAt > 0 ? existingReadAt : readAtMs;
+      if (existingReadAt <= 0) {
+        payload['burn_read_at'] = nextReadAt;
+        await repo.update({
+          MessageRepo.id: messageId,
+          MessageRepo.payload: payload,
+        });
+      }
+
+      await _scheduleBurnDeletion(
+        conversation: conversation,
+        messageId: messageId,
+        burnAfterMs: burnAfter,
+        readAtMs: nextReadAt,
+      );
+
+      final updated = await repo.find(messageId);
+      if (updated != null) {
+        eventBus.fire([await updated.toTypeMessage()]);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _scheduleBurnDeletion({
+    required ConversationModel conversation,
+    required String messageId,
+    required int burnAfterMs,
+    required int readAtMs,
+  }) async {
+    if (burnAfterMs <= 0 || readAtMs <= 0) return;
+    _burnDeleteTimers[messageId]?.cancel();
+    final expireAt = readAtMs + burnAfterMs;
+    final now = DateTimeHelper.millisecond();
+    final delayMs = expireAt - now;
+    if (delayMs <= 0) {
+      await _deleteBurnMessage(conversation, messageId);
+      return;
+    }
+    _burnDeleteTimers[messageId] = Timer(Duration(milliseconds: delayMs), () async {
+      await _deleteBurnMessage(conversation, messageId);
+    });
+  }
+
+  Future<void> _deleteBurnMessage(ConversationModel conversation, String messageId) async {
+    try {
+      final tb = MessageRepo.getTableName(conversation.type);
+      final repo = MessageRepo(tableName: tb);
+      final m = await repo.find(messageId);
+      if (m == null) {
+        try {
+          if (chatController?.isDisposed != true) {
+            await chatController?.removeMessageById(messageId);
+          }
+        } catch (_) {}
+        return;
+      }
+      await expireBurnMessage(conversation, messageId);
+    } catch (_) {}
+    _burnDeleteTimers.remove(messageId)?.cancel();
+  }
+
+  Future<void> cleanupExpiredBurnMessagesForConversation(
+    ConversationModel conversation, {
+    int scanLimit = 30,
+  }) async {
+    try {
+      if (conversation.uk3.isEmpty) return;
+      final tb = MessageRepo.getTableName(conversation.type);
+      final repo = MessageRepo(tableName: tb);
+      final nowMs = DateTimeHelper.millisecond();
+
+      final items = await repo.page(
+        page: 1,
+        size: scanLimit,
+        conversationUk3: conversation.uk3,
+        orderBy: "${MessageRepo.autoId} DESC",
+      );
+      if (items.isEmpty) return;
+
+      for (final item in items) {
+        final payload = item.payload;
+        if (_isBurnTombstonePayload(payload)) {
+          final deletedAt = _burnDeletedAtMsFromPayload(payload);
+          if (deletedAt > 0 && nowMs - deletedAt >= _burnTombstoneRetentionMs) {
+            await repo.delete(item.id ?? '');
+          }
+          continue;
+        }
+        if (!_isBurnPayload(payload)) continue;
+        if (_isBurnExpired(payload, nowMs)) {
+          final id = item.id ?? '';
+          if (id.isNotEmpty) {
+            await expireBurnMessage(conversation, id, deletedAtMs: nowMs);
+          }
+          continue;
+        }
+        await _ensureBurnTimerForItem(
+          conversation: conversation,
+          repo: repo,
+          item: item,
+          nowMs: nowMs,
+        );
+      }
+    } catch (_) {}
   }
 
   /// 获取群组标题，格式为"群组名称(人数)"
@@ -175,10 +545,35 @@ class ChatLogic extends GetxController {
       return [];
     }
 
-    // 并行处理消息转换和状态更新
+    final nowMs = DateTimeHelper.millisecond();
+    final kept = <MessageModel>[];
+    for (final item in items) {
+      final payload = item.payload;
+      if (_isBurnTombstonePayload(payload)) {
+        final deletedAt = _burnDeletedAtMsFromPayload(payload);
+        if (deletedAt > 0 && nowMs - deletedAt >= _burnTombstoneRetentionMs) {
+          await repo.delete(item.id ?? '');
+        }
+        continue;
+      }
+      if (_isBurnExpired(payload, nowMs)) {
+        final id = item.id ?? '';
+        if (id.isNotEmpty) {
+          await expireBurnMessage(obj, id, deletedAtMs: nowMs);
+        }
+        continue;
+      }
+      await _ensureBurnTimerForItem(
+        conversation: obj,
+        repo: repo,
+        item: item,
+        nowMs: nowMs,
+      );
+      kept.add(item);
+    }
+
     final messages = await Future.wait(
-      items.map((item) async {
-        // 如果是发送中的消息，尝试重新发送
+      kept.map((item) async {
         if (item.status == IMBoyMessageStatus.sending) {
           await sendWsMsg(item);
         }
@@ -288,6 +683,7 @@ class ChatLogic extends GetxController {
       Message message,
       ) {
     Map<String, dynamic> payload = {};
+    final metadata = message.metadata ?? <String, dynamic>{};
 
     // 根据消息类型构造payload
     if (message is TextMessage) {
@@ -295,6 +691,7 @@ class ChatLogic extends GetxController {
         "msg_type": "text",
         "text": message.text,
       };
+      payload.addAll(metadata);
     } else if (message is ImageMessage) {
       payload = {
         "msg_type": "image",
@@ -306,6 +703,7 @@ class ChatLogic extends GetxController {
         "height": message.height,
         "md5": message.metadata?['md5'],
       };
+      payload.addAll(metadata);
     } else if (message is FileMessage) {
       payload = {
         "msg_type": "file",
@@ -316,6 +714,7 @@ class ChatLogic extends GetxController {
         "mime_type": message.mimeType,
         "md5": message.metadata?['md5'],
       };
+      payload.addAll(metadata);
     } else if (message is CustomMessage) {
       payload = {...?message.metadata};
       payload['msg_type'] = 'custom';
@@ -510,6 +909,7 @@ class ChatLogic extends GetxController {
       Message msg,
       ) async {
     iPrint('removeMessage - 开始删除消息: ${msg.id}, 会话ID: ${cm.id}, 会话类型: ${cm.type}');
+    _burnDeleteTimers.remove(msg.id)?.cancel();
     final repo = ConversationRepo();
     final tb = MessageRepo.getTableName(cm.type);
     final mRepo = MessageRepo(tableName: tb);
@@ -531,6 +931,7 @@ class ChatLogic extends GetxController {
         iPrint('removeMessage - 重试删除结果: $deleteCount');
       } else {
         iPrint('removeMessage - 消息在数据库中未找到，可能已被删除');
+        deleteCount = 1;
       }
     }
 
@@ -538,7 +939,11 @@ class ChatLogic extends GetxController {
     if (deleteCount > 0) {
       // 从UI中移除消息，确保用户体验
       iPrint('removeMessage - 开始从UI移除消息: ${msg.id}');
-      await chatController?.removeMessageById(msg.id);
+      try {
+        if (chatController?.isDisposed != true) {
+          await chatController?.removeMessageById(msg.id);
+        }
+      } catch (_) {}
       iPrint('removeMessage - UI移除消息完成: ${msg.id}');
 
       // 获取最后一条消息用于更新会话
@@ -588,6 +993,7 @@ class ChatLogic extends GetxController {
         await repo.updateById(cm.id, {
           ConversationRepo.lastMsgId: finalLastMsg.id,
           ConversationRepo.lastMsgStatus: finalLastMsg.status,
+          ConversationRepo.lastTime: finalLastMsg.createdAt,
           ConversationRepo.msgType: MessageModel.conversationMsgType(msg2),
           ConversationRepo.subtitle: MessageModel.conversationSubtitle(msg2),
         });
@@ -699,6 +1105,13 @@ class ChatLogic extends GetxController {
       ConversationLogic conversationLogic = Get.find<ConversationLogic>();
       await conversationLogic.advanceReadWatermarkByMsgIds(c, msgIds);
       conversationLogic.replace(c);
+      for (final id in msgIds) {
+        await markBurnReadAt(
+          c,
+          id,
+          readAtMs: DateTimeHelper.millisecond(),
+        );
+      }
       await _emitUpdatedMessagesAfterStatusChange(type, msgIds);
       if (syncToServer) {
         await enqueueReadReceipt(type: type, peerId: peerId, msgIds: msgIds);
@@ -1191,10 +1604,25 @@ class ChatLogic extends GetxController {
         return [];
       }
 
-      // 转换为消息对象
+      final nowMs = DateTimeHelper.millisecond();
+      final kept = <MessageModel>[];
+      for (final item in items) {
+        final payload = item.payload;
+        if (_isBurnExpired(payload, nowMs)) {
+          await removeMessage(obj, await item.toTypeMessage());
+          continue;
+        }
+        await _ensureBurnTimerForItem(
+          conversation: obj,
+          repo: repo,
+          item: item,
+          nowMs: nowMs,
+        );
+        kept.add(item);
+      }
+
       final messages = await Future.wait(
-        items.map((item) async {
-          // 如果是发送中的消息，尝试重新发送
+        kept.map((item) async {
           if (item.status == IMBoyMessageStatus.sending) {
             await sendWsMsg(item);
           }

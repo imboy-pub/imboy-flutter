@@ -7,6 +7,7 @@ import 'package:xid/xid.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -87,9 +88,23 @@ class MessageActions extends GetxService {
 
       final repo = MessageService.to.getMessageRepo(msgType);
       final updated = <Message>[];
+      final chatLogic = Get.find<ChatLogic>();
+      final conversationRepo = ConversationRepo();
+      final nowMs = DateTimeHelper.millisecond();
       for (final id in ids) {
         final m = await MessageService.to.updateStatus(repo, id, IMBoyMessageStatus.seen);
         if (m != null) {
+          try {
+            if (chatLogic.isBurnPayload(m.payload)) {
+              final toId = m.toId ?? '';
+              if (toId.isNotEmpty) {
+                final conversation = await conversationRepo.findByPeerId(msgType, toId);
+                if (conversation != null) {
+                  await chatLogic.markBurnReadAt(conversation, id, readAtMs: nowMs);
+                }
+              }
+            }
+          } catch (_) {}
           updated.add(await m.toTypeMessage());
         }
       }

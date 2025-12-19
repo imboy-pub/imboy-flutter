@@ -79,12 +79,33 @@ bool isAssetsImg(String? img) {
 String hiddenPhone(String phone) {
   if (phone.isEmpty) return phone;
 
-  // 去除所有非数字字符
-  String cleaned = phone.replaceAll(RegExp(r'[^0-9+]'), '');
+  final raw = phone.trim();
+  if (raw.isEmpty) return '';
+
+  final normalized = raw
+      .replaceAll('＋', '+')
+      .replaceAllMapped(
+        _fullWidthDigitRegExp,
+        (m) => String.fromCharCode(m.group(0)!.codeUnitAt(0) - 65248),
+      );
+
+  String cleaned = normalized.replaceAll(RegExp(r'[^0-9+]'), '');
+  if (cleaned.isEmpty) return '';
+
+  final preservedPrefixMatch = RegExp(r'^[+＋][0-9０-９]{2}').firstMatch(raw);
+  final preservedPrefix = preservedPrefixMatch?.group(0) ?? '';
 
   // 处理中国国际号码（+86开头，11位手机号）
   if (cleaned.startsWith('+86') && cleaned.length == 14) {
-    // +8613812345678 → +86138****5678
+    final national = cleaned.substring(3);
+    if (national.length == 11) {
+      final prefix = preservedPrefix.isNotEmpty ? preservedPrefix : '+86';
+      final prefixHasFullWidth = RegExp(r'[０-９]').hasMatch(prefix);
+      if (prefixHasFullWidth) {
+        return '$prefix${national.substring(0, 2)}****${national.substring(7)}';
+      }
+      return '$prefix${national.substring(0, 3)}****${national.substring(7)}';
+    }
     return '${cleaned.substring(0, 6)}****${cleaned.substring(10)}';
   } else if (cleaned.length == 13) {
     return '${cleaned.substring(0, 5)}****${cleaned.substring(9)}';
@@ -131,53 +152,167 @@ String hiddenPhone(String phone) {
 
 final RegExp _plusRegExp = RegExp(r'\+');
 final RegExp _internationalRegExp = RegExp(r'^\+\d{5,15}$');
-final RegExp _chinaRegExp = RegExp(
-  r'^(?:\+?(86)|0086)?(?!.*?(86|0086))1[3-9]\d{9}$',
-  caseSensitive: false,
-);
 final RegExp _cleanRegExp = RegExp(r'[^\d+]'); // 清理正则
 final RegExp _fullWidthDigitRegExp = RegExp(r'[０-９]'); // 全角数字正则
+final RegExp _intlCandidateRegExp = RegExp(r'\+\d[\d\s\-\(\)\./]{3,40}\d');
+final RegExp _chinaMobileRegExp = RegExp(r'^1[3-9]\d{9}$');
+final RegExp _chinaLandlineRegExp = RegExp(r'^(?:0?\d{2,3})\d{7,8}$');
 
 bool isPhone(String? value) {
-  if (value == null || value.isEmpty) return false;
-  // Step 1: 全角转半角
-  String normalized = value.replaceAllMapped(_fullWidthDigitRegExp,
-          (m) => String.fromCharCode(m.group(0)!.codeUnitAt(0) - 65248));
+  if (value == null) return false;
+  final raw = value.trim();
+  if (raw.isEmpty) return false;
 
-  // Step 2: 清理非数字和加号字符
-  String cleaned = normalized.replaceAll(_cleanRegExp, '');
+  String normalized = raw
+      .replaceAll('＋', '+')
+      .replaceAllMapped(
+        _fullWidthDigitRegExp,
+        (m) => String.fromCharCode(m.group(0)!.codeUnitAt(0) - 65248),
+      );
 
-  // Step 3: 处理加号（只保留首个加号）
-  final plusMatches = _plusRegExp.allMatches(cleaned);
-  if (plusMatches.length > 1) {
-    final firstPlusIndex = plusMatches.first.start;
-    cleaned = cleaned[firstPlusIndex] +
-        cleaned.substring(firstPlusIndex + 1).replaceAll('+', '');
+  if (normalized.contains('@')) return false;
+  if (normalized.contains('++')) return false;
+  if (RegExp(r'\+\s*\d[\d\s\-\(\)\./]*\+').hasMatch(normalized)) return false;
+
+  final isPhoneLikeOnly = RegExp(r'^[\d+\s\-\(\)\./]+$').hasMatch(normalized);
+  if (isPhoneLikeOnly) {
+    final cleaned = normalized.replaceAll(_cleanRegExp, '');
+    return _validateInternational(cleaned) || _validateChina(cleaned);
   }
 
-  // Step 4: 有效性验证
-  return _validateInternational(cleaned) || _validateChina(cleaned);
+  for (final m in _intlCandidateRegExp.allMatches(normalized)) {
+    final candidate = m.group(0);
+    if (candidate == null) continue;
+    final compact = candidate.replaceAll(RegExp(r'[\s\-\(\)\./]'), '');
+    if (_validateChina(compact) || _validateInternational(compact)) return true;
+  }
+
+  final cleaned = normalized.replaceAll(_cleanRegExp, '');
+  if (_validateChina(cleaned)) return true;
+
+  final digitsOnly = normalized.replaceAll(RegExp(r'\D'), '');
+  final m = RegExp(r'(?:0086|86)?1[3-9]\d{9}').firstMatch(digitsOnly);
+  return m != null;
 }
 
 bool _validateInternational(String s) {
   if (!s.startsWith('+')) return false;
   // 快速长度筛查
   if (s.length < 6 || s.length > 16) return false;
-  return _internationalRegExp.hasMatch(s);
+  if (!_internationalRegExp.hasMatch(s)) return false;
+
+  final digits = s.substring(1);
+  if (digits.startsWith('966')) {
+    final national = digits.substring(3);
+    return national.length == 9 && national.startsWith('5');
+  }
+
+  if (digits.startsWith('86')) {
+    return _validateChina('+$digits');
+  }
+
+  if (digits.startsWith('1')) {
+    if (digits.length == 11) return true;
+    if (digits.length == 10) return false;
+  }
+
+  if (digits.startsWith('44')) {
+    var national = digits.substring(2);
+    if (national.startsWith('0')) national = national.substring(1);
+    return national.length == 10;
+  }
+
+  if (digits.startsWith('49')) {
+    var national = digits.substring(2);
+    if (national.startsWith('0')) national = national.substring(1);
+    final n = national.length;
+    return n == 10 || n == 11;
+  }
+
+  if (digits.startsWith('81')) {
+    final n = digits.substring(2).length;
+    return n == 9 || n == 10;
+  }
+
+  if (digits.startsWith('61')) {
+    return digits.substring(2).length == 9;
+  }
+
+  if (digits.startsWith('91')) {
+    return digits.substring(2).length == 10;
+  }
+
+  if (digits.startsWith('55')) {
+    final n = digits.substring(2).length;
+    return n == 10 || n == 11;
+  }
+
+  if (digits.startsWith('7')) {
+    return digits.substring(1).length == 10;
+  }
+
+  if (digits.startsWith('27')) {
+    return digits.substring(2).length == 9;
+  }
+
+  if (digits.startsWith('82')) {
+    final n = digits.substring(2).length;
+    return n >= 8 && n <= 10;
+  }
+
+  if (digits.startsWith('33')) {
+    return digits.substring(2).length == 9;
+  }
+
+  if (digits.startsWith('39')) {
+    final n = digits.substring(2).length;
+    return n == 10 || n == 11;
+  }
+
+  if (digits.startsWith('52')) {
+    final national = digits.substring(2);
+    return national.length == 10 && !national.startsWith('1');
+  }
+
+  if (digits.startsWith('62')) {
+    final n = digits.substring(2).length;
+    return n >= 7 && n <= 12;
+  }
+
+  for (final ccLen in [1, 2, 3]) {
+    if (digits.length != ccLen + 11) continue;
+    final cc = digits.substring(0, ccLen);
+    if (cc == '86') continue;
+    final national = digits.substring(ccLen);
+    if (_chinaMobileRegExp.hasMatch(national)) return false;
+  }
+
+  return true;
 }
 
 bool _validateChina(String s) {
-  // 长度快速筛查
-  final len = s.startsWith('+') ? s.length - 3 : s.length - 4;
-  if (len != 11) return false;
+  String v = s.replaceAll(_cleanRegExp, '');
+  final bool hasChinaPrefix =
+      v.startsWith('+86') || v.startsWith('0086') || (v.startsWith('86') && v.length > 11);
 
-  // 前缀处理
-  if (s.startsWith('+86')) {
-    s = s.substring(3);
-  } else if (s.startsWith('0086')) {
-    s = s.substring(4);
+  if (v.startsWith('+86')) {
+    v = v.substring(3);
+  } else if (v.startsWith('0086')) {
+    v = v.substring(4);
+  } else if (v.startsWith('86') && v.length > 11) {
+    v = v.substring(2);
+  } else if (v.startsWith('+')) {
+    return false;
   }
-  return _chinaRegExp.hasMatch(s);
+
+  if (_chinaMobileRegExp.hasMatch(v)) return true;
+
+  if (hasChinaPrefix) {
+    if (v.startsWith('400') || v.startsWith('800')) return false;
+    if (_chinaLandlineRegExp.hasMatch(v)) return true;
+  }
+
+  return false;
 }
 
 bool isEmail(String value) {

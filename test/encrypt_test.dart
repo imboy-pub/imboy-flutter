@@ -4,15 +4,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/encrypter.dart';
 
 void main() {
-  String iv = "";
-  String key = "";
-  // String hashKey = "";
+  const iv = "1234567890abcdef";
+  const rawKey = "test-sign-key";
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    String encrypted = "";
-    String plainText = EncrypterService.aesDecrypt(encrypted, EncrypterService.md5(key), iv);
+    const input = "abc123456";
+    final key = EncrypterService.md5(rawKey);
+    final encrypted = EncrypterService.aesEncrypt(input, key, iv);
+    final plainText = EncrypterService.aesDecrypt(encrypted, key, iv);
     debugPrint("plainText: $plainText");
-    // String plainText = aesDecrypt(encrypted, EncrypterService.md5(key), iv);
-    // debugPrint("encrypted2: $plainText");
+    expect(plainText, equals(input));
 
     // String hash512 =
     //     sha512("C5931370-BDCC-55FE-AB9C-8E2B39DC5018|0.1.11", hashKey);

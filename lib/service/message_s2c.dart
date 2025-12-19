@@ -50,7 +50,7 @@ class MessageS2CService {
       switch (msgType.toString().toLowerCase()) {
         case 'pull_offline_msg':
           // 拉取离线消息
-          iPrint("收到离线消息拉取指令，开始处理离线消息");
+          iPrint("pull_offline_msg 收到离线消息拉取指令，开始处理离线消息");
 
           // 异步处理离线消息，避免阻塞 S2C 消息确认
           Future.microtask(() async {

@@ -4,10 +4,12 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/contact_model.dart' show ContactModel;
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
@@ -163,6 +165,8 @@ class ConversationLogic extends GetxController {
           obj.title = await computeTitle(obj);
         }
       }));
+
+      await _cleanupExpiredBurnLastMessages(li);
       
       if (recalculateRemind) {
         await recalculateAllReminds(li);
@@ -174,6 +178,33 @@ class ConversationLogic extends GetxController {
       iPrint('conversationsList error: $e; $s');
       return [];
     }
+  }
+
+  Future<void> _cleanupExpiredBurnLastMessages(List<ConversationModel> conversations) async {
+    try {
+      if (conversations.isEmpty) return;
+      final chatLogic = Get.find<ChatLogic>();
+      final repo = ConversationRepo();
+
+      for (int i = 0; i < conversations.length; i++) {
+        final cm = conversations[i];
+        if (cm.lastMsgId.isEmpty) continue;
+
+        final tb = MessageRepo.getTableName(cm.type);
+        if (tb.isEmpty) continue;
+        final mRepo = MessageRepo(tableName: tb);
+        final MessageModel? lastMsg = await mRepo.find(cm.lastMsgId);
+        if (lastMsg == null) continue;
+
+        if (!chatLogic.isBurnExpiredPayload(lastMsg.payload)) continue;
+
+        await chatLogic.expireBurnMessage(cm, cm.lastMsgId);
+        final updated = await repo.findById(cm.id);
+        if (updated != null) {
+          conversations[i] = updated;
+        }
+      }
+    } catch (_) {}
   }
 
   // Future<void> sortConversationsList() async {

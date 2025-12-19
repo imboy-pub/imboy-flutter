@@ -207,6 +207,13 @@ class MessageService extends GetxService {
       data['created_at'] = createdAt;
     }
 
+    final repo = to.getMessageRepo(data['type']);
+    final existing = await repo.find(data['id']);
+    if (existing != null) {
+      to.sendAckMsg(data['type'], data['id']);
+      return;
+    }
+
     // 区分单聊/群聊，获取 peer 信息
     // Determine peer info for C2C or C2G
     String peerId, avatar, title;
@@ -266,7 +273,6 @@ class MessageService extends GetxService {
       conversationUk3: conv.uk3,
       status: IMBoyMessageStatus.delivered,
     );
-    final repo = to.getMessageRepo(data['type']);
     final existed = await repo.save(msg);
 
     // 发送 ACK 给服务端或对端

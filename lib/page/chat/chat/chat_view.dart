@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/helper/permission.dart';
 import 'package:imboy/page/chat/widget/chat_input_height_listener.dart';
@@ -29,7 +28,6 @@ import 'package:photo_view/photo_view.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:xid/xid.dart';
-import 'package:imboy/service/message.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/chat_extend_model.dart';
@@ -54,6 +52,7 @@ import 'package:imboy/store/model/entity_video.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
 import 'package:imboy/store/provider/attachment_provider.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -102,6 +101,9 @@ class ChatPageState extends State<ChatPage> {
   final logic = getx.Get.find<ChatLogic>();
   final state = getx.Get.find<ChatLogic>().state;
   final conversationLogic = getx.Get.find<ConversationLogic>();
+  static const MethodChannel _secureChannel = MethodChannel('imboy/secure');
+  static final Stream<int> _burnTicker = Stream<int>.periodic(const Duration(seconds: 1), (i) => i)
+      .asBroadcastStream();
   bool _showAppBar = true; // 控制顶部导航栏显示/隐藏
   String newGroupName = ""; // 新群组名称
   int get maxAssetsCount => 9; // 最大可选资源数量
@@ -123,12 +125,15 @@ class ChatPageState extends State<ChatPage> {
   late ConversationModel conversation; // 当前会话
   late User peer; // 对方用户信息
   String? _editingMessageId; // 当前正在编辑的消息ID
+  bool _burnEnabled = false;
+  int _burnAfterMs = 30000;
   // StreamSubscription<ConnectivityResult>? _connectivitySubscription; // 网络状态监听
   // 页面初始化
   @override
   void initState() {
     super.initState();
     try {
+      logic.resetDisposedState();
       msgIds.clear();
       state.nextAutoId.value = 0;
       state.hasMoreMessage.value = true;
@@ -154,6 +159,8 @@ class ChatPageState extends State<ChatPage> {
       logic.initChatController(widget.type);
       // 创建或获取会话
       await _setupConversation();
+      await _reloadConversationSettings();
+      await logic.cleanupExpiredBurnMessagesForConversation(conversation);
       await logic.loadMoreMessages(conversation, isInitial: true);
       _setupEventListeners();
     } catch (e, stack) {
@@ -214,6 +221,53 @@ class ChatPageState extends State<ChatPage> {
       eventBus.fire(conversation);
     }
     state.nextAutoId.value = 0;
+  }
+
+  Future<void> _reloadConversationSettings() async {
+    try {
+      final c = await ConversationRepo().findByPeerId(widget.type, widget.peerId);
+      if (c != null) {
+        conversation = c;
+      }
+      final payload = conversation.payload;
+      _burnEnabled = payload?['burn_enabled'] == true;
+      final raw = payload?['burn_after_ms'];
+      if (raw is int && raw > 0) {
+        _burnAfterMs = raw;
+      } else if (raw is String) {
+        final v = int.tryParse(raw);
+        if (v != null && v > 0) _burnAfterMs = v;
+      }
+      await _applySecureFlag();
+    } catch (_) {}
+  }
+
+  Future<void> _applySecureFlag() async {
+    try {
+      await _secureChannel.invokeMethod(_burnEnabled ? 'enable' : 'disable');
+    } catch (_) {}
+  }
+
+  bool _isBurnMessage(Message message) {
+    final m = message.metadata;
+    return m?['burn'] == true || m?['is_burn'] == true;
+  }
+
+  int _burnAfterMsFromMessage(Message message) {
+    final m = message.metadata;
+    final raw = m?['burn_after_ms'] ?? m?['expiry_time'];
+    if (raw is int) return raw;
+    if (raw is String) return int.tryParse(raw) ?? 0;
+    return 0;
+  }
+
+  Map<String, dynamic> _withBurnMetadata(Map<String, dynamic> base) {
+    if (!_burnEnabled) return base;
+    return <String, dynamic>{
+      ...base,
+      'burn': true,
+      'burn_after_ms': _burnAfterMs,
+    };
   }
   // 初始化群组信息
   Future<void> _initGroupInfo() async {
@@ -298,8 +352,17 @@ class ChatPageState extends State<ChatPage> {
           final messageCount = logic.chatController?.messages.length ?? 0;
           iPrint('在消息列表中查找消息: index=$i, 总消息数=$messageCount');
           if (i > -1 && mounted && logic.chatController != null) {
+            final old = logic.chatController!.messages[i];
             iPrint('更新消息UI: ${msg.id}');
             logic.chatController!.updateMessage(logic.chatController!.messages[i], msg);
+            final didBecomeSeen = old.status != MessageStatus.seen && msg.status == MessageStatus.seen;
+            if (didBecomeSeen && _isBurnMessage(msg) && (msg.metadata?['burn_read_at'] ?? 0) == 0) {
+              logic.markBurnReadAt(
+                conversation,
+                msg.id,
+                readAtMs: DateTimeHelper.millisecond(),
+              );
+            }
           } else {
             iPrint('消息未找到或组件未挂载: msgId=${msg.id}, mounted=$mounted');
           }
@@ -319,6 +382,7 @@ class ChatPageState extends State<ChatPage> {
     state.ssMsgExt?.cancel();
     state.ssMsg?.cancel();
     state.ssMsgState?.cancel();
+    logic.markAsDisposed();
     
     // 清理消息ID集合
     msgIds.clear();
@@ -349,25 +413,13 @@ class ChatPageState extends State<ChatPage> {
     } catch (e) {
       debugPrint('Error deleting ImageGalleryLogic: $e');
     }
+    try {
+      _secureChannel.invokeMethod('disable');
+    } catch (_) {}
     
     super.dispose();
   }
   // 标记消息为已读
-  Future<void> _markMessagesAsRead(List<Message> items) async {
-    final unreadMsgIds = items
-        .where(
-          (msg) =>
-      msg.authorId != UserRepoLocal.to.currentUid &&
-          msg.status != MessageStatus.seen,
-    )
-        .map((msg) => msg.id)
-        .toList();
-    if (unreadMsgIds.isEmpty) {
-      conversationLogic.recalculateConversationRemind(conversation);
-    } else {
-      await logic.markAsRead(widget.type, widget.peerId, unreadMsgIds);
-    }
-  }
   // 添加消息
   Future<bool> _addMessage(Message message) async {
     try {
@@ -437,10 +489,10 @@ class ChatPageState extends State<ChatPage> {
           size: file.size,
           source: uri,
           status: MessageStatus.sending,
-          metadata: {
+          metadata: _withBurnMetadata({
             'peer_id': widget.peerId,
             'md5': resp['data']['md5'].toString(),
-          },
+          }),
         );
         _addMessage(message);
       },
@@ -514,10 +566,10 @@ class ChatPageState extends State<ChatPage> {
       width: entity.width * 1.0,
       size: resp["data"]["size"],
       source: imgUrl,
-      metadata: {
+      metadata: _withBurnMetadata({
         'peer_id': widget.peerId,
         'md5': resp['data']['md5'].toString(),
-      },
+      }),
     );
     _addMessage(message);
   }
@@ -527,12 +579,12 @@ class ChatPageState extends State<ChatPage> {
       authorId: currentUser.id,
       createdAt: DateTimeHelper.now(),
       id: Xid().toString(),
-      metadata: {
+      metadata: _withBurnMetadata({
         'custom_type': 'video',
         'peer_id': widget.peerId,
         'thumb': (resp['thumb'] as EntityImage).toJson(),
         'video': (resp['video'] as EntityVideo).toJson(),
-      },
+      }),
     );
     _addMessage(message);
   }
@@ -572,7 +624,10 @@ class ChatPageState extends State<ChatPage> {
         MessageRepo.conversationUk3: conversation.uk3,
         MessageRepo.createdAt: DateTimeHelper.millisecond(),
       });
-    final msg = await MessageModel.fromJson(data).toTypeMessage();
+    final msg0 = await MessageModel.fromJson(data).toTypeMessage();
+    final msg = _burnEnabled
+        ? msg0.copyWith(metadata: _withBurnMetadata(Map<String, dynamic>.from(msg0.metadata ?? {})))
+        : msg0;
     final res = await _addMessage(msg);
     if (res) {
       getx.Get.find<UserCollectLogic>().change(collect.kindId);
@@ -602,13 +657,13 @@ class ChatPageState extends State<ChatPage> {
       authorId: currentUser.id,
       createdAt: DateTimeHelper.now(),
       id: Xid().toString(),
-      metadata: {
+      metadata: _withBurnMetadata({
         'custom_type': 'visit_card',
         'peer_id': widget.peerId,
         'uid': contact.peerId,
         'title': contact.title,
         'avatar': contact.avatar,
-      },
+      }),
     );
     final res = await _addMessage(message);
     if (res) {
@@ -639,7 +694,7 @@ class ChatPageState extends State<ChatPage> {
           authorId: currentUser.id,
           createdAt: DateTimeHelper.now(),
           id: Xid().toString(),
-          metadata: {
+          metadata: _withBurnMetadata({
             'custom_type': 'location',
             'peer_id': widget.peerId,
             'title': title,
@@ -649,7 +704,7 @@ class ChatPageState extends State<ChatPage> {
             'thumb': imgUrl,
             'size': resp['data']['size'],
             'md5': resp['data']['md5'].toString(),
-          },
+          }),
         );
         _addMessage(message);
       },
@@ -705,10 +760,10 @@ class ChatPageState extends State<ChatPage> {
       width: entity.width * 1.0,
       size: resp["data"]["size"],
       source: imgUrl,
-      metadata: {
+      metadata: _withBurnMetadata({
         'peer_id': widget.peerId,
         'md5': resp['data']['md5'].toString(),
-      },
+      }),
     );
     _addMessage(message);
   }
@@ -718,12 +773,12 @@ class ChatPageState extends State<ChatPage> {
       authorId: currentUser.id,
       createdAt: DateTimeHelper.now(),
       id: Xid().toString(),
-      metadata: {
+      metadata: _withBurnMetadata({
         'custom_type': 'video',
         'peer_id': widget.peerId,
         'thumb': (resp['thumb'] as EntityImage).toJson(),
         'video': (resp['video'] as EntityVideo).toJson(),
-      },
+      }),
     );
     _addMessage(message);
   }
@@ -743,7 +798,7 @@ class ChatPageState extends State<ChatPage> {
           authorId: currentUser.id,
           createdAt: DateTimeHelper.now(),
           id: Xid().toString(),
-          metadata: {
+          metadata: _withBurnMetadata({
             'custom_type': 'audio',
             'peer_id': widget.peerId,
             'uri': uri,
@@ -752,7 +807,7 @@ class ChatPageState extends State<ChatPage> {
             'waveform': obj.waveform,
             'mime_type': obj.mimeType,
             'md5': resp['data']['md5'].toString(),
-          },
+          }),
         );
         obj.file.delete(recursive: true);
         _addMessage(message);
@@ -762,7 +817,7 @@ class ChatPageState extends State<ChatPage> {
     );
   }
   // 消息双击事件
-  void _onMessageDoubleTap(BuildContext c1, Message message, {int? index}) {
+  void _onMessageDoubleTap(BuildContext c1, Message message, {required int index}) {
     // 触发震动反馈
     HapticFeedback.lightImpact();
 
@@ -784,7 +839,12 @@ class ChatPageState extends State<ChatPage> {
   }
 
   // 新增：消息点击事件
-  void _onMessageTap(BuildContext context, Message message, {int? index, TapUpDetails? details}) {
+  void _onMessageTap(
+    BuildContext context,
+    Message message, {
+    required int index,
+    required TapUpDetails details,
+  }) {
     // 取消引用状态
     if (quoteMessage?.id == message.id) {
       updateQuoteMessage(null);
@@ -795,7 +855,12 @@ class ChatPageState extends State<ChatPage> {
   }
 
   // 新增：消息辅助点击事件（右键或长按）
-  void _onMessageSecondaryTap(BuildContext context, Message message, {int? index}) {
+  void _onMessageSecondaryTap(
+    BuildContext context,
+    Message message, {
+    required int index,
+    TapUpDetails? details,
+  }) {
     // 触发震动反馈
     HapticFeedback.mediumImpact();
 
@@ -940,7 +1005,7 @@ class ChatPageState extends State<ChatPage> {
       createdAt: DateTimeHelper.now(),
       id: Xid().toString(),
       text: text,
-      metadata: {'peer_id': widget.peerId},
+      metadata: _withBurnMetadata({'peer_id': widget.peerId}),
     );
     return await _addMessage(textMessage);
   }
@@ -953,13 +1018,13 @@ class ChatPageState extends State<ChatPage> {
       authorId: currentUser.id,
       createdAt: DateTimeHelper.now(),
       id: Xid().toString(),
-      metadata: {
+      metadata: _withBurnMetadata({
         'custom_type': 'quote',
         'peer_id': widget.peerId,
         'quote_msg': quoteMessage?.toJson(),
         'quote_msg_author_name': quoteMsgAuthorName,
         'quote_text': text,
-      },
+      }),
     );
     bool res = await _addMessage(message);
     if (res) updateQuoteMessage(null);
@@ -988,8 +1053,8 @@ class ChatPageState extends State<ChatPage> {
   void _onMessageLongPress(
       BuildContext c1,
       Message message, {
-        int? index,
-        LongPressStartDetails? details,
+        required int index,
+        required LongPressStartDetails details,
       }) {
     iPrint('_onMessageLongPress');
     final isSentByMe = message.authorId == UserRepoLocal.to.currentUid;
@@ -1246,12 +1311,9 @@ class ChatPageState extends State<ChatPage> {
         // 优先收起面板/键盘，避免"返回上一页"
         if (state.composerHeight.value > 52) {
           chatInputKey.currentState?.hideAllPanel();
-          // 面板收起后，延迟执行返回操作
-          Future.delayed(const Duration(milliseconds: 300), () {
-            if (mounted) {
-              Navigator.of(context).pop();
-            }
-          });
+          await Future.delayed(const Duration(milliseconds: 300));
+          if (!mounted) return;
+          Navigator.of(context).pop();
         }
       },
       child: Scaffold(
@@ -1393,6 +1455,8 @@ class ChatPageState extends State<ChatPage> {
       chatController: logic.chatController ?? SqliteChatController(),
       onMessageSend: _handleSendPressed,
       onMessageLongPress: _onMessageLongPress,
+      onMessageTap: _onMessageTap,
+      onMessageSecondaryTap: _onMessageSecondaryTap,
       // onMessageStatusTap: _onMessageStatusTap,
       decoration: backgroundManager.getCurrentBackgroundDecoration(),
       resolveUser: (id) => Future.value(switch (id) {
@@ -1609,15 +1673,52 @@ class ChatPageState extends State<ChatPage> {
           }
 
           // 在消息末尾添加状态图标
+          final burnBadge = _isBurnMessage(message)
+              ? _BurnBadge(
+                  isSentByMe: isCurrentUser,
+                  burnAfterMs: _burnAfterMsFromMessage(message),
+                  burnReadAtMs: (message.metadata?['burn_read_at'] is int)
+                      ? message.metadata!['burn_read_at'] as int
+                      : int.tryParse('${message.metadata?['burn_read_at'] ?? 0}') ?? 0,
+                )
+              : null;
+
+          Widget messageBody = burnBadge == null
+              ? child
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: isCurrentUser
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
+                  children: [
+                    child,
+                    const SizedBox(height: 2),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        right: isCurrentUser ? 2 : 0,
+                        left: isCurrentUser ? 0 : 2,
+                      ),
+                      child: burnBadge,
+                    ),
+                  ],
+                );
+
           if (isCurrentUser && statusIcon != null) {
+            statusIcon = GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _onMessageStatusTap(context, message),
+              child: statusIcon,
+            );
             child = Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Flexible(child: child),
+                Flexible(child: messageBody),
                 const SizedBox(width: 4),
                 statusIcon,
               ],
             );
+          } else {
+            child = messageBody;
           }
           final chatMsg = ChatMessage(
             message: message,
@@ -1702,6 +1803,13 @@ class ChatPageState extends State<ChatPage> {
                       );
                       if (ok) {
                         _readCommitted.add(message.id);
+                        if (_isBurnMessage(message) && (message.metadata?['burn_read_at'] ?? 0) == 0) {
+                          logic.markBurnReadAt(
+                            conversation,
+                            message.id,
+                            readAtMs: DateTimeHelper.millisecond(),
+                          );
+                        }
                       }
                     } catch (_) {}
                   }
@@ -1747,6 +1855,9 @@ class ChatPageState extends State<ChatPage> {
       state.nextAutoId.value = 0;
       await logic.loadMoreMessages(conversation, isInitial: true);
     }
+    if (value == true) {
+      await _reloadConversationSettings();
+    }
     if (value is Map<String, dynamic>) {
       int num = value['memberCount'] ?? 0;
       if (num > 0) {
@@ -1759,5 +1870,83 @@ class ChatPageState extends State<ChatPage> {
         if (mounted) setState(() {});
       }
     }
+  }
+}
+
+class _BurnBadge extends StatelessWidget {
+  final bool isSentByMe;
+  final int burnAfterMs;
+  final int burnReadAtMs;
+
+  const _BurnBadge({
+    required this.isSentByMe,
+    required this.burnAfterMs,
+    required this.burnReadAtMs,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.error;
+    final bg = Theme.of(context).colorScheme.surface;
+
+    if (burnReadAtMs <= 0 || burnAfterMs <= 0) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withValues(alpha: 0.5), width: 0.8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.local_fire_department, size: 12, color: color),
+            const SizedBox(width: 2),
+            Text(
+              '阅后',
+              style: TextStyle(
+                fontSize: 10,
+                color: color,
+                height: 1.0,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return StreamBuilder<int>(
+      stream: ChatPageState._burnTicker,
+      builder: (context, snapshot) {
+        final now = DateTimeHelper.millisecond();
+        final expireAt = burnReadAtMs + burnAfterMs;
+        final remainMs = expireAt - now;
+        final remainSec = (remainMs / 1000).ceil();
+        final text = remainSec <= 0 ? '0s' : '${remainSec}s';
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: color.withValues(alpha: 0.5), width: 0.8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.local_fire_department, size: 12, color: color),
+              const SizedBox(width: 2),
+              Text(
+                text,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: color,
+                  height: 1.0,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

@@ -662,7 +662,20 @@ class MessageRepo {
         for (final msgData in messages) {
           final rawMsgId = msgData['msg_id'] ?? msgData['id'];
           final msgId = rawMsgId?.toString() ?? '';
-          final type = (msgData['type'] ?? 'C2C').toString().toUpperCase();
+          // 优化类型处理，确保类型标准化
+          String type = (msgData['type'] ?? 'C2C').toString().toUpperCase();
+          // 处理可能的类型别名
+          switch (type) {
+            case 'C2C_SERVER_ACK':
+              type = 'C2C';
+              break;
+            case 'C2G_SERVER_ACK':
+              type = 'C2G';
+              break;
+            case 'S2C_SERVER_ACK':
+              type = 'S2C';
+              break;
+          }
 
           if (msgId.isEmpty) {
             iPrint("离线消息缺少id，跳过: ${msgData.toString()}");
@@ -837,7 +850,9 @@ class MessageRepo {
 
       ConversationModel conv;
       if (existing == null) {
-        conv = await conversationRepo.save(ConversationModel(
+        // 创建新会话时确保设置所有必要字段
+        conv = ConversationModel(
+          id: 0,
           peerId: agg.peerId,
           avatar: avatar,
           title: title,
@@ -846,30 +861,44 @@ class MessageRepo {
           msgType: preview.msgType,
           lastMsgId: latest.id,
           lastTime: latest.createdAt,
-          unreadNum: 0,
-          id: 0,
+          unreadNum: agg.unreadDelta, // 使用计算出的未读数
+          payload: {},
           isShow: 1,
-        ));
+        );
+        conv.id = await conversationRepo.insert(conv);
+        iPrint("创建新会话: ${conv.toJson()}, 未读数: ${agg.unreadDelta}");
       } else {
-        if (latest.createdAt > existing.lastTime) {
-          await conversationRepo.updateById(existing.id, {
-            ConversationRepo.avatar: avatar,
-            ConversationRepo.title: title,
-            ConversationRepo.subtitle: preview.subtitle,
-            ConversationRepo.msgType: preview.msgType,
-            ConversationRepo.lastMsgId: latest.id,
-            ConversationRepo.lastTime: latest.createdAt,
-            ConversationRepo.isShow: 1,
-          });
-          conv = (await conversationRepo.findById(existing.id)) ?? existing;
-        } else {
-          conv = existing;
-        }
+        // 更新现有会话，总是更新最后消息信息
+        int newUnreadNum = existing.unreadNum + agg.unreadDelta;
+        await conversationRepo.updateById(existing.id, {
+          ConversationRepo.avatar: avatar.isNotEmpty ? avatar : existing.avatar,
+          ConversationRepo.title: title.isNotEmpty ? title : existing.title,
+          ConversationRepo.subtitle: preview.subtitle,
+          ConversationRepo.msgType: preview.msgType,
+          ConversationRepo.lastMsgId: latest.id,
+          ConversationRepo.lastTime: latest.createdAt,
+          ConversationRepo.unreadNum: newUnreadNum,
+          ConversationRepo.isShow: 1,
+        });
+
+        // 重新获取更新后的会话
+        conv = (await conversationRepo.findById(existing.id)) ?? existing;
+        iPrint("更新会话: ${conv.toJson()}, 新增未读数: ${agg.unreadDelta}, 总未读数: $newUnreadNum");
       }
 
-      eventBus.fire(conv);
-      if (conversationLogic != null && agg.unreadDelta > 0) {
-        await conversationLogic.increaseConversationRemind(conv, agg.unreadDelta);
+      // 触发会话列表刷新 - 多重保障
+      eventBus.fire(conv); // 全局事件
+
+      // 更新会话逻辑中的内存映射
+      if (conversationLogic != null) {
+        await conversationLogic.replace(conv);
+
+        // 更新未读数
+        if (agg.unreadDelta > 0) {
+          await conversationLogic.increaseConversationRemind(conv, agg.unreadDelta);
+        }
+
+        iPrint("已更新会话列表: ${conv.uk3}, 未读数增加: ${agg.unreadDelta}");
       }
     }
 
