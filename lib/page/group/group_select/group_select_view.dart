@@ -30,13 +30,13 @@ class GroupSelectPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
-        title: 'select_group'.tr,
+        title: 'selectGroup'.tr,
         automaticallyImplyLeading: true,
       ),
       body: SingleChildScrollView(
         child: Obx(() {
           return state.items.isEmpty
-              ? NoDataView(text: 'no_data'.tr)
+              ? NoDataView(text: 'noData'.tr)
               : ListView.builder(
             shrinkWrap: true,
             itemCount: state.items.length,

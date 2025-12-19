@@ -40,7 +40,7 @@ class SelectRegionPage extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'set_param'.trArgs(['region'.tr]),
+                'setParam'.trArgs(['region'.tr]),
                 textAlign: TextAlign.center,
                 // style: AppStyle.navAppBarTitleStyle,
               ),
@@ -48,7 +48,7 @@ class SelectRegionPage extends StatelessWidget {
             ),
             Obx(
               () => RoundedElevatedButton(
-                  text: 'button_accomplish'.tr,
+                  text: 'buttonAccomplish'.tr,
                   highlighted: logic.valueChanged.isTrue,
                   onPressed: () async {
                     var nav = Navigator.of(context);

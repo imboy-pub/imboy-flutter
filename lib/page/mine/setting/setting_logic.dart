@@ -22,7 +22,7 @@ class SettingLogic extends GetxController {
   String themeTypeTips() {
     int themeType = StorageService.to.getInt(Keys.themeType) ?? 0;
     if (themeType == 2) {
-      return 'follow_system'.tr;
+      return 'followSystem'.tr;
     } else if (themeType == 1) {
       return 'on'.tr;
     } else if (themeType == 0) {
@@ -55,7 +55,7 @@ class SettingLogic extends GetxController {
             actions: <Widget>[
               TextButton(
                 child: Text(
-                  'button_confirm'.tr,
+                  'buttonConfirm'.tr,
                   // style: TextStyle(
                   //   color: ThemeManager.instance.getThemeColor('textPrimary'),
                   // ),

@@ -23,7 +23,7 @@ class PeopleInfoSameGroupPage extends StatelessWidget {
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'mutual_groups_with_her'.tr,
+        title: 'mutualGroupsWithHer'.tr,
       ),
       body: Column(
         mainAxisSize: MainAxisSize.min,
@@ -34,7 +34,7 @@ class PeopleInfoSameGroupPage extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 10),
                 child: SlidableAutoCloseBehavior(
                   child: groupList.isEmpty
-                      ? NoDataView(text: 'no_data'.tr)
+                      ? NoDataView(text: 'noData'.tr)
                       : ListView.builder(
                     shrinkWrap: true,
                     itemCount: groupList.length,
@@ -93,7 +93,7 @@ class PeopleInfoSameGroupPage extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.only(top: 8, bottom: 8),
-            child: Text('num_unit'.trArgs(['${groupList.length}'])),
+            child: Text('numUnit'.trArgs(['${groupList.length}'])),
           ),
         ],
       ),

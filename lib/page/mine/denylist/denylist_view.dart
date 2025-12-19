@@ -209,7 +209,7 @@ class DenylistPage extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            'denylist_empty'.tr,
+            'denylistEmpty'.tr,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -218,7 +218,7 @@ class DenylistPage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'denylist_empty_desc'.tr,
+            'denylistEmptyDesc'.tr,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -257,7 +257,7 @@ class DenylistPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'denylist_note_title'.tr,
+                  'denylistNoteTitle'.tr,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -266,7 +266,7 @@ class DenylistPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'denylist_note_desc'.tr,
+                  'denylistNoteDesc'.tr,
                   style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -305,7 +305,7 @@ class DenylistPage extends StatelessWidget {
               context,
               searchLabel: 'search'.tr,
               hintText: 'search'.tr,
-              queryTips: 'search_friends_tips'.tr,
+              queryTips: 'searchFriendsTips'.tr,
               doSearch: ((query) {
                 return UserDenylistRepo().search(kwd: query);
               }),

@@ -594,7 +594,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             duration: const Duration(milliseconds: 200),
             opacity: 1.0,
             child: Text(
-              'chat_hold_down_talk'.tr,
+              'chatHoldDownTalk'.tr,
               style: TextStyle(
                 color: ThemeManager.instance.getThemeColor('primary'),
                 fontSize: ThemeManager.instance.getFontSize(FontSizeType.medium),

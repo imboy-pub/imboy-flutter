@@ -108,7 +108,7 @@ class WebRTCMessageBuilder extends StatelessWidget {
     } else if (state == 2) {
       title = 'unanswered'.tr; // 发送者收到未应答
     } else if (state == 3) {
-      title = 'peer_has_hung_up'.tr;
+      title = 'peerHasHungUp'.tr;
     } else if (state == 4) {
       title = 'cancelled'.tr;
     } else if (state == 5) {
@@ -116,7 +116,7 @@ class WebRTCMessageBuilder extends StatelessWidget {
     }
 
     if (title.isEmpty && callCuration.isNotEmpty) {
-      title = "${'call_duration'.tr} $callCuration";
+      title = "${'callDuration'.tr} $callCuration";
     }
     // iPrint("message_webrtc_builder $title; $state; $customType;");
     if (title.isEmpty) {

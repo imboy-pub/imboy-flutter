@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:get/get.dart';
 import 'package:imboy/service/message.dart';
 import 'package:xid/xid.dart';
@@ -41,6 +42,12 @@ class MessageActions extends GetxService {
     
     try {
       switch (action) {
+        case 'message_read':
+          await _handleReadAction(data);
+          break;
+        case 'message_reaction':
+          await _handleReactionAction(data);
+          break;
         case 'message_revoke':
           await _handleRevokeAction(data, isAck: false);
           break;
@@ -59,6 +66,97 @@ class MessageActions extends GetxService {
     } catch (e) {
       iPrint('处理action消息异常: $e');
     }
+  }
+
+  Future<void> _handleReadAction(Map data) async {
+    try {
+      final msgType = data['type'] as String? ?? '';
+      final msgId = data['id'] as String? ?? '';
+      final payload = (data['payload'] as Map?)?.cast<String, dynamic>() ?? {};
+      final fromId = data['from'] as String? ?? '';
+      final currentUid = UserRepoLocal.to.currentUid;
+
+      if (fromId == currentUid) return;
+
+      final idsRaw = payload['msg_ids'];
+      final ids = idsRaw is List ? idsRaw.map((e) => e.toString()).toList() : <String>[];
+      if (ids.isEmpty) {
+        MessageService.to.sendAckMsg(msgType, msgId);
+        return;
+      }
+
+      final repo = MessageService.to.getMessageRepo(msgType);
+      final updated = <Message>[];
+      for (final id in ids) {
+        final m = await MessageService.to.updateStatus(repo, id, IMBoyMessageStatus.seen);
+        if (m != null) {
+          updated.add(await m.toTypeMessage());
+        }
+      }
+      if (updated.isNotEmpty) {
+        eventBus.fire(updated);
+      }
+
+      MessageService.to.sendAckMsg(msgType, msgId);
+    } catch (_) {}
+  }
+
+  Future<void> _handleReactionAction(Map data) async {
+    try {
+      final msgType = data['type'] as String? ?? '';
+      final msgId = data['id'] as String? ?? '';
+      final payload = (data['payload'] as Map?)?.cast<String, dynamic>() ?? {};
+
+      final originalMsgId = payload['original_msg_id']?.toString() ?? '';
+      final emoji = payload['emoji']?.toString() ?? '';
+      final op = payload['op']?.toString() ?? '';
+      final reactorId = payload['user_id']?.toString() ?? data['from']?.toString() ?? '';
+
+      if (originalMsgId.isEmpty || emoji.isEmpty || reactorId.isEmpty) {
+        MessageService.to.sendAckMsg(msgType, msgId);
+        return;
+      }
+
+      final repo = MessageService.to.getMessageRepo(msgType);
+      final msg = await repo.find(originalMsgId);
+      if (msg == null) {
+        MessageService.to.sendAckMsg(msgType, msgId);
+        return;
+      }
+
+      final newPayload = Map<String, dynamic>.from(msg.payload);
+      final reactionsRaw = newPayload['reactions'];
+      final reactions = reactionsRaw is Map ? reactionsRaw.cast<String, dynamic>() : <String, dynamic>{};
+      final usersRaw = reactions[emoji];
+      final users = usersRaw is List ? usersRaw.map((e) => e.toString()).toList() : <String>[];
+
+      if (op == 'remove') {
+        users.removeWhere((e) => e == reactorId);
+        if (users.isEmpty) {
+          reactions.remove(emoji);
+        } else {
+          reactions[emoji] = users;
+        }
+      } else {
+        if (!users.contains(reactorId)) {
+          users.add(reactorId);
+        }
+        reactions[emoji] = users;
+      }
+
+      newPayload['reactions'] = reactions;
+      await repo.update({
+        'id': originalMsgId,
+        'payload': json.encode(newPayload),
+      });
+
+      final updated = await repo.find(originalMsgId);
+      if (updated != null) {
+        eventBus.fire([await updated.toTypeMessage()]);
+      }
+
+      MessageService.to.sendAckMsg(msgType, msgId);
+    } catch (_) {}
   }
 
   /// Handle revoke action messages

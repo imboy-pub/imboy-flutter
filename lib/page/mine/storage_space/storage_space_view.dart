@@ -21,7 +21,7 @@ class StorageSpacePage extends StatelessWidget {
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'storage_space'.tr,
+        title: 'storageSpace'.tr,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -114,16 +114,16 @@ class StorageSpacePage extends StatelessWidget {
             children: [
               _buildLegendItem(
                 Colors.green,
-                '$appName${'used_space'.tr}${formatBytes(state.appAllBytes.value, num: 1000)}',
+                '$appName${'usedSpace'.tr}${formatBytes(state.appAllBytes.value, num: 1000)}',
               ),
               _buildLegendItem(
                 Colors.amber,
-                'device_used_space'.tr +
+                'deviceUsedSpace'.tr +
                     formatBytes(state.usedDiskSpace.value, num: 1000),
               ),
               _buildLegendItem(
                 Colors.grey,
-                'device_available_space'.tr +
+                'deviceAvailableSpace'.tr +
                     formatBytes(state.freeDiskSpace.value, num: 1000),
               ),
             ],
@@ -149,13 +149,13 @@ class StorageSpacePage extends StatelessWidget {
       () => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(appName + 'used_space'.tr, style: Get.textTheme.titleMedium),
+          Text(appName + 'usedSpace'.tr, style: Get.textTheme.titleMedium),
           Text(
             formatBytes(state.appAllBytes.value, num: 1000),
             style: const TextStyle(fontSize: 38, fontWeight: FontWeight.bold),
           ),
           Text(
-            'tip_device_space'.trArgs([
+            'tipDeviceSpace'.trArgs([
               state.totalDiskSpace.value > 0
                   ? ((state.appAllBytes.value / state.totalDiskSpace.value) *
                             1000)
@@ -177,14 +177,14 @@ class StorageSpacePage extends StatelessWidget {
           _buildStorageCard(
             title: appName + 'cache'.tr,
             value: state.cacheBytes.value,
-            description: 'cache_tips'.tr,
+            description: 'cacheTips'.tr,
             action: ElevatedButton(
               onPressed: () async {
                 bool res = await logic.clearAllCache();
                 if (res) {
-                  EasyLoading.showSuccess('tip_success'.tr);
+                  EasyLoading.showSuccess('tipSuccess'.tr);
                 } else {
-                  EasyLoading.showError('tip_failed'.tr);
+                  EasyLoading.showError('tipFailed'.tr);
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -196,15 +196,15 @@ class StorageSpacePage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           _buildStorageCard(
-            title: 'user_data'.tr,
+            title: 'userData'.tr,
             value: state.dataBytes.value,
-            description: 'user_data_tips'.tr,
+            description: 'userDataTips'.tr,
           ),
           const SizedBox(height: 8),
           _buildStorageCard(
-            title: 'app_size'.tr,
+            title: 'appSize'.tr,
             value: state.appBytes.value,
-            description: 'app_size_tips'.tr,
+            description: 'appSizeTips'.tr,
           ),
         ],
       ),

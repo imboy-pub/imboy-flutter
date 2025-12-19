@@ -29,7 +29,7 @@ class FaceToFacePage extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
         title: Text(
-          'create_group_f2f'.tr,
+          'createGroupF2f'.tr,
           style: TextStyle(color: Colors.white.withValues(alpha: 0.9)),
         ),
         elevation: 0,
@@ -55,7 +55,7 @@ class FaceToFacePage extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              'create_group_f2f_tips'.tr,
+                              'createGroupF2fTips'.tr,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: Colors.white.withValues(alpha: 0.9),
                                 height: 1.4,

@@ -99,7 +99,7 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
             _buildNumberWidget(context, widget.code),
             const SizedBox(height: 8),
             Text(
-              'create_group_f2f_confirm_tips'.tr,
+              'createGroupF2fConfirmTips'.tr,
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium?.copyWith(
                 color: Colors.white.withValues(alpha: 0.85),
@@ -126,7 +126,7 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                child: Text('enter_the_group'.tr, style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.onPrimary)),
+                child: Text('enterTheGroup'.tr, style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.onPrimary)),
                 onPressed: () async {
                   EasyLoading.show(status: 'loading'.tr);
                   try {

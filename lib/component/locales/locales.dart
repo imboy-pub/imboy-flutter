@@ -58,6 +58,18 @@ String intlPhoneNumberInput(String local) {
     local = 'zh';
   } else if (local.startsWith('ru_')) {
     local = 'ru';
+  } else if (local.startsWith('fr_')) {
+    local = 'fr';
+  } else if (local.startsWith('de_')) {
+    local = 'de';
+  } else if (local.startsWith('ja_')) {
+    local = 'ja';
+  } else if (local.startsWith('ko_')) {
+    local = 'ko';
+  } else if (local.startsWith('ar_')) {
+    local = 'ar';
+  } else if (local.startsWith('it_')) {
+    local = 'it';
   }
   iPrint('intlPhoneNumberInput 2 $local');
   return local;
@@ -87,6 +99,12 @@ String jiffyLocal(String local) {
   // 'zh_tw': ZhTwLocale(),
   // ...
   // 'ru': RuLocale(),
+  // 'fr': FrLocale(),
+  // 'de': DeLocale(),
+  // 'ja': JaLocale(),
+  // 'ko': KoLocale(),
+  // 'ar': ArLocale(),
+  // 'it': ItLocale(),
 
   if (local.startsWith('zh_Hans') || local.startsWith('zh-Hans')) { // Hans：代表简体中文（Simplified Chinese）
     local = 'zh_CN';
@@ -94,6 +112,18 @@ String jiffyLocal(String local) {
     local = 'zh_Hant';
   } else if (local.startsWith('ru_')) {
     local = 'ru';
+  } else if (local.startsWith('fr_')) {
+    local = 'fr';
+  } else if (local.startsWith('de_')) {
+    local = 'de';
+  } else if (local.startsWith('ja_')) {
+    local = 'ja';
+  } else if (local.startsWith('ko_')) {
+    local = 'ko';
+  } else if (local.startsWith('ar_')) {
+    local = 'ar';
+  } else if (local.startsWith('it_')) {
+    local = 'it';
   }
   return local;
 }

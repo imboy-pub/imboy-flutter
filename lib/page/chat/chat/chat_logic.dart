@@ -34,6 +34,8 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:xid/xid.dart';
 
 import 'chat_state.dart';
 
@@ -47,6 +49,10 @@ class ChatLogic extends GetxController {
   StreamSubscription<PlayerState>? _playerStateSubscription; // 播放状态监听
   StreamSubscription<int>? _positionSubscription; // 播放位置监听
   bool _isDisposed = false; // 添加状态跟踪标志
+  static const String _spPendingReadReceiptsKey = 'imboy.pending_read_receipts.v1';
+  static const String _spPendingReactionsKey = 'imboy.pending_reactions.v1';
+  Timer? _readReceiptFlushTimer;
+  Worker? _onlineWorker;
   
   // 备用音频播放器相关字段
   just_audio.AudioPlayer? _audioPlayer; // 备用音频播放器
@@ -57,6 +63,12 @@ class ChatLogic extends GetxController {
   void onInit() {
     super.onInit();
     initState();
+    _onlineWorker = ever(MessageService.to.isOnline, (bool online) {
+      if (online) {
+        flushPendingReadReceipts();
+        flushPendingReactions();
+      }
+    });
   }
 
   
@@ -103,6 +115,8 @@ class ChatLogic extends GetxController {
   void onClose() {
     // 设置释放标志
     _isDisposed = true;
+    _readReceiptFlushTimer?.cancel();
+    _onlineWorker?.dispose();
     
     // 清理资源
     _positionSubscription?.cancel();
@@ -128,7 +142,7 @@ class ChatLogic extends GetxController {
 
   /// 获取群组标题，格式为"群组名称(人数)"
   Future<String> groupTitle(String gid, String prefix, int num) async {
-    String prefix2 = strNoEmpty(prefix) ? prefix : 'group_chat'.tr;
+    String prefix2 = strNoEmpty(prefix) ? prefix : 'groupChat'.tr;
     if (num > 0) {
       return "$prefix2($num)";
     } else {
@@ -636,7 +650,9 @@ class ChatLogic extends GetxController {
       String type,
       String peerId,
       List<String> msgIds,
-      ) async {
+      {
+        bool syncToServer = true,
+      }) async {
     Database? db = await SqliteService.to.db;
     if (db == null) {
       return false;
@@ -683,18 +699,186 @@ class ChatLogic extends GetxController {
       ConversationLogic conversationLogic = Get.find<ConversationLogic>();
       await conversationLogic.advanceReadWatermarkByMsgIds(c, msgIds);
       conversationLogic.replace(c);
+      await _emitUpdatedMessagesAfterStatusChange(type, msgIds);
+      if (syncToServer) {
+        await enqueueReadReceipt(type: type, peerId: peerId, msgIds: msgIds);
+      }
       return true;
     } else {
       return false;
     }
   }
 
+  Future<void> _emitUpdatedMessagesAfterStatusChange(String type, List<String> msgIds) async {
+    if (msgIds.isEmpty) return;
+    try {
+      final repo = MessageService.to.getMessageRepo(type);
+      final updated = <Message>[];
+      for (final id in msgIds) {
+        final m = await repo.find(id);
+        if (m == null) continue;
+        updated.add(await m.toTypeMessage());
+      }
+      if (updated.isNotEmpty) {
+        eventBus.fire(updated);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> enqueueReadReceipt({
+    required String type,
+    required String peerId,
+    required List<String> msgIds,
+  }) async {
+    if (msgIds.isEmpty) return;
+    final now = DateTimeHelper.millisecond();
+    final item = <String, dynamic>{
+      'id': Xid().toString(),
+      'type': type,
+      'from': UserRepoLocal.to.currentUid,
+      'to': peerId,
+      'payload': {
+        'msg_type': 'custom',
+        'action': 'message_read',
+        'msg_ids': msgIds,
+        'read_at': now,
+      },
+      'created_at': now,
+    };
+    await _enqueuePending(_spPendingReadReceiptsKey, item);
+    _readReceiptFlushTimer?.cancel();
+    _readReceiptFlushTimer = Timer(const Duration(milliseconds: 300), () {
+      flushPendingReadReceipts();
+    });
+  }
+
+  Future<void> flushPendingReadReceipts() async {
+    await _flushPending(_spPendingReadReceiptsKey);
+  }
+
+  Future<void> enqueueReactionAction(Map<String, dynamic> actionMessage) async {
+    await _enqueuePending(_spPendingReactionsKey, actionMessage);
+    await flushPendingReactions();
+  }
+
+  Future<void> flushPendingReactions() async {
+    await _flushPending(_spPendingReactionsKey);
+  }
+
+  Future<void> _enqueuePending(String key, Map<String, dynamic> item) async {
+    try {
+      final sp = await SharedPreferences.getInstance();
+      final raw = sp.getString(key);
+      final list = raw == null
+          ? <dynamic>[]
+          : (jsonDecode(raw) is List ? (jsonDecode(raw) as List) : <dynamic>[]);
+      list.add(item);
+      await sp.setString(key, jsonEncode(list));
+    } catch (_) {}
+  }
+
+  Future<void> _flushPending(String key) async {
+    if (!MessageService.to.isOnline.value) return;
+    try {
+      final sp = await SharedPreferences.getInstance();
+      final raw = sp.getString(key);
+      if (raw == null || raw.isEmpty) return;
+      final decoded = jsonDecode(raw);
+      if (decoded is! List) return;
+      final items = decoded.cast<dynamic>().toList();
+      if (items.isEmpty) return;
+
+      final remaining = <dynamic>[];
+      for (final it in items) {
+        if (it is! Map) continue;
+        final map = it.cast<String, dynamic>();
+        final messageId = map['id']?.toString() ?? Xid().toString();
+        final ok = await WebSocketService.to.sendMessage(json.encode(map), messageId);
+        if (!ok) {
+          remaining.add(map);
+        }
+      }
+      await sp.setString(key, jsonEncode(remaining));
+    } catch (_) {}
+  }
+
+  Future<bool?> toggleReaction({
+    required String chatType,
+    required String peerId,
+    required String messageId,
+    required String emoji,
+  }) async {
+    try {
+      final repo = MessageService.to.getMessageRepo(chatType);
+      final msg = await repo.find(messageId);
+      if (msg == null) return null;
+      final currentUid = UserRepoLocal.to.currentUid;
+
+      final newPayload = Map<String, dynamic>.from(msg.payload);
+      final reactionsRaw = newPayload['reactions'];
+      final reactions = reactionsRaw is Map ? reactionsRaw.cast<String, dynamic>() : <String, dynamic>{};
+      final usersRaw = reactions[emoji];
+      final users = usersRaw is List ? usersRaw.map((e) => e.toString()).toList() : <String>[];
+
+      final bool isAdd;
+      if (users.contains(currentUid)) {
+        users.removeWhere((e) => e == currentUid);
+        if (users.isEmpty) {
+          reactions.remove(emoji);
+        } else {
+          reactions[emoji] = users;
+        }
+        isAdd = false;
+      } else {
+        users.add(currentUid);
+        reactions[emoji] = users;
+        isAdd = true;
+      }
+
+      newPayload['reactions'] = reactions;
+      await repo.update({
+        'id': messageId,
+        'payload': json.encode(newPayload),
+      });
+
+      final updatedMsg = await repo.find(messageId);
+      if (updatedMsg != null) {
+        eventBus.fire([await updatedMsg.toTypeMessage()]);
+      }
+
+      final now = DateTimeHelper.millisecond();
+      final actionMessage = <String, dynamic>{
+        'id': Xid().toString(),
+        'type': chatType,
+        'from': currentUid,
+        'to': peerId,
+        'payload': {
+          'msg_type': 'custom',
+          'action': 'message_reaction',
+          'original_msg_id': messageId,
+          'emoji': emoji,
+          'op': isAdd ? 'add' : 'remove',
+          'user_id': currentUid,
+          'reacted_at': now,
+        },
+        'created_at': now,
+      };
+      final ok = await WebSocketService.to.sendMessage(json.encode(actionMessage), actionMessage['id']);
+      if (!ok) {
+        await enqueueReactionAction(actionMessage);
+      }
+      return isAdd;
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// 解析系统提示信息
   String parseSysPrompt(String sysPrompt) {
     if (sysPrompt == 'in_denylist') {
-      sysPrompt = 'send_msg_rejected'.tr;
+      sysPrompt = 'sendMsgRejected'.tr;
     } else if (sysPrompt == 'not_a_friend') {
-      sysPrompt = 'send_msg_not_friend_tips'.tr;
+      sysPrompt = 'sendMsgNotFriendTips'.tr;
     }
     return sysPrompt;
   }
@@ -747,7 +931,7 @@ class ChatLogic extends GetxController {
     // 添加复制菜单项
     if (canCopy) {
       items.add(popupmenu.MenuItem(
-        title: 'button_copy'.tr,
+        title: 'buttonCopy'.tr,
         userInfo: {"id": "copy", "msg": message},
         textAlign: TextAlign.center,
         // textStyle: TextStyle(
@@ -777,7 +961,7 @@ class ChatLogic extends GetxController {
     // 添加保存菜单项
     if (canSave) {
       items.add(popupmenu.MenuItem(
-        title: 'button_save'.tr,
+        title: 'buttonSave'.tr,
         userInfo: {"id": "save", "msg": message},
         textAlign: TextAlign.center,
         textStyle: const TextStyle(
@@ -866,7 +1050,7 @@ class ChatLogic extends GetxController {
 
     // 添加删除菜单项
     items.add(popupmenu.MenuItem(
-      title: 'button_delete'.tr,
+      title: 'buttonDelete'.tr,
       userInfo: {"id": "delete", "msg": message},
       textAlign: TextAlign.center,
       textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
@@ -897,7 +1081,7 @@ class ChatLogic extends GetxController {
     );
 
     if (path != null) {
-      EasyLoading.showToast('save_success'.tr);
+      EasyLoading.showToast('saveSuccess'.tr);
     }
   }
 

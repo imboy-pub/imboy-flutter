@@ -216,7 +216,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
           },
         ),
         title: Text(
-          "${title.isEmpty ? 'chat_message'.tr : title} ($memberCount)",
+          "${title.isEmpty ? 'chatMessage'.tr : title} ($memberCount)",
           style: ThemeManager.instance.getTextStyle(
             FontSizeType.large,
             fontWeight: FontWeight.w600,
@@ -244,7 +244,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'group_members'.tr,
+                    'groupMembers'.tr,
                     style: ThemeManager.instance.getTextStyle(
                       FontSizeType.medium,
                       fontWeight: FontWeight.w600,
@@ -306,7 +306,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                           color: Theme.of(context).colorScheme.primary,
                         ),
                         label: Text(
-                          'view_all_group_member'.tr,
+                          'viewAllGroupMember'.tr,
                           style: TextStyle(
                             fontSize: 14,
                             color: Theme.of(context).colorScheme.primary,
@@ -347,7 +347,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   // 群名称
                   _buildModernListTile(
                     context: context,
-                    title: 'group_name'.tr,
+                    title: 'groupName'.tr,
                     value: title.isEmpty ? 'unnamed'.tr : title,
                     icon: Icons.group_outlined,
                     onTap: () async {
@@ -355,8 +355,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                       Get.to(
                         () => ChangeInfoPage(
                           group: group,
-                          title: 'change_param'.trArgs(['group_name'.tr]),
-                          subtitle: 'change_group_chat_name'.tr,
+                          title: 'changeParam'.trArgs(['groupName'.tr]),
+                          subtitle: 'changeGroupChatName'.tr,
                         ),
                         transition: Transition.rightToLeft,
                         popGesture: true,
@@ -378,7 +378,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   // 群二维码
                   _buildModernListTile(
                     context: context,
-                    title: 'group_qrcode'.tr,
+                    title: 'groupQrcode'.tr,
                     icon: Icons.qr_code_2_outlined,
                     onTap: () async {
                       GroupModel group = (await logic.find(widget.groupId))!;
@@ -396,7 +396,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             n.ListTile(
               title: n.Row([
                 Text('群公告'.tr),
-                Text(strEmpty(groupNotification) ? 'not_set'.tr : '')
+                Text(strEmpty(groupNotification) ? 'notSet'.tr : '')
               ])
                 // 两端对齐
                 ..mainAxisAlignment = MainAxisAlignment.spaceBetween,
@@ -433,7 +433,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(child:Text('group_management'.tr)),
+                      Expanded(child:Text('groupManagement'.tr)),
                     ],
                   ),
                   trailing: navigateNextIcon,
@@ -488,7 +488,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               ),
               child: _buildModernListTile(
                 context: context,
-                title: 'search_chat_content'.tr,
+                title: 'searchChatContent'.tr,
                 icon: Icons.search_outlined,
                 onTap: () {
                   Get.to(
@@ -515,7 +515,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('message_mute'.tr),
+                  Text('messageMute'.tr),
                 ],
               ),
               trailing: CupertinoSwitch(
@@ -544,7 +544,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('pin_chat'.tr),
+                  Text('pinChat'.tr),
                 ],
               ),
               trailing: CupertinoSwitch(
@@ -573,7 +573,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('group_add_local'.tr),
+                  Text('groupAddLocal'.tr),
                 ],
               ),
               trailing: CupertinoSwitch(
@@ -612,7 +612,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               ),
               child: _buildModernListTile(
                 context: context,
-                title: 'group_alias'.tr,
+                title: 'groupAlias'.tr,
                 value: strEmpty(myGroupAlias) ? UserRepoLocal.to.current.nickname.tr : '',
                 icon: Icons.edit_note_outlined,
                 onTap: () {
@@ -626,7 +626,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               color: Theme.of(Get.context!).colorScheme.onPrimary,
             ),
 
-            // GroupItem(title: 'set_chat_background'.tr),
+            // GroupItem(title: 'setChatBackground'.tr),
 
             // HorizontalLine(
             //   height: 10,
@@ -653,25 +653,25 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                   // 清空聊天记录
                   _buildModernListTile(
                     context: context,
-                    title: 'clear_chat_record'.tr,
+                    title: 'clearChatRecord'.tr,
                     icon: Icons.delete_sweep_outlined,
                     onTap: () {
-                      String tips = 'confirm_delete_chat_record'.tr;
+                      String tips = 'confirmDeleteChatRecord'.tr;
                       EasyDialog.showWarning(
                         context: context,
                         title: 'warning'.tr,
                         content: Text(tips),
-                        confirmText: 'button_confirm'.tr,
-                        cancelText: 'button_cancel'.tr,
+                        confirmText: 'buttonConfirm'.tr,
+                        cancelText: 'buttonCancel'.tr,
                         onConfirm: () async {
                           int cid = await logic.cleanMessageByPeerId('C2G', widget.groupId);
                           if (cid > 0) {
                             backDoRefresh = true;
                             await Get.find<ConversationLogic>().hideConversation(cid);
                             await Get.find<ConversationLogic>().conversationsList();
-                            EasyLoading.showSuccess('tip_success'.tr);
+                            EasyLoading.showSuccess('tipSuccess'.tr);
                           } else {
-                            EasyLoading.showError('tip_failed'.tr);
+                            EasyLoading.showError('tipFailed'.tr);
                           }
                         },
                       );
@@ -728,14 +728,14 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 ),
                 child: ElevatedButton(
                   onPressed: () {
-                    String tips = "${role == 4 ? 'sure_to_dissolve_group'.tr : 'sure_to_leave_group'.tr}\n${'sure_delete_group_chat_record'.tr}";
+                    String tips = "${role == 4 ? 'sureToDissolveGroup'.tr : 'sureToLeaveGroup'.tr}\n${'sureDeleteGroupChatRecord'.tr}";
 
                     EasyDialog.showWarning(
                       context: context,
-                      title: 'tip_tips'.tr,
+                      title: 'tipTips'.tr,
                       content: Text(tips),
-                      confirmText: 'button_confirm'.tr,
-                      cancelText: 'button_cancel'.tr,
+                      confirmText: 'buttonConfirm'.tr,
+                      cancelText: 'buttonCancel'.tr,
                       onConfirm: () async {
                         var nav = Navigator.of(context);
                         bool res = false;
@@ -745,7 +745,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                           res = await logic.leave(widget.groupId);
                         }
                         if (res) {
-                          EasyLoading.showSuccess('tip_success'.tr);
+                          EasyLoading.showSuccess('tipSuccess'.tr);
                           Get.close();
                           nav.pop();
                           nav.pop();
@@ -762,7 +762,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                     ),
                   ),
                   child: Text(
-                    role == 4 ? 'group_dissolve'.tr : 'group_leave'.tr,
+                    role == 4 ? 'groupDissolve'.tr : 'groupLeave'.tr,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                       fontWeight: FontWeight.w600,

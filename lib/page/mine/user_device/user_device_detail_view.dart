@@ -31,7 +31,7 @@ class UserDeviceDetailPage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'device_details'.tr,
+        title: 'deviceDetails'.tr,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -188,7 +188,7 @@ class UserDeviceDetailPage extends StatelessWidget {
             () => _buildDetailItem(
               context,
               icon: Icons.edit_outlined,
-              title: 'device_name'.tr,
+              title: 'deviceName'.tr,
               value: state.deviceName.value,
               onTap: () => _editDeviceName(context),
               showArrow: true,
@@ -201,7 +201,7 @@ class UserDeviceDetailPage extends StatelessWidget {
           _buildDetailItem(
             context,
             icon: Icons.devices_outlined,
-            title: 'device_type'.tr,
+            title: 'deviceType'.tr,
             value: model.showType,
           ),
 
@@ -211,7 +211,7 @@ class UserDeviceDetailPage extends StatelessWidget {
           _buildDetailItem(
             context,
             icon: Icons.access_time_outlined,
-            title: 'last_active_time'.tr,
+            title: 'lastActiveTime'.tr,
             value: _formatLastActiveTime(),
           ),
         ],
@@ -314,7 +314,7 @@ class UserDeviceDetailPage extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'last_active_tips'.tr,
+              'lastActiveTips'.tr,
               style: TextStyle(
                 color: Theme.of(
                   context,
@@ -335,7 +335,7 @@ class UserDeviceDetailPage extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: () => _showDeleteDialog(context),
         icon: const Icon(Icons.delete_outline),
-        label: Text('delete_this_device'.tr),
+        label: Text('deleteThisDevice'.tr),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.lightError.withValues(alpha: 0.1),
           foregroundColor: AppColors.lightError,
@@ -397,7 +397,7 @@ class UserDeviceDetailPage extends StatelessWidget {
                           TextButton(
                             onPressed: () => Navigator.of(ctx).pop(false),
                             child: Text(
-                              'button_cancel'.tr,
+                              'buttonCancel'.tr,
                               style: TextStyle(
                                 color: Theme.of(
                                   context,
@@ -502,7 +502,7 @@ class UserDeviceDetailPage extends StatelessWidget {
   void _editDeviceName(BuildContext context) {
     Get.to(
       () => ChangeNamePage(
-        title: 'set_param'.trArgs(['device_name'.tr]),
+        title: 'setParam'.trArgs(['deviceName'.tr]),
         value: model.deviceName,
         field: 'input',
         callback: (newName) async {
@@ -543,13 +543,13 @@ class UserDeviceDetailPage extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Text(
-              'delete_this_device'.tr,
+              'deleteThisDevice'.tr,
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ],
         ),
         content: Text(
-          'delete_this_device_tips'.tr,
+          'deleteThisDeviceTips'.tr,
           style: TextStyle(
             color: Theme.of(
               context,
@@ -561,7 +561,7 @@ class UserDeviceDetailPage extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'button_cancel'.tr,
+              'buttonCancel'.tr,
               style: TextStyle(
                 color: Theme.of(
                   context,
@@ -590,7 +590,7 @@ class UserDeviceDetailPage extends StatelessWidget {
                 ),
               ),
             ),
-            child: Text('button_delete'.tr),
+            child: Text('buttonDelete'.tr),
           ),
         ],
       ),
@@ -608,14 +608,14 @@ class UserDeviceDetailPage extends StatelessWidget {
 
       if (res) {
         state.deviceList.removeWhere((e) => e.deviceId == model.deviceId);
-        EasyLoading.showSuccess('tip_success'.tr);
+        EasyLoading.showSuccess('tipSuccess'.tr);
         Get.back(); // 返回设备列表页
       } else {
-        EasyLoading.showError('tip_failed'.tr);
+        EasyLoading.showError('tipFailed'.tr);
       }
     } catch (e) {
       EasyLoading.dismiss();
-      EasyLoading.showError('tip_failed'.tr);
+      EasyLoading.showError('tipFailed'.tr);
     }
   }
 }

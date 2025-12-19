@@ -53,7 +53,7 @@ class ChangeNamePage extends StatelessWidget {
             ),
             Obx(
                   () => RoundedElevatedButton(
-                  text: 'button_accomplish'.tr,
+                  text: 'buttonAccomplish'.tr,
                   highlighted: valueChanged.isTrue,
                   onPressed: () async {
                     if (field == "input") {

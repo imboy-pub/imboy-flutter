@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'dart:async';
 
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -45,8 +46,8 @@ class MessageService extends GetxService {
 
   final MessageActions _messageActions = MessageActions.to;
 
-
-  final ConversationLogic _conversationLogic = Get.find();
+  // 懒加载 ConversationLogic 实例
+  ConversationLogic get _conversationLogic => Get.find<ConversationLogic>();
 
   // 缓存常用仓库实例，避免重复 new。
   // Cache repository instances to avoid repeated instantiation.
@@ -74,8 +75,14 @@ class MessageService extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    // 启动网络状态监控
-    initNetworkMonitoring();
+
+    // 延迟初始化网络监控，避免在服务注册阶段访问其他服务
+    // Delay network monitoring initialization to avoid accessing services during registration phase
+    Future.microtask(() {
+      if (Get.isRegistered<WebSocketService>()) {
+        initNetworkMonitoring();
+      }
+    });
 
     // 所有子模块现在都在 init.dart 中使用 lazyPut 注册
     // All sub-modules are now registered using lazyPut in init.dart

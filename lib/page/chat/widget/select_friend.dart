@@ -100,7 +100,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
 
   void sendToDialog(ContactModel model) {
     Get.defaultDialog(
-      title: 'send_to'.tr,
+      title: 'sendTo'.tr,
       backgroundColor: Get.isDarkMode
           ? const Color.fromRGBO(80, 80, 80, 1)
           : const Color.fromRGBO(240, 240, 240, 1),
@@ -110,7 +110,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
           Get.close();
         },
         child: Text(
-          'button_cancel'.tr,
+          'buttonCancel'.tr,
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onPrimary,
@@ -124,7 +124,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
           nav.pop(model);
         },
         child: Text(
-          'button_send'.tr,
+          'buttonSend'.tr,
           textAlign: TextAlign.center,
           style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
         ),
@@ -184,8 +184,8 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
               child: Text(
                 // visit_card
                 widget.peerIsReceiver
-                    ? "[${'personal_card'.tr}]${widget.peer['nickname']}"
-                    : "[${'personal_card'.tr}]${model.nickname}",
+                    ? "[${'personalCard'.tr}]${widget.peer['nickname']}"
+                    : "[${'personalCard'.tr}]${model.nickname}",
                 style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
               ),
             ),
@@ -253,7 +253,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: NavAppBar(
-        title: 'select_friends'.tr,
+        title: 'selectFriends'.tr,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: InkWell(
@@ -271,10 +271,10 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
         //     ),
         //     onTap: () {
         //       if (!listNoEmpty(selects)) {
-        //         Get.snackbar('', 'please_select_members_for_add'.tr);
+        //         Get.snackbar('', 'pleaseSelectMembersForAdd'.tr);
         //       }
         //     },
-        //     text: 'button_confirm'.tr,
+        //     text: 'buttonConfirm'.tr,
         //   ),
         // ],
       ),
@@ -287,7 +287,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
                 // 检查网络状态
                 var connectivityResult = await Connectivity().checkConnectivity();
                 if (connectivityResult.contains(ConnectivityResult.none)) {
-                  String msg = 'tip_connect_desc'.tr;
+                  String msg = 'tipConnectDesc'.tr;
                   EasyLoading.showInfo(' $msg        ');
                   return;
                 }

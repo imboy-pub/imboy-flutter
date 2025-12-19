@@ -200,7 +200,7 @@ class UserQrCodePage extends StatelessWidget {
 
                           // 提示文字
                           Text(
-                            'scan_qrcode_add_friend'.tr,
+                            'scanQrCodeAddFriend'.tr,
                             style: ThemeManager.instance.getTextStyle(
                               FontSizeType.normal,
                               color: AppColors.lightTextSecondary,
@@ -223,7 +223,7 @@ class UserQrCodePage extends StatelessWidget {
                   child: _buildActionButton(
                     context: context,
                     icon: Icons.save_alt,
-                    text: 'save_qr_code'.tr,
+                    text: 'saveQrCode'.tr,
                     onPressed: () => _saveQrCode(context, globalKey, filename),
                   ),
                 ),
@@ -382,7 +382,7 @@ class UserQrCodePage extends StatelessWidget {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.save_alt,
-                text: 'save_qr_code'.tr,
+                text: 'saveQrCode'.tr,
                 onTap: () {
                   Get.back();
                   _saveQrCode(context, globalKey, filename);
@@ -393,7 +393,7 @@ class UserQrCodePage extends StatelessWidget {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.qr_code_scanner,
-                text: 'scan_qr_code'.tr,
+                text: 'scanQrCode'.tr,
                 onTap: () {
                   Get.back();
                   Get.to(
@@ -418,7 +418,7 @@ class UserQrCodePage extends StatelessWidget {
               // 取消选项
               _buildBottomSheetItem(
                 context: context,
-                text: 'button_cancel'.tr,
+                text: 'buttonCancel'.tr,
                 onTap: () => Get.back(),
                 isCancel: true,
               ),
@@ -493,7 +493,7 @@ class UserQrCodePage extends StatelessWidget {
         final result = await SharePlus.instance.share(
           ShareParams(
             files: [XFile.fromData(res, mimeType: 'png')],
-            text: 'scan_qrcode_add_friend'.tr,
+            text: 'scanQrCodeAddFriend'.tr,
           ),
         );
         if (result.status == ShareResultStatus.success) {
@@ -520,7 +520,7 @@ class UserQrCodePage extends StatelessWidget {
           ? true
           : false;
       if (isSuccess) {
-        EasyLoading.showSuccess("save_success".tr);
+        EasyLoading.showSuccess('saveSuccess'.tr);
       }
     });
   }
@@ -626,7 +626,7 @@ class GroupQrCodePage extends StatelessWidget {
                           horizontal: ThemeManager.instance.mainSpace * 2,
                         ),
                         child: Text(
-                          "${'group_chat'.tr}: ${group.title.isEmpty ? group.computeTitle : group.title}",
+                          "${'groupChat'.tr}: ${group.title.isEmpty ? group.computeTitle : group.title}",
                           style: ThemeManager.instance.getTextStyle(
                             FontSizeType.large,
                             fontWeight: FontWeight.w600,
@@ -674,7 +674,7 @@ class GroupQrCodePage extends StatelessWidget {
                           ThemeManager.instance.mainSpace * 2,
                         ),
                         child: Text(
-                          'group_qrcode_tips'.trArgs([
+                          'groupQrcodeTips'.trArgs([
                             dayNum.toString(),
                             Jiffy.parseFromDateTime(
                               Jiffy.parseFromMillisecondsSinceEpoch(
@@ -704,7 +704,7 @@ class GroupQrCodePage extends StatelessWidget {
                   child: _buildActionButton(
                     context: context,
                     icon: Icons.save_alt,
-                    text: 'save_qr_code'.tr,
+                    text: 'saveQrCode'.tr,
                     onPressed: () => _saveGroupQrCode(context),
                   ),
                 ),
@@ -859,7 +859,7 @@ class GroupQrCodePage extends StatelessWidget {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.save_alt,
-                text: 'save_qr_code'.tr,
+                text: 'saveQrCode'.tr,
                 onTap: () {
                   Get.back();
                   _saveGroupQrCode(context);
@@ -870,7 +870,7 @@ class GroupQrCodePage extends StatelessWidget {
               _buildBottomSheetItem(
                 context: context,
                 icon: Icons.qr_code_scanner,
-                text: 'scan_qr_code'.tr,
+                text: 'scanQrCode'.tr,
                 onTap: () {
                   Get.back();
                   Get.to(
@@ -895,7 +895,7 @@ class GroupQrCodePage extends StatelessWidget {
               // 取消选项
               _buildBottomSheetItem(
                 context: context,
-                text: 'button_cancel'.tr,
+                text: 'buttonCancel'.tr,
                 onTap: () => Get.back(),
                 isCancel: true,
               ),
@@ -967,7 +967,7 @@ class GroupQrCodePage extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final res = await RepaintBoundaryHelper().image(context, globalKey);
       if (res != null) {
-        final txt = 'group_qrcode_tips'.trArgs([
+        final txt = 'groupQrcodeTips'.trArgs([
           dayNum.toString(),
           Jiffy.parseFromDateTime(
             Jiffy.parseFromMillisecondsSinceEpoch(
@@ -1002,7 +1002,7 @@ class GroupQrCodePage extends StatelessWidget {
           ? true
           : false;
       if (isSuccess) {
-        EasyLoading.showSuccess("save_success".tr);
+        EasyLoading.showSuccess('saveSuccess'.tr);
       }
     });
   }

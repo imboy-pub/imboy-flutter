@@ -38,7 +38,7 @@ class NetworkFailureTips extends StatelessWidget {
             Expanded(
               child: Text(
                 // '当前网络不可用，请检查你的网络设置。',
-                "${'network_not_available'.tr}${'please_check_network'.tr}",
+                "${'networkNotAvailable'.tr}${'pleaseCheckNetwork'.tr}",
                 // '当前网络不可用，请检查你的网络设置。当前网络不可用，请检查你的网络设置。当前网络不可用，请检查你的网络设置。',
                 style: const TextStyle(color: Colors.red),
               ),

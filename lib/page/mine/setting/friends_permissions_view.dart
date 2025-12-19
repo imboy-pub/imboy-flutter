@@ -26,7 +26,7 @@ class FriendsPermissionsPage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: NavAppBar(
           automaticallyImplyLeading: true,
-          title: 'friend_permissions'.tr,
+          title: 'friendPermissions'.tr,
         ),
         body: SingleChildScrollView(child: Column(children: const [])));
   }

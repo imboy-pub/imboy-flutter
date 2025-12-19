@@ -76,7 +76,7 @@ class PeopleNearbyPage extends StatelessWidget {
 
           // 标题 - 居中显示
           Text(
-            'find_nearby_people'.tr,
+            'findNearbyPeople'.tr,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 18,
@@ -90,7 +90,7 @@ class PeopleNearbyPage extends StatelessWidget {
 
           // 描述文字 - 居中显示
           Text(
-            'nearby_people_tips'.tr,
+            'nearbyPeopleTips'.tr,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -163,8 +163,8 @@ class PeopleNearbyPage extends StatelessWidget {
                 child: Obx(
                   () => Text(
                     state.peopleNearbyVisible.isFalse
-                        ? 'make_yourself_visible'.tr
-                        : 'make_yourself_invisible'.tr,
+                        ? 'makeYourselfVisible'.tr
+                        : 'makeYourselfInvisible'.tr,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
@@ -472,7 +472,7 @@ class PeopleNearbyPage extends StatelessWidget {
 
               // 标题
               Text(
-                'display_profile'.tr,
+                'displayProfile'.tr,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -484,7 +484,7 @@ class PeopleNearbyPage extends StatelessWidget {
 
               // 内容
               Text(
-                'nearby_people_explain'.tr,
+                'nearbyPeopleExplain'.tr,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -509,7 +509,7 @@ class PeopleNearbyPage extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        'button_cancel'.tr,
+                        'buttonCancel'.tr,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -535,7 +535,7 @@ class PeopleNearbyPage extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        'button_confirm'.tr,
+                        'buttonConfirm'.tr,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -561,7 +561,7 @@ class PeopleNearbyPage extends StatelessWidget {
     });
 
     return Scaffold(
-      appBar: NavAppBar(title: 'people_nearby'.tr),
+      appBar: NavAppBar(title: 'peopleNearby'.tr),
       body: SlidableAutoCloseBehavior(
         child: Column(
           children: [

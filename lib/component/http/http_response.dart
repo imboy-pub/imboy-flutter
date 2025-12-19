@@ -38,7 +38,7 @@ class IMBoyHttpResponse {
       {HttpException? error, int? errCode, String? errMsg}) {
     error = error ?? UnknownException();
     code = errCode ?? 1;
-    msg = errMsg ?? 'error_unexpected'.tr;
+    msg = errMsg ?? 'errorUnexpected'.tr;
     ok = false;
   }
 }

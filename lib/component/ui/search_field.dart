@@ -166,7 +166,7 @@ class SearchField extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
             child: Text(
-              'button_cancel'.tr,
+              'buttonCancel'.tr,
               style: ThemeManager.instance.getTextStyle(
                 FontSizeType.normal,
                 color: AppColors.primaryGreen, // 使用主题主色

@@ -55,7 +55,7 @@ dependencies:
   ##############################################
   dynamic_color: ^1.7.0   # Material 3 dynamic colors
   cross_cache: any      # Cross-platform cache
-  flutter_cache_manager: ^3.4.1 # Cache management
+  #flutter_cache_manager: ^3.4.1 # Cache management
   device_info_plus: ^12.3.0
   package_info_plus: ^9.0.0 # Package information
 
@@ -70,13 +70,13 @@ dependencies:
   photo_manager: ^3.8.3   # Media management
   video_compress: ^3.1.4  # Video compression
   image_picker: ^1.2.1    # Image picker
-  file_picker: ^10.3.7    # File picker
+  file_picker: ^10.3.8    # File picker
   open_file: ^3.5.10      # File opening
   image_crop:             # Image cropping
     git:
       url: https://gitee.com/imboy-tripartite-deps/image_crop.git
       ref: leeyi
-  image: ^4.6.0           # Image manipulation
+  image: ^4.7.1           # Image manipulation
   image_gallery_saver:    # Save to gallery
     #path: plugin/image_gallery_saver
     git:
@@ -149,7 +149,7 @@ dependencies:
   # QR Code
   ##############################################
   qr_flutter: ^4.1.0      # QR code generation
-  mobile_scanner: ^7.1.3  # QR code scanning
+  mobile_scanner: ^7.1.4  # QR code scanning
 
   ##############################################
   # Utilities

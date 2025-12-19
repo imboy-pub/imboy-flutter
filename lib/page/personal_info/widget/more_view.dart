@@ -22,7 +22,7 @@ class MoreView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('more_info'.tr),
+        title: Text('moreInfo'.tr),
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -35,7 +35,7 @@ class MoreView extends StatelessWidget {
             // Padding(
             //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             //   child: Text(
-            //     'personal_info_desc'.tr,
+            //     'personalInfoDesc'.tr,
             //     style: TextStyle(
             //       fontSize: 14,
             //       color: isDark
@@ -93,7 +93,7 @@ class MoreView extends StatelessWidget {
                 title: 'signature'.tr,
                 trailing: Expanded(
                   child: Obx(() => Text(
-                        logic.sign.value.isEmpty ? 'not_filled'.tr : logic.sign.value,
+                        logic.sign.value.isEmpty ? 'notFilled'.tr : logic.sign.value,
                         style: TextStyle(
                           fontSize: 17,
                           color: logic.sign.value.isEmpty
@@ -145,7 +145,7 @@ class MoreView extends StatelessWidget {
             //       const SizedBox(width: 12),
             //       Expanded(
             //         child: Text(
-            //           'personal_info_tip'.tr,
+            //           'personalInfoTip'.tr,
             //           style: TextStyle(
             //             fontSize: 15,
             //             color: isDark ? Colors.white : const Color(0xFF1A1A1A),
@@ -278,7 +278,7 @@ class MoreView extends StatelessWidget {
 
   /// 格式化地区显示文本
   String _formatRegion(String region) {
-    if (region.isEmpty) return 'not_filled'.tr;
+    if (region.isEmpty) return 'notFilled'.tr;
 
     List<String> items = region.split(" ");
     if (items.length < 3) {
@@ -305,7 +305,7 @@ class MoreView extends StatelessWidget {
   void _handleRegionUpdate(PersonalInfoLogic logic) {
     Get.to(
       () => SetRegionPage(
-        title: 'set_param'.trArgs(['region'.tr]),
+        title: 'setParam'.trArgs(['region'.tr]),
         currentValue: logic.region.value,
         onSave: (region) async {
           bool ok = await logic.changeInfo({
@@ -330,7 +330,7 @@ class MoreView extends StatelessWidget {
   void _handleSignatureUpdate(PersonalInfoLogic logic) {
     Get.to(
       () => UpdatePage(
-        title: 'set_param'.trArgs(['signature'.tr]),
+        title: 'setParam'.trArgs(['signature'.tr]),
         value: UserRepoLocal.to.current.sign,
         field: 'text',
         callback: (sign) async {

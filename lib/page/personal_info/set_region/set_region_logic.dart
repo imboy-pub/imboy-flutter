@@ -959,7 +959,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
                       } else {
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('operation_failed_again_later'.tr)),
+                            SnackBar(content: Text('operationFailedAgainLater'.tr)),
                           );
                           logic.revertToInitial();
                         }
@@ -967,7 +967,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
                     }
                   : null,
               child: Text(
-                'button_accomplish'.tr,
+                'buttonAccomplish'.tr,
                 style: TextStyle(
                   color: enable
                       ? Theme.of(context).colorScheme.primary
@@ -991,15 +991,15 @@ class _SubRegionPageState extends State<_SubRegionPage> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Semantics(
-              label: '${'search_region'.tr} - ${'region_search_hint'.tr}',
-              hint: 'region_search_hint'.tr,
+              label: '${'searchRegion'.tr} - ${'regionSearchHint'.tr}',
+              hint: 'regionSearchHint'.tr,
               textField: true,
               child: TextField(
                 controller: _searchC,
                 focusNode: _searchF,
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
-                  hintText: 'region_search_hint'.tr,
+                  hintText: 'regionSearchHint'.tr,
                   prefixIcon: const Icon(Icons.search),
                   border: const OutlineInputBorder(),
                   isDense: true,
@@ -1037,10 +1037,10 @@ class _SubRegionPageState extends State<_SubRegionPage> {
                       ? '$title - ${children.length} ${'region'.tr}'
                       : title,
                   hint: hasChildren 
-                      ? '${'button_continue'.tr}${'search_region'.tr}'
+                      ? '${'buttonContinue'.tr}${'searchRegion'.tr}'
                       : selected 
                           ? '${'selected'.tr}${'region'.tr}'
-                          : '${'button_confirm'.tr}${'region'.tr}',
+                          : '${'buttonConfirm'.tr}${'region'.tr}',
                   button: true,
                   selected: selected,
                   focusable: true,
@@ -1059,7 +1059,7 @@ class _SubRegionPageState extends State<_SubRegionPage> {
                           ? Icon(
                               Icons.navigate_next, 
                               size: 20,
-                              semanticLabel: 'button_continue'.tr,
+                              semanticLabel: 'buttonContinue'.tr,
                             )
                           : (selected
                               ? Icon(

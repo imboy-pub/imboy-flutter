@@ -293,7 +293,7 @@ class AttachmentProvider {
     } else if (file is File) {
       path = file.path;
     } else {
-      throw Exception('unsupported_file_type'.tr);
+      throw Exception('unsupportedFileType'.tr);
     }
 
     String ext = path.substring(path.lastIndexOf(".") + 1, path.length);

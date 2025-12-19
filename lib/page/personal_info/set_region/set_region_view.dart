@@ -219,7 +219,7 @@ class _SetRegionPageState extends State<SetRegionPage> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'operation_failed_again_later'.tr,
+                                  'operationFailedAgainLater'.tr,
                                 ),
                               ),
                             );
@@ -233,7 +233,7 @@ class _SetRegionPageState extends State<SetRegionPage> {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      'button_accomplish'.tr,
+                      'buttonAccomplish'.tr,
                       style: ThemeManager.instance.getTextStyle(
                         FontSizeType.small,
                         fontWeight: FontWeight.w600,
@@ -280,7 +280,7 @@ class _SetRegionPageState extends State<SetRegionPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'selected_region'.tr,
+                    'selectedRegion'.tr,
                     style: ThemeManager.instance.getTextStyle(
                       FontSizeType.small,
                       color: AppColors.getTextColor(
@@ -293,7 +293,7 @@ class _SetRegionPageState extends State<SetRegionPage> {
                   Obx(
                     () => Text(
                       logic.selectedRegion.value.isEmpty
-                          ? 'please_select'.tr
+                          ? 'pleaseSelect'.tr
                           : logic.selectedRegion.value,
                       style: ThemeManager.instance.getTextStyle(
                         FontSizeType.medium,
@@ -312,8 +312,8 @@ class _SetRegionPageState extends State<SetRegionPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: Semantics(
-                label: '${'search_region'.tr} - ${'region_search_hint'.tr}',
-                hint: 'region_search_hint'.tr,
+                label: '${'searchRegion'.tr} - ${'regionSearchHint'.tr}',
+                hint: 'regionSearchHint'.tr,
                 textField: true,
                 child: TextField(
                   controller: _searchC,
@@ -323,7 +323,7 @@ class _SetRegionPageState extends State<SetRegionPage> {
                     prefixIcon: Icon(Icons.search),
                     border: OutlineInputBorder(),
                     isDense: true,
-                  ).copyWith(hintText: 'region_search_hint'.tr),
+                  ).copyWith(hintText: 'regionSearchHint'.tr),
                   onSubmitted: (_) => _onTopQueryChanged(),
                 ),
               ),
@@ -372,10 +372,10 @@ class _SetRegionPageState extends State<SetRegionPage> {
                             ? '$title - ${children.length} ${'region'.tr}'
                             : title,
                         hint: hasChildren
-                            ? '${'button_continue'.tr}${'search_region'.tr}'
+                            ? '${'buttonContinue'.tr}${'searchRegion'.tr}'
                             : isSelected
                             ? '${'selected'.tr}${'region'.tr}'
-                            : '${'button_confirm'.tr}${'region'.tr}',
+                            : '${'buttonConfirm'.tr}${'region'.tr}',
                         button: true,
                         selected: isSelected,
                         focusable: true,
@@ -454,7 +454,7 @@ class _SetRegionPageState extends State<SetRegionPage> {
                                         isSecondary: true,
                                       ),
                                       size: 20,
-                                      semanticLabel: 'button_continue'.tr,
+                                      semanticLabel: 'buttonContinue'.tr,
                                     )
                                   else if (isSelected)
                                     Icon(

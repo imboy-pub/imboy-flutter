@@ -182,7 +182,7 @@ class ExtraItemsState extends State<ExtraItems> {
               ).then((value) {
                 if (value != null) {
                   if (value["image"] == null) {
-                    EasyLoading.showError('failed_get_map_try_again'.tr);
+                    EasyLoading.showError('failedGetMapTryAgain'.tr);
                     FocusScope.of(Get.context!).requestFocus(FocusNode());
                     return;
                   }
@@ -203,13 +203,13 @@ class ExtraItemsState extends State<ExtraItems> {
           },
         ),
         ExtraItem(
-          title: 'personal_card'.tr,
+          title: 'personalCard'.tr,
           image: const Icon(Icons.person_outline, size: iconSize),
           onPressed: widget.handleVisitCardSelection,
         ),
         if (widget.type != 'C2G')
           ExtraItem(
-            title: 'voice_call'.tr,
+            title: 'voiceCall'.tr,
             image: const Icon(Icons.phone_outlined, size: iconSize),
             onPressed: () {
               openCallScreen(
@@ -225,7 +225,7 @@ class ExtraItemsState extends State<ExtraItems> {
           ),
         if (widget.type != 'C2G')
           ExtraItem(
-            title: 'video_call'.tr,
+            title: 'videoCall'.tr,
             image: const Icon(Icons.videocam_outlined, size: iconSize),
             onPressed: () {
               openCallScreen(

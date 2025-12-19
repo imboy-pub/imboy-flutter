@@ -36,7 +36,7 @@ class UserCollectDetailPage extends StatelessWidget {
       Center(
         child: TextButton(
           child: Text(
-            'forward_to_friend'.tr,
+            'forwardToFriend'.tr,
             textAlign: TextAlign.center,
             // style: TextStyle(
             //   fontSize: AppTextSize.medium,
@@ -84,7 +84,7 @@ class UserCollectDetailPage extends StatelessWidget {
                 peerId: obj.kindId,
                 peerTag: obj.tag,
                 scene: 'collect',
-                title: 'edit_tag'.tr,
+                title: 'editTag'.tr,
               ),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
@@ -99,7 +99,7 @@ class UserCollectDetailPage extends StatelessWidget {
             });
           },
           child: Text(
-            'edit_tag'.tr,
+            'editTag'.tr,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Theme.of(txt).colorScheme.onPrimary,
@@ -119,7 +119,7 @@ class UserCollectDetailPage extends StatelessWidget {
             Get.closeAllBottomSheets();
             Get.to(
               () => UpdatePage(
-                  title: 'set_param'.trArgs(['remark'.tr]),
+                  title: 'setParam'.trArgs(['remark'.tr]),
                   value: obj.remark,
                   field: 'text',
                   maxLength: 100,
@@ -144,7 +144,7 @@ class UserCollectDetailPage extends StatelessWidget {
             });
           },
           child: Text(
-            'set_param'.trArgs(['remark'.tr]),
+            'setParam'.trArgs(['remark'.tr]),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Theme.of(txt).colorScheme.onPrimary,
@@ -169,7 +169,7 @@ class UserCollectDetailPage extends StatelessWidget {
             }
           },
           child: Text(
-            'button_delete'.tr,
+            'buttonDelete'.tr,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.red,
@@ -184,7 +184,7 @@ class UserCollectDetailPage extends StatelessWidget {
         child: TextButton(
           onPressed: () => Get.close(),
           child: Text(
-            'button_cancel'.tr,
+            'buttonCancel'.tr,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Theme.of(txt).colorScheme.onPrimary,
@@ -204,7 +204,7 @@ class UserCollectDetailPage extends StatelessWidget {
         Center(
           child: TextButton(
             child: Text(
-              'button_copy'.tr,
+              'buttonCopy'.tr,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Theme.of(txt).colorScheme.onPrimary,
@@ -280,7 +280,7 @@ class UserCollectDetailPage extends StatelessWidget {
               _buildActionButton(
                 context: context,
                 icon: Icons.copy,
-                title: 'button_copy'.tr,
+                title: 'buttonCopy'.tr,
                 subtitle: '复制文本内容',
                 onTap: () async {
                   Get.closeAllBottomSheets();
@@ -297,7 +297,7 @@ class UserCollectDetailPage extends StatelessWidget {
             _buildActionButton(
               context: context,
               icon: Icons.share,
-              title: 'forward_to_friend'.tr,
+              title: 'forwardToFriend'.tr,
               subtitle: '分享给其他好友',
               onTap: () async {
                 Get.closeAllBottomSheets();
@@ -318,7 +318,7 @@ class UserCollectDetailPage extends StatelessWidget {
             _buildActionButton(
               context: context,
               icon: Icons.local_offer,
-              title: 'edit_tag'.tr,
+              title: 'editTag'.tr,
               subtitle: '为收藏添加标签',
               onTap: () {
                 Get.closeAllBottomSheets();
@@ -327,7 +327,7 @@ class UserCollectDetailPage extends StatelessWidget {
                     peerId: obj.kindId,
                     peerTag: obj.tag,
                     scene: 'collect',
-                    title: 'edit_tag'.tr,
+                    title: 'editTag'.tr,
                   ),
                   transition: Transition.rightToLeft,
                   popGesture: true,
@@ -346,13 +346,13 @@ class UserCollectDetailPage extends StatelessWidget {
             _buildActionButton(
               context: context,
               icon: Icons.edit_note,
-              title: 'set_param'.trArgs(['remark'.tr]),
+              title: 'setParam'.trArgs(['remark'.tr]),
               subtitle: '为收藏添加备注',
               onTap: () {
                 Get.closeAllBottomSheets();
                 Get.to(
                   () => UpdatePage(
-                    title: 'set_param'.trArgs(['remark'.tr]),
+                    title: 'setParam'.trArgs(['remark'.tr]),
                     value: obj.remark,
                     field: 'text',
                     maxLength: 100,
@@ -376,7 +376,7 @@ class UserCollectDetailPage extends StatelessWidget {
             _buildActionButton(
               context: context,
               icon: Icons.delete_outline,
-              title: 'button_delete'.tr,
+              title: 'buttonDelete'.tr,
               subtitle: '删除此收藏',
               onTap: () async {
                 Get.closeAllBottomSheets();
@@ -405,7 +405,7 @@ class UserCollectDetailPage extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  'button_cancel'.tr,
+                  'buttonCancel'.tr,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,

@@ -354,7 +354,7 @@ class ApplyFriendPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _msgController.text = "${'i_am'.tr} ${UserRepoLocal.to.current.nickname}";
+    _msgController.text = "${'iAm'.tr} ${UserRepoLocal.to.current.nickname}";
     _remarkController.text = remark;
 
     final theme = Theme.of(context);
@@ -364,7 +364,7 @@ class ApplyFriendPage extends StatelessWidget {
       backgroundColor: colorScheme.background,
       appBar: AppBar(
         title: Text(
-          'apply_add_friend'.tr,
+          'applyAddFriend'.tr,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -390,7 +390,7 @@ class ApplyFriendPage extends StatelessWidget {
               // 验证消息输入
               _buildInputCard(
                 context: context,
-                title: 'send_friend_request'.tr,
+                title: 'sendFriendRequest'.tr,
                 hint: '请输入验证消息',
                 controller: _msgController,
                 icon: Icons.message_outlined,
@@ -402,7 +402,7 @@ class ApplyFriendPage extends StatelessWidget {
               // 备注设置
               _buildInputCard(
                 context: context,
-                title: 'set_param'.trArgs(['remark'.tr]),
+                title: 'setParam'.trArgs(['remark'.tr]),
                 hint: '请输入备注名',
                 controller: _remarkController,
                 icon: Icons.edit_outlined,
@@ -413,7 +413,7 @@ class ApplyFriendPage extends StatelessWidget {
               _buildSettingCard(
                 context: context,
                 title: 'tags'.tr,
-                subtitle: logic.peerTag.isEmpty ? 'add_tag'.tr : logic.peerTag.value,
+                subtitle: logic.peerTag.isEmpty ? 'addTag'.tr : logic.peerTag.value,
                 icon: Icons.local_offer_outlined,
                 onTap: () {
                   Get.to(
@@ -437,11 +437,11 @@ class ApplyFriendPage extends StatelessWidget {
               // 朋友圈权限设置
               _buildOptionCard(
                 context: context,
-                title: 'set_param'.trArgs(['moment'.tr]),
+                title: 'setParam'.trArgs(['moment'.tr]),
                 icon: Icons.photo_library_outlined,
                 children: [
-                  _buildRadioOption(context, 'chat_moment_sport_data_etc'.tr, 'all', false),
-                  _buildRadioOption(context, 'just_chat'.tr, 'just_chat', true),
+                  _buildRadioOption(context, 'chatMomentSportDataEtc'.tr, 'all', false),
+                  _buildRadioOption(context, 'justChat'.tr, 'just_chat', true),
                 ],
               ),
               
@@ -449,11 +449,11 @@ class ApplyFriendPage extends StatelessWidget {
               if (logic.visibilityLook.isTrue)
                 _buildOptionCard(
                   context: context,
-                  title: 'moment_status'.tr,
+                  title: 'momentStatus'.tr,
                   icon: Icons.visibility_outlined,
                   children: [
-                    _buildSwitchOption(context, 'not_let_him_see'.tr, logic.donotlethimlook, false),
-                    _buildSwitchOption(context, 'not_see_him'.tr, logic.donotlookhim, true),
+                    _buildSwitchOption(context, 'notLetHimSee'.tr, logic.donotlethimlook, false),
+                    _buildSwitchOption(context, 'notSeeHim'.tr, logic.donotlookhim, true),
                   ],
                 ),
               
@@ -517,7 +517,7 @@ class ApplyFriendPage extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'button_send'.tr,
+                'buttonSend'.tr,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,

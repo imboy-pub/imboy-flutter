@@ -43,11 +43,11 @@ class IMBoyFeedback {
     } else if (double.parse(rating) >= 4.0) {
       return 'good'.tr;
     } else if (double.parse(rating) >= 3.0) {
-      return 'not_bad'.tr;
+      return 'notBad'.tr;
     } else if (double.parse(rating) >= 2.0) {
-      return 'need_continue_work_hard'.tr;
+      return 'needContinueWorkHard'.tr;
     } else {
-      return 'too_bad'.tr;
+      return 'tooBad'.tr;
     }
   }
 }
@@ -92,7 +92,7 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                     0,
                   ),
                   children: [
-                    Text('leave_your_suggestions'.tr),
+                    Text('leaveYourSuggestions'.tr),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -138,7 +138,7 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                             style: TextStyle(color: Colors.red),
                           ),
                         ),
-                        Text('what_your_feedback'.tr),
+                        Text('whatYourFeedback'.tr),
                       ],
                     ),
                     TextField(
@@ -158,7 +158,7 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                           _feedback.feedbackText = newFeedback,
                     ),
                     const SizedBox(height: 16),
-                    Text('your_contact_information'.tr),
+                    Text('yourContactInformation'.tr),
                     TextField(
                       decoration: const InputDecoration(
                         filled: true,
@@ -173,7 +173,7 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                       onChanged: (val) => _feedback.contactDetail = val,
                     ),
                     const SizedBox(height: 16),
-                    Text('your_feel'.tr),
+                    Text('yourFeel'.tr),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Row(
@@ -219,7 +219,7 @@ class _IMBoyFeedbackFormState extends State<IMBoyFeedbackForm> {
                     );
                   }
                 : null,
-            child: Text('button_submit'.tr),
+            child: Text('buttonSubmit'.tr),
           ),
           const SizedBox(height: 4),
         ],

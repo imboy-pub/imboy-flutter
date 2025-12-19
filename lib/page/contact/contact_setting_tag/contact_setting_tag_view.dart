@@ -47,7 +47,7 @@ class ContactSettingTagPage extends StatelessWidget {
     return Obx(
       () => Scaffold(
         appBar: AppBar(
-          title: Text('set_param'.trArgs(['remarks_tags'.tr])),
+          title: Text('setParam'.trArgs(['remarksTags'.tr])),
           actions: [
             TextButton(
               onPressed: logic.valueChanged.isTrue
@@ -56,14 +56,14 @@ class ContactSettingTagPage extends StatelessWidget {
                       if (trimmedText.isNotEmpty) {
                         bool res = await logic.changeRemark(peerId, trimmedText);
                         if (res) {
-                          EasyLoading.showSuccess('tip_success'.tr);
+                          EasyLoading.showSuccess('tipSuccess'.tr);
                           peerRemark = trimmedText;
                           Get.back(result: trimmedText);
                         }
                       }
                     }
                   : null, // 如果 valueChanged 为 false，则禁用按钮
-              child: Text('button_accomplish'.tr),
+              child: Text('buttonAccomplish'.tr),
             ),
           ],
         ),
@@ -92,7 +92,7 @@ class ContactSettingTagPage extends StatelessWidget {
               ),
               child: ListTile(
                 title: Text('tags'.tr),
-                subtitle: Text(peerTag.isEmpty ? 'add_tag'.tr : peerTag.value),
+                subtitle: Text(peerTag.isEmpty ? 'addTag'.tr : peerTag.value),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
                   Get.to(

@@ -48,7 +48,7 @@ class ContactLogic extends GetxController {
     final List<ContactModel> topList = [
       ContactModel(
         peerId: 'people_nearby',
-        nickname: 'find_nearby_people'.tr,
+        nickname: 'findNearbyPeople'.tr,
         nameIndex: '↑',
         bgColor: Colors.orange,
         iconData: const Center(
@@ -68,7 +68,7 @@ class ContactLogic extends GetxController {
       ),
       ContactModel(
         peerId: 'new_friend',
-        nickname: 'new_friend'.tr,
+        nickname: 'newFriend'.tr,
         nameIndex: '↑',
         bgColor: Colors.orange,
         iconData: Obx(() => badges.Badge(
@@ -110,7 +110,7 @@ class ContactLogic extends GetxController {
       ),
       ContactModel(
         peerId: 'group',
-        nickname: 'group_chat'.tr,
+        nickname: 'groupChat'.tr,
         nameIndex: '↑',
         bgColor: Colors.green,
         iconData: const Icon(
@@ -147,7 +147,7 @@ class ContactLogic extends GetxController {
       /*
       ContactModel(
         peerId: 'bot_qian_fan',
-        nickname: 'bot_qian_fan'.tr,
+        nickname: 'botQianFan'.tr,
         nameIndex: '↑',
         bgColor: Colors.teal,
         // icon 翻转
@@ -168,7 +168,7 @@ class ContactLogic extends GetxController {
           Get.to(
             () => ChatPage(
               peerId: 'bot_qian_fan',
-              peerTitle: 'bot_qian_fan'.tr,
+              peerTitle: 'botQianFan'.tr,
               peerAvatar: '',
               peerSign: '',
               type: 'C2S',

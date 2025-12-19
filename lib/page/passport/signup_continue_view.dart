@@ -139,7 +139,7 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                                 animationType: AnimationType.fade,
                                 validator: (v) {
                                   if (v == null || v.trim().isEmpty) {
-                                    return 'confirm_code_error'.tr;
+                                    return 'confirmCodeError'.tr;
                                   }
                                   return null;
                                 },
@@ -189,7 +189,7 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20.0),
                               child: Text(
-                                hasError ? 'pin_code_fill_tips'.tr : '',
+                                hasError ? 'pinCodeFillTips'.tr : '',
                                 style: const TextStyle(
                                     color: Colors.red,
                                     fontSize: 12,
@@ -201,7 +201,7 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                               children: [
                                 Expanded(
                                     child: Text(
-                                  'not_receive_coe_q'.tr,
+                                  'notReceiveCoeQ'.tr,
                                   style: const TextStyle(
                                       color: Colors.black54, fontSize: 15),
                                 )),
@@ -216,7 +216,7 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                                     if (res == null) {
                                       logic.snackBar(
                                         Text(
-                                          'code_sent_to_param'.trArgs([widget.account]),
+                                          'codeSentToParam'.trArgs([widget.account]),
                                           style: const TextStyle(
                                             color: Colors.green,
                                             fontSize: 20,
@@ -230,14 +230,14 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                                     } else {
                                       if (res == 'param_already_exist') {
                                         final label = widget.accountType == 'email' ? 'email'.tr : 'mobile'.tr;
-                                        logic.snackBar('param_already_exist'.trArgs([label]));
+                                        logic.snackBar('paramAlreadyExist'.trArgs([label]));
                                       } else {
                                         logic.snackBar(res.tr);
                                       }
                                     }
                                   },
                                   child: Text(
-                                    'resend_code'.tr,
+                                    'resendCode'.tr,
                                     style: const TextStyle(
                                         color: Colors.green,
                                         fontWeight: FontWeight.bold,
@@ -260,7 +260,7 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                                 if (res == null) {
                                   logic.snackBar(
                                     Text(
-                                      'tip_success'.trArgs([widget.account]),
+                                      'tipSuccess'.trArgs([widget.account]),
                                       style: const TextStyle(
                                         color: Colors.green,
                                         fontSize: 20,
@@ -302,7 +302,7 @@ class _SignupContinuePageState extends State<SignupContinuePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('try_again_q'.tr,
+                          Text('tryAgainQ'.tr,
                               style: const TextStyle(
                                 color: Colors.white,
                                 letterSpacing: 0.5,

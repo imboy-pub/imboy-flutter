@@ -159,13 +159,13 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         case WebRTCCallState.CallStateNew:
           if (mounted) {
             setState(() {
-              stateTips = 'waiting_peer_accept'.tr;
+              stateTips = 'waitingPeerAccept'.tr;
             });
           }
           answerTimer = Timer(const Duration(seconds: 60), () {
             if (mounted) {
               setState(() {
-                stateTips = 'peer_no_response'.tr;
+                stateTips = 'peerNoResponse'.tr;
               });
             }
             Future.delayed(const Duration(seconds: 2), () {
@@ -185,7 +185,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
           if (mounted) {
             setState(() {
               counter.cleanUp();
-              stateTips = 'peer_has_hung_up'.tr;
+              stateTips = 'peerHasHungUp'.tr;
             });
           }
 
@@ -201,7 +201,7 @@ class _P2pCallScreenPageState extends State<P2pCallScreenPage> {
         case WebRTCCallState.CallStateBusy:
           if (mounted) {
             setState(() {
-              stateTips = 'busy_try_again_later'.tr;
+              stateTips = 'busyTryAgainLater'.tr;
             });
           }
           Future.delayed(const Duration(seconds: 2), () {

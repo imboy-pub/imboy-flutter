@@ -211,7 +211,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
                 controller: _searchC,
                 autofocus: true,
                 decoration: InputDecoration(
-                  hintText: 'search_messages_hint'.tr,
+                  hintText: 'searchMessagesHint'.tr,
                   hintStyle: Get.context!.textStyle(
                     FontSizeType.normal,
                     color: AppColors.textSecondary.withValues(alpha: 0.7),
@@ -304,7 +304,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
           TextButton(
             onPressed: () => Get.back(),
             child: Text(
-              'button_cancel'.tr,
+              'buttonCancel'.tr,
               style: Get.context!.textStyle(
                 FontSizeType.normal,
                 color: AppColors.primaryGreen,
@@ -335,7 +335,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
           children: [
             _buildFilterChip(
               context,
-              'search_filter_all'.tr,
+              'searchFilterAll'.tr,
               state.selectedMessageType.value == 'all',
               () {
                 state.selectedMessageType.value = 'all';
@@ -349,7 +349,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
             const SizedBox(width: 8),
             _buildFilterChip(
               context,
-              'search_filter_text'.tr,
+              'searchFilterText'.tr,
               state.selectedMessageType.value == 'text',
               () {
                 state.selectedMessageType.value = 'text';
@@ -363,7 +363,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
             const SizedBox(width: 8),
             _buildFilterChip(
               context,
-              'search_filter_image'.tr,
+              'searchFilterImage'.tr,
               state.selectedMessageType.value == 'image',
               () {
                 state.selectedMessageType.value = 'image';
@@ -377,7 +377,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
             const SizedBox(width: 8),
             _buildFilterChip(
               context,
-              'search_filter_today'.tr,
+              'searchFilterToday'.tr,
               state.selectedTimeRange.value == 'today',
               () {
                 state.selectedTimeRange.value = 'today';
@@ -442,7 +442,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'search_history'.tr,
+                'searchHistory'.tr,
                 style: Get.context!.textStyle(
                   FontSizeType.large,
                   color: Theme.of(context).colorScheme.onSurface,
@@ -455,7 +455,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
                         state.clearHistory();
                       },
                       child: Text(
-                        'clear_all'.tr,
+                        'clearAll'.tr,
                         style: Get.context!.textStyle(
                           FontSizeType.normal,
                           color: AppColors.primaryGreen,
@@ -485,7 +485,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'no_search_history'.tr,
+                      'noSearchHistory'.tr,
                       style: Get.context!.textStyle(
                         FontSizeType.normal,
                         color: AppColors.textSecondary,
@@ -572,7 +572,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
           Padding(
             padding: const EdgeInsets.all(12),
             child: Text(
-              'search_suggestions'.tr,
+              'searchSuggestions'.tr,
               style: Get.context!.textStyle(
                 FontSizeType.small,
                 color: AppColors.textSecondary,
@@ -628,7 +628,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            'search_no_results'.tr,
+            'searchNoResults'.tr,
             style: Get.context!.textStyle(
               FontSizeType.large,
               color: AppColors.textSecondary,
@@ -665,7 +665,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
           child: Row(
             children: [
               Obx(() => Text(
-                '${state.totalResults.value} ${'search_results'.tr}',
+                '${state.totalResults.value} ${'searchResults'.tr}',
                 style: Get.context!.textStyle(
                   FontSizeType.small,
                   color: AppColors.textSecondary,
@@ -681,7 +681,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
                         );
                       },
                       child: Text(
-                        'load_more'.tr,
+                        'loadMore'.tr,
                         style: Get.context!.textStyle(
                           FontSizeType.small,
                           color: AppColors.primaryGreen,
@@ -775,7 +775,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'search_filters'.tr,
+                  'searchFilters'.tr,
                   style: Get.context!.textStyle(
                     FontSizeType.large,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -793,7 +793,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
                     Get.back();
                   },
                   child: Text(
-                    'reset_filters'.tr,
+                    'resetFilters'.tr,
                     style: Get.context!.textStyle(
                       FontSizeType.normal,
                       color: AppColors.primaryGreen,
@@ -813,13 +813,13 @@ class _SearchChatPageState extends State<SearchChatPage> {
                   // 消息类型过滤器
                   _buildFilterSection(
                     context,
-                    'message_type'.tr,
+                    'messageType'.tr,
                     [
-                      {'value': 'all', 'label': 'all_types'.tr},
-                      {'value': 'text', 'label': 'text_message'.tr},
-                      {'value': 'image', 'label': 'image_message'.tr},
-                      {'value': 'video', 'label': 'video_message'.tr},
-                      {'value': 'file', 'label': 'file_message'.tr},
+                      {'value': 'all', 'label': 'allTypes'.tr},
+                      {'value': 'text', 'label': 'textMessage'.tr},
+                      {'value': 'image', 'label': 'imageMessage'.tr},
+                      {'value': 'video', 'label': 'videoMessage'.tr},
+                      {'value': 'file', 'label': 'fileMessage'.tr},
                     ],
                     state.selectedMessageType.value,
                     (value) => state.selectedMessageType.value = value,
@@ -828,12 +828,12 @@ class _SearchChatPageState extends State<SearchChatPage> {
                   // 时间范围过滤器
                   _buildFilterSection(
                     context,
-                    'time_range'.tr,
+                    'timeRange'.tr,
                     [
-                      {'value': 'all', 'label': 'all_time'.tr},
+                      {'value': 'all', 'label': 'allTime'.tr},
                       {'value': 'today', 'label': 'today'.tr},
-                      {'value': 'week', 'label': 'this_week'.tr},
-                      {'value': 'month', 'label': 'this_month'.tr},
+                      {'value': 'week', 'label': 'thisWeek'.tr},
+                      {'value': 'month', 'label': 'thisMonth'.tr},
                     ],
                     state.selectedTimeRange.value,
                     (value) => state.selectedTimeRange.value = value,
@@ -844,9 +844,9 @@ class _SearchChatPageState extends State<SearchChatPage> {
                     context,
                     'sender'.tr,
                     [
-                      {'value': 'all', 'label': 'all_senders'.tr},
-                      {'value': 'me', 'label': 'sent_by_me'.tr},
-                      {'value': 'other', 'label': 'sent_by_others'.tr},
+                      {'value': 'all', 'label': 'allSenders'.tr},
+                      {'value': 'me', 'label': 'sentByMe'.tr},
+                      {'value': 'other', 'label': 'sentByOthers'.tr},
                     ],
                     state.selectedSender.value,
                     (value) => state.selectedSender.value = value,
@@ -877,7 +877,7 @@ class _SearchChatPageState extends State<SearchChatPage> {
                   ),
                 ),
                 child: Text(
-                  'apply_filters'.tr,
+                  'applyFilters'.tr,
                   style: Get.context!.textStyle(
                     FontSizeType.normal,
                     color: Colors.white,

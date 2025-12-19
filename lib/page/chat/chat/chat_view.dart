@@ -177,7 +177,7 @@ class ChatPageState extends State<ChatPage> {
     Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
       if (r.contains(ConnectivityResult.none)) {
         // ignore: prefer_interpolation_to_compose_strings
-        // state.connected.value = '(${'tip_connect_desc'.tr})';
+        // state.connected.value = '(${'tipConnectDesc'.tr})';
         state.connected.value = false;
       } else {
         state.connected.value = true;
@@ -576,9 +576,9 @@ class ChatPageState extends State<ChatPage> {
     final res = await _addMessage(msg);
     if (res) {
       getx.Get.find<UserCollectLogic>().change(collect.kindId);
-      EasyLoading.showSuccess('tip_success'.tr);
+      EasyLoading.showSuccess('tipSuccess'.tr);
     } else {
-      EasyLoading.showError('tip_failed'.tr);
+      EasyLoading.showError('tipFailed'.tr);
     }
   }
   // 发送个人名片
@@ -612,9 +612,9 @@ class ChatPageState extends State<ChatPage> {
     );
     final res = await _addMessage(message);
     if (res) {
-      EasyLoading.showSuccess('tip_success'.tr);
+      EasyLoading.showSuccess('tipSuccess'.tr);
     } else {
-      EasyLoading.showError('tip_failed'.tr);
+      EasyLoading.showError('tipFailed'.tr);
     }
   }
   // 发送位置消息
@@ -1080,21 +1080,25 @@ class ChatPageState extends State<ChatPage> {
   }
   
   /// 添加消息反应
-  void _addReaction(Message message, String emoji) {
-    // TODO: 实现消息反应功能
-    iPrint('添加反应: $emoji 到消息: ${message.id}');
-    
-    // 触发震动反馈
-    HapticFeedback.lightImpact();
-    
-    // 显示添加成功提示
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('已添加反应 $emoji'),
-        duration: const Duration(seconds: 1),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+  void _addReaction(Message message, String emoji) async {
+    try {
+      HapticFeedback.lightImpact();
+      final res = await logic.toggleReaction(
+        chatType: widget.type == 'null' ? 'C2C' : widget.type,
+        peerId: widget.peerId,
+        messageId: message.id,
+        emoji: emoji,
+      );
+      if (!mounted) return;
+      if (res == null) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(res ? '已添加反应 $emoji' : '已取消反应 $emoji'),
+          duration: const Duration(seconds: 1),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (_) {}
   }
 
 
@@ -1178,7 +1182,7 @@ class ChatPageState extends State<ChatPage> {
     final collectLogic = UserCollectLogic();
     bool res = await collectLogic.add(tb: tb, msg: msg);
     EasyLoading.showToast(
-      res ? 'collected'.tr : 'operation_failed_again_later'.tr,
+      res ? 'collected'.tr : 'operationFailedAgainLater'.tr,
     );
   }
   // 撤回消息
@@ -1690,8 +1694,15 @@ class ChatPageState extends State<ChatPage> {
                   // 仍处于可见状态才推进水位
                   if (performanceMonitor.isMessageVisible(message.id)) {
                     try {
-                      await conversationLogic.advanceReadWatermarkByMsgIds(conversation, [message.id]);
-                      _readCommitted.add(message.id);
+                      final ok = await logic.markAsRead(
+                        widget.type == 'null' ? 'C2C' : widget.type,
+                        widget.peerId,
+                        [message.id],
+                        syncToServer: true,
+                      );
+                      if (ok) {
+                        _readCommitted.add(message.id);
+                      }
                     } catch (_) {}
                   }
                 });

@@ -125,7 +125,7 @@ class SearchLogic extends GetxController {
       }
 
       if (results.isEmpty && !loadMore) {
-        state.errorMessage.value = 'search_no_found'.tr;
+        state.errorMessage.value = 'searchNoFound'.tr;
       }
 
       // 缓存结果
@@ -140,7 +140,7 @@ class SearchLogic extends GetxController {
       state.currentPage.value++;
     } catch (e) {
       if (!_isCancelled) {
-        state.errorMessage.value = 'search_error'.tr;
+        state.errorMessage.value = 'searchError'.tr;
         debugPrint('Search error: $e');
       }
     } finally {

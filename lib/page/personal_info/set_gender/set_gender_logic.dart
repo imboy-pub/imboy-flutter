@@ -70,7 +70,7 @@ class SetGenderLogic extends GetxController {
         selectedGender.value = gender;
         originalGender = gender;
 
-        Get.snackbar('tip_success'.tr, 'gender_update_success'.tr);
+        Get.snackbar('tipSuccess'.tr, 'genderUpdateSuccess'.tr);
         Get.back(result: true);
       } else {
         // 根据错误码做差异化提示并回滚
@@ -80,7 +80,7 @@ class SetGenderLogic extends GetxController {
       iPrint('设置性别失败: $e');
       // 网络异常回滚并提示
       await _revertToOriginal();
-      Get.snackbar('tip_failed'.tr, 'gender_network_error'.tr);
+      Get.snackbar('tipFailed'.tr, 'genderNetworkError'.tr);
     } finally {
       // 清理 pending 与保存状态
       pendingGender.value = '';
@@ -110,16 +110,16 @@ class SetGenderLogic extends GetxController {
 
     switch (errorCode) {
       case 'GENDER_CONFLICT':
-        Get.snackbar('tip_failed'.tr, 'gender_conflict_error'.tr);
+        Get.snackbar('tipFailed'.tr, 'genderConflictError'.tr);
         break;
       case 'GENDER_INVALID':
-        Get.snackbar('tip_failed'.tr, 'gender_update_failed'.tr);
+        Get.snackbar('tipFailed'.tr, 'genderUpdateFailed'.tr);
         break;
       case 'GENDER_SENSITIVE':
-        Get.snackbar('tip_failed'.tr, 'gender_update_failed'.tr);
+        Get.snackbar('tipFailed'.tr, 'genderUpdateFailed'.tr);
         break;
       default:
-        Get.snackbar('tip_failed'.tr, 'gender_update_failed'.tr);
+        Get.snackbar('tipFailed'.tr, 'genderUpdateFailed'.tr);
         break;
     }
   }

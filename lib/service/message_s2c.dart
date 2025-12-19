@@ -403,7 +403,7 @@ class MessageS2CService {
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.of(ctx).pop(true),
-                        child: Text('button_ok'.tr),
+                        child: Text('buttonOk'.tr),
                       ),
                     ],
                   ),
@@ -416,7 +416,7 @@ class MessageS2CService {
               WebSocketService.to.closeSocket(permanent: true);
             } catch (_) {}
 
-            EasyLoading.showSuccess('confirm_recover_success'.tr);
+            EasyLoading.showSuccess('confirmRecoverSuccess'.tr);
             await UserRepoLocal.to.quitLogin();
             Get.offAll(
               () => const LoginPage(),

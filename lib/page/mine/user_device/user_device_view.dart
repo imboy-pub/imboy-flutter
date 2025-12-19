@@ -36,7 +36,7 @@ class UserDevicePage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'login_device_management'.tr,
+        title: 'loginDeviceManagement'.tr,
       ),
       body: Column(
         children: [
@@ -79,7 +79,7 @@ class UserDevicePage extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'login_device_management_tips'.tr,
+              'loginDeviceManagementTips'.tr,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                 height: 1.4,
@@ -114,7 +114,7 @@ class UserDevicePage extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'no_data'.tr,
+            'noData'.tr,
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               fontWeight: FontWeight.w500,
@@ -166,7 +166,7 @@ class UserDevicePage extends StatelessWidget {
             backgroundColor: AppColors.lightError,
             foregroundColor: Colors.white,
             icon: Icons.delete_outline,
-            label: 'button_delete'.tr,
+            label: 'buttonDelete'.tr,
             borderRadius: BorderRadius.circular(12),
           ),
         ],
@@ -250,7 +250,7 @@ class UserDevicePage extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  'current_device'.tr,
+                                  'currentDevice'.tr,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     color: AppColors.primaryGreen,
@@ -350,13 +350,13 @@ class UserDevicePage extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
         ),
         title: Text(
-          'button_delete'.tr,
+          'buttonDelete'.tr,
           style: TextStyle(
             fontWeight: FontWeight.w600,
           ),
         ),
         content: Text(
-          'delete_this_device_tips'.tr,
+          'deleteThisDeviceTips'.tr,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
             height: 1.4,
@@ -366,7 +366,7 @@ class UserDevicePage extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'button_cancel'.tr,
+              'buttonCancel'.tr,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
@@ -385,7 +385,7 @@ class UserDevicePage extends StatelessWidget {
               ),
             ),
             child: Text(
-              'button_delete'.tr,
+              'buttonDelete'.tr,
               style: TextStyle(
                 fontWeight: FontWeight.w500,
               ),
@@ -405,13 +405,13 @@ class UserDevicePage extends StatelessWidget {
       
       if (res) {
         state.deviceList.removeWhere((e) => e.deviceId == model.deviceId);
-        EasyLoading.showSuccess('tip_success'.tr);
+        EasyLoading.showSuccess('tipSuccess'.tr);
       } else {
-        EasyLoading.showError('tip_failed'.tr);
+        EasyLoading.showError('tipFailed'.tr);
       }
     } catch (e) {
       EasyLoading.dismiss();
-      EasyLoading.showError('tip_failed'.tr);
+      EasyLoading.showError('tipFailed'.tr);
     }
   }
 
@@ -441,7 +441,7 @@ class UserDevicePage extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'button_cancel'.tr,
+              'buttonCancel'.tr,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
               ),

@@ -24,7 +24,7 @@ class ChangePasswordPage extends StatelessWidget {
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'change_param'.trArgs(['password'.tr]),
+        title: 'changeParam'.trArgs(['password'.tr]),
       ),
       backgroundColor: colorScheme.surface,
       body: SingleChildScrollView(
@@ -132,7 +132,7 @@ class ChangePasswordPage extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'existing_password'.tr,
+                                'existingPassword'.tr,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -183,7 +183,7 @@ class ChangePasswordPage extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'new_password'.tr,
+                                'newPassword'.tr,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -195,7 +195,7 @@ class ChangePasswordPage extends StatelessWidget {
                           const SizedBox(height: 12),
                           Obx(() => PasswordTextField(
                             obscureText: state.newPwdObscure.value,
-                            hintText: 'please_input_param'.trArgs(['password'.tr]),
+                            hintText: 'pleaseInputParam'.trArgs(['password'.tr]),
                             onTap: () {
                               state.newPwdObscure.value = !state.newPwdObscure.value;
                             },
@@ -233,7 +233,7 @@ class ChangePasswordPage extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'retype_password'.tr,
+                                'retypePassword'.tr,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -245,7 +245,7 @@ class ChangePasswordPage extends StatelessWidget {
                           const SizedBox(height: 12),
                           Obx(() => PasswordTextField(
                             obscureText: state.retypePwdObscure.value,
-                            hintText: 'retype_password'.tr,
+                            hintText: 'retypePassword'.tr,
                             onTap: () {
                               state.retypePwdObscure.value =
                                   !state.retypePwdObscure.value;
@@ -273,7 +273,7 @@ class ChangePasswordPage extends StatelessWidget {
               ),
               width: double.infinity,
               child: RoundedElevatedButton(
-                text: 'button_confirm'.tr,
+                text: 'buttonConfirm'.tr,
                 onPressed: () async {
                   bool res = await logic.changePassword(
                     newPwd: state.newPwd.value,
@@ -281,7 +281,7 @@ class ChangePasswordPage extends StatelessWidget {
                     existingPwd: state.existingPwd.value,
                   );
                   if (res) {
-                    EasyLoading.showSuccess('confirm_recover_success'.tr);
+                    EasyLoading.showSuccess('confirmRecoverSuccess'.tr);
                     UserRepoLocal.to.quitLogin();
                     Get.offAll(() => const LoginPage());
                   }

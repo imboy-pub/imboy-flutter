@@ -22,7 +22,7 @@ class DarkModelPage extends StatelessWidget {
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'dark_model'.tr,
+        title: 'darkModel'.tr,
       ),
       backgroundColor: colorScheme.surface,
       body: ListView(
@@ -35,11 +35,11 @@ class DarkModelPage extends StatelessWidget {
               color: colorScheme.onSurface.withValues(alpha: 0.7),
             ),
             title: Text(
-              'follow_system'.tr,
+              'followSystem'.tr,
               style: const TextStyle(fontSize: 16),
             ),
             subtitle: Text(
-              'follow_system_tips'.tr,
+              'followSystemTips'.tr,
               style: TextStyle(
                 fontSize: 14,
                 color: colorScheme.onSurface.withValues(alpha: 0.6),
@@ -83,7 +83,7 @@ class DarkModelPage extends StatelessWidget {
                               : colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                         title: Text(
-                          'normal_model'.tr,
+                          'normalModel'.tr,
                           style: TextStyle(
                             fontSize: 16,
                             color: state.selectIndex.value == 2
@@ -113,7 +113,7 @@ class DarkModelPage extends StatelessWidget {
                               : colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                         title: Text(
-                          'dark_model'.tr,
+                          'darkModel'.tr,
                           style: TextStyle(
                             fontSize: 16,
                             color: state.selectIndex.value == 3

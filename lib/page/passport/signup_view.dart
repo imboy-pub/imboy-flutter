@@ -184,13 +184,13 @@ class SignupPageState extends State<SignupPage>
                                           leadingPadding: 0,
                                         ),
                                         searchBoxDecoration: InputDecoration(
-                                          labelText: 'region_search_tips'.tr,
+                                          labelText: 'regionSearchTips'.tr,
                                         ),
                                         inputDecoration: InputDecoration(
                                           border: InputBorder.none,
                                           focusedBorder: InputBorder.none,
                                           enabledBorder: InputBorder.none,
-                                          hintText: 'please_input_param'.trArgs(
+                                          hintText: 'pleaseInputParam'.trArgs(
                                             ['mobile'.tr],
                                           ),
                                           hintStyle: TextStyle(
@@ -285,7 +285,7 @@ class SignupPageState extends State<SignupPage>
                                         border: InputBorder.none,
                                         focusedBorder: InputBorder.none,
                                         enabledBorder: InputBorder.none,
-                                        hintText: 'please_input_param'.trArgs([
+                                        hintText: 'pleaseInputParam'.trArgs([
                                           'email'.tr,
                                         ]),
                                         hintStyle: TextStyle(
@@ -433,7 +433,7 @@ class SignupPageState extends State<SignupPage>
                                         logic.checkSignupContinue();
                                       },
                                       child: Text(
-                                        'read_agree_param'.trArgs([''.tr]),
+                                        'readAgreeParam'.trArgs([''.tr]),
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 14,
@@ -445,7 +445,7 @@ class SignupPageState extends State<SignupPage>
                                       onTap: () {
                                         Get.dialog(
                                           MarkdownPage(
-                                            title: 'license_agreement'.tr,
+                                            title: 'licenseAgreement'.tr,
                                             url: logic.licenseAgreementUrl(),
                                             leading: IconButton(
                                               icon: const Icon(
@@ -461,7 +461,7 @@ class SignupPageState extends State<SignupPage>
                                         );
                                       },
                                       child: Text(
-                                        'license_agreement'.tr,
+                                        'licenseAgreement'.tr,
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 14,
@@ -553,7 +553,7 @@ class SignupPageState extends State<SignupPage>
                                             ? 'email'.tr
                                             : 'mobile'.tr;
                                         logic.snackBar(
-                                          'param_format_error'.trArgs([label]),
+                                          'paramFormatError'.trArgs([label]),
                                         );
                                         return;
                                       }
@@ -568,7 +568,7 @@ class SignupPageState extends State<SignupPage>
                                         if (res == null) {
                                           logic.snackBar(
                                             Text(
-                                              'code_sent_to_param'.trArgs([
+                                              'codeSentToParam'.trArgs([
                                                 account,
                                               ]),
                                               style: const TextStyle(
@@ -597,7 +597,7 @@ class SignupPageState extends State<SignupPage>
                                                 ? 'email'.tr
                                                 : 'mobile'.tr;
                                             logic.snackBar(
-                                              'param_already_exist'.trArgs([
+                                              'paramAlreadyExist'.trArgs([
                                                 label,
                                               ]),
                                             );
@@ -635,7 +635,7 @@ class SignupPageState extends State<SignupPage>
                                           ),
                                         ),
                                       Text(
-                                        'agree_continue'.tr,
+                                        'agreeContinue'.tr,
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w700,
@@ -700,7 +700,7 @@ class SignupPageState extends State<SignupPage>
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'sigin_q'.tr,
+                              'siginQ'.tr,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,

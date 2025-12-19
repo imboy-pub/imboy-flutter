@@ -47,7 +47,7 @@ class ContactTagListPage extends StatelessWidget {
           state.items.addAll(list);
           state.page = state.page + 1;
         } else {
-          EasyLoading.showToast('no_more_data'.tr);
+          EasyLoading.showToast('noMoreData'.tr);
         }
       }
     });
@@ -74,7 +74,7 @@ class ContactTagListPage extends StatelessWidget {
                     : const Color.fromRGBO(240, 240, 240, 1),
               );
             },
-            label: 'change_param'.trArgs(['name'.tr]),
+            label: 'changeParam'.trArgs(['name'.tr]),
             spacing: 1,
           ),
           SlidableAction(
@@ -92,7 +92,7 @@ class ContactTagListPage extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           child: Text(
-                            'delete_tag_tips'.tr,
+                            'deleteTagTips'.tr,
                             textAlign: TextAlign.center,
                             style: Get.context!.textStyle(
                               FontSizeType.normal,
@@ -113,13 +113,13 @@ class ContactTagListPage extends StatelessWidget {
                             );
                             if (res) {
                               Get.closeAllBottomSheets();
-                              EasyLoading.showSuccess('tip_success'.tr);
+                              EasyLoading.showSuccess('tipSuccess'.tr);
                             } else {
-                              EasyLoading.showError('tip_failed'.tr);
+                              EasyLoading.showError('tipFailed'.tr);
                             }
                           },
                           child: Text(
-                            'button_delete'.tr,
+                            'buttonDelete'.tr,
                             textAlign: TextAlign.center,
                             style: Get.context!.textStyle(
                               FontSizeType.normal,
@@ -134,7 +134,7 @@ class ContactTagListPage extends StatelessWidget {
                         child: TextButton(
                           onPressed: () => Get.close(),
                           child: Text(
-                            'button_cancel'.tr,
+                            'buttonCancel'.tr,
                             textAlign: TextAlign.center,
                             style: Get.context!.textStyle(
                               FontSizeType.normal,
@@ -157,7 +157,7 @@ class ContactTagListPage extends StatelessWidget {
                 ),
               );
             },
-            label: 'button_delete'.tr,
+            label: 'buttonDelete'.tr,
             spacing: 1,
           ),
         ],
@@ -211,7 +211,7 @@ class ContactTagListPage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'contact_tags'.tr,
+        title: 'contactTags'.tr,
         rightDMActions: <Widget>[
           InkWell(
             child: const SizedBox(
@@ -291,7 +291,7 @@ class ContactTagListPage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: SlidableAutoCloseBehavior(
                     child: state.items.isEmpty
-                        ? NoDataView(text: 'no_data'.tr)
+                        ? NoDataView(text: 'noData'.tr)
                         : ListView.builder(
                             controller: controller,
                             physics: const AlwaysScrollableScrollPhysics(),

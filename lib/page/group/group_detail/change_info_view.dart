@@ -167,7 +167,7 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
           SizedBox(height: 20, width: Get.width),
           Obx(
             () => RoundedElevatedButton(
-              text: 'button_accomplish'.tr,
+              text: 'buttonAccomplish'.tr,
               highlighted: valueChanged.isTrue,
               onPressed: () async {
                 String trimmedText = _textController.text.trim();
@@ -176,7 +176,7 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
                     'title': trimmedText,
                   });
                   if (g != null) {
-                    EasyLoading.showSuccess('tip_success'.tr);
+                    EasyLoading.showSuccess('tipSuccess'.tr);
                     Get.back(result: g);
                     //   peerRemark = trimmedText;
                     //   Get.back(result: trimmedText);

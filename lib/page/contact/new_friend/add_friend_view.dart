@@ -24,7 +24,7 @@ class AddFriendPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('add_friend'.tr),
+        title: Text('addFriend'.tr),
       ),
       body: ListView(
         children: [
@@ -39,7 +39,7 @@ class AddFriendPage extends StatelessWidget {
                   onTap: () => controller.openView(),
                   onChanged: (_) => controller.openView(),
                   leading: const Icon(Icons.search),
-                  hintText: 'hint_login_account'.tr,
+                  hintText: 'hintLoginAccount'.tr,
                 );
               },
               suggestionsBuilder: (BuildContext context, SearchController controller) async {
@@ -53,7 +53,7 @@ class AddFriendPage extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("${'my_account'.tr}："),
+                Text("${'myAccount'.tr}："),
                 Text(UserRepoLocal.to.current.account),
                 const SizedBox(width: 8),
                 InkWell(
@@ -68,32 +68,32 @@ class AddFriendPage extends StatelessWidget {
             context,
             icon: Icons.explore_rounded,
             iconColor: Colors.lightBlue,
-            title: 'people_nearby'.tr,
-            subtitle: 'nearby_people_tips'.tr,
+            title: 'peopleNearby'.tr,
+            subtitle: 'nearbyPeopleTips'.tr,
             onTap: () => Get.to(() => PeopleNearbyPage()),
           ),
           _buildListTile(
             context,
             icon: Icons.group,
             iconColor: Colors.purple,
-            title: 'create_group_f2f'.tr,
-            subtitle: 'enter_same_group'.tr,
+            title: 'createGroupF2f'.tr,
+            subtitle: 'enterSameGroup'.tr,
             onTap: () => Get.to(() => FaceToFacePage()),
           ),
           _buildListTile(
             context,
             icon: Icons.qr_code_scanner_outlined,
             iconColor: Colors.blue,
-            title: 'scan_qr_code'.tr,
-            subtitle: 'scan_qr_code_business_card'.tr,
+            title: 'scanQrCode'.tr,
+            subtitle: 'scanQrCodeBusinessCard'.tr,
             onTap: () => Get.to(() => const ScannerPage()),
           ),
           _buildListTile(
             context,
             icon: Icons.person,
             iconColor: Colors.lightGreen,
-            title: 'newly_registered_people'.tr,
-            subtitle: 'allowed_be_searched'.tr,
+            title: 'newlyRegisteredPeople'.tr,
+            subtitle: 'allowedBeSearched'.tr,
             onTap: () => Get.to(() => RecentlyRegisteredUserPage()),
           ),
         ],

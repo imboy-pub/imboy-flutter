@@ -150,7 +150,7 @@ class MessageActionMenu extends StatelessWidget {
               _buildActionButton(
                 context: context,
                 icon: Icons.copy,
-                label: 'button_copy'.tr,
+                label: 'buttonCopy'.tr,
                 onTap: () {
                   HapticFeedback.lightImpact();
                   onCopy();
@@ -191,7 +191,7 @@ class MessageActionMenu extends StatelessWidget {
                 _buildActionButton(
                   context: context,
                   icon: Icons.save_alt,
-                  label: 'button_save'.tr,
+                  label: 'buttonSave'.tr,
                   onTap: () {
                     HapticFeedback.lightImpact();
                     onSave!();
@@ -241,7 +241,7 @@ class MessageActionMenu extends StatelessWidget {
                 _buildActionButton(
                   context: context,
                   icon: Icons.delete,
-                  label: 'button_delete'.tr,
+                  label: 'buttonDelete'.tr,
                   onTap: () {
                     HapticFeedback.lightImpact();
                     _showDeleteConfirmation(context);
@@ -253,7 +253,7 @@ class MessageActionMenu extends StatelessWidget {
                 _buildActionButton(
                   context: context,
                   icon: Icons.delete,
-                  label: 'delete_for_me'.tr,
+                  label: 'deleteForMe'.tr,
                   onTap: () {
                     HapticFeedback.lightImpact();
                     onDelete();
@@ -339,13 +339,13 @@ class MessageActionMenu extends StatelessWidget {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('button_delete'.tr),
+            title: Text('buttonDelete'.tr),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
                   leading: const Icon(Icons.person),
-                  title: Text('delete_for_me'.tr),
+                  title: Text('deleteForMe'.tr),
                   subtitle: Text('仅在你这里删除，对方仍可见'),
                   onTap: () {
                     Navigator.of(context).pop();
@@ -356,7 +356,7 @@ class MessageActionMenu extends StatelessWidget {
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.group, color: Colors.red),
-                  title: Text('delete_for_everyone'.tr),
+                  title: Text('deleteForEveryone'.tr),
                   subtitle: Text('从所有人的聊天中删除，无法撤销'),
                   onTap: () {
                     Navigator.of(context).pop();
@@ -376,7 +376,7 @@ class MessageActionMenu extends StatelessWidget {
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text('button_cancel'.tr),
+                child: Text('buttonCancel'.tr),
               ),
             ],
           );
@@ -388,14 +388,14 @@ class MessageActionMenu extends StatelessWidget {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('button_delete'.tr),
+            title: Text('buttonDelete'.tr),
             content: Text('确定要删除这条消息吗？此操作无法撤销。'),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text('button_cancel'.tr),
+                child: Text('buttonCancel'.tr),
               ),
               TextButton(
                 onPressed: () {
@@ -406,7 +406,7 @@ class MessageActionMenu extends StatelessWidget {
                 style: TextButton.styleFrom(
                   foregroundColor: Theme.of(context).colorScheme.error,
                 ),
-                child: Text('button_delete'.tr),
+                child: Text('buttonDelete'.tr),
               ),
             ],
           );

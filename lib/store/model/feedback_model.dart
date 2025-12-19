@@ -80,7 +80,7 @@ class FeedbackModel {
   String get statusDesc {
     // 1 启用 (待回复）  2 已回复  3 已完结
     if (status == 1) {
-      return 'awaiting_reply'.tr;
+      return 'awaitingReply'.tr;
     } else if (status == 2) {
       return 'replied'.tr;
     } else if (status == 3) {

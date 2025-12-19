@@ -69,6 +69,7 @@ cd imboy
 ```
 
 2. **环境配置**
+
 ```bash
 # 复制环境配置文件
 cp ./example.env ./.env.dev
@@ -77,6 +78,8 @@ cp ./example.env ./.env.pro
 # 复制主入口文件
 cp example_main.dart main.dart
 ```
+
+
 
 3. **安装依赖**
 ```bash
@@ -93,6 +96,12 @@ dart run build_runner build --delete-conflicting-outputs
 mkdir -p plugin && cd plugin/
 git clone https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git
 cd flutter_chat_ui && git fetch origin leeyi && git checkout -f leeyi
+```
+
+
+deps flutter_native_splash
+```
+dart run flutter_native_splash:create
 ```
 
 5. **运行应用**
@@ -148,51 +157,6 @@ lib/
 - **测试驱动**：完善的单元测试和集成测试
 
 ## 🔧 开发指南
-
-### AI协作开发
-
-本项目集成了完整的AI协作提示词模板系统，位于 `doc/ai_prompts/` 目录：
-
-- **聊天界面优化**：`chat_interface_optimization.yaml`
-- **主题系统优化**：`theme_system_optimization.yaml`
-- **性能优化**：`performance_optimization.yaml`
-- **代码质量提升**：`code_quality_improvement.yaml`
-
-使用方法：
-1. 根据开发需求选择对应的提示词模板
-2. 按照模板中的指导进行开发
-3. 利用AI助手进行代码生成和优化
-
-### 代码质量
-
-#### 质量监控系统
-
-项目内置了完整的代码质量监控系统：
-
-```dart
-// 启动质量监控
-final qualityManager = QualityManager.instance;
-qualityManager.startQualityMonitoring();
-
-// 查看质量报告
-final report = qualityManager.getQualityReport();
-```
-
-#### 质量指标
-
-- **代码质量**：复杂度、重复度、命名规范
-- **架构质量**：组件耦合度、依赖关系
-- **可靠性**：异常处理、空安全
-- **安全性**：敏感数据处理、网络安全
-- **性能**：内存使用、UI性能
-- **可测试性**：测试覆盖率、依赖注入
-
-#### 代码规范
-
-- 遵循 [Dart Style Guide](https://dart.dev/guides/language/effective-dart/style)
-- 使用 `flutter_lints` 进行代码检查
-- 统一的命名规范和注释标准
-- 避免使用 master/slave 等术语
 
 ### 性能优化
 
@@ -308,6 +272,8 @@ flutter run --debug --enable-software-rendering
 cd ios
 arch -x86_64 pod install
 arch -x86_64 pod update
+
+cd ios && rm -rf Podfile.lock pods .symlink Runner.xcworkspace && pod install --repo-update && flutter clean && flutter pub get && pod update && cd ..
 ```
 
 #### Android配置

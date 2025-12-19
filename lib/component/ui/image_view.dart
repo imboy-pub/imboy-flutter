@@ -77,7 +77,7 @@ class ImageView extends StatelessWidget {
           borderRadius: BorderRadius.circular(4.0),
           color: Colors.black26.withValues(alpha: 0.1),
         ),
-        child: Text('no_data'.tr),
+        child: Text('noData'.tr),
       );
     }
     if (isRadius) {

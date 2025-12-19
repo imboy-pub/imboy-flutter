@@ -63,7 +63,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
                       Get.close();
                     },
                     child: Text(
-                      'button_cancel'.tr,
+                      'buttonCancel'.tr,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         //color: Colors.white,
@@ -82,7 +82,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Text(
-                        'button_accomplish'.tr,
+                        'buttonAccomplish'.tr,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           //color: Colors.white,

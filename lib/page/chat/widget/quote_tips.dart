@@ -103,7 +103,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            "[${'voice_message'.tr}]",
+            "[${'voiceMessage'.tr}]",
             style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
           ),
         ],
@@ -142,7 +142,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            "[${'voice_message'.tr}] ${durationMS.toStringAsFixed(1)}''",
+            "[${'voiceMessage'.tr}] ${durationMS.toStringAsFixed(1)}''",
             style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
           ),
         ],
@@ -209,7 +209,7 @@ class QuoteTipsWidget extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              "[${'business_card'.tr}] ${message?.metadata?['title'] ?? ''}",
+              "[${'businessCard'.tr}] ${message?.metadata?['title'] ?? ''}",
               style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -227,7 +227,7 @@ class QuoteTipsWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-  '${'message_revoked'.tr}',
+  '${'messageRevoked'.tr}',
             style: TextStyle(
               color: Theme.of(context).colorScheme.tertiary,
               fontStyle: FontStyle.italic,

@@ -33,14 +33,21 @@ class IMBoyCachedImageProvider
   ) async {
     assert(key == this);
 
-    final file =
-        await IMBoyCacheManager().getSingleFile(url, headers: headers);
-    final bytes = await file.readAsBytes();
-    if (bytes.isEmpty) {
-      throw StateError('Empty file: ${file.path}');
+    try {
+      final file =
+          await IMBoyCacheManager().getSingleFile(url, headers: headers);
+      final bytes = await file.readAsBytes();
+      if (bytes.isEmpty) {
+        throw StateError('Empty file: ${file.path}');
+      }
+      final buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
+      return decode(buffer);
+    } catch (e) {
+      debugPrint('IMBoyCachedImageProvider 加载图片失败: $url');
+      debugPrint('错误详情: $e');
+      // 重新抛出异常，让 Flutter 的错误处理机制接管
+      rethrow;
     }
-    final buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
-    return decode(buffer);
   }
 }
 

@@ -120,7 +120,7 @@ class UpdatePage extends StatelessWidget {
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        'button_accomplish'.tr,
+                        'buttonAccomplish'.tr,
                         style: ThemeManager.instance.getTextStyle(
                           FontSizeType.small,
                           fontWeight: FontWeight.w600,
@@ -230,7 +230,7 @@ class UpdatePage extends StatelessWidget {
           // Padding(
           //   padding: const EdgeInsets.only(bottom: 12),
           //   child: Text(
-          //     'signature_input_hint'.tr,
+          //     'signatureInputHint'.tr,
           //     style: TextStyle(
           //       fontSize: 14,
           //       color: isDark
@@ -272,7 +272,7 @@ class UpdatePage extends StatelessWidget {
               ),
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.all(16),
-                // hintText: 'signature_placeholder'.tr,
+                // hintText: 'signaturePlaceholder'.tr,
                 hintStyle: TextStyle(
                   fontSize: 16,
                   color: isDark
@@ -313,7 +313,7 @@ class UpdatePage extends StatelessWidget {
           // Padding(
           //   padding: const EdgeInsets.only(top: 12),
           //   child: Text(
-          //     'signature_tips'.tr,
+          //     'signatureTips'.tr,
           //     style: TextStyle(
           //       fontSize: 12,
           //       color: isDark
@@ -389,7 +389,7 @@ class UpdatePage extends StatelessWidget {
           IMBoyRadioListTile(
             value: '3',
             title: Text(
-              'keep_secret'.tr,
+              'keepSecret'.tr,
               style: TextStyle(
                 fontSize: logic.val.value == '3' ? 20 : 16,
                 color: Theme.of(context).colorScheme.onPrimary,

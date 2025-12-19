@@ -36,7 +36,7 @@ class WebViewPageState extends State<WebViewPage> {
             if (widget.title.isEmpty) {
               EasyLoading.showProgress(
                 progress / 100,
-                status: 'webpage_loading'.tr,
+                status: 'webpageLoading'.tr,
               );
             }
             // debugPrint('> WebView is loading (progress : $progress%)');

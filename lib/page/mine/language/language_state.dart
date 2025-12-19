@@ -23,31 +23,67 @@ class LanguageState {
       "id": "zh_CN",
       "languageCode": "zh",
       "regionCode": "CN",
-      "title": 'zh_cn'.tr // 简体中文
+      "title": 'zhCn'.tr // 简体中文
     },
     {
       "id": "zh_TW",
       "languageCode": "zh",
       "regionCode": "TW",
-      "title": 'zh_hant'.tr, // 繁体中文
+      "title": 'zhHant'.tr, // 繁体中文
     },
     {
       "id": "ru_RU",
       "languageCode": "ru",
       "regionCode": "RU",
-      "title": 'ru_ru'.tr, //"俄罗斯俄语"
+      "title": 'ruRu'.tr, // 俄罗斯俄语
     },
     // {
     //   "id": "en_GB",
     //   "languageCode": "en",
     //   "regionCode": "GB",
-    //   "title": 'en_gb'.tr "英国英语"
+    //   "title": 'enGb'.tr "英国英语"
     // },
     {
       "id": "en_US",
       "languageCode": "en",
       "regionCode": "US",
-      "title": 'en_us'.tr //美国英语
+      "title": 'enUs'.tr //美国英语
+    },
+    {
+      "id": "fr_FR",
+      "languageCode": "fr",
+      "regionCode": "FR",
+      "title": 'frFr'.tr // 法语
+    },
+    {
+      "id": "de_DE",
+      "languageCode": "de",
+      "regionCode": "DE",
+      "title": 'deDd'.tr // 德语
+    },
+    {
+      "id": "ja_JP",
+      "languageCode": "ja",
+      "regionCode": "JP",
+      "title": 'jaJp'.tr // 日语
+    },
+    {
+      "id": "ko_KR",
+      "languageCode": "ko",
+      "regionCode": "KR",
+      "title": 'koKr'.tr // 韩语
+    },
+    {
+      "id": "ar_SA",
+      "languageCode": "ar",
+      "regionCode": "SA",
+      "title": 'arSa'.tr // 阿拉伯语
+    },
+    {
+      "id": "it_IT",
+      "languageCode": "it",
+      "regionCode": "IT",
+      "title": 'itIt'.tr // 意大利语
     }
   ];
 

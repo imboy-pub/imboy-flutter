@@ -401,7 +401,7 @@ mixin MessageHandlingMixin<T extends StatefulWidget> on State<T> {
     debugPrint("collectMessage: 收藏结果: $res");
     
     EasyLoading.showToast(
-      res ? 'collected'.tr : 'operation_failed_again_later'.tr,
+      res ? 'collected'.tr : 'operationFailedAgainLater'.tr,
     );
   }
 
@@ -553,9 +553,9 @@ mixin MessageHandlingMixin<T extends StatefulWidget> on State<T> {
     final res = await addMessage(msg);
     if (res) {
       getx.Get.find<UserCollectLogic>().change(collect.kindId);
-      EasyLoading.showSuccess('tip_success'.tr);
+      EasyLoading.showSuccess('tipSuccess'.tr);
     } else {
-      EasyLoading.showError('tip_failed'.tr);
+      EasyLoading.showError('tipFailed'.tr);
     }
   }
 
@@ -575,9 +575,9 @@ mixin MessageHandlingMixin<T extends StatefulWidget> on State<T> {
     );
     final res = await addMessage(message);
     if (res) {
-      EasyLoading.showSuccess('tip_success'.tr);
+      EasyLoading.showSuccess('tipSuccess'.tr);
     } else {
-      EasyLoading.showError('tip_failed'.tr);
+      EasyLoading.showError('tipFailed'.tr);
     }
   }
 

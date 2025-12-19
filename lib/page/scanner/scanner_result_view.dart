@@ -23,7 +23,7 @@ class ScannerResultPage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
           automaticallyImplyLeading: true,
-          title: 'scan_result'.tr
+          title: 'scanResult'.tr
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterFloat,
       floatingActionButton: SizedBox(
@@ -37,7 +37,7 @@ class ScannerResultPage extends StatelessWidget {
                 const Space(width: 40),
                 FloatingActionButton(
                   heroTag: "back",
-                  tooltip: "button_back".tr,
+                  tooltip: 'buttonBack'.tr,
                   onPressed: () {
                     Get.back();
                   },
@@ -47,7 +47,7 @@ class ScannerResultPage extends StatelessWidget {
                 // copy
                 FloatingActionButton(
                   heroTag: 'copy',
-                  tooltip: 'button_copy'.tr,
+                  tooltip: 'buttonCopy'.tr,
                   onPressed: () {
                     // 已复制
                     Clipboard.setData(ClipboardData(text: scanResult));
@@ -58,7 +58,7 @@ class ScannerResultPage extends StatelessWidget {
                 // open in browser
                 FloatingActionButton(
                   heroTag: "open_in_browser",
-                  tooltip: "open_in_browser".tr,
+                  tooltip: 'openInBrowser'.tr,
                   backgroundColor: isUrl(scanResult) ? null : Colors.grey,
                   onPressed: () {
                     if (isUrl(scanResult)) {

@@ -78,7 +78,7 @@ class _SetNicknamePageState extends State<SetNicknamePage> {
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'set_nickname'.tr,
+        title: 'setNickname'.tr,
         rightDMActions: [
           Obx(
             () => Container(
@@ -125,7 +125,7 @@ class _SetNicknamePageState extends State<SetNicknamePage> {
                             ),
                           )
                         : Text(
-                            'button_save'.tr,
+                            'buttonSave'.tr,
                             style: ThemeManager.instance.getTextStyle(
                               FontSizeType.small,
                               fontWeight: FontWeight.w600,
@@ -181,8 +181,8 @@ class _SetNicknamePageState extends State<SetNicknamePage> {
                   ),
                   SizedBox(height: ThemeManager.instance.mainSpace * 0.8),
                   Semantics(
-                    label: '${'nickname'.tr} - ${'nickname_hint'.tr}',
-                    hint: 'nickname_hint'.tr,
+                    label: '${'nickname'.tr} - ${'nicknameHint'.tr}',
+                    hint: 'nicknameHint'.tr,
                     textField: true,
                     child: TextField(
                       controller: logic.nicknameController,
@@ -200,7 +200,7 @@ class _SetNicknamePageState extends State<SetNicknamePage> {
                         ),
                       ),
                       decoration: InputDecoration(
-                        hintText: 'nickname_hint'.tr,
+                        hintText: 'nicknameHint'.tr,
                         hintStyle: ThemeManager.instance.getTextStyle(
                           FontSizeType.medium,
                           color: AppColors.getTextColor(
@@ -263,12 +263,12 @@ class _SetNicknamePageState extends State<SetNicknamePage> {
                         final isOverLimit = current > 24;
 
                         return Semantics(
-                          label: 'nickname_chars_remaining'.trArgs([
+                          label: 'nicknameCharsRemaining'.trArgs([
                             remaining.toString(),
                           ]),
                           liveRegion: true,
                           child: Text(
-                            'nickname_chars_remaining'.trArgs([
+                            'nicknameCharsRemaining'.trArgs([
                               remaining.toString(),
                             ]),
                             style: ThemeManager.instance.getTextStyle(
@@ -304,7 +304,7 @@ class _SetNicknamePageState extends State<SetNicknamePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'tip_tips'.tr,
+                          'tipTips'.tr,
                           style: ThemeManager.instance.getTextStyle(
                             FontSizeType.small,
                             fontWeight: FontWeight.w600,

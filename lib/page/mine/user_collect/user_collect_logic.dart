@@ -268,7 +268,7 @@ class UserCollectLogic extends GetxController {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        durationMS > 0 ? "${(durationMS / 1000).toStringAsFixed(1)}s" : 'audio_message'.tr,
+                        durationMS > 0 ? "${(durationMS / 1000).toStringAsFixed(1)}s" : 'audioMessage'.tr,
                         style: TextStyle(
                           color: AppColors.primaryGreen,
                         ),
@@ -415,7 +415,7 @@ class UserCollectLogic extends GetxController {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Text(
-                        "${'file_size'.tr}: ${formatBytes(obj.info['payload']['size'] ?? '')}",
+                        "${'fileSize'.tr}: ${formatBytes(obj.info['payload']['size'] ?? '')}",
                         style: TextStyle(
                           color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
@@ -600,7 +600,7 @@ class UserCollectLogic extends GetxController {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'personal_card'.tr,
+                          'personalCard'.tr,
                           style: TextStyle(
                             color: AppColors.primaryGreen,
                           ),

@@ -100,7 +100,7 @@ class UserModel {
     } else if (gender == 2) {
       return 'female'.tr;
     } else if (gender == 3) {
-      return "keep_secret".tr;
+      return 'keepSecret'.tr;
     }
     return 'unknown'.tr;
   }

@@ -40,7 +40,7 @@ class WelcomePageState extends State<WelcomePage> {
     Connectivity().checkConnectivity().then((r) {
       if (r.contains(ConnectivityResult.none)) {
         // ignore: prefer_interpolation_to_compose_strings
-        state.connectDesc.value = 'tip_connect_desc'.tr;
+        state.connectDesc.value = 'tipConnectDesc'.tr;
       } else {
         state.connectDesc.value = '';
       }
@@ -49,7 +49,7 @@ class WelcomePageState extends State<WelcomePage> {
     Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
       if (r.contains(ConnectivityResult.none)) {
         // ignore: prefer_interpolation_to_compose_strings
-        state.connectDesc.value = 'tip_connect_desc'.tr;
+        state.connectDesc.value = 'tipConnectDesc'.tr;
       } else {
         state.connectDesc.value = '';
       }
@@ -173,7 +173,7 @@ class WelcomePageState extends State<WelcomePage> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'language_setting'.tr,
+                                    'languageSetting'.tr,
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w600,
@@ -209,7 +209,7 @@ class WelcomePageState extends State<WelcomePage> {
                                             vertical: 8,
                                           ),
                                           child: Text(
-                                            'button_accomplish'.tr,
+                                            'buttonAccomplish'.tr,
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
@@ -289,7 +289,7 @@ class WelcomePageState extends State<WelcomePage> {
                       child: Padding(
                           padding: const EdgeInsets.only(left: 10, right: 10),
                           child: Text(
-                            'mobile_quick_login'.tr,
+                            'mobileQuickLogin'.tr,
                             textAlign: TextAlign.center,
                           )),
                     )),
@@ -332,7 +332,7 @@ class WelcomePageState extends State<WelcomePage> {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 8, right: 8),
                             child: Text(
-                              'param_login'.trArgs(['account'.tr]),
+                              'paramLogin'.trArgs(['account'.tr]),
                               textAlign: TextAlign.center,
                             ),
                           )),

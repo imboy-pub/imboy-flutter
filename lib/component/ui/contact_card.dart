@@ -110,7 +110,7 @@ class ContactCard extends StatelessWidget {
               if (isNetWorkImg(avatar!)) {
                 zoomInPhotoView(avatar!);
               } else {
-                Get.snackbar('', 'no_avatar'.tr);
+                Get.snackbar('', 'noAvatar'.tr);
               }
             },
           ),

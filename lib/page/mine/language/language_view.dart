@@ -25,7 +25,7 @@ class LanguagePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('language_setting'.tr),
+        title: Text('languageSetting'.tr),
         actions: [
           Obx(
             () => TextButton(
@@ -35,7 +35,7 @@ class LanguagePage extends StatelessWidget {
                     }
                   : null,
               child: Text(
-                'button_accomplish'.tr,
+                'buttonAccomplish'.tr,
                 style: TextStyle(
                   color: state.valueChanged.isTrue
                       ? colorScheme.primary

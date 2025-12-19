@@ -62,11 +62,11 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        title: Text('group_announcement'.tr),
+        title: Text('groupAnnouncement'.tr),
         actions: [
           TextButton(
             onPressed: _canSave ? _saveNotice : null,
-            child: Text('button_accomplish'.tr),
+            child: Text('buttonAccomplish'.tr),
           ),
         ],
       ),
@@ -74,7 +74,7 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
         padding: const EdgeInsets.all(8.0),
         child: TextField(
           decoration: InputDecoration(
-            hintText: 'hint_edit_group_announcement'.tr,
+            hintText: 'hintEditGroupAnnouncement'.tr,
             border: InputBorder.none,
             filled: true,
             fillColor: theme.cardColor,

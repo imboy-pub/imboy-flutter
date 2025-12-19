@@ -99,7 +99,7 @@ class LoginAccountPageState extends State<LoginAccountPage> {
                           border: InputBorder.none,
                           focusedBorder: InputBorder.none,
                           enabledBorder: InputBorder.none,
-                          hintText: 'hint_login_account'.tr,
+                          hintText: 'hintLoginAccount'.tr,
                           hintStyle: TextStyle(
                             color: Colors.grey.shade600,
                             fontSize: 16,
@@ -264,7 +264,7 @@ class LoginAccountPageState extends State<LoginAccountPage> {
                       );
                     },
                     child: Text(
-                      'forgot_password'.tr,
+                      'forgotPassword'.tr,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,

@@ -29,11 +29,19 @@ class MessageRetry extends GetxService {
     // 启动消息重试机制
     startRetryTimer();
 
-    // 监听网络状态变化
-    ever(MessageService.to.isOnline, (bool online) {
-      if (online) {
-        // 网络恢复时重试失败的消息
-        retryFailedMessages();
+    // 延迟监听网络状态变化，避免循环依赖
+    Future.microtask(() {
+      if (Get.isRegistered<MessageService>()) {
+        try {
+          ever(MessageService.to.isOnline, (bool online) {
+            if (online) {
+              // 网络恢复时重试失败的消息
+              retryFailedMessages();
+            }
+          });
+        } catch (e) {
+          iPrint('MessageRetry 初始化网络监听失败: $e');
+        }
       }
     });
   }
@@ -68,6 +76,12 @@ class MessageRetry extends GetxService {
   /// 重试失败的消息
   /// Retry failed messages.
   Future<void> retryFailedMessages() async {
+    // 安全检查：确保 MessageService 已注册
+    if (!Get.isRegistered<MessageService>()) {
+      iPrint('MessageService 未注册，跳过消息重试');
+      return;
+    }
+
     if (!MessageService.to.isOnline.value || _retryQueue.isEmpty) return;
 
     final now = DateTime.now();
@@ -89,8 +103,14 @@ class MessageRetry extends GetxService {
   /// Retry single message.
   Future<void> _retryMessage(MessageRetryInfo info) async {
     try {
+      // 安全检查：确保 MessageService 已注册
+      if (!Get.isRegistered<MessageService>()) {
+        iPrint('MessageService 未注册，跳过重试消息: ${info.messageId}');
+        return;
+      }
+
       iPrint('重试发送消息: ${info.messageId}, 第${info.retryCount + 1}次重试');
-      
+
       // 更新消息状态为发送中
       final repo = MessageService.to.getMessageRepo(info.type);
       await repo.update({
@@ -146,6 +166,12 @@ class MessageRetry extends GetxService {
   /// Manually retry message.
   Future<bool> retryMessage(String messageId, String type) async {
     try {
+      // 安全检查：确保 MessageService 已注册
+      if (!Get.isRegistered<MessageService>()) {
+        iPrint('MessageService 未注册，无法重试消息');
+        return false;
+      }
+
       final repo = MessageService.to.getMessageRepo(type);
       final msg = await repo.find(messageId);
       if (msg == null) return false;

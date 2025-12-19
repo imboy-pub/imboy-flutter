@@ -116,7 +116,7 @@ class LaunchChatPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: ThemeManager.instance.getThemeColor('surface'),
       appBar: NavAppBar(
-        title: 'select_contacts'.tr,
+        title: 'selectContacts'.tr,
         leadingWidth: 72,
         leading: Padding(
           padding: const EdgeInsets.only(top: 8),
@@ -125,7 +125,7 @@ class LaunchChatPage extends StatelessWidget {
               Navigator.of(context).pop();
             },
             child: Text(
-              'button_cancel'.tr,
+              'buttonCancel'.tr,
               textAlign: TextAlign.center,
               style: ThemeManager.instance.getTextStyle(
                 FontSizeType.normal,
@@ -138,7 +138,7 @@ class LaunchChatPage extends StatelessWidget {
         rightDMActions: <Widget>[
           Obx(
             () => RoundedElevatedButton(
-              text: '${'button_accomplish'.tr}${logic.state.selectsTips.value}',
+              text: '${'buttonAccomplish'.tr}${logic.state.selectsTips.value}',
               highlighted: logic.state.selects.isNotEmpty,
               onPressed: () async {
                 EasyLoading.show(status: 'loading'.tr);
@@ -214,7 +214,7 @@ class LaunchChatPage extends StatelessWidget {
                           // 选择群聊选项 - 使用优化后的主题样式
                           ListTile(
                             title: Text(
-                              'select_a_group'.tr,
+                              'selectAGroup'.tr,
                               style: ThemeManager.instance.getTextStyle(
                                 FontSizeType.normal,
                                 color: ThemeManager.instance.getThemeColor('onSurface'),
@@ -245,7 +245,7 @@ class LaunchChatPage extends StatelessWidget {
                           // 面对面建群选项 - 使用优化后的主题样式
                           ListTile(
                             title: Text(
-                              'create_group_f2f'.tr,
+                              'createGroupF2f'.tr,
                               style: ThemeManager.instance.getTextStyle(
                                 FontSizeType.normal,
                                 color: ThemeManager.instance.getThemeColor('onSurface'),
@@ -278,7 +278,7 @@ class LaunchChatPage extends StatelessWidget {
                             child: SlidableAutoCloseBehavior(
                               child: Obx(() {
                                 return logic.state.items.isEmpty
-                                    ? NoDataView(text: 'no_data'.tr)
+                                    ? NoDataView(text: 'noData'.tr)
                                     : AzListView(
                                         data: logic.state.items,
                                         itemCount: logic.state.items.length,

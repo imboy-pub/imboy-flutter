@@ -267,7 +267,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                     ),
                   ),
                   child: Text(
-                    'button_cancel'.tr,
+                    'buttonCancel'.tr,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
@@ -288,7 +288,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                     });
                     await _persistVisibilityReadSetting();
                     if (ctx.mounted) Navigator.of(ctx).pop();
-                    EasyLoading.showSuccess('tip_success'.tr);
+                    EasyLoading.showSuccess('tipSuccess'.tr);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
@@ -298,7 +298,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text('button_confirm'.tr),
+                  child: Text('buttonConfirm'.tr),
                 ),
               ],
             ),
@@ -306,7 +306,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
         },
       ),
       _buildSettingTile(
-        title: 'search_chat_record'.tr,
+        title: 'searchChatRecord'.tr,
         icon: Icons.search,
         isFirst: true,
         onTap: () {
@@ -325,12 +325,12 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
         },
       ),
       _buildSettingTile(
-        title: 'clear_chat_record'.tr,
+        title: 'clearChatRecord'.tr,
         icon: Icons.delete_sweep_outlined,
         isDestructive: true,
         isFirst: true,
         onTap: () {
-          String tips = 'confirm_delete_chat_record'.tr;
+          String tips = 'confirmDeleteChatRecord'.tr;
           showDialog(
             context: Get.context!,
             barrierDismissible: true,
@@ -354,7 +354,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
               ),
               actions: [
                 TextButton(
-                  child: Text('button_cancel'.tr),
+                  child: Text('buttonCancel'.tr),
                   onPressed: () => Navigator.of(dialogContext).pop(),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
@@ -364,7 +364,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                   ),
                 ),
                 ElevatedButton(
-                  child: Text('button_confirm'.tr),
+                  child: Text('buttonConfirm'.tr),
                   onPressed: () async {
                     Navigator.of(dialogContext).pop();
                     int cid = await logic.cleanMessageByPeerId(
@@ -375,9 +375,9 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                       backDoRefresh = true;
                       await Get.find<ConversationLogic>().hideConversation(cid);
                       await Get.find<ConversationLogic>().conversationsList();
-                      EasyLoading.showSuccess('tip_success'.tr);
+                      EasyLoading.showSuccess('tipSuccess'.tr);
                     } else {
-                      EasyLoading.showError('tip_failed'.tr);
+                      EasyLoading.showError('tipFailed'.tr);
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -425,7 +425,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
           },
         ),
         title: Text(
-          'chat_settings'.tr,
+          'chatSettings'.tr,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
             fontSize: 18,

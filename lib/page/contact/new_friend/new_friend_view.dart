@@ -51,9 +51,9 @@ class NewFriendPage extends StatelessWidget {
         padding: const EdgeInsets.all(4.0),
         child: searchBar(
           context,
-          hintText: 'hint_login_account'.tr,
-          queryTips: 'hint_login_account'.tr,
-          searchLabel: 'hint_login_account'.tr,
+          hintText: 'hintLoginAccount'.tr,
+          queryTips: 'hintLoginAccount'.tr,
+          searchLabel: 'hintLoginAccount'.tr,
           doSearch: ((query) async {
             return logic.userSearch(kwd: query);
           }),
@@ -108,7 +108,7 @@ class NewFriendPage extends StatelessWidget {
                 await logic.delete(model.from, model.to);
               },
               icon: Icons.delete_outline,
-              label: 'button_delete'.tr,
+              label: 'buttonDelete'.tr,
             ),
           ],
         ),
@@ -229,7 +229,7 @@ class NewFriendPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
-          'awaiting_verification'.tr,
+          'awaitingVerification'.tr,
           style: TextStyle(
             fontSize: 12,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -356,7 +356,7 @@ class NewFriendPage extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'no_new_friends'.tr,
+            'noNewFriends'.tr,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -386,7 +386,7 @@ class NewFriendPage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'new_friend'.tr,
+        title: 'newFriend'.tr,
         backgroundColor: Theme.of(context).colorScheme.surface,
         rightDMActions: [
           Container(

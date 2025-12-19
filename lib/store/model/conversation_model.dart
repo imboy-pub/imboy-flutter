@@ -6,6 +6,7 @@ import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/utils/conversation_uk3_generator.dart';
 
 class ConversationModel {
   int id;
@@ -57,7 +58,11 @@ class ConversationModel {
 
   // CREATE UNIQUE INDEX uk_cv_Type_From_To ON conversation ("type",user_id,peer_id)
   String get uk3 {
-    return "${type}_${UserRepoLocal.to.currentUid}_$peerId".toLowerCase();
+    return ConversationUk3Generator.generateSmart(
+      type: type,
+      currentUserId: UserRepoLocal.to.currentUid,
+      peerId: peerId,
+    );
   }
   /// 会话内容计算
   String get content {
@@ -72,10 +77,10 @@ class ConversationModel {
     String draftKey = "draft${type}_$peerId";
     String? draft = StorageService.to.getString(draftKey);
     if (strNoEmpty(draft)) {
-      return "[${'tip_draft'.tr}]_color_red_$draft";
+      return "[${'tipDraft'.tr}]_color_red_$draft";
     }
 
-    String str = 'unknown_message'.tr;
+    String str = 'unknownMessage'.tr;
     if (msgType == 'text' || msgType == '') {
       return subtitle;
     } else if (msgType == 'quote') {
@@ -86,15 +91,15 @@ class ConversationModel {
       // str = '文件';
       str = 'file'.tr;
     } else if (msgType == 'audio') {
-      str = 'voice_message'.tr;
+      str = 'voiceMessage'.tr;
     } else if (msgType == 'video') {
       str = 'video'.tr;
     } else if (msgType == 'webrtc_audio') {
-      str = 'voice_call'.tr;
+      str = 'voiceCall'.tr;
     } else if (msgType == 'webrtc_video') {
-      str = 'video_call'.tr;
+      str = 'videoCall'.tr;
     } else if (msgType == 'visit_card') {
-      str = 'personal_card'.tr;
+      str = 'personalCard'.tr;
       return "[$str]$subtitle";
     } else if (msgType == 'location') {
       str = 'location'.tr;
@@ -108,9 +113,9 @@ class ConversationModel {
         title = title.substring(0, 12);
         suffix = '...';
       }
-      return '"$title$suffix" ${'message_was_withdrawn'.tr}';
+      return '"$title$suffix" ${'messageWasWithdrawn'.tr}';
     } else if (msgType == 'my_revoked') {
-      return 'you_withdrew_a_message'.tr;
+      return 'youWithdrewAMessage'.tr;
     } else if (msgType == 'custom') {
       str = subtitle;
     } else if (msgType == 'empty') {

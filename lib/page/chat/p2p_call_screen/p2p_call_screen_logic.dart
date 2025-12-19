@@ -730,7 +730,7 @@ class P2pCallScreenLogic {
     Map<String, dynamic> turnCredential = await UserProvider().turnCredential();
     debugPrint("getIceServers _turnCredential ${turnCredential.toString()}");
     if (turnCredential.isEmpty && from == 'openCallScreen') {
-      EasyLoading.showError('failed_request_please_check_network'.tr);
+      EasyLoading.showError('failedRequestPleaseCheckNetwork'.tr);
       return null;
     } else if (turnCredential.isEmpty) {
       return null;

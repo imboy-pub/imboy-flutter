@@ -22,7 +22,7 @@ class FaceToFaceLogic extends GetxController {
         state.longitude.value == "0.0" ||
         state.longitude.value == "null") {
       error =
-          "${'failed_get_lat_long'.tr}，${'not_turned_location_service'.tr}，${'or'.tr} ${'not_authorized_lat_long'.tr}";
+          "${'failedGetLatLong'.tr}，${'notTurnedLocationService'.tr}，${'or'.tr} ${'notAuthorizedLatLong'.tr}";
       return {
         'error': error,
       };

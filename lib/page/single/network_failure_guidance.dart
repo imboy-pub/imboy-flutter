@@ -10,7 +10,7 @@ class NetworkFailureGuidancePage extends StatelessWidget {
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'network_exception'.tr,
+        title: 'networkException'.tr,
       ),
       body: Card(
         color: Theme.of(context).colorScheme.surface,

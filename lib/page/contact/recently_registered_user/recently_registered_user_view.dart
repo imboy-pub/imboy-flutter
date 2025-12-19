@@ -44,7 +44,7 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
           state.items.addAll(list);
           state.page = state.page + 1;
         } else {
-          EasyLoading.showToast('no_more_data'.tr);
+          EasyLoading.showToast('noMoreData'.tr);
         }
       }
     });
@@ -246,7 +246,7 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'newly_registered_people'.tr,
+        title: 'newlyRegisteredPeople'.tr,
         backgroundColor: Theme.of(context).colorScheme.surface,
       ),
       body: SlidableAutoCloseBehavior(

@@ -183,7 +183,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20.0),
                               child: Text(
-                                hasError ? 'pin_code_fill_tips'.tr : '',
+                                hasError ? 'pinCodeFillTips'.tr : '',
                                 style: const TextStyle(
                                     color: Colors.red,
                                     fontSize: 12,
@@ -194,7 +194,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                               children: [
                                 Expanded(
                                     child: Text(
-                                      'not_receive_coe_q'.tr,
+                                      'notReceiveCoeQ'.tr,
                                       style: const TextStyle(
                                           color: Colors.black54, fontSize: 15),
                                     )),
@@ -209,7 +209,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                                         if (res == null) {
                                           logic.snackBar(
                                             Text(
-                                              'code_sent_to_param'.trArgs([widget.account]),
+                                              'codeSentToParam'.trArgs([widget.account]),
                                               style: const TextStyle(
                                                 color: Colors.green,
                                                 fontSize: 20,
@@ -225,7 +225,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                                         }
                                       },
                                       child: Text(
-                                        'resend_code'.tr,
+                                        'resendCode'.tr,
                                         style: const TextStyle(
                                             color: Colors.green,
                                             fontWeight: FontWeight.bold,
@@ -248,7 +248,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                                   ),
                                   child: Obx(() => PasswordTextField(
                                     obscureText: state.newPwdObscure.value,
-                                    hintText: 'new_password'.tr,
+                                    hintText: 'newPassword'.tr,
                                     onTap: () {
                                       state.newPwdObscure.value =
                                       !state.newPwdObscure.value;
@@ -272,7 +272,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                                       BorderRadius.all(Radius.circular(5))),
                                   child: Obx(() => PasswordTextField(
                                     obscureText: state.retypePwdObscure.value,
-                                    hintText: 'retype_password'.tr,
+                                    hintText: 'retypePassword'.tr,
                                     onTap: () {
                                       state.retypePwdObscure.value =
                                       !state.retypePwdObscure.value;
@@ -306,7 +306,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                                         rePwd: state.retypePwd.value);
                                     if (res == null) {
                                       EasyLoading.showSuccess(
-                                          'confirm_recover_success'.tr);
+                                          'confirmRecoverSuccess'.tr);
                                       Get.to(
                                             () => const LoginPage(),
                                         transition: Transition.rightToLeft,
@@ -332,7 +332,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                                     ),
                                   ),
                                   child: Text(
-                                    'set_param'.trArgs(['password'.tr]),
+                                    'setParam'.trArgs(['password'.tr]),
                                     style: const TextStyle(
                                       color: Colors.white,
                                       letterSpacing: 0.5,
@@ -352,7 +352,7 @@ class _PinCodeVerificationPageState extends State<PinCodeVerificationPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('try_again_q'.tr,
+                          Text('tryAgainQ'.tr,
                               style: const TextStyle(
                                 color: Colors.white,
                                 letterSpacing: 0.5,

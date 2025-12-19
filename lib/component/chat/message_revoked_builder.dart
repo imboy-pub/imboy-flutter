@@ -57,7 +57,7 @@ class RevokedMessageBuilder extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                're_edit'.tr,
+                'reEdit'.tr,
                 style: TextStyle(
                   height: 1.5,
                   color: Theme.of(context).colorScheme.primary,
@@ -124,7 +124,7 @@ class RevokedMessageBuilder extends StatelessWidget {
                       ? const EdgeInsets.only(right: 10, left: 0)
                       : const EdgeInsets.only(left: 50),
                   child: Text(
-                    "$nickname ${'message_was_withdrawn'.tr}",
+                    "$nickname ${'messageWasWithdrawn'.tr}",
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 13,

@@ -47,7 +47,7 @@ class UserOnlineTimeHelper {
     if (hideOnlineStatus) {
       return UserOnlineStatus(
         status: LastSeenStatus.hidden,
-        statusText: 'last_seen_hide'.tr,
+        statusText: 'lastSeenHide'.tr,
       );
     }
 
@@ -61,7 +61,7 @@ class UserOnlineTimeHelper {
     if (lastSeenTimestamp == null || lastSeenTimestamp == 0) {
       return UserOnlineStatus(
         status: LastSeenStatus.longTimeAgo,
-        statusText: 'last_seen_never'.tr,
+        statusText: 'lastSeenNever'.tr,
       );
     }
 
@@ -73,7 +73,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.justNow,
         lastSeenAt: lastSeen,
-        statusText: 'last_seen_just_now'.tr,
+        statusText: 'lastSeenJustNow'.tr,
       );
     }
 
@@ -81,7 +81,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinMinutes,
         lastSeenAt: lastSeen,
-        statusText: 'last_seen_minutes_ago'.trParams({
+        statusText: 'lastSeenMinutesAgo'.trParams({
           'count': difference.inMinutes.toString(),
         }),
         timeValue: difference.inMinutes,
@@ -92,7 +92,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinHours,
         lastSeenAt: lastSeen,
-        statusText: 'last_seen_hours_ago'.trParams({
+        statusText: 'lastSeenHoursAgo'.trParams({
           'count': difference.inHours.toString(),
         }),
         timeValue: difference.inHours,
@@ -103,7 +103,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinDays,
         lastSeenAt: lastSeen,
-        statusText: 'last_seen_days_ago'.trParams({
+        statusText: 'lastSeenDaysAgo'.trParams({
           'count': difference.inDays.toString(),
         }),
         timeValue: difference.inDays,
@@ -115,7 +115,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinWeeks,
         lastSeenAt: lastSeen,
-        statusText: 'last_seen_weeks_ago'.trParams({
+        statusText: 'lastSeenWeeksAgo'.trParams({
           'count': weeks.toString(),
         }),
         timeValue: weeks,
@@ -127,7 +127,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinMonths,
         lastSeenAt: lastSeen,
-        statusText: 'last_seen_months_ago'.trParams({
+        statusText: 'lastSeenMonthsAgo'.trParams({
           'count': months.toString(),
         }),
         timeValue: months,
@@ -137,7 +137,7 @@ class UserOnlineTimeHelper {
     return UserOnlineStatus(
       status: LastSeenStatus.longTimeAgo,
       lastSeenAt: lastSeen,
-      statusText: 'last_seen_long_time_ago'.tr,
+      statusText: 'lastSeenLongTimeAgo'.tr,
     );
   }
 

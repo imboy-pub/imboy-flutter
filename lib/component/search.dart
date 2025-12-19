@@ -145,7 +145,7 @@ class SearchBarDelegate extends SearchDelegate {
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
-      tooltip: 'button_back'.tr,
+      tooltip: 'buttonBack'.tr,
       icon: Icon(
         Icons.arrow_back_ios,
         size: 20,
@@ -197,7 +197,7 @@ class SearchBarDelegate extends SearchDelegate {
             if (items.isEmpty) {
               return Center(
                 child: Text(
-                  'search_no_found'.tr,
+                  'searchNoFound'.tr,
                   style: ThemeManager.instance
                       .getTextStyle(FontSizeType.medium, context: context)
                       .copyWith(color: ThemeManager.instance.getThemeColor('textSecondary')),

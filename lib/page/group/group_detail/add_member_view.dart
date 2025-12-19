@@ -165,7 +165,7 @@ class AddMemberPageState extends State<AddMemberPage> {
                     if (isMember) ...[
                       const SizedBox(height: 2),
                       Text(
-                        'already_member'.tr,
+                        'alreadyMember'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).colorScheme.outline,
@@ -216,7 +216,7 @@ class AddMemberPageState extends State<AddMemberPage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'select_contacts'.tr,
+          'selectContacts'.tr,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w600,
@@ -260,7 +260,7 @@ class AddMemberPageState extends State<AddMemberPage> {
                     elevation: logic.state.selects.isNotEmpty ? 2 : 0,
                   ),
                   child: Text(
-                    '${'button_accomplish'.tr}${logic.state.selectsTips.value}',
+                    '${'buttonAccomplish'.tr}${logic.state.selectsTips.value}',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -320,7 +320,7 @@ class AddMemberPageState extends State<AddMemberPage> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'selected_count'.trParams({'count': '${logic.state.selects.length}'}),
+                        'selectedCount'.trParams({'count': '${logic.state.selects.length}'}),
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.w500,
@@ -345,7 +345,7 @@ class AddMemberPageState extends State<AddMemberPage> {
               child: SlidableAutoCloseBehavior(
                 child: Obx(() {
                   return logic.state.items.isEmpty
-                      ? NoDataView(text: 'no_data'.tr)
+                      ? NoDataView(text: 'noData'.tr)
                       : AzListView(
                           data: logic.state.items,
                           itemCount: logic.state.items.length,

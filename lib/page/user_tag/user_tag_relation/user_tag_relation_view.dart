@@ -67,7 +67,7 @@ class UserTagRelationPage extends StatelessWidget {
       state.tagItems.value = state.tagController.getTags! as List<String>;
       logic.valueOnChange(diff);
       if (diff) {
-        state.tagController.setError = 'need_submit_effect'.tr;
+        state.tagController.setError = 'needSubmitEffect'.tr;
       }
     });
   }
@@ -91,12 +91,12 @@ class UserTagRelationPage extends StatelessWidget {
         logic.valueOnChange(diff);
         if (tag.length > 14) {
           // 最最最最最最最最最最最最最最1
-          return 'up_to_words'.trArgs(['14']);
+          return 'upToWords'.trArgs(['14']);
         }
         if (state.tagController.getTags != null &&
             state.tagController.getTags!.contains(tag)) {
           // return 'you already entered that';
-          return 'already_entered'.tr;
+          return 'alreadyEntered'.tr;
         }
         return null;
       },
@@ -122,13 +122,13 @@ class UserTagRelationPage extends StatelessWidget {
                 borderSide:
                     BorderSide(color: tagSelectedBackgroundColor, width: 1.0),
               ),
-              // helperText: 'all_tags'.tr,
+              // helperText: 'allTags'.tr,
               helperStyle: TextStyle(
                 color: tagSelectedBackgroundColor,
               ),
               hintText: inputFieldValues.tags.isNotEmpty
                   ? ''
-                  : 'select_or_enter_tag'.tr,
+                  : 'selectOrEnterTag'.tr,
               errorText: inputFieldValues.error,
               prefixIconConstraints:
                   BoxConstraints(maxWidth: state.distanceToField * 1.0),
@@ -203,16 +203,16 @@ class UserTagRelationPage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       // backgroundColor: Colors.white,
       appBar: NavAppBar(
-        title: title ?? 'add_tag'.tr,
+        title: title ?? 'addTag'.tr,
         automaticallyImplyLeading: true,
       ),
       body: SizedBox(
         height: Get.height - 40,
         child: Obx(() => state.loaded.isTrue
             ? FilterListWidget<String>(
-                resetButtonText: 'button_set_empty'.tr,
-                applyButtonText: 'button_confirm'.tr,
-                selectedItemsText: 'selected_items'.trArgs(['']).trim(),
+                resetButtonText: 'buttonSetEmpty'.tr,
+                applyButtonText: 'buttonConfirm'.tr,
+                selectedItemsText: 'selectedItems'.trArgs(['']).trim(),
                 // hideHeader: true,
                 header: _buildHeader(),
                 enableOnlySingleSelection: false,
@@ -258,7 +258,7 @@ class UserTagRelationPage extends StatelessWidget {
                   // debugPrint("submit_tag ${tag?.length} ${tag.toString()}, ");
                   bool res = await logic.add(scene, peerId, tag ?? []);
                   if (res) {
-                    // EasyLoading.showSuccess('tip_success'.tr);
+                    // EasyLoading.showSuccess('tipSuccess'.tr);
                     Get.back(result: tag!.join(','));
                   }
                 },
@@ -271,7 +271,7 @@ class UserTagRelationPage extends StatelessWidget {
                 },
                 onReset: () {
                   state.tagController.clearTags();
-                  state.tagController.setError = 'need_submit_effect'.tr;
+                  state.tagController.setError = 'needSubmitEffect'.tr;
                 },
                 onSelected: (String item, bool selected) {
                   if (selected) {

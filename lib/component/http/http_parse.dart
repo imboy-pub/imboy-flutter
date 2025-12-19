@@ -67,61 +67,61 @@ HttpException _parseException(Exception error) {
             case 400:
               // 请求语法错误
               return BadRequestException(
-                message: 'error_request_syntax'.tr,
+                message: 'errorRequestSyntax'.tr,
                 code: errCode,
               );
             case 401:
               // 没有权限
               return UnauthorisedException(
-                message: 'no_permission'.tr,
+                message: 'noPermission'.tr,
                 code: errCode,
               );
             case 403:
               // 服务器拒绝执行
               return BadRequestException(
-                message: 'error_server_refused'.tr,
+                message: 'errorServerRefused'.tr,
                 code: errCode,
               );
             case 404:
               // 无法连接服务器
               return BadRequestException(
-                message: 'error_failed_connect_server'.tr,
+                message: 'errorFailedConnectServer'.tr,
                 code: errCode,
               );
             case 405:
               // 请求方法被禁止
               return BadRequestException(
-                message: 'error_request_forbidden'.tr,
+                message: 'errorRequestForbidden'.tr,
                 code: errCode,
               );
             case 429:
               return BadRequestException(
-                message: 'error_many_request'.tr,
+                message: 'errorManyRequest'.tr,
                 code: errCode,
               );
 
             case 500:
               // 服务器内部错误
               return BadServiceException(
-                message: 'error_internal_server'.tr,
+                message: 'errorInternalServer'.tr,
                 code: errCode,
               );
             case 502:
               // 无效的请求
               return BadServiceException(
-                message: 'error_invalid_request'.tr,
+                message: 'errorInvalidRequest'.tr,
                 code: errCode,
               );
             case 503:
               // 服务器挂了
               return BadServiceException(
-                message: 'error_server_down'.tr,
+                message: 'errorServerDown'.tr,
                 code: errCode,
               );
             case 505:
               // 不支持HTTP协议请求
               return UnauthorisedException(
-                message: 'error_http_not_supported'.tr,
+                message: 'errorHttpNotSupported'.tr,
                 code: errCode,
               );
             default:

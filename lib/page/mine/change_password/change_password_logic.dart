@@ -15,10 +15,10 @@ class ChangePasswordLogic extends GetxController {
   /// 密码格式验证
   String? passwordValidator(String? val) {
     if (strEmpty(val)) {
-      return 'error_empty_directory'.trArgs(['password'.tr]);
+      return 'errorEmptyDirectory'.trArgs(['password'.tr]);
     }
     if (val!.length < 4 || val.length > 32) {
-      return 'error_length_between'.trArgs([
+      return 'errorLengthBetween'.trArgs([
         'password'.tr,
         '4',
         '32',
@@ -32,7 +32,7 @@ class ChangePasswordLogic extends GetxController {
       required String rePwd,
       required String existingPwd}) async {
     if (strEmpty(existingPwd)) {
-      EasyLoading.showError('error_required'.trArgs(['existing_password'.tr]));
+      EasyLoading.showError('errorRequired'.trArgs(['existingPassword'.tr]));
       return false;
     }
     String? error = passwordValidator(newPwd);
@@ -41,16 +41,16 @@ class ChangePasswordLogic extends GetxController {
       return false;
     }
     if (strEmpty(newPwd)) {
-      EasyLoading.showError('error_required'.trArgs(['new_password'.tr]));
+      EasyLoading.showError('errorRequired'.trArgs(['newPassword'.tr]));
       return false;
     }
     if (rePwd != newPwd) {
-      EasyLoading.showError('error_retype_password'.tr);
+      EasyLoading.showError('errorRetypePassword'.tr);
       return false;
     }
     if (newPwd == existingPwd) {
       EasyLoading.showError(
-          'error_same'.trArgs(['existing_password'.tr, 'new_password'.tr]));
+          'errorSame'.trArgs(['existingPassword'.tr, 'newPassword'.tr]));
       return false;
     }
 
@@ -78,11 +78,11 @@ class ChangePasswordLogic extends GetxController {
       return false;
     }
     if (strEmpty(newPwd)) {
-      EasyLoading.showError('error_required'.trArgs(['new_password'.tr]));
+      EasyLoading.showError('errorRequired'.trArgs(['newPassword'.tr]));
       return false;
     }
     if (rePwd != newPwd) {
-      EasyLoading.showError('error_retype_password'.tr);
+      EasyLoading.showError('errorRetypePassword'.tr);
       return false;
     }
 

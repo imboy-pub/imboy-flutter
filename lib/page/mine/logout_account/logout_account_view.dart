@@ -36,7 +36,7 @@ class LogoutAccountPage extends StatelessWidget {
           LimitedBox(
             maxHeight: Get.height - 110, // 设置最大高度限制
             child: MarkdownPage(
-              title: 'logout_account'.tr,
+              title: 'logoutAccount'.tr,
               url:
                   "https://imboy.pub/doc/notice_of_cancellation_$lang.md?vsn=$appVsn",
             ),
@@ -59,7 +59,7 @@ class LogoutAccountPage extends StatelessWidget {
                 width: 220,
                 child: InkWell(
                   child: Text(
-                    'read_agree_param'.trArgs(['logout_notice'.tr]),
+                    'readAgreeParam'.trArgs(['logoutNotice'.tr]),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.left,
@@ -75,13 +75,13 @@ class LogoutAccountPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               RoundedElevatedButton(
-                text: 'apply_param'.trArgs(['button_logout'.tr]),
+                text: 'applyParam'.trArgs(['buttonLogout'.tr]),
                 highlighted: true,
                 size: Size(Get.width - 200, 48),
                 onPressed: () async {
                   if (state.selectedValue.value != 'read_and_agree') {
                     EasyLoading.showInfo(
-                      '${'read_agree_param'.trArgs(['logout_notice'.tr])} ?',
+                      '${'readAgreeParam'.trArgs(['logoutNotice'.tr])} ?',
                     );
                     return;
                   }

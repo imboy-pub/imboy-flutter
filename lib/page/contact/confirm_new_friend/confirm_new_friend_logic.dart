@@ -82,7 +82,7 @@ class ConfirmNewFriendLogic extends GetxController {
       });
       Get.back(times: 1);
     } else {
-      EasyLoading.showError('network_failure_try_again'.tr);
+      EasyLoading.showError('networkFailureTryAgain'.tr);
     }
   }
 }

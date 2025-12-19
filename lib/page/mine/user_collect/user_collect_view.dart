@@ -276,7 +276,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
   /// 选择转发对象后，确认发送收藏内容
   Future<void> sendToDialog(UserCollectModel model) async {
     Get.defaultDialog(
-      title: 'send_to'.tr,
+      title: 'sendTo'.tr,
       backgroundColor: Theme.of(context).colorScheme.surface,
       radius: 6,
       cancel: TextButton(
@@ -286,7 +286,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
           });
         },
         child: Text(
-          'button_cancel'.tr,
+          'buttonCancel'.tr,
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
@@ -301,7 +301,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
           });
         },
         child: Text(
-          'button_send'.tr,
+          'buttonSend'.tr,
           textAlign: TextAlign.center,
           style: TextStyle(
             color: AppColors.primaryGreen,
@@ -335,7 +335,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
             Expanded(
               child: Center(
                 child: Text(
-                  model.info['payload']?['text'] ?? 'message_content'.tr,
+                  model.info['payload']?['text'] ?? 'messageContent'.tr,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
@@ -457,7 +457,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
       _exitMultiSelect();
     } catch (e) {
       EasyLoading.dismiss();
-      EasyLoading.showError('tip_failed'.tr);
+      EasyLoading.showError('tipFailed'.tr);
     }
   }
 
@@ -466,7 +466,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
     if (_selectedIds.isEmpty) return;
     final TextEditingController tc = TextEditingController();
     Get.defaultDialog(
-      title: 'edit_tag'.tr,
+      title: 'editTag'.tr,
       backgroundColor: Theme.of(context).colorScheme.surface,
       radius: 6,
       content: Padding(
@@ -474,7 +474,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
         child: TextField(
           controller: tc,
           decoration: InputDecoration(
-            hintText: 'favorite_group_tags_etc'.tr,
+            hintText: 'favoriteGroupTagsEtc'.tr,
             border: const OutlineInputBorder(),
           ),
           minLines: 1,
@@ -503,23 +503,23 @@ class _UserCollectPageState extends State<UserCollectPage> {
               } catch (_) {}
             }
             EasyLoading.dismiss();
-            EasyLoading.showSuccess('tip_success'.tr);
+            EasyLoading.showSuccess('tipSuccess'.tr);
             setState(() {});
             _exitMultiSelect();
           } catch (e) {
             EasyLoading.dismiss();
-            EasyLoading.showError('tip_failed'.tr);
+            EasyLoading.showError('tipFailed'.tr);
           }
         },
         child: Text(
-          'button_confirm'.tr,
+          'buttonConfirm'.tr,
           style: TextStyle(color: AppColors.primaryGreen),
         ),
       ),
       cancel: TextButton(
         onPressed: () => Get.back(),
         child: Text(
-          'button_cancel'.tr,
+          'buttonCancel'.tr,
         ),
       ),
     );
@@ -607,7 +607,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'load_error'.tr,
+              'loadError'.tr,
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
@@ -617,7 +617,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
                 _initData();
               });
             },
-            child: Text('button_retry'.tr),
+            child: Text('buttonRetry'.tr),
           ),
         ],
       ),
@@ -844,7 +844,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
                         peerId: obj.kindId,
                         peerTag: obj.tag,
                         scene: 'collect',
-                        title: 'edit_tag'.tr,
+                        title: 'editTag'.tr,
                       ),
                       transition: Transition.rightToLeft,
                       popGesture: true,
@@ -873,7 +873,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
               },
               icon: Icons.delete_outline,
               foregroundColor: Colors.white,
-              label: 'button_delete'.tr,
+              label: 'buttonDelete'.tr,
               borderRadius: const BorderRadius.only(
                 topRight: Radius.circular(12),
                 bottomRight: Radius.circular(12),
@@ -926,7 +926,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
             const SizedBox(height: 16),
             // 标题
             Text(
-              'sure_delete_data'.tr,
+              'sureToDeleteData'.tr,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
@@ -936,7 +936,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
             const SizedBox(height: 8),
             // 描述
             Text(
-              'delete_collect_confirm_desc'.tr,
+              'deleteCollectConfirmDesc'.tr,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
@@ -969,7 +969,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
                         ),
                       ),
                       child: Text(
-                        'button_cancel'.tr,
+                        'buttonCancel'.tr,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w600,
@@ -999,13 +999,13 @@ class _UserCollectPageState extends State<UserCollectPage> {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 Get.closeAllBottomSheets();
                               });
-                              EasyLoading.showSuccess('tip_success'.tr);
+                              EasyLoading.showSuccess('tipSuccess'.tr);
                             } else {
-                              EasyLoading.showError('tip_failed'.tr);
+                              EasyLoading.showError('tipFailed'.tr);
                             }
                           } catch (e) {
                             debugPrint('Delete error: $e');
-                            EasyLoading.showError('tip_failed'.tr);
+                            EasyLoading.showError('tipFailed'.tr);
                           }
                         },
                         style: TextButton.styleFrom(
@@ -1023,7 +1023,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
                               ),
                             )
                           : Text(
-                              'button_delete'.tr,
+                              'buttonDelete'.tr,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
@@ -1068,7 +1068,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
         items: [
           PopupMenuItem(
             value: 'uncollect',
-            child: Text('button_delete'.tr),
+            child: Text('buttonDelete'.tr),
           ),
           PopupMenuItem(
             value: 'pin_toggle',
@@ -1091,10 +1091,10 @@ class _UserCollectPageState extends State<UserCollectPage> {
   /// 右键/菜单确认删除操作（复用现有删除逻辑）
   void _confirmRemove(UserCollectModel obj, int index) {
     Get.defaultDialog(
-      title: 'sure_delete_data'.tr,
-      middleText: 'delete_collect_confirm_desc'.tr,
-      textConfirm: 'button_delete'.tr,
-      textCancel: 'button_cancel'.tr,
+      title: 'sureToDeleteData'.tr,
+      middleText: 'deleteCollectConfirmDesc'.tr,
+      textConfirm: 'buttonDelete'.tr,
+      textCancel: 'buttonCancel'.tr,
       confirmTextColor: Colors.white,
       onConfirm: () async {
         // 关闭对话框
@@ -1105,13 +1105,13 @@ class _UserCollectPageState extends State<UserCollectPage> {
           if (res && mounted) {
             // 从列表中移除
             state.items.removeWhere((e) => (e as dynamic).kindId == obj.kindId);
-            EasyLoading.showSuccess('tip_success'.tr);
+            EasyLoading.showSuccess('tipSuccess'.tr);
           } else {
-            EasyLoading.showError('tip_failed'.tr);
+            EasyLoading.showError('tipFailed'.tr);
           }
         } catch (e) {
           debugPrint('confirmRemove error: $e');
-          EasyLoading.showError('tip_failed'.tr);
+          EasyLoading.showError('tipFailed'.tr);
         }
       },
     );
@@ -1121,13 +1121,13 @@ class _UserCollectPageState extends State<UserCollectPage> {
   Widget _buildKindList(BuildContext context) {
     // 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息  7 个人名片
     Map<String, String> kindMap = {
-      state.recentUse: 'recently_used'.tr,
+      state.recentUse: 'recentlyUsed'.tr,
       '1': 'text'.tr,
       '2': 'image'.tr,
-      '7': 'personal_card'.tr,
+      '7': 'personalCard'.tr,
       '4': 'video'.tr,
       '5': 'file'.tr,
-      '6': 'location_message'.tr,
+      '6': 'locationMessage'.tr,
       '3': 'voice'.tr,
       'all': 'all'.tr,
     };
@@ -1299,13 +1299,13 @@ class _UserCollectPageState extends State<UserCollectPage> {
   Widget _buildQuickFilterRow(BuildContext context) {
     // 被收藏的资源种类映射
     Map<String, String> kindMap = {
-      state.recentUse: 'recently_used'.tr,
+      state.recentUse: 'recentlyUsed'.tr,
       '1': 'text'.tr,
       '2': 'image'.tr,
-      '7': 'personal_card'.tr,
+      '7': 'personalCard'.tr,
       '4': 'video'.tr,
       '5': 'file'.tr,
-      '6': 'location_message'.tr,
+      '6': 'locationMessage'.tr,
       '3': 'voice'.tr,
       'all': 'all'.tr,
     };
@@ -1400,7 +1400,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
       // 检查网络状态
       var connectivityResult = await Connectivity().checkConnectivity();
       if (connectivityResult.contains(ConnectivityResult.none)) {
-        String msg = 'tip_connect_desc'.tr;
+        String msg = 'tipConnectDesc'.tr;
         EasyLoading.showInfo(' $msg        ');
         return;
       }
@@ -1466,7 +1466,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
           ),
           const Spacer(),
           IconButton(
-            tooltip: 'select_all'.tr,
+            tooltip: 'selectAll'.tr,
             onPressed: _selectAllCurrent,
             icon: Icon(Icons.select_all, color: Theme.of(context).colorScheme.onSurface),
           ),
@@ -1476,12 +1476,12 @@ class _UserCollectPageState extends State<UserCollectPage> {
             icon: const Icon(Icons.local_offer_outlined, color: Colors.orange),
           ),
           IconButton(
-            tooltip: 'button_delete'.tr,
+            tooltip: 'buttonDelete'.tr,
             onPressed: _batchDelete,
             icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
           ),
           IconButton(
-            tooltip: 'button_cancel'.tr,
+            tooltip: 'buttonCancel'.tr,
             onPressed: _clearSelect,
             icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface),
           ),
@@ -1505,7 +1505,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
           child: const Icon(Icons.close),
         )
             : null,
-        title: widget.isSelect ? 'favorites'.tr : 'my_favorites'.tr,
+        title: widget.isSelect ? 'favorites'.tr : 'myFavorites'.tr,
       ),
       body: RefreshIndicator(
         onRefresh: _onRefresh,
@@ -1543,7 +1543,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
                     controller: state.searchController,
                     searchLabel: 'search'.tr,
                     hintText: 'search'.tr,
-                    queryTips: 'favorite_group_tags_etc'.tr,
+                    queryTips: 'favoriteGroupTagsEtc'.tr,
                     onChanged: (query) {
                       // 实时更新搜索关键词
                       state.kwd.value = query;
@@ -1607,7 +1607,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                'no_data'.tr,
+                                'noData'.tr,
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                   fontWeight: FontWeight.w500,

@@ -258,7 +258,7 @@ class MinePage extends StatelessWidget {
               _buildMenuItem(
                 context: context,
                 icon: Icons.star_outline,
-                title: 'my_favorites'.tr,
+                title: 'myFavorites'.tr,
                 iconColor: const Color(0xFFFF9500),
                 onTap: () {
                   Get.to(
@@ -287,7 +287,7 @@ class MinePage extends StatelessWidget {
               // 存储空间
               _buildMenuItem(
                 context: context,
-                title: 'storage_space'.tr,
+                title: 'storageSpace'.tr,
                 icon: Icons.sd_storage_outlined,
                 iconColor: AppColors.warning,
                 onTap: () {
@@ -302,7 +302,7 @@ class MinePage extends StatelessWidget {
               // 设备管理
               _buildMenuItem(
                 context: context,
-                title: 'device_list'.tr,
+                title: 'deviceList'.tr,
                 icon: Icons.devices,
                 iconColor: AppColors.info,
                 onTap: () {

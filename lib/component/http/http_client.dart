@@ -133,11 +133,11 @@ class HttpClient {
   }) async {
     try {
       await _setDefaultConfig();
-      // 使用 NetworkMonitorService 检查网络状态
-      if (!NetworkMonitorService.to.hasNetwork) {
+      // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
+      if (getx.Get.isRegistered<NetworkMonitorService>() && !NetworkMonitorService.to.hasNetwork) {
         return handleException(
           uri,
-          NetworkException(message: 'tip_connect_desc'.tr),
+          NetworkException(message: 'tipConnectDesc'.tr),
         );
       }
       // iPrint("http_client/get $uri ?   queryParameters ${queryParameters.toString()}");
@@ -190,12 +190,12 @@ class HttpClient {
     ProgressCallback? onReceiveProgress,
     HttpTransformer? httpTransformer,
   }) async {
-    // 使用 NetworkMonitorService 检查网络状态
-    if (!NetworkMonitorService.to.hasNetwork) {
-      // EasyLoading.showError('tip_connect_desc'.tr);
+    // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
+    if (getx.Get.isRegistered<NetworkMonitorService>() && !NetworkMonitorService.to.hasNetwork) {
+      // EasyLoading.showError('tipConnectDesc'.tr);
       return handleException(
         uri,
-        NetworkException(message: 'tip_connect_desc'.tr),
+        NetworkException(message: 'tipConnectDesc'.tr),
       );
     }
     try {
@@ -231,12 +231,12 @@ class HttpClient {
     CancelToken? cancelToken,
     HttpTransformer? httpTransformer,
   }) async {
-    // 使用 NetworkMonitorService 检查网络状态
-    if (!NetworkMonitorService.to.hasNetwork) {
-      EasyLoading.showError('tip_connect_desc'.tr);
+    // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
+    if (getx.Get.isRegistered<NetworkMonitorService>() && !NetworkMonitorService.to.hasNetwork) {
+      EasyLoading.showError('tipConnectDesc'.tr);
       return handleException(
         uri,
-        NetworkException(message: 'tip_connect_desc'.tr),
+        NetworkException(message: 'tipConnectDesc'.tr),
       );
     }
     try {
@@ -269,12 +269,12 @@ class HttpClient {
     ProgressCallback? onReceiveProgress,
     HttpTransformer? httpTransformer,
   }) async {
-    // 使用 NetworkMonitorService 检查网络状态
-    if (!NetworkMonitorService.to.hasNetwork) {
-      EasyLoading.showError('tip_connect_desc'.tr);
+    // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
+    if (getx.Get.isRegistered<NetworkMonitorService>() && !NetworkMonitorService.to.hasNetwork) {
+      EasyLoading.showError('tipConnectDesc'.tr);
       return handleException(
         uri,
-        NetworkException(message: 'tip_connect_desc'.tr),
+        NetworkException(message: 'tipConnectDesc'.tr),
       );
     }
     try {
@@ -303,12 +303,12 @@ class HttpClient {
     CancelToken? cancelToken,
     HttpTransformer? httpTransformer,
   }) async {
-    // 使用 NetworkMonitorService 检查网络状态
-    if (!NetworkMonitorService.to.hasNetwork) {
-      EasyLoading.showError('tip_connect_desc'.tr);
+    // 使用 NetworkMonitorService 检查网络状态（确保服务已注册）
+    if (getx.Get.isRegistered<NetworkMonitorService>() && !NetworkMonitorService.to.hasNetwork) {
+      EasyLoading.showError('tipConnectDesc'.tr);
       return handleException(
         uri,
-        NetworkException(message: 'tip_connect_desc'.tr),
+        NetworkException(message: 'tipConnectDesc'.tr),
       );
     }
     try {

@@ -55,7 +55,7 @@ class RightButtonList extends StatelessWidget {
         _buildMenuItem(
           context,
           icon: Icons.chat_bubble_outline,
-          title: 'initiate_chat'.tr,
+          title: 'initiateChat'.tr,
           onTap: () {
             Navigator.of(context).pop();
             Get.to(
@@ -69,7 +69,7 @@ class RightButtonList extends StatelessWidget {
         _buildMenuItem(
           context,
           icon: Icons.person_add_alt_1,
-          title: 'add_friend'.tr,
+          title: 'addFriend'.tr,
           onTap: () {
             Navigator.of(context).pop();
             Get.to(
@@ -83,7 +83,7 @@ class RightButtonList extends StatelessWidget {
         _buildMenuItem(
           context,
           icon: Icons.person,
-          title: 'newly_registered_people'.tr,
+          title: 'newlyRegisteredPeople'.tr,
           onTap: () {
             Navigator.of(context).pop();
             Get.to(
@@ -97,7 +97,7 @@ class RightButtonList extends StatelessWidget {
         _buildMenuItem(
           context,
           icon: Icons.qr_code_2,
-          title: 'my_qrcode'.tr,
+          title: 'myQrcode'.tr,
           onTap: () {
             Navigator.of(context).pop();
             Get.to(
@@ -111,7 +111,7 @@ class RightButtonList extends StatelessWidget {
         _buildMenuItem(
           context,
           icon: Icons.qr_code_scanner_outlined,
-          title: 'scan_qr_code'.tr,
+          title: 'scanQrCode'.tr,
           onTap: () {
             Navigator.of(context).pop();
             Get.to(

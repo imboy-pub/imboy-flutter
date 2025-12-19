@@ -250,7 +250,7 @@ class ContactSettingPage extends StatelessWidget {
               
               // 标题
               Text(
-                'delete_contact'.tr,
+                'deleteContact'.tr,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -264,7 +264,7 @@ class ContactSettingPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Text(
-                  'tip_delete_contact'.trArgs([peerRemark.isEmpty ? peerNickname : peerRemark]),
+                  'tipDeleteContact'.trArgs([peerRemark.isEmpty ? peerNickname : peerRemark]),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
@@ -307,7 +307,7 @@ class ContactSettingPage extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          'delete_contact'.tr,
+                          'deleteContact'.tr,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -331,7 +331,7 @@ class ContactSettingPage extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          'button_cancel'.tr,
+                          'buttonCancel'.tr,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
@@ -361,7 +361,7 @@ class ContactSettingPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'profile_settings'.tr,
+          'profileSettings'.tr,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -386,7 +386,7 @@ class ContactSettingPage extends StatelessWidget {
             // 设置备注和标签
             _buildSettingCard(
               context: context,
-              title: 'set_param'.trArgs(['remarks_tags'.tr]),
+              title: 'setParam'.trArgs(['remarksTags'.tr]),
               icon: Icons.edit_outlined,
               onTap: () {
                 Get.to(
@@ -416,7 +416,7 @@ class ContactSettingPage extends StatelessWidget {
             // 推荐给朋友
             _buildSettingCard(
               context: context,
-              title: 'recommend_to_friend'.tr,
+              title: 'recommendToFriend'.tr,
               icon: Icons.share_outlined,
               onTap: () async {
                 // 推荐给朋友的逻辑
@@ -430,7 +430,7 @@ class ContactSettingPage extends StatelessWidget {
             Obx(
               () => _buildSwitchCard(
                 context: context,
-                title: 'add_to_denylist'.tr,
+                title: 'addToDenylist'.tr,
                 icon: Icons.block_outlined,
                 iconColor: inDenylist.value ? colorScheme.error : colorScheme.onSurfaceVariant,
                 value: inDenylist.value,
@@ -473,7 +473,7 @@ class ContactSettingPage extends StatelessWidget {
             // 删除联系人按钮
             _buildDangerButton(
               context: context,
-              title: 'delete_contact'.tr,
+              title: 'deleteContact'.tr,
               icon: Icons.person_remove_outlined,
               onTap: () => _showDeleteConfirmation(context),
             ),

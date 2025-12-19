@@ -41,7 +41,7 @@ class FeedbackDetailPage extends StatelessWidget {
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'feedback_details'.tr,
+        title: 'feedbackDetails'.tr,
       ),
       backgroundColor: colorScheme.surface,
       body: SingleChildScrollView(
@@ -104,7 +104,7 @@ class FeedbackDetailPage extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${'submitted_at'.tr} ${DateTimeHelper.lastTimeFmt(model.createdAt)}',
+                                '${'submittedAt'.tr} ${DateTimeHelper.lastTimeFmt(model.createdAt)}',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: colorScheme.onSurface.withAlpha(179),
@@ -166,7 +166,7 @@ class FeedbackDetailPage extends StatelessWidget {
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'view_attachments'.tr,
+                                      'viewAttachments'.tr,
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
@@ -345,7 +345,7 @@ class FeedbackDetailPage extends StatelessWidget {
                         return state.pageReplyList.isEmpty
                             ? SizedBox(
                                 height: 120,
-                                child: NoDataView(text: 'no_reply'.tr),
+                                child: NoDataView(text: 'noReply'.tr),
                               )
                             : ListView.separated(
                                 shrinkWrap: true,
@@ -403,7 +403,7 @@ class FeedbackDetailPage extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                '${'replied_at'.tr} ${DateTimeHelper.lastTimeFmt(replyModel.createdAt)}',
+                '${'repliedAt'.tr} ${DateTimeHelper.lastTimeFmt(replyModel.createdAt)}',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,

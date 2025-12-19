@@ -41,7 +41,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     var res = await Connectivity().checkConnectivity();
     if (res.contains(ConnectivityResult.none)) {
       Get.close();
-      Get.snackbar('tip_tips'.tr, 'network_exception'.tr);
+      Get.snackbar('tipTips'.tr, 'networkException'.tr);
       return;
     }
     try {
@@ -323,7 +323,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               // 拍照选项
               _buildBottomSheetOption(
                 context: context,
-                title: 'button_taking_pictures'.tr,
+                title: 'buttonTakingPictures'.tr,
                 onTap: () => getImageFromSource(ImageSource.camera),
               ),
 
@@ -341,7 +341,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               // 相册选项
               _buildBottomSheetOption(
                 context: context,
-                title: 'choose_from_album'.tr,
+                title: 'chooseFromAlbum'.tr,
                 onTap: () => getImageFromSource(ImageSource.gallery),
               ),
 
@@ -359,7 +359,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               // 取消选项
               _buildBottomSheetOption(
                 context: context,
-                title: 'button_cancel'.tr,
+                title: 'buttonCancel'.tr,
                 onTap: () => Get.back(),
                 isCancel: true,
               ),
@@ -409,7 +409,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('personal_information'.tr)),
+      appBar: AppBar(title: Text('personalInformation'.tr)),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -448,7 +448,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               if (UserRepoLocal.to.current.email.isNotEmpty)
                 _buildInfoItem(
                   context: context,
-                  title: 'login_email'.tr,
+                  title: 'loginEmail'.tr,
                   value: UserRepoLocal.to.current.email,
                   onTap: () {},
                   showArrow: false,
@@ -463,7 +463,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             _buildInfoGroup(context, [
               _buildInfoItem(
                 context: context,
-                title: 'my_qrcode'.tr,
+                title: 'myQrcode'.tr,
                 value: Icon(
                   Icons.qr_code_2,
                   color: Get.isDarkMode ? Colors.white70 : Colors.black,
@@ -474,7 +474,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
               _buildInfoItem(
                 context: context,
-                title: 'more_info'.tr,
+                title: 'moreInfo'.tr,
                 value: ' ',
                 onTap: () => logic.labelOnPressed('more'),
               ),

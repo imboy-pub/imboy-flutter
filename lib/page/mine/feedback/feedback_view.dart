@@ -52,7 +52,7 @@ class FeedbackPage extends StatelessWidget {
                 onTap: () {
                   BetterFeedback.of(context).show((UserFeedback feedback) async {
                     if (feedback.text.isEmpty) {
-                      EasyLoading.showError('feedback_content_required'.tr);
+                      EasyLoading.showError('feedbackContentRequired'.tr);
                       return;
                     }
 
@@ -81,10 +81,10 @@ class FeedbackPage extends StatelessWidget {
                         };
                         bool res = await p.add(data);
                         if (res) {
-                          EasyLoading.showSuccess('feedback_success_msg'.tr);
+                          EasyLoading.showSuccess('feedbackSuccessMsg'.tr);
                           initData(); // 刷新列表
                         } else {
-                          EasyLoading.showError('tip_failed'.tr);
+                          EasyLoading.showError('tipFailed'.tr);
                         }
                       },
                       (Error error) {
@@ -184,7 +184,7 @@ class FeedbackPage extends StatelessWidget {
                         onTap: () {
                           BetterFeedback.of(context).show((UserFeedback feedback) async {
                             if (feedback.text.isEmpty) {
-                              EasyLoading.showError('feedback_content_required'.tr);
+                              EasyLoading.showError('feedbackContentRequired'.tr);
                               return;
                             }
 
@@ -213,10 +213,10 @@ class FeedbackPage extends StatelessWidget {
                                 };
                                 bool res = await p.add(data);
                                 if (res) {
-                                  EasyLoading.showSuccess('feedback_success_msg'.tr);
+                                  EasyLoading.showSuccess('feedbackSuccessMsg'.tr);
                                   initData();
                                 } else {
-                                  EasyLoading.showError('tip_failed'.tr);
+                                  EasyLoading.showError('tipFailed'.tr);
                                 }
                               },
                               (Error error) {
@@ -293,7 +293,7 @@ class FeedbackPage extends StatelessWidget {
                         return state.itemList.isEmpty
                             ? SizedBox(
                                 height: 200,
-                                child: NoDataView(text: 'no_data'.tr),
+                                child: NoDataView(text: 'noData'.tr),
                               )
                             : ListView.separated(
                                 shrinkWrap: true,
@@ -318,7 +318,7 @@ class FeedbackPage extends StatelessWidget {
                                           onPressed: (_) async {
                                             _showDeleteDialog(context, model, index);
                                           },
-                                          label: 'button_delete'.tr,
+                                          label: 'buttonDelete'.tr,
                                           spacing: 1,
                                         ),
                                       ],
@@ -437,7 +437,7 @@ class FeedbackPage extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${'submitted_at'.tr} ${DateTimeHelper.lastTimeFmt(model.createdAt)}',
+                    '${'submittedAt'.tr} ${DateTimeHelper.lastTimeFmt(model.createdAt)}',
                     style: TextStyle(
                       fontSize: 13,
                       color: colorScheme.onSurface.withAlpha(179),
@@ -476,7 +476,7 @@ class FeedbackPage extends StatelessWidget {
   /// 显示删除确认对话框
   void _showDeleteDialog(BuildContext context, FeedbackModel model, int index) {
     final colorScheme = Theme.of(context).colorScheme;
-    String tips = 'sure_delete_data'.tr;
+    String tips = 'sureToDeleteData'.tr;
     
     showDialog(
       context: context,
@@ -517,7 +517,7 @@ class FeedbackPage extends StatelessWidget {
             style: TextButton.styleFrom(
               foregroundColor: colorScheme.onSurface.withAlpha(179),
             ),
-            child: Text('button_cancel'.tr),
+            child: Text('buttonCancel'.tr),
           ),
           TextButton(
             onPressed: () async {
@@ -529,15 +529,15 @@ class FeedbackPage extends StatelessWidget {
                     (e) => e.feedbackId == model.feedbackId,
                   ),
                 );
-                EasyLoading.showSuccess('tip_success'.tr);
+                EasyLoading.showSuccess('tipSuccess'.tr);
               } else {
-                EasyLoading.showError('tip_failed'.tr);
+                EasyLoading.showError('tipFailed'.tr);
               }
             },
             style: TextButton.styleFrom(
               foregroundColor: colorScheme.error,
             ),
-            child: Text('button_delete'.tr),
+            child: Text('buttonDelete'.tr),
           ),
         ],
       ),

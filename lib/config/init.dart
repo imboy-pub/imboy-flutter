@@ -233,17 +233,17 @@ class AppInitializer {
     Get.put(UserRepoLocal(), permanent: true);
     UserRepoLocal().onInit();
 
+    // 初始化网络监控服务（必须在HttpClient使用之前初始化）
+    Get.put(NetworkMonitorService());
+
     // 检查API公钥
     if (strEmpty(Env.apiPublicKey)) {
       await initConfig();
     }
 
-    // 初始化网络监控服务（必须在WebSocket服务之前初始化）
-    Get.put(NetworkMonitorService());
-    
     // 初始化WebSocket和相关服务
     await _initializeWebSocketServices();
-    
+
     // 初始化地图服务
     AMapHelper.setApiKey();
   }
@@ -256,18 +256,20 @@ class AppInitializer {
     // 注册消息队列服务
     Get.put(PersistentMessageQueue());
 
+    // 注册会话逻辑控制器，必须在消息相关服务之前注册
+    Get.lazyPut(() => ConversationLogic(), fenix: true);
+
     // 使用lazyPut注册消息相关服务，避免循环依赖问题
     // 注册顺序很重要，被依赖的模块必须先注册
-    Get.lazyPut<MessageRetry>(() => MessageRetry(), fenix: true);
+    Get.lazyPut<MessageService>(() => MessageService(), fenix: true);
     Get.lazyPut<MessageActions>(() => MessageActions(), fenix: true);
     Get.lazyPut<MessageWebrtc>(() => MessageWebrtc(), fenix: true);
     Get.lazyPut<MessageOfflineService>(() => MessageOfflineService(), fenix: true);
-    Get.lazyPut<MessageService>(() => MessageService(), fenix: true);
+    Get.lazyPut<MessageRetry>(() => MessageRetry(), fenix: true);
 
     // 初始化各种逻辑控制器
     Get.put(ChatLogic()); // 1
     Get.put(GroupListLogic()); // 2
-    Get.put(ConversationLogic()); // 3
     Get.lazyPut(() => ContactLogic());
     Get.lazyPut(() => NewFriendLogic());
     // FontSizeLogic 功能已迁移到 ThemeManager

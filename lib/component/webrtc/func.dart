@@ -116,7 +116,7 @@ Future<void> incomingCallScreen(
                 Padding(
                   padding: const EdgeInsets.only(top: 10),
                   child: Text(
-                    'incoming_call'.trArgs([
+                    'incomingCall'.trArgs([
                       option['media'] == 'video' ? 'video'.tr : 'audio'.tr,
                     ]),
                     style: TextStyle(

@@ -24,7 +24,7 @@ class RecentlyRegisteredUserLogic extends GetxController {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      String msg = 'tip_connect_desc'.tr;
+      String msg = 'tipConnectDesc'.tr;
       EasyLoading.showError(' $msg        ');
       return [];
     }

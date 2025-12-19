@@ -148,7 +148,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    'set_param'.trArgs(['remark'.tr]),
+                    'setParam'.trArgs(['remark'.tr]),
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -428,7 +428,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
       backgroundColor: colorScheme.background,
       appBar: AppBar(
         title: Text(
-          'accept_friend_request'.tr,
+          'acceptFriendRequest'.tr,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -461,7 +461,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
               _buildSettingCard(
                 context: context,
                 title: 'tags'.tr,
-                subtitle: logic.peerTag.isEmpty ? 'add_tag'.tr : logic.peerTag.value,
+                subtitle: logic.peerTag.isEmpty ? 'addTag'.tr : logic.peerTag.value,
                 icon: Icons.local_offer_outlined,
                 onTap: () {
                   Get.to(
@@ -485,11 +485,11 @@ class ConfirmNewFriendPage extends StatelessWidget {
               // 朋友圈权限设置
               _buildOptionCard(
                 context: context,
-                title: 'set_param'.trArgs(['moment'.tr]),
+                title: 'setParam'.trArgs(['moment'.tr]),
                 icon: Icons.photo_library_outlined,
                 children: [
-                  _buildRadioOption(context, 'chat_moment_sport_data_etc'.tr, 'all', false),
-                  _buildRadioOption(context, 'just_chat'.tr, 'just_chat', true),
+                  _buildRadioOption(context, 'chatMomentSportDataEtc'.tr, 'all', false),
+                  _buildRadioOption(context, 'justChat'.tr, 'just_chat', true),
                 ],
               ),
               
@@ -497,11 +497,11 @@ class ConfirmNewFriendPage extends StatelessWidget {
               if (logic.visibilityLook.isTrue)
                 _buildOptionCard(
                   context: context,
-                  title: 'moment_status'.tr,
+                  title: 'momentStatus'.tr,
                   icon: Icons.visibility_outlined,
                   children: [
-                    _buildSwitchOption(context, 'not_let_him_see'.tr, logic.donotlethimlook, false),
-                    _buildSwitchOption(context, 'not_see_him'.tr, logic.donotlookhim, true),
+                    _buildSwitchOption(context, 'notLetHimSee'.tr, logic.donotlethimlook, false),
+                    _buildSwitchOption(context, 'notSeeHim'.tr, logic.donotlookhim, true),
                   ],
                 ),
               
@@ -552,7 +552,7 @@ class ConfirmNewFriendPage extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'button_accomplish'.tr,
+                'buttonAccomplish'.tr,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,

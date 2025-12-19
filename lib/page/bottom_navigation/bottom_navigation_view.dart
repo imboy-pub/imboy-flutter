@@ -128,7 +128,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
                   child: const Icon(Icons.chat),
                 ),
               ),
-              label: 'title_message'.tr,
+              label: 'titleMessage'.tr,
             ),
             BottomNavigationBarItem(
               icon: Obx(
@@ -152,7 +152,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
                   child: const Icon(Icons.perm_contact_cal),
                 ),
               ),
-              label: 'title_contact'.tr,
+              label: 'titleContact'.tr,
             ),
             BottomNavigationBarItem(
               icon: Obx(
@@ -171,7 +171,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
                   child: const Icon(Icons.person),
                 ),
               ),
-              label: 'title_mine'.tr,
+              label: 'titleMine'.tr,
             ),
           ],
         ),

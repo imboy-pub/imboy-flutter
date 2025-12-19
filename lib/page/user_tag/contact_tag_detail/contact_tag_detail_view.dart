@@ -68,7 +68,7 @@ class ContactTagDetailPage extends StatelessWidget {
                       Center(
                         child: TextButton(
                           child: Text(
-                            'change_param'.trArgs(['tags'.tr]),
+                            'changeParam'.trArgs(['tags'.tr]),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontWeight: FontWeight.normal,
@@ -98,7 +98,7 @@ class ContactTagDetailPage extends StatelessWidget {
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(vertical: 16),
                                         child: Text(
-                                          'delete_tag_tips'.tr,
+                                          'deleteTagTips'.tr,
                                           textAlign: TextAlign.center,
                                           style: const TextStyle(
                                             fontSize: 16.0,
@@ -141,13 +141,13 @@ class ContactTagDetailPage extends StatelessWidget {
                                             Get.closeAllBottomSheets();
                                             Get.back();
                                             EasyLoading.showSuccess(
-                                                'tip_success'.tr);
+                                                'tipSuccess'.tr);
                                           } else {
-                                            EasyLoading.showError('tip_failed'.tr);
+                                            EasyLoading.showError('tipFailed'.tr);
                                           }
                                         },
                                         child: Text(
-                                          'button_delete'.tr,
+                                          'buttonDelete'.tr,
                                           textAlign: TextAlign.center,
                                           style: const TextStyle(
                                             color: Colors.red,
@@ -162,7 +162,7 @@ class ContactTagDetailPage extends StatelessWidget {
                                       child: TextButton(
                                         onPressed: () => Get.close(),
                                         child: Text(
-                                          'button_cancel'.tr,
+                                          'buttonCancel'.tr,
                                           textAlign: TextAlign.center,
                                           style: const TextStyle(
                                             fontSize: 16.0,
@@ -186,7 +186,7 @@ class ContactTagDetailPage extends StatelessWidget {
                             );
                           },
                           child: Text(
-                            'button_delete'.tr,
+                            'buttonDelete'.tr,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.red,
@@ -200,7 +200,7 @@ class ContactTagDetailPage extends StatelessWidget {
                         child: TextButton(
                           onPressed: () => Get.close(),
                           child: Text(
-                            'button_cancel'.tr,
+                            'buttonCancel'.tr,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontWeight: FontWeight.normal,
@@ -376,14 +376,14 @@ class ContactTagDetailPage extends StatelessWidget {
                                                       }
                                                       Get.back(times: 1);
                                                       EasyLoading.showSuccess(
-                                                          'tip_success'.tr);
+                                                          'tipSuccess'.tr);
                                                     } else {
                                                       EasyLoading.showError(
-                                                          'tip_failed'.tr);
+                                                          'tipFailed'.tr);
                                                     }
                                                   },
                                                   child: Text(
-                                                    'remove_contact_from_tag'.tr,
+                                                    'removeContactFromTag'.tr,
                                                     textAlign: TextAlign.center,
                                                     style: const TextStyle(
                                                       color: Colors.red,
@@ -398,7 +398,7 @@ class ContactTagDetailPage extends StatelessWidget {
                                                 child: TextButton(
                                                   onPressed: () => Get.close(),
                                                   child: Text(
-                                                    'button_cancel'.tr,
+                                                    'buttonCancel'.tr,
                                                     textAlign: TextAlign.center,
                                                     style: const TextStyle(
                                                       fontSize: 16.0,
@@ -422,7 +422,7 @@ class ContactTagDetailPage extends StatelessWidget {
                                         ),
                                       );
                                     },
-                                    label: 'button_delete'.tr,
+                                    label: 'buttonDelete'.tr,
                                     spacing: 1,
                                   ),
                                 ],
@@ -482,7 +482,7 @@ class ContactTagDetailPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (tag.refererTime == 0)
-                      NoDataView(text: 'no_members_in_current_tag'.tr),
+                      NoDataView(text: 'noMembersInCurrentTag'.tr),
                     ElevatedButton(
                       onPressed: () async {
                         addContact(context);
@@ -499,7 +499,7 @@ class ContactTagDetailPage extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 40),
                         child: Text(
-                          'button_add'.tr,
+                          'buttonAdd'.tr,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary,
                             fontSize: 16.0,
@@ -637,7 +637,7 @@ class SelectFriendPage extends StatelessWidget {
     loadData();
     return Scaffold(
       appBar: NavAppBar(
-        title: 'select_friends'.tr,
+        title: 'selectFriends'.tr,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: InkWell(
@@ -652,7 +652,7 @@ class SelectFriendPage extends StatelessWidget {
             () => Padding(
               padding: const EdgeInsets.all(8.0),
               child: RoundedElevatedButton(
-                text: 'button_add'.tr +
+                text: 'buttonAdd'.tr +
                     (selectedContact.isEmpty
                         ? ""
                         : " (${selectedContact.length})    "),
@@ -674,9 +674,9 @@ class SelectFriendPage extends StatelessWidget {
                         selectedContact;
                     Get.find<ContactTagDetailLogic>().state.refererTime.value =
                         selectedContact.length;
-                    EasyLoading.showSuccess('tip_success'.tr);
+                    EasyLoading.showSuccess('tipSuccess'.tr);
                   } else {
-                    EasyLoading.showError('tip_failed'.tr);
+                    EasyLoading.showError('tipFailed'.tr);
                   }
                 },
               ),

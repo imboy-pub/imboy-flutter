@@ -18,7 +18,7 @@ class PeopleInfoMoreLogic extends GetxController {
     state.sign.value = model!.sign;
     state.source.value = model.sourceTr;
     // other_party 对方
-    state.sourcePrefix.value = model.isFrom == 1 ? '' : 'other_party'.tr;
+    state.sourcePrefix.value = model.isFrom == 1 ? '' : 'otherParty'.tr;
     debugPrint(
         "PeopleInfoMorePage initData ${state.source}, ${state.sourcePrefix} , sign ${state.sign}");
     // if (state.sameGroupList.value.isEmpty) {

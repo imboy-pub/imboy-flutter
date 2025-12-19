@@ -89,7 +89,7 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
                   color: Theme.of(Get.context!).colorScheme.surface,
                   child: availableMaps.isEmpty
                       ? Center(
-                    child: Text('not_install_any_map_app'.tr),
+                    child: Text('notInstallAnyMapApp'.tr),
                   )
                       : SingleChildScrollView(
                     child: Wrap(

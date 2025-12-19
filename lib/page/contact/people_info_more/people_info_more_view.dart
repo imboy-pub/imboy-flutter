@@ -183,7 +183,7 @@ class PeopleInfoMorePage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'mutual_groups_with_her'.tr,
+                        'mutualGroupsWithHer'.tr,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -193,7 +193,7 @@ class PeopleInfoMorePage extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         state.groupCount.value > 0 
-                            ? 'num_unit'.trArgs(['${state.groupCount.value}'])
+                            ? 'numUnit'.trArgs(['${state.groupCount.value}'])
                             : '暂无共同群组',
                         style: TextStyle(
                           fontSize: 14,
@@ -293,7 +293,7 @@ class PeopleInfoMorePage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'social_profile'.tr,
+        title: 'socialProfile'.tr,
         backgroundColor: Theme.of(context).colorScheme.surface,
       ),
       body: SingleChildScrollView(

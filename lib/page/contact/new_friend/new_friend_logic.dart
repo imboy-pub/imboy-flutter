@@ -141,7 +141,7 @@ class NewFriendLogic extends GetxController {
     if (items.isNotEmpty) {
       PeopleModel model = items[0];
       if (model.id == UserRepoLocal.to.currentUid) {
-        EasyLoading.showInfo('can_not_add_yourself_friend'.tr);
+        EasyLoading.showInfo('canNotAddYourselfFriend'.tr);
       } else {
         return Container(
             margin:
@@ -166,7 +166,7 @@ class NewFriendLogic extends GetxController {
                 alignment: Alignment.centerRight,
                 child: (model.isFriend ?? false)
                     ? Text('added'.tr)
-                    : Text('button_add'.tr),
+                    : Text('buttonAdd'.tr),
               ),
               onTap: () {
                 Get.to(
@@ -192,7 +192,7 @@ class NewFriendLogic extends GetxController {
             color: Get.isDarkMode ? Colors.black87 : Colors.white,
             child: Center(
               child: Text(
-                'user_not_exist'.tr,
+                'userNotExist'.tr,
                 style: const TextStyle(fontSize: 18),
               ),
             ),

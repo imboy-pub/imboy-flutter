@@ -42,7 +42,7 @@ class UserTagSavePage extends StatelessWidget {
           },
           child: const Icon(Icons.close),
         ),
-        title: tag == null ? 'add_tag'.tr : 'change_param'.trArgs(['tags'.tr]),
+        title: tag == null ? 'addTag'.tr : 'changeParam'.trArgs(['tags'.tr]),
         // rightDMActions: [],
       ),
       body: SizedBox(
@@ -119,7 +119,7 @@ class UserTagSavePage extends StatelessWidget {
               children: [
                 Obx(
                   () => RoundedElevatedButton(
-                    text: 'button_accomplish'.tr,
+                    text: 'buttonAccomplish'.tr,
                     highlighted: state.valueChanged.isTrue,
                     onPressed: () async {
                       String trimmedText = state.textController.text.trim();
@@ -160,7 +160,7 @@ class UserTagSavePage extends StatelessWidget {
                           } catch (e) {
                             //
                           }
-                          EasyLoading.showSuccess('tip_success'.tr);
+                          EasyLoading.showSuccess('tipSuccess'.tr);
 
                           if (Get.isBottomSheetOpen ?? false) {
                             Get.closeAllBottomSheets();

@@ -99,7 +99,7 @@ class LoginMobilePageState extends State<LoginMobilePage> {
                             'intl_phone_number_input',
                           ),
                           initialValue: mobile,
-                          // hintText: 'please_input_param'.trArgs(['mobile'.tr]),
+                          // hintText: 'pleaseInputParam'.trArgs(['mobile'.tr]),
                           inputBorder: InputBorder.none,
                           selectorConfig: const SelectorConfig(
                             selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
@@ -108,14 +108,14 @@ class LoginMobilePageState extends State<LoginMobilePage> {
                             leadingPadding: 0,
                           ),
                           searchBoxDecoration:
-                          InputDecoration(labelText: 'region_search_tips'.tr),
+                          InputDecoration(labelText: 'regionSearchTips'.tr),
                           autoFocus: true,
                           focusNode: focusNode,
                           inputDecoration: InputDecoration(
                             border: InputBorder.none,
                             focusedBorder: InputBorder.none,
                             enabledBorder: InputBorder.none,
-                            hintText: 'please_input_param'.trArgs(['mobile'.tr]),
+                            hintText: 'pleaseInputParam'.trArgs(['mobile'.tr]),
                             hintStyle: TextStyle(
                               color: Colors.grey.shade600,
                               fontSize: 16,
@@ -240,7 +240,7 @@ class LoginMobilePageState extends State<LoginMobilePage> {
                   child: ElevatedButton(
                     onPressed: () async {
                       if (state.mobileValidated.isFalse) {
-                        logic.snackBar('error_invalid'.trArgs(['mobile'.tr]));
+                        logic.snackBar('errorInvalid'.trArgs(['mobile'.tr]));
                         return;
                       }
                       String? err2 = logic.passwordValidator(state.loginPwd.value);
@@ -297,7 +297,7 @@ class LoginMobilePageState extends State<LoginMobilePage> {
                       );
                     },
                     child: Text(
-                      'forgot_password'.tr,
+                      'forgotPassword'.tr,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,

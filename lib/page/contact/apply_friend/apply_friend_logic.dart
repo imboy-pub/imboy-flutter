@@ -79,7 +79,7 @@ class ApplyFriendLogic extends GetxController {
       (NewFriendRepo()).save(saveData);
       EasyLoading.showSuccess('sent'.tr);
     } else {
-      EasyLoading.showError('network_failure_try_again'.tr);
+      EasyLoading.showError('networkFailureTryAgain'.tr);
     }
   }
 }

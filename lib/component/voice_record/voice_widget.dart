@@ -67,8 +67,8 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
   double start = 0.0;
   double offset = 0.0;
   bool isUp = false;
-  String textShow = 'chat_hold_down_talk'.tr;
-  String toastShow = 'slide_up_cancel_sending'.tr;
+  String textShow = 'chatHoldDownTalk'.tr;
+  String toastShow = 'slideUpCancelSending'.tr;
 
   final List<double> waveform = [];
   String recordingMimeType = 'audio/aac';
@@ -106,9 +106,9 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
       try {
         var status = await Permission.microphone.request();
         if (status != PermissionStatus.granted) {
-          Get.snackbar("", 'microphone_permission_not_obtained'.tr);
+          Get.snackbar("", 'microphonePermissionNotObtained'.tr);
           throw RecordingPermissionException(
-            'microphone_permission_not_obtained'.tr,
+            'microphonePermissionNotObtained'.tr,
           );
         }
 
@@ -116,9 +116,9 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         if (await Permission.storage.request().isDenied) {
           await Permission.storage.request();
           if ((await Permission.storage.status) != PermissionStatus.granted) {
-            Get.snackbar("", 'microphone_permission_not_obtained'.tr);
+            Get.snackbar("", 'microphonePermissionNotObtained'.tr);
             throw RecordingPermissionException(
-              'storage_permission_not_obtained'.tr,
+              'storagePermissionNotObtained'.tr,
             );
           }
         }
@@ -187,7 +187,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
 
   void showVoiceView(BuildContext ctx) {
     setState(() {
-      textShow = 'release_end'.tr;
+      textShow = 'releaseEnd'.tr;
     });
 
     if (recordingDuration.inMilliseconds > _countTotal.inMilliseconds) {
@@ -217,12 +217,12 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
     }
 
     if (recordingDuration.inMilliseconds < 1000) {
-      EasyLoading.showToast('speaking_too_short'.tr);
+      EasyLoading.showToast('speakingTooShort'.tr);
       isUp = true;
     }
 
     setState(() {
-      textShow = 'chat_hold_down_talk'.tr;
+      textShow = 'chatHoldDownTalk'.tr;
     });
 
     if (overlayEntry != null) {
@@ -257,11 +257,11 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
     setState(() {
       isUp = start - offset > 120 ? true : false;
       if (isUp) {
-        textShow = 'release_finger_cancel_sending'.tr;
+        textShow = 'releaseFingerCancelSending'.tr;
         toastShow = textShow;
       } else {
-        textShow = 'release_end'.tr;
-        toastShow = 'slide_up_cancel_sending'.tr;
+        textShow = 'releaseEnd'.tr;
+        toastShow = 'slideUpCancelSending'.tr;
       }
       // 更新悬浮层状态
       if (overlayEntry != null) {

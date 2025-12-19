@@ -17,7 +17,7 @@ Future<bool> requestLocationPermission() async {
   debugPrint("getLocation location.serviceStatus $isEnabled");
   if (isEnabled == false && isEnabled2 == false) {
     // "您还没有打开位置信息服务"
-    EasyLoading.showInfo('not_turned_location_service'.tr);
+    EasyLoading.showInfo('notTurnedLocationService'.tr);
     // openAppSettings();
     return false;
   }
@@ -46,7 +46,7 @@ Future<bool> requestPhotoPermission() async {
     if (status.isGranted) {
       return true;
     } else {
-      EasyLoading.showInfo('no_permission'.tr);
+      EasyLoading.showInfo('noPermission'.tr);
       return false;
     }
   }
@@ -56,12 +56,12 @@ Future<bool> requestPhotoPermission() async {
   //     if (ps == PermissionState.authorized || ps == PermissionState.limited) {
   //       return true;
   //     } else {
-  //       EasyLoading.showInfo('no_permission'.tr);
+  //       EasyLoading.showInfo('noPermission'.tr);
   //       return false;
   //     }
   //   } catch (e, s) {
   //     debugPrint("requestPhotoPermission error: $e, stack: $s");
-  //     EasyLoading.showInfo('permission_acquisition_failed'.tr);
+  //     EasyLoading.showInfo('permissionAcquisitionFailed'.tr);
   //     return false;
   //   }
   // }
@@ -71,12 +71,12 @@ Future<bool> requestPhotoPermission() async {
       return true;
     } else {
       // 权限被拒绝，提示用户
-      EasyLoading.showInfo('no_permission'.tr);
+      EasyLoading.showInfo('noPermission'.tr);
       return false;
     }
   } catch (e, s) {
     debugPrint("requestPhotoPermission error: $e, stack: $s");
-    EasyLoading.showInfo('permission_acquisition_failed'.tr);
+    EasyLoading.showInfo('permissionAcquisitionFailed'.tr);
     return false;
   }
 }
@@ -93,13 +93,13 @@ Future<bool> requestCameraPermission() async {
       if (status == PermissionStatus.granted) {
         return true;
       } else {
-        EasyLoading.showInfo('no_permission'.tr);
+        EasyLoading.showInfo('noPermission'.tr);
         return false;
       }
     }
   } catch (e) {
     debugPrint("requestCameraPermission error: $e");
-    EasyLoading.showInfo('permission_acquisition_failed'.tr);
+    EasyLoading.showInfo('permissionAcquisitionFailed'.tr);
     return false;
   }
 }

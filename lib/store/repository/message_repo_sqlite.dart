@@ -1,10 +1,20 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/config/init.dart';
+import 'package:imboy/page/chat/chat/chat_logic.dart';
+import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/utils/conversation_uk3_generator.dart';
 
 class MessageRepo {
   static String c2cTable = 'message';
@@ -152,13 +162,17 @@ class MessageRepo {
     int nextAutoId,
     int size,
   ) async {
-    String where =
-        "${MessageRepo.conversationUk3} = ? AND ${MessageRepo.autoId} < ?";
-    List args = [uk3, nextAutoId];
+    String where;
+    List args;
+
     if (nextAutoId <= 0) {
       where = "${MessageRepo.conversationUk3} = ?";
       args = [uk3];
+    } else {
+      where = "${MessageRepo.conversationUk3} = ? AND ${MessageRepo.autoId} < ?";
+      args = [uk3, nextAutoId];
     }
+
     List<Map<String, dynamic>> maps = await _db.query(
       tableName,
       columns: [
@@ -181,6 +195,7 @@ class MessageRepo {
       offset: 0,
       limit: size,
     );
+
     if (maps.isEmpty) {
       return [];
     }
@@ -200,13 +215,17 @@ class MessageRepo {
     int prevAutoId,
     int size,
   ) async {
-    String where =
-        "${MessageRepo.conversationUk3} = ? AND ${MessageRepo.autoId} > ?";
-    List args = [uk3, prevAutoId];
+    String where;
+    List args;
+
     if (prevAutoId <= 0) {
       where = "${MessageRepo.conversationUk3} = ?";
       args = [uk3];
+    } else {
+      where = "${MessageRepo.conversationUk3} = ? AND ${MessageRepo.autoId} > ?";
+      args = [uk3, prevAutoId];
     }
+
     List<Map<String, dynamic>> maps = await _db.query(
       tableName,
       columns: [
@@ -229,6 +248,7 @@ class MessageRepo {
       offset: 0,
       limit: size,
     );
+
     if (maps.isEmpty) {
       return [];
     }
@@ -564,7 +584,7 @@ class MessageRepo {
       whereArgs: [conversationUk3, status],
       orderBy: '${MessageRepo.createdAt} DESC',
     );
-    
+
     List<MessageModel> messages = [];
     for (int i = 0; i < maps.length; i++) {
       messages.add(MessageModel.fromJson(maps[i]));
@@ -627,70 +647,462 @@ class MessageRepo {
   Future<List<String>?> batchInsertOfflineMessages(List<Map<String, dynamic>> messages) async {
     if (messages.isEmpty) return null;
 
-    List<String> msgIds = [];
+    final List<String> ackMsgIds = [];
+    final Set<String> ackIdSet = <String>{};
+    void addAckId(String id) {
+      if (id.isEmpty) return;
+      if (ackIdSet.add(id)) {
+        ackMsgIds.add(id);
+      }
+    }
+
+    final List<_InsertedOfflineMessage> inserted = [];
     try {
       await _db.transaction((txn) async {
         for (final msgData in messages) {
-          String msgId = msgData['msg_id'] ?? '';
-          String type = msgData['type'] ?? 'C2C';
+          final rawMsgId = msgData['msg_id'] ?? msgData['id'];
+          final msgId = rawMsgId?.toString() ?? '';
+          final type = (msgData['type'] ?? 'C2C').toString().toUpperCase();
 
-          msgIds.add(msgId);
+          if (msgId.isEmpty) {
+            iPrint("离线消息缺少id，跳过: ${msgData.toString()}");
+            continue;
+          }
+
+          final tableName = MessageRepo.getTableName(type);
+          if (tableName.isEmpty) {
+            iPrint("离线消息type不支持，跳过: $type");
+            continue;
+          }
+
           // 检查消息是否已存在
-          List<Map> existing = await txn.rawQuery(
-            'SELECT COUNT(*) as count FROM ${MessageRepo.getTableName(type)} WHERE id = ?',
+          final List<Map<String, Object?>> existing = await txn.rawQuery(
+            'SELECT COUNT(*) as count FROM $tableName WHERE id = ?',
             [msgId],
           );
+          final int existingCount = (existing.first['count'] as int?) ?? 0;
 
-          if (existing.first['count'] == 0) {
-            // 解析消息负载
-            Map<String, dynamic> payload = msgData['payload'] ?? {};
-            String fromId = msgData['from'] ?? '';
-            String toId = msgData['to'] ?? '';
-            int createdAt = msgData['created_at'] ?? 0;
-
-            // 确定消息方向（是否为作者）
-            String currentUid = UserRepoLocal.to.currentUid;
-            bool isAuthor = fromId == currentUid;
-
-            // 构建会话UK3
-            String peerId = isAuthor ? toId : fromId;
-            String conversationUk3 = "${type}_${currentUid}_$peerId";
-
-            Map<String, dynamic> insertData = {
-              MessageRepo.id: msgId,
-              MessageRepo.type: type,
-              MessageRepo.from: fromId,
-              MessageRepo.to: toId,
-              MessageRepo.payload: json.encode(payload),
-              MessageRepo.createdAt: createdAt,
-              MessageRepo.isAuthor: isAuthor ? 1 : 0,
-              MessageRepo.topicId: '',
-              MessageRepo.conversationUk3: conversationUk3,
-              MessageRepo.status: 20, // 已读状态
-            };
-
-            await txn.insert(
-              MessageRepo.getTableName(type),
-              insertData,
-            );
-
-            iPrint("离线消息插入成功: $msgId, type: $type, conversation: $conversationUk3");
-          } else {
+          if (existingCount > 0) {
+            addAckId(msgId);
             iPrint("离线消息已存在，跳过: $msgId");
+            continue;
           }
+
+          // 解析消息负载
+          Map<String, dynamic> payload = {};
+          final payloadRaw = msgData['payload'];
+          if (payloadRaw is Map) {
+            payload = payloadRaw.cast<String, dynamic>();
+          } else if (payloadRaw is String && payloadRaw.isNotEmpty) {
+            try {
+              final decoded = json.decode(payloadRaw);
+              if (decoded is Map) {
+                payload = decoded.cast<String, dynamic>();
+              }
+            } catch (_) {}
+          }
+
+          final fromId = (msgData['from'] ?? '').toString();
+          final toId = (msgData['to'] ?? '').toString();
+          final createdAt = _parseCreatedAt(msgData['created_at']);
+          final topicId = int.tryParse((msgData['topic_id'] ?? 0).toString()) ?? 0;
+
+          // 确定消息方向（是否为作者）
+          String currentUid = UserRepoLocal.to.currentUid;
+          bool isAuthor = fromId == currentUid;
+
+          // 构建会话UK3
+          String peerId = '';
+          if (type == 'C2G') {
+            peerId = toId;
+            if (peerId.isEmpty) {
+              peerId = (payload['group_id'] ?? payload['groupId'] ?? '').toString();
+            }
+          } else if (type == 'S2C') {
+            peerId = fromId;
+          } else {
+            peerId = isAuthor ? toId : fromId;
+          }
+
+          if (peerId.isEmpty) {
+            iPrint("离线消息缺少peerId，跳过: $msgId, type: $type");
+            continue;
+          }
+
+          String conversationUk3 = ConversationUk3Generator.generateSmart(
+            type: type,
+            currentUserId: currentUid,
+            peerId: peerId,
+          );
+
+          Map<String, dynamic> insertData = {
+            MessageRepo.id: msgId,
+            MessageRepo.type: type,
+            MessageRepo.from: fromId,
+            MessageRepo.to: toId,
+            MessageRepo.payload: json.encode(payload),
+            MessageRepo.createdAt: createdAt,
+            MessageRepo.isAuthor: isAuthor ? 1 : 0,
+            MessageRepo.topicId: topicId,
+            MessageRepo.conversationUk3: conversationUk3,
+            MessageRepo.status: IMBoyMessageStatus.delivered,
+          };
+
+          await txn.insert(
+            tableName,
+            insertData,
+          );
+
+          inserted.add(_InsertedOfflineMessage(
+            id: msgId,
+            type: type,
+            fromId: fromId,
+            toId: toId,
+            payload: payload,
+            createdAt: createdAt,
+            isAuthor: isAuthor ? 1 : 0,
+            topicId: topicId,
+            conversationUk3: conversationUk3,
+            status: IMBoyMessageStatus.delivered,
+            peerId: peerId,
+          ));
+
+          addAckId(msgId);
+
+          iPrint("离线消息插入成功: $msgId, type: $type, conversation: $conversationUk3");
         }
       });
 
+      if (inserted.isNotEmpty) {
+        await _syncOfflineConversationsAndNotify(inserted);
+      }
       iPrint("批量插入离线消息完成，共 ${messages.length} 条消息");
-      return msgIds;
+      return ackMsgIds;
     } catch (e) {
       iPrint("批量插入离线消息失败: $e");
       rethrow;
     }
   }
 
+  static int _parseCreatedAt(dynamic raw) {
+    if (raw == null) return 0;
+    if (raw is int) return raw;
+    final s = raw.toString();
+    final asInt = int.tryParse(s);
+    if (asInt != null) return asInt;
+    try {
+      return DateTimeHelper.rfc3339ToMillisecond(s);
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  Future<void> _syncOfflineConversationsAndNotify(List<_InsertedOfflineMessage> inserted) async {
+    final conversationRepo = ConversationRepo();
+    final contactRepo = ContactRepo();
+    final groupRepo = GroupRepo();
+
+    final ConversationLogic? conversationLogic =
+        Get.isRegistered<ConversationLogic>() ? Get.find<ConversationLogic>() : null;
+    final ChatLogic? chatLogic = Get.isRegistered<ChatLogic>() ? Get.find<ChatLogic>() : null;
+    final currentConversationUk3 = chatLogic?.state.currentConversationId.value ?? '';
+
+    final Map<String, _OfflineConversationAgg> convAgg = {};
+    for (final msg in inserted) {
+      final key = '${msg.type}::${msg.peerId}';
+      final agg = convAgg.putIfAbsent(key, () => _OfflineConversationAgg(type: msg.type, peerId: msg.peerId));
+      agg.observe(msg, currentConversationUk3);
+    }
+
+    for (final agg in convAgg.values) {
+      final latest = agg.latest;
+      if (latest == null) continue;
+
+      String avatar = '';
+      String title = '';
+      try {
+        if (agg.type == 'C2G') {
+          final g = await groupRepo.findById(agg.peerId);
+          avatar = g?.avatar ?? '';
+          title = g?.title ?? '';
+        } else {
+          final ct = await contactRepo.findByUid(agg.peerId, autoFetch: false);
+          avatar = ct?.avatar ?? '';
+          title = ct?.title ?? '';
+        }
+      } catch (_) {}
+
+      final preview = _derivePreview(latest.payload);
+      final existing = await conversationRepo.findByPeerId(agg.type, agg.peerId);
+
+      ConversationModel conv;
+      if (existing == null) {
+        conv = await conversationRepo.save(ConversationModel(
+          peerId: agg.peerId,
+          avatar: avatar,
+          title: title,
+          subtitle: preview.subtitle,
+          type: agg.type,
+          msgType: preview.msgType,
+          lastMsgId: latest.id,
+          lastTime: latest.createdAt,
+          unreadNum: 0,
+          id: 0,
+          isShow: 1,
+        ));
+      } else {
+        if (latest.createdAt > existing.lastTime) {
+          await conversationRepo.updateById(existing.id, {
+            ConversationRepo.avatar: avatar,
+            ConversationRepo.title: title,
+            ConversationRepo.subtitle: preview.subtitle,
+            ConversationRepo.msgType: preview.msgType,
+            ConversationRepo.lastMsgId: latest.id,
+            ConversationRepo.lastTime: latest.createdAt,
+            ConversationRepo.isShow: 1,
+          });
+          conv = (await conversationRepo.findById(existing.id)) ?? existing;
+        } else {
+          conv = existing;
+        }
+      }
+
+      eventBus.fire(conv);
+      if (conversationLogic != null && agg.unreadDelta > 0) {
+        await conversationLogic.increaseConversationRemind(conv, agg.unreadDelta);
+      }
+    }
+
+    if (currentConversationUk3.isNotEmpty) {
+      for (final msg in inserted) {
+        if (msg.conversationUk3 != currentConversationUk3) continue;
+        try {
+          eventBus.fire(await msg.toMessageModel().toTypeMessage());
+        } catch (_) {}
+      }
+    }
+  }
+
+  static ({String msgType, String subtitle}) _derivePreview(Map<String, dynamic> payload) {
+    String msgType = (payload['msg_type'] ?? '').toString();
+    String subtitle = (payload['text'] ?? '').toString();
+    if (msgType == 'custom') {
+      msgType = (payload['custom_type'] ?? '').toString();
+      subtitle = '';
+    } else if (msgType == 'quote') {
+      subtitle = (payload['quote_text'] ?? '').toString();
+    } else if (msgType == 'location') {
+      subtitle = (payload['title'] ?? '').toString();
+    }
+    return (msgType: msgType, subtitle: subtitle);
+  }
+
 // 记得及时关闭数据库，防止内存泄漏
 // close() async {
 //   await _db.close();
 // }
+
+  /// 数据迁移工具：将旧格式UK3转换为新格式
+  /// 这个方法可以在应用启动时调用，一次性迁移所有历史数据
+  static Future<void> migrateLegacyUk3Data() async {
+    try {
+      iPrint("开始迁移历史UK3数据...");
+
+      final db = SqliteService.to;
+      final tables = [c2cTable, c2gTable, c2sTable, s2cTable];
+
+      for (final table in tables) {
+        await _migrateTableUk3(db, table);
+      }
+
+      iPrint("历史UK3数据迁移完成");
+    } catch (e) {
+      iPrint("历史UK3数据迁移失败: $e");
+    }
+  }
+
+  /// 迁移单个表的UK3数据
+  static Future<void> _migrateTableUk3(SqliteService db, String table) async {
+    try {
+      // 查询所有需要迁移的消息
+      final maps = await db.query(
+        table,
+        columns: ['auto_id', 'conversation_uk3', 'from_id', 'to_id'],
+        where: "conversation_uk3 IS NOT NULL AND conversation_uk3 != ''",
+      );
+
+      if (maps.isEmpty) {
+        iPrint("表 $table 无需迁移的UK3数据");
+        return;
+      }
+
+      iPrint("开始迁移表 $table 的 ${maps.length} 条UK3数据");
+
+      int migratedCount = 0;
+
+      for (final map in maps) {
+        final autoId = map['auto_id'];
+        final oldUk3 = map['conversation_uk3'] as String?;
+        final fromId = map['from_id'] as String?;
+        final toId = map['to_id'] as String?;
+
+        if (oldUk3 == null || oldUk3.isEmpty || fromId == null || toId == null) {
+          continue;
+        }
+
+        // 检查是否需要迁移（新旧格式是否不同）
+        final newUk3 = _generateNewUk3(oldUk3, fromId, toId);
+        if (newUk3 == oldUk3) {
+          continue; // 格式相同，无需迁移
+        }
+
+        // 执行迁移
+        final result = await db.update(
+          table,
+          {'conversation_uk3': newUk3},
+          where: 'auto_id = ?',
+          whereArgs: [autoId],
+        );
+
+        if (result > 0) {
+          migratedCount++;
+        }
+      }
+
+      iPrint("表 $table 迁移完成，成功迁移 $migratedCount 条记录");
+    } catch (e) {
+      iPrint("迁移表 $table 失败: $e");
+    }
+  }
+
+  /// 根据旧格式UK3和用户信息生成新格式UK3
+  static String _generateNewUk3(String oldUk3, String fromId, String toId) {
+    try {
+      final parts = oldUk3.split('_');
+      if (parts.length < 3) return oldUk3;
+
+      final type = parts[0].toUpperCase();
+
+      // 如果已经是新格式，直接返回
+      if (type == oldUk3.split('_')[0]) {
+        // 检查是否已经是标准化格式（用户ID已排序）
+        if (type == 'C2C') {
+          final normalizedIds = _normalizeUserIds(fromId, toId);
+          final expectedNewUk3 = 'C2C_$normalizedIds';
+          if (oldUk3.toUpperCase() == expectedNewUk3) {
+            return oldUk3; // 已经是新格式
+          }
+        }
+      }
+
+      // 生成新格式
+      switch (type) {
+        case 'C2C':
+          final normalizedIds = _normalizeUserIds(fromId, toId);
+          return 'C2C_$normalizedIds';
+        case 'C2G':
+          return 'C2G_${fromId}_$toId'; // 群组消息保持原始格式
+        default:
+          return oldUk3;
+      }
+    } catch (e) {
+      return oldUk3;
+    }
+  }
+
+  /// 标准化用户ID顺序（按字母排序）
+  static String _normalizeUserIds(String id1, String id2) {
+    final sortedIds = [id1, id2]..sort();
+    return '${sortedIds.first}_${sortedIds.last}';
+  }
+
+  /// 检查数据库中是否存在旧格式数据
+  static Future<bool> hasLegacyUk3Data() async {
+    try {
+      final db = SqliteService.to;
+      final tables = [c2cTable, c2gTable, c2sTable, s2cTable];
+
+      for (final table in tables) {
+        final result = await db.query(
+          table,
+          columns: ['COUNT(*) as count'],
+          where: "conversation_uk3 LIKE ? OR conversation_uk3 LIKE ?",
+          whereArgs: ['c2c_%', 'c2g_%'],
+          limit: 1,
+        );
+
+        final count = result.first['count'] as int;
+        if (count > 0) {
+          return true;
+        }
+      }
+
+      return false;
+    } catch (e) {
+      iPrint("检查旧格式数据失败: $e");
+      return false;
+    }
+  }
+}
+
+class _InsertedOfflineMessage {
+  final String id;
+  final String type;
+  final String fromId;
+  final String toId;
+  final Map<String, dynamic> payload;
+  final int createdAt;
+  final int isAuthor;
+  final int topicId;
+  final String conversationUk3;
+  final int status;
+  final String peerId;
+
+  const _InsertedOfflineMessage({
+    required this.id,
+    required this.type,
+    required this.fromId,
+    required this.toId,
+    required this.payload,
+    required this.createdAt,
+    required this.isAuthor,
+    required this.topicId,
+    required this.conversationUk3,
+    required this.status,
+    required this.peerId,
+  });
+
+  MessageModel toMessageModel() {
+    return MessageModel(
+      id,
+      autoId: 0,
+      type: type,
+      fromId: fromId,
+      toId: toId,
+      payload: payload,
+      createdAt: createdAt,
+      isAuthor: isAuthor,
+      topicId: topicId,
+      conversationUk3: conversationUk3,
+      status: status,
+    );
+  }
+}
+
+class _OfflineConversationAgg {
+  final String type;
+  final String peerId;
+  _InsertedOfflineMessage? latest;
+  int unreadDelta = 0;
+
+  _OfflineConversationAgg({required this.type, required this.peerId});
+
+  void observe(_InsertedOfflineMessage msg, String currentConversationUk3) {
+    if (latest == null || msg.createdAt >= (latest?.createdAt ?? 0)) {
+      latest = msg;
+    }
+    if (msg.isAuthor == 0 && msg.conversationUk3 != currentConversationUk3) {
+      unreadDelta += 1;
+    }
+  }
 }

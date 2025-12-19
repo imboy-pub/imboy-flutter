@@ -76,7 +76,7 @@ class LoginPageState extends State<LoginPage>
     Connectivity().checkConnectivity().then((r) {
       if (r.contains(ConnectivityResult.none)) {
         // ignore: prefer_interpolation_to_compose_strings
-        state.connectDesc.value = 'tip_connect_desc'.tr;
+        state.connectDesc.value = 'tipConnectDesc'.tr;
       } else {
         state.connectDesc.value = '';
       }
@@ -85,7 +85,7 @@ class LoginPageState extends State<LoginPage>
     Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
       if (r.contains(ConnectivityResult.none)) {
         // ignore: prefer_interpolation_to_compose_strings
-        state.connectDesc.value = 'tip_connect_desc'.tr;
+        state.connectDesc.value = 'tipConnectDesc'.tr;
       } else {
         state.connectDesc.value = '';
       }
@@ -258,10 +258,10 @@ class LoginPageState extends State<LoginPage>
             },
             tabs: [
               Tab(
-                text: 'param_login'.trArgs(['account'.tr]),
+                text: 'paramLogin'.trArgs(['account'.tr]),
               ),
               Tab(
-                text: 'param_login'.trArgs(['mobile'.tr]),
+                text: 'paramLogin'.trArgs(['mobile'.tr]),
               ),
             ],
           ),
@@ -355,7 +355,7 @@ class LoginPageState extends State<LoginPage>
           borderRadius: BorderRadius.circular(25),
           child: Center(
             child: Text(
-              'mobile_quick_login'.tr,
+              'mobileQuickLogin'.tr,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -395,7 +395,7 @@ class LoginPageState extends State<LoginPage>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'no_sigin_q'.tr,
+              'noSiginQ'.tr,
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,

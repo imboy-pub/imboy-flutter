@@ -65,7 +65,7 @@ class _SettingPageState extends State<SettingPage> {
                   // 账户安全 - 使用优化后的主题样式
                   _buildSettingItem(
                     context,
-                    title: 'account_security'.tr,
+                    title: 'accountSecurity'.tr,
                     leadingIcon: Icons.security,
                     leadingIconColor: AppColors.warning,
                     onTap: () {
@@ -82,7 +82,7 @@ class _SettingPageState extends State<SettingPage> {
                   // 语言设置 - 使用优化后的主题样式
                   _buildSettingItem(
                     context,
-                    title: 'language_setting'.tr,
+                    title: 'languageSetting'.tr,
                     leadingIcon: Icons.language,
                     leadingIconColor: AppColors.info,
                     onTap: () {
@@ -107,7 +107,7 @@ class _SettingPageState extends State<SettingPage> {
                   // 深色模式 - 使用优化后的主题样式
                   _buildSettingItem(
                     context,
-                    title: 'dark_model'.tr,
+                    title: 'darkModel'.tr,
                     value: logic.themeTypeTips(),
                     leadingIcon: Icons.dark_mode,
                     leadingIconColor: AppColors.textSecondary,
@@ -175,7 +175,7 @@ class _SettingPageState extends State<SettingPage> {
                   Obx(
                     () => _buildSwitchItem(
                       context,
-                      title: 'allow_search_me'.tr,
+                      title: 'allowSearchMe'.tr,
                       subtitle: '其他用户可以通过搜索找到我',
                       value: logic.allowSearch.value,
                       leadingIcon: Icons.search,
@@ -222,13 +222,13 @@ class _SettingPageState extends State<SettingPage> {
                   // 更新日志 - 使用优化后的主题样式
                   _buildSettingItem(
                     context,
-                    title: 'update_log'.tr,
+                    title: 'updateLog'.tr,
                     leadingIcon: Icons.update,
                     leadingIconColor: AppColors.success,
                     onTap: () {
                       Get.to(
                         () => MarkdownPage(
-                          title: 'update_log'.tr,
+                          title: 'updateLog'.tr,
                           url:
                               "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
                         ),
@@ -252,13 +252,13 @@ class _SettingPageState extends State<SettingPage> {
                   // 帮助文档 - 使用优化后的主题样式
                   _buildSettingItem(
                     context,
-                    title: 'help_document'.tr,
+                    title: 'helpDocument'.tr,
                     leadingIcon: Icons.help_outline,
                     leadingIconColor: AppColors.info,
                     onTap: () {
                       Get.to(
                         () => MarkdownPage(
-                          title: 'help_document'.tr,
+                          title: 'helpDocument'.tr,
                           url:
                               "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/help_document.md",
                         ),
@@ -281,7 +281,7 @@ class _SettingPageState extends State<SettingPage> {
                   // 关于应用 - 使用优化后的主题样式
                   _buildSettingItem(
                     context,
-                    title: 'about_app'.tr,
+                    title: 'aboutApp'.tr,
                     value: "${'version'.tr} $appVsn",
                     leadingIcon: Icons.info_outline,
                     leadingIconColor: AppColors.primaryGreen,
@@ -294,7 +294,7 @@ class _SettingPageState extends State<SettingPage> {
                             bottom: 10,
                           ),
                           child: RoundedElevatedButton(
-                            text: 'check_for_updates'.tr,
+                            text: 'checkForUpdates'.tr,
                             highlighted: true,
                             onPressed: () async {
                               final AppVersionProvider p = AppVersionProvider();
@@ -323,7 +323,7 @@ class _SettingPageState extends State<SettingPage> {
                                   ),
                                 );
                               } else {
-                                EasyLoading.showInfo('now_new_version'.tr);
+                                EasyLoading.showInfo('nowNewVersion'.tr);
                               }
                             },
                           ),
@@ -354,7 +354,7 @@ class _SettingPageState extends State<SettingPage> {
                   margin: EdgeInsets.zero,
                   child: _buildSettingItem(
                     context,
-                    title: 'switch_environment'.tr,
+                    title: 'switchEnvironment'.tr,
                     leadingIcon: Icons.developer_mode,
                     leadingIconColor: AppColors.lightError,
                     trailing: Container(

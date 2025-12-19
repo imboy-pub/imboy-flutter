@@ -153,30 +153,30 @@ class SetNicknameLogic extends GetxController {
     
     // 1. 长度校验
     if (trimmed.isEmpty) {
-      return 'nickname_empty_error'.tr;
+      return 'nicknameEmptyError'.tr;
     }
     
     if (trimmed.length < 2) {
-      return 'nickname_length_error'.tr;
+      return 'nicknameLengthError'.tr;
     }
     
     if (nickname.length > 24) {
-      return 'nickname_length_error'.tr;
+      return 'nicknameLengthError'.tr;
     }
     
     // 2. 空白字符校验
     if (trimmed != nickname || trimmed.isEmpty) {
-      return 'nickname_whitespace_error'.tr;
+      return 'nicknameWhitespaceError'.tr;
     }
     
     // 3. 仅表情符号校验（简单检测）
     if (_isOnlyEmojis(trimmed)) {
-      return 'nickname_emoji_only_error'.tr;
+      return 'nicknameEmojiOnlyError'.tr;
     }
     
     // 4. 敏感词校验
     if (_containsSensitiveWords(trimmed)) {
-      return 'nickname_sensitive_word_error'.tr;
+      return 'nicknameSensitiveWordError'.tr;
     }
     
     return '';
@@ -216,7 +216,7 @@ class SetNicknameLogic extends GetxController {
     // 最终校验
     final validation = _validateNickname(nicknameController.text);
     if (validation.isNotEmpty) {
-      Get.snackbar('tip_tips'.tr, validation);
+      Get.snackbar('tipTips'.tr, validation);
       return;
     }
 
@@ -234,7 +234,7 @@ class SetNicknameLogic extends GetxController {
         originalNickname = nickname;
         _updateState();
         
-        Get.snackbar('tip_success'.tr, 'nickname_update_success'.tr);
+        Get.snackbar('tipSuccess'.tr, 'nicknameUpdateSuccess'.tr);
         Get.back(result: true);
       } else {
         // 根据错误类型提供不同的提示
@@ -243,7 +243,7 @@ class SetNicknameLogic extends GetxController {
     } catch (e) {
       iPrint('保存昵称失败: $e');
       await _revertToOriginal();
-      Get.snackbar('tip_failed'.tr, 'nickname_network_error'.tr);
+      Get.snackbar('tipFailed'.tr, 'nicknameNetworkError'.tr);
     } finally {
       isSaving.value = false;
     }
@@ -280,19 +280,19 @@ class SetNicknameLogic extends GetxController {
     
     switch (errorCode) {
       case 'NICKNAME_CONFLICT':
-        Get.snackbar('tip_failed'.tr, 'nickname_conflict_error'.tr);
+        Get.snackbar('tipFailed'.tr, 'nicknameConflictError'.tr);
         break;
       case 'NICKNAME_SENSITIVE':
-        Get.snackbar('tip_failed'.tr, 'nickname_sensitive_word_error'.tr);
+        Get.snackbar('tipFailed'.tr, 'nicknameSensitiveWordError'.tr);
         break;
       case 'NICKNAME_INVALID':
-        Get.snackbar('tip_failed'.tr, 'nickname_length_error'.tr);
+        Get.snackbar('tipFailed'.tr, 'nicknameLengthError'.tr);
         break;
       case 'SERVER_ERROR':
-        Get.snackbar('tip_failed'.tr, 'nickname_server_error'.tr);
+        Get.snackbar('tipFailed'.tr, 'nicknameServerError'.tr);
         break;
       default:
-        Get.snackbar('tip_failed'.tr, 'nickname_update_failed'.tr);
+        Get.snackbar('tipFailed'.tr, 'nicknameUpdateFailed'.tr);
         break;
     }
   }

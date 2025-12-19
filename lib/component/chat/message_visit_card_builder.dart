@@ -109,7 +109,7 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                 Expanded(
                   flex: 1,
                   child: Text(
-                    'personal_card'.tr,
+                    'personalCard'.tr,
                     // style: TextStyle(
                     //   fontSize: 12,
                     //   color: userIsAuthor ? Colors.black87 : textColor,

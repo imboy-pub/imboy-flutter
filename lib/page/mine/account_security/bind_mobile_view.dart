@@ -65,14 +65,14 @@ class _BindMobilePageState extends State<BindMobilePage> {
   /// 发送短信验证码（scene: bind_mobile）
   Future<void> _sendCode() async {
     if (!_mobileValid || _mobile.isEmpty) {
-      passportLogic.snackBar('param_format_error'.trArgs(['mobile'.tr]));
+      passportLogic.snackBar('paramFormatError'.trArgs(['mobile'.tr]));
       return;
     }
     String? res = await passportLogic.sendCode('mobile', _mobile, 'signup');
     if (res == null) {
       passportLogic.snackBar(
         Text(
-          'code_sent_to_param'.trArgs([_mobile]),
+          'codeSentToParam'.trArgs([_mobile]),
           style: const TextStyle(color: Colors.green, fontSize: 18),
         ),
         icon: const Icon(Icons.check_circle, color: Colors.green),
@@ -86,12 +86,12 @@ class _BindMobilePageState extends State<BindMobilePage> {
   /// 提交绑定（带验证码）
   Future<void> _submit() async {
     if (!_mobileValid || _mobile.isEmpty) {
-      passportLogic.snackBar('param_format_error'.trArgs(['mobile'.tr]));
+      passportLogic.snackBar('paramFormatError'.trArgs(['mobile'.tr]));
       return;
     }
     final code = _codeCtl.text.trim();
     if (code.isEmpty) {
-      passportLogic.snackBar('confirm_code_error'.tr);
+      passportLogic.snackBar('confirmCodeError'.tr);
       return;
     }
     bool ok = await UserProvider().changeMobile(mobile: _mobile, code: code);
@@ -103,7 +103,7 @@ class _BindMobilePageState extends State<BindMobilePage> {
 
       passportLogic.snackBar(
         Text(
-          'tip_success'.trArgs([hiddenPhone(_mobile)]),
+          'tipSuccess'.trArgs([hiddenPhone(_mobile)]),
           style: const TextStyle(color: Colors.green, fontSize: 18),
         ),
         icon: const Icon(Icons.check_circle, color: Colors.green),
@@ -121,7 +121,7 @@ class _BindMobilePageState extends State<BindMobilePage> {
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'set_param'.trArgs(['mobile'.tr]),
+        title: 'setParam'.trArgs(['mobile'.tr]),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -150,12 +150,12 @@ class _BindMobilePageState extends State<BindMobilePage> {
                       trailingSpace: false,
                       leadingPadding: 0,
                     ),
-                    searchBoxDecoration: InputDecoration(labelText: 'region_search_tips'.tr),
+                    searchBoxDecoration: InputDecoration(labelText: 'regionSearchTips'.tr),
                     inputDecoration: InputDecoration(
                       border: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       enabledBorder: InputBorder.none,
-                      hintText: 'please_input_param'.trArgs(['mobile'.tr]),
+                      hintText: 'pleaseInputParam'.trArgs(['mobile'.tr]),
                       hintStyle: TextStyle(
                         color: Colors.grey.shade600,
                         fontSize: 16,
@@ -192,7 +192,7 @@ class _BindMobilePageState extends State<BindMobilePage> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12.0),
                   child: Text(
-                    _seconds > 0 ? '${'resend_code'.tr} (${_seconds}s)' : 'resend_code'.tr,
+                    _seconds > 0 ? '${'resendCode'.tr} (${_seconds}s)' : 'resendCode'.tr,
                     style: const TextStyle(fontSize: 16),
                   ),
                 ),
@@ -212,7 +212,7 @@ class _BindMobilePageState extends State<BindMobilePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('confirm_code'.tr, style: TextStyle(color: cs.onSurface.withValues(alpha: .8))),
+                  Text('confirmCode'.tr, style: TextStyle(color: cs.onSurface.withValues(alpha: .8))),
                   const SizedBox(height: 8),
                   PinCodeTextField(
                     appContext: context,
@@ -246,7 +246,7 @@ class _BindMobilePageState extends State<BindMobilePage> {
 
             // 确认绑定
             RoundedElevatedButton(
-              text: 'button_confirm'.tr,
+              text: 'buttonConfirm'.tr,
               onPressed: (_mobileValid && _codeCtl.text.trim().isNotEmpty) ? _submit : null,
               highlighted: true,
               size: Size(Get.width - 32, 52),

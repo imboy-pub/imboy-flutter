@@ -20,7 +20,7 @@ class SetGenderPage extends StatelessWidget {
     final genderOptions = [
       {'id': '1', 'title': 'male'.tr, 'icon': Icons.male},
       {'id': '2', 'title': 'female'.tr, 'icon': Icons.female},
-      {'id': '3', 'title': 'keep_secret'.tr, 'icon': Icons.help_outline},
+      {'id': '3', 'title': 'keepSecret'.tr, 'icon': Icons.help_outline},
     ];
 
     return Scaffold(

@@ -93,7 +93,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           FadeAnimation(
                             delay: 1,
                             child: Text(
-                              "recover_password".tr,
+                              'recoverPassword'.tr,
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
@@ -176,12 +176,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
                                   if (account.isEmpty) {
                                     logic.snackBar(
-                                        'please_input_param'.trArgs(['email'.tr]));
+                                        'pleaseInputParam'.trArgs(['email'.tr]));
                                     return;
                                   }
                                   if (isEmail(account) == false) {
                                     logic.snackBar(
-                                        'param_format_error'.trArgs(['emial'.tr]));
+                                        'paramFormatError'.trArgs(['emial'.tr]));
                                     return;
                                   }
                                   String? res = await logic.sendCode(
@@ -211,7 +211,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   ),
                                 ),
                                 child: Text(
-                                  "button_continue".tr,
+                                  'buttonContinue'.tr,
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -230,7 +230,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('try_again_q'.tr,
+                          Text('tryAgainQ'.tr,
                               style: const TextStyle(
                                 color: Colors.white,
                                 letterSpacing: 0.5,

@@ -279,15 +279,15 @@ void confirmOpenFile(String uri) {
     builder: (context) => AlertDialog(
       content: SizedBox(
         height: 40,
-        child: Center(child: Text('sure_open_the_file'.tr)),
+        child: Center(child: Text('sureOpenTheFile'.tr)),
       ),
       actions: [
         TextButton(
-          child: Text('button_cancel'.tr),
+          child: Text('buttonCancel'.tr),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text('button_confirm'.tr),
+          child: Text('buttonConfirm'.tr),
           onPressed: () async {
             Navigator.of(context).pop();
             final tmpF = await IMBoyCacheManager().getSingleFile(

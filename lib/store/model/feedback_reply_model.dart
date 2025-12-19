@@ -58,7 +58,7 @@ class FeedbackReplyModel {
     } else if (status == 0) {
       return 'disable'.tr;
     } else if (status == -1) {
-      return 'button_delete'.tr;
+      return 'buttonDelete'.tr;
     } else {
       return '';
     }

@@ -27,7 +27,7 @@ class SetPasswordPage extends StatelessWidget {
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'set_param'.trArgs(['password'.tr]),
+        title: 'setParam'.trArgs(['password'.tr]),
       ),
       backgroundColor: colorScheme.surface,
       body: SingleChildScrollView(
@@ -120,7 +120,7 @@ class SetPasswordPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'error_length_between'.trArgs([
+                            'errorLengthBetween'.trArgs([
                               'password'.tr,
                               '4',
                               '32',
@@ -186,7 +186,7 @@ class SetPasswordPage extends StatelessWidget {
                           const SizedBox(height: 12),
                           Obx(() => PasswordTextField(
                             obscureText: state.newPwdObscure.value,
-                            hintText: 'please_input_param'.trArgs(['password'.tr]),
+                            hintText: 'pleaseInputParam'.trArgs(['password'.tr]),
                             onTap: () {
                               state.newPwdObscure.value = !state.newPwdObscure.value;
                             },
@@ -224,7 +224,7 @@ class SetPasswordPage extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'retype_password'.tr,
+                                'retypePassword'.tr,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -236,7 +236,7 @@ class SetPasswordPage extends StatelessWidget {
                           const SizedBox(height: 12),
                           Obx(() => PasswordTextField(
                             obscureText: state.retypePwdObscure.value,
-                            hintText: 'retype_password'.tr,
+                            hintText: 'retypePassword'.tr,
                             onTap: () {
                               state.retypePwdObscure.value =
                                   !state.retypePwdObscure.value;
@@ -264,14 +264,14 @@ class SetPasswordPage extends StatelessWidget {
               ),
               width: double.infinity,
               child: RoundedElevatedButton(
-                text: 'button_confirm'.tr,
+                text: 'buttonConfirm'.tr,
                 onPressed: () async {
                   bool res = await logic.setPassword(
                     newPwd: state.newPwd.value,
                     rePwd: state.retypePwd.value,
                   );
                   if (res) {
-                    EasyLoading.showSuccess('confirm_recover_success'.tr);
+                    EasyLoading.showSuccess('confirmRecoverSuccess'.tr);
                     final user = UserRepoLocal.to.current;
                     final needGuide = (user.email.isEmpty || user.mobile.isEmpty);
                     if (needGuide) {

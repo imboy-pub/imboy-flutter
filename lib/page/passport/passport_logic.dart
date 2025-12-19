@@ -109,14 +109,14 @@ class PassportLogic extends GetxController {
   /// 账号验证
   String? userValidator(String accountType, String value) {
     if (value.isEmpty) {
-      return 'error_empty_directory'.trArgs(['hint_login_account'.tr]);
+      return 'errorEmptyDirectory'.trArgs(['hintLoginAccount'.tr]);
     }
     if (accountType == 'mobile' && !isPhone(value)) {
-      return 'error_invalid'.trArgs(['mobile'.tr]);
+      return 'errorInvalid'.trArgs(['mobile'.tr]);
     } else if (accountType == 'email' && !isEmail(value)) {
-      return 'error_invalid'.trArgs(['email'.tr]);
+      return 'errorInvalid'.trArgs(['email'.tr]);
     } else if (accountType == 'account' && value.length < 5) {
-      return 'error_invalid'.trArgs(['account'.tr]);
+      return 'errorInvalid'.trArgs(['account'.tr]);
     }
     return null;
   }
@@ -124,10 +124,10 @@ class PassportLogic extends GetxController {
   /// 密码格式验证
   String? passwordValidator(String? val) {
     if (strEmpty(val)) {
-      return 'error_empty_directory'.trArgs(['password'.tr]);
+      return 'errorEmptyDirectory'.trArgs(['password'.tr]);
     }
     if (val!.length < 4 || val.length > 32) {
-      return 'error_length_between'.trArgs([
+      return 'errorLengthBetween'.trArgs([
         'password'.tr,
         '4',
         '32',
@@ -147,7 +147,7 @@ class PassportLogic extends GetxController {
         return null;
       } else if (status == 2) {
         Get.defaultDialog(
-            title: 'cancel_logout_title'.tr,
+            title: 'cancelLogoutTitle'.tr,
             backgroundColor: ThemeManager.instance.isDarkMode
                 ? const Color.fromRGBO(80, 80, 80, 1)
                 : const Color.fromRGBO(240, 240, 240, 1),
@@ -157,7 +157,7 @@ class PassportLogic extends GetxController {
                 Get.close();
               },
               child: Text(
-                'button_cancel'.tr,
+                'buttonCancel'.tr,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Theme.of(Get.context!).colorScheme.onPrimary,
@@ -185,7 +185,7 @@ class PassportLogic extends GetxController {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 10),
                       child: Text(
-                        'cancel_logout_body'.tr,
+                        'cancelLogoutBody'.tr,
                         // style:  TextStyle(
                         //   fontSize: AppTextSize.medium,
                         //   fontWeight: FontWeight.normal,
@@ -199,7 +199,7 @@ class PassportLogic extends GetxController {
               ),
             ));
 
-        return 'cancel_logout_title'.tr;
+        return 'cancelLogoutTitle'.tr;
       } else {
         return state.error.value;
       }
@@ -360,7 +360,7 @@ class PassportLogic extends GetxController {
         required String newPwd,
         required String rePwd}) async {
     if (strEmpty(newPwd)) {
-      return 'error_required'.trArgs(['new_password'.tr]);
+      return 'errorRequired'.trArgs(['newPassword'.tr]);
     }
 
     String? error = passwordValidator(newPwd);
@@ -368,7 +368,7 @@ class PassportLogic extends GetxController {
       return error;
     }
     if (rePwd != newPwd) {
-      return 'error_retype_password'.tr;
+      return 'errorRetypePassword'.tr;
     }
     try {
       Map<String, dynamic> result = await _encryptPassword(newPwd);
@@ -502,7 +502,7 @@ class PassportLogic extends GetxController {
     uiConfig.logBtnHeight = 50;
     uiConfig.logBtnOffsetY = isiOS ? 20 : 280;
     uiConfig.logBtnVerticalLayoutItem = JVIOSLayoutItem.ItemSlogan;
-    uiConfig.logBtnText = 'mobile_quick_login'.tr;
+    uiConfig.logBtnText = 'mobileQuickLogin'.tr;
     uiConfig.logBtnTextColor = isiOS ? Colors.black.toARGB32() : Colors.white.toARGB32();
     uiConfig.logBtnTextSize = 16;
     uiConfig.logBtnTextBold = true;
@@ -519,14 +519,14 @@ class PassportLogic extends GetxController {
     uiConfig.privacyOffsetX = 10;
     uiConfig.privacyOffsetY = 10;
     uiConfig.privacyVerticalLayoutItem = JVIOSLayoutItem.ItemSuper;
-    uiConfig.clauseName = 'license_agreement'.tr;
+    uiConfig.clauseName = 'licenseAgreement'.tr;
     uiConfig.clauseUrl = licenseAgreementUrl(ext: 'html');
     uiConfig.clauseBaseColor = Colors.black87.toARGB32();
 
     uiConfig.clauseColor = Colors.black87.toARGB32();
     uiConfig.privacyTextSize = 13;
     uiConfig.privacyItem = [
-      JVPrivacy('license_agreement'.tr.replaceAll('《', '').replaceAll('》', ''),
+      JVPrivacy('licenseAgreement'.tr.replaceAll('《', '').replaceAll('》', ''),
           licenseAgreementUrl(ext: 'html'),
           beforeName: "==", afterName: "++", separator: "、"),
     ];

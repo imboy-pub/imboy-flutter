@@ -54,7 +54,7 @@ class _ConversationPageState extends State<ConversationPage> {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
       // ignore: prefer_interpolation_to_compose_strings
-      logic.connectDesc.value = '(' + 'tip_connect_desc'.tr + ')';
+      logic.connectDesc.value = '(' + 'tipConnectDesc'.tr + ')';
     } else {
       logic.connectDesc.value = '';
     }
@@ -62,7 +62,7 @@ class _ConversationPageState extends State<ConversationPage> {
     Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
       if (r.contains(ConnectivityResult.none)) {
         // ignore: prefer_interpolation_to_compose_strings
-        logic.connectDesc.value = '(${'tip_connect_desc'.tr})';
+        logic.connectDesc.value = '(${'tipConnectDesc'.tr})';
       } else {
         logic.connectDesc.value = '';
       }
@@ -86,7 +86,7 @@ class _ConversationPageState extends State<ConversationPage> {
       appBar: AppBar(
         leading: const SizedBox.shrink(),
         title: Text(
-          'title_message'.tr + logic.connectDesc.value,
+          'titleMessage'.tr + logic.connectDesc.value,
           // style: AppStyle.navAppBarTitleStyle, // 传入BuildContext
         ),
         actions: <Widget>[
@@ -108,7 +108,7 @@ class _ConversationPageState extends State<ConversationPage> {
             child: SlidableAutoCloseBehavior(
               child: Obx(() {
                 return logic.conversations.isEmpty
-                    ? NoDataView(text: 'no_conversation_messages'.tr)
+                    ? NoDataView(text: 'noConversationMessages'.tr)
                     : ListView.builder(
                         itemCount: logic.conversations.length,
                         itemBuilder: (BuildContext context, int index) {
@@ -210,7 +210,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                       // 通知 UI 更新（GetX 会自动响应）
                                       logic.update();
                                     },
-                                    label: 'not_show'.tr,
+                                    label: 'notShow'.tr,
                                     spacing: 1,
                                   ),
                                   SlidableAction(
@@ -232,7 +232,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                       // 通知 UI 更新（GetX 会自动响应）
                                       logic.update();
                                     },
-                                    label: 'button_delete'.tr,
+                                    label: 'buttonDelete'.tr,
                                     spacing: 1,
                                   ),
                                 ],

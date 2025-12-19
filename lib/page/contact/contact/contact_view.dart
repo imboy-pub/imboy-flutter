@@ -32,7 +32,7 @@ class ContactPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: const SizedBox.shrink(),
-        title: Text('title_contact'.tr),
+        title: Text('titleContact'.tr),
         actions: <Widget>[
           IconButton(
             onPressed: () {
@@ -59,7 +59,7 @@ class ContactPage extends StatelessWidget {
               // 检查网络状态
               var connectivityResult = await Connectivity().checkConnectivity();
               if (connectivityResult.contains(ConnectivityResult.none)) {
-                String msg = 'tip_connect_desc'.tr;
+                String msg = 'tipConnectDesc'.tr;
                 EasyLoading.showInfo(' $msg        ');
                 return;
               }
@@ -159,7 +159,7 @@ class ContactPage extends StatelessWidget {
             () => Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: contactIsEmpty.isTrue
-                  ? NoDataView(text: 'no_contacts'.tr)
+                  ? NoDataView(text: 'noContacts'.tr)
                   : const SizedBox.shrink(),
             ),
           ),

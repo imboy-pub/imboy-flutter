@@ -55,9 +55,9 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
 
   String get label {
     if (widget.groupInfoType == GroupInfoType.name) {
-      return 'change_param'.trArgs(['group_name'.tr]); // 修改群聊名称
+      return 'changeParam'.trArgs(['groupName'.tr]); // 修改群聊名称
     } else if (widget.groupInfoType == GroupInfoType.cardName) {
-      return 'group_alias'.tr;
+      return 'groupAlias'.tr;
     } else {
       return 'remark'.tr;
     }
@@ -65,11 +65,11 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
 
   String get des {
     if (widget.groupInfoType == GroupInfoType.name) {
-      return 'change_group_chat_name'.tr;
+      return 'changeGroupChatName'.tr;
     } else if (widget.groupInfoType == GroupInfoType.cardName) {
-      return 'nickname_change_visibility'.tr;
+      return 'nicknameChangeVisibility'.tr;
     } else {
-      return 'group_remark_visibility'.tr;
+      return 'groupRemarkVisibility'.tr;
     }
   }
 
@@ -118,7 +118,7 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                         controller: _textController,
                         decoration: InputDecoration(
                           hintText: widget.groupInfoType == GroupInfoType.name
-                              ? 'group_name'.tr
+                              ? 'groupName'.tr
                               : 'remark'.tr,
                           border: InputBorder.none,
                         ),

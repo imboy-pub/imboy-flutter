@@ -147,7 +147,7 @@ class PeopleInfoPage extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        state.tag.value.isEmpty ? 'remarks_tags'.tr : 'tags'.tr,
+                        state.tag.value.isEmpty ? 'remarksTags'.tr : 'tags'.tr,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -211,7 +211,7 @@ class PeopleInfoPage extends StatelessWidget {
           ),
         ),
         child: Text(
-          'add_to_contacts'.tr,
+          'addToContacts'.tr,
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -244,7 +244,7 @@ class PeopleInfoPage extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'added_to_denylist_tips'.tr,
+              'addedToDenylistTips'.tr,
               style: TextStyle(
                 fontSize: 14,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -370,7 +370,7 @@ class PeopleInfoPage extends StatelessWidget {
               if (state.isFriend.value == 1 || scene == 'denylist')
                 _buildActionCard(
                   context: context,
-                  title: 'more_info'.tr,
+                  title: 'moreInfo'.tr,
                   icon: Icons.info_outline,
                   onTap: () => Navigator.push(
                     context,
@@ -388,7 +388,7 @@ class PeopleInfoPage extends StatelessWidget {
                 if (!isSelf)
                   _buildActionCard(
                     context: context,
-                    title: 'message_call'.tr,
+                    title: 'messageCall'.tr,
                     icon: Icons.message_outlined,
                     onTap: () {
                       String peerTitle = state.remark.value;
@@ -416,7 +416,7 @@ class PeopleInfoPage extends StatelessWidget {
                 if (state.isFriend.value == 1 && !isSelf)
                   _buildActionCard(
                     context: context,
-                    title: 'voice_call'.tr,
+                    title: 'voiceCall'.tr,
                     icon: Icons.call_outlined,
                     onTap: () {
                       openCallScreen(
@@ -435,7 +435,7 @@ class PeopleInfoPage extends StatelessWidget {
                 if (state.isFriend.value == 1 && !isSelf)
                   _buildActionCard(
                     context: context,
-                    title: 'video_call'.tr,
+                    title: 'videoCall'.tr,
                     icon: Icons.videocam_outlined,
                     onTap: () {
                       openCallScreen(

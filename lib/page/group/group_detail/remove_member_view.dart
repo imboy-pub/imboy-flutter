@@ -169,7 +169,7 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
-        title: 'remove_member'.tr,
+        title: 'removeMember'.tr,
         leading: Padding(
           padding: const EdgeInsets.only(top: 8),
           child: TextButton(
@@ -178,7 +178,7 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
               Get.back(result: null);
             },
             child: Text(
-              'button_cancel'.tr,
+              'buttonCancel'.tr,
               style: TextStyle(
                   color: Theme.of(Get.context!).colorScheme.onPrimary),
             ),
@@ -190,7 +190,7 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
         ),
         rightDMActions: <Widget>[
           RoundedElevatedButton(
-              text: '${'button_accomplish'.tr}$selectsTips',
+              text: '${'buttonAccomplish'.tr}$selectsTips',
               highlighted: selects.isNotEmpty,
               onPressed: () async {
                 // var nav = Navigator.of(context);
@@ -207,7 +207,7 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
                   // nav.pop();
                   Get.back(result: selects);
                 } else {
-                  EasyLoading.showError('tip_failed'.tr);
+                  EasyLoading.showError('tipFailed'.tr);
                 }
               }),
           const SizedBox(width: 10)
@@ -268,7 +268,7 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
                           Expanded(
                             child: SlidableAutoCloseBehavior(
                               child: groupMemberList.isEmpty
-                                  ? NoDataView(text: 'no_data'.tr)
+                                  ? NoDataView(text: 'noData'.tr)
                                   : ListView.builder(
                                       shrinkWrap: true,
                                       // data: groupMemberList,

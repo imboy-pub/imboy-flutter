@@ -34,7 +34,7 @@ class AccountSecurityPage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'account_security'.tr,
+        title: 'accountSecurity'.tr,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -76,7 +76,7 @@ class AccountSecurityPage extends StatelessWidget {
                     context,
                     title: 'mobile'.tr,
                     value: UserRepoLocal.to.current.mobile.isEmpty
-                        ? 'not_bound'.tr
+                        ? 'notBound'.tr
                         : hiddenPhone(UserRepoLocal.to.current.mobile),
                     leadingIcon: Icons.phone_iphone,
                     leadingIconColor: AppColors.info,
@@ -102,7 +102,7 @@ class AccountSecurityPage extends StatelessWidget {
                     context,
                     title: 'email'.tr,
                     value: UserRepoLocal.to.current.email.isEmpty
-                        ? 'not_bound'.tr
+                        ? 'notBound'.tr
                         : UserRepoLocal.to.current.email.replaceRange(
                             4,
                             UserRepoLocal.to.current.email.length - 8,
@@ -113,14 +113,14 @@ class AccountSecurityPage extends StatelessWidget {
                     onTap: () {
                       Get.to(
                         () => UpdatePage(
-                            title: 'set_param'.trArgs(['email'.tr]),
+                            title: 'setParam'.trArgs(['email'.tr]),
                             value: UserRepoLocal.to.current.email,
                             field: 'input',
                             callback: (val) async {
                               iPrint("set_param val $val");
                               if (isEmail(val) == false) {
                                 EasyLoading.showError(
-                                  'error_invalid'.trArgs(['email'.tr]),
+                                  'errorInvalid'.trArgs(['email'.tr]),
                                 );
                                 return false;
                               }
@@ -166,7 +166,7 @@ class AccountSecurityPage extends StatelessWidget {
                   _buildSettingItem(
                     context,
                     title: 'password'.tr,
-                    value: needSet == false ? 'have_set'.tr : '未设置',
+                    value: needSet == false ? 'haveSet'.tr : '未设置',
                     leadingIcon: Icons.lock,
                     leadingIconColor: AppColors.success,
                     onTap: () {
@@ -192,7 +192,7 @@ class AccountSecurityPage extends StatelessWidget {
                   // 安全中心
                   _buildSettingItem(
                     context,
-                    title: 'security_center'.tr,
+                    title: 'securityCenter'.tr,
                     subtitle: '查看安全帮助',
                     leadingIcon: Icons.shield,
                     leadingIconColor: AppColors.warning,
@@ -200,7 +200,7 @@ class AccountSecurityPage extends StatelessWidget {
                       Get.to(
                         () => WebViewPage(
                           "https://weixin110.qq.com/security/newreadtemplate?t=w_security_center_website/newindex",
-                          'security_center'.tr,
+                          'securityCenter'.tr,
                         ),
                         transition: Transition.rightToLeft,
                         popGesture: true,
@@ -231,7 +231,7 @@ class AccountSecurityPage extends StatelessWidget {
                   // 退出登录
                   _buildSettingItem(
                     context,
-                    title: 'log_out'.tr,
+                    title: 'logOut'.tr,
                     leadingIcon: Icons.logout,
                     leadingIconColor: AppColors.lightError,
                     isDestructive: true,
@@ -255,7 +255,7 @@ class AccountSecurityPage extends StatelessWidget {
                   // 注销账户
                   _buildSettingItem(
                     context,
-                    title: 'logout_account'.tr,
+                    title: 'logoutAccount'.tr,
                     leadingIcon: Icons.delete_forever,
                     leadingIconColor: AppColors.lightError,
                     isDestructive: true,

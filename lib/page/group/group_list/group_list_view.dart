@@ -45,7 +45,7 @@ class GroupListPage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: NavAppBar(
         titleWidget: Obx(() => Text(
-          "${'group_chat'.tr}(${state.groupList.length})",
+          "${'groupChat'.tr}(${state.groupList.length})",
         )),
         automaticallyImplyLeading: true,
       ),
@@ -63,7 +63,7 @@ class GroupListPage extends StatelessWidget {
                   context,
                   searchLabel: 'search'.tr,
                   hintText: 'search'.tr,
-                  queryTips: 'group_search_tips'.tr,
+                  queryTips: 'groupSearchTips'.tr,
                   doSearch: ((query) => GroupRepo().search(kwd: query)),
                   onTapForItem: (model) {
                     if (model is GroupModel) {
@@ -87,7 +87,7 @@ class GroupListPage extends StatelessWidget {
                 child: SlidableAutoCloseBehavior(
                   child: Obx(() {
                     return state.groupList.isEmpty
-                        ? NoDataView(text: 'no_data'.tr)
+                        ? NoDataView(text: 'noData'.tr)
                         : ListView.builder(
                       shrinkWrap: true,
                       itemCount: state.groupList.length,
