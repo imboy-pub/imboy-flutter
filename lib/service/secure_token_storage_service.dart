@@ -52,8 +52,16 @@ class SecureTokenStorageService {
   }
 
   static Future<void> clear() async {
-    await StorageService().remove(_tokenKey);
-    await StorageService().remove(_refreshTokenKey);
+    try {
+      debugPrint("SecureTokenStorageService.clear: Removing token key: $_tokenKey");
+      await StorageService().remove(_tokenKey);
+      debugPrint("SecureTokenStorageService.clear: Removing refresh token key: $_refreshTokenKey");
+      await StorageService().remove(_refreshTokenKey);
+      debugPrint("SecureTokenStorageService.clear: All tokens cleared successfully");
+    } catch (e, s) {
+      debugPrint("SecureTokenStorageService.clear error: $e; $s");
+      rethrow;
+    }
   }
 
 

@@ -7,7 +7,6 @@ import 'package:imboy/page/mine/change_password/change_password_view.dart';
 import 'package:imboy/page/mine/change_password/set_password_view.dart';
 import 'package:imboy/page/mine/logout_account/logout_account_view.dart';
 import 'package:imboy/page/passport/welcome_view.dart';
-import 'package:imboy/page/personal_info/update/update_view.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/ui/line.dart';
@@ -18,6 +17,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
 import 'account_security_logic.dart';
+import 'package:imboy/page/mine/account_security/bind_email_view.dart';
 import 'package:imboy/page/mine/account_security/bind_mobile_view.dart';
 
 /// 账户安全页面
@@ -112,30 +112,7 @@ class AccountSecurityPage extends StatelessWidget {
                     leadingIconColor: AppColors.warning,
                     onTap: () {
                       Get.to(
-                        () => UpdatePage(
-                            title: 'setParam'.trArgs(['email'.tr]),
-                            value: UserRepoLocal.to.current.email,
-                            field: 'input',
-                            callback: (val) async {
-                              iPrint("set_param val $val");
-                              if (isEmail(val) == false) {
-                                EasyLoading.showError(
-                                  'errorInvalid'.trArgs(['email'.tr]),
-                                );
-                                return false;
-                              }
-                              bool res = await logic.changeEmail(val);
-                              if (res) {
-                                EasyLoading.showSuccess(
-                                  '一封验证邮件已发送至leevisoft@icloud.com，请登录你的邮箱查收并通过邮件验证。'
-                                      .tr,
-                                  duration: const Duration(seconds: 30),
-                                  dismissOnTap: true,
-                                );
-                                return true;
-                              }
-                              return false;
-                            }),
+                        () => const BindEmailPage(),
                         transition: Transition.rightToLeft,
                         popGesture: true,
                       );

@@ -1,33 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/locales/locales.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/page/mine/language/language_logic.dart';
+import 'package:imboy/page/mine/account_security/account_security_logic.dart';
 import 'package:imboy/page/passport/passport_logic.dart';
-import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
-class BindMobilePage extends GetView<BindMobileController> {
-  const BindMobilePage({super.key});
+class BindEmailPage extends GetView<BindEmailController> {
+  const BindEmailPage({super.key});
 
   @override
-  BindMobileController get controller => Get.put(BindMobileController());
+  BindEmailController get controller => Get.put(BindEmailController());
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final langLogic = Get.put(LanguageLogic());
-    final currentMobile = UserRepoLocal.to.current.mobile;
-    final hasBound = currentMobile.isNotEmpty;
+    final currentEmail = UserRepoLocal.to.current.email;
+    final hasBound = currentEmail.isNotEmpty;
 
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: hasBound ? '修改手机号' : '绑定手机号',
+        title: hasBound ? '修改邮箱' : '绑定邮箱',
       ),
       body: SafeArea(
         child: ListView(
@@ -36,10 +32,10 @@ class BindMobilePage extends GetView<BindMobileController> {
             Card(
               margin: EdgeInsets.zero,
               child: ListTile(
-                leading: Icon(Icons.phone_iphone, color: cs.primary),
-                title: const Text('手机号'),
+                leading: Icon(Icons.alternate_email, color: cs.primary),
+                title: const Text('邮箱'),
                 subtitle: Text(
-                  hasBound ? hiddenPhone(currentMobile) : '未绑定',
+                  hasBound ? _maskEmail(currentEmail) : '未绑定',
                   style: TextStyle(color: cs.onSurfaceVariant),
                 ),
                 trailing: Container(
@@ -68,7 +64,7 @@ class BindMobilePage extends GetView<BindMobileController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      hasBound ? '更换绑定手机号' : '绑定手机号',
+                      hasBound ? '更换绑定邮箱' : '绑定邮箱',
                       style: Theme.of(context)
                           .textTheme
                           .titleMedium
@@ -76,68 +72,33 @@ class BindMobilePage extends GetView<BindMobileController> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '请输入可接收短信的手机号（支持国际区号，例如 +86）',
+                      '用于登录、身份验证与找回密码',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: cs.onSurfaceVariant,
                           ),
                     ),
                     const SizedBox(height: 16),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: cs.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16),
-                          child: InternationalPhoneNumberInput(
-                            locale: sysLang('intl_phone_number_input'),
-                            countries: langLogic.regionCodeList(
-                              'intl_phone_number_input',
-                            ),
-                            initialValue: PhoneNumber(isoCode: 'CN'),
-                            textFieldController: controller.mobileCtl,
-                            inputBorder: InputBorder.none,
-                            selectorConfig: const SelectorConfig(
-                              selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                              useBottomSheetSafeArea: true,
-                              trailingSpace: false,
-                              leadingPadding: 0,
-                            ),
-                            searchBoxDecoration: InputDecoration(
-                              labelText: 'regionSearchTips'.tr,
-                            ),
-                            inputDecoration: InputDecoration(
-                              border: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              labelText: '手机号',
-                              hintText: '例如：+8613812345678',
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 16,
-                                horizontal: 0,
-                              ),
-                              suffixIcon: Obx(
-                                () => controller.mobile.value.isEmpty
-                                    ? const SizedBox.shrink()
-                                    : IconButton(
-                                        onPressed: controller.clearMobile,
-                                        icon: const Icon(Icons.close_rounded),
-                                      ),
-                              ),
-                            ),
-                            keyboardType: const TextInputType.numberWithOptions(
-                              signed: true,
-                              decimal: true,
-                            ),
-                            ignoreBlank: false,
-                            formatInput: true,
-                            onInputChanged: (PhoneNumber number) {
-                              controller.mobile.value = number.phoneNumber ?? '';
-                            },
-                            onSaved: (_) {},
-                          ),
+                    TextField(
+                      controller: controller.emailCtl,
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
+                      autocorrect: false,
+                      enableSuggestions: false,
+                      decoration: InputDecoration(
+                        labelText: '邮箱',
+                        hintText: '请输入邮箱地址',
+                        filled: true,
+                        fillColor: cs.surfaceContainerHighest,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        suffixIcon: Obx(
+                          () => controller.email.value.isEmpty
+                              ? const SizedBox.shrink()
+                              : IconButton(
+                                  onPressed: controller.clearEmail,
+                                  icon: const Icon(Icons.close_rounded),
+                                ),
                         ),
                       ),
                     ),
@@ -145,10 +106,10 @@ class BindMobilePage extends GetView<BindMobileController> {
                     Obx(
                       () => _StatusRow(
                         label: '当前长度',
-                        value: controller.mobileLength.value.toString(),
-                        ok: controller.mobileOk.value,
+                        value: controller.emailLength.value.toString(),
+                        ok: controller.emailOk.value,
                         okText: '格式正确',
-                        errorText: controller.mobileError.value,
+                        errorText: controller.emailError.value,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -168,7 +129,7 @@ class BindMobilePage extends GetView<BindMobileController> {
                                     color: cs.primary,
                                   ),
                                 )
-                              : const Icon(Icons.sms_outlined),
+                              : const Icon(Icons.mark_email_read_outlined),
                           label: Text(
                             controller.seconds.value > 0
                                 ? '重新发送（${controller.seconds.value}s）'
@@ -232,6 +193,13 @@ class BindMobilePage extends GetView<BindMobileController> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '验证码将发送至该邮箱，请在有效期内完成验证。',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                    ),
                   ],
                 ),
               ),
@@ -243,66 +211,74 @@ class BindMobilePage extends GetView<BindMobileController> {
   }
 }
 
-class BindMobileController extends GetxController {
+class BindEmailController extends GetxController {
   final PassportLogic passportLogic = Get.put(PassportLogic());
 
-  final TextEditingController mobileCtl = TextEditingController();
+  final TextEditingController emailCtl = TextEditingController();
   final TextEditingController codeCtl = TextEditingController();
 
-  final RxString mobile = ''.obs;
+  final RxString email = ''.obs;
   final RxString code = ''.obs;
-
-  final RxInt mobileLength = 0.obs;
+  final RxInt emailLength = 0.obs;
   final RxInt codeLength = 0.obs;
-
-  final RxBool mobileOk = false.obs;
+  final RxBool emailOk = false.obs;
   final RxBool codeOk = false.obs;
-
-  final RxString mobileError = '请输入正确的手机号'.obs;
+  final RxString emailError = '请输入正确的邮箱地址'.obs;
   final RxString codeError = '请输入 6 位验证码'.obs;
 
   final RxInt seconds = 0.obs;
   final RxBool isSendingCode = false.obs;
   final RxBool isSubmitting = false.obs;
-
   final RxBool canSendCode = false.obs;
   final RxBool canSubmit = false.obs;
+
+  late final AccountSecurityLogic _securityLogic;
 
   @override
   void onInit() {
     super.onInit();
+    _securityLogic = Get.isRegistered<AccountSecurityLogic>()
+        ? Get.find<AccountSecurityLogic>()
+        : Get.put(AccountSecurityLogic());
+
+    emailCtl.addListener(() => email.value = emailCtl.text.trim());
     codeCtl.addListener(() => code.value = codeCtl.text.trim());
-    everAll([mobile, code, seconds, isSendingCode, isSubmitting], (_) => _recompute());
+    everAll(
+      [email, code, seconds, isSendingCode, isSubmitting],
+      (_) => _recompute(),
+    );
     _recompute();
   }
 
   @override
   void onClose() {
-    mobileCtl.dispose();
+    emailCtl.dispose();
     codeCtl.dispose();
     super.onClose();
   }
 
-  void clearMobile() {
-    mobileCtl.clear();
-    mobile.value = '';
+  void clearEmail() {
+    emailCtl.clear();
   }
 
-  // 关键逻辑：表单所有校验与按钮状态，统一在 Controller 内实时计算
   void _recompute() {
-    mobileLength.value = mobile.value.length;
+    emailLength.value = email.value.length;
     codeLength.value = code.value.length;
-
-    mobileOk.value = isPhone(mobile.value);
+    emailOk.value = email.value.isNotEmpty && isEmail(email.value);
     codeOk.value = codeLength.value == 6;
 
-    canSendCode.value =
-        mobileOk.value && seconds.value == 0 && !isSendingCode.value && !isSubmitting.value;
+    final currentEmail = UserRepoLocal.to.current.email;
+    final changed = email.value.isNotEmpty && email.value != currentEmail;
+
+    canSendCode.value = emailOk.value &&
+        changed &&
+        seconds.value == 0 &&
+        !isSendingCode.value &&
+        !isSubmitting.value;
     canSubmit.value =
-        mobileOk.value && codeOk.value && !isSubmitting.value && !isSendingCode.value;
+        !isSubmitting.value && !isSendingCode.value && emailOk.value && codeOk.value && changed;
   }
 
-  // 关键逻辑：验证码倒计时，避免频繁请求
   void _startCountdown() {
     seconds.value = 60;
     Future.doWhile(() async {
@@ -313,18 +289,17 @@ class BindMobileController extends GetxController {
     });
   }
 
-  // 关键逻辑：发送验证码（复用现有 PassportLogic），结果用 Get.snackbar 反馈
   Future<void> sendCode() async {
     if (!canSendCode.value) return;
     FocusManager.instance.primaryFocus?.unfocus();
 
     isSendingCode.value = true;
     try {
-      final res = await passportLogic.sendCode('mobile', mobile.value, 'signup');
+      final res = await passportLogic.sendCode('email', email.value, 'signup');
       if (res == null) {
         Get.snackbar(
           '验证码已发送',
-          '已发送至 ${hiddenPhone(mobile.value)}',
+          '已发送至 ${_maskEmail(email.value)}',
           snackPosition: SnackPosition.bottom,
           backgroundColor: Get.theme.colorScheme.inverseSurface,
           colorText: Get.theme.colorScheme.onInverseSurface,
@@ -348,18 +323,17 @@ class BindMobileController extends GetxController {
     }
   }
 
-  // 关键逻辑：提交绑定/修改手机号，并同步刷新本地用户缓存字段
   Future<void> submit() async {
     if (!canSubmit.value) return;
     FocusManager.instance.primaryFocus?.unfocus();
 
     isSubmitting.value = true;
     try {
-      final currentMobile = UserRepoLocal.to.current.mobile;
-      if (currentMobile.isNotEmpty && mobile.value == currentMobile) {
+      final currentEmail = UserRepoLocal.to.current.email;
+      if (currentEmail.isNotEmpty && email.value == currentEmail) {
         Get.snackbar(
           '无需修改',
-          '新手机号与当前绑定一致',
+          '新邮箱与当前绑定一致',
           snackPosition: SnackPosition.bottom,
           backgroundColor: Get.theme.colorScheme.surfaceContainerHighest,
           colorText: Get.theme.colorScheme.onSurface,
@@ -369,15 +343,15 @@ class BindMobileController extends GetxController {
         return;
       }
 
-      final ok = await UserProvider().changeMobile(mobile: mobile.value, code: code.value);
+      final ok = await _securityLogic.changeEmail(email: email.value, code: code.value);
       if (ok) {
         final user = UserRepoLocal.to.current;
-        user.mobile = mobile.value;
+        user.email = email.value;
         await UserRepoLocal.to.changeInfo(user.toMap());
 
         Get.snackbar(
           '绑定成功',
-          '手机号已更新为 ${hiddenPhone(mobile.value)}',
+          '邮箱已更新为 ${_maskEmail(email.value)}',
           snackPosition: SnackPosition.bottom,
           backgroundColor: Get.theme.colorScheme.inverseSurface,
           colorText: Get.theme.colorScheme.onInverseSurface,
@@ -387,7 +361,7 @@ class BindMobileController extends GetxController {
         Get.back();
       } else {
         Get.snackbar(
-          '绑定失败',
+          '提交失败',
           '请检查验证码或稍后重试',
           snackPosition: SnackPosition.bottom,
           backgroundColor: Get.theme.colorScheme.errorContainer,
@@ -447,4 +421,14 @@ class _StatusRow extends StatelessWidget {
       ],
     );
   }
+}
+
+String _maskEmail(String email) {
+  final v = email.trim();
+  final at = v.indexOf('@');
+  if (at <= 1) return v;
+  final name = v.substring(0, at);
+  final domain = v.substring(at);
+  if (name.length <= 2) return '${name[0]}*$domain';
+  return '${name.substring(0, 2)}***$domain';
 }

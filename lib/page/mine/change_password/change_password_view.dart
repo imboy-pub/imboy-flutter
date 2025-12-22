@@ -1,299 +1,280 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:imboy/page/passport/login_view.dart';
-import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/button.dart';
-import 'package:imboy/component/ui/password.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+
 import 'change_password_logic.dart';
 
 /// 修改密码页面
-class ChangePasswordPage extends StatelessWidget {
-  final logic = Get.put(ChangePasswordLogic());
-  final state = Get.find<ChangePasswordLogic>().state;
+class ChangePasswordPage extends GetView<ChangeLoginPasswordController> {
+  const ChangePasswordPage({super.key});
 
-  ChangePasswordPage({super.key});
+  @override
+  ChangeLoginPasswordController get controller =>
+      Get.put(ChangeLoginPasswordController());
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    double bottomPadding = MediaQuery.of(context).padding.bottom;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
       appBar: NavAppBar(
         automaticallyImplyLeading: true,
-        title: 'changeParam'.trArgs(['password'.tr]),
+        title: '修改登录密码',
       ),
       backgroundColor: colorScheme.surface,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           children: [
-            const SizedBox(height: 8),
-            
-            // 安全提示卡片
             Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      colorScheme.primary.withAlpha(25),
-                      colorScheme.primary.withAlpha(10),
-                    ],
-                  ),
+              margin: EdgeInsets.zero,
+              child: ListTile(
+                leading: Icon(Icons.lock, color: colorScheme.primary),
+                title: const Text('登录密码'),
+                subtitle: Text(
+                  '用于登录与身份验证',
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary.withAlpha(51),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.security,
-                        color: colorScheme.primary,
-                        size: 24,
-                      ),
+                trailing: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    '已启用',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '密码安全提示',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: colorScheme.onSurface,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '为了您的账户安全，请设置复杂密码',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: colorScheme.onSurface.withAlpha(179),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-            
-            const SizedBox(height: 24),
-            
-            // 密码修改表单卡片
+            const SizedBox(height: 16),
             Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(20),
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 原密码输入
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: colorScheme.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: colorScheme.outline.withAlpha(51),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.lock_outline,
-                                color: colorScheme.primary,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'existingPassword'.tr,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: colorScheme.onSurface,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Obx(() => PasswordTextField(
-                            obscureText: state.existingPwdObscure.value,
-                            hintText: 'Existing Password'.tr,
-                            onTap: () {
-                              state.existingPwdObscure.value =
-                                  !state.existingPwdObscure.value;
-                            },
-                            onChanged: (String? val) {
-                              if (strNoEmpty(val)) {
-                                state.existingPwd.value = val!.trim();
-                              }
-                            },
-                          )),
-                        ],
-                      ),
+                    Text(
+                      '修改登录密码',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w700),
                     ),
-                    
+                    const SizedBox(height: 4),
+                    Text(
+                      '新密码至少 ${ChangeLoginPasswordController.minPasswordLength} 位',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                    ),
                     const SizedBox(height: 16),
-                    
-                    // 新密码输入
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: colorScheme.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: colorScheme.outline.withAlpha(51),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.lock_reset,
-                                color: colorScheme.primary,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'newPassword'.tr,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: colorScheme.onSurface,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Obx(() => PasswordTextField(
-                            obscureText: state.newPwdObscure.value,
-                            hintText: 'pleaseInputParam'.trArgs(['password'.tr]),
-                            onTap: () {
-                              state.newPwdObscure.value = !state.newPwdObscure.value;
-                            },
-                            onChanged: (String? val) {
-                              if (strNoEmpty(val)) {
-                                state.newPwd.value = val!.trim();
-                              }
-                            },
-                          )),
-                        ],
+                    _PasswordField(
+                      label: '原密码',
+                      hintText: '请输入原密码',
+                      controller: controller.existingCtl,
+                      obscure: controller.existingObscure,
+                      onToggleObscure: controller.toggleExistingObscure,
+                      style: _FieldStyle.filled,
+                    ),
+                    const SizedBox(height: 8),
+                    Obx(
+                      () => _FieldStatusRow(
+                        length: controller.existingLength.value,
+                        minLength: ChangeLoginPasswordController.minPasswordLength,
+                        ok: controller.existingLengthOk.value,
+                        okText: '长度符合要求',
+                        errorText: '至少 ${ChangeLoginPasswordController.minPasswordLength} 位',
                       ),
                     ),
-                    
                     const SizedBox(height: 16),
-                    
-                    // 确认密码输入
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: colorScheme.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: colorScheme.outline.withAlpha(51),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.lock_clock,
-                                color: colorScheme.primary,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'retypePassword'.tr,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: colorScheme.onSurface,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Obx(() => PasswordTextField(
-                            obscureText: state.retypePwdObscure.value,
-                            hintText: 'retypePassword'.tr,
-                            onTap: () {
-                              state.retypePwdObscure.value =
-                                  !state.retypePwdObscure.value;
-                            },
-                            onChanged: (String? val) {
-                              if (strNoEmpty(val)) {
-                                state.retypePwd.value = val!.trim();
-                              }
-                            },
-                          )),
-                        ],
+                    _PasswordField(
+                      label: '新密码',
+                      hintText: '请输入新密码',
+                      controller: controller.newCtl,
+                      obscure: controller.newObscure,
+                      onToggleObscure: controller.toggleNewObscure,
+                      style: _FieldStyle.filled,
+                    ),
+                    const SizedBox(height: 8),
+                    Obx(
+                      () => _FieldStatusRow(
+                        length: controller.newLength.value,
+                        minLength: ChangeLoginPasswordController.minPasswordLength,
+                        ok: controller.newLengthOk.value,
+                        okText: '长度符合要求',
+                        errorText: '至少 ${ChangeLoginPasswordController.minPasswordLength} 位',
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    _PasswordField(
+                      label: '确认新密码',
+                      hintText: '请再次输入新密码',
+                      controller: controller.confirmCtl,
+                      obscure: controller.confirmObscure,
+                      onToggleObscure: controller.toggleConfirmObscure,
+                      style: _FieldStyle.outlined,
+                    ),
+                    const SizedBox(height: 8),
+                    Obx(
+                      () {
+                        final ok = controller.confirmLengthOk.value &&
+                            controller.passwordMatchOk.value;
+                        final errorText = !controller.confirmLengthOk.value
+                            ? '至少 ${ChangeLoginPasswordController.minPasswordLength} 位'
+                            : (controller.passwordMatchOk.value
+                                ? ''
+                                : '两次输入不一致');
+                        return _FieldStatusRow(
+                          length: controller.confirmLength.value,
+                          minLength: ChangeLoginPasswordController.minPasswordLength,
+                          ok: ok,
+                          okText: '校验通过',
+                          errorText: errorText.isEmpty ? '校验通过' : errorText,
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: Obx(
+                        () => FilledButton(
+                          onPressed: controller.canSubmit.value
+                              ? controller.submit
+                              : null,
+                          child: controller.isLoading.value
+                              ? Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: colorScheme.onPrimary,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Text('保存中...'),
+                                  ],
+                                )
+                              : const Text('保存'),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: bottomPadding == 0 ? 12 : bottomPadding),
                   ],
                 ),
-              ),
-            ),
-            
-            const SizedBox(height: 32),
-            
-            // 确认按钮
-            Container(
-              padding: EdgeInsets.only(
-                bottom: bottomPadding != 20 ? 20 : bottomPadding,
-              ),
-              width: double.infinity,
-              child: RoundedElevatedButton(
-                text: 'buttonConfirm'.tr,
-                onPressed: () async {
-                  bool res = await logic.changePassword(
-                    newPwd: state.newPwd.value,
-                    rePwd: state.retypePwd.value,
-                    existingPwd: state.existingPwd.value,
-                  );
-                  if (res) {
-                    EasyLoading.showSuccess('confirmRecoverSuccess'.tr);
-                    UserRepoLocal.to.quitLogin();
-                    Get.offAll(() => const LoginPage());
-                  }
-                },
-                highlighted: true,
-                size: Size(Get.width - 32, 58),
-                borderRadius: BorderRadius.circular(12.0),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+enum _FieldStyle { filled, outlined }
+
+class _PasswordField extends StatelessWidget {
+  const _PasswordField({
+    required this.label,
+    required this.hintText,
+    required this.controller,
+    required this.obscure,
+    required this.onToggleObscure,
+    required this.style,
+  });
+
+  final String label;
+  final String hintText;
+  final TextEditingController controller;
+  final RxBool obscure;
+  final VoidCallback onToggleObscure;
+  final _FieldStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isFilled = style == _FieldStyle.filled;
+
+    return Obx(
+      () => TextField(
+        controller: controller,
+        obscureText: obscure.value,
+        enableSuggestions: false,
+        autocorrect: false,
+        textInputAction: TextInputAction.next,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hintText,
+          filled: isFilled,
+          fillColor: isFilled ? cs.surfaceContainerHighest : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          suffixIcon: IconButton(
+            onPressed: onToggleObscure,
+            icon: Icon(
+              obscure.value ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FieldStatusRow extends StatelessWidget {
+  const _FieldStatusRow({
+    required this.length,
+    required this.minLength,
+    required this.ok,
+    required this.okText,
+    required this.errorText,
+  });
+
+  final int length;
+  final int minLength;
+  final bool ok;
+  final String okText;
+  final String errorText;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final color = ok ? cs.primary : cs.error;
+    final icon = ok ? Icons.check_circle_outline : Icons.error_outline;
+    final statusText = ok ? okText : errorText;
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            '当前长度：$length / $minLength',
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: cs.onSurfaceVariant),
+          ),
+        ),
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: 6),
+        Text(
+          statusText,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: color,
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+      ],
     );
   }
 }

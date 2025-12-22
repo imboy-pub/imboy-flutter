@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import 'package:imboy/config/const.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/passport/login_view.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
@@ -117,23 +118,40 @@ class UserRepoLocal extends GetxController {
   }
 
   Future<bool> quitLogin() async {
-    if (to.isLoggedIn) {
-      //WebSocketService.to.sendMessage("logout");
-    }
-    await StorageService.to.remove(Keys.currentUid);
-    await StorageService.to.remove(Keys.wsUrl);
-    await StorageService.to.remove(Keys.uploadUrl);
-    await StorageService.to.remove(Keys.uploadKey);
-    await StorageService.to.remove(Keys.uploadScene);
-
     try {
-      await SecureTokenStorageService.clear();
+      iPrint("> quitLogin: Starting logout process");
+      if (to.isLoggedIn) {
+        iPrint("> quitLogin: User is logged in");
+        //WebSocketService.to.sendMessage("logout");
+      } else {
+        iPrint("> quitLogin: User is not logged in");
+      }
+
+      iPrint("> quitLogin: Removing storage data");
+      await StorageService.to.remove(Keys.currentUid);
+      await StorageService.to.remove(Keys.wsUrl);
+      await StorageService.to.remove(Keys.uploadUrl);
+      await StorageService.to.remove(Keys.uploadKey);
+      await StorageService.to.remove(Keys.uploadScene);
+
+      iPrint("> quitLogin: Clearing secure tokens");
+      try {
+        await SecureTokenStorageService.clear();
+        iPrint("> quitLogin: Secure tokens cleared successfully");
+      } catch (e, s) {
+        debugPrint("quitLogin error clearing tokens: $e; $s");
+        // FlutterKeychain 不支持 macos
+      }
+
+      iPrint("> quitLogin: Closing WebSocket");
+      await WebSocketService.to.closeSocket(permanent: true);
+      iPrint("> quitLogin: Closing database");
+      SqliteService.to.close();
+      iPrint("> quitLogin: Logout process completed successfully");
+      return true;
     } catch (e, s) {
-      debugPrint("$e; $s");
-      // FlutterKeychain 不支持 macos
+      debugPrint("quitLogin error: $e; $s");
+      return false;
     }
-    await WebSocketService.to.closeSocket(permanent: true);
-    SqliteService.to.close();
-    return true;
   }
 }

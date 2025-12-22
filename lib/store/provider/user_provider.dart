@@ -101,10 +101,11 @@ class UserProvider extends HttpClient {
     return resp.payload;
   }
 
-  Future<bool> changeEmail(String email) async {
+  Future<bool> changeEmail({required String email, required String code}) async {
     IMBoyHttpResponse resp = await put(API.userUpdate, data: {
       "field": "email",
       "value": email,
+      "code": code,
     });
     return resp.ok;
   }
@@ -166,12 +167,20 @@ class UserProvider extends HttpClient {
   }
 
   Future<bool> applyLogout() async {
-    IMBoyHttpResponse resp = await post(API.userApplyLogout);
-    iPrint("> on UserProvider/applyLogout resp: ${resp.payload.toString()}");
-    if (!resp.ok) {
+    try {
+      IMBoyHttpResponse resp = await post(API.userApplyLogout);
+      iPrint("> on UserProvider/applyLogout resp: ${resp.payload.toString()}");
+      if (!resp.ok) {
+        iPrint("> on UserProvider/applyLogout failed: ${resp.msg}, code: ${resp.code}");
+        EasyLoading.showError(resp.msg.tr);
+        return false;
+      }
+      return true;
+    } catch (e) {
+      iPrint("> on UserProvider/applyLogout error: $e");
+      EasyLoading.showError("退出登录请求失败，请检查网络连接");
       return false;
     }
-    return true;
   }
 
   Future<bool> cancelLogout() async {
