@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:get/get.dart';
 
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'search_state.dart';
@@ -20,6 +21,8 @@ class SearchLogic extends GetxController {
   final Map<String, List<Message>> _searchCache = {};
   // 取消标记
   bool _isCancelled = false;
+  // 联系人仓库
+  final ContactRepo _contactRepo = ContactRepo();
 
   @override
   void onClose() {
@@ -49,6 +52,67 @@ class SearchLogic extends GetxController {
     });
   }
 
+  // 预加载联系人信息 - 优化版本，支持错误处理和降级
+  Future<void> _preloadContacts(List<Message> messages) async {
+    final Set<String> authorIds = messages.map((msg) => msg.authorId).toSet();
+    
+    // 使用 Future.wait 并行处理，但限制并发数避免过多请求
+    final futures = <Future<void>>[];
+    final batchSize = 3; // 限制并发数
+    
+    for (final authorId in authorIds) {
+      if (state.getCachedContact(authorId) == null) {
+        futures.add(_loadContactWithFallback(authorId));
+        
+        // 批量处理，避免过多并发
+        if (futures.length >= batchSize) {
+          await Future.wait(futures, eagerError: false);
+          futures.clear();
+        }
+      }
+    }
+    
+    // 处理剩余的请求
+    if (futures.isNotEmpty) {
+      await Future.wait(futures, eagerError: false);
+    }
+  }
+
+  // 加载联系人信息，包含降级处理
+  Future<void> _loadContactWithFallback(String authorId) async {
+    try {
+      final contact = await _contactRepo.findByUid(authorId);
+      if (contact != null) {
+        state.cacheContact(authorId, contact);
+      }
+    } catch (e) {
+      debugPrint('预加载联系人失败: $authorId, $e');
+      
+      // 如果是加密相关错误，创建一个基础联系人对象
+      if (e.toString().contains('Invalid padding') || 
+          e.toString().contains('decrypt')) {
+        final fallbackContact = ContactModel(
+          peerId: authorId,
+          nickname: 'User_${authorId.substring(0, 8)}', // 显示部分ID作为昵称
+          avatar: '', // 使用默认头像
+        );
+        state.cacheContact(authorId, fallbackContact);
+        debugPrint('使用降级联系人信息: $authorId');
+      }
+    }
+  }
+
+  // 安全的联系人预加载，不影响搜索结果展示
+  Future<void> _preloadContactsSafely(List<Message> messages) async {
+    // 不等待预加载完成，让搜索结果先显示
+    unawaited(_preloadContacts(messages));
+  }
+
+  // 辅助函数：不等待 Future 完成
+  void unawaited(Future<void> future) {
+    // 故意不等待 future 完成
+  }
+
   // 执行搜索
   Future<void> performSearch({
     required String query,
@@ -67,6 +131,8 @@ class SearchLogic extends GetxController {
       state.searchResults.value = _searchCache[cacheKey]!;
       state.currentQuery.value = effectiveQuery;
       await state.addToHistory(effectiveQuery);
+      // 预加载联系人信息
+      await _preloadContacts(state.searchResults);
       return;
     }
 
@@ -76,6 +142,7 @@ class SearchLogic extends GetxController {
       state.resetSearch();
       state.currentQuery.value = effectiveQuery;
       state.isLoading.value = true;
+      state.startSearching();
       state.errorMessage.value = '';
     }
 
@@ -110,6 +177,9 @@ class SearchLogic extends GetxController {
 
       if (_isCancelled) return;
 
+      // 预加载联系人信息（独立处理，不影响搜索结果）
+      _preloadContactsSafely(results);
+
       if (loadMore) {
         state.searchResults.addAll(results);
       } else {
@@ -142,9 +212,16 @@ class SearchLogic extends GetxController {
       if (!_isCancelled) {
         state.errorMessage.value = 'searchError'.tr;
         debugPrint('Search error: $e');
+        
+        // 如果是网络相关错误，可以提供用户友好的提示
+        if (e.toString().contains('SocketException') || 
+            e.toString().contains('Connection')) {
+          state.errorMessage.value = '网络连接异常，请检查网络后重试';
+        }
       }
     } finally {
       state.isLoading.value = false;
+      state.stopSearching();
     }
   }
 
@@ -217,135 +294,58 @@ class SearchLogic extends GetxController {
     if (query.trim().isEmpty) return [];
 
     try {
+      // 处理时间范围
+      DateTime now = DateTime.now();
+      DateTime? filterStartDate = startDate;
+      DateTime? filterEndDate = endDate;
 
-      // 构建查询条件
-      String where = "1=1";
-      List<Object?> whereArgs = [];
-
-      // 基础文本搜索
-      where = "$where AND (json_extract(payload, '\$.text') LIKE ? OR json_extract(payload, '\$.quote_text') LIKE ? OR json_extract(payload, '\$.title') LIKE ?)";
-      final likePattern = "%${query.trim()}%";
-      whereArgs.addAll([likePattern, likePattern, likePattern]);
-
-      // 会话过滤
-      if (strNoEmpty(conversationUk3)) {
-        where = "$where AND conversation_uk3 = ?";
-        whereArgs.add(conversationUk3);
+      if (timeRange != null) {
+        switch (timeRange) {
+          case 'today':
+            filterStartDate = DateTime(now.year, now.month, now.day);
+            break;
+          case 'week':
+            filterStartDate = now.subtract(const Duration(days: 7));
+            break;
+          case 'month':
+            filterStartDate = now.subtract(const Duration(days: 30));
+            break;
+        }
       }
 
-      // 消息类型过滤
-      if (messageType != null && messageType != 'all') {
-        where = "$where AND type = ?";
-        whereArgs.add(messageType);
-      }
-
-      // 发送者过滤
+      // 处理发送者
+      String? senderId;
+      bool needFilterOther = false;
       if (sender != null && sender != 'all') {
         if (sender == 'me') {
-          where = "$where AND from_id = ?";
-          whereArgs.add(UserRepoLocal.to.currentUid);
-        } else {
-          where = "$where AND from_id != ?";
-          whereArgs.add(UserRepoLocal.to.currentUid);
+          senderId = UserRepoLocal.to.currentUid;
+        } else if (sender == 'other') {
+          needFilterOther = true;
         }
       }
 
-      // 时间范围过滤
-      DateTime now = DateTime.now();
-      DateTime? filterStartDate;
-      DateTime? filterEndDate;
+      var repo = MessageRepo(tableName: MessageRepo.getTableName(type));
 
-      switch (timeRange) {
-        case 'today':
-          filterStartDate = DateTime(now.year, now.month, now.day);
-          break;
-        case 'week':
-          filterStartDate = now.subtract(const Duration(days: 7));
-          break;
-        case 'month':
-          filterStartDate = now.subtract(const Duration(days: 30));
-          break;
-      }
-
-      // 自定义日期范围
-      if (startDate != null) filterStartDate = startDate;
-      if (endDate != null) filterEndDate = endDate;
-
-      if (filterStartDate != null) {
-        where = "$where AND created_at >= ?";
-        whereArgs.add(filterStartDate.millisecondsSinceEpoch);
-      }
-
-      if (filterEndDate != null) {
-        where = "$where AND created_at <= ?";
-        whereArgs.add(filterEndDate.millisecondsSinceEpoch);
-      }
-
-      // 创建临时消息仓库来执行高级查询
-      var tempRepo = MessageRepo(tableName: MessageRepo.getTableName(type));
-      List<MessageModel> tempResults = await tempRepo.page(
+      // 使用 page 方法进行搜索，支持高级过滤
+      List<MessageModel> models = await repo.page(
+        kwd: query,
+        conversationUk3: conversationUk3,
         page: page,
         size: size,
-        kwd: query.trim(),
-        conversationUk3: conversationUk3,
-        orderBy: "created_at DESC",
+        messageTypes: (messageType != null && messageType != 'all') ? [messageType] : null,
+        senderId: senderId,
+        startDate: filterStartDate,
+        endDate: filterEndDate,
       );
 
-      if (tempResults.isEmpty) return [];
-
       List<Message> results = [];
-      for (final msg in tempResults) {
-        // 应用额外的过滤器
-        bool matchesFilter = true;
-
-        // 消息类型过滤
-        if (messageType != null && messageType != 'all') {
-          if (msg.type != messageType) {
-            matchesFilter = false;
-          }
+      for (final msg in models) {
+        // 额外的 Dart 侧过滤（处理 'other' 发送者）
+        if (needFilterOther && msg.fromId == UserRepoLocal.to.currentUid) {
+          continue;
         }
 
-        // 发送者过滤
-        if (sender != null && sender != 'all') {
-          if (sender == 'me' && msg.fromId != UserRepoLocal.to.currentUid) {
-            matchesFilter = false;
-          } else if (sender == 'other' && msg.fromId == UserRepoLocal.to.currentUid) {
-            matchesFilter = false;
-          }
-        }
-
-        // 时间范围过滤
-        if (filterStartDate != null && msg.createdAt != null) {
-          DateTime msgDateTime;
-          if (msg.createdAt is int) {
-            msgDateTime = DateTime.fromMillisecondsSinceEpoch(msg.createdAt as int);
-          } else if (msg.createdAt is DateTime) {
-            msgDateTime = msg.createdAt as DateTime;
-          } else {
-            msgDateTime = DateTime.now(); // 默认值
-          }
-          if (msgDateTime.isBefore(filterStartDate)) {
-            matchesFilter = false;
-          }
-        }
-
-        if (filterEndDate != null && msg.createdAt != null) {
-          DateTime msgDateTime;
-          if (msg.createdAt is int) {
-            msgDateTime = DateTime.fromMillisecondsSinceEpoch(msg.createdAt as int);
-          } else if (msg.createdAt is DateTime) {
-            msgDateTime = msg.createdAt as DateTime;
-          } else {
-            msgDateTime = DateTime.now(); // 默认值
-          }
-          if (msgDateTime.isAfter(filterEndDate)) {
-            matchesFilter = false;
-          }
-        }
-
-        if (matchesFilter) {
-          results.add(await msg.toTypeMessage());
-        }
+        results.add(await msg.toTypeMessage());
       }
 
       return results;
@@ -355,7 +355,7 @@ class SearchLogic extends GetxController {
     }
   }
 
-  // 原始搜索方法（保持向后兼容）
+  // 原始搜索方法（使用 FTS 优化）
   Future<List<Message>> search({
     required String type,
     int page = 1,
@@ -366,14 +366,13 @@ class SearchLogic extends GetxController {
     if (kwd == null || kwd.trim().isEmpty) return [];
 
     var repo = MessageRepo(tableName: MessageRepo.getTableName(type));
-    String? orderBy;
 
+    // 使用 FTS 全文搜索
     List<MessageModel> list2 = await repo.page(
-      page: page,
-      size: size,
       kwd: kwd,
       conversationUk3: conversationUk3,
-      orderBy: orderBy,
+      page: page,
+      size: size,
     );
 
     if (list2.isEmpty) return [];

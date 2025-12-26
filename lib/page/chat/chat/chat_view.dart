@@ -19,6 +19,7 @@ import 'package:flyer_chat_file_message/flyer_chat_file_message.dart';
 import 'package:flyer_chat_system_message/flyer_chat_system_message.dart';
 import 'package:flyer_chat_text_message/flyer_chat_text_message.dart';
 import 'package:get/get.dart' as getx;
+import 'package:get/get.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/config/chat_theme_config.dart';
 import 'package:image/image.dart' as img;
@@ -36,6 +37,7 @@ import 'package:imboy/component/helper/picker_method.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/chat/message.dart';
 import 'package:imboy/component/chat/message_image_builder.dart';
+import 'package:imboy/component/chat/message_scroll_manager.dart';
 import 'package:imboy/component/chat/performance_monitor.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/voice_record/voice_widget.dart';
@@ -128,11 +130,18 @@ class ChatPageState extends State<ChatPage> {
   bool _burnEnabled = false;
   int _burnAfterMs = 30000;
   // StreamSubscription<ConnectivityResult>? _connectivitySubscription; // 网络状态监听
+  
+  // 用于定位目标消息的 GlobalKey
+  final GlobalKey _targetMessageKey = GlobalKey();
+
   // 页面初始化
   @override
   void initState() {
     super.initState();
     try {
+      if (!getx.Get.isRegistered<MessageScrollManager>()) {
+        getx.Get.put(MessageScrollManager());
+      }
       logic.resetDisposedState();
       msgIds.clear();
       state.nextAutoId.value = 0;
@@ -161,7 +170,17 @@ class ChatPageState extends State<ChatPage> {
       await _setupConversation();
       await _reloadConversationSettings();
       await logic.cleanupExpiredBurnMessagesForConversation(conversation);
-      await logic.loadMoreMessages(conversation, isInitial: true);
+      
+      if (widget.msgId.isNotEmpty) {
+        await logic.loadMessagesAround(conversation, widget.msgId);
+        // 延迟滚动，确保 ListView 已构建且消息已渲染
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollToTargetMessage();
+        });
+      } else {
+        await logic.loadMoreMessages(conversation, isInitial: true);
+      }
+
       _setupEventListeners();
     } catch (e, stack) {
       debugPrint('_initChat error: $e\n$stack');
@@ -199,10 +218,6 @@ class ChatPageState extends State<ChatPage> {
     }
     // 初始化群组信息
     await _initGroupInfo();
-    // 加载消息
-    if (widget.msgId.isNotEmpty) {
-      logic.scrollToMessage(widget.type, widget.msgId);
-    }
     // 设置消息监听
     _setupEventListeners();
   }
@@ -419,7 +434,91 @@ class ChatPageState extends State<ChatPage> {
     
     super.dispose();
   }
-  // 标记消息为已读
+  // 滚动到目标消息
+  Future<void> _scrollToTargetMessage() async {
+    try {
+      // 确保消息列表已加载
+      if (logic.chatController?.messages.isEmpty ?? true) {
+        debugPrint("消息列表为空，无法滚动");
+        return;
+      }
+
+      // 查找目标消息在列表中的索引
+      final messages = logic.chatController!.messages;
+      final targetIndex = messages.indexWhere((m) => m.id == widget.msgId);
+      
+      if (targetIndex == -1) {
+        debugPrint("未找到目标消息: ${widget.msgId}");
+        return;
+      }
+
+      debugPrint("找到目标消息: ${widget.msgId}, 索引: $targetIndex, 总消息数: ${messages.length}");
+
+      // 增加重试次数和间隔，确保在复杂布局或低端机上也能成功定位
+      for (var attempt = 0; attempt < 12; attempt++) {
+        await WidgetsBinding.instance.endOfFrame;
+        // 渐进式等待：前几次快一点，后面慢一点
+        await Future.delayed(Duration(milliseconds: attempt < 3 ? 100 : 200));
+
+        await logic.chatController?.scrollToMessage(
+          widget.msgId,
+          duration: const Duration(milliseconds: 500),
+          offset: 100.0,
+        );
+
+        // 检查目标消息是否在可视区域内
+        if (_targetMessageKey.currentContext != null) {
+          final renderObject = _targetMessageKey.currentContext!.findRenderObject();
+          if (renderObject is RenderBox) {
+             // 简单的可见性检查：只要 context 存在且 renderObject attached，说明已经 build 并进入了树
+             // 配合 scrollToMessage 的执行，通常意味着已经滚到了位置
+             debugPrint("滚动定位成功，目标消息已进入视图树，尝试次数: ${attempt + 1}");
+             break;
+          }
+        }
+      }
+
+      MessageScrollManager.to.highlightMessage(widget.msgId);
+    } catch (e) {
+      debugPrint("滚动到目标消息失败: $e");
+      // 降级处理：使用简单的索引滚动
+      _fallbackScrollToMessage();
+    }
+  }
+
+  // 降级滚动方法
+  void _fallbackScrollToMessage() {
+    try {
+      final messages = logic.chatController?.messages ?? [];
+      final targetIndex = messages.indexWhere((m) => m.id == widget.msgId);
+      
+      if (targetIndex == -1) return;
+
+      // 估算滚动位置 (reverse: true, index 0 is bottom)
+      // 假设平均消息高度为80像素
+      double estimatedOffset = targetIndex * 80.0;
+      
+      if (MessageScrollManager.to.scrollController.hasClients) {
+        final maxScroll = MessageScrollManager.to.scrollController.position.maxScrollExtent;
+        if (estimatedOffset > maxScroll) {
+          estimatedOffset = maxScroll;
+        }
+        
+        MessageScrollManager.to.scrollController.jumpTo(estimatedOffset);
+        
+        // 延迟高亮
+        Future.delayed(const Duration(milliseconds: 300), () {
+          MessageScrollManager.to.highlightMessage(widget.msgId);
+        });
+        
+        debugPrint("使用降级方法滚动到消息: ${widget.msgId}, 位置: $estimatedOffset");
+      }
+    } catch (e) {
+      debugPrint("降级滚动也失败: $e");
+    }
+  }
+
+// 标记消息为已读
   // 添加消息
   Future<bool> _addMessage(Message message) async {
     try {
@@ -1310,10 +1409,11 @@ class ChatPageState extends State<ChatPage> {
         
         // 优先收起面板/键盘，避免"返回上一页"
         if (state.composerHeight.value > 52) {
+          final navigator = Navigator.of(context);
           chatInputKey.currentState?.hideAllPanel();
           await Future.delayed(const Duration(milliseconds: 300));
           if (!mounted) return;
-          Navigator.of(context).pop();
+          navigator.pop();
         }
       },
       child: Scaffold(
@@ -1474,7 +1574,9 @@ class ChatPageState extends State<ChatPage> {
               final bottomGap = state.composerHeight.value;
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 try {
-                  logic.chatController?.scrollToBottom();
+                  if (widget.msgId.isEmpty) {
+                    logic.chatController?.scrollToBottom();
+                  }
                 } catch (_) {}
               });
               return Padding(
@@ -1487,6 +1589,7 @@ class ChatPageState extends State<ChatPage> {
                     return false;
                   },
                   child: ChatAnimatedList(
+                    scrollController: MessageScrollManager.to.scrollController,
                     reversed: true,
                     itemBuilder: itemBuilder,
                     onEndReached: () async {
@@ -1616,6 +1719,13 @@ class ChatPageState extends State<ChatPage> {
           required bool isSentByMe,
           MessageGroupStatus? groupStatus,
         }) {
+          // 如果是目标消息，包裹 Key
+          if (widget.msgId.isNotEmpty && message.id == widget.msgId) {
+            child = Container(
+              key: _targetMessageKey,
+              child: child,
+            );
+          }
           final isSystemMessage = message.authorId == 'system';
           final isFirstInGroup = groupStatus?.isFirst ?? true;
           final isLastInGroup = groupStatus?.isLast ?? true;
@@ -1759,7 +1869,30 @@ class ChatPageState extends State<ChatPage> {
           // 可视阈值已读（受隐私设置控制）
           final s = UserRepoLocal.to.setting;
           if (!s.enableVisibilityRead) {
-            return chatMsg;
+            // 添加高亮效果
+          return GetBuilder<MessageScrollManager>(
+            init: MessageScrollManager.to,
+            builder: (scrollManager) {
+              final isHighlighted = scrollManager.isMessageHighlighted(message.id);
+              
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: isHighlighted 
+                      ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
+                      : Colors.transparent,
+                  border: isHighlighted
+                      ? Border.all(
+                          color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                          width: 2,
+                        )
+                      : null,
+                ),
+                child: chatMsg,
+              );
+            },
+          );
           }
           final double fractionThreshold = (() {
             final v = s.visibilityReadFraction;

@@ -203,6 +203,13 @@ class SqliteService {
     });
   }
 
+  /// 执行原始查询
+  Future<List<Map<String, Object?>>> rawQuery(String sql, [List<Object?>? arguments]) async {
+    final db = await this.db;
+    if (db == null) return [];
+    return await db.rawQuery(sql, arguments);
+  }
+
   /// 执行原始 SQL 更新语句（带重试机制）
   /// Execute raw update SQL (with retry logic)
   Future<int> execute(String sql, [List<Object?>? arguments, int retries = 3]) async {

@@ -207,42 +207,25 @@ class SqliteChatController
     double offset = 80.0,
   }) async {
     try {
-      // 获取正确的会话ID
-      final conversationId = _getConversationId();
-      await MessageScrollManager.to.scrollToMessage(
-        conversationId,
+      // 1. 优先尝试使用 ChatAnimatedList 提供的滚动能力 (ScrollToMessageMixin)
+      // 这是最准确的方式，因为它基于列表的实际索引和布局
+      await super.scrollToMessage(
         messageId,
-        animated: true,
-        offset: offset,
-        highlight: true,
         duration: duration,
+        curve: curve,
+        alignment: alignment,
+        offset: offset,
       );
+
+      // 2. 触发高亮
+      MessageScrollManager.to.highlightMessage(messageId);
+
+      // 注意：我们不再优先使用 MessageScrollManager.scrollToMessage
+      // 因为对于新加载的历史消息，它的位置缓存通常是估算的，很不准确。
+      // 而 super.scrollToMessage 依赖于 ChatAnimatedList 的实现，更为可靠。
+      // 如果 super.scrollToMessage 因为未 attach 而未执行，外部的重试机制会再次调用。
     } catch (e) {
       iPrint('滚动到消息失败: $messageId, 错误: $e');
-
-      // 备用方案：使用ScrollToMessageMixin的方法
-      try {
-        await super.scrollToMessage(messageId);
-      } catch (e2) {
-        iPrint('备用滚动方案也失败: $messageId, 错误: $e2');
-      }
-    }
-  }
-
-  /// 获取会话ID
-  String _getConversationId() {
-    try {
-      if (_messages.isNotEmpty) {
-        final firstMessage = _messages.first;
-        final conversationUk3 = firstMessage.metadata?['conversation_uk3']?.toString();
-        if (conversationUk3?.isNotEmpty == true) {
-          return conversationUk3!;
-        }
-      }
-      return 'default_conversation';
-    } catch (e) {
-      iPrint('获取会话ID失败: $e');
-      return 'default_conversation';
     }
   }
 

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_saver/file_saver.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -33,7 +34,6 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xid/xid.dart';
 
 import 'chat_state.dart';
@@ -51,11 +51,14 @@ class ChatLogic extends GetxController {
   static const String _spPendingReadReceiptsKey = 'imboy.pending_read_receipts.v1';
   static const String _spPendingReactionsKey = 'imboy.pending_reactions.v1';
   Timer? _readReceiptFlushTimer;
+  Timer? _cleanupDeletedMessageIdsTimer;
   Worker? _onlineWorker;
   final Map<String, Timer> _burnDeleteTimers = {};
   final Map<String, Timer> _burnPurgeTimers = {};
   static const int _burnTombstoneRetentionMs = 24 * 60 * 60 * 1000;
   static const int _burnLastMessageScanLimit = 40;
+  static const String _spDeletedMessageIdsKey = 'imboy.deleted_message_ids.v1';
+  static const int _deletedMessageRetentionMs = 24 * 60 * 60 * 1000; // 保留24小时
   
   // 备用音频播放器相关字段
   just_audio.AudioPlayer? _audioPlayer; // 备用音频播放器
@@ -72,6 +75,12 @@ class ChatLogic extends GetxController {
         flushPendingReactions();
       }
     });
+
+    // 启动清理已删除消息ID的定时器（每小时清理一次）
+    _cleanupDeletedMessageIdsTimer = Timer.periodic(
+      const Duration(hours: 1),
+      (_) => _cleanupDeletedMessageIds(),
+    );
   }
 
   
@@ -114,11 +123,74 @@ class ChatLogic extends GetxController {
     super.dispose();
   }
 
+  /// 记录已删除的消息ID
+  Future<void> _recordDeletedMessageId(String messageId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final deleted = prefs.getStringList(_spDeletedMessageIdsKey) ?? [];
+      final nowMs = DateTimeHelper.millisecond();
+      final entry = '$messageId:$nowMs';
+      deleted.add(entry);
+      await prefs.setStringList(_spDeletedMessageIdsKey, deleted);
+      iPrint('记录已删除消息ID: $messageId');
+    } catch (e) {
+      iPrint('记录已删除消息ID失败: $e');
+    }
+  }
+
+  /// 检查消息ID是否已被删除
+  static Future<bool> isMessageDeleted(String messageId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final deleted = prefs.getStringList(_spDeletedMessageIdsKey) ?? [];
+      final nowMs = DateTimeHelper.millisecond();
+      for (final entry in deleted) {
+        final parts = entry.split(':');
+        if (parts.length == 2 && parts[0] == messageId) {
+          final deletedAt = int.tryParse(parts[1]) ?? 0;
+          // 如果删除时间超过保留期，则忽略
+          if (nowMs - deletedAt >= _deletedMessageRetentionMs) {
+            return false;
+          }
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      iPrint('检查消息删除状态失败: $e');
+      return false;
+    }
+  }
+
+  /// 清理过期的已删除消息ID记录
+  static Future<void> _cleanupDeletedMessageIds() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final deleted = prefs.getStringList(_spDeletedMessageIdsKey) ?? [];
+      final nowMs = DateTimeHelper.millisecond();
+      final cleaned = <String>[];
+      for (final entry in deleted) {
+        final parts = entry.split(':');
+        if (parts.length == 2) {
+          final deletedAt = int.tryParse(parts[1]) ?? 0;
+          if (nowMs - deletedAt < _deletedMessageRetentionMs) {
+            cleaned.add(entry);
+          }
+        }
+      }
+      await prefs.setStringList(_spDeletedMessageIdsKey, cleaned);
+      iPrint('清理已删除消息ID记录完成: ${deleted.length} -> ${cleaned.length}');
+    } catch (e) {
+      iPrint('清理已删除消息ID记录失败: $e');
+    }
+  }
+
   @override
   void onClose() {
     // 设置释放标志
     _isDisposed = true;
     _readReceiptFlushTimer?.cancel();
+    _cleanupDeletedMessageIdsTimer?.cancel();
     _onlineWorker?.dispose();
     for (final t in _burnDeleteTimers.values) {
       t.cancel();
@@ -325,14 +397,11 @@ class ChatLogic extends GetxController {
         return;
       }
 
-      if (!_isBurnTombstonePayload(payload)) {
-        payload['burn_deleted'] = true;
-        payload['burn_deleted_at'] = nowMs;
-        await repo.update({
-          MessageRepo.id: messageId,
-          MessageRepo.payload: payload,
-        });
-      }
+      // 直接从数据库删除，不使用墓碑标记
+      await repo.delete(messageId);
+
+      // 记录已删除的消息ID，防止服务端重复投递
+      await _recordDeletedMessageId(messageId);
 
       try {
         if (chatController?.isDisposed != true) {
@@ -345,8 +414,6 @@ class ChatLogic extends GetxController {
         repo,
         hiddenMessageId: messageId,
       );
-
-      _scheduleBurnPurge(conversation: conversation, messageId: messageId);
     } catch (_) {}
   }
 
@@ -523,6 +590,97 @@ class ChatLogic extends GetxController {
         return "$prefix2(${state.memberCount.value})";
       }
       return prefix2;
+    }
+  }
+
+  /// 加载指定消息及其前后的消息
+  Future<void> loadMessagesAround(ConversationModel obj, String msgId, {int count = 20}) async {
+    final tb = MessageRepo.getTableName(obj.type);
+    final repo = MessageRepo(tableName: tb);
+
+    // 1. 获取目标消息
+    final targetMsgModel = await repo.find(msgId);
+    if (targetMsgModel == null) {
+      // 消息不存在，回退到普通加载
+      await loadMoreMessages(obj, isInitial: true);
+      return;
+    }
+
+    // 2. 获取较旧的消息 (包括 targetMsg)
+    final olderMessages = await repo.pageForConversation(
+      obj.uk3,
+      targetMsgModel.autoId, 
+      count,
+    );
+    
+    // 3. 获取较新的消息 (不包含 targetMsg)
+    final newerMessages = await repo.pageNewerForConversation(
+      obj.uk3,
+      targetMsgModel.autoId,
+      count,
+    );
+    
+    // 4. 组合列表
+    final List<MessageModel> allModels = [
+      ...olderMessages,
+      targetMsgModel,
+      ...newerMessages,
+    ];
+
+    // 转换模型
+    final messages = await Future.wait(
+      allModels.map((item) async => await item.toTypeMessage()),
+    );
+    
+    // 设置分页标记 - 向下加载更多(更旧)
+    if (olderMessages.isNotEmpty) {
+      state.nextAutoId.value = olderMessages.first.autoId;
+    } else {
+      state.nextAutoId.value = targetMsgModel.autoId; 
+    }
+
+    // 设置分页标记 - 向上加载更多(更新)
+    if (newerMessages.isNotEmpty) {
+      state.prevAutoId.value = newerMessages.last.autoId;
+    } else {
+      state.prevAutoId.value = targetMsgModel.autoId;
+    }
+    
+    // 设置消息列表
+    // 禁用动画，确保 setMessages 立即生效，避免动画干扰后续的滚动定位
+    chatController?.setMessages(messages.toList(), animated: false);
+    
+    // 缓存消息位置，便于后续定位
+    _cacheMessagePositionsForConversation(obj.uk3, messages, msgId);
+  }
+
+  /// 缓存会话的消息位置
+  void _cacheMessagePositionsForConversation(String conversationUk3, List<Message> messages, String targetMsgId) {
+    try {
+      final scrollManager = MessageScrollManager.to;
+      
+      // 计算目标消息的大概位置
+      final targetIndex = messages.indexWhere((m) => m.id == targetMsgId);
+      if (targetIndex == -1) return;
+      
+      // 估算每个消息的平均高度
+      const double averageMessageHeight = 80.0;
+      
+      // 为消息列表中的每个消息估算位置
+      for (int i = 0; i < messages.length; i++) {
+        final message = messages[i];
+        // 计算相对位置：目标消息位置 + 偏移量
+        final offsetFromTarget = (i - targetIndex) * averageMessageHeight;
+        final estimatedPosition = (targetIndex * averageMessageHeight) + offsetFromTarget;
+        
+        // 缓存位置，确保为正数
+        final position = estimatedPosition.clamp(0.0, double.infinity);
+        scrollManager.cacheMessagePosition(conversationUk3, message.id, position);
+      }
+      
+      iPrint('缓存了 ${messages.length} 条消息的位置，目标消息索引: $targetIndex');
+    } catch (e) {
+      iPrint('缓存消息位置失败: $e');
     }
   }
 
@@ -1545,18 +1703,13 @@ class ChatLogic extends GetxController {
       // 初始加载时，直接设置消息列表（保持正确的顺序）
       if (isInitial) {
         chatController?.setMessages(newItems);
-        // 设置初始的 prevAutoId 为最新消息的 auto_id
-        state.prevAutoId.value = newItems.first.metadata?['auto_id'] ?? 0;
+        state.nextAutoId.value = newItems.first.metadata?['auto_id'] ?? 0;
+        state.prevAutoId.value = newItems.last.metadata?['auto_id'] ?? 0;
       } else {
-        // 分页加载时，需要反转消息顺序后再插入到列表顶部
-        // 因为 pageMessages 返回的是旧消息在前，新消息在后的顺序
-        // 但分页加载的历史消息应该插入到列表顶部，且保持新旧顺序
-        final reversedItems = newItems.reversed.toList();
-        chatController?.insertAllMessages(reversedItems, index: 0);
+        chatController?.insertAllMessages(newItems, index: 0);
+        state.nextAutoId.value =
+            newItems.first.metadata?['auto_id'] ?? state.nextAutoId.value;
       }
-      // 更新游标（假设消息ID单调递减）
-      state.nextAutoId.value =
-          newItems.last.metadata?['auto_id'] ?? state.nextAutoId.value;
 
       // 标记新消息为已读
       // TODO _markMessagesAsRead
@@ -1636,13 +1789,11 @@ class ChatLogic extends GetxController {
 
       if (newMessages.isNotEmpty) {
         iPrint('loadNewerMessages: 加载了 ${newMessages.length} 条较新消息');
-        // 更新 prevAutoId 为当前加载的消息中最大的 auto_id
-        state.prevAutoId.value = items
-            .map((msg) => msg.autoId)
-            .fold(0, (max, id) => id > max ? id : max);
-        
-        // 将较新的消息插入到列表顶部
-        await chatController?.insertAllMessages(newMessages, index: 0);
+        state.prevAutoId.value = items.last.autoId;
+        await chatController?.insertAllMessages(
+          newMessages,
+          index: chatController?.messages.length ?? 0,
+        );
       }
 
       return newMessages;
@@ -1681,33 +1832,13 @@ class ChatLogic extends GetxController {
     String toId = msg.toId ?? '';
     ConversationModel? conversation = await (ConversationRepo()).findByPeerId(chatType, toId);
 
-    // 3. 智能加载历史消息，减少不必要的加载
-    int maxAttempts = 5; // 减少最大尝试次数
-    int attempts = 0;
-
-    while (attempts < maxAttempts) {
-      // 检查消息是否已加载到内存
-      if (messageExists()) {
-        break;
-      }
-
-      // 如果没有更多历史消息，退出循环
-      if (!state.hasMoreMessage.value) {
-        iPrint('没有更多历史消息可加载');
-        break;
-      }
-
-      // 触发加载更多历史消息
-      if (conversation != null) {
-        iPrint('加载历史消息，尝试 ${attempts + 1}/$maxAttempts');
-        await loadMoreMessages(conversation);
-
-        // 等待UI更新
-        await Future.delayed(const Duration(milliseconds: 100));
-      }
-
-      attempts++;
+    if (conversation == null) {
+      EasyLoading.showError('未找到会话');
+      return;
     }
+
+    await loadMessagesAround(conversation, messageId, count: state.pageSize);
+    await Future.delayed(const Duration(milliseconds: 100));
 
     // 最终检查消息是否存在
     if (!messageExists()) {
@@ -1717,53 +1848,24 @@ class ChatLogic extends GetxController {
 
     // 执行滚动操作
     await _performScrollToMessage(messageId);
+    await Future.delayed(const Duration(milliseconds: 200));
+    await _performScrollToMessage(messageId);
   }
 
   /// 执行滚动到指定消息的操作
   Future<void> _performScrollToMessage(String messageId) async {
-    try {
-      // 使用滚动管理器进行精确定位
-      // 这里需要传入会话ID，暂时使用消息ID作为替代
-      final conversationId = _getCurrentConversationId();
-
-      await MessageScrollManager.to.scrollToMessage(
-        conversationId,
+    for (var attempt = 0; attempt < 4; attempt++) {
+      await WidgetsBinding.instance.endOfFrame;
+      await chatController?.scrollToMessage(
         messageId,
-        animated: true,
-        offset: 80.0, // 避免被顶部栏遮挡
-        highlight: true,
         duration: const Duration(milliseconds: 300),
+        offset: 80.0,
       );
-
-      iPrint('滚动到消息完成: $messageId');
-    } catch (e) {
-      iPrint('滚动到消息失败: $messageId, 错误: $e');
-
-      // 备用方案：使用chatController的滚动方法
-      await chatController?.scrollToMessage(messageId);
-    }
-  }
-
-  /// 获取当前会话ID（优化版）
-  String _getCurrentConversationId() {
-    // 优先返回实际的会话uk3，确保滚动管理器能正确缓存位置
-    try {
-      // 从当前会话中获取uk3作为唯一标识
-      if (chatController?.messages.isNotEmpty == true) {
-        // 可以从第一条消息的metadata中获取conversation_uk3
-        final firstMessage = chatController!.messages.first;
-        final conversationUk3 = firstMessage.metadata?['conversation_uk3']?.toString();
-        if (conversationUk3?.isNotEmpty == true) {
-          return conversationUk3!;
-        }
+      if (attempt < 3) {
+        await Future.delayed(Duration(milliseconds: attempt == 0 ? 80 : 140));
       }
-
-      // 如果没有消息，返回默认标识
-      return 'default_conversation';
-    } catch (e) {
-      iPrint('获取当前会话ID失败，使用默认值: $e');
-      return 'default_conversation';
     }
+    MessageScrollManager.to.highlightMessage(messageId);
   }
 
   /// 重试发送失败的消息

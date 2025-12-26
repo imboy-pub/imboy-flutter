@@ -32,6 +32,8 @@ class UserRepoLocal extends GetxController {
       return await SecureTokenStorageService.getToken();
     } catch (e, s) {
       debugPrint("accessToken on Exception: $e; $s");
+      // 令牌解密失败，数据已被清除，需要重新登录
+      _handleTokenDecryptionFailure();
     }
     return '';
   }
@@ -41,8 +43,28 @@ class UserRepoLocal extends GetxController {
       return await SecureTokenStorageService.getRefreshToken();
     } catch (e, s) {
       debugPrint("refreshToken on Exception: $e; $s");
+      // 令牌解密失败，数据已被清除，需要重新登录
+      _handleTokenDecryptionFailure();
     }
     return '';
+  }
+
+  /// 处理令牌解密失败的情况
+  /// 当密钥丢失或数据损坏时触发，清除本地数据并引导用户重新登录
+  void _handleTokenDecryptionFailure() {
+    debugPrint("_handleTokenDecryptionFailure: 检测到令牌解密失败，准备清理本地数据");
+    // 标记需要重新登录，避免在当前会话中重复尝试解密
+    StorageService.to.setBool('token_decryption_failed', true);
+  }
+
+  /// 检查是否存在令牌解密失败标记
+  bool get hasTokenDecryptionFailure {
+    return StorageService.to.getBool('token_decryption_failed') ?? false;
+  }
+
+  /// 清除令牌解密失败标记
+  void clearTokenDecryptionFailureFlag() {
+    StorageService.to.remove('token_decryption_failed');
   }
 
   UserModel get current {

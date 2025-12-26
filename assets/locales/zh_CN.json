@@ -472,6 +472,7 @@
   "resendCode": "重发验证码",
   "resendCodeSuccess": "已发送新邮件。",
   "resetFilters": "重置筛选",
+  "quickFilters": "快速筛选",
   "retypePassword": "重新输入密码",
   "revoke": "撤回",
   "ringing": "已响铃...",

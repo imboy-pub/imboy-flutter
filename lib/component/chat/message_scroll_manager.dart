@@ -90,16 +90,24 @@ class MessageScrollManager extends GetxController {
       return;
     }
 
-    final position = _getMessagePosition(conversationId, messageId);
-    if (position == null) {
-      iPrint('未找到消息位置: $messageId');
-      return;
-    }
-
     isScrolling.value = true;
     final scrollDuration = duration ?? _scrollDuration;
 
     try {
+      // 首先尝试从缓存获取位置
+      var position = _getMessagePosition(conversationId, messageId);
+      
+      // 如果缓存中没有位置，尝试通过事件系统获取
+      if (position == null) {
+        iPrint('缓存中未找到消息位置: $messageId，尝试通过事件系统获取');
+        position = await _getMessagePositionFromUI(messageId);
+      }
+
+      if (position == null) {
+        iPrint('无法获取消息位置: $messageId');
+        return;
+      }
+
       // 计算目标位置，考虑偏移量
       final targetPosition = (position - offset).clamp(0.0, scrollController.position.maxScrollExtent);
 
@@ -118,7 +126,7 @@ class MessageScrollManager extends GetxController {
       if (highlight) {
         _autoScrollTimer?.cancel(); // 取消之前的定时器
         _autoScrollTimer = Timer(_autoScrollDelay, () {
-          _highlightMessage(messageId);
+          highlightMessage(messageId);
         });
       }
 
@@ -127,6 +135,18 @@ class MessageScrollManager extends GetxController {
       iPrint('滚动到消息失败: $messageId, 错误: $e');
     } finally {
       isScrolling.value = false;
+    }
+  }
+
+  /// 从UI层获取消息位置
+  Future<double?> _getMessagePositionFromUI(String messageId) async {
+    try {
+      // 这里可以通过GlobalKey或者其他方式获取消息的实际位置
+      // 暂时返回null，让调用方使用降级方案
+      return null;
+    } catch (e) {
+      iPrint('从UI获取消息位置失败: $messageId, 错误: $e');
+      return null;
     }
   }
   
@@ -203,7 +223,7 @@ class MessageScrollManager extends GetxController {
   }
   
   /// 高亮消息（优化版）
-  void _highlightMessage(String messageId) {
+  void highlightMessage(String messageId) {
     try {
       // 发送高亮事件到UI层
       if (Get.context != null) {
@@ -218,8 +238,14 @@ class MessageScrollManager extends GetxController {
 
   /// 触发高亮动画
   void _triggerHighlightAnimation(String messageId) {
-    // 使用全局事件总线通知UI层高亮指定消息
-    // 这里使用简单的延迟取消机制
+    // 使用全局变量来跟踪当前高亮的消息
+    _highlightedMessageId = messageId;
+    
+    // 通知UI更新
+    update(); // 触发Getx更新
+    
+    // 设置定时器取消高亮
+    _autoScrollTimer?.cancel();
     _autoScrollTimer = Timer(const Duration(milliseconds: 2000), () {
       _cancelHighlight(messageId);
     });
@@ -227,9 +253,20 @@ class MessageScrollManager extends GetxController {
 
   /// 取消高亮
   void _cancelHighlight(String messageId) {
-    // 发送取消高亮事件到UI层
-    iPrint('取消消息高亮: $messageId');
+    if (_highlightedMessageId == messageId) {
+      _highlightedMessageId = null;
+      update(); // 触发Getx更新
+      iPrint('取消消息高亮: $messageId');
+    }
   }
+
+  /// 检查消息是否被高亮
+  bool isMessageHighlighted(String messageId) {
+    return _highlightedMessageId == messageId;
+  }
+
+  /// 当前高亮的消息ID
+  String? _highlightedMessageId;
   
   /// 处理新消息到达时的滚动逻辑（优化版）
   void handleNewMessage(String conversationId, Message message) {

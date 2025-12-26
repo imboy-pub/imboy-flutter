@@ -1,6 +1,7 @@
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:get/get.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/store/model/contact_model.dart';
 
 class SearchState {
   // 搜索结果
@@ -10,6 +11,14 @@ class SearchState {
   RxInt currentPage = 1.obs;
   RxBool hasMore = true.obs;
   RxString errorMessage = ''.obs;
+
+  // 联系人信息缓存
+  RxMap<String, ContactModel> contactCache = <String, ContactModel>{}.obs;
+  
+  // 搜索状态优化
+  RxBool isSearching = false.obs;
+  RxBool showSkeleton = false.obs;
+  RxInt searchProgress = 0.obs;
 
   // 搜索历史
   RxList<String> searchHistory = <String>[].obs;
@@ -136,5 +145,40 @@ class SearchState {
            selectedSender.value != 'all' ||
            startDate.value != null ||
            endDate.value != null;
+  }
+
+  // 联系人缓存管理
+  void cacheContact(String uid, ContactModel contact) {
+    contactCache[uid] = contact;
+    // 限制缓存大小
+    if (contactCache.length > 100) {
+      final firstKey = contactCache.keys.first;
+      contactCache.remove(firstKey);
+    }
+  }
+
+  ContactModel? getCachedContact(String uid) {
+    return contactCache[uid];
+  }
+
+  void clearContactCache() {
+    contactCache.clear();
+  }
+
+  // 搜索进度管理
+  void updateSearchProgress(int progress) {
+    searchProgress.value = progress;
+  }
+
+  void startSearching() {
+    isSearching.value = true;
+    showSkeleton.value = true;
+    searchProgress.value = 0;
+  }
+
+  void stopSearching() {
+    isSearching.value = false;
+    showSkeleton.value = false;
+    searchProgress.value = 100;
   }
 }

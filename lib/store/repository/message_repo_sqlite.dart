@@ -40,6 +40,20 @@ class MessageRepo {
   static String isAuthor = 'is_author';
   static String topicId = 'topic_id';
 
+  static final List<String> defaultColumns = [
+    autoId,
+    id,
+    type,
+    from,
+    to,
+    payload,
+    createdAt,
+    isAuthor,
+    status,
+    conversationUk3,
+    topicId,
+  ];
+
   final SqliteService _db = SqliteService.to;
 
   final String tableName;
@@ -130,10 +144,15 @@ class MessageRepo {
         data[MessageRepo.payload] is Map<String, dynamic>) {
       data[MessageRepo.payload] = jsonEncode(data[MessageRepo.payload]);
     }
+    // 移除主键 id，因为 SQLite 不允许更新主键
+    final updateData = Map<String, dynamic>.from(data);
+    updateData.remove(MessageRepo.id);
+    updateData.remove(MessageRepo.autoId);
+    
     iPrint("message_repo/update $tableName ;");
     return await _db.update(
       tableName,
-      data,
+      updateData,
       where: '${MessageRepo.id} = ?',
       whereArgs: [data[MessageRepo.id]],
     );
@@ -173,40 +192,32 @@ class MessageRepo {
       args = [uk3, nextAutoId];
     }
 
-    List<Map<String, dynamic>> maps = await _db.query(
-      tableName,
-      columns: [
-        MessageRepo.autoId,
-        MessageRepo.id,
-        MessageRepo.type,
-        MessageRepo.from,
-        MessageRepo.to,
-        MessageRepo.payload,
-        MessageRepo.createdAt,
-        MessageRepo.isAuthor,
-        MessageRepo.topicId,
-        MessageRepo.topicId,
-        MessageRepo.status,
-        MessageRepo.conversationUk3,
-      ],
-      where: where,
-      whereArgs: args,
-      orderBy: "${MessageRepo.autoId} DESC",
-      offset: 0,
-      limit: size,
-    );
+    try {
+      List<Map<String, dynamic>> maps = await _db.query(
+        tableName,
+        columns: defaultColumns,
+        where: where,
+        whereArgs: args,
+        orderBy: "${MessageRepo.autoId} DESC",
+        offset: 0,
+        limit: size,
+      );
 
-    if (maps.isEmpty) {
+      if (maps.isEmpty) {
+        return [];
+      }
+
+      List<MessageModel> messages = [];
+      for (int i = 0; i < maps.length; i++) {
+        // 使得 msg asc 排序
+        int j = maps.length - i - 1;
+        messages.add(MessageModel.fromJson(maps[j]));
+      }
+      return messages;
+    } catch (e) {
+      debugPrint("MessageRepo pageForConversation error: $e, where: $where, args: $args");
       return [];
     }
-
-    List<MessageModel> messages = [];
-    for (int i = 0; i < maps.length; i++) {
-      // 使得 msg asc 排序
-      int j = maps.length - i - 1;
-      messages.add(MessageModel.fromJson(maps[j]));
-    }
-    return messages;
   }
 
   /// 加载较新的消息（用于双向分页）
@@ -226,38 +237,30 @@ class MessageRepo {
       args = [uk3, prevAutoId];
     }
 
-    List<Map<String, dynamic>> maps = await _db.query(
-      tableName,
-      columns: [
-        MessageRepo.autoId,
-        MessageRepo.id,
-        MessageRepo.type,
-        MessageRepo.from,
-        MessageRepo.to,
-        MessageRepo.payload,
-        MessageRepo.createdAt,
-        MessageRepo.isAuthor,
-        MessageRepo.topicId,
-        MessageRepo.topicId,
-        MessageRepo.status,
-        MessageRepo.conversationUk3,
-      ],
-      where: where,
-      whereArgs: args,
-      orderBy: "${MessageRepo.autoId} ASC",
-      offset: 0,
-      limit: size,
-    );
+    try {
+      List<Map<String, dynamic>> maps = await _db.query(
+        tableName,
+        columns: defaultColumns,
+        where: where,
+        whereArgs: args,
+        orderBy: "${MessageRepo.autoId} ASC",
+        offset: 0,
+        limit: size,
+      );
 
-    if (maps.isEmpty) {
+      if (maps.isEmpty) {
+        return [];
+      }
+
+      List<MessageModel> messages = [];
+      for (int i = 0; i < maps.length; i++) {
+        messages.add(MessageModel.fromJson(maps[i]));
+      }
+      return messages;
+    } catch (e) {
+      debugPrint("MessageRepo pageNewerForConversation error: $e, where: $where, args: $args");
       return [];
     }
-
-    List<MessageModel> messages = [];
-    for (int i = 0; i < maps.length; i++) {
-      messages.add(MessageModel.fromJson(maps[i]));
-    }
-    return messages;
   }
 
   Future<List<MessageModel>> page({
@@ -266,6 +269,11 @@ class MessageRepo {
     String? kwd,
     String? conversationUk3,
     String? orderBy,
+    // 高级过滤参数
+    List<String>? messageTypes,
+    String? senderId,
+    DateTime? startDate,
+    DateTime? endDate,
   }) async {
     page = page > 1 ? page : 1;
     int offset = (page - 1) * size;
@@ -274,12 +282,14 @@ class MessageRepo {
 
     if (strNoEmpty(kwd)) {
       kwd = kwd!.trim();
-      // 优化搜索：使用更精确的JSON提取和索引
-      where =
-          "$where AND (json_extract(payload, '\$.text') LIKE ? OR json_extract(payload, '\$.quote_text') LIKE ? OR json_extract(payload, '\$.title') LIKE ? OR json_extract(payload, '\$.filename') LIKE ?)";
-      whereArgs.addAll([
-        "%$kwd%", "%$kwd%", "%$kwd%", "%$kwd%"
-      ]);
+      String pattern = "%$kwd%";
+      // 搜索 payload 中的 text 字段，同时支持直接搜索 payload 字符串（处理非JSON或格式问题）
+      where = """
+        $where AND (
+          json_extract(payload, '\$.text') LIKE ?
+        )
+      """;
+      whereArgs.addAll([pattern]);
     }
 
     if (strNoEmpty(conversationUk3)) {
@@ -287,27 +297,38 @@ class MessageRepo {
       whereArgs.add(conversationUk3);
     }
 
+    // 高级过滤：消息类型
+    if (messageTypes != null && messageTypes.isNotEmpty) {
+      final placeholders = messageTypes.map((_) => '?').join(',');
+      where = "$where AND ${MessageRepo.type} IN ($placeholders)";
+      whereArgs.addAll(messageTypes);
+    }
+
+    // 高级过滤：发送者
+    if (strNoEmpty(senderId)) {
+      where = "$where AND ${MessageRepo.from}=?";
+      whereArgs.add(senderId);
+    }
+
+    // 高级过滤：时间范围
+    if (startDate != null) {
+      where = "$where AND ${MessageRepo.createdAt} >= ?";
+      whereArgs.add(startDate.millisecondsSinceEpoch ~/ 1000);
+    }
+    if (endDate != null) {
+      where = "$where AND ${MessageRepo.createdAt} <= ?";
+      whereArgs.add(endDate.millisecondsSinceEpoch ~/ 1000);
+    }
+
     // 使用优化的排序和索引
     String optimizedOrderBy = orderBy ?? "${MessageRepo.createdAt} DESC, ${MessageRepo.autoId} DESC";
 
-    iPrint("searchLeading_tag where $where");
+    iPrint("searchLeading_tag kwd $kwd, where $where");
 
     try {
       List<Map<String, dynamic>> maps = await _db.query(
         tableName,
-        columns: [
-          MessageRepo.autoId,
-          MessageRepo.id,
-          MessageRepo.type,
-          MessageRepo.from,
-          MessageRepo.to,
-          MessageRepo.payload,
-          MessageRepo.createdAt,
-          MessageRepo.isAuthor,
-          MessageRepo.topicId,
-          MessageRepo.status,
-          MessageRepo.conversationUk3,
-        ],
+        columns: defaultColumns,
         where: where,
         whereArgs: whereArgs,
         orderBy: optimizedOrderBy,
@@ -333,150 +354,6 @@ class MessageRepo {
     }
   }
 
-  /// 优化的全文搜索
-  Future<List<MessageModel>> fullTextSearch({
-    required String query,
-    String? conversationUk3,
-    int page = 1,
-    int size = 20,
-    List<String>? messageTypes,
-    String? senderId,
-    DateTime? startDate,
-    DateTime? endDate,
-  }) async {
-    try {
-      page = page > 1 ? page : 1;
-      int offset = (page - 1) * size;
-
-      // 构建查询条件
-      String where = "1=1";
-      List<Object?> whereArgs = [];
-
-      // 基础文本搜索
-      if (query.trim().isNotEmpty) {
-        where = "$where AND (json_extract(payload, '\$.text') LIKE ? OR json_extract(payload, '\$.quote_text') LIKE ? OR json_extract(payload, '\$.title') LIKE ? OR json_extract(payload, '\$.filename') LIKE ? OR json_extract(payload, '\$.description') LIKE ?)";
-        String pattern = "%${query.trim()}%";
-        whereArgs.addAll([pattern, pattern, pattern, pattern, pattern]);
-      }
-
-      // 会话过滤
-      if (strNoEmpty(conversationUk3)) {
-        where = "$where AND ${MessageRepo.conversationUk3}=?";
-        whereArgs.add(conversationUk3);
-      }
-
-      // 消息类型过滤
-      if (messageTypes != null && messageTypes.isNotEmpty) {
-        String placeholders = messageTypes.map((_) => '?').join(',');
-        where = "$where AND ${MessageRepo.type} IN ($placeholders)";
-        whereArgs.addAll(messageTypes);
-      }
-
-      // 发送者过滤
-      if (strNoEmpty(senderId)) {
-        where = "$where AND ${MessageRepo.from}=?";
-        whereArgs.add(senderId);
-      }
-
-      // 时间范围过滤
-      if (startDate != null) {
-        where = "$where AND ${MessageRepo.createdAt} >= ?";
-        whereArgs.add(startDate.millisecondsSinceEpoch);
-      }
-
-      if (endDate != null) {
-        where = "$where AND ${MessageRepo.createdAt} <= ?";
-        whereArgs.add(endDate.millisecondsSinceEpoch);
-      }
-
-      // 执行查询
-      List<Map<String, dynamic>> maps = await _db.query(
-        tableName,
-        columns: [
-          MessageRepo.autoId,
-          MessageRepo.id,
-          MessageRepo.type,
-          MessageRepo.from,
-          MessageRepo.to,
-          MessageRepo.payload,
-          MessageRepo.createdAt,
-          MessageRepo.isAuthor,
-          MessageRepo.topicId,
-          MessageRepo.status,
-          MessageRepo.conversationUk3,
-        ],
-        where: where,
-        whereArgs: whereArgs,
-        orderBy: "${MessageRepo.createdAt} DESC, ${MessageRepo.autoId} DESC",
-        limit: size,
-        offset: offset,
-      );
-
-      debugPrint("fullTextSearch: ${maps.length} results for query: $query");
-
-      if (maps.isEmpty) {
-        return [];
-      }
-
-      List<MessageModel> messages = [];
-      for (final map in maps) {
-        messages.add(MessageModel.fromJson(map));
-      }
-      return messages;
-    } catch (e) {
-      debugPrint("fullTextSearch error: $e");
-      return [];
-    }
-  }
-
-  /// 搜索建议生成（简化版本）
-  Future<List<String>> generateSearchSuggestions(String prefix, {int maxSuggestions = 5}) async {
-    if (prefix.trim().length < 2) return [];
-
-    try {
-      // 使用现有搜索方法获取包含前缀的消息
-      List<MessageModel> results = await page(
-        page: 1,
-        size: maxSuggestions * 3,
-        kwd: prefix.trim(),
-      );
-
-      Set<String> suggestions = {};
-      for (final msg in results) {
-        String? text = msg.payload['text'] as String?;
-        String? title = msg.payload['title'] as String?;
-
-        // 检查文本内容
-        if (text != null && text.toLowerCase().contains(prefix.toLowerCase())) {
-          List<String> words = text.trim().split(RegExp(r'\s+'));
-          for (final word in words) {
-            if (word.toLowerCase().startsWith(prefix.toLowerCase()) && word.length > 2) {
-              suggestions.add(word);
-              if (suggestions.length >= maxSuggestions) break;
-            }
-          }
-        }
-
-        // 检查标题
-        if (title != null && title.toLowerCase().contains(prefix.toLowerCase())) {
-          List<String> words = title.trim().split(RegExp(r'\s+'));
-          for (final word in words) {
-            if (word.toLowerCase().startsWith(prefix.toLowerCase()) && word.length > 2) {
-              suggestions.add(word);
-              if (suggestions.length >= maxSuggestions) break;
-            }
-          }
-        }
-
-        if (suggestions.length >= maxSuggestions) break;
-      }
-
-      return suggestions.toList();
-    } catch (e) {
-      debugPrint("generateSearchSuggestions error: $e");
-      return [];
-    }
-  }
 
   /// 创建搜索索引
   Future<void> createSearchIndexes() async {
@@ -518,19 +395,7 @@ class MessageRepo {
   Future<MessageModel?> find(String id) async {
     List<Map<String, dynamic>> maps = await _db.query(
       tableName,
-      columns: [
-        MessageRepo.autoId,
-        MessageRepo.id,
-        MessageRepo.type,
-        MessageRepo.from,
-        MessageRepo.to,
-        MessageRepo.payload,
-        MessageRepo.createdAt,
-        MessageRepo.isAuthor,
-        MessageRepo.topicId,
-        MessageRepo.conversationUk3,
-        MessageRepo.status,
-      ],
+      columns: defaultColumns,
       where: '${MessageRepo.id} = ?',
       whereArgs: [id],
     );
@@ -567,19 +432,7 @@ class MessageRepo {
   ) async {
     List<Map<String, dynamic>> maps = await _db.query(
       tableName,
-      columns: [
-        MessageRepo.autoId,
-        MessageRepo.id,
-        MessageRepo.type,
-        MessageRepo.from,
-        MessageRepo.to,
-        MessageRepo.payload,
-        MessageRepo.createdAt,
-        MessageRepo.isAuthor,
-        MessageRepo.topicId,
-        MessageRepo.conversationUk3,
-        MessageRepo.status,
-      ],
+      columns: defaultColumns,
       where: '${MessageRepo.conversationUk3} = ? AND ${MessageRepo.status} = ?',
       whereArgs: [conversationUk3, status],
       orderBy: '${MessageRepo.createdAt} DESC',
@@ -619,19 +472,7 @@ class MessageRepo {
   Future<MessageModel?> lastMsg() async {
     List<Map<String, dynamic>> maps = await _db.query(
       tableName,
-      columns: [
-        MessageRepo.autoId,
-        MessageRepo.id,
-        MessageRepo.type,
-        MessageRepo.from,
-        MessageRepo.to,
-        MessageRepo.payload,
-        MessageRepo.createdAt,
-        MessageRepo.isAuthor,
-        MessageRepo.topicId,
-        MessageRepo.conversationUk3,
-        MessageRepo.status,
-      ],
+      columns: defaultColumns,
       where: '${MessageRepo.from} = ?',
       whereArgs: [UserRepoLocal.to.currentUid],
       orderBy: "${MessageRepo.createdAt} desc",

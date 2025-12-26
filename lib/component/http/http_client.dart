@@ -107,12 +107,25 @@ class HttpClient {
     if (_dio.options.baseUrl == "") {
       _dio.options.baseUrl = Env().apiBaseUrl;
     }
+
+    // 检查是否存在令牌解密失败标记，如果有则触发重新登录
+    if (UserRepoLocal.to.hasTokenDecryptionFailure) {
+      debugPrint("_setDefaultConfig: 检测到令牌解密失败，触发重新登录流程");
+      await _handleTokenDecryptionFailure();
+      return;
+    }
+
     String tk = await UserRepoLocal.to.accessToken;
     // iPrint("_setDefaultConfig tk: $tk");
     if (tokenExpired(tk) == false) {
       String rtk = await UserRepoLocal.to.refreshToken;
-      tk = await (UserProvider())
-          .refreshAccessTokenApi(rtk, checkNewToken: false);
+      // 防御性检查：refresh token 为空时不尝试刷新
+      if (rtk.isNotEmpty) {
+        tk = await (UserProvider())
+            .refreshAccessTokenApi(rtk, checkNewToken: false);
+      } else {
+        debugPrint("_setDefaultConfig: refresh token 为空，跳过刷新");
+      }
     }
     bool notRTK = !_dio.options.headers.containsKey(Keys.refreshTokenKey);
     if (strNoEmpty(tk) && notRTK) {
@@ -121,6 +134,17 @@ class HttpClient {
     Map<String, dynamic> headers = await defaultHeaders();
     iPrint("_setDefaultConfig headers: ${headers.toString()}");
     _dio.options.headers.addAll(headers);
+  }
+
+  /// 处理令牌解密失败的后续流程
+  Future<void> _handleTokenDecryptionFailure() async {
+    debugPrint("_handleTokenDecryptionFailure: 开始清理并触发重新登录");
+    // 清除失败标记
+    UserRepoLocal.to.clearTokenDecryptionFailureFlag();
+    // 执行登出操作
+    await UserRepoLocal.to.quitLogin();
+    // 跳转到登录页
+    getx.Get.offAll(() => const LoginPage());
   }
 
   Future<IMBoyHttpResponse> get(

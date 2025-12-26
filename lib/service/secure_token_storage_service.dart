@@ -27,6 +27,14 @@ class SecureTokenStorageService {
   static const String _tokenKey = 'secure_token';
   static const String _refreshTokenKey = 'secure_refresh_token';
 
+  static Uint8List _decodeAesKey(String encoded) {
+    try {
+      return base64Url.decode(base64Url.normalize(encoded));
+    } catch (_) {
+      return base64.decode(base64.normalize(encoded));
+    }
+  }
+
   static Future<void> saveToken(String token) async {
     final encrypted = await _encryptData(token);
     await StorageService().setString(_tokenKey, encrypted);
@@ -41,14 +49,28 @@ class SecureTokenStorageService {
     final encrypted = StorageService().getString(_tokenKey);
     if (encrypted.isEmpty) return '';
 
-    return await _decryptData(encrypted);
+    try {
+      return await _decryptData(encrypted);
+    } on Exception catch (e) {
+      debugPrint("SecureTokenStorageService.getToken: 解密失败，清除损坏的令牌数据; $e");
+      // 解密失败时清除损坏的数据，避免重复错误
+      await StorageService().remove(_tokenKey);
+      rethrow;
+    }
   }
 
   static Future<String> getRefreshToken() async {
     final encrypted = StorageService().getString(_refreshTokenKey);
     if (encrypted.isEmpty) return '';
 
-    return await _decryptData(encrypted);
+    try {
+      return await _decryptData(encrypted);
+    } on Exception catch (e) {
+      debugPrint("SecureTokenStorageService.getRefreshToken: 解密失败，清除损坏的令牌数据; $e");
+      // 解密失败时清除损坏的数据，避免重复错误
+      await StorageService().remove(_refreshTokenKey);
+      rethrow;
+    }
   }
 
   static Future<void> clear() async {
@@ -68,7 +90,7 @@ class SecureTokenStorageService {
   /*
   static Future<String> _encryptData(String plainText) async {
     final base64Key = await SecureKeyService.getCurrentAesKey();
-    final keyBytes = base64.decode(base64Key);
+    final keyBytes = _decodeAesKey(base64Key);
     final rnd = Random.secure();
 
     // 生成 16 字节随机 IV
@@ -127,15 +149,21 @@ class SecureTokenStorageService {
       throw Exception('Invalid encrypted data format.');
     }
 
-    final iv = base64.decode(parts[0]);
-    final encryptedBytes = base64.decode(parts[1]);
+    final iv = base64.decode(base64.normalize(parts[0]));
+    final encryptedBytes = base64.decode(base64.normalize(parts[1]));
+    if (iv.length != 16) {
+      throw Exception('Invalid IV length.');
+    }
+    if (encryptedBytes.isEmpty || encryptedBytes.length % 16 != 0) {
+      throw Exception('Invalid encrypted data length.');
+    }
 
     // 支持多 key 轮询
     final keys = await SecureKeyService.getAllAesKeys();
 
     for (final base64Key in keys) {
       try {
-        final keyBytes = base64.decode(base64Key);
+        final keyBytes = _decodeAesKey(base64Key);
         final decryptedBytes = _aesCbcDecrypt(encryptedBytes, keyBytes, iv);
         return Utf8Decoder().convert(decryptedBytes);
       } catch (e, s) {
@@ -169,9 +197,16 @@ class SecureTokenStorageService {
       Uint8List key,
       Uint8List iv,
       ) {
+    if (key.length != 16 && key.length != 24 && key.length != 32) {
+      throw Exception('Invalid AES key length.');
+    }
     final cipher = CBCBlockCipher(AESEngine());
     final params = ParametersWithIV<KeyParameter>(KeyParameter(key), iv);
     cipher.init(false, params); // false = 解密
+
+    if (iv.length != cipher.blockSize || encrypted.length % cipher.blockSize != 0) {
+      throw Exception('Invalid encrypted data.');
+    }
 
     final output = _processBlocks(cipher, encrypted);
     return _pkcs7Unpad(output);
@@ -200,7 +235,11 @@ class SecureTokenStorageService {
   static Uint8List _pkcs7Unpad(Uint8List data) {
     if (data.isEmpty) throw Exception("Invalid padding");
     final padLen = data.last;
-    if (padLen <= 0 || padLen > data.length) throw Exception("Invalid padding");
+    if (data.length % 16 != 0) throw Exception("Invalid padding");
+    if (padLen <= 0 || padLen > 16 || padLen > data.length) throw Exception("Invalid padding");
+    for (int i = data.length - padLen; i < data.length; i++) {
+      if (data[i] != padLen) throw Exception("Invalid padding");
+    }
     return data.sublist(0, data.length - padLen);
   }
 

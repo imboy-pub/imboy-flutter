@@ -214,6 +214,13 @@ class MessageService extends GetxService {
       return;
     }
 
+    // 检查消息是否已被删除（阅后即焚）
+    if (await ChatLogic.isMessageDeleted(data['id'])) {
+      iPrint('消息已被删除，忽略重复投递: ${data['id']}');
+      to.sendAckMsg(data['type'], data['id']);
+      return;
+    }
+
     // 区分单聊/群聊，获取 peer 信息
     // Determine peer info for C2C or C2G
     String peerId, avatar, title;
