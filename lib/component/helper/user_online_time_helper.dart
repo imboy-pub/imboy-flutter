@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:intl/intl.dart';
 
 enum LastSeenStatus {
@@ -66,7 +67,7 @@ class UserOnlineTimeHelper {
     }
 
     final lastSeen = DateTime.fromMillisecondsSinceEpoch(lastSeenTimestamp);
-    final now = DateTime.now();
+    final now = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond());
     final difference = now.difference(lastSeen);
 
     if (difference.inSeconds <= justNowThresholdSeconds) {
@@ -142,7 +143,7 @@ class UserOnlineTimeHelper {
   }
 
   static String formatExactTime(DateTime dateTime) {
-    final now = DateTime.now();
+    final now = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond());
     final difference = now.difference(dateTime);
 
     if (difference.inDays == 0) {

@@ -1,19 +1,15 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'default/theme.dart';
 import 'default/app_colors.dart';
 import 'default/font_types.dart';
 import 'default/config/text_theme.dart';
-import 'models/theme_settings.dart';
-import 'storage/theme_storage_handler.dart';
-import 'cache/lru_cache.dart';
 import 'dynamic_color_manager.dart';
 
-/// 优化版主题管理器 - 提供高效的主题缓存、切换功能和字体管理
+/// 主题管理器 - 提供主题切换和字体管理
 /// 集成GetX状态管理，支持响应式主题切换
-/// 使用 LRU 缓存优化内存使用和性能
 class ThemeManager extends GetxController {
   double mainSpace = 10.0;
   double get mainLineWidth => Get.isDarkMode ? 0.5 : 1.0;
@@ -27,115 +23,40 @@ class ThemeManager extends GetxController {
     return _instance!;
   }
 
-  ThemeManager._() {
-    // 初始化高级缓存系统
-    _themeCache = LRUCache<String, ThemeData>(_maxThemeCacheSize);
-    _fontSizeCache = TTLLRUCache<String, double>(_maxFontCacheSize, _cacheTTL);
-    _textStyleCache = TTLLRUCache<String, TextStyle>(
-      _maxTextStyleCacheSize,
-      _cacheTTL,
-    );
-  }
-
-  // ==================== 高级缓存系统 ====================
-  // 主题数据缓存 - 使用 LRU 缓存优化内存使用
-  late final LRUCache<String, ThemeData> _themeCache;
-  late final TTLLRUCache<String, double> _fontSizeCache;
-  late final TTLLRUCache<String, TextStyle> _textStyleCache;
-
-  // 当前主题设置
-  final _themeSettings = ThemeSettings.defaultSettings.obs;
-  ThemeSettings get themeSettings => _themeSettings.value;
+  ThemeManager._();
 
   // 当前主题模式
-  bool get isDarkMode => _themeSettings.value.isDarkMode;
+  final _isDarkMode = false.obs;
+  bool get isDarkMode => _isDarkMode.value;
 
   // 当前字体大小选项
-  FontSizeOption get fontSizeOption => _themeSettings.value.fontSizeOption;
+  final _fontSizeOption = FontSizeOption.normal.obs;
+  FontSizeOption get fontSizeOption => _fontSizeOption.value;
 
-  ///// 是否跟随系统主题
-  bool get followSystemTheme => _themeSettings.value.followSystemTheme;
+  // 是否跟随系统主题
+  final _followSystemTheme = false.obs;
+  bool get followSystemTheme => _followSystemTheme.value;
 
-  /// 是否使用动态颜色
-  bool get useDynamicColor => _themeSettings.value.useDynamicColor;
+  // 是否使用动态颜色
+  final _useDynamicColor = false.obs;
+  bool get useDynamicColor => _useDynamicColor.value;
 
-  /// 是否支持动态颜色
-  bool get isDynamicColorSupported => _isDynamicColorSupported.value;
-
-  /// 是否启用OLED优化模式
-  bool get isOLEDMode => _themeSettings.value.isOLEDMode;
-
-  /// 是否启用护眼模式
-  bool get isEyeCareMode => _themeSettings.value.isEyeCareMode;
-
-  // 动态颜色是否可用
+  // 是否支持动态颜色
   final _isDynamicColorSupported = false.obs;
+  bool get isDynamicColorSupported => _isDynamicColorSupported.value;
 
   // 主题切换动画控制
   final _isThemeChanging = false.obs;
   bool get isThemeChanging => _isThemeChanging.value;
 
-  // 缓存配置
-  static const int _maxThemeCacheSize = 20;
-  static const int _maxFontCacheSize = 100;
-  static const int _maxTextStyleCacheSize = 200;
-  static const Duration _cacheTTL = Duration(minutes: 30);
-
-  // 缓存清理定时器
-  Timer? _cacheCleanupTimer;
-
-  // 性能监控数据
-  final Map<String, int> _cacheHits = {};
-  final Map<String, int> _cacheMisses = {};
-  final Map<String, List<int>> _themeBuildTimes = {};
-  final Map<String, List<int>> _themeSwitchTimes = {};
-
   /// 获取亮色主题（支持动态字体缩放和动态颜色）
   ThemeData get lightTheme {
-    final cacheKey = 'light_${fontSizeOption.value}_${useDynamicColor ? 'dynamic' : 'static'}_${isEyeCareMode ? 'eyecare' : 'normal'}';
-
-    // 尝试从缓存获取
-    var theme = _themeCache.get(cacheKey);
-    if (theme != null) {
-      _recordCacheHit('lightTheme');
-      return theme;
-    }
-
-    // 构建新主题并缓存
-    final startTime = DateTime.now();
-    theme = _buildLightTheme();
-    _themeCache.put(cacheKey, theme);
-    
-    // 记录性能指标
-    final buildTime = DateTime.now().difference(startTime).inMilliseconds;
-    _recordThemeBuildTime('lightTheme', buildTime);
-    _recordCacheMiss('lightTheme');
-
-    return theme;
+    return AppTheme.getLightThemeFromOption(fontSizeOption);
   }
 
   /// 获取暗色主题（支持动态字体缩放和动态颜色）
   ThemeData get darkTheme {
-    final cacheKey = 'dark_${fontSizeOption.value}_${useDynamicColor ? 'dynamic' : 'static'}_${isOLEDMode ? 'oled' : 'normal'}_${isEyeCareMode ? 'eyecare' : 'normal'}';
-
-    // 尝试从缓存获取
-    var theme = _themeCache.get(cacheKey);
-    if (theme != null) {
-      _recordCacheHit('darkTheme');
-      return theme;
-    }
-
-    // 构建新主题并缓存
-    final startTime = DateTime.now();
-    theme = _buildDarkTheme();
-    _themeCache.put(cacheKey, theme);
-    
-    // 记录性能指标
-    final buildTime = DateTime.now().difference(startTime).inMilliseconds;
-    _recordThemeBuildTime('darkTheme', buildTime);
-    _recordCacheMiss('darkTheme');
-
-    return theme;
+    return AppTheme.getDarkThemeFromOption(fontSizeOption);
   }
 
   /// 获取当前主题
@@ -166,10 +87,8 @@ class ThemeManager extends GetxController {
     try {
       final targetDarkMode = isDark ?? !isDarkMode;
 
-      // 更新主题设置
-      await updateThemeSettings(
-        _themeSettings.value.copyWith(isDarkMode: targetDarkMode),
-      );
+      // 更新主题模式
+      _isDarkMode.value = targetDarkMode;
 
       // 应用主题切换（仅在非测试环境）
       try {
@@ -180,9 +99,7 @@ class ThemeManager extends GetxController {
       }
 
       // 等待动画完成
-      final animationDuration =
-          duration ??
-          Duration(milliseconds: _themeSettings.value.animationDuration);
+      final animationDuration = duration ?? const Duration(milliseconds: 300);
       await Future.delayed(animationDuration);
     } finally {
       _isThemeChanging.value = false;
@@ -202,54 +119,24 @@ class ThemeManager extends GetxController {
 
   /// 切换OLED优化模式
   Future<void> toggleOLEDMode({bool? enabled}) async {
-    final targetOLEDMode = enabled ?? !isOLEDMode;
-    
+    final targetOLEDMode = enabled ?? false;
+
     // 如果状态没有变化，直接返回
-    if (targetOLEDMode == isOLEDMode) return;
-    
-    // 清除相关缓存以确保使用新的OLED设置
-    _clearOLEDRelatedCache();
-    
-    await updateThemeSettings(
-      _themeSettings.value.copyWith(isOLEDMode: targetOLEDMode),
-    );
-    
-    // 如果当前是深色模式，重新应用主题
-    if (isDarkMode) {
-      try {
-        final startTime = DateTime.now();
-        Get.changeTheme(darkTheme);
-        final switchTime = DateTime.now().difference(startTime).inMilliseconds;
-        _recordThemeSwitchTime('OLED_toggle', switchTime);
-      } catch (e) {
-        debugPrint('ThemeManager: GetX changeTheme 失败（可能在测试环境中）- $e');
-      }
-    }
+    if (targetOLEDMode == false) return;
+
+    // OLED 模式已移除
+    debugPrint('ThemeManager: OLED 模式已移除');
   }
 
   /// 切换护眼模式
   Future<void> toggleEyeCareMode({bool? enabled}) async {
-    final targetEyeCareMode = enabled ?? !isEyeCareMode;
-    
+    final targetEyeCareMode = enabled ?? false;
+
     // 如果状态没有变化，直接返回
-    if (targetEyeCareMode == isEyeCareMode) return;
-    
-    // 清除相关缓存以确保使用新的护眼设置
-    _clearEyeCareRelatedCache();
-    
-    await updateThemeSettings(
-      _themeSettings.value.copyWith(isEyeCareMode: targetEyeCareMode),
-    );
-    
-    // 重新应用当前主题
-    try {
-      final startTime = DateTime.now();
-      Get.changeTheme(currentTheme);
-      final switchTime = DateTime.now().difference(startTime).inMilliseconds;
-      _recordThemeSwitchTime('eyecare_toggle', switchTime);
-    } catch (e) {
-      debugPrint('ThemeManager: GetX changeTheme 失败（可能在测试环境中）- $e');
-    }
+    if (targetEyeCareMode == false) return;
+
+    // 护眼模式已移除
+    debugPrint('ThemeManager: 护眼模式已移除');
   }
 
   /// 获取当前主题的颜色（支持OLED和护眼模式）
@@ -261,31 +148,24 @@ class ThemeManager extends GetxController {
             : AppColors.primaryGreen;
       case 'surface':
         if (isDarkMode) {
-          return AppColors.getDarkSurface(isOLEDMode, Brightness.dark);
+          return AppColors.getDarkSurface(false, Brightness.dark);
         }
-        return isEyeCareMode ? AppColors.lightSurface : AppColors.lightSurface;
+        return AppColors.lightSurface;
       case 'background':
         if (isDarkMode) {
-          if (isEyeCareMode) {
-            return AppColors.getEyeCareBackground(true, Brightness.dark);
-          }
-          return AppColors.getDarkBackground(isOLEDMode, Brightness.dark);
+          return AppColors.getDarkBackground(false, Brightness.dark);
         }
-        return isEyeCareMode ? AppColors.getEyeCareBackground(true, Brightness.light) : AppColors.lightBackground;
+        return AppColors.lightBackground;
       case 'textPrimary':
         if (isDarkMode) {
-          return isEyeCareMode 
-              ? AppColors.getEyeCareTextColor(true, Brightness.dark)
-              : AppColors.darkTextPrimary;
+          return AppColors.darkTextPrimary;
         }
-        return isEyeCareMode ? AppColors.getEyeCareTextColor(true, Brightness.light) : AppColors.lightTextPrimary;
+        return AppColors.lightTextPrimary;
       case 'textSecondary':
         if (isDarkMode) {
-          return isEyeCareMode 
-              ? AppColors.getEyeCareTextColor(true, Brightness.dark, isSecondary: true)
-              : AppColors.darkTextSecondary;
+          return AppColors.darkTextSecondary;
         }
-        return isEyeCareMode ? AppColors.getEyeCareTextColor(true, Brightness.light, isSecondary: true) : AppColors.lightTextSecondary;
+        return AppColors.lightTextSecondary;
       case 'border':
         return isDarkMode ? AppColors.darkBorder : AppColors.lightBorder;
       case 'error':
@@ -319,21 +199,9 @@ class ThemeManager extends GetxController {
 
   // ==================== 字体管理方法 ====================
 
-  /// 获取字体大小（带缓存，支持动态缩放）
+  /// 获取字体大小（支持动态缩放）
   double getFontSize(FontSizeType type, {BuildContext? context}) {
-    final cacheKey = _generateFontCacheKey(type, context);
-
-    // 尝试从缓存获取
-    var fontSize = _fontSizeCache.get(cacheKey);
-    if (fontSize != null) {
-      return fontSize;
-    }
-
-    // 计算字体大小并缓存
-    fontSize = _calculateFontSize(type, context);
-    _fontSizeCache.put(cacheKey, fontSize);
-
-    return fontSize;
+    return _calculateFontSize(type, context);
   }
 
   /// 获取缩放后的字体大小
@@ -345,37 +213,19 @@ class ThemeManager extends GetxController {
     );
   }
 
-  /// 获取文本样式（带缓存，支持动态缩放）
+  /// 获取文本样式（支持动态缩放）
   TextStyle getTextStyle(
     FontSizeType type, {
     FontWeight? fontWeight,
     Color? color,
     BuildContext? context,
   }) {
-    final cacheKey = _generateTextStyleCacheKey(
-      type,
-      fontWeight,
-      color,
-      context,
-    );
-
-    // 尝试从缓存获取
-    var textStyle = _textStyleCache.get(cacheKey);
-    if (textStyle != null) {
-      return textStyle;
-    }
-
-    // 创建文本样式并缓存
-    textStyle = TextStyle(
+    return TextStyle(
       fontSize: getScaledFontSize(type, context: context),
       fontWeight: fontWeight ?? FontWeight.normal,
       color: color,
       fontFamily: 'PingFang SC',
     );
-
-    _textStyleCache.put(cacheKey, textStyle);
-
-    return textStyle;
   }
 
   /// 根据当前设置获取动态 TextTheme
@@ -397,7 +247,28 @@ class ThemeManager extends GetxController {
   Future<void> updateFontSize(String fontSizeValue) async {
     final option =
         FontSizeOption.fromValue(fontSizeValue) ?? FontSizeOption.normal;
-    await updateFontSizeOption(option);
+    _fontSizeOption.value = option;
+
+    // 应用新主题到 GetX（仅在非测试环境）
+    try {
+      Get.changeTheme(currentTheme);
+    } catch (e) {
+      // 在测试环境中忽略 GetX 错误
+      debugPrint('ThemeManager: GetX changeTheme 失败（可能在测试环境中）- $e');
+    }
+  }
+
+  /// 更新字体大小选项
+  Future<void> updateFontSizeOption(FontSizeOption option) async {
+    _fontSizeOption.value = option;
+
+    // 应用新主题到 GetX（仅在非测试环境）
+    try {
+      Get.changeTheme(currentTheme);
+    } catch (e) {
+      // 在测试环境中忽略 GetX 错误
+      debugPrint('ThemeManager: GetX changeTheme 失败（可能在测试环境中）- $e');
+    }
   }
 
   /// 获取当前字体大小的字符串值（兼容旧版本）
@@ -432,29 +303,6 @@ class ThemeManager extends GetxController {
     );
   }
 
-  /// 生成字体缓存键
-  String _generateFontCacheKey(FontSizeType type, BuildContext? context) {
-    final screenSize = context != null
-        ? MediaQuery.of(context).size.toString()
-        : 'default';
-    final fontScale = fontSizeOption.scale;
-    return '${type.name}_${fontScale}_$screenSize';
-  }
-
-  /// 生成文本样式缓存键
-  String _generateTextStyleCacheKey(
-    FontSizeType type,
-    FontWeight? fontWeight,
-    Color? color,
-    BuildContext? context,
-  ) {
-    final screenSize = context != null
-        ? MediaQuery.of(context).size.toString()
-        : 'default';
-    final fontScale = fontSizeOption.scale;
-    return '${type.name}_${fontWeight?.index ?? 'normal'}_${color?.toARGB32() ?? 'null'}_${fontScale}_$screenSize';
-  }
-
   /// 计算响应式字体大小（使用新的缩放逻辑）
   double _calculateFontSize(FontSizeType type, BuildContext? context) {
     return FontScaleCalculator.calculateFinalSize(
@@ -464,287 +312,27 @@ class ThemeManager extends GetxController {
     );
   }
 
-  /// 预热字体缓存
-  void _preloadFontCache() {
-    final preloadData = <String, double>{};
-
-    // 为所有字体类型和常用缩放比例预加载
-    for (final type in FontSizeType.values) {
-      for (final option in [
-        FontSizeOption.small,
-        FontSizeOption.normal,
-        FontSizeOption.large,
-      ]) {
-        final key = '${type.name}_${option.scale}_default';
-        final size = FontScaleCalculator.calculateFinalSize(type, option);
-        preloadData[key] = size;
-      }
-    }
-
-    // 批量预热缓存
-    _fontSizeCache.warmUp(preloadData);
-  }
-
-  // ==================== 缓存管理方法 ====================
-
-  /// 清理过期缓存
-  void _cleanupExpiredCache() {
-    // 清理过期的字体大小缓存
-    _fontSizeCache.cleanupExpired();
-
-    // 清理过期的文本样式缓存
-    _textStyleCache.cleanupExpired();
-  }
-
-  /// 估算缓存内存使用量
-  int _estimateCacheMemoryUsage() {
-    final themeMemory = _themeCache.length * 5000; // 假设每个主题5KB
-    final fontMemory = _fontSizeCache.length * 50; // 假设每个字体大小50字节
-    final styleMemory = _textStyleCache.length * 200; // 假设每个样式200字节
-
-    return themeMemory + fontMemory + styleMemory;
-  }
-
   // ==================== 性能监控方法 ====================
-
-  /// 记录缓存命中
-  void _recordCacheHit(String cacheType) {
-    _cacheHits[cacheType] = (_cacheHits[cacheType] ?? 0) + 1;
-  }
-
-  /// 记录缓存未命中
-  void _recordCacheMiss(String cacheType) {
-    _cacheMisses[cacheType] = (_cacheMisses[cacheType] ?? 0) + 1;
-  }
-
-  /// 记录主题构建时间
-  void _recordThemeBuildTime(String themeType, int buildTimeMs) {
-    _themeBuildTimes[themeType] ??= [];
-    _themeBuildTimes[themeType]!.add(buildTimeMs);
-    
-    // 只保留最近100次记录
-    if (_themeBuildTimes[themeType]!.length > 100) {
-      _themeBuildTimes[themeType]!.removeAt(0);
-    }
-  }
 
   /// 获取性能统计信息
   Map<String, dynamic> getPerformanceStats() {
-    final stats = <String, dynamic>{};
-    
-    // 缓存命中率
-    for (final type in _cacheHits.keys) {
-      final hits = _cacheHits[type] ?? 0;
-      final misses = _cacheMisses[type] ?? 0;
-      final total = hits + misses;
-      final hitRate = total > 0 ? (hits / total * 100).toStringAsFixed(2) : '0.00';
-      
-      stats['${type}_cache_hit_rate'] = '$hitRate%';
-      stats['${type}_cache_hits'] = hits;
-      stats['${type}_cache_misses'] = misses;
-    }
-    
-    // 主题构建时间统计
-    for (final type in _themeBuildTimes.keys) {
-      final times = _themeBuildTimes[type]!;
-      if (times.isNotEmpty) {
-        final avgTime = times.reduce((a, b) => a + b) / times.length;
-        final maxTime = times.reduce((a, b) => a > b ? a : b);
-        final minTime = times.reduce((a, b) => a < b ? a : b);
-        
-        stats['${type}_avg_build_time_ms'] = avgTime.toStringAsFixed(2);
-        stats['${type}_max_build_time_ms'] = maxTime;
-        stats['${type}_min_build_time_ms'] = minTime;
-        stats['${type}_build_count'] = times.length;
-      }
-    }
-    
-    // 主题切换时间统计
-    for (final type in _themeSwitchTimes.keys) {
-      final times = _themeSwitchTimes[type]!;
-      if (times.isNotEmpty) {
-        final avgTime = times.reduce((a, b) => a + b) / times.length;
-        final maxTime = times.reduce((a, b) => a > b ? a : b);
-        final minTime = times.reduce((a, b) => a < b ? a : b);
-        
-        stats['${type}_avg_switch_time_ms'] = avgTime.toStringAsFixed(2);
-        stats['${type}_max_switch_time_ms'] = maxTime;
-        stats['${type}_min_switch_time_ms'] = minTime;
-        stats['${type}_switch_count'] = times.length;
-      }
-    }
-    
-    // 整体性能指标
-    stats['cache_memory_usage_bytes'] = _estimateCacheMemoryUsage();
-    stats['total_cache_entries'] = _themeCache.length + _fontSizeCache.length + _textStyleCache.length;
-    
-    return stats;
-  }
-
-  /// 重置性能统计
-  void resetPerformanceStats() {
-    _cacheHits.clear();
-    _cacheMisses.clear();
-    _themeBuildTimes.clear();
-    _themeSwitchTimes.clear();
-  }
-
-  /// 记录主题切换时间
-  void _recordThemeSwitchTime(String switchType, int switchTimeMs) {
-    _themeSwitchTimes[switchType] ??= [];
-    _themeSwitchTimes[switchType]!.add(switchTimeMs);
-    
-    // 只保留最近50次记录
-    if (_themeSwitchTimes[switchType]!.length > 50) {
-      _themeSwitchTimes[switchType]!.removeAt(0);
-    }
-  }
-
-  /// 清除OLED相关缓存
-  void _clearOLEDRelatedCache() {
-    final keysToRemove = <String>[];
-    
-    // 查找包含OLED相关的缓存键
-    for (final key in _themeCache.keys) {
-      if (key.contains('oled') || key.contains('dark_')) {
-        keysToRemove.add(key);
-      }
-    }
-    
-    // 移除相关缓存
-    for (final key in keysToRemove) {
-      _themeCache.remove(key);
-    }
-  }
-
-  /// 清除护眼模式相关缓存
-  void _clearEyeCareRelatedCache() {
-    final keysToRemove = <String>[];
-    
-    // 查找包含护眼模式相关的缓存键
-    for (final key in _themeCache.keys) {
-      if (key.contains('eyecare')) {
-        keysToRemove.add(key);
-      }
-    }
-    
-    // 移除相关缓存
-    for (final key in keysToRemove) {
-      _themeCache.remove(key);
-    }
-  }
-
-  /// 清除所有缓存（用于主题更新后刷新）
-  void clearCache() {
-    // 清除所有缓存
-    _themeCache.clear();
-    _fontSizeCache.clear();
-    _textStyleCache.clear();
-  }
-
-  /// 预热所有缓存（在应用启动时调用）
-  void preloadThemes() {
-    // 预加载当前字体大小的主题
-    final lightThemeKey = 'light_${fontSizeOption.value}';
-    final darkThemeKey = 'dark_${fontSizeOption.value}';
-
-    _themeCache.put(
-      lightThemeKey,
-      AppTheme.getLightThemeFromOption(fontSizeOption),
-    );
-    _themeCache.put(
-      darkThemeKey,
-      AppTheme.getDarkThemeFromOption(fontSizeOption),
-    );
-
-    // 预加载常用字体大小的主题
-    for (final option in [
-      FontSizeOption.small,
-      FontSizeOption.normal,
-      FontSizeOption.large,
-    ]) {
-      if (option != fontSizeOption) {
-        final lightKey = 'light_${option.value}';
-        final darkKey = 'dark_${option.value}';
-        _themeCache.put(lightKey, AppTheme.getLightThemeFromOption(option));
-        _themeCache.put(darkKey, AppTheme.getDarkThemeFromOption(option));
-      }
-    }
-
-    // 预加载常用字体大小
-    _preloadFontCache();
-  }
-
-  /// 更新主题设置
-  Future<void> updateThemeSettings(ThemeSettings newSettings) async {
-    try {
-      // 验证设置有效性
-      final safeSettings = newSettings.getSafeSettings();
-
-      // 检查是否需要刷新主题
-      final needsThemeRefresh =
-          _themeSettings.value.isDarkMode != safeSettings.isDarkMode ||
-          _themeSettings.value.fontSizeOption != safeSettings.fontSizeOption;
-
-      // 更新内存中的设置
-      _themeSettings.value = safeSettings;
-
-      // 保存到本地存储
-      await ThemeStorageHandler.saveThemeSettings(safeSettings);
-
-      // 如果需要，刷新主题和缓存
-      if (needsThemeRefresh) {
-        clearCache();
-
-        // 应用新主题到 GetX（仅在非测试环境）
-        try {
-          Get.changeTheme(currentTheme);
-        } catch (e) {
-          // 在测试环境中忽略 GetX 错误
-          debugPrint('ThemeManager: GetX changeTheme 失败（可能在测试环境中）- $e');
-        }
-      }
-    } catch (e) {
-      // 记录错误但不抛出异常
-      debugPrint('ThemeManager: 更新主题设置失败 - $e');
-    }
-  }
-
-  /// 更新字体大小选项
-  Future<void> updateFontSizeOption(FontSizeOption option) async {
-    await updateThemeSettings(
-      _themeSettings.value.copyWith(fontSizeOption: option),
-    );
+    return {
+      'isDarkMode': isDarkMode,
+      'fontSizeOption': fontSizeOption.value,
+      'followSystemTheme': followSystemTheme,
+      'useDynamicColor': useDynamicColor,
+      'isDynamicColorSupported': isDynamicColorSupported,
+    };
   }
 
   /// 更新跟随系统主题设置
   Future<void> updateFollowSystemTheme(bool followSystem) async {
-    await updateThemeSettings(
-      _themeSettings.value.copyWith(followSystemTheme: followSystem),
-    );
+    _followSystemTheme.value = followSystem;
   }
 
   /// 更新动态颜色设置
-  Future<void> updateDynamicColor(bool useDynamic) async {
-    await updateThemeSettings(
-      _themeSettings.value.copyWith(useDynamicColor: useDynamic),
-    );
-    
-    // 清除缓存以应用新的颜色设置
-    clearCache();
-    
-    // 重新应用主题
-    try {
-      final newTheme = useDynamic && isDynamicColorSupported
-          ? await (isDarkMode 
-              ? AppTheme.getDarkThemeWithDynamicColor(fontScale: fontSizeOption.scale)
-              : AppTheme.getLightThemeWithDynamicColor(fontScale: fontSizeOption.scale))
-          : currentTheme;
-      
-      Get.changeTheme(newTheme);
-    } catch (e) {
-      debugPrint('ThemeManager: 应用动态颜色主题失败 - $e');
-    }
+  Future<void> updateUseDynamicColor(bool useDynamic) async {
+    _useDynamicColor.value = useDynamic;
   }
 
   /// 检测动态颜色支持
@@ -752,20 +340,16 @@ class ThemeManager extends GetxController {
     try {
       final isSupported = await DynamicColorManager.instance.isDynamicColorSupported();
       _isDynamicColorSupported.value = isSupported;
-      
+
       // 如果不支持动态颜色，禁用动态颜色设置
       if (!isSupported && useDynamicColor) {
-        await updateThemeSettings(
-          _themeSettings.value.copyWith(useDynamicColor: false),
-        );
+        _useDynamicColor.value = false;
       }
     } catch (e) {
       debugPrint('ThemeManager: 检测动态颜色支持失败 - $e');
       _isDynamicColorSupported.value = false;
       if (useDynamicColor) {
-        await updateThemeSettings(
-          _themeSettings.value.copyWith(useDynamicColor: false),
-        );
+        _useDynamicColor.value = false;
       }
     }
   }
@@ -791,12 +375,15 @@ class ThemeManager extends GetxController {
   /// 从本地存储加载主题设置
   Future<void> loadThemePreference() async {
     try {
-      final settings = await ThemeStorageHandler.loadThemeSettings();
-      _themeSettings.value = settings;
+      // 使用 SharedPreferences 加载主题设置
+      // 简化实现，只加载暗色模式设置
+      final prefs = Get.find<SharedPreferences>();
+      final isDarkMode = prefs.getBool('theme_is_dark_mode') ?? false;
+      _isDarkMode.value = isDarkMode;
 
       // 应用加载的主题（仅在非测试环境）
       try {
-        Get.changeTheme(settings.isDarkMode ? darkTheme : lightTheme);
+        Get.changeTheme(isDarkMode ? darkTheme : lightTheme);
       } catch (e) {
         // 在测试环境中忽略 GetX 错误
         debugPrint('ThemeManager: GetX changeTheme 失败（可能在测试环境中）- $e');
@@ -804,7 +391,7 @@ class ThemeManager extends GetxController {
     } catch (e) {
       debugPrint('ThemeManager: 加载主题设置失败 - $e');
       // 使用默认设置
-      _themeSettings.value = ThemeSettings.defaultSettings;
+      _isDarkMode.value = false;
     }
   }
 
@@ -817,10 +404,11 @@ class ThemeManager extends GetxController {
   /// 获取缓存统计信息
   Map<String, dynamic> getCacheStats() {
     return {
-      'themeCache': _themeCache.getStats(),
-      'fontSizeCache': _fontSizeCache.getStats(),
-      'textStyleCache': _textStyleCache.getStats(),
-      'totalMemoryUsage': _estimateCacheMemoryUsage(),
+      'isDarkMode': isDarkMode,
+      'fontSizeOption': fontSizeOption.value,
+      'followSystemTheme': followSystemTheme,
+      'useDynamicColor': useDynamicColor,
+      'isDynamicColorSupported': isDynamicColorSupported,
     };
   }
 
@@ -829,37 +417,16 @@ class ThemeManager extends GetxController {
     super.onInit();
     // 初始化时加载主题设置
     _initializeTheme();
-
-    // 启动缓存清理定时器
-    _startCacheCleanupTimer();
-  }
-
-  /// 启动缓存清理定时器
-  void _startCacheCleanupTimer() {
-    _cacheCleanupTimer = Timer.periodic(const Duration(minutes: 10), (_) {
-      _cleanupExpiredCache();
-    });
   }
 
   /// 初始化主题系统
   Future<void> _initializeTheme() async {
     try {
-      // 迁移旧格式设置
-      await ThemeStorageHandler.migrateFromOldFormat();
-
       // 检测动态颜色支持
       await detectDynamicColorSupport();
 
       // 加载主题设置
       await loadThemePreference();
-
-      // 预热缓存
-      preloadThemes();
-
-      // 如果启用了动态颜色且支持，应用动态颜色主题
-      if (useDynamicColor && isDynamicColorSupported) {
-        await _applyDynamicColorTheme();
-      }
 
       // 如果设置为跟随系统主题，则应用系统主题
       if (followSystemTheme) {
@@ -867,16 +434,6 @@ class ThemeManager extends GetxController {
       }
     } catch (e) {
       debugPrint('ThemeManager: 初始化主题系统失败 - $e');
-      // 使用默认设置
-      _themeSettings.value = ThemeSettings.defaultSettings;
-      preloadThemes();
     }
-  }
-
-  @override
-  void onClose() {
-    // 停止缓存清理定时器
-    _cacheCleanupTimer?.cancel();
-    super.onClose();
   }
 }

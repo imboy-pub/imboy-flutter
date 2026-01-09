@@ -22,23 +22,32 @@ class MinePage extends StatelessWidget {
 
   MinePage({super.key});
 
-  /// 构建个人信息卡片 - 支持黑暗模式
+  /// 构建个人信息卡片 - 现代化渐变头部
   Widget _buildProfileCard(BuildContext context, UserRepoLocal userRepo) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    // 顶部 SafeArea 兼容
     final topPadding = MediaQuery.of(context).padding.top;
 
     return Container(
-      padding: EdgeInsets.only(top: topPadding),
-      margin: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(top: topPadding + 20, bottom: 30),
       decoration: BoxDecoration(
-        // color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [
+                  const Color(0xFF1A2980),
+                  const Color(0xFF26D0CE),
+                ] // Dark mode: Deep Blue -> Teal
+              : [
+                  const Color(0xFFE0C3FC),
+                  const Color(0xFF8EC5FC),
+                ], // Light mode: Soft Purple -> Blue (Mesh-like)
+        ),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.05),
-            blurRadius: 0,
-            offset: const Offset(0, 1),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -47,70 +56,93 @@ class MinePage extends StatelessWidget {
         child: InkWell(
           onTap: () {
             Get.to(
-                  () => const PersonalInfoPage(),
+              () => const PersonalInfoPage(),
               transition: Transition.rightToLeft,
               popGesture: true,
             );
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
               children: [
-                // 头像区域
-                InkWell(
-                  onTap: () {
-                    if (userRepo.current.avatar.isEmpty) {
-                      Get.to(
-                            () => const PersonalInfoPage(),
-                        transition: Transition.rightToLeft,
-                        popGesture: true,
-                      );
-                    } else {
-                      zoomInPhotoView(userRepo.current.avatar);
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(6),
-                  child: Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6),
-                      image: dynamicAvatar(
-                        userRepo.current.avatar,
+                // 头像区域 - 带光晕
+                Expanded(child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      if (userRepo.current.avatar.isEmpty) {
+                        Get.to(
+                              () => const PersonalInfoPage(),
+                          transition: Transition.rightToLeft,
+                          popGesture: true,
+                        );
+                      } else {
+                        zoomInPhotoView(userRepo.current.avatar);
+                      }
+                    },
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                        image: dynamicAvatar(userRepo.current.avatar),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
+                )),
+                const SizedBox(width: 20),
 
                 // 用户信息区域
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const SizedBox(height: 12),
-                      // 用户昵称
-                      Flexible(
-                        fit: FlexFit.loose,
-                        child: Text(
-                          userRepo.current.nickname.isEmpty
-                              ? '未设置昵称'
-                              : userRepo.current.nickname,
-                          // '这样修改后，整个顶部区域（包括状态栏和个人信息卡片）的背景色将保持一致，解决了在',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            height: 1.2, // 行高统一
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: true,
+                      Text(
+                        userRepo.current.nickname.isEmpty
+                            ? '未设置昵称'
+                            : userRepo.current.nickname,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF333333),
+                          height: 1.2,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      // 用户账号
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : Colors.white.withValues(alpha: 0.4),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         child: Text(
                           "${'account'.tr}: ${userRepo.current.account}",
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: isDark
+                                ? Colors.white70
+                                : const Color(0xFF555555),
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -119,21 +151,18 @@ class MinePage extends StatelessWidget {
                   ),
                 ),
 
-                // 二维码和箭头
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.qr_code_2, size: 24),
-                    const SizedBox(width: 8, height: 16),
-                    Icon(
-                      Icons.navigate_next,
-                      color: isDark
-                          ? const Color(0xFF8E8E93)
-                          : const Color(0xFF999999),
-                      size: 20,
-                    ),
-                  ],
-                ),
+                // 二维码
+                Expanded(child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.qr_code_2,
+                    color: isDark ? Colors.white : const Color(0xFF333333),
+                  ),
+                )),
               ],
             ),
           ),
@@ -142,7 +171,7 @@ class MinePage extends StatelessWidget {
     );
   }
 
-  /// 构建功能菜单项 - 支持黑暗模式
+  /// 构建功能菜单项
   Widget _buildMenuItem({
     required BuildContext context,
     required IconData icon,
@@ -150,22 +179,25 @@ class MinePage extends StatelessWidget {
     required VoidCallback onTap,
     required Color iconColor,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Material(
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
             children: [
               // 图标
               Container(
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
+                  color: iconColor.withValues(
+                    alpha: 0.1,
+                  ), // Gentle background for icon
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: iconColor, size: 20),
+                child: Icon(icon, color: iconColor, size: 22),
               ),
 
               const SizedBox(width: 12),
@@ -174,21 +206,25 @@ class MinePage extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w400,
-                    color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
 
+              const SizedBox(width: 4),
+
               // 箭头图标
               Icon(
-                Icons.navigate_next,
-                color: isDark
-                    ? const Color(0xFF8E8E93)
-                    : const Color(0xFF999999),
-                size: 18,
+                Icons.arrow_forward_ios_rounded,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.3),
+                size: 14,
               ),
             ],
           ),
@@ -197,24 +233,26 @@ class MinePage extends StatelessWidget {
     );
   }
 
-  /// 构建功能分组 - 支持黑暗模式
+  /// 构建功能分组 - Card Style
   Widget _buildMenuGroup(BuildContext context, List<Widget> children) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16), // Fully rounded cards
         boxShadow: [
           BoxShadow(
             color: isDark
                 ? Colors.black.withValues(alpha: 0.2)
-                : Colors.black.withValues(alpha: 0.03),
-            blurRadius: 0.5,
-            offset: const Offset(0, 0.5),
+                : Colors.black.withValues(alpha: 0.04), // Soft shadow
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
+      clipBehavior: Clip.antiAlias, // Ensure children don't bleed
       child: Column(
         children: children.asMap().entries.map((entry) {
           int index = entry.key;
@@ -225,12 +263,12 @@ class MinePage extends StatelessWidget {
               child,
               if (index < children.length - 1)
                 Padding(
-                  padding: const EdgeInsets.only(left: 48),
+                  padding: const EdgeInsets.only(left: 60), // Indented divider
                   child: Container(
-                    height: 0.3,
-                    color: isDark
-                        ? const Color(0xFF48484A)
-                        : const Color(0xFFE5E5E5),
+                    height: 0.5, // Thinner divider
+                    color: Theme.of(
+                      context,
+                    ).dividerColor.withValues(alpha: 0.5),
                   ),
                 ),
             ],
@@ -243,26 +281,30 @@ class MinePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(148.0),
-        child: GetBuilder<UserRepoLocal>(
-          builder: (userRepo) => _buildProfileCard(context, userRepo),
-        ),
-      ),
+      // Remove AppBar to use the custom gradient header as the top area
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
+        padding: EdgeInsets.zero,
         child: Column(
           children: [
-            // 功能菜单分组1：收藏和黑名单
+            // Header
+            GetBuilder<UserRepoLocal>(
+              builder: (userRepo) => _buildProfileCard(context, userRepo),
+            ),
+
+            // Adjust overlap/spacing if needed, or just standard list
+            const SizedBox(height: 20),
+
+            // 功能菜单分组1
             _buildMenuGroup(context, [
               _buildMenuItem(
                 context: context,
-                icon: Icons.star_outline,
+                icon: Icons.star_rounded,
                 title: 'myFavorites'.tr,
                 iconColor: const Color(0xFFFF9500),
                 onTap: () {
                   Get.to(
-                        () => UserCollectPage(),
+                    () => UserCollectPage(),
                     transition: Transition.rightToLeft,
                     popGesture: true,
                   );
@@ -270,12 +312,12 @@ class MinePage extends StatelessWidget {
               ),
               _buildMenuItem(
                 context: context,
-                icon: Icons.block_outlined,
+                icon: Icons.remove_circle_outline,
                 title: 'denylist'.tr,
                 iconColor: const Color(0xFFFF3B30),
                 onTap: () {
                   Get.to(
-                        () => DenylistPage(),
+                    () => DenylistPage(),
                     transition: Transition.rightToLeft,
                     popGesture: true,
                   );
@@ -288,11 +330,11 @@ class MinePage extends StatelessWidget {
               _buildMenuItem(
                 context: context,
                 title: 'storageSpace'.tr,
-                icon: Icons.sd_storage_outlined,
-                iconColor: AppColors.warning,
+                icon: Icons.cloud_queue_rounded,
+                iconColor: AppColors.primaryGreen,
                 onTap: () {
                   Get.to(
-                        () => StorageSpacePage(),
+                    () => StorageSpacePage(),
                     transition: Transition.rightToLeft,
                     popGesture: true,
                   );
@@ -303,11 +345,11 @@ class MinePage extends StatelessWidget {
               _buildMenuItem(
                 context: context,
                 title: 'deviceList'.tr,
-                icon: Icons.devices,
+                icon: Icons.devices_rounded,
                 iconColor: AppColors.info,
                 onTap: () {
                   Get.to(
-                        () => UserDevicePage(),
+                    () => UserDevicePage(),
                     transition: Transition.rightToLeft,
                     popGesture: true,
                   );
@@ -315,12 +357,12 @@ class MinePage extends StatelessWidget {
               ),
               _buildMenuItem(
                 context: context,
-                icon: Icons.settings_outlined,
+                icon: Icons.settings_rounded,
                 title: 'setting'.tr,
-                iconColor: const Color(0xFF8E8E93),
+                iconColor: const Color(0xFF6366F1),
                 onTap: () {
                   Get.to(
-                        () => const SettingPage(),
+                    () => const SettingPage(),
                     transition: Transition.rightToLeft,
                     popGesture: true,
                   );
@@ -328,16 +370,16 @@ class MinePage extends StatelessWidget {
               ),
             ]),
 
-            // 测试功能和反馈
+            // 反馈
             _buildMenuGroup(context, [
               _buildMenuItem(
                 context: context,
-                icon: Icons.feedback_outlined,
+                icon: Icons.feedback_rounded,
                 title: 'feedback'.tr,
-                iconColor: const Color(0xFF007AFF),
+                iconColor: const Color(0xFF10B981),
                 onTap: () {
                   Get.to(
-                        () => FeedbackPage(),
+                    () => FeedbackPage(),
                     transition: Transition.rightToLeft,
                     popGesture: true,
                   );

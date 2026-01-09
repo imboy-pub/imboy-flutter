@@ -47,6 +47,15 @@ class GroupMemberProvider extends HttpClient {
     return resp.payload;
   }
 
+  Future<bool> changeAlias(String gid, String alias) async {
+    IMBoyHttpResponse resp = await post(API.groupMemberAlias, data: {
+      'gid': gid,
+      'alias': alias,
+    });
+    debugPrint("GroupMemberProvider/changeAlias resp: ${resp.payload.toString()}");
+    return resp.ok;
+  }
+
   Future<Map<String, dynamic>?> sameGroup(String uid1, String uid2) async {
     IMBoyHttpResponse resp = await get(API.groupMemberSameGroup,
         queryParameters: {'uid1': uid1, 'uid2': uid2});

@@ -199,32 +199,39 @@ class MessageActions extends GetxService {
     final msgType = data['type'] as String? ?? '';
     final payload = (data['payload'] as Map?)?.cast<String, dynamic>() ?? {};
     final currentUid = UserRepoLocal.to.currentUid;
-    
+
+    // 【重要】从重试队列中移除撤回消息
+    final revokeMsgId = data['id'] as String? ?? '';
+    if (revokeMsgId.isNotEmpty && Get.isRegistered<MessageRetry>()) {
+      MessageRetry.to.removeFromRetryQueue(revokeMsgId);
+      iPrint('✅ [REVOKE_ACK] 已从重试队列移除撤回消息: revokeMsgId=$revokeMsgId');
+    }
+
     // 查找原始消息
     final repo = MessageService.to.getMessageRepo(msgType);
     final originalMsg = await repo.find(originalMsgId);
-    
+
     if (originalMsg == null) {
       iPrint('❌ 未找到要确认撤回的原始消息: originalMsgId=$originalMsgId');
       return;
     }
-    
+
     // 检查是否是我们自己撤回的
     final isMyRevoke = originalMsg.fromId == currentUid;
-    
+
     if (isMyRevoke) {
       // 自己撤回的确认
       final newPayload = Map<String, dynamic>.from(originalMsg.payload);
       newPayload['msg_type'] = 'custom';
       newPayload['custom_type'] = 'my_revoked';
       newPayload['revoked_at'] = payload['revoked_at'] ?? DateTimeHelper.millisecond();
-      
+
       await repo.update({
         'id': originalMsgId,
         'payload': json.encode(newPayload),
         'status': IMBoyMessageStatus.sent,
       });
-      
+
       final updatedMsg = await repo.find(originalMsgId);
       if (updatedMsg != null) {
         final updatedMessage = await updatedMsg.toTypeMessage();
@@ -235,7 +242,7 @@ class MessageActions extends GetxService {
       // 对方撤回的通知
       await _processPeerRevoke(originalMsg, repo, data);
     }
-    
+
     // 发送ACK
     MessageService.to.sendAckMsg(msgType, data['id']);
   }
@@ -309,32 +316,39 @@ class MessageActions extends GetxService {
     final msgType = data['type'] as String? ?? '';
     final payload = (data['payload'] as Map?)?.cast<String, dynamic>() ?? {};
     final currentUid = UserRepoLocal.to.currentUid;
-    
+
+    // 【重要】从重试队列中移除编辑消息
+    final editMsgId = data['id'] as String? ?? '';
+    if (editMsgId.isNotEmpty && Get.isRegistered<MessageRetry>()) {
+      MessageRetry.to.removeFromRetryQueue(editMsgId);
+      iPrint('✅ [EDIT_ACK] 已从重试队列移除编辑消息: editMsgId=$editMsgId');
+    }
+
     // 查找原始消息
     final repo = MessageService.to.getMessageRepo(msgType);
     final originalMsg = await repo.find(originalMsgId);
-    
+
     if (originalMsg == null) {
       iPrint('❌ 未找到要确认编辑的原始消息: originalMsgId=$originalMsgId');
       return;
     }
-    
+
     // 检查是否是我们自己编辑的
     final isMyEdit = originalMsg.fromId == currentUid;
-    
+
     if (isMyEdit) {
       // 自己编辑的确认
       final newPayload = Map<String, dynamic>.from(originalMsg.payload);
       newPayload['text'] = newContent;
       newPayload['edited_at'] = payload['edited_at'] ?? DateTimeHelper.millisecond();
       newPayload['is_edited'] = true;
-      
+
       await repo.update({
         'id': originalMsgId,
         'payload': json.encode(newPayload),
         'status': IMBoyMessageStatus.sent,
       });
-      
+
       final updatedMsg = await repo.find(originalMsgId);
       if (updatedMsg != null) {
         final updatedMessage = await updatedMsg.toTypeMessage();
@@ -345,7 +359,7 @@ class MessageActions extends GetxService {
       // 对方编辑的通知
       await _processPeerEdit(originalMsg, repo, data, newContent);
     }
-    
+
     // 发送ACK
     MessageService.to.sendAckMsg(msgType, data['id']);
   }
@@ -657,10 +671,10 @@ class MessageActions extends GetxService {
         json.encode(revokeMessage),
         revokeMessage['id'].toString()
       );
-      
+
       if (success) {
         // 添加到重试队列
-        _messageRetry.addToRetryQueue(revokeMessage['id'].toString(), messageType, revokeMessage);
+        _messageRetry.addToRetryQueue(revokeMessage['id'].toString(), messageType);
       }
       
       return success;
@@ -707,10 +721,10 @@ class MessageActions extends GetxService {
         json.encode(editMessage),
         editMessage['id'].toString()
       );
-      
+
       if (success) {
         // 添加到重试队列
-        _messageRetry.addToRetryQueue(editMessage['id'].toString(), messageType, editMessage);
+        _messageRetry.addToRetryQueue(editMessage['id'].toString(), messageType);
       }
       
       return success;

@@ -39,7 +39,7 @@ class ChangeNamePage extends StatelessWidget {
     });
     textController.text = value;
     return Scaffold(
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         titleWidget: Row(
           children: [

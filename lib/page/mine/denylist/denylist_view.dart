@@ -33,72 +33,71 @@ class DenylistPage extends StatelessWidget {
 
   /// 构建黑名单用户卡片
   Widget _buildDenylistCard(BuildContext context, DenylistModel model) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
-          width: 0.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-          child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            Get.to(
-              () => PeopleInfoPage(
-                id: model.deniedUid,
-                scene: 'denylist',
-              ),
-              transition: Transition.rightToLeft,
-              popGesture: true,
-            );
-          },
-          onLongPress: () async {
-            // 长按移出黑名单（备选入口）
-            final confirmed = await showDialog<bool>(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                title: Text('确认移出'.tr),
-                content: Text('确认将此用户移出黑名单？'.tr),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(false),
-                    child: Text('取消'.tr),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => Navigator.of(ctx).pop(true),
-                    child: Text('移出'.tr),
-                  ),
-                ],
-              ),
-            ) ?? false;
-            if (confirmed) {
-              EasyLoading.show(status: '处理中...'.tr);
-              final res = await logic.removeDenylist(model.deniedUid);
-              EasyLoading.dismiss();
-              if (res) {
-                EasyLoading.showSuccess('已移出黑名单'.tr);
-                logic.items.removeWhere((e) => e.deniedUid == model.deniedUid);
-              } else {
-                EasyLoading.showError('操作失败'.tr);
-              }
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          Get.to(
+            () => PeopleInfoPage(
+              id: model.deniedUid,
+              scene: 'denylist',
+            ),
+            transition: Transition.rightToLeft,
+            popGesture: true,
+          )?.then((_) => logic.refreshData());
+        },
+        onLongPress: () async {
+          // 长按移出黑名单（备选入口）
+          final confirmed = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: Text('确认移出'.tr),
+              content: Text('确认将此用户移出黑名单？'.tr),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(false),
+                  child: Text('取消'.tr),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(ctx).pop(true),
+                  child: Text('移出'.tr),
+                ),
+              ],
+            ),
+          ) ?? false;
+          if (confirmed) {
+            EasyLoading.show(status: '处理中...'.tr);
+            final res = await logic.removeDenylist(model.deniedUid);
+            EasyLoading.dismiss();
+            if (res) {
+              EasyLoading.showSuccess('已移出黑名单'.tr);
+              logic.items.removeWhere((e) => e.deniedUid == model.deniedUid);
+            } else {
+              EasyLoading.showError('操作失败'.tr);
             }
-          },
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+              width: 0.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              children: [
+            child: Row(
+              children: [
                 // 头像
                 Container(
                   decoration: BoxDecoration(
@@ -121,7 +120,7 @@ class DenylistPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16),
-                
+
                 // 用户信息
                 Expanded(
                   child: Column(
@@ -139,7 +138,7 @@ class DenylistPage extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 6),
-                      
+
                       // 黑名单状态标签
                       Row(
                         children: [
@@ -174,7 +173,7 @@ class DenylistPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 // 箭头图标
                 Icon(
                   Icons.chevron_right,
@@ -284,7 +283,7 @@ class DenylistPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'denylist'.tr,
       ),
@@ -382,10 +381,7 @@ class DenylistPage extends StatelessWidget {
                             // 确保本地列表与动画一致，避免重建后复现
                             logic.items.removeWhere((e) => e.deniedUid == model.deniedUid);
                           },
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: _buildDenylistCard(context, model),
-                          ),
+                          child: _buildDenylistCard(context, model),
                         );
                       },
                       physics: const AlwaysScrollableScrollPhysics(),
@@ -395,6 +391,7 @@ class DenylistPage extends StatelessWidget {
                           return Container();
                         }
                         return Container(
+                          width: MediaQuery.of(context).size.width,
                           margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                           child: Row(
                             children: [

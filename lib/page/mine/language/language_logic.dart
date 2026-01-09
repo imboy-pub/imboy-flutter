@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jiffy/jiffy.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/locales/locales.dart';
@@ -12,8 +11,7 @@ class LanguageLogic extends GetxController {
   final state = LanguageState();
 
   void changeLanguage(String lang) async {
-    await Jiffy.setLocale(jiffyLocal(lang));
-
+    // Jiffy 已移除，使用 intl 包的内置语言支持
     StorageService.to.setString(Keys.currentLang, lang);
     state.valueChanged.value = false;
     state.currentLanguage.value = lang;

@@ -41,117 +41,132 @@ class GroupListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     initData();
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: NavAppBar(
+      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      appBar: GlassAppBar(
         titleWidget: Obx(() => Text(
           "${'groupChat'.tr}(${state.groupList.length})",
         )),
         automaticallyImplyLeading: true,
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          width: Get.width,
-          height: Get.height,
-          // color: Theme.of(context).colorScheme.surface,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 8, top: 10, right: 8, bottom: 10),
-                child: searchBar(
-                  context,
-                  searchLabel: 'search'.tr,
-                  hintText: 'search'.tr,
-                  queryTips: 'groupSearchTips'.tr,
-                  doSearch: ((query) => GroupRepo().search(kwd: query)),
-                  onTapForItem: (model) {
-                    if (model is GroupModel) {
-                      Get.to(
-                            () => ChatPage(
-                          peerId: model.groupId,
-                          peerTitle: model.title,
-                          peerAvatar: model.avatar,
-                          peerSign: '',
-                          type: 'C2G',
-                          options: {'memberCount': model.memberCount},
-                        ),
-                        transition: Transition.rightToLeft,
-                        popGesture: true,
-                      );
-                    }
-                  },
-                ),
+      body: Column(
+        children: [
+          // 搜索框区域
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark
+                    ? colorScheme.surfaceContainerHighest
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: isDark
+                        ? colorScheme.shadow.withValues(alpha: 0.05)
+                        : Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              Expanded(
-                child: SlidableAutoCloseBehavior(
-                  child: Obx(() {
-                    return state.groupList.isEmpty
-                        ? NoDataView(text: 'noData'.tr)
-                        : ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: state.groupList.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        GroupModel model = state.groupList[index];
-                        return Column(
-                          children: [
-                            ListTile(
-                              leading: SmartGroupAvatar(
-                                avatar: model.avatar,
-                                groupId: model.groupId,
-                              ),
-                              contentPadding: const EdgeInsets.only(left: 10, right: 10),
-                              title: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                        strEmpty(model.title)
-                                            ? model.computeTitle
-                                            : model.title,
-                                        style: TextStyle(
-                                          color: Theme.of(context).colorScheme.onSurface, // 使用主题文字色
-                                        ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.0), // 增加圆角
-                              ),
-                              onTap: () {
-                                Get.to(
-                                      () => ChatPage(
-                                    peerId: model.groupId,
-                                    peerTitle: model.title,
-                                    peerAvatar: model.avatar,
-                                    peerSign: '',
-                                    type: 'C2G',
-                                    options: {'memberCount': model.memberCount},
-                                  ),
-                                  transition: Transition.rightToLeft,
-                                  popGesture: true,
-                                );
-                              },
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 12, right: 20, bottom: 10),
-                              child: HorizontalLine(
-                                height: Get.isDarkMode ? 0.5 : 1.0,
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                      // 解决联系人数据量少的情况下无法刷新的问题
-                      // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
-                      physics: const AlwaysScrollableScrollPhysics(),
+              child: searchBar(
+                context,
+                searchLabel: 'search'.tr,
+                hintText: 'search'.tr,
+                queryTips: 'groupSearchTips'.tr,
+                doSearch: ((query) => GroupRepo().search(kwd: query)),
+                onTapForItem: (model) {
+                  if (model is GroupModel) {
+                    Get.to(
+                      () => ChatPage(
+                        peerId: model.groupId,
+                        peerTitle: model.title,
+                        peerAvatar: model.avatar,
+                        peerSign: '',
+                        type: 'C2G',
+                        options: {'memberCount': model.memberCount},
+                      ),
+                      transition: Transition.rightToLeft,
+                      popGesture: true,
                     );
-                  }),
-                ),
+                  }
+                },
               ),
-            ],
+            ),
           ),
-        ),
+          
+          // 群组列表
+          Expanded(
+            child: SlidableAutoCloseBehavior(
+              child: Obx(() {
+                if (state.groupList.isEmpty) {
+                  return NoDataView(text: 'noData'.tr);
+                }
+                
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  itemCount: state.groupList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    GroupModel model = state.groupList[index];
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? colorScheme.surfaceContainerHighest
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDark
+                                ? colorScheme.shadow.withValues(alpha: 0.05)
+                                : Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: ListTile(
+                        leading: SmartGroupAvatar(
+                          avatar: model.avatar,
+                          groupId: model.groupId,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        title: Text(
+                          strEmpty(model.title)
+                              ? model.computeTitle
+                              : model.title,
+                          style: TextStyle(
+                            color: colorScheme.onSurface,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        onTap: () {
+                          Get.to(
+                            () => ChatPage(
+                              peerId: model.groupId,
+                              peerTitle: model.title,
+                              peerAvatar: model.avatar,
+                              peerSign: '',
+                              type: 'C2G',
+                              options: {'memberCount': model.memberCount},
+                            ),
+                            transition: Transition.rightToLeft,
+                            popGesture: true,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  physics: const AlwaysScrollableScrollPhysics(),
+                );
+              }),
+            ),
+          ),
+        ],
       ),
     );
   }

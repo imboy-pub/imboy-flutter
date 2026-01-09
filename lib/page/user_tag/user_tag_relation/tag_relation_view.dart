@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -179,8 +180,207 @@ class _TagRelationPageState extends State<TagRelationPage> {
     );
   }
 
+  /// 构建统计项
+  Widget _buildStatItem(String label, String value, IconData icon) {
+    return Column(
+      children: [
+        Icon(
+          icon,
+          color: AppColors.primaryGreen,
+          size: 20,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 构建快捷操作按钮
+  Widget _buildQuickActionButton(
+    String label,
+    IconData icon,
+    VoidCallback? onPressed,
+  ) {
+    return TextButton.icon(
+      onPressed: onPressed,
+      icon: Icon(
+        icon,
+        size: 16,
+        color: onPressed != null
+            ? Theme.of(context).colorScheme.onSurface
+            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+      ),
+      label: Text(
+        label,
+        style: TextStyle(
+          color: onPressed != null
+              ? Theme.of(context).colorScheme.onSurface
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+        ),
+      ),
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return Scaffold(
+      backgroundColor: isDark ? Theme.of(context).colorScheme.surface : const Color(0xFFF5F5F5),
+      appBar: GlassAppBar(
+        titleWidget: Text(widget.title ?? '编辑标签'),
+        backgroundColor: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
+        rightDMActions: [
+          if (_hasChanges())
+            TextButton(
+              onPressed: _isSaving ? null : _saveTags,
+              child: _isSaving
+                  ? SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColors.primaryGreen,
+                        ),
+                      ),
+                    )
+                  : Text(
+                      '保存',
+                      style: TextStyle(
+                        color: AppColors.primaryGreen,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+            ),
+        ],
+      ),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Column(
+              children: [
+                // 统计信息卡片
+                _buildStatisticsCard(isDark),
+
+                // 快捷操作栏
+                _buildQuickActions(isDark),
+
+                const SizedBox(height: 16),
+
+                // 标签编辑区域
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isDark 
+                              ? Colors.transparent 
+                              : Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: TagInput(
+                      initialTags: _currentTags,
+                      suggestedTags: _suggestedTags,
+                      tagUsageCount: _tagUsageCount,
+                      onTagsChanged: _onTagsChanged,
+                      hintText: '输入新标签...',
+                      maxTagLength: 14,
+                      maxTags: 20,
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+
+                // 底部保存按钮
+                if (_hasChanges())
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      16,
+                      16,
+                      16 + MediaQuery.of(context).padding.bottom,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, -2),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      onPressed: _isSaving ? null : _saveTags,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryGreen,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: _isSaving
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                const Text('保存中...'),
+                              ],
+                            )
+                          : Text(
+                              '保存标签 (${_currentTags.length})',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                    ),
+                  ),
+              ],
+            ),
+    );
+  }
+
   /// 构建统计信息卡片
-  Widget _buildStatisticsCard() {
+  Widget _buildStatisticsCard(bool isDark) {
     final totalTags = _suggestedTags.length;
     final selectedCount = _currentTags.length;
     final mostUsedTag = _tagUsageCount.isNotEmpty
@@ -193,19 +393,33 @@ class _TagRelationPageState extends State<TagRelationPage> {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primaryGreen.withValues(alpha: 0.1),
-            AppColors.primaryGreen.withValues(alpha: 0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white,
+        gradient: isDark 
+            ? null 
+            : LinearGradient(
+                colors: [
+                  const Color(0xFFE8F5E9),
+                  Colors.white,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.primaryGreen.withValues(alpha: 0.2),
-          width: 1,
-        ),
+        border: isDark 
+            ? Border.all(
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+                width: 0.5,
+              )
+            : null,
+        boxShadow: [
+          BoxShadow(
+            color: isDark 
+                ? Colors.transparent 
+                : Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,43 +469,23 @@ class _TagRelationPageState extends State<TagRelationPage> {
     );
   }
 
-  /// 构建统计项
-  Widget _buildStatItem(String label, String value, IconData icon) {
-    return Column(
-      children: [
-        Icon(
-          icon,
-          color: AppColors.primaryGreen,
-          size: 20,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-          ),
-        ),
-      ],
-    );
-  }
-
   /// 构建快捷操作栏
-  Widget _buildQuickActions() {
+  Widget _buildQuickActions(bool isDark) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: isDark 
+                ? Colors.transparent 
+                : Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -316,161 +510,6 @@ class _TagRelationPageState extends State<TagRelationPage> {
           ),
         ],
       ),
-    );
-  }
-
-  /// 构建快捷操作按钮
-  Widget _buildQuickActionButton(
-    String label,
-    IconData icon,
-    VoidCallback? onPressed,
-  ) {
-    return TextButton.icon(
-      onPressed: onPressed,
-      icon: Icon(
-        icon,
-        size: 16,
-        color: onPressed != null
-            ? Theme.of(context).colorScheme.onSurface
-            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-      ),
-      label: Text(
-        label,
-        style: TextStyle(
-          color: onPressed != null
-              ? Theme.of(context).colorScheme.onSurface
-              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-        ),
-      ),
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        minimumSize: Size.zero,
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        title: Text(widget.title ?? '编辑标签'),
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        foregroundColor: Theme.of(context).colorScheme.onSurface,
-        elevation: 0,
-        actions: [
-          if (_hasChanges())
-            TextButton(
-              onPressed: _isSaving ? null : _saveTags,
-              child: _isSaving
-                  ? SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.primaryGreen,
-                        ),
-                      ),
-                    )
-                  : Text(
-                      '保存',
-                      style: TextStyle(
-                        color: AppColors.primaryGreen,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-            ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : Column(
-              children: [
-                // 统计信息卡片
-                _buildStatisticsCard(),
-
-                // 快捷操作栏
-                _buildQuickActions(),
-
-                const SizedBox(height: 16),
-
-                // 标签编辑区域
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: TagInput(
-                      initialTags: _currentTags,
-                      suggestedTags: _suggestedTags,
-                      tagUsageCount: _tagUsageCount,
-                      onTagsChanged: _onTagsChanged,
-                      hintText: '输入新标签...',
-                      maxTagLength: 14,
-                      maxTags: 20,
-                    ),
-                  ),
-                ),
-
-                // 底部保存按钮
-                if (_hasChanges())
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.fromLTRB(
-                      16,
-                      16,
-                      16,
-                      16 + MediaQuery.of(context).padding.bottom,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, -2),
-                        ),
-                      ],
-                    ),
-                    child: ElevatedButton(
-                      onPressed: _isSaving ? null : _saveTags,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryGreen,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: _isSaving
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                const Text('保存中...'),
-                              ],
-                            )
-                          : Text(
-                              '保存标签 (${_currentTags.length})',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                    ),
-                  ),
-              ],
-            ),
     );
   }
 }

@@ -21,7 +21,7 @@ class ScannerResultPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
           automaticallyImplyLeading: true,
           title: 'scanResult'.tr
       ),

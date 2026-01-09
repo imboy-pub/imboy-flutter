@@ -128,28 +128,33 @@ class _ProfilePageState extends State<ProfilePage>
       floating: false,
       pinned: true,
       elevation: 0,
-      backgroundColor: isDark 
-          ? AppColors.darkBackground 
-          : AppColors.lightBackground,
-      flexibleSpace: FlexibleSpaceBar(
-        title: Text(
-          '个人信息',
-          style: TextStyle(
-            color: isDark ? Colors.white : Colors.black87,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Get.theme.primaryColor.withValues(alpha: 0.1),
-                Colors.transparent,
-              ],
+      backgroundColor: isDark
+          ? const Color(0xFF1E1E1E).withValues(alpha: 0.75)
+          : Colors.white.withValues(alpha: 0.75),
+      flexibleSpace: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: FlexibleSpaceBar(
+            title: Text(
+              '个人信息',
+              style: TextStyle(
+                color: isDark ? Colors.white : Colors.black87,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            centerTitle: true,
+            background: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Get.theme.primaryColor.withValues(alpha: 0.1),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
             ),
           ),
         ),

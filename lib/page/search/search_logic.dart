@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -295,7 +296,7 @@ class SearchLogic extends GetxController {
 
     try {
       // 处理时间范围
-      DateTime now = DateTime.now();
+      DateTime now = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond());
       DateTime? filterStartDate = startDate;
       DateTime? filterEndDate = endDate;
 

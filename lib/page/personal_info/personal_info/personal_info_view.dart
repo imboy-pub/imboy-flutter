@@ -10,6 +10,7 @@ import 'package:image_picker_platform_interface/image_picker_platform_interface.
 import 'package:imboy/component/helper/crop_image.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/mine/account_security/account_security_logic.dart'
     show AccountSecurityLogic;
 import 'package:imboy/theme/default/app_colors.dart';
@@ -92,19 +93,21 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   /// 构建头像卡片 - 优化版本
   Widget _buildAvatarCard(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 10, top: 10),
       decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: isDark
-                ? Colors.black.withValues(alpha: 0.2)
-                : Colors.black.withValues(alpha: 0.03),
-            blurRadius: 0.5,
-            offset: const Offset(0, 0.5),
-          ),
-        ],
+        color: isDark ? colorScheme.surface : Colors.white,
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Material(
         child: InkWell(
@@ -236,22 +239,21 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   /// 构建信息分组
   Widget _buildInfoGroup(BuildContext context, List<Widget> children) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.darkCardBackground
-            : AppColors.lightCardBackground,
-        boxShadow: [
-          BoxShadow(
-            color: isDark
-                ? Colors.black.withValues(alpha: 0.2)
-                : Colors.black.withValues(alpha: 0.03),
-            blurRadius: 0.5,
-            offset: const Offset(0, 0.5),
-          ),
-        ],
+        color: isDark ? colorScheme.surface : Colors.white,
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Column(
         children: children.asMap().entries.map((entry) {
@@ -408,8 +410,15 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      appBar: AppBar(title: Text('personalInformation'.tr)),
+      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      appBar: GlassAppBar(
+        title: 'personalInformation'.tr,
+        automaticallyImplyLeading: true,
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [

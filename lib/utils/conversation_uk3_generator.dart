@@ -1,5 +1,3 @@
-import 'package:imboy/store/repository/user_repo_local.dart';
-
 /// ConversationUk3 生成器
 ///
 /// 用于生成标准化的会话唯一标识符，确保同一对话在不同方向下生成一致的UK3
@@ -159,7 +157,6 @@ class ConversationUk3Generator {
     if (parts.length < 3) return legacyUk3;
 
     final type = parts[0].toUpperCase();
-    final userId = parts[1];
     final peerId = parts[2];
 
     if (type == 'C2G') {

@@ -1,3 +1,5 @@
+import 'package:imboy/component/helper/datetime.dart';
+
 class PeopleModel {
   String id;
   String account;
@@ -40,9 +42,9 @@ class PeopleModel {
       sign: json["sign"] ?? '',
       distance: dist is double ? dist : double.parse(dist.toString()),
       distanceUnit: json["unit"] ?? "m",
-      isFriend: json['is_friend'],
+      isFriend: json['is_friend'] ?? false,
       remark: json['remark'] ?? '',
-      createdAt: json['created_at'] ?? 0,
+      createdAt: DateTimeHelper.parseTimestamp(json['friend_created_at']),
     );
   }
 

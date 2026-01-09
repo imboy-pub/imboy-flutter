@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
@@ -30,7 +31,7 @@ class AttachmentProvider {
     Function errorCallback, {
     bool process = true,
   }) async {
-    DateTime dt = DateTime.now();
+    DateTime dt = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond());
     String savePath = "/$prefix/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";
     if (prefix == "avatar") {
       savePath = "/$prefix/";
@@ -91,7 +92,7 @@ class AttachmentProvider {
 
   static Future<dynamic> preUpload(
       String prefix, Map<String, dynamic> data) async {
-    DateTime dt = DateTime.now();
+    DateTime dt = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond());
     String savePath = "/$prefix/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";
 
     Map<String, dynamic> authData = AssetsService.authData();

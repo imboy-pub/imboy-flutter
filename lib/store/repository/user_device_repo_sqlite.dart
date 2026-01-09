@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/user_device_model.dart';
@@ -51,7 +52,7 @@ class UserDeviceRepo {
   }
 
   // 插入一条数据
-  Future<UserDeviceModel> insert(UserDeviceModel obj) async {
+  Future<UserDeviceModel> insert(UserDeviceModel obj, {Transaction? txn}) async {
     Map<String, dynamic> insert = {
       UserDeviceRepo.userId: UserRepoLocal.to.currentUid,
       UserDeviceRepo.deviceId: obj.deviceId,
@@ -62,7 +63,11 @@ class UserDeviceRepo {
     };
     debugPrint("> on UserDeviceRepo/insert/1 $insert");
 
-    await _db.insert(UserDeviceRepo.tableName, insert);
+    if (txn != null) {
+      await txn.insert(UserDeviceRepo.tableName, insert);
+    } else {
+      await _db.insert(UserDeviceRepo.tableName, insert);
+    }
     return obj;
   }
 
@@ -76,7 +81,7 @@ class UserDeviceRepo {
   }
 
   // 更新信息
-  Future<int> update(String did, Map<String, dynamic> json) async {
+  Future<int> update(String did, Map<String, dynamic> json, {Transaction? txn}) async {
     Map<String, Object?> data = {};
     if (strNoEmpty(json[UserDeviceRepo.deviceVsn])) {
       data[UserDeviceRepo.deviceVsn] = json[UserDeviceRepo.deviceVsn];
@@ -91,33 +96,61 @@ class UserDeviceRepo {
     }
 
     if (strNoEmpty(did)) {
-      return await _db.update(
-        UserDeviceRepo.tableName,
-        data,
-        where:
-        '${UserDeviceRepo.userId} = ? and ${UserDeviceRepo.deviceId} = ?',
-        whereArgs: [UserRepoLocal.to.currentUid, did],
-      );
+      if (txn != null) {
+        return await txn.update(
+          UserDeviceRepo.tableName,
+          data,
+          where:
+          '${UserDeviceRepo.userId} = ? and ${UserDeviceRepo.deviceId} = ?',
+          whereArgs: [UserRepoLocal.to.currentUid, did],
+        );
+      } else {
+        return await _db.update(
+          UserDeviceRepo.tableName,
+          data,
+          where:
+          '${UserDeviceRepo.userId} = ? and ${UserDeviceRepo.deviceId} = ?',
+          whereArgs: [UserRepoLocal.to.currentUid, did],
+        );
+      }
     } else {
       return 0;
     }
   }
 
-  Future<UserDeviceModel?> find(String deviceId) async {
-    List<Map<String, dynamic>> maps = await _db.query(
-      UserDeviceRepo.tableName,
-      columns: [
-        // UserDeviceRepo.userId,
-        UserDeviceRepo.deviceId,
-        UserDeviceRepo.deviceName,
-        UserDeviceRepo.deviceType,
-        UserDeviceRepo.lastActiveAt,
-        UserDeviceRepo.deviceVsn,
-      ],
-      where: '${UserDeviceRepo.userId}=? and ${UserDeviceRepo.deviceId}=?',
-      whereArgs: [UserRepoLocal.to.currentUid, deviceId],
-      limit: 1,
-    );
+  Future<UserDeviceModel?> find(String deviceId, {Transaction? txn}) async {
+    List<Map<String, dynamic>> maps;
+    if (txn != null) {
+      maps = await txn.query(
+        UserDeviceRepo.tableName,
+        columns: [
+          // UserDeviceRepo.userId,
+          UserDeviceRepo.deviceId,
+          UserDeviceRepo.deviceName,
+          UserDeviceRepo.deviceType,
+          UserDeviceRepo.lastActiveAt,
+          UserDeviceRepo.deviceVsn,
+        ],
+        where: '${UserDeviceRepo.userId}=? and ${UserDeviceRepo.deviceId}=?',
+        whereArgs: [UserRepoLocal.to.currentUid, deviceId],
+        limit: 1,
+      );
+    } else {
+      maps = await _db.query(
+        UserDeviceRepo.tableName,
+        columns: [
+          // UserDeviceRepo.userId,
+          UserDeviceRepo.deviceId,
+          UserDeviceRepo.deviceName,
+          UserDeviceRepo.deviceType,
+          UserDeviceRepo.lastActiveAt,
+          UserDeviceRepo.deviceVsn,
+        ],
+        where: '${UserDeviceRepo.userId}=? and ${UserDeviceRepo.deviceId}=?',
+        whereArgs: [UserRepoLocal.to.currentUid, deviceId],
+        limit: 1,
+      );
+    }
     if (maps.isEmpty) {
       return null;
     }

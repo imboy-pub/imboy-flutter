@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -300,8 +301,6 @@ class ContactSettingPage extends StatelessWidget {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: colorScheme.error,
-                          foregroundColor: colorScheme.onError,
-                          elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),
                           ),
@@ -325,7 +324,6 @@ class ContactSettingPage extends StatelessWidget {
                       child: TextButton(
                         onPressed: () => Get.back(),
                         style: TextButton.styleFrom(
-                          foregroundColor: colorScheme.onSurface,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),
                           ),
@@ -359,8 +357,8 @@ class ContactSettingPage extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
+      appBar: GlassAppBar(
+        titleWidget: Text(
           'profileSettings'.tr,
           style: TextStyle(
             fontSize: 18,
@@ -369,7 +367,6 @@ class ContactSettingPage extends StatelessWidget {
           ),
         ),
         backgroundColor: colorScheme.surface,
-        elevation: 0,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios,

@@ -1,3 +1,4 @@
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 
@@ -56,8 +57,8 @@ class GroupModel {
       avatar: json['avatar'] ?? '',
       title: json['title'] ?? '',
       status: json['status'] ?? 1,
-      updatedAt: json['updated_at'] ?? 0,
-      createdAt: json['created_at'],
+      updatedAt: DateTimeHelper.parseTimestamp(json['updated_at'], defaultValue: 0),
+      createdAt: DateTimeHelper.parseTimestamp(json['created_at'], defaultValue: 0),
     );
   }
 

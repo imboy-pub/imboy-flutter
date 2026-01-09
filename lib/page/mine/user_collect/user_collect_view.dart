@@ -529,7 +529,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
   String _groupKeyFor(UserCollectModel obj) {
     final int ts = (state.kind == state.recentUse && obj.updatedAt > 0) ? obj.updatedAt : obj.createdAt;
     final dt = DateTime.fromMillisecondsSinceEpoch(ts * 1000);
-    final now = DateTime.now();
+    final now = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond());
     final today = DateTime(now.year, now.month, now.day);
     final thatDay = DateTime(dt.year, dt.month, dt.day);
     final diff = today.difference(thatDay).inDays;
@@ -632,22 +632,25 @@ class _UserCollectPageState extends State<UserCollectPage> {
       ) {
     final bool isPinned = _pinnedIds.contains(obj.kindId);
     final bool isSelected = _selectedIds.contains(obj.kindId);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final card = Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: isDark ? Colors.transparent : Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.08),
-          width: 0.5,
-        ),
+        border: isDark 
+            ? Border.all(
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+                width: 0.5,
+              )
+            : null,
       ),
       child: Material(
         color: Colors.transparent,
@@ -926,7 +929,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
             const SizedBox(height: 16),
             // 标题
             Text(
-              'sureToDeleteData'.tr,
+              'sureDeleteData'.tr,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
@@ -1091,7 +1094,7 @@ class _UserCollectPageState extends State<UserCollectPage> {
   /// 右键/菜单确认删除操作（复用现有删除逻辑）
   void _confirmRemove(UserCollectModel obj, int index) {
     Get.defaultDialog(
-      title: 'sureToDeleteData'.tr,
+      title: 'sureDeleteData'.tr,
       middleText: 'deleteCollectConfirmDesc'.tr,
       textConfirm: 'buttonDelete'.tr,
       textCancel: 'buttonCancel'.tr,
@@ -1131,16 +1134,26 @@ class _UserCollectPageState extends State<UserCollectPage> {
       '3': 'voice'.tr,
       'all': 'all'.tr,
     };
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-          width: 0.5,
-        ),
+        border: isDark 
+            ? Border.all(
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                width: 0.5,
+              )
+            : null,
+        boxShadow: isDark ? [] : [
+           BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+        ],
       ),
       child: StatefulBuilder(
         builder: (BuildContext context, StateSetter setStateSB) {
@@ -1444,16 +1457,27 @@ class _UserCollectPageState extends State<UserCollectPage> {
   /// 构建顶部多选工具条
   Widget _buildMultiSelectBar(BuildContext context) {
     if (!_multiSelect) return const SizedBox.shrink();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-          width: 0.5,
-        ),
+        border: isDark 
+            ? Border.all(
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                width: 0.5,
+              )
+            : null,
+        boxShadow: isDark ? [] : [
+           BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+        ],
       ),
       child: Row(
         children: [
@@ -1492,8 +1516,10 @@ class _UserCollectPageState extends State<UserCollectPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      appBar: NavAppBar(
+      backgroundColor: isDark ? Theme.of(context).colorScheme.surface : const Color(0xFFF5F5F5),
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         leading: widget.isSelect
             ? GestureDetector(

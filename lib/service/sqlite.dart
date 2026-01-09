@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
@@ -10,14 +9,24 @@ import 'package:synchronized/synchronized.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/store/repository/sqlite_ddl.dart';
+import 'package:imboy/service/app_logger.dart';
+import 'package:imboy/service/cached_sqlite_service.dart';
+import 'package:imboy/service/migration_service.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// 参考 https://www.javacodegeeks.com/2020/06/using-sqlite-in-flutter-tutorial.html
 /// SQLite 本地数据库服务
 /// SQLite local database service
 ///
-/// 仅负责表结构和数据的读写，数据初始化等逻辑由其他模块负责。
+/// 职责：
+/// - 数据库连接管理（单例模式）
+/// - CRUD 操作封装（增删改查）
+/// - 事务操作支持
+/// - 并发控制（使用 synchronized 锁）
+/// - SQLite 标准回调（onCreate, onUpgrade, onDowngrade）
+/// - 查询结果缓存（提升性能）
+///
+/// 注意：数据迁移、备份恢复功能由 MigrationService 提供
 class SqliteService {
   static const _dbVersion = 9;
 
@@ -34,22 +43,13 @@ class SqliteService {
   // 初始化锁，确保数据库只被初始化一次
   final Lock _initLock = Lock();
 
+  // 查询缓存服务
+  final CachedSqliteService _cacheService = CachedSqliteService();
+
   /// 获取数据库连接实例
   /// Get the database connection instance
   Future<Database?> get db async {
-
     if (_db != null) return _db;
-    // https://developer.android.com/reference/android/database/sqlite/package-summary
-    /*
-    // 查询 SQLite 版本
-    final versionResult =
-        await _db?.database.rawQuery('select sqlite_version();');
-    if (versionResult!.isNotEmpty) {
-      iPrint('SQLite version: $versionResult');
-      // ios [  +55 ms] flutter: iPrint SQLite version: [{sqlite_version(): 3.46.1}]
-      // andriod [ +225 ms] I/flutter (19060): iPrint SQLite version: [{sqlite_version(): 3.46.0}]
-    }
-    */
     return await _initLock.synchronized(() async {
       _db = await _initDatabase();
       return _db;
@@ -69,6 +69,7 @@ class SqliteService {
   /// Build the database file path
   Future<String> dbPath() async {
     String name = "${currentEnv}_${UserRepoLocal.to.currentUid}.db";
+    iPrint("Database path: currentEnv=$currentEnv, uid=${UserRepoLocal.to.currentUid}, dbName=$name");
     return join(await getDatabasesPath(), name);
   }
 
@@ -109,18 +110,25 @@ class SqliteService {
   /// 打开数据库时的配置回调
   /// Configure callback when database is opened
   FutureOr<void> _onConfigure(Database db) async {
-    debugPrint("SqliteService_onConfigure ${db.toString()}");
-    // 外键、加密设置等可放在此处
-
-    // https://github.com/davidmartos96/sqflite_sqlcipher/blob/master/sqflite/README.md
-    // https://github.com/tekartik/sqflite/blob/master/sqflite_common_ffi/doc/encryption_support.md
-    // This is the part where we pass the "password"
-    // await db.rawQuery("PRAGMA KEY='$SOLIDIFIED_KEY}'");
-    //注意： 创建多张表，需要执行多次 await db.execute 代码
-    //      也就是一条SQL语句一个 db.execute
+    AppLogger.debug("SqliteService_onConfigure ${db.toString()}");
 
     ///  请记住，回调onCreate onUpgrade onDowngrade已经内部包装在事务中，
     ///  因此无需将语句包装在这些回调内的事务中。
+
+    // 启用WAL模式，允许读写并发，提升性能
+    // 注意：某些平台（如 macOS）可能不支持 WAL 或返回错误，需要捕获处理
+    try {
+      await db.execute('PRAGMA journal_mode = WAL');
+    } catch (e) {
+      AppLogger.debug("WAL mode setup failed, using default: $e");
+      // WAL 失败不影响数据库使用，继续使用默认模式
+    }
+    // 启用外键约束
+    await db.execute('PRAGMA foreign_keys = ON');
+    // 设置同步模式为NORMAL，平衡性能和数据安全
+    await db.execute('PRAGMA synchronous = NORMAL');
+    // 设置缓存大小为64MB，提升查询性能
+    await db.execute('PRAGMA cache_size = -64000');
   }
 
   ///
@@ -134,22 +142,61 @@ class SqliteService {
 
   /// 数据库升级回调
   /// Called when upgrading database version
+  /// 
+  /// 注意：实际的升级逻辑由 MigrationService 处理
+  /// SqliteService 只负责调用 MigrationService
   Future<void> _onUpgrade(Database db, int oldVsn, int newVsn) async {
     iPrint("SqliteService_onUpgrade oldVsn: $oldVsn, newVsn: $newVsn");
-    await SqliteDdl.onUpgrade(db, oldVsn, newVsn);
+
+    // 检查版本跳跃
+    if (newVsn - oldVsn > 5) {
+      iPrint("⚠️ Large version jump detected: v$oldVsn → v$newVsn");
+    }
+
+    // 调用 MigrationService 执行升级
+    // MigrationService 会自动处理备份、恢复、事务等逻辑
+    final result = await MigrationService.to.migrate(
+      db: db,
+      fromVersion: oldVsn,
+      toVersion: newVsn,
+      isUpgrade: true,
+    );
+
+    if (!result.success) {
+      throw Exception('Migration failed: ${result.error}');
+    }
+
+    iPrint("✅ Migration completed successfully: v${result.fromVersion} → v${result.toVersion}");
   }
 
   /// 数据库降级回调
   /// Called when downgrading database version
+  /// 
+  /// 注意：实际的降级逻辑由 MigrationService 处理
+  /// SqliteService 只负责调用 MigrationService
   Future<void> _onDowngrade(Database db, int oldVsn, int newVsn) async {
     iPrint("SqliteService_onDowngrade oldVsn: $oldVsn, newVsn: $newVsn");
-    await SqliteDdl.onDowngrade(db, oldVsn, newVsn);
+
+    // 调用 MigrationService 执行降级
+    // MigrationService 会自动处理备份、恢复、事务等逻辑
+    final result = await MigrationService.to.migrate(
+      db: db,
+      fromVersion: oldVsn,
+      toVersion: newVsn,
+      isUpgrade: false,
+    );
+
+    if (!result.success) {
+      throw Exception('Downgrade failed: ${result.error}');
+    }
+
+    iPrint("✅ Downgrade completed successfully: v${result.fromVersion} → v${result.toVersion}");
   }
 
   /// 插入数据（带重试机制）
   /// Insert data (with retry logic)
   Future<int> insert(String table, Map<String, dynamic> data, {int retries = 3}) async {
-    return await _dbLock.synchronized(() async {
+    final result = await _dbLock.synchronized(() async {
       for (var attempt = 0; attempt < retries; attempt++) {
         try {
           final db = await this.db;
@@ -160,12 +207,19 @@ class SqliteService {
             await Future.delayed(Duration(milliseconds: 100 * (attempt + 1)));
             continue;
           }
-          debugPrint('Insert error: $e');
+          AppLogger.error('Insert error: $e');
           rethrow;
         }
       }
       return 0;
     });
+
+    // 清除相关缓存
+    if (result > 0) {
+      clearQueryCache(table);
+    }
+
+    return result;
   }
 
   /// 更新数据（带重试机制）
@@ -178,7 +232,7 @@ class SqliteService {
         ConflictAlgorithm? conflictAlgorithm,
         int retries = 3,
       }) async {
-    return await _dbLock.synchronized(() async {
+    final result = await _dbLock.synchronized(() async {
       for (var attempt = 0; attempt < retries; attempt++) {
         try {
           final db = await this.db;
@@ -195,19 +249,45 @@ class SqliteService {
             await Future.delayed(Duration(milliseconds: 100 * (attempt + 1)));
             continue;
           }
-          debugPrint('Update error: $e');
+          AppLogger.error('Update error: $e');
           rethrow;
         }
       }
       return 0;
     });
+
+    // 清除相关缓存
+    if (result > 0) {
+      clearQueryCache(table);
+    }
+
+    return result;
   }
 
-  /// 执行原始查询
-  Future<List<Map<String, Object?>>> rawQuery(String sql, [List<Object?>? arguments]) async {
+  /// 执行原始查询（带缓存）
+  Future<List<Map<String, Object?>>> rawQuery(
+    String sql, [
+    List<Object?>? arguments,
+    bool useCache = true,
+  ]) async {
     final db = await this.db;
     if (db == null) return [];
-    return await db.rawQuery(sql, arguments);
+
+    return await _cacheService.cachedQuery(
+      db,
+      sql,
+      arguments: arguments,
+      useCache: useCache,
+    );
+  }
+
+  /// 执行原始查询（不带缓存的版本，用于兼容性）
+  @deprecated
+  Future<List<Map<String, Object?>>> rawQueryNoCache(
+    String sql, [
+    List<Object?>? arguments,
+  ]) async {
+    return await rawQuery(sql, arguments, false);
   }
 
   /// 执行原始 SQL 更新语句（带重试机制）
@@ -224,7 +304,7 @@ class SqliteService {
             await Future.delayed(Duration(milliseconds: 100 * (attempt + 1)));
             continue;
           }
-          debugPrint('Execute error: $e');
+          AppLogger.error('Execute error: $e');
           rethrow;
         }
       }
@@ -307,7 +387,7 @@ class SqliteService {
         return Uint8List.fromList(result) as T;
       }
     } catch (_) {
-      debugPrint('pluck<$T> 类型转换失败: $result');
+      AppLogger.debug('pluck<$T> 类型转换失败: $result');
     }
 
     return null;
@@ -321,7 +401,7 @@ class SqliteService {
         List<Object?>? whereArgs,
         int retries = 3,
       }) async {
-    return await _dbLock.synchronized(() async {
+    final result = await _dbLock.synchronized(() async {
       for (var attempt = 0; attempt < retries; attempt++) {
         try {
           final db = await this.db;
@@ -336,41 +416,81 @@ class SqliteService {
             await Future.delayed(Duration(milliseconds: 100 * (attempt + 1)));
             continue;
           }
-          debugPrint('Delete error: $e');
+          AppLogger.error('Delete error: $e');
           rethrow;
         }
       }
       return 0;
     });
+
+    // 清除相关缓存
+    if (result > 0) {
+      clearQueryCache(table);
+    }
+
+    return result;
   }
 
-  /// 使用事务进行批处理操作（带全局锁）
-  /// Execute batch operations within a transaction (with global lock)
-  Future<T> transaction<T>(Future<T> Function(Transaction txn) action) async {
-    return await _dbLock.synchronized(() async {
+  /// 使用事务进行批处理操作
+  /// Execute batch operations within a transaction
+  Future<T> transaction<T>(Future<T> Function(Transaction txn) action, {bool exclusive = false}) async {
+    if (exclusive) {
+      // 排他事务需要全局锁
+      return await _dbLock.synchronized(() async {
+        final db = await this.db;
+        if (db == null) throw Exception('Database is null');
+        return await db.transaction(action);
+      });
+    } else {
+      // 普通事务，依赖WAL模式的并发支持
       final db = await this.db;
       if (db == null) throw Exception('Database is null');
       return await db.transaction(action);
-    });
+    }
   }
 
   /// 批量插入（带全局锁）
   /// Insert multiple records in batch (with global lock)
-  Future<void> batchInsert(String table, List<Map<String, dynamic>> dataList) async {
+  Future<void> batchInsert(String table, List<Map<String, dynamic>> dataList, {int batchSize = 500}) async {
+    if (dataList.isEmpty) return;
     await _dbLock.synchronized(() async {
       final db = await this.db;
       if (db == null) return;
-      final batch = db.batch();
-      for (var data in dataList) {
-        batch.insert(table, data, conflictAlgorithm: ConflictAlgorithm.replace);
+      // 分批处理，避免单次事务过大
+      for (int i = 0; i < dataList.length; i += batchSize) {
+        final batch = db.batch();
+        final end = (i + batchSize) < dataList.length ? (i + batchSize) : dataList.length;
+        for (int j = i; j < end; j++) {
+          batch.insert(table, dataList[j], conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+        await batch.commit(noResult: true);
       }
-      await batch.commit(noResult: true);
     });
   }
 
   /// 判断数据库被锁定错误
   /// Check if error is 'database is locked'
   bool _isDatabaseLockedError(dynamic e) {
-    return e.toString().contains('database is locked');
+    final errorStr = e.toString().toLowerCase();
+    return errorStr.contains('database is locked') ||
+           errorStr.contains('database is closed') ||
+           errorStr.contains('sqlite_locked') ||
+           errorStr.contains('database is busy');
   }
+
+  /// 清除查询缓存
+  /// 当数据变更时调用，确保缓存一致性
+  void clearQueryCache([String? pattern]) {
+    if (pattern == null) {
+      _cacheService.clearAllCache();
+    } else {
+      _cacheService.invalidateCache(pattern);
+    }
+  }
+
+  /// 获取查询缓存统计信息
+  Map<String, dynamic> getCacheStats() => _cacheService.getCacheStats();
+
+  /// 清理过期缓存
+  void cleanupExpiredCache() => _cacheService.cleanupExpiredCaches();
 }

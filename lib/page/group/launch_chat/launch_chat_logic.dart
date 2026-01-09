@@ -1,4 +1,5 @@
 import 'package:azlistview/azlistview.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/page/contact/contact/contact_logic.dart';
 import 'package:imboy/page/group/group_list/group_list_logic.dart';
@@ -53,18 +54,24 @@ class LaunchChatLogic extends GetxController {
 
   Future<GroupModel?> groupAdd(List<ContactModel> items) async {
     if (items.isEmpty) {
+      debugPrint("groupAdd: items is empty, returning null");
       return null;
     }
     List<String> memberUserIds = [];
     for (var item in items) {
       memberUserIds.add(item.peerId);
     }
+    debugPrint("groupAdd: memberUserIds = $memberUserIds");
     Map<String, dynamic>? payload =
         await GroupProvider().groupAdd(memberUserIds: memberUserIds);
+    debugPrint("groupAdd: payload = $payload");
     if (payload != null) {
+      debugPrint("groupAdd: payload['group'] = ${payload['group']}");
       GroupModel m = await GroupRepo().save('', payload['group']);
+      debugPrint("groupAdd: GroupModel saved, m = $m");
       GroupMemberRepo gmRepo = GroupMemberRepo();
       List<dynamic> memberList = payload['member_list'] ?? [];
+      debugPrint("groupAdd: memberList length = ${memberList.length}");
       for (var json in memberList) {
         gmRepo.save(json as Map<String, dynamic>);
       }
@@ -72,8 +79,10 @@ class LaunchChatLogic extends GetxController {
         m.computeTitle =
             await Get.find<GroupListLogic>().computeTitle(m.groupId);
       }
+      debugPrint("groupAdd: returning GroupModel, m.groupId = ${m.groupId}");
       return m;
     }
+    debugPrint("groupAdd: payload is null, returning null");
     return null;
   }
 

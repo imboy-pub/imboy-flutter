@@ -9,41 +9,23 @@ import 'package:flutter/foundation.dart';
 // ignore: depend_on_referenced_packages
 import 'package:crypto/crypto.dart' as crypto;
 
+/// 加密服务
+/// 提供 AES、SHA、MD5 等加密算法
+///
+/// 优化：
+/// - 密钥缓存：避免重复的 UTF-8 编码
+/// - 使用 Uint8List：减少内存分配
 class EncrypterService {
+  /// 密钥缓存（避免重复编码）
+  static final Map<String, Uint8List> _keyCache = {};
 
-  /// EncrypterService.sha256
-  static String sha256(String str, String k) {
-    List<int> messageBytes = utf8.encode(str);
-    List<int> key = utf8.encode(k);
-    crypto.Hmac hMac = crypto.Hmac(crypto.sha256, key);
-    crypto.Digest digest = hMac.convert(messageBytes);
-    return base64.encode(digest.bytes);
-  }
-
-  /// EncrypterService.sha512
-  static String sha512(String str, String k) {
-    List<int> messageBytes = utf8.encode(str);
-    List<int> key = utf8.encode(k);
-    crypto.Hmac hMac = crypto.Hmac(crypto.sha512, key);
-    crypto.Digest digest = hMac.convert(messageBytes);
-    return base64.encode(digest.bytes);
-  }
-
-  /// md5 加密
-  /// EncrypterService.md5
-  static String md5(String data) {
-    // var content = Utf8Encoder().convert(data);
-    // var digest = md5.convert(content);
-    var digest = crypto.md5.convert(utf8.encode(data));
-    // 这里其实就是 digest.toString()
-    return hex.encode(digest.bytes);
-  }
-
+  /// 最大缓存数量
+  static const _maxKeyCacheSize = 50;
 
   /// AES-CBC + PKCS7 加密（与 encrypt 库完全一致）
   static String aesEncrypt(String plainText, String key, String ivStr) {
-    final keyBytes = Uint8List.fromList(utf8.encode(key));
-    final ivBytes = Uint8List.fromList(utf8.encode(ivStr));
+    final keyBytes = _getOrCreateCachedKey(key);
+    final ivBytes = _getOrCreateCachedKey(ivStr);
     final data = Uint8List.fromList(utf8.encode(plainText));
 
     final cipher = CBCBlockCipher(AESEngine());
@@ -65,8 +47,8 @@ class EncrypterService {
 
   /// AES-CBC + PKCS7 解密（与 encrypt 库完全一致）
   static String aesDecrypt(String encryptedBase64, String key, String ivStr) {
-    final keyBytes = Uint8List.fromList(utf8.encode(key));
-    final ivBytes = Uint8List.fromList(utf8.encode(ivStr));
+    final keyBytes = _getOrCreateCachedKey(key);
+    final ivBytes = _getOrCreateCachedKey(ivStr);
     final encryptedBytes = base64.decode(encryptedBase64);
 
     final cipher = CBCBlockCipher(AESEngine());
@@ -82,6 +64,72 @@ class EncrypterService {
     final decrypted = _pkcs7UnPad(decryptedPadded);
 
     return utf8.decode(decrypted);
+  }
+
+  /// EncrypterService.sha256
+  static String sha256(String str, String k) {
+    final key = _getOrCreateCachedKey(k);
+    final messageBytes = Uint8List.fromList(utf8.encode(str));
+    final hMac = crypto.Hmac(crypto.sha256, key);
+    final digest = hMac.convert(messageBytes);
+    return base64.encode(digest.bytes);
+  }
+
+  /// EncrypterService.sha512
+  static String sha512(String str, String k) {
+    final key = _getOrCreateCachedKey(k);
+    final messageBytes = Uint8List.fromList(utf8.encode(str));
+    final hMac = crypto.Hmac(crypto.sha512, key);
+    final digest = hMac.convert(messageBytes);
+    return base64.encode(digest.bytes);
+  }
+
+  /// md5 加密
+  /// EncrypterService.md5
+  static String md5(String data) {
+    final digest = crypto.md5.convert(utf8.encode(data));
+    return hex.encode(digest.bytes);
+  }
+
+  /// SHA256 哈希
+  /// EncrypterService.sha256Hash
+  static String sha256Hash(String data) {
+    final digest = crypto.sha256.convert(utf8.encode(data));
+    return hex.encode(digest.bytes);
+  }
+
+  /// 获取或创建缓存的密钥
+  static Uint8List _getOrCreateCachedKey(String key) {
+    // 直接从缓存获取
+    final cached = _keyCache[key];
+    if (cached != null) {
+      return cached;
+    }
+
+    // 编码并缓存
+    final encoded = Uint8List.fromList(utf8.encode(key));
+
+    // 如果缓存已满，移除最旧的条目（简单的 LRU）
+    if (_keyCache.length >= _maxKeyCacheSize) {
+      final firstKey = _keyCache.keys.first;
+      _keyCache.remove(firstKey);
+    }
+
+    _keyCache[key] = encoded;
+    return encoded;
+  }
+
+  /// 清除密钥缓存（在内存紧张时调用）
+  static void clearKeyCache() {
+    _keyCache.clear();
+  }
+
+  /// 获取缓存统计
+  static Map<String, int> getKeyCacheStats() {
+    return {
+      'cached_keys': _keyCache.length,
+      'max_cache_size': _maxKeyCacheSize,
+    };
   }
 
 

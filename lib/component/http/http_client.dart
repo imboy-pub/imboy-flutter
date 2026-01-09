@@ -25,6 +25,7 @@ import 'http_config.dart';
 import 'http_parse.dart';
 import 'http_response.dart';
 import 'http_transformer.dart';
+import 'package:imboy/config/error_code.dart';
 
 Future<Map<String, dynamic>> defaultHeaders() async {
   String key = await Env.signKey();
@@ -178,10 +179,12 @@ class HttpClient {
         uri: uri,
         httpTransformer: httpTransformer,
       );
-      if (resp.code == 706) {
+      // 处理认证相关错误：401 (新标准) 和 706/707 (旧版兼容)
+      if (ErrorCode.shouldReLogin(resp.code)) {
         UserRepoLocal.to.quitLogin();
         getx.Get.offAll(() => const LoginPage());
-      } else if (resp.code == 707) {
+      } else if (resp.code == ErrorCode.TOKEN_EXPIRED) {
+        // Token 过期，尝试刷新
         EasyLoading.showInfo(resp.msg);
         response = await _dio.get(
           uri,

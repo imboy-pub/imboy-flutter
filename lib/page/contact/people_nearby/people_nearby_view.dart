@@ -561,7 +561,7 @@ class PeopleNearbyPage extends StatelessWidget {
     });
 
     return Scaffold(
-      appBar: NavAppBar(title: 'peopleNearby'.tr),
+      appBar: GlassAppBar(title: 'peopleNearby'.tr),
       body: SlidableAutoCloseBehavior(
         child: Column(
           children: [

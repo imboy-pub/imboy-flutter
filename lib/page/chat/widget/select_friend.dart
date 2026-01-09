@@ -252,7 +252,7 @@ class _SelectFriendPageState extends State<SelectFriendPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         title: 'selectFriends'.tr,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),

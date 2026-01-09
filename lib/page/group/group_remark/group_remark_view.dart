@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/main_input.dart';
-
 import 'package:imboy/config/enum.dart';
-
-import 'group_remark_logic.dart';
-import 'group_remark_state.dart';
 
 class GroupRemarkPage extends StatefulWidget {
   final GroupInfoType? groupInfoType;
@@ -28,22 +23,20 @@ class GroupRemarkPage extends StatefulWidget {
 }
 
 class _GroupRemarkPageState extends State<GroupRemarkPage> {
-  final logic = Get.find<GroupRemarkLogic>();
-  final GroupRemarkState state = Get.find<GroupRemarkLogic>().state;
-
   final TextEditingController _textController = TextEditingController();
 
   void handle() {
-    if (!strNoEmpty(_textController.text)) {
-      Get.snackbar('Error', "请输入内容");
-      return;
-    }
     if (widget.groupInfoType == GroupInfoType.name) {
-      // DimGroup.modifyGroupNameModel(widget.groupId, _textController.text,
-      //     callback: (_) {});
+      if (!strNoEmpty(_textController.text)) {
+        Get.snackbar('tipTips'.tr, "请输入内容");
+        return;
+      }
+      Navigator.pop(context, _textController.text);
+    } else if (widget.groupInfoType == GroupInfoType.cardName) {
+      // 允许为空，为空时显示昵称
       Navigator.pop(context, _textController.text);
     } else {
-      Get.snackbar('Error', "敬请期待");
+      Get.snackbar('tipTips'.tr, "敬请期待");
     }
   }
 
@@ -75,76 +68,103 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return MainInputBody(
       child: Scaffold(
-        appBar: const NavAppBar(
+        backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+        appBar: GlassAppBar(
           automaticallyImplyLeading: true,
+          rightDMActions: [
+            TextButton(
+              onPressed: () => handle(),
+              child: Text(
+                'buttonSave'.tr,
+                style: TextStyle(
+                  color: colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            )
+          ],
         ),
-        body: Container(
+        body: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              const Space(height: 30),
+              const SizedBox(height: 30),
               Text(
                 label,
-                style: const TextStyle(
-                  color: Colors.black,
+                style: TextStyle(
+                  color: colorScheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 15),
-                child: Text(des, textAlign: TextAlign.center),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    top: BorderSide(color: Colors.grey, width: 0.2),
-                    bottom: BorderSide(color: Colors.grey, width: 0.2),
+                child: Text(
+                  des,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
-                child: Row(
-                  children: <Widget>[
-                    // Image.network(
-                    //   defGroupAvatar,
-                    //   width: 48,
-                    // ),
-                    const Space(),
-                    Expanded(
-                      child: TextField(
-                        controller: _textController,
-                        decoration: InputDecoration(
-                          hintText: widget.groupInfoType == GroupInfoType.name
-                              ? 'groupName'.tr
-                              : 'remark'.tr,
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    )
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDark
+                          ? Colors.black.withValues(alpha: 0.2)
+                          : Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
                   ],
                 ),
+                child: TextField(
+                  controller: _textController,
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: widget.groupInfoType == GroupInfoType.name
+                        ? 'groupName'.tr
+                        : (widget.groupInfoType == GroupInfoType.cardName
+                            ? 'groupAlias'.tr
+                            : 'remark'.tr),
+                    hintStyle: TextStyle(
+                      color: colorScheme.outline.withValues(alpha: 0.5),
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
               ),
-              const Space(),
+              const SizedBox(height: 20),
               Visibility(
                 visible: widget.groupInfoType == GroupInfoType.remark,
                 child: Row(
                   children: <Widget>[
-                    const Text(
+                    Text(
                       '群聊名称：wechat_flutter 106号群',
-                      style: TextStyle(color: Colors.grey, fontSize: 14),
+                      style: TextStyle(color: colorScheme.outline, fontSize: 14),
                     ),
-                    const Space(),
+                    const SizedBox(width: 10),
                     InkWell(
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 2),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
                         child: Text(
                           '填入',
                           style: TextStyle(
-                            // color: AppColors.MainTextColor,
                             fontSize: 14,
+                            color: colorScheme.primary,
                           ),
                         ),
                       ),
@@ -155,23 +175,10 @@ class _GroupRemarkPageState extends State<GroupRemarkPage> {
                   ],
                 ),
               ),
-              const Spacer(),
-              // TextButton(
-              //   text: '完成',
-              //   onTap: () => handle(),
-              //   width: Get.width / 2,
-              // ),
-              Space(height: Get.width > 1 ? 15 : 50),
             ],
           ),
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    Get.delete<GroupRemarkLogic>();
-    super.dispose();
   }
 }

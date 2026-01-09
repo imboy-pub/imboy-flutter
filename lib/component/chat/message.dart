@@ -8,10 +8,10 @@ import 'package:open_file/open_file.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
 
-import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:provider/provider.dart';
 
+import 'message_spacing.dart';
 import 'message_audio_builder.dart';
 import 'message_location_builder.dart';
 import 'message_quote_builder.dart';
@@ -21,9 +21,11 @@ import 'message_visit_card_builder.dart';
 import 'message_webrtc_builder.dart';
 
 /// Material 3消息圆角半径 - Medium圆角 (16dp)
+/// @deprecated 请使用 MessageSpacing.bubbleBorderRadius
 const BorderRadius kMsgBorderRadius = BorderRadius.all(Radius.circular(16));
 
 /// Material 3发送消息圆角 - 右下角小圆角
+/// @deprecated 请使用 MessageSpacing.getBubbleBorderRadius(true)
 const BorderRadius kSentMsgBorderRadius = BorderRadius.only(
   topLeft: Radius.circular(16),
   topRight: Radius.circular(4), // 小圆角表示消息方向
@@ -32,6 +34,7 @@ const BorderRadius kSentMsgBorderRadius = BorderRadius.only(
 );
 
 /// Material 3接收消息圆角 - 左下角小圆角
+/// @deprecated 请使用 MessageSpacing.getBubbleBorderRadius(false)
 const BorderRadius kReceivedMsgBorderRadius = BorderRadius.only(
   topLeft: Radius.circular(4), // 小圆角表示消息方向
   topRight: Radius.circular(16),
@@ -62,7 +65,8 @@ class CustomMessageBuilder extends StatelessWidget {
     );
     bool isSentByMe = message.authorId == user.id;
     final theme = Provider.of<ChatTheme>(context, listen: false);
-    const padding = EdgeInsets.symmetric(horizontal: 10, vertical: 8);
+    // 使用统一间距 12dp（之前是 horizontal: 10, vertical: 8）
+    const padding = MessageSpacing.bubblePaddingSymmetric;
     Widget content = const SizedBox.shrink();
     try {
       final customType = message.metadata?['custom_type'] ?? '';

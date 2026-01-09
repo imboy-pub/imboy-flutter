@@ -31,13 +31,13 @@ class UserSettingModel {
 
   factory UserSettingModel.fromJson(Map<String, dynamic> json) {
     // 解析数值工具
-    double _toDouble(dynamic v, double dft) {
+    double toDouble(dynamic v, double dft) {
       if (v == null) return dft;
       if (v is num) return v.toDouble();
       if (v is String) return double.tryParse(v) ?? dft;
       return dft;
     }
-    int _toInt(dynamic v, int dft) {
+    int toInt(dynamic v, int dft) {
       if (v == null) return dft;
       if (v is num) return v.toInt();
       if (v is String) return int.tryParse(v) ?? dft;
@@ -49,8 +49,8 @@ class UserSettingModel {
       chatState: json['chat_state'] ?? 'hide',
       fontSize: json['font_size'] ?? 'normal',
       enableVisibilityRead: json['enable_visibility_read'] ?? true,
-      visibilityReadFraction: _toDouble(json['visibility_read_fraction'], 0.6),
-      visibilityReadDelayMs: _toInt(json['visibility_read_delay_ms'], 400),
+      visibilityReadFraction: toDouble(json['visibility_read_fraction'], 0.6),
+      visibilityReadDelayMs: toInt(json['visibility_read_delay_ms'], 400),
     );
   }
 

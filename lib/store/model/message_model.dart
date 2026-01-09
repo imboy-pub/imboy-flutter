@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/chat/enum.dart' show CustomMessageType;
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/assets.dart' show AssetsService;
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -31,9 +32,10 @@ class IMBoyMessageStatus {
 }
 
 class ReEditMessage {
-  String text;
+  final String text;
+  final String? messageId; // 添加消息ID字段，用于编辑消息
 
-  ReEditMessage({required this.text});
+  ReEditMessage({required this.text, this.messageId});
 }
 
 class MessageModel {
@@ -88,7 +90,7 @@ class MessageModel {
       fromId: data[MessageRepo.from] ?? '',
       toId: data[MessageRepo.to],
       payload: p,
-      createdAt: int.parse('${data[MessageRepo.createdAt] ?? 0}'),
+      createdAt: DateTimeHelper.parseTimestamp(data[MessageRepo.createdAt], defaultValue: 0),
       isAuthor: data[MessageRepo.isAuthor] ?? 0,
       topicId: data[MessageRepo.topicId] ?? 0,
       conversationUk3: data[MessageRepo.conversationUk3] ?? '',
@@ -221,6 +223,34 @@ class MessageModel {
   }
 
   Future<Message> toTypeMessage() async {
+    // 验证 payload 有效性
+    if (!payload.containsKey('msg_type') || payload.isEmpty) {
+      iPrint('⚠️ toTypeMessage: payload 无效或为空，id=$id, payload=$payload');
+      // 返回一个带有错误信息的文本消息，而不是无效的 CustomMessage
+      String nickname = '';
+      String avatar = '';
+      if (fromId == UserRepoLocal.to.currentUid) {
+        nickname = UserRepoLocal.to.current.nickname;
+        avatar = UserRepoLocal.to.current.avatar;
+      } else {
+        ContactModel? cm = await ContactRepo().findByUid(fromId!);
+        nickname = cm?.nickname ?? '';
+        avatar = cm?.avatar ?? '';
+      }
+      return TextMessage(
+        authorId: fromId!,
+        createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
+        id: id!,
+        text: '[无效消息]',
+        status: MessageStatus.error,
+        metadata: {
+          'conversation_uk3': conversationUk3,
+          'peer_id': toId,
+          'error': 'invalid_payload',
+        },
+      );
+    }
+
     String sysPrompt = payload['sys_prompt'] ?? '';
     Message? message;
     // enum MessageType { custom, file, image, text, unsupported }

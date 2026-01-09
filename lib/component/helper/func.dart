@@ -150,7 +150,6 @@ String hiddenPhone(String phone) {
 }
 
 
-final RegExp _plusRegExp = RegExp(r'\+');
 final RegExp _internationalRegExp = RegExp(r'^\+\d{5,15}$');
 final RegExp _cleanRegExp = RegExp(r'[^\d+]'); // 清理正则
 final RegExp _fullWidthDigitRegExp = RegExp(r'[０-９]'); // 全角数字正则
@@ -327,6 +326,9 @@ bool isEmail(String value) {
 
 
 ImageProvider<Object> cachedImageProvider(String url, {double w = 400}) {
+  if (url.isEmpty) {
+    return IconImageProvider(Icons.broken_image);
+  }
   if (url.contains("def_avatar.png", 0)) {
     return IconImageProvider(Icons.person);
   }

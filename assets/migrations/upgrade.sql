@@ -1,0 +1,46 @@
+-- ============================================================
+-- 数据库升级脚本
+-- SQLite Database Upgrade Scripts
+-- ============================================================
+-- 说明：
+--   每个版本块以 -- VERSION: 开头，包含该版本的所有升级 SQL
+--
+-- 重要：
+--   VERSION 标记的是起始版本号
+--   PRAGMA user_version 设置的是升级后的目标版本号
+--
+-- 标记说明：
+--   VERSION: 起始版本号
+--   DESC: 版本描述
+--
+-- 当前状态：
+--   当前数据库版本: v9
+--   此文件用于未来的版本升级
+--
+-- 使用方法：
+--   1. 应用启动时 MigrationService 自动执行升级
+--   2. SqliteService 通过 onUpgrade 回调触发迁移
+--
+-- 添加新版本的步骤：
+--   1. 在下面添加新的 VERSION 块
+--   2. 编写升级 SQL
+--   3. 设置 PRAGMA user_version = 新版本号
+--   4. 在 downgrade.sql 中添加对应的降级脚本
+-- ============================================================
+
+-- ============================================================
+-- VERSION: 9
+-- DESC: 基线版本 - 当前生产环境版本
+-- ============================================================
+-- 功能说明：这是数据库的基线版本，包含所有核心表结构
+-- 表结构：16 张表（消息、会话、联系人、群组、用户相关）
+--
+-- 主要表：
+--   - message, group_message, c2s_message, s2c_message, msg_topic
+--   - conversation
+--   - contact, new_friend, user_denylist
+--   - group, group_member, group_notice, user_group
+--   - user_collect, user_tag, user_device
+--
+-- 当前版本无需升级，此块留空
+-- PRAGMA user_version = 9;

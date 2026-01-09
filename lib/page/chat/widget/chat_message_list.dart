@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/chat/widget/message_bubble_style.dart' as bubble_style;
 
 /// 增强的聊天消息列表组件
@@ -275,10 +276,10 @@ class _ChatMessageListState extends State<ChatMessageList>
 
   /// 格式化时间
   String _formatTime(DateTime dateTime) {
-    final now = DateTime.now();
+    final now = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond());
     final today = DateTime(now.year, now.month, now.day);
     final messageDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
-    
+
     if (messageDate == today) {
       return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     } else {

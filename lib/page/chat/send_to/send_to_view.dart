@@ -33,7 +33,7 @@ class SendToPage extends StatefulWidget {
 }
 
 class _SendToPageState extends State<SendToPage> {
-  final logic = Get.find<SendToLogic>();
+  final logic = Get.put(SendToLogic());
   
   @override
   void initState() {
@@ -57,8 +57,8 @@ class _SendToPageState extends State<SendToPage> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
+      appBar: GlassAppBar(
+        titleWidget: Text(
           '转发给',
           style: TextStyle(
             color: colorScheme.primary, // 应用主题主颜色
@@ -73,7 +73,7 @@ class _SendToPageState extends State<SendToPage> {
           ),
           onPressed: () => Get.back(),
         ),
-        actions: [
+        rightDMActions: [
           TextButton(
             onPressed: _send,
             child: Text(
@@ -145,7 +145,6 @@ class _SendToPageState extends State<SendToPage> {
                             ? cachedImageProvider(contact.avatar!)
                             : null,
                         backgroundColor: colorScheme.primaryContainer, // 应用主题容器颜色
-                        foregroundColor: colorScheme.onPrimaryContainer, // 应用主题文本颜色
                         child: contact.avatar == null
                             ? Text(
                                 contact.title.substring(0, 1),

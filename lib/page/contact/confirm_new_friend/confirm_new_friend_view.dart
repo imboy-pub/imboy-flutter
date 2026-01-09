@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'confirm_new_friend_logic.dart';
@@ -426,17 +427,8 @@ class ConfirmNewFriendPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colorScheme.background,
-      appBar: AppBar(
-        title: Text(
-          'acceptFriendRequest'.tr,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface,
-          ),
-        ),
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
+      appBar: GlassAppBar(
+        title: 'acceptFriendRequest'.tr,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios,

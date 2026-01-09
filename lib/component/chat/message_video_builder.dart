@@ -5,6 +5,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 import 'package:get/get.dart';
 
 import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
+import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/single/video_viewer.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -79,7 +80,7 @@ class _VideoMessageBuilderState extends State<VideoMessageBuilder> {
                           headers,
                         ),
                         width: double.infinity,
-                        height: 200,
+                        height: MessageSpacing.thumbnailHeight,
                         fit: BoxFit.cover,
                         frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
                           if (wasSynchronouslyLoaded) {
@@ -93,14 +94,14 @@ class _VideoMessageBuilderState extends State<VideoMessageBuilder> {
                         },
                         errorBuilder: (context, error, stackTrace) => Container(
                           color: Colors.grey[300],
-                          height: 200,
+                          height: MessageSpacing.thumbnailHeight,
                           child: const Icon(Icons.error, color: Colors.grey),
                         ),
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
                           return Container(
                             color: Colors.grey[300],
-                            height: 200,
+                            height: MessageSpacing.thumbnailHeight,
                             child: Center(
                               child: CircularProgressIndicator(
                                 value: loadingProgress.expectedTotalBytes != null
@@ -116,46 +117,78 @@ class _VideoMessageBuilderState extends State<VideoMessageBuilder> {
                   )
                 : Container(
                     color: Colors.grey[300],
-                    height: 200,
+                    height: MessageSpacing.thumbnailHeight,
                     child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
                   ),
-            
-            // 半透明覆盖层
+
+            // 半透明覆盖层（优化：增强渐变效果）
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  // 优化：增强渐变效果，提升播放按钮可见度
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withValues(alpha: 0.1),
+                      Colors.black.withValues(alpha: 0.3),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(MessageSpacing.thumbnailBorderRadius),
                 ),
               ),
             ),
-            
-            // 播放按钮
+
+            // 播放按钮（优化：增大尺寸，符合触控标准）
             Positioned(
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.6),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.play_arrow_rounded,
-                  color: Colors.white,
-                  size: 32,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    if (videoUri != null && thumbUri != null) {
+                      Get.to(
+                        () => VideoViewerPage(url: videoUri, thumb: thumbUri),
+                        transition: Transition.rightToLeft,
+                        popGesture: true,
+                      );
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(MessageSpacing.videoPlayButtonSize / 2),
+                  child: Container(
+                    width: MessageSpacing.videoPlayButtonSize,
+                    height: MessageSpacing.videoPlayButtonSize,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.7),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.play_arrow_rounded,
+                      color: Colors.white,
+                      size: MessageSpacing.videoPlayButtonIconSize,
+                    ),
+                  ),
                 ),
               ),
             ),
-            
-            // 视频时长
+
+            // 视频时长（优化：使用统一间距）
             if (duration != null && duration > 0)
               Positioned(
                 bottom: 8,
                 right: 8,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  // 使用统一间距
+                  padding: MessageSpacing.durationLabelPadding,
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.7),
-                    borderRadius: BorderRadius.circular(4),
+                    color: Colors.black.withValues(alpha: 0.8),
+                    borderRadius: BorderRadius.circular(MessageSpacing.durationLabelBorderRadius),
                   ),
                   child: Text(
                     _formatDuration(Duration(milliseconds: duration)),

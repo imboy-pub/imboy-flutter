@@ -32,23 +32,24 @@ class UserDevicePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     initData();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: NavAppBar(
+      backgroundColor: isDark ? Theme.of(context).colorScheme.surface : const Color(0xFFF5F5F5),
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'loginDeviceManagement'.tr,
       ),
       body: Column(
         children: [
           // 提示信息卡片
-          _buildTipsCard(context),
+          _buildTipsCard(context, isDark),
           
           // 设备列表
           Expanded(
             child: Obx(() {
               return state.deviceList.isEmpty
                   ? _buildEmptyState(context)
-                  : _buildDeviceList(context);
+                  : _buildDeviceList(context, isDark);
             }),
           ),
         ],
@@ -57,23 +58,22 @@ class UserDevicePage extends StatelessWidget {
   }
 
   /// 构建提示信息卡片
-  Widget _buildTipsCard(BuildContext context) {
+  Widget _buildTipsCard(BuildContext context, bool isDark) {
     return Container(
       margin: const EdgeInsets.all(16.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: isDark 
+            ? Theme.of(context).colorScheme.surfaceContainerHighest 
+            : const Color(0xFFE1F5FE), // 浅蓝色背景
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          width: 0.5,
-        ),
+        // 移除边框，让界面更干净
       ),
       child: Row(
         children: [
           Icon(
             Icons.info_outline,
-            color: AppColors.info,
+            color: AppColors.info, // 保持蓝色图标
             size: 20,
           ),
           const SizedBox(width: 12),
@@ -81,8 +81,11 @@ class UserDevicePage extends StatelessWidget {
             child: Text(
               'loginDeviceManagementTips'.tr,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
+                color: isDark 
+                    ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8)
+                    : const Color(0xFF0277BD), // 深蓝色文字
                 height: 1.4,
+                fontSize: 13,
               ),
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
@@ -126,20 +129,20 @@ class UserDevicePage extends StatelessWidget {
   }
 
   /// 构建设备列表
-  Widget _buildDeviceList(BuildContext context) {
+  Widget _buildDeviceList(BuildContext context, bool isDark) {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       itemCount: state.deviceList.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 8),
+      separatorBuilder: (context, index) => const SizedBox(height: 10),
       itemBuilder: (BuildContext context, int index) {
         UserDeviceModel model = state.deviceList[index];
-        return _buildDeviceCard(context, model, index);
+        return _buildDeviceCard(context, model, index, isDark);
       },
     );
   }
 
   /// 构建设备卡片
-  Widget _buildDeviceCard(BuildContext context, UserDeviceModel model, int index) {
+  Widget _buildDeviceCard(BuildContext context, UserDeviceModel model, int index, bool isDark) {
     final isCurrentDevice = currentDid.value == model.deviceId;
     
     return Slidable(
@@ -173,24 +176,30 @@ class UserDevicePage extends StatelessWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
-            width: 0.5,
-          ),
+          color: isDark 
+              ? Theme.of(context).colorScheme.surfaceContainerHighest 
+              : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: isDark 
+              ? Border.all(
+                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+                  width: 0.5,
+                )
+              : null, // 亮色模式下去掉边框，仅用阴影
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: isDark 
+                  ? Colors.transparent 
+                  : Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             onTap: () {
               Get.to(
                 () => UserDeviceDetailPage(model: model),
@@ -209,7 +218,9 @@ class UserDevicePage extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: isCurrentDevice 
                           ? AppColors.primaryGreenAlpha20
-                          : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                          : (isDark 
+                              ? Theme.of(context).colorScheme.outline.withValues(alpha: 0.1)
+                              : const Color(0xFFF5F5F5)),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(

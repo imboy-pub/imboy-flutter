@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
@@ -16,6 +17,18 @@ class UserTagRepo {
   static String updatedAt = 'updated_at';
   static String createdAt = 'created_at';
 
+  // 公共列名列表
+  static final List<String> defaultColumns = [
+    UserTagRepo.userId,
+    UserTagRepo.tagId,
+    UserTagRepo.scene,
+    UserTagRepo.name,
+    UserTagRepo.subtitle,
+    UserTagRepo.refererTime,
+    UserTagRepo.updatedAt,
+    UserTagRepo.createdAt,
+  ];
+
   final SqliteService _db = SqliteService.to;
 
   Future<List<UserTagModel>> page({
@@ -27,16 +40,7 @@ class UserTagRepo {
   }) async {
     List<Map<String, dynamic>> maps = await _db.query(
       UserTagRepo.tableName,
-      columns: [
-        UserTagRepo.userId,
-        UserTagRepo.tagId,
-        UserTagRepo.scene,
-        UserTagRepo.name,
-        UserTagRepo.subtitle,
-        UserTagRepo.refererTime,
-        UserTagRepo.updatedAt,
-        UserTagRepo.createdAt,
-      ],
+      columns: defaultColumns,
       where: where,
       whereArgs: whereArgs,
       orderBy: orderBy,
@@ -57,7 +61,7 @@ class UserTagRepo {
   }
 
   // 插入一条数据
-  Future<UserTagModel> insert(UserTagModel obj) async {
+  Future<UserTagModel> insert(UserTagModel obj, {Transaction? txn}) async {
     Map<String, dynamic> insert = {
       UserTagRepo.userId: UserRepoLocal.to.currentUid,
       UserTagRepo.tagId: obj.tagId,
@@ -69,7 +73,11 @@ class UserTagRepo {
       UserTagRepo.createdAt: obj.createdAt,
     };
     debugPrint("UserTagRepo/insert/1 $insert");
-    await _db.insert(UserTagRepo.tableName, insert);
+    if (txn != null) {
+      await txn.insert(UserTagRepo.tableName, insert);
+    } else {
+      await _db.insert(UserTagRepo.tableName, insert);
+    }
     return obj;
   }
 
@@ -83,7 +91,7 @@ class UserTagRepo {
   }
 
   // 更新信息
-  Future<int> update(Map<String, dynamic> json) async {
+  Future<int> update(Map<String, dynamic> json, {Transaction? txn}) async {
     Map<String, Object?> data = {};
     if (strNoEmpty("${json[UserTagRepo.name]}")) {
       data[UserTagRepo.name] = json[UserTagRepo.name].toString();
@@ -105,12 +113,21 @@ class UserTagRepo {
     int tagId = json[UserTagRepo.tagId] ?? (json['id'] ?? 0);
     iPrint("UserTagRepo_update ${data.toString()};");
     if (tagId > 0) {
-      return await _db.update(
-        UserTagRepo.tableName,
-        data,
-        where: '${UserTagRepo.userId} = ? and ${UserTagRepo.tagId} = ?',
-        whereArgs: [UserRepoLocal.to.currentUid, tagId],
-      );
+      if (txn != null) {
+        return await txn.update(
+          UserTagRepo.tableName,
+          data,
+          where: '${UserTagRepo.userId} = ? and ${UserTagRepo.tagId} = ?',
+          whereArgs: [UserRepoLocal.to.currentUid, tagId],
+        );
+      } else {
+        return await _db.update(
+          UserTagRepo.tableName,
+          data,
+          where: '${UserTagRepo.userId} = ? and ${UserTagRepo.tagId} = ?',
+          whereArgs: [UserRepoLocal.to.currentUid, tagId],
+        );
+      }
     } else {
       return 0;
     }
@@ -118,27 +135,37 @@ class UserTagRepo {
 
   Future<UserTagModel> save(Map<String, dynamic> json) async {
     int tagId = json[UserTagRepo.tagId] ?? (json['id'] ?? 0);
-    // iPrint("UserTagRepo_save $tagId");
-    UserTagModel? old = await findByTagId(tagId);
-    iPrint("UserTagRepo_save $tagId, ${old?.toMap().toString()};");
-    if (old == null) {
-      UserTagModel model = UserTagModel.fromJson(json);
-      await insert(model);
-      return model;
-    } else {
-      await update(json);
-      old = await findByTagId(tagId);
-      return old!;
-    }
+    return await _db.transaction<UserTagModel>((txn) async {
+      UserTagModel? old = await findByTagId(tagId, txn: txn);
+      iPrint("UserTagRepo_save $tagId, ${old?.toMap().toString()};");
+      if (old == null) {
+        UserTagModel model = UserTagModel.fromJson(json);
+        await insert(model, txn: txn);
+        return model;
+      } else {
+        await update(json, txn: txn);
+        return (await findByTagId(tagId, txn: txn))!;
+      }
+    });
   }
 
-  Future<UserTagModel?> findByTagId(int tagId) async {
-    List<Map<String, dynamic>> maps = await _db.query(
-      UserTagRepo.tableName,
-      columns: [],
-      where: '${UserTagRepo.userId} = ? and ${UserTagRepo.tagId} = ?',
-      whereArgs: [UserRepoLocal.to.currentUid, tagId],
-    );
+  Future<UserTagModel?> findByTagId(int tagId, {Transaction? txn}) async {
+    List<Map<String, dynamic>> maps;
+    if (txn != null) {
+      maps = await txn.query(
+        UserTagRepo.tableName,
+        columns: [],
+        where: '${UserTagRepo.userId} = ? and ${UserTagRepo.tagId} = ?',
+        whereArgs: [UserRepoLocal.to.currentUid, tagId],
+      );
+    } else {
+      maps = await _db.query(
+        UserTagRepo.tableName,
+        columns: [],
+        where: '${UserTagRepo.userId} = ? and ${UserTagRepo.tagId} = ?',
+        whereArgs: [UserRepoLocal.to.currentUid, tagId],
+      );
+    }
     if (maps.isNotEmpty) {
       return UserTagModel.fromJson(maps.first);
     } else {

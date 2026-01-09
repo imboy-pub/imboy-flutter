@@ -52,7 +52,7 @@ packages:
     source: hosted
     version: "2.0.3"
   archive:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: archive
       sha256: "2fde1607386ab523f7a36bb3e7edb43bd58e6edaf2ffb29d8a6d578b297fdbbd"
@@ -1128,14 +1128,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
-  jiffy:
-    dependency: "direct main"
-    description:
-      name: jiffy
-      sha256: e6f3b2aaec032f95ae917268edcbf007a5b834b57a602d39eb0ab17995a9c64a
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.4.4"
   jose:
     dependency: "direct main"
     description:

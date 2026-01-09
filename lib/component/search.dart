@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 // ignore: depend_on_referenced_packages
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/theme_manager.dart';
 
 /// 搜索栏组件 - 使用新的主题系统
 Widget searchBar(

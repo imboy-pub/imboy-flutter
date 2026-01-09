@@ -168,9 +168,6 @@ class VideoCompressManager {
         );
       }
 
-      // 生成输出路径
-      final outputPath = await _generateOutputPath(inputPath, config);
-
       // 设置压缩参数
       final compressQuality = _mapQualityToVideoQuality(config.quality);
       

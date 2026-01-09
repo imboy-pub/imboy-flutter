@@ -51,7 +51,7 @@ class ContactTagDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     loadData();
     return Scaffold(
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         titleWidget: Obx(() => Text(
               '${state.tagName} (${state.refererTime})',
@@ -636,7 +636,7 @@ class SelectFriendPage extends StatelessWidget {
   Widget build(BuildContext context) {
     loadData();
     return Scaffold(
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         title: 'selectFriends'.tr,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),

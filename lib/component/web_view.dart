@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -11,12 +12,7 @@ class WebViewPage extends StatefulWidget {
   WebViewController? _controller;
   final void Function(String url)? errorCallback;
 
-  WebViewPage(
-    this.url,
-    this.title, {
-    super.key,
-    this.errorCallback,
-  });
+  WebViewPage(this.url, this.title, {super.key, this.errorCallback});
 
   @override
   State<StatefulWidget> createState() => WebViewPageState();
@@ -29,7 +25,6 @@ class WebViewPageState extends State<WebViewPage> {
 
     widget._controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0x00000000))
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {
@@ -76,9 +71,16 @@ class WebViewPageState extends State<WebViewPage> {
           },
         ),
       )
-      ..addJavaScriptChannel('imboyJSBridge', // 与h5 端的一致 不然收不到消息
-          onMessageReceived: (JavaScriptMessage message) {})
+      ..addJavaScriptChannel(
+        'imboyJSBridge', // 与h5 端的一致 不然收不到消息
+        onMessageReceived: (JavaScriptMessage message) {},
+      )
       ..loadRequest(Uri.parse(widget.url));
+
+    // setBackgroundColor is not supported on macOS
+    if (defaultTargetPlatform != TargetPlatform.macOS) {
+      widget._controller!.setBackgroundColor(const Color(0x00000000));
+    }
   }
 
   @override
@@ -93,7 +95,7 @@ class WebViewPageState extends State<WebViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         titleWidget: Text(
           widget.title,
           // style: AppStyle.navAppBarTitleStyle,

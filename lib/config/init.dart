@@ -16,6 +16,7 @@ import 'package:imboy/page/group/group_list/group_list_logic.dart';
 import 'package:imboy/page/mine/change_password/set_password_view.dart';
 // FontSizeLogic 已移除，功能迁移到 ThemeManager
 import 'package:imboy/service/encrypter.dart';
+import 'package:imboy/service/migration_service.dart';
 import 'package:imboy/service/websocket_message_queue.dart';
 import 'package:logger/logger.dart';
 import 'package:map_launcher/map_launcher.dart';
@@ -44,10 +45,13 @@ import 'package:imboy/service/message_offline.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/message_webrtc.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/network_monitor.dart';
+import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:xid/xid.dart';
 
 import 'env.dart';
 
@@ -63,7 +67,6 @@ enum ClickType { select, open }
 bool p2pCallScreenOn = false;
 
 var logger = Logger();
-int ntpOffset = 0;
 
 OverlayEntry? p2pEntry;
 // ice 配置信息
@@ -125,24 +128,46 @@ class AppInitializer {
   }) async {
     // 保持屏幕常亮
     await WakelockPlus.enable();
-    
+
     // 初始化存储 - 必须在使用前先初始化
     await StorageService.init();
 
-    // 检查是否已经切换过环境
-    // final changedEnv = StorageService.to.getBool('changedEnv') ?? false;
-    // await _setupEnvironment(env, changedEnv);
-    // 设置环境变量
+    // 【重要】先设置环境变量，确保数据库路径正确
     await _setupEnvironment(env, false);
 
-    // 获取NTP时间偏移
-    ntpOffset = await NtpHelper.getOffset();
+    // 初始化用户仓库 - 必须在数据库迁移之前注册
+    final userRepo = Get.put(UserRepoLocal(), permanent: true);
+    userRepo.onInit();
+
+    // 数据库迁移由 SqliteService 的 onUpgrade 回调处理
+    // 禁用 MigrationService 的自动迁移，避免双重迁移冲突导致数据丢失
+    // await _autoMigrateDatabase();
+
+    // 初始化NTP时间同步（获取时间偏移量）
+    await NtpHelper.getOffset();
 
     // 获取设备信息
     await _setupDeviceInfo();
 
     // 配置HTTP客户端
     _setupHttpClient();
+
+    // 清理旧的数据库迁移备份（保留7天）
+    await _cleanupOldMigrationBackups();
+  }
+
+  /// 清理旧的数据库迁移备份
+  static Future<void> _cleanupOldMigrationBackups() async {
+    try {
+      final cleaned = await MigrationService.to.cleanupOldSnapshots(
+        maxAge: Duration(days: 7),
+      );
+      if (cleaned > 0) {
+        logger.i('Cleaned up $cleaned old migration backups');
+      }
+    } catch (e) {
+      logger.w('Failed to cleanup old migration backups: $e');
+    }
   }
 
   static Future<void> _setupEnvironment(String env, bool changedEnv) async {
@@ -158,12 +183,36 @@ class AppInitializer {
     }
 
     await StorageService.to.setString('env', currentEnv);
-    logger.i("Running in environment: $currentEnv, Env().apiBaseUrl ${Env().apiBaseUrl}, wsUrl ${Env.wsUrl}");
+    logger.i(
+      "Running in environment: $currentEnv, Env().apiBaseUrl: ${Env().apiBaseUrl}, wsUrl: ${Env.wsUrl};",
+    );
   }
 
   static Future<void> _setupDeviceInfo() async {
     Get.put(DeviceExt());
-    deviceId = await DeviceExt.did;
+
+    // 【改进】添加错误处理和日志
+    try {
+      deviceId = await DeviceExt.did;
+
+      if (deviceId.isEmpty) {
+        iPrint('❌ [INIT] deviceId 获取失败，使用备用方案');
+        deviceId = Xid().toString();
+      }
+
+      iPrint('✅ [INIT] deviceId 初始化成功: $deviceId (长度: ${deviceId.length})');
+
+      // 验证deviceId长度
+      if (deviceId.length < 5) {
+        throw Exception('deviceId 长度过短: ${deviceId.length}');
+      }
+    } catch (e, stack) {
+      iPrint('❌ [INIT] deviceId 初始化异常: $e');
+      iPrint('堆栈: $stack');
+      // 使用错误备用方案
+      deviceId = Xid().toString();
+      iPrint('⚠️ [INIT] 使用备用deviceId: $deviceId');
+    }
 
     final packageInfo = await PackageInfo.fromPlatform();
     packageName = packageInfo.packageName;
@@ -229,12 +278,13 @@ class AppInitializer {
   }
 
   static Future<void> _initializeServices() async {
-    // 初始化用户仓库
-    Get.put(UserRepoLocal(), permanent: true);
-    UserRepoLocal().onInit();
+    // UserRepoLocal 已在 _initializeCore() 中提前注册
 
     // 初始化网络监控服务（必须在HttpClient使用之前初始化）
     Get.put(NetworkMonitorService());
+
+    // 初始化语音播放服务
+    Get.put(VoicePlaybackService());
 
     // 检查API公钥
     if (strEmpty(Env.apiPublicKey)) {
@@ -261,10 +311,14 @@ class AppInitializer {
 
     // 使用lazyPut注册消息相关服务，避免循环依赖问题
     // 注册顺序很重要，被依赖的模块必须先注册
+    Get.put(AckManager()); // ACK管理器，必须在MessageService之前注册
     Get.lazyPut<MessageService>(() => MessageService(), fenix: true);
     Get.lazyPut<MessageActions>(() => MessageActions(), fenix: true);
     Get.lazyPut<MessageWebrtc>(() => MessageWebrtc(), fenix: true);
-    Get.lazyPut<MessageOfflineService>(() => MessageOfflineService(), fenix: true);
+    Get.lazyPut<MessageOfflineService>(
+      () => MessageOfflineService(),
+      fenix: true,
+    );
     Get.lazyPut<MessageRetry>(() => MessageRetry(), fenix: true);
 
     // 初始化各种逻辑控制器
@@ -306,9 +360,6 @@ class AppInitializer {
   static Future<void> _onAppResume() async {
     logger.i("App resumed");
 
-    // 更新NTP时间偏移
-    ntpOffset = await NtpHelper.getOffset();
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (UserRepoLocal.to.isLoggedIn) {
         final token = await UserRepoLocal.to.accessToken;
@@ -322,11 +373,15 @@ class AppInitializer {
 
         // 检查WebSocket服务是否已注册
         if (Get.isRegistered<WebSocketService>()) {
-          try {
-            // 检查WebSocket连接
-            await WebSocketService.to.openSocket(from: 'resumeCallBack');
-          } catch (e) {
-            logger.e('WebSocket连接失败: $e');
+          // 【修复】不再强制重连WebSocket，避免消息入队延迟
+          // 如果WebSocket连接正常，直接拉取离线消息即可
+          final wsService = WebSocketService.to;
+          if (wsService.status.value == SocketStatus.connected) {
+            logger.i('App恢复，WebSocket已连接，拉取离线消息...');
+            // 【关键优化】App恢复时主动拉取离线消息，兜底处理
+            await MessageOfflineService.to.pullOfflineMessages();
+          } else {
+            logger.i('App恢复，WebSocket未连接，跳过重连（会自动重连）');
           }
         } else {
           logger.i('WebSocket服务未注册，跳过连接检查');

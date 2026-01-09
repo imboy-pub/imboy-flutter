@@ -105,7 +105,9 @@ class UserRepoLocal extends GetxController {
     if (li == null) {
       li = [account];
       StorageService.to.setStringList(Keys.loginHistory, li);
-    } else if(li.contains(account) == false) {
+    } else {
+      // 移除已存在的账号（如果有），然后插入到最前面
+      li.remove(account);
       li.insert(0, account);
       StorageService.to.setStringList(Keys.loginHistory, li);
     }

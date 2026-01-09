@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:get/get.dart';
 import 'chat_background_logic.dart';
 import 'chat_background_state.dart';
@@ -22,8 +23,8 @@ class _ChatBackgroundPageState extends State<ChatBackgroundPage> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
+      appBar: GlassAppBar(
+        titleWidget: Text(
           '聊天背景',
           style: TextStyle(
             color: colorScheme.primary,

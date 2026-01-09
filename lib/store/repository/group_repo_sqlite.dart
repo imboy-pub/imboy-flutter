@@ -3,6 +3,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:sqflite/sqflite.dart';
 
 class GroupRepo {
   static String tableName = 'group';
@@ -25,6 +26,25 @@ class GroupRepo {
   static String updatedAt = 'updated_at';
   static String createdAt = 'created_at';
 
+  // 公共列名列表
+  static final List<String> defaultColumns = [
+    GroupRepo.groupId,
+    GroupRepo.type,
+    GroupRepo.joinLimit,
+    GroupRepo.contentLimit,
+    GroupRepo.userIdSum,
+    GroupRepo.ownerUid,
+    GroupRepo.creatorUid,
+    GroupRepo.memberMax,
+    GroupRepo.memberCount,
+    GroupRepo.introduction,
+    GroupRepo.avatar,
+    GroupRepo.title,
+    GroupRepo.status,
+    GroupRepo.updatedAt,
+    GroupRepo.createdAt,
+  ];
+
   final SqliteService _db = SqliteService.to;
 
   Future<List<GroupModel>> page({
@@ -43,23 +63,7 @@ class GroupRepo {
     }
     List<Map<String, dynamic>> maps = await _db.query(
       GroupRepo.tableName,
-      columns: [
-        GroupRepo.groupId,
-        GroupRepo.type,
-        GroupRepo.joinLimit,
-        GroupRepo.contentLimit,
-        GroupRepo.userIdSum,
-        GroupRepo.ownerUid,
-        GroupRepo.creatorUid,
-        GroupRepo.memberMax,
-        GroupRepo.memberCount,
-        GroupRepo.introduction,
-        GroupRepo.avatar,
-        GroupRepo.title,
-        GroupRepo.status,
-        GroupRepo.updatedAt,
-        GroupRepo.createdAt,
-      ],
+      columns: defaultColumns,
       where: where,
       whereArgs: whereArgs,
       orderBy: orderBy,
@@ -83,29 +87,14 @@ class GroupRepo {
     required String kwd,
     int limit = 1000,
   }) async {
+    String pattern = "%$kwd%";
     List<Map<String, dynamic>> maps = await _db.query(
       GroupRepo.tableName,
-      columns: [
-        GroupRepo.groupId,
-        GroupRepo.type,
-        GroupRepo.joinLimit,
-        GroupRepo.contentLimit,
-        GroupRepo.userIdSum,
-        GroupRepo.ownerUid,
-        GroupRepo.creatorUid,
-        GroupRepo.memberMax,
-        GroupRepo.memberCount,
-        GroupRepo.introduction,
-        GroupRepo.avatar,
-        GroupRepo.title,
-        GroupRepo.status,
-        GroupRepo.updatedAt,
-        GroupRepo.createdAt,
-      ],
+      columns: defaultColumns,
       where: '${GroupRepo.ownerUid}=? and ('
-          '${GroupRepo.title} like "%$kwd%" or ${GroupRepo.introduction} like "%$kwd%"'
+          '${GroupRepo.title} like ? or ${GroupRepo.introduction} like ?'
           ')',
-      whereArgs: [UserRepoLocal.to.currentUid],
+      whereArgs: [UserRepoLocal.to.currentUid, pattern, pattern],
       orderBy: "${GroupRepo.createdAt} desc",
       limit: limit,
     );
@@ -122,7 +111,7 @@ class GroupRepo {
   }
 
   // 插入一条数据
-  Future<GroupModel> insert(GroupModel obj) async {
+  Future<GroupModel> insert(GroupModel obj, {Transaction? txn}) async {
     Map<String, dynamic> insert = {
       GroupRepo.groupId: obj.groupId,
       GroupRepo.type: obj.type,
@@ -141,7 +130,11 @@ class GroupRepo {
       GroupRepo.createdAt: obj.createdAt,
     };
     debugPrint("GroupRepo/insert/1 $insert");
-    await _db.insert(GroupRepo.tableName, insert);
+    if (txn != null) {
+      await txn.insert(GroupRepo.tableName, insert);
+    } else {
+      await _db.insert(GroupRepo.tableName, insert);
+    }
     return obj;
   }
 
@@ -155,7 +148,7 @@ class GroupRepo {
   }
 
   // 更新信息
-  Future<int> update(String gid, Map<String, dynamic> json) async {
+  Future<int> update(String gid, Map<String, dynamic> json, {Transaction? txn}) async {
     Map<String, Object?> data = {};
     String? title = json[GroupRepo.title];
     if (title != null) {
@@ -191,12 +184,21 @@ class GroupRepo {
     }
     iPrint("GroupRepo_update ${data.toString()};");
     if (gid.isNotEmpty) {
-      return await _db.update(
-        GroupRepo.tableName,
-        data,
-        where: '${GroupRepo.groupId} = ?',
-        whereArgs: [gid],
-      );
+      if (txn != null) {
+        return await txn.update(
+          GroupRepo.tableName,
+          data,
+          where: '${GroupRepo.groupId} = ?',
+          whereArgs: [gid],
+        );
+      } else {
+        return await _db.update(
+          GroupRepo.tableName,
+          data,
+          where: '${GroupRepo.groupId} = ?',
+          whereArgs: [gid],
+        );
+      }
     } else {
       return 0;
     }
@@ -207,27 +209,37 @@ class GroupRepo {
       gid =
           json[GroupRepo.groupId] ?? (json['group_id'] ?? (json['gid'] ?? ''));
     }
-    // iPrint("GroupRepo_save $tagId");
-    GroupModel? old = await findById(gid);
-    iPrint("GroupRepo_save $gid, ${old?.toJson().toString()};");
-    if (old == null) {
-      GroupModel model = GroupModel.fromJson(json);
-      await insert(model);
-      return model;
-    } else {
-      await update(gid, json);
-      old = await findById(gid);
-      return old!;
-    }
+    return await _db.transaction<GroupModel>((txn) async {
+      GroupModel? old = await findById(gid, txn: txn);
+      iPrint("GroupRepo_save $gid, ${old?.toJson().toString()};");
+      if (old == null) {
+        GroupModel model = GroupModel.fromJson(json);
+        await insert(model, txn: txn);
+        return model;
+      } else {
+        await update(gid, json, txn: txn);
+        return (await findById(gid, txn: txn))!;
+      }
+    });
   }
 
-  Future<GroupModel?> findById(String gid) async {
-    List<Map<String, dynamic>> maps = await _db.query(
-      GroupRepo.tableName,
-      columns: [],
-      where: '${GroupRepo.groupId} = ?',
-      whereArgs: [gid],
-    );
+  Future<GroupModel?> findById(String gid, {Transaction? txn}) async {
+    List<Map<String, dynamic>> maps;
+    if (txn != null) {
+      maps = await txn.query(
+        GroupRepo.tableName,
+        columns: [],
+        where: '${GroupRepo.groupId} = ?',
+        whereArgs: [gid],
+      );
+    } else {
+      maps = await _db.query(
+        GroupRepo.tableName,
+        columns: [],
+        where: '${GroupRepo.groupId} = ?',
+        whereArgs: [gid],
+      );
+    }
     if (maps.isNotEmpty) {
       return GroupModel.fromJson(maps.first);
     } else {

@@ -3,7 +3,11 @@ import 'package:get/get.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/middleware/router_auth.dart';
 
+import 'chat/setting/chat_setting_binding.dart';
+import 'chat/setting/chat_setting_view.dart';
 import 'contact/contact/contact_view.dart';
+import 'group/announcement/group_announcement_binding.dart';
+import 'group/announcement/group_announcement_view.dart';
 import 'mine/mine/mine_binding.dart';
 import 'mine/mine/mine_view.dart';
 import 'passport/login_view.dart';
@@ -45,6 +49,24 @@ class AppPages {
     GetPage(
       name: AppRoutes.contact,
       page: () => ContactPage(),
+      middlewares: [
+        RouteAuthMiddleware(priority: 1),
+      ],
+    ),
+    // 群组公告
+    GetPage(
+      name: AppRoutes.groupAnnouncement,
+      page: () => GroupAnnouncementView(),
+      binding: GroupAnnouncementBinding(),
+      middlewares: [
+        RouteAuthMiddleware(priority: 1),
+      ],
+    ),
+    // 聊天设置
+    GetPage(
+      name: AppRoutes.chatSetting,
+      page: () => ChatSettingView(),
+      binding: ChatSettingBinding(),
       middlewares: [
         RouteAuthMiddleware(priority: 1),
       ],

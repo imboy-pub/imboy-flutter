@@ -25,7 +25,7 @@ class SetPasswordPage extends StatelessWidget {
     double bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'setParam'.trArgs(['password'.tr]),
       ),

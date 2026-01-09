@@ -5,7 +5,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/store/model/user_device_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/config/init.dart';
-import 'package:jiffy/jiffy.dart';
+import 'package:intl/intl.dart';
 
 import 'change_name_view.dart';
 import 'user_device_logic.dart';
@@ -27,9 +27,10 @@ class UserDeviceDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     initData();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: NavAppBar(
+      backgroundColor: isDark ? Theme.of(context).colorScheme.surface : const Color(0xFFF5F5F5),
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'deviceDetails'.tr,
       ),
@@ -39,15 +40,15 @@ class UserDeviceDetailPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 设备信息卡片
-            _buildDeviceInfoCard(context),
+            _buildDeviceInfoCard(context, isDark),
             const SizedBox(height: 16),
 
             // 设备详情
-            _buildDeviceDetailsCard(context),
+            _buildDeviceDetailsCard(context, isDark),
             const SizedBox(height: 16),
 
             // 活跃时间提示
-            _buildActiveTimeTips(context),
+            _buildActiveTimeTips(context, isDark),
             const SizedBox(height: 24),
 
             // 下线设备按钮（仅非当前设备显示）
@@ -63,21 +64,25 @@ class UserDeviceDetailPage extends StatelessWidget {
   }
 
   /// 构建设备信息卡片
-  Widget _buildDeviceInfoCard(BuildContext context) {
+  Widget _buildDeviceInfoCard(BuildContext context, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
-          width: 0.5,
-        ),
+        border: isDark 
+            ? Border.all(
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+                width: 0.5,
+              )
+            : null,
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: isDark 
+                ? Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05) 
+                : Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -90,7 +95,9 @@ class UserDeviceDetailPage extends StatelessWidget {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryGreenAlpha20,
+                  color: isDark 
+                      ? AppColors.primaryGreenAlpha20 
+                      : const Color(0xFFE8F5E9), // 浅绿色背景
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -110,6 +117,7 @@ class UserDeviceDetailPage extends StatelessWidget {
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 18,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -164,20 +172,24 @@ class UserDeviceDetailPage extends StatelessWidget {
   }
 
   /// 构建设备详情卡片
-  Widget _buildDeviceDetailsCard(BuildContext context) {
+  Widget _buildDeviceDetailsCard(BuildContext context, bool isDark) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
-          width: 0.5,
-        ),
+        border: isDark 
+            ? Border.all(
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+                width: 0.5,
+              )
+            : null,
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: isDark 
+                ? Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05) 
+                : Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -297,28 +309,36 @@ class UserDeviceDetailPage extends StatelessWidget {
   }
 
   /// 构建活跃时间提示
-  Widget _buildActiveTimeTips(BuildContext context) {
+  Widget _buildActiveTimeTips(BuildContext context, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: AppColors.info.withValues(alpha: 0.1),
+        color: isDark 
+            ? AppColors.info.withValues(alpha: 0.1) 
+            : const Color(0xFFE1F5FE),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.info.withValues(alpha: 0.3),
-          width: 0.5,
-        ),
+        border: isDark 
+            ? Border.all(
+                color: AppColors.info.withValues(alpha: 0.3),
+                width: 0.5,
+              )
+            : null,
       ),
       child: Row(
         children: [
-          Icon(Icons.info_outline, color: AppColors.info, size: 20),
+          Icon(
+            Icons.info_outline, 
+            color: AppColors.info, 
+            size: 20
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               'lastActiveTips'.tr,
               style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.8),
+                color: isDark 
+                    ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8)
+                    : const Color(0xFF0277BD),
                 height: 1.4,
               ),
             ),
@@ -424,7 +444,7 @@ class UserDeviceDetailPage extends StatelessWidget {
                     ) ??
                     false;
                 if (ok) {
-                  await _forceOffline(context);
+                  await _forceOffline();
                 }
               }
             : null,
@@ -451,7 +471,7 @@ class UserDeviceDetailPage extends StatelessWidget {
   /// 用途：调用逻辑层 forceOffline 请求服务端对目标设备发送下线消息
   /// 成功：提示“已发送下线指令”，不移除设备
   /// 失败：统一失败提示
-  Future<void> _forceOffline(BuildContext context) async {
+  Future<void> _forceOffline() async {
     EasyLoading.show(status: '处理中...'.tr);
     try {
       final ok = await logic.forceOffline(model.deviceId);
@@ -493,9 +513,10 @@ class UserDeviceDetailPage extends StatelessWidget {
     if (model.lastActiveAt <= 0) {
       return '未知';
     }
-    return Jiffy.parseFromMillisecondsSinceEpoch(
+    final dt = DateTime.fromMillisecondsSinceEpoch(
       model.lastActiveAt,
-    ).format(pattern: 'yyyy-MM-dd HH:mm:ss');
+    );
+    return DateFormat('yyyy-MM-dd HH:mm:ss').format(dt);
   }
 
   /// 编辑设备名称

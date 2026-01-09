@@ -5,6 +5,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/numeric_keypad.dart';
 import 'face_to_face_confirm_view.dart';
 import 'face_to_face_logic.dart';
@@ -20,21 +21,13 @@ class FaceToFacePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black87,
-        leading: IconButton(
-          icon: const Icon(Icons.close, size: 24, color: Colors.white),
-          onPressed: () => Get.back(),
-        ),
-        title: Text(
-          'createGroupF2f'.tr,
-          style: TextStyle(color: Colors.white.withValues(alpha: 0.9)),
-        ),
-        elevation: 0,
+      appBar: GlassAppBar(
+        title: 'createGroupF2f'.tr,
       ),
-      backgroundColor: Colors.black87,
+      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
       body: Column(
         children: [
           // 使用 Expanded 包裹可滚动内容，确保不会溢出
@@ -57,7 +50,10 @@ class FaceToFacePage extends StatelessWidget {
                             child: Text(
                               'createGroupF2fTips'.tr,
                               style: theme.textTheme.bodyMedium?.copyWith(
-                                color: Colors.white.withValues(alpha: 0.9),
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.9)
+                                    : colorScheme.onSurface
+                                        .withValues(alpha: 0.8),
                                 height: 1.4,
                               ),
                               textAlign: TextAlign.left,
@@ -105,7 +101,7 @@ class FaceToFacePage extends StatelessWidget {
 
           // NumericKeypad 固定在底部
           Container(
-            color: Colors.black87,
+            color: isDark ? Colors.black87 : Colors.white,
             child: NumericKeypad(
               controller: state.textEditingController,
               onChanged: (value) async {

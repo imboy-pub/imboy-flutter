@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/mine/account_security/account_security_logic.dart';
 import 'package:imboy/page/passport/passport_logic.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 class BindEmailPage extends GetView<BindEmailController> {
   const BindEmailPage({super.key});
@@ -19,190 +20,325 @@ class BindEmailPage extends GetView<BindEmailController> {
     final currentEmail = UserRepoLocal.to.current.email;
     final hasBound = currentEmail.isNotEmpty;
 
+    // Modern styling constants
+    final inputBorderRadius = BorderRadius.circular(12);
+    const inputFillColor = Color(0xFFF9FAFB); // Very light grey/white
+
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: hasBound ? '修改邮箱' : '绑定邮箱',
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
           children: [
-            Card(
-              margin: EdgeInsets.zero,
+            // Current Status Card
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(
+                      context,
+                    ).shadowColor.withValues(alpha: 0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
               child: ListTile(
-                leading: Icon(Icons.alternate_email, color: cs.primary),
-                title: const Text('邮箱'),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryGreen.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.alternate_email,
+                    color: AppColors.primaryGreen,
+                    size: 24,
+                  ),
+                ),
+                title: const Text(
+                  '当前邮箱',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
                 subtitle: Text(
                   hasBound ? _maskEmail(currentEmail) : '未绑定',
                   style: TextStyle(color: cs.onSurfaceVariant),
                 ),
                 trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: cs.primary.withValues(alpha: 0.12),
+                    color: hasBound
+                        ? AppColors.primaryGreen.withValues(alpha: 0.1)
+                        : Colors.grey.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
                     hasBound ? '已绑定' : '未绑定',
                     style: TextStyle(
                       fontSize: 12,
-                      color: cs.primary,
+                      color: hasBound
+                          ? AppColors.primaryGreen
+                          : Colors.grey[600],
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            Card(
-              margin: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+
+            const SizedBox(height: 24),
+
+            // Form Area
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 8),
+                  child: Text(
+                    hasBound ? '新邮箱地址' : '邮箱地址',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: inputFillColor,
+                    borderRadius: inputBorderRadius,
+                    border: Border.all(
+                      color: Colors.grey.withValues(alpha: 0.15),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: controller.emailCtl,
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    style: const TextStyle(fontSize: 16),
+                    decoration: InputDecoration(
+                      hintText: '请输入邮箱地址',
+                      hintStyle: TextStyle(color: Colors.grey[400]),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.all(16),
+                      suffixIcon: Obx(
+                        () => controller.email.value.isEmpty
+                            ? const SizedBox.shrink()
+                            : IconButton(
+                                onPressed: controller.clearEmail,
+                                icon: Icon(
+                                  Icons.close_rounded,
+                                  color: Colors.grey[400],
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                // Length status
+                Obx(
+                  () => _StatusRow(
+                    label: '格式检查',
+                    value: controller.emailOk.value ? '正确' : '待输入',
+                    ok: controller.emailOk.value,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Verification Code
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      hasBound ? '更换绑定邮箱' : '绑定邮箱',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '用于登录、身份验证与找回密码',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: cs.onSurfaceVariant,
-                          ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: controller.emailCtl,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      autocorrect: false,
-                      enableSuggestions: false,
-                      decoration: InputDecoration(
-                        labelText: '邮箱',
-                        hintText: '请输入邮箱地址',
-                        filled: true,
-                        fillColor: cs.surfaceContainerHighest,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 4, bottom: 8),
+                      child: Text(
+                        '验证码',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
                         ),
-                        suffixIcon: Obx(
-                          () => controller.email.value.isEmpty
-                              ? const SizedBox.shrink()
-                              : IconButton(
-                                  onPressed: controller.clearEmail,
-                                  icon: const Icon(Icons.close_rounded),
+                      ),
+                    ),
+                    Obx(
+                      () => Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: controller.canSendCode.value
+                                ? AppColors.primaryGreen.withValues(alpha: 0.5)
+                                : Colors.grey.withValues(alpha: 0.3),
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: TextButton(
+                          onPressed: controller.canSendCode.value
+                              ? controller.sendCode
+                              : null,
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.primaryGreen,
+                            disabledForegroundColor: Colors.grey[400],
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: controller.isSendingCode.value
+                              ? SizedBox(
+                                  width: 14,
+                                  height: 14,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.primaryGreen,
+                                  ),
+                                )
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.mail_outline_rounded,
+                                      size: 16,
+                                      color: controller.canSendCode.value
+                                          ? AppColors.primaryGreen
+                                          : Colors.grey[400],
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      controller.seconds.value > 0
+                                          ? '重新发送 (${controller.seconds.value}s)'
+                                          : '获取验证码',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Obx(
-                      () => _StatusRow(
-                        label: '当前长度',
-                        value: controller.emailLength.value.toString(),
-                        ok: controller.emailOk.value,
-                        okText: '格式正确',
-                        errorText: controller.emailError.value,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Obx(
-                        () => OutlinedButton.icon(
-                          onPressed: controller.canSendCode.value
-                              ? controller.sendCode
-                              : null,
-                          icon: controller.isSendingCode.value
-                              ? SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: cs.primary,
-                                  ),
-                                )
-                              : const Icon(Icons.mark_email_read_outlined),
-                          label: Text(
-                            controller.seconds.value > 0
-                                ? '重新发送（${controller.seconds.value}s）'
-                                : '获取验证码',
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: controller.codeCtl,
-                      keyboardType: TextInputType.number,
-                      textInputAction: TextInputAction.done,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(6),
-                      ],
-                      decoration: InputDecoration(
-                        labelText: '验证码',
-                        hintText: '请输入 6 位验证码',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Obx(
-                      () => _StatusRow(
-                        label: '当前长度',
-                        value: '${controller.codeLength.value} / 6',
-                        ok: controller.codeOk.value,
-                        okText: '长度正确',
-                        errorText: controller.codeError.value,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Obx(
-                        () => FilledButton(
-                          onPressed: controller.canSubmit.value
-                              ? controller.submit
-                              : null,
-                          child: controller.isSubmitting.value
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: cs.onPrimary,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    const Text('提交中...'),
-                                  ],
-                                )
-                              : Text(hasBound ? '确认更换' : '确认绑定'),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '验证码将发送至该邮箱，请在有效期内完成验证。',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: cs.onSurfaceVariant,
-                          ),
-                    ),
                   ],
                 ),
-              ),
+
+                Container(
+                  decoration: BoxDecoration(
+                    color: inputFillColor,
+                    borderRadius: inputBorderRadius,
+                    border: Border.all(
+                      color: Colors.grey.withValues(alpha: 0.15),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: controller.codeCtl,
+                    keyboardType: TextInputType.number,
+                    textInputAction: TextInputAction.done,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(6),
+                    ],
+                    style: const TextStyle(fontSize: 16, letterSpacing: 2),
+                    decoration: InputDecoration(
+                      hintText: '000000',
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                        letterSpacing: 1,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.all(16),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+                // Length status
+                Obx(
+                  () => _StatusRow(
+                    label: '长度检查',
+                    value: '${controller.codeLength.value} / 6',
+                    ok: controller.codeOk.value,
+                  ),
+                ),
+
+                const SizedBox(height: 40),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: Obx(
+                    () => ElevatedButton(
+                      onPressed: controller.canSubmit.value
+                          ? controller.submit
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryGreen,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: Colors.grey[200],
+                        disabledForegroundColor: Colors.grey[400],
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(26),
+                        ),
+                      ),
+                      child: controller.isSubmitting.value
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(
+                              hasBound ? '确认更换' : '立即绑定',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+                Center(
+                  child: Text(
+                    '验证码将发送至该邮箱，请在有效期内完成验证',
+                    style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -243,10 +379,13 @@ class BindEmailController extends GetxController {
 
     emailCtl.addListener(() => email.value = emailCtl.text.trim());
     codeCtl.addListener(() => code.value = codeCtl.text.trim());
-    everAll(
-      [email, code, seconds, isSendingCode, isSubmitting],
-      (_) => _recompute(),
-    );
+    everAll([
+      email,
+      code,
+      seconds,
+      isSendingCode,
+      isSubmitting,
+    ], (_) => _recompute());
     _recompute();
   }
 
@@ -270,13 +409,18 @@ class BindEmailController extends GetxController {
     final currentEmail = UserRepoLocal.to.current.email;
     final changed = email.value.isNotEmpty && email.value != currentEmail;
 
-    canSendCode.value = emailOk.value &&
+    canSendCode.value =
+        emailOk.value &&
         changed &&
         seconds.value == 0 &&
         !isSendingCode.value &&
         !isSubmitting.value;
     canSubmit.value =
-        !isSubmitting.value && !isSendingCode.value && emailOk.value && codeOk.value && changed;
+        !isSubmitting.value &&
+        !isSendingCode.value &&
+        emailOk.value &&
+        codeOk.value &&
+        changed;
   }
 
   void _startCountdown() {
@@ -343,7 +487,10 @@ class BindEmailController extends GetxController {
         return;
       }
 
-      final ok = await _securityLogic.changeEmail(email: email.value, code: code.value);
+      final ok = await _securityLogic.changeEmail(
+        email: email.value,
+        code: code.value,
+      );
       if (ok) {
         final user = UserRepoLocal.to.current;
         user.email = email.value;
@@ -381,42 +528,29 @@ class _StatusRow extends StatelessWidget {
     required this.label,
     required this.value,
     required this.ok,
-    required this.okText,
-    required this.errorText,
   });
 
   final String label;
   final String value;
   final bool ok;
-  final String okText;
-  final String errorText;
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final color = ok ? cs.primary : cs.error;
-    final icon = ok ? Icons.check_circle_outline : Icons.error_outline;
-    final text = ok ? okText : errorText;
-
     return Row(
       children: [
-        Expanded(
-          child: Text(
-            '$label：$value',
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: cs.onSurfaceVariant),
-          ),
+        Icon(
+          ok ? Icons.check_circle : Icons.circle_outlined,
+          size: 14,
+          color: ok ? AppColors.primaryGreen : Colors.grey[400],
         ),
-        Icon(icon, size: 16, color: color),
         const SizedBox(width: 6),
         Text(
-          text,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w600,
-              ),
+          '$label: $value',
+          style: TextStyle(
+            color: ok ? AppColors.primaryGreen : Colors.grey[500],
+            fontSize: 12,
+            fontWeight: ok ? FontWeight.w600 : FontWeight.normal,
+          ),
         ),
       ],
     );

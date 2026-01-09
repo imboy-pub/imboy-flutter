@@ -10,6 +10,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart'
     hide CustomMessageBuilder;
@@ -63,6 +64,7 @@ import '../widget/extra_item.dart';
 import '../widget/quote_tips.dart';
 import '../widget/select_friend.dart';
 import 'chat_logic.dart';
+import 'mixins/ui_event_handler_mixin.dart';
 import 'sqlite_chat_controller.dart';
 
 // 聊天页面主Widget
@@ -98,8 +100,11 @@ class ChatPage extends StatefulWidget {
   @override
   ChatPageState createState() => ChatPageState();
 }
-class ChatPageState extends State<ChatPage> {
+class ChatPageState extends State<ChatPage>
+    with UIEventHandlerMixin
+    implements UIEventHandlerMixinState {
   final galleryLogic = getx.Get.put(IMBoyImageGalleryController());
+  @override
   final logic = getx.Get.find<ChatLogic>();
   final state = getx.Get.find<ChatLogic>().state;
   final conversationLogic = getx.Get.find<ConversationLogic>();
@@ -133,6 +138,43 @@ class ChatPageState extends State<ChatPage> {
   
   // 用于定位目标消息的 GlobalKey
   final GlobalKey _targetMessageKey = GlobalKey();
+
+  // UIEventHandlerMixinState 接口实现
+  @override
+  String get chatType => widget.type;
+
+  @override
+  String get peerId => widget.peerId;
+
+  @override
+  String get peerAvatar => widget.peerAvatar;
+
+  @override
+  String get peerTitle => widget.peerTitle;
+
+  @override
+  void Function(Message?)? get setQuoteMessage => updateQuoteMessage;
+
+  @override
+  void Function(BuildContext, Message)? get onDeleteMessageForMe => _deleteMessageForMe;
+
+  @override
+  void Function(BuildContext, Message)? get onDeleteMessageForEveryone => _deleteMessageForEveryone;
+
+  @override
+  void Function(Message)? get onRevokeMessage => _revokeMessage;
+
+  @override
+  void Function(Message)? get onForwardMessage => _forwardMessage;
+
+  @override
+  void Function(Message)? get onCollectMessage => _collectMessage;
+
+  @override
+  void Function(Message)? get onSaveMessageContent => _saveMessageContent;
+
+  @override
+  void Function(TextMessage)? get onSetEditMessage => _editMessage;
 
   // 页面初始化
   @override
@@ -387,6 +429,23 @@ class ChatPageState extends State<ChatPage> {
       }, onError: (error) {
         debugPrint('ssMsgState stream error: $error');
       });
+
+      // 监听重新编辑消息事件
+      state.ssReEdit = eventBus.on<ReEditMessage>().listen((msg) async {
+        try {
+          if (msg.messageId != null && msg.messageId!.isNotEmpty) {
+            // 设置当前正在编辑的消息ID
+            _editingMessageId = msg.messageId;
+            iPrint('重新编辑消息: messageId=${msg.messageId}, text=${msg.text}');
+          }
+          // 将消息文本填充到输入框
+          chatInputKey.currentState?.setText(msg.text);
+        } catch (e) {
+          debugPrint('ssReEdit error: $e');
+        }
+      }, onError: (error) {
+        debugPrint('ssReEdit stream error: $error');
+      });
     } catch (e) {
       debugPrint('_setupEventListeners error: $e');
     }
@@ -397,6 +456,7 @@ class ChatPageState extends State<ChatPage> {
     state.ssMsgExt?.cancel();
     state.ssMsg?.cancel();
     state.ssMsgState?.cancel();
+    state.ssReEdit?.cancel();
     logic.markAsDisposed();
     
     // 清理消息ID集合
@@ -582,7 +642,7 @@ class ChatPageState extends State<ChatPage> {
         final message = FileMessage(
           id: Xid().toString(),
           authorId: currentUser.id,
-          createdAt: DateTimeHelper.now(),
+          createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
           mimeType: lookupMimeType(file.path!),
           name: file.name,
           size: file.size,
@@ -658,7 +718,7 @@ class ChatPageState extends State<ChatPage> {
       ) async {
     final message = ImageMessage(
       authorId: currentUser.id,
-      createdAt: DateTimeHelper.now(),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       id: Xid().toString(),
       text: await entity.titleAsync,
       height: entity.height * 1.0,
@@ -676,7 +736,7 @@ class ChatPageState extends State<ChatPage> {
   Future<void> _handleVideoUpload(Map<String, dynamic> resp) async {
     final message = CustomMessage(
       authorId: currentUser.id,
-      createdAt: DateTimeHelper.now(),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       id: Xid().toString(),
       metadata: _withBurnMetadata({
         'custom_type': 'video',
@@ -721,7 +781,7 @@ class ChatPageState extends State<ChatPage> {
         MessageRepo.to: widget.peerId,
         MessageRepo.status: 10,
         MessageRepo.conversationUk3: conversation.uk3,
-        MessageRepo.createdAt: DateTimeHelper.millisecond(),
+        MessageRepo.createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       });
     final msg0 = await MessageModel.fromJson(data).toTypeMessage();
     final msg = _burnEnabled
@@ -754,7 +814,7 @@ class ChatPageState extends State<ChatPage> {
   Future<void> _sendVisitCardMessage(ContactModel contact) async {
     final message = CustomMessage(
       authorId: currentUser.id,
-      createdAt: DateTimeHelper.now(),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       id: Xid().toString(),
       metadata: _withBurnMetadata({
         'custom_type': 'visit_card',
@@ -791,7 +851,7 @@ class ChatPageState extends State<ChatPage> {
         imgUrl += "&width=${w.toInt()}";
         final message = CustomMessage(
           authorId: currentUser.id,
-          createdAt: DateTimeHelper.now(),
+          createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
           id: Xid().toString(),
           metadata: _withBurnMetadata({
             'custom_type': 'location',
@@ -852,7 +912,7 @@ class ChatPageState extends State<ChatPage> {
     imgUrl += "&width=${w.toInt()}";
     final message = ImageMessage(
       authorId: currentUser.id,
-      createdAt: DateTimeHelper.now(),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       id: Xid().toString(),
       text: await entity.titleAsync,
       height: entity.height * 1.0,
@@ -870,7 +930,7 @@ class ChatPageState extends State<ChatPage> {
   Future<void> _handleSelectedVideoUpload(Map<String, dynamic> resp) async {
     final message = CustomMessage(
       authorId: currentUser.id,
-      createdAt: DateTimeHelper.now(),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       id: Xid().toString(),
       metadata: _withBurnMetadata({
         'custom_type': 'video',
@@ -895,7 +955,7 @@ class ChatPageState extends State<ChatPage> {
           (Map<String, dynamic> resp, String uri) async {
         final message = CustomMessage(
           authorId: currentUser.id,
-          createdAt: DateTimeHelper.now(),
+          createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
           id: Xid().toString(),
           metadata: _withBurnMetadata({
             'custom_type': 'audio',
@@ -1076,22 +1136,27 @@ class ChatPageState extends State<ChatPage> {
   }
   // 发送文本消息
   Future<bool> _handleSendPressed(String text) async {
-    iPrint('handleSendPressed: $text, editingMessageId: $_editingMessageId');
-    
+    iPrint('handleSendPressed 开始: text=$text, _editingMessageId=$_editingMessageId');
+
     // 检查是否是编辑消息
-    if (_editingMessageId != null) {
+    if (_editingMessageId != null && _editingMessageId!.isNotEmpty) {
+      iPrint('执行编辑消息: messageId=$_editingMessageId, newContent=$text');
+
       // 发送编辑消息
       bool result = await MessageActions.to.sendEditMessage(
-        _editingMessageId!, 
-        widget.type, 
+        _editingMessageId!,
+        widget.type,
         text
       );
-      
+
+      iPrint('编辑消息结果: $result');
+
       // 清除编辑状态
       _editingMessageId = null;
-      
+
       return result;
     } else if (quoteMessage == null) {
+      iPrint('发送新消息');
       return await _sendTextMessage(text);
     } else {
       return await _sendQuoteMessage(text);
@@ -1101,7 +1166,7 @@ class ChatPageState extends State<ChatPage> {
   Future<bool> _sendTextMessage(String text) async {
     final textMessage = TextMessage(
       authorId: currentUser.id,
-      createdAt: DateTimeHelper.now(),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       id: Xid().toString(),
       text: text,
       metadata: _withBurnMetadata({'peer_id': widget.peerId}),
@@ -1115,7 +1180,7 @@ class ChatPageState extends State<ChatPage> {
         : UserRepoLocal.to.current.nickname;
     final message = CustomMessage(
       authorId: currentUser.id,
-      createdAt: DateTimeHelper.now(),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       id: Xid().toString(),
       metadata: _withBurnMetadata({
         'custom_type': 'quote',
@@ -1157,7 +1222,7 @@ class ChatPageState extends State<ChatPage> {
       }) {
     iPrint('_onMessageLongPress');
     final isSentByMe = message.authorId == UserRepoLocal.to.currentUid;
-    final canEdit = _canEditMessage(message);
+    final canEdit = canEditMessage(message);
     
     // 检查消息是否可以重试（发送失败的消息）
     final canRetry = isSentByMe && message.status == MessageStatus.error;
@@ -1194,20 +1259,7 @@ class ChatPageState extends State<ChatPage> {
       onRetry: canRetry ? () => _onMessageRetry(message.id) : null,
     );
   }
-  
-  /// 检查消息是否可以编辑
-  bool _canEditMessage(Message message) {
-    if (message.authorId != UserRepoLocal.to.currentUid) return false;
-    if (message is! TextMessage) return false;
-    
-    // 检查时间限制（2分钟内可编辑）
-    final now = DateTime.now();
-    final messageTime = message.createdAt ?? now;
-    final timeDiff = now.difference(messageTime);
-    
-    return timeDiff.inMinutes < 2;
-  }
-  
+
   /// 检查消息是否可以保存
   bool _canSaveMessage(Message message) {
     if (message is ImageMessage) {
@@ -1229,17 +1281,20 @@ class ChatPageState extends State<ChatPage> {
   /// 编辑消息
   Future<void> _editMessage(Message message) async {
     if (message is TextMessage) {
-      // 显示加载状态
-      EasyLoading.show(status: '正在编辑...');
-      
-      // 记录当前正在编辑的消息ID
+      iPrint('✅ _editMessage 被调用: messageId=${message.id}, text="${message.text}"');
+
+      // 记录当前正在编辑的消息ID（必须在设置文本之前）
       _editingMessageId = message.id;
-      
+
+      iPrint('✅ _editingMessageId 已设置为: $_editingMessageId');
+
       // 将消息文本填充到输入框
       chatInputKey.currentState?.setText(message.text);
-      
-      // 关闭加载状态
-      EasyLoading.dismiss();
+
+      // 聚焦输入框
+      chatInputKey.currentState?.inputFocusNode.requestFocus();
+
+      iPrint('✅ _editMessage 完成: _editingMessageId=$_editingMessageId');
     }
   }
   
@@ -1419,8 +1474,8 @@ class ChatPageState extends State<ChatPage> {
       child: Scaffold(
         resizeToAvoidBottomInset: true, // 启用系统键盘避让，获得更丝滑的交互体验
         appBar: _showAppBar
-          ?  AppBar(
-        title: Text(
+          ? GlassAppBar(
+        titleWidget: Text(
           newGroupName.isEmpty ? widget.peerTitle : newGroupName,
           style: TextStyle(
             color: ThemeManager.instance.getThemeColor('textPrimary'),
@@ -1428,8 +1483,7 @@ class ChatPageState extends State<ChatPage> {
           ),
         ),
         backgroundColor: ThemeManager.instance.getThemeColor('surface'),
-        foregroundColor: ThemeManager.instance.getThemeColor('textPrimary'),
-        actions: topRightWidget,
+        rightDMActions: topRightWidget,
         automaticallyImplyLeading: true,
         // popTime: widget.options?['popTime'] ?? 1,
       )

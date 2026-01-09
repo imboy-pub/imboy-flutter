@@ -167,7 +167,6 @@ class EasyDialog extends StatelessWidget {
         actionButtonColor = theme.colorScheme.error;
         break;
       case DialogType.info:
-      default:
         iconData = Icons.info_outline;
         iconColor = theme.colorScheme.secondary;
         dialogColor = theme.colorScheme.secondaryContainer.withValues(alpha: 0.1);

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 
 class GroupMemberModel {
@@ -59,8 +60,8 @@ class GroupMemberModel {
       isJoin: json[GroupMemberRepo.isJoin],
       joinMode: json[GroupMemberRepo.joinMode] ?? '',
       status: json[GroupMemberRepo.status] ?? 1,
-      updatedAt: json[GroupMemberRepo.updatedAt] ?? 0,
-      createdAt: json[GroupMemberRepo.createdAt],
+      updatedAt: DateTimeHelper.parseTimestamp(json[GroupMemberRepo.updatedAt]),
+      createdAt: DateTimeHelper.parseTimestamp(json[GroupMemberRepo.createdAt]),
     );
   }
 

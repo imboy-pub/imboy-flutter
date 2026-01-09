@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:get/get.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/theme_manager.dart';
@@ -187,9 +188,8 @@ class ChatBackgroundSettingsPage extends StatelessWidget {
     final manager = Get.put(ChatBackgroundManager());
     
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('聊天背景'),
-        elevation: 0,
+      appBar: GlassAppBar(
+        title: '聊天背景',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

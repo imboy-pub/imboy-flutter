@@ -2,25 +2,25 @@ import 'package:buttons_tabbar/buttons_tabbar.dart' show ButtonsTabBar;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:imboy/theme/theme_manager.dart';
-import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/component/ui/password.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_view.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
-import 'login_account_view.dart';
 import 'login_mobile_view.dart';
 import 'passport_logic.dart';
 import 'signup_view.dart';
+import 'forgot_password_view.dart';
+import 'manage_account_view.dart';
 import 'widget/bezier_container.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key, this.account, this.refUid});
 
   final String? account;
-
-  // 经过 hashids 编码的，邀请人用户ID
   final String? refUid;
 
   @override
@@ -33,12 +33,6 @@ class LoginPageState extends State<LoginPage>
   final state = Get.find<PassportLogic>().state;
 
   late PageController _pageController;
-
-  Color leftColor = Colors.black;
-  Color rightColor = Colors.white;
-
-  Color leftBgColor = Colors.white;
-  Color rightBgColor = Color(0x552B2B2B).withAlpha(0);
 
   @override
   void dispose() {
@@ -53,12 +47,6 @@ class LoginPageState extends State<LoginPage>
 
     logic.initPlatformState();
 
-    // final AccountAuthParamsHelper authParamsHelper = AccountAuthParamsHelper()
-    //   ..setProfile()
-    //   ..setAccessToken();
-    // final AccountAuthParams authParams = authParamsHelper.createParams();
-    // state.authServiceHW = AccountAuthManager.getService(authParams);
-
     if (widget.account == null) {
       state.loginAccountCtl.text =
           StorageService.to.getString(Keys.lastLoginAccount) ?? '';
@@ -72,19 +60,15 @@ class LoginPageState extends State<LoginPage>
     state.loginHistory.value =
         StorageService.to.getStringList(Keys.loginHistory) ?? [];
 
-    // 检查网络状态
     Connectivity().checkConnectivity().then((r) {
       if (r.contains(ConnectivityResult.none)) {
-        // ignore: prefer_interpolation_to_compose_strings
         state.connectDesc.value = 'tipConnectDesc'.tr;
       } else {
         state.connectDesc.value = '';
       }
     });
-    // 监听网络状态
     Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> r) {
       if (r.contains(ConnectivityResult.none)) {
-        // ignore: prefer_interpolation_to_compose_strings
         state.connectDesc.value = 'tipConnectDesc'.tr;
       } else {
         state.connectDesc.value = '';
@@ -94,174 +78,229 @@ class LoginPageState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       body: Container(
-        color: Colors.green, // 与注册页面相同的背景色
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Stack(
-              children: [
-                // 使用与注册页面相同的BezierContainer装饰，但位置不同
-                Positioned(
-                  top: -screenHeight * .15,
-                  right: -screenWidth * .4,
-                  child: const BezierContainer(),
-                ),
+        color: Colors.green, // Full Green Background - Just like Signup
+        height: screenHeight,
+        child: Stack(
+          children: [
+            // Decorative Bezier (Top Right) - Just like Signup
+            Positioned(
+              top: -screenHeight * .15,
+              right: -screenWidth * .4,
+              child: const BezierContainer(),
+            ),
 
-                // 主内容区域 - 简洁设计
-                Positioned.fill(
-                  child: SingleChildScrollView(
-                    physics: const ClampingScrollPhysics(),
-                    padding: EdgeInsets.only(
-                      top: 80,
-                      bottom: MediaQuery.of(context).viewInsets.bottom,
-                    ),
-                    child: GestureDetector(
-                      onTap: () => FocusScope.of(context).unfocus(),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight,
+            // Main Content
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                child: GestureDetector(
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 50),
+                      // Logo - White (Uses existing logic.title())
+                      logic.title(),
+                      const SizedBox(height: 30),
+
+                      // Tab Bar - Full Width Pill (Matching Signup Style)
+                      _buildAccountTypeTabBar(screenWidth),
+                      const SizedBox(height: 24),
+
+                      // Inputs via PageView
+                      _buildPageView(),
+
+                      const SizedBox(height: 24),
+                      _buildOrDivider(),
+                      const SizedBox(height: 8),
+
+                      if (GetPlatform.isMobile) _buildQuickLoginButton(),
+
+                      _createAccountLabel(),
+                      const SizedBox(height: 30),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Back Button
+            Positioned(top: 40, left: 0, child: logic.backButton()),
+
+            // Connectivity Warning
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Obx(
+                () => state.connectDesc.isEmpty
+                    ? const SizedBox.shrink()
+                    : Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
+                        color: AppColors.messageFailed.withValues(alpha: .95),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            logic.title(),
-                            const SizedBox(height: 32),
-                            _buildSimpleTabBar(screenWidth),
-                            const SizedBox(height: 24),
-                            _buildPageView(),
-                            const SizedBox(height: 20),
-                            _buildOrDivider(),
-                            if (GetPlatform.isMobile) 
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20),
-                                child: _buildQuickLoginButton(),
-                              ),
-                            _createAccountLabel(),
-                            SizedBox(
-                              height: MediaQuery.of(context).viewInsets.bottom,
+                            const Icon(
+                              Icons.wifi_off,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              state.connectDesc.value,
+                              style: const TextStyle(color: Colors.white),
                             ),
                           ],
                         ),
                       ),
-                    ),
-                  ),
-                ),
-
-              // 返回按钮 - 使用优化后的样式
-              Positioned(
-                top: 40, 
-                left: 0, 
-                child: logic.backButton(),
               ),
-
-              // 网络状态提示 - 使用优化后的样式
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Obx(
-                  () => state.connectDesc.isEmpty
-                      ? const SizedBox.shrink()
-                      : Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: AppColors.messageFailed.withValues(alpha: .95),
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              topRight: Radius.circular(12),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: .1),
-                                blurRadius: 8,
-                                offset: const Offset(0, -2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.wifi_off,
-                                color: Colors.white,
-                                size: 18,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                state.connectDesc.value,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                ),
-              ),
-              ],
-            );
-          },
+            ),
+          ],
         ),
       ),
     );
   }
 
-  /// 构建简洁标签栏 - 修复Tab切换焦点问题
-  Widget _buildSimpleTabBar(double screenWidth) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        height: 56,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: .2),
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: .3),
-            width: 1,
+  // Tab Bar - Matching Signup Page's style
+  Widget _buildAccountTypeTabBar(double screenWidth) {
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: .2),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: Colors.white.withValues(alpha: .3), width: 1),
+      ),
+      child: DefaultTabController(
+        length: 2,
+        child: ButtonsTabBar(
+          radius: 26,
+          height: 52,
+          width: (screenWidth - 40 - 8) / 2, // Full width, minus padding
+          contentCenter: true,
+          duration: 250,
+          buttonMargin: const EdgeInsets.all(2),
+          backgroundColor: Colors.white,
+          unselectedBackgroundColor: Colors.transparent,
+          labelStyle: const TextStyle(
+            color: Colors.green,
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
+          ),
+          unselectedLabelStyle: TextStyle(
+            color: Colors.white.withValues(alpha: 0.9),
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
+          onTap: (index) {
+            _pageController.animateToPage(
+              index,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          },
+          tabs: [
+            Tab(text: 'paramLogin'.trArgs(['account'.tr])),
+            Tab(text: 'paramLogin'.trArgs(['mobile'.tr])),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPageView() {
+    return SizedBox(
+      height: 280,
+      width: double.infinity,
+      child: PageView(
+        controller: _pageController,
+        physics: const ClampingScrollPhysics(),
+        onPageChanged: (int i) {
+          FocusScope.of(context).unfocus();
+        },
+        children: [
+          // Account Login - Uses same mobile-style input with account hint
+          _buildAccountLoginForm(),
+          const LoginMobilePage(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrDivider() {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 1,
+            color: Colors.white.withValues(alpha: 0.3),
           ),
         ),
-        child: DefaultTabController(
-          length: 2,
-          child: ButtonsTabBar(
-            radius: 26,
-            height: 52,
-            width: (screenWidth - 44) / 2,
-            contentCenter: true,
-            duration: 300, // 增加动画时长，让切换更明显
-            buttonMargin: const EdgeInsets.all(2),
-            backgroundColor: Colors.white,
-            unselectedBackgroundColor: Colors.transparent,
-            // 移除手动的颜色管理，让ButtonsTabBar自己处理
-            labelStyle: TextStyle(
-              color: ThemeManager.instance.getThemeColor('primary'),
-              fontWeight: FontWeight.w600,
-              fontSize: 15,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          child: Text(
+            'OR',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.7),
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
             ),
-            unselectedLabelStyle: const TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-            ),
-            // 添加Tab切换回调，同步PageView
-            onTap: (index) {
-              _pageController.animateToPage(
-                index,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
-            },
-            tabs: [
-              Tab(
-                text: 'paramLogin'.trArgs(['account'.tr]),
+          ),
+        ),
+        Expanded(
+          child: Container(
+            height: 1,
+            color: Colors.white.withValues(alpha: 0.3),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuickLoginButton() {
+    return Container(
+      width: double.infinity,
+      height: 52,
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: .08),
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: .25),
+          width: 1,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => logic.loginAuth(false),
+          borderRadius: BorderRadius.circular(26),
+          splashColor: Colors.white.withValues(alpha: 0.1),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.touch_app_rounded,
+                color: Colors.white.withValues(alpha: 0.9),
+                size: 20,
               ),
-              Tab(
-                text: 'paramLogin'.trArgs(['mobile'.tr]),
+              const SizedBox(width: 8),
+              Text(
+                'mobileQuickLogin'.tr,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withValues(alpha: 0.9),
+                ),
               ),
             ],
           ),
@@ -270,105 +309,6 @@ class LoginPageState extends State<LoginPage>
     );
   }
 
-  Widget _buildPageView() {
-    return SizedBox(
-      height: 320, // 增加高度，确保"忘记密码？"文案能够显示
-      child: PageView(
-        controller: _pageController,
-        physics: const ClampingScrollPhysics(),
-        onPageChanged: (int i) {
-          FocusScope.of(context).unfocus();
-          // 移除手动颜色管理，让ButtonsTabBar自己处理Tab状态
-        },
-        children: const [
-          LoginAccountPage(),
-          LoginMobilePage(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOrDivider() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Container(
-              height: 1,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.white10, Colors.white],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-              ),
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15),
-            child: Text(
-              'Or',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontFamily: 'WorkSansMedium',
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              height: 1,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.white, Colors.white10],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 构建快速登录按钮 - 简洁设计
-  Widget _buildQuickLoginButton() {
-    return Container(
-      width: double.infinity,
-      height: 50,
-      margin: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: .9),
-        borderRadius: BorderRadius.circular(25),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: .3),
-          width: 1,
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => logic.loginAuth(false),
-          borderRadius: BorderRadius.circular(25),
-          child: Center(
-            child: Text(
-              'mobileQuickLogin'.tr,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: ThemeManager.instance.getThemeColor('primary'),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// 构建注册账号标签 - 简洁设计
   Widget _createAccountLabel() {
     return InkWell(
       onTap: () {
@@ -378,15 +318,16 @@ class LoginPageState extends State<LoginPage>
           popGesture: true,
         );
       },
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(12),
+      splashColor: Colors.white.withValues(alpha: 0.1),
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 20),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        margin: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: .1),
-          borderRadius: BorderRadius.circular(8),
+          color: Colors.white.withValues(alpha: .08),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Colors.white.withValues(alpha: .2),
+            color: Colors.white.withValues(alpha: .25),
             width: 1,
           ),
         ),
@@ -396,10 +337,9 @@ class LoginPageState extends State<LoginPage>
           children: [
             Text(
               'noSiginQ'.tr,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
+                color: Colors.white.withValues(alpha: 0.9),
               ),
             ),
             const SizedBox(width: 6),
@@ -408,12 +348,289 @@ class LoginPageState extends State<LoginPage>
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 14,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.bold,
                 decoration: TextDecoration.underline,
                 decorationColor: Colors.white,
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAccountLoginForm() {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Account/Email Input
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: .9),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: .3),
+                    width: 1,
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(11),
+                  child: TextField(
+                    controller: state.loginAccountCtl,
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    textAlignVertical: TextAlignVertical.center,
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 16,
+                      ),
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      hintText: 'hintLoginAccount'.tr,
+                      hintStyle: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 16,
+                      ),
+                      prefixIcon: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(
+                          Icons.person,
+                          color: Colors.grey.shade600,
+                          size: 20,
+                        ),
+                      ),
+                      prefixIconConstraints: const BoxConstraints(
+                        minWidth: 44,
+                        minHeight: 44,
+                      ),
+                      suffixIcon: Obx(() {
+                        // 过滤出非手机号的账号
+                        final accountHistory = state.loginHistory
+                            .where((item) => !item.startsWith('+'))
+                            .toList();
+
+                        if (accountHistory.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+
+                        return Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: accountHistory.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      final item = accountHistory[index];
+                                      return ListTile(
+                                        leading: const Icon(
+                                          Icons.person_outline,
+                                        ),
+                                        title: Text(item),
+                                        onTap: () {
+                                          state.loginAccountCtl.text = item;
+                                          state.loginAccount.value = item;
+                                          Navigator.pop(context);
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(24),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Icon(
+                                Icons.arrow_drop_down_circle_outlined,
+                                size: 24,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                      suffixIconConstraints: const BoxConstraints(
+                        minWidth: 56,
+                        minHeight: 56,
+                      ),
+                    ),
+                    onChanged: (String? val) {
+                      state.loginAccount.value = val?.trim() ?? '';
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Password Input
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: .9),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: .3),
+                    width: 1,
+                  ),
+                ),
+                child: Obx(
+                  () => PasswordTextField(
+                    obscureText: state.loginPwdObscure.value,
+                    hintText: 'password'.tr,
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    hintStyle: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 16,
+                    ),
+                    iconColor: Colors.grey.shade600,
+                    onTap: () {
+                      state.loginPwdObscure.value =
+                          !state.loginPwdObscure.value;
+                    },
+                    onChanged: (String? val) {
+                      state.loginPwd.value = val?.trim() ?? '';
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              // Login Button - White with Green Text (Matching Signup)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  width: double.infinity,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white.withValues(alpha: .95),
+                        Colors.white.withValues(alpha: .85),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: BorderRadius.circular(26),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: .4),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: .15),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () async {
+                        String? err = logic.userValidator(
+                          'account',
+                          state.loginAccount.value,
+                        );
+                        if (err != null) {
+                          logic.snackBar(err);
+                          return;
+                        }
+                        String? err2 = logic.passwordValidator(
+                          state.loginPwd.value,
+                        );
+                        if (err2 != null) {
+                          logic.snackBar(err2);
+                          return;
+                        }
+                        String? err3 = await logic.loginUser(
+                          'account',
+                          state.loginAccount.value,
+                          state.loginPwd.value,
+                        );
+                        if (err3 != null) {
+                          logic.snackBar(err3.tr);
+                          return;
+                        }
+                        final user = UserRepoLocal.to.current;
+                        final needGuide =
+                            (user.email.isEmpty || user.mobile.isEmpty);
+                        if (needGuide) {
+                          Get.offAll(() => const ManageAccountPage());
+                        } else {
+                          Get.off(() => BottomNavigationPage());
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(26),
+                      splashColor: Colors.green.withValues(alpha: .1),
+                      child: Center(
+                        child: Text(
+                          'login'.tr,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.green,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Forgot Password
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Get.to(
+                        () => ForgotPasswordPage(
+                          account: state.loginAccount.value,
+                        ),
+                        transition: Transition.rightToLeft,
+                        popGesture: true,
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.white.withValues(alpha: 0.8),
+                    ),
+                    child: Text(
+                      'forgotPassword'.tr,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

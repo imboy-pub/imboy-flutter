@@ -77,13 +77,29 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                           icon: Icons.phone_iphone,
                           title: '绑定手机号'.tr,
                           subtitle: '用于登录、找回密码和接收重要通知'.tr,
-                          onTap: () => Get.to(() => AccountSecurityPage()),
+                          onTap: () async {
+                            // 替换当前页为主页的"我的"标签（index=2），然后延迟进入账户安全页
+                            Get.off(
+                              () => const BottomNavigationPage(),
+                              arguments: {'index': 2},
+                            );
+                            await Future.delayed(const Duration(milliseconds: 100));
+                            Get.to(() => AccountSecurityPage());
+                          },
                         ),
                         _buildPage(
                           icon: Icons.alternate_email,
                           title: '关联邮箱'.tr,
                           subtitle: '用于登录、身份验证和接收账单'.tr,
-                          onTap: () => Get.to(() => AccountSecurityPage()),
+                          onTap: () async {
+                            // 替换当前页为主页的"我的"标签（index=2），然后延迟进入账户安全页
+                            Get.off(
+                              () => const BottomNavigationPage(),
+                              arguments: {'index': 2},
+                            );
+                            await Future.delayed(const Duration(milliseconds: 100));
+                            Get.to(() => AccountSecurityPage());
+                          },
                         ),
                       ],
                     ),

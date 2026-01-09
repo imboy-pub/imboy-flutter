@@ -71,7 +71,16 @@ android/build
 .dev.env
 .kilocode
 erl_code
+# Claude AI - 只忽略个人配置，保留项目共享的 skills
 .claude/settings.local.json
+.claude/backup/
+.claude/debug/
+.claude/file-history/
+.claude/session-env/
+.claude/shell-snapshots/
+.claude/todos/
+.claude/*.jsonl
+.claude/*.json
 .cline/mcp_settings.json
 .qoder/rules/imboyapp.md
-doc/ai_prompts
+doc/ai_prompts*

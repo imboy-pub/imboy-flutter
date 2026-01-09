@@ -6,6 +6,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/group/group_list/group_list_logic.dart';
+import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/contact_model.dart' show ContactModel;
 import 'package:imboy/store/model/conversation_model.dart';
@@ -219,6 +220,27 @@ class ConversationLogic extends GetxController {
 
       return await db.transaction((txn) async {
         String tb = MessageRepo.getTableName(cm.type);
+
+        // 先查询该会话的所有消息ID，用于清理重试队列
+        final List<Map<String, dynamic>> messages = await txn.query(
+          tb,
+          columns: ['id'],
+          where: '${MessageRepo.conversationUk3}=?',
+          whereArgs: [cm.uk3],
+        );
+
+        // 清理重试队列中属于该会话的消息
+        if (messages.isNotEmpty && Get.isRegistered<MessageRetry>()) {
+          for (final msg in messages) {
+            final msgId = msg['id'] as String?;
+            if (msgId != null && msgId.isNotEmpty) {
+              MessageRetry.to.removeFromRetryQueue(msgId);
+            }
+          }
+          iPrint('已从重试队列清理 ${messages.length} 条消息: conversationUk3=${cm.uk3}');
+        }
+
+        // 删除数据库中的消息和会话记录
         await txn.execute("DELETE FROM $tb WHERE ${MessageRepo.conversationUk3}=?", [cm.uk3]);
         await txn.execute("DELETE FROM ${ConversationRepo.tableName} WHERE id=?", [cm.id]);
 
@@ -310,7 +332,7 @@ class ConversationLogic extends GetxController {
         ConversationRepo.payload: {},
       }));
       m = await repo.findByPeerId(type, peerId);
-      if (m != null) {
+      if (m != null && m.uk3.isNotEmpty) {
         conversationMap[m.uk3] = m;
       }
     }

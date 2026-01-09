@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/error_code.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_parse.dart';
@@ -49,9 +50,9 @@ class UserProvider extends HttpClient {
     // iPrint("refreshAccessTokenApi ${response.toString()}");
     // iPrint("refreshAccessTokenApi refreshToken $refreshToken");
     IMBoyHttpResponse resp = handleResponse(response, uri: API.refreshToken);
-    // 705 token 过期
-    // 706 token 无效
-    if (resp.code == 705 || resp.code == 706) {
+    // 处理 token 相关错误（401 UNAUTHORIZED 包含了所有 token 失效情况）
+    // 兼容旧版 705/706 错误码
+    if (ErrorCode.shouldReLogin(resp.code)) {
       checkNewToken = true;
     }
     String newToken = resp.payload?['token'] ?? '';

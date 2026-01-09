@@ -15,6 +15,7 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
+import 'package:sqflite/sqflite.dart';
 
 class MessageRepo {
   static String c2cTable = 'message';
@@ -110,12 +111,20 @@ class MessageRepo {
   }
 
   // 插入一条数据
-  Future<MessageModel> insert(MessageModel msg) async {
-    int? count = await _db.count(
-      tableName,
-      where: "id=?",
-      whereArgs: [msg.id],
-    );
+  Future<MessageModel> insert(MessageModel msg, {Transaction? txn}) async {
+    int? count;
+    if (txn != null) {
+      count = await txn.rawQuery(
+        'SELECT COUNT(*) as count FROM $tableName WHERE id = ?',
+        [msg.id],
+      ).then((result) => result.first['count'] as int?);
+    } else {
+      count = await _db.count(
+        tableName,
+        where: "id=?",
+        whereArgs: [msg.id],
+      );
+    }
     if (count == 0) {
       Map<String, dynamic> insert = {
         'auto_id': null,
@@ -131,7 +140,11 @@ class MessageRepo {
         MessageRepo.status: msg.status,
       };
       debugPrint("> on MessageModel/insert tb $tableName : $insert");
-      await _db.insert(tableName, insert);
+      if (txn != null) {
+        await txn.insert(tableName, insert);
+      } else {
+        await _db.insert(tableName, insert);
+      }
     } else {
       debugPrint("> on MessageModel/insert count $count : $insert");
     }
@@ -139,7 +152,7 @@ class MessageRepo {
   }
 
   // 更新信息
-  Future<int> update(Map<String, dynamic> data) async {
+  Future<int> update(Map<String, dynamic> data, {Transaction? txn}) async {
     if (data.containsKey(MessageRepo.payload) &&
         data[MessageRepo.payload] is Map<String, dynamic>) {
       data[MessageRepo.payload] = jsonEncode(data[MessageRepo.payload]);
@@ -148,29 +161,46 @@ class MessageRepo {
     final updateData = Map<String, dynamic>.from(data);
     updateData.remove(MessageRepo.id);
     updateData.remove(MessageRepo.autoId);
-    
+
     iPrint("message_repo/update $tableName ;");
-    return await _db.update(
-      tableName,
-      updateData,
-      where: '${MessageRepo.id} = ?',
-      whereArgs: [data[MessageRepo.id]],
-    );
+    if (txn != null) {
+      return await txn.update(
+        tableName,
+        updateData,
+        where: '${MessageRepo.id} = ?',
+        whereArgs: [data[MessageRepo.id]],
+      );
+    } else {
+      return await _db.update(
+        updateData,
+        where: '${MessageRepo.id} = ?',
+        whereArgs: [data[MessageRepo.id]],
+      );
+    }
   }
 
   // 存在就更新，不存在就插入
-  Future<int?> save(MessageModel obj) async {
-    int? count = await _db.count(
-      tableName,
-      where: '${MessageRepo.id} = ?',
-      whereArgs: [obj.id],
-    );
+  Future<int?> save(MessageModel obj, {Transaction? txn}) async {
+    int? count;
+    if (txn != null) {
+      final result = await txn.rawQuery(
+        'SELECT COUNT(*) as count FROM $tableName WHERE id = ?',
+        [obj.id],
+      );
+      count = (result.first['count'] as int?);
+    } else {
+      count = await _db.count(
+        tableName,
+        where: '${MessageRepo.id} = ?',
+        whereArgs: [obj.id],
+      );
+    }
     if (count == null || count == 0) {
-      await insert(obj);
+      await insert(obj, txn: txn);
     } else {
       Map<String, dynamic> data = obj.toJson();
       data.remove(MessageRepo.autoId);
-      await update(data);
+      await update(data, txn: txn);
     }
     // debugPrint("> on MessageRepo/save count:$count; id: $obj.id");
     return count;
@@ -183,13 +213,19 @@ class MessageRepo {
   ) async {
     String where;
     List args;
+    int offset;
 
     if (nextAutoId <= 0) {
+      // 加载最新的消息，需要计算offset
+      final count = await _db.count(tableName, where: "${MessageRepo.conversationUk3} = ?", whereArgs: [uk3]);
+      offset = (count != null && count > size) ? (count - size) : 0;
       where = "${MessageRepo.conversationUk3} = ?";
       args = [uk3];
     } else {
+      // 加载比nextAutoId更早的消息
       where = "${MessageRepo.conversationUk3} = ? AND ${MessageRepo.autoId} < ?";
       args = [uk3, nextAutoId];
+      offset = 0;
     }
 
     try {
@@ -198,9 +234,9 @@ class MessageRepo {
         columns: defaultColumns,
         where: where,
         whereArgs: args,
-        orderBy: "${MessageRepo.autoId} DESC",
-        offset: 0,
+        orderBy: "${MessageRepo.autoId} ASC",
         limit: size,
+        offset: offset,
       );
 
       if (maps.isEmpty) {
@@ -208,10 +244,8 @@ class MessageRepo {
       }
 
       List<MessageModel> messages = [];
-      for (int i = 0; i < maps.length; i++) {
-        // 使得 msg asc 排序
-        int j = maps.length - i - 1;
-        messages.add(MessageModel.fromJson(maps[j]));
+      for (var map in maps) {
+        messages.add(MessageModel.fromJson(map));
       }
       return messages;
     } catch (e) {
@@ -392,13 +426,23 @@ class MessageRepo {
   }
 
   //
-  Future<MessageModel?> find(String id) async {
-    List<Map<String, dynamic>> maps = await _db.query(
-      tableName,
-      columns: defaultColumns,
-      where: '${MessageRepo.id} = ?',
-      whereArgs: [id],
-    );
+  Future<MessageModel?> find(String id, {Transaction? txn}) async {
+    List<Map<String, dynamic>> maps;
+    if (txn != null) {
+      maps = await txn.query(
+        tableName,
+        columns: defaultColumns,
+        where: '${MessageRepo.id} = ?',
+        whereArgs: [id],
+      );
+    } else {
+      maps = await _db.query(
+        tableName,
+        columns: defaultColumns,
+        where: '${MessageRepo.id} = ?',
+        whereArgs: [id],
+      );
+    }
     // iPrint("> on MessageRepo/find tb $tableName, id $id, len ${maps.length}; ${maps.toList().toString()}");
     if (maps.isNotEmpty) {
       return MessageModel.fromJson(maps.first);
@@ -485,7 +529,7 @@ class MessageRepo {
   }
 
   /// 批量插入离线消息
-  Future<List<String>?> batchInsertOfflineMessages(List<Map<String, dynamic>> messages) async {
+  Future<List<String>?> batchInsertOfflineMessages(List<Map<String, dynamic>> messages, {Future<void> Function(Map<String, dynamic>)? onS2CMessage}) async {
     if (messages.isEmpty) return null;
 
     final List<String> ackMsgIds = [];
@@ -499,29 +543,49 @@ class MessageRepo {
 
     final List<_InsertedOfflineMessage> inserted = [];
     try {
+      // 先收集 S2C 消息，在事务外处理
+      final List<Map<String, dynamic>> s2cMessages = [];
+      final List<Map<String, dynamic>> normalMessages = [];
+
+      for (final msgData in messages) {
+        final rawMsgId = msgData['msg_id'] ?? msgData['id'];
+        final msgId = rawMsgId?.toString() ?? '';
+        // 优化类型处理，确保类型标准化
+        String type = (msgData['type'] ?? 'C2C').toString().toUpperCase();
+        // 处理可能的类型别名
+        switch (type) {
+          case 'C2C_SERVER_ACK':
+            type = 'C2C';
+            break;
+          case 'C2G_SERVER_ACK':
+            type = 'C2G';
+            break;
+          case 'S2C_SERVER_ACK':
+            type = 'S2C';
+            break;
+        }
+
+        if (msgId.isEmpty) {
+          iPrint("离线消息缺少id，跳过: ${msgData.toString()}");
+          continue;
+        }
+
+        // S2C 消息是系统消息，不应该插入数据库
+        if (type == 'S2C') {
+          s2cMessages.add(msgData);
+          addAckId(msgId);
+          continue;
+        }
+
+        normalMessages.add(msgData);
+      }
+
+      // 处理普通消息（插入数据库）
       await _db.transaction((txn) async {
-        for (final msgData in messages) {
+        for (final msgData in normalMessages) {
           final rawMsgId = msgData['msg_id'] ?? msgData['id'];
           final msgId = rawMsgId?.toString() ?? '';
-          // 优化类型处理，确保类型标准化
           String type = (msgData['type'] ?? 'C2C').toString().toUpperCase();
-          // 处理可能的类型别名
-          switch (type) {
-            case 'C2C_SERVER_ACK':
-              type = 'C2C';
-              break;
-            case 'C2G_SERVER_ACK':
-              type = 'C2G';
-              break;
-            case 'S2C_SERVER_ACK':
-              type = 'S2C';
-              break;
-          }
-
-          if (msgId.isEmpty) {
-            iPrint("离线消息缺少id，跳过: ${msgData.toString()}");
-            continue;
-          }
 
           final tableName = MessageRepo.getTableName(type);
           if (tableName.isEmpty) {
@@ -554,6 +618,13 @@ class MessageRepo {
                 payload = decoded.cast<String, dynamic>();
               }
             } catch (_) {}
+          }
+
+          // 验证 payload 有效性：必须包含 msg_type 字段
+          if (!payload.containsKey('msg_type') || payload.isEmpty) {
+            iPrint("离线消息 payload 无效或为空，跳过: $msgId, payload: $payload");
+            addAckId(msgId); // 仍然需要 ACK，避免服务端重复推送
+            continue;
           }
 
           final fromId = (msgData['from'] ?? '').toString();
@@ -630,10 +701,22 @@ class MessageRepo {
       if (inserted.isNotEmpty) {
         await _syncOfflineConversationsAndNotify(inserted);
       }
-      iPrint("批量插入离线消息完成，共 ${messages.length} 条消息");
-      return ackMsgIds;
+      // 处理 S2C 消息（在事务外）
+      // 处理 S2C 消息（在事务外）
+      if (s2cMessages.isNotEmpty && onS2CMessage != null) {
+        iPrint("开始处理 ${s2cMessages.length} 条 S2C 消息");
+        for (final msgData in s2cMessages) {
+          try {
+            // 调用回调函数处理 S2C 消息
+            await onS2CMessage(msgData);
+          } catch (e) {
+            iPrint("处理 S2C 消息失败: ${msgData['id']}, 错误: $e");
+          }
+        }
+      }
     } catch (e) {
       iPrint("批量插入离线消息失败: $e");
+    return ackMsgIds;
       rethrow;
     }
   }

@@ -6,6 +6,7 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:sqflite/sqflite.dart';
 
 class ContactRepo {
   static String tableName = 'contact';
@@ -31,36 +32,47 @@ class ContactRepo {
   //isFrom 好友关系发起人 1 是  0 否
   static String isFrom = 'is_from';
 
+  // 公共列名列表
+  static final List<String> defaultColumns = [
+    ContactRepo.peerId,
+    ContactRepo.nickname,
+    ContactRepo.avatar,
+    ContactRepo.account,
+    ContactRepo.status,
+    ContactRepo.remark,
+    ContactRepo.tag,
+    ContactRepo.region,
+    ContactRepo.sign,
+    ContactRepo.source,
+    ContactRepo.gender,
+    ContactRepo.isFriend,
+    ContactRepo.isFrom,
+    ContactRepo.categoryId,
+  ];
+
   final SqliteService _db = SqliteService.to;
+
+  /// 格式化标签字符串：确保以逗号结尾，去除重复逗号
+  static String _formatTag(String tag) {
+    if (tag.isNotEmpty && !tag.endsWith(',')) {
+      tag = "$tag,";
+    }
+    return tag.replaceAll(',,', ',');
+  }
 
   Future<List<ContactModel>> search({
     required String kwd,
     int limit = 1000,
     int offset = 0,
   }) async {
+    String pattern = "%$kwd%";
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tableName,
-      columns: [
-        ContactRepo.peerId,
-        ContactRepo.nickname,
-        ContactRepo.avatar,
-        ContactRepo.account,
-        ContactRepo.status,
-        ContactRepo.remark,
-        ContactRepo.tag,
-        ContactRepo.region,
-        ContactRepo.sign,
-        ContactRepo.source,
-        ContactRepo.gender,
-        ContactRepo.isFriend,
-        ContactRepo.isFrom,
-        ContactRepo.updatedAt,
-        ContactRepo.categoryId,
-      ],
+      columns: defaultColumns,
       where: '${ContactRepo.userId} = ? and ${ContactRepo.isFriend} = ? and ('
-          '${ContactRepo.nickname} like "%$kwd%" or ${ContactRepo.remark} like "%$kwd%" or ${ContactRepo.tag} like "%$kwd%"'
+          '${ContactRepo.nickname} like ? or ${ContactRepo.remark} like ? or ${ContactRepo.tag} like ?'
           ')',
-      whereArgs: [UserRepoLocal.to.currentUid, 1],
+      whereArgs: [UserRepoLocal.to.currentUid, 1, pattern, pattern, pattern],
       orderBy: "${ContactRepo.updatedAt} desc",
       limit: limit,
       offset: offset,
@@ -78,12 +90,8 @@ class ContactRepo {
   }
 
   // 插入一条数据
-  Future<ContactModel> insert(ContactModel obj) async {
-    String tag = obj.tag;
-    if (tag.isNotEmpty && !tag.endsWith(',')) {
-      tag = "$tag,";
-    }
-    tag = tag.replaceAll(',,', ',');
+  Future<ContactModel> insert(ContactModel obj, {Transaction? txn}) async {
+    String tag = _formatTag(obj.tag);
 
     Map<String, dynamic> insert = {
       ContactRepo.userId: UserRepoLocal.to.currentUid,
@@ -106,7 +114,11 @@ class ContactRepo {
     };
     debugPrint("> on ContactRepo/insert/1 $insert");
 
-    await _db.insert(ContactRepo.tableName, insert);
+    if (txn != null) {
+      await txn.insert(ContactRepo.tableName, insert);
+    } else {
+      await _db.insert(ContactRepo.tableName, insert);
+    }
     return obj;
   }
 
@@ -115,22 +127,7 @@ class ContactRepo {
     int limit = 10000,
     int offset = 0,
   }) async {
-    columns ??= [
-      ContactRepo.peerId,
-      ContactRepo.nickname,
-      ContactRepo.avatar,
-      ContactRepo.account,
-      ContactRepo.status,
-      ContactRepo.remark,
-      ContactRepo.tag,
-      ContactRepo.region,
-      ContactRepo.sign,
-      ContactRepo.source,
-      ContactRepo.gender,
-      ContactRepo.isFriend,
-      ContactRepo.isFrom,
-      ContactRepo.categoryId,
-    ];
+    columns ??= defaultColumns;
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tableName,
       columns: columns,
@@ -149,22 +146,7 @@ class ContactRepo {
     int limit = 10000,
     int offset = 0,
   }) async {
-    columns ??= [
-      ContactRepo.peerId,
-      ContactRepo.nickname,
-      ContactRepo.avatar,
-      ContactRepo.account,
-      ContactRepo.status,
-      ContactRepo.remark,
-      ContactRepo.tag,
-      ContactRepo.region,
-      ContactRepo.sign,
-      ContactRepo.source,
-      ContactRepo.gender,
-      ContactRepo.isFriend,
-      ContactRepo.isFrom,
-      ContactRepo.categoryId,
-    ];
+    columns ??= defaultColumns;
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tableName,
       columns: columns,
@@ -187,7 +169,7 @@ class ContactRepo {
   }
 
   //
-  Future<ContactModel?> findByUid(String uid, {bool autoFetch = true}) async {
+  Future<ContactModel?> findByUid(String uid, {bool autoFetch = true, Transaction? txn}) async {
     if (uid == 'bot_qian_fan') {
       return ContactModel.fromMap({
         ContactRepo.peerId: uid,
@@ -197,28 +179,22 @@ class ContactRepo {
         ContactRepo.avatar: '',
       });
     }
-    List<Map<String, dynamic>> maps = await _db.query(
-      ContactRepo.tableName,
-      columns: [
-        ContactRepo.peerId,
-        ContactRepo.nickname,
-        ContactRepo.avatar,
-        ContactRepo.account,
-        ContactRepo.status,
-        ContactRepo.remark,
-        ContactRepo.tag,
-        ContactRepo.region,
-        ContactRepo.sign,
-        ContactRepo.source,
-        ContactRepo.gender,
-        ContactRepo.updatedAt,
-        ContactRepo.isFriend,
-        ContactRepo.isFrom,
-        ContactRepo.categoryId,
-      ],
-      where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
-      whereArgs: [UserRepoLocal.to.currentUid, uid],
-    );
+    List<Map<String, dynamic>> maps;
+    if (txn != null) {
+      maps = await txn.query(
+        ContactRepo.tableName,
+        columns: [...defaultColumns, ContactRepo.updatedAt],
+        where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
+        whereArgs: [UserRepoLocal.to.currentUid, uid],
+      );
+    } else {
+      maps = await _db.query(
+        ContactRepo.tableName,
+        columns: [...defaultColumns, ContactRepo.updatedAt],
+        where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
+        whereArgs: [UserRepoLocal.to.currentUid, uid],
+      );
+    }
     // iPrint("people_info.initData 11 ${DateTime.now()}");
     if (maps.isNotEmpty) {
       return ContactModel.fromMap(maps.first);
@@ -242,7 +218,7 @@ class ContactRepo {
   }
 
   // 更新信息
-  Future<int> update(Map<String, dynamic> json) async {
+  Future<int> update(Map<String, dynamic> json, {Transaction? txn}) async {
     String peerId = json["id"] ?? (json[ContactRepo.peerId] ?? "");
 
     Map<String, Object?> data = {};
@@ -261,11 +237,7 @@ class ContactRepo {
     }
     String? tag = json[ContactRepo.tag];
     if (tag != null) {
-      if (tag.isNotEmpty && !tag.endsWith(',')) {
-        tag = "$tag,";
-      }
-      tag = tag.replaceAll(',,', ',');
-      data[ContactRepo.tag] = tag;
+      data[ContactRepo.tag] = _formatTag(tag);
     }
     if (strNoEmpty(json[ContactRepo.region])) {
       data[ContactRepo.region] = json[ContactRepo.region];
@@ -295,12 +267,21 @@ class ContactRepo {
     // debugPrint("> on ContactRepo/update/1 data: ${data.toString()}");
     if (strNoEmpty(peerId)) {
       data[ContactRepo.updatedAt] = DateTimeHelper.millisecond();
-      return await _db.update(
-        ContactRepo.tableName,
-        data,
-        where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
-        whereArgs: [UserRepoLocal.to.currentUid, peerId],
-      );
+      if (txn != null) {
+        return await txn.update(
+          ContactRepo.tableName,
+          data,
+          where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
+          whereArgs: [UserRepoLocal.to.currentUid, peerId],
+        );
+      } else {
+        return await _db.update(
+          ContactRepo.tableName,
+          data,
+          where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
+          whereArgs: [UserRepoLocal.to.currentUid, peerId],
+        );
+      }
     } else {
       return 0;
     }
@@ -311,20 +292,30 @@ class ContactRepo {
     // debugPrint("contact_repo_save $checkIsFriend, ${json.toString()}");
     // json['id'] 兼容 api响应的数据
     String uid = json['id'] ?? (json[ContactRepo.peerId] ?? "");
+    if (uid.isEmpty) {
+      debugPrint("> ContactRepo.save error: peerId is empty, json: ${json.toString()}");
+      return null;
+    }
     if (uid == UserRepoLocal.to.currentUid) {
       return null;
       // throw Exception('Add yourself as a friend');
     }
-    ContactModel? old = await findByUid(uid, autoFetch: false);
-    if (old is ContactModel) {
-      await update(json);
-      old = await findByUid(uid, autoFetch: false);
-      return old!;
-    } else {
-      ContactModel model = ContactModel.fromMap(json);
-      await insert(model);
-      return model;
-    }
+    return await _db.transaction<ContactModel?>((txn) async {
+      ContactModel? old = await findByUid(uid, autoFetch: false, txn: txn);
+      if (old is ContactModel) {
+        await update(json, txn: txn);
+        return await findByUid(uid, autoFetch: false, txn: txn);
+      } else {
+        try {
+          ContactModel model = ContactModel.fromMap(json);
+          await insert(model, txn: txn);
+          return model;
+        } catch (e) {
+          debugPrint("> ContactRepo.save error: $e, json: ${json.toString()}");
+          return null;
+        }
+      }
+    });
   }
 
   Future<int> deleteByUid(String uid) async {
@@ -337,17 +328,19 @@ class ContactRepo {
 
   Future<int> removeTag(
       {required String peerId, required String tagName}) async {
+    String tagPattern = '$tagName,';
     String sql =
-        "UPDATE ${ContactRepo.tableName} SET ${ContactRepo.tag} = REPLACE(${ContactRepo.tag}, '$tagName,', '') WHERE ${ContactRepo.userId} = '${UserRepoLocal.to.currentUid}' and ${ContactRepo.peerId} = '$peerId';";
+        "UPDATE ${ContactRepo.tableName} SET ${ContactRepo.tag} = REPLACE(${ContactRepo.tag}, ?, '') WHERE ${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?;";
     // iPrint("remoteTag $sql");
-    return await SqliteService.to.execute(sql);
+    return await SqliteService.to.execute(sql, [tagPattern, UserRepoLocal.to.currentUid, peerId]);
   }
 
   Future<int> addTag({required String peerId, required String tagName}) async {
+    String tagPrefix = '$tagName,';
     String sql =
-        "UPDATE ${ContactRepo.tableName} SET ${ContactRepo.tag} = '$tagName,' || ${ContactRepo.tag} WHERE ${ContactRepo.userId} = '${UserRepoLocal.to.currentUid}' and ${ContactRepo.peerId} = '$peerId';";
+        "UPDATE ${ContactRepo.tableName} SET ${ContactRepo.tag} = ? || ${ContactRepo.tag} WHERE ${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?;";
     // iPrint("addTag $sql");
-    return await SqliteService.to.execute(sql);
+    return await SqliteService.to.execute(sql, [tagPrefix, UserRepoLocal.to.currentUid, peerId]);
   }
 
 // 记得及时关闭数据库，防止内存泄漏

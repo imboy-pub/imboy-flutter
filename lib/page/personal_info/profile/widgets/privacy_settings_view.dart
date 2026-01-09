@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import '../profile_logic.dart';
 
 /// 隐私设置页面
@@ -12,8 +13,8 @@ class PrivacySettingsPage extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('隐私设置'),
+      appBar: GlassAppBar(
+        title: '隐私设置',
       ),
       body: SingleChildScrollView(
         child: Column(

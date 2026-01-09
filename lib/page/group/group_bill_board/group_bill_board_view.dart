@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 
+import 'package:imboy/component/ui/common_bar.dart';
 import 'group_bill_board_logic.dart';
 import 'group_bill_board_state.dart';
 
@@ -50,8 +52,9 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
   void _saveNotice() {
     if (!_canSave) return;
     final newNotice = _textController.text;
+    final now = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond());
     final publishTime =
-        "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day} ${DateTime.now().hour}:${DateTime.now().minute}";
+        "${now.year}-${now.month}-${now.day} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
     widget.callback?.call(publishTime);
     Navigator.pop(context, newNotice);
   }
@@ -61,9 +64,9 @@ class _GroupBillBoardPageState extends State<GroupBillBoardPage> {
     final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        title: Text('groupAnnouncement'.tr),
-        actions: [
+      appBar: GlassAppBar(
+        title: 'groupAnnouncement'.tr,
+        rightDMActions: [
           TextButton(
             onPressed: _canSave ? _saveNotice : null,
             child: Text('buttonAccomplish'.tr),

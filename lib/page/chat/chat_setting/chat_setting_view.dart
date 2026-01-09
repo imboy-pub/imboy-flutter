@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
@@ -439,7 +440,6 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -529,7 +529,6 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(dialogContext).colorScheme.error,
-                    foregroundColor: Theme.of(dialogContext).colorScheme.onError,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -556,11 +555,8 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
+      appBar: GlassAppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        scrolledUnderElevation: 0.5,
-        shadowColor: Theme.of(context).shadowColor.withValues(alpha: 0.1),
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new,
@@ -571,7 +567,7 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
             Get.back(result: backDoRefresh);
           },
         ),
-        title: Text(
+        titleWidget: Text(
           'chatSettings'.tr,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
@@ -579,7 +575,6 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- 启用 App Sandbox -->
+    <key>com.apple.security.app-sandbox</key>
+    <true/>
+
+    <!-- 网络访问权限 -->
+    <key>com.apple.security.network.client</key>
+    <true/>
+    <key>com.apple.security.network.server</key>
+    <true/>
+
+    <!-- 定位服务权限 - 关键配置，geolocator 必需 -->
+    <key>com.apple.security.personal-information.location</key>
+    <true/>
+
+    <!-- 设备访问权限 -->
+    <key>com.apple.security.device.audio-input</key>
+    <true/>
+    <key>com.apple.security.device.camera</key>
+    <true/>
+
+    <!-- 文件访问权限 -->
+    <key>com.apple.security.assets.pictures.read-write</key>
+    <true/>
+    <key>com.apple.security.files.user-selected.read-write</key>
+    <true/>
+    <key>com.apple.security.files.downloads.read-write</key>
+    <true/>
+
+    <!-- 个人信息访问权限 -->
+    <key>com.apple.security.personal-information.addressbook</key>
+    <true/>
+    <key>com.apple.security.personal-information.photos-library</key>
+    <true/>
+</dict>
+</plist>
+```
+
+文件已成功创建。现在你需要执行以下命令来验证和清理构建：
+
+验证文件格式：
+```bash
+plutil -lint macos/Runner/Runner.entitlements
+```
+
+清理并重新构建项目：
+```bash
+flutter clean
+flutter pub get
+flutter run -d macos
+```
+
+创建此文件后，geolocator 在 macOS 上应该就能正常获取经纬度了。记住在首次运行时要授予应用位置权限！

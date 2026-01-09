@@ -2,6 +2,7 @@ import 'package:azlistview/azlistview.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/widget/user_online_status_widget.dart';
@@ -17,7 +18,6 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/provider/contact_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:lpinyin/lpinyin.dart';
-
 
 class ContactLogic extends GetxController {
   RxList<ContactModel> contactList = <ContactModel>[].obs;
@@ -52,11 +52,7 @@ class ContactLogic extends GetxController {
         nameIndex: '↑',
         bgColor: Colors.orange,
         iconData: const Center(
-          child: Icon(
-            Icons.person_pin_circle,
-            size: 24,
-            color: Colors.white,
-          ),
+          child: Icon(Icons.person_pin_circle, size: 24, color: Colors.white),
         ),
         onPressed: () {
           Get.to(
@@ -71,35 +67,27 @@ class ContactLogic extends GetxController {
         nickname: 'newFriend'.tr,
         nameIndex: '↑',
         bgColor: Colors.orange,
-        iconData: Obx(() => badges.Badge(
-              showBadge: Get.find<BottomNavigationLogic>()
-                  .newFriendRemindCounter
-                  .isNotEmpty,
-              // shape: badges.BadgeShape.square,
-              // borderRadius: BorderRadius.circular(10),
-              position: badges.BadgePosition.topStart(top: 0, start: 128),
-              // padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
-              badgeContent: Container(
-                color: Colors.red,
-                alignment: Alignment.center,
-                child: Text(
-                  Get.find<BottomNavigationLogic>()
-                      .newFriendRemindCounter
-                      .length
-                      .toString(),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 8,
-                  ),
-                ),
+        iconData: Obx(
+          () => badges.Badge(
+            showBadge: Get.find<BottomNavigationLogic>()
+                .newFriendRemindCounter
+                .isNotEmpty,
+            // shape: badges.BadgeShape.square,
+            // borderRadius: BorderRadius.circular(10),
+            position: badges.BadgePosition.topStart(top: 0, start: 128),
+            // padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+            badgeContent: Container(
+              color: Colors.red,
+              alignment: Alignment.center,
+              child: Text(
+                Get.find<BottomNavigationLogic>().newFriendRemindCounter.length
+                    .toString(),
+                style: const TextStyle(color: Colors.white, fontSize: 8),
               ),
-              child: const Center(
-                child: Icon(
-                  Icons.person_add,
-                  size: 24,
-                ),
-              ),
-            )),
+            ),
+            child: const Center(child: Icon(Icons.person_add, size: 24)),
+          ),
+        ),
         onPressed: () {
           Get.to(
             () => NewFriendPage(),
@@ -113,11 +101,7 @@ class ContactLogic extends GetxController {
         nickname: 'groupChat'.tr,
         nameIndex: '↑',
         bgColor: Colors.green,
-        iconData: const Icon(
-          Icons.people,
-          size: 24,
-          color: Colors.white,
-        ),
+        iconData: const Icon(Icons.people, size: 24, color: Colors.white),
         onPressed: () {
           Get.to(
             () => GroupListPage(),
@@ -133,8 +117,8 @@ class ContactLogic extends GetxController {
         bgColor: Colors.blue,
         iconData: const Icon(
           Icons.local_offer,
-          color: Colors.white,
           size: 24,
+          color: Colors.white,
         ),
         onPressed: () {
           Get.to(
@@ -144,42 +128,6 @@ class ContactLogic extends GetxController {
           );
         },
       ),
-      /*
-      ContactModel(
-        peerId: 'bot_qian_fan',
-        nickname: 'botQianFan'.tr,
-        nameIndex: '↑',
-        bgColor: Colors.teal,
-        // icon 翻转
-        // iconData: Transform.scale(
-        //   scaleX: -1,
-        //   child: const Icon(
-        //     Icons.chat,
-        //     color: Colors.white,
-        //     size: 24,
-        //   ),
-        // ),
-        iconData: const ImageView(
-          uri: 'https://bce.bdstatic.com/img/favicon.ico',
-          height: 40,
-        ),
-        /*
-        onPressed: () {
-          Get.to(
-            () => ChatPage(
-              peerId: 'bot_qian_fan',
-              peerTitle: 'botQianFan'.tr,
-              peerAvatar: '',
-              peerSign: '',
-              type: 'C2S',
-            ),
-            transition: Transition.rightToLeft,
-            popGesture: true, // 右滑，返回上一页
-          );
-        },
-        */
-      ),
-      */
     ];
     // add topList.
     list.insertAll(0, topList);
@@ -223,18 +171,17 @@ class ContactLogic extends GetxController {
     Color? defHeaderBgColor,
   }) {
     return InkWell(
-      onTap: model.onPressed ??
+      onTap:
+          model.onPressed ??
           () {
             Get.to(
-              () => PeopleInfoPage(
-                id: model.peerId,
-                scene: 'contact_page',
-              ),
+              () => PeopleInfoPage(id: model.peerId, scene: 'contact_page'),
               transition: Transition.rightToLeft,
               popGesture: true, // 右滑，返回上一页
             );
           },
-      onLongPress: model.onLongPressed ??
+      onLongPress:
+          model.onLongPressed ??
           () {
             if (model.iconData == null) {
               Get.to(
@@ -263,111 +210,122 @@ class ContactLogic extends GetxController {
     if (model.avatar.isNotEmpty) {
       avatar = dynamicAvatar(model.avatar);
     }
-    // debugPrint("getChatItem ${model.toJson().toString()}");
-    
+
     // 判断是否为特殊联系人（功能入口）
     bool isSpecialContact = model.iconData != null;
-    
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
-      padding: const EdgeInsets.only(top: 10, left: 10.0, bottom: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // 头像部分
-          Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 2),
-                child: model.iconData == null
-                    ? Avatar(
-                        imgUri: model.avatar,
-                        width: 49,
-                        height: 49,
-                      )
-                    : Container(
-                        width: 49,
-                        height: 49,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(12.0), // 增加圆角
-                          color: model.bgColor ?? defHeaderBgColor,
-                          image: avatar,
-                        ),
-                        child: model.iconData,
-                      ),
-              ),
-              // 在线状态指示器（仅对真实联系人显示）
-              if (!isSpecialContact)
-                Positioned(
-                  bottom: 2,
-                  right: 2,
-                  child: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: _getOnlineStatusColor(model),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          // 信息部分
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(left: 8),
-              padding: const EdgeInsets.only(
-                left: 0,
-                right: 0,
-                top: 10.0,
-                bottom: 10.0,
-              ),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2), // 参考会话页面的下划线样式
-                    width: 0.25,
-                  ),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 姓名
-                  Text(
-                    model.title,
-                    style: TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.normal,
-                      color: Theme.of(context).colorScheme.onSurface, // 使用主题文字色
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  // 在线状态（仅对真实联系人显示）
-                  if (!isSpecialContact)
-                    const SizedBox(height: 4),
-                  if (!isSpecialContact)
-                    UserOnlineStatusWidget(
-                      isOnline: model.status == 'online',
-                      lastSeenTimestamp: model.lastSeenAt,
-                      hideOnlineStatus: false,
-                      textStyle: TextStyle(
-                        fontSize: 12.0,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                      ),
-                      indicatorSize: 6,
-                    ),
-                ],
-              ),
-            ),
+      margin: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 4,
+      ), // Card margins
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(12), // Rounded corners
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.04), // Soft shadow
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
-      ));
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : Colors.transparent,
+          width: 0.5,
+        ),
+      ),
+      child: Padding(
+        // Internal padding
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // 头像部分
+            Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 2),
+                  child: model.iconData == null
+                      ? Avatar(imgUri: model.avatar, width: 48, height: 48)
+                      : Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.circular(12.0),
+                            color: model.bgColor ?? defHeaderBgColor,
+                            image: avatar,
+                          ),
+                          child: model.iconData,
+                        ),
+                ),
+                // 在线状态指示器（仅对真实联系人显示）
+                if (!isSpecialContact)
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      width: 14,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: _getOnlineStatusColor(model),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: theme.cardColor, width: 2),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            // 信息部分
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.only(left: 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // 姓名
+                    Text(
+                      model.title,
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    // 在线状态（仅对真实联系人显示）
+                    if (!isSpecialContact && model.lastSeenAt != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: UserOnlineStatusWidget(
+                          isOnline: model.status == 'online',
+                          lastSeenTimestamp: model.lastSeenAt,
+                          hideOnlineStatus: false,
+                          textStyle: TextStyle(
+                            fontSize: 12.0,
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.5,
+                            ),
+                          ),
+                          indicatorSize: 0, // Indicated by avatar dot
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   // 获取在线状态颜色
@@ -376,15 +334,15 @@ class ContactLogic extends GetxController {
       return Colors.green;
     } else if (model.lastSeenAt != null) {
       // 如果有最后在线时间，根据时间长短返回不同颜色
-      final lastSeen = DateTime.fromMillisecondsSinceEpoch(model.lastSeenAt!);
-      final now = DateTime.now();
-      final difference = now.difference(lastSeen);
-      
-      if (difference.inHours <= 1) {
+      final nowMs = DateTimeHelper.millisecond();
+      final lastSeenMs = model.lastSeenAt!;
+      final diffMs = nowMs - lastSeenMs;
+
+      if (diffMs <= 1 * 3600 * 1000) {
         return Colors.orange; // 1小时内
-      } else if (difference.inDays <= 1) {
+      } else if (diffMs <= 24 * 3600 * 1000) {
         return Colors.blue; // 1天内
-      } else if (difference.inDays <= 7) {
+      } else if (diffMs <= 7 * 24 * 3600 * 1000) {
         return Colors.purple; // 1周内
       } else {
         return Colors.grey; // 超过1周
@@ -394,19 +352,38 @@ class ContactLogic extends GetxController {
     }
   }
 
-  Widget getSusItem(BuildContext context, String tag, {double susHeight = 24}) {
+  Widget getSusItem(BuildContext context, String tag, {double susHeight = 32}) {
+    // 现代风格的索引头
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       height: susHeight,
       width: MediaQuery.of(context).size.width,
-      padding: const EdgeInsets.only(left: 10.0),
-      // color: const Color(0xFFF3F4F5),
+      padding: const EdgeInsets.only(left: 20.0),
       alignment: Alignment.centerLeft,
-      child: Text(
-        tag,
-        softWrap: false,
-        style: const TextStyle(
-          fontSize: 14.0,
-          // color: Color(0xFF666666),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface, // Background blends
+        // Optional: Add a subtle gradient or line
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+        decoration: BoxDecoration(
+          color: isDark
+              ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+              : theme.colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.5,
+                ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          tag,
+          softWrap: false,
+          style: TextStyle(
+            fontSize: 12.0,
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.primary,
+          ),
         ),
       ),
     );

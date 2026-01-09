@@ -42,17 +42,34 @@ class PeopleInfoPage extends StatelessWidget {
     required String title,
     required IconData icon,
     required VoidCallback onTap,
+    required bool isDark,
     Color? iconColor,
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: isDark
+            ? Theme.of(context).colorScheme.surfaceContainerHighest
+            : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          width: 0.5,
-        ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05)
+                : Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: isDark
+            ? Border.all(
+                color: Theme.of(context)
+                    .colorScheme
+                    .outline
+                    .withValues(alpha: 0.15),
+                width: 0.5,
+              )
+            : null,
       ),
       child: Material(
         color: Colors.transparent,
@@ -93,16 +110,32 @@ class PeopleInfoPage extends StatelessWidget {
   }
 
   /// 构建标签卡片
-  Widget _buildTagCard(BuildContext context) {
+  Widget _buildTagCard(BuildContext context, bool isDark) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: isDark
+            ? Theme.of(context).colorScheme.surfaceContainerHighest
+            : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          width: 0.5,
-        ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05)
+                : Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: isDark
+            ? Border.all(
+                color: Theme.of(context)
+                    .colorScheme
+                    .outline
+                    .withValues(alpha: 0.15),
+                width: 0.5,
+              )
+            : null,
       ),
       child: Material(
         color: Colors.transparent,
@@ -264,9 +297,11 @@ class PeopleInfoPage extends StatelessWidget {
     if (scene == 'denylist' || id == 'bot_qian_fan') {
       showApplyFriendBtn = false;
     }
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: NavAppBar(
+      backgroundColor: isDark ? Theme.of(context).colorScheme.surface : const Color(0xFFF5F5F5),
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: '',
         rightDMActions: isSelf || id == 'bot_qian_fan'
@@ -319,15 +354,23 @@ class PeopleInfoPage extends StatelessWidget {
               Container(
                 margin: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
+                  color: isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
+            color: isDark
+                ? Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05)
+                : Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
                   ],
+                  border: isDark 
+                      ? Border.all(
+                          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+                          width: 0.5,
+                        )
+                      : null,
                 ),
                 child: ContactCard(
                   id: id,
@@ -348,12 +391,23 @@ class PeopleInfoPage extends StatelessWidget {
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16.0),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
+                    color: isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-                      width: 0.5,
-                    ),
+                    border: isDark 
+                        ? Border.all(
+                            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+                            width: 0.5,
+                          )
+                        : null,
+                    boxShadow: [
+                      BoxShadow(
+            color: isDark
+                ? Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05)
+                : Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+                    ],
                   ),
                   child: UserOnlineStatusDetailWidget(
                     isOnline: state.status.value == 'online',
@@ -364,7 +418,7 @@ class PeopleInfoPage extends StatelessWidget {
 
               // 标签设置（非本人且非机器人）
               if (!isSelf && id != 'bot_qian_fan')
-                _buildTagCard(context),
+                _buildTagCard(context, isDark),
 
               // 更多信息（好友或黑名单）
               if (state.isFriend.value == 1 || scene == 'denylist')
@@ -372,6 +426,7 @@ class PeopleInfoPage extends StatelessWidget {
                   context: context,
                   title: 'moreInfo'.tr,
                   icon: Icons.info_outline,
+                  isDark: isDark,
                   onTap: () => Navigator.push(
                     context,
                     CupertinoPageRoute(
@@ -390,6 +445,7 @@ class PeopleInfoPage extends StatelessWidget {
                     context: context,
                     title: 'messageCall'.tr,
                     icon: Icons.message_outlined,
+                    isDark: isDark,
                     onTap: () {
                       String peerTitle = state.remark.value;
                       if (peerTitle.isEmpty) {
@@ -418,6 +474,7 @@ class PeopleInfoPage extends StatelessWidget {
                     context: context,
                     title: 'voiceCall'.tr,
                     icon: Icons.call_outlined,
+                    isDark: isDark,
                     onTap: () {
                       openCallScreen(
                         ContactModel.fromMap({
@@ -437,6 +494,7 @@ class PeopleInfoPage extends StatelessWidget {
                     context: context,
                     title: 'videoCall'.tr,
                     icon: Icons.videocam_outlined,
+                    isDark: isDark,
                     onTap: () {
                       openCallScreen(
                         ContactModel.fromMap({

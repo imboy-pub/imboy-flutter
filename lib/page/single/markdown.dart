@@ -40,7 +40,7 @@ class MarkdownPage extends StatelessWidget {
     initData();
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         leading: leading,
         automaticallyImplyLeading: true,
         title: title,

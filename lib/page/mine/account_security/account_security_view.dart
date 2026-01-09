@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/web_view.dart';
@@ -29,29 +29,35 @@ class AccountSecurityPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool needSet = StorageService.to.getBool(Keys.needSetPwd) ?? false;
-    
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'accountSecurity'.tr,
       ),
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
+            const SizedBox(height: 16),
             // 账户信息分组
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).shadowColor.withValues(alpha: 0.02),
-                    blurRadius: 1,
-                    offset: const Offset(0, 1),
+                    color: Theme.of(
+                      context,
+                    ).shadowColor.withValues(alpha: 0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
+              clipBehavior: Clip.antiAlias,
               child: Column(
                 children: [
                   // 账户号码
@@ -62,16 +68,10 @@ class AccountSecurityPage extends StatelessWidget {
                     leadingIcon: Icons.badge,
                     leadingIconColor: AppColors.info,
                   ),
-                  
-                  // 分割线
-                  Padding(
-                    padding: const EdgeInsets.only(left: 56),
-                    child: HorizontalLine(
-                      height: 0.5,
-                    ),
-                  ),
 
-                  // 手机号（新增：在邮箱项之前）
+                  _buildDivider(context),
+
+                  // 手机号
                   _buildSettingItem(
                     context,
                     title: 'mobile'.tr,
@@ -89,14 +89,8 @@ class AccountSecurityPage extends StatelessWidget {
                     },
                   ),
 
-                  // 分割线
-                  Padding(
-                    padding: const EdgeInsets.only(left: 56),
-                    child: HorizontalLine(
-                      height: 0.5,
-                    ),
-                  ),
-                  
+                  _buildDivider(context),
+
                   // 邮箱
                   _buildSettingItem(
                     context,
@@ -108,7 +102,7 @@ class AccountSecurityPage extends StatelessWidget {
                             UserRepoLocal.to.current.email.length - 8,
                             '*' * (UserRepoLocal.to.current.email.length - 12),
                           ),
-                    leadingIcon: Icons.email,
+                    leadingIcon: Icons.alternate_email,
                     leadingIconColor: AppColors.warning,
                     onTap: () {
                       Get.to(
@@ -122,21 +116,23 @@ class AccountSecurityPage extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 8),
-
             // 安全设置分组
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).shadowColor.withValues(alpha: 0.02),
-                    blurRadius: 1,
-                    offset: const Offset(0, 1),
+                    color: Theme.of(
+                      context,
+                    ).shadowColor.withValues(alpha: 0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
+              clipBehavior: Clip.antiAlias,
               child: Column(
                 children: [
                   // 密码设置
@@ -144,7 +140,7 @@ class AccountSecurityPage extends StatelessWidget {
                     context,
                     title: 'password'.tr,
                     value: needSet == false ? 'haveSet'.tr : '未设置',
-                    leadingIcon: Icons.lock,
+                    leadingIcon: Icons.lock_outline,
                     leadingIconColor: AppColors.success,
                     onTap: () {
                       Get.to(
@@ -156,22 +152,15 @@ class AccountSecurityPage extends StatelessWidget {
                       );
                     },
                   ),
-                  
-                  // 分割线
-                  Padding(
-                    padding: const EdgeInsets.only(left: 56),
-                    child: HorizontalLine(
-                      height: 0.5,
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  
+
+                  _buildDivider(context),
+
                   // 安全中心
                   _buildSettingItem(
                     context,
                     title: 'securityCenter'.tr,
                     subtitle: '查看安全帮助',
-                    leadingIcon: Icons.shield,
+                    leadingIcon: Icons.shield_outlined,
                     leadingIconColor: AppColors.warning,
                     onTap: () {
                       Get.to(
@@ -188,21 +177,23 @@ class AccountSecurityPage extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 8),
-
             // 账户操作分组
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).shadowColor.withValues(alpha: 0.02),
-                    blurRadius: 1,
-                    offset: const Offset(0, 1),
+                    color: Theme.of(
+                      context,
+                    ).shadowColor.withValues(alpha: 0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
+              clipBehavior: Clip.antiAlias,
               child: Column(
                 children: [
                   // 退出登录
@@ -219,16 +210,9 @@ class AccountSecurityPage extends StatelessWidget {
                       }
                     },
                   ),
-                  
-                  // 分割线
-                  Padding(
-                    padding: const EdgeInsets.only(left: 56),
-                    child: HorizontalLine(
-                      height: 0.5,
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  
+
+                  _buildDivider(context),
+
                   // 注销账户
                   _buildSettingItem(
                     context,
@@ -248,14 +232,24 @@ class AccountSecurityPage extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
           ],
         ),
       ),
     );
   }
 
-  /// 构建设置项 - 参考设置页面风格
+  Widget _buildDivider(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 56),
+      child: HorizontalLine(
+        height: 0.5,
+        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+      ),
+    );
+  }
+
+  /// 构建设置项 - 优化后的主题样式
   Widget _buildSettingItem(
     BuildContext context, {
     required String title,
@@ -279,18 +273,21 @@ class AccountSecurityPage extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: (leadingIconColor ?? AppColors.primaryGreen).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    color: (leadingIconColor ?? AppColors.primaryGreen)
+                        .withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10), // Rounded bg
                   ),
                   child: Icon(
                     leadingIcon,
-                    color: isDestructive ? AppColors.lightError : (leadingIconColor ?? AppColors.primaryGreen),
+                    color: isDestructive
+                        ? AppColors.lightError
+                        : (leadingIconColor ?? AppColors.primaryGreen),
                     size: 20,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 14),
               ],
-              
+
               // 主要内容
               Expanded(
                 child: Column(
@@ -300,7 +297,9 @@ class AccountSecurityPage extends StatelessWidget {
                       title,
                       style: ThemeManager.instance.getTextStyle(
                         FontSizeType.normal,
-                        color: isDestructive ? AppColors.lightError : Theme.of(context).colorScheme.onSurface,
+                        color: isDestructive
+                            ? AppColors.lightError
+                            : Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -317,7 +316,7 @@ class AccountSecurityPage extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // 值显示
               if (value != null) ...[
                 const SizedBox(width: 8),
@@ -330,14 +329,14 @@ class AccountSecurityPage extends StatelessWidget {
                   ),
                 ),
               ],
-              
+
               // 箭头图标
               if (onTap != null && !isDestructive) ...[
                 const SizedBox(width: 8),
                 Icon(
-                  Icons.navigate_next,
-                  color: AppColors.textSecondary,
-                  size: 20,
+                  Icons.arrow_forward_ios_rounded,
+                  color: AppColors.textSecondary.withValues(alpha: 0.5),
+                  size: 16,
                 ),
               ],
             ],

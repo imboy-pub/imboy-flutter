@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/service/websocket.dart';
 
 /// 输入状态管理器
@@ -87,7 +88,7 @@ class InputStateManager extends GetxController {
         'type': 'typing',
         'conversation_id': conversationId,
         'is_typing': isTyping,
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
+        'timestamp': DateTimeHelper.millisecond(),
       };
       WebSocketService.to.sendMessage(jsonEncode(message), null);
     }

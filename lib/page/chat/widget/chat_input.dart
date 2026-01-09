@@ -111,7 +111,6 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   TextEditingController get textController => _textController;
   late AnimationController _bottomHeightController; // 兼容旧动画逻辑
   late String draftKey; // 草稿key
-  StreamSubscription? ssMsg;
   Timer? _debounceTimer;
 
   // 用于外部控制消息区/输入区高度实现丝滑动画
@@ -195,13 +194,6 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     if (draft != null && draft.isNotEmpty) {
       _setText(draft);
     }
-
-    // 接收到新的消息订阅
-    ssMsg = eventBus.on<ReEditMessage>().listen((msg) async {
-      if (_textController.text.toString() != msg.text) {
-        _setText(msg.text);
-      }
-    });
 
     // 监听输入框焦点变化，自动切换到文本输入模式
     // 已移至 _initFocusListener()
@@ -424,7 +416,6 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     _inputFocusNode.dispose();
     _textController.dispose();
     _bottomHeightController.dispose();
-    ssMsg?.cancel();
     _emojiShowing.dispose();
     _inputType.dispose();
     _sendButtonVisible.dispose();

@@ -57,31 +57,31 @@ class AppColors {
   static const Color lightTextDisabled = Color(0xFF999999);
   
   /// 亮色主题 - 表面颜色 - Material 3 Surface
-  static const Color lightSurface = Color(0xFFFEF7FF);
-  
+  static const Color lightSurface = Colors.white;
+
   /// 亮色主题 - 背景颜色 - Material 3 Background (已废弃，使用Surface)
-  static const Color lightBackground = Color(0xFFFEF7FF);
-  
+  static const Color lightBackground = Colors.white;
+
   /// 亮色主题 - 表面变体 - Material 3 Surface Variant
   static const Color lightSurfaceVariant = Color(0xFFE7E0EC);
-  
-  /// 亮色主题 - 表面容器 - Material 3 Surface Container
-  static const Color lightSurfaceContainer = Color(0xFFF3EDF7);
-  
+
+  /// 亮色主题 - 表面容器 - Material 3 Surface Container (微信风格浅灰)
+  static const Color lightSurfaceContainer = Color(0xFFEDEDED);
+
   /// 亮色主题 - 表面容器最高 - Material 3 Surface Container Highest
   static const Color lightSurfaceContainerHighest = Color(0xFFE6E0E9);
-  
+
   /// 亮色主题 - 卡片背景（使用Surface Container）
-  static const Color lightCardBackground = lightSurfaceContainer;
-  
+  static const Color lightCardBackground = Colors.white;
+
   /// 亮色主题 - 分割线颜色 - Material 3 Outline Variant
-  static const Color lightDivider = Color(0xFFCAC4D0);
-  
+  static const Color lightDivider = Color(0xFFE5E5E5);
+
   /// 亮色主题 - 边框颜色 - Material 3 Outline
-  static const Color lightBorder = Color(0xFF79747E);
-  
-  /// 亮色主题 - AppBar背景（使用Surface Container）
-  static const Color lightAppBarBackground = lightSurfaceContainer;
+  static const Color lightBorder = Color(0xFFE5E5E5);
+
+  /// 亮色主题 - AppBar背景（微信风格浅灰）
+  static const Color lightAppBarBackground = Color(0xFFEDEDED);
   
   /// 亮色主题 - 错误颜色 - Material 3 Error
   static const Color lightError = Color(0xFFBA1A1A);

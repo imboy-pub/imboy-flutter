@@ -150,7 +150,7 @@ mixin MessageHandlingMixin<T extends StatefulWidget> on State<T> {
   Future<bool> sendTextMessage(String text) async {
     final textMessage = TextMessage(
       authorId: currentUser.id,
-      createdAt: DateTimeHelper.now(),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       id: Xid().toString(),
       text: text,
       metadata: {'peer_id': peerId},
@@ -167,7 +167,7 @@ mixin MessageHandlingMixin<T extends StatefulWidget> on State<T> {
         : UserRepoLocal.to.current.nickname;
     final message = CustomMessage(
       authorId: currentUser.id,
-      createdAt: DateTimeHelper.now(),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       id: Xid().toString(),
       metadata: {
         'custom_type': 'quote',
@@ -547,7 +547,7 @@ mixin MessageHandlingMixin<T extends StatefulWidget> on State<T> {
         MessageRepo.to: peerId,
         MessageRepo.status: 10,
         MessageRepo.conversationUk3: conversation.uk3,
-        MessageRepo.createdAt: DateTimeHelper.millisecond(),
+        MessageRepo.createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       });
     final msg = await MessageModel.fromJson(data).toTypeMessage();
     final res = await addMessage(msg);
@@ -563,7 +563,7 @@ mixin MessageHandlingMixin<T extends StatefulWidget> on State<T> {
   Future<void> sendVisitCardMessage(dynamic contact) async {
     final message = CustomMessage(
       authorId: currentUser.id,
-      createdAt: DateTimeHelper.now(),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       id: Xid().toString(),
       metadata: {
         'custom_type': 'visit_card',
@@ -623,19 +623,6 @@ mixin MessageHandlingMixin<T extends StatefulWidget> on State<T> {
       EasyLoading.dismiss();
       EasyLoading.showError('编辑操作异常，请重试');
     }
-  }
-
-  /// 检查消息是否可以编辑
-  bool canEditMessage(Message message) {
-    if (message.authorId != UserRepoLocal.to.currentUid) return false;
-    if (message is! TextMessage) return false;
-    
-    // 检查时间限制（15分钟内可编辑，与后端保持一致）
-    final now = DateTime.now();
-    final messageTime = message.createdAt ?? now;
-    final timeDiff = now.difference(messageTime);
-    
-    return timeDiff.inMinutes < 15;
   }
 
   /// 检查消息是否可以保存

@@ -1,6 +1,7 @@
 import 'package:azlistview/azlistview.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -30,10 +31,10 @@ class ContactPage extends StatelessWidget {
   Widget build(BuildContext context) {
     loadData();
     return Scaffold(
-      appBar: AppBar(
+      appBar: GlassAppBar(
         leading: const SizedBox.shrink(),
-        title: Text('titleContact'.tr),
-        actions: <Widget>[
+        titleWidget: Text('titleContact'.tr),
+        rightDMActions: [
           IconButton(
             onPressed: () {
               Get.to(

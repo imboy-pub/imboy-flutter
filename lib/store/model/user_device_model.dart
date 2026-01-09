@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:imboy/component/helper/datetime.dart';
+
 class UserDeviceModel {
   String deviceId;
   String deviceName;
@@ -37,7 +39,7 @@ class UserDeviceModel {
       deviceId: json['device_id'],
       deviceName: json['device_name'],
       deviceType: json['device_type'],
-      lastActiveAt: json['last_active_at'],
+      lastActiveAt: DateTimeHelper.parseTimestamp(json['last_active_at']),
       // 本地数据库 online ，线上获取有 online
       online: json['online'] ?? false,
       deviceVsn: deviceVsn,

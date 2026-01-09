@@ -21,7 +21,7 @@ class PeopleInfoSameGroupPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'mutualGroupsWithHer'.tr,
       ),

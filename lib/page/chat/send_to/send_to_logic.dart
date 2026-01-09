@@ -33,7 +33,7 @@ class SendToLogic extends GetxController {
         id: Xid().toString(),
         authorId: UserRepoLocal.to.currentUid,
         status: MessageStatus.sending,
-        createdAt: DateTimeHelper.now(),
+        createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
         metadata: metadata,
         // roomId: msg.roomId,
         // status: msg.status ?? MessageStatus.sending,

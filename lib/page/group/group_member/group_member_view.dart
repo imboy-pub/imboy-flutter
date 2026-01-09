@@ -123,7 +123,7 @@ class _GroupMemberPageState extends State<GroupMemberPage> {
     // }
 
     return Scaffold(
-      appBar: const NavAppBar(
+      appBar: const GlassAppBar(
         automaticallyImplyLeading: true,
         // titleWidget: titleWidget(),
       ),

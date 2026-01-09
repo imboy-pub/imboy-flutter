@@ -12,11 +12,8 @@ class ChatThemeConfig {
 
   /// 获取聊天主题（根据当前系统主题自动适配）
   static ChatTheme get chatTheme {
-    final themeManager = Get.find<ThemeManager>();
     return getChatTheme(
       isDark: Get.isDarkMode,
-      isOLEDMode: themeManager.isOLEDMode,
-      isEyeCareMode: themeManager.isEyeCareMode,
     );
   }
 

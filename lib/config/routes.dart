@@ -12,6 +12,8 @@ class AppRoutes {
   static const contact = '/contact';
   static const contactDetail = '/contact_detail';
   static const conversation = "/conversation";
+  static const groupAnnouncement = '/group/announcement';
+  static const chatSetting = '/chat/setting';
 }
 
 class RouteObservers<R extends Route<dynamic>> extends RouteObserver<R> {

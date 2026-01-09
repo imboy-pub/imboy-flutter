@@ -26,6 +26,8 @@ import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/page/group/group_detail/group_detail_logic.dart';
 import 'package:imboy/page/mine/user_collect/user_collect_logic.dart';
 import 'package:imboy/service/message.dart';
+import 'package:imboy/service/message_retry.dart';
+import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -48,7 +50,8 @@ class ChatLogic extends GetxController {
   StreamSubscription<PlayerState>? _playerStateSubscription; // 播放状态监听
   StreamSubscription<int>? _positionSubscription; // 播放位置监听
   bool _isDisposed = false; // 添加状态跟踪标志
-  static const String _spPendingReadReceiptsKey = 'imboy.pending_read_receipts.v1';
+  static const String _spPendingReadReceiptsKey =
+      'imboy.pending_read_receipts.v1';
   static const String _spPendingReactionsKey = 'imboy.pending_reactions.v1';
   Timer? _readReceiptFlushTimer;
   Timer? _cleanupDeletedMessageIdsTimer;
@@ -59,11 +62,10 @@ class ChatLogic extends GetxController {
   static const int _burnLastMessageScanLimit = 40;
   static const String _spDeletedMessageIdsKey = 'imboy.deleted_message_ids.v1';
   static const int _deletedMessageRetentionMs = 24 * 60 * 60 * 1000; // 保留24小时
-  
-  // 备用音频播放器相关字段
+
   just_audio.AudioPlayer? _audioPlayer; // 备用音频播放器
-  StreamSubscription<just_audio.PlayerState>? _justAudioStateSubscription; // Just Audio状态监听
-  StreamSubscription<Duration>? _justAudioPositionSubscription; // Just Audio位置监听
+  StreamSubscription<just_audio.PlayerState>? _justAudioStateSubscription; // Just Audio 播放状态监听
+  StreamSubscription<Duration>? _justAudioPositionSubscription; // Just Audio 播放位置监听
   final bool _useJustAudio = true; // 统一使用 Just Audio
   @override
   void onInit() {
@@ -81,16 +83,20 @@ class ChatLogic extends GetxController {
       const Duration(hours: 1),
       (_) => _cleanupDeletedMessageIds(),
     );
+
+    // 设置连续播放回调
+    VoicePlaybackService.to.onPlaybackCompleted = (id) async {
+      await playNextAudioMessage(id);
+    };
   }
 
-  
   void initChatController(String chatType) {
     // 检查是否已经被释放
     if (_isDisposed) {
       iPrint('ChatLogic已被释放，跳过初始化');
       return;
     }
-    
+
     // 检查控制器是否为null或已被释放
     if (chatController == null || chatController!.isDisposed) {
       iPrint('initChatController: 创建新的聊天控制器');
@@ -100,7 +106,7 @@ class ChatLogic extends GetxController {
       // 重置现有控制器的状态
       chatController!.reset();
     }
-    
+
     // 不在这里清空消息列表，让 loadMoreMessages 方法处理
     // 这样可以避免重复清空消息列表
     iPrint('initChatController: 聊天控制器初始化完成');
@@ -119,7 +125,71 @@ class ChatLogic extends GetxController {
 
   @override
   void dispose() {
+    // 确保只释放一次
+    if (_isDisposed) {
+      iPrint('ChatLogic 已经被释放，跳过重复释放');
+      return;
+    }
+
+    iPrint('开始释放 ChatLogic 资源...');
+
+    // 1. 取消所有定时器
+    _readReceiptFlushTimer?.cancel();
+    _readReceiptFlushTimer = null;
+    _cleanupDeletedMessageIdsTimer?.cancel();
+    _cleanupDeletedMessageIdsTimer = null;
+
+    // 2. 释放所有阅后即焚定时器
+    for (final timer in _burnDeleteTimers.values) {
+      timer.cancel();
+    }
+    _burnDeleteTimers.clear();
+
+    for (final timer in _burnPurgeTimers.values) {
+      timer.cancel();
+    }
+    _burnPurgeTimers.clear();
+
+    // 3. 释放 Worker
+    _onlineWorker?.dispose();
+    _onlineWorker = null;
+
+    // 4. 释放音频播放器资源
+    _playerStateSubscription?.cancel();
+    _playerStateSubscription = null;
+    _positionSubscription?.cancel();
+    _positionSubscription = null;
+    // 安全释放 waveformController，避免平台不支持导致的异常
+    try {
+      _globalPlayerController?.dispose();
+    } catch (e) {
+      iPrint('释放全局 PlayerController 失败: $e');
+    }
+    _globalPlayerController = null;
+
+    // 5. 释放备用音频播放器
+    _justAudioStateSubscription?.cancel();
+    _justAudioStateSubscription = null;
+    _justAudioPositionSubscription?.cancel();
+    _justAudioPositionSubscription = null;
+    _audioPlayer?.dispose();
+    _audioPlayer = null;
+
+    // 6. 释放滚动控制器
     scrollController.dispose();
+
+    // 7. 清理状态
+    state.currentConversationId.value = '';
+    state.hasMoreMessage.close();
+    state.isLoading.close();
+    state.nextAutoId.close();
+    state.memberCount.close();
+
+    // 8. 设置释放标志
+    _isDisposed = true;
+
+    iPrint('ChatLogic 资源释放完成');
+
     super.dispose();
   }
 
@@ -187,39 +257,49 @@ class ChatLogic extends GetxController {
 
   @override
   void onClose() {
-    // 设置释放标志
-    _isDisposed = true;
+    iPrint('ChatLogic onClose 被调用');
+
+    // 设置释放标志，防止后续操作
+    if (_isDisposed) {
+      iPrint('ChatLogic 已经释放，跳过 onClose');
+      return;
+    }
+
+    // 1. 取消所有定时器
     _readReceiptFlushTimer?.cancel();
     _cleanupDeletedMessageIdsTimer?.cancel();
-    _onlineWorker?.dispose();
-    for (final t in _burnDeleteTimers.values) {
-      t.cancel();
+
+    // 2. 释放所有阅后即焚定时器
+    for (final timer in _burnDeleteTimers.values) {
+      timer.cancel();
     }
     _burnDeleteTimers.clear();
-    for (final t in _burnPurgeTimers.values) {
-      t.cancel();
+
+    for (final timer in _burnPurgeTimers.values) {
+      timer.cancel();
     }
     _burnPurgeTimers.clear();
-    
-    // 清理资源
-    _positionSubscription?.cancel();
+
+    // 3. 释放 Worker
+    _onlineWorker?.dispose();
+
+    // 4. 释放音频订阅（但不释放播放器，因为它可能被其他地方使用）
     _playerStateSubscription?.cancel();
-    _globalPlayerController?.dispose();
-    _globalPlayerController = null;
-    
-    // 清理备用音频播放器资源
-    _justAudioPositionSubscription?.cancel();
+    _positionSubscription?.cancel();
     _justAudioStateSubscription?.cancel();
-    _audioPlayer?.dispose();
-    _audioPlayer = null;
-    
-    // 清除当前会话ID
+    _justAudioPositionSubscription?.cancel();
+
+    // 5. 清理状态
     state.currentConversationId.value = '';
-    
-    // 注意：ChatLogic是全局单例，onClose()永远不会被自动调用
-    // chatController 的释放由 ChatLifecycleMixin.dispose() 负责
-    // 这里不再处理 chatController，避免双重释放
-    
+
+    // 注意：不释放 chatController、scrollController 和播放器实例
+    // 因为 ChatLogic 是全局单例，这些资源会被复用
+    // 实际的释放由 dispose() 方法处理（当应用退出时）
+
+    _isDisposed = true;
+
+    iPrint('ChatLogic onClose 完成');
+
     super.onClose();
   }
 
@@ -262,9 +342,11 @@ class ChatLogic extends GetxController {
 
   bool isBurnPayload(Map<String, dynamic> payload) => _isBurnPayload(payload);
 
-  int burnAfterMsFromPayload(Map<String, dynamic> payload) => _burnAfterMsFromPayload(payload);
+  int burnAfterMsFromPayload(Map<String, dynamic> payload) =>
+      _burnAfterMsFromPayload(payload);
 
-  int burnReadAtMsFromPayload(Map<String, dynamic> payload) => _burnReadAtMsFromPayload(payload);
+  int burnReadAtMsFromPayload(Map<String, dynamic> payload) =>
+      _burnReadAtMsFromPayload(payload);
 
   bool isBurnExpiredPayload(Map<String, dynamic> payload, {int? nowMs}) =>
       _isBurnExpired(payload, nowMs ?? DateTimeHelper.millisecond());
@@ -345,7 +427,7 @@ class ChatLogic extends GetxController {
       if (latest == null) {
         final conversationTime = conversation.lastTime > 0
             ? conversation.lastTime
-            : DateTime.now().millisecondsSinceEpoch;
+            : DateTimeHelper.millisecond();
         await repo.updateById(conversation.id, {
           ConversationRepo.lastMsgId: '',
           ConversationRepo.lastMsgStatus: 0,
@@ -398,6 +480,10 @@ class ChatLogic extends GetxController {
       }
 
       // 直接从数据库删除，不使用墓碑标记
+      // 从重试队列中移除该消息
+      if (Get.isRegistered<MessageRetry>()) {
+        MessageRetry.to.removeFromRetryQueue(messageId);
+      }
       await repo.delete(messageId);
 
       // 记录已删除的消息ID，防止服务端重复投递
@@ -430,7 +516,10 @@ class ChatLogic extends GetxController {
     );
   }
 
-  Future<void> _purgeBurnTombstone(ConversationModel conversation, String messageId) async {
+  Future<void> _purgeBurnTombstone(
+    ConversationModel conversation,
+    String messageId,
+  ) async {
     try {
       final tb = MessageRepo.getTableName(conversation.type);
       final repo = MessageRepo(tableName: tb);
@@ -444,6 +533,10 @@ class ChatLogic extends GetxController {
       if (deletedAt <= 0) return;
       if (nowMs - deletedAt < _burnTombstoneRetentionMs) return;
 
+      // 从重试队列中移除该消息
+      if (Get.isRegistered<MessageRetry>()) {
+        MessageRetry.to.removeFromRetryQueue(messageId);
+      }
       await repo.delete(messageId);
       await _updateConversationLastMessageAfterBurnHidden(
         conversation,
@@ -509,12 +602,18 @@ class ChatLogic extends GetxController {
       await _deleteBurnMessage(conversation, messageId);
       return;
     }
-    _burnDeleteTimers[messageId] = Timer(Duration(milliseconds: delayMs), () async {
-      await _deleteBurnMessage(conversation, messageId);
-    });
+    _burnDeleteTimers[messageId] = Timer(
+      Duration(milliseconds: delayMs),
+      () async {
+        await _deleteBurnMessage(conversation, messageId);
+      },
+    );
   }
 
-  Future<void> _deleteBurnMessage(ConversationModel conversation, String messageId) async {
+  Future<void> _deleteBurnMessage(
+    ConversationModel conversation,
+    String messageId,
+  ) async {
     try {
       final tb = MessageRepo.getTableName(conversation.type);
       final repo = MessageRepo(tableName: tb);
@@ -555,7 +654,14 @@ class ChatLogic extends GetxController {
         if (_isBurnTombstonePayload(payload)) {
           final deletedAt = _burnDeletedAtMsFromPayload(payload);
           if (deletedAt > 0 && nowMs - deletedAt >= _burnTombstoneRetentionMs) {
-            await repo.delete(item.id ?? '');
+            final msgId = item.id ?? '';
+            if (msgId.isNotEmpty) {
+              // 从重试队列中移除该消息
+              if (Get.isRegistered<MessageRetry>()) {
+                MessageRetry.to.removeFromRetryQueue(msgId);
+              }
+              await repo.delete(msgId);
+            }
           }
           continue;
         }
@@ -594,7 +700,11 @@ class ChatLogic extends GetxController {
   }
 
   /// 加载指定消息及其前后的消息
-  Future<void> loadMessagesAround(ConversationModel obj, String msgId, {int count = 20}) async {
+  Future<void> loadMessagesAround(
+    ConversationModel obj,
+    String msgId, {
+    int count = 20,
+  }) async {
     final tb = MessageRepo.getTableName(obj.type);
     final repo = MessageRepo(tableName: tb);
 
@@ -609,17 +719,17 @@ class ChatLogic extends GetxController {
     // 2. 获取较旧的消息 (包括 targetMsg)
     final olderMessages = await repo.pageForConversation(
       obj.uk3,
-      targetMsgModel.autoId, 
+      targetMsgModel.autoId,
       count,
     );
-    
+
     // 3. 获取较新的消息 (不包含 targetMsg)
     final newerMessages = await repo.pageNewerForConversation(
       obj.uk3,
       targetMsgModel.autoId,
       count,
     );
-    
+
     // 4. 组合列表
     final List<MessageModel> allModels = [
       ...olderMessages,
@@ -631,12 +741,12 @@ class ChatLogic extends GetxController {
     final messages = await Future.wait(
       allModels.map((item) async => await item.toTypeMessage()),
     );
-    
+
     // 设置分页标记 - 向下加载更多(更旧)
     if (olderMessages.isNotEmpty) {
       state.nextAutoId.value = olderMessages.first.autoId;
     } else {
-      state.nextAutoId.value = targetMsgModel.autoId; 
+      state.nextAutoId.value = targetMsgModel.autoId;
     }
 
     // 设置分页标记 - 向上加载更多(更新)
@@ -645,39 +755,48 @@ class ChatLogic extends GetxController {
     } else {
       state.prevAutoId.value = targetMsgModel.autoId;
     }
-    
+
     // 设置消息列表
     // 禁用动画，确保 setMessages 立即生效，避免动画干扰后续的滚动定位
     chatController?.setMessages(messages.toList(), animated: false);
-    
+
     // 缓存消息位置，便于后续定位
     _cacheMessagePositionsForConversation(obj.uk3, messages, msgId);
   }
 
   /// 缓存会话的消息位置
-  void _cacheMessagePositionsForConversation(String conversationUk3, List<Message> messages, String targetMsgId) {
+  void _cacheMessagePositionsForConversation(
+    String conversationUk3,
+    List<Message> messages,
+    String targetMsgId,
+  ) {
     try {
       final scrollManager = MessageScrollManager.to;
-      
+
       // 计算目标消息的大概位置
       final targetIndex = messages.indexWhere((m) => m.id == targetMsgId);
       if (targetIndex == -1) return;
-      
+
       // 估算每个消息的平均高度
       const double averageMessageHeight = 80.0;
-      
+
       // 为消息列表中的每个消息估算位置
       for (int i = 0; i < messages.length; i++) {
         final message = messages[i];
         // 计算相对位置：目标消息位置 + 偏移量
         final offsetFromTarget = (i - targetIndex) * averageMessageHeight;
-        final estimatedPosition = (targetIndex * averageMessageHeight) + offsetFromTarget;
-        
+        final estimatedPosition =
+            (targetIndex * averageMessageHeight) + offsetFromTarget;
+
         // 缓存位置，确保为正数
         final position = estimatedPosition.clamp(0.0, double.infinity);
-        scrollManager.cacheMessagePosition(conversationUk3, message.id, position);
+        scrollManager.cacheMessagePosition(
+          conversationUk3,
+          message.id,
+          position,
+        );
       }
-      
+
       iPrint('缓存了 ${messages.length} 条消息的位置，目标消息索引: $targetIndex');
     } catch (e) {
       iPrint('缓存消息位置失败: $e');
@@ -707,10 +826,29 @@ class ChatLogic extends GetxController {
     final kept = <MessageModel>[];
     for (final item in items) {
       final payload = item.payload;
+
+      // 跳过 payload 为空或无效的消息
+      if (!payload.containsKey('msg_type') || payload.isEmpty) {
+        iPrint('跳过无效消息（payload 为空或缺少 msg_type）: ${item.id}, payload: $payload');
+        // 从数据库中删除无效消息
+        final msgId = item.id ?? '';
+        if (msgId.isNotEmpty) {
+          await repo.delete(msgId);
+        }
+        continue;
+      }
+
       if (_isBurnTombstonePayload(payload)) {
         final deletedAt = _burnDeletedAtMsFromPayload(payload);
         if (deletedAt > 0 && nowMs - deletedAt >= _burnTombstoneRetentionMs) {
-          await repo.delete(item.id ?? '');
+          final msgId = item.id ?? '';
+          if (msgId.isNotEmpty) {
+            // 从重试队列中移除该消息
+            if (Get.isRegistered<MessageRetry>()) {
+              MessageRetry.to.removeFromRetryQueue(msgId);
+            }
+            await repo.delete(msgId);
+          }
         }
         continue;
       }
@@ -745,9 +883,16 @@ class ChatLogic extends GetxController {
     return messages.toList();
   }
 
-  /// 通过WebSocket发送消息（增强版：包含重试机制）
+  /// 通过WebSocket发送消息（增强版：包含重试机制和延迟统计）
   Future<bool> sendWsMsg(MessageModel obj) async {
     if (obj.status != IMBoyMessageStatus.sending) return true;
+
+    // 添加客户端发送时间戳用于延迟统计
+    // Add client send timestamp for latency statistics
+    final clientSendTs = DateTimeHelper.millisecond();
+    final payloadWithTs = Map<String, dynamic>.from(obj.payload);
+    payloadWithTs['client_send_ts'] = clientSendTs;
+    iPrint('📤 [发送] msgId: ${obj.id}, client_send_ts: $clientSendTs');
 
     // 构建消息数据
     Map<String, dynamic> msg = {
@@ -755,7 +900,7 @@ class ChatLogic extends GetxController {
       'type': obj.type,
       'from': obj.fromId,
       'to': obj.toId,
-      'payload': obj.payload,
+      'payload': payloadWithTs,
       'created_at': obj.createdAt,
     };
 
@@ -768,45 +913,50 @@ class ChatLogic extends GetxController {
   }
 
   /// 带重试机制的消息发送（按照项目规范：指数退避，最大3次）
-  Future<bool> _sendWithRetry(String messageId, Map<String, dynamic> msg) async {
+  Future<bool> _sendWithRetry(
+    String messageId,
+    Map<String, dynamic> msg,
+  ) async {
     const maxRetries = 3;
     int attempt = 0;
-    
+
     while (attempt < maxRetries) {
       try {
         iPrint('消息发送尝试 ${attempt + 1}/$maxRetries: $messageId');
-        
-        bool success = await WebSocketService.to.sendMessage(json.encode(msg), messageId);
-        
+
+        bool success = await WebSocketService.to.sendMessage(
+          json.encode(msg),
+          messageId,
+        );
+
         if (success) {
           iPrint('消息发送成功: $messageId');
           await _updateMessageStatus(messageId, IMBoyMessageStatus.sent);
           return true;
         }
-        
+
         throw Exception('发送失败');
-        
       } catch (e) {
         attempt++;
         iPrint('消息发送失败 ($attempt/$maxRetries): $messageId, 错误: $e');
-        
+
         if (attempt >= maxRetries) {
           // 最终失败，标记为错误状态
           await _updateMessageStatus(messageId, IMBoyMessageStatus.error);
           iPrint('消息发送最终失败: $messageId');
           return false;
         }
-        
+
         // 指数退避等待：1s, 2s, 4s
         final delay = Duration(seconds: 1 << (attempt - 1));
         iPrint('等待 ${delay.inSeconds}秒 后重试...');
         await Future.delayed(delay);
       }
     }
-    
+
     return false;
   }
-  
+
   /// 更新消息状态
   Future<void> _updateMessageStatus(String messageId, int status) async {
     try {
@@ -814,14 +964,11 @@ class ChatLogic extends GetxController {
       for (final tableType in ['C2C', 'C2G', 'C2S']) {
         final tb = MessageRepo.getTableName(tableType);
         final repo = MessageRepo(tableName: tb);
-        
+
         final msg = await repo.find(messageId);
         if (msg != null) {
-          await repo.update({
-            'id': messageId,
-            MessageRepo.status: status,
-          });
-          
+          await repo.update({'id': messageId, MessageRepo.status: status});
+
           // 通知UI更新
           msg.status = status;
           final updatedMessage = await msg.toTypeMessage();
@@ -836,19 +983,16 @@ class ChatLogic extends GetxController {
 
   /// 从UI层消息模型转换为数据库模型
   MessageModel getMsgFromTMsg(
-      String type,
-      String conversationUk3,
-      Message message,
-      ) {
+    String type,
+    String conversationUk3,
+    Message message,
+  ) {
     Map<String, dynamic> payload = {};
     final metadata = message.metadata ?? <String, dynamic>{};
 
     // 根据消息类型构造payload
     if (message is TextMessage) {
-      payload = {
-        "msg_type": "text",
-        "text": message.text,
-      };
+      payload = {"msg_type": "text", "text": message.text};
       payload.addAll(metadata);
     } else if (message is ImageMessage) {
       payload = {
@@ -910,14 +1054,14 @@ class ChatLogic extends GetxController {
   /// [message] 消息对象
   /// [sendToServer] 是否发送到服务器
   Future<void> addMessage(
-      String fromId,
-      String toId,
-      String? avatar,
-      String title,
-      String type,
-      Message message, {
-        bool sendToServer = true,
-      }) async {
+    String fromId,
+    String toId,
+    String? avatar,
+    String title,
+    String type,
+    Message message, {
+    bool sendToServer = true,
+  }) async {
     // 构造会话副标题
     String subtitle = MessageModel.conversationSubtitle(message);
     String msgType = MessageModel.conversationMsgType(message);
@@ -954,7 +1098,9 @@ class ChatLogic extends GetxController {
 
     // 通知会话更新
     eventBus.fire(conversation);
-    iPrint("sendMessage $sendToServer : ${message.id}, type: $type, toId: $toId");
+    iPrint(
+      "sendMessage $sendToServer : ${message.id}, type: $type, toId: $toId",
+    );
     // 发送到服务器
     if (sendToServer) {
       sendWsMsg(obj);
@@ -968,6 +1114,7 @@ class ChatLogic extends GetxController {
       );
     }
   }
+
   /// 撤回后更新会话状态
   /// Update conversation after message revoke
   Future<void> updateConversationAfterRevoke(
@@ -976,18 +1123,25 @@ class ChatLogic extends GetxController {
     String customType,
   ) async {
     try {
-      iPrint('更新会话撤回状态[本端]: conversationId=${conversation.id}, msgId=${msg.id}, customType=$customType');
-      
+      iPrint(
+        '更新会话撤回状态[本端]: conversationId=${conversation.id}, msgId=${msg.id}, customType=$customType',
+      );
+
       // 获取会话仓库和消息仓库
       final conversationRepo = ConversationRepo();
-      final messageRepo = MessageRepo(tableName: MessageRepo.getTableName(conversation.type));
-      
+      final messageRepo = MessageRepo(
+        tableName: MessageRepo.getTableName(conversation.type),
+      );
+
       // 如果撤回的是会话的最后一条消息，需要更新会话显示
       if (conversation.lastMsgId == msg.id) {
         // 首先更新会话为撤回状态显示
         await conversationRepo.updateById(conversation.id, {
-          ConversationRepo.msgType: customType, // 设置为 'my_revoked' 或 'peer_revoked'
-          ConversationRepo.subtitle: customType == 'my_revoked' ? '你撤回了一条消息' : '对方撤回了一条消息',
+          ConversationRepo.msgType:
+              customType, // 设置为 'my_revoked' 或 'peer_revoked'
+          ConversationRepo.subtitle: customType == 'my_revoked'
+              ? '你撤回了一条消息'
+              : '对方撤回了一条消息',
           ConversationRepo.payload: json.encode({
             'msg_type': 'custom',
             'custom_type': customType,
@@ -995,9 +1149,9 @@ class ChatLogic extends GetxController {
             'peer_name': msg.metadata?['peer_name'] ?? '',
           }),
         });
-        
+
         iPrint('会话更新为撤回状态: $customType');
-        
+
         // 查找撤回消息的前一条消息
         // 使用page方法获取最新的消息，排除当前撤回的消息
         final allMessages = await messageRepo.page(
@@ -1005,12 +1159,14 @@ class ChatLogic extends GetxController {
           page: 1,
           size: 10, // 获取更多消息以确保能找到前一条消息
         );
-        
+
         iPrint('查找前一条消息: 当前消息ID=${msg.id}, 获取到${allMessages.length}条消息');
         for (int i = 0; i < allMessages.length; i++) {
-          iPrint('消息[$i]: id=${allMessages[i].id}, text=${allMessages[i].payload['text'] ?? ''}');
+          iPrint(
+            '消息[$i]: id=${allMessages[i].id}, text=${allMessages[i].payload['text'] ?? ''}',
+          );
         }
-        
+
         // 找到撤回消息的前一条消息
         // 由于page方法返回的是按时间倒序的消息，所以第一个不是当前消息的就是前一条消息
         MessageModel? previousMsg;
@@ -1023,29 +1179,35 @@ class ChatLogic extends GetxController {
           // 否则第一条消息就是前一条消息
           previousMsg = allMessages[0];
         }
-        
+
         iPrint('找到前一条消息: ${previousMsg?.id ?? 'null'}');
-        
+
         if (previousMsg != null) {
           // 有前一条消息，更新会话显示前一条消息
           final previousMessage = await previousMsg.toTypeMessage();
-          
+
           await conversationRepo.updateById(conversation.id, {
             ConversationRepo.lastMsgId: previousMsg.id,
-            ConversationRepo.msgType: MessageModel.conversationMsgType(previousMessage),
-            ConversationRepo.subtitle: MessageModel.conversationSubtitle(previousMessage),
+            ConversationRepo.msgType: MessageModel.conversationMsgType(
+              previousMessage,
+            ),
+            ConversationRepo.subtitle: MessageModel.conversationSubtitle(
+              previousMessage,
+            ),
             ConversationRepo.lastTime: previousMsg.createdAt,
             ConversationRepo.payload: json.encode(previousMsg.payload),
           });
-          
+
           iPrint('会话更新为前一条消息: ${previousMsg.id}');
         } else {
           // 没有前一条消息，保持撤回状态显示
           iPrint('会话没有前一条消息，保持撤回状态显示');
         }
-        
+
         // 重新获取更新后的会话并通知UI更新
-        final updatedConversation = await conversationRepo.findById(conversation.id);
+        final updatedConversation = await conversationRepo.findById(
+          conversation.id,
+        );
         if (updatedConversation != null) {
           iPrint('会话状态更新成功: ${updatedConversation.id}');
           iPrint('触发会话更新事件总线[本端]');
@@ -1060,18 +1222,23 @@ class ChatLogic extends GetxController {
     }
   }
 
-
   /// 从会话删除消息
-  Future<bool> removeMessage(
-      ConversationModel cm,
-      Message msg,
-      ) async {
-    iPrint('removeMessage - 开始删除消息: ${msg.id}, 会话ID: ${cm.id}, 会话类型: ${cm.type}');
+  Future<bool> removeMessage(ConversationModel cm, Message msg) async {
+    iPrint(
+      'removeMessage - 开始删除消息: ${msg.id}, 会话ID: ${cm.id}, 会话类型: ${cm.type}',
+    );
     _burnDeleteTimers.remove(msg.id)?.cancel();
+
+    // 从重试队列中移除该消息
+    if (Get.isRegistered<MessageRetry>()) {
+      MessageRetry.to.removeFromRetryQueue(msg.id);
+      iPrint('removeMessage - 已从重试队列移除消息: ${msg.id}');
+    }
+
     final repo = ConversationRepo();
     final tb = MessageRepo.getTableName(cm.type);
     final mRepo = MessageRepo(tableName: tb);
-    
+
     iPrint('removeMessage - 使用表: $tb, 消息ID: ${msg.id}');
 
     // 先从数据库删除消息，确保数据一致性
@@ -1106,11 +1273,7 @@ class ChatLogic extends GetxController {
 
       // 获取最后一条消息用于更新会话
       iPrint('removeMessage - 开始获取最后一条消息');
-      final items = await mRepo.page(
-        conversationUk3: cm.uk3,
-        page: 1,
-        size: 1,
-      );
+      final items = await mRepo.page(conversationUk3: cm.uk3, page: 1, size: 1);
       final lastMsg = items.isEmpty ? null : items[0];
       iPrint('removeMessage - 获取最后一条消息: ${lastMsg?.id ?? "null"}');
 
@@ -1137,7 +1300,9 @@ class ChatLogic extends GetxController {
         iPrint('removeMessage - 更新会话: 清空最后消息信息');
         // 当会话中没有消息时，保留会话的创建时间或当前时间，而不是设置为0
         // 这样可以确保会话仍然在会话列表中显示
-        int conversationTime = cm.lastTime > 0 ? cm.lastTime : DateTime.now().millisecondsSinceEpoch;
+        int conversationTime = cm.lastTime > 0
+            ? cm.lastTime
+            : DateTimeHelper.millisecond();
         await repo.updateById(cm.id, {
           ConversationRepo.lastMsgId: '',
           ConversationRepo.lastMsgStatus: 0,
@@ -1180,7 +1345,7 @@ class ChatLogic extends GetxController {
       // 如果数据库删除失败，不从UI中移除消息，保持一致性
       iPrint('removeMessage - 数据库删除失败，不从UI移除消息，保持一致性');
     }
-    
+
     iPrint('removeMessage - 删除消息完成: ${msg.id}, 返回结果: ${deleteCount > 0}');
     return deleteCount > 0;
   }
@@ -1195,28 +1360,30 @@ class ChatLogic extends GetxController {
       iPrint('🔍 消息ID: ${msg['id']}');
       iPrint('🔍 完整消息: ${json.encode(msg)}');
     }
-    
+
     iPrint('ChatLogic.sendMessage: ${json.encode(msg)}');
     iPrint('WebSocket连接状态: ${WebSocketService.to.status.value}');
-    bool result = await WebSocketService.to.sendMessage(json.encode(msg), msg['id']);
+    bool result = await WebSocketService.to.sendMessage(
+      json.encode(msg),
+      msg['id'],
+    );
     iPrint('ChatLogic.sendMessage结果: $result');
-    
+
     // 🔍 追踪撤回消息发送结果
     if (messageType.contains('REVOKE')) {
       iPrint('🔍 ChatLogic撤回消息追踪: 发送结果: $result');
     }
-    
+
     return result;
   }
 
   /// 标记消息为已读
   Future<bool> markAsRead(
-      String type,
-      String peerId,
-      List<String> msgIds,
-      {
-        bool syncToServer = true,
-      }) async {
+    String type,
+    String peerId,
+    List<String> msgIds, {
+    bool syncToServer = true,
+  }) async {
     Database? db = await SqliteService.to.db;
     if (db == null) {
       return false;
@@ -1237,9 +1404,7 @@ class ChatLogic extends GetxController {
       // 更新会话未读计数
       await txn.update(
         ConversationRepo.tableName,
-        {
-          ConversationRepo.unreadNum: c.unreadNum,
-        },
+        {ConversationRepo.unreadNum: c.unreadNum},
         where: "${ConversationRepo.id}=?",
         whereArgs: [c.id],
       );
@@ -1248,9 +1413,7 @@ class ChatLogic extends GetxController {
       for (var id in msgIds) {
         await txn.update(
           tb,
-          {
-            MessageRepo.status: IMBoyMessageStatus.seen,
-          },
+          {MessageRepo.status: IMBoyMessageStatus.seen},
           where: "${MessageRepo.id}=?",
           whereArgs: [id],
         );
@@ -1264,11 +1427,7 @@ class ChatLogic extends GetxController {
       await conversationLogic.advanceReadWatermarkByMsgIds(c, msgIds);
       conversationLogic.replace(c);
       for (final id in msgIds) {
-        await markBurnReadAt(
-          c,
-          id,
-          readAtMs: DateTimeHelper.millisecond(),
-        );
+        await markBurnReadAt(c, id, readAtMs: DateTimeHelper.millisecond());
       }
       await _emitUpdatedMessagesAfterStatusChange(type, msgIds);
       if (syncToServer) {
@@ -1280,7 +1439,10 @@ class ChatLogic extends GetxController {
     }
   }
 
-  Future<void> _emitUpdatedMessagesAfterStatusChange(String type, List<String> msgIds) async {
+  Future<void> _emitUpdatedMessagesAfterStatusChange(
+    String type,
+    List<String> msgIds,
+  ) async {
     if (msgIds.isEmpty) return;
     try {
       final repo = MessageService.to.getMessageRepo(type);
@@ -1364,7 +1526,10 @@ class ChatLogic extends GetxController {
         if (it is! Map) continue;
         final map = it.cast<String, dynamic>();
         final messageId = map['id']?.toString() ?? Xid().toString();
-        final ok = await WebSocketService.to.sendMessage(json.encode(map), messageId);
+        final ok = await WebSocketService.to.sendMessage(
+          json.encode(map),
+          messageId,
+        );
         if (!ok) {
           remaining.add(map);
         }
@@ -1387,9 +1552,13 @@ class ChatLogic extends GetxController {
 
       final newPayload = Map<String, dynamic>.from(msg.payload);
       final reactionsRaw = newPayload['reactions'];
-      final reactions = reactionsRaw is Map ? reactionsRaw.cast<String, dynamic>() : <String, dynamic>{};
+      final reactions = reactionsRaw is Map
+          ? reactionsRaw.cast<String, dynamic>()
+          : <String, dynamic>{};
       final usersRaw = reactions[emoji];
-      final users = usersRaw is List ? usersRaw.map((e) => e.toString()).toList() : <String>[];
+      final users = usersRaw is List
+          ? usersRaw.map((e) => e.toString()).toList()
+          : <String>[];
 
       final bool isAdd;
       if (users.contains(currentUid)) {
@@ -1407,10 +1576,7 @@ class ChatLogic extends GetxController {
       }
 
       newPayload['reactions'] = reactions;
-      await repo.update({
-        'id': messageId,
-        'payload': json.encode(newPayload),
-      });
+      await repo.update({'id': messageId, 'payload': json.encode(newPayload)});
 
       final updatedMsg = await repo.find(messageId);
       if (updatedMsg != null) {
@@ -1434,7 +1600,10 @@ class ChatLogic extends GetxController {
         },
         'created_at': now,
       };
-      final ok = await WebSocketService.to.sendMessage(json.encode(actionMessage), actionMessage['id']);
+      final ok = await WebSocketService.to.sendMessage(
+        json.encode(actionMessage),
+        actionMessage['id'],
+      );
       if (!ok) {
         await enqueueReactionAction(actionMessage);
       }
@@ -1455,7 +1624,11 @@ class ChatLogic extends GetxController {
   }
 
   /// 设置系统提示信息
-  Future<void> setSysPrompt(String tableName, String msgId, String sysPrompt) async {
+  Future<void> setSysPrompt(
+    String tableName,
+    String msgId,
+    String sysPrompt,
+  ) async {
     var repo = MessageRepo(tableName: tableName);
     MessageModel? msg = await repo.find(msgId);
     if (msg == null) return;
@@ -1477,13 +1650,10 @@ class ChatLogic extends GetxController {
     eventBus.fire([await msg.toTypeMessage()]);
 
     // 更新会话状态
-    Get.find<ConversationLogic>().updateConversationByMsgId(
-      msgId,
-      {
-        ConversationRepo.payload: {'sys_prompt': sysPrompt},
-        ConversationRepo.lastMsgStatus: IMBoyMessageStatus.sent,
-      },
-    );
+    Get.find<ConversationLogic>().updateConversationByMsgId(msgId, {
+      ConversationRepo.payload: {'sys_prompt': sysPrompt},
+      ConversationRepo.lastMsgStatus: IMBoyMessageStatus.sent,
+    });
   }
 
   /// 获取消息长按菜单项
@@ -1501,20 +1671,18 @@ class ChatLogic extends GetxController {
 
     // 添加复制菜单项
     if (canCopy) {
-      items.add(popupmenu.MenuItem(
-        title: 'buttonCopy'.tr,
-        userInfo: {"id": "copy", "msg": message},
-        textAlign: TextAlign.center,
-        // textStyle: TextStyle(
-        //   color: Color(0xffc5c5c5),
-        //   fontSize: AppTextSize.small,
-        // ),
-        image: const Icon(
-          Icons.copy,
-          size: 16,
-          color: Color(0xffc5c5c5),
+      items.add(
+        popupmenu.MenuItem(
+          title: 'buttonCopy'.tr,
+          userInfo: {"id": "copy", "msg": message},
+          textAlign: TextAlign.center,
+          // textStyle: TextStyle(
+          //   color: Color(0xffc5c5c5),
+          //   fontSize: AppTextSize.small,
+          // ),
+          image: const Icon(Icons.copy, size: 16, color: Color(0xffc5c5c5)),
         ),
-      ));
+      );
     }
 
     // 检查是否可以保存
@@ -1531,79 +1699,73 @@ class ChatLogic extends GetxController {
 
     // 添加保存菜单项
     if (canSave) {
-      items.add(popupmenu.MenuItem(
-        title: 'buttonSave'.tr,
-        userInfo: {"id": "save", "msg": message},
-        textAlign: TextAlign.center,
-        textStyle: const TextStyle(
-          color: Color(0xffc5c5c5),
-          fontSize: 10.0,
+      items.add(
+        popupmenu.MenuItem(
+          title: 'buttonSave'.tr,
+          userInfo: {"id": "save", "msg": message},
+          textAlign: TextAlign.center,
+          textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+          image: const Icon(Icons.save_alt, size: 16, color: Color(0xffc5c5c5)),
         ),
-        image: const Icon(
-          Icons.save_alt,
-          size: 16,
-          color: Color(0xffc5c5c5),
-        ),
-      ));
+      );
     }
 
     // 检查是否可以收藏
-    bool canCollect =
-    UserCollectLogic.getCollectKind(message) > 0 ? true : false;
+    bool canCollect = UserCollectLogic.getCollectKind(message) > 0
+        ? true
+        : false;
     if (canCollect) {
-      items.add(popupmenu.MenuItem(
-        title: 'favorites'.tr,
-        userInfo: {"id": "collect", "msg": message},
-        textAlign: TextAlign.center,
-        textStyle: const TextStyle(
-          color: Color(0xffc5c5c5),
-          fontSize: 10.0,
+      items.add(
+        popupmenu.MenuItem(
+          title: 'favorites'.tr,
+          userInfo: {"id": "collect", "msg": message},
+          textAlign: TextAlign.center,
+          textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+          image: const Icon(
+            Icons.collections_bookmark,
+            size: 16,
+            color: Color(0xffc5c5c5),
+          ),
         ),
-        image: const Icon(
-          Icons.collections_bookmark,
-          size: 16,
-          color: Color(0xffc5c5c5),
-        ),
-      ));
+      );
     }
 
     // 检查是否已撤回
-    bool isRevoked = (message is CustomMessage) && customType.toUpperCase().contains('REVOKE');
+    bool isRevoked =
+        (message is CustomMessage) &&
+        customType.toUpperCase().contains('REVOKE');
     if (customType == 'webrtc_audio' || customType == 'webrtc_video') {
       isRevoked = true;
     }
 
     // 添加转发和引用菜单项
     if (!isRevoked) {
-      items.add(popupmenu.MenuItem(
-        title: 'forward'.tr,
-        userInfo: {"id": "transpond", "msg": message},
-        textAlign: TextAlign.center,
-        textStyle: const TextStyle(
-          fontSize: 10.0,
-          color: Color(0xffc5c5c5),
+      items.add(
+        popupmenu.MenuItem(
+          title: 'forward'.tr,
+          userInfo: {"id": "transpond", "msg": message},
+          textAlign: TextAlign.center,
+          textStyle: const TextStyle(fontSize: 10.0, color: Color(0xffc5c5c5)),
+          image: const Icon(Icons.moving, color: Color(0xffc5c5c5)),
         ),
-        image: const Icon(
-          Icons.moving,
-          color: Color(0xffc5c5c5),
+      );
+      items.add(
+        popupmenu.MenuItem(
+          title: 'quote'.tr,
+          userInfo: {"id": "quote", "msg": message},
+          textAlign: TextAlign.center,
+          // textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: AppTextSize.small),
+          image: const Icon(
+            Icons.format_quote,
+            size: 16,
+            color: Color(0xffc5c5c5),
+          ),
         ),
-      ));
-      items.add(popupmenu.MenuItem(
-        title: 'quote'.tr,
-        userInfo: {"id": "quote", "msg": message},
-        textAlign: TextAlign.center,
-        // textStyle: TextStyle(color: Color(0xffc5c5c5), fontSize: AppTextSize.small),
-        image: const Icon(
-          Icons.format_quote,
-          size: 16,
-          color: Color(0xffc5c5c5),
-        ),
-      ));
+      );
     }
 
     // 如果是自己发送的消息且未撤回，添加撤回菜单项
-    if (message.authorId == UserRepoLocal.to.currentUid &&
-        !isRevoked) {
+    if (message.authorId == UserRepoLocal.to.currentUid && !isRevoked) {
       items.add(
         popupmenu.MenuItem(
           title: 'revoke'.tr,
@@ -1620,25 +1782,25 @@ class ChatLogic extends GetxController {
     }
 
     // 添加删除菜单项
-    items.add(popupmenu.MenuItem(
-      title: 'buttonDelete'.tr,
-      userInfo: {"id": "delete", "msg": message},
-      textAlign: TextAlign.center,
-      textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-      image: const Icon(
-        Icons.remove_circle_outline_rounded,
-        size: 16,
-        color: Color(0xffc5c5c5),
+    items.add(
+      popupmenu.MenuItem(
+        title: 'buttonDelete'.tr,
+        userInfo: {"id": "delete", "msg": message},
+        textAlign: TextAlign.center,
+        textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
+        image: const Icon(
+          Icons.remove_circle_outline_rounded,
+          size: 16,
+          color: Color(0xffc5c5c5),
+        ),
       ),
-    ));
+    );
     return items;
   }
 
   /// 保存文件到本地
   Future<void> saveFile(String name, String uri) async {
-    File? tmpF = await IMBoyCacheManager().getSingleFile(
-      uri,
-    );
+    File? tmpF = await IMBoyCacheManager().getSingleFile(uri);
 
     String ext = StringHelper.ext(uri);
     MimeType? mt = MimeType.get(ext.toUpperCase());
@@ -1656,18 +1818,22 @@ class ChatLogic extends GetxController {
     }
   }
 
-
   /// 加载更多消息（可用于初始加载和分页加载）
   /// [isInitial] 是否首次加载（首次清空消息及游标）
   /// 返回新加载的消息列表
-  Future<List<Message>> loadMoreMessages(ConversationModel obj, {bool isInitial = false}) async {
+  Future<List<Message>> loadMoreMessages(
+    ConversationModel obj, {
+    bool isInitial = false,
+  }) async {
     // 检查是否已经被释放
     if (_isDisposed) {
       iPrint('ChatLogic已被释放，跳过加载更多消息');
       return [];
     }
-    
-    iPrint('_loadMoreMessages: isInitial=$isInitial, hasMore=${state.hasMoreMessage.value}, loading=${state.isLoading.value}');
+
+    iPrint(
+      '_loadMoreMessages: isInitial=$isInitial, hasMore=${state.hasMoreMessage.value}, loading=${state.isLoading.value}',
+    );
     // 初始化时清空游标和消息
     if (isInitial) {
       state.nextAutoId.value = 0;
@@ -1696,10 +1862,20 @@ class ChatLogic extends GetxController {
     }
 
     // 去重插入
-    final currentIds = chatController?.messages.map((e) => e.id).toSet() ?? <String>{};
-    final newItems = items.where((msg) => !currentIds.contains(msg.id)).toList();
+    final currentIds =
+        chatController?.messages.map((e) => e.id).toSet() ?? <String>{};
+    final newItems = items
+        .where((msg) => !currentIds.contains(msg.id))
+        .toList();
 
     if (newItems.isNotEmpty) {
+      // 【新增】将正在加载的消息ID添加到全局集合，防止WebSocket重复投递
+      for (final msg in newItems) {
+        if (Get.isRegistered<MessageService>()) {
+          MessageService.to.addLoadingMessageId(msg.id);
+        }
+      }
+
       // 初始加载时，直接设置消息列表（保持正确的顺序）
       if (isInitial) {
         chatController?.setMessages(newItems);
@@ -1710,6 +1886,15 @@ class ChatLogic extends GetxController {
         state.nextAutoId.value =
             newItems.first.metadata?['auto_id'] ?? state.nextAutoId.value;
       }
+
+      // 【新增】延迟移除加载标记，给WebSocket消息处理留出时间
+      Future.delayed(const Duration(milliseconds: 500), () {
+        for (final msg in newItems) {
+          if (Get.isRegistered<MessageService>()) {
+            MessageService.to.removeLoadingMessageId(msg.id);
+          }
+        }
+      });
 
       // 标记新消息为已读
       // TODO _markMessagesAsRead
@@ -1727,7 +1912,7 @@ class ChatLogic extends GetxController {
       iPrint('ChatLogic已被释放，跳过加载较新消息');
       return [];
     }
-    
+
     // 防止重复加载
     if (state.isLoadingNewer.value) {
       iPrint('正在加载较新消息，跳过');
@@ -1743,7 +1928,9 @@ class ChatLogic extends GetxController {
       final prevAutoId = state.prevAutoId.value;
       final pageSize = state.pageSize;
 
-      iPrint('loadNewerMessages: uk3=${obj.uk3}, prevAutoId=$prevAutoId, pageSize=$pageSize');
+      iPrint(
+        'loadNewerMessages: uk3=${obj.uk3}, prevAutoId=$prevAutoId, pageSize=$pageSize',
+      );
 
       // 从数据库查询较新的消息
       final items = await repo.pageNewerForConversation(
@@ -1784,8 +1971,11 @@ class ChatLogic extends GetxController {
       );
 
       // 去重处理
-      final currentIds = chatController?.messages.map((e) => e.id).toSet() ?? <String>{};
-      final newMessages = messages.where((msg) => !currentIds.contains(msg.id)).toList();
+      final currentIds =
+          chatController?.messages.map((e) => e.id).toSet() ?? <String>{};
+      final newMessages = messages
+          .where((msg) => !currentIds.contains(msg.id))
+          .toList();
 
       if (newMessages.isNotEmpty) {
         iPrint('loadNewerMessages: 加载了 ${newMessages.length} 条较新消息');
@@ -1810,7 +2000,8 @@ class ChatLogic extends GetxController {
   Future<void> scrollToMessage(String chatType, MessageID messageId) async {
     if (messageId.isEmpty) return;
 
-    bool messageExists() => chatController?.messages.any((m) => m.id == messageId) ?? false;
+    bool messageExists() =>
+        chatController?.messages.any((m) => m.id == messageId) ?? false;
 
     // 1. 先查本地有没有，直接滚动（优化响应速度）
     if (messageExists()) {
@@ -1830,7 +2021,10 @@ class ChatLogic extends GetxController {
     }
 
     String toId = msg.toId ?? '';
-    ConversationModel? conversation = await (ConversationRepo()).findByPeerId(chatType, toId);
+    ConversationModel? conversation = await (ConversationRepo()).findByPeerId(
+      chatType,
+      toId,
+    );
 
     if (conversation == null) {
       EasyLoading.showError('未找到会话');
@@ -1873,16 +2067,19 @@ class ChatLogic extends GetxController {
   Future<bool> retryMessage(String messageId, String messageType) async {
     try {
       iPrint('开始重试消息: $messageId');
-      
+
       // 使用MessageService的重试功能
-      final success = await MessageService.to.retryMessage(messageId, messageType);
-      
+      final success = await MessageService.to.retryMessage(
+        messageId,
+        messageType,
+      );
+
       if (success) {
         iPrint('消息重试成功: $messageId');
       } else {
         iPrint('消息重试失败: $messageId');
       }
-      
+
       return success;
     } catch (e) {
       iPrint('重试消息异常: $messageId, $e');
@@ -1892,30 +2089,30 @@ class ChatLogic extends GetxController {
 
   /// 检查并重试发送中的消息
   /// Check and retry sending messages.
-  Future<void> checkAndRetrySendingMessages(String type, String conversationUk3) async {
+  Future<void> checkAndRetrySendingMessages(
+    String type,
+    String conversationUk3,
+  ) async {
     try {
       final tb = MessageRepo.getTableName(type);
       final repo = MessageRepo(tableName: tb);
-      
+
       // 查找所有发送中状态的消息
       final sendingMessages = await repo.findByStatus(
         conversationUk3,
         IMBoyMessageStatus.sending,
       );
-      
+
       for (final msg in sendingMessages) {
         // 检查消息创建时间，如果超过5分钟则标记为失败
-        final now = DateTime.now().millisecondsSinceEpoch;
+        final now = DateTimeHelper.millisecond();
         if (now - msg.createdAt > 5 * 60 * 1000) {
-          await repo.update({
-            'id': msg.id,
-            'status': IMBoyMessageStatus.error,
-          });
-          
+          await repo.update({'id': msg.id, 'status': IMBoyMessageStatus.error});
+
           // 更新UI
           final updatedMessage = await msg.toTypeMessage();
           eventBus.fire([updatedMessage]);
-          
+
           iPrint('消息发送超时，标记为失败: ${msg.id}');
         } else {
           // 尝试重新发送
@@ -1939,223 +2136,69 @@ class ChatLogic extends GetxController {
     }
   }
 
-  /// 播放/暂停/继续播放语音（统一 just_audio）
+  /// 播放/暂停/继续播放语音
   Future<void> playVoice({
     required String voiceUrlOrPath,
     required String messageId,
     required int duration,
   }) async {
-    try {
-      iPrint('playVoice called: path=$voiceUrlOrPath, messageId=$messageId, duration=$duration');
-      
-      if (voiceUrlOrPath.isEmpty) {
-        iPrint('Error: Audio path is empty');
-        return;
-      }
-      
-      // 检查文件是否存在
-      final file = File(voiceUrlOrPath);
-      if (!await file.exists()) {
-        iPrint('Error: Audio file does not exist at path: $voiceUrlOrPath');
-        return;
-      }
-      
-      // 初始化音频会话（获取音频焦点）
-      await _initGlobalPlayerController();
-      
-      // 检查是否是当前正在播放的音频
-      if (state.currentAudioPath.value == voiceUrlOrPath) {
-        iPrint('Same audio file clicked, current state: isPlaying=${state.isPlaying.value}, isPaused=${state.isPaused.value}');
-        _audioPlayer ??= just_audio.AudioPlayer();
-        if (state.isPlaying.value) {
-          await _audioPlayer!.pause();
-          state.setCurrentPausedAudio(
-            audioPath: voiceUrlOrPath,
-            messageId: messageId,
-            position: state.currentPosition.value,
-          );
-          update(['voice_playback_state']);
-          return;
-        } else if (state.isPaused.value) {
-          await _audioPlayer!.play();
-          state.resumeCurrentAudio();
-          update(['voice_playback_state']);
-          return;
-        }
-      }
-
-      // 不同资源或首次播放：先停止当前播放，然后开始新的播放
-      if (state.isPlaying.value && _audioPlayer != null) {
-        iPrint('Stopping current playback to play new audio');
-        await _audioPlayer!.stop();
-        await Future.delayed(const Duration(milliseconds: 100));
-      }
-
-      await _playWithJustAudio(voiceUrlOrPath, messageId, duration);
-      
-    } catch (e) {
-      iPrint('播放语音消息异常: $e');
-      debugAudioState(); // 输出调试信息
-      state.stopCurrentAudio();
-      update(['voice_playback_state', 'voice_playback_progress']); // 更新UI状态
-    }
-  }
-  
-  /// 使用 just_audio 播放音频
-  Future<void> _playWithJustAudio(String voiceUrlOrPath, String messageId, int duration) async {
-    try {
-      // 初始化 just_audio 播放器
-      if (_audioPlayer == null) {
-        _audioPlayer = just_audio.AudioPlayer();
-        iPrint('Just Audio player initialized');
-        
-        // 监听播放状态变化
-        _justAudioStateSubscription = _audioPlayer!.playerStateStream.listen((playerState) async {
-          if (_isDisposed) return;
-          
-          iPrint('Just Audio player state changed: $playerState');
-          
-          if (playerState.playing) {
-            iPrint('Just Audio is playing, updating state');
-            state.resumeCurrentAudio();
-            update(['voice_playback_state', 'voice_playback_progress']);
-          } else if (playerState.processingState == just_audio.ProcessingState.ready && !playerState.playing) {
-            iPrint('Just Audio is paused, updating state');
-            state.isPaused.value = true;
-            state.isPlaying.value = false;
-            update(['voice_playback_state']);
-          } else if (playerState.processingState == just_audio.ProcessingState.completed) {
-            iPrint('Just Audio is completed, checking for next audio message');
-            // 播放完成，先尝试播放下一条语音消息
-            // 在播放下一条之前不清除当前状态，以便能够找到当前消息的位置
-            await playNextAudioMessage();
-            
-            // 只有在没有下一条消息时才清除状态
-            // 如果有下一条消息，状态会在播放新消息时被更新
-            if (state.currentMessageId.value.isEmpty) {
-              state.stopCurrentAudio();
-            }
-            update(['voice_playback_state', 'voice_playback_progress']);
-          } else if (playerState.processingState == just_audio.ProcessingState.idle) {
-            iPrint('Just Audio is idle, updating state');
-            state.stopCurrentAudio();
-            update(['voice_playback_state', 'voice_playback_progress']);
-          }
-        });
-        
-        // 监听播放位置变化
-        _justAudioPositionSubscription = _audioPlayer!.positionStream.listen((position) {
-          if (_isDisposed) return;
-          
-          // 只在每秒更新一次日志，避免日志过多
-          if (position.inMilliseconds % 1000 == 0) {
-            iPrint('Just Audio playback position updated: ${position.inMilliseconds}ms');
-          }
-          state.updatePlaybackPosition(position.inMilliseconds);
-          update(['voice_playback_progress']);
-        });
-      }
-      
-      // 设置音频源并播放
-      await _audioPlayer!.setFilePath(voiceUrlOrPath);
-      
-      // 确保状态正确设置
-      state.setCurrentPlayingAudio(
-        audioPath: voiceUrlOrPath,
-        messageId: messageId,
-        duration: duration,
-      );
-      
-      await _audioPlayer!.play();
-      
-      iPrint('Just Audio playback started successfully');
-      update(['voice_playback_state', 'voice_playback_progress']);
-      
-    } catch (e) {
-      iPrint('Just Audio playback error: $e');
-      state.stopCurrentAudio();
-      update(['voice_playback_state', 'voice_playback_progress']);
-    }
+    await VoicePlaybackService.to.play(
+      path: voiceUrlOrPath,
+      messageId: messageId,
+      durationMs: duration,
+    );
   }
 
   /// 暂停播放语音
   Future<void> pauseVoice() async {
-    try {
-      if (state.isPlaying.value) {
-        if (_audioPlayer != null) {
-          await _audioPlayer!.pause();
-        }
-        state.setCurrentPausedAudio(
-          audioPath: state.currentAudioPath.value,
-          messageId: state.currentMessageId.value,
-          position: state.currentPosition.value,
-        );
-      }
-    } catch (e) {
-      iPrint('暂停语音播放异常: $e');
-    }
+    await VoicePlaybackService.to.pause();
   }
 
   /// 继续播放语音
   Future<void> resumeVoice() async {
-    try {
-      if (state.isPaused.value) {
-        if (_audioPlayer != null) {
-          await _audioPlayer!.play();
-          state.resumeCurrentAudio();
-          update(['voice_playback_state']);
-        }
-      }
-    } catch (e) {
-      iPrint('继续语音播放异常: $e');
-    }
+    await VoicePlaybackService.to.resume();
   }
 
   /// 停止当前播放的语音（用于播放其他消息时）
   Future<void> stopCurrentVoice() async {
-    try {
-      if (state.isPlaying.value) {
-        if (_audioPlayer != null) {
-          await _audioPlayer!.stop();
-        }
-        state.stopCurrentAudio();
-      }
-    } catch (e) {
-      iPrint('停止语音播放异常: $e');
-    }
+    await VoicePlaybackService.to.stop();
   }
 
   /// 检查是否是当前正在播放的消息
   bool isCurrentPlayingMessage(String voiceUrlOrPath) {
-    return state.isCurrentPlayingAudio(voiceUrlOrPath);
+    return VoicePlaybackService.to.currentAudioPath.value == voiceUrlOrPath &&
+        VoicePlaybackService.to.isPlaying.value;
   }
 
   /// 检查是否是当前正在暂停的消息
   bool isCurrentPausedMessage(String voiceUrlOrPath) {
-    return state.isCurrentPausedAudio(voiceUrlOrPath);
+    return VoicePlaybackService.to.currentAudioPath.value == voiceUrlOrPath &&
+        VoicePlaybackService.to.isPaused.value;
   }
 
   /// 获取当前播放进度（0.0 到 1.0）
   double? getCurrentPlaybackProgress() {
-    if (state.currentDuration.value == 0) {
+    if (VoicePlaybackService.to.currentDuration.value == 0) {
       return null;
     }
-    return state.currentPosition.value / state.currentDuration.value;
+    return VoicePlaybackService.to.currentPosition.value /
+        VoicePlaybackService.to.currentDuration.value;
   }
 
   /// 获取当前播放位置
   int getCurrentPlaybackPosition() {
-    return state.currentPosition.value;
+    return VoicePlaybackService.to.currentPosition.value;
   }
 
   /// 检查当前是否正在播放语音
-  bool get isPlayingVoice => state.isPlaying.value;
+  bool get isPlayingVoice => VoicePlaybackService.to.isPlaying.value;
 
   /// 检查当前是否处于暂停状态
-  bool get isPausedVoice => state.isPaused.value;
+  bool get isPausedVoice => VoicePlaybackService.to.isPaused.value;
 
   /// 获取当前播放的消息ID
-  String get currentPlayingMessageId => state.currentMessageId.value;
+  String get currentPlayingMessageId =>
+      VoicePlaybackService.to.currentMessageId.value;
 
   /// 标记 ChatLogic 为已释放状态
   /// 这个方法主要用于在页面生命周期结束时，阻止新的异步操作
@@ -2178,45 +2221,45 @@ class ChatLogic extends GetxController {
         iPrint('聊天控制器不存在，无法查找下一条语音消息');
         return null;
       }
-      
+
       // 获取当前消息列表
       final messages = chatController!.messages;
       if (messages.isEmpty) {
         iPrint('消息列表为空，无法查找下一条语音消息');
         return null;
       }
-      
+
       // 查找当前消息在列表中的位置
       int currentIndex = -1;
-      
+
       for (int i = 0; i < messages.length; i++) {
         if (messages[i].id == messageId) {
           currentIndex = i;
           break;
         }
       }
-      
+
       if (currentIndex == -1) {
         iPrint('在消息列表中找不到当前消息: $messageId');
         return null;
       }
-      
+
       // 从当前消息的下一条开始查找语音消息
       for (int i = currentIndex + 1; i < messages.length; i++) {
         final message = messages[i];
-        
+
         // 检查是否是语音消息
         if (message is CustomMessage) {
           final customType = message.metadata?['custom_type']?.toString();
           if (customType == 'audio') {
             iPrint('找到下一条语音消息: ${message.id}');
-            
+
             // 将CustomMessage转换为MessageModel
             // 由于需要返回MessageModel，我们需要从数据库中获取完整信息
             for (final tableType in ['C2C', 'C2G', 'C2S']) {
               final tb = MessageRepo.getTableName(tableType);
               final repo = MessageRepo(tableName: tb);
-              
+
               final msg = await repo.find(message.id);
               if (msg != null) {
                 return msg;
@@ -2225,7 +2268,7 @@ class ChatLogic extends GetxController {
           }
         }
       }
-      
+
       iPrint('没有找到下一条语音消息');
       return null;
     } catch (e) {
@@ -2235,40 +2278,35 @@ class ChatLogic extends GetxController {
   }
 
   /// 播放下一条语音消息
-  Future<void> playNextAudioMessage() async {
-    // 保存当前消息ID，避免在查找过程中状态被清除
-    final currentMessageId = state.currentMessageId.value;
-    
+  Future<void> playNextAudioMessage(String currentMessageId) async {
     if (currentMessageId.isEmpty) {
       iPrint('当前没有播放的消息，无法播放下一条');
       return;
     }
-    
+
     final nextMessage = await findNextAudioMessage(currentMessageId);
     if (nextMessage == null) {
       iPrint('没有下一条语音消息可播放');
       return;
     }
-    
+
     // 转换为 CustomMessage
     final customMessage = await nextMessage.toTypeMessage() as CustomMessage;
-    
+
     // 获取音频文件路径
     if (customMessage.metadata?['uri'] == null) {
       iPrint('下一条语音消息没有音频文件路径');
       return;
     }
-    
+
     final audioUri = customMessage.metadata!['uri'];
     final messageId = customMessage.id;
     final duration = customMessage.metadata?['duration_ms'] ?? 0;
-    
+
     // 下载音频文件
     try {
-      final audioFile = await IMBoyCacheManager().getSingleFile(
-        audioUri,
-      );
-      
+      final audioFile = await IMBoyCacheManager().getSingleFile(audioUri);
+
       if (await audioFile.exists()) {
         iPrint('开始播放下一条语音消息: $messageId');
         await playVoice(
@@ -2287,18 +2325,23 @@ class ChatLogic extends GetxController {
   /// 调试音频播放状态
   void debugAudioState() {
     iPrint('=== Audio Debug Info ===');
-    iPrint('Current Audio Path: ${state.currentAudioPath.value}');
-    iPrint('Current Message ID: ${state.currentMessageId.value}');
-    iPrint('Is Playing: ${state.isPlaying.value}');
-    iPrint('Is Paused: ${state.isPaused.value}');
-    iPrint('Current Position: ${state.currentPosition.value}ms');
-    iPrint('Current Duration: ${state.currentDuration.value}ms');
+    final playbackService = VoicePlaybackService.to;
+    iPrint('Current Audio Path: ${playbackService.currentAudioPath.value}');
+    iPrint('Current Message ID: ${playbackService.currentMessageId.value}');
+    iPrint('Is Playing: ${playbackService.isPlaying.value}');
+    iPrint('Is Paused: ${playbackService.isPaused.value}');
+    iPrint('Current Position: ${playbackService.currentPosition.value}ms');
+    iPrint('Current Duration: ${playbackService.currentDuration.value}ms');
     iPrint('Use Just Audio: $_useJustAudio');
-    iPrint('Global Player Controller: ${_globalPlayerController != null ? "initialized" : "null"}');
+    iPrint(
+      'Global Player Controller: ${_globalPlayerController != null ? "initialized" : "null"}',
+    );
     if (_globalPlayerController != null) {
       iPrint('Player State: ${_globalPlayerController!.playerState}');
     }
-    iPrint('Just Audio Player: ${_audioPlayer != null ? "initialized" : "null"}');
+    iPrint(
+      'Just Audio Player: ${_audioPlayer != null ? "initialized" : "null"}',
+    );
     if (_audioPlayer != null) {
       iPrint('Just Audio State: ${_audioPlayer!.playerState}');
       iPrint('Just Audio Processing State: ${_audioPlayer!.processingState}');
@@ -2306,5 +2349,4 @@ class ChatLogic extends GetxController {
     iPrint('Is Disposed: $_isDisposed');
     iPrint('========================');
   }
-
-  }
+}

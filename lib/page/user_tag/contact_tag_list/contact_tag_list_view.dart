@@ -209,7 +209,7 @@ class ContactTagListPage extends StatelessWidget {
     initData();
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'contactTags'.tr,
         rightDMActions: <Widget>[

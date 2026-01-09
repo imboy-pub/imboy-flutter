@@ -7,6 +7,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
 import '../page/conversation/conversation_logic.dart';
+import 'message_s2c.dart';
 
 /// 离线消息处理服务
 class MessageOfflineService {
@@ -143,7 +144,13 @@ class MessageOfflineService {
       // 使用静态方法批量插入消息
       List<String>? msgIds = await MessageRepo(
         tableName: MessageRepo.getTableName(type),
-      ).batchInsertOfflineMessages(processedMessages);
+      ).batchInsertOfflineMessages(
+        processedMessages,
+        onS2CMessage: (msgData) async {
+          // 处理 S2C 消息
+          await MessageS2CService.switchS2C(msgData);
+        },
+      );
 
       if (msgIds != null && msgIds.isNotEmpty) {
         // 发送确认消息

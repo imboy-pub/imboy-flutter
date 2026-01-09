@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/service/storage.dart';
@@ -136,18 +137,9 @@ class ConversationModel {
         payload = null;
       }
     }
-    // 处理 last_time（可以是 int 或 ISO8601 字符串）
-    int lastTime = 0;
+    // 处理 last_time（可以是 DateTime、int 或 ISO8601 字符串）
     final rawLastTime = json['last_time'] ?? json[ConversationRepo.lastTime];
-    if (rawLastTime is int) {
-      lastTime = rawLastTime;
-    } else if (rawLastTime is String) {
-      try {
-        lastTime = DateTime.parse(rawLastTime).millisecondsSinceEpoch;
-      } catch (e) {
-        lastTime = 0;
-      }
-    }
+    int lastTime = DateTimeHelper.parseTimestamp(rawLastTime, defaultValue: 0);
 
     // iPrint("ConversationModel_payload 2 $payload");
     return ConversationModel(

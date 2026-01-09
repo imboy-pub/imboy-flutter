@@ -226,6 +226,25 @@ class LocaleKeys {
   static const searchChatRecord = 'searchChatRecord';
   static const confirmDeleteChatRecord = 'confirmDeleteChatRecord';
   static const chatSettings = 'chatSettings';
+  static const chatSettingPin = 'chatSettingPin';
+  static const chatSettingPinDesc = 'chatSettingPinDesc';
+  static const chatSettingMute = 'chatSettingMute';
+  static const chatSettingMuteDesc = 'chatSettingMuteDesc';
+  static const chatSettingBackground = 'chatSettingBackground';
+  static const chatSettingBackgroundDefault = 'chatSettingBackgroundDefault';
+  static const chatSettingBackgroundCustom = 'chatSettingBackgroundCustom';
+  static const chatSettingClearHistory = 'chatSettingClearHistory';
+  static const chatSettingClearHistoryDesc = 'chatSettingClearHistoryDesc';
+  static const chatSettingClearHistoryConfirm =
+      'chatSettingClearHistoryConfirm';
+  static const chatSettingPinnedSuccess = 'chatSettingPinnedSuccess';
+  static const chatSettingUnpinnedSuccess = 'chatSettingUnpinnedSuccess';
+  static const chatSettingMuted = 'chatSettingMuted';
+  static const chatSettingUnmuted = 'chatSettingUnmuted';
+  static const chatSettingBackgroundSuccess = 'chatSettingBackgroundSuccess';
+  static const chatSettingClearedSuccess = 'chatSettingClearedSuccess';
+  static const chatSettingBackgroundSelectorTip =
+      'chatSettingBackgroundSelectorTip';
   static const busyTryAgainLater = 'busyTryAgainLater';
   static const calling = 'calling';
   static const pleaseSelect = 'pleaseSelect';
@@ -596,6 +615,13 @@ class LocaleKeys {
   static const alreadyMember = 'alreadyMember';
   static const offlineNotification = 'offlineNotification';
   static const forceLogoutNotification = 'forceLogoutNotification';
+  static const timeJustNow = 'timeJustNow';
+  static const timeMinutesAgo = 'timeMinutesAgo';
+  static const timeHoursAgo = 'timeHoursAgo';
+  static const timeDaysAgo = 'timeDaysAgo';
+  static const timeYesterday = 'timeYesterday';
+  static const timeToday = 'timeToday';
+  static const timeWeekdays = 'timeWeekdays';
   static const applyFriend = 'applyFriend';
   static const applyFriendLogic = 'applyFriendLogic';
   static const attachmentProvider = 'attachmentProvider';
@@ -878,6 +904,25 @@ class Locales {
     'searchChatRecord': 'البحث في سجل المحادثات',
     'confirmDeleteChatRecord': 'هل أنت متأكد من حذف سجل المحادثات؟',
     'chatSettings': 'إعدادات الدردشة',
+    'chatSettingPin': 'تثبيت الدردشة',
+    'chatSettingPinDesc': 'تثبيت هذه الدردشة في أعلى القائمة',
+    'chatSettingMute': 'كتم الإشعارات',
+    'chatSettingMuteDesc': 'إيقاف الإشعارات لهذه الدردشة',
+    'chatSettingBackground': 'خلفية الدردشة',
+    'chatSettingBackgroundDefault': 'الخلفية الافتراضية',
+    'chatSettingBackgroundCustom': 'تم تعيين خلفية مخصصة',
+    'chatSettingClearHistory': 'مسح سجل الدردشة',
+    'chatSettingClearHistoryDesc':
+        'حذف جميع الرسائل، هذا الإجراء لا يمكن التراجع عنه',
+    'chatSettingClearHistoryConfirm':
+        'هل أنت متأكد من حذف سجل الدردشة بالكامل؟ هذا الإجراء لا يمكن التراجع عنه.',
+    'chatSettingPinnedSuccess': 'تم التثبيت بنجاح',
+    'chatSettingUnpinnedSuccess': 'إلغاء التثبيت',
+    'chatSettingMuted': 'تم تفعيل الكتم',
+    'chatSettingUnmuted': 'تم إيقاف الكتم',
+    'chatSettingBackgroundSuccess': 'تم تعيين الخلفية بنجاح',
+    'chatSettingClearedSuccess': 'تم المسح بنجاح',
+    'chatSettingBackgroundSelectorTip': 'محدد الخلفية قيد التطوير',
     'busyTryAgainLater': 'المستلم مشغول، يرجى المحاولة مرة أخرى لاحقًا',
     'calling': 'جاري الاتصال...',
     'pleaseSelect': 'يرجى التحديد',
@@ -1265,6 +1310,13 @@ class Locales {
     'alreadyMember': 'عضو بالفعل',
     'offlineNotification': 'إشعار غير متصل',
     'forceLogoutNotification': 'تم تسجيل خروجك بالقوة من الجهاز [%s]',
+    'timeJustNow': 'الآن',
+    'timeMinutesAgo': 'منذ %d د',
+    'timeHoursAgo': 'منذ %d س',
+    'timeDaysAgo': 'منذ %d يوم',
+    'timeYesterday': 'أمس',
+    'timeToday': 'اليوم',
+    'timeWeekdays': 'الاثنين,الثلاثاء,الأربعاء,الخميس,الجمعة,السبت,الأحد',
   };
   static const ko_KR = {
     'manually': '직접 선택',
@@ -1474,6 +1526,23 @@ class Locales {
     'searchChatRecord': '채팅 기록 검색',
     'confirmDeleteChatRecord': '채팅 기록을 삭제하시겠습니까?',
     'chatSettings': '채팅 설정',
+    'chatSettingPin': '채팅 고정',
+    'chatSettingPinDesc': '이 채팅을 목록 상단에 고정합니다',
+    'chatSettingMute': '알림 끄기',
+    'chatSettingMuteDesc': '이 채팅의 알림을 끕니다',
+    'chatSettingBackground': '채팅 배경',
+    'chatSettingBackgroundDefault': '기본 배경',
+    'chatSettingBackgroundCustom': '사용자 정의 배경 설정됨',
+    'chatSettingClearHistory': '채팅 기록 지우기',
+    'chatSettingClearHistoryDesc': '모든 메시지를 삭제합니다. 이 작업은 되돌릴 수 없습니다',
+    'chatSettingClearHistoryConfirm': '모든 채팅 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
+    'chatSettingPinnedSuccess': '고정되었습니다',
+    'chatSettingUnpinnedSuccess': '고정 해제',
+    'chatSettingMuted': '알림이 끊김',
+    'chatSettingUnmuted': '알림 켜짐',
+    'chatSettingBackgroundSuccess': '배경이 설정되었습니다',
+    'chatSettingClearedSuccess': '지워졌습니다',
+    'chatSettingBackgroundSelectorTip': '배경 선택 기능 개발 중',
     'busyTryAgainLater': '수신자가 바쁩니다. 나중에 다시 시도하세요',
     'calling': '통화 중...',
     'pleaseSelect': '선택하세요',
@@ -1846,6 +1915,13 @@ class Locales {
     'alreadyMember': '이미 멤버',
     'offlineNotification': '오프라인 알림',
     'forceLogoutNotification': '기기 [%s]에서 강제 로그아웃되었습니다',
+    'timeJustNow': '방금',
+    'timeMinutesAgo': '%s분 전',
+    'timeHoursAgo': '%s시간 전',
+    'timeDaysAgo': '%s일 전',
+    'timeYesterday': '어제',
+    'timeToday': '오늘',
+    'timeWeekdays': '월,화,수,목,금,토,일',
   };
   static const ja_JP = {
     'manually': '手動で選択',
@@ -2056,6 +2132,23 @@ class Locales {
     'searchChatRecord': 'チャット履歴を検索',
     'confirmDeleteChatRecord': 'チャット履歴を削除してもよろしいですか？',
     'chatSettings': 'チャット設定',
+    'chatSettingPin': 'チャットをピン留め',
+    'chatSettingPinDesc': 'このチャットをリストのトップに固定します',
+    'chatSettingMute': '通知をミュート',
+    'chatSettingMuteDesc': 'このチャットの通知をオフにします',
+    'chatSettingBackground': 'チャット背景',
+    'chatSettingBackgroundDefault': 'デフォルト背景',
+    'chatSettingBackgroundCustom': 'カスタム背景設定済み',
+    'chatSettingClearHistory': 'チャット履歴をクリア',
+    'chatSettingClearHistoryDesc': 'すべてのメッセージを削除します。この操作は元に戻せません',
+    'chatSettingClearHistoryConfirm': 'すべてのチャット履歴をクリアしてもよろしいですか？この操作は元に戻せません。',
+    'chatSettingPinnedSuccess': 'ピン留めしました',
+    'chatSettingUnpinnedSuccess': 'ピン留めを解除',
+    'chatSettingMuted': 'ミュートが有効になりました',
+    'chatSettingUnmuted': 'ミュートが無効になりました',
+    'chatSettingBackgroundSuccess': '背景を設定しました',
+    'chatSettingClearedSuccess': 'クリアしました',
+    'chatSettingBackgroundSelectorTip': '背景選択機能は開発中です',
     'busyTryAgainLater': '受信者がビジー状態です。後でもう一度お試しください',
     'calling': '呼び出し中...',
     'pleaseSelect': '選択してください',
@@ -2431,6 +2524,13 @@ class Locales {
     'alreadyMember': '既にメンバー',
     'offlineNotification': 'オフライン通知',
     'forceLogoutNotification': 'デバイス[%s]から強制的にログアウトされました',
+    'timeJustNow': 'たった今',
+    'timeMinutesAgo': '%s分前',
+    'timeHoursAgo': '%s時間前',
+    'timeDaysAgo': '%s日前',
+    'timeYesterday': '昨日',
+    'timeToday': '今日',
+    'timeWeekdays': '月,火,水,木,金,土,日',
   };
   static const zh_CN = {
     'about': '关于',
@@ -2522,6 +2622,23 @@ class Locales {
     'chatMessage': '聊天消息',
     'chatMomentSportDataEtc': '聊天、朋友圈、运动数据等',
     'chatSettings': '聊天设置',
+    'chatSettingPin': '置顶聊天',
+    'chatSettingPinDesc': '将此聊天置顶到列表顶部',
+    'chatSettingMute': '消息免打扰',
+    'chatSettingMuteDesc': '关闭此聊天的消息通知',
+    'chatSettingBackground': '聊天背景',
+    'chatSettingBackgroundDefault': '默认背景',
+    'chatSettingBackgroundCustom': '已设置自定义背景',
+    'chatSettingClearHistory': '清空聊天记录',
+    'chatSettingClearHistoryDesc': '删除所有消息，此操作不可恢复',
+    'chatSettingClearHistoryConfirm': '确定要清空所有聊天记录吗？此操作不可恢复。',
+    'chatSettingPinnedSuccess': '置顶成功',
+    'chatSettingUnpinnedSuccess': '取消置顶',
+    'chatSettingMuted': '已开启免打扰',
+    'chatSettingUnmuted': '已关闭免打扰',
+    'chatSettingBackgroundSuccess': '背景设置成功',
+    'chatSettingClearedSuccess': '清空成功',
+    'chatSettingBackgroundSelectorTip': '背景选择功能开发中',
     'checkForUpdates': '检查更新',
     'chooseFromAlbum': '从相册选择',
     'clean': '清理',
@@ -3070,6 +3187,13 @@ class Locales {
     'yourFeel': '这让你感觉如何?',
     'zhCn': '简体中文',
     'zhHant': '繁体中文',
+    'timeJustNow': '刚刚',
+    'timeMinutesAgo': '%s分钟前',
+    'timeHoursAgo': '%s小时前',
+    'timeDaysAgo': '%s天前',
+    'timeYesterday': '昨天',
+    'timeToday': '今天',
+    'timeWeekdays': '星期一,星期二,星期三,星期四,星期五,星期六,星期日',
   };
   static const it_IT = {
     'manually': 'Scegli manualmente',
@@ -3294,6 +3418,25 @@ class Locales {
     'confirmDeleteChatRecord':
         'Sei sicuro di voler eliminare la cronologia delle chat?',
     'chatSettings': 'Impostazioni chat',
+    'chatSettingPin': 'Pin chat',
+    'chatSettingPinDesc': 'Pin questa chat in cima alla lista',
+    'chatSettingMute': 'Silenzia notifiche',
+    'chatSettingMuteDesc': 'Disattiva le notifiche per questa chat',
+    'chatSettingBackground': 'Sfondo chat',
+    'chatSettingBackgroundDefault': 'Sfondo predefinito',
+    'chatSettingBackgroundCustom': 'Sfondo personalizzato impostato',
+    'chatSettingClearHistory': 'Cancella cronologia chat',
+    'chatSettingClearHistoryDesc':
+        'Elimina tutti i messaggi, questa azione è irreversibile',
+    'chatSettingClearHistoryConfirm':
+        'Sei sicuro di voler cancellare l\'intera cronologia della chat? Questa azione è irreversibile.',
+    'chatSettingPinnedSuccess': 'Appuntato con successo',
+    'chatSettingUnpinnedSuccess': 'Rimosso',
+    'chatSettingMuted': 'Silenzio attivato',
+    'chatSettingUnmuted': 'Silenzio disattivato',
+    'chatSettingBackgroundSuccess': 'Sfondo impostato con successo',
+    'chatSettingClearedSuccess': 'Cancellato con successo',
+    'chatSettingBackgroundSelectorTip': 'Selettore sfondo in sviluppo',
     'busyTryAgainLater': 'Il destinatario è occupato, riprova più tardi',
     'calling': 'Chiamata in corso...',
     'pleaseSelect': 'Per favore seleziona',
@@ -3695,6 +3838,13 @@ class Locales {
     'offlineNotification': 'Notifica Offline',
     'forceLogoutNotification':
         'Sei stato disconnesso forzatamente dal dispositivo [%s]',
+    'timeJustNow': 'Proprio ora',
+    'timeMinutesAgo': '%s min fa',
+    'timeHoursAgo': '%s h fa',
+    'timeDaysAgo': '%s gg fa',
+    'timeYesterday': 'Ieri',
+    'timeToday': 'Oggi',
+    'timeWeekdays': 'Lun,Mar,Mer,Gio,Ven,Sab,Dom',
   };
   static const en_US = {
     'manually': 'Choose manually',
@@ -3915,6 +4065,26 @@ class Locales {
     'confirmDeleteChatRecord':
         'Are you sure you want to delete the chat history?',
     'chatSettings': 'Chat settings',
+    'chatSettingPin': 'Pin Chat',
+    'chatSettingPinDesc': 'Pin this chat to the top of the list',
+    'chatSettingMute': 'Mute Notifications',
+    'chatSettingMuteDesc': 'Turn off notifications for this chat',
+    'chatSettingBackground': 'Chat Background',
+    'chatSettingBackgroundDefault': 'Default background',
+    'chatSettingBackgroundCustom': 'Custom background set',
+    'chatSettingClearHistory': 'Clear Chat History',
+    'chatSettingClearHistoryDesc':
+        'Delete all messages, this action cannot be undone',
+    'chatSettingClearHistoryConfirm':
+        'Are you sure you want to clear all chat history? This action cannot be undone.',
+    'chatSettingPinnedSuccess': 'Pinned successfully',
+    'chatSettingUnpinnedSuccess': 'Unpinned',
+    'chatSettingMuted': 'Mute enabled',
+    'chatSettingUnmuted': 'Mute disabled',
+    'chatSettingBackgroundSuccess': 'Background set successfully',
+    'chatSettingClearedSuccess': 'Cleared successfully',
+    'chatSettingBackgroundSelectorTip':
+        'Background selector feature in development',
     'busyTryAgainLater': 'The recipient is busy, please try again later',
     'calling': 'Calling...',
     'pleaseSelect': 'Please select',
@@ -4014,6 +4184,7 @@ class Locales {
     'groupChat': 'Group chat',
     'groupName': 'Group name',
     'groupQrcode': 'Group QR Code',
+    'groupAnnouncement': 'Group Announcement',
     'groupManagement': 'Group management',
     'groupLeave': ' Leave group',
     'groupDissolve': ' Dissolve group',
@@ -4184,7 +4355,6 @@ class Locales {
     'switchEnvironment': 'Switch Environment',
     'name': 'Name',
     'unnamed': 'Unnamed',
-    'groupAnnouncement': 'Group Announcement',
     'searchChatContent': 'Search Chat Content',
     'pinChat': 'Pin Chat',
     'changeGroupChatName':
@@ -4307,6 +4477,13 @@ class Locales {
     'offlineNotification': 'Offline Notification',
     'forceLogoutNotification':
         'You have been forcibly logged out from device [%s]',
+    'timeJustNow': 'Just now',
+    'timeMinutesAgo': '%sm ago',
+    'timeHoursAgo': '%sh ago',
+    'timeDaysAgo': '%sd ago',
+    'timeYesterday': 'Yesterday',
+    'timeToday': 'Today',
+    'timeWeekdays': 'Mon,Tue,Wed,Thu,Fri,Sat,Sun',
   };
   static const ru_RU = {
     'manually': 'Выбор вручную',
@@ -4527,6 +4704,25 @@ class Locales {
     'searchChatRecord': 'Поиск в чате',
     'confirmDeleteChatRecord': 'Вы уверены, что хотите удалить историю чата?',
     'chatSettings': 'Настройки чата',
+    'chatSettingPin': 'Закрепить чат',
+    'chatSettingPinDesc': 'Закрепить этот чат вверху списка',
+    'chatSettingMute': 'Отключить уведомления',
+    'chatSettingMuteDesc': 'Отключить уведомления для этого чата',
+    'chatSettingBackground': 'Фон чата',
+    'chatSettingBackgroundDefault': 'Стандартный фон',
+    'chatSettingBackgroundCustom': 'Установлен пользовательский фон',
+    'chatSettingClearHistory': 'Очистить историю чата',
+    'chatSettingClearHistoryDesc':
+        'Удалить все сообщения, это действие нельзя отменить',
+    'chatSettingClearHistoryConfirm':
+        'Вы уверены, что хотите очистить всю историю чата? Это действие нельзя отменить.',
+    'chatSettingPinnedSuccess': 'Успешно закреплено',
+    'chatSettingUnpinnedSuccess': 'Откреплено',
+    'chatSettingMuted': 'Блокировка включена',
+    'chatSettingUnmuted': 'Блокировка выключена',
+    'chatSettingBackgroundSuccess': 'Фон успешно установлен',
+    'chatSettingClearedSuccess': 'Успешно очищено',
+    'chatSettingBackgroundSelectorTip': 'Выбор фона в разработке',
     'busyTryAgainLater': 'Пользователь занят, попробуйте позже',
     'calling': 'Идет звонок',
     'pleaseSelect': 'Пожалуйста, выберите',
@@ -4857,6 +5053,13 @@ class Locales {
     'offlineNotification': 'Уведомление о выходе из сети',
     'forceLogoutNotification':
         'Вы были принудительно выведены из сети с устройства [%s]',
+    'timeJustNow': 'Только что',
+    'timeMinutesAgo': '%s мин. назад',
+    'timeHoursAgo': '%s ч. назад',
+    'timeDaysAgo': '%s дн. назад',
+    'timeYesterday': 'Вчера',
+    'timeToday': 'Сегодня',
+    'timeWeekdays': 'Пн,Вт,Ср,Чт,Пт,Сб,Вс',
   };
   static const de_DE = {
     'manually': 'Manuell auswählen',
@@ -5083,6 +5286,25 @@ class Locales {
     'confirmDeleteChatRecord':
         'Sind Sie sicher, dass Sie den Chat-Verlauf löschen möchten?',
     'chatSettings': 'Chat-Einstellungen',
+    'chatSettingPin': 'Chat anheften',
+    'chatSettingPinDesc': 'Diesen Chat oben in der Liste anheften',
+    'chatSettingMute': 'Benachrichtigungen stummschalten',
+    'chatSettingMuteDesc': 'Benachrichtigungen für diesen Chat deaktivieren',
+    'chatSettingBackground': 'Chat-Hintergrund',
+    'chatSettingBackgroundDefault': 'Standardhintergrund',
+    'chatSettingBackgroundCustom': 'Benutzerdefinierter Hintergrund festgelegt',
+    'chatSettingClearHistory': 'Chat-Verlauf löschen',
+    'chatSettingClearHistoryDesc':
+        'Alle Nachrichten löschen, diese Aktion kann nicht rückgängig gemacht werden',
+    'chatSettingClearHistoryConfirm':
+        'Möchten Sie wirklich den gesamten Chat-Verlauf löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+    'chatSettingPinnedSuccess': 'Erfolgreich angeheftet',
+    'chatSettingUnpinnedSuccess': 'Losgelöst',
+    'chatSettingMuted': 'Stummschaltung aktiviert',
+    'chatSettingUnmuted': 'Stummschaltung deaktiviert',
+    'chatSettingBackgroundSuccess': 'Hintergrund erfolgreich festgelegt',
+    'chatSettingClearedSuccess': 'Erfolgreich gelöscht',
+    'chatSettingBackgroundSelectorTip': 'Hintergrundauswahl in Entwicklung',
     'busyTryAgainLater':
         'Der Empfänger ist beschäftigt, bitte versuchen Sie es später erneut',
     'calling': 'Anrufen...',
@@ -5488,6 +5710,13 @@ class Locales {
     'offlineNotification': 'Offline-Benachrichtigung',
     'forceLogoutNotification':
         'Sie wurden vom Gerät [%s] zwangsweise abgemeldet',
+    'timeJustNow': 'Gerade eben',
+    'timeMinutesAgo': 'vor %d Min.',
+    'timeHoursAgo': 'vor %d Std.',
+    'timeDaysAgo': 'vor %d Tagen',
+    'timeYesterday': 'Gestern',
+    'timeToday': 'Heute',
+    'timeWeekdays': 'Mo,Di,Mi,Do,Fr,Sa,So',
   };
   static const zh_Hant = {
     'manually': '手動選擇',
@@ -5696,6 +5925,23 @@ class Locales {
     'searchChatRecord': '查找聊天記錄',
     'confirmDeleteChatRecord': '確定刪除聊天記錄嗎？',
     'chatSettings': '聊天設置',
+    'chatSettingPin': '置頂聊天',
+    'chatSettingPinDesc': '將此聊天置頂到列表頂部',
+    'chatSettingMute': '消息免打擾',
+    'chatSettingMuteDesc': '關閉此聊天的消息通知',
+    'chatSettingBackground': '聊天背景',
+    'chatSettingBackgroundDefault': '默認背景',
+    'chatSettingBackgroundCustom': '已設置自定義背景',
+    'chatSettingClearHistory': '清空聊天記錄',
+    'chatSettingClearHistoryDesc': '刪除所有消息，此操作不可恢復',
+    'chatSettingClearHistoryConfirm': '確定要清空所有聊天記錄嗎？此操作不可恢復。',
+    'chatSettingPinnedSuccess': '置頂成功',
+    'chatSettingUnpinnedSuccess': '取消置頂',
+    'chatSettingMuted': '已開啟免打擾',
+    'chatSettingUnmuted': '已關閉免打擾',
+    'chatSettingBackgroundSuccess': '背景設置成功',
+    'chatSettingClearedSuccess': '清空成功',
+    'chatSettingBackgroundSelectorTip': '背景選擇功能開發中',
     'busyTryAgainLater': '對方正忙，請稍后重試',
     'calling': '正在通話',
     'pleaseSelect': '請選擇',
@@ -6007,6 +6253,13 @@ class Locales {
     'alreadyMember': '已成員',
     'offlineNotification': '下線通知',
     'forceLogoutNotification': '您已被設備【%s】強制下線',
+    'timeJustNow': '剛剛',
+    'timeMinutesAgo': '%s分鐘前',
+    'timeHoursAgo': '%s小時前',
+    'timeDaysAgo': '%s天前',
+    'timeYesterday': '昨天',
+    'timeToday': '今天',
+    'timeWeekdays': '星期一,星期二,星期三,星期四,星期五,星期六,星期日',
   };
   static const fr_FR = {
     'manually': 'Choisir manuellement',
@@ -6233,6 +6486,26 @@ class Locales {
     'confirmDeleteChatRecord':
         'Êtes-vous sûr de vouloir supprimer l\'historique du chat ?',
     'chatSettings': 'Paramètres du chat',
+    'chatSettingPin': 'Épingler le chat',
+    'chatSettingPinDesc': 'Épingler ce chat en haut de la liste',
+    'chatSettingMute': 'Mettre en sourdine',
+    'chatSettingMuteDesc': 'Désactiver les notifications pour ce chat',
+    'chatSettingBackground': 'Arrière-plan du chat',
+    'chatSettingBackgroundDefault': 'Arrière-plan par défaut',
+    'chatSettingBackgroundCustom': 'Arrière-plan personnalisé défini',
+    'chatSettingClearHistory': 'Effacer l\'historique',
+    'chatSettingClearHistoryDesc':
+        'Supprimer tous les messages, cette action est irréversible',
+    'chatSettingClearHistoryConfirm':
+        'Êtes-vous sûr de vouloir effacer tout l\'historique du chat ? Cette action est irréversible.',
+    'chatSettingPinnedSuccess': 'Épinglé avec succès',
+    'chatSettingUnpinnedSuccess': 'Désépinglé',
+    'chatSettingMuted': 'Mise en sourdine activée',
+    'chatSettingUnmuted': 'Mise en sourdine désactivée',
+    'chatSettingBackgroundSuccess': 'Arrière-plan défini avec succès',
+    'chatSettingClearedSuccess': 'Effacé avec succès',
+    'chatSettingBackgroundSelectorTip':
+        'Sélecteur d\'arrière-plan en développement',
     'busyTryAgainLater':
         'Le destinataire est occupé, veuillez réessayer plus tard',
     'calling': 'Appel en cours...',
@@ -6637,5 +6910,12 @@ class Locales {
     'offlineNotification': 'Notification Hors Ligne',
     'forceLogoutNotification':
         'Vous avez été déconnecté de force de l\'appareil [%s]',
+    'timeJustNow': 'À l\'instant',
+    'timeMinutesAgo': 'il y a %d min',
+    'timeHoursAgo': 'il y a %d h',
+    'timeDaysAgo': 'il y a %d j',
+    'timeYesterday': 'Hier',
+    'timeToday': 'Aujourd\'hui',
+    'timeWeekdays': 'Lun,Mar,Mer,Jeu,Ven,Sam,Dim',
   };
 }

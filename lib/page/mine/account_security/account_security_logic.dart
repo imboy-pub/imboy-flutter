@@ -6,8 +6,19 @@ import 'account_security_state.dart';
 class AccountSecurityLogic extends GetxController {
   final AccountSecurityState state = AccountSecurityState();
 
-  Future<bool> changeEmail({required String email, required String code}) async {
+  Future<bool> changeEmail({
+    required String email,
+    required String code,
+  }) async {
     bool res = await UserProvider().changeEmail(email: email, code: code);
+    return res;
+  }
+
+  Future<bool> changeMobile({
+    required String mobile,
+    required String code,
+  }) async {
+    bool res = await UserProvider().changeMobile(mobile: mobile, code: code);
     return res;
   }
 }

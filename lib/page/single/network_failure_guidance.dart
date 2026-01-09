@@ -8,7 +8,7 @@ class NetworkFailureGuidancePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'networkException'.tr,
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/theme_manager.dart';
 
@@ -15,6 +16,7 @@ class SetGenderPage extends StatelessWidget {
     final logic = Get.put(SetGenderLogic());
     final colorScheme = Theme.of(context).colorScheme;
     final themeManager = ThemeManager.instance;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // 性别选项列表
     final genderOptions = [
@@ -24,40 +26,37 @@ class SetGenderPage extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        title: Text(
-          'gender'.tr,
-          style: ThemeManager.instance.getTextStyle(
-            FontSizeType.large,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, size: 20),
-          onPressed: () => Get.back(),
-        ),
+      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      appBar: GlassAppBar(
+        title: 'gender'.tr,
+        automaticallyImplyLeading: true,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         padding: EdgeInsets.symmetric(
           horizontal: themeManager.mainSpace * 2,
-          vertical: themeManager.mainSpace,
+          vertical: themeManager.mainSpace * 2,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 性别选项列表
-            Expanded(
-              child: ListView.builder(
-                itemCount: genderOptions.length,
-                itemBuilder: (context, index) {
-                  final option = genderOptions[index];
-                  return _buildGenderItem(context, option, logic);
-                },
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: isDark
+                    ? Colors.black.withValues(alpha: 0.2)
+                    : Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
-            ),
-          ],
+            ],
+          ),
+          padding: EdgeInsets.all(themeManager.mainSpace),
+          child: Column(
+            children: genderOptions.map((option) {
+              return _buildGenderItem(context, option, logic);
+            }).toList(),
+          ),
         ),
       ),
     );
@@ -71,6 +70,7 @@ class SetGenderPage extends StatelessWidget {
   ) {
     final colorScheme = Theme.of(context).colorScheme;
     final themeManager = ThemeManager.instance;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Obx(() {
       final isSelected = logic.selectedGender.value == option['id'];
@@ -81,8 +81,10 @@ class SetGenderPage extends StatelessWidget {
         margin: EdgeInsets.only(bottom: themeManager.mainSpace),
         child: Material(
           color: isSelected
-              ? colorScheme.primaryContainer.withValues(alpha: 0.3)
-              : colorScheme.surfaceContainerLowest,
+              ? colorScheme.primaryContainer.withValues(alpha: 0.2)
+              : (isDark
+                  ? colorScheme.surfaceContainerHigh
+                  : colorScheme.surfaceContainerLowest),
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),

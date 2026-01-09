@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/feedback_builder.dart';
 
 class FeedbackModel {
@@ -57,8 +58,8 @@ class FeedbackModel {
       attach: json['attach'] ?? [],
       replyCount: json['reply_count'],
       status: json['status'],
-      updatedAt: json['updated_at'],
-      createdAt: json['created_at'],
+      updatedAt: DateTimeHelper.parseTimestamp(json['updated_at']),
+      createdAt: DateTimeHelper.parseTimestamp(json['created_at']),
     );
   }
 

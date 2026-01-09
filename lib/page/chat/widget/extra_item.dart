@@ -31,6 +31,8 @@ class ExtraItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -43,58 +45,53 @@ class ExtraItem extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // 图标容器 - 使用Material 3设计
+              // 图标容器 - 使用现代设计风格
               Container(
-                width: width ?? 48,
-                height: height ?? 48,
+                width: width ?? 56, // 稍微加大触控区域
+                height: height ?? 56,
                 decoration: BoxDecoration(
-                  // 使用主题颜色
-                  color: ThemeManager.instance.getThemeColor(
-                    'surfaceContainer',
-                  ),
-                  borderRadius: BorderRadius.circular(12),
+                  // 使用更柔和的背景色：浅色模式下用极淡的灰，深色模式下用深灰
+                  color: isDark
+                      ? const Color(0xFF2C2C2E)
+                      : const Color(0xFFF5F5F7),
+                  borderRadius: BorderRadius.circular(18), // 更圆润的角
+                  // 移除硬边框，使用极淡的内描边来增加精致感
                   border: Border.all(
-                    color: ThemeManager.instance
-                        .getThemeColor('outline')
-                        .withValues(alpha: 0.12),
-                    width: 1,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : Colors.black.withValues(alpha: 0.05),
+                    width: 0.5,
                   ),
-                  // 添加阴影效果
-                  boxShadow: [
-                    BoxShadow(
-                      color: ThemeManager.instance
-                          .getThemeColor('shadow')
-                          .withValues(alpha: 0.08),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
                 ),
                 child: Center(
                   child: IconTheme(
                     data: IconThemeData(
-                      color: ThemeManager.instance.getThemeColor('primary'),
-                      size: 24,
+                      //图标颜色：深色模式用白，浅色模式用深灰，不再随主题色变，保持工具属性
+                      color: isDark ? Colors.white : const Color(0xFF48484A),
+                      size: 26,
                     ),
                     child: image is ImageProvider
                         ? Image(
                             image: image as ImageProvider,
-                            width: 24,
-                            height: 24,
+                            width: 26,
+                            height: 26,
                           )
                         : image,
                   ),
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               // 标题文字
               Flexible(
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: ThemeManager.instance.getThemeColor('onSurface'),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: ThemeManager.instance
+                        .getThemeColor('onSurface')
+                        .withValues(alpha: 0.8),
+                    height: 1.1,
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 2,

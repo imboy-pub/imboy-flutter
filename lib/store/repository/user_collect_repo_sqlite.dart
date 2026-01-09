@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
@@ -23,7 +24,28 @@ class UserCollectRepo {
   static String createdAt = 'created_at';
   static String info = 'info';
 
+  // 公共列名列表
+  static final List<String> defaultColumns = [
+    UserCollectRepo.userId,
+    UserCollectRepo.kind,
+    UserCollectRepo.kindId,
+    UserCollectRepo.source,
+    UserCollectRepo.remark,
+    UserCollectRepo.updatedAt,
+    UserCollectRepo.createdAt,
+    UserCollectRepo.tag,
+    UserCollectRepo.info,
+  ];
+
   final SqliteService _db = SqliteService.to;
+
+  /// 格式化标签字符串：确保以逗号结尾，去除重复逗号
+  static String _formatTag(String tag) {
+    if (tag.isNotEmpty && !tag.endsWith(',')) {
+      tag = "$tag,";
+    }
+    return tag.replaceAll(',,', ',');
+  }
 
   Future<List<UserCollectModel>> page({
     int limit = 1000,
@@ -34,17 +56,7 @@ class UserCollectRepo {
   }) async {
     List<Map<String, dynamic>> maps = await _db.query(
       UserCollectRepo.tableName,
-      columns: [
-        UserCollectRepo.userId,
-        UserCollectRepo.kind,
-        UserCollectRepo.kindId,
-        UserCollectRepo.source,
-        UserCollectRepo.remark,
-        UserCollectRepo.updatedAt,
-        UserCollectRepo.createdAt,
-        UserCollectRepo.tag,
-        UserCollectRepo.info,
-      ],
+      columns: defaultColumns,
       where: where,
       whereArgs: whereArgs,
       orderBy: orderBy ?? "${UserCollectRepo.createdAt} desc",
@@ -66,25 +78,22 @@ class UserCollectRepo {
 
   Future<UserCollectModel> save(Map<String, dynamic> json) async {
     String kid = json[UserCollectRepo.kindId];
-    UserCollectModel? old = await findByKindId(kid);
-    if (old is UserCollectModel) {
-      await update(kid, json);
-      old = await findByKindId(kid);
-      return old!;
-    } else {
-      UserCollectModel model = UserCollectModel.fromJson(json);
-      await insert(model);
-      return model;
-    }
+    return await _db.transaction<UserCollectModel>((txn) async {
+      UserCollectModel? old = await findByKindId(kid, txn: txn);
+      if (old is UserCollectModel) {
+        await update(kid, json, txn: txn);
+        return (await findByKindId(kid, txn: txn))!;
+      } else {
+        UserCollectModel model = UserCollectModel.fromJson(json);
+        await insert(model, txn: txn);
+        return model;
+      }
+    });
   }
 
   // 插入一条数据
-  Future<UserCollectModel> insert(UserCollectModel obj) async {
-    String tag = obj.tag;
-    if (tag.isNotEmpty && !tag.endsWith(',')) {
-      tag = "$tag,";
-    }
-    tag = tag.replaceAll(',,', ',');
+  Future<UserCollectModel> insert(UserCollectModel obj, {Transaction? txn}) async {
+    String tag = _formatTag(obj.tag);
 
     Map<String, dynamic> insert = {
       UserCollectRepo.userId: UserRepoLocal.to.currentUid,
@@ -99,7 +108,11 @@ class UserCollectRepo {
     };
     debugPrint("UserCollectRepo_insert/1 $insert");
 
-    await _db.insert(UserCollectRepo.tableName, insert);
+    if (txn != null) {
+      await txn.insert(UserCollectRepo.tableName, insert);
+    } else {
+      await _db.insert(UserCollectRepo.tableName, insert);
+    }
     return obj;
   }
 
@@ -113,7 +126,7 @@ class UserCollectRepo {
   }
 
   // 更新信息
-  Future<int> update(String kid, Map<String, dynamic> json) async {
+  Future<int> update(String kid, Map<String, dynamic> json, {Transaction? txn}) async {
     // iPrint("user_collect_repo_sqlite/update $kid, ${json.toString()}");
     Map<String, Object?> data = {};
     if (strNoEmpty(json[UserCollectRepo.remark])) {
@@ -121,11 +134,7 @@ class UserCollectRepo {
     }
     String? tag = json[UserCollectRepo.tag];
     if (tag != null) {
-      if (tag.isNotEmpty && !tag.endsWith(',')) {
-        tag = "$tag,";
-      }
-      tag = tag.replaceAll(',,', ',');
-      data[UserCollectRepo.tag] = tag;
+      data[UserCollectRepo.tag] = _formatTag(tag);
     }
     // if (json.containsKey(UserCollectRepo.source)){
     //   iPrint("user_collect_repo_sqlite/update 2 ${json[UserCollectRepo.source]}");
@@ -147,25 +156,45 @@ class UserCollectRepo {
     }
 
     if (strNoEmpty(kid)) {
-      return await _db.update(
-        UserCollectRepo.tableName,
-        data,
-        where:
-            '${UserCollectRepo.userId} = ? and ${UserCollectRepo.kindId} = ?',
-        whereArgs: [UserRepoLocal.to.currentUid, kid],
-      );
+      if (txn != null) {
+        return await txn.update(
+          UserCollectRepo.tableName,
+          data,
+          where:
+              '${UserCollectRepo.userId} = ? and ${UserCollectRepo.kindId} = ?',
+          whereArgs: [UserRepoLocal.to.currentUid, kid],
+        );
+      } else {
+        return await _db.update(
+          UserCollectRepo.tableName,
+          data,
+          where:
+              '${UserCollectRepo.userId} = ? and ${UserCollectRepo.kindId} = ?',
+          whereArgs: [UserRepoLocal.to.currentUid, kid],
+        );
+      }
     } else {
       return 0;
     }
   }
 
-  Future<UserCollectModel?> findByKindId(String kindId) async {
-    List<Map<String, dynamic>> maps = await _db.query(
-      UserCollectRepo.tableName,
-      columns: [],
-      where: '${UserCollectRepo.userId} = ? and ${UserCollectRepo.kindId} = ?',
-      whereArgs: [UserRepoLocal.to.currentUid, kindId],
-    );
+  Future<UserCollectModel?> findByKindId(String kindId, {Transaction? txn}) async {
+    List<Map<String, dynamic>> maps;
+    if (txn != null) {
+      maps = await txn.query(
+        UserCollectRepo.tableName,
+        columns: [],
+        where: '${UserCollectRepo.userId} = ? and ${UserCollectRepo.kindId} = ?',
+        whereArgs: [UserRepoLocal.to.currentUid, kindId],
+      );
+    } else {
+      maps = await _db.query(
+        UserCollectRepo.tableName,
+        columns: [],
+        where: '${UserCollectRepo.userId} = ? and ${UserCollectRepo.kindId} = ?',
+        whereArgs: [UserRepoLocal.to.currentUid, kindId],
+      );
+    }
     if (maps.isNotEmpty) {
       return UserCollectModel.fromJson(maps.first);
     } else {

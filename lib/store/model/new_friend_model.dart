@@ -47,8 +47,8 @@ class NewFriendModel {
       status: status is String ? int.parse(status) : status,
       msg: json[NewFriendRepo.msg].toString(),
       // 单位毫秒，13位时间戳  1561021145560
-      updatedAt: json[NewFriendRepo.updatedAt] ?? DateTimeHelper.millisecond(),
-      createdAt: json[NewFriendRepo.createdAt],
+      updatedAt: DateTimeHelper.parseTimestamp(json[NewFriendRepo.updatedAt]),
+      createdAt: DateTimeHelper.parseTimestamp(json[NewFriendRepo.createdAt]),
       payload: json["payload"],
     );
   }

@@ -111,7 +111,7 @@ class MessageWebrtc extends GetxService {
       }
       final msg = CustomMessage(
         authorId: author.id,
-        createdAt: DateTimeHelper.now(),
+        createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
         id: msgId,
         status: MessageStatus.delivered,
         metadata: {

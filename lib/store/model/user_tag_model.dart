@@ -1,3 +1,5 @@
+import 'package:imboy/component/helper/datetime.dart';
+
 class UserTagModel {
   String userId;
   int tagId;
@@ -26,9 +28,9 @@ class UserTagModel {
       scene: data['scene'] ?? 0,
       name: "${data['name'] ?? ''}",
       subtitle: data['subtitle'] ?? '',
-      refererTime: data['referer_time'] ?? 0,
-      updatedAt: data['updated_at'] ?? 0,
-      createdAt: data['created_at'],
+      refererTime: DateTimeHelper.parseTimestamp(data['referer_time']),
+      updatedAt: DateTimeHelper.parseTimestamp(data['updated_at']),
+      createdAt: DateTimeHelper.parseTimestamp(data['created_at']),
     );
   }
 

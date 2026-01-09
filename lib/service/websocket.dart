@@ -4,7 +4,9 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:get/get.dart';
+import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/message.dart';
+import 'package:imboy/service/ack_manager.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -155,9 +157,13 @@ class WebSocketService extends GetxService {
         },
         cancelOnError: true,
       );
-      iPrint('> ws: 连接成功 ${Env.wsUrl}');
+      AppLogger.info('WebSocket 连接成功: ${Env.wsUrl}');
+
+      // 连接成功后重置重连计数器
+      _backoff.reset();
+      _cancelReconnectTimer();
     } catch (e, s) {
-      iPrint('> ws: 连接失败 ${Env.wsUrl}; (${e.toString()}); $s');
+      AppLogger.error('WebSocket 连接失败: ${Env.wsUrl}', e, s);
       _handleConnectionFailure(e);
     } finally {
       _connecting = false;
@@ -170,9 +176,16 @@ class WebSocketService extends GetxService {
     _scheduleReconnection();
   }
 
-  /// 处理接收到的消息（优化版：简化分发逻辑）
+  /// 处理接收到的消息（优化版：非阻塞立即分发）
+  /// Process received messages (optimized: non-blocking immediate dispatch)
   Future<void> _onMessage(dynamic message) async {
-    iPrint("ws_onMessage ${DateTime.now()}");
+    // 【新增】记录接收消息的基本信息
+    final msgPreview = message.toString().length > 100
+        ? '${message.toString().substring(0, 100)}...'
+        : message.toString();
+    iPrint('📡 [WS] 收到消息: $msgPreview');
+
+    // iPrint("ws_onMessage ${DateTime.now()}");
 
     // 快速空值检查
     if (message == null || (message is String && message.trim().isEmpty)) {
@@ -189,13 +202,35 @@ class WebSocketService extends GetxService {
 
       final type = messageType.toUpperCase();
       msg['type'] = type;
+
+      iPrint('📩 [WS] 解析消息: type=$type, msgId=$messageId');
+
+      // 【关键优化】立即发送ACK，避免服务器超时重试
+      // 对于需要ACK的消息类型（C2C/C2G/S2C），在处理消息前先发送ACK
+      if (['C2C', 'C2G', 'S2C'].contains(type) && messageId.isNotEmpty) {
+        try {
+          iPrint('🎯 [WS_ACK] 准备发送ACK: type=$type, msgId=$messageId');
+          // 【修复】统一使用 AckManager 的直接发送方法
+          // ACK 格式在 AckManager._generateAckMessage 中统一维护
+          AckManager.to.sendAckDirect(type, messageId);
+        } catch (e) {
+          iPrint('⚠️ [WS_ACK] ACK发送失败: msgId=$messageId, error=$e');
+        }
+      } else {
+        if (messageId.isEmpty) {
+          iPrint('⚠️ [WS_ACK] 消息ID为空，跳过ACK: type=$type');
+        } else if (!['C2C', 'C2G', 'S2C'].contains(type)) {
+          iPrint('ℹ️ [WS_ACK] 消息类型不需要ACK: type=$type, msgId=$messageId');
+        }
+      }
+
       // 消息确认处理（包含ACK和撤回确认）
       _handleMessageAck(messageType, messageId);
 
-      // 统一分发到事件总线（移除冗余的_dispatchTypedEvents调用）
+      // 统一分发到事件总线（非阻塞，不等待处理完成）
+      // Unified dispatch to event bus (non-blocking, don't wait for processing)
       try {
-
-        iPrint("> msg listen: $type, ${DateTime.now()} $msg");
+        iPrint("> msg listen: $type, ${DateTime.now()}");
 
         // 如果有 ts 字段，则打印延迟
         // Log latency if timestamp provided
@@ -205,13 +240,12 @@ class WebSocketService extends GetxService {
           );
         }
 
-        // 这里将具体处理委托给其他模块
-        // Delegate specific processing to other modules
-        await MessageService.to.processMessage(type, msg);
+        // ⚡ 非阻塞处理：立即返回，后台异步处理
+        // Non-blocking processing: return immediately, process in background
+        MessageService.to.processMessage(type, msg);
       } catch (e, s) {
         iPrint('Error processing message: $e - $s');
       }
-      iPrint('> ws: 消息已分发: $messageType');
 
     } catch (e) {
       iPrint('> ws: 消息处理失败: $e');
@@ -242,6 +276,16 @@ class WebSocketService extends GetxService {
     if (messageType.contains('REVOKE') && messageType.endsWith('_REVOKE_ACK') && messageId.isNotEmpty) {
       _handleMessageConfirmation(messageId);
     }
+
+    // 【改进】处理CLIENT_ACK的确认消息，通知AckManager停止重试
+    if (messageType == 'CLIENT_ACK_CONFIRM' && messageId.isNotEmpty) {
+      try {
+        AckManager.to.ackConfirmed(messageId);
+        iPrint('✅ [WS] CLIENT_ACK确认收到: msgId=$messageId');
+      } catch (e) {
+        iPrint('⚠️ [WS] AckManager处理失败: $e');
+      }
+    }
   }
 
     
@@ -251,7 +295,7 @@ class WebSocketService extends GetxService {
       eventBus.fire({
         'type': 'RAW_MESSAGE',
         'data': rawMessage,
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
+        'timestamp': DateTimeHelper.millisecond(),
       });
     } catch (e) {
       iPrint('> ws: 原始消息处理失败: $e');
@@ -356,13 +400,22 @@ class WebSocketService extends GetxService {
   /// 调度重连任务
   void _scheduleReconnection() {
     if (!_shouldScheduleReconnect()) {
-      iPrint('> ws: 停止重试（尝试次数: ${_backoff.attempts}）');
+      AppLogger.warning('WebSocket 停止重试（已尝试 ${_backoff.attempts}/${_backoff.maxRetries} 次）');
       return;
     }
+
     final delay = _backoff.nextDelay();
-    iPrint('> ws: 将在 ${delay.inSeconds} 秒后尝试重连');
+    final nextAttempt = _backoff.attempts;
+
+    AppLogger.info(
+      'WebSocket 将在 ${delay.inSeconds} 秒后重连 (第 $nextAttempt/${_backoff.maxRetries} 次尝试)'
+    );
+
     _cancelReconnectTimer();
-    _reconnectTimer = Timer(delay, () => openSocket(from: 'reconnect'));
+    _reconnectTimer = Timer(delay, () {
+      AppLogger.debug('WebSocket 重连定时器触发');
+      openSocket(from: 'reconnectattempt_$nextAttempt');
+    });
   }
 
   /// 判断是否需要调度重连
@@ -490,6 +543,21 @@ class WebSocketService extends GetxService {
 
     // 尝试重新连接
     await openSocket(from: 'sendMessage');
+    return false;
+  }
+
+  /// 同步发送消息（用于 ACK 等需要立即发送的场景）
+  /// 不经过消息队列，直接通过 WebSocket 发送
+  bool sendDirect(String message) {
+    if (status.value == SocketStatus.connected && _channel != null) {
+      try {
+        _channel!.sink.add(message);
+        return true;
+      } catch (e) {
+        iPrint('> ws: 直接发送消息失败: $e');
+        return false;
+      }
+    }
     return false;
   }
   
@@ -673,6 +741,14 @@ class ExponentialBackoff {
     }
   }
 
+  /// 重置重试计数器（连接成功后调用）
+  void reset() {
+    if (attempts > 0) {
+      AppLogger.debug('重连计数器已重置（之前尝试了 $attempts 次）');
+    }
+    attempts = 0;
+  }
+
   /// 完全随机 jitter：[0, delay * jitterFactor]
   Duration _fullJitter(Duration base) {
     int maxMs = (base.inMilliseconds * jitterFactor).toInt();
@@ -695,11 +771,6 @@ class ExponentialBackoff {
         ? Random().nextInt(deviation * 2 + 1) - deviation
         : 0;
     return Duration(milliseconds: base.inMilliseconds + jitterValue);
-  }
-
-  /// 重置重试状态
-  void reset() {
-    attempts = 0;
   }
 }
 

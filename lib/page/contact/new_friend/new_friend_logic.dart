@@ -12,7 +12,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_logic.dart';
-import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/message.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/provider/user_provider.dart';
@@ -60,14 +60,20 @@ class NewFriendLogic extends GetxController {
       NewFriendRepo.msg: payload["from"]["msg"] ?? "",
       NewFriendRepo.payload: json.encode(payload),
       NewFriendRepo.status: NewFriendStatus.waiting_for_validation.index,
-      NewFriendRepo.createdAt: DateTimeHelper.now(),
+      NewFriendRepo.createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
     };
     debugPrint("> on receivedAddFriend ${saveData.toString()}");
     (NewFriendRepo()).save(saveData);
     replaceItems(NewFriendModel.fromJson(saveData));
     bottomLogic.newFriendRemindCounter.add(from);
     bottomLogic.update([bottomLogic.newFriendRemindCounter]);
-    WebSocketService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$deviceId", data['id']);
+    // 使用统一的 ACK 发送方法
+    final msgId = data['id'];
+    if (msgId == null || msgId.isEmpty) {
+      debugPrint("❌ [NEW_FRIEND] 消息ID为空，无法发送ACK: data=${data.toString()}");
+      return;
+    }
+    MessageService.to.sendAckMsg('S2C', msgId);
   }
 
   /// 确认添加朋友，对端消息通知
@@ -90,7 +96,13 @@ class NewFriendLogic extends GetxController {
       replaceItems(obj);
     }
     if (ack) {
-      WebSocketService.to.sendMessage("CLIENT_ACK,S2C,${data['id']},$deviceId", data['id']);
+      // 使用统一的 ACK 发送方法
+      final msgId = data['id'];
+      if (msgId == null || msgId.isEmpty) {
+        debugPrint("❌ [NEW_FRIEND] 消息ID为空，无法发送ACK: data=${data.toString()}");
+        return;
+      }
+      MessageService.to.sendAckMsg('S2C', msgId);
     }
   }
 

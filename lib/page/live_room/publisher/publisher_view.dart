@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -161,7 +162,7 @@ class _PublisherPageState extends State<PublisherPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar:
-          AppBar(title: Text('WHIP Publisher Sample'), actions: <Widget>[
+GlassAppBar(titleWidget: Text('WHIP Publisher Sample'), rightDMActions: [
         // if (_connecting)
         //   IconButton(
         //     icon: const Icon(Icons.switch_video),

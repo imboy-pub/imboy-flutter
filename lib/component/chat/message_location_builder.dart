@@ -7,6 +7,7 @@ import 'package:map_launcher/map_launcher.dart';
 import 'package:octo_image/octo_image.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -121,8 +122,9 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start, // 内容文本左对齐
               children: [
+                // 使用统一间距 8dp
                 Padding(
-                  padding: const EdgeInsets.only(left: 8, right: 8, top: 8),
+                  padding: MessageSpacing.locationTitlePadding,
                   child: Text(
                     msg.metadata?['title'],
                     textAlign: TextAlign.left,
@@ -134,8 +136,9 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                // 使用统一间距 8dp
                 Padding(
-                  padding: const EdgeInsets.only(left: 8, bottom: 8),
+                  padding: MessageSpacing.locationAddressPadding,
                   child: Text(
                     msg.metadata?['address'],
                     textAlign: TextAlign.left,

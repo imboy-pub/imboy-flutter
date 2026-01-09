@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../personal_info/personal_info_logic.dart';
@@ -15,37 +15,24 @@ class MoreView extends StatelessWidget {
   Widget build(BuildContext context) {
     final logic = Get.put(PersonalInfoLogic());
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     logic.genderTitle.value = UserRepoLocal.to.current.genderTitle;
     logic.sign.value = UserRepoLocal.to.current.sign;
     logic.region.value = UserRepoLocal.to.current.region;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('moreInfo'.tr),
+      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      appBar: GlassAppBar(
+        title: 'moreInfo'.tr,
+        automaticallyImplyLeading: true,
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // const SizedBox(height: 10),
-            //
-            // // 页面标题描述
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            //   child: Text(
-            //     'personalInfoDesc'.tr,
-            //     style: TextStyle(
-            //       fontSize: 14,
-            //       color: isDark
-            //           ? const Color(0xFF8E8E93)
-            //           : const Color(0xFF999999),
-            //     ),
-            //   ),
-            // ),
-
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
 
             // 信息设置卡片组
             _buildMenuGroup(context, [
@@ -58,10 +45,8 @@ class MoreView extends StatelessWidget {
                 trailing: Obx(() => Text(
                       logic.genderTitle.value,
                       style: TextStyle(
-                        fontSize: 17,
-                        color: isDark 
-                            ? const Color(0xFF8E8E93) 
-                            : const Color(0xFF999999),
+                        fontSize: 16,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     )),
                 onPressed: () => _handleGenderUpdate(logic),
@@ -76,10 +61,8 @@ class MoreView extends StatelessWidget {
                 trailing: Obx(() => Text(
                       _formatRegion(logic.region.value),
                       style: TextStyle(
-                        fontSize: 17,
-                        color: isDark 
-                            ? const Color(0xFF8E8E93) 
-                            : const Color(0xFF999999),
+                        fontSize: 16,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     )),
                 onPressed: () => _handleRegionUpdate(logic),
@@ -94,109 +77,62 @@ class MoreView extends StatelessWidget {
                 trailing: Expanded(
                   child: Obx(() => Text(
                         logic.sign.value.isEmpty ? 'notFilled'.tr : logic.sign.value,
-                        style: TextStyle(
-                          fontSize: 17,
-                          color: logic.sign.value.isEmpty
-                              ? (isDark ? const Color(0xFF48484A) : const Color(0xFFCCCCCC))
-                              : (isDark ? const Color(0xFF8E8E93) : const Color(0xFF999999)),
-                        ),
                         textAlign: TextAlign.right,
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: logic.sign.value.isEmpty
+                              ? colorScheme.outline.withValues(alpha: 0.5)
+                              : colorScheme.onSurfaceVariant,
+                        ),
                       )),
                 ),
                 onPressed: () => _handleSignatureUpdate(logic),
               ),
             ]),
-
-            // const SizedBox(height: 20),
-            //
-            // // 提示信息
-            // Container(
-            //   margin: const EdgeInsets.symmetric(horizontal: 16),
-            //   padding: const EdgeInsets.all(16),
-            //   decoration: BoxDecoration(
-            //     color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
-            //     borderRadius: BorderRadius.circular(12),
-            //     boxShadow: [
-            //       BoxShadow(
-            //         color: isDark
-            //             ? Colors.black.withValues(alpha: 0.2)
-            //             : Colors.black.withValues(alpha: 0.03),
-            //         blurRadius: 0.5,
-            //         offset: const Offset(0, 0.5),
-            //       ),
-            //     ],
-            //   ),
-            //   child: Row(
-            //     children: [
-            //       Container(
-            //         padding: const EdgeInsets.all(6),
-            //         decoration: BoxDecoration(
-            //           color: const Color(0xFF007AFF).withValues(alpha: isDark ? 0.2 : 0.1),
-            //           borderRadius: BorderRadius.circular(6),
-            //         ),
-            //         child: const Icon(
-            //           Icons.info_outline,
-            //           color: Color(0xFF007AFF),
-            //           size: 20,
-            //         ),
-            //       ),
-            //       const SizedBox(width: 12),
-            //       Expanded(
-            //         child: Text(
-            //           'personalInfoTip'.tr,
-            //           style: TextStyle(
-            //             fontSize: 15,
-            //             color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-            //           ),
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
-
-            const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
 
-  /// 构建功能分组 - 参考"我的"页面风格
+  /// 构建菜单组（仿iOS风格）
   Widget _buildMenuGroup(BuildContext context, List<Widget> children) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+        color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: isDark
                 ? Colors.black.withValues(alpha: 0.2)
-                : Colors.black.withValues(alpha: 0.03),
-            blurRadius: 0.5,
-            offset: const Offset(0, 0.5),
+                : Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         children: children.asMap().entries.map((entry) {
-          int index = entry.key;
-          Widget child = entry.value;
+          final index = entry.key;
+          final child = entry.value;
+          final isLast = index == children.length - 1;
 
           return Column(
             children: [
               child,
-              if (index < children.length - 1)
+              if (!isLast)
                 Padding(
-                  padding: const EdgeInsets.only(left: 48),
-                  child: Container(
-                    height: 0.3,
-                    color: isDark
-                        ? const Color(0xFF48484A)
-                        : const Color(0xFFE5E5E5),
+                  padding: const EdgeInsets.only(left: 56),
+                  child: Divider(
+                    height: 0.5,
+                    thickness: 0.5,
+                    color: colorScheme.outlineVariant.withValues(alpha: 0.2),
                   ),
                 ),
             ],
@@ -206,7 +142,7 @@ class MoreView extends StatelessWidget {
     );
   }
 
-  /// 构建信息项 - 参考"我的"页面风格
+  /// 构建信息项
   Widget _buildInfoItem({
     required BuildContext context,
     required IconData icon,
@@ -215,140 +151,101 @@ class MoreView extends StatelessWidget {
     required Widget trailing,
     required VoidCallback onPressed,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-          child: Row(
-            children: [
-              // 图标
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: isDark ? 0.2 : 0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Icon(icon, color: iconColor, size: 20),
+    return InkWell(
+      onTap: onPressed,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
               ),
-
-              const SizedBox(width: 12),
-
-              // 标题
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w400,
-                  color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                ),
+              child: Icon(icon, size: 20, color: iconColor),
+            ),
+            const SizedBox(width: 16),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: colorScheme.onSurface,
               ),
-
-              const SizedBox(width: 12),
-
-              // 内容区域
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Flexible(child: trailing),
-                  ],
-                ),
-              ),
-
-              const SizedBox(width: 8),
-
-              // 箭头图标
-              Icon(
-                Icons.navigate_next,
-                color: isDark
-                    ? const Color(0xFF8E8E93)
-                    : const Color(0xFF999999),
-                size: 18,
-              ),
-            ],
-          ),
+            ),
+            const Spacer(),
+            trailing,
+            const SizedBox(width: 8),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  /// 格式化地区显示文本
+  /// 格式化地区显示
   String _formatRegion(String region) {
     if (region.isEmpty) return 'notFilled'.tr;
-
-    List<String> items = region.split(" ");
-    if (items.length < 3) {
-      return region;
+    // 简单处理，如果太长可以截断
+    if (region.length > 10) {
+      return '${region.substring(0, 9)}...';
     }
-    return "${items[items.length - 2]} ${items[items.length - 1]}";
+    return region;
   }
 
   /// 处理性别更新
-  void _handleGenderUpdate(PersonalInfoLogic logic) {
-    Get.to(
-      () => const SetGenderPage(),
-      transition: Transition.rightToLeft,
-      popGesture: true,
-    )?.then((value) {
-      if (value == true) {
-        // 更新性别显示
-        logic.genderTitle.value = UserRepoLocal.to.current.genderTitle;
-      }
-    });
+  void _handleGenderUpdate(PersonalInfoLogic logic) async {
+    final result = await Get.to(() => const SetGenderPage());
+    if (result != null) {
+      // 刷新数据
+      logic.genderTitle.value = UserRepoLocal.to.current.genderTitle;
+    }
   }
 
   /// 处理地区更新
-  void _handleRegionUpdate(PersonalInfoLogic logic) {
-    Get.to(
+  void _handleRegionUpdate(PersonalInfoLogic logic) async {
+    final result = await Get.to(
       () => SetRegionPage(
-        title: 'setParam'.trArgs(['region'.tr]),
+        title: 'region'.tr,
         currentValue: logic.region.value,
-        onSave: (region) async {
-          bool ok = await logic.changeInfo({
+        onSave: (val) async {
+          return await logic.changeInfo({
             "field": "region",
-            "value": region,
+            "value": val,
           });
-          if (ok) {
-            Map<String, dynamic> payload = UserRepoLocal.to.current.toMap();
-            payload["region"] = region;
-            UserRepoLocal.to.changeInfo(payload);
-            logic.region.value = region;
-          }
-          return ok;
         },
       ),
-      transition: Transition.rightToLeft,
-      popGesture: true,
     );
+    if (result != null) {
+      logic.region.value = UserRepoLocal.to.current.region;
+    }
   }
 
   /// 处理个性签名更新
-  void _handleSignatureUpdate(PersonalInfoLogic logic) {
-    Get.to(
+  void _handleSignatureUpdate(PersonalInfoLogic logic) async {
+    final result = await Get.to(
       () => UpdatePage(
-        title: 'setParam'.trArgs(['signature'.tr]),
-        value: UserRepoLocal.to.current.sign,
-        field: 'text',
-        callback: (sign) async {
-          bool ok = await logic.changeInfo({
+        title: 'signature'.tr,
+        value: logic.sign.value,
+        field: 'input',
+        maxLength: 200, // 签名通常可以长一点
+        callback: (val) async {
+          return await logic.changeInfo({
             "field": "sign",
-            "value": sign,
+            "value": val,
           });
-          if (ok) {
-            Map<String, dynamic> payload = UserRepoLocal.to.current.toMap();
-            payload["sign"] = sign;
-            UserRepoLocal.to.changeInfo(payload);
-            logic.sign.value = UserRepoLocal.to.current.sign;
-          }
-          return ok;
         },
       ),
-      transition: Transition.rightToLeft,
-      popGesture: true,
     );
+    if (result != null) {
+      logic.sign.value = UserRepoLocal.to.current.sign;
+    }
   }
 }

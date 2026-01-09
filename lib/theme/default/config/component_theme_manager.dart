@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/theme_manager.dart';
 
 /// 组件主题管理器
 /// 统一管理所有组件主题，支持动态字体缩放和 Material 3 设计规范
@@ -28,11 +27,9 @@ class ComponentThemeManager {
           ? AppColors.darkTextPrimary
           : AppColors.lightTextPrimary,
       elevation: 0,
-      scrolledUnderElevation: 1,
-      shadowColor: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-      surfaceTintColor: isDark
-          ? AppColors.darkAppBarBackground
-          : AppColors.lightAppBarBackground,
+      scrolledUnderElevation: 0,
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
       iconTheme: IconThemeData(
         color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         size: 24,
@@ -435,27 +432,31 @@ class ComponentThemeManager {
     return BottomNavigationBarThemeData(
       backgroundColor: isDark
           ? AppColors.darkAppBarBackground
-          : AppColors.lightAppBarBackground,
+          : const Color(0xFFF7F7F7), // 微信风格底部导航栏背景略亮于AppBar
       selectedItemColor: isDark
           ? AppColors.primaryGreenLight
           : AppColors.primaryGreen,
       unselectedItemColor: isDark
           ? AppColors.darkTextDisabled
-          : AppColors.lightTextDisabled,
+          : AppColors.lightTextSecondary, // 使用次要文本颜色
       selectedLabelStyle: TextStyle(
         color: isDark ? AppColors.primaryGreenLight : AppColors.primaryGreen,
         fontSize: scaledLabelSize,
         fontFamily: 'PingFang SC',
+        fontWeight: FontWeight.w500,
       ),
       unselectedLabelStyle: TextStyle(
         color: isDark
             ? AppColors.darkTextDisabled
-            : AppColors.lightTextDisabled,
+            : AppColors.lightTextSecondary,
         fontSize: scaledLabelSize,
         fontFamily: 'PingFang SC',
+        fontWeight: FontWeight.w500,
       ),
       type: BottomNavigationBarType.fixed,
-      elevation: 8,
+      elevation: 0, // 移除阴影
+      showSelectedLabels: true,
+      showUnselectedLabels: true,
     );
   }
 

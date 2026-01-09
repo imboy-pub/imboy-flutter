@@ -12,6 +12,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/list.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/tag.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 // ignore: implementation_imports
 import 'package:textfield_tags/textfield_tags.dart';
@@ -72,7 +73,10 @@ class UserTagRelationPage extends StatelessWidget {
     });
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return TextFieldTags(
       // key: Key('TextFieldTags'),
       // textEditingController: ,
@@ -104,8 +108,18 @@ class UserTagRelationPage extends StatelessWidget {
         BuildContext context,
         InputFieldValues<dynamic> inputFieldValues,
       ) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+          decoration: BoxDecoration(
+            color: isDark ? colorScheme.surface : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.grey.withValues(alpha: 0.2),
+            ),
+          ),
           child: TextField(
             // keyboardType: TextInputType.multiline,
             // minLines: 1,
@@ -113,15 +127,12 @@ class UserTagRelationPage extends StatelessWidget {
             controller: inputFieldValues.textEditingController,
             focusNode: inputFieldValues.focusNode,
             // focusNode: fn,
+            style: TextStyle(
+              color: colorScheme.onSurface,
+            ),
             decoration: InputDecoration(
-              border: UnderlineInputBorder(
-                borderSide:
-                    BorderSide(color: tagSelectedBackgroundColor, width: 1.0),
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide:
-                    BorderSide(color: tagSelectedBackgroundColor, width: 1.0),
-              ),
+              border: InputBorder.none,
+              focusedBorder: InputBorder.none,
               // helperText: 'allTags'.tr,
               helperStyle: TextStyle(
                 color: tagSelectedBackgroundColor,
@@ -129,6 +140,9 @@ class UserTagRelationPage extends StatelessWidget {
               hintText: inputFieldValues.tags.isNotEmpty
                   ? ''
                   : 'selectOrEnterTag'.tr,
+              hintStyle: TextStyle(
+                color: colorScheme.outline.withValues(alpha: 0.5),
+              ),
               errorText: inputFieldValues.error,
               prefixIconConstraints:
                   BoxConstraints(maxWidth: state.distanceToField * 1.0),
@@ -149,7 +163,9 @@ class UserTagRelationPage extends StatelessWidget {
                                       rebuildOnChange: true);
                               state2.removeSelectedItem(tag);
                             },
-                            backgroundColor: tagBackgroundColor,
+                            backgroundColor: isDark
+                                ? colorScheme.surfaceContainerHighest
+                                : tagBackgroundColor,
                             tagSelectedColor: tagSelectedColor,
                             selectedBackgroundColor: tagSelectedBackgroundColor,
                           );
@@ -198,11 +214,12 @@ class UserTagRelationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     initData();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      // backgroundColor: Colors.white,
-      appBar: NavAppBar(
+      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      appBar: GlassAppBar(
         title: title ?? 'addTag'.tr,
         automaticallyImplyLeading: true,
       ),
@@ -214,52 +231,93 @@ class UserTagRelationPage extends StatelessWidget {
                 applyButtonText: 'buttonConfirm'.tr,
                 selectedItemsText: 'selectedItems'.trArgs(['']).trim(),
                 // hideHeader: true,
-                header: _buildHeader(),
+                header: _buildHeader(context),
                 enableOnlySingleSelection: false,
                 listData: state.recentTagItems.value,
                 selectedListData: state.tagItems.value,
                 controlButtons: const [ControlButtonType.Reset],
                 themeData: FilterListThemeData(
                   context,
-                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  backgroundColor:
+                      isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
                   choiceChipTheme: ChoiceChipThemeData(
-                    backgroundColor: tagBackgroundColor,
-                    selectedBackgroundColor: tagSelectedBackgroundColor,
-                    textStyle: TextStyle(color: tagColor),
-                    selectedTextStyle: TextStyle(color: tagSelectedColor),
+                    backgroundColor: isDark ? Colors.black12 : Colors.white,
+                    selectedBackgroundColor: isDark
+                        ? AppColors.primaryGreen.withValues(alpha: 0.2)
+                        : tagSelectedBackgroundColor,
+                    textStyle: TextStyle(
+                        color: isDark ? Colors.white70 : Colors.black87),
+                    selectedTextStyle: TextStyle(
+                        color:
+                            isDark ? AppColors.primaryGreen : tagSelectedColor),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(
+                        color: isDark
+                            ? Colors.white10
+                            : Colors.grey.withValues(alpha: 0.1),
+                      ),
+                    ),
                   ),
-                  controlButtonBarTheme: const ControlButtonBarThemeData.raw(
-                    // backgroundColor: Theme.of(context).colorScheme.surface,
+                  controlButtonBarTheme: ControlButtonBarThemeData.raw(
                     controlButtonTheme: ControlButtonThemeData(
-                      borderRadius: 4,
-                      primaryButtonTextStyle: TextStyle(
+                      borderRadius: 8,
+                      primaryButtonTextStyle: const TextStyle(
                         color: Colors.white,
+                        fontWeight: FontWeight.w600,
                       ),
-                      primaryButtonBackgroundColor: Colors.green,
-                      textStyle: TextStyle(
-                        color: Colors.white70,
+                      primaryButtonBackgroundColor: AppColors.primaryGreen,
+                      textStyle: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
                       ),
-                      // backgroundColor: Theme.of(context).colorScheme.surface,
-                      backgroundColor: Colors.grey,
+                      backgroundColor: Colors.grey.withValues(alpha: 0.6),
                     ),
-                    buttonSpacing: 20,
+                    buttonSpacing: 16,
                     controlContainerDecoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      color: isDark ? colorScheme.surface : Colors.white,
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(20)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, -4),
+                        ),
+                      ],
                     ),
-                    // margin: margin,
-                    // padding: padding,
-                    // height: height,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 16),
+                  ),
+                  headerTheme: HeaderThemeData(
+                    backgroundColor:
+                        isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+                    // searchFieldDecoration 参数已在新版本中移除
                   ),
                 ),
                 onApplyButtonClick: (list) async {
-                  List<dynamic>? tag =
-                      state.tagController.getTags?.toSet().toList();
-                  // state.tagController.getTags = tag?.toList();
-                  // debugPrint("submit_tag ${tag?.length} ${tag.toString()}, ");
-                  bool res = await logic.add(scene, peerId, tag ?? []);
-                  if (res) {
-                    // EasyLoading.showSuccess('tipSuccess'.tr);
-                    Get.back(result: tag!.join(','));
+                  state.tagItems.value = list ?? [];
+                  // 更新 tagController
+                  List<String> tags = state.tagController.getTags?.cast<String>() ?? [];
+                  if (tags.isNotEmpty) {
+                    for (var tag in tags) {
+                      state.tagController.onTagRemoved(tag);
+                    }
+                  }
+                  for (var tag in state.tagItems) {
+                    state.tagController.addTag(tag);
+                  }
+                  logic.valueOnChange(true);
+                  if (logic.valueChanged.isTrue) {
+                    // Get.back(result: state.tagItems.join(','));
+                    bool res = await logic.add(
+                      scene,
+                      peerId,
+                      state.tagItems,
+                    );
+                    if (res) {
+                      Get.back(result: state.tagItems.join(','));
+                    }
                   }
                 },
                 choiceChipLabel: (item) {
@@ -269,22 +327,7 @@ class UserTagRelationPage extends StatelessWidget {
                   ///  identify if item is selected or not
                   return list!.contains(val);
                 },
-                onReset: () {
-                  state.tagController.clearTags();
-                  state.tagController.setError = 'needSubmitEffect'.tr;
-                },
-                onSelected: (String item, bool selected) {
-                  if (selected) {
-                    state.tagController.addTag(item);
-                  } else {
-                    state.tagController.removeTag(item);
-                    state.tagItems.value =
-                        state.tagController.getTags! as List<String>;
-                  }
-                  // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
-                  state.tagController.notifyListeners();
-                  // debugPrint("tag_add_page_onSelected $selected, $item");
-                },
+                // onResetButtonClick 参数已在新版本中移除
               )
             : const SizedBox.shrink()),
       ),

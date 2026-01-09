@@ -18,18 +18,24 @@ class ContactProvider extends HttpClient {
   }
 
   /// 同步非好友联系人信息
-  Future<ContactModel> syncByUid(String uid) async {
+  Future<ContactModel?> syncByUid(String uid) async {
     IMBoyHttpResponse resp = await get(
       API.userShow,
       queryParameters: {"id": uid}
     );
     ContactModel? ct;
     debugPrint("> on Provider/syncByUid resp: ${resp.payload.toString()}");
-    if (resp.ok) {
-      (ContactRepo()).save(resp.payload);
-      ct = ContactModel.fromMap(resp.payload);
+    if (resp.ok && resp.payload.isNotEmpty) {
+      try {
+        (ContactRepo()).save(resp.payload);
+        ct = ContactModel.fromMap(resp.payload);
+      } catch (e) {
+        debugPrint("> on Provider/syncByUid error: $e");
+      }
+    } else {
+      debugPrint("> on Provider/syncByUid failed: ${resp.error?.message ?? 'Unknown error'}");
     }
-    return ct!;
+    return ct;
   }
 
   /// 删除联系人

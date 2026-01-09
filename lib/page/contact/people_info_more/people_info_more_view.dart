@@ -288,13 +288,14 @@ class PeopleInfoMorePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     initData();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
     
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: NavAppBar(
+      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'socialProfile'.tr,
-        backgroundColor: Theme.of(context).colorScheme.surface,
       ),
       body: SingleChildScrollView(
         child: Obx(() {

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:imboy/component/helper/datetime.dart';
 
 class FeedbackReplyModel {
   int feedbackReplyId;
@@ -32,8 +33,8 @@ class FeedbackReplyModel {
       replierName: json['replier_name'],
       body: json['body'],
       status: json['status'],
-      updatedAt: json['updated_at'],
-      createdAt: json['created_at'],
+      updatedAt: DateTimeHelper.parseTimestamp(json['updated_at']),
+      createdAt: DateTimeHelper.parseTimestamp(json['created_at']),
     );
   }
 

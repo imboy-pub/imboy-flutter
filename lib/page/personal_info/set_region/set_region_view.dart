@@ -182,7 +182,7 @@ class _SetRegionPageState extends State<SetRegionPage> {
       backgroundColor: AppColors.getBackgroundColor(
         Theme.of(context).brightness,
       ),
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: widget.title,
         rightDMActions: [
@@ -336,15 +336,17 @@ class _SetRegionPageState extends State<SetRegionPage> {
                   horizontal: ThemeManager.instance.mainSpace * 2,
                 ),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+                  color: isDark
+                      ? Theme.of(context).colorScheme.surfaceContainerHighest
+                      : Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
                       color: isDark
                           ? Colors.black.withValues(alpha: 0.2)
-                          : Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 0.5,
-                      offset: const Offset(0, 0.5),
+                          : Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),

@@ -15,9 +15,7 @@ class DefaultHttpTransformer extends HttpTransformer {
     if (response.data is! Map) {
       return IMBoyHttpResponse.failure();
     }
-    if (response.data["status"] == 100) {
-      return IMBoyHttpResponse.success(response.data['payload']);
-    } else if (response.data["code"] == 0) {
+    if (response.data["code"] == 0) {
       return IMBoyHttpResponse.success(response.data['payload']);
     } else {
       return IMBoyHttpResponse.failure(

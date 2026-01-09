@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
-import './config/app_bar_theme.dart';
-import './config/app_theme_extension.dart';
-import './config/button_theme.dart';
-import './config/card_theme.dart';
-// ComponentThemeManager 现在在 ThemeManager 中使用
-import './config/input_theme.dart';
+import './config/component_theme_manager.dart';
 import './config/text_theme.dart';
 import './font_types.dart';
 
@@ -20,46 +15,13 @@ class AppTheme {
 
   // ==================== Material 3 形状系统配置 ====================
   /// Material 3 形状系统配置
-  /// 
+  ///
   /// 定义统一的圆角半径规范
-  static const ShapeBorder _smallShape = RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-  );
-  
   static const ShapeBorder _mediumShape = RoundedRectangleBorder(
     borderRadius: BorderRadius.all(Radius.circular(12.0)),
   );
-  
-  static const ShapeBorder _largeShape = RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(16.0)),
-  );
-  
-  static const ShapeBorder _extraLargeShape = RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(28.0)),
-  );
 
   // ==================== 私有辅助方法 ====================
-  
-  /// 创建底部导航栏主题
-  static BottomNavigationBarThemeData _createBottomNavTheme({
-    required Color backgroundColor,
-    required Color selectedColor,
-    required Color unselectedColor,
-  }) {
-    return BottomNavigationBarThemeData(
-      backgroundColor: backgroundColor,
-      selectedItemColor: selectedColor,
-      unselectedItemColor: unselectedColor,
-      selectedLabelStyle: TextStyle(
-        color: selectedColor,
-        fontFamily: 'PingFang SC',
-      ),
-      unselectedLabelStyle: TextStyle(
-        color: unselectedColor,
-        fontFamily: 'PingFang SC',
-      ),
-    );
-  }
 
   /// 创建Chip主题
   static ChipThemeData _createChipTheme({
@@ -70,10 +32,7 @@ class AppTheme {
     return ChipThemeData(
       backgroundColor: backgroundColor,
       selectedColor: selectedColor,
-      labelStyle: TextStyle(
-        color: labelColor,
-        fontFamily: 'PingFang SC',
-      ),
+      labelStyle: TextStyle(color: labelColor, fontFamily: 'PingFang SC'),
     );
   }
 
@@ -159,238 +118,59 @@ class AppTheme {
   }
 
   // ==================== 静态主题（向后兼容） ====================
-  static final ThemeData lightTheme = ThemeData(
-    brightness: Brightness.light,
-    useMaterial3: true,
-
-    // 1. Material 3 完整颜色方案
-    colorScheme: ColorScheme.light(
-      // Primary colors - 主色系
-      primary: AppColors.primaryGreen,
-      onPrimary: Colors.white,
-      primaryContainer: AppColors.greenContainer,
-      onPrimaryContainer: AppColors.onGreenContainer,
-      
-      // Secondary colors - 次要色系
-      secondary: AppColors.secondary,
-      onSecondary: Colors.white,
-      secondaryContainer: AppColors.secondaryContainer,
-      onSecondaryContainer: AppColors.onSecondaryContainer,
-      
-      // Tertiary colors - 第三色系
-      tertiary: AppColors.tertiary,
-      onTertiary: Colors.white,
-      tertiaryContainer: AppColors.tertiaryContainer,
-      onTertiaryContainer: AppColors.onTertiaryContainer,
-      
-      // Error colors - 错误色系
-      error: AppColors.lightError,
-      onError: Colors.white,
-      errorContainer: AppColors.lightErrorContainer,
-      onErrorContainer: AppColors.lightOnErrorContainer,
-      
-      // Surface colors - 表面色系
-      surface: AppColors.lightSurface,
-      onSurface: AppColors.lightTextPrimary,
-      onSurfaceVariant: AppColors.lightTextSecondary,
-      surfaceContainerHighest: AppColors.lightSurfaceContainerHighest,
-      
-      // Outline colors - 轮廓色系
-      outline: AppColors.lightBorder,
-      outlineVariant: AppColors.lightDivider,
-    ),
-
-    // 2. 文字主题 - 引用组件配置
-    textTheme: TextThemeConfig.lightTheme,
-
-    // 3. 图标主题
-    iconTheme: IconThemeData(color: AppColors.lightTextPrimary),
-    primaryIconTheme: IconThemeData(color: Colors.white),
-
-    // 4. 应用栏主题 - 引用组件配置
-    appBarTheme: AppBarThemeConfig.lightTheme,
-
-    // 5. 底部导航栏
-    bottomNavigationBarTheme: _createBottomNavTheme(
-      backgroundColor: AppColors.lightAppBarBackground,
-      selectedColor: AppColors.primaryGreen,
-      unselectedColor: AppColors.lightTextDisabled,
-    ),
-
-    // 6. 按钮主题 - 引用组件配置
-    elevatedButtonTheme: ButtonThemeConfig.lightElevatedButtonTheme,
-    textButtonTheme: ButtonThemeConfig.lightTextButtonTheme,
-    outlinedButtonTheme: ButtonThemeConfig.lightOutlinedButtonTheme,
-    floatingActionButtonTheme: ButtonThemeConfig.lightFloatingActionButtonTheme,
-
-    // 6. 卡片主题 - Material 3 形状系统
-    cardTheme: CardThemeConfig.lightTheme.copyWith(
-      shape: _mediumShape,
-    ),
-
-    // 8. 输入框主题 - 引用组件配置
-    inputDecorationTheme: InputThemeConfig.lightTheme,
-
-    // 9. 其他组件主题
-    dividerTheme: DividerThemeData(
-      color: AppColors.lightBorder,
-      thickness: 1,
-      space: 16,
-    ),
-    chipTheme: _createChipTheme(
-      backgroundColor: AppColors.lightCardBackground,
-      selectedColor: AppColors.primaryGreen,
-      labelColor: AppColors.lightTextPrimary,
-    ),
-    progressIndicatorTheme: _createProgressTheme(AppColors.primaryGreen),
-
-    // 10. 自定义主题扩展
-    extensions: <ThemeExtension<dynamic>>[
-      IMBoyIconTheme(
-        primaryIcon: IconThemeData(color: AppColors.primaryGreen, size: 24),
-        surfaceIcon: IconThemeData(color: AppColors.lightTextPrimary, size: 24),
-        secondaryIcon: IconThemeData(color: AppColors.info, size: 24),
-        errorIcon: IconThemeData(color: AppColors.lightError, size: 24),
-      ),
-      AppThemeExtension.light(),
-    ],
-  );
+  // 这里的实现保留用于向后兼容，但建议切换到 ComponentThemeManager
+  static final ThemeData lightTheme = _baseLightTheme;
 
   // ==================== 暗色主题 ====================
-  static final ThemeData darkTheme = ThemeData(
-    brightness: Brightness.dark,
-    useMaterial3: true,
-
-    // 1. Material 3 完整颜色方案 - 暗色模式
-    colorScheme: ColorScheme.dark(
-      // Primary colors - 主色系
-      primary: AppColors.primaryGreenLight,
-      onPrimary: Colors.white,
-      primaryContainer: AppColors.primaryGreenDark,
-      onPrimaryContainer: AppColors.onGreenContainer,
-      
-      // Secondary colors - 次要色系
-      secondary: AppColors.secondary,
-      onSecondary: Colors.white,
-      secondaryContainer: AppColors.secondaryContainer,
-      onSecondaryContainer: AppColors.onSecondaryContainer,
-      
-      // Tertiary colors - 第三色系
-      tertiary: AppColors.tertiary,
-      onTertiary: Colors.white,
-      tertiaryContainer: AppColors.tertiaryContainer,
-      onTertiaryContainer: AppColors.onTertiaryContainer,
-      
-      // Error colors - 错误色系
-      error: AppColors.darkError,
-      onError: Colors.black,
-      errorContainer: AppColors.darkErrorContainer,
-      onErrorContainer: AppColors.darkOnErrorContainer,
-      
-      // Surface colors - 表面色系
-      surface: AppColors.darkSurface,
-      onSurface: AppColors.darkTextPrimary,
-      onSurfaceVariant: AppColors.darkTextSecondary,
-      surfaceContainerHighest: AppColors.darkSurfaceContainerHighest,
-      
-      // Outline colors - 轮廓色系
-      outline: AppColors.darkBorder,
-      outlineVariant: AppColors.darkDivider,
-    ),
-
-    // 2. 文字主题 - 引用组件配置
-    textTheme: TextThemeConfig.darkTheme,
-
-    // 3. 图标主题
-    iconTheme: IconThemeData(color: AppColors.primaryGreenLight),
-    primaryIconTheme: IconThemeData(color: Colors.white),
-
-    // 4. 应用栏主题 - 引用组件配置
-    appBarTheme: AppBarThemeConfig.darkTheme,
-
-    // 5. 底部导航栏
-    bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      backgroundColor: AppColors.darkAppBarBackground,
-      selectedItemColor: AppColors.primaryGreenLight,
-      unselectedItemColor: AppColors.darkTextDisabled,
-      selectedLabelStyle: TextStyle(
-        color: AppColors.primaryGreenLight,
-        fontFamily: 'PingFang SC',
-      ),
-      unselectedLabelStyle: TextStyle(
-        color: AppColors.darkTextDisabled,
-        fontFamily: 'PingFang SC',
-      ),
-    ),
-
-    // 6. 按钮主题 - 引用组件配置
-    elevatedButtonTheme: ButtonThemeConfig.darkElevatedButtonTheme,
-    textButtonTheme: ButtonThemeConfig.darkTextButtonTheme,
-    outlinedButtonTheme: ButtonThemeConfig.darkOutlinedButtonTheme,
-    floatingActionButtonTheme: ButtonThemeConfig.darkFloatingActionButtonTheme,
-
-    // 6. 卡片主题 - Material 3 形状系统
-     cardTheme: CardThemeConfig.darkTheme.copyWith(
-       shape: _mediumShape,
-     ),
-
-    // 8. 输入框主题 - 引用组件配置
-    inputDecorationTheme: InputThemeConfig.darkTheme,
-
-    // 9. 其他组件主题
-    dividerTheme: DividerThemeData(
-      color: AppColors.darkBorder,
-      thickness: 1,
-      space: 16,
-    ),
-    chipTheme: _createChipTheme(
-      backgroundColor: AppColors.darkCardBackground,
-      selectedColor: AppColors.primaryGreenLight,
-      labelColor: AppColors.darkTextPrimary,
-    ),
-    progressIndicatorTheme: _createProgressTheme(AppColors.primaryGreenLight),
-
-    // 10. 自定义主题扩展
-    extensions: <ThemeExtension<dynamic>>[
-      IMBoyIconTheme(
-        primaryIcon: IconThemeData(color: AppColors.primaryGreen, size: 24),
-        surfaceIcon: IconThemeData(color: AppColors.darkTextPrimary, size: 24),
-        secondaryIcon: IconThemeData(color: AppColors.info, size: 24),
-        errorIcon: IconThemeData(color: AppColors.darkError, size: 24),
-      ),
-      AppThemeExtension.dark(),
-    ],
-  );
+  static final ThemeData darkTheme = _baseDarkTheme;
 
   // ==================== 聊天相关颜色（向后兼容） ====================
   // 注意：建议使用 ChatThemeConfig 类来获取聊天主题配置
 
   // 亮色主题聊天颜色
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get chatSendMessageBg => AppColors.lightSentMessageBackground;
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get chatSentMessageText => AppColors.sentMessageText;
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get chatReceivedMessageText =>
       AppColors.lightReceivedMessageText;
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get chatReceivedMessageBg =>
       AppColors.lightReceivedMessageBackground;
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get chatInputBg => AppColors.lightSurface;
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get chatInputBorder => AppColors.lightBorder;
 
   // 暗色主题聊天颜色
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get darkChatSendMessageBg => AppColors.darkSentMessageBackground;
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get darkChatSentMessageText => AppColors.sentMessageText;
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get darkChatReceivedMessageText =>
       AppColors.darkReceivedMessageText;
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get darkChatReceivedMessageBg =>
       AppColors.darkReceivedMessageBackground;
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get darkChatInputBg => AppColors.darkSurface;
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get darkChatInputBorder => AppColors.darkBorder;
 
   // 聊天颜色常量（向后兼容，建议使用 ChatThemeConfig）
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get chatSendMessageBgColor => chatSendMessageBg;
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get chatSentMessageBodyTextColor => chatSentMessageText;
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get chatReceivedMessageBodyTextColor => chatReceivedMessageText;
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get chatReceivedMessageBodyBgColor => chatReceivedMessageBg;
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get chatInputFillColor => chatInputBg;
+  @Deprecated('Use ChatThemeConfig instead')
   static Color get darkChatInputFillColor => darkChatInputBg;
 
   // ==================== 核心主题构建方法 ====================
@@ -435,10 +215,8 @@ class AppTheme {
         : TextThemeConfig.getLightTheme(fontScale: fontScale, context: context);
 
     // 获取动态颜色方案
-    final dynamicColorScheme = await DynamicColorManager.instance.createColorScheme(
-      isDark: isDark,
-      useDynamicColor: useDynamicColor,
-    );
+    final dynamicColorScheme = await DynamicColorManager.instance
+        .createColorScheme(isDark: isDark, useDynamicColor: useDynamicColor);
 
     // 获取基础主题
     final baseTheme = isDark ? _baseDarkTheme : _baseLightTheme;
@@ -451,208 +229,173 @@ class AppTheme {
   }
 
   /// 基础亮色主题（不包含动态文本主题）
-  static ThemeData get _baseLightTheme => ThemeData(
-    brightness: Brightness.light,
-    useMaterial3: true,
+  static ThemeData get _baseLightTheme {
+    const isDark = false;
+    return ThemeData(
+      brightness: Brightness.light,
+      useMaterial3: true,
+      scaffoldBackgroundColor: AppColors.lightSurface, // 确保Scaffold背景一致
 
-    // 1. Material 3 完整颜色方案
-    colorScheme: ColorScheme.light(
-      // Primary colors - 主色系
-      primary: AppColors.primaryGreen,
-      onPrimary: Colors.white,
-      primaryContainer: AppColors.greenContainer,
-      onPrimaryContainer: AppColors.onGreenContainer,
-      
-      // Secondary colors - 次要色系
-      secondary: AppColors.secondary,
-      onSecondary: Colors.white,
-      secondaryContainer: AppColors.secondaryContainer,
-      onSecondaryContainer: AppColors.onSecondaryContainer,
-      
-      // Tertiary colors - 第三色系
-      tertiary: AppColors.tertiary,
-      onTertiary: Colors.white,
-      tertiaryContainer: AppColors.tertiaryContainer,
-      onTertiaryContainer: AppColors.onTertiaryContainer,
-      
-      // Error colors - 错误色系
-      error: AppColors.lightError,
-      onError: Colors.white,
-      errorContainer: AppColors.lightErrorContainer,
-      onErrorContainer: AppColors.lightOnErrorContainer,
-      
-      // Surface colors - 表面色系
-      surface: AppColors.lightSurface,
-      onSurface: AppColors.lightTextPrimary,
-      onSurfaceVariant: AppColors.lightTextSecondary,
-      surfaceContainerHighest: AppColors.lightSurfaceContainerHighest,
-      
-      // Outline colors - 轮廓色系
-      outline: AppColors.lightBorder,
-      outlineVariant: AppColors.lightDivider,
-    ),
+      // 1. Material 3 完整颜色方案
+      colorScheme: ColorScheme.light(
+        // Primary colors - 主色系
+        primary: AppColors.primaryGreen,
+        onPrimary: Colors.white,
+        primaryContainer: AppColors.greenContainer,
+        onPrimaryContainer: AppColors.onGreenContainer,
 
-    // 2. 图标主题
-    iconTheme: IconThemeData(color: AppColors.lightTextPrimary),
-    primaryIconTheme: IconThemeData(color: Colors.white),
+        // Secondary colors - 次要色系
+        secondary: AppColors.secondary,
+        onSecondary: Colors.white,
+        secondaryContainer: AppColors.secondaryContainer,
+        onSecondaryContainer: AppColors.onSecondaryContainer,
 
-    // 3. 应用栏主题
-    appBarTheme: AppBarThemeConfig.lightTheme,
+        // Tertiary colors - 第三色系
+        tertiary: AppColors.tertiary,
+        onTertiary: Colors.white,
+        tertiaryContainer: AppColors.tertiaryContainer,
+        onTertiaryContainer: AppColors.onTertiaryContainer,
 
-    // 4. 底部导航栏
-    bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      backgroundColor: AppColors.lightAppBarBackground,
-      selectedItemColor: AppColors.primaryGreen,
-      unselectedItemColor: AppColors.lightTextDisabled,
-      selectedLabelStyle: TextStyle(
-        color: AppColors.primaryGreen,
-        fontFamily: 'PingFang SC',
+        // Error colors - 错误色系
+        error: AppColors.lightError,
+        onError: Colors.white,
+        errorContainer: AppColors.lightErrorContainer,
+        onErrorContainer: AppColors.lightOnErrorContainer,
+
+        // Surface colors - 表面色系
+        surface: AppColors.lightSurface,
+        onSurface: AppColors.lightTextPrimary,
+        onSurfaceVariant: AppColors.lightTextSecondary,
+        surfaceContainerHighest: AppColors.lightSurfaceContainerHighest,
+
+        // Outline colors - 轮廓色系
+        outline: AppColors.lightBorder,
+        outlineVariant: AppColors.lightDivider,
       ),
-      unselectedLabelStyle: TextStyle(
-        color: AppColors.lightTextDisabled,
-        fontFamily: 'PingFang SC',
+
+      // 2. 图标主题
+      iconTheme: IconThemeData(color: AppColors.lightTextPrimary),
+      primaryIconTheme: IconThemeData(color: Colors.white),
+
+      // 3. 应用栏主题
+      appBarTheme: ComponentThemeManager.getAppBarTheme(isDark: isDark),
+
+      // 4. 底部导航栏
+      bottomNavigationBarTheme:
+          ComponentThemeManager.getBottomNavigationBarTheme(isDark: isDark),
+
+      // 5. 按钮主题
+      elevatedButtonTheme: ComponentThemeManager.getElevatedButtonTheme(
+        isDark: isDark,
       ),
-    ),
-
-    // 5. 按钮主题
-    elevatedButtonTheme: ButtonThemeConfig.lightElevatedButtonTheme,
-    textButtonTheme: ButtonThemeConfig.lightTextButtonTheme,
-    outlinedButtonTheme: ButtonThemeConfig.lightOutlinedButtonTheme,
-    floatingActionButtonTheme: ButtonThemeConfig.lightFloatingActionButtonTheme,
-
-    // 6. 卡片主题
-    cardTheme: CardThemeConfig.lightTheme,
-
-    // 7. 输入框主题
-    inputDecorationTheme: InputThemeConfig.lightTheme,
-
-    // 8. 其他组件主题
-    dividerTheme: DividerThemeData(
-      color: AppColors.lightBorder,
-      thickness: 1,
-      space: 16,
-    ),
-    chipTheme: ChipThemeData(
-      backgroundColor: AppColors.lightCardBackground,
-      selectedColor: AppColors.primaryGreen,
-      labelStyle: TextStyle(
-        color: AppColors.lightTextPrimary,
-        fontFamily: 'PingFang SC',
+      textButtonTheme: ComponentThemeManager.getTextButtonTheme(isDark: isDark),
+      outlinedButtonTheme: ComponentThemeManager.getOutlinedButtonTheme(
+        isDark: isDark,
       ),
-    ),
-    progressIndicatorTheme: ProgressIndicatorThemeData(
-      color: AppColors.primaryGreen,
-    ),
+      floatingActionButtonTheme:
+          ComponentThemeManager.getFloatingActionButtonTheme(isDark: isDark),
 
-    // 9. 自定义主题扩展
-    extensions: <ThemeExtension<dynamic>>[
-      IMBoyIconTheme(
-        primaryIcon: IconThemeData(color: AppColors.primaryGreen, size: 24),
-        surfaceIcon: IconThemeData(color: AppColors.lightTextPrimary, size: 24),
-        secondaryIcon: IconThemeData(color: AppColors.info, size: 24),
-        errorIcon: IconThemeData(color: AppColors.lightError, size: 24),
+      // 6. 卡片主题
+      cardTheme: ComponentThemeManager.getCardTheme(isDark: isDark),
+
+      // 7. 输入框主题
+      inputDecorationTheme: ComponentThemeManager.getInputDecorationTheme(
+        isDark: isDark,
       ),
-      AppThemeExtension.light(),
-    ],
-  );
+
+      // 8. 其他组件主题
+      dividerTheme: ComponentThemeManager.getDividerTheme(isDark: isDark),
+      chipTheme: ComponentThemeManager.getChipTheme(isDark: isDark),
+      progressIndicatorTheme: ComponentThemeManager.getProgressIndicatorTheme(
+        isDark: isDark,
+      ),
+      listTileTheme: ComponentThemeManager.getListTileTheme(isDark: isDark),
+    );
+  }
 
   /// 基础暗色主题（不包含动态文本主题）
-  static ThemeData get _baseDarkTheme => ThemeData(
-    brightness: Brightness.dark,
-    useMaterial3: true,
+  static ThemeData get _baseDarkTheme {
+    const isDark = true;
+    return ThemeData(
+      brightness: Brightness.dark,
+      useMaterial3: true,
 
-    // 1. Material 3 完整颜色方案 - 暗色模式
-    colorScheme: ColorScheme.dark(
-      // Primary colors - 主色系
-      primary: AppColors.primaryGreenLight,
-      onPrimary: Colors.white,
-      primaryContainer: AppColors.primaryGreenDark,
-      onPrimaryContainer: AppColors.onGreenContainer,
-      
-      // Secondary colors - 次要色系
-      secondary: AppColors.secondary,
-      onSecondary: Colors.white,
-      secondaryContainer: AppColors.secondaryContainer,
-      onSecondaryContainer: AppColors.onSecondaryContainer,
-      
-      // Tertiary colors - 第三色系
-      tertiary: AppColors.tertiary,
-      onTertiary: Colors.white,
-      tertiaryContainer: AppColors.tertiaryContainer,
-      onTertiaryContainer: AppColors.onTertiaryContainer,
-      
-      // Error colors - 错误色系
-      error: AppColors.darkError,
-      onError: Colors.black,
-      errorContainer: AppColors.darkErrorContainer,
-      onErrorContainer: AppColors.darkOnErrorContainer,
-      
-      // Surface colors - 表面色系
-      surface: AppColors.darkSurface,
-      onSurface: AppColors.darkTextPrimary,
-      onSurfaceVariant: AppColors.darkTextSecondary,
-      surfaceContainerHighest: AppColors.darkSurfaceContainerHighest,
-      
-      // Outline colors - 轮廓色系
-      outline: AppColors.darkBorder,
-      outlineVariant: AppColors.darkDivider,
-    ),
+      // 1. Material 3 完整颜色方案 - 暗色模式
+      colorScheme: ColorScheme.dark(
+        // Primary colors - 主色系
+        primary: AppColors.primaryGreenLight,
+        onPrimary: Colors.white,
+        primaryContainer: AppColors.primaryGreenDark,
+        onPrimaryContainer: AppColors.onGreenContainer,
 
-    // 2. 图标主题
-    iconTheme: IconThemeData(color: AppColors.primaryGreenLight),
-    primaryIconTheme: IconThemeData(color: Colors.white),
+        // Secondary colors - 次要色系
+        secondary: AppColors.secondary,
+        onSecondary: Colors.white,
+        secondaryContainer: AppColors.secondaryContainer,
+        onSecondaryContainer: AppColors.onSecondaryContainer,
 
-    // 3. 应用栏主题
-    appBarTheme: AppBarThemeConfig.darkTheme,
+        // Tertiary colors - 第三色系
+        tertiary: AppColors.tertiary,
+        onTertiary: Colors.white,
+        tertiaryContainer: AppColors.tertiaryContainer,
+        onTertiaryContainer: AppColors.onTertiaryContainer,
 
-    // 4. 底部导航栏
-    bottomNavigationBarTheme: _createBottomNavTheme(
-      backgroundColor: AppColors.darkAppBarBackground,
-      selectedColor: AppColors.primaryGreenLight,
-      unselectedColor: AppColors.darkTextDisabled,
-    ),
+        // Error colors - 错误色系
+        error: AppColors.darkError,
+        onError: Colors.black,
+        errorContainer: AppColors.darkErrorContainer,
+        onErrorContainer: AppColors.darkOnErrorContainer,
 
-    // 5. 按钮主题
-    elevatedButtonTheme: ButtonThemeConfig.darkElevatedButtonTheme,
-    textButtonTheme: ButtonThemeConfig.darkTextButtonTheme,
-    outlinedButtonTheme: ButtonThemeConfig.darkOutlinedButtonTheme,
-    floatingActionButtonTheme: ButtonThemeConfig.darkFloatingActionButtonTheme,
+        // Surface colors - 表面色系
+        surface: AppColors.darkSurface,
+        onSurface: AppColors.darkTextPrimary,
+        onSurfaceVariant: AppColors.darkTextSecondary,
+        surfaceContainerHighest: AppColors.darkSurfaceContainerHighest,
 
-    // 6. 卡片主题
-    cardTheme: CardThemeConfig.darkTheme,
-
-    // 7. 输入框主题
-    inputDecorationTheme: InputThemeConfig.darkTheme,
-
-    // 8. 其他组件主题
-    dividerTheme: DividerThemeData(
-      color: AppColors.darkBorder,
-      thickness: 1,
-      space: 16,
-    ),
-    chipTheme: ChipThemeData(
-      backgroundColor: AppColors.darkCardBackground,
-      selectedColor: AppColors.primaryGreenLight,
-      labelStyle: TextStyle(
-        color: AppColors.darkTextPrimary,
-        fontFamily: 'PingFang SC',
+        // Outline colors - 轮廓色系
+        outline: AppColors.darkBorder,
+        outlineVariant: AppColors.darkDivider,
       ),
-    ),
-    progressIndicatorTheme: ProgressIndicatorThemeData(
-      color: AppColors.primaryGreenLight,
-    ),
 
-    // 9. 自定义主题扩展
-    extensions: <ThemeExtension<dynamic>>[
-      IMBoyIconTheme(
-        primaryIcon: IconThemeData(color: AppColors.primaryGreen, size: 24),
-        surfaceIcon: IconThemeData(color: AppColors.darkTextPrimary, size: 24),
-        secondaryIcon: IconThemeData(color: AppColors.info, size: 24),
-        errorIcon: IconThemeData(color: AppColors.darkError, size: 24),
+      // 2. 图标主题
+      iconTheme: IconThemeData(color: AppColors.primaryGreenLight),
+      primaryIconTheme: IconThemeData(color: Colors.white),
+
+      // 3. 应用栏主题
+      appBarTheme: ComponentThemeManager.getAppBarTheme(isDark: isDark),
+
+      // 4. 底部导航栏
+      bottomNavigationBarTheme:
+          ComponentThemeManager.getBottomNavigationBarTheme(isDark: isDark),
+
+      // 5. 按钮主题
+      elevatedButtonTheme: ComponentThemeManager.getElevatedButtonTheme(
+        isDark: isDark,
       ),
-      AppThemeExtension.dark(),
-    ],
-  );
+      textButtonTheme: ComponentThemeManager.getTextButtonTheme(isDark: isDark),
+      outlinedButtonTheme: ComponentThemeManager.getOutlinedButtonTheme(
+        isDark: isDark,
+      ),
+      floatingActionButtonTheme:
+          ComponentThemeManager.getFloatingActionButtonTheme(isDark: isDark),
+
+      // 6. 卡片主题
+      cardTheme: ComponentThemeManager.getCardTheme(isDark: isDark),
+
+      // 7. 输入框主题
+      inputDecorationTheme: ComponentThemeManager.getInputDecorationTheme(
+        isDark: isDark,
+      ),
+
+      // 8. 其他组件主题
+      dividerTheme: ComponentThemeManager.getDividerTheme(isDark: isDark),
+      chipTheme: ComponentThemeManager.getChipTheme(isDark: isDark),
+      progressIndicatorTheme: ComponentThemeManager.getProgressIndicatorTheme(
+        isDark: isDark,
+      ),
+      listTileTheme: ComponentThemeManager.getListTileTheme(isDark: isDark),
+    );
+  }
 
   /// 使用 copyWith 方法动态调整现有主题的字体大小
   ///

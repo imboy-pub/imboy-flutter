@@ -20,7 +20,7 @@ class DarkModelPage extends StatelessWidget {
     logic.configLocalTheme();
 
     return Scaffold(
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'darkModel'.tr,
       ),

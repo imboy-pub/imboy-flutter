@@ -39,7 +39,7 @@ class FeedbackPage extends StatelessWidget {
     initData();
 
     return Scaffold(
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'feedback'.tr,
         rightDMActions: [
@@ -476,7 +476,7 @@ class FeedbackPage extends StatelessWidget {
   /// 显示删除确认对话框
   void _showDeleteDialog(BuildContext context, FeedbackModel model, int index) {
     final colorScheme = Theme.of(context).colorScheme;
-    String tips = 'sureToDeleteData'.tr;
+    String tips = 'sureDeleteData'.tr;
     
     showDialog(
       context: context,

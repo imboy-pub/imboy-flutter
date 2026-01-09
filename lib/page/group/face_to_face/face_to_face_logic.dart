@@ -23,9 +23,7 @@ class FaceToFaceLogic extends GetxController {
         state.longitude.value == "null") {
       error =
           "${'failedGetLatLong'.tr}，${'notTurnedLocationService'.tr}，${'or'.tr} ${'notAuthorizedLatLong'.tr}";
-      return {
-        'error': error,
-      };
+      return {'error': error};
     }
 
     Map<String, dynamic> payload = await GroupProvider().groupFace2face(
@@ -37,12 +35,14 @@ class FaceToFaceLogic extends GetxController {
     List memberList = payload['member_list'] ?? [];
     List<PeopleModel> memberList2 = [];
     for (Map<String, dynamic> item in memberList) {
-      memberList2.add(PeopleModel(
-        id: item['user_id'],
-        account: item['account'] ?? '',
-        avatar: item['avatar'] ?? '',
-        nickname: item['alias'] ?? (item['nickname'] ?? ''),
-      ));
+      memberList2.add(
+        PeopleModel(
+          id: item['user_id'],
+          account: item['account'] ?? '',
+          avatar: item['avatar'] ?? '',
+          nickname: item['alias'] ?? (item['nickname'] ?? ''),
+        ),
+      );
     }
     return {
       'gid': payload['gid'] ?? '',
@@ -50,7 +50,6 @@ class FaceToFaceLogic extends GetxController {
       'error': error,
     };
   }
-
 
   Future<Map<String, dynamic>> faceToFaceSave(String gid, String code) async {
     Map<String, dynamic> payload = await GroupProvider().groupFace2faceSave(
@@ -61,16 +60,15 @@ class FaceToFaceLogic extends GetxController {
     List memberList = payload['member_list'] ?? [];
     List<PeopleModel> memberList2 = [];
     for (Map<String, dynamic> item in memberList) {
-      memberList2.add(PeopleModel(
-        id: item['user_id'],
-        account: item['account'] ?? '',
-        avatar: item['avatar'] ?? '',
-        nickname: item['alias'] ?? (item['nickname'] ?? ''),
-      ));
+      memberList2.add(
+        PeopleModel(
+          id: item['user_id'],
+          account: item['account'] ?? '',
+          avatar: item['avatar'] ?? '',
+          nickname: item['alias'] ?? (item['nickname'] ?? ''),
+        ),
+      );
     }
-    return {
-      'group': payload['group'] ?? {},
-      'memberList': memberList2,
-    };
+    return {'group': payload['group'] ?? {}, 'memberList': memberList2};
   }
 }

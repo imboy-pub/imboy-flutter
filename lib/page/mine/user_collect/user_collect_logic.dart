@@ -14,10 +14,12 @@ import 'package:imboy/store/model/message_model.dart' show MessageModel;
 import 'package:imboy/store/model/user_collect_model.dart';
 import 'package:imboy/store/provider/user_collect_provider.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
-import 'package:imboy/store/repository/message_repo_sqlite.dart' show MessageRepo;
+import 'package:imboy/store/repository/message_repo_sqlite.dart'
+    show MessageRepo;
 import 'package:imboy/store/repository/user_collect_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/component/chat/message_audio_builder.dart' as audio;
 
 import 'user_collect_state.dart';
 
@@ -84,10 +86,7 @@ class UserCollectLogic extends GetxController {
       }
 
       // 构建服务端请求参数
-      final Map<String, dynamic> args = {
-        'page': page,
-        'size': size,
-      };
+      final Map<String, dynamic> args = {'page': page, 'size': size};
       if (kind == state.recentUse) {
         args['order'] = state.recentUse;
       } else if (kind != null && int.tryParse(kind) != null) {
@@ -100,7 +99,9 @@ class UserCollectLogic extends GetxController {
         args['tag'] = tag;
       }
 
-      final Map<String, dynamic>? payload = await UserCollectProvider().page(args);
+      final Map<String, dynamic>? payload = await UserCollectProvider().page(
+        args,
+      );
       if (payload == null || payload['list'] == null) {
         // 服务端返回为空或异常，标记无更多并返回空列表
         state.hasMore.value = false;
@@ -116,8 +117,12 @@ class UserCollectLogic extends GetxController {
 
       // 翻页时去重（防止重复项）
       if (page > 1 && state.items.isNotEmpty) {
-        final existing = state.items.map((e) => (e as UserCollectModel).kindId).toSet();
-        final filtered = result.where((r) => !existing.contains(r.kindId)).toList();
+        final existing = state.items
+            .map((e) => (e as UserCollectModel).kindId)
+            .toSet();
+        final filtered = result
+            .where((r) => !existing.contains(r.kindId))
+            .toList();
         // 更新 hasMore：以过滤后的数量判断
         state.hasMore.value = filtered.length >= size;
         return filtered;
@@ -140,7 +145,7 @@ class UserCollectLogic extends GetxController {
   /// 显示分类标签
   /// scene page | detail
   Widget buildItemBody(UserCollectModel obj, String scene) {
-    Widget body = const Spacer();
+    Widget body = const SizedBox.shrink();
     // Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息
     if (obj.kind == 1) {
       body = Row(
@@ -149,10 +154,10 @@ class UserCollectLogic extends GetxController {
           Expanded(
             child: Text(
               obj.info['text'] ?? (obj.info['payload']['text'] ?? ''),
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(Get.context!).colorScheme.onSurface,
-                              ),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(Get.context!).colorScheme.onSurface,
+              ),
               maxLines: scene == 'page' ? 4 : 160,
               overflow: TextOverflow.ellipsis,
             ),
@@ -169,10 +174,7 @@ class UserCollectLogic extends GetxController {
                   width: Get.width * 0.5,
                   height: 120,
                   fit: BoxFit.cover,
-                  image: cachedImageProvider(
-                    uri,
-                    w: Get.width,
-                  ),
+                  image: cachedImageProvider(uri, w: Get.width),
                 )
               : InkWell(
                   onTap: () async {
@@ -182,10 +184,7 @@ class UserCollectLogic extends GetxController {
                     // detail 里面减去左右 padding 和
                     width: Get.width - 20,
                     fit: BoxFit.cover,
-                    image: cachedImageProvider(
-                      uri,
-                      w: Get.width,
-                    ),
+                    image: cachedImageProvider(uri, w: Get.width),
                   ),
                 ),
           Padding(
@@ -195,7 +194,9 @@ class UserCollectLogic extends GetxController {
                 Text(
                   formatBytes(obj.info['payload']['size'] ?? ''),
                   style: TextStyle(
-                    color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: Theme.of(
+                      Get.context!,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -203,7 +204,9 @@ class UserCollectLogic extends GetxController {
                 Text(
                   " ${obj.info['payload']['width']}X${obj.info['payload']['height']}",
                   style: TextStyle(
-                    color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: Theme.of(
+                      Get.context!,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -239,44 +242,28 @@ class UserCollectLogic extends GetxController {
                 ),
                 const Expanded(
                   flex: 1,
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.graphic_eq,
-                        size: 28,
-                      ),
-                    ],
-                  ),
+                  child: Column(children: [Icon(Icons.graphic_eq, size: 28)]),
                 ),
               ],
             )
-          : Row(
-              children: [
-                Container(
-                  height: 80,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryGreen.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+          : FutureBuilder<CustomMessage?>(
+              future:
+                  MessageModel.fromJson(obj.info).toTypeMessage()
+                      as Future<CustomMessage?>,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const SizedBox.shrink();
+                }
+                return audio.AudioMessageBuilder(
+                  type: 'C2C', // 默认作为 C2C 渲染，或者根据 metadata 判断
+                  user: User(
+                    id: UserRepoLocal.to.currentUid,
+                    name: UserRepoLocal.to.current.nickname,
+                    imageSource: UserRepoLocal.to.current.avatar,
                   ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.audiotrack,
-                        color: AppColors.primaryGreen,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        durationMS > 0 ? "${(durationMS / 1000).toStringAsFixed(1)}s" : 'audioMessage'.tr,
-                        style: TextStyle(
-                          color: AppColors.primaryGreen,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                  message: snapshot.data,
+                );
+              },
             );
     } else if (obj.kind == 4) {
       String uri = obj.info['payload']['thumb']['uri'] ?? '';
@@ -290,15 +277,13 @@ class UserCollectLogic extends GetxController {
                 width: scene == 'page' ? Get.width * 0.5 : Get.width - 20,
                 height: scene == 'page' ? 120 : Get.height * 0.618,
                 fit: BoxFit.cover,
-                image: cachedImageProvider(
-                  uri,
-                  w: Get.width * 0.5,
-                ),
+                image: cachedImageProvider(uri, w: Get.width * 0.5),
               ),
               Positioned.fill(
                 child: InkWell(
                   onTap: () {
-                    final String uri = obj.info['payload']['video']['uri'] ?? '';
+                    final String uri =
+                        obj.info['payload']['video']['uri'] ?? '';
                     final String thumb =
                         obj.info['payload']['thumb']['uri'] ?? '';
                     if (uri.isEmpty) {
@@ -332,7 +317,9 @@ class UserCollectLogic extends GetxController {
                 Text(
                   formatBytes(obj.info['payload']['video']['size'] ?? 0),
                   style: TextStyle(
-                    color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: Theme.of(
+                      Get.context!,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -340,7 +327,9 @@ class UserCollectLogic extends GetxController {
                 Text(
                   " ${obj.info['payload']['video']['width']}X${obj.info['payload']['video']['height']}",
                   style: TextStyle(
-                    color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: Theme.of(
+                      Get.context!,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -351,40 +340,39 @@ class UserCollectLogic extends GetxController {
         ],
       );
     } else if (obj.kind == 5) {
-      String mimeType =
-          (obj.info['payload']['mimeType'] ?? '').toString().toLowerCase();
+      String mimeType = (obj.info['payload']['mimeType'] ?? '')
+          .toString()
+          .toLowerCase();
       body = scene == 'page'
-          ? Row(
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            obj.info['payload']['name'] ?? '',
-                            style: TextStyle(
-                              fontWeight: FontWeight.normal,
-                              color: Theme.of(Get.context!).colorScheme.onSurface,
-                            ),
-                            maxLines: 8,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                    Flexible(
+                      child: Text(
+                        obj.info['payload']['name'] ?? '',
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(Get.context!).colorScheme.onSurface,
                         ),
-                      ],
+                        maxLines: 8,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    Row(
-                      children: [
-                        Text(
-                          "$mimeType  ${formatBytes(obj.info['payload']['size'] ?? '')}",
-                          style: TextStyle(
-                            color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "$mimeType  ${formatBytes(obj.info['payload']['size'] ?? '')}",
+                      style: TextStyle(
+                        color: Theme.of(
+                          Get.context!,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -417,7 +405,9 @@ class UserCollectLogic extends GetxController {
                       Text(
                         "${'fileSize'.tr}: ${formatBytes(obj.info['payload']['size'] ?? '')}",
                         style: TextStyle(
-                          color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
+                          color: Theme.of(
+                            Get.context!,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -431,7 +421,9 @@ class UserCollectLogic extends GetxController {
                     Text(
                       mimeType,
                       style: TextStyle(
-                        color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: Theme.of(
+                          Get.context!,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -467,7 +459,9 @@ class UserCollectLogic extends GetxController {
                         maxLines: 4,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.7),
+                          color: Theme.of(
+                            Get.context!,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                     ],
@@ -476,12 +470,7 @@ class UserCollectLogic extends GetxController {
                 const Expanded(
                   flex: 1,
                   child: Column(
-                    children: [
-                      Icon(
-                        Icons.location_on_outlined,
-                        size: 28,
-                      ),
-                    ],
+                    children: [Icon(Icons.location_on_outlined, size: 28)],
                   ),
                 ),
               ],
@@ -514,7 +503,9 @@ class UserCollectLogic extends GetxController {
                                 title,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
-                                  color: Theme.of(Get.context!).colorScheme.onSurface,
+                                  color: Theme.of(
+                                    Get.context!,
+                                  ).colorScheme.onSurface,
                                 ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
@@ -526,7 +517,9 @@ class UserCollectLogic extends GetxController {
                         Text(
                           address,
                           style: TextStyle(
-                            color: Theme.of(Get.context!).colorScheme.onSurface.withValues(alpha: 0.8),
+                            color: Theme.of(
+                              Get.context!,
+                            ).colorScheme.onSurface.withValues(alpha: 0.8),
                           ),
                           maxLines: 6,
                           overflow: TextOverflow.ellipsis,
@@ -560,10 +553,7 @@ class UserCollectLogic extends GetxController {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(20),
                     child: Image(
-                      image: cachedImageProvider(
-                        avatar,
-                        w: 40,
-                      ),
+                      image: cachedImageProvider(avatar, w: 40),
                       width: 40,
                       height: 40,
                       fit: BoxFit.cover,
@@ -572,7 +562,9 @@ class UserCollectLogic extends GetxController {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: AppColors.primaryGreen.withValues(alpha: 0.2),
+                            color: AppColors.primaryGreen.withValues(
+                              alpha: 0.2,
+                            ),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Icon(
@@ -601,9 +593,7 @@ class UserCollectLogic extends GetxController {
                         const SizedBox(height: 4),
                         Text(
                           'personalCard'.tr,
-                          style: TextStyle(
-                            color: AppColors.primaryGreen,
-                          ),
+                          style: TextStyle(color: AppColors.primaryGreen),
                         ),
                       ],
                     ),
@@ -640,13 +630,14 @@ class UserCollectLogic extends GetxController {
 
     state.searchTrailing = [
       InkWell(
-          onTap: () {
-            if (state.kwd.value.isEmpty) {
-              return;
-            }
-            doSearch(state.kwd.value);
-          },
-          child: const Icon(Icons.search)),
+        onTap: () {
+          if (state.kwd.value.isEmpty) {
+            return;
+          }
+          doSearch(state.kwd.value);
+        },
+        child: const Icon(Icons.search),
+      ),
     ].map((e) => e).obs;
 
     state.searchLeading = Row(
@@ -665,17 +656,16 @@ class UserCollectLogic extends GetxController {
               callback();
             },
             style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.resolveWith<Color>(
-                (Set<WidgetState> states) {
-                  if (states.contains(WidgetState.pressed)) {
-                    return Theme.of(Get.context!)
-                        .colorScheme
-                        .surface
-                        .withValues(alpha: 0.75);
-                  }
-                  return Theme.of(Get.context!).colorScheme.surface;
-                },
-              ),
+              backgroundColor: WidgetStateProperty.resolveWith<Color>((
+                Set<WidgetState> states,
+              ) {
+                if (states.contains(WidgetState.pressed)) {
+                  return Theme.of(
+                    Get.context!,
+                  ).colorScheme.surface.withValues(alpha: 0.75);
+                }
+                return Theme.of(Get.context!).colorScheme.surface;
+              }),
             ),
             child: IntrinsicWidth(
               child: Row(
@@ -688,10 +678,9 @@ class UserCollectLogic extends GetxController {
                       child: Icon(
                         Icons.local_offer,
                         size: 18,
-                        color: Theme.of(Get.context!)
-                            .colorScheme
-                            .onPrimary
-                            .withValues(alpha: 0.75),
+                        color: Theme.of(
+                          Get.context!,
+                        ).colorScheme.onPrimary.withValues(alpha: 0.75),
                       ),
                     ),
                   ),
@@ -708,10 +697,9 @@ class UserCollectLogic extends GetxController {
                   Icon(
                     Icons.close,
                     size: 16,
-                    color: Theme.of(Get.context!)
-                        .colorScheme
-                        .onPrimary
-                        .withValues(alpha: 0.75),
+                    color: Theme.of(
+                      Get.context!,
+                    ).colorScheme.onPrimary.withValues(alpha: 0.75),
                   ),
                 ],
               ),
@@ -738,13 +726,14 @@ class UserCollectLogic extends GetxController {
 
     state.searchTrailing = [
       InkWell(
-          onTap: () {
-            if (state.kwd.value.isEmpty) {
-              return;
-            }
-            doSearch(state.kwd.value);
-          },
-          child: const Icon(Icons.search)),
+        onTap: () {
+          if (state.kwd.value.isEmpty) {
+            return;
+          }
+          doSearch(state.kwd.value);
+        },
+        child: const Icon(Icons.search),
+      ),
     ].map((e) => e).obs;
 
     state.searchLeading = Row(
@@ -763,17 +752,16 @@ class UserCollectLogic extends GetxController {
               callback();
             },
             style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.resolveWith<Color>(
-                (Set<WidgetState> states) {
-                  if (states.contains(WidgetState.pressed)) {
-                    return Theme.of(Get.context!)
-                        .colorScheme
-                        .surface
-                        .withValues(alpha: 0.75);
-                  }
-                  return Theme.of(Get.context!).colorScheme.surface;
-                },
-              ),
+              backgroundColor: WidgetStateProperty.resolveWith<Color>((
+                Set<WidgetState> states,
+              ) {
+                if (states.contains(WidgetState.pressed)) {
+                  return Theme.of(
+                    Get.context!,
+                  ).colorScheme.surface.withValues(alpha: 0.75);
+                }
+                return Theme.of(Get.context!).colorScheme.surface;
+              }),
             ),
             child: IntrinsicWidth(
               child: Row(
@@ -786,10 +774,9 @@ class UserCollectLogic extends GetxController {
                       child: Icon(
                         Icons.grid_view,
                         size: 18,
-                        color: Theme.of(Get.context!)
-                            .colorScheme
-                            .onPrimary
-                            .withValues(alpha: 0.8),
+                        color: Theme.of(
+                          Get.context!,
+                        ).colorScheme.onPrimary.withValues(alpha: 0.8),
                       ),
                     ),
                   ),
@@ -806,10 +793,9 @@ class UserCollectLogic extends GetxController {
                   Icon(
                     Icons.close,
                     size: 16,
-                    color: Theme.of(Get.context!)
-                        .colorScheme
-                        .onPrimary
-                        .withValues(alpha: 0.7),
+                    color: Theme.of(
+                      Get.context!,
+                    ).colorScheme.onPrimary.withValues(alpha: 0.7),
                   ),
                 ],
               ),
@@ -878,10 +864,13 @@ class UserCollectLogic extends GetxController {
 
   /// 收藏的信息来源，消息发布中的昵称或者备注
   Future<String> getCollectSource(String authorId) async {
-    ContactModel? obj =
-        await ContactRepo().findByUid(authorId, autoFetch: true);
+    ContactModel? obj = await ContactRepo().findByUid(
+      authorId,
+      autoFetch: true,
+    );
     debugPrint(
-        "userCollectLogic/getCollectSource ${obj?.title}; ${obj?.toJson().toString()} ;");
+      "userCollectLogic/getCollectSource ${obj?.title}; ${obj?.toJson().toString()} ;",
+    );
     if (obj == null) {
       return '';
     }
@@ -897,9 +886,9 @@ class UserCollectLogic extends GetxController {
 
     if (res) {
       await UserCollectRepo().save({
-        UserCollectRepo.updatedAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        UserCollectRepo.updatedAt: DateTimeHelper.millisecond() ~/ 1000,
         UserCollectRepo.userId: UserRepoLocal.to.currentUid,
-        UserCollectRepo.kindId: kindId
+        UserCollectRepo.kindId: kindId,
       });
     }
     return res;
@@ -915,7 +904,7 @@ class UserCollectLogic extends GetxController {
     debugPrint("send_to_view callback after $res");
     if (res) {
       await UserCollectRepo().save({
-        UserCollectRepo.updatedAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        UserCollectRepo.updatedAt: DateTimeHelper.millisecond() ~/ 1000,
         UserCollectRepo.userId: UserRepoLocal.to.currentUid,
         UserCollectRepo.kindId: kindId,
         UserCollectRepo.remark: remark,
@@ -926,20 +915,22 @@ class UserCollectLogic extends GetxController {
 
   /// 添加收藏
   Future<bool> add({required String tb, required Message msg}) async {
-    debugPrint("userCollectLogic/add 开始收藏消息: ${msg.id}, 类型: ${msg.runtimeType}");
-    
+    debugPrint(
+      "userCollectLogic/add 开始收藏消息: ${msg.id}, 类型: ${msg.runtimeType}",
+    );
+
     int kind = getCollectKind(msg);
     // 如果消息类型不支持收藏，直接返回失败
     if (kind <= 0) {
       debugPrint("userCollectLogic/add 消息类型不支持收藏: ${msg.runtimeType}");
       return false;
     }
-    
+
     String source = await getCollectSource(msg.authorId);
-    
+
     // 尝试从数据库查找消息
     MessageModel? msg2 = await MessageRepo(tableName: tb).find(msg.id);
-    
+
     // 如果数据库中没有找到消息，尝试从Message对象创建
     if (msg2 == null) {
       debugPrint("userCollectLogic/add 未在数据库中找到消息，尝试从Message对象创建: ${msg.id}");
@@ -952,7 +943,9 @@ class UserCollectLogic extends GetxController {
           fromId: msg.authorId,
           toId: msg.metadata?['peer_id'],
           payload: _extractPayloadFromMessage(msg),
-          createdAt: msg.createdAt?.millisecondsSinceEpoch ?? DateTimeHelper.millisecond(),
+          createdAt:
+              msg.createdAt?.millisecondsSinceEpoch ??
+              DateTimeHelper.millisecond(),
           isAuthor: msg.authorId == UserRepoLocal.to.currentUid ? 1 : 0,
           conversationUk3: "", // 可能为空，因为我们是直接收藏消息
           status: 10, // 假设为已发送状态
@@ -962,7 +955,7 @@ class UserCollectLogic extends GetxController {
         return false;
       }
     }
-    
+
     Map<String, dynamic> info = msg2.toJson();
     var payload = info['payload'];
     if (payload is String) {
@@ -973,30 +966,28 @@ class UserCollectLogic extends GetxController {
         info['payload'] = {};
       }
     }
-    
+
     // 确保metadata包含在info中
     if (msg.metadata != null) {
       info['metadata'] = msg.metadata;
     }
-    
-    debugPrint("userCollectLogic/add 准备收藏: kind=$kind, source=$source, msgId=${msg.id}");
-    
+
+    debugPrint(
+      "userCollectLogic/add 准备收藏: kind=$kind, source=$source, msgId=${msg.id}",
+    );
+
     // 显示加载状态
     EasyLoading.show(status: '收藏中...');
-    
-    bool res = await UserCollectProvider().add(
-      kind,
-      msg.id,
-      source,
-      info,
-    );
-    
+
+    bool res = await UserCollectProvider().add(kind, msg.id, source, info);
+
     // 隐藏加载状态
     EasyLoading.dismiss();
-    
+
     debugPrint(
-        "userCollectLogic/add 结果: $res, kind: $kind, source: $source, info: ${info.toString()}");
-    
+      "userCollectLogic/add 结果: $res, kind: $kind, source: $source, info: ${info.toString()}",
+    );
+
     if (res) {
       await UserCollectRepo().save({
         UserCollectRepo.createdAt: DateTimeHelper.millisecond(),
@@ -1004,25 +995,22 @@ class UserCollectLogic extends GetxController {
         UserCollectRepo.kind: kind,
         UserCollectRepo.kindId: msg.id,
         UserCollectRepo.source: source,
-        UserCollectRepo.info: info
+        UserCollectRepo.info: info,
       });
       debugPrint("userCollectLogic/add 本地保存成功");
     } else {
       debugPrint("userCollectLogic/add 服务端保存失败");
     }
-    
+
     return res;
   }
-  
+
   /// 从Message对象提取payload
   Map<String, dynamic> _extractPayloadFromMessage(Message msg) {
     Map<String, dynamic> payload = {};
-    
+
     if (msg is TextMessage) {
-      payload = {
-        "msg_type": "text",
-        "text": msg.text,
-      };
+      payload = {"msg_type": "text", "text": msg.text};
     } else if (msg is ImageMessage) {
       payload = {
         "msg_type": "image",
@@ -1046,10 +1034,10 @@ class UserCollectLogic extends GetxController {
       payload = {...?msg.metadata};
       payload['msg_type'] = 'custom';
     }
-    
+
     // 添加peer_id
     payload['peer_id'] = msg.metadata?['peer_id'];
-    
+
     return payload;
   }
 
@@ -1064,7 +1052,9 @@ class UserCollectLogic extends GetxController {
           color: Colors.transparent,
           child: GestureDetector(
             onTap: () {
-              debugPrint("searchLeading_tag $tag ${state.searchLeading.toString()}");
+              debugPrint(
+                "searchLeading_tag $tag ${state.searchLeading.toString()}",
+              );
               // 收起展开面板
               state.kindActive.value = false;
               // 执行标签搜索
@@ -1083,11 +1073,7 @@ class UserCollectLogic extends GetxController {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.local_offer,
-                    size: 12,
-                    color: AppColors.info,
-                  ),
+                  Icon(Icons.local_offer, size: 12, color: AppColors.info),
                   const SizedBox(width: 4),
                   Text(
                     tag,
@@ -1120,21 +1106,21 @@ class UserCollectLogic extends GetxController {
     // 由于移除了 flutter_chat_types 依赖，这里简化处理
     // 根据 message 的 metadata 或其他属性判断类型
     if (message == null) return 0;
-    
+
     try {
       String customType = message.metadata?['custom_type'] ?? '';
       String messageType = message.runtimeType.toString();
-      
+
       // 判断文本消息
       if (messageType.contains('TextMessage')) {
         return 1;
       }
-      
+
       // 判断图片消息
       if (messageType.contains('ImageMessage')) {
         return 2;
       }
-      
+
       // 判断自定义消息类型
       if (messageType.contains('CustomMessage')) {
         switch (customType) {
@@ -1169,12 +1155,11 @@ class UserCollectLogic extends GetxController {
             }
         }
       }
-      
+
       // 判断文件消息
       if (messageType.contains('FileMessage')) {
         return 5;
       }
-      
     } catch (e, s) {
       debugPrint('getCollectKind error: $e, trace: $s');
     }

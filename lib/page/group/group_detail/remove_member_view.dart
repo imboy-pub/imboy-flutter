@@ -168,7 +168,7 @@ class RemoveMemberPageState extends State<RemoveMemberPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         title: 'removeMember'.tr,
         leading: Padding(
           padding: const EdgeInsets.only(top: 8),

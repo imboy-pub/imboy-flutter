@@ -27,28 +27,28 @@ class RevokedMessageBuilder extends StatelessWidget {
     final String customType = metadata['custom_type'] ?? '';
     final bool userIsAuthor = user.id == message.authorId;
     final String text = metadata['text'] ?? '';
-    final DateTime now = DateTimeHelper.now();
-    
+    final int nowMs = DateTimeHelper.millisecond();
+
     // 调试输出
     iPrint('撤回消息渲染: msgId=${message.id}, customType=$customType, userIsAuthor=$userIsAuthor');
     iPrint('消息元数据: ${metadata.toString()}');
-    
+
     // 根据撤回类型确定显示逻辑
     bool isPeerRevoked = customType == 'peer_revoked';
     bool isMyRevoked = customType == 'my_revoked';
-    
+
     // 检查是否可以重新编辑（仅限自己撤回的消息且在2小时内）
-    bool canEdit = isMyRevoked && 
-                  userIsAuthor && 
+    bool canEdit = isMyRevoked &&
+                  userIsAuthor &&
                   text.isNotEmpty &&
-                  (now.difference(message.createdAt!).inMinutes < 120);
+                  ((nowMs - message.createdAt!.millisecondsSinceEpoch) < 120 * 60 * 1000);
 
     // 重新编辑按钮
     Widget editButton = canEdit
         ? GestureDetector(
             onTap: () {
               iPrint("触发重新编辑: msgId=${message.id}, text=$text");
-              eventBus.fire(ReEditMessage(text: text));
+              eventBus.fire(ReEditMessage(text: text, messageId: message.id));
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

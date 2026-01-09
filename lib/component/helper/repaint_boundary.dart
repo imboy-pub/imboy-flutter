@@ -5,7 +5,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class RepaintBoundaryHelper {
@@ -35,11 +35,26 @@ class RepaintBoundaryHelper {
   FutureOr<dynamic> savePhoto(
       BuildContext ctx, GlobalKey boundaryKey, String name) async {
     final img = await image(ctx, boundaryKey);
-    return await ImageGallerySaver.saveImage(
-      img!,
-      quality: 72,
-      name: name,
-      isReturnImagePathOfIOS: true,
-    );
+    if (img == null) {
+      return {"isSuccess": false, "errorMessage": "Failed to capture image"};
+    }
+    
+    try {
+      // 使用 photo_manager 保存到相册
+      final asset = await PhotoManager.editor.saveImage(
+        img,
+        filename: name,
+      );
+      
+      return {
+        "isSuccess": true,
+        "filePath": asset.id,
+      };
+    } catch (e) {
+      return {
+        "isSuccess": false,
+        "errorMessage": e.toString(),
+      };
+    }
   }
 }

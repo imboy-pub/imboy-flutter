@@ -12,6 +12,7 @@ import 'package:imboy/page/personal_info/update/update_view.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
 
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:xid/xid.dart';
 
 import 'user_collect_logic.dart';
@@ -490,9 +491,11 @@ class UserCollectDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     remark.value = obj.remark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: NavAppBar(
+      backgroundColor: isDark ? Theme.of(context).colorScheme.surface : const Color(0xFFF5F5F5),
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'details'.tr,
         rightDMActions: [
@@ -528,18 +531,31 @@ class UserCollectDetailPage extends StatelessWidget {
               margin: const EdgeInsets.all(16.0),
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                color: isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
-                  width: 0.5,
-                ),
+                border: isDark 
+                    ? Border.all(
+                        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+                        width: 0.5,
+                      )
+                    : null,
+                boxShadow: [
+                  BoxShadow(
+                    color: isDark 
+                        ? Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05) 
+                        : Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
                   Icon(
                     Icons.info_outline,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: isDark 
+                        ? Theme.of(context).colorScheme.primary 
+                        : AppColors.primaryGreen,
                     size: 20,
                   ),
                   const SizedBox(width: 12),
@@ -548,7 +564,7 @@ class UserCollectDetailPage extends StatelessWidget {
                       "${'from'.tr} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAt)}",
                       style: TextStyle(
                         fontSize: 14,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -563,12 +579,16 @@ class UserCollectDetailPage extends StatelessWidget {
                     margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                     padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
+                      color: isDark 
+                          ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1)
+                          : const Color(0xFFE1F5FE),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                        width: 0.5,
-                      ),
+                      border: isDark 
+                          ? Border.all(
+                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                              width: 0.5,
+                            )
+                          : null,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -577,7 +597,9 @@ class UserCollectDetailPage extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.edit_note,
-                              color: Theme.of(context).colorScheme.primary,
+                              color: isDark 
+                                  ? Theme.of(context).colorScheme.primary 
+                                  : AppColors.primaryGreen,
                               size: 20,
                             ),
                             const SizedBox(width: 8),
@@ -586,7 +608,9 @@ class UserCollectDetailPage extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: Theme.of(context).colorScheme.onSurface,
+                                color: isDark 
+                                    ? Theme.of(context).colorScheme.onSurface
+                                    : const Color(0xFF0277BD),
                               ),
                             ),
                           ],
@@ -596,7 +620,9 @@ class UserCollectDetailPage extends StatelessWidget {
                           remark.value,
                           style: TextStyle(
                             fontSize: 15,
-                            color: Theme.of(context).colorScheme.onSurface,
+                            color: isDark 
+                                ? Theme.of(context).colorScheme.onSurface
+                                : const Color(0xFF01579B),
                             height: 1.4,
                           ),
                         ),
@@ -610,16 +636,20 @@ class UserCollectDetailPage extends StatelessWidget {
               margin: const EdgeInsets.all(16.0),
               padding: const EdgeInsets.all(20.0),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                color: isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
-                  width: 0.5,
-                ),
+                border: isDark 
+                    ? Border.all(
+                        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+                        width: 0.5,
+                      )
+                    : null,
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
-                    blurRadius: 12,
+                    color: isDark 
+                        ? Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05) 
+                        : Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
                 ],

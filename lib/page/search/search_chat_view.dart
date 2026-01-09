@@ -562,96 +562,121 @@ class _SearchChatPageState extends State<SearchChatPage> {
 
   // 构建搜索历史
   Widget _buildSearchHistory(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 搜索历史标题
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'searchHistory'.tr,
-                style: Get.context!.textStyle(
-                  FontSizeType.large,
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.w600,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 搜索历史标题
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'searchHistory'.tr,
+                  style: Get.context!.textStyle(
+                    FontSizeType.large,
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              Obx(() => state.searchHistory.isNotEmpty
-                  ? TextButton(
-                      onPressed: () {
-                        state.clearHistory();
-                      },
-                      child: Text(
-                        'clearAll'.tr,
+                Obx(() => state.searchHistory.isNotEmpty
+                    ? TextButton(
+                        onPressed: () {
+                          state.clearHistory();
+                        },
+                        child: Text(
+                          'clearAll'.tr,
+                          style: Get.context!.textStyle(
+                            FontSizeType.normal,
+                            color: AppColors.primaryGreen,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink()),
+              ],
+            ),
+          ),
+          // 搜索建议
+          Obx(() => state.searchSuggestions.isNotEmpty
+              ? _buildSearchSuggestions(context)
+              : const SizedBox.shrink()),
+          // 搜索历史列表
+          Obx(() {
+            if (state.searchHistory.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.only(top: 60),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.history,
+                        size: 64,
+                        color: AppColors.textSecondary.withValues(alpha: 0.3),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'noSearchHistory'.tr,
                         style: Get.context!.textStyle(
                           FontSizeType.normal,
-                          color: AppColors.primaryGreen,
+                          color: AppColors.textSecondary,
                         ),
                       ),
-                    )
-                  : const SizedBox.shrink()),
-            ],
-          ),
-        ),
-        // 搜索建议
-        Obx(() => state.searchSuggestions.isNotEmpty
-            ? _buildSearchSuggestions(context)
-            : const SizedBox.shrink()),
-        // 搜索历史列表
-        Obx(() {
-          if (state.searchHistory.isEmpty) {
-            return Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.history,
-                      size: 64,
-                      color: AppColors.textSecondary.withValues(alpha: 0.3),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'noSearchHistory'.tr,
-                      style: Get.context!.textStyle(
-                        FontSizeType.normal,
-                        color: AppColors.textSecondary,
-                      ),
+                    ],
+                  ),
+                ),
+              );
+            } else {
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDark
+                          ? Colors.black.withValues(alpha: 0.2)
+                          : Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-              ),
-            );
-          } else {
-            return Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: state.searchHistory.length,
-                itemBuilder: (context, index) {
-                  final query = state.searchHistory[index];
-                  return ListTile(
-                    leading: Icon(
-                      Icons.history,
-                      color: AppColors.textSecondary,
-                      size: 20,
-                    ),
-                    title: Text(
-                      query,
-                      style: Get.context!.textStyle(
-                        FontSizeType.normal,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(
-                        Icons.arrow_forward_ios,
+                child: Column(
+                  children: state.searchHistory.map((query) {
+                    return ListTile(
+                      leading: Icon(
+                        Icons.history,
                         color: AppColors.textSecondary,
-                        size: 16,
+                        size: 20,
                       ),
-                      onPressed: () {
+                      title: Text(
+                        query,
+                        style: Get.context!.textStyle(
+                          FontSizeType.normal,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(
+                          Icons.arrow_forward_ios,
+                          color: AppColors.textSecondary,
+                          size: 16,
+                        ),
+                        onPressed: () {
+                          _searchC.text = query;
+                          logic.performSearch(
+                            query: query,
+                            conversationUk3: widget.conversationUk3,
+                            type: widget.type,
+                          );
+                        },
+                      ),
+                      onTap: () {
                         _searchC.text = query;
                         logic.performSearch(
                           query: query,
@@ -659,22 +684,14 @@ class _SearchChatPageState extends State<SearchChatPage> {
                           type: widget.type,
                         );
                       },
-                    ),
-                    onTap: () {
-                      _searchC.text = query;
-                      logic.performSearch(
-                        query: query,
-                        conversationUk3: widget.conversationUk3,
-                        type: widget.type,
-                      );
-                    },
-                  );
-                },
-              ),
-            );
-          }
-        }),
-      ],
+                    );
+                  }).toList(),
+                ),
+              );
+            }
+          }),
+        ],
+      ),
     );
   }
 
@@ -871,61 +888,64 @@ class _SearchChatPageState extends State<SearchChatPage> {
     );
   }
 
-  // 构建搜索结果
-  Widget _buildSearchResults(BuildContext context) {
-    return Column(
-      children: [
-        // 搜索结果统计
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            border: Border(
-              bottom: BorderSide(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-              ),
-            ),
-          ),
-          child: Row(
-            children: [
-              Obx(() => Text(
+  // 构建搜索结果统计
+  Widget _buildSearchResultsHeader(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      ),
+      child: Row(
+        children: [
+          Obx(() => Text(
                 '${state.totalResults.value} ${'searchResults'.tr}',
                 style: Get.context!.textStyle(
                   FontSizeType.small,
                   color: AppColors.textSecondary,
                 ),
               )),
-              const Spacer(),
-              Obx(() => state.hasMore.value
-                  ? TextButton(
-                      onPressed: () {
-                        logic.loadMoreResults(
-                          conversationUk3: widget.conversationUk3,
-                          type: widget.type,
-                        );
-                      },
-                      child: Text(
-                        'loadMore'.tr,
-                        style: Get.context!.textStyle(
-                          FontSizeType.small,
-                          color: AppColors.primaryGreen,
-                        ),
-                      ),
-                    )
-                  : const SizedBox.shrink()),
-            ],
-          ),
-        ),
+          const Spacer(),
+          Obx(() => state.hasMore.value
+              ? TextButton(
+                  onPressed: () {
+                    logic.loadMoreResults(
+                      conversationUk3: widget.conversationUk3,
+                      type: widget.type,
+                    );
+                  },
+                  child: Text(
+                    'loadMore'.tr,
+                    style: Get.context!.textStyle(
+                      FontSizeType.small,
+                      color: AppColors.primaryGreen,
+                    ),
+                  ),
+                )
+              : const SizedBox.shrink()),
+        ],
+      ),
+    );
+  }
+
+  // 构建搜索结果
+  Widget _buildSearchResults(BuildContext context) {
+    return Column(
+      children: [
+        // 搜索结果统计
+        _buildSearchResultsHeader(context),
         // 搜索结果列表
         Expanded(
           child: Obx(() => ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: state.searchResults.length,
-            itemBuilder: (context, index) {
-              final message = state.searchResults[index];
-              return _buildMessageItem(context, message);
-            },
-          )),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                itemCount: state.searchResults.length,
+                itemBuilder: (context, index) {
+                  final message = state.searchResults[index];
+                  return _buildMessageItem(context, message);
+                },
+              )),
         ),
       ],
     );

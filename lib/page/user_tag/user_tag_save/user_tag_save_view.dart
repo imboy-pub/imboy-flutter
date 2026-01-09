@@ -30,7 +30,7 @@ class UserTagSavePage extends StatelessWidget {
     return Scaffold(
       // 输入框(TextField)被键盘遮挡解决方案
       resizeToAvoidBottomInset: false,
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         leading: InkWell(
           onTap: () {

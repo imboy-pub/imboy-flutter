@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:get/get.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_view.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -362,8 +363,8 @@ class ApplyFriendPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colorScheme.background,
-      appBar: AppBar(
-        title: Text(
+      appBar: GlassAppBar(
+        titleWidget: Text(
           'applyAddFriend'.tr,
           style: TextStyle(
             fontSize: 18,
@@ -372,7 +373,6 @@ class ApplyFriendPage extends StatelessWidget {
           ),
         ),
         backgroundColor: colorScheme.surface,
-        elevation: 0,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios,
@@ -510,8 +510,6 @@ class ApplyFriendPage extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.primary,
-                foregroundColor: colorScheme.onPrimary,
-                elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),

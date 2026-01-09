@@ -3,8 +3,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
 import 'package:imboy/component/ui/button.dart';
-import 'package:imboy/component/ui/common.dart';
-
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/store/model/group_model.dart';
 
@@ -78,114 +76,118 @@ class ChangeInfoPageState extends State<ChangeInfoPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      // backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: NavAppBar(
-        // backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      appBar: GlassAppBar(
+        title: widget.title,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.only(left: 10, right: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-          Space(height: 10, width: Get.width),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-            Expanded(
+            if (widget.subtitle.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
                 child: Text(
-              widget.title,
-              textAlign: TextAlign.center, // 文本对齐方式为居中
-              style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.w600,
-              ),
-            ))
-          ]),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-            Expanded(
-                child: Text(
-              widget.subtitle,
-              textAlign: TextAlign.center, // 文本对齐方式为居中
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.w600,
-              ),
-            ))
-          ]),
-          SizedBox(height: 20, width: Get.width),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-            SmartGroupAvatar(
-              avatar: widget.group.avatar,
-              groupId: widget.group.groupId,
-              // size: 44,
-              // onTap: onTapAvatar,
-            ),
-            const Space(
-              width: 8,
-            ),
-            SizedBox(
-              height: 80,
-              width: Get.width - 128,
-              child: TextField(
-                focusNode: _inputFocusNode,
-                controller: _textController,
-                autofocus: true,
-                maxLines: 1,
-                maxLength: 80,
-                decoration: InputDecoration(
-                  counterText: '', // 这行代码会隐藏字符计数器
-                  hintText: widget.group.title.isEmpty ? 'unnamed'.tr : '',
-                  contentPadding: const EdgeInsets.only(
-                    top: 28,
-                    bottom: 10,
-                  ), // 增加填充来调整高度
+                  widget.subtitle,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: colorScheme.outline,
+                  ),
                 ),
-                onChanged: (value) {
-                  valueChanged.value = value.trim() != widget.group.title;
-                  onClose.value = value.isEmpty ? true : false;
+              ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: isDark ? colorScheme.surface : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: isDark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+              ),
+              child: Row(
+                children: [
+                  SmartGroupAvatar(
+                    avatar: widget.group.avatar,
+                    groupId: widget.group.groupId,
+                    size: 44,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      focusNode: _inputFocusNode,
+                      controller: _textController,
+                      autofocus: true,
+                      maxLines: 1,
+                      maxLength: 80,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: colorScheme.onSurface,
+                      ),
+                      decoration: InputDecoration(
+                        counterText: '',
+                        border: InputBorder.none,
+                        hintText: widget.group.title.isEmpty ? 'unnamed'.tr : '',
+                        hintStyle: TextStyle(
+                          color: colorScheme.outline.withValues(alpha: 0.5),
+                        ),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      onChanged: (value) {
+                        valueChanged.value = value.trim() != widget.group.title;
+                        onClose.value = value.isEmpty;
+                      },
+                    ),
+                  ),
+                  Obx(() => Visibility(
+                        visible: onClose.isFalse,
+                        child: GestureDetector(
+                          onTap: () {
+                            _textController.text = '';
+                            valueChanged.value = true;
+                            onClose.value = true;
+                          },
+                          child: Icon(
+                            Icons.cancel,
+                            color: colorScheme.outline.withValues(alpha: 0.5),
+                            size: 20,
+                          ),
+                        ),
+                      )),
+                ],
+              ),
+            ),
+            const SizedBox(height: 40),
+            Obx(
+              () => RoundedElevatedButton(
+                text: 'buttonAccomplish'.tr,
+                highlighted: valueChanged.isTrue,
+                onPressed: () async {
+                  String trimmedText = _textController.text.trim();
+                  if (valueChanged.isTrue) {
+                    GroupModel? g = await logic.groupEdit(widget.group.groupId, {
+                      'title': trimmedText,
+                    });
+                    if (g != null) {
+                      EasyLoading.showSuccess('tipSuccess'.tr);
+                      Get.back(result: g);
+                    }
+                  }
                 },
               ),
             ),
-            Obx(() => Visibility(
-                  visible: onClose.isFalse,
-                  child: IconButton(
-                    onPressed: () {
-                      _textController.text = '';
-                      valueChanged.value = true;
-                      onClose.value = true; // Since the text is now empty
-                    },
-                    icon: const Icon(Icons.cancel),
-                  ),
-                )),
-            // Text(logic.themeTypeTips());
-          ]),
-          SizedBox(height: 20, width: Get.width),
-          Obx(
-            () => RoundedElevatedButton(
-              text: 'buttonAccomplish'.tr,
-              highlighted: valueChanged.isTrue,
-              onPressed: () async {
-                String trimmedText = _textController.text.trim();
-                if (valueChanged.isTrue) {
-                  GroupModel? g = await logic.groupEdit(widget.group.groupId, {
-                    'title': trimmedText,
-                  });
-                  if (g != null) {
-                    EasyLoading.showSuccess('tipSuccess'.tr);
-                    Get.back(result: g);
-                    //   peerRemark = trimmedText;
-                    //   Get.back(result: trimmedText);
-                  }
-                }
-              },
-            ),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }

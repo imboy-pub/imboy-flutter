@@ -6,6 +6,10 @@ class PasswordTextField extends StatelessWidget {
   /// {@macro flutter.widgets.editableText.obscureText}
   final bool obscureText;
   final String? hintText;
+  final TextStyle? style;
+  final TextStyle? hintStyle;
+  final Color? cursorColor;
+  final Color? iconColor;
 
   final GestureTapCallback? onTap;
   final ValueChanged<String>? onChanged;
@@ -16,10 +20,17 @@ class PasswordTextField extends StatelessWidget {
     this.onChanged,
     this.hintText,
     this.obscureText = false,
+    this.style,
+    this.hintStyle,
+    this.cursorColor,
+    this.iconColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Default colors if not provided
+    final effectiveIconColor = iconColor ?? Colors.grey.shade600;
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(11), // 与外层容器圆角匹配
       child: TextField(
@@ -28,21 +39,21 @@ class PasswordTextField extends StatelessWidget {
         autocorrect: false,
         // TextField 垂直居中光标
         textAlignVertical: TextAlignVertical.center,
+        style: style,
+        cursorColor: cursorColor,
         decoration: InputDecoration(
           border: InputBorder.none,
           focusedBorder: InputBorder.none,
           enabledBorder: InputBorder.none,
           hintText: hintText,
-          hintStyle: TextStyle(
-            color: Colors.grey.shade600,
-            fontSize: 16,
-          ),
+          hintStyle:
+              hintStyle ?? TextStyle(color: Colors.grey.shade600, fontSize: 16),
           prefixIcon: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Icon(
-              Icons.lock,
-              color: Colors.grey.shade600,
-              size: 20,
+              Icons.lock_rounded, // Rounded icon
+              color: effectiveIconColor,
+              size: 22,
             ),
           ),
           prefixIconConstraints: const BoxConstraints(
@@ -55,9 +66,11 @@ class PasswordTextField extends StatelessWidget {
               onTap: onTap,
               borderRadius: BorderRadius.circular(20),
               child: Icon(
-                obscureText ? Icons.visibility : Icons.visibility_off,
-                color: Colors.grey.shade600,
-                size: 20,
+                obscureText
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+                color: effectiveIconColor,
+                size: 22,
               ),
             ),
           ),
@@ -65,7 +78,10 @@ class PasswordTextField extends StatelessWidget {
             minWidth: 44,
             minHeight: 44,
           ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 16,
+            horizontal: 16,
+          ),
         ),
         onChanged: onChanged,
       ),

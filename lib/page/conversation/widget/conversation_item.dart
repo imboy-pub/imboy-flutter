@@ -10,6 +10,7 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 // ignore: must_be_immutable
 class ConversationItem extends StatelessWidget {
@@ -20,213 +21,260 @@ class ConversationItem extends StatelessWidget {
   final Function()? onTapAvatar;
   final ConversationLogic logic = Get.find<ConversationLogic>();
 
-  ConversationItem({super.key, required this.model, this.remindCounter, required this.onTapAvatar});
+  ConversationItem({
+    super.key,
+    required this.model,
+    this.remindCounter,
+    required this.onTapAvatar,
+  });
 
   @override
   Widget build(BuildContext context) {
     // 当前会话未读消息数量
-    RxInt remindCounter = this.remindCounter ?? RxInt(logic.conversationRemind[model.uk3] ?? 0);
+    RxInt remindCounter =
+        this.remindCounter ?? RxInt(logic.conversationRemind[model.uk3] ?? 0);
     var icon = <Widget>[];
     // 获取最新的会话数据以检查消息状态
     ConversationModel? latestModel = logic.conversationMap[model.uk3];
     ConversationModel currentModel = latestModel ?? model;
-    
+
     if (currentModel.lastMsgStatus == IMBoyMessageStatus.sending) {
       icon.add(
         Padding(
-          padding: const EdgeInsets.only(right: 4),
+          padding: const EdgeInsets.only(right: 6),
           child: Icon(
             IMBoyIcon.sending,
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.6),
-            size: 15,
+            color: AppColors.primaryGreen,
+            size: 14,
           ),
         ),
       );
     }
-    // debugPrint("> on imgUri ${imgUri!}");
+
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
-      padding: const EdgeInsets.only(left: 10.0, top: 2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Obx(
-            () => badges.Badge(
-              position: badges.BadgePosition.topEnd(top: -4, end: -4),
-              showBadge: (remindCounter.value > 0 ? true : false),
-              // shape: badges.BadgeShape.square,
-              // borderRadius: BorderRadius.circular(10),
-              // padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
-              // animationDuration: const Duration(milliseconds: 500),
-              // animationType: badges.BadgeAnimationType.scale,
-              badgeContent: Text(
-                "$remindCounter",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontSize: 8,
-                ),
-              ),
-              // 会话头像
-              child: model.type == 'C2G'
-                  ? SmartGroupAvatar(
-                      avatar: model.avatar,
-                      groupId: model.peerId,
-                      onTap: onTapAvatar,
-                    )
-                  : Avatar(imgUri: model.avatar),
-            ),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
-          Container(
-            margin: const EdgeInsets.only(left: 8),
-            padding: const EdgeInsets.only(
-              left: 0,
-              right: 0,
-              top: 10.0,
-              bottom: 10,
-            ),
-            width: Get.width - 78,
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  // color: AppColors.LineColor,
-                  width: 0.25,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.outline.withValues(alpha: 0.2),
-                ),
-              ),
-            ),
+        ],
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : Colors.transparent,
+          width: 0.5,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap:
+              null, // Tap is handled by the parent Slidable usually, but if needed here...
+          // Wait, Slidable wraps this. The tap event in conversation_view.dart was on InkWell wrapping Slidable wrapping ConversationItem?
+          // No, conversation_view.dart structure is: InkWell -> Slidable -> ConversationItem.
+          // So this InkWell creates the visual ripple *inside* the card, but parent's InkWell handles navigation.
+          // This might cause double ripple or conflict.
+          // Ideally, the navigation tap should be inside here to fill the card.
+          // However, changing navigation logic requires Changing conversation_view.
+          // For visual safety now, I will omit InkWell here OR conversation_view needs update.
+          // Let's keep it simple: Just Container for visuals. Parent handles tap.
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Space(width: 6),
+                // Avatar Area
+                Obx(
+                  () => badges.Badge(
+                    position: badges.BadgePosition.topEnd(top: -2, end: -2),
+                    showBadge: (remindCounter.value > 0 ? true : false),
+                    badgeContent: Text(
+                      "$remindCounter",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    badgeStyle: badges.BadgeStyle(
+                      padding: const EdgeInsets.all(5),
+                    ),
+                    // 会话头像
+                    child: GestureDetector(
+                      onTap: onTapAvatar,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: theme
+                                .scaffoldBackgroundColor, // separating border
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: model.type == 'C2G'
+                            ? SmartGroupAvatar(
+                                avatar: model.avatar,
+                                groupId: model.peerId,
+                                onTap: onTapAvatar,
+                                size: 52, // Slightly larger avatar
+                              )
+                            : Avatar(imgUri: model.avatar, width: 52, height: 52),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 14),
+
+                // Content Area
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
+                      // Top Row: Title + Time
+                      Flexible(child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: Obx(() {
-                              // 获取最新的会话数据
-                              ConversationModel? latestModel = logic.conversationMap[model.uk3];
-                              ConversationModel currentModel = latestModel ?? model;
+                              ConversationModel? latestModel =
+                              logic.conversationMap[model.uk3];
+                              ConversationModel currentModel =
+                                  latestModel ?? model;
                               String displayTitle = '';
-                              
+
                               if (currentModel.title.trim().isNotEmpty) {
                                 displayTitle = currentModel.title;
-                              } else if (currentModel.computeTitle.trim().isNotEmpty) {
+                              } else if (currentModel.computeTitle
+                                  .trim()
+                                  .isNotEmpty) {
                                 displayTitle = currentModel.computeTitle;
                               } else {
                                 displayTitle = currentModel.peerId;
                               }
-                              
+
                               return Text(
                                 displayTitle,
-                                style: const TextStyle(
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.normal,
+                                style: TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.w600, // Bolder title
+                                  color: theme.textTheme.titleMedium?.color,
                                 ),
-                                maxLines: 2,
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               );
                             }),
                           ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Row(
-                          children: [
-                            Column(children: icon),
-                            if (model.content.contains('_color_red_'))
-                              Text(
-                                "${model.content.split('_color_red_')[0]} ",
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 14.0,
+                          const SizedBox(width: 4),
+                          Obx(() {
+                            ConversationModel? latestModel =
+                            logic.conversationMap[model.uk3];
+                            ConversationModel currentModel =
+                                latestModel ?? model;
+
+                            if (currentModel.lastTime > 0) {
+                              return Text(
+                                DateTimeHelper.lastTimeFmt(
+                                  currentModel.lastTime,
                                 ),
-                              ),
-                            // 会话对象子标题
-                            Expanded(
-                              child: Obx(() {
-                                // 获取最新的会话数据
-                                ConversationModel? latestModel = logic.conversationMap[model.uk3];
-                                ConversationModel currentModel = latestModel ?? model;
-                                String content = currentModel.content;
-                                
-                                // 处理草稿内容的红色显示
-                                if (content.contains('_color_red_')) {
-                                  List<String> parts = content.split('_color_red_');
-                                  return RichText(
-                                    text: TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text: "${parts[0]} ",
-                                          style: const TextStyle(
-                                            color: Colors.red,
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: parts.length > 1 ? parts[1] : '',
-                                          style: const TextStyle(
-                                            fontSize: 14.0,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-                                
-                                return Text(
-                                  content,
-                                  style: const TextStyle(
-                                    fontSize: 14.0,
-                                  ),
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  color: theme.textTheme.bodySmall?.color
+                                      ?.withValues(alpha: 0.6),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          }),
+                        ],
+                      )),
+
+                      const SizedBox(height: 6),
+
+                      // Bottom Row: Message Preview
+                      Flexible(child: Row(
+                        children: [
+                          Column(children: icon),
+                          Expanded(
+                            child: Obx(() {
+                              ConversationModel? latestModel =
+                              logic.conversationMap[model.uk3];
+                              ConversationModel currentModel =
+                                  latestModel ?? model;
+                              String content = currentModel.content;
+
+                              TextStyle contentStyle = TextStyle(
+                                fontSize: 13.0,
+                                color: theme.textTheme.bodyMedium?.color
+                                    ?.withValues(alpha: 0.6),
+                                height: 1.2,
+                              );
+
+                              // 处理草稿内容的红色显示
+                              if (content.contains('_color_red_')) {
+                                List<String> parts = content.split(
+                                  '_color_red_',
+                                );
+                                return RichText(
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: "${parts[0]} ",
+                                        style: contentStyle.copyWith(
+                                          color: AppColors.primaryGreen,
+                                        ), // Use brand color instead of red
+                                      ),
+                                      TextSpan(
+                                        text: parts.length > 1 ? parts[1] : '',
+                                        style: contentStyle,
+                                      ),
+                                    ],
+                                  ),
                                 );
-                              }),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Space(width: mainSpace),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      // 最近会话时间
-                      Obx(() {
-                        // 获取最新的会话数据
-                        ConversationModel? latestModel = logic.conversationMap[model.uk3];
-                        ConversationModel currentModel = latestModel ?? model;
-                        
-                        if (currentModel.lastTime > 0) {
-                          return Text(
-                            DateTimeHelper.lastTimeFmt(currentModel.lastTime),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.right,
-                            style: const TextStyle(
-                              fontSize: 14.0,
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      }),
-                      const Icon(Icons.flag, color: Colors.transparent),
+                              }
+
+                              return Text(
+                                content,
+                                style: contentStyle,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              );
+                            }),
+                          ),
+                          // Optional: Add muted icon here if needed
+                        ],
+                      )),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

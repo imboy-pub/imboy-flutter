@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart' show currentFontSize;
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -16,7 +17,6 @@ class FontSizePage extends StatefulWidget {
 
 class _FontSizePageState extends State<FontSizePage> {
   final List<FontSizeOption> fontSizeOptions = FontSizeOption.values;
-
   late FontSizeOption _currentOption;
   late FontSizeOption _previewOption;
   late double _sliderValue;
@@ -51,71 +51,159 @@ class _FontSizePageState extends State<FontSizePage> {
     }
   }
 
+  /// 构建预览文本样式
+  TextStyle _getPreviewTextStyle(BuildContext context, FontSizeType type) {
+    return ThemeManager.instance.getTextStyle(
+      type,
+      color: Theme.of(context).colorScheme.onSurface,
+    );
+  }
+
+  /// 构建预览页脚（模拟微信风格）
+  Widget _buildPreviewFooter(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          '当前：${_previewOption.displayName} ${(_previewOption.scale * 100).toInt()}%',
+          style: _getPreviewTextStyle(context, FontSizeType.small).copyWith(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            '推荐',
+            style: _getPreviewTextStyle(context, FontSizeType.small).copyWith(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // 预览区域是否可读
+    final isAccessible = ThemeManager.instance.previewFontSize(
+      _previewOption,
+      context: context,
+    )['isAccessible'] as bool;
 
     return Scaffold(
-      appBar: AppBar(title: Text('字体大小设置')),
-      backgroundColor: colorScheme.surface,
+      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      appBar: GlassAppBar(
+        title: '字体大小设置',
+        automaticallyImplyLeading: true,
+      ),
       body: Column(
         children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            margin: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerLowest,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '预览效果',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.primary,
+          // 预览区域
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '预览效果',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.primary,
+                      fontFamily: 'PingFang SC',
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '这是标题文本',
-                      style: _getPreviewTextStyle(
-                        context,
-                        FontSizeType.title,
-                      ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isDark
+                              ? Colors.black.withValues(alpha: 0.2)
+                              : Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '这是正文内容，您可以在这里看到不同字体大小的显示效果。',
-                      style: _getPreviewTextStyle(
-                        context,
-                        FontSizeType.normal,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '这是标题文本',
+                          style: _getPreviewTextStyle(
+                            context,
+                            FontSizeType.large,
+                          ).copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          '这是正文内容，您可以在这里看到不同字体大小的显示效果。',
+                          style: _getPreviewTextStyle(
+                            context,
+                            FontSizeType.normal,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '这是辅助说明文字',
+                          style: _getPreviewTextStyle(
+                            context,
+                            FontSizeType.small,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildPreviewFooter(context),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '这是辅助说明文字',
-                      style: _getPreviewTextStyle(
-                        context,
-                        FontSizeType.small,
+                  ),
+                  const SizedBox(height: 24),
+                  // 可读性提示
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        isAccessible ? '可读性良好' : '字体偏小，可能影响阅读',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isAccessible ? colorScheme.primary : colorScheme.error,
+                          fontFamily: 'PingFang SC',
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                _buildPreviewFooter(context),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
 
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+          // 底部控制区
+          Container(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
+            decoration: BoxDecoration(
+              color: isDark ? colorScheme.surface : Colors.white,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -4),
+                ),
+              ],
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -127,221 +215,67 @@ class _FontSizePageState extends State<FontSizePage> {
                     fontFamily: 'PingFang SC',
                   ),
                 ),
-                const SizedBox(height: 8),
-                Slider(
-                  min: 0,
-                  max: (fontSizeOptions.length - 1).toDouble(),
-                  divisions: fontSizeOptions.length - 1,
-                  value: _sliderValue,
-                  label:
-                      '${_previewOption.displayName} ${(_previewOption.scale * 100).toInt()}%',
-                  onChanged: (value) {
-                    setState(() {
-                      _sliderValue = value;
-                      _previewOption = fontSizeOptions[value.round()];
-                    });
-                  },
-                  onChangeEnd: (value) {
-                    final option = fontSizeOptions[value.round()];
-                    _changeFontSize(option);
-                  },
+                const SizedBox(height: 20),
+                SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    activeTrackColor: colorScheme.primary,
+                    inactiveTrackColor: colorScheme.outline.withValues(alpha: 0.2),
+                    thumbColor: colorScheme.primary,
+                    overlayColor: colorScheme.primary.withValues(alpha: 0.2),
+                    trackHeight: 4.0,
+                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12.0),
+                    overlayShape: const RoundSliderOverlayShape(overlayRadius: 24.0),
+                    tickMarkShape: const RoundSliderTickMarkShape(tickMarkRadius: 4.0),
+                    activeTickMarkColor: Colors.white,
+                    inactiveTickMarkColor: colorScheme.outline.withValues(alpha: 0.4),
+                  ),
+                  child: Slider(
+                    min: 0,
+                    max: (fontSizeOptions.length - 1).toDouble(),
+                    divisions: fontSizeOptions.length - 1,
+                    value: _sliderValue,
+                    label: '${_previewOption.displayName} ${(_previewOption.scale * 100).toInt()}%',
+                    onChanged: (value) {
+                      setState(() {
+                        _sliderValue = value;
+                        _previewOption = fontSizeOptions[value.round()];
+                      });
+                    },
+                    onChangeEnd: (value) {
+                      final option = fontSizeOptions[value.round()];
+                      _changeFontSize(option);
+                    },
+                  ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '更小',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color:
-                            colorScheme.onSurface.withValues(alpha: 0.6),
-                        fontFamily: 'PingFang SC',
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '更小',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
+                          fontFamily: 'PingFang SC',
+                        ),
                       ),
-                    ),
-                    Text(
-                      '更大',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color:
-                            colorScheme.onSurface.withValues(alpha: 0.6),
-                        fontFamily: 'PingFang SC',
+                      Text(
+                        '更大',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
+                          fontFamily: 'PingFang SC',
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              itemCount: fontSizeOptions.length,
-              itemBuilder: (context, index) {
-                final option = fontSizeOptions[index];
-                return Obx(() {
-                  final isSelected =
-                      ThemeManager.instance.fontSizeOption == option;
-                  final recommended =
-                      ThemeManager.instance.getRecommendedFontSize(context);
-                  final previewInfo = ThemeManager.instance.previewFontSize(
-                    option,
-                    context: context,
-                  );
-                  final scaledSize = previewInfo['scaledSize'] as double;
-                  final isAccessible = previewInfo['isAccessible'] as bool;
-                  final percent = (option.scale * 100).toInt();
-                  final subtitleColor = isAccessible
-                      ? colorScheme.onSurface.withValues(alpha: 0.6)
-                      : colorScheme.error;
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    child: ListTile(
-                      title: Text(
-                        option.displayName,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: isSelected
-                              ? colorScheme.primary
-                              : colorScheme.onSurface,
-                          fontFamily: 'PingFang SC',
-                        ),
-                      ),
-                      subtitle: Text(
-                        '正文约 ${scaledSize.toStringAsFixed(1)}sp · $percent%',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: subtitleColor,
-                          fontFamily: 'PingFang SC',
-                        ),
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (option == recommended)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colorScheme.primary
-                                    .withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                '推荐',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: colorScheme.primary,
-                                  fontFamily: 'PingFang SC',
-                                ),
-                              ),
-                            ),
-                          if (isSelected)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 4),
-                              child: Icon(
-                                Icons.check,
-                                color: colorScheme.primary,
-                                size: 20,
-                              ),
-                            ),
-                        ],
-                      ),
-                      onTap: () => _changeFontSize(option),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      tileColor: isSelected
-                          ? colorScheme.primaryContainer.withValues(alpha: 0.3)
-                          : colorScheme.surfaceContainerLowest,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 4,
-                      ),
-                    ),
-                  );
-                });
-              },
-            ),
-          ),
         ],
       ),
-    );
-  }
-
-  TextStyle _getPreviewTextStyle(BuildContext context, FontSizeType type) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    final scaledFontSize = FontScaleCalculator.calculateFinalSize(
-      type,
-      _previewOption,
-      context: context,
-    );
-
-    return TextStyle(
-      fontSize: scaledFontSize,
-      color: colorScheme.onSurface,
-      height: 1.4,
-      fontFamily: 'PingFang SC',
-    );
-  }
-
-  Widget _buildPreviewFooter(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final recommended = ThemeManager.instance.getRecommendedFontSize(context);
-    final isRecommended = recommended == _previewOption;
-    final scaledNormal = FontScaleCalculator.calculateFinalSize(
-      FontSizeType.normal,
-      _previewOption,
-      context: context,
-    );
-    final isAccessible = FontScaleCalculator.isAccessibleSize(scaledNormal);
-    final percent = (_previewOption.scale * 100).toInt();
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Text(
-              '当前：${_previewOption.displayName} $percent%',
-              style: TextStyle(
-                fontSize: 12,
-                color: colorScheme.onSurface.withValues(alpha: 0.7),
-                fontFamily: 'PingFang SC',
-              ),
-            ),
-            const SizedBox(width: 8),
-            if (isRecommended)
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '推荐',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: colorScheme.primary,
-                    fontFamily: 'PingFang SC',
-                  ),
-                ),
-              ),
-          ],
-        ),
-        Text(
-          isAccessible ? '可读性良好' : '字体偏小，可能影响阅读',
-          style: TextStyle(
-            fontSize: 12,
-            color: isAccessible ? colorScheme.primary : colorScheme.error,
-            fontFamily: 'PingFang SC',
-          ),
-        ),
-      ],
     );
   }
 }

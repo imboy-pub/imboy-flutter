@@ -4,12 +4,12 @@ import 'package:get/get.dart';
 import 'package:imboy/component/search.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/helper/datetime.dart';
 
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/page/contact/people_info/people_info_view.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:jiffy/jiffy.dart';
 
 import '../confirm_new_friend/confirm_new_friend_view.dart';
 import 'add_friend_view.dart';
@@ -72,9 +72,11 @@ class NewFriendPage extends StatelessWidget {
     
     // 检查申请是否过期
     if (model.status == NewFriendStatus.waiting_for_validation.index) {
-      Jiffy dt = Jiffy.parseFromMillisecondsSinceEpoch(model.createdAt);
-      int diff = Jiffy.now().diff(dt, unit: Unit.day) as int;
-      if (diff > 7) {
+      // 使用同步后的时间计算天数差
+      final nowMs = DateTimeHelper.millisecond();
+      final createdMs = model.createdAt;
+      final diffDays = (nowMs - createdMs) ~/ (24 * 3600 * 1000);
+      if (diffDays > 7) {
         model.status = NewFriendStatus.expired.index;
       }
     }
@@ -384,7 +386,7 @@ class NewFriendPage extends StatelessWidget {
     
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'newFriend'.tr,
         backgroundColor: Theme.of(context).colorScheme.surface,

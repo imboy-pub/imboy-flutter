@@ -3,12 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/locales/locales.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/page/mine/account_security/account_security_logic.dart';
 import 'package:imboy/page/mine/language/language_logic.dart';
 import 'package:imboy/page/passport/passport_logic.dart';
-import 'package:imboy/store/provider/user_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/component/locales/locales.dart';
 
 class BindMobilePage extends GetView<BindMobileController> {
   const BindMobilePage({super.key});
@@ -19,222 +20,344 @@ class BindMobilePage extends GetView<BindMobileController> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final langLogic = Get.put(LanguageLogic());
     final currentMobile = UserRepoLocal.to.current.mobile;
     final hasBound = currentMobile.isNotEmpty;
 
+    // Modern styling constants
+    final inputBorderRadius = BorderRadius.circular(12);
+    const inputFillColor = Color(0xFFF9FAFB); // Very light grey/white
+
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: hasBound ? '修改手机号' : '绑定手机号',
+        title: hasBound ? '更换手机号' : '绑定手机号',
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
           children: [
-            Card(
-              margin: EdgeInsets.zero,
+            // Current Status Card
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(
+                      context,
+                    ).shadowColor.withValues(alpha: 0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
               child: ListTile(
-                leading: Icon(Icons.phone_iphone, color: cs.primary),
-                title: const Text('手机号'),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryGreen.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.phone_iphone,
+                    color: AppColors.primaryGreen,
+                    size: 24,
+                  ),
+                ),
+                title: const Text(
+                  '当前手机号',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
                 subtitle: Text(
                   hasBound ? hiddenPhone(currentMobile) : '未绑定',
                   style: TextStyle(color: cs.onSurfaceVariant),
                 ),
                 trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: cs.primary.withValues(alpha: 0.12),
+                    color: hasBound
+                        ? AppColors.primaryGreen.withValues(alpha: 0.1)
+                        : Colors.grey.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
                     hasBound ? '已绑定' : '未绑定',
                     style: TextStyle(
                       fontSize: 12,
-                      color: cs.primary,
+                      color: hasBound
+                          ? AppColors.primaryGreen
+                          : Colors.grey[600],
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            Card(
-              margin: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      hasBound ? '更换绑定手机号' : '绑定手机号',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w700),
+
+            const SizedBox(height: 24),
+
+            // Form Area
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 8),
+                  child: Text(
+                    hasBound ? '新手机号' : '手机号',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '请输入可接收短信的手机号（支持国际区号，例如 +86）',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: cs.onSurfaceVariant,
-                          ),
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: inputFillColor,
+                    borderRadius: inputBorderRadius,
+                    border: Border.all(
+                      color: Colors.grey.withValues(alpha: 0.15),
                     ),
-                    const SizedBox(height: 16),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: cs.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16),
-                          child: InternationalPhoneNumberInput(
-                            locale: sysLang('intl_phone_number_input'),
-                            countries: langLogic.regionCodeList(
-                              'intl_phone_number_input',
-                            ),
-                            initialValue: PhoneNumber(isoCode: 'CN'),
-                            textFieldController: controller.mobileCtl,
-                            inputBorder: InputBorder.none,
-                            selectorConfig: const SelectorConfig(
-                              selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                              useBottomSheetSafeArea: true,
-                              trailingSpace: false,
-                              leadingPadding: 0,
-                            ),
-                            searchBoxDecoration: InputDecoration(
-                              labelText: 'regionSearchTips'.tr,
-                            ),
-                            inputDecoration: InputDecoration(
-                              border: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              labelText: '手机号',
-                              hintText: '例如：+8613812345678',
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 16,
-                                horizontal: 0,
-                              ),
-                              suffixIcon: Obx(
-                                () => controller.mobile.value.isEmpty
-                                    ? const SizedBox.shrink()
-                                    : IconButton(
-                                        onPressed: controller.clearMobile,
-                                        icon: const Icon(Icons.close_rounded),
-                                      ),
-                              ),
-                            ),
-                            keyboardType: const TextInputType.numberWithOptions(
-                              signed: true,
-                              decimal: true,
-                            ),
-                            ignoreBlank: false,
-                            formatInput: true,
-                            onInputChanged: (PhoneNumber number) {
-                              controller.mobile.value = number.phoneNumber ?? '';
-                            },
-                            onSaved: (_) {},
-                          ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 12),
+                    child: InternationalPhoneNumberInput(
+                      locale: sysLang('intl_phone_number_input'),
+                      countries: controller.langLogic.regionCodeList(
+                        'intl_phone_number_input',
+                      ),
+                      onInputChanged: (PhoneNumber number) {
+                        controller.mobile.value = number.phoneNumber ?? '';
+                      },
+                      onInputValidated: (bool value) {
+                        // handled by controller
+                      },
+                      selectorConfig: const SelectorConfig(
+                        selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                        useBottomSheetSafeArea: true,
+                        trailingSpace: false,
+                        leadingPadding: 0,
+                      ),
+                      ignoreBlank: false,
+                      autoValidateMode: AutovalidateMode.disabled,
+                      selectorTextStyle: TextStyle(
+                        color: cs.onSurface,
+                        fontSize: 16,
+                      ),
+                      textStyle: TextStyle(color: cs.onSurface, fontSize: 16),
+                      initialValue: PhoneNumber(isoCode: 'CN'), // Default
+                      textFieldController: controller.mobileCtl,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        signed: true,
+                        decimal: true,
+                      ),
+                      inputBorder: InputBorder.none,
+                      inputDecoration: InputDecoration(
+                        hintText: '请输入手机号',
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.only(
+                          bottom: 12,
+                        ), // Adjust alignment
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+                // Simple status
+                Obx(
+                  () => _StatusRow(
+                    label: '格式检查',
+                    value: controller.mobileOk.value ? '正确' : '待输入',
+                    ok: controller.mobileOk.value,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Verification Code
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(left: 4, bottom: 8),
+                      child: Text(
+                        '验证码',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
                     Obx(
-                      () => _StatusRow(
-                        label: '当前长度',
-                        value: controller.mobileLength.value.toString(),
-                        ok: controller.mobileOk.value,
-                        okText: '格式正确',
-                        errorText: controller.mobileError.value,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Obx(
-                        () => OutlinedButton.icon(
+                      () => Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: controller.canSendCode.value
+                                ? AppColors.primaryGreen.withValues(alpha: 0.5)
+                                : Colors.grey.withValues(alpha: 0.3),
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: TextButton(
                           onPressed: controller.canSendCode.value
                               ? controller.sendCode
                               : null,
-                          icon: controller.isSendingCode.value
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.primaryGreen,
+                            disabledForegroundColor: Colors.grey[400],
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: controller.isSendingCode.value
                               ? SizedBox(
-                                  width: 18,
-                                  height: 18,
+                                  width: 14,
+                                  height: 14,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: cs.primary,
+                                    color: AppColors.primaryGreen,
                                   ),
                                 )
-                              : const Icon(Icons.sms_outlined),
-                          label: Text(
-                            controller.seconds.value > 0
-                                ? '重新发送（${controller.seconds.value}s）'
-                                : '获取验证码',
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: controller.codeCtl,
-                      keyboardType: TextInputType.number,
-                      textInputAction: TextInputAction.done,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(6),
-                      ],
-                      decoration: InputDecoration(
-                        labelText: '验证码',
-                        hintText: '请输入 6 位验证码',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Obx(
-                      () => _StatusRow(
-                        label: '当前长度',
-                        value: '${controller.codeLength.value} / 6',
-                        ok: controller.codeOk.value,
-                        okText: '长度正确',
-                        errorText: controller.codeError.value,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Obx(
-                        () => FilledButton(
-                          onPressed: controller.canSubmit.value
-                              ? controller.submit
-                              : null,
-                          child: controller.isSubmitting.value
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: cs.onPrimary,
+                                    Icon(
+                                      Icons.sms_outlined,
+                                      size: 16,
+                                      color: controller.canSendCode.value
+                                          ? AppColors.primaryGreen
+                                          : Colors.grey[400],
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      controller.seconds.value > 0
+                                          ? '重新发送 (${controller.seconds.value}s)'
+                                          : '获取验证码',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
                                       ),
                                     ),
-                                    const SizedBox(width: 12),
-                                    const Text('提交中...'),
                                   ],
-                                )
-                              : Text(hasBound ? '确认更换' : '确认绑定'),
+                                ),
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
+
+                Container(
+                  decoration: BoxDecoration(
+                    color: inputFillColor,
+                    borderRadius: inputBorderRadius,
+                    border: Border.all(
+                      color: Colors.grey.withValues(alpha: 0.15),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: controller.codeCtl,
+                    keyboardType: TextInputType.number,
+                    textInputAction: TextInputAction.done,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(6),
+                    ],
+                    style: const TextStyle(fontSize: 16, letterSpacing: 2),
+                    decoration: InputDecoration(
+                      hintText: '000000',
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                        letterSpacing: 1,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.all(16),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+                // Length status
+                Obx(
+                  () => _StatusRow(
+                    label: '长度检查',
+                    value: '${controller.codeLength.value} / 6',
+                    ok: controller.codeOk.value,
+                  ),
+                ),
+
+                const SizedBox(height: 40),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: Obx(
+                    () => ElevatedButton(
+                      onPressed: controller.canSubmit.value
+                          ? controller.submit
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryGreen,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: Colors.grey[200],
+                        disabledForegroundColor: Colors.grey[400],
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(26),
+                        ),
+                      ),
+                      child: controller.isSubmitting.value
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(
+                              hasBound ? '确认更换' : '立即绑定',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: Text(
+                    '验证码将发送至该手机，请在有效期内完成验证',
+                    style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -244,6 +367,7 @@ class BindMobilePage extends GetView<BindMobileController> {
 }
 
 class BindMobileController extends GetxController {
+  final LanguageLogic langLogic = Get.put(LanguageLogic());
   final PassportLogic passportLogic = Get.put(PassportLogic());
 
   final TextEditingController mobileCtl = TextEditingController();
@@ -251,28 +375,38 @@ class BindMobileController extends GetxController {
 
   final RxString mobile = ''.obs;
   final RxString code = ''.obs;
-
   final RxInt mobileLength = 0.obs;
   final RxInt codeLength = 0.obs;
-
   final RxBool mobileOk = false.obs;
   final RxBool codeOk = false.obs;
-
-  final RxString mobileError = '请输入正确的手机号'.obs;
-  final RxString codeError = '请输入 6 位验证码'.obs;
 
   final RxInt seconds = 0.obs;
   final RxBool isSendingCode = false.obs;
   final RxBool isSubmitting = false.obs;
-
   final RxBool canSendCode = false.obs;
   final RxBool canSubmit = false.obs;
+
+  late final AccountSecurityLogic _securityLogic;
 
   @override
   void onInit() {
     super.onInit();
+    _securityLogic = Get.isRegistered<AccountSecurityLogic>()
+        ? Get.find<AccountSecurityLogic>()
+        : Get.put(AccountSecurityLogic());
+
+    // InternationalPhoneNumberInput handles controller updates internally mostly,
+    // but mobile string update comes from callback.
+    // We listener to codeCtl for code.
     codeCtl.addListener(() => code.value = codeCtl.text.trim());
-    everAll([mobile, code, seconds, isSendingCode, isSubmitting], (_) => _recompute());
+
+    everAll([
+      mobile,
+      code,
+      seconds,
+      isSendingCode,
+      isSubmitting,
+    ], (_) => _recompute());
     _recompute();
   }
 
@@ -283,26 +417,33 @@ class BindMobileController extends GetxController {
     super.onClose();
   }
 
-  void clearMobile() {
-    mobileCtl.clear();
-    mobile.value = '';
-  }
-
-  // 关键逻辑：表单所有校验与按钮状态，统一在 Controller 内实时计算
   void _recompute() {
+    // Basic validation logic
     mobileLength.value = mobile.value.length;
     codeLength.value = code.value.length;
 
-    mobileOk.value = isPhone(mobile.value);
+    // Simple check: mobile > 8 chars (rough check since lib handles validation too, but we need simple gate)
+    mobileOk.value = mobile.value.length > 8;
     codeOk.value = codeLength.value == 6;
 
+    final currentMobile = UserRepoLocal.to.current.mobile;
+    final changed = mobile.value.isNotEmpty && mobile.value != currentMobile;
+
     canSendCode.value =
-        mobileOk.value && seconds.value == 0 && !isSendingCode.value && !isSubmitting.value;
+        mobileOk.value &&
+        changed &&
+        seconds.value == 0 &&
+        !isSendingCode.value &&
+        !isSubmitting.value;
+
     canSubmit.value =
-        mobileOk.value && codeOk.value && !isSubmitting.value && !isSendingCode.value;
+        !isSubmitting.value &&
+        !isSendingCode.value &&
+        mobileOk.value &&
+        codeOk.value &&
+        changed;
   }
 
-  // 关键逻辑：验证码倒计时，避免频繁请求
   void _startCountdown() {
     seconds.value = 60;
     Future.doWhile(() async {
@@ -313,14 +454,17 @@ class BindMobileController extends GetxController {
     });
   }
 
-  // 关键逻辑：发送验证码（复用现有 PassportLogic），结果用 Get.snackbar 反馈
   Future<void> sendCode() async {
     if (!canSendCode.value) return;
     FocusManager.instance.primaryFocus?.unfocus();
 
     isSendingCode.value = true;
     try {
-      final res = await passportLogic.sendCode('mobile', mobile.value, 'signup');
+      final res = await passportLogic.sendCode(
+        'mobile',
+        mobile.value,
+        'signup',
+      );
       if (res == null) {
         Get.snackbar(
           '验证码已发送',
@@ -348,7 +492,6 @@ class BindMobileController extends GetxController {
     }
   }
 
-  // 关键逻辑：提交绑定/修改手机号，并同步刷新本地用户缓存字段
   Future<void> submit() async {
     if (!canSubmit.value) return;
     FocusManager.instance.primaryFocus?.unfocus();
@@ -359,7 +502,7 @@ class BindMobileController extends GetxController {
       if (currentMobile.isNotEmpty && mobile.value == currentMobile) {
         Get.snackbar(
           '无需修改',
-          '新手机号与当前绑定一致',
+          '新号码与当前绑定一致',
           snackPosition: SnackPosition.bottom,
           backgroundColor: Get.theme.colorScheme.surfaceContainerHighest,
           colorText: Get.theme.colorScheme.onSurface,
@@ -369,7 +512,11 @@ class BindMobileController extends GetxController {
         return;
       }
 
-      final ok = await UserProvider().changeMobile(mobile: mobile.value, code: code.value);
+      final ok = await _securityLogic.changeMobile(
+        mobile: mobile.value,
+        code: code.value,
+      );
+
       if (ok) {
         final user = UserRepoLocal.to.current;
         user.mobile = mobile.value;
@@ -387,7 +534,7 @@ class BindMobileController extends GetxController {
         Get.back();
       } else {
         Get.snackbar(
-          '绑定失败',
+          '提交失败',
           '请检查验证码或稍后重试',
           snackPosition: SnackPosition.bottom,
           backgroundColor: Get.theme.colorScheme.errorContainer,
@@ -407,42 +554,29 @@ class _StatusRow extends StatelessWidget {
     required this.label,
     required this.value,
     required this.ok,
-    required this.okText,
-    required this.errorText,
   });
 
   final String label;
   final String value;
   final bool ok;
-  final String okText;
-  final String errorText;
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final color = ok ? cs.primary : cs.error;
-    final icon = ok ? Icons.check_circle_outline : Icons.error_outline;
-    final text = ok ? okText : errorText;
-
     return Row(
       children: [
-        Expanded(
-          child: Text(
-            '$label：$value',
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: cs.onSurfaceVariant),
-          ),
+        Icon(
+          ok ? Icons.check_circle : Icons.circle_outlined,
+          size: 14,
+          color: ok ? AppColors.primaryGreen : Colors.grey[400],
         ),
-        Icon(icon, size: 16, color: color),
         const SizedBox(width: 6),
         Text(
-          text,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w600,
-              ),
+          '$label: $value',
+          style: TextStyle(
+            color: ok ? AppColors.primaryGreen : Colors.grey[500],
+            fontSize: 12,
+            fontWeight: ok ? FontWeight.w600 : FontWeight.normal,
+          ),
         ),
       ],
     );

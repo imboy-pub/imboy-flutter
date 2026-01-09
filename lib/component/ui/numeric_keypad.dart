@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/sound_manager.dart';
+import 'package:imboy/service/app_logger.dart';
 
 class NumericKeypad extends StatelessWidget {
   final NumericKeypadController controller;
@@ -32,7 +33,7 @@ class NumericKeypad extends StatelessWidget {
         childAspectRatio: (125 / 54),
       ),
       itemBuilder: (context, index) {
-        return buildNumKeyboardItem(_keyboardDataList[index]);
+        return buildNumKeyboardItem(context, _keyboardDataList[index]);
       },
       itemCount: _keyboardDataList.length,
       shrinkWrap: true,
@@ -40,7 +41,10 @@ class NumericKeypad extends StatelessWidget {
     );
   }
 
-  Widget buildNumKeyboardItem(PayKeyboardDataBean keyboardDataBean) {
+  Widget buildNumKeyboardItem(BuildContext context, PayKeyboardDataBean keyboardDataBean) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () async {
@@ -49,7 +53,7 @@ class NumericKeypad extends StatelessWidget {
           await SoundManager.playMetallicSound();
         } catch (e) {
           // 如果音效播放失败，不影响功能继续使用
-          print("金属音效播放失败: $e");
+          AppLogger.warning("金属音效播放失败: $e");
         }
         
         if (keyboardDataBean.type == PayKeyboardType.delete) {
@@ -67,22 +71,34 @@ class NumericKeypad extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: Colors.transparent,
-          border: const Border(
-            top: BorderSide(width: 0.5, color: Colors.white12),
-            right: BorderSide(width: 0.5, color: Colors.white12),
+          border: Border(
+            top: BorderSide(
+              width: 0.5,
+              color: isDark
+                  ? Colors.white12
+                  : colorScheme.outline.withValues(alpha: 0.1),
+            ),
+            right: BorderSide(
+              width: 0.5,
+              color: isDark
+                  ? Colors.white12
+                  : colorScheme.outline.withValues(alpha: 0.1),
+            ),
           ),
         ),
         child: keyboardDataBean.type == PayKeyboardType.delete
-            ? const Icon(
+            ? Icon(
                 Icons.backspace,
-                color: Colors.white60,
+                color: isDark
+                    ? Colors.white60
+                    : colorScheme.onSurface.withValues(alpha: 0.6),
                 size: 24,
               )
             : Text(
                 keyboardDataBean.value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
-                  color: Colors.white,
+                  color: isDark ? Colors.white : colorScheme.onSurface,
                   fontWeight: FontWeight.w300,
                   letterSpacing: 2,
                 ),

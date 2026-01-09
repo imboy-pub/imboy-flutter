@@ -7,9 +7,9 @@ import 'package:imboy/component/ui/imboy_icon.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/theme_manager.dart';
-import 'package:jiffy/jiffy.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:intl/intl.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/config/env.dart';
@@ -45,7 +45,7 @@ class UserQrCodePage extends StatelessWidget {
       backgroundColor: AppColors.getBackgroundColor(
         Theme.of(context).brightness,
       ),
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: '我的二维码'.tr,
         backgroundColor: AppColors.getBackgroundColor(
@@ -568,7 +568,7 @@ class GroupQrCodePage extends StatelessWidget {
       backgroundColor: AppColors.getBackgroundColor(
         Theme.of(context).brightness,
       ),
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: '群二维码'.tr,
         backgroundColor: AppColors.getBackgroundColor(
@@ -676,11 +676,11 @@ class GroupQrCodePage extends StatelessWidget {
                         child: Text(
                           'groupQrcodeTips'.trArgs([
                             dayNum.toString(),
-                            Jiffy.parseFromDateTime(
-                              Jiffy.parseFromMillisecondsSinceEpoch(
+                            DateFormat('y-MM-dd').format(
+                              DateTime.fromMillisecondsSinceEpoch(
                                 state.expiredAt.value,
-                              ).dateTime,
-                            ).format(pattern: 'y-MM-dd'),
+                              ),
+                            ),
                           ]),
                           style: ThemeManager.instance.getTextStyle(
                             FontSizeType.small,
@@ -969,11 +969,10 @@ class GroupQrCodePage extends StatelessWidget {
       if (res != null) {
         final txt = 'groupQrcodeTips'.trArgs([
           dayNum.toString(),
-          Jiffy.parseFromDateTime(
-            Jiffy.parseFromMillisecondsSinceEpoch(
-              state.expiredAt.value,
-            ).dateTime,
-          ).format(pattern: 'y-MM-dd'),
+          DateTimeHelper.lastTimeFmt(
+            state.expiredAt.value,
+            pattern: 'y-MM-dd',
+          ),
         ]);
         final result = await SharePlus.instance.share(
           ShareParams(

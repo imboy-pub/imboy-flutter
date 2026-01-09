@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/conversation/conversation_logic.dart';
+import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/store/model/chat_extend_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_member_model.dart';
@@ -47,6 +48,25 @@ class GroupDetailLogic extends GetxController {
     }
     // role; // 角色: 1 成员  2 嘉宾  3  管理员 4 群主
     return m.role;
+  }
+
+  Future<GroupMemberModel?> getMyGroupMemberInfo(String gid) async {
+    GroupMemberRepo repo = GroupMemberRepo();
+    String currentUid = UserRepoLocal.to.currentUid;
+    return await repo.findByUserId(gid, currentUid);
+  }
+
+  Future<bool> updateMyGroupAlias(String gid, String alias) async {
+    bool res = await GroupMemberProvider().changeAlias(gid, alias);
+    if (res) {
+      // Update local db
+      GroupMemberRepo repo = GroupMemberRepo();
+      String currentUid = UserRepoLocal.to.currentUid;
+      await repo.update(gid, currentUid, {
+        GroupMemberRepo.alias: alias,
+      });
+    }
+    return res;
   }
 
   Future<List<PeopleModel>> listGroupMember({
@@ -164,7 +184,28 @@ class GroupDetailLogic extends GetxController {
       return 0;
     }
     String tb = MessageRepo.getTableName(model.type);
-    await MessageRepo(tableName: tb).deleteByConversationId(model.uk3);
+
+    // 先查询该会话的所有消息ID，用于清理重试队列
+    final repo = MessageRepo(tableName: tb);
+    // 使用page方法获取所有消息，设置一个足够大的size
+    final messages = await repo.page(
+      conversationUk3: model.uk3,
+      page: 1,
+      size: 10000, // 获取大量消息以覆盖所有
+    );
+
+    // 清理重试队列中属于该会话的消息
+    if (messages.isNotEmpty && Get.isRegistered<MessageRetry>()) {
+      for (final msg in messages) {
+        if (msg.id != null && msg.id!.isNotEmpty) {
+          MessageRetry.to.removeFromRetryQueue(msg.id!);
+        }
+      }
+      iPrint('已从重试队列清理 ${messages.length} 条消息: conversationUk3=${model.uk3}');
+    }
+
+    // 删除数据库中的消息
+    await repo.deleteByConversationId(model.uk3);
 
     eventBus.fire(ChatExtendModel(type: 'clean_msg', payload: {
       'uk3': model.uk3,

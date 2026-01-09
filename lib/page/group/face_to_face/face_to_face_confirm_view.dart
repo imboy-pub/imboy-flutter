@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:imboy/component/ui/avatar_list.dart' show AvatarList;
@@ -84,13 +85,12 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
 
     return Scaffold(
       backgroundColor: Colors.black87,
-      appBar: AppBar(
+      appBar: GlassAppBar(
         backgroundColor: Colors.black87,
         leading: IconButton(
           icon: Icon(Icons.close, color: Colors.white),
           onPressed: () => Get.back(),
         ),
-        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -120,7 +120,6 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colorScheme.primary,
-                  foregroundColor: colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0),
@@ -128,28 +127,31 @@ class FaceToFaceConfirmPageState extends State<FaceToFaceConfirmPage> {
                 ),
                 child: Text('enterTheGroup'.tr, style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.onPrimary)),
                 onPressed: () async {
-                  EasyLoading.show(status: 'loading'.tr);
-                  try {
-                    Map<String, dynamic> res = await Get.find<FaceToFaceLogic>()
-                        .faceToFaceSave(widget.gid, widget.code);
-                    List<PeopleModel> memberList = res['memberList'] ?? [];
-                    Map<String, dynamic> group = res['group'];
-                    await GroupRepo().save('', group);
-                    Get.off(
-                      () => ChatPage(
-                        peerId: widget.gid,
-                        type: 'C2G',
-                        peerTitle: group['name'] ?? '',
-                        peerAvatar: group['avatar'] ?? '',
-                        peerSign: group['profile'] ?? '',
-                        options: {'memberCount': memberList.length},
-                      ),
-                      preventDuplicates: false,
-                    );
-                  } finally {
-                    EasyLoading.dismiss();
-                  }
-                },
+                   EasyLoading.show(status: 'loading'.tr);
+                   try {
+                     Map<String, dynamic> res = await Get.find<FaceToFaceLogic>()
+                         .faceToFaceSave(widget.gid, widget.code);
+                     List<PeopleModel> memberList = res['memberList'] ?? [];
+                     Map<String, dynamic> group = res['group'];
+                     await GroupRepo().save('', group);
+                     Get.off(
+                       () => ChatPage(
+                         peerId: widget.gid,
+                         type: 'C2G',
+                         peerTitle: group['title'] ?? '',
+                         peerAvatar: group['avatar'] ?? '',
+                         peerSign: group['introduction'] ?? '',
+                         options: {'memberCount': memberList.length},
+                       ),
+                       preventDuplicates: false,
+                     );
+                   } catch (e) {
+                     debugPrint("faceToFaceSave error: $e");
+                     EasyLoading.showError('操作失败: $e');
+                   } finally {
+                     EasyLoading.dismiss();
+                   }
+                 },
               ),
             ),
             const SizedBox(height: 8),

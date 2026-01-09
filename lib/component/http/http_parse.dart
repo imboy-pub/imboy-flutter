@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart' as getx;
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/config/error_code.dart';
 
 import 'http_exceptions.dart';
 import 'http_response.dart';
@@ -28,7 +29,7 @@ IMBoyHttpResponse handleResponse(Response? response,
     if (response.toString()=='') {
       return IMBoyHttpResponse.failureFromError();
     }
-    if (int.tryParse(response.data['code']) == 429) {
+    if (int.tryParse(response.data['code']) == ErrorCode.TOO_MANY_REQUESTS) {
       EasyLoading.showError(response.data['msg']);
     }
     // 接口调用失败
@@ -64,55 +65,55 @@ HttpException _parseException(Exception error) {
         try {
           int? errCode = error.response?.statusCode;
           switch (errCode) {
-            case 400:
+            case ErrorCode.BAD_REQUEST:
               // 请求语法错误
               return BadRequestException(
                 message: 'errorRequestSyntax'.tr,
                 code: errCode,
               );
-            case 401:
+            case ErrorCode.UNAUTHORIZED:
               // 没有权限
               return UnauthorisedException(
                 message: 'noPermission'.tr,
                 code: errCode,
               );
-            case 403:
+            case ErrorCode.FORBIDDEN:
               // 服务器拒绝执行
               return BadRequestException(
                 message: 'errorServerRefused'.tr,
                 code: errCode,
               );
-            case 404:
+            case ErrorCode.NOT_FOUND:
               // 无法连接服务器
               return BadRequestException(
                 message: 'errorFailedConnectServer'.tr,
                 code: errCode,
               );
-            case 405:
+            case ErrorCode.METHOD_NOT_ALLOWED:
               // 请求方法被禁止
               return BadRequestException(
                 message: 'errorRequestForbidden'.tr,
                 code: errCode,
               );
-            case 429:
+            case ErrorCode.TOO_MANY_REQUESTS:
               return BadRequestException(
                 message: 'errorManyRequest'.tr,
                 code: errCode,
               );
 
-            case 500:
+            case ErrorCode.INTERNAL_SERVER_ERROR:
               // 服务器内部错误
               return BadServiceException(
                 message: 'errorInternalServer'.tr,
                 code: errCode,
               );
-            case 502:
+            case ErrorCode.BAD_GATEWAY:
               // 无效的请求
               return BadServiceException(
                 message: 'errorInvalidRequest'.tr,
                 code: errCode,
               );
-            case 503:
+            case ErrorCode.SERVICE_UNAVAILABLE:
               // 服务器挂了
               return BadServiceException(
                 message: 'errorServerDown'.tr,

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:imboy/component/helper/datetime.dart';
+
 /// 地区缓存管理类
 /// 
 /// 用途：集中管理地区选择相关的本地缓存操作
@@ -58,9 +60,9 @@ class RegionCache {
     final prefs = await SharedPreferences.getInstance();
     final json = jsonEncode(list);
     await prefs.setString(_keyRegionList, json);
-    
+
     // 同时更新最后更新时间
-    await prefs.setInt(_keyLastUpdateTime, DateTime.now().millisecondsSinceEpoch);
+    await prefs.setInt(_keyLastUpdateTime, DateTimeHelper.millisecond());
   }
 
   /// 加载地区列表数据
@@ -138,8 +140,8 @@ class RegionCache {
   static Future<bool> isCacheExpired({int maxAgeHours = 24}) async {
     final lastUpdate = await getLastUpdateTime();
     if (lastUpdate == 0) return true; // 无更新记录视为过期
-    
-    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final now = DateTimeHelper.millisecond();
     final maxAge = maxAgeHours * 60 * 60 * 1000; // 转换为毫秒
     
     return (now - lastUpdate) > maxAge;

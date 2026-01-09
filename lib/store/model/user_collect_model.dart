@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:imboy/component/helper/datetime.dart';
+
 class UserCollectModel {
   String userId;
 
@@ -38,6 +40,7 @@ class UserCollectModel {
     } catch (e) {
       info1 = {};
     }
+
     return UserCollectModel(
       userId: data['user_id'],
       kind: data['kind'],
@@ -45,8 +48,8 @@ class UserCollectModel {
       source: (data['source'] ?? '').toString(),
       remark: data['remark'] ?? '',
       tag: data['tag'] ?? '',
-      updatedAt: data['updated_at'] ?? 0,
-      createdAt: data['created_at'],
+      updatedAt: DateTimeHelper.parseTimestamp(data['updated_at']),
+      createdAt: DateTimeHelper.parseTimestamp(data['created_at']),
       info: Map<String, dynamic>.from(info1),
     );
   }

@@ -29,7 +29,7 @@ class GroupSelectPage extends StatelessWidget {
     loadData();
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         title: 'selectGroup'.tr,
         automaticallyImplyLeading: true,
       ),

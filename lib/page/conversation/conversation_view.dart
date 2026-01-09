@@ -6,6 +6,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/init.dart';
@@ -83,13 +84,10 @@ class _ConversationPageState extends State<ConversationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: GlassAppBar(
         leading: const SizedBox.shrink(),
-        title: Text(
-          'titleMessage'.tr + logic.connectDesc.value,
-          // style: AppStyle.navAppBarTitleStyle, // 传入BuildContext
-        ),
-        actions: <Widget>[
+        title: 'titleMessage'.tr + logic.connectDesc.value,
+        rightDMActions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: 4.0),
             child: const RightButton(),
@@ -112,6 +110,9 @@ class _ConversationPageState extends State<ConversationPage> {
                     : ListView.builder(
                         itemCount: logic.conversations.length,
                         itemBuilder: (BuildContext context, int index) {
+                          if (index >= logic.conversations.length) {
+                            return const SizedBox.shrink();
+                          }
                           ConversationModel model = logic.conversations[index];
                           RxInt remindNum =
                               RxInt(logic.conversationRemind[model.uk3] ?? 0);

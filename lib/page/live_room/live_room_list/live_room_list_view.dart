@@ -42,7 +42,7 @@ class LiveRoomListPage extends StatelessWidget {
     initData();
 
     return Scaffold(
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'myLive'.tr,
       ),

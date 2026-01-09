@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/error_code.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 
@@ -89,6 +90,7 @@ class GroupProvider extends HttpClient {
       "member_uids": memberUserIds,
     });
     debugPrint("GroupProvider/add resp: ${resp.toString()}");
+    debugPrint("GroupProvider/add resp.ok: ${resp.ok}, resp.code: ${resp.code}, resp.payload: ${resp.payload}");
     return resp.ok ? resp.payload : null;
   }
 
@@ -100,7 +102,7 @@ class GroupProvider extends HttpClient {
     IMBoyHttpResponse resp = await post(API.groupEdit, data: data);
     debugPrint(
         "GroupProvider/groupEdit resp: ${resp.code.toString()}; ${resp.msg}");
-    if (resp.code == 1) {
+    if (resp.code == ErrorCode.ERROR) {
       EasyLoading.showError(resp.msg);
     }
     return resp.ok ? true : false;
@@ -123,7 +125,7 @@ class GroupProvider extends HttpClient {
       "tag": tagName,
     });
     debugPrint("GroupProvider/addTag resp: ${resp.toString()}");
-    if (resp.code == 1) {
+    if (resp.code == ErrorCode.ERROR) {
       EasyLoading.showError(resp.msg);
     }
     return resp.ok ? resp.payload['tagId'] : 0;

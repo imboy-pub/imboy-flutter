@@ -203,11 +203,7 @@ class AddMemberPageState extends State<AddMemberPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        scrolledUnderElevation: 0.5,
-        shadowColor: Theme.of(context).shadowColor.withValues(alpha: 0.1),
+      appBar: GlassAppBar(
         leading: IconButton(
           icon: Icon(
             Icons.close,
@@ -215,16 +211,8 @@ class AddMemberPageState extends State<AddMemberPage> {
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(
-          'selectContacts'.tr,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
+        title: 'selectContacts'.tr,
+        rightDMActions: [
           Obx(
             () => Padding(
               padding: const EdgeInsets.only(right: 16),

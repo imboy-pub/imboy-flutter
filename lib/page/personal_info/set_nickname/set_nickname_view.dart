@@ -76,7 +76,7 @@ class _SetNicknamePageState extends State<SetNicknamePage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'setNickname'.tr,
         rightDMActions: [

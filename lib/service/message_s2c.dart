@@ -17,6 +17,7 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/people_model.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/page/contact/contact/contact_logic.dart';
@@ -65,11 +66,17 @@ class MessageS2CService {
           break;
         case 'c2c_revoke':
           // 处理对端发来的撤回消息
-          String revokeMsgId = payload['old_msg_id'] ?? msgId;
+          String revokeMsgId = payload['old_msg_id'] ?? '';
           String peerId = UserRepoLocal.to.currentUid == from ? to : from;
-          
+
           iPrint("收到对端撤回消息: revokeMsgId=$revokeMsgId, peerId=$peerId");
-          
+
+          // 验证必需的字段
+          if (revokeMsgId.isEmpty) {
+            iPrint("❌ [S2C_C2C_REVOKE] old_msg_id 为空，跳过处理: data=${data.toString()}");
+            break;
+          }
+
           // 查找会话
           ConversationRepo conversationRepo = ConversationRepo();
           ConversationModel? conversation = await conversationRepo.findByPeerId('C2C', peerId);
@@ -90,7 +97,7 @@ class MessageS2CService {
                 'custom_type': 'peer_revoked', // 标记为对方撤回
                 'text': payload['text'] ?? '撤回的消息',
                 'original_type': oldMsg.payload['msg_type'] ?? 'TextMessage',
-                'revoke_time': payload['revoke_time'] ?? DateTime.now().millisecondsSinceEpoch,
+                'revoke_time': payload['revoke_time'] ?? DateTimeHelper.millisecond(),
                 'revoke_user': from, // 记录撤回操作的用户ID
               };
               

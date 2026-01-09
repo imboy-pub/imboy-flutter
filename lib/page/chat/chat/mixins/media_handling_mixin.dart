@@ -230,7 +230,7 @@ mixin MediaHandlingMixin<T extends StatefulWidget> on State<T> {
         final message = FileMessage(
           id: Xid().toString(),
           authorId: currentUserId,
-          createdAt: DateTimeHelper.now(),
+          createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
           mimeType: lookupMimeType(file.path!),
           name: file.name,
           size: file.size,
@@ -275,7 +275,7 @@ mixin MediaHandlingMixin<T extends StatefulWidget> on State<T> {
       ) async {
     final message = ImageMessage(
       authorId: currentUserId,
-      createdAt: DateTimeHelper.now(),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       id: Xid().toString(),
       text: await entity.titleAsync,
       height: entity.height * 1.0,
@@ -294,7 +294,7 @@ mixin MediaHandlingMixin<T extends StatefulWidget> on State<T> {
   Future<void> _handleVideoUpload(Map<String, dynamic> resp) async {
     final message = CustomMessage(
       authorId: currentUserId,
-      createdAt: DateTimeHelper.now(),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       id: Xid().toString(),
       metadata: {
         'custom_type': 'video',
@@ -316,7 +316,7 @@ mixin MediaHandlingMixin<T extends StatefulWidget> on State<T> {
     imgUrl += "&width=${w.toInt()}";
     final message = ImageMessage(
       authorId: currentUserId,
-      createdAt: DateTimeHelper.now(),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       id: Xid().toString(),
       text: await entity.titleAsync,
       height: entity.height * 1.0,
@@ -335,7 +335,7 @@ mixin MediaHandlingMixin<T extends StatefulWidget> on State<T> {
   Future<void> _handleSelectedVideoUpload(Map<String, dynamic> resp) async {
     final message = CustomMessage(
       authorId: currentUserId,
-      createdAt: DateTimeHelper.now(),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       id: Xid().toString(),
       metadata: {
         'custom_type': 'video',
@@ -405,7 +405,7 @@ mixin MediaHandlingMixin<T extends StatefulWidget> on State<T> {
             // 构建语音消息
             final message = CustomMessage(
               authorId: currentUserId,
-              createdAt: DateTimeHelper.now(),
+              createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
               id: Xid().toString(),
               metadata: {
                 'custom_type': 'audio',
@@ -483,7 +483,7 @@ mixin MediaHandlingMixin<T extends StatefulWidget> on State<T> {
       final message = CustomMessage(
         id: '',
         authorId: currentUserId,
-        createdAt: DateTime.now(),
+        createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
         metadata: {
           'custom_type': 'location',
           'latitude': location['latitude'],
@@ -516,7 +516,7 @@ mixin MediaHandlingMixin<T extends StatefulWidget> on State<T> {
       final message = CustomMessage(
         id: '',
         authorId: currentUserId,
-        createdAt: DateTime.now(),
+        createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
         metadata: {
           'custom_type': 'visit_card',
           'uid': user['id'],
@@ -585,7 +585,7 @@ mixin MediaHandlingMixin<T extends StatefulWidget> on State<T> {
     final message = CustomMessage(
       id: id,
       authorId: currentUserId,
-      createdAt: DateTimeHelper.now(),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond(), isUtc: true),
       metadata: {
         'custom_type': 'location',
         'latitude': latitude,

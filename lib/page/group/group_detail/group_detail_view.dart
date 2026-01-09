@@ -22,6 +22,11 @@ import 'package:imboy/component/ui/easy_dialog.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:synchronized/synchronized.dart';
 
+import 'package:imboy/config/enum.dart';
+import 'package:imboy/page/group/group_remark/group_remark_view.dart';
+
+import 'package:imboy/component/ui/common_bar.dart';
+
 import 'change_info_view.dart';
 import 'group_detail_logic.dart';
 import 'remove_member_view.dart';
@@ -115,6 +120,11 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
     if (isAdmin) {
       memberList.add(PeopleModel(id: 'remove', account: ''));
     }
+    // 获取我在本群的别名
+    GroupMemberModel? m = await logic.getMyGroupMemberInfo(widget.groupId);
+    if (m != null) {
+      myGroupAlias = m.alias;
+    }
     // 在有网络的情况下，异步更新群信息详情
     logic.detail(gid: widget.groupId, sync: connected).then((
       GroupModel? g,
@@ -198,32 +208,23 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        scrolledUnderElevation: 0.5,
-        shadowColor: Theme.of(context).shadowColor.withValues(alpha: 0.1),
+      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      appBar: GlassAppBar(
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Theme.of(context).colorScheme.primary,
+            color: colorScheme.primary,
             size: 20,
           ),
           onPressed: () {
             Get.back(result: {'memberCount': memberCount});
           },
         ),
-        title: Text(
-          "${title.isEmpty ? 'chatMessage'.tr : title} ($memberCount)",
-          style: ThemeManager.instance.getTextStyle(
-            FontSizeType.large,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-        centerTitle: true,
+        title: "${title.isEmpty ? 'chatMessage'.tr : title} ($memberCount)",
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -234,11 +235,17 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
+                color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isDark
+                        ? Colors.black.withValues(alpha: 0.2)
+                        : Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,6 +396,25 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                       );
                     },
                   ),
+                  ModernDivider(
+                    height: 1,
+                    indent: 16,
+                    endIndent: 16,
+                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                  ),
+                  // 群公告
+                  _buildModernListTile(
+                    context: context,
+                    title: 'groupAnnouncement'.tr,
+                    value: groupNotification ?? '',
+                    icon: Icons.announcement_outlined,
+                    onTap: () {
+                      Get.toNamed(
+                        '/group/announcement',
+                        arguments: {'groupId': widget.groupId},
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -473,16 +499,15 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    color: isDark
+                        ? Colors.black.withValues(alpha: 0.2)
+                        : Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -613,10 +638,26 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
               child: _buildModernListTile(
                 context: context,
                 title: 'groupAlias'.tr,
-                value: strEmpty(myGroupAlias) ? UserRepoLocal.to.current.nickname.tr : '',
+                value: strEmpty(myGroupAlias) ? UserRepoLocal.to.current.nickname : myGroupAlias,
                 icon: Icons.edit_note_outlined,
                 onTap: () {
-                  // TODO: 实现群组别名修改功能
+                  Get.to(
+                    () => GroupRemarkPage(
+                      groupInfoType: GroupInfoType.cardName,
+                      text: myGroupAlias ?? '',
+                      groupId: widget.groupId,
+                    ),
+                    transition: Transition.rightToLeft,
+                    popGesture: true,
+                  )?.then((value) async {
+                    if (value != null && value is String) {
+                      bool res = await logic.updateMyGroupAlias(widget.groupId, value);
+                      if (res) {
+                        myGroupAlias = value;
+                        setState(() {});
+                      }
+                    }
+                  });
                 },
               ),
             ),
@@ -635,16 +676,15 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    color: isDark
+                        ? Colors.black.withValues(alpha: 0.2)
+                        : Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),

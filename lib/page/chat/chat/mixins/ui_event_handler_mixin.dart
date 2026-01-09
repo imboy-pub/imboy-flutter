@@ -299,7 +299,7 @@ mixin UIEventHandlerMixin<T extends StatefulWidget> on State<T> {
         onDeleteForEveryone: message.authorId == currentUserId ? () {
           _handleDeleteMessageForEveryone(context, message);
         } : null,
-        canEdit: _canEditMessage(message),
+        canEdit: canEditMessage(message),
         onClose: () => Navigator.pop(context),
       ),
     );
@@ -615,16 +615,20 @@ mixin UIEventHandlerMixin<T extends StatefulWidget> on State<T> {
   }
 
   /// 检查消息是否可以编辑
-  bool _canEditMessage(Message message) {
+  ///
+  /// 规则：
+  /// 1. 必须是当前用户发送的消息
+  /// 2. 必须是文本消息
+  /// 3. 发送时间在 15 分钟内（与后端保持一致）
+  bool canEditMessage(Message message) {
     if (message.authorId != currentUserId) return false;
     if (message is! TextMessage) return false;
-    
-    // 检查时间限制（15分钟内可编辑，与后端保持一致）
-    final now = DateTime.now();
-    final messageTime = message.createdAt ?? now;
-    final timeDiff = now.difference(messageTime);
-    
-    return timeDiff.inMinutes < 15;
+
+    final nowMs = DateTimeHelper.millisecond();
+    final messageTimeMs = message.createdAt?.millisecondsSinceEpoch ?? nowMs;
+    final timeDiffMs = nowMs - messageTimeMs;
+
+    return timeDiffMs < 15 * 60 * 1000; // 15分钟 = 900000毫秒
   }
 }
 

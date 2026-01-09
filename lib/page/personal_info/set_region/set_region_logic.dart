@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:imboy/service/cache/region_cache.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 
 /// 地区选择逻辑控制器（支持省/市/区三级联动与搜索）
 ///
@@ -945,9 +946,9 @@ class _SubRegionPageState extends State<_SubRegionPage> {
     final logic = Get.find<SetRegionLogic>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        actions: [
+      appBar: GlassAppBar(
+        title: widget.title,
+        rightDMActions: [
           Obx(() {
             final enable = logic.hasChanged.value;
             return TextButton(

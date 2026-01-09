@@ -4,6 +4,27 @@ import 'package:imboy/service/storage.dart';
 import 'package:ntp/ntp.dart';
 import 'dart:convert';
 
+///
+/// NTP 时间同步辅助类
+///
+/// 功能：
+/// - 从 NTP 服务器获取时间偏移量
+/// - 支持多个 NTP 服务器（自动随机选择）
+/// - 本地缓存偏移量（6小时有效期）
+/// - 自动重试机制
+/// - 支持从服务器时间戳更新偏移量
+///
+/// 使用方法：
+/// ```dart
+/// // 初始化（应用启动时调用）
+/// int offset = await NtpHelper.getOffset();
+///
+/// // 从服务器响应更新时间
+/// NtpHelper.updateOffsetFromServer(serverTimestamp);
+///
+/// // 获取当前同步后的时间
+/// int syncedTime = NtpHelper.now();
+/// ```
 class NtpHelper {
   static const String _cacheKey = "ntp_offset_v2"; // 新缓存键避免冲突
   static const List<String> _ntpServers = [
@@ -14,6 +35,40 @@ class NtpHelper {
   static const int _maxRetry = 2; // 最大重试次数
   static const int _cacheExpiryHours = 6; // 缓存有效期（小时）
 
+  /// 当前时间偏移量（毫秒）
+  static int _offset = 0;
+
+  /// 获取当前时间偏移量
+  static int get offset => _offset;
+
+  /// 获取同步后的当前时间（毫秒时间戳）
+  static int millisecond() {
+    return DateTime.now().millisecondsSinceEpoch + _offset;
+  }
+
+  /// 从服务器时间戳更新偏移量
+  ///
+  /// [serverTs] 服务器返回的 UTC 毫秒时间戳（sv_ts 字段）
+  static void updateOffsetFromServer(int serverTs) {
+    if (serverTs <= 0) {
+      debugPrint('⚠️ NtpHelper: 无效的服务器时间戳: $serverTs');
+      return;
+    }
+
+    final localTs = DateTime.now().millisecondsSinceEpoch;
+    final newOffset = serverTs - localTs;
+
+    // 验证偏移量的合理性（24小时内）
+    const maxOffset = 24 * 3600 * 1000;
+    if (newOffset.abs() > maxOffset) {
+      debugPrint('⚠️ NtpHelper: 服务器时间偏移量异常: $newOffset ms');
+      return;
+    }
+
+    _offset = newOffset;
+    debugPrint('✅ NtpHelper: 从服务器更新时间偏移: $_offset ms');
+  }
+
   static Future<int> getOffset() async {
     // 尝试读取缓存
     final cachedData = _parseCache(StorageService.to.getString(_cacheKey));
@@ -21,7 +76,9 @@ class NtpHelper {
       final now = DateTime.now().millisecondsSinceEpoch;
       // 使用设备启动时间计算有效期，避免依赖系统时间
       if (now - cachedData.deviceTimestamp < _cacheExpiryHours * 3600 * 1000) {
-        return cachedData.offset;
+        _offset = cachedData.offset;
+        debugPrint('🕐 NtpHelper: 从缓存加载时间偏移: $_offset ms');
+        return _offset;
       }
     }
 
@@ -29,10 +86,12 @@ class NtpHelper {
     for (var i = 0; i < _maxRetry; i++) {
       try {
         final offset = await _fetchNtpWithRetry();
+        _offset = offset;
         await _saveCache(offset);
-        return offset;
+        debugPrint('✅ NtpHelper: NTP 同步成功，偏移量: $_offset ms');
+        return _offset;
       } catch (e) {
-        debugPrint(e.toString());
+        debugPrint('❌ NtpHelper: NTP 同步失败 (第 ${i + 1}/$_maxRetry 次): $e');
         if (i == _maxRetry - 1) return 0; // 返回安全值
       }
     }

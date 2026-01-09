@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -129,7 +130,7 @@ class _SubscriberPageState extends State<SubscriberPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar:
-          AppBar(title: Text('WHIP Subscribe Sample'), actions: <Widget>[
+GlassAppBar(titleWidget: Text('WHIP Subscribe Sample'), rightDMActions: [
         // if (!_connecting)
         //   IconButton(
         //     icon: const Icon(Icons.qr_code_scanner_sharp),

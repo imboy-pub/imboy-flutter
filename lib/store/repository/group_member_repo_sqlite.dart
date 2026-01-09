@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/group_member_model.dart';
+import 'package:sqflite/sqflite.dart';
 
 class GroupMemberRepo {
   static String tableName = 'group_member';
@@ -23,6 +24,26 @@ class GroupMemberRepo {
   static String updatedAt = 'updated_at'; //
   static String createdAt = 'created_at'; //
 
+  // 公共列名列表
+  static final List<String> defaultColumns = [
+    GroupMemberRepo.id,
+    GroupMemberRepo.groupId,
+    GroupMemberRepo.userId,
+    GroupMemberRepo.nickname,
+    GroupMemberRepo.avatar,
+    GroupMemberRepo.sign,
+    GroupMemberRepo.account,
+    GroupMemberRepo.inviteCode,
+    GroupMemberRepo.alias,
+    GroupMemberRepo.description,
+    GroupMemberRepo.role,
+    GroupMemberRepo.isJoin,
+    GroupMemberRepo.joinMode,
+    GroupMemberRepo.status,
+    GroupMemberRepo.updatedAt,
+    GroupMemberRepo.createdAt,
+  ];
+
   final SqliteService _db = SqliteService.to;
 
   Future<List<GroupMemberModel>> page({
@@ -34,24 +55,7 @@ class GroupMemberRepo {
   }) async {
     List<Map<String, dynamic>> maps = await _db.query(
       GroupMemberRepo.tableName,
-      columns: [
-        GroupMemberRepo.id,
-        GroupMemberRepo.groupId,
-        GroupMemberRepo.userId,
-        GroupMemberRepo.nickname,
-        GroupMemberRepo.avatar,
-        GroupMemberRepo.sign,
-        GroupMemberRepo.account,
-        GroupMemberRepo.inviteCode,
-        GroupMemberRepo.alias,
-        GroupMemberRepo.description,
-        GroupMemberRepo.role,
-        GroupMemberRepo.isJoin,
-        GroupMemberRepo.joinMode,
-        GroupMemberRepo.status,
-        GroupMemberRepo.updatedAt,
-        GroupMemberRepo.createdAt,
-      ],
+      columns: defaultColumns,
       where: where,
       whereArgs: whereArgs,
       orderBy: orderBy,
@@ -72,7 +76,7 @@ class GroupMemberRepo {
   }
 
   // 插入一条数据
-  Future<GroupMemberModel> insert(GroupMemberModel obj) async {
+  Future<GroupMemberModel> insert(GroupMemberModel obj, {Transaction? txn}) async {
     Map<String, dynamic> insert = {
       GroupMemberRepo.id: obj.id,
       GroupMemberRepo.groupId: obj.groupId,
@@ -92,7 +96,11 @@ class GroupMemberRepo {
       GroupMemberRepo.createdAt: obj.createdAt,
     };
     debugPrint("GroupMemberRepo/insert/1 $insert");
-    await _db.insert(GroupMemberRepo.tableName, insert);
+    if (txn != null) {
+      await txn.insert(GroupMemberRepo.tableName, insert);
+    } else {
+      await _db.insert(GroupMemberRepo.tableName, insert);
+    }
     return obj;
   }
 
@@ -113,7 +121,7 @@ class GroupMemberRepo {
     );
   }
   // 更新信息
-  Future<int> update(String gid, String userId, Map<String, dynamic> json) async {
+  Future<int> update(String gid, String userId, Map<String, dynamic> json, {Transaction? txn}) async {
     Map<String, Object?> data = {};
 
     String? nickname = json[GroupMemberRepo.nickname];
@@ -169,12 +177,21 @@ class GroupMemberRepo {
       if (data.containsKey('id')) {
         data.remove('id');
       }
-      return await _db.update(
-        GroupMemberRepo.tableName,
-        data,
-        where: '${GroupMemberRepo.groupId} = ? and ${GroupMemberRepo.userId} = ?',
-        whereArgs: [gid, userId],
-      );
+      if (txn != null) {
+        return await txn.update(
+          GroupMemberRepo.tableName,
+          data,
+          where: '${GroupMemberRepo.groupId} = ? and ${GroupMemberRepo.userId} = ?',
+          whereArgs: [gid, userId],
+        );
+      } else {
+        return await _db.update(
+          GroupMemberRepo.tableName,
+          data,
+          where: '${GroupMemberRepo.groupId} = ? and ${GroupMemberRepo.userId} = ?',
+          whereArgs: [gid, userId],
+        );
+      }
     } else {
       return 0;
     }
@@ -196,13 +213,23 @@ class GroupMemberRepo {
       return old!;
     }
   }
-  Future<GroupMemberModel?> findByUserId(String gid, String userId) async {
-    List<Map<String, dynamic>> maps = await _db.query(
-      GroupMemberRepo.tableName,
-      columns: [],
-      where: '${GroupMemberRepo.groupId} = ? AND ${GroupMemberRepo.userId} = ?',
-      whereArgs: [gid, userId],
-    );
+  Future<GroupMemberModel?> findByUserId(String gid, String userId, {Transaction? txn}) async {
+    List<Map<String, dynamic>> maps;
+    if (txn != null) {
+      maps = await txn.query(
+        GroupMemberRepo.tableName,
+        columns: [],
+        where: '${GroupMemberRepo.groupId} = ? AND ${GroupMemberRepo.userId} = ?',
+        whereArgs: [gid, userId],
+      );
+    } else {
+      maps = await _db.query(
+        GroupMemberRepo.tableName,
+        columns: [],
+        where: '${GroupMemberRepo.groupId} = ? AND ${GroupMemberRepo.userId} = ?',
+        whereArgs: [gid, userId],
+      );
+    }
     if (maps.isNotEmpty) {
       return GroupMemberModel.fromJson(maps.first);
     } else {

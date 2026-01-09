@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 /// 头像编辑页面
 class AvatarEditorPage extends StatefulWidget {
   final String? currentAvatar;
@@ -26,9 +27,9 @@ class _AvatarEditorPageState extends State<AvatarEditorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('编辑头像'),
-        actions: [
+      appBar: GlassAppBar(
+        title: '编辑头像',
+        rightDMActions: [
           if (_selectedImage != null)
             TextButton(
               onPressed: _isUploading ? null : _uploadAvatar,

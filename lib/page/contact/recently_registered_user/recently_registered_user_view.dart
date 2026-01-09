@@ -244,7 +244,7 @@ class RecentlyRegisteredUserPage extends StatelessWidget {
     initData();
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'newlyRegisteredPeople'.tr,
         backgroundColor: Theme.of(context).colorScheme.surface,

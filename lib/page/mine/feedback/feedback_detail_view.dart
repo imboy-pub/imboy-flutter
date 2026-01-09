@@ -39,7 +39,7 @@ class FeedbackDetailPage extends StatelessWidget {
     initData();
 
     return Scaffold(
-      appBar: NavAppBar(
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         title: 'feedbackDetails'.tr,
       ),

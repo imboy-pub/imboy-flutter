@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/error_code.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 
@@ -53,7 +54,7 @@ class UserTagProvider extends HttpClient {
     });
     debugPrint(
         "UserTagProvider/changeName resp: ${resp.code.toString()}; ${resp.msg}");
-    if (resp.code == 1) {
+    if (resp.code == ErrorCode.ERROR) {
       EasyLoading.showError(resp.msg);
     }
     return resp.ok ? true : false;
@@ -75,7 +76,7 @@ class UserTagProvider extends HttpClient {
       "tag": tagName,
     });
     debugPrint("UserTagProvider/addTag resp: ${resp.toString()}");
-    if (resp.code == 1) {
+    if (resp.code == ErrorCode.ERROR) {
       EasyLoading.showError(resp.msg);
     }
     return resp.ok ? resp.payload['tagId'] : 0;

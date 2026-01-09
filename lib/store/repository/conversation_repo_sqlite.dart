@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../../component/helper/func.dart';
 
@@ -33,7 +34,7 @@ class ConversationRepo {
   final SqliteService _db = SqliteService.to;
 
   // 插入一条数据
-  Future<int> insert(ConversationModel obj) async {
+  Future<int> insert(ConversationModel obj, {Transaction? txn}) async {
     Map<String, dynamic> insert = {
       ConversationRepo.userId: UserRepoLocal.to.currentUid,
       ConversationRepo.peerId: obj.peerId,
@@ -51,10 +52,14 @@ class ConversationRepo {
       ConversationRepo.payload: jsonEncode(obj.payload)
     };
     // return lastInsertId;
-    return await _db.insert(ConversationRepo.tableName, insert);
+    if (txn != null) {
+      return await txn.insert(ConversationRepo.tableName, insert);
+    } else {
+      return await _db.insert(ConversationRepo.tableName, insert);
+    }
   }
 
-  Future<int> updateById(int id, Map<String, dynamic> data) async {
+  Future<int> updateById(int id, Map<String, dynamic> data, {Transaction? txn}) async {
     // iPrint(
     //     "ConversationRepo_updateById $id, ${data.toString()} ${DateTime.now()}");
     if (data.containsKey(ConversationRepo.payload) &&
@@ -63,12 +68,21 @@ class ConversationRepo {
           jsonEncode(data[ConversationRepo.payload]);
     }
     data.remove(ConversationRepo.id);
-    return await _db.update(
-      ConversationRepo.tableName,
-      data,
-      where: '${ConversationRepo.id} = ?',
-      whereArgs: [id],
-    );
+    if (txn != null) {
+      return await txn.update(
+        ConversationRepo.tableName,
+        data,
+        where: '${ConversationRepo.id} = ?',
+        whereArgs: [id],
+      );
+    } else {
+      return await _db.update(
+        ConversationRepo.tableName,
+        data,
+        where: '${ConversationRepo.id} = ?',
+        whereArgs: [id],
+      );
+    }
   }
 
   // 更新信息
@@ -206,31 +220,59 @@ class ConversationRepo {
     return item2;
   }
 
-  Future<ConversationModel?> findById(int id) async {
-    List<Map<String, dynamic>> maps = await _db.query(
-      ConversationRepo.tableName,
-      columns: [
-        ConversationRepo.id,
-        ConversationRepo.userId,
-        ConversationRepo.peerId,
-        ConversationRepo.avatar,
-        ConversationRepo.title,
-        ConversationRepo.subtitle,
-        ConversationRepo.region,
-        ConversationRepo.sign,
-        ConversationRepo.lastTime,
-        ConversationRepo.lastMsgId,
-        ConversationRepo.lastMsgStatus,
-        ConversationRepo.unreadNum,
-        ConversationRepo.payload,
-        ConversationRepo.type,
-        ConversationRepo.msgType,
-        // ConversationRepo.isShow,
-      ],
-      where: 'id=?',
-      whereArgs: [id],
-      orderBy: "${ConversationRepo.lastTime} DESC",
-    );
+  Future<ConversationModel?> findById(int id, {Transaction? txn}) async {
+    List<Map<String, dynamic>> maps;
+    if (txn != null) {
+      maps = await txn.query(
+        ConversationRepo.tableName,
+        columns: [
+          ConversationRepo.id,
+          ConversationRepo.userId,
+          ConversationRepo.peerId,
+          ConversationRepo.avatar,
+          ConversationRepo.title,
+          ConversationRepo.subtitle,
+          ConversationRepo.region,
+          ConversationRepo.sign,
+          ConversationRepo.lastTime,
+          ConversationRepo.lastMsgId,
+          ConversationRepo.lastMsgStatus,
+          ConversationRepo.unreadNum,
+          ConversationRepo.payload,
+          ConversationRepo.type,
+          ConversationRepo.msgType,
+          // ConversationRepo.isShow,
+        ],
+        where: 'id=?',
+        whereArgs: [id],
+        orderBy: "${ConversationRepo.lastTime} DESC",
+      );
+    } else {
+      maps = await _db.query(
+        ConversationRepo.tableName,
+        columns: [
+          ConversationRepo.id,
+          ConversationRepo.userId,
+          ConversationRepo.peerId,
+          ConversationRepo.avatar,
+          ConversationRepo.title,
+          ConversationRepo.subtitle,
+          ConversationRepo.region,
+          ConversationRepo.sign,
+          ConversationRepo.lastTime,
+          ConversationRepo.lastMsgId,
+          ConversationRepo.lastMsgStatus,
+          ConversationRepo.unreadNum,
+          ConversationRepo.payload,
+          ConversationRepo.type,
+          ConversationRepo.msgType,
+          // ConversationRepo.isShow,
+        ],
+        where: 'id=?',
+        whereArgs: [id],
+        orderBy: "${ConversationRepo.lastTime} DESC",
+      );
+    }
 
     if (maps.isNotEmpty) {
       return ConversationModel.fromJson(maps.first);
@@ -239,31 +281,59 @@ class ConversationRepo {
   }
 
   //
-  Future<ConversationModel?> findByPeerId(String type, String peerId) async {
-    List<Map<String, dynamic>> maps = await _db.query(
-      ConversationRepo.tableName,
-      columns: [
-        ConversationRepo.id,
-        ConversationRepo.userId,
-        ConversationRepo.peerId,
-        ConversationRepo.avatar,
-        ConversationRepo.title,
-        ConversationRepo.subtitle,
-        ConversationRepo.region,
-        ConversationRepo.sign,
-        ConversationRepo.lastTime,
-        ConversationRepo.lastMsgId,
-        ConversationRepo.lastMsgStatus,
-        ConversationRepo.unreadNum,
-        ConversationRepo.payload,
-        ConversationRepo.type,
-        ConversationRepo.msgType,
-        // ConversationRepo.isShow,
-      ],
-      where:
-          '${ConversationRepo.type} = ? and ${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',
-      whereArgs: [type, UserRepoLocal.to.currentUid, peerId],
-    );
+  Future<ConversationModel?> findByPeerId(String type, String peerId, {Transaction? txn}) async {
+    List<Map<String, dynamic>> maps;
+    if (txn != null) {
+      maps = await txn.query(
+        ConversationRepo.tableName,
+        columns: [
+          ConversationRepo.id,
+          ConversationRepo.userId,
+          ConversationRepo.peerId,
+          ConversationRepo.avatar,
+          ConversationRepo.title,
+          ConversationRepo.subtitle,
+          ConversationRepo.region,
+          ConversationRepo.sign,
+          ConversationRepo.lastTime,
+          ConversationRepo.lastMsgId,
+          ConversationRepo.lastMsgStatus,
+          ConversationRepo.unreadNum,
+          ConversationRepo.payload,
+          ConversationRepo.type,
+          ConversationRepo.msgType,
+          // ConversationRepo.isShow,
+        ],
+        where:
+            '${ConversationRepo.type} = ? and ${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',
+        whereArgs: [type, UserRepoLocal.to.currentUid, peerId],
+      );
+    } else {
+      maps = await _db.query(
+        ConversationRepo.tableName,
+        columns: [
+          ConversationRepo.id,
+          ConversationRepo.userId,
+          ConversationRepo.peerId,
+          ConversationRepo.avatar,
+          ConversationRepo.title,
+          ConversationRepo.subtitle,
+          ConversationRepo.region,
+          ConversationRepo.sign,
+          ConversationRepo.lastTime,
+          ConversationRepo.lastMsgId,
+          ConversationRepo.lastMsgStatus,
+          ConversationRepo.unreadNum,
+          ConversationRepo.payload,
+          ConversationRepo.type,
+          ConversationRepo.msgType,
+          // ConversationRepo.isShow,
+        ],
+        where:
+            '${ConversationRepo.type} = ? and ${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',
+        whereArgs: [type, UserRepoLocal.to.currentUid, peerId],
+      );
+    }
     // iPrint(
         // "> on pageMessages findByPeerId $type, ${UserRepoLocal.to.currentUid}, pid $peerId, ${maps.toString()}");
     if (maps.isNotEmpty) {
@@ -286,4 +356,6 @@ class ConversationRepo {
   Future<void> close() async {
     //await _db.close();
   }
+
+  Future<void> update(String value, Map<String, int> map) async {}
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:imboy/component/helper/datetime.dart';
 import 'storage_secure.dart';
 
 
@@ -38,7 +39,7 @@ class SecureKeyService {
 
   static bool _isKeyExpired() {
     if (_expireAt == null) return true;
-    return DateTime.now().isAfter(_expireAt!);
+    return DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond()).isAfter(_expireAt!);
   }
 
   static Future<void> _rotateKey() async {
@@ -54,7 +55,7 @@ class SecureKeyService {
     }
 
     _currentAesKey = newKey;
-    _expireAt = DateTime.now().add(Duration(days: keyValidDays));
+    _expireAt = DateTime.fromMillisecondsSinceEpoch(DateTimeHelper.millisecond()).add(Duration(days: keyValidDays));
 
     await StorageSecureService().write(key: _currentKeyStorageKey, value: _currentAesKey!);
     await StorageSecureService().write(key: _keyExpireAtStorageKey, value: _expireAt!.toIso8601String());

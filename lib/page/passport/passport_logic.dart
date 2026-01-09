@@ -45,37 +45,37 @@ class PassportLogic extends GetxController {
   late Jverify jverify;
 
   /// 标题组件
-  Widget title() {
+  /// 标题组件
+  Widget title({Color? color}) {
+    Color c = color ?? Colors.white;
     return Column(
       // 内容居中
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            IMBoyIcon.imboyLogo,
-            size: 80.0,
-            color: Colors.white,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(IMBoyIcon.imboyLogo, size: 80.0, color: c),
+        RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            text: 'IM',
+            style: TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.w700,
+              color: c,
+            ),
+            children: [
+              TextSpan(
+                text: 'Boy',
+                style: TextStyle(color: Colors.black, fontSize: 30),
+              ),
+              // TextSpan(
+              //   text: '爱智慧',
+              //   style: TextStyle(color: Colors.white, fontSize: 30),
+              // ),
+            ],
           ),
-          RichText(
-            textAlign: TextAlign.center,
-            text: const TextSpan(
-                text: 'IM',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-                children: [
-                  TextSpan(
-                    text: 'Boy',
-                    style: TextStyle(color: Colors.black, fontSize: 30),
-                  ),
-                  // TextSpan(
-                  //   text: '爱智慧',
-                  //   style: TextStyle(color: Colors.white, fontSize: 30),
-                  // ),
-                ]),
-          ),
-        ]);
+        ),
+      ],
+    );
   }
 
   /// 返回按钮组件
@@ -99,7 +99,7 @@ class PassportLogic extends GetxController {
                 color: Colors.white,
                 fontWeight: FontWeight.w500,
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -127,17 +127,17 @@ class PassportLogic extends GetxController {
       return 'errorEmptyDirectory'.trArgs(['password'.tr]);
     }
     if (val!.length < 4 || val.length > 32) {
-      return 'errorLengthBetween'.trArgs([
-        'password'.tr,
-        '4',
-        '32',
-      ]);
+      return 'errorLengthBetween'.trArgs(['password'.tr, '4', '32']);
     }
     return null;
   }
 
   /// 用户登录
-  Future<String?> loginUser(String accountType, String account, String password) async {
+  Future<String?> loginUser(
+    String accountType,
+    String account,
+    String password,
+  ) async {
     try {
       int status = await _login(accountType, account, password);
       Get.dismiss();
@@ -147,57 +147,59 @@ class PassportLogic extends GetxController {
         return null;
       } else if (status == 2) {
         Get.defaultDialog(
-            title: 'cancelLogoutTitle'.tr,
-            backgroundColor: ThemeManager.instance.isDarkMode
-                ? const Color.fromRGBO(80, 80, 80, 1)
-                : const Color.fromRGBO(240, 240, 240, 1),
-            radius: 6,
-            cancel: TextButton(
-              onPressed: () {
-                Get.close();
-              },
-              child: Text(
-                'buttonCancel'.tr,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Theme.of(Get.context!).colorScheme.onPrimary,
-                ),
+          title: 'cancelLogoutTitle'.tr,
+          backgroundColor: ThemeManager.instance.isDarkMode
+              ? const Color.fromRGBO(80, 80, 80, 1)
+              : const Color.fromRGBO(240, 240, 240, 1),
+          radius: 6,
+          cancel: TextButton(
+            onPressed: () {
+              Get.close();
+            },
+            child: Text(
+              'buttonCancel'.tr,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(Get.context!).colorScheme.onPrimary,
               ),
             ),
-            confirm: TextButton(
-              onPressed: () async {
-                await UserProvider().cancelLogout();
-                Get.off(() => BottomNavigationPage());
-              },
-              child: Text(
-                'login'.tr,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: Theme.of(Get.context!).colorScheme.onPrimary),
+          ),
+          confirm: TextButton(
+            onPressed: () async {
+              await UserProvider().cancelLogout();
+              Get.off(() => BottomNavigationPage());
+            },
+            child: Text(
+              'login'.tr,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(Get.context!).colorScheme.onPrimary,
               ),
             ),
-            content: SizedBox(
-              height: 108,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: Text(
-                        'cancelLogoutBody'.tr,
-                        // style:  TextStyle(
-                        //   fontSize: AppTextSize.medium,
-                        //   fontWeight: FontWeight.normal,
-                        // ),
-                        maxLines: 6,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+          ),
+          content: SizedBox(
+            height: 108,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Text(
+                      'cancelLogoutBody'.tr,
+                      // style:  TextStyle(
+                      //   fontSize: AppTextSize.medium,
+                      //   fontWeight: FontWeight.normal,
+                      // ),
+                      maxLines: 6,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ],
-              ),
-            ));
+                ),
+              ],
+            ),
+          ),
+        );
 
         return 'cancelLogoutTitle'.tr;
       } else {
@@ -223,14 +225,15 @@ class PassportLogic extends GetxController {
       String pubKeyPem = payload['login_rsa_pub_key'].toString();
       password = RSAService.rsaEncryptWithPointyCastle(password, pubKeyPem);
     }
-    return {
-      "password": password,
-      "rsa_encrypt": rsaEncrypt,
-    };
+    return {"password": password, "rsa_encrypt": rsaEncrypt};
   }
 
   /// accountType = mobile | email | account
-  Future<int> _login(String accountType, String account, String password) async {
+  Future<int> _login(
+    String accountType,
+    String account,
+    String password,
+  ) async {
     try {
       Map<String, dynamic> data = await _encryptPassword(password);
       if (strNoEmpty(data['error'])) {
@@ -330,15 +333,14 @@ class PassportLogic extends GetxController {
 
   /// type email | sms
   Future<String?> doSendCode(
-      String account, {
-        required String type,
-        String? scene,
-      }) async {
-    IMBoyHttpResponse resp = await HttpClient.client.post(API.getCode, data: {
-      "account": account,
-      "type": type,
-      "scene": scene,
-    });
+    String account, {
+    required String type,
+    String? scene,
+  }) async {
+    IMBoyHttpResponse resp = await HttpClient.client.post(
+      API.getCode,
+      data: {"account": account, "type": type, "scene": scene},
+    );
     if (resp.ok) {
       return null;
     } else {
@@ -353,12 +355,13 @@ class PassportLogic extends GetxController {
   /// 验证码修改密码
   /// type email | sms
   /// code 验证码
-  Future<String?> resetPassword(
-      {required String type,
-        required String account,
-        required String code,
-        required String newPwd,
-        required String rePwd}) async {
+  Future<String?> resetPassword({
+    required String type,
+    required String account,
+    required String code,
+    required String newPwd,
+    required String rePwd,
+  }) async {
     if (strEmpty(newPwd)) {
       return 'errorRequired'.trArgs(['newPassword'.tr]);
     }
@@ -409,20 +412,16 @@ class PassportLogic extends GetxController {
     // 底部弹窗
     Get.showSnackbar(
       GetSnackBar(
-        icon: icon ??
-            const Icon(
-              Icons.error,
-              color: Colors.red,
-            ),
+        icon: icon ?? const Icon(Icons.error, color: Colors.red),
         title: null,
         backgroundColor: Colors.white,
         messageText: Padding(
           padding: const EdgeInsets.only(top: 10, bottom: 10),
           child: message is String
               ? Text(
-            message,
-            style: const TextStyle(color: Colors.red, fontSize: 20),
-          )
+                  message,
+                  style: const TextStyle(color: Colors.red, fontSize: 20),
+                )
               : message,
         ),
         padding: const EdgeInsets.all(0.0),
@@ -443,8 +442,9 @@ class PassportLogic extends GetxController {
       jverify.setDebugMode(true); // 打开调试模式
       jverify.setCollectionAuth(true);
       jverify.setup(
-          appKey: Env().jiguangAppKey, //"你自己应用的 AppKey",
-          channel: "devloper-default"); // 初始化sdk,  appKey 和 channel 只对ios设置有效
+        appKey: Env().jiguangAppKey, //"你自己应用的 AppKey",
+        channel: "devloper-default",
+      ); // 初始化sdk,  appKey 和 channel 只对ios设置有效
 
       /// 授权页面点击时间监听
       jverify.addAuthPageEventListener((JVAuthPageEvent event) {
@@ -474,9 +474,9 @@ class PassportLogic extends GetxController {
     JVUIConfig uiConfig = JVUIConfig();
 
     uiConfig.navHidden = false;
-    uiConfig.navColor = Colors.green.toARGB32(); // 保留原有逻辑，但使用 value 属性
+    uiConfig.navColor = Colors.green.value;
     uiConfig.navText = " ";
-    uiConfig.navTextColor = Colors.white.toARGB32();
+    uiConfig.navTextColor = Colors.white.value;
     uiConfig.navReturnImgPath = null;
 
     uiConfig.logoWidth = 100;
@@ -490,12 +490,12 @@ class PassportLogic extends GetxController {
     uiConfig.numberFieldHeight = 40;
     uiConfig.numFieldOffsetY = isiOS ? 20 : 180;
     uiConfig.numberVerticalLayoutItem = JVIOSLayoutItem.ItemLogo;
-    uiConfig.numberColor = Colors.black.toARGB32();
+    uiConfig.numberColor = Colors.black.value;
     uiConfig.numberSize = 18;
 
     uiConfig.sloganOffsetY = isiOS ? 20 : 160;
     uiConfig.sloganVerticalLayoutItem = JVIOSLayoutItem.ItemNumber;
-    uiConfig.sloganTextColor = Colors.black.toARGB32();
+    uiConfig.sloganTextColor = Colors.black.value;
     uiConfig.sloganTextSize = 15;
 
     uiConfig.logBtnWidth = 220;
@@ -503,7 +503,9 @@ class PassportLogic extends GetxController {
     uiConfig.logBtnOffsetY = isiOS ? 20 : 280;
     uiConfig.logBtnVerticalLayoutItem = JVIOSLayoutItem.ItemSlogan;
     uiConfig.logBtnText = 'mobileQuickLogin'.tr;
-    uiConfig.logBtnTextColor = isiOS ? Colors.black.toARGB32() : Colors.white.toARGB32();
+    uiConfig.logBtnTextColor = isiOS
+        ? Colors.black.value
+        : Colors.white.value;
     uiConfig.logBtnTextSize = 16;
     uiConfig.logBtnTextBold = true;
 
@@ -521,14 +523,18 @@ class PassportLogic extends GetxController {
     uiConfig.privacyVerticalLayoutItem = JVIOSLayoutItem.ItemSuper;
     uiConfig.clauseName = 'licenseAgreement'.tr;
     uiConfig.clauseUrl = licenseAgreementUrl(ext: 'html');
-    uiConfig.clauseBaseColor = Colors.black87.toARGB32();
+    uiConfig.clauseBaseColor = Colors.black87.value;
 
-    uiConfig.clauseColor = Colors.black87.toARGB32();
+    uiConfig.clauseColor = Colors.black87.value;
     uiConfig.privacyTextSize = 13;
     uiConfig.privacyItem = [
-      JVPrivacy('licenseAgreement'.tr.replaceAll('《', '').replaceAll('》', ''),
-          licenseAgreementUrl(ext: 'html'),
-          beforeName: "==", afterName: "++", separator: "、"),
+      JVPrivacy(
+        'licenseAgreement'.tr.replaceAll('《', '').replaceAll('》', ''),
+        licenseAgreementUrl(ext: 'html'),
+        beforeName: "==",
+        afterName: "++",
+        separator: "、",
+      ),
     ];
 
     // 其他UI配置保持不变...
@@ -543,22 +549,28 @@ class PassportLogic extends GetxController {
 
     /// 步骤 2：调用一键登录接口
     jverify.loginAuthSyncApi2(
-        autoDismiss: true,
-        enableSms: true,
-        loginAuthcallback: (event) {
-          if (event.code == 6000) {
-            quickLogin(operator: event.operator!, token: event.message!, service:'jverify');
-          } else {
-            snackBar(event.message);
-          }
-        });
+      autoDismiss: true,
+      enableSms: true,
+      loginAuthcallback: (event) {
+        if (event.code == 6000) {
+          quickLogin(
+            operator: event.operator!,
+            token: event.message!,
+            service: 'jverify',
+          );
+        } else {
+          snackBar(event.message);
+        }
+      },
+    );
     return "jverify";
   }
 
   /// 检查注册信息是否完整
   void checkSignupContinue() {
-    bool pwdValidated =
-    passwordValidator(state.newPwd.value) == null ? true : false;
+    bool pwdValidated = passwordValidator(state.newPwd.value) == null
+        ? true
+        : false;
     if (state.nickname.value.length > 1 &&
         state.mobileValidated.isTrue &&
         state.selectedAgreement.value == 'on' &&
@@ -592,7 +604,11 @@ class PassportLogic extends GetxController {
   /// service jverify | huawei
   /// token 返回码的解释信息，若获取成功，内容信息代表loginToken。
   /// operator ：成功时为对应运营商，CM代表中国移动，CU代表中国联通，CT代表中国电信。失败时可能为 null
-  Future<String?> quickLogin({required String operator, required String token, required String service}) async {
+  Future<String?> quickLogin({
+    required String operator,
+    required String token,
+    required String service,
+  }) async {
     Map<String, dynamic> postData = {
       "service": service,
       "operator": operator,

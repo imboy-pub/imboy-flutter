@@ -49,6 +49,7 @@ dependencies:
   flutter_secure_storage: ^10.0.0 # Secure storage
   sqflite: ^2.4.2         # SQLite database
   path: ^1.9.0           # Path manipulation
+  archive: ^4.0.7        # ZIP compression for backup
 
   ##############################################
   # Theme & UI Enhancement
@@ -163,7 +164,6 @@ dependencies:
   path_provider: ^2.1.5   # File system paths
   file_saver: ^0.3.1
   xid: ^1.2.1             # Unique ID generation
-  jiffy: ^6.4.4           # Date/time handling
   ntp: ^2.0.0             # Network time protocol
   clock: ^1.1.2           # Time utilities
   equatable: ^2.0.7       # Object equality
@@ -291,3 +291,6 @@ flutter:
     - assets/images/splash_bg.png
     - assets/images/index_bar_bubble_gray.png
     - assets/images/pattern.png
+    # 数据管理模块 - 数据库迁移脚本
+    - assets/migrations/upgrade.sql
+    - assets/migrations/downgrade.sql

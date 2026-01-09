@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,9 +13,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/passport/welcome_view.dart';
 
-// ignore: depend_on_referenced_packages
-import 'package:jiffy/jiffy.dart';
-
 import 'package:imboy/component/helper/log.dart';
 import 'package:imboy/component/locales/locales.g.dart';
 
@@ -26,7 +25,7 @@ import 'component/locales/locales.dart';
 import 'config/init.dart';
 
 void run() async {
-  await Jiffy.setLocale(jiffyLocal(sysLang('jiffy')));
+  // Jiffy 已移除，使用 intl 包的内置语言支持
   Provider.debugCheckInvalidValueType = null; // ⛔ 忽略 Provider 的类型安全检查
 
   // 强制竖屏 DeviceOrientation.portraitUp
@@ -77,6 +76,17 @@ class IMBoyAppState extends State<IMBoyApp> {
 
   @override
   Widget build(BuildContext context) {
+    // 在第一帧渲染完成后移除启动画面
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FlutterNativeSplash.remove();
+
+      // macOS平台：发送通知关闭启动窗口
+      if (Platform.isMacOS) {
+        const platform = MethodChannel('imboy.app/splash');
+        platform.invokeMethod('closeSplash');
+      }
+    });
+
     String lang = jiffyLocal(sysLang(''));
     List<String> code = lang.split('_');
     if (lang == 'ru') {

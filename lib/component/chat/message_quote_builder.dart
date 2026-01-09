@@ -4,10 +4,11 @@ import 'package:get/get.dart';
 
 import 'package:imboy/page/chat/chat/chat_logic.dart';
 import 'package:imboy/service/assets.dart';
-import 'package:jiffy/jiffy.dart';
+import 'package:intl/intl.dart';
 
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/chat/message.dart';
+import 'package:imboy/component/chat/message_spacing.dart';
 
 // ignore: must_be_immutable
 class QuoteMessageBuilder extends StatelessWidget {
@@ -53,14 +54,9 @@ class QuoteMessageBuilder extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 当前消息的文字内容
+        // 当前消息的文字内容（使用统一间距 12dp）
         Padding(
-          padding: const EdgeInsets.only(
-            top: 10,
-            left: 10,
-            right: 10,
-            bottom: 10,
-          ),
+          padding: MessageSpacing.bubblePaddingSymmetric,
           child: Row(
             children: [
               Expanded(
@@ -69,37 +65,40 @@ class QuoteMessageBuilder extends StatelessWidget {
             ],
           ),
         ),
-        // 被引用消息区域
+        // 被引用消息区域（使用统一间距 12dp）
         Container(
-          margin: const EdgeInsets.only(left: 10, right: 10, bottom: 8),
+          margin: MessageSpacing.quoteContainerMarginAll,
           decoration: BoxDecoration(
+            // 优化：使用更明显的背景色（提升对比度）
             color: userIsAuthor
-                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
-                : Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
-            borderRadius: BorderRadius.circular(8.0),
+                ? Theme.of(context).colorScheme.primaryContainer
+                : Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(MessageSpacing.quoteBorderRadius),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 左侧竖线
-              Container(
-                width: 4,
-                height: 56,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.8),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              // 引用内容
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 6,
+          child: ClipRRect(
+            // 确保子元素不超出圆角
+            borderRadius: BorderRadius.circular(MessageSpacing.quoteBorderRadius),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 左侧竖线（优化：增加与背景的对比度）
+                Container(
+                  width: 4,
+                  height: 56,
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  decoration: BoxDecoration(
+                    // 优化：使用纯色，提升对比度
+                    color: Theme.of(context).colorScheme.primary,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(MessageSpacing.quoteBorderRadius),
+                      bottomLeft: Radius.circular(MessageSpacing.quoteBorderRadius),
+                    ),
                   ),
+                ),
+                // 引用内容（使用统一间距 12dp）
+                Expanded(
+                  child: Padding(
+                    padding: MessageSpacing.quoteContentPaddingAll,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -124,6 +123,7 @@ class QuoteMessageBuilder extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
+                            // 优化：发送者名称（增强视觉权重）
                             Expanded(
                               flex: 2,
                               child: Text(
@@ -131,28 +131,39 @@ class QuoteMessageBuilder extends StatelessWidget {
                                     '',
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
-                                // style: TextStyle(
-                                //   color: txtColor.withValues(alpha: 0.8 * 255),
-                                //   fontWeight: FontWeight.w500,
-                                //   fontSize: 13,
-                                // ),
+                                style: TextStyle(
+                                  // 优化：使用主色调，增强视觉识别
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
-                            Expanded(
-                              flex: 1,
+                            const SizedBox(width: 8),
+                            // 优化：时间显示（调整 flex 权重）
+                            Flexible(
                               child: Text(
                                 _formatQuoteTime(
                                   message.metadata?['quote_msg']?['createdAt'],
                                 ),
                                 textAlign: TextAlign.right,
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.6),
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
-                            const Icon(
+                            const SizedBox(width: 4),
+                            Icon(
                               Icons.vertical_align_top,
                               size: 15,
-                              // color: Theme.of(
-                              //   context,
-                              // ).colorScheme.onSurface.withValues(alpha: 0.6),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.6),
                             ),
                           ],
                         ),
@@ -208,65 +219,72 @@ class QuoteMessageBuilder extends StatelessWidget {
       t = int.tryParse(timestamp) ?? 0;
     }
     if (t == 0) return '';
-    return Jiffy.parseFromMillisecondsSinceEpoch(
+    final dt = DateTime.fromMillisecondsSinceEpoch(
       t + DateTime.now().timeZoneOffset.inMilliseconds,
-    ).format(pattern: 'y-MM-dd\nHH:mm:ss');
+    );
+    return DateFormat('y-MM-dd\nHH:mm:ss').format(dt);
   }
 
-  /// 构建引用消息错误提示组件
+  /// 构建引用消息错误提示组件（使用统一间距 12dp）
   Widget _buildQuoteErrorWidget(BuildContext context, bool userIsAuthor) {
     return Container(
-      margin: const EdgeInsets.only(left: 10, right: 10, bottom: 8),
+      margin: MessageSpacing.quoteContainerMarginAll,
       decoration: BoxDecoration(
+        // 优化：使用更明显的背景色
         color: userIsAuthor
-            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
-            : Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(8.0),
+            ? Theme.of(context).colorScheme.errorContainer
+            : Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(MessageSpacing.quoteBorderRadius),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // 左侧竖线
-          Container(
-            width: 4,
-            height: 40,
-            margin: const EdgeInsets.symmetric(vertical: 6),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          // 错误提示内容
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 6,
+      child: ClipRRect(
+        // 确保子元素不超出圆角
+        borderRadius: BorderRadius.circular(MessageSpacing.quoteBorderRadius),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // 左侧竖线（优化：使用纯色）
+            Container(
+              width: 4,
+              height: 40,
+              margin: const EdgeInsets.symmetric(vertical: 6),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.error,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(MessageSpacing.quoteBorderRadius),
+                  bottomLeft: Radius.circular(MessageSpacing.quoteBorderRadius),
+                ),
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 16,
-                    color: Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '引用的消息不可用',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
-                        fontSize: 12,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+            ),
+            // 错误提示内容（使用统一间距 12dp）
+            Expanded(
+              child: Padding(
+                padding: MessageSpacing.quoteContentPaddingAll,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.error,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '引用的消息不可用',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

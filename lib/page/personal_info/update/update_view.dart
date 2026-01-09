@@ -60,9 +60,11 @@ class UpdatePage extends StatelessWidget {
     //   top = 22;
     // }
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: NavAppBar(
+      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF5F5F5),
+      appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         titleWidget: Row(
           children: [
@@ -148,63 +150,61 @@ class UpdatePage extends StatelessWidget {
   }
 
   Widget inputField(BuildContext context) {
-    return TextFormField(
-      autofocus: true,
-      focusNode: logic.inputFocusNode,
-      controller: logic.textController,
-      keyboardType: TextInputType.text,
-      textCapitalization: TextCapitalization.words,
-      decoration: InputDecoration(
-        contentPadding: const EdgeInsets.fromLTRB(14, 0, 8, 0),
-        filled: true,
-        fillColor: Get.isDarkMode
-            ? const Color.fromRGBO(70, 70, 70, 1.0)
-            : Colors.white70,
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(3),
-          borderSide: BorderSide(
-            width: 1.0,
-            color: Theme.of(context).colorScheme.surface,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(3),
-          borderSide: BorderSide(
-            width: 1.0,
-            color: Theme.of(context).colorScheme.surface,
-          ),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(3),
-          borderSide: const BorderSide(width: 1.0, color: Colors.red),
-        ),
-        errorStyle: const TextStyle(),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(3),
-          borderSide: const BorderSide(width: 1.0, color: Colors.red),
-        ),
-        border: InputBorder.none,
+        ],
       ),
-      readOnly: false,
-      onFieldSubmitted: (value) async {
-        // FocusScope.of(Get.context!).requestFocus();
-        if (value == '') {
-          logic.valueOnChange(false);
-        } else {
-          bool res = await callback(value);
-          if (res) {
-            Get.back();
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      child: TextFormField(
+        autofocus: true,
+        focusNode: logic.inputFocusNode,
+        controller: logic.textController,
+        keyboardType: TextInputType.text,
+        textCapitalization: TextCapitalization.words,
+        decoration: InputDecoration(
+          contentPadding: const EdgeInsets.fromLTRB(14, 14, 8, 14),
+          filled: false,
+          focusedBorder: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          focusedErrorBorder: InputBorder.none,
+          border: InputBorder.none,
+        ),
+        readOnly: false,
+        onFieldSubmitted: (value) async {
+          // FocusScope.of(Get.context!).requestFocus();
+          if (value == '') {
+            logic.valueOnChange(false);
+          } else {
+            bool res = await callback(value);
+            if (res) {
+              Get.back();
+            }
           }
-        }
-      },
-      //style: ,
-      onChanged: (value) {
-        onChanged(value);
-      },
-      onSaved: (value) {},
-      validator: (value) {
-        return null;
-      },
+        },
+        //style: ,
+        onChanged: (value) {
+          onChanged(value);
+        },
+        onSaved: (value) {},
+        validator: (value) {
+          return null;
+        },
+      ),
     );
   }
 
@@ -220,38 +220,25 @@ class UpdatePage extends StatelessWidget {
 
   Widget textField(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       margin: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 输入提示
-          // Padding(
-          //   padding: const EdgeInsets.only(bottom: 12),
-          //   child: Text(
-          //     'signatureInputHint'.tr,
-          //     style: TextStyle(
-          //       fontSize: 14,
-          //       color: isDark
-          //           ? const Color(0xFF8E8E93)
-          //           : const Color(0xFF999999),
-          //     ),
-          //   ),
-          // ),
-
           // 输入框容器
           Container(
             decoration: BoxDecoration(
-              // color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+              color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
                   color: isDark
                       ? Colors.black.withValues(alpha: 0.2)
-                      : Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 0.5,
-                  offset: const Offset(0, 0.5),
+                      : Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -332,17 +319,35 @@ class UpdatePage extends StatelessWidget {
       '√',
       style: TextStyle(fontSize: 20, color: Colors.green),
     );
-    return Obx(
-      () => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IMBoyRadioListTile(
-            value: '1',
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Obx(
+        () => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IMBoyRadioListTile(
+              value: '1',
             title: Text(
               'male'.tr,
               style: TextStyle(
                 fontSize: logic.val.value == '1' ? 20 : 16,
-                color: Theme.of(context).colorScheme.onPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             selected: false,
@@ -357,8 +362,8 @@ class UpdatePage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 16, right: 16),
             child: HorizontalLine(
-              height: Get.isDarkMode ? 0.5 : 1.0,
-              color: Theme.of(context).colorScheme.primary,
+              height: 0.5,
+              color: colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
           IMBoyRadioListTile(
@@ -367,7 +372,7 @@ class UpdatePage extends StatelessWidget {
               'female'.tr,
               style: TextStyle(
                 fontSize: logic.val.value == '2' ? 20 : 16,
-                color: Theme.of(context).colorScheme.onPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             selected: false,
@@ -392,7 +397,7 @@ class UpdatePage extends StatelessWidget {
               'keepSecret'.tr,
               style: TextStyle(
                 fontSize: logic.val.value == '3' ? 20 : 16,
-                color: Theme.of(context).colorScheme.onPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             selected: false,
@@ -413,12 +418,13 @@ class UpdatePage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 16, right: 16),
             child: HorizontalLine(
-              height: Get.isDarkMode ? 0.5 : 1.0,
-              color: Theme.of(context).colorScheme.primary,
+              height: 0.5,
+              color: colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
+          const SizedBox(height: 4),
         ],
       ),
-    );
+    ));
   }
 }
